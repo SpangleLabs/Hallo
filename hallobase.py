@@ -5,11 +5,10 @@
 import random
 #import bsddb3 as bsddb
 import base64
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import re
 import math
-import urllib2
 from PIL import Image
 import io
 import pickle
@@ -213,19 +212,6 @@ class hallobase():
            rand = random.randint(0,numepisodes-1)
            episode = songepisodes[rand]
         return 'You should choose "' + episode + '"'
-
-    def fn_phpcalc(self, args, client, destination):
-        'Calculates a given equation'
-        calculation = base64.b64encode(args)
-        data = urllib2.urlopen('http://127.0.0.1/rawcalc.php?C=' + calculation).read()
-        return data
-
-    def fn_icalc(self, args, client, destination):
-        'Calcates a given equation, with imaginary number support'
-        return "Sorry, this doesn't work."
-       # calculation = base64.b64encode(args)
-       # data = urllib2.urlopen('http://127.0.0.1/rawicalc.php?C=' + calculation).read()
-       # return data
 
     def fnn_calc_after(self, calc, sub):
         pos = calc.find(str(sub))
@@ -661,9 +647,9 @@ class hallobase():
             url = re.search(regex, args, re.I).group(1)
             if("://" not in url):
                 url = "http://" + url
-            pagerequest = urllib2.Request(url)
+            pagerequest = urllib.request.Request(url)
             pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-            pageopener = urllib2.build_opener()
+            pageopener = urllib.request.build_opener()
         #    urlopened = urllib2.urlopen(url)
         #    pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
             pageinfo = str(pageopener.open(pagerequest).info())

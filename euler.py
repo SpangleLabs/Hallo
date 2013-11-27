@@ -12,9 +12,9 @@ class euler:
                 if(hasattr(eulerfunc, '__call__')):
                     try:
                         answer = "Euler project problem " + args + "? I think the answer is: " + str(eulerfunc())
-                    except Exception, e:
+                    except Exception as e:
                         answer = "hmm, seems that one doesn't work... darnit."
-                        print "EULER ERROR: " + str(e)
+                        print("EULER ERROR: " + str(e))
                 else:
                     answer = "That doesn't seem to work"
         elif(args.replace(' ','').lower() == 'list'):
@@ -115,7 +115,7 @@ class euler:
                         if(factors[x] < dividescount):
                             factors[x] = dividescount
         answer = 1
-        for prime, power in factors.iteritems():
+        for prime, power in factors.items():
             answer = answer*(prime**power)
         return answer
 
@@ -484,7 +484,7 @@ class euler:
                 for otherfactor in otherfactors:
                     otherfactortotal = otherfactortotal + otherfactor
                 if(otherfactortotal-othernumber==x and othernumber!=x):
-                    print "found a pair: " + str(x) + " and " + str(factortotal-x)
+                    print("found a pair: " + str(x) + " and " + str(factortotal-x))
                     amicable.append(x)
                     amicable.append(factortotal-x)
                     total = total + x + othernumber
