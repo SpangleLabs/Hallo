@@ -1,5 +1,4 @@
 
-Hallo9000 to python3
 
 16:58:28 <@dr-spangle> -check if timed out, reconnect
 16:59:09 <@dr-spangle> -brokendata shouldn't be a thing, don't pull data down in set byte chunks?

@@ -14,7 +14,9 @@
 #pprint is used to view the config
 #importlib is used to import modules on the fly, hopefully
 #copy is used to copy the self.conf variable
-import socket, time, os, sys, thread, re, pickle, pprint, importlib, copy
+import socket, time, os, sys, _thread, re, pickle, pprint, importlib, copy
+from threading import Thread
+import collections
 #from megahal import *
 
 endl = '\r\n' # constant for ease/readability
@@ -33,7 +35,7 @@ class ircbot:
     def on_join(self,server,client,channel):
         # handle join events from other users (or from hallo!)
         try:
-            voice_list = pickle.load(open("store/pseudoautovoice.p","r"))
+            voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
         except IOError:
             voice_list = {}
         if(server not in voice_list):
@@ -43,14 +45,14 @@ class ircbot:
         if(client.lower() in voice_list[server][channel]):
             # rewriting this later to check if logged in, rather than waiting 35 seconds
             time.sleep(35)
-            self.core['server'][server]['socket'].send('MODE ' + channel + ' +v ' + client + endl)
+            self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + client + endl).encode('utf-8'))
         if(client.lower() == self.conf['server'][server]['nick']):
             namesonline = self.chk_names(server,channel)
             #rewriting this later to check if logged in, rather than waiting 35 seconds
             time.sleep(35)
             for user in voice_list[server][channel]:
                 if(user in namesonline and "+" + user not in namesonline):
-                    self.core['server'][server]['socket'].send('MODE ' + channel + ' +v ' + client + endl)
+                    self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + client + endl).encode('utf-8'))
 
     def on_part(self,server,client,channel,args):
         pass # override this method to handle PART events from other users
@@ -64,15 +66,15 @@ class ircbot:
     def on_ctcp(self,server,client,args):
         # handle ctcp messages and events to privmsg
         if(args.lower()=='version'):
-            self.core['server'][server]['socket'].send('NOTICE ' + client + ' :\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01' + endl)
+            self.core['server'][server]['socket'].send(('NOTICE ' + client + ' :\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01' + endl).encode('utf-8'))
         elif(args.lower()=='time'):
-            self.core['server'][server]['socket'].send('NOTICE ' + client + ' :\x01TIME Fribsday 15 Nov 2024 ' + str(time.gmtime()[3]+100).rjust(2,'0') + ':' + str(time.gmtime()[4]+20).rjust(2,'0') + ':' + str(time.gmtime()[5]).rjust(2,'0') + 'GMT\x01' + endl)
+            self.core['server'][server]['socket'].send(('NOTICE ' + client + ' :\x01TIME Fribsday 15 Nov 2024 ' + str(time.gmtime()[3]+100).rjust(2,'0') + ':' + str(time.gmtime()[4]+20).rjust(2,'0') + ':' + str(time.gmtime()[5]).rjust(2,'0') + 'GMT\x01' + endl).encode('utf-8'))
         elif(len(args)>4 and args[0:4].lower()=='ping'):
-            self.core['server'][server]['socket'].send('NOTICE ' + client + ' :\x01PING ' + args[5:] + '\x01' + endl)
+            self.core['server'][server]['socket'].send(('NOTICE ' + client + ' :\x01PING ' + args[5:] + '\x01' + endl).encode('utf-8'))
         elif(len(args)>=8 and args[0:8].lower()=='userinfo'):
-            self.core['server'][server]['socket'].send('NOTICE ' + client + " :\x01Hello, I'm hallo, I'm a robot who does a few different things, mostly roll numbers and choose things, occassionally giving my input on who is the best pony. dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01" + endl)
+            self.core['server'][server]['socket'].send(('NOTICE ' + client + " :\x01Hello, I'm hallo, I'm a robot who does a few different things, mostly roll numbers and choose things, occassionally giving my input on who is the best pony. dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01" + endl).encode('utf-8'))
         elif(len(args)>=10 and args[0:10].lower()=='clientinfo'):
-            self.core['server'][server]['socket'].send('NOTICE ' + client + ' :\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01' + endl)
+            self.core['server'][server]['socket'].send(('NOTICE ' + client + ' :\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01' + endl).encode('utf-8'))
 
     def on_pm(self,server,client,destination,message,found):
         pass # override this method to handle messages alternately
@@ -81,7 +83,7 @@ class ircbot:
         # handle notices
         if(self.core['server'][server]['connected'] == False):
             self.core['server'][server]['connected'] = True
-            print self.base_timestamp() + ' [' + server + "] ok we're connected now."
+            print(self.base_timestamp() + ' [' + server + "] ok we're connected now.")
         if('endofmessage' in args.replace(' ','').lower() and self.core['server'][server]['motdend'] == False):
             self.core['server'][server]['motdend'] = True
         if(('lastseen:now' in args.replace(' ','').lower() or 'isonlinefrom:' in args.replace(' ','').lower()) and self.core['server'][server]['check']['userregistered'] == False):
@@ -95,7 +97,7 @@ class ircbot:
         if(client == self.conf['server'][server]['nick']):
             self.conf['server'][server]['nick'] = newnick
         try:
-            voice_list = pickle.load(open("store/pseudoautovoice.p","r"))
+            voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
         except IOError:
             voice_list = {}
         if(server not in voice_list):
@@ -104,7 +106,7 @@ class ircbot:
             if(newnick in voice_list[server][channel]):
                 #rewriting this later, to replace 35 second wait with login checks
                 time.sleep(35)
-                self.core['server'][server]['socket'].send('MODE ' + channel + ' +v ' + newnick + endl)
+                self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + newnick + endl).encode('utf-8'))
 
     def on_invite(self,server,client,channel):
         if(self.chk_op(server,client)):
@@ -125,7 +127,7 @@ class ircbot:
                 self.conf['server'][destination[0]]['channel'][args]['logging'] = True
                 self.conf['server'][destination[0]]['channel'][args]['sweardetect'] = False
                 self.conf['server'][destination[0]]['channel'][args]['caps'] = False
-            self.core['server'][destination[0]]['socket'].send('JOIN ' + args + endl)
+            self.core['server'][destination[0]]['socket'].send(('JOIN ' + args + endl).encode('utf-8'))
             return 'Joined ' + args + '.'
         else:
             return 'Insufficient privileges to join.'
@@ -135,7 +137,7 @@ class ircbot:
         if(self.chk_op(destination[0],client)):
          #   if(args in self.channels):
          #       self.conf['server'][destination[0]]['channels'].remove(args)
-            self.core['server'][destination[0]]['socket'].send('PART ' +args + endl)
+            self.core['server'][destination[0]]['socket'].send(('PART ' +args + endl).encode('utf-8'))
             return 'Parted ' + args + '.'
         else:
             return 'Insufficient privileges to part.'
@@ -166,7 +168,7 @@ class ircbot:
                 self.conf['server'][title]['pass'] = False
                 self.conf['server'][title]['port'] = self.conf['server'][destination[0]]['port']
                 self.conf['server'][title]['channel'] = {}
-            thread.start_new(self.base_run,(title,))
+            Thread(target=self.base_run, args=(title,)).start()
             return "Connected to " + args
         else:
             return "Insufficient privileges to connect to a new server."
@@ -254,7 +256,7 @@ class ircbot:
         'Adds a user to psuedoautovoice, format is "voice_add {user} {channel}'
         if(self.chk_op(destination[0],client)):
             try:
-                voice_list = pickle.load(open("store/pseudoautovoice.p","r"))
+                voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
             except IOError:
                 voice_list = {}
             args = args.lower()
@@ -269,9 +271,9 @@ class ircbot:
             if(args not in voice_list[destination[0]][channel]):
                 if(self.chk_nickregistered(destination[0],args)):
                     voice_list[destination[0]][channel].append(args)
-                    pickle.dump(voice_list,open("store/pseudoautovoice.p","w"))
+                    pickle.dump(voice_list,open("store/pseudoautovoice.p","wb"))
                     if(self.chk_userregistered(destination[0],args)):
-                        self.irc.send('MODE ' + channel + ' +v ' + args + endl)
+                        self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' +v ' + args + endl).encode('utf-8'))
                     return "Added " + args + " to the pseudoautovoice list for " + channel
                 else:
                     return "It seems that " + args + " isn't a registered nick."
@@ -286,7 +288,7 @@ class ircbot:
             if(args==''):
                 args = destination[1]
             try:
-                voice_list = pickle.load(open("store/pseudoautovoice.p","r"))
+                voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
             except IOError:
                 voice_list = {}
             if(destination[0] in voice_list and channel in voice_list[destination[0]]):
@@ -300,7 +302,7 @@ class ircbot:
         'Remove a user from autovoice list, ops only.'
         if(self.chk_op(destination[0],client)):
             try:
-                voice_list = pickle.load(open("store/pseudoautovoice.p","r"))
+                voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
             except IOError:
                 voice_list = {}
             args = args.lower()
@@ -310,7 +312,7 @@ class ircbot:
                 args = args.split()[0]
             if(destination[0] in voice_list and channel in voice_list[destination[0]] and args in voice_list[destination[0]][channel]):
                 del voice_list[destination[0]][channel][voice_list[destination[0]][channel].index(args)]
-                pickle.dump(voice_list,open("store/pseudoautovoice.p","w"))
+                pickle.dump(voice_list,open("store/pseudoautovoice.p","wb"))
                 return "Removed " + args + " from pseudo-auto-voice list for " + channel
             else:
                 return args + " isn't even on the autovoice list for " + channel
@@ -321,7 +323,7 @@ class ircbot:
         'Add a user to the admin swear inform list, ops only.'
         if(self.chk_op(destination[0],client)):
             try:
-                admininform = pickle.load(open('store/admininform.p','r'))
+                admininform = pickle.load(open('store/admininform.p','rb'))
             except IOError:
                 admininform = {}
             args = args.lower().replace(' ','')
@@ -329,7 +331,7 @@ class ircbot:
                 admininform[destination[0]] = []
             if(args not in admininform[destination[0]]):
                 admininform[destination[0]].append(args)
-                pickle.dump(admininform,open('store/admininform.p','w'))
+                pickle.dump(admininform,open('store/admininform.p','wb'))
                 return "Added " + args + " to the admininform list."
             else:
                 return "This person is already on the admininform list"
@@ -340,7 +342,7 @@ class ircbot:
         'Lists users who are informed when sweardetect detects swearing.'
         if(self.chk_op(destination[0],client)):
             try:
-                admininform = pickle.load(open('store/admininform.p','r'))
+                admininform = pickle.load(open('store/admininform.p','rb'))
             except IOError:
                 admininform = {}
             return "Users on admininform for this server: " + ', '.join(admininform[destination[0]])
@@ -351,13 +353,13 @@ class ircbot:
         'Delete a user from being informed about swearing in selected channels'
         if(self.chk_op(destination[0],client)):
             try:
-                admininform = pickle.load(open("store/admininform.p","r"))
+                admininform = pickle.load(open("store/admininform.p","rb"))
             except IOError:
                 admininform = {}
             args = args.lower().replace(' ','')
             if(destination[0] in admininform and args in admininform[destination[0]]):
                 del admininform[destination[0]][admininform[destination[0]].index(args)]
-                pickle.dump(admininform,open("store/admininform.p","w"))
+                pickle.dump(admininform,open("store/admininform.p","wb"))
                 return "Removed " + args + " from admininform list"
             else:
                 return args + " isn't even on the admininform list for " + destination[0]
@@ -376,7 +378,7 @@ class ircbot:
                         self.core['server'][args.split()[0]]['open'] = False
                         self.base_disconnect(args.split()[0])
                     self.conf['server'][args.split()[0]]['address'] = args.split()[1]
-                    thread.start_new(self.base_run,(args.split()[0],))
+                    Thread(target=self.base_run, args=(args.split()[0],)).start()
                     return "Changed " + args.split()[0] + " address to: " + args.split()[1]
                 else:
                     return "I don't have a server in config called " + args.split()[0]
@@ -395,7 +397,7 @@ class ircbot:
                         self.core['server'][args.split()[0]]['open'] = False
                         self.base_disconnect(args.split()[0])
                     self.conf['server'][args.split()[0]]['port'] = args.split()[1]
-                    thread.start_new(self.base_run,(args.split()[0],))
+                    Thread(targer=self.base_run, args=(args.split()[0],)).start()
                     return "Changed " + args.split()[0] + " port to: " + args.split()[1]
                 else:
                     return "I don't have a server in config called " + args.split()[0]
@@ -408,7 +410,7 @@ class ircbot:
             args = args.replace(' ','')
             oldnick = self.conf['server'][destination[0]]['nick']
          #   self.conf['server'][destination[0]]['nick'] = args
-            self.core['server'][destination[0]]['socket'].send('NICK ' + args + endl)
+            self.core['server'][destination[0]]['socket'].send(('NICK ' + args + endl).encode('utf-8'))
             self.base_say('identify ' + self.conf['server'][destination[0]]['pass'],[destination[0],'nickserv'])
             return "Changed nick from " + oldnick + " to " + args
         else:
@@ -498,7 +500,7 @@ class ircbot:
     def fn_config_save(self,args,client,destination):
         'Save the config and pickle it. godmod only.'
         if(self.chk_god(destination[0],client)):
-            pickle.dump(self.conf,open(self.configfile,"w"))
+            pickle.dump(self.conf,open(self.configfile,"wb"))
             return "config file saved."
         else:
             return "Insufficient privileges to save config file."
@@ -514,11 +516,11 @@ class ircbot:
             functions = dir(self)
             for fn in functions:
                 # use the one they're asking about
-                if(callable(getattr(self, fn)) and fn.startswith('fn_') and fn != "fn_poketheasshole"):
+                if(isinstance(getattr(self, fn), collections.Callable) and fn.startswith('fn_') and fn != "fn_poketheasshole"):
                     cmds.append(fn.split('.')[-1])
             for module in self.modules:
                 for i in dir(getattr(__import__(module),module)):
-                    if(callable(getattr(getattr(__import__(module),module),i)) and i.startswith('fn_')): 
+                    if(isinstance(getattr(getattr(__import__(module),module),i), collections.Callable) and i.startswith('fn_')): 
                         cmds.append(i)
        #         functions = functions + [ module + '.' + module + '.' + i for i in dir(getattr(__import__(module),module))]
             return ', '.join(cmd[3:] for cmd in cmds)
@@ -528,7 +530,7 @@ class ircbot:
     def fn_modulereload(self,args,client,destination):
         'reloads a specified module. Godmode only.'
         try:
-            allowedmodules = pickle.load(open('store/allowedmodules.p','r'))
+            allowedmodules = pickle.load(open('store/allowedmodules.p','rb'))
         except IOError:
             allowedmodules = []
         if(self.chk_god(destination[0],client)):
@@ -560,9 +562,9 @@ class ircbot:
         self.core['server'][server]['check']['userregistered'] = False
         self.base_say('INFO ' + client,[server,'nickserv'])
         for x in range(12):
-            print self.base_timestamp() + ' [' + server + "] waiting for nickserv"
+            print(self.base_timestamp() + ' [' + server + "] waiting for nickserv")
             if(self.core['server'][server]['check']['userregistered']):
-                print self.base_timestamp() + ' [' + server + '] got the reply.'
+                print(self.base_timestamp() + ' [' + server + '] got the reply.')
                 break
             time.sleep(0.5)
         return self.core['server'][server]['check']['userregistered']
@@ -572,9 +574,9 @@ class ircbot:
         self.core['server'][server]['check']['nickregistered'] = False
         self.base_say('INFO ' + client,[server,'nickserv'])
         for x in range(12):
-            print self.base_timestamp() + ' [' + server + '] waiting for nickserv'
+            print(self.base_timestamp() + ' [' + server + '] waiting for nickserv')
             if(self.core['server'][server]['check']['nickregistered']):
-                print self.base_timestamp() + ' [' + server + '] got the reply.'
+                print(self.base_timestamp() + ' [' + server + '] got the reply.')
                 break
             time.sleep(0.5)
         return self.core['server'][server]['check']['nickregistered']
@@ -582,26 +584,26 @@ class ircbot:
     def chk_recipientonline(self,server,clients):
         # check if a list of recipients are online
         self.core['server'][server]['check']['recipientonline'] = ""
-        self.con['server'][server]['socket'].send('ISON ' + ' '.join(clients) + endl)
+        self.con['server'][server]['socket'].send(('ISON ' + ' '.join(clients) + endl).encode('utf-8'))
         for a in range(6):
-            print self.base_timestamp() + ' [' + server + '] waiting for input on which admins are online'
+            print(self.base_timestamp() + ' [' + server + '] waiting for input on which admins are online')
             if(self.core['server'][server]['check']['recipientonline'] == ""):
                 time.sleep(0.5)
             else:
-                print "got the list. " + self.recipientonline
+                print("got the list. " + self.recipientonline)
                 break
         return self.core['server'][server]['check']['recipientonline'].split()
 
     def chk_names(self,server,channel):
         # check for a userlist of whatever channel
         self.core['server'][server]['check']['names'] = ""
-        self.core['server'][server]['socket'].send('NAMES ' + channel + endl)
+        self.core['server'][server]['socket'].send(('NAMES ' + channel + endl).encode('utf-8'))
         for a in range(6):
             if(self.core['server'][server]['check']['names']==""):
-                print self.base_timestamp() + ' [' + server + '] waiting for userlist'
+                print(self.base_timestamp() + ' [' + server + '] waiting for userlist')
                 time.sleep(0.5)
             else:
-                print self.base_timestamp() + ' [' + server + '] got the list: ' + self.core['server'][server]['check']['names']
+                print(self.base_timestamp() + ' [' + server + '] got the list: ' + self.core['server'][server]['check']['names'])
                 break
         return self.core['server'][server]['check']['names'].split()
 
@@ -610,7 +612,7 @@ class ircbot:
         swearinformcaution = [r'fag(got|)\b',r'\bprick\b',r'\bshag\b',r'\bslag\b',r'\bdick(head|)\b',r'\bballs\b',r'\bjew\b',r'\bbitch\b',r'\bbugger\b']
         swearcomment = []
         try:
-            admininform = pickle.load(open('store/admininform.p','r'))
+            admininform = pickle.load(open('store/admininform.p','rb'))
 #['dr-spangle','electrokitty','urioxis','servirare','servirare_','servirare__']
         except:
             admininform = {}
@@ -667,14 +669,14 @@ class ircbot:
         self.open = False
         for server in self.conf['servers']:
             self.base_disconnect(server)
-        pickle.dump(self.conf,open(self.configfile,"w"))
+        pickle.dump(self.conf,open(self.configfile,"wb"))
 
     def base_disconnect(self,server):
         self.core['server'][server]['open'] = False
         for channel in self.conf['server'][server]['channels']:
             self.base_say('Daisy daisy give me your answer do...',[server,channel])
         #    time.sleep(1)
-        self.core['server'][server]['socket'].send('QUIT :Daisy daisy give me your answer do...' + endl)
+        self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
         self.core['server'][server]['socket'].close()
 
     def base_say(self,msg,destination):
@@ -683,9 +685,9 @@ class ircbot:
         # send the message, accounting for linebreaks
         for n, line in enumerate(msg.split('\n')):
             if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
-               self.core['server'][destination[0]]['socket'].send('PRIVMSG ' + destination[1] + ' :' + line.upper() + endl)
+               self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + line.upper() + endl).encode('utf-8'))
             else:
-               self.core['server'][destination[0]]['socket'].send('PRIVMSG ' + destination[1] + ' :' + line + endl)
+               self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + line + endl).encode('utf-8'))
             if(destination[1] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
                 self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '>: ' + line, destination)
             # avoid flooding
@@ -706,8 +708,8 @@ class ircbot:
                 logbrokendata.close()
         elif('PING' == data.split()[0]):
             # return pings so we don't get timed out
-            print self.base_timestamp() + ' [' + server + '] PING'
-            self.core['server'][server]['socket'].send('PONG ' + data.split()[1] + endl)
+            print(self.base_timestamp() + ' [' + server + '] PING')
+            self.core['server'][server]['socket'].send(('PONG ' + data.split()[1] + endl).encode('utf-8'))
         # update  the following when rewriting for ping timeouts. record the time to self.core['server'][server]['pingtime'] or something and do some check if it's over 3 minutes, if so disconnect and reconnect
         #    pingfile = open('hallodump.txt','w')
         #    pingfile.write(str(os.getpid()))
@@ -726,7 +728,7 @@ class ircbot:
             #command colon variable, if command is followed by a colon and command doesn't exist, throw an error
             msg_cmdcln = False
             # print and a clean version of the message
-            print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + client + '> ' + message
+            print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + client + '> ' + message)
             # if it's a private message, answer to the client, not to yourself
             if msg_pm:
                 destination = client
@@ -749,7 +751,7 @@ class ircbot:
             if msg_ctcp:
                 client = data.split('!')[0][1:].lower()
                 args = ':'.join(data.split(':')[2:])[1:-1]
-                print self.base_timestamp() + ' [' + server + '] The above was a ctcp one.'
+                print(self.base_timestamp() + ' [' + server + '] The above was a ctcp one.')
                 self.on_ctcp(server,client,args)
             elif msg_cmd or msg_pm:
                 if(len(message) > 0):
@@ -772,27 +774,27 @@ class ircbot:
                             method = 'placeholder'
                             if(hasattr(self,fn)):
                                 method = getattr(self, fn)
-                            if(not callable(method)):
+                            if(not isinstance(method, collections.Callable)):
                                 for module in self.modules:
                                     if(hasattr(__import__(module),module) and hasattr(getattr(__import__(module),module),fn)):
                                         method = getattr(getattr(__import__(module),module),fn)
-                                    if(callable(method)):
+                                    if(isinstance(method, collections.Callable)):
                                         break
-                            if(callable(method)):
-                                print method
+                            if(isinstance(method, collections.Callable)):
+                                print(method)
                                 out = str(method(args,client,[server,destination]))
-                                print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out
+                                print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out)
                                 self.base_say(out,[server,destination])
                                 found = True
                                 break
                     # if we can't handle the function, let them know
                     if not found and (msg_pm or (msg_cmd and msg_cmdcln)):
                         self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
-                except Exception, e:
+                except Exception as e:
                     # if we have an error, let them know and print it to the screen
                     if(self.open):
                         self.base_say('Error occured.  Try "/msg ' + nick + ' help"',[server,destination])
-                    print 'ERROR: ' + str(e)
+                    print('ERROR: ' + str(e))
                 if(msg_pm):
                     # let programmers define extra code in addition to function stuff
                     self.on_pm(server,client,msg_pm and nick or destination,':'.join(data.split(':')[2:]).replace(endl,''),found)
@@ -814,20 +816,20 @@ class ircbot:
             # handle JOIN events
             channel = ':'.join(data.split(':')[2:]).replace(endl,'')
             client = data.split('!')[0][1:]
-            print self.base_timestamp() + ' [' + server + '] ' + client + ' joined ' + channel
+            print(self.base_timestamp() + ' [' + server + '] ' + client + ' joined ' + channel)
             self.on_join(server,client,channel)
         elif('PART' == data.split()[1]):
             # handle PART events
             channel = data.split()[2]
             client = data.split('!')[0][1:]
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
-            print self.base_timestamp() + ' [' + server + '] ' + client + ' left ' + channel
+            print(self.base_timestamp() + ' [' + server + '] ' + client + ' left ' + channel)
             self.on_part(server,client,channel,message)
         elif('QUIT' == data.split()[1]):
             #handle QUIT events
             client = data.split('!')[0][1:]
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
-            print self.base_timestamp() + ' [' + server + '] ' + client + ' quit.'
+            print(self.base_timestamp() + ' [' + server + '] ' + client + ' quit.')
             self.on_quit(server,client,message)
         elif('MODE' == data.split()[1]):
             # handle MODE events
@@ -838,14 +840,14 @@ class ircbot:
                 args = ' '.join(data.split()[4:]).replace(endl, '')
             else:
                 args = ''
-            print self.base_timestamp() + ' [' + server + '] ' + client + ' set ' + mode + ' ' + args + ' on ' + channel
+            print(self.base_timestamp() + ' [' + server + '] ' + client + ' set ' + mode + ' ' + args + ' on ' + channel)
             self.on_mode(server,client,channel,mode,args)
         elif('NOTICE' == data.split()[1]):
             # handle NOTICE messages
             channel = data.split()[2].replace(endl,'')
             client = data.split('!')[0][1:]
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
-            print self.base_timestamp() + ' [' + server + '] Notice: ' + data
+            print(self.base_timestamp() + ' [' + server + '] Notice: ' + data)
             self.on_notice(server,client,channel,message)
         elif('NICK' == data.split()[1]):
             #handle nick changes
@@ -854,13 +856,13 @@ class ircbot:
                 newnick = data.split(':')[2]
             else:
                 newnick = data.split()[2]
-            print self.base_timestamp() + ' [' + server + '] Nick change: ' + client + ' -> ' + newnick
+            print(self.base_timestamp() + ' [' + server + '] Nick change: ' + client + ' -> ' + newnick)
             self.on_nickchange(server,client,newnick)
         elif('INVITE' == data.split()[1]):
             #handle invites
             client = data.split('!')[0][1:]
             channel = ':'.join(data.split(':')[2:]).replace(endl,'')
-            print self.base_timestamp() + ' [' + server + '] invite to ' + channel + ' from ' + client
+            print(self.base_timestamp() + ' [' + server + '] invite to ' + channel + ' from ' + client)
             self.on_invite(server,client,channel)
         elif data == '':
             #blank message thingy
@@ -878,11 +880,11 @@ class ircbot:
                 self.core['server'][server]['check']['names'] = ':'.join(data.split(':')[2:])
                 if(self.core['server'][server]['check']['names']==''):
                     self.core['server'][server]['check']['names'] = ' '
-            print self.base_timestamp() + ' [' + server + '] Server info: ' + data
+            print(self.base_timestamp() + ' [' + server + '] Server info: ' + data)
         elif not data.replace(endl, '').isspace():
             # if not handled, be confused ^_^
             unhandled = True
-            print self.base_timestamp() + ' [' + server + '] Unhandled data: ' + data
+            print(self.base_timestamp() + ' [' + server + '] Unhandled data: ' + data)
   #          logunhandleddata = open('/home/dr-spangle/http/log_unhandleddata.txt','a')
   #          logunhandleddata.write(data + '\n---\n')
   #          logunhandleddata.close()
@@ -890,30 +892,30 @@ class ircbot:
 
     def base_connect(self,server):
         while(self.core['server'][server]['connected'] == False):
-            print self.base_timestamp() + " Not connected to " + server + " yet"
+            print(self.base_timestamp() + " Not connected to " + server + " yet")
             time.sleep(0.5)
-        print self.base_timestamp() + " sending nick and user info to server: " + server
-        self.core['server'][server]['socket'].send('NICK ' + self.conf['server'][server]['nick'] + endl)
-        self.core['server'][server]['socket'].send('USER ' + self.conf['server'][server]['full_name'] + endl)
-        print self.base_timestamp() + " sent nick and user info to " + server
+        print(self.base_timestamp() + " sending nick and user info to server: " + server)
+        self.core['server'][server]['socket'].send(('NICK ' + self.conf['server'][server]['nick'] + endl).encode('utf-8'))
+        self.core['server'][server]['socket'].send(('USER ' + self.conf['server'][server]['full_name'] + endl).encode('utf-8'))
+        print(self.base_timestamp() + " sent nick and user info to " + server)
         while(self.core['server'][server]['motdend'] == False):
             time.sleep(0.5)
-        print self.base_timestamp() + " joining channels on " + server + ", identifying."
+        print(self.base_timestamp() + " joining channels on " + server + ", identifying.")
         for channel in self.conf['server'][server]['channels']:
-            self.core['server'][server]['socket'].send('JOIN ' + channel + endl)
+            self.core['server'][server]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
         if self.conf['server'][server]['pass']:
             self.base_say('IDENTIFY ' + self.conf['server'][server]['pass'], [server,'nickserv'])
 
     def base_start(self,configfile="store/config.p"):
         #starts up the bot, starts base_run on each server.
         self.configfile = configfile
-        self.conf = pickle.load(open(configfile,"r"))
+        self.conf = pickle.load(open(configfile,"rb"))
         self.core = {}
         self.core['server'] = {}
         self.open = True
         self.modules = []
         for server in self.conf['servers']:
-            thread.start_new(self.base_run,(server,))
+            Thread(target=self.base_run, args=(server,)).start()
         while(self.open):
             time.sleep(0.1)
 
@@ -935,16 +937,17 @@ class ircbot:
         self.core['server'][server]['open'] = True
         self.core['server'][server]['socket'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.core['server'][server]['socket'].connect((self.conf['server'][server]['address'],self.conf['server'][server]['port']))
-        thread.start_new(self.base_connect,(server,))
+        Thread(target=self.base_connect, args=(server,)).start()
+        nextline = ""
         while True:
             if(self.open and self.core['server'][server]['open']):
-                # the following needs rewriting, once the rest works.
-                data = self.core['server'][server]['socket'].recv(4096)
-                for line in data.split(endl):
-                    # the following line also needs rewriting, once we focus on reconnection to broken servers
-                    if not line.isspace():
-                        thread.start_new(self.base_parse,(server,line))
-            
+                nextbyte = self.core['server'][server]['socket'].recv(1).decode('utf-8')
+                if(nextbyte!="\n"):
+                    nextline = nextline + nextbyte
+                else:
+                    Thread(target=self.base_parse, args=(server,nextline)).start()
+                    nextline = ""
+
 if __name__ == '__main__':
     ircbot().base_start("store/config.p")
 #    ircbot().run(raw_input('network: '), raw_input('nick: '), [raw_input('channel: ')])

@@ -8,4 +8,5 @@
 
 06:07:08 < dr-spangle> misspelt server kills hallo9000, why?
 
-Should post 'daisy daisy give me your answer do' in all channels when quitting, why does he only do it in ETD?
+help commands doesn't work, like, at all?
+quit doesn't kill the process
