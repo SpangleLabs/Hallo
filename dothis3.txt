@@ -1,0 +1,34 @@
+Hallo9000 to python3
+16:58:22 <@dr-spangle> hallo9000 upgrades list:
+16:58:28 <@dr-spangle> -check if timed out, reconnect
+16:58:33 <@dr-spangle> -import modules
+16:58:40 <@dr-spangle> -disconnect safely
+16:58:47 <@dr-spangle> -separate config from core variables
+16:59:09 <@dr-spangle> -brokendata shouldn't be a thing, don't pull data down in set byte chunks?
+22:36:27 <@dr-spangle> hallo update list:
+22:36:31 <@dr-spangle> -how many people in space
+01:01:02 <@dr-spangle> hallo9000 update:
+01:01:20 <@dr-spangle> -check if a message is too long and will get cut, if so, break it up
+06:23:47 <@dr-spangle> -maybe make his speech feature have separate brains for different users?
+12:20:33 <@dr-spangle> hallo9000 update:
+12:20:42 <@dr-spangle> -ouija board file needs copying
+12:20:50 <@dr-spangle> -memory/time management thread?
+12:23:29 <@dr-spangle> -phpcalc remove
+12:23:31 <@dr-spangle> -fix calc
+12:27:15 <@dr-spangle> -lorem ipsum function
+12:46:37 <@dr-spangle> -add this nickserv nickregistered thing:
+12:46:39 <@dr-spangle> [12:42:44] Notice: :NickServ!services@services.localhost.net NOTICE Hallo :dr-spangle is currently online.
+Day changed to 23 Nov 2013
+19:37:07 <@dr-spangle> -make hallo add close brackets
+00:42:03 <@dr-spangle> -cronecker wants a function to post ascii deercock
+06:07:08 < dr-spangle> misspelt server kills hallo9000, why?
+12:13:11 < dr-spangle> -add more nickserv ident messages without reboot
+23:30:03 < dr-spangle> -ctcp file transfers, ensure you reject
+00:33:22 < dr-spangle> -urbandictionary func
+00:33:37 < dr-spangle> -xkcd url detect to give alt text?
+23:18:36 < dr-spangle> 23:17:30 <@sharpy> Hallo9000: ops_list
+23:18:36 < dr-spangle> 23:17:32 <&Hallo9000> Insufficient privileges list ops for this server.
+23:18:43 < dr-spangle> -*to list
+Day changed to 26 Nov 2013
+01:39:48 < dr-spangle> -teach hallo to mix cocktails
+
