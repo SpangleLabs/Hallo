@@ -9,3 +9,5 @@ Hallo9000 to python3
 
 12:13:11 < dr-spangle> -add more nickserv ident messages without reboot
 23:30:03 < dr-spangle> -ctcp file transfers, ensure you reject
+
+irc channels with passwords

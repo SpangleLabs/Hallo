@@ -2,7 +2,6 @@
 
 16:58:33 <@dr-spangle> -import modules
 16:58:40 <@dr-spangle> -disconnect safely
-16:58:47 <@dr-spangle> -separate config from core variables
 
 12:46:37 <@dr-spangle> -add this nickserv nickregistered thing:
 12:46:39 <@dr-spangle> [12:42:44] Notice: :NickServ!services@services.localhost.net NOTICE Hallo :dr-spangle is currently online.
