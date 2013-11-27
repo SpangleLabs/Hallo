@@ -159,8 +159,8 @@ class ircbot:
             if(title not in self.conf['servers']):
                 self.conf['servers'].append(title)
                 self.conf['server'][title] = {}
-                self.conf['server'][title]['ops'] = copy.deepcopy(self.conf['server'][destination[0]]['ops'])
-                self.conf['server'][title]['gods'] = copy.deepcopy(self.conf['server'][destination[0]]['gods'])
+                self.conf['server'][title]['ops'] = list(self.conf['server'][destination[0]]['ops'])
+                self.conf['server'][title]['gods'] = list(self.conf['server'][destination[0]]['gods'])
                 self.conf['server'][title]['address'] = args
                 self.conf['server'][title]['channels'] = []
                 self.conf['server'][title]['nick'] = self.conf['server'][destination[0]]['nick']
