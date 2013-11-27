@@ -17,6 +17,7 @@
 import socket, time, os, sys, _thread, re, pickle, pprint, importlib, copy
 from threading import Thread
 import collections
+import imp
 #from megahal import *
 
 endl = '\r\n' # constant for ease/readability
@@ -508,8 +509,24 @@ class ircbot:
     def fn_help(self,args,client,destination):
         'Gives information about commands.  Use "help commands" for a list of commands, or "help <command>" for help on a specific command.'
         if(args != ''):
-            try: return getattr(self,'fn_' + args).__doc__ or 'No doc defined.'
-            except: pass
+            fn = 'fn_'+args.lower().split()[0]
+            method = 'placeholder'
+            addonmodule = False
+            if(hasattr(self,fn)):
+                method = getattr(self, fn)
+            if(not isinstance(method, collections.Callable)):
+                for module in self.modules:
+                    if(hasattr(__import__(module),module) and hasattr(getattr(__import__(module),module),fn)):
+                        method = getattr(getattr(__import__(module),module),fn)
+                        addonmodule = True
+                    if(isinstance(method, collections.Callable)):
+                        break
+            if(isinstance(method, collections.Callable)):
+                if(addonmodule):
+                    doc = method.__doc__
+                else:
+                    doc = method.__doc__
+                return doc
         if(args.lower() == 'commands'):
             cmds = []
             # loop through all bot methods
@@ -537,7 +554,7 @@ class ircbot:
             args = args.lower().replace(' ','')
             if(args in allowedmodules):
                 importlib.import_module(args)
-                reload(sys.modules[args])
+                imp.reload(sys.modules[args])
                 #from args import *
                 if(args not in self.modules):
                     self.modules.append(args)
@@ -772,18 +789,23 @@ class ircbot:
                         functions = functions + dir(getattr(__import__(module),module))
                     for fn in functions:
                         if(fn.split('.')[-1] == ('fn_' + function.lower())):
-                            method = 'placeholder'
+                            method = False
+                            addonmodule = False
                             if(hasattr(self,fn)):
                                 method = getattr(self, fn)
                             if(not isinstance(method, collections.Callable)):
                                 for module in self.modules:
                                     if(hasattr(__import__(module),module) and hasattr(getattr(__import__(module),module),fn)):
                                         method = getattr(getattr(__import__(module),module),fn)
+                                        addonmodule = True
                                     if(isinstance(method, collections.Callable)):
                                         break
                             if(isinstance(method, collections.Callable)):
                 #                print(method)
-                                out = str(method(args,client,[server,destination]))
+                                if(addonmodule):
+                                    out = str(method(self,args,client,[server,destination]))
+                                else:
+                                    out = str(method(args,client,[server,destination]))
                                 print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out)
                                 self.base_say(out,[server,destination])
                                 found = True

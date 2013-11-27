@@ -6,7 +6,7 @@ class euler:
         'Project Euler functions'
         if(args.replace(' ','').isdigit()):
             #try and do that euler function command
-            try: eulerfunc = getattr(self, 'fnn_euler_' + args)
+            try: eulerfunc = getattr(euler, 'fnn_euler_' + args)
             except: answer = "I don't think I've solved that one yet."
             else:
                 if(hasattr(eulerfunc, '__call__')):
@@ -20,12 +20,12 @@ class euler:
         elif(args.replace(' ','').lower() == 'list'):
             #list all available project Euler answers
             problem_funcs = []
-            for fn in dir(self):
+            for fn in dir(euler):
                 if(fn[:10] == 'fnn_euler_' and fn[10:].isdigit()):
                     problem_funcs.append(fn[10:])
             answer = "Currently I can do Project Euler problems " + ', '.join(sorted(problem_funcs,key=int)[:-1]) + " and " + sorted(problem_funcs,key=int)[-1]
         else:
-            count = sum(1 for fn in dir(self) if fn[:10] == 'fnn_euler_' and fn[10:].isdigit())
+            count = sum(1 for fn in dir(euler) if fn[:10] == 'fnn_euler_' and fn[10:].isdigit())
             answer = "I'm learning to complete the project Euler programming problems. I've not done many so far, I've only done " + str(count) + " of the 434 problems. But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, say 'Hallo Euler {num}' for the answer to challenge number {num}"
         return answer
 
