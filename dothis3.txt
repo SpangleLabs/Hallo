@@ -31,4 +31,4 @@ Day changed to 23 Nov 2013
 23:18:43 < dr-spangle> -*to list
 Day changed to 26 Nov 2013
 01:39:48 < dr-spangle> -teach hallo to mix cocktails
-
+Should post 'daisy daisy give me your answer do' in all channels when quitting, why does he only do it in ETD?

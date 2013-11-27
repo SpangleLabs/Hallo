@@ -602,7 +602,7 @@ class hallobase():
 
     def fn_thoughtfortheday(self,args,client,destination):
         'WH40K Thought for the day.'
-        thoughts = self.fnn_euler_readfiletolist('WH40K_ToTD2.txt')
+        thoughts = self.fnn_euler_readfiletolist('store/WH40K_ToTD2.txt')
         rand = random.randint(0,len(thoughts)-1)
         return '"' + thoughts[rand] + '"'
 
@@ -646,6 +646,12 @@ class hallobase():
             return "Yup, you are registered."
         else:
             return "It doesn't seem you are registered with nickserv right now."
+
+    def fn_scriptures(self,args,client,destination):
+        'Recites a passage from the scriptures.'
+        scriptures = pickle.load(open('store/scriptures.p','r'))
+        rand = random.randint(0,len(scriptures)-1)
+        return scriptures[rand]
 
     def fnn_urldetect(self, args, client, destination):
         'Detects URLs posted in channel, then returns the page title.'
