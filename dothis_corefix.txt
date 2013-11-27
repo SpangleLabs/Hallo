@@ -1,21 +1,12 @@
 
-Hallo9000 to python3
 
-16:58:28 <@dr-spangle> -check if timed out, reconnect
 16:58:33 <@dr-spangle> -import modules
 16:58:40 <@dr-spangle> -disconnect safely
 16:58:47 <@dr-spangle> -separate config from core variables
-16:59:09 <@dr-spangle> -brokendata shouldn't be a thing, don't pull data down in set byte chunks?
-01:01:20 <@dr-spangle> -check if a message is too long and will get cut, if so, break it up
-
-12:20:50 <@dr-spangle> -memory/time management thread?
 
 12:46:37 <@dr-spangle> -add this nickserv nickregistered thing:
 12:46:39 <@dr-spangle> [12:42:44] Notice: :NickServ!services@services.localhost.net NOTICE Hallo :dr-spangle is currently online.
 
 06:07:08 < dr-spangle> misspelt server kills hallo9000, why?
-
-12:13:11 < dr-spangle> -add more nickserv ident messages without reboot
-23:30:03 < dr-spangle> -ctcp file transfers, ensure you reject
 
 Should post 'daisy daisy give me your answer do' in all channels when quitting, why does he only do it in ETD?
