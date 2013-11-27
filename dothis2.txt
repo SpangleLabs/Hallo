@@ -1,0 +1,17 @@
+
+02:13:57 <@dr-spangle> 02:12:22 < Darkhunn> quick question- what would you suggest to use as the best IRC chat client?
+02:14:01 <@dr-spangle> irc client to use
+02:14:07 <@dr-spangle> which irc client to use
+02:15:31 <@dr-spangle> if message contains "irc client" or "irc chat client" or "chat client" and "which" or "what", say "For windows: Hexchat is good. Try http://hexchat.org"
+02:16:25 <@dr-spangle> if message contains "when" and "more pony" or "season 4" or "S04" or ("next season" and "pony" or "mlp")
+02:16:46 <@dr-spangle> say "thus far, we only know that is will be out in winter sometime"
+02:19:46 <@dr-spangle> if message contains "who" or "what" and "hallo" say "I'm hallo, I'm a bot, I do a couple useful things, like choose options and roll dice"
+02:20:34 <@dr-spangle> if message contains "who" or "what" and "muffinmare" say "muffinmare is another bot, she gives free muffins to people, she can also do calculations, she was built by Ripp_."
+02:23:01 <@dr-spangle> if message contains "who" and "best pony" argue for a pony
+
+
+02:59:47 <@dr-spangle> roll, throw specific error on floating point?
+
+02:59:50 <@dr-spangle> define function?
+
+

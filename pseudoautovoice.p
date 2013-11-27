@@ -1,0 +1,15 @@
+(dp0
+S'canternet'
+p1
+(dp2
+S'#ukofequestria'
+p3
+(lp4
+S'some_other_nick'
+p5
+aS'arlo'
+p6
+assS'shadowworld'
+p7
+(dp8
+s.
