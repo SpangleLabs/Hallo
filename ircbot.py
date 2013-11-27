@@ -728,9 +728,11 @@ class ircbot:
         unhandled = False
         if(len(data) < 5 or (data[0] != ":" and data[0:4] != "PING")):
             #the above basically means the message is invalid, those are the only things a valid line can start with. so ditch to a logfile
-            logbrokendata = open('logs/brokendata.txt','a')
-            logbrokendata.write(server + ":: " + data.replace('\x01','\\0x01') + '\n---\n')
-            logbrokendata.close()
+            if(len(data) >= 5):
+            #there's no point logging blank data sent to hallo. just log the rest.
+                logbrokendata = open('logs/brokendata.txt','a')
+                logbrokendata.write(server + ":: " + data.replace('\x01','\\0x01') + '\n---\n')
+                logbrokendata.close()
         elif('PING' == data.split()[0]):
             # return pings so we don't get timed out
             print self.base_timestamp() + ' [' + server + '] PING'
