@@ -1,7 +1,6 @@
 
 
 16:58:28 <@dr-spangle> -check if timed out, reconnect
-16:59:09 <@dr-spangle> -brokendata shouldn't be a thing, don't pull data down in set byte chunks?
 01:01:20 <@dr-spangle> -check if a message is too long and will get cut, if so, break it up
 
 12:20:50 <@dr-spangle> -memory/time management thread?
