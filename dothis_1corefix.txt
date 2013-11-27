@@ -10,3 +10,5 @@
 
 help commands doesn't work, like, at all?
 quit doesn't kill the process
+he's not identifying with nickserv when he joins servers?
+

@@ -698,6 +698,7 @@ class ircbot:
         # take a line of data from irc server's socket and process it
    #     irc = self.irc
         nick = self.conf['server'][server]['nick']
+        data = data.replace("\r","")
         unhandled = False
         if(len(data) < 5 or (data[0] != ":" and data[0:4] != "PING")):
             #the above basically means the message is invalid, those are the only things a valid line can start with. so ditch to a logfile
@@ -781,7 +782,7 @@ class ircbot:
                                     if(isinstance(method, collections.Callable)):
                                         break
                             if(isinstance(method, collections.Callable)):
-                                print(method)
+                #                print(method)
                                 out = str(method(args,client,[server,destination]))
                                 print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out)
                                 self.base_say(out,[server,destination])
