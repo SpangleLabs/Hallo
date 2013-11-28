@@ -181,7 +181,7 @@ class ircbot:
             args = args.lower()
             self.core['server'][destination[0]]['open'] = False
             self.base_disconnect(destination[0])
-            return "Disconnected."
+      #      return "Disconnected."
         else:
             return "Insufficient privileges to disconnect from server."
 
@@ -553,7 +553,7 @@ class ircbot:
         if(self.chk_god(destination[0],client)):
             args = args.lower().replace(' ','')
             if(args in allowedmodules):
-                imp.aquire_lock()
+                imp.acquire_lock()
                 importlib.import_module(args)
                 imp.reload(sys.modules[args])
                 imp.release_lock()
