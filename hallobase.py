@@ -493,7 +493,7 @@ class hallobase():
         if(args==''):
             return "This function boops people, as such you need to specify a person for me to boop, in the form 'Hallo boop <name>' but without the <> brackets"
         args = args.split()[0]
-        online = self.chk_recipientonline(destination[0],args)
+        online = ' '.join(self.chk_recipientonline(destination[0],args))
         if(online==' ' or online==''):
             return 'No one called "' + args + '" is online.'
         else:

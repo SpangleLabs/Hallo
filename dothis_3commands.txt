@@ -10,3 +10,5 @@ HALLO GETTHEMLITTLESITH -> KICKS THREE RANDOM USERS OTHER THAN D000242 AND SELF 
 00:33:22 < dr-spangle> -urbandictionary func
 01:39:48 < dr-spangle> -teach hallo to mix cocktails
 
+'mute' function to mute ukoe, op only.
+'staff' function to notify all online admininform, post in ircstaff also.

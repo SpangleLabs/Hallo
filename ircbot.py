@@ -607,7 +607,7 @@ class ircbot:
             if(self.core['server'][server]['check']['recipientonline'] == ""):
                 time.sleep(0.5)
             else:
-                print("got the list. " + self.recipientonline)
+                print("got the list. " + self.core['server'][server]['check']['recipientonline'])
                 break
         return self.core['server'][server]['check']['recipientonline'].split()
 
@@ -897,8 +897,8 @@ class ircbot:
                 self.core['server'][server]['motdend'] = True
             elif(data.split()[1] == "303"):
                 self.core['server'][server]['check']['recipientonline'] = ':'.join(data.split(':')[2:])
-                if(self.recipientonline==''):
-                    self.recipientonline = ' '
+                if(self.core['server'][server]['check']['recipientonline']==''):
+                    self.core['server'][server]['check']['recipientonline'] = ' '
             elif(data.split()[1] == "353"):
                 self.core['server'][server]['check']['names'] = ':'.join(data.split(':')[2:])
                 if(self.core['server'][server]['check']['names']==''):
