@@ -703,7 +703,7 @@ class ircbot:
         # if the connection is open...
         #if not self.open: return
         # send the message, accounting for linebreaks
-        if(self.open and self.core['server'][server]['open']):
+        if(self.open and self.core['server'][destination[0]]['open']):
             for n, line in enumerate(msg.split('\n')):
                 if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
                     self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + line.upper() + endl).encode('utf-8'))
@@ -967,6 +967,10 @@ class ircbot:
             self.core['server'][server]['socket'].connect((self.conf['server'][server]['address'],self.conf['server'][server]['port']))
         except Exception as e:
             print("CONNECTION ERROR: " + str(e))
+            self.core['server'][server]['open'] = False
+            del self.core['server'][server]
+            del self.conf['server'][server]
+            self.conf['servers'].remove(server)
         Thread(target=self.base_connect, args=(server,)).start()
         nextline = ""
         while(self.open and self.core['server'][server]['open']):

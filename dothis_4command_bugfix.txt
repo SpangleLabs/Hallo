@@ -17,3 +17,5 @@
 23:18:43 < dr-spangle> -*to list
 
 cupcake throws odd error if no user given
+
+I think image urldetect doesn't work
