@@ -179,9 +179,9 @@ class ircbot:
         if(self.chk_god(destination[0],client)):
             self.base_say('Disconnecting...',destination)
             args = args.lower()
-            self.core['server'][destination[0]]['open'] = False
+  #          self.core['server'][destination[0]]['open'] = False
             self.base_disconnect(destination[0])
-      #      return "Disconnected."
+            return "Disconnected."
         else:
             return "Insufficient privileges to disconnect from server."
 
@@ -694,9 +694,10 @@ class ircbot:
        # for channel in self.conf['server'][server]['channels']:
         #    self.base_say('Daisy daisy give me your answer do...',[server,channel])
         #    time.sleep(1)
-        self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
-        self.core['server'][server]['socket'].close()
-        self.core['server'][server]['open'] = False
+        if(self.core['server'][server]['open']):
+            self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
+            self.core['server'][server]['socket'].close()
+            self.core['server'][server]['open'] = False
 
     def base_say(self,msg,destination):
         # if the connection is open...

@@ -1,7 +1,5 @@
 
 
-16:58:40 <@dr-spangle> -disconnect safely
---test it again.
 
 12:46:37 <@dr-spangle> -add this nickserv nickregistered thing:
 12:46:39 <@dr-spangle> [12:42:44] Notice: :NickServ!services@services.localhost.net NOTICE Hallo :dr-spangle is currently online.
