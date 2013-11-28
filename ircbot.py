@@ -706,8 +706,10 @@ class ircbot:
         if(self.open and self.core['server'][destination[0]]['open']):
             for n, line in enumerate(msg.split('\n')):
                 if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
+                    print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line.upper())
                     self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + line.upper() + endl).encode('utf-8'))
                 else:
+                    print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line)
                     self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + line + endl).encode('utf-8'))
                 if(destination[1] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
                     self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '>: ' + line, destination)
@@ -810,7 +812,7 @@ class ircbot:
                                     out = str(method(self,args,client,[server,destination]))
                                 else:
                                     out = str(method(args,client,[server,destination]))
-                                print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out)
+        #                        print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out)
                                 self.base_say(out,[server,destination])
                                 found = True
                                 break

@@ -4,10 +4,6 @@
 12:46:37 <@dr-spangle> -add this nickserv nickregistered thing:
 12:46:39 <@dr-spangle> [12:42:44] Notice: :NickServ!services@services.localhost.net NOTICE Hallo :dr-spangle is currently online.
 
-06:07:08 < dr-spangle> misspelt server kills hallo9000, why?
---does it?
-
 
 gods should get the powers ops have, without needing to add self to ops list
 
-multi line messages are printing to terminal incorrectly (without tags on each line)
