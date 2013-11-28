@@ -9,3 +9,5 @@
 
 
 gods should get the powers ops have, without needing to add self to ops list
+
+multi line messages are printing to terminal incorrectly (without tags on each line)

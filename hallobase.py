@@ -13,7 +13,7 @@ import math
 import io
 import pickle
 #from megahal/megahal import *
-
+import euler
 
 #Importing greetings
 #try:
@@ -262,16 +262,16 @@ class hallobase():
       ##constant evaluation
         while calc.count('pi')!=0:
             tempans = math.pi
-            if(self.fnn_calc_before(calc,'pi') != ''):
+            if(hallobase.fnn_calc_before(self,calc,'pi') != ''):
                 tempans = '*' + str(tempans)
-            if(self.fnn_calc_after(calc,'pi') != ''):
+            if(hallobase.fnn_calc_after(self,calc,'pi') != ''):
                 tempans = str(tempans) + '*'
             calc = calc.replace('pi',str(tempans))
         while calc.count('e') != 0:
             tempans = math.e
-            if(self.fnn_calc_before(calc,'e') != ''):
+            if(hallobase.fnn_calc_before(self,calc,'e') != ''):
                 tempans = '*' + str(tempans)
-            if(self.fnn_calc_after(calc,'e') != ''):
+            if(hallobase.fnn_calc_after(self,calc,'e') != ''):
                 tempans = str(tempans) + '*'
             calc = calc.replace('e',str(tempans))
 #        del tempans
@@ -286,10 +286,10 @@ class hallobase():
                 elif nextchar == ')':
                     bracket -= 1
                 if bracket == 0:
-                    tempans = self.fnn_calc_process(runncalc)
-                    if self.fnn_calc_before(calc,'(' + runncalc + ')') != '':
+                    tempans = hallobase.fnn_calc_process(self,runncalc)
+                    if hallobase.fnn_calc_before(self,calc,'(' + runncalc + ')') != '':
                         tempans = '*' + str(tempans)
-                    if self.fnn_calc_after(calc,'(' + runncalc + ')') != '':
+                    if hallobase.fnn_calc_after(self,calc,'(' + runncalc + ')') != '':
                         tempans = str(tempans) + '*'
                     calc = calc.replace('(' + runncalc + ')',str(tempans))
                     break
@@ -297,34 +297,34 @@ class hallobase():
 #        del tempcalc, bracket, runncalc, nextchat, tempans
       ##powers processing
         while calc.count('^') != 0:
-            pre_calc = self.fnn_calc_before(calc,'^')
-            post_calc = self.fnn_calc_after(calc,'^')
+            pre_calc = hallobase.fnn_calc_before(self,calc,'^')
+            post_calc = hallobase.fnn_calc_after(self,calc,'^')
             calc = calc.replace(str(pre_calc) + '^' + str(post_calc),str(float(pre_calc) ** float(post_calc)))
             del pre_calc, post_calc
       ##powers processing2
         while calc.count('**') != 0:
-            pre_calc = self.fnn_calc_before(calc,'**')
-            post_calc = self.fnn_calc_after(calc,'**')
+            pre_calc = hallobase.fnn_calc_before(self,calc,'**')
+            post_calc = hallobase.fnn_calc_after(self,calc,'**')
             calc = calc.replace(str(pre_calc) + '**' + str(post_calc),str(float(pre_calc) ** float(post_calc)))
             del pre_calc, post_calc
       ##division processing
         while calc.count('/') != 0:
-            pre_calc = self.fnn_calc_before(calc,'/')
-            post_calc = self.fnn_calc_after(calc,'/')
+            pre_calc = hallobase.fnn_calc_before(self,calc,'/')
+            post_calc = hallobase.fnn_calc_after(self,calc,'/')
             if int(float(post_calc)) == 0:
                 return 'error, no division by zero, sorry.'
             calc = calc.replace(str(pre_calc) + '/' + str(post_calc),str(float(pre_calc) / float(post_calc)))
             del pre_calc, post_calc
       ##multiplication processing
         while calc.count('*') != 0:
-            pre_calc = self.fnn_calc_before(calc,'*')
-            post_calc = self.fnn_calc_after(calc,'*')
+            pre_calc = hallobase.fnn_calc_before(self,calc,'*')
+            post_calc = hallobase.fnn_calc_after(self,calc,'*')
             calc = calc.replace(str(pre_calc) + '*' + str(post_calc),str(float(pre_calc) * float(post_calc)))
             del pre_calc, post_calc
       ##multiplication processing2
         while calc.count('x') != 0:
-            pre_calc = self.fnn_calc_before(calc,'x')
-            post_calc = self.fnn_calc_after(calc,'x')
+            pre_calc = hallobase.fnn_calc_before(self,calc,'x')
+            post_calc = hallobase.fnn_calc_after(self,calc,'x')
             calc = calc.replace(str(pre_calc) + 'x' + str(post_calc),str(float(pre_calc) * float(post_calc)))
             del pre_calc, post_calc
       ##addition processing
@@ -588,7 +588,7 @@ class hallobase():
 
     def fn_thoughtfortheday(self,args,client,destination):
         'WH40K Thought for the day.'
-        thoughts = self.fnn_euler_readfiletolist('store/WH40K_ToTD2.txt')
+        thoughts = euler.euler.fnn_euler_readfiletolist(self,'store/WH40K_ToTD2.txt')
         rand = random.randint(0,len(thoughts)-1)
         return '"' + thoughts[rand] + '"'
 
@@ -600,7 +600,7 @@ class hallobase():
 
     def fn_ouija(self,args,client,destination):
         'Ouija board function. "Ouija board" is copyright Hasbro.'
-        words = self.fnn_euler_readfiletolist('/usr/share/cracklib/cracklib-small')
+        words = euler.euler.fnn_euler_readfiletolist(self,'/usr/share/cracklib/cracklib-small')
         numwords = random.randint(1,3)
         string = "I'm getting a message from the other side..."
         for x in range(numwords):

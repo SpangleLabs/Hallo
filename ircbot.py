@@ -963,7 +963,10 @@ class ircbot:
         self.core['server'][server]['motdend'] = False
         self.core['server'][server]['open'] = True
         self.core['server'][server]['socket'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.core['server'][server]['socket'].connect((self.conf['server'][server]['address'],self.conf['server'][server]['port']))
+        try:
+            self.core['server'][server]['socket'].connect((self.conf['server'][server]['address'],self.conf['server'][server]['port']))
+        except Exception as e:
+            print("CONNECTION ERROR: " + str(e))
         Thread(target=self.base_connect, args=(server,)).start()
         nextline = ""
         while(self.open and self.core['server'][server]['open']):
