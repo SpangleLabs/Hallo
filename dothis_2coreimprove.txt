@@ -9,3 +9,5 @@
 23:30:03 < dr-spangle> -ctcp file transfers, ensure you reject
 
 irc channels with passwords
+
+automatically load modules on startup
