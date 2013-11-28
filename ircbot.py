@@ -10,7 +10,7 @@
 #sys is used to kill itself
 #thread is used for multithreading
 #re is used for regex, for sweardetect
-#pickle is used to store the config, also pseudoautovoice
+#pickle is used to store the config, also scriptures
 #pprint is used to view the config
 #importlib is used to import modules on the fly, hopefully
 #copy is used to copy the self.conf variable
@@ -35,15 +35,15 @@ class ircbot:
 
     def on_join(self,server,client,channel):
         # handle join events from other users (or from hallo!)
-        try:
-            voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
-        except IOError:
-            voice_list = {}
-        if(server not in voice_list):
-            voice_list[server] = {}
-        if(channel not in voice_list[server]):
-            voice_list[server][channel] = []
-        if(client.lower() in voice_list[server][channel]):
+     #   try:
+     #       voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
+     #   except IOError:
+     #       voice_list = {}
+     #   if(server not in voice_list):
+     #       voice_list[server] = {}
+     #   if(channel not in voice_list[server]):
+     #       voice_list[server][channel] = []
+        if(client.lower() in self.conf['server'][server]['channel'][channel]['voice_list']):
             # rewriting this later to check if logged in, rather than waiting 35 seconds
             time.sleep(35)
             self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + client + endl).encode('utf-8'))
@@ -51,7 +51,7 @@ class ircbot:
             namesonline = self.chk_names(server,channel)
             #rewriting this later to check if logged in, rather than waiting 35 seconds
             time.sleep(35)
-            for user in voice_list[server][channel]:
+            for user in self.conf['server'][server]['channel'][channel]['voice_list']:
                 if(user in namesonline and "+" + user not in namesonline):
                     self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + client + endl).encode('utf-8'))
 
@@ -97,14 +97,14 @@ class ircbot:
         # handle people changing their nick
         if(client == self.conf['server'][server]['nick']):
             self.conf['server'][server]['nick'] = newnick
-        try:
-            voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
-        except IOError:
-            voice_list = {}
-        if(server not in voice_list):
-            voice_list[server] = {}
-        for channel in voice_list[server]:
-            if(newnick in voice_list[server][channel]):
+     #   try:
+     #       voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
+     #   except IOError:
+     #       voice_list = {}
+  #      if(server not in voice_list):
+  #          voice_list[server] = {}
+        for channel in self.conf['server'][server]['channels']:
+            if(newnick in self.conf['server'][server]['channel'][channel]['voice_list']):
                 #rewriting this later, to replace 35 second wait with login checks
                 time.sleep(35)
                 self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + newnick + endl).encode('utf-8'))
@@ -128,6 +128,7 @@ class ircbot:
                 self.conf['server'][destination[0]]['channel'][args]['logging'] = True
                 self.conf['server'][destination[0]]['channel'][args]['sweardetect'] = False
                 self.conf['server'][destination[0]]['channel'][args]['caps'] = False
+                self.conf['server'][destination[0]]['channel'][args]['voice_list'] = []
             self.core['server'][destination[0]]['socket'].send(('JOIN ' + args + endl).encode('utf-8'))
             return 'Joined ' + args + '.'
         else:
@@ -169,6 +170,7 @@ class ircbot:
                 self.conf['server'][title]['pass'] = False
                 self.conf['server'][title]['port'] = self.conf['server'][destination[0]]['port']
                 self.conf['server'][title]['channel'] = {}
+                self.conf['server'][title]['admininform'] = []
             Thread(target=self.base_run, args=(title,)).start()
             return "Connected to " + args
         else:
@@ -254,25 +256,25 @@ class ircbot:
             return "Insufficient privileges to remove someone from ops list."
 
     def fn_voice_add(self,args,client,destination):
-        'Adds a user to psuedoautovoice, format is "voice_add {user} {channel}'
+        'Adds a user to psuedoautovoice, format is "voice_add {user} {channel}"'
         if(self.chk_op(destination[0],client)):
-            try:
-                voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
-            except IOError:
-                voice_list = {}
+       #     try:
+       #         voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
+       #     except IOError:
+       #         voice_list = {}
             args = args.lower()
             channel = destination[1]
             if(len(args.split())>1):
                 channel = args.split()[1]
                 args = args.split()[0]
-            if(destination[0] not in voice_list):
-                voice_list[destination[0]] = {}
-            if(channel not in voice_list[destination[0]]):
-                voice_list[destination[0]][channel] = []
-            if(args not in voice_list[destination[0]][channel]):
+       #     if(destination[0] not in voice_list):
+       #         voice_list[destination[0]] = {}
+       #     if(channel not in voice_list[destination[0]]):
+       #         voice_list[destination[0]][channel] = []
+            if(args not in self.conf['server'][destination[0]]['channel'][channel]['voice_list']):
                 if(self.chk_nickregistered(destination[0],args)):
-                    voice_list[destination[0]][channel].append(args)
-                    pickle.dump(voice_list,open("store/pseudoautovoice.p","wb"))
+                    self.conf['server'][destination[0]]['channel'][channel]['voice_list'].append(args)
+          #          pickle.dump(voice_list,open("store/pseudoautovoice.p","wb"))
                     if(self.chk_userregistered(destination[0],args)):
                         self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' +v ' + args + endl).encode('utf-8'))
                     return "Added " + args + " to the pseudoautovoice list for " + channel
@@ -284,36 +286,33 @@ class ircbot:
             return "Sorry, this function is for ops only."
 
     def fn_voice_list(self,args,client,destination):
-        'Lists users on pseudoautovoice, ops only.'
+        'Lists users on pseudoautovoice, ops only. no arguments, or channel to list'
         if(self.chk_op(destination[0],client)):
             if(args==''):
                 args = destination[1]
-            try:
-                voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
-            except IOError:
-                voice_list = {}
-            if(destination[0] in voice_list and channel in voice_list[destination[0]]):
-                return "Users on pseudoautovoice list for " + args + ": " + ', '.join(voice_list[destination[0]][args])
-            else:
-                return "There is no voice list for this channel."
+        #    try:
+        #        voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
+        #    except IOError:
+        #        voice_list = {}
+            return "Users on pseudoautovoice list for " + args + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][args]['voice_list'])
         else:
             return "Sorry, this function is for ops only."
 
     def fn_voice_del(self,args,client,destination):
-        'Remove a user from autovoice list, ops only.'
+        'Remove a user from autovoice list, ops only. same arguments as voice_add'
         if(self.chk_op(destination[0],client)):
-            try:
-                voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
-            except IOError:
-                voice_list = {}
+       #     try:
+       #         voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
+       #     except IOError:
+       #         voice_list = {}
             args = args.lower()
             channel = destination[1]
             if(len(args.split())>1):
                 channel = args.split()[1]
                 args = args.split()[0]
-            if(destination[0] in voice_list and channel in voice_list[destination[0]] and args in voice_list[destination[0]][channel]):
-                del voice_list[destination[0]][channel][voice_list[destination[0]][channel].index(args)]
-                pickle.dump(voice_list,open("store/pseudoautovoice.p","wb"))
+            if(args in self.conf['server'][destination[0]]['channel'][channel]['voice_list']):
+                self.conf['server'][destination[0]]['channel'][channel]['voice_list'].remove(args)
+    #            pickle.dump(voice_list,open("store/pseudoautovoice.p","wb"))
                 return "Removed " + args + " from pseudo-auto-voice list for " + channel
             else:
                 return args + " isn't even on the autovoice list for " + channel
@@ -323,16 +322,16 @@ class ircbot:
     def fn_admininform_add(self,args,client,destination):
         'Add a user to the admin swear inform list, ops only.'
         if(self.chk_op(destination[0],client)):
-            try:
-                admininform = pickle.load(open('store/admininform.p','rb'))
-            except IOError:
-                admininform = {}
+        #    try:
+        #        admininform = pickle.load(open('store/admininform.p','rb'))
+        #    except IOError:
+        #        admininform = {}
             args = args.lower().replace(' ','')
-            if(destination[0] not in admininform):
-                admininform[destination[0]] = []
-            if(args not in admininform[destination[0]]):
-                admininform[destination[0]].append(args)
-                pickle.dump(admininform,open('store/admininform.p','wb'))
+        #    if(destination[0] not in admininform):
+        #        admininform[destination[0]] = []
+            if(args not in self.conf['server'][destination[0]]['admininform']):
+                self.conf['server'][destination[0]]['admininform'].append(args)
+        #        pickle.dump(admininform,open('store/admininform.p','wb'))
                 return "Added " + args + " to the admininform list."
             else:
                 return "This person is already on the admininform list"
@@ -342,25 +341,25 @@ class ircbot:
     def fn_admininform_list(self,args,client,destination):
         'Lists users who are informed when sweardetect detects swearing.'
         if(self.chk_op(destination[0],client)):
-            try:
-                admininform = pickle.load(open('store/admininform.p','rb'))
-            except IOError:
-                admininform = {}
-            return "Users on admininform for this server: " + ', '.join(admininform[destination[0]])
+       #     try:
+       #         admininform = pickle.load(open('store/admininform.p','rb'))
+       #     except IOError:
+       #         admininform = {}
+            return "Users on admininform for this server: " + ', '.join(self.conf['server'][destination[0]]['admininform'])
         else:
             return "Sorry, this function is for ops only."
 
     def fn_admininform_del(self,args,client,destination):
         'Delete a user from being informed about swearing in selected channels'
         if(self.chk_op(destination[0],client)):
-            try:
-                admininform = pickle.load(open("store/admininform.p","rb"))
-            except IOError:
-                admininform = {}
+   #         try:
+   #             admininform = pickle.load(open("store/admininform.p","rb"))
+   #         except IOError:
+   #             admininform = {}
             args = args.lower().replace(' ','')
-            if(destination[0] in admininform and args in admininform[destination[0]]):
-                del admininform[destination[0]][admininform[destination[0]].index(args)]
-                pickle.dump(admininform,open("store/admininform.p","wb"))
+            if(args in self.conf['server'][destination[0]]['admininform']):
+                self.conf['server'][destination[0]]['admininform'].remove(args)
+       #         pickle.dump(admininform,open("store/admininform.p","wb"))
                 return "Removed " + args + " from admininform list"
             else:
                 return args + " isn't even on the admininform list for " + destination[0]
@@ -569,12 +568,12 @@ class ircbot:
     def chk_op(self,server,client):
         # check if someone has op status for this bot
         client = client.lower()
-        return self.chk_userregistered(server,client) and ((len(self.conf['server'][server]['ops'])!=0 and self.conf['server'][server]['ops'].count(client) > 0) or (len(self.conf['server'][server]['gods'])!=0 god self.conf['server'][server]['gods'].count(client) > 0))
+        return self.chk_userregistered(server,client) and ((len(self.conf['server'][server]['ops'])!=0 and self.conf['server'][server]['ops'].count(client) > 0) or (len(self.conf['server'][server]['gods'])!=0 and self.conf['server'][server]['gods'].count(client) > 0))
 
     def chk_god(self,server,client):
         # check if someone has god status for this bot
         client = client.lower()
-        return self.chk_userregistered(server,client) and len(self.conf['server'][server]['gods'])!=0 god self.conf['server'][server]['gods'].count(client) > 0
+        return self.chk_userregistered(server,client) and len(self.conf['server'][server]['gods'])!=0 and self.conf['server'][server]['gods'].count(client) > 0
 
     def chk_userregistered(self,server,client):
         # check if a user is registered and logged in
@@ -630,25 +629,25 @@ class ircbot:
         swearinform = [r'\bmong\b',r'\bshit\b',r'fuck',r'\bcunt\b',r'\bwank(er|ing|)\b',r'\bnigger\b',r'\bbastard\b',r'\bbollocks\b',r'\ba(rse|ss)(hole|)\b',r'\bpaki\b',r'\bwhore\b',r'\btwat\b',r'\bpiss(ed|ing|)\b',r'\bspastic\b',r'\bsperg(y|ier|)\b',r'\bR34\b',r'\bporn(o|ograpy|)\b']
         swearinformcaution = [r'fag(got|)\b',r'\bprick\b',r'\bshag\b',r'\bslag\b',r'\bdick(head|)\b',r'\bballs\b',r'\bjew\b',r'\bbitch\b',r'\bbugger\b']
         swearcomment = []
-        try:
-            admininform = pickle.load(open('store/admininform.p','rb'))
+  #      try:
+  #          admininform = pickle.load(open('store/admininform.p','rb'))
 #['dr-spangle','electrokitty','urioxis','servirare','servirare_','servirare__']
-        except:
-            admininform = {}
-        if(destination[0] not in admininform):
-            admininform[destination[0]] = []
+  #      except:
+  #          admininform = {}
+  #      if(destination[0] not in admininform):
+  #          admininform[destination[0]] = []
      #   swearchannels = ['#beringsea','#ukofequestria']
         swears = False
         if(self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect']):
             for swear in swearinform:
                 if re.search(swear, args, re.I):
-                    for admin in self.chk_recipientonline(destination[0],admininform[destination[0]]):
+                    for admin in self.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
                         self.base_say(client + ' just swore in ' + destination[1] + '. the message was: ' + args,[destination[0],admin])
                     swears = True
                     break
             for swear in swearinformcaution:
                 if re.search(swear, args, re.I):
-                    for admin in self.chk_recipientonline(destination[0],admininform[destination[0]]):
+                    for admin in self.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
                         self.base_say(client + ' possibly just swore in ' + destination[1] + '. Check the context. The message was: ' + args,[destination[0],admin])
                     swears = True
                     break

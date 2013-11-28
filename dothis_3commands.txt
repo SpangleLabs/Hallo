@@ -12,6 +12,7 @@ HALLO GETTHEMLITTLESITH -> KICKS THREE RANDOM USERS OTHER THAN D000242 AND SELF 
 
 'mute' function to mute ukoe, op only.
 'staff' function to notify all online admininform, post in ircstaff also.
+'ban' function, bans users from channel
 
 
 SUP FUNCTION, DUNNO WHAT IT WILL DO YET.
