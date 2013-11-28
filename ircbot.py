@@ -641,13 +641,13 @@ class ircbot:
             for swear in swearinform:
                 if re.search(swear, args, re.I):
                     for admin in self.chk_recipientonline(destination[0],admininform[destination[0]]):
-                        self.base_say(client + ' just swore in ' + destination + '. the message was: ' + args,destination)
+                        self.base_say(client + ' just swore in ' + destination[1] + '. the message was: ' + args,[destination[0],admin])
                     swears = True
                     break
             for swear in swearinformcaution:
                 if re.search(swear, args, re.I):
                     for admin in self.chk_recipientonline(destination[0],admininform[destination[0]]):
-                        self.base_say(client + ' possibly just swore in ' + destination[1] + '. Check the context. The message was: ' + args,destination)
+                        self.base_say(client + ' possibly just swore in ' + destination[1] + '. Check the context. The message was: ' + args,[destination[0],admin])
                     swears = True
                     break
             for swear in swearcomment:
