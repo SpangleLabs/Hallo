@@ -553,8 +553,10 @@ class ircbot:
         if(self.chk_god(destination[0],client)):
             args = args.lower().replace(' ','')
             if(args in allowedmodules):
+                imp.aquire_lock()
                 importlib.import_module(args)
                 imp.reload(sys.modules[args])
+                imp.release_lock()
                 #from args import *
                 if(args not in self.modules):
                     self.modules.append(args)
