@@ -964,7 +964,7 @@ class ircbot:
         nextline = ""
         while True:
             if(self.open and self.core['server'][server]['open']):
-                nextbyte = self.core['server'][server]['socket'].recv(1).decode('utf-8')
+                nextbyte = self.core['server'][server]['socket'].recv(1).decode('utf-8','ignore')
                 if(nextbyte!="\n"):
                     nextline = nextline + nextbyte
                 else:
