@@ -12,5 +12,3 @@ irc channels with passwords
 
 automatically load modules on startup
 
-integrate psuedoautovoicelist into config
-integrate admininform to config

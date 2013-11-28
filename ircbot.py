@@ -87,9 +87,11 @@ class ircbot:
             print(self.base_timestamp() + ' [' + server + "] ok we're connected now.")
         if('endofmessage' in args.replace(' ','').lower() and self.core['server'][server]['motdend'] == False):
             self.core['server'][server]['motdend'] = True
-        if(('lastseen:now' in args.replace(' ','').lower() or 'isonlinefrom:' in args.replace(' ','').lower()) and self.core['server'][server]['check']['userregistered'] == False):
+     #   if(('lastseen:now' in args.replace(' ','').lower() or 'isonlinefrom:' in args.replace(' ','').lower()) and self.core['server'][server]['check']['userregistered'] == False):
+        if(any(nickservmsg in args.replace(' ','').lower() for nickservmsg in self.conf['nickserv']['online']) and self.core['server'][server]['check']['userregistered'] == False):
             self.core['server'][server]['check']['userregistered'] = True
-        if('registered:' in args.replace(' ','').lower() and self.core['server'][server]['check']['nickregistered'] == False):
+    #    if('registered:' in args.replace(' ','').lower() and self.core['server'][server]['check']['nickregistered'] == False):
+        if(any(nickservmsg in args.replace(' ','').lower() for nickservmsg in self.conf['nickserv']['registered']) and self.core['server'][server]['check']['userregistered'] == False):
             self.core['server'][server]['check']['nickregistered'] = True
         pass # override this method to handle notices alternatively
 
