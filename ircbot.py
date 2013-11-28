@@ -703,16 +703,17 @@ class ircbot:
         # if the connection is open...
         #if not self.open: return
         # send the message, accounting for linebreaks
-        for n, line in enumerate(msg.split('\n')):
-            if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
-               self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + line.upper() + endl).encode('utf-8'))
-            else:
-               self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + line + endl).encode('utf-8'))
-            if(destination[1] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
-                self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '>: ' + line, destination)
-            # avoid flooding
-            if n % 5 == 0:
-                time.sleep(2)
+        if(self.open and self.core['server'][server]['open']):
+            for n, line in enumerate(msg.split('\n')):
+                if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
+                    self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + line.upper() + endl).encode('utf-8'))
+                else:
+                    self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + line + endl).encode('utf-8'))
+                if(destination[1] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
+                    self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '>: ' + line, destination)
+                # avoid flooding
+                if n % 5 == 0:
+                    time.sleep(2)
 
     def base_parse(self,server,data):
         # take a line of data from irc server's socket and process it
