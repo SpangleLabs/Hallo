@@ -639,6 +639,10 @@ class hallobase():
         rand = random.randint(0,len(scriptures)-1)
         return scriptures[rand]
 
+    def fn_active_threads(self,args,client,destination):
+        'Returns current number of active threads.. should probably be gods only'
+        return "I think I have " + str(threading.active_count()) + " active threads right now."
+
     def fnn_urldetect(self, args, client, destination):
         'Detects URLs posted in channel, then returns the page title.'
       #  if re.search('\b(https?://(www.)?|www.)[-a-zA-Z0-9+\&@#/%=~_|$\!:,.]*[a-zA-Z0-9+\&@#/%=~_|$]', args, re.I):

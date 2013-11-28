@@ -9,5 +9,3 @@
 06:07:08 < dr-spangle> misspelt server kills hallo9000, why?
 --does it?
 
-quit doesn't kill the process, this is because he's not killing strings
-this weird \x02 causes disconnect thing. 

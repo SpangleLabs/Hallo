@@ -683,18 +683,18 @@ class ircbot:
         
     def base_close(self):
         # disconnect
-        self.open = False
         for server in self.conf['servers']:
             self.base_disconnect(server)
         pickle.dump(self.conf,open(self.configfile,"wb"))
+        self.open = False
 
     def base_disconnect(self,server):
-        self.core['server'][server]['open'] = False
        # for channel in self.conf['server'][server]['channels']:
         #    self.base_say('Daisy daisy give me your answer do...',[server,channel])
         #    time.sleep(1)
         self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
         self.core['server'][server]['socket'].close()
+        self.core['server'][server]['open'] = False
 
     def base_say(self,msg,destination):
         # if the connection is open...
@@ -962,14 +962,13 @@ class ircbot:
         self.core['server'][server]['socket'].connect((self.conf['server'][server]['address'],self.conf['server'][server]['port']))
         Thread(target=self.base_connect, args=(server,)).start()
         nextline = ""
-        while True:
-            if(self.open and self.core['server'][server]['open']):
-                nextbyte = self.core['server'][server]['socket'].recv(1).decode('utf-8','ignore')
-                if(nextbyte!="\n"):
-                    nextline = nextline + nextbyte
-                else:
-                    Thread(target=self.base_parse, args=(server,nextline)).start()
-                    nextline = ""
+        while(self.open and self.core['server'][server]['open']):
+            nextbyte = self.core['server'][server]['socket'].recv(1).decode('utf-8','ignore')
+            if(nextbyte!="\n"):
+                nextline = nextline + nextbyte
+            else:
+                Thread(target=self.base_parse, args=(server,nextline)).start()
+                nextline = ""
 
 if __name__ == '__main__':
     ircbot().base_start("store/config.p")

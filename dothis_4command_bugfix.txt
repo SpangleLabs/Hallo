@@ -16,3 +16,4 @@
 23:18:36 < dr-spangle> 23:17:32 <&Hallo9000> Insufficient privileges list ops for this server.
 23:18:43 < dr-spangle> -*to list
 
+cupcake throws odd error if no user given
