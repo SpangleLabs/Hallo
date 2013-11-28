@@ -569,12 +569,12 @@ class ircbot:
     def chk_op(self,server,client):
         # check if someone has op status for this bot
         client = client.lower()
-        return self.chk_userregistered(server,client) and (len(self.conf['server'][server]['ops'])==0 or self.conf['server'][server]['ops'].count(client) > 0)
+        return self.chk_userregistered(server,client) and ((len(self.conf['server'][server]['ops'])!=0 and self.conf['server'][server]['ops'].count(client) > 0) or (len(self.conf['server'][server]['gods'])!=0 god self.conf['server'][server]['gods'].count(client) > 0))
 
     def chk_god(self,server,client):
         # check if someone has god status for this bot
         client = client.lower()
-        return self.chk_userregistered(server,client) and (len(self.conf['server'][server]['gods'])==0 or self.conf['server'][server]['gods'].count(client) > 0)
+        return self.chk_userregistered(server,client) and len(self.conf['server'][server]['gods'])!=0 god self.conf['server'][server]['gods'].count(client) > 0
 
     def chk_userregistered(self,server,client):
         # check if a user is registered and logged in

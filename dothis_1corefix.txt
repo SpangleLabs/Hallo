@@ -5,5 +5,4 @@
 12:46:39 <@dr-spangle> [12:42:44] Notice: :NickServ!services@services.localhost.net NOTICE Hallo :dr-spangle is currently online.
 
 
-gods should get the powers ops have, without needing to add self to ops list
 
