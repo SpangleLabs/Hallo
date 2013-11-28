@@ -647,7 +647,7 @@ class ircbot:
             for swear in swearinformcaution:
                 if re.search(swear, args, re.I):
                     for admin in self.chk_recipientonline(destination[0],admininform[destination[0]]):
-                        self.base_say(client + ' possibly just swore in ' + destination + '. Check the context. The message was: ' + args,destination)
+                        self.base_say(client + ' possibly just swore in ' + destination[1] + '. Check the context. The message was: ' + args,destination)
                     swears = True
                     break
             for swear in swearcomment:
@@ -690,8 +690,8 @@ class ircbot:
 
     def base_disconnect(self,server):
         self.core['server'][server]['open'] = False
-        for channel in self.conf['server'][server]['channels']:
-            self.base_say('Daisy daisy give me your answer do...',[server,channel])
+       # for channel in self.conf['server'][server]['channels']:
+        #    self.base_say('Daisy daisy give me your answer do...',[server,channel])
         #    time.sleep(1)
         self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
         self.core['server'][server]['socket'].close()
