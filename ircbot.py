@@ -779,7 +779,7 @@ class ircbot:
                 args = message[len(function):]
                 # parse out leading whitespace
                 if(len(args)>=1):
-                    while(args[0] == ' ' and len(args)>=1):
+                    while(len(args)>=1 and args[0] == ' '):
                         args = args[1:]
                 #Encase functions in error handling, because programmers might make functions which are a tad crashy
                 found = False

@@ -11,3 +11,5 @@
 irc channels with passwords
 
 automatically load modules on startup
+
+quit silent, quit without saying daisy daisy in every channel
