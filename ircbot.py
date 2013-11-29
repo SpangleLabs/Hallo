@@ -159,6 +159,7 @@ class ircbot:
                 self.conf['server'][title]['port'] = self.conf['server'][destination[0]]['port']
                 self.conf['server'][title]['channel'] = {}
                 self.conf['server'][title]['admininform'] = []
+                self.conf['server'][title]['pingdiff'] = 600
             Thread(target=self.base_run, args=(title,)).start()
             return "Connected to " + args
         else:
@@ -391,11 +392,11 @@ class ircbot:
             else:
                 if(args.split()[0] in self.conf['servers']):
                     self.base_say("Changed " + args.split()[0] + " address to: " + args.split()[1],destination)
-                    if(self.core['server'][args.split()[0]]['open']):
-                        self.core['server'][args.split()[0]]['open'] = False
-                        self.base_disconnect(args.split()[0])
-                    self.conf['server'][args.split()[0]]['address'] = args.split()[1]
-                    Thread(target=self.base_run, args=(args.split()[0],)).start()
+                    self.core['server'][args.split()[0]]['lastping'] = 1
+          #          if(self.core['server'][args.split()[0]]['open']):
+          #              self.base_disconnect(args.split()[0])
+          #          self.conf['server'][args.split()[0]]['address'] = args.split()[1]
+          #          Thread(target=self.base_run, args=(args.split()[0],)).start()
                     return "Changed " + args.split()[0] + " address to: " + args.split()[1]
                 else:
                     return "I don't have a server in config called " + args.split()[0]
@@ -410,11 +411,11 @@ class ircbot:
             else:
                 if(args.split()[0] in self.conf['servers']):
                     self.base_say("Changed " + args.split()[0] + " port to: " + args.split()[1],destination)
-                    if(self.core['server'][args.split()[0]]['open']):
-                        self.core['server'][args.split()[0]]['open'] = False
-                        self.base_disconnect(args.split()[0])
-                    self.conf['server'][args.split()[0]]['port'] = args.split()[1]
-                    Thread(targer=self.base_run, args=(args.split()[0],)).start()
+                    self.core['server'][args.split()[0]]['lastping'] = 1
+           #         if(self.core['server'][args.split()[0]]['open']):
+           #             self.base_disconnect(args.split()[0])
+           #         self.conf['server'][args.split()[0]]['port'] = args.split()[1]
+           #         Thread(targer=self.base_run, args=(args.split()[0],)).start()
                     return "Changed " + args.split()[0] + " port to: " + args.split()[1]
                 else:
                     return "I don't have a server in config called " + args.split()[0]
@@ -749,6 +750,9 @@ class ircbot:
             # return pings so we don't get timed out
             print(self.base_timestamp() + ' [' + server + '] PING')
             self.core['server'][server]['socket'].send(('PONG ' + data.split()[1] + endl).encode('utf-8'))
+            if(self.core['server'][server]['lastping']!=0 and self.conf['server'][server]['pingdiff']==600):
+                self.conf['server'][server]['pingdiff'] = int(time.time())-self.core['server'][server]['lastping']
+            self.core['server'][server]['lastping'] = int(time.time())
         # update  the following when rewriting for ping timeouts. record the time to self.core['server'][server]['pingtime'] or something and do some check if it's over 3 minutes, if so disconnect and reconnect
         #    pingfile = open('hallodump.txt','w')
         #    pingfile.write(str(os.getpid()))
@@ -972,6 +976,11 @@ class ircbot:
         for server in self.conf['servers']:
             Thread(target=self.base_run, args=(server,)).start()
         while(self.open):
+            for server in self.conf['servers']:
+                if(self.core['server'][server]['open'] and self.core['server'][server]['lastping']!=0 and (int(time.time())-self.core['server'][server]['lastping'])>(30+self.conf['server'][server]['pingdiff'])):
+                    print("TIMED OUT FROM " + server + ", RECONNECTING.")
+                    self.base_disconnect(server)
+                    Thread(target=self.base_run, args=(server,)).start()
             time.sleep(0.1)
 
     def base_run(self,server):
@@ -987,6 +996,7 @@ class ircbot:
             self.core['server'][server]['channel']['channel'] = {}
             if(self.conf['server'][server]['channel'][channel]['megahal_record']):
                 self.core['server'][server]['channel'][channel]['megahalcount'] = 0
+        self.core['server'][server]['lastping'] = 0
         self.core['server'][server]['connected'] = False
         self.core['server'][server]['motdend'] = False
         self.core['server'][server]['open'] = True
