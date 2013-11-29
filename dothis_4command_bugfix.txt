@@ -19,3 +19,5 @@
 cupcake throws odd error if no user given
 
 I think image urldetect doesn't work
+
+improve hallo time

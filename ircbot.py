@@ -573,7 +573,6 @@ class ircbot:
                 importlib.import_module(args)
                 imp.reload(sys.modules[args])
                 imp.release_lock()
-                #from args import *
                 if(args not in self.modules):
                     self.modules.append(args)
                 return "Reloaded module."
@@ -959,6 +958,17 @@ class ircbot:
         self.core['server'] = {}
         self.open = True
         self.modules = []
+        try:
+            allowedmodules = pickle.load(open('store/allowedmodules.p','rb'))
+        except:
+            allowedmodules = []
+        for mod in allowedmodules:
+            imp.acquire_lock()
+            importlib.import_module(mod)
+            imp.reload(sys.modules[mod])
+            imp.release_lock()
+            if(mod not in self.modules):
+                self.modules.append(mod)
         for server in self.conf['servers']:
             Thread(target=self.base_run, args=(server,)).start()
         while(self.open):
