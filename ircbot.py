@@ -35,14 +35,6 @@ class ircbot:
 
     def on_join(self,server,client,channel):
         # handle join events from other users (or from hallo!)
-     #   try:
-     #       voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
-     #   except IOError:
-     #       voice_list = {}
-     #   if(server not in voice_list):
-     #       voice_list[server] = {}
-     #   if(channel not in voice_list[server]):
-     #       voice_list[server][channel] = []
         if(client.lower() in self.conf['server'][server]['channel'][channel]['voice_list']):
             # rewriting this later to check if logged in, rather than waiting 35 seconds
             time.sleep(35)
@@ -99,12 +91,6 @@ class ircbot:
         # handle people changing their nick
         if(client == self.conf['server'][server]['nick']):
             self.conf['server'][server]['nick'] = newnick
-     #   try:
-     #       voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
-     #   except IOError:
-     #       voice_list = {}
-  #      if(server not in voice_list):
-  #          voice_list[server] = {}
         for channel in self.conf['server'][server]['channels']:
             if(newnick in self.conf['server'][server]['channel'][channel]['voice_list']):
                 #rewriting this later, to replace 35 second wait with login checks
@@ -260,23 +246,14 @@ class ircbot:
     def fn_voice_add(self,args,client,destination):
         'Adds a user to psuedoautovoice, format is "voice_add {user} {channel}"'
         if(self.chk_op(destination[0],client)):
-       #     try:
-       #         voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
-       #     except IOError:
-       #         voice_list = {}
             args = args.lower()
             channel = destination[1]
             if(len(args.split())>1):
                 channel = args.split()[1]
                 args = args.split()[0]
-       #     if(destination[0] not in voice_list):
-       #         voice_list[destination[0]] = {}
-       #     if(channel not in voice_list[destination[0]]):
-       #         voice_list[destination[0]][channel] = []
             if(args not in self.conf['server'][destination[0]]['channel'][channel]['voice_list']):
                 if(self.chk_nickregistered(destination[0],args)):
                     self.conf['server'][destination[0]]['channel'][channel]['voice_list'].append(args)
-          #          pickle.dump(voice_list,open("store/pseudoautovoice.p","wb"))
                     if(self.chk_userregistered(destination[0],args)):
                         self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' +v ' + args + endl).encode('utf-8'))
                     return "Added " + args + " to the pseudoautovoice list for " + channel
@@ -292,10 +269,6 @@ class ircbot:
         if(self.chk_op(destination[0],client)):
             if(args==''):
                 args = destination[1]
-        #    try:
-        #        voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
-        #    except IOError:
-        #        voice_list = {}
             return "Users on pseudoautovoice list for " + args + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][args]['voice_list'])
         else:
             return "Sorry, this function is for ops only."
@@ -303,10 +276,6 @@ class ircbot:
     def fn_voice_del(self,args,client,destination):
         'Remove a user from autovoice list, ops only. same arguments as voice_add'
         if(self.chk_op(destination[0],client)):
-       #     try:
-       #         voice_list = pickle.load(open("store/pseudoautovoice.p","rb"))
-       #     except IOError:
-       #         voice_list = {}
             args = args.lower()
             channel = destination[1]
             if(len(args.split())>1):
@@ -314,7 +283,6 @@ class ircbot:
                 args = args.split()[0]
             if(args in self.conf['server'][destination[0]]['channel'][channel]['voice_list']):
                 self.conf['server'][destination[0]]['channel'][channel]['voice_list'].remove(args)
-    #            pickle.dump(voice_list,open("store/pseudoautovoice.p","wb"))
                 return "Removed " + args + " from pseudo-auto-voice list for " + channel
             else:
                 return args + " isn't even on the autovoice list for " + channel
@@ -324,16 +292,9 @@ class ircbot:
     def fn_admininform_add(self,args,client,destination):
         'Add a user to the admin swear inform list, ops only.'
         if(self.chk_op(destination[0],client)):
-        #    try:
-        #        admininform = pickle.load(open('store/admininform.p','rb'))
-        #    except IOError:
-        #        admininform = {}
             args = args.lower().replace(' ','')
-        #    if(destination[0] not in admininform):
-        #        admininform[destination[0]] = []
             if(args not in self.conf['server'][destination[0]]['admininform']):
                 self.conf['server'][destination[0]]['admininform'].append(args)
-        #        pickle.dump(admininform,open('store/admininform.p','wb'))
                 return "Added " + args + " to the admininform list."
             else:
                 return "This person is already on the admininform list"
@@ -343,10 +304,6 @@ class ircbot:
     def fn_admininform_list(self,args,client,destination):
         'Lists users who are informed when sweardetect detects swearing.'
         if(self.chk_op(destination[0],client)):
-       #     try:
-       #         admininform = pickle.load(open('store/admininform.p','rb'))
-       #     except IOError:
-       #         admininform = {}
             return "Users on admininform for this server: " + ', '.join(self.conf['server'][destination[0]]['admininform'])
         else:
             return "Sorry, this function is for ops only."
@@ -354,19 +311,77 @@ class ircbot:
     def fn_admininform_del(self,args,client,destination):
         'Delete a user from being informed about swearing in selected channels'
         if(self.chk_op(destination[0],client)):
-   #         try:
-   #             admininform = pickle.load(open("store/admininform.p","rb"))
-   #         except IOError:
-   #             admininform = {}
             args = args.lower().replace(' ','')
             if(args in self.conf['server'][destination[0]]['admininform']):
                 self.conf['server'][destination[0]]['admininform'].remove(args)
-       #         pickle.dump(admininform,open("store/admininform.p","wb"))
                 return "Removed " + args + " from admininform list"
             else:
                 return args + " isn't even on the admininform list for " + destination[0]
         else:
             return "Sorry, this function is for ops only."
+
+    def fn_nickserv_registered_add(self,args,client,destination):
+        'Add a string to the list of nickserv messages to look for when checking if a nick is registered'
+        if(self.chk_god(destination[0],client)):
+            args = args.lower().replace(' ','')
+            if(args not in self.conf['nickserv']['registered']):
+                self.conf['nickserv']['registered'].append(args)
+                return "Added " + args + " to the nickserv registered list."
+            else:
+                return "This message is already on the nickserv registered list"
+        else:
+            return "Sorry, this function is for gods only."
+
+    def fn_nickserv_registered_list(self,args,client,destination):
+        'Lists all the nickserv messages to look for when checking if a nick is registered.'
+        if(self.chk_god(destination[0],client)):
+            return "Nick registered nickserv messages: " + ', '.join(self.conf['nickserv']['registered'])
+        else:
+            return "Sorry, this function is for gods only."
+
+    def fn_nickserv_registered_del(self,args,client,destination):
+        'Deletes a string from the list of nickserv messages to look for when checking is a nick is registered'
+        if(self.chk_god(destination[0],client)):
+            args = args.lower().replace(' ','')
+            if(args in self.conf['nickserv']['registered']):
+                self.conf['server']['registered'].remove(args)
+                return "Removed " + args + " from nickserv registered list."
+            else:
+                return "This message isn't even on the nickserv registered list."
+        else:
+            return "Sorry, this function is for gods only."
+
+    def fn_nickserv_online_add(self,args,client,destination):
+        'Add a string to the list of nickserv messages to look for when checking if a nick is online'
+        if(self.chk_god(destination[0],client)):
+            args = args.lower().replace(' ','')
+            if(args not in self.conf['nickserv']['online']):
+                self.conf['nickserv']['online'].append(args)
+                return "Added " + args + " to the nickserv online list."
+            else:
+                return "This message is already on the nickserv online list"
+        else:
+            return "Sorry, this function is for gods only."
+
+    def fn_nickserv_online_list(self,args,client,destination):
+        'Lists all the nickserv messages to look for when checking if a nick is online.'
+        if(self.chk_god(destination[0],client)):
+            return "Nick online nickserv messages: " + ', '.join(self.conf['nickserv']['online'])
+        else:
+            return "Sorry, this function is for gods only."
+
+    def fn_nickserv_online_del(self,args,client,destination):
+        'Deletes a string from the list of nickserv messages to look for when checking is a nick is online'
+        if(self.chk_god(destination[0],client)):
+            args = args.lower().replace(' ','')
+            if(args in self.conf['nickserv']['online']):
+                self.conf['server']['online'].remove(args)
+                return "Removed " + args + " from nickserv online list."
+            else:
+                return "This message isn't even on the nickserv online list"
+        else:
+            return "Sorry, this function is for gods only."
+
 
     def fn_server_address(self,args,client,destination):
         'Sets address for a given server. Requires godmode.'

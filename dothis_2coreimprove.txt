@@ -12,3 +12,4 @@ irc channels with passwords
 
 automatically load modules on startup
 
+make pseudoautovoice faster, don't wait 35 seconds, just wait 5 then check with nickserv, repeat.
