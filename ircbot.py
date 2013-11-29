@@ -719,11 +719,24 @@ class ircbot:
         # if the connection is open...
         #if not self.open: return
         # send the message, accounting for linebreaks
+        maxlength = 450 # max message length, inc channel name.
         if(self.open and self.core['server'][destination[0]]['open']):
+            if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
+                msg = msg.upper()
             for n, line in enumerate(msg.split('\n')):
-                if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
-                    print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line.upper())
-                    self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + line.upper() + endl).encode('utf-8'))
+                if((len(line)+len(destination[1]))>maxlength):
+                    linefirst = line[:(maxlength-3-len(destination[1]))] + '...'
+                    line = line[(maxlength-3-len(destination[1])):]
+                    print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linefirst)
+                    self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + linefirst + endl).encode('utf-8'))
+                    while((len(line)+len(destination[1]))>(maxlength-3)):
+                        linechunk = '...' + line [:(maxlength-6-len(destination[1]))] + '..'
+                        line = line[(maxlength-6-len(destination[1])):]
+                        print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linechunk)
+                        self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + linechunk + endl).encode('utf-8'))
+                    lineend = '...' + line
+                    print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + lineend)
+                    self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + lineend + endl).encode('utf-8'))
                 else:
                     print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line)
                     self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + line + endl).encode('utf-8'))
