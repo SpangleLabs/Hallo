@@ -5,8 +5,6 @@
 
 12:20:50 <@dr-spangle> -memory/time management thread?
 
-23:30:03 < dr-spangle> -ctcp file transfers, ensure you reject
-
 irc channels with passwords
 
 make pseudoautovoice faster, don't wait 35 seconds, just wait 5 then check with nickserv, repeat.
