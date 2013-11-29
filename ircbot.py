@@ -977,9 +977,11 @@ class ircbot:
             Thread(target=self.base_run, args=(server,)).start()
         while(self.open):
             for server in self.conf['servers']:
-                if(self.core['server'][server]['open'] and self.core['server'][server]['lastping']!=0 and (int(time.time())-self.core['server'][server]['lastping'])>(30+self.conf['server'][server]['pingdiff'])):
+                if(self.core['server'][server]['open'] and self.core['server'][server]['lastping']!=0 and (int(time.time())-self.core['server'][server]['lastping'])>(120+self.conf['server'][server]['pingdiff'])):
                     print("TIMED OUT FROM " + server + ", RECONNECTING.")
                     self.base_disconnect(server)
+                    del self.core['server'][server]
+                    time.sleep(1)
                     Thread(target=self.base_run, args=(server,)).start()
             time.sleep(0.1)
 

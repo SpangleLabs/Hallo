@@ -16,3 +16,4 @@ make config_view a bit neater perhaps? manually, rather than prettyprint. perhap
 03:47:57 <@BoringUglyPinkEarthPony> I suppose you could code in an immunity to disconnect commands for 10 seconds after connection
 do this by checking when you join a channel whether +H is set, if so, ignoring commands for 10 seconds?
 
+swearlist doesn't want to be hardcoded in, should be a config var
