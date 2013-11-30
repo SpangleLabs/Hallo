@@ -102,6 +102,10 @@ class ircbot:
             self.fn_join(channel,client,[server,''])
         pass # override to do something on invite
 
+    def on_kick(self,server,client,channel,message):
+        if(client == self.conf['server'][server]['nick']):
+            self.conf['server'][server]['channel'][channel]['in_channel'] = False
+
     def on_rawdata(self,server,data,unhandled):
         pass # override this method to do general data handling
 
@@ -932,6 +936,12 @@ class ircbot:
             channel = ':'.join(data.split(':')[2:]).replace(endl,'')
             print(self.base_timestamp() + ' [' + server + '] invite to ' + channel + ' from ' + client)
             self.on_invite(server,client,channel)
+        elif('KICK' == data.split()[1]):
+            #handle kicks
+            channel = data.split()[2]
+            client = data.split()[1]
+            message = ':'.join(data.split(':')[2:]).replace(endl,'')
+            self.on_kick(server,client,channel,message)
         elif data == '':
             #blank message thingy
             #print 'Blank'
