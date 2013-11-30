@@ -4,8 +4,6 @@
 
 12:20:50 <@dr-spangle> -memory/time management thread?
 
-irc channels with passwords
-
 make pseudoautovoice faster, don't wait 35 seconds, just wait 5 then check with nickserv, repeat.
 
 split help up into different functions, so 'help commands' lists categories of commands (by module?) then 'help commands all' lists them all, while 'help commands {module}' lists commnds in a module
