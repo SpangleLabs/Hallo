@@ -914,7 +914,7 @@ class ircbot:
          #          self.base_say(out,[server,destination])
         elif('JOIN' == data.split()[1]):
             # handle JOIN events
-            channel = ':'.join(data.split(':')[2:]).replace(endl,'')
+            channel = ':'.join(data.split(':')[2:]).replace(endl,'').lower()
             client = data.split('!')[0][1:]
             print(self.base_timestamp() + ' [' + server + '] ' + client + ' joined ' + channel)
             self.on_join(server,client,channel)
@@ -933,7 +933,7 @@ class ircbot:
             self.on_quit(server,client,message)
         elif('MODE' == data.split()[1]):
             # handle MODE events
-            channel = data.split()[2].replace(endl, '')
+            channel = data.split()[2].replace(endl, '').lower()
             client = data.split('!')[0][1:]
             mode = data.split()[3].replace(endl, '')
             if(len(data.split())>=4):
