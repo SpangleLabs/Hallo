@@ -36,16 +36,20 @@ class ircbot:
     def on_join(self,server,client,channel):
         # handle join events from other users (or from hallo!)
         if(client.lower() in self.conf['server'][server]['channel'][channel]['voice_list']):
-            # rewriting this later to check if logged in, rather than waiting 35 seconds
-            time.sleep(35)
-            self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + client + endl).encode('utf-8'))
+            for x in range(7):
+                if(chk_userregistered(server,client)):
+                    self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + client + endl).encode('utf-8'))
+                    time.sleep(5)
+                    break
         if(client.lower() == self.conf['server'][server]['nick']):
             namesonline = self.chk_names(server,channel)
-            #rewriting this later to check if logged in, rather than waiting 35 seconds
-            time.sleep(35)
             for user in self.conf['server'][server]['channel'][channel]['voice_list']:
                 if(user in namesonline and "+" + user not in namesonline):
-                    self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + client + endl).encode('utf-8'))
+                    for x in range(7):
+                        if(chk_userregistered(server,client)):
+                            self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + client + endl).encode('utf-8'))
+                            time.sleep(5)
+                            break
 
     def on_part(self,server,client,channel,args):
         pass # override this method to handle PART events from other users
@@ -97,9 +101,11 @@ class ircbot:
             self.conf['server'][server]['nick'] = newnick
         for channel in self.conf['server'][server]['channels']:
             if(newnick in self.conf['server'][server]['channel'][channel]['voice_list']):
-                #rewriting this later, to replace 35 second wait with login checks
-                time.sleep(35)
-                self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + newnick + endl).encode('utf-8'))
+                for x in range(7):
+                    if(chk_userregistered(server,client)):
+                        self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + newnick + endl).encode('utf-8'))
+                        time.sleep(5)
+                        break
 
     def on_invite(self,server,client,channel):
         if(self.chk_op(server,client)):
