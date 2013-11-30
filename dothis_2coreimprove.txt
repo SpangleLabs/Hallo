@@ -13,4 +13,3 @@ do this by checking when you join a channel whether +H is set, if so, ignoring c
 
 swearlist doesn't want to be hardcoded in, should be a config var
 
-if not connected to any servers, shut down.

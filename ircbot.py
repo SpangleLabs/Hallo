@@ -1048,13 +1048,18 @@ class ircbot:
                 Thread(target=self.base_run, args=(server,)).start()
         time.sleep(2)
         while(self.open):
+            servers = 0
             for server in self.conf['servers']:
+                if(self.conf['server'][server]['connected']):
+                    servers = servers+1
                 if(self.conf['server'][server]['connected'] and self.core['server'][server]['open'] and self.core['server'][server]['lastping']!=0 and (int(time.time())-self.core['server'][server]['lastping'])>(120+self.conf['server'][server]['pingdiff'])):
                     print("TIMED OUT FROM " + server + ", RECONNECTING.")
                     self.base_disconnect(server)
                     del self.core['server'][server]
                     time.sleep(1)
                     Thread(target=self.base_run, args=(server,)).start()
+            if(servers==0):
+                self.base_close()
             time.sleep(0.1)
 
     def base_run(self,server):
