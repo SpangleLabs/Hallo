@@ -22,3 +22,7 @@ reconnect function
 cards against humanity?
 
 hallo slowclap
+
+weather function
+whether function
+
