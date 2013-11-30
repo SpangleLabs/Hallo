@@ -117,6 +117,7 @@ class ircbot:
                 self.conf['server'][destination[0]]['channel'][args]['sweardetect'] = False
                 self.conf['server'][destination[0]]['channel'][args]['caps'] = False
                 self.conf['server'][destination[0]]['channel'][args]['voice_list'] = []
+            self.conf['server'][destination[0]]['channel'][args]['in_channel'] = True
             self.core['server'][destination[0]]['socket'].send(('JOIN ' + args + endl).encode('utf-8'))
             return 'Joined ' + args + '.'
         else:
@@ -125,9 +126,12 @@ class ircbot:
     def fn_part(self,args,client,destination):
         'Leave a channel.  Use "part <channel>".  Requires op'
         if(self.chk_op(destination[0],client)):
-         #   if(args in self.channels):
-         #       self.conf['server'][destination[0]]['channels'].remove(args)
-            self.core['server'][destination[0]]['socket'].send(('PART ' +args + endl).encode('utf-8'))
+            if(args.replace(' ','')==""):
+                self.core['server'][destination[0]]['socket'].send(('PART ' + destination[1] + endl).encode('utf-8'))
+                self.conf['server'][destination[0]]['channel'][destination[1]]['in_channel'] = False
+            else:
+                self.core['server'][destination[0]]['socket'].send(('PART ' + args + endl).encode('utf-8'))
+                self.conf['server'][destination[0]]['channel'][args.split()[0]]['in_channel'] = False
             return 'Parted ' + args + '.'
         else:
             return 'Insufficient privileges to part.'
@@ -160,6 +164,7 @@ class ircbot:
                 self.conf['server'][title]['channel'] = {}
                 self.conf['server'][title]['admininform'] = []
                 self.conf['server'][title]['pingdiff'] = 600
+                self.conf['server'][title]['connected'] = False
             Thread(target=self.base_run, args=(title,)).start()
             return "Connected to " + args
         else:
@@ -171,6 +176,7 @@ class ircbot:
             self.base_say('Disconnecting...',destination)
             args = args.lower()
   #          self.core['server'][destination[0]]['open'] = False
+            self.conf['server'][server]['connected'] = False
             self.base_disconnect(destination[0])
             return "Disconnected."
         else:
@@ -713,6 +719,7 @@ class ircbot:
         if(self.core['server'][server]['open']):
             self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
             self.core['server'][server]['socket'].close()
+        #    self.conf['server'][server]['connected'] = False
             self.core['server'][server]['open'] = False
 
     def base_say(self,msg,destination):
@@ -955,6 +962,7 @@ class ircbot:
         while(self.core['server'][server]['connected'] == False):
             print(self.base_timestamp() + " Not connected to " + server + " yet")
             time.sleep(0.5)
+        self.conf['server'][server]['connected'] = True
         print(self.base_timestamp() + " sending nick and user info to server: " + server)
         self.core['server'][server]['socket'].send(('NICK ' + self.conf['server'][server]['nick'] + endl).encode('utf-8'))
         self.core['server'][server]['socket'].send(('USER ' + self.conf['server'][server]['full_name'] + endl).encode('utf-8'))
@@ -963,7 +971,8 @@ class ircbot:
             time.sleep(0.5)
         print(self.base_timestamp() + " joining channels on " + server + ", identifying.")
         for channel in self.conf['server'][server]['channels']:
-            self.core['server'][server]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
+            if(self.conf['server'][server]['channel'][channel]['in_channel']):
+                self.core['server'][server]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
         if self.conf['server'][server]['pass']:
             self.base_say('IDENTIFY ' + self.conf['server'][server]['pass'], [server,'nickserv'])
 
@@ -987,10 +996,12 @@ class ircbot:
             if(mod not in self.modules):
                 self.modules.append(mod)
         for server in self.conf['servers']:
-            Thread(target=self.base_run, args=(server,)).start()
+            if(self.conf['server'][server]['connected']):
+                Thread(target=self.base_run, args=(server,)).start()
+        time.sleep(2)
         while(self.open):
             for server in self.conf['servers']:
-                if(self.core['server'][server]['open'] and self.core['server'][server]['lastping']!=0 and (int(time.time())-self.core['server'][server]['lastping'])>(120+self.conf['server'][server]['pingdiff'])):
+                if(self.conf['server'][server]['connected'] and self.core['server'][server]['open'] and self.core['server'][server]['lastping']!=0 and (int(time.time())-self.core['server'][server]['lastping'])>(120+self.conf['server'][server]['pingdiff'])):
                     print("TIMED OUT FROM " + server + ", RECONNECTING.")
                     self.base_disconnect(server)
                     del self.core['server'][server]
