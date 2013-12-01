@@ -61,8 +61,12 @@ class hallobase():
                 self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' +o ' + nick + endl).encode('utf-8'))
                 return 'Op status given to ' + nick + ' in ' + channel + '.'
             elif(args.replace(' ','')!=''):
-                self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +o ' + args + endl).encode('utf-8'))
-                return 'Op status given to ' + args + '.'
+                if(args[0]=='#'):
+                    self.core['server'][destination[0]]['socket'].send(('MODE ' + args + ' +o ' + client + endl).encode('utf-8'))
+                    return 'Op status given to you in ' + args + '.'
+                else:
+                    self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +o ' + args + endl).encode('utf-8'))
+                    return 'Op status given to ' + args + '.'
             else:
                 self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +o ' + client + endl).encode('utf-8'))
                 return 'Op status given.'
