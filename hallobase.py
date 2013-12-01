@@ -16,6 +16,7 @@ import pickle
 import euler
 import threading
 import json
+import difflib
 
 #Importing greetings
 #try:
@@ -747,6 +748,24 @@ class hallobase():
             ingredients.append(ingredient[0] + ingredient[1])
         output = output + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
         return output
+
+    def fn_cocktail(self,args,client,destination):
+        'Returns ingredients and instructions for a given cocktail (or closest guess)'
+        cocktails = pickle.load(open('store/cocktails.p','rb'))
+        cocktailnames = []
+        for cocktail in cocktails:
+            cocktailnames.append(cocktail['name'].lower())
+        closest = difflib.get_close_matches(args.lower(),cocktailnames)
+        if(len(closest)==0 or closest[0]==''):
+            return "I haven't got anything close to that name."
+        else:
+            for cocktail in cocktails:
+                if(cocktail['name']==closest[0]):
+                    break
+            ingredients = []
+            for ingredient in cocktail['ingredients']:
+                ingredients.append(ingredient[0] + ingredient[1])
+            return "Closest I have is " + closest[0] + ". The ingredients are: " + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
 
     def fnn_urldetect(self, args, client, destination):
         'Detects URLs posted in channel, then returns the page title.'
