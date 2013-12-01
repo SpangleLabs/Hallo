@@ -9,7 +9,7 @@ import urllib.request, urllib.error, urllib.parse
 import time
 import re
 import math
-#from PIL import Image
+from PIL import Image
 import io
 import pickle
 #from megahal/megahal import *
