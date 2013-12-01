@@ -37,17 +37,18 @@ class ircbot:
         # handle join events from other users (or from hallo!)
         if(client.lower() in self.conf['server'][server]['channel'][channel]['voice_list']):
             for x in range(7):
-                if(chk_userregistered(server,client)):
+                if(self.chk_userregistered(server,client)):
                     self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + client + endl).encode('utf-8'))
                     time.sleep(5)
                     break
-        if(client.lower() == self.conf['server'][server]['nick']):
+        if(client.lower() == self.conf['server'][server]['nick'].lower()):
             namesonline = self.chk_names(server,channel)
+            namesonline = [x.lower() for x in namesonline]
             for user in self.conf['server'][server]['channel'][channel]['voice_list']:
                 if(user in namesonline and "+" + user not in namesonline):
                     for x in range(7):
-                        if(chk_userregistered(server,client)):
-                            self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + client + endl).encode('utf-8'))
+                        if(self.chk_userregistered(server,user)):
+                            self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + user + endl).encode('utf-8'))
                             time.sleep(5)
                             break
 
@@ -102,7 +103,7 @@ class ircbot:
         for channel in self.conf['server'][server]['channels']:
             if(newnick in self.conf['server'][server]['channel'][channel]['voice_list']):
                 for x in range(7):
-                    if(chk_userregistered(server,client)):
+                    if(self.chk_userregistered(server,client)):
                         self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + newnick + endl).encode('utf-8'))
                         time.sleep(5)
                         break
