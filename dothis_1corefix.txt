@@ -1,6 +1,5 @@
 
 
-fix that huge vulnerability in chk_nickregistered and stuff, where he doesn't ensure nickserv is sending notices.
 {EMPTY}
 
 
