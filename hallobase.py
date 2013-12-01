@@ -709,10 +709,10 @@ class hallobase():
         if(self.chk_op(destination[0],client)):
             args = args.replace(' ','')
             if(args==''):
-                self.core['server'][destination[0]]['socket'].send(('MODE +v ' + destination[1] + endl).encode('utf-8'))
+                self.core['server'][destination[0]]['socket'].send(('MODE +m ' + destination[1] + endl).encode('utf-8'))
                 return "Muted the channel."
             else:
-                self.core['server'][destination[0]]['socket'].send(('MODE +v ' + args + endl).encode('utf-8'))
+                self.core['server'][destination[0]]['socket'].send(('MODE +m ' + args + endl).encode('utf-8'))
                 return "Muted " + args
         else:
             return "You have insufficient privileges to use this function."
@@ -722,10 +722,10 @@ class hallobase():
         if(self.chk_op(destination[0],client)):
             args = args.replace(' ','')
             if(args==''):
-                self.core['server'][destination[0]]['socket'].send(('MODE -v ' + destination[1] + endl).encode('utf-8'))
+                self.core['server'][destination[0]]['socket'].send(('MODE -m ' + destination[1] + endl).encode('utf-8'))
                 return "Unmuted channel."
             else:
-                self.core['server'][destination[0]]['socket'].send(('MODE -v ' + args + endl).encode('utf-8'))
+                self.core['server'][destination[0]]['socket'].send(('MODE -m ' + args + endl).encode('utf-8'))
                 return "Unmuted " + args + "."
         else:
             return "You have insufficient privileges to use this function."
