@@ -42,7 +42,7 @@ class hallobase():
     
     def fn_kick(self, args, client, destination):
         'Kick user(s) from all channels hallo has op in.  Use "kick <user1> <user2> <user3>...".  Ops only.'
-        if(self.chk_op(client)):
+        if(self.chk_op(destination[0],client)):
             if(destination[0] == 'canternet'):
                 for channel in self.conf['server'][destination[0]]['channels']:
                     self.conf['server'][destination[0]]['socket'].send(endl.join('KICK ' + channel + ' ' + nick for nick in args.split(' ')) + endl)
@@ -54,7 +54,7 @@ class hallobase():
     
     def fn_op(self, args, client, destination):
         'Op user(s) from all channels hallo has op in.  Use "op <user1> <user2> <user3>...".  Ops only.'
-        if(self.chk_op(client)):
+        if(self.chk_op(destination[0],client)):
             self.conf['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' +o ' + args + endl)
             return 'Op status given to ' + args + '.'
         else:
@@ -109,13 +109,13 @@ class hallobase():
         if(destination[1].lower() == '#ukofequestria'):
             return 'Longcat cannot be activated here, sorry.'
         else:
-            if(self.chk_op(client)):
+            if(self.chk_op(destination[0],client)):
                 self.longcat = True
                 return 'Longcat enabled.  Use "longcat_off" to turn it off.'
     
     def fn_longcat_off(self, args, client, destination):
         'Turn off longcat functon.'
-        if(self.chk_op(client)):
+        if(self.chk_op(destination[0],client)):
             self.longcat = False
             return 'Longcat disabled.  Use "longcat_on" to turn it on.'
 
@@ -125,7 +125,7 @@ class hallobase():
             return 'Sorry, longcat is not available here.'
         else:
             if(self.longcat):
-                if(self.chk_op(client)):
+                if(self.chk_god(destination[0],client)):
                     longcathead = '    /\___/\ \n   /       \ \n  |  #    # |\n  \     @   |\n   \   _|_ /\n   /       \______\n  / _______ ___   \ \n  |_____   \   \__/\n   |    \__/\n'
                     longcatsegment = '   |       |\n'
                     longcattail = '   /        \ \n  /   ____   \ \n  |  /    \  |\n  | |      | |\n  /  |      |  \ \n  \__/      \__/'
@@ -133,7 +133,7 @@ class hallobase():
                     longcat = longcathead + longcatsegment * longcatsegments + longcattail + '\n Longcat is L' + 'o' * longcatsegments + 'ng!'
                     return longcat
                 else:
-                    return 'Longcat is for ops only :P'
+                    return 'Longcat is for gods only :P'
             else:
                 return 'Longcat is disabled.  Use "longcat_on" to enable it.'
 
@@ -514,7 +514,7 @@ class hallobase():
 
     def fn_eulerreload(self,args,client,destination):
         'Reloads the euler module.'
-        if(self.chk_op(client)):
+        if(self.chk_op(destination[0],client)):
             import euler
             reload(euler)
             from euler import eulerclass
@@ -685,6 +685,32 @@ class hallobase():
             return deer
         else:
             return "You have insufficient privileges to summon the deer"
+
+    def fn_mute(self,args,client,destination):
+        'Mutes a given channel or current channel'
+        if(self.chk_op(destination[0],client)):
+            args = args.replace(' ','')
+            if(args==''):
+                self.core['server'][destination[0]]['socket'].send(('MODE +v ' + destination[1] + endl).encode('utf-8'))
+                return "Muted the channel."
+            else:
+                self.core['server'][destination[0]]['socket'].send(('MODE +v ' + args + endl).encode('utf-8'))
+                return "Muted " + args
+        else:
+            return "You have insufficient privileges to use this function."
+
+    def fn_unmute(self,args,client,destination):
+        'Unmutes a given channel or current channel if none is given.'
+        if(self.chk_op(destination[0],client)):
+            args = args.replace(' ','')
+            if(args==''):
+                self.core['server'][destination[0]]['socket'].send(('MODE -v ' + destination[1] + endl).encode('utf-8'))
+                return "Unmuted channel."
+            else:
+                self.core['server'][destination[0]]['socket'].send(('MODE -v ' + args + endl).encode('utf-8'))
+                return "Unmuted " + args + "."
+        else:
+            return "You have insufficient privileges to use this function."
 
     def fnn_urldetect(self, args, client, destination):
         'Detects URLs posted in channel, then returns the page title.'
