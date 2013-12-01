@@ -51,7 +51,7 @@ class hallobase():
             elif(args.replace(' ','')!=''):
                 args = args.replace(' ','')
                 self.core['server'][destination[0]]['socket'].send(('KICK ' + channel + ' ' + args + endl).encode('utf-8'))
-                return 'Kicked ' + args. + '.'
+                return 'Kicked ' + args + '.'
             else:
                 return 'Please, tell me who to kick.'
         else:
