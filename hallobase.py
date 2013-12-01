@@ -45,7 +45,7 @@ class hallobase():
         if(self.chk_op(destination[0],client)):
             if(destination[0] == 'canternet'):
                 for channel in self.conf['server'][destination[0]]['channels']:
-                    self.core['server'][destination[0]]['socket'].send(endl.join('KICK ' + channel + ' ' + nick for nick in args.split(' ')) + endl)
+                    self.core['server'][destination[0]]['socket'].send((endl.join('KICK ' + channel + ' ' + nick for nick in args.split(' ')) + endl).encode('utf-8'))
                 return 'Kicked ' + ', '.join(args.split()) + '.'
             else:
                 return 'No kicking here.'
@@ -568,11 +568,11 @@ class hallobase():
                 if('000242' not in user and self.conf['server'][destination[0]]['nick'] not in user):
                     stripuser = user.replace('@','').replace('+','')
                     if('@' in user):
-                        self.core['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' -o ' + stripuser + endl)
-                        self.core['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' -v ' + stripuser + endl)
+                        self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -o ' + stripuser + endl).encode('utf-8'))
+                        self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + stripuser + endl).encode('utf-8'))
                     if('+' in user):
-                        self.core['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' -v ' + stripuser + endl)
-            self.core['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' +m' + endl)
+                        self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + stripuser + endl).encode('utf-8'))
+            self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +m' + endl).encode('utf-8'))
             return 'I have done your bidding, master.'
         else:
             return 'You are not my master.'
@@ -585,8 +585,8 @@ class hallobase():
             else:
                  number = 5
             for x in range(number):
-                self.core['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' -v Dolphin' + endl)
-                self.core['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' +v Dolphin' + endl)
+                self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v Dolphin' + endl).encode('utf-8'))
+                self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +v Dolphin' + endl).encode('utf-8'))
             return 'Dolphin: You awake yet?'
         else:
             return '"poketheasshole" not defined.  Try "/msg Hallo help commands" for a list of commands.'
