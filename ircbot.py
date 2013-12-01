@@ -357,6 +357,70 @@ class ircbot:
         else:
             return "Sorry, this function is for ops only."
 
+    def fn_swear_add(self,args,client,destination):
+        'Add a swear to a channel swear list, format is "swear_add <list> <channel> <swearregex>". List is either "possible", "inform" or "comment"'
+        if(self.chk_op(destination[0],client)):
+            if(len(args.split())>=3):
+                list = args.split()[0]
+                channel = args.split()[1]
+                regex = ' '.join(args.split()[2:])
+                if(list.lower() in ['possible','inform','comment']):
+                    if(channel in self.conf['server'][destination[0]]['channels']):
+                        self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()].append(regex)
+                        return "Added " + regex + " to " + list + " swear list for " + channel + "."
+                    else:
+                        return "I'm not in that channel."
+                else:
+                    return "That's not a valid list. Valid lists are 'possible', 'inform' or 'comment'"
+            else:
+                return "Not enough arguments, remember to provide me with a list, then channel, then the regex for the swear you want to add. Lists are either 'possible', 'inform' or 'comment'"
+        else:
+            return "Sorry, this function is for ops only."
+
+    def fn_swear_list(self,args,client,destination):
+        'Lists swears in a given channel. Format is swear_list <list> <channel>. Please only ask for this in privmsg.'
+        if(self.chk_op(destination[0],client)):
+            if(len(args.split())>=2):
+                list = args.split()[0]
+                channel = args.split()[1]
+                if(list.lower() in ['possible','inform','comment']):
+                    if(channel in self.conf['server'][destination[0]]['channels']):
+                        if(destination[1][0]!='#'):
+                            return "Here is the " + list + " swear list for " + channel + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()])
+                        else:
+                            return "I'm not printing a swear list in a channel."
+                    else:
+                        return "I'm not even in that channel."
+                else:
+                    return "That's not a valid list"
+            else:
+                return "That's not enough arguments, remember to provide me with a list, then a channel. Lists are either 'possible', 'inform' or 'comment'"
+        else:
+            return "Sorry, this function is for ops only."
+
+    def fn_swear_del(self,args,client,destination):
+        'Deletes a swear from a swear list, format is "swear_del <list> <channel> <swearregex>". List is either "possible", "inform" or "comment"'
+        if(self.chk_op(destination[0],client)):
+            if(len(args.split())>=3):
+                list = args.split()[0]
+                channel = args.split()[1]
+                regex = ' '.join(args.split()[2:])
+                if(list.lower() in ['possible','inform','comment']):
+                    if(channel in self.conf['server'][destination[0]]['channels']):
+                        if(regex in self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()]):
+                            self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()].remove(regex)
+                            return "Removed " + regex + " from " + list + " swear list for " + channel + "."
+                        else:
+                            return "That's not in the " + list + " swear list for " + channel + "."
+                    else:
+                        return "I'm not in that channel."
+                else:
+                    return "That's not a valid list. Valid lists are 'possible', 'inform' or 'comment'"
+            else:
+                return "Not enough arguments, remember to provide me with a list, then channel, then the regex for the swear you want to remove. Lists are either 'possible', 'inform' or 'comment'."
+        else:
+            return "Sorry, this function is for ops only."
+
     def fn_nickserv_registered_add(self,args,client,destination):
         'Add a string to the list of nickserv messages to look for when checking if a nick is registered'
         if(self.chk_god(destination[0],client)):
@@ -429,10 +493,6 @@ class ircbot:
                 if(args.split()[0] in self.conf['servers']):
                     self.base_say("Changed " + args.split()[0] + " address to: " + args.split()[1],destination)
                     self.core['server'][args.split()[0]]['lastping'] = 1
-          #          if(self.core['server'][args.split()[0]]['open']):
-          #              self.base_disconnect(args.split()[0])
-          #          self.conf['server'][args.split()[0]]['address'] = args.split()[1]
-          #          Thread(target=self.base_run, args=(args.split()[0],)).start()
                     return "Changed " + args.split()[0] + " address to: " + args.split()[1]
                 else:
                     return "I don't have a server in config called " + args.split()[0]
@@ -448,10 +508,6 @@ class ircbot:
                 if(args.split()[0] in self.conf['servers']):
                     self.base_say("Changed " + args.split()[0] + " port to: " + args.split()[1],destination)
                     self.core['server'][args.split()[0]]['lastping'] = 1
-           #         if(self.core['server'][args.split()[0]]['open']):
-           #             self.base_disconnect(args.split()[0])
-           #         self.conf['server'][args.split()[0]]['port'] = args.split()[1]
-           #         Thread(targer=self.base_run, args=(args.split()[0],)).start()
                     return "Changed " + args.split()[0] + " port to: " + args.split()[1]
                 else:
                     return "I don't have a server in config called " + args.split()[0]
