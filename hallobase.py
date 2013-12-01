@@ -462,13 +462,6 @@ class hallobase():
         'wonder if this works'
         return 'Yes?'
 
- #   def fn_python(self, args, client, destination):
- #       'python.'
- #       if(destination.lower()=="#ukofequestria" or destination.lower()=="#ukofequestriaircstaff"):
- #           return 'I am written in python, somehow. My creator never learnt python until this project, only PHP.'
- #       else:
- #           return 'FUCK PYTHON'
-
     def fn_alarm(self, args, client, destination):
         'Alarm.'
         return 'woo woooooo woooooo ' + args + ' wooo wooo'
@@ -729,6 +722,13 @@ class hallobase():
                 return "Unmuted " + args + "."
         else:
             return "You have insufficient privileges to use this function."
+
+    def fn_staff(self,args,client,destination):
+        'Sends a message to all online staff members, and posts a message in the staff channel'
+        for admin in self.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
+            self.base_say(client + ' has sent a message to all staff members. The message is as follows: ' + args,[destination[0],admin])
+        self.base_say(client + ' has sent a message to all staff members. The message is as follows: ' + args,[destination[0],'#ukofequestriaircstaff'])
+        return "Message delivered. A staff member will be in contact with you shortly. :)"
 
     def fnn_urldetect(self, args, client, destination):
         'Detects URLs posted in channel, then returns the page title.'
