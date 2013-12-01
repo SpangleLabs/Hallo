@@ -137,6 +137,10 @@ class ircbot:
                 self.conf['server'][destination[0]]['channel'][channel]['caps'] = False
                 self.conf['server'][destination[0]]['channel'][channel]['voice_list'] = []
                 self.conf['server'][destination[0]]['channel'][channel]['pass'] = password
+                self.conf['server'][destination[0]]['channel'][channel]['swearlist'] = {}
+                self.conf['server'][destination[0]]['channel'][channel]['swearlist']['possible'] = []
+                self.conf['server'][destination[0]]['channel'][channel]['swearlist']['inform'] = []
+                self.conf['server'][destination[0]]['channel'][channel]['swearlist']['comment'] = []
             if(password == ''):
                 if(self.conf['server'][destination[0]]['channel'][channel]['pass'] == ''):
                     self.core['server'][destination[0]]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
@@ -691,29 +695,21 @@ class ircbot:
         swearinform = [r'\bmong\b',r'\bshit\b',r'fuck',r'\bcunt\b',r'\bwank(er|ing|)\b',r'\bnigger\b',r'\bbastard\b',r'\bbollocks\b',r'\ba(rse|ss)(hole|)\b',r'\bpaki\b',r'\bwhore\b',r'\btwat\b',r'\bpiss(ed|ing|)\b',r'\bspastic\b',r'\bsperg(y|ier|)\b',r'\bR34\b',r'\bporn(o|ograpy|)\b']
         swearinformcaution = [r'fag(got|)\b',r'\bprick\b',r'\bshag\b',r'\bslag\b',r'\bdick(head|)\b',r'\bballs\b',r'\bjew\b',r'\bbitch\b',r'\bbugger\b']
         swearcomment = []
-  #      try:
-  #          admininform = pickle.load(open('store/admininform.p','rb'))
-#['dr-spangle','electrokitty','urioxis','servirare','servirare_','servirare__']
-  #      except:
-  #          admininform = {}
-  #      if(destination[0] not in admininform):
-  #          admininform[destination[0]] = []
-     #   swearchannels = ['#beringsea','#ukofequestria']
         swears = False
         if(self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect']):
-            for swear in swearinform:
-                if re.search(swear, args, re.I):
-                    for admin in self.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
-                        self.base_say(client + ' just swore in ' + destination[1] + '. the message was: ' + args,[destination[0],admin])
-                    swears = True
-                    break
-            for swear in swearinformcaution:
+            for swear in self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['possible']:
                 if re.search(swear, args, re.I):
                     for admin in self.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
                         self.base_say(client + ' possibly just swore in ' + destination[1] + '. Check the context. The message was: ' + args,[destination[0],admin])
                     swears = True
                     break
-            for swear in swearcomment:
+            for swear in self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['inform']:
+                if re.search(swear, args, re.I):
+                    for admin in self.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
+                        self.base_say(client + ' just swore in ' + destination[1] + '. the message was: ' + args,[destination[0],admin])
+                    swears = True
+                    break
+            for swear in self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['comment']:
                 if re.search(swear, args, re.I):
                     self.base_say("Please don't swear in the channel. This is a PG channel.",destination)
                     swears = True
