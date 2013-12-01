@@ -45,7 +45,7 @@ class hallobase():
         if(self.chk_op(destination[0],client)):
             if(destination[0] == 'canternet'):
                 for channel in self.conf['server'][destination[0]]['channels']:
-                    self.conf['server'][destination[0]]['socket'].send(endl.join('KICK ' + channel + ' ' + nick for nick in args.split(' ')) + endl)
+                    self.core['server'][destination[0]]['socket'].send(endl.join('KICK ' + channel + ' ' + nick for nick in args.split(' ')) + endl)
                 return 'Kicked ' + ', '.join(args.split()) + '.'
             else:
                 return 'No kicking here.'
@@ -53,10 +53,19 @@ class hallobase():
             return 'Insufficient privileges to kick.'
     
     def fn_op(self, args, client, destination):
-        'Op user(s) from all channels hallo has op in.  Use "op <user1> <user2> <user3>...".  Ops only.'
+        'Op member in given channel, or current channel if no channel given. Or command user if no member given. Format: op <name> <channel>'
         if(self.chk_op(destination[0],client)):
-            self.conf['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' +o ' + args + endl)
-            return 'Op status given to ' + args + '.'
+            if(len(args.split())>=2):
+                nick = args.split()[0]
+                channel = ''.join(args.split()[1:])
+                self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' +o ' + nick + endl).encode('utf-8'))
+                return 'Op status given to ' + nick + ' in ' + channel + '.'
+            elif(args.replace(' ','')!=''):
+                self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +o ' + args + endl).encode('utf-8'))
+                return 'Op status given to ' + args + '.'
+            else:
+                self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +o ' + client + endl).encode('utf-8'))
+                return 'Op status given.'
         else:
             return 'Insufficient privileges to add op status.'
     
@@ -555,11 +564,11 @@ class hallobase():
                 if('000242' not in user and self.conf['server'][destination[0]]['nick'] not in user):
                     stripuser = user.replace('@','').replace('+','')
                     if('@' in user):
-                        self.conf['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' -o ' + stripuser + endl)
-                        self.conf['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' -v ' + stripuser + endl)
+                        self.core['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' -o ' + stripuser + endl)
+                        self.core['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' -v ' + stripuser + endl)
                     if('+' in user):
-                        self.conf['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' -v ' + stripuser + endl)
-            self.conf['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' +m' + endl)
+                        self.core['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' -v ' + stripuser + endl)
+            self.core['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' +m' + endl)
             return 'I have done your bidding, master.'
         else:
             return 'You are not my master.'
@@ -572,8 +581,8 @@ class hallobase():
             else:
                  number = 5
             for x in range(number):
-                self.conf['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' -v Dolphin' + endl)
-                self.conf['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' +v Dolphin' + endl)
+                self.core['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' -v Dolphin' + endl)
+                self.core['server'][destination[0]]['socket'].send('MODE ' + destination[1] + ' +v Dolphin' + endl)
             return 'Dolphin: You awake yet?'
         else:
             return '"poketheasshole" not defined.  Try "/msg Hallo help commands" for a list of commands.'
