@@ -41,14 +41,19 @@ class hallobase():
 #        import euler
     
     def fn_kick(self, args, client, destination):
-        'Kick user(s) from all channels hallo has op in.  Use "kick <user1> <user2> <user3>...".  Ops only.'
+        'Kick given user in given channel, or current channel if no channel given.'
         if(self.chk_op(destination[0],client)):
-            if(destination[0] == 'canternet'):
-                for channel in self.conf['server'][destination[0]]['channels']:
-                    self.core['server'][destination[0]]['socket'].send((endl.join('KICK ' + channel + ' ' + nick for nick in args.split(' ')) + endl).encode('utf-8'))
-                return 'Kicked ' + ', '.join(args.split()) + '.'
+            if(len(args.split())>=2):
+                user = args.split()[0]
+                channel = ''.join(args.split()[1:])
+                self.core['server'][destination[0]]['socket'].send(('KICK ' + channel + ' ' + user + endl).encode('utf-8'))
+                return 'Kicked ' + user + ' from ' + channel + '.'
+            elif(args.replace(' ','')!=''):
+                args = args.replace(' ','')
+                self.core['server'][destination[0]]['socket'].send(('KICK ' + channel + ' ' + args + endl).encode('utf-8'))
+                return 'Kicked ' + args. + '.'
             else:
-                return 'No kicking here.'
+                return 'Please, tell me who to kick.'
         else:
             return 'Insufficient privileges to kick.'
     
