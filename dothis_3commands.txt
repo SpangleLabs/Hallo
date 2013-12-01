@@ -7,7 +7,6 @@ HALLO GETTHEMLITTLESITH -> KICKS THREE RANDOM USERS OTHER THAN D000242 AND SELF 
 
 00:42:03 <@dr-spangle> -cronecker wants a function to post ascii deercock
 00:33:22 < dr-spangle> -urbandictionary func
-01:39:48 < dr-spangle> -teach hallo to mix cocktails
 
 'ban' function, bans users from channel
 'topic' function to change topic
