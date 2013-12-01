@@ -144,6 +144,7 @@ class ircbot:
                 self.conf['server'][destination[0]]['channel'][channel]['swearlist']['possible'] = []
                 self.conf['server'][destination[0]]['channel'][channel]['swearlist']['inform'] = []
                 self.conf['server'][destination[0]]['channel'][channel]['swearlist']['comment'] = []
+                self.conf['server'][destination[0]]['channel'][channel]['swearlist']['commentmsg'] = ''
             if(password == ''):
                 if(self.conf['server'][destination[0]]['channel'][channel]['pass'] == ''):
                     self.core['server'][destination[0]]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
@@ -623,6 +624,16 @@ class ircbot:
         else:
             return "Insufficient privileges to view config file"
 
+    def fn_core_view(self,args,client,destination):
+        'View the core variable, privmsg only. gods only.'
+        if(self.chk_god(destination[0],client)):
+            if(destination[1][0] == '#'):
+                return "I'm not posting my whole core variable here, that would be rude."
+            else:
+                return "erm, really? my core variable... erm, if you insist. Here goes:\n" + pprint.pformat(self.core)
+        else:
+            return "Insufficient privileges to view core variable."
+
     def fn_config_save(self,args,client,destination):
         'Save the config and pickle it. godmod only.'
         if(self.chk_god(destination[0],client)):
@@ -770,7 +781,10 @@ class ircbot:
                     break
             for swear in self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['comment']:
                 if re.search(swear, args, re.I):
-                    self.base_say("Please don't swear in the channel. This is a PG channel.",destination)
+                    if(self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['commentmsg']==''):
+                        self.base_say("Please don't swear in the channel. This is a PG channel.",destination)
+                    else:
+                        self.base_say(self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['commentmsg'].replace('{swear}',re.search(swear, args, re.I).group(0)),destination)
                     swears = True
                     break
        # if(not swears and self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record'] and 'hallo speak' not in args.lower()):
