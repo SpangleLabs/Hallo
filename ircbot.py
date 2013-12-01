@@ -20,6 +20,7 @@ import collections
 import imp
 #from megahal import *
 import hallobase
+import passive
 
 endl = '\r\n' # constant for ease/readability
 
@@ -967,19 +968,23 @@ class ircbot:
                     # let programmers define extra code in addition to function stuff
                     self.on_pm(server,client,msg_pm and nick or destination,':'.join(data.split(':')[2:]).replace(endl,''),found)
             elif msg_pub:
-                # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
-                out = hallobase.hallobase.fnn_extrayammering(self,message,client,[server,destination])
+                #passive functions
+                out = passive.passive.fnn_passive(self,message,client,[server,destination])
                 if(out is not None):
-               #     print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out)
                     self.base_say(out,[server,destination])
-                if(message.lower().replace(' ','') == "foof"):
-                    out = hallobase.hallobase.fn_foof(self,message,client,[server,destination])
-               #     print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out
-                    self.base_say(out,[server,destination])
-                out = hallobase.hallobase.fnn_urldetect(self,message,client,[server,destination])
-                if(out is not None):
-               #    print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out
-                   self.base_say(out,[server,destination])
+   #             # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
+   #             out = hallobase.hallobase.fnn_extrayammering(self,message,client,[server,destination])
+   #             if(out is not None):
+   #            #     print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out)
+   #                 self.base_say(out,[server,destination])
+   #             if(message.lower().replace(' ','') == "foof"):
+   #                 out = hallobase.hallobase.fn_foof(self,message,client,[server,destination])
+   #            #     print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out
+   #                 self.base_say(out,[server,destination])
+   #             out = hallobase.hallobase.fnn_urldetect(self,message,client,[server,destination])
+   #             if(out is not None):
+   #            #    print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out
+   #                self.base_say(out,[server,destination])
         elif('JOIN' == data.split()[1]):
             # handle JOIN events
             channel = ':'.join(data.split(':')[2:]).replace(endl,'').lower()
