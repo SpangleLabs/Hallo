@@ -134,7 +134,9 @@ class ircbot:
                 self.conf['server'][destination[0]]['channels'].append(channel)
                 self.conf['server'][destination[0]]['channel'][channel] = {}
                 self.conf['server'][destination[0]]['channel'][channel]['logging'] = True
+                self.conf['server'][destination[0]]['channel'][channel]['megahal_record'] = False
                 self.conf['server'][destination[0]]['channel'][channel]['sweardetect'] = False
+                self.conf['server'][destination[0]]['channel'][channel]['in_channel'] = False
                 self.conf['server'][destination[0]]['channel'][channel]['caps'] = False
                 self.conf['server'][destination[0]]['channel'][channel]['voice_list'] = []
                 self.conf['server'][destination[0]]['channel'][channel]['pass'] = password
@@ -363,7 +365,7 @@ class ircbot:
         if(self.chk_op(destination[0],client)):
             if(len(args.split())>=3):
                 list = args.split()[0]
-                channel = args.split()[1]
+                channel = args.split()[1].lower()
                 regex = ' '.join(args.split()[2:])
                 if(list.lower() in ['possible','inform','comment']):
                     if(channel in self.conf['server'][destination[0]]['channels']):
@@ -383,7 +385,7 @@ class ircbot:
         if(self.chk_op(destination[0],client)):
             if(len(args.split())>=2):
                 list = args.split()[0]
-                channel = args.split()[1]
+                channel = args.split()[1].lower()
                 if(list.lower() in ['possible','inform','comment']):
                     if(channel in self.conf['server'][destination[0]]['channels']):
                         if(destination[1][0]!='#'):
@@ -404,7 +406,7 @@ class ircbot:
         if(self.chk_op(destination[0],client)):
             if(len(args.split())>=3):
                 list = args.split()[0]
-                channel = args.split()[1]
+                channel = args.split()[1].lower()
                 regex = ' '.join(args.split()[2:])
                 if(list.lower() in ['possible','inform','comment']):
                     if(channel in self.conf['server'][destination[0]]['channels']):
