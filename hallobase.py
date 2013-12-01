@@ -654,7 +654,38 @@ class hallobase():
         code = pageopener.open(pagerequest).read()
         space = json.loads(code.decode('utf-8'))
         return "There are " + str(space['number']) + " people in space right now. Their names are: " + ', '.join(x['name'] for x in space['people'])
-        
+
+    def fn_deer(self,args,client,destination):
+        'ascii art deer.'
+        deer = r'''   /|       |\
+`__\\       //__'
+   ||      ||
+ \__`\     |'__/
+   `_\\   //_'
+   _.,:---;,._
+   \_:     :_/
+     |@. .@|
+     |     |
+     ,\.-./ \
+     ;;`-'   `---__________-----.-.
+     ;;;                         \_\
+     ';;;                         |
+      ;    |                      ;
+       \   \     \        |      /
+        \_, \    /        \     |\
+          |';|  |,,,,,,,,/ \    \ \_
+          |  |  |           \   /   |
+          \  \  |           |  / \  |
+           | || |           | |   | |
+           | || |           | |   | |
+           | || |           | |   | |
+           |_||_|           |_|   |_|
+          /_//_/           /_/   /_/'''
+        if(self.chk_god(destination[0],client)):
+            return deer
+        else:
+            return "You have insufficient privileges to summon the deer"
+
     def fnn_urldetect(self, args, client, destination):
         'Detects URLs posted in channel, then returns the page title.'
       #  if re.search('\b(https?://(www.)?|www.)[-a-zA-Z0-9+\&@#/%=~_|$\!:,.]*[a-zA-Z0-9+\&@#/%=~_|$]', args, re.I):
