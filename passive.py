@@ -3,9 +3,9 @@ import random
 import urllib.request, urllib.error, urllib.parse
 #import time
 #import re
-#import math
+import math
 from PIL import Image
-#import io
+import io
 #import pickle
 import euler
 import hallobase
