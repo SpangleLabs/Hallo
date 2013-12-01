@@ -799,13 +799,13 @@ class hallobase():
                         filesizestr = str(math.floor(float(filesize)/(1024*1024*10.24))/100) + "GiB"
                     return "Image: " + pagetype + " (" + str(image_width) + "px by " + str(image_height) + "px) " + filesizestr
             if('youtube.com' in url or 'youtu.be' in url):
-                code = pageopener.open(pagerequest).read()
+                code = pageopener.open(pagerequest).read().decode('utf-8')
                 length = re.search('length_seconds": ([0-9]*)', code).group(1)
                 length_str = str(int(length)/60) + "m " + str(int(length)-(60*(int(length)/60))) + "s"
                 views = re.search('<span class="watch-view-count " >[\n\r\s]*([0-9,]*)',code).group(1)
                 title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&')
                 return "Youtube video> Title: " + title + " | Length: " + length_str + " | Views: " + views
-            code = pageopener.open(pagerequest).read(4096)
+            code = pageopener.open(pagerequest).read(4096).decode('utf-8')
             if(code.count('</title>')>=1):
                 title = code.split('</title>')[0]
                 title = ' '.join(re.compile('<title[-A-Z0-9"=' + "'" + ' ]*>',re.IGNORECASE).split(title)[1].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&039;',"'").replace('&quot;','"').replace('&amp;','&')
@@ -817,7 +817,7 @@ class hallobase():
     def fnn_extrayammering(self, args, client, destination):
         'Does some extra chatting, probably super buggy.'
         if((args.lower().find("who") >= 0) and (args.lower().find("best pony") >=0 or args.lower().find("bestpony".lower()) >=0)):
-            message = client + ': ' + self.fn_bestpony(args, client, destination)
+            message = client + ': ' + hallobase.fn_bestpony(self,args,client,destination)
             return str(message)
         elif(args.lower().find("open") >= 0 and (args.lower().find("pod bay") >=0 or args.lower().find("podbay") >=0) and args.lower().find("door") >= 0):
             message = "I'm sorry " + client + ", but I'm afraid I can't do that"
@@ -825,7 +825,6 @@ class hallobase():
         elif(("irc client" in args.lower() or "irc program" in args.lower() or "chat client" in args.lower()) and ("which" in args.lower() or "what" in args.lower()) and ("get" in args.lower() or "use" in args.lower())):
             message = "For windows: Hexchat is a good irc client. Try http://hexchat.org For mac: Colloquy is a good choice http://colloquy.info/ For linux: xchat (for a graphical interface) http://xchat.org or for command line linux: irssi http://irssi.org Or for a web client, try http://mibbit.com"
             return message
-#02:16:25 <@dr-spangle> if message contains "when" and "more pony" or "season 4" or "S04" or ("next season" and "pony" or "mlp")
         elif("when" in args.lower() and ("more pony" in args.lower() or "season 4" in args.lower() or "S04" in args.upper() or ("next season" in args.lower() and ("pony" in args.lower() or "mlp" in args.lower())))):
             message = "It's finally been announced! Season 4 of pony starts on the 23rd of November!"
             return message

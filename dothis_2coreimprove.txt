@@ -1,6 +1,7 @@
 
 
-
+make all passive functions be called by one fnn_passive or something.
+move all passive functions from hallobase to their own module
 
 12:20:50 <@dr-spangle> -memory/time management thread?
 

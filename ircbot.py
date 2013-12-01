@@ -19,6 +19,7 @@ from threading import Thread
 import collections
 import imp
 #from megahal import *
+import hallobase
 
 endl = '\r\n' # constant for ease/readability
 
@@ -861,7 +862,6 @@ class ircbot:
 
     def base_parse(self,server,data):
         # take a line of data from irc server's socket and process it
-   #     irc = self.irc
         nick = self.conf['server'][server]['nick']
         data = data.replace("\r","")
         unhandled = False
@@ -879,10 +879,6 @@ class ircbot:
             if(self.core['server'][server]['lastping']!=0 and self.conf['server'][server]['pingdiff']==600):
                 self.conf['server'][server]['pingdiff'] = int(time.time())-self.core['server'][server]['lastping']
             self.core['server'][server]['lastping'] = int(time.time())
-        # update  the following when rewriting for ping timeouts. record the time to self.core['server'][server]['pingtime'] or something and do some check if it's over 3 minutes, if so disconnect and reconnect
-        #    pingfile = open('hallodump.txt','w')
-        #    pingfile.write(str(os.getpid()))
-        #    pingfile.close()
         elif('PRIVMSG' == data.split()[1]):
             message = ':'.join(data.split(':')[2:]).replace(endl, '')
             # parse out the sender
@@ -952,12 +948,10 @@ class ircbot:
                                     if(isinstance(method, collections.Callable)):
                                         break
                             if(isinstance(method, collections.Callable)):
-                #                print(method)
                                 if(addonmodule):
                                     out = str(method(self,args,client,[server,destination]))
                                 else:
                                     out = str(method(args,client,[server,destination]))
-        #                        print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out)
                                 self.base_say(out,[server,destination])
                                 found = True
                                 break
@@ -972,20 +966,20 @@ class ircbot:
                 if(msg_pm):
                     # let programmers define extra code in addition to function stuff
                     self.on_pm(server,client,msg_pm and nick or destination,':'.join(data.split(':')[2:]).replace(endl,''),found)
-        #    elif msg_pub:
+            elif msg_pub:
                 # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
-              #  out = self.fnn_extrayammering(message,client,[server,destination])
-              #  if(out is not None):
-              #      print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out
-              #      self.base_say(out,[server,destination])
-          #      if(message.lower().replace(' ','') == "foof"):
-          #          out = self.fn_foof(message,client,[server,destination])
-          #          print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out
-          #          self.base_say(out,[server,destination])
-         #       out = self.fnn_urldetect(message,client,[server,destination])
-         #       if(out is not None):
-         #          print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out
-         #          self.base_say(out,[server,destination])
+                out = hallobase.hallobase.fnn_extrayammering(self,message,client,[server,destination])
+                if(out is not None):
+               #     print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out)
+                    self.base_say(out,[server,destination])
+                if(message.lower().replace(' ','') == "foof"):
+                    out = hallobase.hallobase.fn_foof(self,message,client,[server,destination])
+               #     print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out
+                    self.base_say(out,[server,destination])
+                out = hallobase.hallobase.fnn_urldetect(self,message,client,[server,destination])
+                if(out is not None):
+               #    print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out
+                   self.base_say(out,[server,destination])
         elif('JOIN' == data.split()[1]):
             # handle JOIN events
             channel = ':'.join(data.split(':')[2:]).replace(endl,'').lower()
