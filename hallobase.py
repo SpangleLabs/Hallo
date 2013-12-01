@@ -730,6 +730,24 @@ class hallobase():
         self.base_say(client + ' has sent a message to all staff members. The message is as follows: ' + args,[destination[0],'#ukofequestriaircstaff'])
         return "Message delivered. A staff member will be in contact with you shortly. :)"
 
+    def fn_avg(self,args,client,destination):
+        'finds the average of a list of numbers'
+        numberlist = args.split()
+        numbersum = sum(float(x) for x in numberlist)
+        return "The average of " + ', '.join(numberlist) + " is: " + str(numbersum/float(len(numberlist)))
+
+    def fn_random_cocktail(self,args,client,destination):
+        'Delivers ingredients and recipes for a random cocktail.'
+        cocktails = pickle.load(open('store/cocktails.p','rb'))
+        number = random.randint(0,len(cocktails))
+        cocktail = cocktails[number]
+        output = "Randomly selected cocktail is: " + cocktail['name'] + " (#" + str(number) + "). The ingredients are: "
+        ingredients = []
+        for ingredient in cocktail['ingredients']:
+            ingredients.append(ingredient[0] + ingredient[1])
+        output = output + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
+        return output
+
     def fnn_urldetect(self, args, client, destination):
         'Detects URLs posted in channel, then returns the page title.'
       #  if re.search('\b(https?://(www.)?|www.)[-a-zA-Z0-9+\&@#/%=~_|$\!:,.]*[a-zA-Z0-9+\&@#/%=~_|$]', args, re.I):
