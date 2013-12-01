@@ -42,6 +42,7 @@ class ircbot:
                     time.sleep(5)
                     break
         if(client.lower() == self.conf['server'][server]['nick'].lower()):
+            self.conf['server'][server]['channel'][channel]['in_channel'] = True
             namesonline = self.chk_names(server,channel)
             namesonline = [x.lower() for x in namesonline]
             for user in self.conf['server'][server]['channel'][channel]['voice_list']:
