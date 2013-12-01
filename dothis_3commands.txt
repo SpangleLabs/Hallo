@@ -5,7 +5,6 @@ HALLO REJECTNEWBLOOD -> KICKBANS THE NEWBLOOD.
 HALLO GETTHEMLITTLESITH -> KICKS THREE RANDOM USERS OTHER THAN D000242 AND SELF IN A QUICK SEQUENCE, ONLY D000242 CAN USE THIS COMMAND. 
 02:59:50 <@dr-spangle> define function?
 
-00:42:03 <@dr-spangle> -cronecker wants a function to post ascii deercock
 00:33:22 < dr-spangle> -urbandictionary func
 
 'ban' function, bans users from channel
