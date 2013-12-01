@@ -14,6 +14,8 @@ import io
 import pickle
 #from megahal/megahal import *
 import euler
+import threading
+import json
 
 #Importing greetings
 #try:
@@ -643,6 +645,16 @@ class hallobase():
         'Returns current number of active threads.. should probably be gods only'
         return "I think I have " + str(threading.active_count()) + " active threads right now."
 
+    def fn_inspace(self,args,client,destination):
+        'Returns the number of people in space right now, and their names.'
+        pagerequest = urllib.request.Request('http://www.howmanypeopleareinspacerightnow.com/space.json')
+        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+        pageopener = urllib.request.build_opener()
+        pageinfo = str(pageopener.open(pagerequest).info())
+        code = pageopener.open(pagerequest).read()
+        space = json.loads(code.decode('utf-8'))
+        return "There are " + str(space['number']) + " people in space right now. Their names are: " + ', '.join(x['name'] for x in space['people'])
+        
     def fnn_urldetect(self, args, client, destination):
         'Detects URLs posted in channel, then returns the page title.'
       #  if re.search('\b(https?://(www.)?|www.)[-a-zA-Z0-9+\&@#/%=~_|$\!:,.]*[a-zA-Z0-9+\&@#/%=~_|$]', args, re.I):
