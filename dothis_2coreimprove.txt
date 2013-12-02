@@ -1,8 +1,5 @@
 
 
-make all passive functions be called by one fnn_passive or something.
-move all passive functions from hallobase to their own module
-
 12:20:50 <@dr-spangle> -memory/time management thread?
 
 split help up into different functions, so 'help commands' lists categories of commands (by module?) then 'help commands all' lists them all, while 'help commands {module}' lists commnds in a module
@@ -16,3 +13,5 @@ do this by checking when you join a channel whether +H is set, if so, ignoring c
 standardise fullstops at the end of all hallo's messages.
 add command format to all command help
 standardise underscores or not in hallo commands and conf variables
+
+make him quit with a different message for 'timeout' reconnect

@@ -22,3 +22,4 @@ hallo slowclap
 weather function
 whether function
 
+make it so he can give you a cocktail if you give him an ingredient
