@@ -525,7 +525,8 @@ class ircbot:
             oldnick = self.conf['server'][destination[0]]['nick']
          #   self.conf['server'][destination[0]]['nick'] = args
             self.core['server'][destination[0]]['socket'].send(('NICK ' + args + endl).encode('utf-8'))
-            self.base_say('identify ' + self.conf['server'][destination[0]]['pass'],[destination[0],'nickserv'])
+            if(self.conf['server'][destination[0]]['pass'] != False):
+                self.base_say('identify ' + self.conf['server'][destination[0]]['pass'],[destination[0],'nickserv'])
             return "Changed nick from " + oldnick + " to " + args
         else:
             return "Insufficient privileges to change nickname"
@@ -866,6 +867,9 @@ class ircbot:
         nick = self.conf['server'][server]['nick']
         data = data.replace("\r","")
         unhandled = False
+        if(self.core['server'][server]['lastping']!=0 and self.conf['server'][server]['pingdiff']==600):
+            self.conf['server'][server]['pingdiff'] = int(time.time())-self.core['server'][server]['lastping']
+        self.core['server'][server]['lastping'] = int(time.time())
         if(len(data) < 5 or (data[0] != ":" and data[0:4] != "PING")):
             #the above basically means the message is invalid, those are the only things a valid line can start with. so ditch to a logfile
             if(len(data) >= 5):
@@ -877,9 +881,6 @@ class ircbot:
             # return pings so we don't get timed out
             print(self.base_timestamp() + ' [' + server + '] PING')
             self.core['server'][server]['socket'].send(('PONG ' + data.split()[1] + endl).encode('utf-8'))
-            if(self.core['server'][server]['lastping']!=0 and self.conf['server'][server]['pingdiff']==600):
-                self.conf['server'][server]['pingdiff'] = int(time.time())-self.core['server'][server]['lastping']
-            self.core['server'][server]['lastping'] = int(time.time())
         elif('PRIVMSG' == data.split()[1]):
             message = ':'.join(data.split(':')[2:]).replace(endl, '')
             # parse out the sender
