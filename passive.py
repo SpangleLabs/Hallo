@@ -27,7 +27,7 @@ class passive():
         if(out is not None):
             return out
        # if(message.lower().replace(' ','') == "foof"):
-        if re.search(r'foo[o]*f',args,re.I):
+        if re.search(r'foo[o]*f[!]*',args,re.I):
             out = hallobase.hallobase.fn_foof(self,args,client,destination)
             return out
         out = passive.fnn_urldetect(self,args,client,destination)

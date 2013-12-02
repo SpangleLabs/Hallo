@@ -15,3 +15,15 @@ add command format to all command help
 standardise underscores or not in hallo commands and conf variables
 
 make him quit with a different message for 'timeout' reconnect
+
+
+05:36:03 < dr-spangle> -function config data? whether function is listed to users, ops, gods. disable functions, which module it is in, etc?
+
+
+08:41:18 < dr-spangle> -more staff list stuff?
+08:41:32 < dr-spangle> -make it so ops can be defined by channel, and their op powers can only modify those channels
+08:48:55 < dr-spangle> -make functions disabled in privmsg and stuff, specifically stuff like 'is'
+08:49:27 < dr-spangle> -make it so that any (non-command) message sent in privmsg to him is sent to admininform list
+08:49:50 < dr-spangle> -admininform lists by channel, so channel swears only go to one channel's list
+09:23:23 < dr-spangle> -could hallo somehow check irc flags for some permissions?
+

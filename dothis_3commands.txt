@@ -10,6 +10,9 @@ HALLO GETTHEMLITTLESITH -> KICKS THREE RANDOM USERS OTHER THAN D000242 AND SELF 
 'ban' function, bans users from channel
 'topic' function to change topic
 'topicappend' function to append to topic
+deop function
+
+voice and unvoice functions
 
 SUP FUNCTION, DUNNO WHAT IT WILL DO YET.
 
