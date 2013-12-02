@@ -601,6 +601,21 @@ class ircbot:
         else:
             return "Insufficient privileges to set swear detection."
 
+    def fn_channel_passivefunc(self,args,client,destination):
+        'Sets or toggles passive functions for channel, gods only'
+        if(self.chk_god(destination[0],client)):
+            if(args==''):
+                self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']
+                return "Passive functions toggled"
+            elif(args.lower()=='true' or args.lower()=='1' or args.lower()=='on'):
+                self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc'] = True
+                return "Passive functions on"
+            else:
+                self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc'] = False
+                return "Passive functions off"
+        else:
+            return "Insufficient privileges to set passive functions status."
+
     def fn_channel_pass(self,args,client,destination):
         'Sets a password for a channel, use channel_pass {channel} {password}'
         if(self.chk_op(destination[0],client)):
@@ -970,22 +985,10 @@ class ircbot:
                     self.on_pm(server,client,msg_pm and nick or destination,':'.join(data.split(':')[2:]).replace(endl,''),found)
             elif msg_pub:
                 #passive functions
-                out = passive.passive.fnn_passive(self,message,client,[server,destination])
-                if(out is not None):
-                    self.base_say(out,[server,destination])
-   #             # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
-   #             out = hallobase.hallobase.fnn_extrayammering(self,message,client,[server,destination])
-   #             if(out is not None):
-   #            #     print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out)
-   #                 self.base_say(out,[server,destination])
-   #             if(message.lower().replace(' ','') == "foof"):
-   #                 out = hallobase.hallobase.fn_foof(self,message,client,[server,destination])
-   #            #     print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out
-   #                 self.base_say(out,[server,destination])
-   #             out = hallobase.hallobase.fnn_urldetect(self,message,client,[server,destination])
-   #             if(out is not None):
-   #            #    print self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + nick + '> ' + out
-   #                self.base_say(out,[server,destination])
+                if(self.conf['server'][server]['channel'][destination]['passivefunc']):
+                    out = passive.passive.fnn_passive(self,message,client,[server,destination])
+                    if(out is not None):
+                        self.base_say(out,[server,destination])
         elif('JOIN' == data.split()[1]):
             # handle JOIN events
             channel = ':'.join(data.split(':')[2:]).replace(endl,'').lower()

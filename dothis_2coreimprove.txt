@@ -15,3 +15,4 @@ do this by checking when you join a channel whether +H is set, if so, ignoring c
 
 standardise fullstops at the end of all hallo's messages.
 add command format to all command help
+standardise underscores or not in hallo commands and conf variables
