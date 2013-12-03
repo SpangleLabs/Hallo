@@ -59,6 +59,7 @@ class hallobase():
         else:
             return 'Insufficient privileges to kick.'
     
+
     def fn_op(self, args, client, destination):
         'Op member in given channel, or current channel if no channel given. Or command user if no member given. Format: op <name> <channel>'
         if(self.chk_op(destination[0],client)):
@@ -79,6 +80,27 @@ class hallobase():
                 return 'Op status given.'
         else:
             return 'Insufficient privileges to add op status.'
+    
+    def fn_deop(self, args, client, destination):
+        'Deop member in given channel, or current channel if no channel given. Or command user if no member given. Format: deop <name> <channel>'
+        if(self.chk_op(destination[0],client)):
+            if(len(args.split())>=2):
+                nick = args.split()[0]
+                channel = ''.join(args.split()[1:])
+                self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' -o ' + nick + endl).encode('utf-8'))
+                return 'Op status taken from ' + nick + ' in ' + channel + '.'
+            elif(args.replace(' ','')!=''):
+                if(args[0]=='#'):
+                    self.core['server'][destination[0]]['socket'].send(('MODE ' + args + ' -o ' + client + endl).encode('utf-8'))
+                    return 'Op status taken from you in ' + args + '.'
+                else:
+                    self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -o ' + args + endl).encode('utf-8'))
+                    return 'Op status taken from ' + args + '.'
+            else:
+                self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -o ' + client + endl).encode('utf-8'))
+                return 'Op status taken.'
+        else:
+            return 'Insufficient privileges to take op status.'
     
 #    def fn_hallo_add(self, args, client, destination):
 #        'Add a greeting for a user.  Use "hallo_add <user> <greeting>".  Ops only.'
