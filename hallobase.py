@@ -1,3 +1,4 @@
+
 #from euler import eulerclass
 #import euler
 #from ircbot import ircbot
@@ -698,6 +699,26 @@ class hallobase():
         else:
             return "You have insufficient privileges to summon the deer"
 
+
+    def fn_dragon(self,args,client,destination):
+        'prints ascii dragon'
+        dragon = r''',-,- / / | ,-' _/ / / (-_ _,-' `Z_/ "#: ,-'_,-. \ 
+_ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ | 
+\_________________,-' | \ \ Wny \ '''
+        dragon = r'''hmm.. nah. have another deer
+       ""\/ \/""
+         "\__/"
+          (oo)
+ -. ______-LJ
+  ,'        |
+  |.____..  /
+  \\      /A\
+  |A      |//'''
+        if(self.chk_god(destination[0],client)):
+            return dragon
+        else:
+            return "You have insufficient privileges."
+     
     def fn_mute(self,args,client,destination):
         'Mutes a given channel or current channel'
         if(self.chk_op(destination[0],client)):
