@@ -4,7 +4,6 @@
 
 06:23:47 <@dr-spangle> -maybe make his speech feature have separate brains for different users?
 
-12:20:42 <@dr-spangle> -ouija board file needs copying
 12:23:29 <@dr-spangle> -phpcalc remove
 12:23:31 <@dr-spangle> -fix calc
 

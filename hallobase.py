@@ -697,7 +697,7 @@ class hallobase():
 
     def fn_ouija(self,args,client,destination):
         'Ouija board function. "Ouija board" is copyright Hasbro.'
-        words = euler.euler.fnn_euler_readfiletolist(self,'/usr/share/cracklib/cracklib-small')
+        words = euler.euler.fnn_euler_readfiletolist(self,'store/ouija_wordlist.txt')
         numwords = random.randint(1,3)
         string = "I'm getting a message from the other side..."
         for x in range(numwords):
