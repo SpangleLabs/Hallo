@@ -27,3 +27,4 @@ make him quit with a different message for 'timeout' reconnect
 08:49:50 < dr-spangle> -admininform lists by channel, so channel swears only go to one channel's list
 09:23:23 < dr-spangle> -could hallo somehow check irc flags for some permissions?
 
+move swear detection to passive functions

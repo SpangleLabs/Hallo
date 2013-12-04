@@ -630,15 +630,61 @@ class ircbot:
         else:
             return "Insufficient privileges to set channel password"
 
-    def fn_config_view(self,args,client,destination):
-        'View the config, privmsg only. gods only.'
+    def fn_function_conf(self,args,client,destination):
+        'Set a function config variable, Format: functionconf <function> <variable> <value>, functionname should include "fn_" and variable can be "listed_to", "disabled", "repair", "privmsg", "max_run_time" or "return_to"'
         if(self.chk_god(destination[0],client)):
-            if(destination[1][0] == '#'):
-                return "I'm not posting my whole config here, that would be rude."
+            if(args.split().len()>=3):
+                 function = args.split()[0].lower()
+                 variable = args.split()[1].lower()
+                 value = ' '.join(args.split()[2:])
+                 functions = dir(self)
+                 for module in self.modules:
+                     functions = functions + dir(getattr(__import__(module),module))
+                 if(function in functions):  #replace with a check for if the function is valid, once I can do that.
+                     if(function not in self.conf['function']):
+                         self.conf['function'] = {}
+                     if(variable=='disabled' or variable=='privmsg'):
+                         if(value.lower() in ['true','on','1']):
+                             self.conf['function'][function][variable] = True
+                             return "Set " + variable + " to True for " + function + "."
+                         elif(value.lower() in ['false','off','0']):
+                             self.conf['function'][function][variabke] = False
+                             return "Set " + variable + " to False for " + function + "."
+                         else:
+                             return "That's an invalid value for " + variable + ". It can only be True or False."
+                     elif(variable=='max_run_time'):
+                         try:
+                             self.conf['function'][function][variable] = int(value)
+                             return "Set " + variable + " to " + value + " for " + function + "."
+                         except TypeError:
+                             return "That's an invalid value for " + variable + ". It must be a number (in seconds)."
+                     elif(variable=='listed_to'):
+                         if(value.lower() in ['user','op','god']):
+                             self.conf['function'][function][variable] = value.lower()
+                             return "Set " + variable + " to " + value + " for " + function + "."
+                         else:
+                             return "That's an invalid value for " + variable + ". It must be 'user', 'op', or 'god'."
+                     elif(variable=='return_to'):
+                         if(value.lower() in ['channel','notice','privmsg']):
+                             self.conf['function'][function][variable] = value.lower()
+                             return "Set " + variable + " to " + value + " for " + function + "."
+                         else:
+                             return "That's an invalid value for " + variable + ". It must be 'channel', 'notice' or 'privmsg'."
+                     elif(variable=='repair'):
+                         if(value.lower() in ['false','off','0']):
+                             self.conf['function'][function][variable] = False
+                             return "Set " + variable + " to False for " + function + "."
+                         else:
+                             self.conf['function'][function][variable] = value
+                             return "Set " + variable + " to " + value + " for " + function + "."
+                     else:
+                         return "Invalid variable. Valid variables are 'listed_to', 'disabled', 'repair', 'privmsg', 'max_run_time' or 'return_to'."
+                 else:
+                     return "Invalid function."
             else:
-                return "erm.. the config file... one sec. here it is:\n" + pprint.pformat(self.conf)
+                return "Not enough arguments given, please provide me with a function name, variable and value. Function names should include preceeding fn_ and variables can be 'listed_to', 'disabled', 'repair', 'privmsg', 'max_run_time' or 'return_to'"
         else:
-            return "Insufficient privileges to view config file"
+            return "Insufficient privileges to change function variables"
 
     def fn_core_view(self,args,client,destination):
         'View the core variable, privmsg only. gods only.'
@@ -649,6 +695,16 @@ class ircbot:
                 return "erm, really? my core variable... erm, if you insist. Here goes:\n" + pprint.pformat(self.core)
         else:
             return "Insufficient privileges to view core variable."
+
+    def fn_config_view(self,args,client,destination):
+        'View the config, privmsg only. gods only.'
+        if(self.chk_god(destination[0],client)):
+            if(destination[1][0] == '#'):
+                return "I'm not posting my whole config here, that would be rude."
+            else:
+                return "erm.. the config file... one sec. here it is:\n" + pprint.pformat(self.conf)
+        else:
+            return "Insufficient privileges to view config file"
 
     def fn_config_save(self,args,client,destination):
         'Save the config and pickle it. godmod only.'
