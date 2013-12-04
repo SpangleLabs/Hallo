@@ -4,8 +4,6 @@
 
 split help up into different functions, so 'help commands' lists categories of commands (by module?) then 'help commands all' lists them all, while 'help commands {module}' lists commnds in a module
 
-make config_view a bit neater perhaps? manually, rather than prettyprint. perhaps include a flag to make it use prettyprint (in case I've updated the config format, but not the function)
-
 03:47:57 <@BoringUglyPinkEarthPony> I suppose you could code in an immunity to disconnect commands for 10 seconds after connection
 do this by checking when you join a channel whether +H is set, if so, ignoring commands for 10 seconds?
 

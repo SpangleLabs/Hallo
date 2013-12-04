@@ -101,7 +101,61 @@ class hallobase():
                 return 'Op status taken.'
         else:
             return 'Insufficient privileges to take op status.'
-    
+
+    def fn_voice(self,args,client,destination):
+        'Voice member in given channel, or current channel if no channel given, or command user if no member given. Format: voice <name> <channel>'
+        if(self.chk_op(destination[0],client)):
+            if(len(args.split())>=2):
+                nick = args.split()[0]
+                channel = ''.join(args.split()[1:])
+                self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' +v ' + nick + endl).encode('utf-8'))
+                return 'Voice status given to ' + nick + ' in ' + channel + '.'
+            elif(args.replace(' ','')!=''):
+                if(args[0]=='#'):
+                    self.core['server'][destination[0]]['socket'].send(('MODE ' + args + ' +v ' + client + endl).encode('utf-8'))
+                    return 'Voice status given to you in ' + args + '.'
+                else:
+                    self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +v ' + args + endl).encode('utf-8'))
+                    return 'Voice status given to ' + args + '.'
+            else:
+                self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +v ' + client + endl).encode('utf-8'))
+                return 'Voice status given.'
+        else:
+            return 'Insufficient privileges to add voice status.'
+
+    def fn_devoice(self,args,client,destination):
+        'Voice member in given channel, or current channel if no channel given, or command user if no member given. Format: voice <name> <channel>'
+        if(len(args.split())>=2):
+            nick = args.split()[0]
+            channel = ''.join(args.split()[1:])
+            if(nick.lower() == client.lower()):
+                self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' -v ' + nick + endl).encode('utf-8'))
+                return 'Voice status remove from ' + nick + ' in ' + channel + '.'
+            else:
+                if(self.chk_op(destination[0],client)):
+                    self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' -v ' + nick + endl).encode('utf-8'))
+                    return 'Voice status removed from ' + nick + ' in ' + channel + '.'
+                else:
+                    return 'Insufficient privileges to remove voice status.'
+        elif(args.replace(' ','')!=''):
+            if(args[0]=='#'):
+                self.core['server'][destination[0]]['socket'].send(('MODE ' + args + ' -v ' + client + endl).encode('utf-8'))
+                return 'Voice status taken from you in ' + args + '.'
+            else:
+                if(args.lower() == client.lower()):
+                    self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + args + endl).encode('utf-8'))
+                    return 'Voice status taken from ' + args + '.'
+                else:
+                    if(self.chk_op(destination[0],client)):
+                        self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + args + endl).encode('utf-8'))
+                        return 'Voice status taken from ' + args + '.'
+                    else:
+                        return 'Insufficient privileges to remove voice status'
+        else:
+            self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + client + endl).encode('utf-8'))
+            return 'Voice status taken.'
+
+
 #    def fn_hallo_add(self, args, client, destination):
 #        'Add a greeting for a user.  Use "hallo_add <user> <greeting>".  Ops only.'
 #        if(self.op(client)):

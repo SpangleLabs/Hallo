@@ -633,7 +633,7 @@ class ircbot:
             return "Insufficient privileges to set channel password"
 
     def fn_function_conf(self,args,client,destination):
-        'Set a function config variable, Format: functionconf <function> <variable> <value>, functionname should include "fn_" and variable can be "listed_to", "disabled", "repair", "privmsg", "max_run_time" or "return_to"'
+        'Set a function config variable, Format: function_conf <function> <variable> <value>, functionname should include "fn_" and variable can be "listed_to", "disabled", "repair", "privmsg", "max_run_time" or "return_to"'
         if(self.chk_god(destination[0],client)):
             if(len(args.split())>=3):
                  function = args.split()[0].lower()
@@ -642,7 +642,7 @@ class ircbot:
                  functions = dir(self)
                  for module in self.modules:
                      functions = functions + dir(getattr(__import__(module),module))
-                 functions + 'default'
+                 functions = functions + ['default']
                  if(function in functions):  #replace with a check for if the function is valid, once I can do that.
                      if(function not in self.conf['function']):
                          self.conf['function'] = {}
