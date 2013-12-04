@@ -81,7 +81,7 @@ class passive():
                 if(title!=""):
                     return "URL title: " + title
             else:
-                ircbot.say(self,'I saw a link, but no title? ' + url,[destination[0],'dr-spangle'])
+                self.base_say(self,'I saw a link, but no title? ' + url,[destination[0],'dr-spangle'])
 
     def fnn_extrayammering(self, args, client, destination):
         'Does some extra chatting, probably super buggy.'
