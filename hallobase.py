@@ -1,4 +1,3 @@
-
 #from euler import eulerclass
 #import euler
 #from ircbot import ircbot
@@ -155,6 +154,13 @@ class hallobase():
             self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + client + endl).encode('utf-8'))
             return 'Voice status taken.'
 
+    def fn_slowclap(self,args,client,destination):
+        'Slowclap. Format: slowclap'
+        self.base_say('*clap*',destination)
+        time.sleep(0.5)
+        self.base_say('*clap*',destination)
+        time.sleep(2)
+        return '*clap.*'
 
 #    def fn_hallo_add(self, args, client, destination):
 #        'Add a greeting for a user.  Use "hallo_add <user> <greeting>".  Ops only.'
