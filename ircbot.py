@@ -635,7 +635,7 @@ class ircbot:
     def fn_function_conf(self,args,client,destination):
         'Set a function config variable, Format: functionconf <function> <variable> <value>, functionname should include "fn_" and variable can be "listed_to", "disabled", "repair", "privmsg", "max_run_time" or "return_to"'
         if(self.chk_god(destination[0],client)):
-            if(args.split().len()>=3):
+            if(len(args.split())>=3):
                  function = args.split()[0].lower()
                  variable = args.split()[1].lower()
                  value = ' '.join(args.split()[2:])
