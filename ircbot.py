@@ -916,11 +916,14 @@ class ircbot:
         #    self.conf['server'][server]['connected'] = False
             self.core['server'][server]['open'] = False
 
-    def base_say(self,msg,destination):
+    def base_say(self,msg,destination,notice=False):
         # if the connection is open...
         #if not self.open: return
         # send the message, accounting for linebreaks
         maxlength = 450 # max message length, inc channel name.
+        command = 'PRIVMSG'
+        if(notice):
+            command = 'NOTICE'
         if(self.open and self.core['server'][destination[0]]['open']):
             if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
                 msg = msg.upper()
@@ -929,18 +932,18 @@ class ircbot:
                     linefirst = line[:(maxlength-3-len(destination[1]))] + '...'
                     line = line[(maxlength-3-len(destination[1])):]
                     print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linefirst)
-                    self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + linefirst + endl).encode('utf-8'))
+                    self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + linefirst + endl).encode('utf-8'))
                     while((len(line)+len(destination[1]))>(maxlength-3)):
                         linechunk = '...' + line [:(maxlength-6-len(destination[1]))] + '..'
                         line = line[(maxlength-6-len(destination[1])):]
                         print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linechunk)
-                        self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + linechunk + endl).encode('utf-8'))
+                        self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + linechunk + endl).encode('utf-8'))
                     lineend = '...' + line
                     print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + lineend)
-                    self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + lineend + endl).encode('utf-8'))
+                    self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + lineend + endl).encode('utf-8'))
                 else:
                     print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line)
-                    self.core['server'][destination[0]]['socket'].send(('PRIVMSG ' + destination[1] + ' :' + line + endl).encode('utf-8'))
+                    self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + line + endl).encode('utf-8'))
                 if(destination[1] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
                     self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '>: ' + line, destination)
                 # avoid flooding
