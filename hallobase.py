@@ -156,11 +156,19 @@ class hallobase():
 
     def fn_slowclap(self,args,client,destination):
         'Slowclap. Format: slowclap'
-        self.base_say('*clap*',destination)
-        time.sleep(0.5)
-        self.base_say('*clap*',destination)
-        time.sleep(2)
-        return '*clap.*'
+        if(args.replace(' ','')!=''):
+            self.base_say('*clap*',[destination[0],args])
+            time.sleep(0.5)
+            self.base_say('*clap*',[destination[0],args])
+            time.sleep(2)
+            self.base_say('*clap.*',[destination[0],args])
+            return "done. :)"
+        else:
+            self.base_say('*clap*',destination)
+            time.sleep(0.5)
+            self.base_say('*clap*',destination)
+            time.sleep(2)
+            return '*clap.*'
 
 #    def fn_hallo_add(self, args, client, destination):
 #        'Add a greeting for a user.  Use "hallo_add <user> <greeting>".  Ops only.'
@@ -636,7 +644,7 @@ class hallobase():
         else:
             return "You're not spangle."
 
-    def fn__S(self,args,client,destination):
+    def fn__s(self,args,client,destination):
         'redirects to speak function'
         return self.fn_speak(args,client,destination)
 
@@ -869,6 +877,10 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
             for ingredient in cocktail['ingredients']:
                 ingredients.append(ingredient[0] + ingredient[1])
             return "Closest I have is " + closest[0] + ". The ingredients are: " + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
+
+    def fn_tell(self,args,client,destination):
+        'Stuff and things'
+        return "I don't like mondays."
 
 #    def fn_listadd(self, args, client, destination):
 #        'Creates a new list for this user'

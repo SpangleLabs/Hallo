@@ -392,7 +392,7 @@ class ircbot:
                 channel = args.split()[1].lower()
                 if(list.lower() in ['possible','inform','comment']):
                     if(channel in self.conf['server'][destination[0]]['channels']):
-                        if(destination[1][0]!='#'):
+                        if(destination[1]!=channel):
                             return "Here is the " + list + " swear list for " + channel + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()])
                         else:
                             return "I'm not printing a swear list in a channel."
@@ -1010,9 +1010,9 @@ class ircbot:
                 self.on_ctcp(server,client,args)
             elif msg_cmd or msg_pm:
                 if(len(message) > 0):
-                    function = message.split()[0]
+                    function = message.split()[0].lower()
                 else:
-                    function = ''
+                    function = ''.lower()
                 args = message[len(function):]
                 # parse out leading whitespace
                 if(len(args)>=1):
@@ -1026,7 +1026,10 @@ class ircbot:
                         functions = functions + dir(getattr(__import__(module),module))
                 #    for fn in functions:
                 #        if(fn.split('.')[-1] == ('fn_' + function.lower())):
-                    if('fn_' + function in functions):
+                    privmsg = self.conf['function']['default']['privmsg']
+                    if('fn_' + function in self.conf['function'] and 'privmsg' in self.conf['function']['fn_' + function]):
+                        privmsg = self.conf['function']['fn_' + function]['privmsg']
+                    if('fn_' + function in functions and (not msg_pm or privmsg)):
                         method = False
                         addonmodule = False
                         if(hasattr(self,'fn_' + function)):
@@ -1039,6 +1042,7 @@ class ircbot:
                                 if(isinstance(method,collections.Callable)):
                                     break
                         if(isinstance(method, collections.Callable)):
+                            #check if the function has been disabled
                             disabled = False
                             disabled = self.conf['function']['default']['disabled']
                             if('fn_' + function in self.conf['function'] and 'disabled' in self.conf['function']['fn_' + function]):
@@ -1050,6 +1054,7 @@ class ircbot:
                                     out = str(method(self,args,client,[server,destination]))
                                 else:
                                     out = str(method(args,client,[server,destination]))
+                            #check where this function is meant to send its answer to, and how
                             return_to = self.conf['function']['default']['return_to']
                             if('fn_' + function in self.conf['function'] and 'return_to' in self.conf['function']['fn_' + function]):
                                 return_to = self.conf['function']['fn_' + function]['return_to']
@@ -1060,7 +1065,10 @@ class ircbot:
                             elif(return_to == 'notice'):
                                 self.base_say(out,[server,destination],True)
                     # if we can't handle the function, let them know
-                    elif(msg_pm or (msg_cmd and msg_cmdcln)):
+                    elif(msg_pm):
+                     #   self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
+                        hallobase.hallobase.fn_staff(self,function + ' ' + args,client,[server,destination])
+                    elif(msg_cmd and msg_cmdcln):
                         self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
                 except Exception as e:
                     # if we have an error, let them know and print it to the screen
