@@ -708,7 +708,7 @@ class hallobase():
     def fn_chosenone(self,args,client,destination):
         'Specifies who the chosen one is.'
         names = self.chk_names(destination[0],destination[1])
-        tempnameslist = names.split()
+        tempnameslist = names
         nameslist = []
         for name in tempnameslist:
             if('_S' != name and self.conf['server'][destination[0]]['nick'] not in name):
@@ -732,7 +732,7 @@ class hallobase():
 
     def fn_scriptures(self,args,client,destination):
         'Recites a passage from the scriptures.'
-        scriptures = pickle.load(open('store/scriptures.p','r'))
+        scriptures = pickle.load(open('store/scriptures.p','rb'))
         rand = random.randint(0,len(scriptures)-1)
         return scriptures[rand]
 

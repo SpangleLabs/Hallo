@@ -83,7 +83,7 @@ class ircbot:
         elif(len(args)>=10 and args[0:10].lower()=='clientinfo'):
             self.core['server'][server]['socket'].send(('NOTICE ' + client + ' :\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01' + endl).encode('utf-8'))
 
-    def on_pm(self,server,client,destination,message,found):
+    def on_pm(self,server,client,destination,message):
         pass # override this method to handle messages alternately
 
     def on_notice(self,server,client,channel,args):
@@ -1012,37 +1012,38 @@ class ircbot:
                 args = message[len(function):]
                 # parse out leading whitespace
                 if(len(args)>=1):
-                    while(len(args)>=1 and args[0] == ' '):
+                    while(len(args)>=1 and args[0] in [' ',',']):
                         args = args[1:]
                 #Encase functions in error handling, because programmers might make functions which are a tad crashy
-                found = False
+           #     found = False
                 try:
                     functions = dir(self)
                     for module in self.modules:
                         functions = functions + dir(getattr(__import__(module),module))
-                    for fn in functions:
-                        if(fn.split('.')[-1] == ('fn_' + function.lower())):
-                            method = False
-                            addonmodule = False
-                            if(hasattr(self,fn)):
-                                method = getattr(self, fn)
-                            if(not isinstance(method, collections.Callable)):
-                                for module in self.modules:
-                                    if(hasattr(__import__(module),module) and hasattr(getattr(__import__(module),module),fn)):
-                                        method = getattr(getattr(__import__(module),module),fn)
-                                        addonmodule = True
-                                    if(isinstance(method, collections.Callable)):
-                                        break
-                            if(isinstance(method, collections.Callable)):
-                                if(addonmodule):
-                                    out = str(method(self,args,client,[server,destination]))
-                                else:
-                                    out = str(method(args,client,[server,destination]))
-                                self.base_say(out,[server,destination])
-                                found = True
-                                break
+                #    for fn in functions:
+                #        if(fn.split('.')[-1] == ('fn_' + function.lower())):
+                    if('fn_' + function in functions):
+                        method = False
+                        addonmodule = False
+                        if(hasattr(self,'fn_' + function)):
+                            method = getattr(self,'fn_' + function)
+                        if(not isinstance(method, collections.Callable)):
+                            for module in self.modules:
+                                if(hasattr(__import__(module),module) and hasattr(getattr(__import__(module),module),'fn_' + function)):
+                                    method = getattr(getattr(__import__(module),module),'fn_' + function)
+                                    addonmodule = True
+                                if(isinstance(method,collections.Callable)):
+                                    break
+                        if(isinstance(method, collections.Callable)):
+                            if(addonmodule):
+                                out = str(method(self,args,client,[server,destination]))
+                            else:
+                                out = str(method(args,client,[server,destination]))
+                            self.base_say(out,[server,destination])
+                     #       found = True
+                   #         break
                     # if we can't handle the function, let them know
-                    if not found and (msg_pm or (msg_cmd and msg_cmdcln)):
+                    elif(msg_pm or (msg_cmd and msg_cmdcln)):
                         self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
                 except Exception as e:
                     # if we have an error, let them know and print it to the screen
@@ -1051,7 +1052,7 @@ class ircbot:
                     print('ERROR: ' + str(e))
                 if(msg_pm):
                     # let programmers define extra code in addition to function stuff
-                    self.on_pm(server,client,msg_pm and nick or destination,':'.join(data.split(':')[2:]).replace(endl,''),found)
+                    self.on_pm(server,client,msg_pm and nick or destination,':'.join(data.split(':')[2:]).replace(endl,''))
             elif msg_pub:
                 #passive functions
                 if(self.conf['server'][server]['channel'][destination]['passivefunc']):
