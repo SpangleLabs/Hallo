@@ -669,11 +669,11 @@ class ircbot:
                          else:
                              return "That's an invalid value for " + variable + ". It must be 'user', 'op', or 'god'."
                      elif(variable=='return_to'):
-                         if(value.lower() in ['channel','notice','privmsg']):
+                         if(value.lower() in ['channel','notice','privmsg','none']):
                              self.conf['function'][function][variable] = value.lower()
                              return "Set " + variable + " to " + value + " for " + function + "."
                          else:
-                             return "That's an invalid value for " + variable + ". It must be 'channel', 'notice' or 'privmsg'."
+                             return "That's an invalid value for " + variable + ". It must be 'channel', 'notice', 'privmsg' or 'none'."
                      elif(variable=='repair'):
                          if(value.lower() in ['false','off','0']):
                              self.conf['function'][function][variable] = False
