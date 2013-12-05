@@ -538,7 +538,7 @@ class hallobase():
         timeword = time.strftime('%H:%M:%S %d/%m/%Y',time.gmtime(timestamp))
         return 'The time is ' + timeword + ' ' + timezone
 
-    def fn_is(self, args, client, destination):
+    def fn_is(self,args,client,destination):
         'Placeholder'
         return 'I am?'
 
