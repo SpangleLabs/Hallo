@@ -730,7 +730,21 @@ class ircbot:
 
     def fn_help(self,args,client,destination):
         'Gives information about commands.  Use "help commands" for a list of commands, or "help <command>" for help on a specific command.'
-        if(args != ''):
+        if(args.lower() == 'commands'):
+            cmds = []
+            # loop through all bot commands
+            functions = dir(self)
+            for fn in functions:
+                # use the one they're asking about
+                if(isinstance(getattr(self, fn), collections.Callable) and fn.startswith('fn_') and fn != "fn_poketheasshole"):
+                    cmds.append(fn.split('.')[-1])
+            for module in self.modules:
+                for i in dir(getattr(__import__(module),module)):
+                    if(isinstance(getattr(getattr(__import__(module),module),i), collections.Callable) and i.startswith('fn_')): 
+                        cmds.append(i)
+       #         functions = functions + [ module + '.' + module + '.' + i for i in dir(getattr(__import__(module),module))]
+            return ', '.join(cmd[3:] for cmd in cmds)
+        elif(args != ''):
             fn = 'fn_'+args.lower().split()[0]
             method = 'placeholder'
             addonmodule = False
@@ -749,20 +763,6 @@ class ircbot:
                 else:
                     doc = method.__doc__
                 return doc
-        if(args.lower() == 'commands'):
-            cmds = []
-            # loop through all bot methods
-            functions = dir(self)
-            for fn in functions:
-                # use the one they're asking about
-                if(isinstance(getattr(self, fn), collections.Callable) and fn.startswith('fn_') and fn != "fn_poketheasshole"):
-                    cmds.append(fn.split('.')[-1])
-            for module in self.modules:
-                for i in dir(getattr(__import__(module),module)):
-                    if(isinstance(getattr(getattr(__import__(module),module),i), collections.Callable) and i.startswith('fn_')): 
-                        cmds.append(i)
-       #         functions = functions + [ module + '.' + module + '.' + i for i in dir(getattr(__import__(module),module))]
-            return ', '.join(cmd[3:] for cmd in cmds)
         else:
             return 'Use "help commands" for a list of commands, or "help <command>" for help on a specific command.  Note:  <>s mean you should replace them with an argument, described within them.  If you are not using private messaging, prefix your commands with "' + self.conf['server'][destination[0]]['nick'] + '".'
 
@@ -997,6 +997,8 @@ class ircbot:
             if msg_cmd:
                 message = message[len(nick):]
                 if(len(message)>=1):
+                    if(message[0] == ','):
+                        message = message[1:]
                     if(message[0] == ':'):
                         message = message[1:]
                         msg_cmdcln = True
@@ -1966,6 +1968,34 @@ class ircbot:
                 return "erm, really? my core variable... erm, if you insist. Here goes:\n" + pprint.pformat(self.core)
         else:
             return "Insufficient privileges to view core variable."
+
+    def fn_core_set(self,args,client,destination):
+        if(self.chk_god(destination[0],client)):
+            args = args.split()
+            if(len(args)>=2):
+                value = args[-1]
+                args = args[:-1]
+                if(len(args)==1):
+                    self.core[args[0]] = value
+                    return "Variable set."
+                elif(len(args)==2):
+                    self.core[args[0]][args[1]] = value
+                    return "Variable set."
+                elif(len(args)==3):
+                    self.core[args[0]][args[1]][args[2]] = value
+                    return "Variable set."
+                elif(len(args)==4):
+                    self.core[args[0]][args[1]][args[2]][args[3]] = value
+                    return "Variable set."
+                elif(len(args)==5):
+                    self.core[args[0]][args[1]][args[2]][args[3]][args[4]] = value
+                    return "Variable set."
+                else:
+                    return "That's too deep, probably."
+            else:
+                return "Not enough arguments given."
+        else:
+            return "Insufficient privileges to modify core variable."
 
     def fn_config_view(self,args,client,destination):
         'View the config, privmsg only. gods only.'

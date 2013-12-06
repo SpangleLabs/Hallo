@@ -593,17 +593,42 @@ class hallobase():
         randpost = random.randint(0,num_postmessage-1)
         return arr_premessage[randpre].replace("{X}",bestpony.split("|")[0]) + arr_postmessage[randpost].replace("{Y}",bestpony.split("|")[1])
 
-    def fn_boop(self, args, client, destination):
+    def fn_boop(self,args,client,destination):
         'Boops people'
         if(args==''):
             return "This function boops people, as such you need to specify a person for me to boop, in the form 'Hallo boop <name>' but without the <> brackets"
         args = args.split()
-        online = ' '.join(self.chk_recipientonline(destination[0],args))
-        if(online==' ' or online==''):
-            return 'No one called "' + args + '" is online.'
+        if(len(args)>=2):
+            if(args[0][0]=='#'):
+                online = ''.join(self.chk_recipientonline(destination[0],[args[1]]))
+                if(online==' ' or online==''):
+                    return 'No one called "' + args + '" is online.'
+                else:
+                    self.base_say('\x01ACTION boops ' + args[1] + '.\x01',[destination[0],args[0]])
+                    return 'done.'
+            elif(args[1][0]=='#'):
+                online = ''.join(self.chk_recipientonline(destination[0],[args[0]]))
+                if(online==' ' or online==''):
+                    return 'No one called "' + args + '" is online.'
+                else:
+                    self.base_say('\x01ACTION boops ' + args[0] + '.\x01',[destination[0],args[1]])
+                    return 'done.'
+            else:
+                return "Please specify a channel."
+        elif(destination[1][0]=='#'):
+            online = ''.join(self.chk_recipientonline(destination[0],args))
+            if(online==' ' or online==''):
+                return 'No one called "' + args[0] + '" is online.'
+            else:
+                return '\x01ACTION boops ' + args[0] + '.\x01'
         else:
-            return '\x01ACTION boops ' + online.replace(' ','') + '.\x01'
-
+            online = ''.join(self.chk_recipientonline(destination[0],args))
+            if(online==' ' or online==''):
+                return 'No one called "' + args[0] + '" is online.'
+            else:
+                self.base_say('\x01ACTION boops ' + args[0] + '.\x01',[destination[0],args[0]])
+                return 'done.'
+                
     def fn_cupcake(self, args, client, destination):
         'Gives out cupcakes (much better than muffins.)'
         online = self.chk_recipientonline(destination[0],args.split()[0])
