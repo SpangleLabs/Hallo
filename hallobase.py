@@ -751,10 +751,10 @@ class hallobase():
 
     def fn_channels(self,args,client,destination):
         'Hallo will tell you which channels he is in, ops only.'
-        if(self.chk_op(destination[0],client)):
+        if(self.chk_god(destination[0],client)):
             return "I'm in these channels: " + ', '.join(self.conf['server'][destination[0]]['channels']) + ". I think..."
         else:
-            return "Sorry, this function is for ops only."
+            return "Sorry, this function is for gods only."
 
     def fn_amiregistered(self,args,client,destination):
         'Hallo checks if you are registered, tells you result.'

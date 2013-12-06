@@ -734,8 +734,8 @@ class ircbot:
             access_level = ['user']
             if(self.chk_op(destination[0],client)):
                 access_level.append('op')
-            if(self.chk_god(destination[0],client)):
-                access_level.append('god')
+                if(self.chk_god(destination[0],client)):
+                    access_level.append('god')
             commands = []
             # loop through all bot commands
             functions = dir(self)
@@ -748,13 +748,13 @@ class ircbot:
                     if(listed_to in access_level):
                         commands.append(fn.split('.')[-1])
             for module in self.modules:
-                for i in dir(getattr(__import__(module),module)):
-                    if(isinstance(getattr(getattr(__import__(module),module),i), collections.Callable) and i.startswith('fn_')): 
+                for fn in dir(getattr(__import__(module),module)):
+                    if(isinstance(getattr(getattr(__import__(module),module),fn), collections.Callable) and fn.startswith('fn_')): 
                         listed_to = self.conf['function']['default']['listed_to']
                         if(fn in self.conf['function'] and 'listed_to' in self.conf['function'][fn]):
                             listed_to = self.conf['function'][fn]['listed_to']
                         if(listed_to in access_level):
-                            commands.append(i)
+                            commands.append(fn)
        #         functions = functions + [ module + '.' + module + '.' + i for i in dir(getattr(__import__(module),module))]
             return ', '.join(cmd[3:] for cmd in commands)
         elif(args != ''):
