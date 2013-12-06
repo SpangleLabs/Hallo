@@ -731,19 +731,32 @@ class ircbot:
     def fn_help(self,args,client,destination):
         'Gives information about commands.  Use "help commands" for a list of commands, or "help <command>" for help on a specific command.'
         if(args.lower() == 'commands'):
-            cmds = []
+            access_level = ['user']
+            if(self.chk_op(destination[0],client)):
+                access_level.append('op')
+            if(self.chk_god(destination[0],client)):
+                access_level.append('god')
+            commands = []
             # loop through all bot commands
             functions = dir(self)
             for fn in functions:
                 # use the one they're asking about
-                if(isinstance(getattr(self, fn), collections.Callable) and fn.startswith('fn_') and fn != "fn_poketheasshole"):
-                    cmds.append(fn.split('.')[-1])
+                if(isinstance(getattr(self, fn), collections.Callable) and fn.startswith('fn_')):
+                    listed_to = self.conf['function']['default']['listed_to']
+                    if(fn in self.conf['function'] and 'listed_to' in self.conf['function'][fn]):
+                        listed_to = self.conf['function'][fn]['listed_to']
+                    if(listed_to in access_level):
+                        commands.append(fn.split('.')[-1])
             for module in self.modules:
                 for i in dir(getattr(__import__(module),module)):
                     if(isinstance(getattr(getattr(__import__(module),module),i), collections.Callable) and i.startswith('fn_')): 
-                        cmds.append(i)
+                        listed_to = self.conf['function']['default']['listed_to']
+                        if(fn in self.conf['function'] and 'listed_to' in self.conf['function'][fn]):
+                            listed_to = self.conf['function'][fn]['listed_to']
+                        if(listed_to in access_level):
+                            commands.append(i)
        #         functions = functions + [ module + '.' + module + '.' + i for i in dir(getattr(__import__(module),module))]
-            return ', '.join(cmd[3:] for cmd in cmds)
+            return ', '.join(cmd[3:] for cmd in commands)
         elif(args != ''):
             fn = 'fn_'+args.lower().split()[0]
             method = 'placeholder'
