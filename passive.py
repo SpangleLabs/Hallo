@@ -50,6 +50,8 @@ class passive():
             pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
             pageopener = urllib.request.build_opener()
             pageinfo = str(pageopener.open(pagerequest).info())
+            if("Content-Type:" in pageinfo):
+                pagetype = pageinfo.split()[pageinfo.split().index('Content-Type:')+1]
             if('speedtest.net' in url):
                 if(url[-4:]=='.png'):
                     number = url[32:-4]
@@ -127,23 +129,21 @@ class passive():
                     else:
                         views = re.search('"views":([0-9]*),',code).group(1)
                     return "Imgur> Title: " + title + " | Size: " + img_width + "x" + img_height + " | Filesize: " + img_sizestr + " | Views: " + views
-            elif("Content-Type:" in pageinfo):
-                pagetype = pageinfo.split()[pageinfo.split().index('Content-Type:')+1]
-                if("image" in pagetype):
-                    code = pageopener.open(pagerequest).read()
-                    image_file = io.BytesIO(code)
-                    im = Image.open(image_file)
-                    image_width, image_height = im.size
-                    filesize = len(code)
-                    if(filesize<2048):
-                        filesizestr = str(filesize) + "Bytes"
-                    elif(filesize<(2048*1024)):
-                        filesizestr = str(math.floor(float(filesize)/10.24)/100) + "KiB"
-                    elif(filesize<(2048*1024*1024)):
-                        filesizestr = str(math.floor(float(filesize)/(1024*10.24))/100) + "MiB"
-                    else:
-                        filesizestr = str(math.floor(float(filesize)/(1024*1024*10.24))/100) + "GiB"
-                    return "Image: " + pagetype + " (" + str(image_width) + "px by " + str(image_height) + "px) " + filesizestr
+            elif("image" in pagetype):
+                code = pageopener.open(pagerequest).read()
+                image_file = io.BytesIO(code)
+                im = Image.open(image_file)
+                image_width, image_height = im.size
+                filesize = len(code)
+                if(filesize<2048):
+                    filesizestr = str(filesize) + "Bytes"
+                elif(filesize<(2048*1024)):
+                    filesizestr = str(math.floor(float(filesize)/10.24)/100) + "KiB"
+                elif(filesize<(2048*1024*1024)):
+                    filesizestr = str(math.floor(float(filesize)/(1024*10.24))/100) + "MiB"
+                else:
+                    filesizestr = str(math.floor(float(filesize)/(1024*1024*10.24))/100) + "GiB"
+                return "Image: " + pagetype + " (" + str(image_width) + "px by " + str(image_height) + "px) " + filesizestr
             elif('youtube.com' in url or 'youtu.be' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8')
                 length = re.search('length_seconds": ([0-9]*)', code).group(1)
