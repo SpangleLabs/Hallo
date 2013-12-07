@@ -51,20 +51,82 @@ class passive():
             pageopener = urllib.request.build_opener()
             pageinfo = str(pageopener.open(pagerequest).info())
             if('speedtest.net' in url):
-                 if(url[-4:]=='.png'):
-                     number = url[32:-4]
-                     newurl = 'http://www.speedtest.net/my-result/' + number
-                     print("New url: " + newurl)
-                     pagerequest = urllib.request.Request(newurl)
-                     pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-                     pageopener = urllib.request.build_opener()
-                     pageinfo = str(pageopener.open(pagerequest).info())
-                 code = pageopener.open(pagerequest).read().decode('utf-8')
-                 code = ''.join(code.split())
-                 download = re.search('<h3>Download</h3><p>([0-9\.]*)',code).group(1)
-                 upload = re.search('<h3>Upload</h3><p>([0-9\.]*)',code).group(1)
-                 ping = re.search('<h3>Ping</h3><p>([0-9]*)',code).group(1)
-                 return "Speedtest> Download: " + download + "Mb/s | Upload: " + upload + "Mb/s | Ping: " + ping + "ms"
+                if(url[-4:]=='.png'):
+                    number = url[32:-4]
+                    newurl = 'http://www.speedtest.net/my-result/' + number
+                    print("New url: " + newurl)
+                    pagerequest = urllib.request.Request(newurl)
+                    pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+                    pageopener = urllib.request.build_opener()
+                    pageinfo = str(pageopener.open(pagerequest).info())
+                code = pageopener.open(pagerequest).read().decode('utf-8')
+                code = ''.join(code.split())
+                download = re.search('<h3>Download</h3><p>([0-9\.]*)',code).group(1)
+                upload = re.search('<h3>Upload</h3><p>([0-9\.]*)',code).group(1)
+                ping = re.search('<h3>Ping</h3><p>([0-9]*)',code).group(1)
+                return "Speedtest> Download: " + download + "Mb/s | Upload: " + upload + "Mb/s | Ping: " + ping + "ms"
+            elif('imgur.com' in url):
+                if('/a/' in url):
+                    code = pageopener.open(pagerequest).read().decode('utf-8')
+                    title = re.search('<meta name="twitter:title" value="([^"]*)"/>',code).group(1)[:0-len(' - Imgur')]
+                    if(title=='imgur: the simple imag'):
+                        title = 'none.'
+                    pic_number = '0'
+                    if('#' in url):
+                        pic_number = url.split('#')[-1]
+                    album_count = re.search('<h2 id="thumbs-header">Album: ([0-9,]*) images',code).group(1)
+                    views = re.search('<span class="stat">([0-9,]*)</span> views',code).group(1)
+                    current_img_link = re.search('data-src="//i.imgur.com/([0-9A-Za-z]*).(jpg|gif|png)" data-index="' + pic_number + '"',code).group(1)
+                    current_img_ext = re.search('data-src="//i.imgur.com/([0-9A-Za-z]*).(jpg|gif|png)" data-index="' + pic_number + '"',code).group(2)
+                    imgpage_pagerequest = urllib.request.Request('http://imgur.com/' + current_img_link)
+                    imgpage_pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+                    imgpage_pageopener = urllib.request.build_opener()
+                    imgpage_code = imgpage_pageopener.open(imgpage_pagerequest).read().decode('utf-8')
+                    img_width = re.search('<meta name="twitter:image:width" value="([0-9]*)"/>',imgpage_code).group(1)
+                    img_height = re.search('<meta name="twitter:image:height" value="([0-9]*)"/>',imgpage_code).group(1)
+                    img_pagerequest = urllib.request.Request('http://i.imgur.com/' + current_img_link + '.' + current_img_ext)
+                    img_pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+                    img_pageopener = urllib.request.build_opener()
+                    img_code = img_pageopener.open(img_pagerequest).read()
+                    img_size = len(img_code)
+                    if(img_size<2048):
+                        img_sizestr = str(img_size) + "Bytes"
+                    elif(img_size<(2048*1024)):
+                        img_sizestr = str(math.floor(float(img_size)/10.24)/100) + "KiB"
+                    else:
+                        img_sizestr = str(math.floor(float(img_size)/(1024*10.24))/100) + "MiB"
+                    return "Imgur album> Album title: " + title + " | Gallery views: " + views + " | Image " + pic_number + " of " + album_count + " | Current image: " + img_width + "x" + img_height + ", " + img_sizestr
+                else:
+                    if(url[-4:] in ['.png','.jpg','.gif']):
+                        code = url.split('/')[-1].split('.')[0]
+                        newurl = 'http://www.imgur.com/' + code
+                        print("New url: " + newurl)
+                        pagerequest = urllib.request.Request(newurl)
+                        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+                        pageopener = urllib.request.build_opener()
+                    code = pageopener.open(pagerequest).read().decode('utf-8')
+                    title = re.search('<meta name="twitter:title" value="([^"]*)"/>',code).group(1)[:0-len(' - Imgur')]
+                    if(title=='imgur: the simple imag'):
+                        title = 'none.'
+                    img_width = re.search('<meta name="twitter:image:width" value="([0-9]*)"/>',code).group(1)
+                    img_height = re.search('<meta name="twitter:image:height" value="([0-9]*)"/>',code).group(1)
+                    img_link = re.search('<link rel="image_src" href="([^"]*)"/>',code).group(1)
+                    img_pagerequest = urllib.request.Request(img_link)
+                    img_pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+                    img_pageopener = urllib.request.build_opener()
+                    img_code = img_pageopener.open(img_pagerequest).read()
+                    img_size = len(img_code)
+                    if(img_size<2048):
+                        img_sizestr = str(img_size) + "Bytes"
+                    elif(img_size<(2048*1024)):
+                        img_sizestr = str(math.floor(float(img_size)/10.24)/100) + "KiB"
+                    else:
+                        img_sizestr = str(math.floor(float(img_size)/(1024*10.24))/100) + "MiB"
+                    if('<span id="views">' in code):
+                        views = re.search('<span id="views">([0-9,]*)</span>',code).group(1)
+                    else:
+                        views = re.search('"views":([0-9]*),',code).group(1)
+                    return "Imgur> Title: " + title + " | Size: " + img_width + "x" + img_height + " | Filesize: " + img_sizestr + " | Views: " + views
             elif("Content-Type:" in pageinfo):
                 pagetype = pageinfo.split()[pageinfo.split().index('Content-Type:')+1]
                 if("image" in pagetype):
@@ -89,9 +151,6 @@ class passive():
                 views = re.search('<span class="watch-view-count " >[\n\r\s]*([0-9,]*)',code).group(1)
                 title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&')
                 return "Youtube video> Title: " + title + " | Length: " + length_str + " | Views: " + views
-      #      elif('imgur.com' in url):
-      #          code = pageopener.open(pagerequest).read(4096).decode('utf-8')
-      #          
             else:
                 code = pageopener.open(pagerequest).read(4096).decode('utf-8')
                 if(code.count('</title>')>=1):
