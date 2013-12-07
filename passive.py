@@ -50,7 +50,22 @@ class passive():
             pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
             pageopener = urllib.request.build_opener()
             pageinfo = str(pageopener.open(pagerequest).info())
-            if("Content-Type:" in pageinfo):
+            if('speedtest.net' in url):
+                 if(url[-4:]=='.png'):
+                     number = url[32:-4]
+                     newurl = 'http://www.speedtest.net/my-result/' + number
+                     print("New url: " + newurl)
+                     pagerequest = urllib.request.Request(newurl)
+                     pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+                     pageopener = urllib.request.build_opener()
+                     pageinfo = str(pageopener.open(pagerequest).info())
+                 code = pageopener.open(pagerequest).read().decode('utf-8')
+                 code = ''.join(code.split())
+                 download = re.search('<h3>Download</h3><p>([0-9\.]*)',code).group(1)
+                 upload = re.search('<h3>Upload</h3><p>([0-9\.]*)',code).group(1)
+                 ping = re.search('<h3>Ping</h3><p>([0-9]*)',code).group(1)
+                 return "Speedtest> Download: " + download + "Mb/s | Upload: " + upload + "Mb/s | Ping: " + ping + "ms"
+            elif("Content-Type:" in pageinfo):
                 pagetype = pageinfo.split()[pageinfo.split().index('Content-Type:')+1]
                 if("image" in pagetype):
                     code = pageopener.open(pagerequest).read()
@@ -67,21 +82,25 @@ class passive():
                     else:
                         filesizestr = str(math.floor(float(filesize)/(1024*1024*10.24))/100) + "GiB"
                     return "Image: " + pagetype + " (" + str(image_width) + "px by " + str(image_height) + "px) " + filesizestr
-            if('youtube.com' in url or 'youtu.be' in url):
+            elif('youtube.com' in url or 'youtu.be' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8')
                 length = re.search('length_seconds": ([0-9]*)', code).group(1)
                 length_str = str(int(int(length)/60)) + "m " + str(int(length)-(60*(int(int(length)/60)))) + "s"
                 views = re.search('<span class="watch-view-count " >[\n\r\s]*([0-9,]*)',code).group(1)
                 title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&')
                 return "Youtube video> Title: " + title + " | Length: " + length_str + " | Views: " + views
-            code = pageopener.open(pagerequest).read(4096).decode('utf-8')
-            if(code.count('</title>')>=1):
-                title = code.split('</title>')[0]
-                title = ' '.join(re.compile('<title[-A-Z0-9"=' + "'" + ' ]*>',re.IGNORECASE).split(title)[1].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&039;',"'").replace('&quot;','"').replace('&amp;','&')
-                if(title!=""):
-                    return "URL title: " + title
+      #      elif('imgur.com' in url):
+      #          code = pageopener.open(pagerequest).read(4096).decode('utf-8')
+      #          
             else:
-                self.base_say(self,'I saw a link, but no title? ' + url,[destination[0],'dr-spangle'])
+                code = pageopener.open(pagerequest).read(4096).decode('utf-8')
+                if(code.count('</title>')>=1):
+                    title = code.split('</title>')[0]
+                    title = ' '.join(re.compile('<title[-A-Z0-9"=' + "'" + ' ]*>',re.IGNORECASE).split(title)[1].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&039;',"'").replace('&quot;','"').replace('&amp;','&')
+                    if(title!=""):
+                        return "URL title: " + title
+                else:
+                    self.base_say(self,'I saw a link, but no title? ' + url,[destination[0],'dr-spangle'])
 
     def fnn_extrayammering(self, args, client, destination):
         'Does some extra chatting, probably super buggy.'
