@@ -62,6 +62,7 @@ class passive():
                     pageopener = urllib.request.build_opener()
                     pageinfo = str(pageopener.open(pagerequest).info())
                 code = pageopener.open(pagerequest).read().decode('utf-8')
+                code = re.sub(r'\s+','',code)
                 code = ''.join(code.split())
                 download = re.search('<h3>Download</h3><p>([0-9\.]*)',code).group(1)
                 upload = re.search('<h3>Upload</h3><p>([0-9\.]*)',code).group(1)
