@@ -833,6 +833,18 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
             return dragon
         else:
             return "You have insufficient privileges."
+
+    def fn_train(self,args,client,destination):
+        'Prints ascii train. Format: train'
+        train = r'''chugga chugga, chugga chugga, woo woo!
+            ____.-==-, _______  _______  _______  _______  _..._
+           {"""""LILI|[" " "'"]['""'"""][''"""'']["" """"][LI LI]
+  ^#^#^#^#^/_OO====OO`'OO---OO''OO---OO''OO---OO''OO---OO`'OO-OO'^#^#^#^
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'''
+        if(self.chk_op(destination[0],client)):
+            return train
+        else:
+            return "You have insufficient power to summon a train."
      
     def fn_mute(self,args,client,destination):
         'Mutes a given channel or current channel'
