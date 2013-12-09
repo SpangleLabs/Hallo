@@ -152,6 +152,34 @@ class passive():
                 views = re.search('<span class="watch-view-count " >[\n\r\s]*([0-9,]*)',code).group(1)
                 title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&')
                 return "Youtube video> Title: " + title + " | Length: " + length_str + " | Views: " + views
+            elif('amazon.co.uk' in url or 'amazon.com' in url):
+                code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
+                title = re.search('<title>([^<]*)</title>',code).group(1)
+                price = re.search('<b class="priceLarge">([^<]*)</b>',code).group(1)
+                if(code.count('There are no customer reviews yet.')!=0):
+                    reviewstr = "No reviews yet."
+                else:
+                    stars = re.search('<span>([0-9.]*) out of 5 stars',code).group(1)
+                    reviews = re.search('>([0-9]*) customer reviews',code).group(1)
+                    reviewstr = stars + "/5 stars, from " + reviews + " reviews"
+                return "Amazon> Title: " + title + " | Price: " + price + " | " + reviewstr
+            elif('ebay.co.uk' in url or 'ebay.com' in url):
+                code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
+                title = re.search('<meta property="og:title" content="([^"]*)">',code).group(1)
+                price = re.search('itemprop="price"([^>]*)>([^<]*)</span>',code).group(2)
+                if(code.count('Current bid:')==1):
+                    type = 'Buy it now.'
+                    time_left = re.search('id="vi-cdown_timeLeft">([ 0-9hm]*)</span>',code).group(1)
+                else:
+                    type = 'Auction'
+                    bids = re.search('<span id="qty-test">([0-9]*)</span> <span>bids',code).group(1)
+                    if(bids==1):
+                        type = type + ", " + bids + "bid."
+                    else:
+                        type = type + ", " + bids + "bids."
+                    time_left = re.search('id="vi-cdown_timeLeft">([ 0-9hm]*)</span>',code).group(1)
+                #time left
+                return "eBay> Title: " + title + " | " + type + " | Time left: " + time_left
             else:
                 code = pageopener.open(pagerequest).read(4096).decode('utf-8')
                 if(code.count('</title>')>=1):
@@ -160,7 +188,7 @@ class passive():
                     if(title!=""):
                         return "URL title: " + title
                 else:
-                    self.base_say(self,'I saw a link, but no title? ' + url,[destination[0],'dr-spangle'])
+                    self.base_say('I saw a link, but no title? ' + url,[destination[0],'dr-spangle'])
 
     def fnn_extrayammering(self, args, client, destination):
         'Does some extra chatting, probably super buggy.'
