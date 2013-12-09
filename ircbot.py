@@ -1116,7 +1116,7 @@ class ircbot:
             #handle QUIT events
             client = data.split('!')[0][1:]
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
-            print(self.base_timestamp() + ' [' + server + '] ' + client + ' quit.')
+            print(self.base_timestamp() + ' [' + server + '] ' + client + ' quit: ' + message)
             self.on_quit(server,client,message)
         elif('MODE' == data.split()[1]):
             # handle MODE events

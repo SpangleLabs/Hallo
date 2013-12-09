@@ -169,7 +169,7 @@ class passive():
                 price = re.search('itemprop="price"([^>]*)>([^<]*)</span>',code).group(2)
                 if(code.count('Current bid:')==1):
                     type = 'Buy it now.'
-                    time_left = re.search('id="vi-cdown_timeLeft">([ 0-9hm]*)</span>',code).group(1)
+                    time_left = re.search('id="vi-cdown_timeLeft">([^<]*)<',code).group(1)
                 else:
                     type = 'Auction'
                     bids = re.search('<span id="qty-test">([0-9]*)</span> <span>bids',code).group(1)
@@ -177,7 +177,7 @@ class passive():
                         type = type + ", " + bids + "bid."
                     else:
                         type = type + ", " + bids + "bids."
-                    time_left = re.search('id="vi-cdown_timeLeft">([ 0-9hm]*)</span>',code).group(1)
+                    time_left = re.search('id="vi-cdown_timeLeft">([^<]*)<',code).group(1)
                 #time left
                 return "eBay> Title: " + title + " | " + type + " | Time left: " + time_left
             else:
