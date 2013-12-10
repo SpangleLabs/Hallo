@@ -13,6 +13,7 @@ import hallobase
 #import json
 #import difflib
 import re
+import html.parser
 
 
 
@@ -150,7 +151,10 @@ class passive():
                 length = re.search('length_seconds": ([0-9]*)', code).group(1)
                 length_str = str(int(int(length)/60)) + "m " + str(int(length)-(60*(int(int(length)/60)))) + "s"
                 views = re.search('<span class="watch-view-count " >[\n\r\s]*([0-9,]*)',code).group(1)
-                title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&')
+                #title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&')
+                title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split())
+                h = html.parser.HTMLParser()
+                title = h.unescape(title)
                 return "Youtube video> Title: " + title + " | Length: " + length_str + " | Views: " + views
             elif('amazon.co.uk' in url or 'amazon.com' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
@@ -184,7 +188,10 @@ class passive():
                 code = pageopener.open(pagerequest).read(4096).decode('utf-8')
                 if(code.count('</title>')>=1):
                     title = code.split('</title>')[0]
-                    title = ' '.join(re.compile('<title[-A-Z0-9"=' + "'" + ' ]*>',re.IGNORECASE).split(title)[1].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&').replace('&mdash;','-').replace('&#8217;',"'").replace('&apos;',"'").replace('&laquo;','<<').replace('&raquo;','>>').replace('&#8211','-').replace('&eacute;','e').replace('&#8482;','(tm)').replace('&8242;',"'").replace('&reg;','(R)').replace('&#x2f;','/').replace('&#X2F;','/')
+                    #title = ' '.join(re.compile('<title[-A-Z0-9"=' + "'" + ' ]*>',re.IGNORECASE).split(title)[1].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&').replace('&mdash;','-').replace('&#8217;',"'").replace('&apos;',"'").replace('&laquo;','<<').replace('&raquo;','>>').replace('&#8211','-').replace('&eacute;','e').replace('&#8482;','(tm)').replace('&8242;',"'").replace('&reg;','(R)').replace('&#x2f;','/').replace('&#X2F;','/')
+                    title = ' '.join(re.compile('<title[-A-Z0-9"=' + "'" + ' ]*>',re.IGNORECASE).split(title)[1].split())
+                    h = html.parser.HTMLParser()
+                    title = h.unescape(title)
                     if(title!=""):
                         return "URL title: " + title
                 else:
