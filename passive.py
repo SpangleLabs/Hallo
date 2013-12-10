@@ -184,7 +184,7 @@ class passive():
                 code = pageopener.open(pagerequest).read(4096).decode('utf-8')
                 if(code.count('</title>')>=1):
                     title = code.split('</title>')[0]
-                    title = ' '.join(re.compile('<title[-A-Z0-9"=' + "'" + ' ]*>',re.IGNORECASE).split(title)[1].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&039;',"'").replace('&quot;','"').replace('&amp;','&')
+                    title = ' '.join(re.compile('<title[-A-Z0-9"=' + "'" + ' ]*>',re.IGNORECASE).split(title)[1].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&').replace('&mdash;','-').replace('&#8217;',"'").replace('&apos;',"'").replace('&laquo;','<<').replace('&raquo;','>>').replace('&#8211','-').replace('&eacute;','e').replace('&#8482;','(tm)').replace('&8242;',"'").replace('&reg;','(R)').replace('&#x2f;','/').replace('&#X2F;','/')
                     if(title!=""):
                         return "URL title: " + title
                 else:
