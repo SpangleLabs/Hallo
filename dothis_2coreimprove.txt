@@ -12,3 +12,5 @@ standardise underscores or not in hallo commands and conf variables
 09:23:23 < dr-spangle> -could hallo somehow check irc flags for some permissions?
 
 move swear detection to passive functions
+
+move a bunch of functions from ircbot.py to hallobase.py or something

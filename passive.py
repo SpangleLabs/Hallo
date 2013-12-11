@@ -10,7 +10,7 @@ import io
 import euler
 import hallobase
 #import threading
-#import json
+import json
 #import difflib
 import re
 import html.parser
@@ -184,6 +184,21 @@ class passive():
                     time_left = re.search('id="vi-cdown_timeLeft">([^<]*)<',code).group(1)
                 #time left
                 return "eBay> Title: " + title + " | " + type + " | Time left: " + time_left
+            elif('imdb.com/title' in url):
+                code = pageopener.open(pagerequest).read().decode('utf-8')
+                movie_code = re.search('title/(tt[0-9]*)',code).group(1)
+                api_url = 'http://www.omdbapi.com/?i=' + movie_code
+                api_pagerequest = urllib.request.Request(api_url)
+                api_pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+                api_pageopener = urllib.request.build_opener()
+                api_code = api_pageopener.open(api_pagerequest).read()
+                api_dict = json.loads(api_code.decode('utf-8'))
+                title = api_dict['Title']
+                year = api_dict['Year']
+                genre = api_dict['Genre']
+                rating = api_dict['imdbRating']
+                votes = api_dict['imdbVotes']
+                return "IMDB> Title: " + title + " (" + year + ") | Rated " + rating + "/10, " + votes + " votes. | Genres: " + genre 
             else:
                 code = pageopener.open(pagerequest).read(4096).decode('utf-8')
                 if(code.count('</title>')>=1):
@@ -208,9 +223,9 @@ class passive():
         elif(("irc client" in args.lower() or "irc program" in args.lower() or "chat client" in args.lower()) and ("which" in args.lower() or "what" in args.lower()) and ("get" in args.lower() or "use" in args.lower())):
             message = "For windows: Hexchat is a good irc client. Try http://hexchat.org For mac: Colloquy is a good choice http://colloquy.info/ For linux: xchat (for a graphical interface) http://xchat.orgor for command line linux: irssi http://irssi.org Or for a web client, try http://mibbit.com"
             return message
-        elif("when" in args.lower() and ("more pony" in args.lower() or "season 4" in args.lower() or "S04" in args.upper() or ("next season" in args.lower() and ("pony" in args.lower() or "mlp" in args.lower())))):
-            message = "It's finally been announced! Season 4 of pony starts on the 23rd of November!"
-            return message
+     #   elif("when" in args.lower() and ("more pony" in args.lower() or "season 4" in args.lower() or "S04" in args.upper() or ("next season" in args.lower() and ("pony" in args.lower() or "mlp" in args.lower())))):
+     #       message = "It's finally been announced! Season 4 of pony starts on the 23rd of November!"
+     #       return message
         elif(("who is" in args.lower() or "what is" in args.lower()) and "hallo" in args.lower()):
             message = "I'm Hallo, I'm a bot built by dr-spangle, I do a couple of useful things like calculate things and choose options."
             return message

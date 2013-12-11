@@ -17,6 +17,7 @@ import euler
 import threading
 import json
 import difflib
+import psutil
 
 #Importing greetings
 #try:
@@ -918,6 +919,16 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
     def fn_tell(self,args,client,destination):
         'Stuff and things'
         return "I don't like mondays."
+
+    def fn_uptime(self,args,client,destination):
+        'Returns hardware uptime'
+        uptime = time.time()-psutil.get_boot_time()
+        days = math.floor(uptime/86400)
+        hours = math.floor((uptime-86400*days)/3600)
+        minutes = math.floor((uptime-86400*days-3600*hours)/60)
+        seconds = uptime-86400*days-3600*hours-minutes*60
+        return "My current (hardware) uptime is " + str(days) + " days, " + str(hours) + " hours, " + str(minutes) + " minutes and " + str(seconds) + " seconds."
+
 
 #    def fn_listadd(self, args, client, destination):
 #        'Creates a new list for this user'

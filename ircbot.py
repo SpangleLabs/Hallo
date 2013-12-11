@@ -1066,6 +1066,10 @@ class ircbot:
                                 out = "This function has been disabled, sorry"
                             else:
                                 if(addonmodule):
+                                    #this part wants to be changed to start another thread I guess, then this thread can monitor it.
+                                    #info needed will be max run time (loop for that long before check if it's dead (or replied) and then kill it.)
+                                    #also have to check processor and ram usage, I guess
+                                    #will need to get the id of the thread I just started, too
                                     out = str(method(self,args,client,[server,destination]))
                                 else:
                                     out = str(method(args,client,[server,destination]))
