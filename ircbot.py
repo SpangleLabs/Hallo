@@ -141,6 +141,7 @@ class ircbot:
                 self.conf['server'][destination[0]]['channel'][channel]['sweardetect'] = False
                 self.conf['server'][destination[0]]['channel'][channel]['in_channel'] = False
                 self.conf['server'][destination[0]]['channel'][channel]['caps'] = False
+                self.conf['server'][destination[0]]['channel'][channel]['passivefunc'] = True
                 self.conf['server'][destination[0]]['channel'][channel]['voice_list'] = []
                 self.conf['server'][destination[0]]['channel'][channel]['pass'] = password
                 self.conf['server'][destination[0]]['channel'][channel]['swearlist'] = {}
@@ -993,6 +994,8 @@ class ircbot:
             msg_pub = not msg_pm
             msg_cmd = message[0:len(nick)].lower() == nick.lower()
             msg_ctcp = len(data.split(':')[2]) > 0 and data.split(':')[2][0] == '\x01'
+            if(msg_pub):
+                self.core['server'][server]['channel'][destination]['last_message'] = int(time.time())
             #command colon variable, if command is followed by a colon and command doesn't exist, throw an error
             msg_cmdcln = False
             # print and a clean version of the message
@@ -1243,6 +1246,9 @@ class ircbot:
                     del self.core['server'][server]
                     time.sleep(1)
                     Thread(target=self.base_run, args=(server,)).start()
+                for channel in self.conf['server'][server]['channels']:
+                    if(self.conf['server'][server]['channel'][channel]['in_channel']):
+                        if(time.time()-self.
             if(servers==0):
                 self.base_close()
             time.sleep(0.1)
