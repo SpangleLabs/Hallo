@@ -24,9 +24,8 @@ class passive():
 
     def fnn_idlechan(self,args,client,destination):
         # SPANGLE ADDED THIS, should do things in channels, once they've been idle for a set amount of time.
-        out = idlechan.fnn_chat_to_s(self,args,client,destination)
-        if(out is not None):
-            return out
+        if(args.lower()=='chat to _s'):
+            return idlechan.fnn_chat_to_s(self,args,client,destination)
 
     def fnn_chat_to_s(self,args,client,destination):
         'chats to _S'
