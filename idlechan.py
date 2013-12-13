@@ -1,4 +1,4 @@
-#import random
+import random
 #import base64
 #import urllib.request, urllib.error, urllib.parse
 #import time
@@ -28,5 +28,7 @@ class idlechan():
 
     def fnn_chat_to_s(self,args,client,destination):
         'chats to _S'
-        return "_S: SO, HOW ARE THINGS?"
+        messages = ['so, how are things?','is your end of the world holding up ok?',"let's talk about deer!"]
+        randmessage = messages[random.randint(0,len(messages)-1)]
+        return "_S: " + randmessage
 
