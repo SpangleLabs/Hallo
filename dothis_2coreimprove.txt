@@ -14,5 +14,3 @@ standardise underscores or not in hallo commands and conf variables
 move swear detection to passive functions
 
 move a bunch of functions from ircbot.py to hallobase.py or something
-
-ignore list by channel/server? ignore _S

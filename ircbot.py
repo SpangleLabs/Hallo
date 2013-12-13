@@ -368,6 +368,44 @@ class ircbot:
         else:
             return "Sorry, this function is for ops only."
 
+    def fn_ignorelist_add(self,args,client,destination):
+        'Adds a user to the ignore list, ops only.'
+        if(self.chk_op(destination[0],client)):
+            args = args.lower().replace(' ','')
+            if('ignore_list' not in self.conf['server'][destination[0]]['channel'][destination[1]]):
+                self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'] = []
+            if(args not in self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list']):
+                self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'].append(args)
+                return "Added " + args + " to the ignore list."
+            else:
+                return "This person is already on the ignore list."
+        else:
+            return "Sorry, this function is for ops only."
+
+    def fn_ignorelist_list(self,args,client,destination):
+        'List users on the ignore list for this channel. Ops only.'
+        if(self.chk_op(destination[0],client)):
+            if('ignore_list' in self.conf['server'][destination[0]]['channel'][destination[1]]):
+                return "Users on ignore list for this channel: " + ', '.join(self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'])
+            else:
+                return "There is no ignore list for this channel."
+        else:
+            return "Sorry, this function is for ops only."
+
+    def fn_admininform_del(self,args,client,destination):
+        'Delete a user from the ignore list for this channel. Ops only.'
+        if(self.chk_op(destination[0],client)):
+            args = args.lower().replace(' ','')
+            if('ignore_list' not in self.conf['server'][destination[0]]['channel'][destination[1]]):
+                self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'] = []
+            if(args in self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list']):
+                self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'].remove(args)
+                return "Removed " + args + " from ignore list"
+            else:
+                return args + " isn't even on the ignore list for " + destination[1] + " on " + destination[0]
+        else:
+            return "Sorry, this function is for ops only."
+
     def fn_swear_add(self,args,client,destination):
         'Add a swear to a channel swear list, format is "swear_add <list> <channel> <swearregex>". List is either "possible", "inform" or "comment"'
         if(self.chk_op(destination[0],client)):
@@ -1020,6 +1058,12 @@ class ircbot:
             msg_ctcp = len(data.split(':')[2]) > 0 and data.split(':')[2][0] == '\x01'
             if(msg_pub):
                 self.core['server'][server]['channel'][destination]['last_message'] = int(time.time())
+            if(msg_cmd):
+                ignore_list = []
+                if('ignore_list' in self.conf['server'][server]['channel'][destination]):
+                    ignore_list = self.conf['server'][server]['channel'][destination]['ignore_list']
+                if(client.lower() in ignore_list):
+                    msg_cmd = False
             #command colon variable, if command is followed by a colon and command doesn't exist, throw an error
             msg_cmdcln = False
             # print and a clean version of the message
