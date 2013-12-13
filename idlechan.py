@@ -18,14 +18,13 @@
 
 
 endl = '\r\n'
-class passive():
-    def init(self):
-        self.longcat = False
-
+class idlechan():
     def fnn_idlechan(self,args,client,destination):
         # SPANGLE ADDED THIS, should do things in channels, once they've been idle for a set amount of time.
         if(args.lower()=='chat to _s'):
             return idlechan.fnn_chat_to_s(self,args,client,destination)
+        else:
+            return '*tumbleweed*'
 
     def fnn_chat_to_s(self,args,client,destination):
         'chats to _S'

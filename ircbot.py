@@ -1270,13 +1270,19 @@ class ircbot:
                     del self.core['server'][server]
                     time.sleep(1)
                     Thread(target=self.base_run, args=(server,)).start()
-                for channel in self.conf['server'][server]['channels']:
-                    if(self.conf['server'][server]['channel'][channel]['in_channel']):
-                        if('idle_time' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['idle_time']!=0 and (time.time()-self.core['server'][server]['channel'][channel]['last_message'])>self.conf['server'][server]['channel'][channel]['idle_time']):
-                            self.core['server'][server]['channel'][channel]['last_message'] = int(time.time())
-                            out = idlechan.idlechan.fnn_idlechan(self,self.conf['server'][server]['channel'][channel]['idle_args'],client,[server,channel])
-                            if(out is not None):
-                                self.base_say(out,[server,channel])
+                if(self.conf['server'][server]['connected']):
+        #            print("aaa")
+                    for channel in self.conf['server'][server]['channels']:
+        #                print("bbb")
+                        if(self.conf['server'][server]['channel'][channel]['in_channel']):
+        #                    print("ccc")
+                        #    print("in channel " + channel + " on server " + server + ". idle_time = " + self.conf['server'][server]['channel'][channel]['idle_time'] + " and last_message = " + self.core['server'][server]['channel'][channel]['last_message'] + " current time = " + str(int(time.time())))
+                            if('idle_time' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['idle_time']!=0 and self.core['server'][server]['channel'][channel]['last_message']!=0 and (int(time.time())-self.core['server'][server]['channel'][channel]['last_message'])>self.conf['server'][server]['channel'][channel]['idle_time']):
+                                print("channel idle")
+                                self.core['server'][server]['channel'][channel]['last_message'] = int(time.time())
+                                out = idlechan.idlechan.fnn_idlechan(self,self.conf['server'][server]['channel'][channel]['idle_args'],'',[server,channel])
+                                if(out is not None):
+                                    self.base_say(out,[server,channel])
             if(servers==0):
                 self.base_close()
             time.sleep(0.1)
@@ -1291,7 +1297,8 @@ class ircbot:
         self.core['server'][server]['check']['userregistered'] = False
         self.core['server'][server]['channel'] = {}
         for channel in self.conf['server'][server]['channels']:
-            self.core['server'][server]['channel']['channel'] = {}
+            self.core['server'][server]['channel'][channel] = {}
+            self.core['server'][server]['channel'][channel]['last_message'] = 0
             if(self.conf['server'][server]['channel'][channel]['megahal_record']):
                 self.core['server'][server]['channel'][channel]['megahalcount'] = 0
         self.core['server'][server]['lastping'] = 0
