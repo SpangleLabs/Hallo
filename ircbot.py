@@ -659,7 +659,7 @@ class ircbot:
             return "Insufficient privileges to set channel password"
 
     def fn_function_conf(self,args,client,destination):
-        'Set a function config variable, Format: function_conf <function> <variable> <value>, functionname should include "fn_" and variable can be "listed_to", "disabled", "repair", "privmsg", "max_run_time" or "return_to"'
+        'Set a function config variable, Format: function_conf <function> <variable> <value>, functionname should include "fn_" and variable can be "listed_to", "disabled", "repair", "privmsg", "max_run_time", "time_delay" or "return_to"'
         if(self.chk_god(destination[0],client)):
             if(len(args.split())>=3):
                  function = args.split()[0].lower()
@@ -681,7 +681,7 @@ class ircbot:
                              return "Set " + variable + " to False for " + function + "."
                          else:
                              return "That's an invalid value for " + variable + ". It can only be True or False."
-                     elif(variable=='max_run_time'):
+                     elif(variable=='max_run_time' or variable=='time_delay'):
                          try:
                              self.conf['function'][function][variable] = int(value)
                              return "Set " + variable + " to " + value + " for " + function + "."
@@ -711,7 +711,7 @@ class ircbot:
                  else:
                      return "Invalid function."
             else:
-                return "Not enough arguments given, please provide me with a function name, variable and value. Function names should include preceeding fn_ and variables can be 'listed_to', 'disabled', 'repair', 'privmsg', 'max_run_time' or 'return_to'"
+                return "Not enough arguments given, please provide me with a function name, variable and value. Function names should include preceeding fn_ and variables can be 'listed_to', 'disabled', 'repair', 'privmsg', 'max_run_time', 'time_delay' or 'return_to'"
         else:
             return "Insufficient privileges to change function variables"
 
@@ -1092,14 +1092,28 @@ class ircbot:
                             if(disabled):
                                 out = "This function has been disabled, sorry"
                             else:
-                                if(addonmodule):
-                                    #this part wants to be changed to start another thread I guess, then this thread can monitor it.
-                                    #info needed will be max run time (loop for that long before check if it's dead (or replied) and then kill it.)
-                                    #also have to check processor and ram usage, I guess
-                                    #will need to get the id of the thread I just started, too
-                                    out = str(method(self,args,client,[server,destination]))
+                                time_delay = 0
+                                time_delay = self.conf['function']['default']['time_delay']
+                                if('fn_' + function in self.conf['function'] and 'disabled' in self.conf['function']['fn_' + function]):
+                                    time_delay = self.conf['function']['fn_' + function]['time_delay']
+                                last_used = 0
+                                if('fn_' + function in self.core['function'] and 'last_used' in self.core['function']['fn_' + function]):
+                                    last_used = self.core['function']['fn_' + function]['last_used']
+                                if(last_used!=0 and time_delay!=0 and (int(time.time())-last_used)<time_delay):
+                                    out = "You're trying to use this function too fast after its last use, sorry. Please wait."
                                 else:
-                                    out = str(method(args,client,[server,destination]))
+                                    if(addonmodule):
+                                        #this part wants to be changed to start another thread I guess, then this thread can monitor it.
+                                        #info needed will be max run time (loop for that long before check if it's dead (or replied) and then kill it.)
+                                        #also have to check processor and ram usage, I guess
+                                        #will need to get the id of the thread I just started, too
+                                        out = str(method(self,args,client,[server,destination]))
+                                    else:
+                                        out = str(method(args,client,[server,destination]))
+                                    #record the time it was used.
+                                    if('fn_' + function not in self.core['function']):
+                                        self.core['function']['fn_' + function] = {}
+                                    self.core['function']['fn_' + function]['last_used'] = int(time.time())
                             #check where this function is meant to send its answer to, and how
                             return_to = self.conf['function']['default']['return_to']
                             if('fn_' + function in self.conf['function'] and 'return_to' in self.conf['function']['fn_' + function]):
@@ -1242,6 +1256,7 @@ class ircbot:
         self.conf = pickle.load(open(configfile,"rb"))
         self.core = {}
         self.core['server'] = {}
+        self.core['function'] = {}
         self.open = True
         self.modules = []
         try:
