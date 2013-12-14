@@ -23,12 +23,15 @@ class idlechan():
         # SPANGLE ADDED THIS, should do things in channels, once they've been idle for a set amount of time.
         if(args.lower()=='chat to _s'):
             return idlechan.fnn_chat_to_s(self,args,client,destination)
+        elif(args.lower()=='deer'):
+            return 'deer deer deer.'
         else:
             return '*tumbleweed*'
 
     def fnn_chat_to_s(self,args,client,destination):
         'chats to _S'
-        messages = ['so, how are things?','is your end of the world holding up ok?',"let's talk about deer!"]
+        messages = ['so, how are things?','is your end of the world holding up ok?',"let's talk about deer!","boop","beep","I'll be honest, this place is dead","Fuck snow","I guess everyone's asleep","clap... clap... *clap*","I'm watching you, robot."]
+   #     messages.append("fuck deer, dragons are better!")
         randmessage = messages[random.randint(0,len(messages)-1)]
         return "_S: " + randmessage
 

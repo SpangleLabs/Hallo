@@ -221,13 +221,13 @@ class hallobase():
             return 'Longcat cannot be activated here, sorry.'
         else:
             if(self.chk_op(destination[0],client)):
-                self.longcat = True
+                hallobase.longcat = True
                 return 'Longcat enabled.  Use "longcat_off" to turn it off.'
     
     def fn_longcat_off(self, args, client, destination):
         'Turn off longcat functon.'
         if(self.chk_op(destination[0],client)):
-            self.longcat = False
+            hallobase.longcat = False
             return 'Longcat disabled.  Use "longcat_on" to turn it on.'
 
     def fn_longcat(self, args, client, destination):
@@ -235,7 +235,7 @@ class hallobase():
         if(destination[1].lower() == '#ukofequestria'):
             return 'Sorry, longcat is not available here.'
         else:
-            if(self.longcat):
+            if(hallobase.longcat):
                 if(self.chk_god(destination[0],client)):
                     longcathead = '    /\___/\ \n   /       \ \n  |  #    # |\n  \     @   |\n   \   _|_ /\n   /       \______\n  / _______ ___   \ \n  |_____   \   \__/\n   |    \__/\n'
                     longcatsegment = '   |       |\n'

@@ -227,7 +227,7 @@ class Brain(object):
                 return context[0]
 
             def update(context, symbol):
-                for i in xrange(self.order + 1, 0, -1):
+                for i in range(self.order + 1, 0, -1):
                     node = context.get(i - 1)
                     if node is not None:
                         context[i] = node.add_symbol(symbol)
@@ -246,7 +246,7 @@ class Brain(object):
                 return 0
 
             def babble(context, keys, replies):
-                for i in xrange(self.order + 1):
+                for i in range(self.order + 1):
                     if context.get(i) is not None:
                         node = context[i]
                 if not node.children:
@@ -310,7 +310,7 @@ class Brain(object):
                             prob = 0.0
                             count = 0
                             state['num'] += 1
-                            for j in xrange(self.order):
+                            for j in range(self.order):
                                 node = context.get(j)
                                 if node is not None:
                                     child = node.get_child(symbol, add=False)
@@ -347,7 +347,7 @@ class Brain(object):
                 context.update(symbol)
         with self.get_context(self.backward) as context:
             if replies:
-                for i in xrange(min([(len(replies) - 1), self.order]), -1, -1):
+                for i in range(min([(len(replies) - 1), self.order]), -1, -1):
                     context.update(self.dictionary.index(replies[i]))
             while True:
                 symbol = context.babble(keys, replies)
@@ -392,7 +392,7 @@ class Brain(object):
 
     def close(self):
         if not self.closed:
-            print 'Closing database'
+            print('Closing database')
             self.db.close()
             self.closed = True
 
@@ -453,11 +453,11 @@ class MegaHAL(object):
         """Have a friendly chat session.. ^D to exit"""
         while True:
             try:
-                phrase = raw_input('>>> ')
+                phrase = eval(input('>>> '))
             except EOFError:
                 break
             if phrase:
-                print self.get_reply(phrase)
+                print((self.get_reply(phrase)))
 
     def sync(self):
         """Flush any changes to disk"""

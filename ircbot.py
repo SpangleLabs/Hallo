@@ -1138,7 +1138,7 @@ class ircbot:
                             else:
                                 time_delay = 0
                                 time_delay = self.conf['function']['default']['time_delay']
-                                if('fn_' + function in self.conf['function'] and 'disabled' in self.conf['function']['fn_' + function]):
+                                if('fn_' + function in self.conf['function'] and 'time_delay' in self.conf['function']['fn_' + function]):
                                     time_delay = self.conf['function']['fn_' + function]['time_delay']
                                 last_used = 0
                                 if('fn_' + function in self.core['function'] and 'last_used' in self.core['function']['fn_' + function]):
