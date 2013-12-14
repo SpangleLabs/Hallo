@@ -983,8 +983,10 @@ class ircbot:
         self.open = False
 
     def base_disconnect(self,server):
-       # for channel in self.conf['server'][server]['channels']:
+        for channel in self.conf['server'][server]['channels']:
         #    self.base_say('Daisy daisy give me your answer do...',[server,channel])
+            if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
+                self.base_addlog(self.base_timestamp() + ' Hallo has quit.',[server,channel])
         #    time.sleep(1)
         if(self.core['server'][server]['open']):
             self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
@@ -1020,8 +1022,8 @@ class ircbot:
                 else:
                     print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line)
                     self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + line + endl).encode('utf-8'))
-                if(destination[1] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
-                    self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '>: ' + line, destination)
+                if(destination[1][0] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
+                    self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '>: ' + line,destination)
                 # avoid flooding
                 if n % 5 == 0:
                     time.sleep(2)
@@ -1193,19 +1195,26 @@ class ircbot:
             channel = ':'.join(data.split(':')[2:]).replace(endl,'').lower()
             client = data.split('!')[0][1:]
             print(self.base_timestamp() + ' [' + server + '] ' + client + ' joined ' + channel)
+            if(self.conf['server'][server]['channel'][channel]['logging']):
+                self.base_addlog(self.base_timestamp() + ' ' + client + ' joined ' + channel,[server,channel])
             self.on_join(server,client,channel)
         elif('PART' == data.split()[1]):
             # handle PART events
             channel = data.split()[2]
             client = data.split('!')[0][1:]
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
-            print(self.base_timestamp() + ' [' + server + '] ' + client + ' left ' + channel)
+            print(self.base_timestamp() + ' [' + server + '] ' + client + ' left ' + channel + ' (' + message + ')')
+            if(self.conf['server'][server]['channel'][channel]['logging']):
+                self.base_addlog(self.base_timestamp() + ' ' + client + ' left ' + channel + ' (' + message + ')',[server,channel])
             self.on_part(server,client,channel,message)
         elif('QUIT' == data.split()[1]):
             #handle QUIT events
             client = data.split('!')[0][1:]
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
             print(self.base_timestamp() + ' [' + server + '] ' + client + ' quit: ' + message)
+            for channel in self.conf['server'][server]['channels']:
+                if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
+                    self.base_addlog(self.base_timestamp() + ' ' + client + ' quit: ' + message,[server,channel])
             self.on_quit(server,client,message)
         elif('MODE' == data.split()[1]):
             # handle MODE events
@@ -1217,13 +1226,17 @@ class ircbot:
             else:
                 args = ''
             print(self.base_timestamp() + ' [' + server + '] ' + client + ' set ' + mode + ' ' + args + ' on ' + channel)
+            if(channel in self.conf['server'][server]['channel'] and 'logging' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['logging']):
+                self.base_addlog(self.base_timestamp() + ' ' + client + ' set ' + mode + ' ' + args + ' on ' + channel,[server,channel])
             self.on_mode(server,client,channel,mode,args)
         elif('NOTICE' == data.split()[1]):
             # handle NOTICE messages
             channel = data.split()[2].replace(endl,'')
             client = data.split('!')[0][1:]
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
-            print(self.base_timestamp() + ' [' + server + '] Notice: ' + data)
+            print(self.base_timestamp() + ' [' + server + '] ' + channel + ' Notice from ' + client + ': ' + message)
+            if(channel in self.conf['server'][server]['channel'] and 'logging' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['logging']):
+                self.base_addlog(self.base_timestamp() + ' ' + channel + ' notice from ' + client + ': ' + message,[server,channel])
             self.on_notice(server,client,channel,message)
         elif('NICK' == data.split()[1]):
             #handle nick changes
@@ -1233,18 +1246,26 @@ class ircbot:
             else:
                 newnick = data.split()[2]
             print(self.base_timestamp() + ' [' + server + '] Nick change: ' + client + ' -> ' + newnick)
+            for channel in self.conf['server'][server]['channels']:
+                if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
+                    self.base_addlog(self.base_timestamp() + ' Nick change: ' + client + ' -> ' + newnick,[server,channel])
             self.on_nickchange(server,client,newnick)
         elif('INVITE' == data.split()[1]):
             #handle invites
             client = data.split('!')[0][1:]
             channel = ':'.join(data.split(':')[2:]).replace(endl,'')
             print(self.base_timestamp() + ' [' + server + '] invite to ' + channel + ' from ' + client)
+            if(channel in self.conf['server'][server]['channel'] and 'logging' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['logging']):
+                self.base_addlog(self.base_timestamp() + ' invite to ' + channel + ' from ' + client,[server,destination])
             self.on_invite(server,client,channel)
         elif('KICK' == data.split()[1]):
             #handle kicks
             channel = data.split()[2]
             client = data.split()[1]
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
+            print(self.base_timestamp() + ' [' + server + '] ' + client + ' was kicked from ' + channel + ': ' + message)
+            if(self.conf['server'][server]['channel'][channel]['logging']):
+                self.base_addlog(self.base_timestamp() + ' ' + client + ' was kicked from ' + channel + ': ' + message,[server,channel])
             self.on_kick(server,client,channel,message)
         elif data == '':
             #blank message thingy
