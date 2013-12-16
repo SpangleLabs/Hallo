@@ -147,6 +147,7 @@ class ircbot:
                 self.conf['server'][destination[0]]['channel'][channel]['idle_args'] = ''
                 self.conf['server'][destination[0]]['channel'][channel]['voice_list'] = []
                 self.conf['server'][destination[0]]['channel'][channel]['pass'] = password
+                self.core['server'][destination[0]]['channel'][channel]['last_message'] = int(time.time())
                 self.conf['server'][destination[0]]['channel'][channel]['swearlist'] = {}
                 self.conf['server'][destination[0]]['channel'][channel]['swearlist']['possible'] = []
                 self.conf['server'][destination[0]]['channel'][channel]['swearlist']['inform'] = []
