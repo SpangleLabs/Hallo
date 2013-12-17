@@ -18,3 +18,4 @@ re add that megahal module, make it work beautifully.
 make function names be listed with underscores, but accept a lack of underscores?
 
 
+move base_function out of base_parse to a new thing.

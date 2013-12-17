@@ -1,5 +1,9 @@
 import time
 
+import ircbot_chk
+
+endl = '\r\n'
+
 class ircbot_on:
 
     def on_init(self):
@@ -9,18 +13,18 @@ class ircbot_on:
         # handle join events from other users (or from hallo!)
         if(client.lower() in self.conf['server'][server]['channel'][channel]['voice_list']):
             for x in range(7):
-                if(self.chk_userregistered(server,client)):
+                if(ircbot_chk.ircbot_chk.chk_userregistered(self,server,client)):
                     self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + client + endl).encode('utf-8'))
                     time.sleep(5)
                     break
         if(client.lower() == self.conf['server'][server]['nick'].lower()):
             self.conf['server'][server]['channel'][channel]['in_channel'] = True
-            namesonline = self.chk_names(server,channel)
+            namesonline = ircbot_chk.ircbot_chk.chk_names(self,server,channel)
             namesonline = [x.lower() for x in namesonline]
             for user in self.conf['server'][server]['channel'][channel]['voice_list']:
                 if(user in namesonline and "+" + user not in namesonline):
                     for x in range(7):
-                        if(self.chk_userregistered(server,user)):
+                        if(ircbot_chk.ircbot_chk.chk_userregistered(self,server,user)):
                             self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + user + endl).encode('utf-8'))
                             time.sleep(5)
                             break
@@ -74,13 +78,13 @@ class ircbot_on:
         for channel in self.conf['server'][server]['channels']:
             if(newnick in self.conf['server'][server]['channel'][channel]['voice_list']):
                 for x in range(7):
-                    if(self.chk_userregistered(server,client)):
+                    if(ircbot_chk.ircbot_chk.chk_userregistered(self,server,client)):
                         self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + newnick + endl).encode('utf-8'))
                         time.sleep(5)
                         break
 
     def on_invite(self,server,client,channel):
-        if(self.chk_op(server,client)):
+        if(ircbot_chk.ircbot_chk.chk_op(self,server,client)):
             self.fn_join(channel,client,[server,''])
         pass # override to do something on invite
 

@@ -19,6 +19,8 @@ import json
 import difflib
 import psutil
 
+import ircbot_chk
+
 #Importing greetings
 #try:
 #    hallodata = shelve.open('Store/hallo-greetings')

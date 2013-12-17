@@ -3,6 +3,11 @@ import sys
 import importlib
 import imp
 import pprint
+import pickle
+
+import ircbot_chk
+
+endl = '\r\n'
 
 class ircbot_base:
 
