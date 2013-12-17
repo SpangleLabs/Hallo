@@ -43,13 +43,11 @@ class ircbot_on:
         if(args.lower()=='version'):
             self.core['server'][server]['socket'].send(('NOTICE ' + client + ' :\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01' + endl).encode('utf-8'))
         elif(args.lower()=='time'):
-            self.core['server'][server]['socket'].send(('NOTICE ' + client + ' :\x01TIME Fribsday 15 Nov 2024 ' + str(time.gmtime()[3]+100).rjust(2,'0') + ':' + str(time.gmtime()[4]+20).rjust(2,'0') + ':' + str(t
-ime.gmtime()[5]).rjust(2,'0') + 'GMT\x01' + endl).encode('utf-8'))
+            self.core['server'][server]['socket'].send(('NOTICE ' + client + ' :\x01TIME Fribsday 15 Nov 2024 ' + str(time.gmtime()[3]+100).rjust(2,'0') + ':' + str(time.gmtime()[4]+20).rjust(2,'0') + ':' + str(time.gmtime()[5]).rjust(2,'0') + 'GMT\x01' + endl).encode('utf-8'))
         elif(len(args)>4 and args[0:4].lower()=='ping'):
             self.core['server'][server]['socket'].send(('NOTICE ' + client + ' :\x01PING ' + args[5:] + '\x01' + endl).encode('utf-8'))
         elif(len(args)>=8 and args[0:8].lower()=='userinfo'):
-            self.core['server'][server]['socket'].send(('NOTICE ' + client + " :\x01Hello, I'm hallo, I'm a robot who does a few different things, mostly roll numbers and choose things, occassionally giving my in
-put on who is the best pony. dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01" + endl).encode('utf-8'))
+            self.core['server'][server]['socket'].send(('NOTICE ' + client + " :\x01Hello, I'm hallo, I'm a robot who does a few different things, mostly roll numbers and choose things, occassionally giving my input on who is the best pony. dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01" + endl).encode('utf-8'))
         elif(len(args)>=10 and args[0:10].lower()=='clientinfo'):
             self.core['server'][server]['socket'].send(('NOTICE ' + client + ' :\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01' + endl).encode('utf-8'))
 
@@ -65,8 +63,7 @@ put on who is the best pony. dr-spangle built me, if you have any questions he t
             self.core['server'][server]['motdend'] = True
         if(any(nickservmsg in args.replace(' ','').lower() for nickservmsg in self.conf['nickserv']['online']) and client.lower()=='nickserv' and self.core['server'][server]['check']['userregistered'] == False):
             self.core['server'][server]['check']['userregistered'] = True
-        if(any(nickservmsg in args.replace(' ','').lower() for nickservmsg in self.conf['nickserv']['registered']) and client.lower()=='nickserv' and self.core['server'][server]['check']['nickregistered'] == Fals
-e):
+        if(any(nickservmsg in args.replace(' ','').lower() for nickservmsg in self.conf['nickserv']['registered']) and client.lower()=='nickserv' and self.core['server'][server]['check']['nickregistered'] == False):
             self.core['server'][server]['check']['nickregistered'] = True
         pass # override this method to handle notices alternatively
 

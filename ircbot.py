@@ -36,7 +36,7 @@ class ircbot:
 
     def __init__(self):
         # connect
-        ircbot_on.on_init()
+        ircbot_on.ircbot_on.on_init()
 #        self.base_start()
   #      self.megahal = MegaHAL()
 
@@ -48,13 +48,13 @@ class ircbot:
         if(self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect']):
             for swear in self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['possible']:
                 if re.search(swear, args, re.I):
-                    for admin in ircbot_chk.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
+                    for admin in ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
                         self.base_say(client + ' possibly just swore in ' + destination[1] + '. Check the context. The message was: ' + args,[destination[0],admin])
                     swears = True
                     break
             for swear in self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['inform']:
                 if re.search(swear, args, re.I):
-                    for admin in ircbot_chk.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
+                    for admin in ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
                         self.base_say(client + ' just swore in ' + destination[1] + '. the message was: ' + args,[destination[0],admin])
                     swears = True
                     break
@@ -212,7 +212,7 @@ class ircbot:
                 client = data.split('!')[0][1:].lower()
                 args = ':'.join(data.split(':')[2:])[1:-1]
                 print(self.base_timestamp() + ' [' + server + '] The above was a ctcp one.')
-                ircbot_on.on_ctcp(server,client,args)
+                ircbot_on.ircbot_on.on_ctcp(server,client,args)
             elif msg_cmd or msg_pm:
                 if(len(message) > 0):
                     function = message.split()[0].lower()
@@ -300,7 +300,7 @@ class ircbot:
                     print('ERROR: ' + str(e))
                 if(msg_pm):
                     # let programmers define extra code in addition to function stuff
-                    ircbot_on.on_pm(server,client,msg_pm and nick or destination,':'.join(data.split(':')[2:]).replace(endl,''))
+                    ircbot_on.ircbot_on.on_pm(server,client,msg_pm and nick or destination,':'.join(data.split(':')[2:]).replace(endl,''))
             elif msg_pub:
                 #passive functions
                 if(self.conf['server'][server]['channel'][destination]['passivefunc']):
@@ -314,7 +314,7 @@ class ircbot:
             print(self.base_timestamp() + ' [' + server + '] ' + client + ' joined ' + channel)
             if(self.conf['server'][server]['channel'][channel]['logging']):
                 self.base_addlog(self.base_timestamp() + ' ' + client + ' joined ' + channel,[server,channel])
-            ircbot_on.on_join(server,client,channel)
+            ircbot_on.ircbot_on.on_join(server,client,channel)
         elif('PART' == data.split()[1]):
             # handle PART events
             channel = data.split()[2]
@@ -323,7 +323,7 @@ class ircbot:
             print(self.base_timestamp() + ' [' + server + '] ' + client + ' left ' + channel + ' (' + message + ')')
             if(self.conf['server'][server]['channel'][channel]['logging']):
                 self.base_addlog(self.base_timestamp() + ' ' + client + ' left ' + channel + ' (' + message + ')',[server,channel])
-            ircbot_on.on_part(server,client,channel,message)
+            ircbot_on.ircbot_on.on_part(server,client,channel,message)
         elif('QUIT' == data.split()[1]):
             #handle QUIT events
             client = data.split('!')[0][1:]
@@ -332,7 +332,7 @@ class ircbot:
             for channel in self.conf['server'][server]['channels']:
                 if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
                     self.base_addlog(self.base_timestamp() + ' ' + client + ' quit: ' + message,[server,channel])
-            ircbot_on.on_quit(server,client,message)
+            ircbot_on.ircbot_on.on_quit(server,client,message)
         elif('MODE' == data.split()[1]):
             # handle MODE events
             channel = data.split()[2].replace(endl, '').lower()
@@ -345,7 +345,7 @@ class ircbot:
             print(self.base_timestamp() + ' [' + server + '] ' + client + ' set ' + mode + ' ' + args + ' on ' + channel)
             if(channel in self.conf['server'][server]['channel'] and 'logging' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['logging']):
                 self.base_addlog(self.base_timestamp() + ' ' + client + ' set ' + mode + ' ' + args + ' on ' + channel,[server,channel])
-            ircbot_on.on_mode(server,client,channel,mode,args)
+            ircbot_on.ircbot_on.on_mode(server,client,channel,mode,args)
         elif('NOTICE' == data.split()[1]):
             # handle NOTICE messages
             channel = data.split()[2].replace(endl,'')
@@ -354,7 +354,7 @@ class ircbot:
             print(self.base_timestamp() + ' [' + server + '] ' + channel + ' Notice from ' + client + ': ' + message)
             if(channel in self.conf['server'][server]['channel'] and 'logging' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['logging']):
                 self.base_addlog(self.base_timestamp() + ' ' + channel + ' notice from ' + client + ': ' + message,[server,channel])
-            ircbot_on.on_notice(server,client,channel,message)
+            ircbot_on.ircbot_on.on_notice(server,client,channel,message)
         elif('NICK' == data.split()[1]):
             #handle nick changes
             client = data.split('!')[0][1:]
@@ -366,7 +366,7 @@ class ircbot:
             for channel in self.conf['server'][server]['channels']:
                 if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
                     self.base_addlog(self.base_timestamp() + ' Nick change: ' + client + ' -> ' + newnick,[server,channel])
-            ircbot_on.on_nickchange(server,client,newnick)
+            ircbot_on.ircbot_on.on_nickchange(server,client,newnick)
         elif('INVITE' == data.split()[1]):
             #handle invites
             client = data.split('!')[0][1:]
@@ -374,7 +374,7 @@ class ircbot:
             print(self.base_timestamp() + ' [' + server + '] invite to ' + channel + ' from ' + client)
             if(channel in self.conf['server'][server]['channel'] and 'logging' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['logging']):
                 self.base_addlog(self.base_timestamp() + ' invite to ' + channel + ' from ' + client,[server,destination])
-            ircbot_on.on_invite(server,client,channel)
+            ircbot_on.ircbot_on.on_invite(server,client,channel)
         elif('KICK' == data.split()[1]):
             #handle kicks
             channel = data.split()[2]
@@ -383,7 +383,7 @@ class ircbot:
             print(self.base_timestamp() + ' [' + server + '] ' + client + ' was kicked from ' + channel + ': ' + message)
             if(self.conf['server'][server]['channel'][channel]['logging']):
                 self.base_addlog(self.base_timestamp() + ' ' + client + ' was kicked from ' + channel + ': ' + message,[server,channel])
-            ircbot_on.on_kick(server,client,channel,message)
+            ircbot_on.ircbot_on.on_kick(server,client,channel,message)
         elif data == '':
             #blank message thingy
             #print 'Blank'
@@ -408,7 +408,7 @@ class ircbot:
   #          logunhandleddata = open('/home/dr-spangle/http/log_unhandleddata.txt','a')
   #          logunhandleddata.write(data + '\n---\n')
   #          logunhandleddata.close()
-        ircbot_on.on_rawdata(server,data,unhandled)
+        ircbot_on.ircbot_on.on_rawdata(server,data,unhandled)
 
     def base_connect(self,server):
         while(self.core['server'][server]['connected'] == False):
