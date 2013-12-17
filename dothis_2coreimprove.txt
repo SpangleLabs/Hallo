@@ -13,4 +13,8 @@ standardise underscores or not in hallo commands and conf variables
 
 move swear detection to passive functions
 
-move a bunch of functions from ircbot.py to hallobase.py or something
+re add that megahal module, make it work beautifully.
+
+make function names be listed with underscores, but accept a lack of underscores?
+
+

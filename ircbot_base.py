@@ -8,7 +8,7 @@ class ircbot_base:
 
     def fn_join(self,args,client,destination):
         'Join a channel.  Use "join <channel>".  Requires op'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             channel = args.split()[0].lower()
             password = args[len(channel):]
             while(len(password)>0 and password[0]==' '):
@@ -48,7 +48,7 @@ class ircbot_base:
 
     def fn_part(self,args,client,destination):
         'Leave a channel.  Use "part <channel>".  Requires op'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             if(args.replace(' ','')==""):
                 self.core['server'][destination[0]]['socket'].send(('PART ' + destination[1] + endl).encode('utf-8'))
                 self.conf['server'][destination[0]]['channel'][destination[1]]['in_channel'] = False
@@ -61,7 +61,7 @@ class ircbot_base:
 
     def fn_quit(self,args,client,destination):
         'Quit IRC.  Use "quit".  Requires godmode.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
       #      self.megahal.sync()
             self.base_close()
             sys.exit(0)
@@ -70,7 +70,7 @@ class ircbot_base:
 
     def fn_connect(self,args,client,destination):
         'Connects to a new server. Requires godmode'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             args = args.lower()
             title = args.split('.')[1]
             if(title not in self.conf['servers']):
@@ -95,7 +95,7 @@ class ircbot_base:
 
     def fn_disconnect(self,args,client,destination):
         'Disconnects from server. Requires godmode.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             self.base_say('Disconnecting...',destination)
             args = args.lower()
   #          self.core['server'][destination[0]]['open'] = False
@@ -107,9 +107,9 @@ class ircbot_base:
 
     def fn_god_add(self,args,client,destination):
         'Adds a member to godlist. Requires godmode.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             args = args.replace(' ','').lower()
-            if(self.chk_nickregistered(destination[0],args)):
+            if(ircbot_chk.chk_nickregistered(destination[0],args)):
                 if(args not in self.conf['server'][destination[0]]['gods']):
                     self.conf['server'][destination[0]]['gods'].append(args)
                     return "Added " + args + " to godlist for this server."
@@ -122,14 +122,14 @@ class ircbot_base:
 
     def fn_god_list(self,args,client,destination):
         'Lists godlist for this server. Requires godmode'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             return "Godlist for this server: " + ', '.join(self.conf['server'][destination[0]]['gods'])
         else:
             return "Insufficient privileges to list godlist."
 
     def fn_god_del(self,args,client,destination):
         'Removes someone from the godlist. Requires godmode'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             args = args.replace(' ','').lower()
             if(args in self.conf['server'][destination[0]]['gods']):
                 self.conf['server'][destination[0]]['gods'].remove(args)
@@ -141,9 +141,9 @@ class ircbot_base:
 
     def fn_ops_add(self,args,client,destination):
         'Adds a member to the ops list. Requires godmode.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             args = args.replace(' ','').lower()
-            if(self.chk_nickregistered(destination[0],args)):
+            if(ircbot_chk.chk_nickregistered(destination[0],args)):
                 if(args not in self.conf['server'][destination[0]]['ops']):
                     self.conf['server'][destination[0]]['ops'].append(args)
                     return "Added " + args + " to ops list."
@@ -156,14 +156,14 @@ class ircbot_base:
 
     def fn_ops_list(self,args,client,destination):
         'Lists ops list for this server. Requires godmode.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             return "Ops list for this server: " + ', '.join(self.conf['server'][destination[0]]['ops'])
         else:
             return "Insufficient privileges list ops for this server."
 
     def fn_ops_del(self,args,client,destination):
         'Removes someone from the ops list. Requires godmode.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             args = args.replace(' ','').lower()
             if(args in self.conf['server'][destination[0]]['ops']):
                 self.conf['server'][destination[0]]['ops'].remove(args)
@@ -175,16 +175,16 @@ class ircbot_base:
 
     def fn_voice_add(self,args,client,destination):
         'Adds a user to psuedoautovoice, format is "voice_add {user} {channel}"'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             args = args.lower()
             channel = destination[1]
             if(len(args.split())>1):
                 channel = args.split()[1]
                 args = args.split()[0]
             if(args not in self.conf['server'][destination[0]]['channel'][channel]['voice_list']):
-                if(self.chk_nickregistered(destination[0],args)):
+                if(ircbot_chk.chk_nickregistered(destination[0],args)):
                     self.conf['server'][destination[0]]['channel'][channel]['voice_list'].append(args)
-                    if(self.chk_userregistered(destination[0],args)):
+                    if(ircbot_chk.chk_userregistered(destination[0],args)):
                         self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' +v ' + args + endl).encode('utf-8'))
                     return "Added " + args + " to the pseudoautovoice list for " + channel
                 else:
@@ -196,7 +196,7 @@ class ircbot_base:
 
     def fn_voice_list(self,args,client,destination):
         'Lists users on pseudoautovoice, ops only. no arguments, or channel to list'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             if(args==''):
                 args = destination[1]
             return "Users on pseudoautovoice list for " + args + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][args]['voice_list'])
@@ -205,7 +205,7 @@ class ircbot_base:
 
     def fn_voice_del(self,args,client,destination):
         'Remove a user from autovoice list, ops only. same arguments as voice_add'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             args = args.lower()
             channel = destination[1]
             if(len(args.split())>1):
@@ -221,7 +221,7 @@ class ircbot_base:
 
     def fn_admininform_add(self,args,client,destination):
         'Add a user to the admin swear inform list, ops only.'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             args = args.lower().replace(' ','')
             if(args not in self.conf['server'][destination[0]]['admininform']):
                 self.conf['server'][destination[0]]['admininform'].append(args)
@@ -233,14 +233,14 @@ class ircbot_base:
 
     def fn_admininform_list(self,args,client,destination):
         'Lists users who are informed when sweardetect detects swearing.'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             return "Users on admininform for this server: " + ', '.join(self.conf['server'][destination[0]]['admininform'])
         else:
             return "Sorry, this function is for ops only."
 
     def fn_admininform_del(self,args,client,destination):
         'Delete a user from being informed about swearing in selected channels'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             args = args.lower().replace(' ','')
             if(args in self.conf['server'][destination[0]]['admininform']):
                 self.conf['server'][destination[0]]['admininform'].remove(args)
@@ -252,7 +252,7 @@ class ircbot_base:
 
     def fn_ignorelist_add(self,args,client,destination):
         'Adds a user to the ignore list, ops only.'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             args = args.lower().replace(' ','')
             if('ignore_list' not in self.conf['server'][destination[0]]['channel'][destination[1]]):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'] = []
@@ -266,7 +266,7 @@ class ircbot_base:
 
     def fn_ignorelist_list(self,args,client,destination):
         'List users on the ignore list for this channel. Ops only.'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             if('ignore_list' in self.conf['server'][destination[0]]['channel'][destination[1]]):
                 return "Users on ignore list for this channel: " + ', '.join(self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'])
             else:
@@ -276,7 +276,7 @@ class ircbot_base:
 
     def fn_admininform_del(self,args,client,destination):
         'Delete a user from the ignore list for this channel. Ops only.'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             args = args.lower().replace(' ','')
             if('ignore_list' not in self.conf['server'][destination[0]]['channel'][destination[1]]):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'] = []
@@ -290,7 +290,7 @@ class ircbot_base:
 
     def fn_swear_add(self,args,client,destination):
         'Add a swear to a channel swear list, format is "swear_add <list> <channel> <swearregex>". List is either "possible", "inform" or "comment"'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             if(len(args.split())>=3):
                 list = args.split()[0]
                 channel = args.split()[1].lower()
@@ -310,7 +310,7 @@ class ircbot_base:
 
     def fn_swear_list(self,args,client,destination):
         'Lists swears in a given channel. Format is swear_list <list> <channel>. Please only ask for this in privmsg.'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             if(len(args.split())>=2):
                 list = args.split()[0]
                 channel = args.split()[1].lower()
@@ -331,7 +331,7 @@ class ircbot_base:
 
     def fn_swear_del(self,args,client,destination):
         'Deletes a swear from a swear list, format is "swear_del <list> <channel> <swearregex>". List is either "possible", "inform" or "comment"'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             if(len(args.split())>=3):
                 list = args.split()[0]
                 channel = args.split()[1].lower()
@@ -354,7 +354,7 @@ class ircbot_base:
 
     def fn_nickserv_registered_add(self,args,client,destination):
         'Add a string to the list of nickserv messages to look for when checking if a nick is registered'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             args = args.lower().replace(' ','')
             if(args not in self.conf['nickserv']['registered']):
                 self.conf['nickserv']['registered'].append(args)
@@ -366,14 +366,14 @@ class ircbot_base:
 
     def fn_nickserv_registered_list(self,args,client,destination):
         'Lists all the nickserv messages to look for when checking if a nick is registered.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             return "Nick registered nickserv messages: " + ', '.join(self.conf['nickserv']['registered'])
         else:
             return "Sorry, this function is for gods only."
 
     def fn_nickserv_registered_del(self,args,client,destination):
         'Deletes a string from the list of nickserv messages to look for when checking is a nick is registered'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             args = args.lower().replace(' ','')
             if(args in self.conf['nickserv']['registered']):
                 self.conf['server']['registered'].remove(args)
@@ -385,7 +385,7 @@ class ircbot_base:
 
     def fn_nickserv_online_add(self,args,client,destination):
         'Add a string to the list of nickserv messages to look for when checking if a nick is online'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             args = args.lower().replace(' ','')
             if(args not in self.conf['nickserv']['online']):
                 self.conf['nickserv']['online'].append(args)
@@ -397,14 +397,14 @@ class ircbot_base:
 
     def fn_nickserv_online_list(self,args,client,destination):
         'Lists all the nickserv messages to look for when checking if a nick is online.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             return "Nick online nickserv messages: " + ', '.join(self.conf['nickserv']['online'])
         else:
             return "Sorry, this function is for gods only."
 
     def fn_nickserv_online_del(self,args,client,destination):
         'Deletes a string from the list of nickserv messages to look for when checking is a nick is online'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             args = args.lower().replace(' ','')
             if(args in self.conf['nickserv']['online']):
                 self.conf['server']['online'].remove(args)
@@ -417,7 +417,7 @@ class ircbot_base:
 
     def fn_server_address(self,args,client,destination):
         'Sets address for a given server. Requires godmode.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             if(len(args.split())!=2):
                 return "Please give two inputs, the server name first, then the server's address"
             else:
@@ -432,7 +432,7 @@ class ircbot_base:
 
     def fn_server_port(self,args,client,destination):
         'Sets port for a given server. Requires godmode.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             if(len(args.split())!=2):
                 return "Please give two inputs, the server name first, then the server's port"
             else:
@@ -447,7 +447,7 @@ class ircbot_base:
 
     def fn_changenick(self,args,client,destination):
         'Tells hallo to change his nick, godmode only.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             args = args.replace(' ','')
             oldnick = self.conf['server'][destination[0]]['nick']
          #   self.conf['server'][destination[0]]['nick'] = args
@@ -460,7 +460,7 @@ class ircbot_base:
 
     def fn_server_pass(self,args,client,destination):
         'Changes nickserv password, godmode only.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             args = args.replace(' ','')
             self.base_say('identify ' + args,[destination[0],'nickserv'])
             self.conf['server'][destination[0]]['pass'] = args
@@ -470,7 +470,7 @@ class ircbot_base:
 
     def fn_channel_caps(self,args,client,destination):
         'Sets or toggles caps lock for channel, ops only'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             if(args==''):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['caps'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['caps']
                 return "Caps lock toggled."
@@ -485,7 +485,7 @@ class ircbot_base:
 
     def fn_channel_logging(self,args,client,destination):
         'Sets or toggles logging for channel, ops only'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             if(args==''):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['logging'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['logging']
                 return "Logging toggled"
@@ -500,7 +500,7 @@ class ircbot_base:
 
     def fn_channel_megahalrecord(self,args,client,destination):
         'Sets or toggles megahal recording for channel, gods only'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             if(args==''):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record']
                 return "Megahal recording toggled"
@@ -515,7 +515,7 @@ class ircbot_base:
 
     def fn_channel_sweardetect(self,args,client,destination):
         'Sets or toggles sweardetection for channel, ops only'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             if(args==''):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect']
                 return "Swear detection toggled"
@@ -530,7 +530,7 @@ class ircbot_base:
 
     def fn_channel_passivefunc(self,args,client,destination):
         'Sets or toggles passive functions for channel, gods only'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             if(args==''):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']
                 return "Passive functions toggled"
@@ -545,7 +545,7 @@ class ircbot_base:
 
     def fn_channel_idletime(self,args,client,destination):
         'Sets the amount of time a channel can be idle before idle channel functions activate, gods only'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             if(args==''):
                 return "Please provide a time, in seconds, before idle channel functions activate."
             else:
@@ -558,7 +558,7 @@ class ircbot_base:
 
     def fn_channel_idleargs(self,args,client,destination):
         'Sets the arguments to pass to the idle channel function, gods only'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             self.conf['server'][destination[0]]['channel'][destination[1]]['idle_args'] = args
             return "Idle channel arguments set to: " + args
         else:
@@ -566,7 +566,7 @@ class ircbot_base:
 
     def fn_channel_pass(self,args,client,destination):
         'Sets a password for a channel, use channel_pass {channel} {password}'
-        if(self.chk_op(destination[0],client)):
+        if(ircbot_chk.chk_op(destination[0],client)):
             channel = args.split()[0]
             password = args[len(channel):]
             while(len(password)>0 and password[0]==' '):
@@ -581,7 +581,7 @@ class ircbot_base:
     def fn_function_conf(self,args,client,destination):
         'Set a function config variable, Format: function_conf <function> <variable> <value>, functionname should include "fn_" and variable can be "listed_to", "disabled", "repair", "privmsg", "max_run_time", "t
 ime_delay" or "return_to"'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             if(len(args.split())>=3):
                  function = args.split()[0].lower()
                  variable = args.split()[1].lower()
@@ -639,7 +639,7 @@ ime_delay" or "return_to"'
 
     def fn_core_view(self,args,client,destination):
         'View the core variable, privmsg only. gods only.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             if(destination[1][0] == '#'):
                 return "I'm not posting my whole core variable here, that would be rude."
             else:
@@ -649,7 +649,7 @@ ime_delay" or "return_to"'
 
     def fn_config_view(self,args,client,destination):
         'View the config, privmsg only. gods only.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             if(destination[1][0] == '#'):
                 return "I'm not posting my whole config here, that would be rude."
             else:
@@ -669,7 +669,7 @@ ime_delay" or "return_to"'
 
     def fn_config_save(self,args,client,destination):
         'Save the config and pickle it. godmod only.'
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             pickle.dump(self.conf,open(self.configfile,"wb"))
             return "config file saved."
         else:
@@ -679,9 +679,9 @@ ime_delay" or "return_to"'
         'Gives information about commands.  Use "help commands" for a list of commands, or "help <command>" for help on a specific command.'
         if(args.lower() == 'commands'):
             access_level = ['user']
-            if(self.chk_op(destination[0],client)):
+            if(ircbot_chk.chk_op(destination[0],client)):
                 access_level.append('op')
-                if(self.chk_god(destination[0],client)):
+                if(ircbot_chk.chk_god(destination[0],client)):
                     access_level.append('god')
             commands = []
             # loop through all bot commands
@@ -733,7 +733,7 @@ t using private messaging, prefix your commands with "' + self.conf['server'][de
             allowedmodules = pickle.load(open('store/allowedmodules.p','rb'))
         except IOError:
             allowedmodules = []
-        if(self.chk_god(destination[0],client)):
+        if(ircbot_chk.chk_god(destination[0],client)):
             args = args.lower().replace(' ','')
             if(args in allowedmodules):
                 imp.acquire_lock()
