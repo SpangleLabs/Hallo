@@ -44,7 +44,7 @@ class hallobase():
     
     def fn_kick(self, args, client, destination):
         'Kick given user in given channel, or current channel if no channel given.'
-        if(ircbot_chk.ircbot_chk.chk_op(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             if(len(args.split())>=2):
                 user = args.split()[0]
                 channel = ''.join(args.split()[1:])
@@ -62,7 +62,7 @@ class hallobase():
 
     def fn_op(self, args, client, destination):
         'Op member in given channel, or current channel if no channel given. Or command user if no member given. Format: op <name> <channel>'
-        if(ircbot_chk.ircbot_chk.chk_op(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             if(len(args.split())>=2):
                 nick = args.split()[0]
                 channel = ''.join(args.split()[1:])
@@ -83,7 +83,7 @@ class hallobase():
     
     def fn_deop(self, args, client, destination):
         'Deop member in given channel, or current channel if no channel given. Or command user if no member given. Format: deop <name> <channel>'
-        if(ircbot_chk.ircbot_chk.chk_op(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             if(len(args.split())>=2):
                 nick = args.split()[0]
                 channel = ''.join(args.split()[1:])
@@ -104,7 +104,7 @@ class hallobase():
 
     def fn_voice(self,args,client,destination):
         'Voice member in given channel, or current channel if no channel given, or command user if no member given. Format: voice <name> <channel>'
-        if(ircbot_chk.ircbot_chk.chk_op(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             if(len(args.split())>=2):
                 nick = args.split()[0]
                 channel = ''.join(args.split()[1:])
@@ -132,7 +132,7 @@ class hallobase():
                 self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' -v ' + nick + endl).encode('utf-8'))
                 return 'Voice status remove from ' + nick + ' in ' + channel + '.'
             else:
-                if(ircbot_chk.ircbot_chk.chk_op(destination[0],client)):
+                if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
                     self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' -v ' + nick + endl).encode('utf-8'))
                     return 'Voice status removed from ' + nick + ' in ' + channel + '.'
                 else:
@@ -146,7 +146,7 @@ class hallobase():
                     self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + args + endl).encode('utf-8'))
                     return 'Voice status taken from ' + args + '.'
                 else:
-                    if(ircbot_chk.ircbot_chk.chk_op(destination[0],client)):
+                    if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
                         self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + args + endl).encode('utf-8'))
                         return 'Voice status taken from ' + args + '.'
                     else:
@@ -220,13 +220,13 @@ class hallobase():
         if(destination[1].lower() == '#ukofequestria'):
             return 'Longcat cannot be activated here, sorry.'
         else:
-            if(ircbot_chk.ircbot_chk.chk_op(destination[0],client)):
+            if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
                 hallobase.longcat = True
                 return 'Longcat enabled.  Use "longcat_off" to turn it off.'
     
     def fn_longcat_off(self, args, client, destination):
         'Turn off longcat functon.'
-        if(ircbot_chk.ircbot_chk.chk_op(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             hallobase.longcat = False
             return 'Longcat disabled.  Use "longcat_on" to turn it on.'
 
@@ -236,7 +236,7 @@ class hallobase():
             return 'Sorry, longcat is not available here.'
         else:
             if(hallobase.longcat):
-                if(ircbot_chk.ircbot_chk.chk_god(destination[0],client)):
+                if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
                     longcathead = '    /\___/\ \n   /       \ \n  |  #    # |\n  \     @   |\n   \   _|_ /\n   /       \______\n  / _______ ___   \ \n  |_____   \   \__/\n   |    \__/\n'
                     longcatsegment = '   |       |\n'
                     longcattail = '   /        \ \n  /   ____   \ \n  |  /    \  |\n  | |      | |\n  /  |      |  \ \n  \__/      \__/'
@@ -601,14 +601,14 @@ class hallobase():
         args = args.split()
         if(len(args)>=2):
             if(args[0][0]=='#'):
-                online = ''.join(ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],[args[1]]))
+                online = ''.join(ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],[args[1]]))
                 if(online==' ' or online==''):
                     return 'No one called "' + args + '" is online.'
                 else:
                     self.base_say('\x01ACTION boops ' + args[1] + '.\x01',[destination[0],args[0]])
                     return 'done.'
             elif(args[1][0]=='#'):
-                online = ''.join(ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],[args[0]]))
+                online = ''.join(ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],[args[0]]))
                 if(online==' ' or online==''):
                     return 'No one called "' + args + '" is online.'
                 else:
@@ -617,13 +617,13 @@ class hallobase():
             else:
                 return "Please specify a channel."
         elif(destination[1][0]=='#'):
-            online = ''.join(ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],args))
+            online = ''.join(ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],args))
             if(online==' ' or online==''):
                 return 'No one called "' + args[0] + '" is online.'
             else:
                 return '\x01ACTION boops ' + args[0] + '.\x01'
         else:
-            online = ''.join(irbot_chk.chk_recipientonline(destination[0],args))
+            online = ''.join(irbot_chk.chk_recipientonline(self,destination[0],args))
             if(online==' ' or online==''):
                 return 'No one called "' + args[0] + '" is online.'
             else:
@@ -632,7 +632,7 @@ class hallobase():
                 
     def fn_cupcake(self, args, client, destination):
         'Gives out cupcakes (much better than muffins.)'
-        online = ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],args.split()[0])
+        online = ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],args.split()[0])
         if(online==' ' or online==''):
             return 'No one called "' + args.split()[0] + '" is online.'
         else:
@@ -643,7 +643,7 @@ class hallobase():
 
     def fn_eulerreload(self,args,client,destination):
         'Reloads the euler module.'
-        if(ircbot_chk.ircbot_chk.chk_op(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             import euler
             reload(euler)
             from euler import eulerclass
@@ -653,17 +653,17 @@ class hallobase():
 
     def fn_speak(self,args,client,destination):
         'He can talk!'
-        if(ircbot_chk.ircbot_chk.chk_god(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
        #     return client + ": " + self.megahal.get_reply_nolearn(args)
             return "*woof!!!*"
-        elif(ircbot_chk.ircbot_chk.chk_ops(destination[0],client)):
+        elif(ircbot_chk.ircbot_chk.chk_ops(self,destination[0],client)):
             return "*woof!*"
         else:
             return "*woof*"
 
     def fn_speaklearn(self,args,client,destination):
         'Teach him a file, gods only.'
-        if(ircbot_chk.ircbot_chk.chk_god(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
     #        self.megahal.train(args)
     #        self.megahal.sync()
             return "Learnt the file " + args + " ... hopefully."
@@ -676,8 +676,8 @@ class hallobase():
 
     def fn_silencetherabble(self,args,client,destination):
         'ETD only. deops all but D000242 and self. sets mute.'
-        if(ircbot_chk.ircbot_chk.chk_god(destination[0],client) and destination[1].lower() == '#ecco-the-dolphin'):
-            names = ircbot_chk.ircbot_chk.chk_names(destination[0],destination[1])
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client) and destination[1].lower() == '#ecco-the-dolphin'):
+            names = ircbot_chk.ircbot_chk.chk_names(self,destination[0],destination[1])
             if('@' + self.conf['server'][destination[0]]['nick'] not in names):
                 return 'I cannot handle it, master!'
             for user in names.split():
@@ -741,7 +741,7 @@ class hallobase():
 
     def fn_chosenone(self,args,client,destination):
         'Specifies who the chosen one is.'
-        names = ircbot_chk.ircbot_chk.chk_names(destination[0],destination[1])
+        names = ircbot_chk.ircbot_chk.chk_names(self,destination[0],destination[1])
         tempnameslist = names
         nameslist = []
         for name in tempnameslist:
@@ -752,14 +752,14 @@ class hallobase():
 
     def fn_channels(self,args,client,destination):
         'Hallo will tell you which channels he is in, ops only.'
-        if(ircbot_chk.ircbot_chk.chk_god(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             return "I'm in these channels: " + ', '.join(self.conf['server'][destination[0]]['channels']) + ". I think..."
         else:
             return "Sorry, this function is for gods only."
 
     def fn_amiregistered(self,args,client,destination):
         'Hallo checks if you are registered, tells you result.'
-        if(ircbot_chk.ircbot_chk.chk_userregistered(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_userregistered(self,destination[0],client)):
             return "Yup, you are registered."
         else:
             return "It doesn't seem you are registered with nickserv right now."
@@ -810,7 +810,7 @@ class hallobase():
            | || |           | |   | |
            |_||_|           |_|   |_|
           /_//_/           /_/   /_/'''
-        if(ircbot_chk.ircbot_chk.chk_god(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             return deer
         else:
             return "You have insufficient privileges to summon the deer"
@@ -830,7 +830,7 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
   |.____..  /
   \\      /A\
   |A      |//'''
-        if(ircbot_chk.ircbot_chk.chk_god(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             return dragon
         else:
             return "You have insufficient privileges."
@@ -842,14 +842,14 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
            {"""""LILI|[" " "'"]['""'"""][''"""'']["" """"][LI LI]
   ^#^#^#^#^/_OO====OO`'OO---OO''OO---OO''OO---OO''OO---OO`'OO-OO'^#^#^#^
  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'''
-        if(ircbot_chk.ircbot_chk.chk_op(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             return train
         else:
             return "You have insufficient power to summon a train."
      
     def fn_mute(self,args,client,destination):
         'Mutes a given channel or current channel'
-        if(ircbot_chk.ircbot_chk.chk_op(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             args = args.replace(' ','')
             if(args==''):
                 self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +m ' + endl).encode('utf-8'))
@@ -862,7 +862,7 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
 
     def fn_unmute(self,args,client,destination):
         'Unmutes a given channel or current channel if none is given.'
-        if(ircbot_chk.ircbot_chk.chk_op(destination[0],client)):
+        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             args = args.replace(' ','')
             if(args==''):
                 self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -m ' + endl).encode('utf-8'))
@@ -875,7 +875,7 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
 
     def fn_staff(self,args,client,destination):
         'Sends a message to all online staff members, and posts a message in the staff channel'
-        for admin in ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
+        for admin in ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],self.conf['server'][destination[0]]['admininform']):
             self.base_say(client + ' has sent a message to all staff members. The message is as follows: ' + args,[destination[0],admin])
         self.base_say(client + ' has sent a message to all staff members. The message is as follows: ' + args,[destination[0],'#ukofequestriaircstaff'])
         return "Message delivered. A staff member will be in contact with you shortly. :)"
