@@ -94,13 +94,13 @@ class ircbot:
         
     def base_close(self):
         # disconnect
-        for server in self.conf['servers']:
+        for server in self.conf['server']:
             self.base_disconnect(server)
         pickle.dump(self.conf,open(self.configfile,"wb"))
         self.open = False
 
     def base_disconnect(self,server):
-        for channel in self.conf['server'][server]['channels']:
+        for channel in self.conf['server'][server]['channel']:
         #    self.base_say('Daisy daisy give me your answer do...',[server,channel])
             if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
                 self.base_addlog(self.base_timestamp() + ' Hallo has quit.',[server,channel])
@@ -329,7 +329,7 @@ class ircbot:
             client = data.split('!')[0][1:]
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
             print(self.base_timestamp() + ' [' + server + '] ' + client + ' quit: ' + message)
-            for channel in self.conf['server'][server]['channels']:
+            for channel in self.conf['server'][server]['channel']:
                 if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
                     self.base_addlog(self.base_timestamp() + ' ' + client + ' quit: ' + message,[server,channel])
             ircbot_on.ircbot_on.on_quit(self,server,client,message)
@@ -363,7 +363,7 @@ class ircbot:
             else:
                 newnick = data.split()[2]
             print(self.base_timestamp() + ' [' + server + '] Nick change: ' + client + ' -> ' + newnick)
-            for channel in self.conf['server'][server]['channels']:
+            for channel in self.conf['server'][server]['channel']:
                 if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
                     self.base_addlog(self.base_timestamp() + ' Nick change: ' + client + ' -> ' + newnick,[server,channel])
             ircbot_on.ircbot_on.on_nickchange(self,server,client,newnick)
@@ -422,7 +422,7 @@ class ircbot:
         while(self.core['server'][server]['motdend'] == False):
             time.sleep(0.5)
         print(self.base_timestamp() + " joining channels on " + server + ", identifying.")
-        for channel in self.conf['server'][server]['channels']:
+        for channel in self.conf['server'][server]['channel']:
             if(self.conf['server'][server]['channel'][channel]['in_channel']):
                 if(self.conf['server'][server]['channel'][channel]['pass'] == ''):
                     self.core['server'][server]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
@@ -452,13 +452,13 @@ class ircbot:
             imp.release_lock()
             if(mod not in self.modules):
                 self.modules.append(mod)
-        for server in self.conf['servers']:
+        for server in self.conf['server']:
             if(self.conf['server'][server]['connected']):
                 Thread(target=self.base_run, args=(server,)).start()
         time.sleep(2)
         while(self.open):
             servers = 0
-            for server in self.conf['servers']:
+            for server in self.conf['server']:
                 if(self.conf['server'][server]['connected']):
                     servers = servers+1
                 if(self.conf['server'][server]['connected'] and self.core['server'][server]['open'] and self.core['server'][server]['lastping']!=0 and (int(time.time())-self.core['server'][server]['lastping'])>(120+self.conf['server'][server]['pingdiff'])):
@@ -469,7 +469,7 @@ class ircbot:
                     Thread(target=self.base_run, args=(server,)).start()
                 if(self.conf['server'][server]['connected']):
         #            print("aaa")
-                    for channel in self.conf['server'][server]['channels']:
+                    for channel in self.conf['server'][server]['channel']:
         #                print("bbb")
                         if(self.conf['server'][server]['channel'][channel]['in_channel']):
         #                    print("ccc")
@@ -493,7 +493,7 @@ class ircbot:
         self.core['server'][server]['check']['nickregistered'] = False
         self.core['server'][server]['check']['userregistered'] = False
         self.core['server'][server]['channel'] = {}
-        for channel in self.conf['server'][server]['channels']:
+        for channel in self.conf['server'][server]['channel']:
             self.core['server'][server]['channel'][channel] = {}
             self.core['server'][server]['channel'][channel]['last_message'] = 0
             if(self.conf['server'][server]['channel'][channel]['megahal_record']):
@@ -510,7 +510,7 @@ class ircbot:
             self.core['server'][server]['open'] = False
             del self.core['server'][server]
             del self.conf['server'][server]
-            self.conf['servers'].remove(server)
+          #  self.conf['servers'].remove(server)
         Thread(target=self.base_connect, args=(server,)).start()
         nextline = ""
         while(self.open and self.core['server'][server]['open']):

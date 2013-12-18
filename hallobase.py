@@ -746,7 +746,10 @@ class hallobase():
     def fn_channels(self,args,client,destination):
         'Hallo will tell you which channels he is in, ops only.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            return "I'm in these channels: " + ', '.join(self.conf['server'][destination[0]]['channels']) + ". I think..."
+            if(args.lower()=='all'):
+                return "On all servers, I am on these channels: " + ', '.join(server + "-" + channel for server in self.conf['server'] for channel in self.conf['server'][server]['channel'] if self.conf['server'][server]['channel'][channel]['in_channel']) + "."
+            else:
+                return "On this server, I'm in these channels: " + ', '.join(channel for channel in self.conf['server'][destination[0]]['channel'] if self.conf['server'][destination[0]]['channel'][channel]['in_channel']) + "."
         else:
             return "Sorry, this function is for gods only."
 

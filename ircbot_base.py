@@ -25,7 +25,7 @@ class ircbot_base:
             while(len(password)>0 and password[-1:]==' '):
                 password = password[:-1]
             if(channel not in self.conf['server'][destination[0]]['channel']):
-                self.conf['server'][destination[0]]['channels'].append(channel)
+            #    self.conf['server'][destination[0]]['channels'].append(channel)
                 self.conf['server'][destination[0]]['channel'][channel] = {}
                 self.conf['server'][destination[0]]['channel'][channel]['logging'] = True
                 self.conf['server'][destination[0]]['channel'][channel]['megahal_record'] = False
@@ -102,13 +102,13 @@ class ircbot_base:
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             args = args.lower()
             title = args.split('.')[1]
-            if(title not in self.conf['servers']):
-                self.conf['servers'].append(title)
+            if(title not in self.conf['server']):
+         #       self.conf['servers'].append(title)
                 self.conf['server'][title] = {}
                 self.conf['server'][title]['ops'] = list(self.conf['server'][destination[0]]['ops'])
                 self.conf['server'][title]['gods'] = list(self.conf['server'][destination[0]]['gods'])
                 self.conf['server'][title]['address'] = args
-                self.conf['server'][title]['channels'] = []
+          #      self.conf['server'][title]['channels'] = []
                 self.conf['server'][title]['nick'] = self.conf['server'][destination[0]]['nick']
                 self.conf['server'][title]['full_name'] = self.conf['server'][destination[0]]['full_name']
                 self.conf['server'][title]['pass'] = False
@@ -325,7 +325,7 @@ class ircbot_base:
                 channel = args.split()[1].lower()
                 regex = ' '.join(args.split()[2:])
                 if(list.lower() in ['possible','inform','comment']):
-                    if(channel in self.conf['server'][destination[0]]['channels']):
+                    if(channel in self.conf['server'][destination[0]]['channel']):
                         self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()].append(regex)
                         return "Added " + regex + " to " + list + " swear list for " + channel + "."
                     else:
@@ -344,7 +344,7 @@ class ircbot_base:
                 list = args.split()[0]
                 channel = args.split()[1].lower()
                 if(list.lower() in ['possible','inform','comment']):
-                    if(channel in self.conf['server'][destination[0]]['channels']):
+                    if(channel in self.conf['server'][destination[0]]['channel']):
                         if(destination[1]!=channel):
                             return "Here is the " + list + " swear list for " + channel + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()])
                         else:
@@ -366,7 +366,7 @@ class ircbot_base:
                 channel = args.split()[1].lower()
                 regex = ' '.join(args.split()[2:])
                 if(list.lower() in ['possible','inform','comment']):
-                    if(channel in self.conf['server'][destination[0]]['channels']):
+                    if(channel in self.conf['server'][destination[0]]['channel']):
                         if(regex in self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()]):
                             self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()].remove(regex)
                             return "Removed " + regex + " from " + list + " swear list for " + channel + "."
@@ -450,7 +450,7 @@ class ircbot_base:
             if(len(args.split())!=2):
                 return "Please give two inputs, the server name first, then the server's address"
             else:
-                if(args.split()[0] in self.conf['servers']):
+                if(args.split()[0] in self.conf['server']):
                     self.base_say("Changed " + args.split()[0] + " address to: " + args.split()[1],destination)
                     self.core['server'][args.split()[0]]['lastping'] = 1
                     return "Changed " + args.split()[0] + " address to: " + args.split()[1]
@@ -465,7 +465,7 @@ class ircbot_base:
             if(len(args.split())!=2):
                 return "Please give two inputs, the server name first, then the server's port"
             else:
-                if(args.split()[0] in self.conf['servers']):
+                if(args.split()[0] in self.conf['server']):
                     self.base_say("Changed " + args.split()[0] + " port to: " + args.split()[1],destination)
                     self.core['server'][args.split()[0]]['lastping'] = 1
                     return "Changed " + args.split()[0] + " port to: " + args.split()[1]

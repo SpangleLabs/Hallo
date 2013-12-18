@@ -76,7 +76,7 @@ class ircbot_on:
         # handle people changing their nick
         if(client == self.conf['server'][server]['nick']):
             self.conf['server'][server]['nick'] = newnick
-        for channel in self.conf['server'][server]['channels']:
+        for channel in self.conf['server'][server]['channel']:
             if(newnick in self.conf['server'][server]['channel'][channel]['voice_list']):
                 for x in range(7):
                     if(ircbot_chk.ircbot_chk.chk_userregistered(self,server,client)):
