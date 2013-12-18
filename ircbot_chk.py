@@ -7,7 +7,7 @@ class ircbot_chk:
     def chk_op(self,server,client):
         # check if someone has op status for this bot
         client = client.lower()
-        return ircbot_chk.ircbot_chk.chk_userregistered(self,server,client) and ((len(self.conf['server'][server]['ops'])!=0 and self.conf['server'][server]['ops'].count(client) > 0) or (len(self.conf['server'][server]['gods'])!=0 and self.conf['server'][server]['gods'].count(client) > 0))
+        return ircbot_chk.chk_userregistered(self,server,client) and ((len(self.conf['server'][server]['ops'])!=0 and self.conf['server'][server]['ops'].count(client) > 0) or (len(self.conf['server'][server]['gods'])!=0 and self.conf['server'][server]['gods'].count(client) > 0))
 
     def chk_god(self,server,client):
         # check if someone has god status for this bot

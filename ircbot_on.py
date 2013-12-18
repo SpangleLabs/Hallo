@@ -1,6 +1,7 @@
 import time
 
 import ircbot_chk
+import ircbot_base
 
 endl = '\r\n'
 
@@ -85,7 +86,7 @@ class ircbot_on:
 
     def on_invite(self,server,client,channel):
         if(ircbot_chk.ircbot_chk.chk_op(self,server,client)):
-            self.fn_join(channel,client,[server,''])
+            ircbot_base.ircbot_base.fn_join(self,channel,client,[server,''])
         pass # override to do something on invite
 
     def on_kick(self,server,client,channel,message):

@@ -4,6 +4,10 @@ import importlib
 import imp
 import pprint
 import pickle
+import hashlib
+import random
+import os
+from threading import Thread
 
 import ircbot_chk
 
@@ -20,7 +24,7 @@ class ircbot_base:
                 password = password[1:]
             while(len(password)>0 and password[-1:]==' '):
                 password = password[:-1]
-            if(channel not in self.conf['server'][destination[0]]['channels']):
+            if(channel not in self.conf['server'][destination[0]]['channel']):
                 self.conf['server'][destination[0]]['channels'].append(channel)
                 self.conf['server'][destination[0]]['channel'][channel] = {}
                 self.conf['server'][destination[0]]['channel'][channel]['logging'] = True
@@ -63,6 +67,26 @@ class ircbot_base:
             return 'Parted ' + args + '.'
         else:
             return 'Insufficient privileges to part.'
+
+    def fn_kick(self, args, client, destination):
+        'Kick given user in given channel, or current channel if no channel given.'
+        check = ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)
+        if(check):
+            if(len(args.split())>=2):
+                user = args.split()[0]
+                channel = args.split()[1]
+                message = ' '.join(args.split()[2:])
+                self.core['server'][destination[0]]['socket'].send(('KICK ' + channel + ' ' + user + ' ' + message + endl).encode('utf-8'))
+                return 'Kicked ' + user + ' from ' + channel + '.'
+            elif(args.replace(' ','')!=''):
+                args = args.replace(' ','')
+                channel = destination[1]
+                self.core['server'][destination[0]]['socket'].send(('KICK ' + channel + ' ' + args + endl).encode('utf-8'))
+                return 'Kicked ' + args + '.'
+            else:
+                return 'Please, tell me who to kick.'
+        else:
+            return 'Insufficient privileges to kick.'
 
     def fn_quit(self,args,client,destination):
         'Quit IRC.  Use "quit".  Requires godmode.'

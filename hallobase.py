@@ -44,24 +44,6 @@ class hallobase():
         self.longcat = False
 #        import euler
     
-    def fn_kick(self, args, client, destination):
-        'Kick given user in given channel, or current channel if no channel given.'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            if(len(args.split())>=2):
-                user = args.split()[0]
-                channel = ''.join(args.split()[1:])
-                self.core['server'][destination[0]]['socket'].send(('KICK ' + channel + ' ' + user + endl).encode('utf-8'))
-                return 'Kicked ' + user + ' from ' + channel + '.'
-            elif(args.replace(' ','')!=''):
-                args = args.replace(' ','')
-                self.core['server'][destination[0]]['socket'].send(('KICK ' + channel + ' ' + args + endl).encode('utf-8'))
-                return 'Kicked ' + args + '.'
-            else:
-                return 'Please, tell me who to kick.'
-        else:
-            return 'Insufficient privileges to kick.'
-    
-
     def fn_op(self, args, client, destination):
         'Op member in given channel, or current channel if no channel given. Or command user if no member given. Format: op <name> <channel>'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
@@ -511,6 +493,15 @@ class hallobase():
         'Current time'
         timestamp = time.time()
         timezone = 'UTC'
+        if(args.lower()=='to zephyr'):
+            endtime = 1388941200
+            starttime = int(time.time())
+            time_left = endtime-starttime
+            days = math.floor(time_left/86400)
+            hours = math.floor((time_left-(days*86400))/3600)
+            minutes = math.floor((time_left-(days*86400)-(hours*3600))/60)
+            seconds = math.floor(time_left-(days*86400)-(hours*3600)-(minutes*60))
+            return str(int(days)) + " days, " + str(int(hours)) + " hours, " + str(int(minutes)) + " minutes, " + str(int(seconds)) + " seconds until spangle can get back to swansea."
         if(args==''):
            name = 'time'
         else:

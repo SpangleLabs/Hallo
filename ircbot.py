@@ -373,7 +373,7 @@ class ircbot:
             channel = ':'.join(data.split(':')[2:]).replace(endl,'')
             print(self.base_timestamp() + ' [' + server + '] invite to ' + channel + ' from ' + client)
             if(channel in self.conf['server'][server]['channel'] and 'logging' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['logging']):
-                self.base_addlog(self.base_timestamp() + ' invite to ' + channel + ' from ' + client,[server,destination])
+                self.base_addlog(self.base_timestamp() + ' invite to ' + channel + ' from ' + client,[server,'@SERVER'])
             ircbot_on.ircbot_on.on_invite(self,server,client,channel)
         elif('KICK' == data.split()[1]):
             #handle kicks
