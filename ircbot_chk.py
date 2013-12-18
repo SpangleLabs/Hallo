@@ -43,7 +43,7 @@ class ircbot_chk:
         self.core['server'][server]['check']['recipientonline'] = ""
         self.core['server'][server]['socket'].send(('ISON ' + ' '.join(clients) + endl).encode('utf-8'))
         for a in range(6):
-            print(self.base_timestamp() + ' [' + server + '] waiting for input on which admins are online')
+            print(self.base_timestamp() + ' [' + server + '] waiting for input on which recipients are online')
             if(self.core['server'][server]['check']['recipientonline'] == ""):
                 time.sleep(0.5)
             else:
