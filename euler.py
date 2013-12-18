@@ -266,7 +266,7 @@ class euler:
         else:
             return factors
 
-    def fn_primefactors(self,args,client,destination):
+    def fn_prime_factors(self,args,client,destination):
         args = int(args)
         prime_factors = euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors)
@@ -573,7 +573,7 @@ class euler:
             string = string + bignumber
             return string
 
-    def fn_readdecimal(self,args,client,destination):
+    def fn_read_decimal(self,args,client,destination):
         return euler.fnn_euler_readdecimal(self,args)
 
     def fnn_euler_removelistitems(self,list,remove):
@@ -712,7 +712,7 @@ class euler:
                     change = change + changeadd
         return change
 
-    def fn_changeoptions(self,args,client,destination):
+    def fn_change_options(self,args,client,destination):
         args = int(args)
         coins = [200,100,50,20,10,5,2,1]
         options = euler.fnn_euler_change(self,coins,0,args)

@@ -7,6 +7,7 @@ import pickle
 import hashlib
 import random
 import os
+import collections
 from threading import Thread
 
 import ircbot_chk
@@ -248,7 +249,7 @@ class ircbot_base:
         else:
             return "Sorry, this function is for ops only."
 
-    def fn_admininform_add(self,args,client,destination):
+    def fn_admin_inform_add(self,args,client,destination):
         'Add a user to the admin swear inform list, ops only.'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             args = args.lower().replace(' ','')
@@ -260,14 +261,14 @@ class ircbot_base:
         else:
             return "Sorry, this function is for ops only."
 
-    def fn_admininform_list(self,args,client,destination):
+    def fn_admin_inform_list(self,args,client,destination):
         'Lists users who are informed when sweardetect detects swearing.'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             return "Users on admininform for this server: " + ', '.join(self.conf['server'][destination[0]]['admininform'])
         else:
             return "Sorry, this function is for ops only."
 
-    def fn_admininform_del(self,args,client,destination):
+    def fn_admin_inform_del(self,args,client,destination):
         'Delete a user from being informed about swearing in selected channels'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             args = args.lower().replace(' ','')
@@ -279,7 +280,7 @@ class ircbot_base:
         else:
             return "Sorry, this function is for ops only."
 
-    def fn_ignorelist_add(self,args,client,destination):
+    def fn_ignore_list_add(self,args,client,destination):
         'Adds a user to the ignore list, ops only.'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             args = args.lower().replace(' ','')
@@ -293,13 +294,28 @@ class ircbot_base:
         else:
             return "Sorry, this function is for ops only."
 
-    def fn_ignorelist_list(self,args,client,destination):
+    def fn_ignore_list_list(self,args,client,destination):
         'List users on the ignore list for this channel. Ops only.'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             if('ignore_list' in self.conf['server'][destination[0]]['channel'][destination[1]]):
                 return "Users on ignore list for this channel: " + ', '.join(self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'])
             else:
                 return "There is no ignore list for this channel."
+        else:
+            return "Sorry, this function is for ops only."
+
+    def fn_ignore_list_del(self,args,client,destination):
+        'Delete a user from the ignore list for a channel, ops only.'
+        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
+            args = args.lower().replace(' ','')
+            if('ignore_list' in self.conf['server'][destination[0]]['channel'][destination[1]]):
+                if(args in self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list']):
+                    self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'].remove(args)
+                    return "Removed " + args + " from the ignore list"
+                else:
+                    return args + " isn't even on the ignore list for " + destination[0]
+            else:
+                return "There isn't even an ignore list for this channel."
         else:
             return "Sorry, this function is for ops only."
 
@@ -474,7 +490,7 @@ class ircbot_base:
         else:
             return "Insufficient privileges to change a server port."
 
-    def fn_changenick(self,args,client,destination):
+    def fn_change_nick(self,args,client,destination):
         'Tells hallo to change his nick, godmode only.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             args = args.replace(' ','')
@@ -527,7 +543,7 @@ class ircbot_base:
         else:
             return "Insufficient privileges to set logging."
 
-    def fn_channel_megahalrecord(self,args,client,destination):
+    def fn_channel_megahal_record(self,args,client,destination):
         'Sets or toggles megahal recording for channel, gods only'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             if(args==''):
@@ -542,7 +558,7 @@ class ircbot_base:
         else:
             return "Insufficient privileges to set megahal recording."
 
-    def fn_channel_sweardetect(self,args,client,destination):
+    def fn_channel_swear_detect(self,args,client,destination):
         'Sets or toggles sweardetection for channel, ops only'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             if(args==''):
@@ -557,7 +573,7 @@ class ircbot_base:
         else:
             return "Insufficient privileges to set swear detection."
 
-    def fn_channel_passivefunc(self,args,client,destination):
+    def fn_channel_passive_func(self,args,client,destination):
         'Sets or toggles passive functions for channel, gods only'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             if(args==''):
@@ -572,7 +588,7 @@ class ircbot_base:
         else:
             return "Insufficient privileges to set passive functions status."
 
-    def fn_channel_idletime(self,args,client,destination):
+    def fn_channel_idle_time(self,args,client,destination):
         'Sets the amount of time a channel can be idle before idle channel functions activate, gods only'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             if(args==''):
@@ -585,7 +601,7 @@ class ircbot_base:
         else:
             return "Insufficient privileges to set idle channel time."
 
-    def fn_channel_idleargs(self,args,client,destination):
+    def fn_channel_idle_args(self,args,client,destination):
         'Sets the arguments to pass to the idle channel function, gods only'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             self.conf['server'][destination[0]]['channel'][destination[1]]['idle_args'] = args

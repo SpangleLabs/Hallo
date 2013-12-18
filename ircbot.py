@@ -190,14 +190,15 @@ class ircbot:
                 #Encase functions in error handling, because programmers might make functions which are a tad crashy
            #     found = False
                 try:
-                    functions = dir(self)
+                    functions = []
                     for module in self.modules:
                         functions = functions + dir(getattr(__import__(module),module))
-                #    for fn in functions:
-                #        if(fn.split('.')[-1] == ('fn_' + function.lower())):
                     privmsg = self.conf['function']['default']['privmsg']
                     if('fn_' + function in self.conf['function'] and 'privmsg' in self.conf['function']['fn_' + function]):
                         privmsg = self.conf['function']['fn_' + function]['privmsg']
+                    for func in functions:
+                        if('fn_' + function==func or 'fn_' + function=='fn_' + func[3:].replace('_','')):
+                            function = func[3:]
                     if('fn_' + function in functions and (not msg_pm or privmsg)):
                         method = False
                         addonmodule = False
