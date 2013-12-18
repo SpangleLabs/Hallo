@@ -769,7 +769,7 @@ class ircbot_base:
         else:
             return 'Use "help commands" for a list of commands, or "help <command>" for help on a specific command.  Note:  <>s mean you should replace them with an argument, described within them.  If you are not using private messaging, prefix your commands with "' + self.conf['server'][destination[0]]['nick'] + '".'
 
-    def fn_modulereload(self,args,client,destination):
+    def fn_module_reload(self,args,client,destination):
         'reloads a specified module. Godmode only.'
         try:
             allowedmodules = pickle.load(open('store/allowedmodules.p','rb'))
