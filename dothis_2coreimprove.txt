@@ -17,5 +17,6 @@ re add that megahal module, make it work beautifully.
 
 make function names be listed with underscores, but accept a lack of underscores?
 
+make hallo keep track of who is in a given channel, record nick changes and quits only in channels a user is in.
 
 move base_function out of base_parse to a new thing.
