@@ -670,10 +670,10 @@ class hallobase():
     def fn_silencetherabble(self,args,client,destination):
         'ETD only. deops all but D000242 and self. sets mute.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client) and destination[1].lower() == '#ecco-the-dolphin'):
-            names = ircbot_chk.ircbot_chk.chk_names(self,destination[0],destination[1])
-            if('@' + self.conf['server'][destination[0]]['nick'] not in names):
+           # names = ircbot_chk.ircbot_chk.chk_names(self,destination[0],destination[1])
+            if('@' + self.conf['server'][destination[0]]['nick'] not in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']):
                 return 'I cannot handle it, master!'
-            for user in names.split():
+            for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']:
                 if('000242' not in user and self.conf['server'][destination[0]]['nick'] not in user):
                     stripuser = user.replace('@','').replace('+','')
                     if('@' in user):
@@ -925,6 +925,16 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
         seconds = uptime-86400*days-3600*hours-minutes*60
         return "My current (hardware) uptime is " + str(days) + " days, " + str(hours) + " hours, " + str(minutes) + " minutes and " + str(seconds) + " seconds."
 
+    def fn_user_list_update(self,args,client,destination):
+        'updates all the internal user lists by channel.'
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+            for server in [serv for serv in self.conf['server'] if self.conf['server'][serv]['connected']]:
+                for channel in [chan for chan in self.conf['server'][server]['channel'] if self.conf['server'][server]['channel'][chan]['in_channel']]:
+                    self.core['server'][server]['channel'][channel]['user_list'] = [nick.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','') for nick in ircbot_chk.ircbot_chk.chk_names(self,server,channel)]
+            return "done."
+        else:
+            return "You do not have sufficient privileges to run this command."
+        
 
 #    def fn_listadd(self, args, client, destination):
 #        'Creates a new list for this user'

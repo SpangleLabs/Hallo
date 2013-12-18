@@ -27,14 +27,20 @@ class ircbot_on:
                     for x in range(7):
                         if(ircbot_chk.ircbot_chk.chk_userregistered(self,server,user)):
                             self.core['server'][server]['socket'].send(('MODE ' + channel + ' +v ' + user + endl).encode('utf-8'))
-                            time.sleep(5)
                             break
+                        time.sleep(5)
+        else:
+            self.core['server'][server]['channel'][channel]['user_list'].append(client)
 
     def on_part(self,server,client,channel,args):
-        pass # override this method to handle PART events from other users
+        #pass # override this method to handle PART events from other users
+        self.core['server'][server]['channel'][channel]['user_list'].remove(client)
 
     def on_quit(self,server,client,args):
-        pass # override this method to handle QUIT events from other users
+        #pass # override this method to handle QUIT events from other users
+        for channel in self.conf['server'][server]['channel']:
+            if(client in self.core['server'][server]['channel'][channel]['user_list']):
+                self.core['server'][server]['channel'][channel]['user_list'].remove(client)
 
     def on_mode(self,server,client,channel,mode,args):
          #pass # override this method to handle MODE changes
@@ -74,6 +80,10 @@ class ircbot_on:
 
     def on_nickchange(self,server,client,newnick):
         # handle people changing their nick
+        for channel in self.conf['server'][server]['channel']:
+            if(client in self.core['server'][server]['channel'][channel]['user_list']):
+                self.core['server'][server]['channel'][channel]['user_list'].remove(client)
+                self.core['server'][server]['channel'][channel]['user_list'].append(newnick)
         if(client == self.conf['server'][server]['nick']):
             self.conf['server'][server]['nick'] = newnick
         for channel in self.conf['server'][server]['channel']:
@@ -90,6 +100,7 @@ class ircbot_on:
         pass # override to do something on invite
 
     def on_kick(self,server,client,channel,message):
+        self.core['server'][server]['channel'][channel]['user_list'].remove(client)
         if(client == self.conf['server'][server]['nick']):
             self.conf['server'][server]['channel'][channel]['in_channel'] = False
 

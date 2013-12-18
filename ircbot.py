@@ -294,7 +294,7 @@ class ircbot:
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
             print(self.base_timestamp() + ' [' + server + '] ' + client + ' quit: ' + message)
             for channel in self.conf['server'][server]['channel']:
-                if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
+                if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging'] and client in self.core['server'][server]['channel'][channel]['user_list']):
                     self.base_addlog(self.base_timestamp() + ' ' + client + ' quit: ' + message,[server,channel])
             ircbot_on.ircbot_on.on_quit(self,server,client,message)
         elif('MODE' == data.split()[1]):
@@ -328,7 +328,7 @@ class ircbot:
                 newnick = data.split()[2]
             print(self.base_timestamp() + ' [' + server + '] Nick change: ' + client + ' -> ' + newnick)
             for channel in self.conf['server'][server]['channel']:
-                if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
+                if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging'] and client in self.core['server'][server]['channel'][channel]['user_list']):
                     self.base_addlog(self.base_timestamp() + ' Nick change: ' + client + ' -> ' + newnick,[server,channel])
             ircbot_on.ircbot_on.on_nickchange(self,server,client,newnick)
         elif('INVITE' == data.split()[1]):
@@ -361,7 +361,9 @@ class ircbot:
                 if(self.core['server'][server]['check']['recipientonline']==''):
                     self.core['server'][server]['check']['recipientonline'] = ' '
             elif(data.split()[1] == "353"):
+                channel = data.split(':')[1].split()[-1].lower()
                 self.core['server'][server]['check']['names'] = ':'.join(data.split(':')[2:])
+                self.core['server'][server]['channel'][channel]['user_list'] = [nick.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','') for nick in self.core['server'][server]['check']['names'].split()]
                 if(self.core['server'][server]['check']['names']==''):
                     self.core['server'][server]['check']['names'] = ' '
             print(self.base_timestamp() + ' [' + server + '] Server info: ' + data)
@@ -460,6 +462,7 @@ class ircbot:
         for channel in self.conf['server'][server]['channel']:
             self.core['server'][server]['channel'][channel] = {}
             self.core['server'][server]['channel'][channel]['last_message'] = 0
+            self.core['server'][server]['channel'][channel]['user_list'] = []
             if(self.conf['server'][server]['channel'][channel]['megahal_record']):
                 self.core['server'][server]['channel'][channel]['megahalcount'] = 0
         self.core['server'][server]['lastping'] = 0
