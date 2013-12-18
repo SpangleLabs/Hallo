@@ -40,39 +40,6 @@ class ircbot:
 #        self.base_start()
   #      self.megahal = MegaHAL()
 
-    def fnn_sweardetect(self,args,client,destination):
-        swearinform = [r'\bmong\b',r'\bshit\b',r'fuck',r'\bcunt\b',r'\bwank(er|ing|)\b',r'\bnigger\b',r'\bbastard\b',r'\bbollocks\b',r'\ba(rse|ss)(hole|)\b',r'\bpaki\b',r'\bwhore\b',r'\btwat\b',r'\bpiss(ed|ing|)\b',r'\bspastic\b',r'\bsperg(y|ier|)\b',r'\bR34\b',r'\bporn(o|ograpy|)\b']
-        swearinformcaution = [r'fag(got|)\b',r'\bprick\b',r'\bshag\b',r'\bslag\b',r'\bdick(head|)\b',r'\bballs\b',r'\bjew\b',r'\bbitch\b',r'\bbugger\b']
-        swearcomment = []
-        swears = False
-        if(self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect']):
-            for swear in self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['possible']:
-                if re.search(swear, args, re.I):
-                    for admin in ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
-                        self.base_say(client + ' possibly just swore in ' + destination[1] + '. Check the context. The message was: ' + args,[destination[0],admin])
-                    swears = True
-                    break
-            for swear in self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['inform']:
-                if re.search(swear, args, re.I):
-                    for admin in ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
-                        self.base_say(client + ' just swore in ' + destination[1] + '. the message was: ' + args,[destination[0],admin])
-                    swears = True
-                    break
-            for swear in self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['comment']:
-                if re.search(swear, args, re.I):
-                    if(self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['commentmsg']==''):
-                        self.base_say("Please don't swear in the channel. This is a PG channel.",destination)
-                    else:
-                        self.base_say(self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['commentmsg'].replace('{swear}',re.search(swear, args, re.I).group(0)),destination)
-                    swears = True
-                    break
-       # if(not swears and self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record'] and 'hallo speak' not in args.lower()):
-       #     self.megahal.learn(args)
-       #     self.core['server'][destination[0]]['channel'][destination[1]]['megahalcount'] = self.core['server'][destination[0]]['channel'][destination[1]]['megahalcount'] + 1
-       #     if(self.core['server'][destination[0]]['channel'][destination[1]]['megahalcount'] >= 10):
-       #         self.megahal.sync()
-       #         self.core['server']['destination[0]]['channel'][destination[1]]['megahalcount'] = 0
-
     def base_timestamp(self):
         # return the timestamp, e.g. [05:21:42]
         return '[' + str(time.gmtime()[3]).rjust(2,'0') + ':' + str(time.gmtime()[4]).rjust(2,'0') + ':' + str(time.gmtime()[5]).rjust(2,'0') + ']'
@@ -193,9 +160,6 @@ class ircbot:
             #log the message
             if(msg_pm or self.conf['server'][server]['channel'][destination]['logging']):
                 self.base_addlog(self.base_timestamp() + ' <' + client + '> ' + message, [server,msg_pm and client or destination])
-            # check for swears
-            if msg_pub:
-                self.fnn_sweardetect(message,client,[server,destination])
             # if it's a public message, parse out the prefixed nick and clean up added whitespace/colons
             if msg_cmd:
                 message = message[len(nick):]
@@ -303,10 +267,10 @@ class ircbot:
                     ircbot_on.ircbot_on.on_pm(self,server,client,msg_pm and nick or destination,':'.join(data.split(':')[2:]).replace(endl,''))
             elif msg_pub:
                 #passive functions
-                if(self.conf['server'][server]['channel'][destination]['passivefunc']):
-                    out = passive.passive.fnn_passive(self,message,client,[server,destination])
-                    if(out is not None):
-                        self.base_say(out,[server,destination])
+           #     if(self.conf['server'][server]['channel'][destination]['passivefunc']):
+                out = passive.passive.fnn_passive(self,message,client,[server,destination])
+                if(out is not None):
+                    self.base_say(out,[server,destination])
         elif('JOIN' == data.split()[1]):
             # handle JOIN events
             channel = ':'.join(data.split(':')[2:]).replace(endl,'').lower()

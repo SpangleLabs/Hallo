@@ -1,4 +1,5 @@
-import time
+import time #sleeps for checks that have to send data to the server and listen for responces
+import re   #for chk_swear
 
 endl = '\r\n'
 
@@ -63,4 +64,20 @@ class ircbot_chk:
                 print(self.base_timestamp() + ' [' + server + '] got the list: ' + self.core['server'][server]['check']['names'])
                 break
         return self.core['server'][server]['check']['names'].split()
+
+    def chk_swear(self,server,channel,message):
+        'checks to see if a message has swearing, returns a 2 item list, first item is: "none", "possible", "inform" or "comment", second item is whatever swear'
+        if(self.conf['server'][server]['channel'][channel]['sweardetect']):
+            for swear in self.conf['server'][server]['channel'][channel]['swearlist']['possible']:
+                if(re.search(swear,message,re.I)):
+                    return ["possible",swear]
+            for swear in self.conf['server'][server]['channel'][channel]['swearlist']['inform']:
+                if(re.search(swear,message,re.I)):
+                    return ["inform",swear]
+            for swear in self.conf['server'][server]['channel'][channel]['swearlist']['comment']:
+                if(re.search(swear,message,re.I)):
+                    return ["comment",swear]
+            return ["none","none"]
+        else:
+            return ["none","none"]
 

@@ -15,6 +15,7 @@ import json
 import re
 import html.parser
 
+import ircbot_chk   #for swear detect function
 
 
 endl = '\r\n'
@@ -24,6 +25,9 @@ class passive():
 
     def fnn_passive(self,args,client,destination):
         # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
+        passive.fnn_sweardetect(self,args,client,destination)
+        if(not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']):
+            return None
         out = passive.fnn_extrayammering(self,args,client,destination)
         if(out is not None):
             return out
@@ -211,6 +215,30 @@ class passive():
                         return "URL title: " + title
                 else:
                     self.base_say('I saw a link, but no title? ' + url,[destination[0],'dr-spangle'])
+
+    def fnn_sweardetect(self,args,client,destination):
+        swearcheck = ircbot_chk.ircbot_chk.chk_swear(self,destination[0],destination[1],args)
+        swearstatus = swearcheck[0]
+        swearword = swearcheck[1]
+        if(swearstatus=='comment'):
+            if(self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['commentmsg']==''):
+                self.base_say("Please don't swear in the channel. This is a PG channel.",destination)
+            else:
+                self.base_say(self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['commentmsg'].replace('{swear}',re.search(swearword,args,re.I).group(0)),destination)
+        elif(swearstatus=='inform'):
+            for admin in ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
+                self.base_say(client + ' just swore in ' + destination[1] + '. the message was: ' + args,[destination[0],admin])
+        elif(swearstatus=='possible'):
+            for admin in ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
+                self.base_say(client + ' possibly just swore in ' + destination[1] + '. Check the context. The message was: ' + args,[destination[0],admin])
+
+       # if(not swears and self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record'] and 'hallo speak' not in args.lower()):
+       #     self.megahal.learn(args)
+       #     self.core['server'][destination[0]]['channel'][destination[1]]['megahalcount'] = self.core['server'][destination[0]]['channel'][destination[1]]['megahalcount'] + 1
+       #     if(self.core['server'][destination[0]]['channel'][destination[1]]['megahalcount'] >= 10):
+       #         self.megahal.sync()
+       #         self.core['server']['destination[0]]['channel'][destination[1]]['megahalcount'] = 0
+
 
     def fnn_extrayammering(self, args, client, destination):
         'Does some extra chatting, probably super buggy.'
