@@ -11,8 +11,6 @@ standardise underscores or not in hallo commands and conf variables
 
 re add that megahal module, make it work beautifully.
 
-make function names be listed with underscores, but accept a lack of underscores?
-
 move base_function out of base_parse to a new thing.
 
 check which import modules in each module are needed, remove those which are not. comment those which are saying where they are.
