@@ -9,8 +9,6 @@ standardise underscores or not in hallo commands and conf variables
 08:41:32 < dr-spangle> -make it so ops can be defined by channel, and their op powers can only modify those channels
 08:49:50 < dr-spangle> -admininform lists by channel, so channel swears only go to one channel's list, also privmsgs
 
-re add that megahal module, make it work beautifully.
-
 move base_function out of base_parse to a new thing.
 
 check which import modules in each module are needed, remove those which are not. comment those which are saying where they are.
