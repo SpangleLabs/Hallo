@@ -637,13 +637,20 @@ class hallobase():
 
     def fn_speak(self,args,client,destination):
         'He can talk!'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            chan_brain = megahal.MegaHAL(4,'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar')
-            reply = chan_brain.get_reply(args)
-            chan_brain.close()
+      #  if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+        if(True):
+            chan_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar'
+            if(chan_filename in self.megahal):
+                self.megahal[chan_filename]['last_used'] = int(time.time())
+                reply = self.megahal[chan_filename]['brain'].get_reply(args)
+            else:
+                self.megahal[chan_filename] = {}
+                self.megahal[chan_filename]['last_used'] = int(time.time())
+                self.megahal[chan_filename]['brain'] = megahal.MegaHAL(4,chan_filename)
+                reply = self.megahal[chan_filename]['brain'].get_reply(args)
             return client + ": " + reply
        #     return "*woof!!!*"
-        elif(ircbot_chk.ircbot_chk.chk_ops(self,destination[0],client)):
+        elif(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             return "*woof!*"
         else:
             return "*woof*"
@@ -651,10 +658,17 @@ class hallobase():
     def fn_speak_learn(self,args,client,destination):
         'Teach him a file, gods only.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            chan_brain = megahal.MegaHAL(4,'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar')
-            chan_brain.train(args)
-            chan_brain.sync()
-            chan_brain.close()
+            chan_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar'
+            if(chan_filename in self.megahal):
+                self.megahal[chan_filename]['last_used'] = int(time.time())
+                self.megahal[chan_filename]['brain'].train(args)
+                self.megahal[chan_filename]['last_used'] = int(time.time())
+            else:
+                self.megahal[chan_filename] = {}
+                self.megahal[chan_filename]['last_used'] = int(time.time())
+                self.megahal[chan_filename]['brain'] = megahal.MegaHAL(4,chan_filename)
+                self.megahal[chan_filename]['brain'].train(args)
+                self.megahal[chan_filename]['last_used'] = int(time.time())
             return "Learnt the file " + args + " ... hopefully."
         else:
             return "You're not spangle."

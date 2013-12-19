@@ -403,6 +403,7 @@ class ircbot:
         #starts up the bot, starts base_run on each server.
         self.configfile = configfile
         self.conf = pickle.load(open(configfile,"rb"))
+        self.megahal = {}
         self.core = {}
         self.core['server'] = {}
         self.core['function'] = {}
@@ -449,6 +450,11 @@ class ircbot:
                                     self.base_say(out,[server,channel])
             if(servers==0):
                 self.base_close()
+            for filename in self.megahal:
+                if((int(time.time())-self.megahal[filename]['last_used'])>600):
+                    self.megahal[filename]['brain'].sync()
+                    self.megahal[filename]['brain'].close()
+                    del self.megahal[filename]
             time.sleep(0.1)
 
     def base_run(self,server):
