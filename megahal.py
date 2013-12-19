@@ -28,6 +28,7 @@
 
 from time import time
 import shelve
+import pickle
 import random
 import math
 import os
@@ -176,13 +177,13 @@ class Brain(object):
                     string[position - 2].isalpha() and
                     string[position].isalpha()):
                     boundary = False
-                elif (string[position].isalpha() and
+                elif (str(string[position]).isalpha() and
                     not string[position - 1].isalpha()):
                     boundary = True
-                elif (not string[position].isalpha() and
-                    string[position - 1].isalpha()):
+                elif (not str(string[position]).isalpha() and
+                    str(string[position - 1]).isalpha()):
                     boundary = True
-                elif string[position].isdigit() != string[position -1].isdigit():
+                elif str(string[position]).isdigit() != str(string[position -1]).isdigit():
                     boundary = True
                 else:
                     boundary = False
@@ -197,7 +198,7 @@ class Brain(object):
                     offset = 0
                 else:
                     offset += 1
-            if words[-1][0].isalnum():
+            if str(words[-1][0]).isalnum():
                 words.append('.')
             elif words[-1][-1] not in '!.?':
                 words[-1] = '.'
@@ -392,7 +393,7 @@ class Brain(object):
 
     def close(self):
         if not self.closed:
-            print('Closing database')
+       #     print('Closing database')
             self.db.close()
             self.closed = True
 
@@ -431,11 +432,22 @@ class MegaHAL(object):
 
     def train(self, file):
         """Train the brain with textfile, each line is a phrase"""
-        with open(file, 'rb') as fp:
-            for line in fp:
-                line = line.strip()
-                if line and not line.startswith('#'):
-                    self.learn(line)
+        f = open(file,"r")
+        raw_line = f.readline().replace('\n','')
+        while raw_line != '':
+            self.learn(raw_line)
+            try:
+                raw_line = f.readline()
+            except:
+                print('lost a line.')
+
+  #  def train(self, file):
+  #      """Train the brain with textfile, each line is a phrase"""
+  #      with open(file, 'rb') as fp:
+  #          for line in fp:
+  #              line = line.strip()
+  #            #  if line and not line.startswith('#'):
+  #              self.learn(line)
 
     def learn(self, phrase):
         """Learn from phrase"""

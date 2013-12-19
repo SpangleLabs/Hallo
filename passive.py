@@ -15,6 +15,8 @@ import json
 import re
 import html.parser
 
+import megahal
+
 import ircbot_chk   #for swear detect function
 
 
@@ -26,6 +28,7 @@ class passive():
     def fnn_passive(self,args,client,destination):
         # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
         passive.fnn_sweardetect(self,args,client,destination)
+        passive.fnn_megahalrecord(self,args,client,destination)
         if(not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']):
             return None
         out = passive.fnn_extrayammering(self,args,client,destination)
@@ -262,6 +265,17 @@ class passive():
             return message
         else:
             pass
+
+    def fnn_megahalrecord(self,args,client,destination):
+        'Record a line into the brains.'
+        chan_brain = megahal.MegaHAL(4,'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar')
+        chan_brain.learn(args)
+        chan_brain.sync()
+        chan_brain.close()
+        user_brain = megahal.MegaHAL(4,'store/brains/megahal_' + destination[0] + '_' + destination[1] + '_' + client + '.jar')
+        user_brain.learn(args)
+        user_brain.sync()
+        user_brain.close()
 
     def fnn_beep(self,args,client,destination):
         return "boop"
