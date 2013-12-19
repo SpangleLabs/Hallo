@@ -197,7 +197,7 @@ class ircbot:
                     if('fn_' + function in self.conf['function'] and 'privmsg' in self.conf['function']['fn_' + function]):
                         privmsg = self.conf['function']['fn_' + function]['privmsg']
                     for func in functions:
-                        if('fn_' + function==func or 'fn_' + function=='fn_' + func[3:].replace('_','')):
+                        if('fn_' + function==func or (func[:3]=='fn_' and 'fn_' + function=='fn_' + func[3:].replace('_',''))):
                             function = func[3:]
                     if('fn_' + function in functions and (not msg_pm or privmsg)):
                         method = False
