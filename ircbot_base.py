@@ -102,8 +102,8 @@ class ircbot_base:
     def fn_connect(self,args,client,destination):
         'Connects to a new server. Requires godmode'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            args = args.lower()
-            title = args.split('.')[1]
+            args = args.lower().split('.')
+            title = max(args,key=len)
             if(title not in self.conf['server']):
          #       self.conf['servers'].append(title)
                 self.conf['server'][title] = {}
