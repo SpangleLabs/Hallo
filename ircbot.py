@@ -131,6 +131,7 @@ class ircbot:
             # return pings so we don't get timed out
             print(self.base_timestamp() + ' [' + server + '] PING')
             self.core['server'][server]['socket'].send(('PONG ' + data.split()[1] + endl).encode('utf-8'))
+            ircbot_on.ircbot_on.on_ping(self,server,data.split()[1])
         elif('PRIVMSG' == data.split()[1]):
             message = ':'.join(data.split(':')[2:]).replace(endl, '')
             # parse out the sender
@@ -357,18 +358,7 @@ class ircbot:
             pass
         elif(len(data.split()[1]) == 3 and data.split()[1].isdigit()):
             #if this, it's a server info message. There's a few we care about, but the 376 end of MOTD is what we really want (what we really really want)
-            if(data.split()[1] == "376"):
-                self.core['server'][server]['motdend'] = True
-            elif(data.split()[1] == "303"):
-                self.core['server'][server]['check']['recipientonline'] = ':'.join(data.split(':')[2:])
-                if(self.core['server'][server]['check']['recipientonline']==''):
-                    self.core['server'][server]['check']['recipientonline'] = ' '
-            elif(data.split()[1] == "353"):
-                channel = data.split(':')[1].split()[-1].lower()
-                self.core['server'][server]['check']['names'] = ':'.join(data.split(':')[2:])
-                self.core['server'][server]['channel'][channel]['user_list'] = [nick.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','') for nick in self.core['server'][server]['check']['names'].split()]
-                if(self.core['server'][server]['check']['names']==''):
-                    self.core['server'][server]['check']['names'] = ' '
+            ircbot_on.ircbot_on.on_numbercode(self,server,data.split()[1],data)
             print(self.base_timestamp() + ' [' + server + '] Server info: ' + data)
         elif not data.replace(endl, '').isspace():
             # if not handled, be confused ^_^

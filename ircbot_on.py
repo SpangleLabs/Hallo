@@ -10,6 +10,10 @@ class ircbot_on:
     def on_init(self):
         pass # override this method to do any startup code
 
+    def on_ping(self,server,code):
+        # handle pings from servers.
+        pass
+
     def on_join(self,server,client,channel):
         # handle join events from other users (or from hallo!)
         if(client.lower() in self.conf['server'][server]['channel'][channel]['voice_list']):
@@ -103,6 +107,22 @@ class ircbot_on:
         self.core['server'][server]['channel'][channel]['user_list'].remove(client)
         if(client == self.conf['server'][server]['nick']):
             self.conf['server'][server]['channel'][channel]['in_channel'] = False
+
+    def on_numbercode(self,server,code,data):
+        #handle 3 digit number codes sent by servers.
+        if(code == "376"):
+            self.core['server'][server]['motdend'] = True
+        elif(code == "303"):
+            self.core['server'][server]['check']['recipientonline'] = ':'.join(data.split(':')[2:])
+            if(self.core['server'][server]['check']['recipientonline']==''):
+                self.core['server'][server]['check']['recipientonline'] = ' '
+        elif(code == "353"):
+            channel = data.split(':')[1].split()[-1].lower()
+            self.core['server'][server]['check']['names'] = ':'.join(data.split(':')[2:])
+            self.core['server'][server]['channel'][channel]['user_list'] = [nick.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','') for nick in self.core['server'][server]['check']['names'].split()]
+            if(self.core['server'][server]['check']['names']==''):
+                self.core['server'][server]['check']['names'] = ' '
+
 
     def on_rawdata(self,server,data,unhandled):
         pass # override this method to do general data handling

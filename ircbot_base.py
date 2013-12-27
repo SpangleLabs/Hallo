@@ -103,7 +103,8 @@ class ircbot_base:
         'Connects to a new server. Requires godmode'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             args = args.lower().split('.')
-            title = max(args,key=len)
+            argsplit = args.split('.')
+            title = max(argsplit,key=len)
             if(title not in self.conf['server']):
          #       self.conf['servers'].append(title)
                 self.conf['server'][title] = {}
@@ -120,7 +121,7 @@ class ircbot_base:
                 self.conf['server'][title]['pingdiff'] = 600
                 self.conf['server'][title]['connected'] = False
             Thread(target=self.base_run, args=(title,)).start()
-            return "Connected to " + args
+            return "Connected to " + args + " [" + title + "]"
         else:
             return "Insufficient privileges to connect to a new server."
 
@@ -687,7 +688,17 @@ class ircbot_base:
             if(destination[1][0] == '#'):
                 return "I'm not posting my whole core variable here, that would be rude."
             else:
-                return "erm, really? my core variable... erm, if you insist. Here goes:\n" + pprint.pformat(self.core)
+          #      return "erm, really? my core variable... erm, if you insist. Here goes:\n" + pprint.pformat(self.core)
+                prettycore = pprint.pformat(self.core)
+                filename = "core_" + hashlib.md5(str(random.randint(1,1000)*time.time()).encode('utf-8')).hexdigest() + ".txt"
+                link = "http://hallo.dr-spangle.com/" + filename
+                file = open("../http/" + filename,'w')
+                file.write(prettycore)
+                file.close()
+                self.base_say("Core written to " + link + " it will be deleted in 30 seconds. Act fast.",destination)
+                time.sleep(30)
+                os.remove("../http/" + filename)
+                return "File removed."
         else:
             return "Insufficient privileges to view core variable."
 
