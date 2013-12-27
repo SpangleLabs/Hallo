@@ -28,6 +28,7 @@ class ircbot_base:
             if(channel not in self.conf['server'][destination[0]]['channel']):
             #    self.conf['server'][destination[0]]['channels'].append(channel)
                 self.conf['server'][destination[0]]['channel'][channel] = {}
+                self.core['server'][destination[0]]['channel'][channel] = {}
                 self.conf['server'][destination[0]]['channel'][channel]['logging'] = True
                 self.conf['server'][destination[0]]['channel'][channel]['megahal_record'] = False
                 self.conf['server'][destination[0]]['channel'][channel]['sweardetect'] = False
@@ -689,6 +690,16 @@ class ircbot_base:
                 return "erm, really? my core variable... erm, if you insist. Here goes:\n" + pprint.pformat(self.core)
         else:
             return "Insufficient privileges to view core variable."
+
+    def fn_megahal_view(self,args,client,destination):
+        'View the megahal variable, privmsg only. gods only.'
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+            if(destination[1][0] == '#'):
+                return "I'm not posting my whole megahal variable here, that would be rude."
+            else:
+                return "erm, really? my megahal variable... erm, if you insist. Here goes:\n" + pprint.pformat(self.megahal)
+        else:
+            return "Insufficient privileges to view megahal variable."
 
     def fn_config_view(self,args,client,destination):
         'View the config, privmsg only. gods only.'

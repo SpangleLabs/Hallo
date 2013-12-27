@@ -81,7 +81,7 @@ class passive():
                 return "Speedtest> Download: " + download + "Mb/s | Upload: " + upload + "Mb/s | Ping: " + ping + "ms"
             elif('imgur.com' in url):
                 if('/a/' in url):
-                    code = pageopener.open(pagerequest).read().decode('utf-8')
+                    code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
                     title = re.search('<meta name="twitter:title" value="([^"]*)"/>',code).group(1)[:0-len(' - Imgur')]
                     if(title=='imgur: the simple imag'):
                         title = 'none.'
@@ -95,7 +95,7 @@ class passive():
                     imgpage_pagerequest = urllib.request.Request('http://imgur.com/' + current_img_link)
                     imgpage_pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
                     imgpage_pageopener = urllib.request.build_opener()
-                    imgpage_code = imgpage_pageopener.open(imgpage_pagerequest).read().decode('utf-8')
+                    imgpage_code = imgpage_pageopener.open(imgpage_pagerequest).read().decode('utf-8','ignore')
                     img_width = re.search('<meta name="twitter:image:width" value="([0-9]*)"/>',imgpage_code).group(1)
                     img_height = re.search('<meta name="twitter:image:height" value="([0-9]*)"/>',imgpage_code).group(1)
                     img_pagerequest = urllib.request.Request('http://i.imgur.com/' + current_img_link + '.' + current_img_ext)
@@ -118,7 +118,7 @@ class passive():
                         pagerequest = urllib.request.Request(newurl)
                         pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
                         pageopener = urllib.request.build_opener()
-                    code = pageopener.open(pagerequest).read().decode('utf-8')
+                    code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
                     title = re.search('<meta name="twitter:title" value="([^"]*)"/>',code).group(1)[:0-len(' - Imgur')]
                     if(title=='imgur: the simple imag'):
                         title = 'none.'
@@ -157,7 +157,7 @@ class passive():
                     filesizestr = str(math.floor(float(filesize)/(1024*1024*10.24))/100) + "GiB"
                 return "Image: " + pagetype + " (" + str(image_width) + "px by " + str(image_height) + "px) " + filesizestr
             elif('youtube.com' in url or 'youtu.be' in url):
-                code = pageopener.open(pagerequest).read().decode('utf-8')
+                code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
                 length = re.search('length_seconds": ([0-9]*)', code).group(1)
                 length_str = str(int(int(length)/60)) + "m " + str(int(length)-(60*(int(int(length)/60)))) + "s"
                 views = re.search('<span class="watch-view-count " >[\n\r\s]*([0-9,]*)',code).group(1)
@@ -210,7 +210,7 @@ class passive():
                 votes = api_dict['imdbVotes']
                 return "IMDB> Title: " + title + " (" + year + ") | Rated " + rating + "/10, " + votes + " votes. | Genres: " + genre 
             else:
-                code = pageopener.open(pagerequest).read(4096).decode('utf-8')
+                code = pageopener.open(pagerequest).read(4096).decode('utf-8','ignore')
                 if(code.count('</title>')>=1):
              #       title = code.split('</title>')[0]
              #       title = ' '.join(re.compile('<title[-A-Z0-9"=' + "'" + ' ]*>',re.IGNORECASE).split(title)[1].split())

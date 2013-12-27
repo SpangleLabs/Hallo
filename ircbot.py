@@ -143,6 +143,8 @@ class ircbot:
             msg_cmd = message[0:len(nick)].lower() == nick.lower()
             msg_ctcp = len(data.split(':')[2]) > 0 and data.split(':')[2][0] == '\x01'
             if(msg_pub):
+                if(destination not in self.core['server'][server]['channel']):
+                    self.core['server'][server]['channel'][destination] = {}
                 self.core['server'][server]['channel'][destination]['last_message'] = int(time.time())
             if(msg_cmd):
                 ignore_list = []
@@ -450,11 +452,12 @@ class ircbot:
                                     self.base_say(out,[server,channel])
             if(servers==0):
                 self.base_close()
-            for filename in self.megahal:
-                if((int(time.time())-self.megahal[filename]['last_used'])>600):
-                    self.megahal[filename]['brain'].sync()
-                    self.megahal[filename]['brain'].close()
-                    del self.megahal[filename]
+        #    for filename in self.megahal:
+        #        if((int(time.time())-self.megahal[filename]['last_used'])>600):
+        #            self.megahal[filename]['brain'].sync()
+        #            self.megahal[filename]['brain'].close()
+        #   #         del self.megahal[filename]
+        #            print("Closed megahal brain: " + filename)
             time.sleep(0.1)
 
     def base_run(self,server):

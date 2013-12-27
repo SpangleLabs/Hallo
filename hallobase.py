@@ -673,6 +673,19 @@ class hallobase():
         else:
             return "You're not spangle."
 
+    def fn_megahal_close(self,args,client,destination):
+        'sync and close all open megahal brains.'
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+            for filename in self.megahal:
+                self.megahal[filename]['brain'].sync()
+                self.megahal[filename]['brain'].close()
+                print("Closed megahal brain: " + filename)
+            del self.megahal
+            self.megahal = {}
+            return "Closed all active brains."
+        else:
+            return "Insufficient privileges to close all brains."
+
     def fn__s(self,args,client,destination):
         'redirects to speak function'
         return self.fn_speak(args,client,destination)
@@ -731,6 +744,15 @@ class hallobase():
         responses = ['It is certain','It is decidedly so','Without a doubt','Yes definitely','You may rely on it','As I see it yes','Most likely','Outlook good','Yes','Signs point to yes','Reply hazy try again','Ask again later','Better not tell you now','Cannot predict now','Concentrate and ask again',"Don't count on it",'My reply is no','My sources say no','Outlook not so good','Very doubtful']
         rand = random.randint(0,len(responses)-1)
         return responses[rand]
+
+    def fn_playball(self,args,client,destination):
+        'Magic 8 ball.'
+        responses = ['Tongue Bath','Massage Breast','Give Oral','Lick Nipples','Kiss Lips','Their Choice','Spank Me','French Kiss','Massage','Striptease','Woman On Top','Self-Pleasure','Rear Entry','69','Your Choice','Booby Sex','Use Toy','Fondle','Role Play','Receive Oral']
+        rand = random.randint(0,len(responses)-1)
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+            return responses[rand]
+        else:
+            return '"playball" not defined. Try "/msg Hallo help commands" for a list of commands.'
 
     def fn_ouija(self,args,client,destination):
         'Ouija board function. "Ouija board" is copyright Hasbro.'
