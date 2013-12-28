@@ -241,8 +241,14 @@ class hallobase():
         'Roll X-Y returns a random number between X and Y'
         if(args.count('-')==1):
             num = args.split('-')
-            ranges = int(num[0])
-            rangee = int(num[1])
+            try:
+                ranges = int(num[0])
+            except:
+                return "Invalid start of range."
+            try:
+                rangee = int(num[1])
+            except:
+                return "Invalid end of range."
             if(ranges<rangee):
                 rand = random.randint(ranges,rangee)
                 return 'I roll ' + str(rand) + '!!!'
@@ -250,24 +256,33 @@ class hallobase():
                 return 'Smaller number goes first, I bet it was ari or Ripp_ who tried putting them in the other way.'
         elif(args.lower().count('d')==1):
             num = args.lower().split('d')
-            sides = int(num[1])
-            dice = int(num[0])
-            if(dice > 1):
-                string = "I roll "
-                total = 0
-                roll = random.randint(1,sides)
-                total = total + roll
-                string = string + str(roll)
-                for x in range(dice-1):
+            try:
+                sides = int(num[1])
+            except:
+                return "Invalid number of sides."
+            try:
+                dice = int(num[0])
+            except:
+                return "Invalid number of dice."
+            if(sides>0 and dice>0):
+                if(dice > 1):
+                    string = "I roll "
+                    total = 0
                     roll = random.randint(1,sides)
                     total = total + roll
-                    string = string + ", " + str(roll)
-                string = string + ". The total is " + str(total) + "."
-                return string
-            elif(dice == 1):
-                return "I roll " + str(random.randint(1,sides)) + '!!!'
+                    string = string + str(roll)
+                    for x in range(dice-1):
+                        roll = random.randint(1,sides)
+                        total = total + roll
+                        string = string + ", " + str(roll)
+                    string = string + ". The total is " + str(total) + "."
+                    return string
+                elif(dice == 1):
+                    return "I roll " + str(random.randint(1,sides)) + '!!!'
+                else:
+                    return "Integer number of dice, greater than 0, less than or equal to 1, but not equal to 1. How did you do this?"
             else:
-                return "More than zero dice. I'm gonna bet Zephyr did that one."
+                return "You need to roll more than zero dice with more than zero sides. (Was it ari again who did that? or zephyr?)"
         else:
             return "Please give input in the form of X-Y or XdY"
 
