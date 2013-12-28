@@ -93,18 +93,18 @@ class ircbot:
                 if((len(line)+len(destination[1]))>maxlength):
                     linefirst = line[:(maxlength-3-len(destination[1]))] + '...'
                     line = line[(maxlength-3-len(destination[1])):]
-                    print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linefirst)
+                    print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linefirst).encode('ascii','replace'))
                     self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + linefirst + endl).encode('utf-8'))
                     while((len(line)+len(destination[1]))>(maxlength-3)):
                         linechunk = '...' + line [:(maxlength-6-len(destination[1]))] + '..'
                         line = line[(maxlength-6-len(destination[1])):]
-                        print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linechunk)
+                        print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linechunk).encode('ascii','replace'))
                         self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + linechunk + endl).encode('utf-8'))
                     lineend = '...' + line
-                    print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + lineend)
+                    print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + lineend).encode('ascii','replace'))
                     self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + lineend + endl).encode('utf-8'))
                 else:
-                    print(self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line)
+                    print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line).encode('ascii','replace'))
                     self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + line + endl).encode('utf-8'))
                 if(destination[1][0] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
                     self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '>: ' + line,destination)
