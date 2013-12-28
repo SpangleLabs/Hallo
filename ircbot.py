@@ -56,7 +56,7 @@ class ircbot:
         filename = str(time.gmtime()[0]).rjust(4,'0') + '-' + str(time.gmtime()[1]).rjust(2,'0') + '-' + str(time.gmtime()[2]).rjust(2,'0') + '.txt'
         # open and write the message
         log = open('logs/' + destination[0] + '/' + destination[1] + '/' + filename, 'a')
-        log.write(msg + '\n')
+        log.write(msg.encode('ascii','ignore').decode() + '\n')
         log.close()
         
     def base_close(self):
@@ -93,18 +93,18 @@ class ircbot:
                 if((len(line)+len(destination[1]))>maxlength):
                     linefirst = line[:(maxlength-3-len(destination[1]))] + '...'
                     line = line[(maxlength-3-len(destination[1])):]
-                    print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linefirst).encode('ascii','replace'))
+                    print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linefirst).encode('ascii','replace').decode())
                     self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + linefirst + endl).encode('utf-8'))
                     while((len(line)+len(destination[1]))>(maxlength-3)):
                         linechunk = '...' + line [:(maxlength-6-len(destination[1]))] + '..'
                         line = line[(maxlength-6-len(destination[1])):]
-                        print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linechunk).encode('ascii','replace'))
+                        print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linechunk).encode('ascii','replace').decode())
                         self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + linechunk + endl).encode('utf-8'))
                     lineend = '...' + line
-                    print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + lineend).encode('ascii','replace'))
+                    print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + lineend).encode('ascii','replace').decode())
                     self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + lineend + endl).encode('utf-8'))
                 else:
-                    print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line).encode('ascii','replace'))
+                    print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line).encode('ascii','replace').decode())
                     self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + line + endl).encode('utf-8'))
                 if(destination[1][0] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
                     self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '>: ' + line,destination)
@@ -454,7 +454,7 @@ class ircbot:
         Thread(target=self.base_connect, args=(server,)).start()
         nextline = ""
         while(self.open and server in self.core['server'] and self.core['server'][server]['open']):
-            nextbyte = self.core['server'][server]['socket'].recv(1).decode('utf-8','ignore')
+            nextbyte = self.core['server'][server]['socket'].recv(1).decode('ascii','replace').encode().decode('utf-8','ignore')
             if(nextbyte!="\n"):
                 nextline = nextline + nextbyte
             else:
