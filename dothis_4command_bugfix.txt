@@ -17,4 +17,6 @@
 
 cupcake throws odd error if no user given
 
-improve hallo time
+improve hallo time, do a CTCP time request to find offset, then remember that if they are not online.
+
+fix the core_set and config_set functions to do nice things

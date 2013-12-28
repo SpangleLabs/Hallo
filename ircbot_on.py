@@ -123,9 +123,41 @@ class ircbot_on:
             if(self.core['server'][server]['check']['names']==''):
                 self.core['server'][server]['check']['names'] = ' '
 
-
     def on_rawdata(self,server,data,unhandled):
         pass # override this method to do general data handling
 
+    def on_coreloop(self):
+        'This function is ran once every 0.1 seconds.'
+        servers = 0
+        # loop through all servers, to do per-seerver tasks
+        for server in self.conf['server']:
+            if(self.conf['server'][server]['connected']):
+                servers = servers+1
+            # if you're supposed to be connected, but have pinged out, reconnect
+            if(self.conf['server'][server]['connected'] and self.core['server'][server]['open'] and self.core['server'][server]['lastping']!=0 and (int(time.time())-self.core['server'][server]['lastping'])>(120+self.conf['server'][server]['pingdiff'])):
+                print("TIMED OUT FROM " + server + ", RECONNECTING.")
+                self.base_disconnect(server)
+                del self.core['server'][server]
+                time.sleep(1)
+                Thread(target=self.base_run, args=(server,)).start()
+            # if you're connected, check each channel, if you're in any channels there, check for idlechan activation.
+            if(self.conf['server'][server]['connected']):
+                for channel in self.conf['server'][server]['channel']:
+                    if(self.conf['server'][server]['channel'][channel]['in_channel']):
+                        if('idle_time' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['idle_time']!=0 and self.core['server'][server]['channel'][channel]['last_message']!=0 and (int(time.time())-self.core['server'][server]['channel'][channel]['last_message'])>self.conf['server'][server]['channel'][channel]['idle_time']):
+                            print("channel idle")
+                            self.core['server'][server]['channel'][channel]['last_message'] = int(time.time())
+                            out = idlechan.idlechan.fnn_idlechan(self,self.conf['server'][server]['channel'][channel]['idle_args'],'',[server,channel])
+                            if(out is not None):
+                                self.base_say(out,[server,channel])
+        #if not connected to any servers, shut down
+        if(servers==0):
+            self.base_close()
+    #    for filename in self.megahal:
+    #        if((int(time.time())-self.megahal[filename]['last_used'])>600):
+    #            self.megahal[filename]['brain'].sync()
+    #            self.megahal[filename]['brain'].close()
+    #   #         del self.megahal[filename]
+    #            print("Closed megahal brain: " + filename)
 
 

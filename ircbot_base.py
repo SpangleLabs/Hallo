@@ -767,9 +767,12 @@ class ircbot_base:
                 elif(args[3].lower()=='true'):
                     self.conf[args[0]][args[1]][args[2]] = True
                     return "Set self.conf['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to True"
+                elif(args[3].isdigit()):
+                    self.conf[args[0]][args[1]][args[2]] = int(args[3])
+                    return "Set self.conff['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to " + args[3]
                 else:
                     self.conf[args[0]][args[1]][args[2]] = args[3]
-                    return "Set self.conf['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to " + args[3]
+                    return "Set self.conf['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to '" + args[3] + "'"
 
     def fn_config_save(self,args,client,destination):
         'Save the config and pickle it. godmod only.'
