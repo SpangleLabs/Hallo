@@ -102,7 +102,7 @@ class ircbot_base:
     def fn_connect(self,args,client,destination):
         'Connects to a new server. Requires godmode'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            args = args.lower().split('.')
+            args = args.lower()
             argsplit = args.split('.')
             title = max(argsplit,key=len)
             if(title not in self.conf['server']):
@@ -128,12 +128,21 @@ class ircbot_base:
     def fn_disconnect(self,args,client,destination):
         'Disconnects from server. Requires godmode.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            self.base_say('Disconnecting...',destination)
-            args = args.lower()
-  #          self.core['server'][destination[0]]['open'] = False
-            self.conf['server'][server]['connected'] = False
-            self.base_disconnect(destination[0])
-            return "Disconnected."
+            if(args.replace(' ','')==''):
+                self.base_say('Disconnecting...',destination)
+                args = args.lower()
+  #               self.core['server'][destination[0]]['open'] = False
+                self.conf['server'][destination[0]]['connected'] = False
+                self.base_disconnect(destination[0])
+                return "Disconnected."
+            else:
+                if(args.lower() in self.core['server']):
+                    self.base_say('Disconnecting from ' + args,destination)
+                    self.conf['server'][args.lower()]['connected'] = False
+                    self.base_disconnect(args.lower())
+                    return "Disconnected from " + args + "."
+                else:
+                    return "I'm not on any server by that id."
         else:
             return "Insufficient privileges to disconnect from server."
 
@@ -454,7 +463,7 @@ class ircbot_base:
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             args = args.lower().replace(' ','')
             if(args in self.conf['nickserv']['online']):
-                self.conf['server']['online'].remove(args)
+                self.conf['nickserv']['online'].remove(args)
                 return "Removed " + args + " from nickserv online list."
             else:
                 return "This message isn't even on the nickserv online list"
@@ -701,6 +710,22 @@ class ircbot_base:
                 return "File removed."
         else:
             return "Insufficient privileges to view core variable."
+
+    def fn_core_set(self,args,client,destination):
+        'Set vore variables, gods only.'
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+            args = args.split()
+            if(args[0] in self.core and args[1] in self.core[args[0]] and args[2] in self.core[args[0]][args[1]]):
+                if(args[3].lower()=='false'):
+                    self.core[args[0]][args[1]][args[2]] = False
+                    return "Set self.core['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to False"
+                elif(args[3].lower()=='true'):
+                    self.core[args[0]][args[1]][args[2]] = True
+                    return "Set self.core['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to True"
+                else:
+                    self.core[args[0]][args[1]][args[2]] = args[3]
+                    return "Set self.core['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to " + args[3]
+
 
     def fn_megahal_view(self,args,client,destination):
         'View the megahal variable, privmsg only. gods only.'
