@@ -285,7 +285,7 @@ class passive():
             self.megahal[chan_filename]['last_used'] = int(time.time())
         user_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '_' + client + '.jar'
         if(user_filename in self.megahal):
-            if('brain' in self.megahal[chan_filename]):
+            if('brain' in self.megahal[user_filename]):
                 self.megahal[user_filename]['brain'].learn(args)
                 self.megahal[user_filename]['last_used'] = int(time.time())
         else:
