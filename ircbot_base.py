@@ -712,7 +712,7 @@ class ircbot_base:
             return "Insufficient privileges to view core variable."
 
     def fn_core_set(self,args,client,destination):
-        'Set vore variables, gods only.'
+        'Set core variables, gods only.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             args = args.split()
             if(args[0] in self.core and args[1] in self.core[args[0]] and args[2] in self.core[args[0]][args[1]]):
@@ -725,7 +725,6 @@ class ircbot_base:
                 else:
                     self.core[args[0]][args[1]][args[2]] = args[3]
                     return "Set self.core['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to " + args[3]
-
 
     def fn_megahal_view(self,args,client,destination):
         'View the megahal variable, privmsg only. gods only.'
@@ -756,6 +755,21 @@ class ircbot_base:
                 return "File removed."
         else:
             return "Insufficient privileges to view config file"
+
+    def fn_config_set(self,args,client,destination):
+        'Set config variables, gods only.'
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+            args = args.split()
+            if(args[0] in self.conf and args[1] in self.conf[args[0]] and args[2] in self.conf[args[0]][args[1]]):
+                if(args[3].lower()=='false'):
+                    self.conf[args[0]][args[1]][args[2]] = False
+                    return "Set self.conf['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to False"
+                elif(args[3].lower()=='true'):
+                    self.conf[args[0]][args[1]][args[2]] = True
+                    return "Set self.conf['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to True"
+                else:
+                    self.conf[args[0]][args[1]][args[2]] = args[3]
+                    return "Set self.conf['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to " + args[3]
 
     def fn_config_save(self,args,client,destination):
         'Save the config and pickle it. godmod only.'

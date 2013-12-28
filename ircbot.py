@@ -480,7 +480,7 @@ class ircbot:
           #  self.conf['servers'].remove(server)
         Thread(target=self.base_connect, args=(server,)).start()
         nextline = ""
-        while(self.open and self.core['server'][server]['open']):
+        while(self.open and server in self.core['server'] and self.core['server'][server]['open']):
             nextbyte = self.core['server'][server]['socket'].recv(1).decode('utf-8','ignore')
             if(nextbyte!="\n"):
                 nextline = nextline + nextbyte
