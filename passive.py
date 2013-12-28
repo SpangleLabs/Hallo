@@ -14,6 +14,7 @@ import json
 #import difflib
 import re
 import html.parser
+from subprocess import call
 
 import megahal
 
@@ -30,7 +31,7 @@ class passive():
         # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
         passive.fnn_sweardetect(self,args,client,destination)
         passive.fnn_megahalrecord(self,args,client,destination)
-        if(len(args)>2 and args[:2].lower()=='_s' and destination[1]!='#ecco-the-dolphin'):
+        if(len(args)>2 and args[:2].lower()=='_s' and '_s' not in [user.lower() for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']]):
             return hallobase.hallobase.fn_speak(self,args[2:],client,destination)
         if(not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']):
             return None
@@ -273,18 +274,20 @@ class passive():
         'Record a line into the brains.'
         chan_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar'
         if(chan_filename in self.megahal):
-            self.megahal[chan_filename]['brain'].learn(args)
-            self.megahal[chan_filename]['last_used'] = int(time.time())
+            if('brain' in self.megahal[chan_filename]):
+                self.megahal[chan_filename]['brain'].learn(args)
+                self.megahal[chan_filename]['last_used'] = int(time.time())
         else:
             self.megahal[chan_filename] = {}
             self.megahal[chan_filename]['last_used'] = int(time.time())
             self.megahal[chan_filename]['brain'] = megahal.MegaHAL(4,chan_filename)
             self.megahal[chan_filename]['brain'].learn(args)
             self.megahal[chan_filename]['last_used'] = int(time.time())
-        user_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar'
+        user_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '_' + client + '.jar'
         if(user_filename in self.megahal):
-            self.megahal[user_filename]['brain'].learn(args)
-            self.megahal[user_filename]['last_used'] = int(time.time())
+            if('brain' in self.megahal[chan_filename]):
+                self.megahal[user_filename]['brain'].learn(args)
+                self.megahal[user_filename]['last_used'] = int(time.time())
         else:
             self.megahal[user_filename] = {}
             self.megahal[user_filename]['last_used'] = int(time.time())
@@ -293,6 +296,7 @@ class passive():
             self.megahal[user_filename]['last_used'] = int(time.time())
 
     def fnn_beep(self,args,client,destination):
+        call(["beep"])
         return "boop"
 
     def fnn_pew(self,args,client,destination):

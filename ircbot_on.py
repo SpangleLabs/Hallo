@@ -1,4 +1,5 @@
 import time
+from subprocess import call
 
 import ircbot_chk
 import ircbot_base
@@ -12,7 +13,10 @@ class ircbot_on:
 
     def on_ping(self,server,code):
         # handle pings from servers.
-        pass
+        call(["beep","-f 25","-l 50"])
+        time.sleep(0.15)
+        call(["beep","-f 40","-l 40"])
+       # pass
 
     def on_join(self,server,client,channel):
         # handle join events from other users (or from hallo!)
@@ -153,11 +157,15 @@ class ircbot_on:
         #if not connected to any servers, shut down
         if(servers==0):
             self.base_close()
-    #    for filename in self.megahal:
-    #        if((int(time.time())-self.megahal[filename]['last_used'])>600):
-    #            self.megahal[filename]['brain'].sync()
-    #            self.megahal[filename]['brain'].close()
-    #   #         del self.megahal[filename]
-    #            print("Closed megahal brain: " + filename)
+        megahalclose = []
+        for filename in self.megahal:
+            if((int(time.time())-self.megahal[filename]['last_used'])>600):
+                megahalclose.append(filename)
+        for filename in megahalclose:
+            self.megahal[filename]['brain'].sync()
+            self.megahal[filename]['brain'].close()
+            del self.megahal[filename]
+            print("Closed megahal brain: " + filename)
+        del megahalclose
 
 

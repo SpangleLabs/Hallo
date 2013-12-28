@@ -640,20 +640,26 @@ class hallobase():
       #  if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
         if(True):
             chan_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar'
+            diffchannel = False
+            if(args.split()[0][0]=='{' and args.split()[0][-1]=='}'):
+                chan_filename = 'store/brains/megahal_' + destination[0] + '_' + args.split()[0][1:-1].lower() + '.jar'
+                args = ' '.join(args.split()[1:])
+                diffchannel = True
             if(chan_filename in self.megahal):
                 self.megahal[chan_filename]['last_used'] = int(time.time())
-                reply = self.megahal[chan_filename]['brain'].get_reply(args)
+                if(diffchannel):
+                    reply = self.megahal[chan_filename]['brain'].get_reply_nolearn(args)
+                else:
+                    reply = self.megahal[chan_filename]['brain'].get_reply(args)
             else:
                 self.megahal[chan_filename] = {}
                 self.megahal[chan_filename]['last_used'] = int(time.time())
                 self.megahal[chan_filename]['brain'] = megahal.MegaHAL(4,chan_filename)
-                reply = self.megahal[chan_filename]['brain'].get_reply(args)
+                if(diffchannel):
+                    reply = self.megahal[chan_filename]['brain'].get_reply_nolearn(args)
+                else:
+                    reply = self.megahal[chan_filename]['brain'].get_reply(args)
             return client + ": " + reply
-       #     return "*woof!!!*"
-        elif(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            return "*woof!*"
-        else:
-            return "*woof*"
 
     def fn_speak_learn(self,args,client,destination):
         'Teach him a file, gods only.'

@@ -417,7 +417,10 @@ class ircbot:
                 Thread(target=self.base_run, args=(server,)).start()
         time.sleep(2)
         while(self.open):
-            ircbot_on.ircbot_on.on_coreloop(self)
+            try:
+                ircbot_on.ircbot_on.on_coreloop(self)
+            except:
+                pass
             time.sleep(0.1)
 
     def base_run(self,server):
