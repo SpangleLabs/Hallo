@@ -642,9 +642,20 @@ class hallobase():
             chan_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar'
             diffchannel = False
             if(args.split()[0][0]=='{' and args.split()[0][-1]=='}'):
-                chan_filename = 'store/brains/megahal_' + destination[0] + '_' + args.split()[0][1:-1].lower() + '.jar'
-                args = ' '.join(args.split()[1:])
                 diffchannel = True
+                chancode = args.split()[0][1:-1]
+                if(',' in chancode):
+                    if(chancode[0]=='#'):
+                        chan_filename = 'store/brains/megahal_' + destination[0] + '_' + chancode.split(',')[0] + '_' + chancode.split(',')[1] + '.jar'
+                    elif(len(chancode.split(','))==2):
+                        chan_filename = 'store/brains/megahal_' + chancode.split(',')[0] + '_' + chancode.split(',')[1] + '.jar'
+                    else:
+                        chan_filename = 'store/brains/megahal_' + chancode.split(',')[0] + '_' + chancode.split(',')[1] + '_' + chancode.split(',')[2] + '.jar'
+                elif(chancode[0]=='#'):
+                    chan_filename = 'store/brains/megahal_' + destination[0] + '_' + chancode + '.jar'
+                else:
+                    chan_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '_' + chancode + '.jar'
+                args = ' '.join(args.split()[1:])
             if(chan_filename in self.megahal):
                 self.megahal[chan_filename]['last_used'] = int(time.time())
                 if(diffchannel):
