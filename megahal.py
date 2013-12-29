@@ -480,6 +480,3 @@ class MegaHAL(object):
         """Close database"""
         self.__brain.close()
 
-class megahal():
-    def init():
-        pass

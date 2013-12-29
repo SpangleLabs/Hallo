@@ -16,7 +16,6 @@ import re
 import html.parser
 from subprocess import call
 
-import megahal
 
 import ircbot_chk   #for swear detect function
 import hallobase    #for _S replies
@@ -30,7 +29,7 @@ class passive():
     def fnn_passive(self,args,client,destination):
         # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
         passive.fnn_sweardetect(self,args,client,destination)
-        passive.fnn_megahalrecord(self,args,client,destination)
+        megahal_mod.megahal_mod.fnn_megahalrecord(self,args,client,destination)
         if(len(args)>2 and args[:2].lower()=='_s' and '_s' not in [user.lower() for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']]):
             return hallobase.hallobase.fn_speak(self,args[2:],client,destination)
         if(not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']):
@@ -239,14 +238,6 @@ class passive():
             for admin in ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
                 self.base_say(client + ' possibly just swore in ' + destination[1] + '. Check the context. The message was: ' + args,[destination[0],admin])
 
-       # if(not swears and self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record'] and 'hallo speak' not in args.lower()):
-       #     self.megahal.learn(args)
-       #     self.core['server'][destination[0]]['channel'][destination[1]]['megahalcount'] = self.core['server'][destination[0]]['channel'][destination[1]]['megahalcount'] + 1
-       #     if(self.core['server'][destination[0]]['channel'][destination[1]]['megahalcount'] >= 10):
-       #         self.megahal.sync()
-       #         self.core['server']['destination[0]]['channel'][destination[1]]['megahalcount'] = 0
-
-
     def fnn_extrayammering(self, args, client, destination):
         'Does some extra chatting, probably super buggy.'
         if((args.lower().find("who") >= 0) and (args.lower().find("best pony") >=0 or args.lower().find("bestpony".lower()) >=0)):
@@ -269,31 +260,6 @@ class passive():
             return message
         else:
             pass
-
-    def fnn_megahalrecord(self,args,client,destination):
-        'Record a line into the brains.'
-        chan_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar'
-        if(chan_filename in self.megahal):
-            if('brain' in self.megahal[chan_filename]):
-                self.megahal[chan_filename]['brain'].learn(args)
-                self.megahal[chan_filename]['last_used'] = int(time.time())
-        else:
-            self.megahal[chan_filename] = {}
-            self.megahal[chan_filename]['last_used'] = int(time.time())
-            self.megahal[chan_filename]['brain'] = megahal.MegaHAL(4,chan_filename)
-            self.megahal[chan_filename]['brain'].learn(args)
-            self.megahal[chan_filename]['last_used'] = int(time.time())
-        user_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '_' + client + '.jar'
-        if(user_filename in self.megahal):
-            if('brain' in self.megahal[user_filename]):
-                self.megahal[user_filename]['brain'].learn(args)
-                self.megahal[user_filename]['last_used'] = int(time.time())
-        else:
-            self.megahal[user_filename] = {}
-            self.megahal[user_filename]['last_used'] = int(time.time())
-            self.megahal[user_filename]['brain'] = megahal.MegaHAL(4,user_filename)
-            self.megahal[user_filename]['brain'].learn(args)
-            self.megahal[user_filename]['last_used'] = int(time.time())
 
     def fnn_beep(self,args,client,destination):
         call(["beep"])
