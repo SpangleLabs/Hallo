@@ -170,6 +170,7 @@ class Brain(object):
                     boundary = True
                 elif (string[position] == "'" and
                     string[position - 1].isalpha() and
+                    len(string) > position + 1 and
                     string[position + 1].isalpha()):
                     boundary = False
                 elif (position > 1 and
@@ -478,3 +479,7 @@ class MegaHAL(object):
     def close(self):
         """Close database"""
         self.__brain.close()
+
+class megahal():
+    def init():
+        pass
