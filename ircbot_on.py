@@ -13,10 +13,10 @@ class ircbot_on:
 
     def on_ping(self,server,code):
         # handle pings from servers.
-        call(["beep","-f 25","-l 50"])
-        time.sleep(0.15)
-        call(["beep","-f 40","-l 40"])
-       # pass
+   #     call(["beep","-f 25","-l 50"])
+   #     time.sleep(0.15)
+   #     call(["beep","-f 40","-l 40"])
+        pass
 
     def on_join(self,server,client,channel):
         # handle join events from other users (or from hallo!)
