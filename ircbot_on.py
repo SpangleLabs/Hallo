@@ -139,7 +139,13 @@ class ircbot_on:
             if(self.conf['server'][server]['connected']):
                 servers = servers+1
             # if you're supposed to be connected, but have pinged out, reconnect
-            if(self.conf['server'][server]['connected'] and self.core['server'][server]['open'] and self.core['server'][server]['lastping']!=0 and (int(time.time())-self.core['server'][server]['lastping'])>(120+self.conf['server'][server]['pingdiff'])):
+    #        if(self.conf['server'][server]['connected'] and self.core['server'][server]['open'] and self.core['server'][server]['lastping']!=0 and (int(time.time())-self.core['server'][server]['lastping'])>(120+self.conf['server'][server]['pingdiff'])):
+    #            print("TIMED OUT FROM " + server + ", RECONNECTING.")
+    #            self.base_disconnect(server)
+    #            del self.core['server'][server]
+    #            time.sleep(1)
+    #            Thread(target=self.base_run, args=(server,)).start()
+            if('reconnect' in self.core['server'][server] and self.core['server'][server]['reconnect']):
                 print("TIMED OUT FROM " + server + ", RECONNECTING.")
                 self.base_disconnect(server)
                 del self.core['server'][server]

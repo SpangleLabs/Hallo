@@ -454,7 +454,10 @@ class ircbot:
         Thread(target=self.base_connect, args=(server,)).start()
         nextline = ""
         while(self.open and server in self.core['server'] and self.core['server'][server]['open']):
-            nextbyte = self.core['server'][server]['socket'].recv(1).decode('ascii','replace').encode().decode('utf-8','ignore')
+            nextbyte = self.core['server'][server]['socket'].recv(1).decode('utf-8','replace')
+            if(nextbyte==""):
+                self.core['server'][server]['lastping'] = 1
+                self.core['server'][server]['reconnect'] = True
             if(nextbyte!="\n"):
                 nextline = nextline + nextbyte
             else:
