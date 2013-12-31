@@ -734,7 +734,7 @@ class ircbot_base:
             else:
                 prettymegahal = pprint.pformat(self.megahal)
                 filename = "megahal_" + hashlib.md5(str(random.randint(1,1000)*time.time()).encode("utf-8")).hexdigest() + ".txt"
-                link = "http://hallo.dr-spangle.com" + filename
+                link = "http://hallo.dr-spangle.com/" + filename
                 file = open("../http/" + filename,'w')
                 file.write(prettymegahal)
                 file.close()

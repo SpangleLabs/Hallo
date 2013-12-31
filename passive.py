@@ -19,6 +19,7 @@ from subprocess import call
 
 import ircbot_chk   #for swear detect function
 import hallobase    #for _S replies
+import megahal_mod  #for recording messages into brains.
 
 
 endl = '\r\n'
@@ -31,7 +32,7 @@ class passive():
         passive.fnn_sweardetect(self,args,client,destination)
         megahal_mod.megahal_mod.fnn_megahalrecord(self,args,client,destination)
         if(len(args)>2 and args[:2].lower()=='_s' and '_s' not in [user.lower() for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']]):
-            return hallobase.hallobase.fn_speak(self,args[2:],client,destination)
+            return megahal_mod.megahal_mod.fn_speak(self,args[2:],client,destination)
         if(not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']):
             return None
         out = passive.fnn_extrayammering(self,args,client,destination)

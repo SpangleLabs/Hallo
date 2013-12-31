@@ -1,5 +1,7 @@
+import time
 
 import megahal
+import ircbot_chk
 
 
 class megahal_mod():
@@ -71,6 +73,19 @@ class megahal_mod():
             return "Closed all active brains."
         else:
             return "Insufficient privileges to close all brains."
+
+    def fn_megahal_clear(self,args,client,destination):
+        'close all brains without syncing'
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+            for filename in self.megahal:
+                if('brain' in self.megahal[filename]):
+                    self.megahal[filename]['brain'].close()
+                    print("Closed megahal brain: " + filename)
+            del self.megahal
+            self.megahal = {}
+            return "Shut down all active brains."
+        else:
+            return "Insufficient privileges to shut down all brains."
 
     def fn__s(self,args,client,destination):
         'redirects to speak function'
