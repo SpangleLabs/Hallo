@@ -20,6 +20,7 @@ import random
 endl = '\r\n'
 class idlechan():
     def fnn_idlechan(self,args,client,destination):
+        print('aaa')
         # SPANGLE ADDED THIS, should do things in channels, once they've been idle for a set amount of time.
         if(args.lower()=='chat to _s'):
             return idlechan.fnn_chat_to_s(self,args,client,destination)
