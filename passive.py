@@ -213,13 +213,11 @@ class passive():
             else:
                 code = pageopener.open(pagerequest).read(4096).decode('utf-8','ignore')
                 if(code.count('</title>')>=1):
-             #       title = code.split('</title>')[0]
-             #       title = ' '.join(re.compile('<title[-A-Z0-9"=' + "'" + ' ]*>',re.IGNORECASE).split(title)[1].split())
                     title = re.search('<title([-A-Z0-9"=' + "'" + ' ]*)>([^<]*)</title>',code).group(2)
                     h = html.parser.HTMLParser()
                     title = h.unescape(title)
                     if(title!=""):
-                        return "URL title: " + title
+                        return "URL title: " + title.replace("\n","")
                 else:
                     self.base_say('I saw a link, but no title? ' + url,[destination[0],'dr-spangle'])
 
