@@ -408,6 +408,20 @@ class ircbot_base:
         else:
             return "Sorry, this function is for ops only."
 
+    def fn_swear_comment_message(self,args,client,destination):
+        'Set the message for comment swears, format is "swear_comment_message <channel> <message>" {swear} in the message will be replaced with the swear that was used.'
+        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
+            channel = args.split()[0]
+            message = ' '.join(args.split()[1:])
+            if(channel in self.conf['server'][destination[0]]['channel']):
+                self.conf['server'][destination[0]]['channel'][channel]['swearlist']['commentmsg'] = message
+                return "Set swear comment message to: " + message
+            else:
+                return "I'm not in that channel."
+        else:
+            return "Insufficient privileges to set swear comment message."
+
+
     def fn_nickserv_registered_add(self,args,client,destination):
         'Add a string to the list of nickserv messages to look for when checking if a nick is registered'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
