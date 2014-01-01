@@ -684,6 +684,8 @@ class hallobase():
     def fn_foof(self,args,client,destination):
         'FOOOOOOOOOF'
         rand = random.randint(0,2)
+        if('spangle' in client.lower()):
+            return 'ddddoooooooooooooooooooooffffffffff.'
         if(rand==0):
             return 'doof'
         elif(rand==1):
