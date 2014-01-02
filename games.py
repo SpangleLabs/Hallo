@@ -80,7 +80,7 @@ class games():
         if(destination[0] not in self.games['server']):
             self.games['server'][destination[0]] = {}
             self.games['server'][destination[0]]['player'] = {}
-        if(args.lower()=='start'):
+        if(args.lower()=='start' or args==''):
             if(client in self.games['server'][destination[0]]['player'] and 'higher_or_lower' in self.games['server'][destination[0]]['player'][client]):
                 return "You're already playing a game."
             else:
