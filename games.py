@@ -35,8 +35,10 @@ class games():
             return str(number) + "st"
         elif(number%10==2 and number%100!=12):
             return str(number) + "nd"
-        else:
+        elif(number%10==3 and number%100!=13):
             return str(number) + "rd"
+        else:
+            return str(number) + "th"
 
     def fnn_date(self,timestamp):
         datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
