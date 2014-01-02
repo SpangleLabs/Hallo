@@ -44,6 +44,13 @@ class passive():
                     return games.games.fn_higher_or_lower(self,'higher',client,destination)
                 if(args.lower()=='lower'):
                     return games.games.fn_higher_or_lower(self,'lower',client,destination)
+        if(args.lower()=='hit' or args.lower()=='stick' or args.lower()=='stand'):
+            try:
+               self.games
+            except NameError:
+               self.games = {}
+            if('server' in self.games and destination[0] in self.games['server'] and 'player' in self.games['server'][destination[0]] and client in self.games['server'][destination[0]]['player'] and 'blackjack' in self.games['server'][destination[0]]['player'][client]):
+                return games.games.fn_blackjack(self,args,client,destination)
         if(not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']):
             return None
         out = passive.fnn_extrayammering(self,args,client,destination)
