@@ -18,6 +18,8 @@ class games():
         'Picks a random card from a deck.'
         card = games.fnn_randcard(self,[])
         carddesc = card[1:].replace('k','King').replace('q','Queen').replace('j','Jack') + " of "
+        if(card[1:]=='1'):
+            carddesc = "Ace of "
         if(card[0]=='c'):
             carddesc = carddesc + "clubs"
         elif(card[0]=='s'):
