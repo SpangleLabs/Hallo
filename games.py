@@ -106,9 +106,9 @@ class games():
                         self.conf['highscores']['higher_or_lower']['score'] = turns
                         self.conf['highscores']['higher_or_lower']['name'] = client
                         self.conf['highscores']['higher_or_lower']['date'] = time.time()
-                        return "Your " + games.fnn_ordinal(self,turns) + " card is " + games.fnn_cardname(self,next_card) + ". Sorry, that's higher, you lose. You managed " + str(turns) + " cards though, that's a new highscore!" + previous_score
+                        return "Your " + games.fnn_ordinal(self,turns+1) + " card is " + games.fnn_cardname(self,next_card) + ". Sorry, that's higher, you lose. You managed " + str(turns) + " cards though, that's a new highscore!" + previous_score
                     else:
-                        return "Your " + games.fnn_ordinal(self,turns) + " card is " + games.fnn_cardname(self,next_card) + ". Sorry, that's higher, you lose. You managed " + str(turns) + " cards though."
+                        return "Your " + games.fnn_ordinal(self,turns+1) + " card is " + games.fnn_cardname(self,next_card) + ". Sorry, that's higher, you lose. You managed " + str(turns) + " cards though."
             else:
                 return "You're not currently playing a game, use 'higher_or_lower start' to start a game."
         elif(args.lower()=='higher'):
@@ -143,9 +143,9 @@ class games():
                         self.conf['highscores']['higher_or_lower']['score'] = turns
                         self.conf['highscores']['higher_or_lower']['name'] = client
                         self.conf['highscores']['higher_or_lower']['date'] = time.time()
-                        return "Your " + games.fnn_ordinal(self,turns) + " card is " + games.fnn_cardname(self,next_card) + ". Sorry, that's lower, you lose. You managed " + str(turns) + " cards though, that's a new highscore!" + previous_score
+                        return "Your " + games.fnn_ordinal(self,turns+1) + " card is " + games.fnn_cardname(self,next_card) + ". Sorry, that's lower, you lose. You managed " + str(turns) + " cards though, that's a new highscore!" + previous_score
                     else:
-                        return "Your " + games.fnn_ordinal(self,turns) + " card is " + games.fnn_cardname(self,next_card) + ". Sorry, that's lower, you lose. You managed " + str(turns) + " cards though."
+                        return "Your " + games.fnn_ordinal(self,turns+1) + " card is " + games.fnn_cardname(self,next_card) + ". Sorry, that's lower, you lose. You managed " + str(turns) + " cards though."
             else:
                 return "You're not currently playing a game, use 'higher_or_lower start' to start a game."
         elif(args.lower()=='end'):
