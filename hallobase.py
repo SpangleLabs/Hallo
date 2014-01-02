@@ -262,6 +262,10 @@ class hallobase():
                 dice = int(num[0])
             except:
                 return "Invalid number of dice."
+            if(dice>100):
+                return "Too many dice. Was it beets again messing with that?"
+            if(sides>1000000):
+                return "At this point, the dice would approximate a sphere."
             if(sides>0 and dice>0):
                 if(dice > 1):
                     string = "I roll "
