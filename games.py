@@ -296,7 +296,7 @@ class games():
                 if(dealer_sum>21):
                     output = output + "Dealer busts.\n"
                 if(dealer_sum==player_sum):
-                    output = output + "It's a tie."
+                    output = output + "It's a tie, and so the dealer wins."
                 elif(dealer_sum>player_sum and dealer_sum<=21):
                     output = output + "Dealer wins."
                 else:
