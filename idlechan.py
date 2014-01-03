@@ -25,7 +25,11 @@ class idlechan():
         if(args.lower()=='chat to _s'):
             return idlechan.fnn_chat_to_s(self,args,client,destination)
         elif(args.lower()=='deer'):
-            return 'deer deer deer.'
+            tmp_rand = random.randint(0,20)
+            if(tmp_rand==0):
+                return 'Spangle has a cute butt'
+            else:
+               return 'deer deer deer.' 
         else:
             return '*tumbleweed*'
 
