@@ -27,7 +27,7 @@ class idlechan():
         elif(args.lower()=='deer'):
             tmp_rand = random.randint(0,20)
             if(tmp_rand==0):
-                return 'Spangle has a cute butt'
+                return 'deer-spangle has a cute butt'
             else:
                return 'deer deer deer.' 
         else:
