@@ -29,7 +29,7 @@ class idlechan():
             if(tmp_rand==0):
                 return 'deer-spangle has a cute butt'
             else:
-               return 'deer deer deer.' 
+                return 'deer deer deer.' 
         else:
             return '*tumbleweed*'
 
