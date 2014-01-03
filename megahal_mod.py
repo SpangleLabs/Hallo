@@ -32,7 +32,7 @@ class megahal_mod():
                 if(diffchannel):
                     reply = self.megahal[chan_filename]['brain'].get_reply_nolearn(args)
                 else:
-                    reply = self.megahal[chan_filename]['brain'].get_reply(args)
+                    reply = self.megahal[chan_filename]['brain'].get_reply_nolearn(args)
             else:
                 self.megahal[chan_filename] = {}
                 self.megahal[chan_filename]['last_used'] = int(time.time())
@@ -40,7 +40,7 @@ class megahal_mod():
                 if(diffchannel):
                     reply = self.megahal[chan_filename]['brain'].get_reply_nolearn(args)
                 else:
-                    reply = self.megahal[chan_filename]['brain'].get_reply(args)
+                    reply = self.megahal[chan_filename]['brain'].get_reply_nolearn(args)
             return client + ": " + reply
 
     def fn_speak_learn(self,args,client,destination):
