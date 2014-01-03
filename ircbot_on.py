@@ -135,23 +135,22 @@ class ircbot_on:
         'This function is ran once every 0.1 seconds.'
         servers = 0
         # loop through all servers, to do per-seerver tasks
+  #      print('aaa')
         for server in self.conf['server']:
             if(self.conf['server'][server]['connected']):
                 servers = servers+1
             # if you're supposed to be connected, but have pinged out, reconnect
-    #        if(self.conf['server'][server]['connected'] and self.core['server'][server]['open'] and self.core['server'][server]['lastping']!=0 and (int(time.time())-self.core['server'][server]['lastping'])>(120+self.conf['server'][server]['pingdiff'])):
-    #            print("TIMED OUT FROM " + server + ", RECONNECTING.")
-    #            self.base_disconnect(server)
-    #            del self.core['server'][server]
-    #            time.sleep(1)
-    #            Thread(target=self.base_run, args=(server,)).start()
+  #          print('aab')
             if('reconnect' in self.core['server'][server] and self.core['server'][server]['reconnect']):
                 print("TIMED OUT FROM " + server + ", RECONNECTING.")
+                self.core['server'][server]['reconnect'] = False
                 self.base_disconnect(server)
                 del self.core['server'][server]
+                self.core['server'][server] = {}
                 time.sleep(1)
                 Thread(target=self.base_run, args=(server,)).start()
             # if you're connected, check each channel, if you're in any channels there, check for idlechan activation.
+  #          print('aac')
             if(self.conf['server'][server]['connected']):
                 for channel in self.conf['server'][server]['channel']:
                     if(self.conf['server'][server]['channel'][channel]['in_channel']):
@@ -163,10 +162,13 @@ class ircbot_on:
                             if(out is not None):
                                 print('nothing to say')
                                 self.base_say(out,[server,channel])
+  #          print('aad')
         #if not connected to any servers, shut down
+  #      print('bbb')
         if(servers==0):
             self.base_close()
         megahalclose = []
+  #      print('ccc')
         for filename in self.megahal:
             if((int(time.time())-self.megahal[filename]['last_used'])>600):
                 megahalclose.append(filename)
@@ -176,5 +178,6 @@ class ircbot_on:
             del self.megahal[filename]
             print("Closed megahal brain: " + filename)
         del megahalclose
+  #      print('ddd')
 
 

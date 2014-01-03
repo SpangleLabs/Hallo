@@ -72,7 +72,7 @@ class ircbot:
             if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
                 self.base_addlog(self.base_timestamp() + ' Hallo has quit.',[server,channel])
         #    time.sleep(1)
-        if(self.core['server'][server]['open']):
+        if('open' in self.core['server'][server] and self.core['server'][server]['open']):
             self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
             self.core['server'][server]['socket'].close()
         #    self.conf['server'][server]['connected'] = False
