@@ -251,6 +251,7 @@ class games():
                 self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'] = []
                 self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'].append(forth_card)
                 if((first_card[1:]=='1' and third_card[1:] in ['10','j','q','k']) or (third_card[1:]=='1' and first_card[1:] in ['10','j','q','k'])):
+                    del self.games['server'][destination[0]]['player'][client]['blackjack']
                     return "You have started a game of Blackjack (H17), you have been dealt a " + games.fnn_cardname(self,first_card) + " and a " + games.fnn_cardname(self,third_card) + ". Congratulations! That's a blackjack! You win."
                 #insert a check for a blackjack here.
                 return "You have started a game of Blackjack (H17), you have been dealt a " + games.fnn_cardname(self,first_card) + " and a " + games.fnn_cardname(self,third_card) + ". The dealer has a " + games.fnn_cardname(self,second_card) + " and another, covered, card. Would you like to hit or stick?"
