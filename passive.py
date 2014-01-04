@@ -74,6 +74,8 @@ class passive():
         regex = r'\b((https?://|www.)[-A-Z0-9+&?%@#/=~_|$:,.]*[A-Z0-9+\&@#/%=~_|$])'
         if re.search(regex, args, re.I):
             url = re.search(regex, args, re.I).group(1)
+            if('127.0.0.1' in url or '192.168.' in url or '10.' in url or '172.' in url):
+                return None
             if("://" not in url):
                 url = "http://" + url
             pagerequest = urllib.request.Request(url)
