@@ -511,15 +511,6 @@ class hallobase():
         'Current time'
         timestamp = time.time()
         timezone = 'UTC'
-        if(args.lower()=='to zephyr'):
-            endtime = 1388941200
-            starttime = int(time.time())
-            time_left = endtime-starttime
-            days = math.floor(time_left/86400)
-            hours = math.floor((time_left-(days*86400))/3600)
-            minutes = math.floor((time_left-(days*86400)-(hours*3600))/60)
-            seconds = math.floor(time_left-(days*86400)-(hours*3600)-(minutes*60))
-            return str(int(days)) + " days, " + str(int(hours)) + " hours, " + str(int(minutes)) + " minutes, " + str(int(seconds)) + " seconds until spangle can get back to swansea."
         if(args==''):
            name = 'time'
         else:
@@ -634,7 +625,7 @@ class hallobase():
             else:
                 return '\x01ACTION boops ' + args[0] + '.\x01'
         else:
-            online = ''.join(irbot_chk.chk_recipientonline(self,destination[0],args))
+            online = ''.join(ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],args))
             if(online==' ' or online==''):
                 return 'No one called "' + args[0] + '" is online.'
             else:

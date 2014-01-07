@@ -140,8 +140,8 @@ class ircbot_on:
             if(self.conf['server'][server]['connected']):
                 servers = servers+1
             # if you're supposed to be connected, but have pinged out, reconnect
-  #          print('aab')
-            if('reconnect' in self.core['server'][server] and self.core['server'][server]['reconnect']):
+  #          print('aab' + server)
+            if(server in self.core['server'] and 'reconnect' in self.core['server'][server] and self.core['server'][server]['reconnect']):
                 print("TIMED OUT FROM " + server + ", RECONNECTING.")
                 self.core['server'][server]['reconnect'] = False
                 self.base_disconnect(server)
@@ -150,7 +150,7 @@ class ircbot_on:
                 time.sleep(1)
                 Thread(target=self.base_run, args=(server,)).start()
             # if you're connected, check each channel, if you're in any channels there, check for idlechan activation.
-  #          print('aac')
+  #          print('aac' + server)
             if(self.conf['server'][server]['connected']):
                 for channel in self.conf['server'][server]['channel']:
                     if(self.conf['server'][server]['channel'][channel]['in_channel']):
@@ -162,7 +162,7 @@ class ircbot_on:
                             if(out is not None):
                                 print('nothing to say')
                                 self.base_say(out,[server,channel])
-  #          print('aad')
+  #          print('aad' + server)
         #if not connected to any servers, shut down
   #      print('bbb')
         if(servers==0):
