@@ -371,9 +371,11 @@ class ircbot:
         ircbot_on.ircbot_on.on_rawdata(self,server,data,unhandled)
 
     def base_connect(self,server):
+        count = 0
         while(self.core['server'][server]['connected'] == False and count<60):
             print(self.base_timestamp() + " Not connected to " + server + " yet")
             time.sleep(0.5)
+            count += 1
         self.conf['server'][server]['connected'] = True
         print(self.base_timestamp() + " sending nick and user info to server: " + server)
         self.core['server'][server]['socket'].send(('NICK ' + self.conf['server'][server]['nick'] + endl).encode('utf-8'))
