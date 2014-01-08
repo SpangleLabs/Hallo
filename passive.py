@@ -266,7 +266,7 @@ class passive():
             message = "I'm sorry " + client + ", but I'm afraid I can't do that"
             return message
         elif(("irc client" in args.lower() or "irc program" in args.lower() or "chat client" in args.lower()) and ("which" in args.lower() or "what" in args.lower()) and ("get" in args.lower() or "use" in args.lower())):
-            message = "For windows: Hexchat is a good irc client. Try http://hexchat.org For mac: Colloquy is a good choice http://colloquy.info/ For linux: xchat (for a graphical interface) http://xchat.orgor for command line linux: irssi http://irssi.org Or for a web client, try http://mibbit.com"
+            message = "For windows: Hexchat is a good irc client. Try http://hexchat.org For mac: Colloquy is a good choice http://colloquy.info/ For linux: xchat (for a graphical interface) http://xchat.org or for command line linux: irssi http://irssi.org Or for a web client, try http://mibbit.com"
             return message
      #   elif("when" in args.lower() and ("more pony" in args.lower() or "season 4" in args.lower() or "S04" in args.upper() or ("next season" in args.lower() and ("pony" in args.lower() or "mlp" in args.lower())))):
      #       message = "It's finally been announced! Season 4 of pony starts on the 23rd of November!"

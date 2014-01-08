@@ -62,7 +62,8 @@ class ircbot:
     def base_close(self):
         # disconnect
         for server in self.conf['server']:
-            self.base_disconnect(server)
+            if(self.conf['server'][server]['connected']):
+                self.base_disconnect(server)
         pickle.dump(self.conf,open(self.configfile,"wb"))
         self.open = False
 
@@ -370,7 +371,7 @@ class ircbot:
         ircbot_on.ircbot_on.on_rawdata(self,server,data,unhandled)
 
     def base_connect(self,server):
-        while(self.core['server'][server]['connected'] == False):
+        while(self.core['server'][server]['connected'] == False and count<60):
             print(self.base_timestamp() + " Not connected to " + server + " yet")
             time.sleep(0.5)
         self.conf['server'][server]['connected'] = True
@@ -387,7 +388,6 @@ class ircbot:
                     self.core['server'][server]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
                 else:
                     self.core['server'][server]['socket'].send(('JOIN ' + channel + ' ' + self.conf['server'][server]['channel'][channel]['pass'] + endl).encode('utf-8'))
-
         if self.conf['server'][server]['pass']:
             self.base_say('IDENTIFY ' + self.conf['server'][server]['pass'], [server,'nickserv'])
 
