@@ -104,17 +104,17 @@ class megahal_mod():
             self.megahal[chan_filename]['brain'] = megahal.MegaHAL(4,chan_filename)
             self.megahal[chan_filename]['brain'].learn(args)
             self.megahal[chan_filename]['last_used'] = int(time.time())
-        user_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '_' + client + '.jar'
-        if(user_filename in self.megahal):
-            if('brain' in self.megahal[user_filename]):
-                self.megahal[user_filename]['brain'].learn(args)
-                self.megahal[user_filename]['last_used'] = int(time.time())
-        else:
-            self.megahal[user_filename] = {}
-            self.megahal[user_filename]['last_used'] = int(time.time())
-            self.megahal[user_filename]['brain'] = megahal.MegaHAL(4,user_filename)
-            self.megahal[user_filename]['brain'].learn(args)
-            self.megahal[user_filename]['last_used'] = int(time.time())
+#        user_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '_' + client + '.jar'
+#        if(user_filename in self.megahal):
+#            if('brain' in self.megahal[user_filename]):
+#                self.megahal[user_filename]['brain'].learn(args)
+#                self.megahal[user_filename]['last_used'] = int(time.time())
+#        else:
+#            self.megahal[user_filename] = {}
+#            self.megahal[user_filename]['last_used'] = int(time.time())
+#            self.megahal[user_filename]['brain'] = megahal.MegaHAL(4,user_filename)
+#            self.megahal[user_filename]['brain'].learn(args)
+#            self.megahal[user_filename]['last_used'] = int(time.time())
 
 
 
