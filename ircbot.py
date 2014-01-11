@@ -1,10 +1,3 @@
-# ircbot.py
-# ircbot.py
-# Ben Pringle made the base, it was rotten, dr-spangle made it work.
-#
-# A superclass designed for making Internet Relay Chat bots using Python.
-# Extend it and define new methods for added function!
-
 #socket connets to the server
 #time gets time for timestamps and does sleep
 #os makes directories for logs, and gets the process ID
@@ -39,6 +32,67 @@ class ircbot:
         ircbot_on.ircbot_on.on_init(self)
 #        self.base_start()
   #      self.megahal = MegaHAL()
+
+    def base_buildconfig(self):
+        #if config file is empty or contains no servers, ask a series of questions to the user to build one.
+        print("A configuration file needs creating. A series of questions will be asked to create one. default options will be indicated in square brackets.")1
+        nick = input("What nickname should the bot use? [Hallo9000]")
+        nick = nick.replace(' ','')
+        if(nick==''):
+            nick = 'Hallo9000'
+        god_nick = input("What nickname is the bot operator using? [deer-spangle]")
+        god_nick = god_nick.replace(' ','')
+        if(god_nick==''):
+            god_nick = 'deer-spangle'
+        server_addr = input("What server should the bot connect to? [irc.canternet.org]")
+        server_addr = server_addr.replace(' ','')
+        if(server_addr==''):
+            server_addr = 'irc.canternet.org'
+        server_port = input("What port should the bot be connecting to on that server? [6667]")
+        server_port = server_port.replace(' ','')
+        if(server_port==''):
+            server_port = '6667'
+        channels = input("Which channels should the bot join? (comma separated) [#hallotest]")
+        channels = channels.replace(' ','')
+        if(channels==''):
+            channels = '#hallotest'
+        channel_list = channels.split(',')
+        self.conf = {}
+        self.conf['server'] = {}
+        argsplit = server_addr.split('.')
+        server_name = max(argsplit,key=len)
+        self.conf['server'][server_name] = {}
+        self.conf['server'][server_name]['ops'] = []
+        self.conf['server'][server_name]['gods'] = [god_nick]
+        self.conf['server'][server_name]['address'] = server_addr
+        self.conf['server'][server_name]['nick'] = nick
+        self.conf['server'][server_name]['full_name'] = 'HalloBot HalloHost HalloServer :an irc bot by spangle'
+        self.conf['server'][server_name]['pass'] = False
+        self.conf['server'][server_name]['port'] = server_port
+        self.conf['server'][server_name]['channel'] = {}
+        self.conf['server'][server_name]['admininform'] = []
+        self.conf['server'][server_name]['pingdiff'] = 600
+        self.conf['server'][server_name]['connected'] = False
+        for channel in channel_list:
+            self.conf['server'][destination[0]]['channel'][channel] = {}
+            self.conf['server'][destination[0]]['channel'][channel]['logging'] = True
+            self.conf['server'][destination[0]]['channel'][channel]['megahal_record'] = False
+            self.conf['server'][destination[0]]['channel'][channel]['sweardetect'] = False
+            self.conf['server'][destination[0]]['channel'][channel]['in_channel'] = True
+            self.conf['server'][destination[0]]['channel'][channel]['caps'] = False
+            self.conf['server'][destination[0]]['channel'][channel]['passivefunc'] = True
+            self.conf['server'][destination[0]]['channel'][channel]['idle_time'] = 0
+            self.conf['server'][destination[0]]['channel'][channel]['idle_args'] = ''
+            self.conf['server'][destination[0]]['channel'][channel]['voice_list'] = []
+            self.conf['server'][destination[0]]['channel'][channel]['pass'] = ''
+            self.conf['server'][destination[0]]['channel'][channel]['swearlist'] = {}
+            self.conf['server'][destination[0]]['channel'][channel]['swearlist']['possible'] = []
+            self.conf['server'][destination[0]]['channel'][channel]['swearlist']['inform'] = []
+            self.conf['server'][destination[0]]['channel'][channel]['swearlist']['comment'] = []
+            self.conf['server'][destination[0]]['channel'][channel]['swearlist']['commentmsg'] = ''
+        print("Config file created.")
+        pickle.dump(self.conf,open(self.configfile,"wb"))
+        print("Config file saved.")
 
     def base_timestamp(self):
         # return the timestamp, e.g. [05:21:42]
@@ -414,6 +468,8 @@ class ircbot:
             imp.release_lock()
             if(mod not in self.modules):
                 self.modules.append(mod)
+        if('server' not in self.conf or len(self.conf['server'])==0):
+            self.base_buildconfig()
         for server in self.conf['server']:
             if(self.conf['server'][server]['connected']):
                 Thread(target=self.base_run, args=(server,)).start()
