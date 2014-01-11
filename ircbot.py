@@ -463,11 +463,14 @@ class ircbot:
             allowedmodules = []
         for mod in allowedmodules:
             imp.acquire_lock()
-            importlib.import_module(mod)
-            imp.reload(sys.modules[mod])
+            try:
+                importlib.import_module(mod)
+                imp.reload(sys.modules[mod])
+                if(mod not in self.modules):
+                    self.modules.append(mod)
+            except:
+                print('Module: ' + mod + ' missing. Skipping it.')
             imp.release_lock()
-            if(mod not in self.modules):
-                self.modules.append(mod)
         if('server' not in self.conf or len(self.conf['server'])==0):
             self.base_buildconfig()
         for server in self.conf['server']:
