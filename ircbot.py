@@ -74,22 +74,22 @@ class ircbot:
         self.conf['server'][server_name]['pingdiff'] = 600
         self.conf['server'][server_name]['connected'] = False
         for channel in channel_list:
-            self.conf['server'][destination[0]]['channel'][channel] = {}
-            self.conf['server'][destination[0]]['channel'][channel]['logging'] = True
-            self.conf['server'][destination[0]]['channel'][channel]['megahal_record'] = False
-            self.conf['server'][destination[0]]['channel'][channel]['sweardetect'] = False
-            self.conf['server'][destination[0]]['channel'][channel]['in_channel'] = True
-            self.conf['server'][destination[0]]['channel'][channel]['caps'] = False
-            self.conf['server'][destination[0]]['channel'][channel]['passivefunc'] = True
-            self.conf['server'][destination[0]]['channel'][channel]['idle_time'] = 0
-            self.conf['server'][destination[0]]['channel'][channel]['idle_args'] = ''
-            self.conf['server'][destination[0]]['channel'][channel]['voice_list'] = []
-            self.conf['server'][destination[0]]['channel'][channel]['pass'] = ''
-            self.conf['server'][destination[0]]['channel'][channel]['swearlist'] = {}
-            self.conf['server'][destination[0]]['channel'][channel]['swearlist']['possible'] = []
-            self.conf['server'][destination[0]]['channel'][channel]['swearlist']['inform'] = []
-            self.conf['server'][destination[0]]['channel'][channel]['swearlist']['comment'] = []
-            self.conf['server'][destination[0]]['channel'][channel]['swearlist']['commentmsg'] = ''
+            self.conf['server'][server_name]['channel'][channel] = {}
+            self.conf['server'][server_name]['channel'][channel]['logging'] = True
+            self.conf['server'][server_name]['channel'][channel]['megahal_record'] = False
+            self.conf['server'][server_name]['channel'][channel]['sweardetect'] = False
+            self.conf['server'][server_name]['channel'][channel]['in_channel'] = True
+            self.conf['server'][server_name]['channel'][channel]['caps'] = False
+            self.conf['server'][server_name]['channel'][channel]['passivefunc'] = True
+            self.conf['server'][server_name]['channel'][channel]['idle_time'] = 0
+            self.conf['server'][server_name]['channel'][channel]['idle_args'] = ''
+            self.conf['server'][server_name]['channel'][channel]['voice_list'] = []
+            self.conf['server'][server_name]['channel'][channel]['pass'] = ''
+            self.conf['server'][server_name]['channel'][channel]['swearlist'] = {}
+            self.conf['server'][server_name]['channel'][channel]['swearlist']['possible'] = []
+            self.conf['server'][server_name]['channel'][channel]['swearlist']['inform'] = []
+            self.conf['server'][server_name]['channel'][channel]['swearlist']['comment'] = []
+            self.conf['server'][server_name]['channel'][channel]['swearlist']['commentmsg'] = ''
         print("Config file created.")
         pickle.dump(self.conf,open(self.configfile,"wb"))
         print("Config file saved.")
