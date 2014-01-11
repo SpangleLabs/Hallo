@@ -450,7 +450,10 @@ class ircbot:
     def base_start(self,configfile="store/config.p"):
         #starts up the bot, starts base_run on each server.
         self.configfile = configfile
-        self.conf = pickle.load(open(configfile,"rb"))
+        try:
+            self.conf = pickle.load(open(configfile,"rb"))
+        except EOFError:
+            self.conf = {}
         self.megahal = {}
         self.core = {}
         self.core['server'] = {}
