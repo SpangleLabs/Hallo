@@ -35,7 +35,7 @@ class ircbot:
 
     def base_buildconfig(self):
         #if config file is empty or contains no servers, ask a series of questions to the user to build one.
-        print("A configuration file needs creating. A series of questions will be asked to create one. default options will be indicated in square brackets.")1
+        print("A configuration file needs creating. A series of questions will be asked to create one. default options will be indicated in square brackets.")
         nick = input("What nickname should the bot use? [Hallo9000]")
         nick = nick.replace(' ','')
         if(nick==''):
