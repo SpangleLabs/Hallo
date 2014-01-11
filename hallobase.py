@@ -23,8 +23,6 @@ import ircbot_chk
 
 endl = '\r\n'
 class hallobase():
-    def init(self):
-        self.longcat = False
     
     def fn_op(self, args, client, destination):
         'Op member in given channel, or current channel if no channel given. Or command user if no member given. Format: op <name> <channel>'

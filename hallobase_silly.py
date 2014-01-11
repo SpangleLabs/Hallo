@@ -1,6 +1,13 @@
+import random       #for choosing ouija words, pony episodes, etc
+import time         #checking the time for the time function
+import pickle       #to load amarr scriptures
 
+import ircbot_chk   #for checking users have appropriate permissions to use certain functions
+import euler        #for WH40k quote importing
 
 class hallobase_silly():
+    def init(self):
+        self.longcat = False
 
     def fn_slowclap(self,args,client,destination):
         'Slowclap. Format: slowclap'
@@ -24,13 +31,13 @@ class hallobase_silly():
             return 'Longcat cannot be activated here, sorry.'
         else:
             if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-                hallobase.longcat = True
+                allobase_silly.longcat = True
                 return 'Longcat enabled.  Use "longcat_off" to turn it off.'
 
     def fn_longcat_off(self, args, client, destination):
         'Turn off longcat functon.'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            hallobase.longcat = False
+            hallobase_silly.longcat = False
             return 'Longcat disabled.  Use "longcat_on" to turn it on.'
 
     def fn_longcat(self, args, client, destination):
@@ -38,7 +45,7 @@ class hallobase_silly():
         if(destination[1].lower() == '#ukofequestria'):
             return 'Sorry, longcat is not available here.'
         else:
-            if(hallobase.longcat):
+            if(hallobase_silly.longcat):
                 if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
                     longcathead = '    /\___/\ \n   /       \ \n  |  #    # |\n  \     @   |\n   \   _|_ /\n   /       \______\n  / _______ ___   \ \n  |_____   \   \__/\n   |    \__/\n'
                     longcatsegment = '   |       |\n'
