@@ -93,17 +93,18 @@ class megahal_mod():
 
     def fnn_megahalrecord(self,args,client,destination):
         'Record a line into the brains.'
-        chan_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar'
-        if(chan_filename in self.megahal):
-            if('brain' in self.megahal[chan_filename]):
-                self.megahal[chan_filename]['brain'].learn(args)
-                self.megahal[chan_filename]['last_used'] = int(time.time())
-        else:
-            self.megahal[chan_filename] = {}
-            self.megahal[chan_filename]['last_used'] = int(time.time())
-            self.megahal[chan_filename]['brain'] = megahal.MegaHAL(4,chan_filename)
-            self.megahal[chan_filename]['brain'].learn(args)
-            self.megahal[chan_filename]['last_used'] = int(time.time())
+        pass
+#        chan_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar'
+#        if(chan_filename in self.megahal):
+#            if('brain' in self.megahal[chan_filename]):
+#                self.megahal[chan_filename]['brain'].learn(args)
+#                self.megahal[chan_filename]['last_used'] = int(time.time())
+#        else:
+#            self.megahal[chan_filename] = {}
+#            self.megahal[chan_filename]['last_used'] = int(time.time())
+#            self.megahal[chan_filename]['brain'] = megahal.MegaHAL(4,chan_filename)
+#            self.megahal[chan_filename]['brain'].learn(args)
+#            self.megahal[chan_filename]['last_used'] = int(time.time())
 #        user_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '_' + client + '.jar'
 #        if(user_filename in self.megahal):
 #            if('brain' in self.megahal[user_filename]):

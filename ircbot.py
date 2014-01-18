@@ -52,47 +52,61 @@ class ircbot:
         server_port = server_port.replace(' ','')
         if(server_port==''):
             server_port = '6667'
+        server_port = int(server_port)
         channels = input("Which channels should the bot join? (comma separated) [#hallotest]")
         channels = channels.replace(' ','')
         if(channels==''):
             channels = '#hallotest'
         channel_list = channels.split(',')
-        self.conf = {}
-        self.conf['server'] = {}
         argsplit = server_addr.split('.')
         server_name = max(argsplit,key=len)
-        self.conf['server'][server_name] = {}
-        self.conf['server'][server_name]['ops'] = []
-        self.conf['server'][server_name]['gods'] = [god_nick]
-        self.conf['server'][server_name]['address'] = server_addr
-        self.conf['server'][server_name]['nick'] = nick
-        self.conf['server'][server_name]['full_name'] = 'HalloBot HalloHost HalloServer :an irc bot by spangle'
-        self.conf['server'][server_name]['pass'] = False
-        self.conf['server'][server_name]['port'] = server_port
-        self.conf['server'][server_name]['channel'] = {}
-        self.conf['server'][server_name]['admininform'] = []
-        self.conf['server'][server_name]['pingdiff'] = 600
-        self.conf['server'][server_name]['connected'] = False
+        conf = {}
+        conf['function'] = {}
+        conf['function']['default'] = {}
+        conf['function']['default']['disabled'] = False
+        conf['function']['default']['listed_to'] = 'user'
+        conf['function']['default']['max_run_time'] = 180
+        conf['function']['default']['privmsg'] = True
+        conf['function']['default']['repair'] = False
+        conf['function']['default']['return_to'] = 'channel'
+        conf['function']['default']['time_delay'] = 0
+        conf['nickserv'] = {}
+        conf['nickserv']['online'] = ['lastseen:now','isonlinefrom:','iscurrentlyonline','nosuchnick','userseen:now']
+        conf['nickserv']['registered'] = ['registered:']
+        conf['server'] = {}
+        conf['server'][server_name] = {}
+        conf['server'][server_name]['ops'] = []
+        conf['server'][server_name]['gods'] = [god_nick]
+        conf['server'][server_name]['address'] = server_addr
+        conf['server'][server_name]['nick'] = nick
+        conf['server'][server_name]['full_name'] = 'HalloBot HalloHost HalloServer :an irc bot by spangle'
+        conf['server'][server_name]['pass'] = False
+        conf['server'][server_name]['port'] = server_port
+        conf['server'][server_name]['channel'] = {}
+        conf['server'][server_name]['admininform'] = []
+        conf['server'][server_name]['pingdiff'] = 600
+        conf['server'][server_name]['connected'] = True
         for channel in channel_list:
-            self.conf['server'][server_name]['channel'][channel] = {}
-            self.conf['server'][server_name]['channel'][channel]['logging'] = True
-            self.conf['server'][server_name]['channel'][channel]['megahal_record'] = False
-            self.conf['server'][server_name]['channel'][channel]['sweardetect'] = False
-            self.conf['server'][server_name]['channel'][channel]['in_channel'] = True
-            self.conf['server'][server_name]['channel'][channel]['caps'] = False
-            self.conf['server'][server_name]['channel'][channel]['passivefunc'] = True
-            self.conf['server'][server_name]['channel'][channel]['idle_time'] = 0
-            self.conf['server'][server_name]['channel'][channel]['idle_args'] = ''
-            self.conf['server'][server_name]['channel'][channel]['voice_list'] = []
-            self.conf['server'][server_name]['channel'][channel]['pass'] = ''
-            self.conf['server'][server_name]['channel'][channel]['swearlist'] = {}
-            self.conf['server'][server_name]['channel'][channel]['swearlist']['possible'] = []
-            self.conf['server'][server_name]['channel'][channel]['swearlist']['inform'] = []
-            self.conf['server'][server_name]['channel'][channel]['swearlist']['comment'] = []
-            self.conf['server'][server_name]['channel'][channel]['swearlist']['commentmsg'] = ''
+            conf['server'][server_name]['channel'][channel] = {}
+            conf['server'][server_name]['channel'][channel]['logging'] = True
+            conf['server'][server_name]['channel'][channel]['megahal_record'] = False
+            conf['server'][server_name]['channel'][channel]['sweardetect'] = False
+            conf['server'][server_name]['channel'][channel]['in_channel'] = True
+            conf['server'][server_name]['channel'][channel]['caps'] = False
+            conf['server'][server_name]['channel'][channel]['passivefunc'] = True
+            conf['server'][server_name]['channel'][channel]['idle_time'] = 0
+            conf['server'][server_name]['channel'][channel]['idle_args'] = ''
+            conf['server'][server_name]['channel'][channel]['voice_list'] = []
+            conf['server'][server_name]['channel'][channel]['pass'] = ''
+            conf['server'][server_name]['channel'][channel]['swearlist'] = {}
+            conf['server'][server_name]['channel'][channel]['swearlist']['possible'] = []
+            conf['server'][server_name]['channel'][channel]['swearlist']['inform'] = []
+            conf['server'][server_name]['channel'][channel]['swearlist']['comment'] = []
+            conf['server'][server_name]['channel'][channel]['swearlist']['commentmsg'] = ''
         print("Config file created.")
-        pickle.dump(self.conf,open(self.configfile,"wb"))
+        pickle.dump(conf,open(self.configfile,"wb"))
         print("Config file saved.")
+        return conf
 
     def base_timestamp(self):
         # return the timestamp, e.g. [05:21:42]
@@ -475,11 +489,13 @@ class ircbot:
                 print('Module: ' + mod + ' missing. Skipping it.')
             imp.release_lock()
         if('server' not in self.conf or len(self.conf['server'])==0):
-            self.base_buildconfig()
+            self.conf = self.base_buildconfig()
+        print('connecting to servers')
         for server in self.conf['server']:
             if(self.conf['server'][server]['connected']):
                 Thread(target=self.base_run, args=(server,)).start()
         time.sleep(2)
+        print('connected to all servers.')
         while(self.open):
             try:
                 ircbot_on.ircbot_on.on_coreloop(self)

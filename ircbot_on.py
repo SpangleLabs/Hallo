@@ -144,7 +144,9 @@ class ircbot_on:
             if(server in self.core['server'] and 'reconnect' in self.core['server'][server] and self.core['server'][server]['reconnect']):
                 print("TIMED OUT FROM " + server + ", RECONNECTING.")
                 self.core['server'][server]['reconnect'] = False
-                self.base_disconnect(server)
+                self.core['server'][server]['open'] = False
+                self.core['server'][server]['socket'].close()
+                time.sleep(1)
                 del self.core['server'][server]
                 self.core['server'][server] = {}
                 time.sleep(1)

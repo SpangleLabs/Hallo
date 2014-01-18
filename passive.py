@@ -19,6 +19,7 @@ from subprocess import call
 
 import ircbot_chk   #for swear detect function
 import hallobase    #for _S replies
+import hallobase_silly  #for foof
 import megahal_mod  #for recording messages into brains.
 import games        #for higher or lower
 
@@ -58,7 +59,7 @@ class passive():
             return out
        # if(message.lower().replace(' ','') == "foof"):
         if re.search(r'foo[o]*f[!]*',args,re.I):
-            out = hallobase.hallobase.fn_foof(self,args,client,destination)
+            out = hallobase_silly.hallobase_silly.fn_foof(self,args,client,destination)
             return out
         if(re.search(r'(pew)+',args,re.I)):
             out = passive.fnn_pew(self,args,client,destination)
