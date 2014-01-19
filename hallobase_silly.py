@@ -224,7 +224,7 @@ class hallobase_silly():
         rand = random.randint(0,2)
         if('spangle' in client.lower()):
             return 'ddddoooooooooooooooooooooffffffffff.'
-        if(rand==0):
+        if(rand==0 and 'zephyr' not in client.lower()):
             return 'doof'
         elif(rand==1):
             return 'doooooof'
