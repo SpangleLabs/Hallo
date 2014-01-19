@@ -534,7 +534,10 @@ class ircbot:
         Thread(target=self.base_connect, args=(server,)).start()
         nextline = ""
         while(self.open and server in self.core['server'] and self.core['server'][server]['open']):
-            nextbyte = self.core['server'][server]['socket'].recv(1).decode('utf-8','replace')
+            try:
+                nextbyte = self.core['server'][server]['socket'].recv(1).decode('utf-8','replace')
+            except:
+                nextbyte = ""
             if(nextbyte==""):
                 self.core['server'][server]['lastping'] = 1
                 self.core['server'][server]['reconnect'] = True
