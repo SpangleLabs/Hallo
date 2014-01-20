@@ -223,8 +223,12 @@ class hallobase_silly():
         'FOOOOOOOOOF'
         rand = random.randint(0,2)
         if('spangle' in client.lower()):
-            return 'ddddoooooooooooooooooooooffffffffff.'
-        if(rand==0 and 'zephyr' not in client.lower()):
+            rand2 = random.randint(0,20)
+            if(rand2==0):
+                return 'I'm tired of your shit spangle.'
+            else:
+                return 'ddddoooooooooooooooooooooffffffffff.'
+        if(rand==0 and 'zephyr' not in client.lower() and 'cronecker' not in client.lower()):
             return 'doof'
         elif(rand==1):
             return 'doooooof'
