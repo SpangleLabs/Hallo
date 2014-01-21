@@ -228,7 +228,7 @@ class hallobase_silly():
                 return 'I\'m tired of your shit spangle.'
             else:
                 return 'ddddoooooooooooooooooooooffffffffff.'
-        if(rand==0 and 'zephyr' not in client.lower()):
+        if(rand==0 or 'zephyr' not in client.lower()):
             return 'doof'
         elif(rand==1):
             return 'doooooof'
