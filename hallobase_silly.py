@@ -222,13 +222,7 @@ class hallobase_silly():
     def fn_foof(self,args,client,destination):
         'FOOOOOOOOOF'
         rand = random.randint(0,2)
-        if('spangle' in client.lower()):
-            rand2 = random.randint(1,20)
-            if(rand2==0):
-                return 'I\'m tired of your shit spangle.'
-            else:
-                return 'ddddoooooooooooooooooooooffffffffff.'
-        if(rand==0 or 'zephyr' not in client.lower()):
+        if(rand==0):
             return 'doof'
         elif(rand==1):
             return 'doooooof'
