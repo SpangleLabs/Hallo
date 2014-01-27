@@ -2,8 +2,6 @@
 
 02:59:47 <@dr-spangle> roll, throw specific error on floating point?
 
-06:23:47 <@dr-spangle> -maybe make his speech feature have separate brains for different users?
-
 12:23:31 <@dr-spangle> -fix calc
 19:08:16 < deer-spangle> hallo calc (2+3)-3
 19:08:16 <@Hallo> -15
@@ -11,7 +9,6 @@
 19:08:20 <@Hallo> -1
 19:08:22 < deer-spangle> hallo calc (-1)^0.5
 19:08:22 <@Hallo> -1
-
 
 19:37:07 <@dr-spangle> -make hallo add close brackets
 
