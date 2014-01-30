@@ -23,3 +23,6 @@ make it so he can give you a cocktail if you give him an ingredient
 
 wolfram alpha API integration. I have an AppID: XJA93W-225U2U4XKJ
 
+
+Bronyradio integration
+ http://bronyradio.com/inc/merge.php
