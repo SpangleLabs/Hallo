@@ -612,6 +612,8 @@ class hallobase():
             return "All conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias']])
         elif(args in convert['types']):
             return args + " conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias'] if convert['units'][convert['alias'][alias]]['type'] == args])
+        elif(args in convert['units']):
+            return args + " aliases: " + ', '.join([alias + '->' args for alias in convert['alias'] if convert['alias'][alias]==args])
         else:
             return args + " is not a valid unit type"
 
