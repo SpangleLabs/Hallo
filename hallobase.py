@@ -613,7 +613,7 @@ class hallobase():
         elif(args in convert['types']):
             return args + " conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias'] if convert['units'][convert['alias'][alias]]['type'] == args])
         elif(args in convert['units']):
-            return args + " aliases: " + ', '.join([alias + '->' args for alias in convert['alias'] if convert['alias'][alias]==args])
+            return args + " aliases: " + ', '.join([alias + '->' + args for alias in convert['alias'] if convert['alias'][alias] == args])
         else:
             return args + " is not a valid unit type"
 
@@ -687,8 +687,13 @@ class hallobase():
         args = args.lower()
         if(args.replace(' ','') == ''):
             return 'all available units: ' + ', '.join([unit + ' (' + convert['units'][unit]['type'] + ' unit, =' + str(convert['units'][unit]['value']) + convert['types'][convert['units'][unit]['type']]['base_unit'] + ')' for unit in convert['units']])
-        elif(args in convert['types']):
-            return args + ' units: ' + ', '.join([unit + ' (=' + str(convert['units'][unit]['value']) + convert['types'][convert['units'][unit]['type']]['base_unit'] + ')' for unit in convert['units'] if convert['units'][unit]['type'] == args])
+        elif(args.split()[0] in convert['types']):
+            if(len(args.split())>1 and args.split()[1] == 'simple'):
+                return 'Simplified list of ' + args.split()[0] + ' units: ' + ', '.join([unit for unit in convert['units'] if convert['units'][unit]['type'] == args.split()[0]
+            else:
+                return 'List of' + args.split()[0] + ' units: ' + ', '.join([unit + ' (=' + str(convert['units'][unit]['value']) + convert['types'][convert['units'][unit]['type']]['base_unit'] + ')' for unit in convert['units'] if convert['units'][unit]['type'] == args.split()[0]])
+        elif(args == 'simple'):
+            return 'Simplified list of available units: ' + ', '.join([unit for unit in convert['units'])
         else:
             return "Invalid unit type."
 
@@ -739,7 +744,11 @@ class hallobase():
             convert = pickle.load(open('store/convert.p','rb'))
         except:
             return "Could not load conversion data."
-        return 'Conversion unit types: ' + ', '.join([type + ' ( base unit: ' + convert['types'][type]['base_unit'] + ')' for type in convert['types']])
+        args = args.lower()
+        if(args == 'simple'):
+            return 'Conversion unit types: ' + ', '.join([type for type in convert['types']])
+        else:
+            return 'Conversion unit types: ' + ', '.join([type + ' ( base unit: ' + convert['types'][type]['base_unit'] + ')' for type in convert['types']])
  
     def fn_convert_default_unit(self,args,client,destination):
         'Returns the default unit for a given type. Format: convert_default_unit {type}'
