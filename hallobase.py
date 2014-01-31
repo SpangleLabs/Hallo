@@ -551,7 +551,7 @@ class hallobase():
         result = value*convert['units'][unit_from]['value']/convert['units'][unit_to]['value']
         return str(value) + ' ' + unit_from + ' is ' + str(result) + ' ' + unit_to
 
-    def convert_add_alias(self,args,client,destination):
+    def fn_convert_add_alias(self,args,client,destination):
         'Add a new alias for a conversion unit. Format: convert_add_alias {name} {unit}'
         if(ircbot_chk.ircbot_chk.chk_god(self,client)):
             args = args.lower().split()
@@ -574,7 +574,7 @@ class hallobase():
         else:
             return "You have insufficient privileges to add a conversion alias"
 
-    def convert_del_alias(self,args,client,destination):
+    def fn_convert_del_alias(self,args,client,destination):
         'Delete an alias for a conversion unit. Format: convert_del_alias {alias}'
         if(ircbot_chk.ircbot_chk.chk_god(self,client)):
             try:
@@ -591,7 +591,7 @@ class hallobase():
         else:
             return "You have insufficient privileges to delete a conversion alias."
 
-    def convert_list_alias(self,args,client,destination):
+    def fn_convert_list_alias(self,args,client,destination):
         'List all alaises, or all aliases of a given type if given. Format: convert_list_alias {type}'
         try:
             convert = pickle.load(open('store/convert.p','rb'))
@@ -605,7 +605,7 @@ class hallobase():
         else:
             return args + " is not a valid unit type"
 
-    def convert_add_unit(self,args,client,destination):
+    def fn_convert_add_unit(self,args,client,destination):
         'Add a conversion unit. value in the default for that type. Format: convert_add_unit {type} {name} {value}'
         if(ircbot_chk.ircbot_chk.chk_god(self,client)):
             try:
