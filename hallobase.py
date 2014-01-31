@@ -553,7 +553,7 @@ class hallobase():
 
     def fn_convert_add_alias(self,args,client,destination):
         'Add a new alias for a conversion unit. Format: convert_add_alias {name} {unit}'
-        if(ircbot_chk.ircbot_chk.chk_god(self,client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             args = args.lower().split()
             name_a = args[0]
             name_b = ''.join(args[1:])
@@ -576,7 +576,7 @@ class hallobase():
 
     def fn_convert_del_alias(self,args,client,destination):
         'Delete an alias for a conversion unit. Format: convert_del_alias {alias}'
-        if(ircbot_chk.ircbot_chk.chk_god(self,client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
                 convert = pickle.load(open('store/convert.p','rb'))
             except:
@@ -607,7 +607,7 @@ class hallobase():
 
     def fn_convert_add_unit(self,args,client,destination):
         'Add a conversion unit. value in the default for that type. Format: convert_add_unit {type} {name} {value}'
-        if(ircbot_chk.ircbot_chk.chk_god(self,client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
                 convert = pickle.load(open('store/convert.p','rb'))
             except:
@@ -647,7 +647,7 @@ class hallobase():
 
     def fn_convert_del_unit(self,args,client,destination):
         'Deletes a unit from conversion data, including all alises. Format: convert_del_unit {name}'
-        if(ircbot_chk.ircbot_chk.chk_god(self,client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
                 convert = pickle.load(open('store/config.p','rb'))
             except:
@@ -681,7 +681,7 @@ class hallobase():
 
     def fn_convert_add_type(self,args,client,destination):
         'Adds a new conversion unit type and base unit. Format: convert_add_type {name} {base_unit}'
-        if(ircbot_chk.ircbot_chk.chk_god(self,client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
                 convert = pickle.load(open('store/convert.p','rb'))
             except:
@@ -699,7 +699,7 @@ class hallobase():
 
     def fn_convert_del_type(self,args,client,destination):
         'Delete a conversion unit type and all associated units and aliases. Format: convert_del_type {type}'
-        if(ircbot_chk.ircbot_chk.chk_god(self,client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
                 convert = pickle.load(open('store/convert.p','rb'))
             except:
@@ -740,7 +740,7 @@ class hallobase():
 
     def fn_convert_unit_update(self,args,client,destination):
         'Update the value of a conversion unit. Format: convert_unit_update {name} {value}'
-        if(ircbot_chk.ircbot_chk.chk_god(self,client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
                 convert = pickle.load(open('store/convert.p','rb'))
             except:
