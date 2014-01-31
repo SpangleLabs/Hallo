@@ -527,12 +527,12 @@ class hallobase():
                 break
         from_to[0] = from_to[0][len(valuestr):]
         if(valuestr==''):
-            for char in from_to[0]:
+            for char in from_to[0][::-1]:
                 if(char in [str(x) for x in range(10)] + ['.']):
                     valuestr = char + valuestr
                 else:
                     break
-            from_to[0] = from_to[0][:len(valuestr)]
+            from_to[0] = from_to[0][:len(from_to[0])-len(valuestr)]
             if(valuestr==''):
                 valuestr = '1'
         unit_to = from_to[1]
