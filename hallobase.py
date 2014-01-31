@@ -725,7 +725,7 @@ class hallobase():
             convert = pickle.load(open('store/convert.p','rb'))
         except:
             return "Could not load conversion data."
-        return 'Conversion unit types: ' + ', '.join([type + ' ( base unit: ' + base_unit + ')' for type in convert['types']])
+        return 'Conversion unit types: ' + ', '.join([type + ' ( base unit: ' + convert['types'][type]['base_unit'] + ')' for type in convert['types']])
  
     def fn_convert_default_unit(self,args,client,destination):
         'Returns the default unit for a given type. Format: convert_default_unit {type}'
