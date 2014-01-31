@@ -606,7 +606,7 @@ class hallobase():
             return args + " is not a valid unit type"
 
     def convert_add_unit(self,args,client,destination):
-        'Add a conversion unit. value in the default for that type. Format: convert_add_unit {type} {name} {value}
+        'Add a conversion unit. value in the default for that type. Format: convert_add_unit {type} {name} {value}'
         if(ircbot_chk.ircbot_chk.chk_god(self,client)):
             try:
                 convert = pickle.load(open('store/convert.p','rb'))
@@ -766,7 +766,7 @@ class hallobase():
 
 
 
-//convert_currency_update
-//-pull currency data from somewhere
+#convert_currency_update
+#-pull currency data from somewhere
 
 
