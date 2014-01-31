@@ -623,9 +623,10 @@ class hallobase():
             except:
                 return "Could not load conversion data."
             args = args.lower()
-            if(len(args.split()) != 3):
+            if(len(args.split()) < 3):
                 return "Incorrect number of arguments, format is: convert_add_unit {type} {name} {value}"
             args = args.split()
+            args[2] = ''.join(args[2:])
             if(args[0] in convert['types']):
                 type = args[0]
                 del args[0]
@@ -697,6 +698,7 @@ class hallobase():
             except:
                 return "Could not load conversion data."
             args = args.lower().split()
+            args[1] = ''.join(args[1:])
             convert['types'][args[0]] = {}
             convert['types'][args[0]]['base_unit'] = args[1]
             convert['units'][args[1]] = {}
