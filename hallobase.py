@@ -517,7 +517,7 @@ class hallobase():
         'converts values from one unit to another, format: "convert {value} {old unit} to {new unit}'
         args = args.lower()
         from_to = re.compile(' into | to | in |->',re.IGNORECASE).split(args)
-        if(len(from_to)!=2):
+        if(len(from_to)>2):
             return "I'm confused by your input, are you trying to convert between three units? or not provided me something to convert to?"
         valuestr = ''
         for char in from_to[0]:
@@ -535,7 +535,6 @@ class hallobase():
             from_to[0] = from_to[0][:len(from_to[0])-len(valuestr)]
             if(valuestr==''):
                 valuestr = '1'
-        unit_to = from_to[1]
         unit_from = from_to[0]
         while(unit_from[0]==' '):
             unit_from = unit_from[1:]
@@ -544,18 +543,22 @@ class hallobase():
             convert = pickle.load(open('store/convert.p','rb'))
         except:
             return "Failed to load conversion data."
-        if(unit_to.replace(' ','') not in convert['units']):
-            if(unit_to.replace(' ','') in convert['alias']):
-                unit_to = convert['alias'][unit_to.replace(' ','')]
-            else:
-                return unit_to + ' is not a recognised unit.'
-        unit_to = unit_to.replace(' ','')
         if(unit_from.replace(' ','') not in convert['units']):
             if(unit_from.replace(' ','') in convert['alias']):
                 unit_from = convert['alias'][unit_from.replace(' ','')]
             else:
                 return unit_from + ' is not a recognised unit.'
         unit_from = unit_from.replace(' ','')
+        if(len(from_to)<2):
+            unit_to = convert['types'][convert['units'][unit_from]['type']]['base_unit']
+        else:
+            unit_to = from_to[1]
+        if(unit_to.replace(' ','') not in convert['units']):
+            if(unit_to.replace(' ','') in convert['alias']):
+                unit_to = convert['alias'][unit_to.replace(' ','')]
+            else:
+                return unit_to + ' is not a recognised unit.'
+        unit_to = unit_to.replace(' ','')
         if(convert['units'][unit_to]['type'] != convert['units'][unit_from]['type']):
             return 'These units are not of the same type, a conversion cannot be made.'
         result = value*convert['units'][unit_from]['value']/convert['units'][unit_to]['value']
@@ -689,11 +692,11 @@ class hallobase():
             return 'all available units: ' + ', '.join([unit + ' (' + convert['units'][unit]['type'] + ' unit, =' + str(convert['units'][unit]['value']) + convert['types'][convert['units'][unit]['type']]['base_unit'] + ')' for unit in convert['units']])
         elif(args.split()[0] in convert['types']):
             if(len(args.split())>1 and args.split()[1] == 'simple'):
-                return 'Simplified list of ' + args.split()[0] + ' units: ' + ', '.join([unit for unit in convert['units'] if convert['units'][unit]['type'] == args.split()[0]
+                return 'Simplified list of ' + args.split()[0] + ' units: ' + ', '.join([unit for unit in convert['units'] if convert['units'][unit]['type'] == args.split()[0]])
             else:
                 return 'List of' + args.split()[0] + ' units: ' + ', '.join([unit + ' (=' + str(convert['units'][unit]['value']) + convert['types'][convert['units'][unit]['type']]['base_unit'] + ')' for unit in convert['units'] if convert['units'][unit]['type'] == args.split()[0]])
         elif(args == 'simple'):
-            return 'Simplified list of available units: ' + ', '.join([unit for unit in convert['units'])
+            return 'Simplified list of available units: ' + ', '.join([unit for unit in convert['units']])
         else:
             return "Invalid unit type."
 
