@@ -1,4 +1,4 @@
-rom euler import eulerclass
+#from euler import eulerclass
 #import euler
 #from ircbot import ircbot
 #import shelve
@@ -516,7 +516,7 @@ class hallobase():
     def fn_convert(self,args,client,destination):
         'converts values from one unit to another, format: "convert {value} {old unit} to {new unit}'
         args = args.lower()
-        from_to = re.compile(' to | in |->',re.IGNORECASE).split(args)
+        from_to = re.compile(' into | to | in |->',re.IGNORECASE).split(args)
         if(len(from_to)!=2):
             return "I'm confused by your input, are you trying to convert between three units? or not provided me something to convert to?"
         valuestr = ''
