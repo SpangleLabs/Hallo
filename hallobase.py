@@ -525,8 +525,18 @@ class hallobase():
                 valuestr = valuestr + char
             else:
                 break
+        from_to[0] = from_to[0][len(valuestr):]
+        if(valuestr==''):
+            for char in from_to[0]:
+                if(char in [str(x) for x in range(10)] + ['.']):
+                    valuestr = char + valuestr
+                else:
+                    break
+            from_to[0] = from_to[0][:len(valuestr)]
+            if(valuestr==''):
+                valuestr = '1'
         unit_to = from_to[1]
-        unit_from = from_to[0][len(valuestr):]
+        unit_from = from_to[0]
         while(unit_from[0]==' '):
             unit_from = unit_from[1:]
         value = float(valuestr)
