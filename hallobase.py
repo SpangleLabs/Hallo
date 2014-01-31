@@ -641,7 +641,7 @@ class hallobase():
             convert['units'][name]['type'] = type
             convert['units'][name]['value'] = value
             pickle.dump(convert,open('store/convert.p','wb'))
-            return "Added " + name + " as a " + type + " unit, with a value of " + str(value) + " " + convert['type'][type]['base_unit']
+            return "Added " + name + " as a " + type + " unit, with a value of " + str(value) + " " + convert['types'][type]['base_unit']
         else:
             return "You have insufficient privileges to add a conversion unit."
 
