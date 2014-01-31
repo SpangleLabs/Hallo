@@ -1,4 +1,4 @@
-#from euler import eulerclass
+rom euler import eulerclass
 #import euler
 #from ircbot import ircbot
 #import shelve
@@ -649,7 +649,7 @@ class hallobase():
         'Deletes a unit from conversion data, including all alises. Format: convert_del_unit {name}'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
-                convert = pickle.load(open('store/config.p','rb'))
+                convert = pickle.load(open('store/convert.p','rb'))
             except:
                 return "Could not load conversion data."
             args = args.lower()
