@@ -281,7 +281,7 @@ class hallobase():
         while calc.count('/') != 0:
             pre_calc = hallobase.fnn_calc_before(self,calc,'/')
             post_calc = hallobase.fnn_calc_after(self,calc,'/')
-            if int(float(post_calc)) == 0:
+            if float(post_calc) == 0:
                 return 'error, no division by zero, sorry.'
             calc = calc.replace(str(pre_calc) + '/' + str(post_calc),str(float(pre_calc) / float(post_calc)))
             del pre_calc, post_calc

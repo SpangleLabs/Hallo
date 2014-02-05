@@ -160,9 +160,7 @@ class ircbot_on:
                             print("channel idle")
                             self.core['server'][server]['channel'][channel]['last_message'] = int(time.time())
                             out = idlechan.idlechan.fnn_idlechan(self,self.conf['server'][server]['channel'][channel]['idle_args'],'',[server,channel])
-                            print('bbb')
                             if(out is not None):
-                                print('nothing to say')
                                 self.base_say(out,[server,channel])
   #          print('aad' + server)
         #if not connected to any servers, shut down
