@@ -227,7 +227,10 @@ class hallobase_silly():
         elif(rand==1):
             return 'doooooof'
         else:
-            return 'ddddoooooooooooooooooooooffffffffff.'
+            if(random.randint(0,20)==15):
+                return 'd' * 100 + 'o' * 1000 + 'f' * 200 + '!' * 50
+            else:
+                return 'ddddoooooooooooooooooooooffffffffff.'
 
     def fn_thought_for_the_day(self,args,client,destination):
         'WH40K Thought for the day.'
