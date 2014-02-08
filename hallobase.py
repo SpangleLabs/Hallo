@@ -86,8 +86,16 @@ class hallobase():
         'Voice member in given channel, or current channel if no channel given, or command user if no member given. Format: voice <name> <channel>'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             if(len(args.split())>=2):
-                nick = args.split()[0]
-                channel = ''.join(args.split()[1:])
+                args = args.split()
+                args[1] = ''.join(args[1:])
+                if(args[0] in self.conf['server'][destination[0]]['channel']):
+                    channel = args[0]
+                    nick = args[1]
+                elif(args[1] in self.comf['server'][destination[0]]['channel']):
+                    channel = args[1]
+                    nick = args[0]
+                else:
+                    return 'Multiple arguments given, but neither are a valid channel.'
                 self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' +v ' + nick + endl).encode('utf-8'))
                 return 'Voice status given to ' + nick + ' in ' + channel + '.'
             elif(args.replace(' ','')!=''):
@@ -106,8 +114,16 @@ class hallobase():
     def fn_devoice(self,args,client,destination):
         'Voice member in given channel, or current channel if no channel given, or command user if no member given. Format: voice <name> <channel>'
         if(len(args.split())>=2):
-            nick = args.split()[0]
-            channel = ''.join(args.split()[1:])
+            args = args.split()
+            args[1] = ''.join(args[1:])
+            if(args[0] in self.conf['server'][destination[0]]['channel']):
+                channel = args[0]
+                nick = args[1]
+            elif(args[1] in self.comf['server'][destination[0]]['channel']):
+                channel = args[1]
+                nick = args[0]
+            else:
+                return 'Multiple arguments given, but neither are a valid channel.'
             if(nick.lower() == client.lower()):
                 self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' -v ' + nick + endl).encode('utf-8'))
                 return 'Voice status remove from ' + nick + ' in ' + channel + '.'
@@ -136,7 +152,7 @@ class hallobase():
             return 'Voice status taken.'
 
     def fn_roll(self, args, client, destination):
-        'Roll X-Y returns a random number between X and Y'
+        'Roll X-Y returns a random number between X and Y. Format: "roll <min>-<max>" or "roll <num>d<sides>"'
         if(args.count('-')==1):
             num = args.split('-')
             try:
