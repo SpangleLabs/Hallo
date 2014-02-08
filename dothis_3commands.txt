@@ -15,14 +15,15 @@ reconnect function
 weather function
 whether function
 
-currency convertor
-<~Jetstream> Hallo: conv 15.40 USD GBP
-<~Jetstream> deer-spangle: is this any use for you for Hallo? http://www.boxcontrol.net/write-simple-currency-converter-in-python.html#.UuVnlRDFKUk
-
 make it so he can give you a cocktail if you give him an ingredient
 
 wolfram alpha API integration. I have an AppID: XJA93W-225U2U4XKJ
 
-
 Bronyradio integration
- http://bronyradio.com/inc/merge.php
+http://bronyradio.com/inc/merge.php
+
+00:14:02 < deer-spangle> auto currency: https://blockchain.info/ticker
+
+00:14:35 < deer-spangle> pony countdown to next episode
+
+00:14:37 < deer-spangle> train times
