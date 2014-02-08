@@ -388,7 +388,7 @@ class ircbot_base:
                     list = args[1]
                     channel = args[0]
                 else:
-                return "That's not a valid list."
+                    return "That's not a valid list."
                 if(channel in self.conf['server'][destination[0]]['channel']):
                     if(destination[1]!=channel):
                         return "Here is the " + list + " swear list for " + channel + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()]) + "."
