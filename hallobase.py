@@ -205,7 +205,7 @@ class hallobase():
             return "Please give input in the form of X-Y or XdY."
 
     def fn_choose(self, args, client, destination):
-        'choose X, Y or Z or ... Returns one of the options separated by "or" or a comma.'
+        'Choose X, Y or Z or ... Returns one of the options separated by "or" or a comma. Format: choose <first_option>, <second_option> ... <n-1th option> or <nth option>'
         choices = re.compile(', | or ',re.IGNORECASE).split(args)
         numchoices = len(choices)
         if(numchoices==1):
@@ -342,7 +342,7 @@ class hallobase():
         return answer
 
     def fn_calc(self, args, client, destination):
-        'Calculate function, but written in python.'
+        'Calculate function, calculates the answer to mathematical expressions using custom built python scripts. Format: calc <calculation>'
         calc = args
         answer = 0
       ##check for equals signs
@@ -419,13 +419,13 @@ class hallobase():
                 return 'done.'
                 
     def fn_eightball(self,args,client,destination):
-        'Magic 8 ball.'
+        'Magic 8 ball. Format: eightball'
         responses = ['It is certain','It is decidedly so','Without a doubt','Yes definitely','You may rely on it','As I see it yes','Most likely','Outlook good','Yes','Signs point to yes','Reply hazy try again','Ask again later','Better not tell you now','Cannot predict now','Concentrate and ask again',"Don't count on it",'My reply is no','My sources say no','Outlook not so good','Very doubtful']
         rand = random.randint(0,len(responses)-1)
         return responses[rand] + "."
 
     def fn_chosen_one(self,args,client,destination):
-        'Specifies who the chosen one is.'
+        'Specifies who the chosen one is. Format: chosen_one'
         names = ircbot_chk.ircbot_chk.chk_names(self,destination[0],destination[1])
         tempnameslist = names
         nameslist = []
@@ -436,7 +436,7 @@ class hallobase():
         return 'It should be obvious by now that ' + nameslist[rand] + ' is the chosen one.'
 
     def fn_channels(self,args,client,destination):
-        'Hallo will tell you which channels he is in, ops only.'
+        'Hallo will tell you which channels he is in, ops only. Format: "channels" for channels on current server, "channels all" for all channels on all servers.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             if(args.lower()=='all'):
                 return "On all servers, I am on these channels: " + ', '.join(server + "-" + channel for server in self.conf['server'] for channel in self.conf['server'][server]['channel'] if self.conf['server'][server]['channel'][channel]['in_channel']) + "."
@@ -446,18 +446,18 @@ class hallobase():
             return "Sorry, this function is for gods only."
 
     def fn_am_i_registered(self,args,client,destination):
-        'Hallo checks if you are registered, tells you result.'
+        'Hallo checks if you are registered, tells you result. Format: am_i_registered'
         if(ircbot_chk.ircbot_chk.chk_userregistered(self,destination[0],client)):
             return "Yup, you are registered."
         else:
             return "It doesn't seem you are registered with nickserv right now."
 
     def fn_active_threads(self,args,client,destination):
-        'Returns current number of active threads.. should probably be gods only'
+        'Returns current number of active threads.. should probably be gods only, but it is not. Format: active_thread'
         return "I think I have " + str(threading.active_count()) + " active threads right now."
 
     def fn_in_space(self,args,client,destination):
-        'Returns the number of people in space right now, and their names.'
+        'Returns the number of people in space right now, and their names. Format: in_space'
         pagerequest = urllib.request.Request('http://www.howmanypeopleareinspacerightnow.com/space.json')
         pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
         pageopener = urllib.request.build_opener()
@@ -467,7 +467,7 @@ class hallobase():
         return "There are " + str(space['number']) + " people in space right now. Their names are: " + ', '.join(x['name'] for x in space['people']) + "."
 
     def fn_mute(self,args,client,destination):
-        'Mutes a given channel or current channel'
+        'Mutes a given channel or current channel. Format: mute <channel>'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             args = args.replace(' ','')
             if(args==''):
@@ -480,7 +480,7 @@ class hallobase():
             return "You have insufficient privileges to use this function."
 
     def fn_unmute(self,args,client,destination):
-        'Unmutes a given channel or current channel if none is given.'
+        'Unmutes a given channel or current channel if none is given. Format: unmute <channel>'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             args = args.replace(' ','')
             if(args==''):
@@ -493,7 +493,7 @@ class hallobase():
             return "You have insufficient privileges to use this function."
 
     def fn_staff(self,args,client,destination):
-        'Sends a message to all online staff members, and posts a message in the staff channel'
+        'Sends a message to all online staff members, and posts a message in the staff channel. Format: staff <message>'
         if(not ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             for admin in ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],self.conf['server'][destination[0]]['admininform']):
                 self.base_say(client + ' has sent a message to all staff members. The message is as follows: ' + args,[destination[0],admin])
@@ -501,13 +501,13 @@ class hallobase():
             return "Message delivered. A staff member will be in contact with you shortly. :)"
 
     def fn_avg(self,args,client,destination):
-        'finds the average of a list of numbers'
+        'finds the average of a list of numbers. Format: avg <number1> <number2> ... <number n-1> <number n>'
         numberlist = args.split()
         numbersum = sum(float(x) for x in numberlist)
         return "The average of " + ', '.join(numberlist) + " is: " + str(numbersum/float(len(numberlist))) + "."
 
     def fn_random_cocktail(self,args,client,destination):
-        'Delivers ingredients and recipes for a random cocktail.'
+        'Delivers ingredients and recipes for a random cocktail. Format: random_cocktail'
         cocktails = pickle.load(open('store/cocktails.p','rb'))
         number = random.randint(0,len(cocktails))
         cocktail = cocktails[number]
@@ -521,7 +521,7 @@ class hallobase():
         return output
 
     def fn_cocktail(self,args,client,destination):
-        'Returns ingredients and instructions for a given cocktail (or closest guess)'
+        'Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>'
         cocktails = pickle.load(open('store/cocktails.p','rb'))
         cocktailnames = []
         for cocktail in cocktails:
@@ -541,7 +541,7 @@ class hallobase():
             return "Closest I have is " + closest[0] + ". The ingredients are: " + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
 
     def fn_uptime(self,args,client,destination):
-        'Returns hardware uptime'
+        'Returns hardware uptime. Format: uptime'
         uptime = time.time()-psutil.get_boot_time()
         days = math.floor(uptime/86400)
         hours = math.floor((uptime-86400*days)/3600)
@@ -550,7 +550,7 @@ class hallobase():
         return "My current (hardware) uptime is " + str(days) + " days, " + str(hours) + " hours, " + str(minutes) + " minutes and " + str(seconds) + " seconds."
 
     def fn_convert(self,args,client,destination):
-        'converts values from one unit to another, format: "convert {value} {old unit} to {new unit}'
+        'converts values from one unit to another. Format: convert <value> <old unit> to <new unit>'
         args = args.lower()
         from_to = re.compile(' into | to | in |->',re.IGNORECASE).split(args)
         if(len(from_to)>2):
@@ -601,7 +601,7 @@ class hallobase():
         return str(value) + ' ' + unit_from + ' is ' + str(result) + ' ' + unit_to + "."
 
     def fn_convert_add_alias(self,args,client,destination):
-        'Add a new alias for a conversion unit. Format: convert_add_alias {name} {unit}'
+        'Add a new alias for a conversion unit. Format: convert_add_alias <name> <unit>'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             args = args.lower().split()
             name_a = args[0]
@@ -624,7 +624,7 @@ class hallobase():
             return "You have insufficient privileges to add a conversion alias."
 
     def fn_convert_del_alias(self,args,client,destination):
-        'Delete an alias for a conversion unit. Format: convert_del_alias {alias}'
+        'Delete an alias for a conversion unit. Format: convert_del_alias <alias>'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
                 convert = pickle.load(open('store/convert.p','rb'))
@@ -641,7 +641,7 @@ class hallobase():
             return "You have insufficient privileges to delete a conversion alias."
 
     def fn_convert_list_alias(self,args,client,destination):
-        'List all alaises, or all aliases of a given type if given. Format: convert_list_alias {type}'
+        'List all alaises, or all aliases of a given type if given. Format: convert_list_alias <type>'
         try:
             convert = pickle.load(open('store/convert.p','rb'))
         except:
@@ -657,7 +657,7 @@ class hallobase():
             return args + " is not a valid unit type."
 
     def fn_convert_add_unit(self,args,client,destination):
-        'Add a conversion unit. value in the default for that type. Format: convert_add_unit {type} {name} {value}'
+        'Add a conversion unit. value in the default for that type. Format: convert_add_unit <type> <name> <value>'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
                 convert = pickle.load(open('store/convert.p','rb'))
@@ -698,7 +698,7 @@ class hallobase():
             return "You have insufficient privileges to add a conversion unit."
 
     def fn_convert_del_unit(self,args,client,destination):
-        'Deletes a unit from conversion data, including all alises. Format: convert_del_unit {name}'
+        'Deletes a unit from conversion data, including all alises. Format: convert_del_unit <name>'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
                 convert = pickle.load(open('store/convert.p','rb'))
@@ -718,7 +718,7 @@ class hallobase():
             return "You have insufficient privileges to delete a conversion unit."
 
     def fn_convert_list_units(self,args,client,destination):
-        'Lists all units in conversion data or all units of a type, if given. Format: convert_list_units {type}'
+        'Lists all units in conversion data or all units of a type, if given. Format: convert_list_units <type>'
         try:
             convert = pickle.load(open('store/convert.p','rb'))
         except:
@@ -737,7 +737,7 @@ class hallobase():
             return "Invalid unit type."
 
     def fn_convert_add_type(self,args,client,destination):
-        'Adds a new conversion unit type and base unit. Format: convert_add_type {name} {base_unit}'
+        'Adds a new conversion unit type and base unit. Format: convert_add_type <name> <base_unit>'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
                 convert = pickle.load(open('store/convert.p','rb'))
@@ -756,7 +756,7 @@ class hallobase():
             return "You have insufficient privileges to add a new conversion unit type."
 
     def fn_convert_del_type(self,args,client,destination):
-        'Delete a conversion unit type and all associated units and aliases. Format: convert_del_type {type}'
+        'Delete a conversion unit type and all associated units and aliases. Format: convert_del_type <type>'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
                 convert = pickle.load(open('store/convert.p','rb'))
@@ -790,7 +790,7 @@ class hallobase():
             return 'Conversion unit types: ' + ', '.join([type + ' ( base unit: ' + convert['types'][type]['base_unit'] + ')' for type in convert['types']]) + "."
  
     def fn_convert_default_unit(self,args,client,destination):
-        'Returns the default unit for a given type. Format: convert_default_unit {type}'
+        'Returns the default unit for a given type. Format: convert_default_unit <type>'
         try:
             convert = pickle.load(open('store/convert.p','rb'))
         except:
@@ -801,7 +801,7 @@ class hallobase():
         return "The default unit for " + args + " is " + convert['types'][args]['base_unit'] + "."
 
     def fn_convert_unit_update(self,args,client,destination):
-        'Update the value of a conversion unit. Format: convert_unit_update {name} {value}'
+        'Update the value of a conversion unit. Format: convert_unit_update <name> <value>'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             try:
                 convert = pickle.load(open('store/convert.p','rb'))
