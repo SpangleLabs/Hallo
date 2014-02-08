@@ -2,9 +2,7 @@
 
 12:20:50 <@dr-spangle> -memory/time management thread?
 
-standardise fullstops at the end of all hallo's messages.
-add command format to all command help
-standardise underscores or not in hallo commands and conf variables
+add command format to all command help, standardise <> or {} for format arguments
 
 08:41:32 < dr-spangle> -make it so ops can be defined by channel, and their op powers can only modify those channels
 08:49:50 < dr-spangle> -admininform lists by channel, so channel swears only go to one channel's list, also privmsgs
@@ -12,3 +10,5 @@ standardise underscores or not in hallo commands and conf variables
 move base_function out of base_parse to a new thing.
 
 check which import modules in each module are needed, remove those which are not. comment those which are saying where they are.
+
+split functions off of ircbot_base and hallobase, maybe hallobase_silly. do linecounts on all files (or 'def' counts)

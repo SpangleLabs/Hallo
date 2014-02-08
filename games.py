@@ -72,7 +72,7 @@ class games():
             args = int(args)
         except:
             return "Invalid timestamp"
-        return games.fnn_date(self,args)
+        return games.fnn_date(self,args) + "."
 
     def fn_random_card(self,args,client,destination):
         'Picks a random card from a deck.'
@@ -89,7 +89,7 @@ class games():
             game_name = game
             if('game_name' in self.conf['highscores'][game]):
                 game_name = self.conf['highscores'][game]['game_name']
-            output = output + game_name + "> Score: " + str(self.conf['highscores'][game]['score']) + ", Player: " + self.conf['highscores'][game]['name'] + ", Date: " + games.fnn_date(self,self.conf['highscores'][game]['date']) + "\n"
+            output = output + game_name + "> Score: " + str(self.conf['highscores'][game]['score']) + ", Player: " + self.conf['highscores'][game]['name'] + ", Date: " + games.fnn_date(self,self.conf['highscores'][game]['date']) + ".\n"
         return output
 
     def fn_higher_or_lower(self,args,client,destination):
@@ -116,7 +116,7 @@ class games():
                 self.games['server'][destination[0]]['player'][client]['higher_or_lower']['last_card'] = first_card
                 self.games['server'][destination[0]]['player'][client]['higher_or_lower']['cards'] = [first_card]
                 self.games['server'][destination[0]]['player'][client]['higher_or_lower']['turns'] = 1
-                return "You have started a game of higher or lower. Your first card is: " + games.fnn_cardname(self,first_card)
+                return "You have started a game of higher or lower. Your first card is: " + games.fnn_cardname(self,first_card) + "."
         elif(args.lower()=='lower'):
             if(client in self.games['server'][destination[0]]['player'] and 'higher_or_lower' in self.games['server'][destination[0]]['player'][client]):
                 next_card = games.fnn_randcard(self,self.games['server'][destination[0]]['player'][client]['higher_or_lower']['cards'])
@@ -143,7 +143,7 @@ class games():
                         self.conf['highscores']['higher_or_lower'] = {}
                     if('score' not in self.conf['highscores']['higher_or_lower'] or turns>self.conf['highscores']['higher_or_lower']['score']):
                         if('score' in self.conf['highscores']['higher_or_lower']):
-                            previous_score = " (previous highscore was: " + str(self.conf['highscores']['higher_or_lower']['score']) + " cards, set by " + self.conf['highscores']['higher_or_lower']['name'] + " " + games.fnn_date(self,self.conf['highscores']['higher_or_lower']['date']) + ")"
+                            previous_score = " (previous highscore was: " + str(self.conf['highscores']['higher_or_lower']['score']) + " cards, set by " + self.conf['highscores']['higher_or_lower']['name'] + " " + games.fnn_date(self,self.conf['highscores']['higher_or_lower']['date']) + ".)"
                         else:
                             previous_score = ""
                         self.conf['highscores']['higher_or_lower']['game_name'] = 'Higher or lower'
@@ -181,7 +181,7 @@ class games():
                         self.conf['highscores']['higher_or_lower'] = {}
                     if('score' not in self.conf['highscores']['higher_or_lower'] or turns>self.conf['highscores']['higher_or_lower']['score']):
                         if('score' in self.conf['highscores']['higher_or_lower']):
-                            previous_score = " (previous highscore was: " + str(self.conf['highscores']['higher_or_lower']['score']) + " cards, set by " + self.conf['highscores']['higher_or_lower']['name'] + " " + games.fnn_date(self,self.conf['highscores']['higher_or_lower']['date']) + ")"
+                            previous_score = " (previous highscore was: " + str(self.conf['highscores']['higher_or_lower']['score']) + " cards, set by " + self.conf['highscores']['higher_or_lower']['name'] + " " + games.fnn_date(self,self.conf['highscores']['higher_or_lower']['date']) + ".)"
                         else:
                             previous_score = ""
                         self.conf['highscores']['higher_or_lower']['game_name'] = 'Higher or lower'
@@ -203,9 +203,9 @@ class games():
                     self.conf['highscores']['higher_or_lower'] = {}
                 if('score' not in self.conf['highscores']['higher_or_lower'] or turns>self.conf['highscores']['higher_or_lower']['score']):
                     if('score' in self.conf['highscores']['higher_or_lower']):
-                        previous_score = " (previous highscore was: " + str(self.conf['highscores']['higher_or_lower']['score']) + " cards, set by " + self.conf['highscores']['higher_or_lower']['name'] + " " + games.fnn_date(self,self.conf['highscores']['higher_or_lower']['date']) + ")"
+                        previous_score = " (previous highscore was: " + str(self.conf['highscores']['higher_or_lower']['score']) + " cards, set by " + self.conf['highscores']['higher_or_lower']['name'] + " " + games.fnn_date(self,self.conf['highscores']['higher_or_lower']['date']) + ".)"
                     else:
-                        previous_score = ""
+                        previous_score = "."
                     self.conf['highscores']['higher_or_lower']['game_name'] = 'Higher or lower'
                     self.conf['highscores']['higher_or_lower']['score'] = turns
                     self.conf['highscores']['higher_or_lower']['name'] = client

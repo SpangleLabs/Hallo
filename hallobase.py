@@ -114,7 +114,7 @@ class hallobase():
                         self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + args + endl).encode('utf-8'))
                         return 'Voice status taken from ' + args + '.'
                     else:
-                        return 'Insufficient privileges to remove voice status'
+                        return 'Insufficient privileges to remove voice status.'
         else:
             self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + client + endl).encode('utf-8'))
             return 'Voice status taken.'
@@ -170,7 +170,7 @@ class hallobase():
             else:
                 return "You need to roll more than zero dice with more than zero sides. (Was it ari again who did that? or zephyr?)"
         else:
-            return "Please give input in the form of X-Y or XdY"
+            return "Please give input in the form of X-Y or XdY."
 
     def fn_choose(self, args, client, destination):
         'choose X, Y or Z or ... Returns one of the options separated by "or" or a comma.'
@@ -181,7 +181,7 @@ class hallobase():
         else:
            rand = random.randint(0,numchoices-1)
            choice = choices[rand]
-           return 'I choose "' + choice + '"'
+           return 'I choose "' + choice + '".'
 
     def fnn_calc_after(self, calc, sub):
         pos = calc.find(str(sub))
@@ -310,7 +310,7 @@ class hallobase():
         return answer
 
     def fn_calc(self, args, client, destination):
-        'Calc function, but written in python'
+        'Calculate function, but written in python.'
         calc = args
         answer = 0
       ##check for equals signs
@@ -348,12 +348,12 @@ class hallobase():
                 answer = hallobase.fnn_calc_process(self,calc)
             else:
                 answer = hallobase.fnn_calc_preflight(self,calc)
-        return answer
+        return answer + "."
 
     def fn_boop(self,args,client,destination):
-        'Boops people'
+        'Boops people. Format: boop <name>'
         if(args==''):
-            return "This function boops people, as such you need to specify a person for me to boop, in the form 'Hallo boop <name>' but without the <> brackets"
+            return "This function boops people, as such you need to specify a person for me to boop, in the form 'Hallo boop <name>' but without the <> brackets."
         args = args.split()
         if(len(args)>=2):
             if(args[0][0]=='#'):
@@ -390,7 +390,7 @@ class hallobase():
         'Magic 8 ball.'
         responses = ['It is certain','It is decidedly so','Without a doubt','Yes definitely','You may rely on it','As I see it yes','Most likely','Outlook good','Yes','Signs point to yes','Reply hazy try again','Ask again later','Better not tell you now','Cannot predict now','Concentrate and ask again',"Don't count on it",'My reply is no','My sources say no','Outlook not so good','Very doubtful']
         rand = random.randint(0,len(responses)-1)
-        return responses[rand]
+        return responses[rand] + "."
 
     def fn_chosen_one(self,args,client,destination):
         'Specifies who the chosen one is.'
@@ -432,7 +432,7 @@ class hallobase():
         pageinfo = str(pageopener.open(pagerequest).info())
         code = pageopener.open(pagerequest).read()
         space = json.loads(code.decode('utf-8'))
-        return "There are " + str(space['number']) + " people in space right now. Their names are: " + ', '.join(x['name'] for x in space['people'])
+        return "There are " + str(space['number']) + " people in space right now. Their names are: " + ', '.join(x['name'] for x in space['people']) + "."
 
     def fn_mute(self,args,client,destination):
         'Mutes a given channel or current channel'
@@ -443,7 +443,7 @@ class hallobase():
                 return "Muted the channel."
             else:
                 self.core['server'][destination[0]]['socket'].send(('MODE ' + args + ' +m ' + endl).encode('utf-8'))
-                return "Muted " + args
+                return "Muted " + args + "."
         else:
             return "You have insufficient privileges to use this function."
 
@@ -472,7 +472,7 @@ class hallobase():
         'finds the average of a list of numbers'
         numberlist = args.split()
         numbersum = sum(float(x) for x in numberlist)
-        return "The average of " + ', '.join(numberlist) + " is: " + str(numbersum/float(len(numberlist)))
+        return "The average of " + ', '.join(numberlist) + " is: " + str(numbersum/float(len(numberlist))) + "."
 
     def fn_random_cocktail(self,args,client,destination):
         'Delivers ingredients and recipes for a random cocktail.'
@@ -484,6 +484,8 @@ class hallobase():
         for ingredient in cocktail['ingredients']:
             ingredients.append(ingredient[0] + ingredient[1])
         output = output + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
+        if(output[-1]!='.'):
+            output = output + "."
         return output
 
     def fn_cocktail(self,args,client,destination):
@@ -502,6 +504,8 @@ class hallobase():
             ingredients = []
             for ingredient in cocktail['ingredients']:
                 ingredients.append(ingredient[0] + ingredient[1])
+            if(cocktail['instructions'][-1]!='.'):
+                cocktail['instructions'] = cocktail['instructions'] + "."
             return "Closest I have is " + closest[0] + ". The ingredients are: " + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
 
     def fn_uptime(self,args,client,destination):
@@ -562,7 +566,7 @@ class hallobase():
         if(convert['units'][unit_to]['type'] != convert['units'][unit_from]['type']):
             return 'These units are not of the same type, a conversion cannot be made.'
         result = value*convert['units'][unit_from]['value']/convert['units'][unit_to]['value']
-        return str(value) + ' ' + unit_from + ' is ' + str(result) + ' ' + unit_to
+        return str(value) + ' ' + unit_from + ' is ' + str(result) + ' ' + unit_to + "."
 
     def fn_convert_add_alias(self,args,client,destination):
         'Add a new alias for a conversion unit. Format: convert_add_alias {name} {unit}'
@@ -577,15 +581,15 @@ class hallobase():
             if(name_a in convert['units']):
                 convert['alias'][name_b] = name_a
                 pickle.dump(convert,open('store/convert.p','wb'))
-                return "Set " + name_b + " as an alias to " + name_a
+                return "Set " + name_b + " as an alias to " + name_a + "."
             elif(name_b in convert['units']):
                 convert['alias'][name_a] = name_b
                 pickle.dump(convert,open('store/convert.p','wb'))
-                return "Set " + name_a + " as an alias to " + name_b
+                return "Set " + name_a + " as an alias to " + name_b + "."
             else:
                 return "Neither " + name_a + " nor " + name_b + " seem to be known units."
         else:
-            return "You have insufficient privileges to add a conversion alias"
+            return "You have insufficient privileges to add a conversion alias."
 
     def fn_convert_del_alias(self,args,client,destination):
         'Delete an alias for a conversion unit. Format: convert_del_alias {alias}'
@@ -612,13 +616,13 @@ class hallobase():
             return "Could not load conversion data."
         args = args.lower()
         if(args.replace(' ','') == ''):
-            return "All conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias']])
+            return "All conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias']]) + "."
         elif(args in convert['types']):
-            return args + " conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias'] if convert['units'][convert['alias'][alias]]['type'] == args])
+            return args + " conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias'] if convert['units'][convert['alias'][alias]]['type'] == args]) + "."
         elif(args in convert['units']):
-            return args + " aliases: " + ', '.join([alias + '->' + args for alias in convert['alias'] if convert['alias'][alias] == args])
+            return args + " aliases: " + ', '.join([alias + '->' + args for alias in convert['alias'] if convert['alias'][alias] == args]) + "."
         else:
-            return args + " is not a valid unit type"
+            return args + " is not a valid unit type."
 
     def fn_convert_add_unit(self,args,client,destination):
         'Add a conversion unit. value in the default for that type. Format: convert_add_unit {type} {name} {value}'
@@ -629,7 +633,7 @@ class hallobase():
                 return "Could not load conversion data."
             args = args.lower()
             if(len(args.split()) < 3):
-                return "Incorrect number of arguments, format is: convert_add_unit {type} {name} {value}"
+                return "Incorrect number of arguments, format is: convert_add_unit {type} {name} {value}."
             args = args.split()
             args[2] = ''.join(args[2:])
             if(args[0] in convert['types']):
@@ -657,7 +661,7 @@ class hallobase():
             convert['units'][name]['type'] = type
             convert['units'][name]['value'] = value
             pickle.dump(convert,open('store/convert.p','wb'))
-            return "Added " + name + " as a " + type + " unit, with a value of " + str(value) + " " + convert['types'][type]['base_unit']
+            return "Added " + name + " as a " + type + " unit, with a value of " + str(value) + " " + convert['types'][type]['base_unit'] + "."
         else:
             return "You have insufficient privileges to add a conversion unit."
 
@@ -689,14 +693,14 @@ class hallobase():
             return "Could not load conversion data."
         args = args.lower()
         if(args.replace(' ','') == ''):
-            return 'all available units: ' + ', '.join([unit + ' (' + convert['units'][unit]['type'] + ' unit, =' + str(convert['units'][unit]['value']) + convert['types'][convert['units'][unit]['type']]['base_unit'] + ')' for unit in convert['units']])
+            return 'all available units: ' + ', '.join([unit + ' (' + convert['units'][unit]['type'] + ' unit, =' + str(convert['units'][unit]['value']) + convert['types'][convert['units'][unit]['type']]['base_unit'] + ')' for unit in convert['units']]) + "."
         elif(args.split()[0] in convert['types']):
             if(len(args.split())>1 and args.split()[1] == 'simple'):
-                return 'Simplified list of ' + args.split()[0] + ' units: ' + ', '.join([unit for unit in convert['units'] if convert['units'][unit]['type'] == args.split()[0]])
+                return 'Simplified list of ' + args.split()[0] + ' units: ' + ', '.join([unit for unit in convert['units'] if convert['units'][unit]['type'] == args.split()[0]]) + "."
             else:
-                return 'List of' + args.split()[0] + ' units: ' + ', '.join([unit + ' (=' + str(convert['units'][unit]['value']) + convert['types'][convert['units'][unit]['type']]['base_unit'] + ')' for unit in convert['units'] if convert['units'][unit]['type'] == args.split()[0]])
+                return 'List of' + args.split()[0] + ' units: ' + ', '.join([unit + ' (=' + str(convert['units'][unit]['value']) + convert['types'][convert['units'][unit]['type']]['base_unit'] + ')' for unit in convert['units'] if convert['units'][unit]['type'] == args.split()[0]]) + "."
         elif(args == 'simple'):
-            return 'Simplified list of available units: ' + ', '.join([unit for unit in convert['units']])
+            return 'Simplified list of available units: ' + ', '.join([unit for unit in convert['units']]) + "."
         else:
             return "Invalid unit type."
 
@@ -737,7 +741,7 @@ class hallobase():
                         if(convert['alias'][alias] == unit):
                             del convert['alias'][alias]
             pickle.dump(convert,open('store/convert.p','wb'))
-            return "Deleted " + type + " unit type and all associated units and aliases"
+            return "Deleted " + type + " unit type and all associated units and aliases."
         else:
             return "You have insufficient privileges to delete a conversion unit type."
 
@@ -749,9 +753,9 @@ class hallobase():
             return "Could not load conversion data."
         args = args.lower()
         if(args == 'simple'):
-            return 'Conversion unit types: ' + ', '.join([type for type in convert['types']])
+            return 'Conversion unit types: ' + ', '.join([type for type in convert['types']]) + "."
         else:
-            return 'Conversion unit types: ' + ', '.join([type + ' ( base unit: ' + convert['types'][type]['base_unit'] + ')' for type in convert['types']])
+            return 'Conversion unit types: ' + ', '.join([type + ' ( base unit: ' + convert['types'][type]['base_unit'] + ')' for type in convert['types']]) + "."
  
     def fn_convert_default_unit(self,args,client,destination):
         'Returns the default unit for a given type. Format: convert_default_unit {type}'
@@ -762,7 +766,7 @@ class hallobase():
         args = args.lower()
         if(args not in convert['types']):
             return args + " is not a valid conversion unit type."
-        return "The default unit for " + args + " is " + convert['types'][args]['base_unit']
+        return "The default unit for " + args + " is " + convert['types'][args]['base_unit'] + "."
 
     def fn_convert_unit_update(self,args,client,destination):
         'Update the value of a conversion unit. Format: convert_unit_update {name} {value}'
@@ -786,7 +790,7 @@ class hallobase():
                 return "No valid value given."
             convert['units'][unit]['value'] = value
             pickle.dump(convert,open('store/convert.p','wb'))
-            return "Value for " + unit + " set to " + str(value) + " " + convert['types'][convert['units'][unit]['type']]['base_unit']
+            return "Value for " + unit + " set to " + str(value) + " " + convert['types'][convert['units'][unit]['type']]['base_unit'] + "."
         else:
             return "You have insufficient privileges to update the value of a conversion unit."
 

@@ -131,7 +131,7 @@ class passive():
                         img_sizestr = str(math.floor(float(img_size)/10.24)/100) + "KiB"
                     else:
                         img_sizestr = str(math.floor(float(img_size)/(1024*10.24))/100) + "MiB"
-                    return "Imgur album> Album title: " + title + " | Gallery views: " + views + " | Image " + pic_number + " of " + album_count + " | Current image: " + img_width + "x" + img_height + ", " + img_sizestr
+                    return "Imgur album> Album title: " + title + " | Gallery views: " + views + " | Image " + pic_number + " of " + album_count + " | Current image: " + img_width + "x" + img_height + ", " + img_sizestr + "."
                 else:
                     if(url[-4:] in ['.png','.jpg','.gif']):
                         code = url.split('/')[-1].split('.')[0]
@@ -162,7 +162,7 @@ class passive():
                         views = re.search('<span id="views">([0-9,]*)</span>',code).group(1)
                     else:
                         views = re.search('"views":([0-9]*),',code).group(1)
-                    return "Imgur> Title: " + title + " | Size: " + img_width + "x" + img_height + " | Filesize: " + img_sizestr + " | Views: " + views
+                    return "Imgur> Title: " + title + " | Size: " + img_width + "x" + img_height + " | Filesize: " + img_sizestr + " | Views: " + views + "."
             elif("image" in pagetype):
                 code = pageopener.open(pagerequest).read()
                 image_file = io.BytesIO(code)
@@ -177,7 +177,7 @@ class passive():
                     filesizestr = str(math.floor(float(filesize)/(1024*10.24))/100) + "MiB"
                 else:
                     filesizestr = str(math.floor(float(filesize)/(1024*1024*10.24))/100) + "GiB"
-                return "Image: " + pagetype + " (" + str(image_width) + "px by " + str(image_height) + "px) " + filesizestr
+                return "Image: " + pagetype + " (" + str(image_width) + "px by " + str(image_height) + "px) " + filesizestr + "."
             elif('youtube.com' in url or 'youtu.be' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
                 length = re.search('length_seconds": ([0-9]*)', code).group(1)
@@ -187,7 +187,7 @@ class passive():
                 title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split())
                 h = html.parser.HTMLParser()
                 title = h.unescape(title)
-                return "Youtube video> Title: " + title + " | Length: " + length_str + " | Views: " + views
+                return "Youtube video> Title: " + title + " | Length: " + length_str + " | Views: " + views + "."
             elif('amazon.co.uk' in url or 'amazon.com' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
                 title = re.search('<title>([^<]*)</title>',code).group(1)
@@ -198,7 +198,7 @@ class passive():
                     stars = re.search('<span>([0-9.]*) out of 5 stars',code).group(1)
                     reviews = re.search('>([0-9]*) customer reviews',code).group(1)
                     reviewstr = stars + "/5 stars, from " + reviews + " reviews"
-                return "Amazon> Title: " + title + " | Price: " + price + " | " + reviewstr
+                return "Amazon> Title: " + title + " | Price: " + price + " | " + reviewstr + "."
             elif('ebay.co.uk' in url or 'ebay.com' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
                 title = re.search('<meta property="og:title" content="([^"]*)">',code).group(1)
@@ -215,7 +215,7 @@ class passive():
                         type = type + ", " + bids + "bids."
                     time_left = re.search('id="vi-cdown_timeLeft">([^<]*)<',code).group(1)
                 #time left
-                return "eBay> Title: " + title + " | " + type + " | Time left: " + time_left
+                return "eBay> Title: " + title + " | " + type + " | Time left: " + time_left + "."
             elif('imdb.com/title' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8')
                 movie_code = re.search('title/(tt[0-9]*)',code).group(1)
@@ -230,7 +230,7 @@ class passive():
                 genre = api_dict['Genre']
                 rating = api_dict['imdbRating']
                 votes = api_dict['imdbVotes']
-                return "IMDB> Title: " + title + " (" + year + ") | Rated " + rating + "/10, " + votes + " votes. | Genres: " + genre 
+                return "IMDB> Title: " + title + " (" + year + ") | Rated " + rating + "/10, " + votes + " votes. | Genres: " + genre  + "."
             else:
                 code = pageopener.open(pagerequest).read(4096).decode('utf-8','ignore')
                 if(code.count('</title>')>=1):
@@ -264,7 +264,7 @@ class passive():
             message = client + ': ' + hallobase_silly.hallobase_silly.fn_bestpony(self,args,client,destination)
             return str(message)
         elif(args.lower().find("open") >= 0 and (args.lower().find("pod bay") >=0 or args.lower().find("podbay") >=0) and args.lower().find("door") >= 0):
-            message = "I'm sorry " + client + ", but I'm afraid I can't do that"
+            message = "I'm sorry " + client + ", but I'm afraid I can't do that."
             return message
         elif(("irc client" in args.lower() or "irc program" in args.lower() or "chat client" in args.lower()) and ("which" in args.lower() or "what" in args.lower()) and ("get" in args.lower() or "use" in args.lower())):
             message = "For windows: Hexchat is a good irc client. Try http://hexchat.org For mac: Colloquy is a good choice http://colloquy.info/ For linux: xchat (for a graphical interface) http://xchat.org or for command line linux: irssi http://irssi.org Or for a web client, try http://mibbit.com"
@@ -282,8 +282,8 @@ class passive():
             pass
 
     def fnn_beep(self,args,client,destination):
-        call(["beep"])
+        #call(["beep"])
         return "boop"
 
     def fnn_pew(self,args,client,destination):
-        return "pew pew"
+        return "pew pew."

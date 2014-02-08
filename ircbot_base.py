@@ -121,7 +121,7 @@ class ircbot_base:
                 self.conf['server'][title]['pingdiff'] = 600
                 self.conf['server'][title]['connected'] = False
             Thread(target=self.base_run, args=(title,)).start()
-            return "Connected to " + args + " [" + title + "]"
+            return "Connected to " + args + " [" + title + "]."
         else:
             return "Insufficient privileges to connect to a new server."
 
@@ -164,7 +164,7 @@ class ircbot_base:
     def fn_god_list(self,args,client,destination):
         'Lists godlist for this server. Requires godmode'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            return "Godlist for this server: " + ', '.join(self.conf['server'][destination[0]]['gods'])
+            return "Godlist for this server: " + ', '.join(self.conf['server'][destination[0]]['gods']) + "."
         else:
             return "Insufficient privileges to list godlist."
 
@@ -174,9 +174,9 @@ class ircbot_base:
             args = args.replace(' ','').lower()
             if(args in self.conf['server'][destination[0]]['gods']):
                 self.conf['server'][destination[0]]['gods'].remove(args)
-                return "Removed " + args + " from godlist"
+                return "Removed " + args + " from godlist."
             else:
-                return "That person isn't even in the godlist"
+                return "That person isn't even in the godlist."
         else:
             return "Insufficient privileges to remove someone from godlist."
 
@@ -198,7 +198,7 @@ class ircbot_base:
     def fn_ops_list(self,args,client,destination):
         'Lists ops list for this server. Requires godmode.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            return "Ops list for this server: " + ', '.join(self.conf['server'][destination[0]]['ops'])
+            return "Ops list for this server: " + ', '.join(self.conf['server'][destination[0]]['ops']) + "."
         else:
             return "Insufficient privileges list ops for this server."
 
@@ -227,11 +227,11 @@ class ircbot_base:
                     self.conf['server'][destination[0]]['channel'][channel]['voice_list'].append(args)
                     if(ircbot_chk.ircbot_chk.chk_userregistered(self,destination[0],args)):
                         self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' +v ' + args + endl).encode('utf-8'))
-                    return "Added " + args + " to the pseudoautovoice list for " + channel
+                    return "Added " + args + " to the pseudoautovoice list for " + channel + "."
                 else:
                     return "It seems that " + args + " isn't a registered nick."
             else:
-                return args + " is already on my pseudo-auto-voice list for " + channel
+                return args + " is already on my pseudo-auto-voice list for " + channel + "."
         else:
             return "Sorry, this function is for ops only."
 
@@ -240,7 +240,7 @@ class ircbot_base:
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             if(args==''):
                 args = destination[1]
-            return "Users on pseudoautovoice list for " + args + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][args]['voice_list'])
+            return "Users on pseudoautovoice list for " + args + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][args]['voice_list']) + "."
         else:
             return "Sorry, this function is for ops only."
 
@@ -254,9 +254,9 @@ class ircbot_base:
                 args = args.split()[0]
             if(args in self.conf['server'][destination[0]]['channel'][channel]['voice_list']):
                 self.conf['server'][destination[0]]['channel'][channel]['voice_list'].remove(args)
-                return "Removed " + args + " from pseudo-auto-voice list for " + channel
+                return "Removed " + args + " from pseudo-auto-voice list for " + channel + "."
             else:
-                return args + " isn't even on the autovoice list for " + channel
+                return args + " isn't even on the autovoice list for " + channel + "."
         else:
             return "Sorry, this function is for ops only."
 
@@ -268,14 +268,14 @@ class ircbot_base:
                 self.conf['server'][destination[0]]['admininform'].append(args)
                 return "Added " + args + " to the admininform list."
             else:
-                return "This person is already on the admininform list"
+                return "This person is already on the admininform list."
         else:
             return "Sorry, this function is for ops only."
 
     def fn_admin_inform_list(self,args,client,destination):
         'Lists users who are informed when sweardetect detects swearing.'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            return "Users on admininform for this server: " + ', '.join(self.conf['server'][destination[0]]['admininform'])
+            return "Users on admininform for this server: " + ', '.join(self.conf['server'][destination[0]]['admininform']) + "."
         else:
             return "Sorry, this function is for ops only."
 
@@ -285,9 +285,9 @@ class ircbot_base:
             args = args.lower().replace(' ','')
             if(args in self.conf['server'][destination[0]]['admininform']):
                 self.conf['server'][destination[0]]['admininform'].remove(args)
-                return "Removed " + args + " from admininform list"
+                return "Removed " + args + " from admininform list."
             else:
-                return args + " isn't even on the admininform list for " + destination[0]
+                return args + " isn't even on the admininform list for " + destination[0] + "."
         else:
             return "Sorry, this function is for ops only."
 
@@ -309,7 +309,7 @@ class ircbot_base:
         'List users on the ignore list for this channel. Ops only.'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             if('ignore_list' in self.conf['server'][destination[0]]['channel'][destination[1]]):
-                return "Users on ignore list for this channel: " + ', '.join(self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'])
+                return "Users on ignore list for this channel: " + ', '.join(self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list']) + "."
             else:
                 return "There is no ignore list for this channel."
         else:
@@ -322,9 +322,9 @@ class ircbot_base:
             if('ignore_list' in self.conf['server'][destination[0]]['channel'][destination[1]]):
                 if(args in self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list']):
                     self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'].remove(args)
-                    return "Removed " + args + " from the ignore list"
+                    return "Removed " + args + " from the ignore list."
                 else:
-                    return args + " isn't even on the ignore list for " + destination[0]
+                    return args + " isn't even on the ignore list for " + destination[0] + "."
             else:
                 return "There isn't even an ignore list for this channel."
         else:
@@ -338,9 +338,9 @@ class ircbot_base:
                 self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'] = []
             if(args in self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list']):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'].remove(args)
-                return "Removed " + args + " from ignore list"
+                return "Removed " + args + " from ignore list."
             else:
-                return args + " isn't even on the ignore list for " + destination[1] + " on " + destination[0]
+                return args + " isn't even on the ignore list for " + destination[1] + " on " + destination[0] + "."
         else:
             return "Sorry, this function is for ops only."
 
@@ -360,7 +360,7 @@ class ircbot_base:
                     list = args[2].lower()
                     del args[2]
                 else:
-                    return "No valid lists given. Valid lists are 'possible', 'inform' or 'comment'"
+                    return "No valid lists given. Valid lists are 'possible', 'inform' or 'comment'."
                 if(args[0].lower() in self.conf['server'][destination[0]]['channel']):
                     channel = args[0].lower()
                     regex = args[1]
@@ -372,7 +372,7 @@ class ircbot_base:
                 self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()].append(regex)
                 return "Added " + regex + " to " + list + " swear list for " + channel + "."
             else:
-                return "Not enough arguments, remember to provide me with a list, then channel, then the regex for the swear you want to add. Lists are either 'possible', 'inform' or 'comment'"
+                return "Not enough arguments, remember to provide me with a list, then channel, then the regex for the swear you want to add. Lists are either 'possible', 'inform' or 'comment'."
         else:
             return "Sorry, this function is for ops only."
 
@@ -388,16 +388,16 @@ class ircbot_base:
                     list = args[1]
                     channel = args[0]
                 else:
-                return "That's not a valid list"
+                return "That's not a valid list."
                 if(channel in self.conf['server'][destination[0]]['channel']):
                     if(destination[1]!=channel):
-                        return "Here is the " + list + " swear list for " + channel + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()])
+                        return "Here is the " + list + " swear list for " + channel + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()]) + "."
                     else:
                         return "I'm not printing a swear list in a channel."
                 else:
                     return "I'm not even in that channel."
             else:
-                return "That's not enough arguments, remember to provide me with a list, then a channel. Lists are either 'possible', 'inform' or 'comment'"
+                return "That's not enough arguments, remember to provide me with a list, then a channel. Lists are either 'possible', 'inform' or 'comment'."
         else:
             return "Sorry, this function is for ops only."
 
@@ -417,7 +417,7 @@ class ircbot_base:
                     list = args[2]
                     del args[2]
                 else:
-                    return "That's not a valid list. Valid lists are 'possible', 'inform' or 'comment'"
+                    return "That's not a valid list. Valid lists are 'possible', 'inform' or 'comment'."
                 if(args[0] in self.conf['server'][destination[0]]['channel']):
                     channel = args[0]
                     regex = args[1]
@@ -443,7 +443,7 @@ class ircbot_base:
             message = ' '.join(args.split()[1:])
             if(channel in self.conf['server'][destination[0]]['channel']):
                 self.conf['server'][destination[0]]['channel'][channel]['swearlist']['commentmsg'] = message
-                return "Set swear comment message to: " + message
+                return "Set swear comment message to: " + message + "."
             else:
                 return "I'm not in that channel."
         else:
@@ -457,14 +457,14 @@ class ircbot_base:
                 self.conf['nickserv']['registered'].append(args)
                 return "Added " + args + " to the nickserv registered list."
             else:
-                return "This message is already on the nickserv registered list"
+                return "This message is already on the nickserv registered list."
         else:
             return "Sorry, this function is for gods only."
 
     def fn_nickserv_registered_list(self,args,client,destination):
         'Lists all the nickserv messages to look for when checking if a nick is registered.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            return "Nick registered nickserv messages: " + ', '.join(self.conf['nickserv']['registered'])
+            return "Nick registered nickserv messages: " + ', '.join(self.conf['nickserv']['registered']) + "."
         else:
             return "Sorry, this function is for gods only."
 
@@ -488,14 +488,14 @@ class ircbot_base:
                 self.conf['nickserv']['online'].append(args)
                 return "Added " + args + " to the nickserv online list."
             else:
-                return "This message is already on the nickserv online list"
+                return "This message is already on the nickserv online list."
         else:
             return "Sorry, this function is for gods only."
 
     def fn_nickserv_online_list(self,args,client,destination):
         'Lists all the nickserv messages to look for when checking if a nick is online.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            return "Nick online nickserv messages: " + ', '.join(self.conf['nickserv']['online'])
+            return "Nick online nickserv messages: " + ', '.join(self.conf['nickserv']['online']) + "."
         else:
             return "Sorry, this function is for gods only."
 
@@ -507,7 +507,7 @@ class ircbot_base:
                 self.conf['nickserv']['online'].remove(args)
                 return "Removed " + args + " from nickserv online list."
             else:
-                return "This message isn't even on the nickserv online list"
+                return "This message isn't even on the nickserv online list."
         else:
             return "Sorry, this function is for gods only."
 
@@ -516,14 +516,14 @@ class ircbot_base:
         'Sets address for a given server. Requires godmode.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             if(len(args.split())!=2):
-                return "Please give two inputs, the server name first, then the server's address"
+                return "Please give two inputs, the server name first, then the server's address."
             else:
                 if(args.split()[0] in self.conf['server']):
                     self.base_say("Changed " + args.split()[0] + " address to: " + args.split()[1],destination)
                     self.core['server'][args.split()[0]]['lastping'] = 1
                     return "Changed " + args.split()[0] + " address to: " + args.split()[1]
                 else:
-                    return "I don't have a server in config called " + args.split()[0]
+                    return "I don't have a server in config called " + args.split()[0] + "."
         else:
             return "Insufficient privileges to change a server address."
 
@@ -531,14 +531,14 @@ class ircbot_base:
         'Sets port for a given server. Requires godmode.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             if(len(args.split())!=2):
-                return "Please give two inputs, the server name first, then the server's port"
+                return "Please give two inputs, the server name first, then the server's port."
             else:
                 if(args.split()[0] in self.conf['server']):
                     self.base_say("Changed " + args.split()[0] + " port to: " + args.split()[1],destination)
                     self.core['server'][args.split()[0]]['lastping'] = 1
-                    return "Changed " + args.split()[0] + " port to: " + args.split()[1]
+                    return "Changed " + args.split()[0] + " port to: " + args.split()[1] + "."
                 else:
-                    return "I don't have a server in config called " + args.split()[0]
+                    return "I don't have a server in config called " + args.split()[0] + "."
         else:
             return "Insufficient privileges to change a server port."
 
@@ -551,9 +551,9 @@ class ircbot_base:
             self.core['server'][destination[0]]['socket'].send(('NICK ' + args + endl).encode('utf-8'))
             if(self.conf['server'][destination[0]]['pass'] != False):
                 self.base_say('identify ' + self.conf['server'][destination[0]]['pass'],[destination[0],'nickserv'])
-            return "Changed nick from " + oldnick + " to " + args
+            return "Changed nick from " + oldnick + " to " + args + "."
         else:
-            return "Insufficient privileges to change nickname"
+            return "Insufficient privileges to change nickname."
 
     def fn_server_pass(self,args,client,destination):
         'Changes nickserv password, godmode only.'
@@ -563,7 +563,7 @@ class ircbot_base:
             self.conf['server'][destination[0]]['pass'] = args
             return "Changed password."
         else:
-            return "Insufficient privileges to change nickname"
+            return "Insufficient privileges to change password."
 
     def fn_channel_caps(self,args,client,destination):
         'Sets or toggles caps lock for channel, ops only'
@@ -573,10 +573,10 @@ class ircbot_base:
                 return "Caps lock toggled."
             elif(args.lower()=='true' or args.lower()=='1' or args.lower()=='on'):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['caps'] = True
-                return "Caps lock on"
+                return "Caps lock on."
             else:
                 self.conf['server'][destination[0]]['channel'][destination[1]]['caps'] = False
-                return "Caps lock off"
+                return "Caps lock off."
         else:
             return "Insufficient privileges to set caps lock."
 
@@ -585,13 +585,13 @@ class ircbot_base:
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             if(args==''):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['logging'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['logging']
-                return "Logging toggled"
+                return "Logging toggled."
             elif(args.lower()=='true' or args.lower()=='1' or args.lower()=='on'):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['logging'] = True
-                return "Logging on"
+                return "Logging on."
             else:
                 self.conf['server'][destination[0]]['channel'][destination[1]]['logging'] = False
-                return "Logging off"
+                return "Logging off."
         else:
             return "Insufficient privileges to set logging."
 
@@ -600,13 +600,13 @@ class ircbot_base:
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             if(args==''):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record']
-                return "Megahal recording toggled"
+                return "Megahal recording toggled."
             elif(args.lower()=='true' or args.lower()=='1' or args.lower()=='on'):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record'] = True
-                return "Megahal recording on"
+                return "Megahal recording on."
             else:
                 self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record'] = False
-                return "Megahal recording off"
+                return "Megahal recording off."
         else:
             return "Insufficient privileges to set megahal recording."
 
@@ -615,13 +615,13 @@ class ircbot_base:
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             if(args==''):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect']
-                return "Swear detection toggled"
+                return "Swear detection toggled."
             elif(args.lower()=='true' or args.lower()=='1' or args.lower()=='on'):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect'] = True
-                return "Swear detection on"
+                return "Swear detection on."
             else:
                 self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect'] = False
-                return "Swear detection off"
+                return "Swear detection off."
         else:
             return "Insufficient privileges to set swear detection."
 
@@ -630,13 +630,13 @@ class ircbot_base:
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             if(args==''):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']
-                return "Passive functions toggled"
+                return "Passive functions toggled."
             elif(args.lower()=='true' or args.lower()=='1' or args.lower()=='on'):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc'] = True
-                return "Passive functions on"
+                return "Passive functions on."
             else:
                 self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc'] = False
-                return "Passive functions off"
+                return "Passive functions off."
         else:
             return "Insufficient privileges to set passive functions status."
 
@@ -657,7 +657,7 @@ class ircbot_base:
         'Sets the arguments to pass to the idle channel function, gods only'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             self.conf['server'][destination[0]]['channel'][destination[1]]['idle_args'] = args
-            return "Idle channel arguments set to: " + args
+            return "Idle channel arguments set to: " + args + "."
         else:
             return "Insufficient privileges to set idle channel arguments."
 
@@ -671,9 +671,9 @@ class ircbot_base:
             while(len(password)>0 and password[-1:]==' '):
                 password = password[:-1]
             self.conf['server'][destination[0]]['channel'][destination[1]]['pass'] = password
-            return "Stored password for " + destination[1]
+            return "Stored password for " + destination[1] + "."
         else:
-            return "Insufficient privileges to set channel password"
+            return "Insufficient privileges to set channel password."
 
     def fn_function_conf(self,args,client,destination):
         'Set a function config variable, Format: function_conf <function> <variable> <value>, functionname should include "fn_" and variable can be "listed_to", "disabled", "repair", "privmsg", "max_run_time", "time_delay" or "return_to"'
@@ -728,9 +728,9 @@ class ircbot_base:
                  else:
                      return "Invalid function."
             else:
-                return "Not enough arguments given, please provide me with a function name, variable and value. Function names should include preceeding fn_ and variables can be 'listed_to', 'disabled', 'repair','privmsg', 'max_run_time', 'time_delay' or 'return_to'"
+                return "Not enough arguments given, please provide me with a function name, variable and value. Function names should include preceeding fn_ and variables can be 'listed_to', 'disabled', 'repair','privmsg', 'max_run_time', 'time_delay' or 'return_to'."
         else:
-            return "Insufficient privileges to change function variables"
+            return "Insufficient privileges to change function variables."
 
     def fn_core_view(self,args,client,destination):
         'View the core variable, privmsg only. gods only.'
@@ -759,13 +759,13 @@ class ircbot_base:
             if(args[0] in self.core and args[1] in self.core[args[0]] and args[2] in self.core[args[0]][args[1]]):
                 if(args[3].lower()=='false'):
                     self.core[args[0]][args[1]][args[2]] = False
-                    return "Set self.core['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to False"
+                    return "Set self.core['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to False."
                 elif(args[3].lower()=='true'):
                     self.core[args[0]][args[1]][args[2]] = True
-                    return "Set self.core['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to True"
+                    return "Set self.core['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to True."
                 else:
                     self.core[args[0]][args[1]][args[2]] = args[3]
-                    return "Set self.core['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to " + args[3]
+                    return "Set self.core['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to " + args[3] + "."
 
     def fn_megahal_view(self,args,client,destination):
         'View the megahal variable, privmsg only. gods only.'
@@ -804,7 +804,7 @@ class ircbot_base:
                 os.remove("../http/" + filename)
                 return "File removed."
         else:
-            return "Insufficient privileges to view config file"
+            return "Insufficient privileges to view config file."
 
     def fn_config_set(self,args,client,destination):
         'Set config variables, gods only.'
@@ -813,16 +813,16 @@ class ircbot_base:
             if(args[0] in self.conf and args[1] in self.conf[args[0]] and args[2] in self.conf[args[0]][args[1]]):
                 if(args[3].lower()=='false'):
                     self.conf[args[0]][args[1]][args[2]] = False
-                    return "Set self.conf['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to False"
+                    return "Set self.conf['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to False."
                 elif(args[3].lower()=='true'):
                     self.conf[args[0]][args[1]][args[2]] = True
-                    return "Set self.conf['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to True"
+                    return "Set self.conf['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to True."
                 elif(args[3].isdigit()):
                     self.conf[args[0]][args[1]][args[2]] = int(args[3])
-                    return "Set self.conff['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to " + args[3]
+                    return "Set self.conff['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to " + args[3] + "."
                 else:
                     self.conf[args[0]][args[1]][args[2]] = args[3]
-                    return "Set self.conf['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to '" + args[3] + "'"
+                    return "Set self.conf['" + args[0] + "']['" + args[1] + "']['" + args[2] + "'] to: '" + args[3] + "'"
 
     def fn_config_save(self,args,client,destination):
         'Save the config and pickle it. godmod only.'
@@ -860,7 +860,7 @@ class ircbot_base:
                         if(listed_to in access_level):
                             commands.append(fn)
        #         functions = functions + [ module + '.' + module + '.' + i for i in dir(getattr(__import__(module),module))]
-            return ', '.join(cmd[3:] for cmd in commands)
+            return ', '.join(cmd[3:] for cmd in commands) + "."
         elif(args != ''):
             fn = 'fn_'+args.lower().split()[0]
             method = 'placeholder'
@@ -902,5 +902,5 @@ class ircbot_base:
             else:
                 return "This module is not allowed. sorry."
         else:
-            return "Insufficient privileges"
+            return "Insufficient privileges."
 

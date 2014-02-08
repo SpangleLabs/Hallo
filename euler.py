@@ -11,12 +11,12 @@ class euler:
                 eulerfunc = getattr(euler,'fnn_euler_' + args)
                 if(hasattr(eulerfunc, '__call__')):
                     try:
-                        answer = "Euler project problem " + args + "? I think the answer is: " + str(eulerfunc(self))
+                        answer = "Euler project problem " + args + "? I think the answer is: " + str(eulerfunc(self)) + "."
                     except Exception as e:
                         answer = "hmm, seems that one doesn't work... darnit."
                         print("EULER ERROR: " + str(e))
                 else:
-                    answer = "That doesn't seem to work"
+                    answer = "That doesn't seem to work."
             else:
                 answer = "I don't think I've solved that one yet."
         elif(args.replace(' ','').lower() == 'list'):
@@ -25,10 +25,10 @@ class euler:
             for fn in dir(euler):
                 if(fn[:10] == 'fnn_euler_' and fn[10:].isdigit()):
                     problem_funcs.append(fn[10:])
-            answer = "Currently I can do Project Euler problems " + ', '.join(sorted(problem_funcs,key=int)[:-1]) + " and " + sorted(problem_funcs,key=int)[-1]
+            answer = "Currently I can do Project Euler problems " + ', '.join(sorted(problem_funcs,key=int)[:-1]) + " and " + sorted(problem_funcs,key=int)[-1] + '.'
         else:
             count = sum(1 for fn in dir(euler) if fn[:10] == 'fnn_euler_' and fn[10:].isdigit())
-            answer = "I'm learning to complete the project Euler programming problems. I've not done many so far, I've only done " + str(count) + " of the 434 problems. But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, say 'Hallo Euler {num}' for the answer to challenge number {num}"
+            answer = "I'm learning to complete the project Euler programming problems. I've not done many so far, I've only done " + str(count) + " of the 434 problems. But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, say 'Hallo Euler {num}' for the answer to challenge number {num}."
         return answer
 
     def fnn_euler_1(self):
@@ -269,7 +269,7 @@ class euler:
     def fn_prime_factors(self,args,client,destination):
         args = int(args)
         prime_factors = euler.fnn_euler_primefactors(self,args)
-        return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors)
+        return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
     def fnn_euler_12(self):
         number = 1
@@ -304,11 +304,11 @@ class euler:
     def fn_hailstone(self,args,client,destination):
         'Returns the hailstone sequence for a given number'
         if(args == "" or not args.isdigit()):
-            return "The hailstone function has to be given with a number (to generate the collatz sequence of)"
+            return "The hailstone function has to be given with a number (to generate the collatz sequence of.)"
         else:
             args = int(args)
             sequence = euler.fnn_euler_collatz(self,[args])
-            return "Hailstone (Collatz) sequence for " + str(args) + ": " + '->'.join(str(x) for x in sequence) + " (" + str(len(sequence)) + " steps)"
+            return "Hailstone (Collatz) sequence for " + str(args) + ": " + '->'.join(str(x) for x in sequence) + " (" + str(len(sequence)) + " steps.)"
 
     def fnn_euler_14(self):
         lengths = [0] * 1000000
@@ -417,13 +417,13 @@ class euler:
 
     def fn_number(self,args,client,destination):
         if(args.count(' ')==0):
-            return euler.fnn_euler_numberword(self,args)
+            return euler.fnn_euler_numberword(self,args) + "."
         elif(args.split()[1].lower() == "british" or args.split()[1].lower() == "english"):
-            return euler.fnn_euler_numberword(self,args.split()[0],"english")
+            return euler.fnn_euler_numberword(self,args.split()[0],"english") + "."
         elif(args.split()[1].lower() == "european" or args.split()[1].lower() == "french"):
-            return euler.fnn_euler_numberword(self,args.split()[0],"european")
+            return euler.fnn_euler_numberword(self,args.split()[0],"european") + "."
         else:
-            return euler.fnn_euler_numberword(self,args.split()[0])
+            return euler.fnn_euler_numberword(self,args.split()[0]) + "."
 
     def fnn_euler_17(self):
         total = 0
@@ -573,9 +573,6 @@ class euler:
             string = string + bignumber
             return string
 
-    def fn_read_decimal(self,args,client,destination):
-        return euler.fnn_euler_readdecimal(self,args)
-
     def fnn_euler_removelistitems(self,list,remove):
         newlist = []
         for item in list:
@@ -719,7 +716,7 @@ class euler:
         reply = 'Possible ways to give that change: '
         for option in options:
             reply = reply + '[' + ','.join(str(x) for x in option) + '],'
-        return reply
+        return reply + "."
 
     def fnn_euler_31(self):
         coins = [200,100,50,20,10,5,2,1]
@@ -811,7 +808,7 @@ class euler:
         denominator_factors_new = euler.fnn_listminus(self,denominator_factors,euler.fnn_intersection(self,denominator_factors,numerator_factors))
         numerator_new = euler.fnn_product(self,numerator_factors_new)
         denominator_new = euler.fnn_product(self,denominator_factors_new)
-        return numerator + "/" + denominator + " = " + str(numerator_new) + "/" + str(denominator_new)
+        return numerator + "/" + denominator + " = " + str(numerator_new) + "/" + str(denominator_new) + "."
 
     def fnn_euler_33(self):
         epsilon = 0.0000001

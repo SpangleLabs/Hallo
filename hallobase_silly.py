@@ -54,7 +54,7 @@ class hallobase_silly():
                     longcat = longcathead + longcatsegment * longcatsegments + longcattail + '\n Longcat is L' + 'o' * longcatsegments + 'ng!'
                     return longcat
                 else:
-                    return 'Longcat is for gods only :P'
+                    return 'Longcat is for gods only.'
             else:
                 return 'Longcat is disabled.  Use "longcat_on" to enable it.'
 
@@ -70,7 +70,7 @@ class hallobase_silly():
            numepisodes = len(songepisodes)
            rand = random.randint(0,numepisodes-1)
            episode = songepisodes[rand]
-        return 'You should choose "' + episode + '"'
+        return 'You should choose "' + episode + '."'
 
 
     def fn_finnbot(self, args, client, destination):
@@ -83,7 +83,7 @@ class hallobase_silly():
         numquotes = len(ariquotes)
         rand = random.randint(0,numquotes-1)
         quote = ariquotes[rand]
-        return quote
+        return quote + "."
 
     def fn_time(self, args, client, destination):
         'Current time'
@@ -125,7 +125,7 @@ class hallobase_silly():
            timezone = 'UTC (Not sure what your input meant.)'
         timestamp = timestamp+(3600*offset)
         timeword = time.strftime('%H:%M:%S %d/%m/%Y',time.gmtime(timestamp))
-        return 'The time is ' + timeword + ' ' + timezone
+        return 'The time is ' + timeword + ' ' + timezone + '.'
 
     def fn_is(self,args,client,destination):
         'Placeholder'
@@ -137,7 +137,7 @@ class hallobase_silly():
 
     def fn_alarm(self, args, client, destination):
         'Alarm.'
-        return 'woo woooooo woooooo ' + args + ' wooo wooo'
+        return 'woo woooooo woooooo ' + args + ' wooo wooo!'
 
 
     def fn_mods(self, args, client, destination):
@@ -182,9 +182,9 @@ class hallobase_silly():
             return 'No one called "' + args.split()[0] + '" is online.'
         else:
             if(len(args.split()) >= 2):
-                return '\x01ACTION gives ' + args.split()[0] + ' a ' + ' '.join(args.split()[1:]) + ' cupcake, from ' + client + '\x01'
+                return '\x01ACTION gives ' + args.split()[0] + ' a ' + ' '.join(args.split()[1:]) + ' cupcake, from ' + client + '.\x01'
             else:
-                return '\x01ACTION gives ' + args.split()[0] + ' a cupcake, from ' + client + '\x01'
+                return '\x01ACTION gives ' + args.split()[0] + ' a cupcake, from ' + client + '.\x01'
 
     def fn_silence_the_rabble(self,args,client,destination):
         'ETD only. deops all but D000242 and self. sets mute.'
@@ -238,6 +238,8 @@ class hallobase_silly():
         'WH40K Thought for the day.'
         thoughts = euler.euler.fnn_euler_readfiletolist(self,'store/WH40K_ToTD2.txt')
         rand = random.randint(0,len(thoughts)-1)
+        if(thoughts[rand][-1] not in ['.','!','?']):
+            thoughts[rand] = thoughts[rand] + "."
         return '"' + thoughts[rand] + '"'
 
     def fn_playball(self,args,client,destination):
@@ -245,7 +247,7 @@ class hallobase_silly():
         responses = ['Tongue Bath','Massage Breast','Give Oral','Lick Nipples','Kiss Lips','Their Choice','Spank Me','French Kiss','Massage','Striptease','Woman On Top','Self-Pleasure','Rear Entry','69','Your Choice','Booby Sex','Use Toy','Fondle','Role Play','Receive Oral']
         rand = random.randint(0,len(responses)-1)
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            return responses[rand]
+            return responses[rand] + "."
         else:
             return '"playball" not defined. Try "/msg Hallo help commands" for a list of commands.'
 
@@ -257,12 +259,14 @@ class hallobase_silly():
         for x in range(numwords):
             rand = random.randint(0,len(words)-1)
             string = string + ' ' + words[rand]
-        return string
+        return string + "."
 
     def fn_scriptures(self,args,client,destination):
         'Recites a passage from the Amarr scriptures.'
         scriptures = pickle.load(open('store/scriptures.p','rb'))
         rand = random.randint(0,len(scriptures)-1)
+        if(scriptures[rand][-1] not in ['.','!','?']):
+            scriptures[rand] = scriptures[rand] + "."
         return scriptures[rand]
 
     def fn_deer(self,args,client,destination):
@@ -294,14 +298,14 @@ class hallobase_silly():
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             return deer
         else:
-            return "You have insufficient privileges to summon the deer"
+            return "You have insufficient privileges to summon the deer."
 
     def fn_dragon(self,args,client,destination):
         'prints ascii dragon'
         dragon = r''',-,- / / | ,-' _/ / / (-_ _,-' `Z_/ "#: ,-'_,-. \
 _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
 \_________________,-' | \ \ Wny \ '''
-        dragon = r'''hmm.. nah. have another deer
+        dragon = r'''hmm.. nah. have another deer.
        ""\/ \/""
          "\__/"
           (oo)
