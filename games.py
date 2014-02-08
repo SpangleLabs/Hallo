@@ -67,7 +67,7 @@ class games():
         return cards
 
     def fn_date(self,args,client,destination):
-        'returns datestamp from unix time'
+        'Returns the date from a given unix timestamp. Format: date <timestamp>'
         try:
             args = int(args)
         except:
@@ -75,13 +75,13 @@ class games():
         return games.fnn_date(self,args) + "."
 
     def fn_random_card(self,args,client,destination):
-        'Picks a random card from a deck.'
+        'Picks a random card from a deck. Format: random_card'
         card = games.fnn_randcard(self,[])
         carddesc = games.fnn_cardname(self,card)
         return "I have chosen the " + carddesc + "."
 
     def fn_highscores(self,args,client,destination):
-        'view the highscores for all games.'
+        'View the highscores for all games. Format: highscores'
         output = "Highscores:\n"
         if('highscores' not in self.conf):
             self.conf['highscores'] = {}
@@ -93,7 +93,7 @@ class games():
         return output
 
     def fn_higher_or_lower(self,args,client,destination):
-        'play a game of higher or lower. Syntax: "higher_or_lower start" to start a game, "higher_or_lower higher" to guess the next card will be higher, "higher_or_lower lower" to guess the next card will be lower, "higher_or_lower end" to quit the game.'
+        'Play a game of higher or lower. Format: "higher_or_lower start" to start a game, "higher_or_lower higher" to guess the next card will be higher, "higher_or_lower lower" to guess the next card will be lower, "higher_or_lower end" to quit the game.'
         try:
             self.games
         except:
@@ -221,7 +221,7 @@ class games():
 
 
     def fn_blackjack(self,args,client,destination):
-        "A game of blackjack against hallo. Syntax: 'blackjack start' to start a game, 'blackjack hit' to hit, 'blackjack stick' or 'blackjack stand' to stick/stand."
+        "A game of blackjack against hallo. Format: 'blackjack start' to start a game, 'blackjack hit' to hit, 'blackjack stick' or 'blackjack stand' to stick/stand."
         try:
             self.games
         except:

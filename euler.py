@@ -4,7 +4,7 @@ import collections
 
 class euler:
     def fn_euler(self, args, client, destination):
-        'Project Euler functions'
+        'Project Euler functions. Format: "euler list" to list project euler solutions. "euler <number>" for the solution to project euler problem of the given number.'
         if(args.replace(' ','').isdigit()):
             #try and do that euler function command
             if(hasattr(euler,'fnn_euler_' + args) and isinstance(getattr(euler,'fnn_euler_' + args), collections.Callable)):
@@ -267,6 +267,7 @@ class euler:
             return factors
 
     def fn_prime_factors(self,args,client,destination):
+        'Returns the prime factors of a given number. Format: prime_factors <number>'
         args = int(args)
         prime_factors = euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
@@ -302,7 +303,7 @@ class euler:
             return euler.fnn_euler_collatz(self,seq)
 
     def fn_hailstone(self,args,client,destination):
-        'Returns the hailstone sequence for a given number'
+        'Returns the hailstone sequence for a given number. Format: hailstone <number>'
         if(args == "" or not args.isdigit()):
             return "The hailstone function has to be given with a number (to generate the collatz sequence of.)"
         else:
@@ -416,6 +417,7 @@ class euler:
 
 
     def fn_number(self,args,client,destination):
+        'Returns the textual representation of a given number. Format: number <number>'
         if(args.count(' ')==0):
             return euler.fnn_euler_numberword(self,args) + "."
         elif(args.split()[1].lower() == "british" or args.split()[1].lower() == "english"):
@@ -710,6 +712,7 @@ class euler:
         return change
 
     def fn_change_options(self,args,client,destination):
+        'Returns the number of ways to give change for a given amount (in pence, using british coins.) Format: change_options <number>'
         args = int(args)
         coins = [200,100,50,20,10,5,2,1]
         options = euler.fnn_euler_change(self,coins,0,args)
@@ -799,6 +802,7 @@ class euler:
         return True
 
     def fn_simplify_fraction(self,args,client,destination):
+        'Returns a fraction in its simplest form. simplify_fraction <numerator>/<denominator>'
         #preflight checks please
         numerator = args.split('/')[0]
         denominator = args.split('/')[1]
