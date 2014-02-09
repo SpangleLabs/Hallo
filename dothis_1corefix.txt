@@ -1,5 +1,7 @@
 
 
-{EMPTY}
+fix imgur recognition
+
+fix kick logging
 
 
