@@ -2,8 +2,6 @@
 
 fix imgur recognition
 
-fix kick logging
-
 fix youtube 301+ failure
 
 

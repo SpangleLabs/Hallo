@@ -415,8 +415,8 @@ class ircbot:
         elif('KICK' == data.split()[1]):
             #handle kicks
             channel = data.split()[2]
-            client = data.split()[1]
-            message = ':'.join(data.split(':')[2:]).replace(endl,'')
+            client = data.split()[3]
+            message = ':'.join(data.split(':')[4:]).replace(endl,'')
             print(self.base_timestamp() + ' [' + server + '] ' + client + ' was kicked from ' + channel + ': ' + message)
             if(self.conf['server'][server]['channel'][channel]['logging']):
                 self.base_addlog(self.base_timestamp() + ' ' + client + ' was kicked from ' + channel + ': ' + message,[server,channel])
