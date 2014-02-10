@@ -29,3 +29,7 @@ http://bronyradio.com/inc/merge.php
 00:14:37 < deer-spangle> train times
 
 Add a say command, to make hallo post a message in a given channel or server-channel pair.
+
+top 40: http://server-2.webcoding.co.uk/top40.xml/72JDJ2
+
+Postcode data
