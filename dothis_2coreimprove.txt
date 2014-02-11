@@ -16,4 +16,4 @@ https://docs.google.com/spreadsheet/ccc?key=0AmOaHHmqHNoIdEJfYkdEZzZSRE1lZlZna1N
 above spreadsheet has such linecounts.
 also remove init from hallobase_silly and passive, or at least investigate why they have them.
 
-
+Ability to push to say command (or other commands?) from online by writing to a file
