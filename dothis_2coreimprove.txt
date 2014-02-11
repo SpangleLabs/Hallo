@@ -12,3 +12,8 @@ move base_function out of base_parse to a new thing.
 check which import modules in each module are needed, remove those which are not. comment those which are saying where they are.
 
 split functions off of ircbot_base and hallobase, maybe hallobase_silly. do linecounts on all files (or 'def' counts)
+https://docs.google.com/spreadsheet/ccc?key=0AmOaHHmqHNoIdEJfYkdEZzZSRE1lZlZna1NEUVhFN2c&usp=sharing
+above spreadsheet has such linecounts.
+also remove init from hallobase_silly and passive, or at least investigate why they have them.
+
+
