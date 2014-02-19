@@ -9,14 +9,14 @@ import urllib.request, urllib.error, urllib.parse
 import time
 import re
 import math
-from PIL import Image
+##from PIL import Image
 import io
 import pickle
 import euler
 import threading
 import json
 import difflib
-import psutil
+##import psutil
 
 import ircbot_chk
 

@@ -228,7 +228,7 @@ class hallobase_silly():
             return 'doooooof'
         else:
             if(random.randint(0,20)==15):
-                self.base_say('powering up...');
+                self.base_say('powering up...',destination);
                 time.sleep(5);
                 return 'd' * 100 + 'o' * 1000 + 'f' * 200 + '!' * 50
             else:
