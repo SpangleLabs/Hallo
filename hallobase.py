@@ -845,7 +845,7 @@ class hallobase():
             if(ircbot_chk.ircbot_chk.chk_swear(self,dest_serv,dest_chan,message)!=['none','none']):
                 return "That message contains a word which is on swearlist for that channel."
         else:
-            if(ircbot_chk.ircbot_chk.chk_recipientonline(dest_serv,dest_chan)):
+            if(ircbot_chk.ircbot_chk.chk_recipientonline(self,dest_serv,dest_chan)):
                 return "That person isn't online."
         self.base_say(message,[dest_serv,dest_chan])
         return "Message sent."

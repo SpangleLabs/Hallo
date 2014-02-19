@@ -102,66 +102,50 @@ class passive():
                 ping = re.search('<h3>Ping</h3><p>([0-9]*)',code).group(1)
                 return "Speedtest> Download: " + download + "Mb/s | Upload: " + upload + "Mb/s | Ping: " + ping + "ms"
             elif('imgur.com' in url):
+		#3afbdcb1353b72f imgur API client-ID
                 if('/a/' in url):
-                    code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
-                    title = re.search('<meta name="twitter:title" value="([^"]*)"/>',code).group(1)[:0-len(' - Imgur')]
-                    if(title=='imgur: the simple imag'):
-                        title = 'none.'
-                    pic_number = '0'
-                    if('#' in url):
-                        pic_number = url.split('#')[-1]
-                    album_count = re.search('<h2 id="thumbs-header">Album: ([0-9,]*) images',code).group(1)
-                    views = re.search('<span class="stat">([0-9,]*)</span> views',code).group(1)
-                    current_img_link = re.search('data-src="//i.imgur.com/([0-9A-Za-z]*).(jpg|gif|png)" data-index="' + pic_number + '"',code).group(1)
-                    current_img_ext = re.search('data-src="//i.imgur.com/([0-9A-Za-z]*).(jpg|gif|png)" data-index="' + pic_number + '"',code).group(2)
-                    imgpage_pagerequest = urllib.request.Request('http://imgur.com/' + current_img_link)
-                    imgpage_pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-                    imgpage_pageopener = urllib.request.build_opener()
-                    imgpage_code = imgpage_pageopener.open(imgpage_pagerequest).read().decode('utf-8','ignore')
-                    img_width = re.search('<meta name="twitter:image:width" value="([0-9]*)"/>',imgpage_code).group(1)
-                    img_height = re.search('<meta name="twitter:image:height" value="([0-9]*)"/>',imgpage_code).group(1)
-                    img_pagerequest = urllib.request.Request('http://i.imgur.com/' + current_img_link + '.' + current_img_ext)
-                    img_pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-                    img_pageopener = urllib.request.build_opener()
-                    img_code = img_pageopener.open(img_pagerequest).read()
-                    img_size = len(img_code)
-                    if(img_size<2048):
-                        img_sizestr = str(img_size) + "Bytes"
-                    elif(img_size<(2048*1024)):
-                        img_sizestr = str(math.floor(float(img_size)/10.24)/100) + "KiB"
+		    #http://imgur.com/a/qJctj#0 example imgur album
+                    imgur_id = url.split('/')[-1].split('#')[0]
+                    api_url = 'https://api.imgur.com/3/album/' + imgur_id
+                    pagerequest = urllib.request.Request(api_url)
+                    pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+                    pagerequest.add_header('Authorization','Client-ID 3afbdcb1353b72f')
+                    pageopener = urllib.request.build_opener()
+                    pageinfo = str(pageopener.open(pagerequest).info())
+                    api_code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
+                    api_dict = json.loads(api_code)
+                    title = api_dict['data']['title']
+                    views = api_dict['data']['views']
+                    if('section' in api_dict['data']):
+                        section = api_dict['data']['section']
+                        album_info = 'Album title: ' + title + ' | Gallery views: ' + str(views) + ' | Section: ' + section
                     else:
-                        img_sizestr = str(math.floor(float(img_size)/(1024*10.24))/100) + "MiB"
-                    return "Imgur album> Album title: " + title + " | Gallery views: " + views + " | Image " + pic_number + " of " + album_count + " | Current image: " + img_width + "x" + img_height + ", " + img_sizestr + "."
+                        album_info = 'Album title: ' + title + ' | Gallery views: ' + str(views)
+                    pic_number = url.split('#')[-1]
+                    album_count = api_dict['data']['images_count']
+                    img_width = api_dict['data']['images'][int(pic_number)]['width']
+                    img_height = api_dict['data']['images'][int(pic_number)]['height']
+                    img_size = api_dict['data']['images'][int(pic_number)]['size']
+                    img_sizestr = passive.fnn_sizestr(self,int(img_size))
+                    return "Imgur album> " + album_info + " | Image " + str(int(pic_number)+1) + " of " + str(album_count) + " | Current image: " + str(img_width) + "x" + str(img_height) + ", " + img_sizestr + "."
                 else:
-                    if(url[-4:] in ['.png','.jpg','.gif']):
-                        code = url.split('/')[-1].split('.')[0]
-                        newurl = 'http://www.imgur.com/' + code
-                        print("New url: " + newurl)
-                        pagerequest = urllib.request.Request(newurl)
-                        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-                        pageopener = urllib.request.build_opener()
-                    code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
-                    title = re.search('<meta name="twitter:title" value="([^"]*)"/>',code).group(1)[:0-len(' - Imgur')]
-                    if(title=='imgur: the simple imag'):
-                        title = 'none.'
-                    img_width = re.search('<meta name="twitter:image:width" value="([0-9]*)"/>',code).group(1)
-                    img_height = re.search('<meta name="twitter:image:height" value="([0-9]*)"/>',code).group(1)
-                    img_link = re.search('<link rel="image_src" href="([^"]*)"/>',code).group(1)
-                    img_pagerequest = urllib.request.Request(img_link)
-                    img_pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-                    img_pageopener = urllib.request.build_opener()
-                    img_code = img_pageopener.open(img_pagerequest).read()
-                    img_size = len(img_code)
-                    if(img_size<2048):
-                        img_sizestr = str(img_size) + "Bytes"
-                    elif(img_size<(2048*1024)):
-                        img_sizestr = str(math.floor(float(img_size)/10.24)/100) + "KiB"
-                    else:
-                        img_sizestr = str(math.floor(float(img_size)/(1024*10.24))/100) + "MiB"
-                    if('<span id="views">' in code):
-                        views = re.search('<span id="views">([0-9,]*)</span>',code).group(1)
-                    else:
-                        views = re.search('"views":([0-9]*),',code).group(1)
+		    #http://i.imgur.com/2XBqIIT.jpg example imgur direct link
+		    #http://imgur.com/2XBqIIT example imgur link
+                    imgur_id = url.split('/')[-1].split('.')[0]
+                    api_url = 'https://api.imgur.com/3/image/' + imgur_id
+                    pagerequest = urllib.request.Request(api_url)
+                    pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+                    pagerequest.add_header('Authorization','Client-ID 3afbdcb1353b72f')
+                    pageopener = urllib.request.build_opener()
+                    pageinfo = str(pageopener.open(pagerequest).info())
+                    api_code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
+                    api_dict = json.loads(api_code)
+                    title = str(api_dict['data']['title'])
+                    img_width = str(api_dict['data']['width'])
+                    img_height = str(api_dict['data']['height'])
+                    img_size = api_dict['data']['size']
+                    img_sizestr = str(passive.fnn_sizestr(self,int(img_size)))
+                    views = str(api_dict['data']['views'])
                     return "Imgur> Title: " + title + " | Size: " + img_width + "x" + img_height + " | Filesize: " + img_sizestr + " | Views: " + views + "."
             elif("image" in pagetype):
                 code = pageopener.open(pagerequest).read()
@@ -169,14 +153,7 @@ class passive():
                 im = Image.open(image_file)
                 image_width, image_height = im.size
                 filesize = len(code)
-                if(filesize<2048):
-                    filesizestr = str(filesize) + "Bytes"
-                elif(filesize<(2048*1024)):
-                    filesizestr = str(math.floor(float(filesize)/10.24)/100) + "KiB"
-                elif(filesize<(2048*1024*1024)):
-                    filesizestr = str(math.floor(float(filesize)/(1024*10.24))/100) + "MiB"
-                else:
-                    filesizestr = str(math.floor(float(filesize)/(1024*1024*10.24))/100) + "GiB"
+                filesizestr = passive.fnn_sizestr(self,filesize)
                 return "Image: " + pagetype + " (" + str(image_width) + "px by " + str(image_height) + "px) " + filesizestr + "."
             elif('youtube.com' in url or 'youtu.be' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
@@ -287,3 +264,15 @@ class passive():
 
     def fnn_pew(self,args,client,destination):
         return "pew pew."
+
+    def fnn_sizestr(self,size):
+        if(size<2048):
+            sizestr = str(size) + "Bytes"
+        elif(size<(2048*1024)):
+            sizestr = str(math.floor(float(size)/10.24)/100) + "KiB"
+        elif(size<(2048*1024*1024)):
+            sizestr = str(math.floor(float(size)/(1024*10.24))/100) + "MiB"
+        else:
+            sizestr = str(math.floor(float(size)/(1024*1024*10.24))/100) + "GiB"
+        return sizestr
+
