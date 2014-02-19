@@ -2,5 +2,3 @@
 
 fix imgur recognition
 
-fix youtube 301+ failure
-

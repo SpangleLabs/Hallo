@@ -182,7 +182,7 @@ class passive():
                 code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
                 length = re.search('length_seconds": ([0-9]*)', code).group(1)
                 length_str = str(int(int(length)/60)) + "m " + str(int(length)-(60*(int(int(length)/60)))) + "s"
-                views = re.search('<span class="watch-view-count " >[\n\r\s]*([0-9,]*)',code).group(1)
+                views = re.search('<span class="watch-view-count[^>]*>[\n\r\s]*([0-9,+]*)',code).group(1)
                 #title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&')
                 title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split())
                 h = html.parser.HTMLParser()
