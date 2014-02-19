@@ -826,6 +826,30 @@ class hallobase():
         else:
             return "You have insufficient privileges to update the value of a conversion unit."
 
+    def fn_say(self,args,client,destination):
+        'Say a message into a channel or server/channel pair (in the format "{server,channel}"). Format: say <channel> <message>'
+        dest = args.split()[0]
+        message = ' '.join(args.split()[1:])
+        if(dest[0]=='{' and dest[-1]=='}'):
+            dest = dest[1:-1]
+            dest_serv = dest.split(',')[0].lower()
+            dest_chan = dest.split(',')[1].lower()
+        else:
+            dest_serv = destination[0].lower()
+            dest_chan = dest.lower()
+        if(dest_serv.lower() not in self.conf['server']):
+            return "I'm not in any server by this name."
+        if(dest_chan[0]=='#'):
+            if(dest_chan not in self.conf['server'][dest_serv]['channel']):
+                return "I'm not in that channel."
+            if(ircbot_chk.ircbot_chk.chk_swear(self,dest_serv,dest_chan,message)!=['none','none']):
+                return "That message contains a word which is on swearlist for that channel."
+        else:
+            if(ircbot_chk.ircbot_chk.chk_recipientonline(dest_serv,dest_chan)):
+                return "That person isn't online."
+        self.base_say(message,[dest_serv,dest_chan])
+        return "Message sent."
+
 
 
 #convert_currency_update
