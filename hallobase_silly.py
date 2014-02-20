@@ -6,8 +6,8 @@ import ircbot_chk   #for checking users have appropriate permissions to use cert
 import euler        #for WH40k quote importing
 
 class hallobase_silly():
-    def init(self):
-        self.longcat = False
+   # def init(self):
+   #     self.longcat = False
 
     def fn_slowclap(self,args,client,destination):
         'Slowclap. Format: slowclap'
@@ -31,21 +31,21 @@ class hallobase_silly():
             return 'Longcat cannot be activated here, sorry.'
         else:
             if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-                allobase_silly.longcat = True
+                self.longcat = True
                 return 'Longcat enabled.  Use "longcat_off" to turn it off.'
 
     def fn_longcat_off(self, args, client, destination):
         'Turn off longcat functon. Format: longcat_off'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            hallobase_silly.longcat = False
+            self.longcat = False
             return 'Longcat disabled.  Use "longcat_on" to turn it on.'
 
     def fn_longcat(self, args, client, destination):
-        'Make a longcat! Format: longcat'
+        'Make a longcat! Format: longcat <length>'
         if(destination[1].lower() == '#ukofequestria'):
             return 'Sorry, longcat is not available here.'
         else:
-            if(hallobase_silly.longcat):
+            if(self.longcat):
                 if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
                     longcathead = '    /\___/\ \n   /       \ \n  |  #    # |\n  \     @   |\n   \   _|_ /\n   /       \______\n  / _______ ___   \ \n  |_____   \   \__/\n   |    \__/\n'
                     longcatsegment = '   |       |\n'

@@ -29,6 +29,7 @@ class ircbot:
 
     def __init__(self):
         # connect
+        self.longcat = False
         ircbot_on.ircbot_on.on_init(self)
 #        self.base_start()
   #      self.megahal = MegaHAL()

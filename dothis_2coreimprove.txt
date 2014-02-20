@@ -14,5 +14,4 @@ SHORT:split functions off of ircbot_base and hallobase, maybe hallobase_silly. d
 SHORT:https://docs.google.com/spreadsheet/ccc?key=0AmOaHHmqHNoIdEJfYkdEZzZSRE1lZlZna1NEUVhFN2c&usp=sharing
 SHORT:above spreadsheet has such linecounts.
 
-SHORT:also remove init from hallobase_silly and passive, or at least investigate why they have them.
 

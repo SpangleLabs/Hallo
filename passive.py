@@ -26,9 +26,6 @@ import games        #for higher or lower
 
 endl = '\r\n'
 class passive():
-    def init(self):
-        self.longcat = False
-
     def fnn_passive(self,args,client,destination):
         # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
         passive.fnn_sweardetect(self,args,client,destination)
