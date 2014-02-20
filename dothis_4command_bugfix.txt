@@ -13,8 +13,6 @@ SHORT:19:08:22 <@Hallo> -1
 
 SHORT:19:37:07 <@dr-spangle> -make hallo add close brackets
 
-SHORT:cupcake throws odd error if no user given
-
 MED:improve hallo time, do a CTCP time request to find offset, then remember that if they are not online.
 
 LONG:fix the core_set and config_set functions to do nice things

@@ -176,15 +176,16 @@ class hallobase_silly():
         return arr_premessage[randpre].replace("{X}",bestpony.split("|")[0]) + arr_postmessage[randpost].replace("{Y}",bestpony.split("|")[1])
 
     def fn_cupcake(self, args, client, destination):
-        'Gives out cupcakes (much better than muffins.) Format: cupcake <username>'
-        online = ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],args.split()[0])
-        if(online==' ' or online==''):
-            return 'No one called "' + args.split()[0] + '" is online.'
-        else:
+        'Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>'
+        if(args==''):
+            return "You must specify a recipient for the cupcake."
+        elif(len(ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],[args.split()[0]]))!=0):
             if(len(args.split()) >= 2):
                 return '\x01ACTION gives ' + args.split()[0] + ' a ' + ' '.join(args.split()[1:]) + ' cupcake, from ' + client + '.\x01'
             else:
                 return '\x01ACTION gives ' + args.split()[0] + ' a cupcake, from ' + client + '.\x01'
+        else:
+            return 'No one called "' + args.split()[0] + '" is online.'
 
     def fn_silence_the_rabble(self,args,client,destination):
         'ETD only. deops all but D000242 and self. sets mute. Format: silence_the_rabble'
