@@ -1,33 +1,27 @@
 
 
-HALLO GETTHEMLITTLESITH -> KICKS THREE RANDOM USERS OTHER THAN D000242 AND SELF IN A QUICK SEQUENCE, ONLY D000242 CAN USE THIS COMMAND. 
+SHORT:HALLO GETTHEMLITTLESITH -> KICKS THREE RANDOM USERS OTHER THAN D000242 AND SELF IN A QUICK SEQUENCE, ONLY D000242 CAN USE THIS COMMAND. 
 
-02:59:50 <@dr-spangle> define function?
-00:33:22 < dr-spangle> -urbandictionary func
+SHORT:02:59:50 <@dr-spangle> define function?
+SHORT:00:33:22 < dr-spangle> -urbandictionary func
 
-'ban' function, bans users from channel
-'topic' function to change topic
-'topicappend' function to append to topic
-'topicend' function to change the end section of the topic (part after last ' - ')
+SHORT:'ban' function, bans users from channel
+SHORT:'topic' function to change topic
+SHORT:'topicappend' function to append to topic
+SHORT:'topicend' function to change the end section of the topic (part after last ' - ')
 
-reconnect function
+SHORT:reconnect function
 
-weather function
-whether function
+MED:weather function
 
-make it so he can give you a cocktail if you give him an ingredient
+MED:make it so he can give you a cocktail if you give him an ingredient
 
-wolfram alpha API integration. I have an AppID: XJA93W-225U2U4XKJ
+LONG:wolfram alpha API integration. I have an AppID: XJA93W-225U2U4XKJ
 
-Bronyradio integration
-http://bronyradio.com/inc/merge.php
+SHORT:Bronyradio integration
+SHORT:http://bronyradio.com/inc/merge.php
 
-00:14:02 < deer-spangle> auto currency: https://blockchain.info/ticker
+SHORT:00:14:02 < deer-spangle> auto currency: https://blockchain.info/ticker
 
-00:14:35 < deer-spangle> pony countdown to next episode
+LONG:00:14:37 < deer-spangle> train times
 
-00:14:37 < deer-spangle> train times
-
-top 40: http://server-2.webcoding.co.uk/top40.xml/72JDJ2
-
-Postcode data
