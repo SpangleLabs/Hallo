@@ -258,7 +258,7 @@ class euler:
         for x in range(2,int(math.sqrt(args))+1):
             if(args%x == 0):
                 factors.append(x)
-                factors.extend(euler.fnn_euler_primefactors(self,args/x))
+                factors.extend(euler.fnn_euler_primefactors(self,args//x))
                 notprime = True
                 break
         if(not notprime):
