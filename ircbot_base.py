@@ -741,13 +741,13 @@ class ircbot_base:
           #      return "erm, really? my core variable... erm, if you insist. Here goes:\n" + pprint.pformat(self.core)
                 prettycore = pprint.pformat(self.core)
                 filename = "core_" + hashlib.md5(str(random.randint(1,1000)*time.time()).encode('utf-8')).hexdigest() + ".txt"
-                link = "http://hallo.dr-spangle.com/" + filename
-                file = open("../http/" + filename,'w')
+                link = "http://sucs.org/~drspangle/" + filename
+                file = open("../public_html/" + filename,'w')
                 file.write(prettycore)
                 file.close()
                 self.base_say("Core written to " + link + " it will be deleted in 30 seconds. Act fast.",destination)
                 time.sleep(30)
-                os.remove("../http/" + filename)
+                os.remove("../public_html/" + filename)
                 return "File removed."
         else:
             return "Insufficient privileges to view core variable."
@@ -795,13 +795,13 @@ class ircbot_base:
                 #return "erm.. the config file... one sec. here it is:\n" + pprint.pformat(self.conf)
                 prettyconf = pprint.pformat(self.conf)
                 filename = "conf_" + hashlib.md5(str(random.randint(1,1000)*time.time()).encode('utf-8')).hexdigest() + ".txt"
-                link = "http://hallo.dr-spangle.com/" + filename
-                file = open("../http/" + filename,'w')
+                link = "http://sucs.org/~drspangle/" + filename
+                file = open("../public_html/" + filename,'w')
                 file.write(prettyconf)
                 file.close()
                 self.base_say("Config written to " + link + " it will be deleted in 30 seconds. Act fast.",destination)
                 time.sleep(30)
-                os.remove("../http/" + filename)
+                os.remove("../public_html/" + filename)
                 return "File removed."
         else:
             return "Insufficient privileges to view config file."

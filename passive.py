@@ -226,10 +226,10 @@ class passive():
             else:
                 self.base_say(self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['commentmsg'].replace('{swear}',re.search(swearword,args,re.I).group(0)),destination)
         elif(swearstatus=='inform'):
-            for admin in ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
+            for admin in ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],self.conf['server'][destination[0]]['admininform']):
                 self.base_say(client + ' just swore in ' + destination[1] + '. the message was: ' + args,[destination[0],admin])
         elif(swearstatus=='possible'):
-            for admin in ircbot_chk.ircbot_chk.chk_recipientonline(destination[0],self.conf['server'][destination[0]]['admininform']):
+            for admin in ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],self.conf['server'][destination[0]]['admininform']):
                 self.base_say(client + ' possibly just swore in ' + destination[1] + '. Check the context. The message was: ' + args,[destination[0],admin])
 
     def fnn_extrayammering(self, args, client, destination):
