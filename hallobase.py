@@ -206,6 +206,8 @@ class hallobase():
 
     def fn_choose(self, args, client, destination):
         'Choose X, Y or Z or ... Returns one of the options separated by "or" or a comma. Format: choose <first_option>, <second_option> ... <n-1th option> or <nth option>'
+        while(len(args)>1 and args[0] in [' ',':']):
+            args = args[1:]
         choices = re.compile(', | or ',re.IGNORECASE).split(args)
         numchoices = len(choices)
         if(numchoices==1):
