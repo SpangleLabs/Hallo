@@ -16,3 +16,5 @@ SHORT:19:37:07 <@dr-spangle> -make hallo add close brackets
 MED:improve hallo time, do a CTCP time request to find offset, then remember that if they are not online.
 
 LONG:fix the core_set and config_set functions to do nice things
+
+SHORT:add KRW == South Korean Won to CONVERT function

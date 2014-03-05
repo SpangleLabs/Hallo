@@ -61,6 +61,9 @@ class passive():
         if(re.search(r'(pew)+',args,re.I)):
             out = passive.fnn_pew(self,args,client,destination)
             return out
+        if(re.search(r'haskell.jpg',args,re.I)):
+            out = passive.fnn_haskell(self,args,client,destination)
+            return out
         out = passive.fnn_urldetect(self,args,client,destination)
         if(out is not None):
             return out
@@ -147,8 +150,10 @@ class passive():
             elif("image" in pagetype):
                 code = pageopener.open(pagerequest).read()
                 image_file = io.BytesIO(code)
-                im = Image.open(image_file)
-                image_width, image_height = im.size
+            #    im = Image.open(image_file)
+            #    image_width, image_height = im.size
+                image_width = '???'
+                image_height = '???'
                 filesize = len(code)
                 filesizestr = passive.fnn_sizestr(self,filesize)
                 return "Image: " + pagetype + " (" + str(image_width) + "px by " + str(image_height) + "px) " + filesizestr + "."
@@ -261,6 +266,9 @@ class passive():
 
     def fnn_pew(self,args,client,destination):
         return "pew pew."
+
+    def fnn_haskell(self,args,client,destination):
+        return "http://dr-spangle.com/haskell.jpg"
 
     def fnn_sizestr(self,size):
         if(size<2048):
