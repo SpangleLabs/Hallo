@@ -311,10 +311,14 @@ class ircbot:
                 client = data.split('!')[0][1:].lower()
                 args = ':'.join(data.split(':')[2:])[1:-1]
                 # print and a clean version of the message
-                print(self.base_timestamp() + ' [' + server + '] ' + destination + ' **' + client + ' ' + message + '**')
+                if(len(args)>=6 and args[:6] == 'ACTION'):
+                    line = self.base_timestamp() + ' [' + server + '] ' + destination + ' **' + client + ' ' + args[7:] + '**'
+                else:
+                    line = self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + client + ' (CTCP)> ' + args
+                print(line)
                 #log the message
                 if(msg_pm or server not in self.conf['server'] or destination not in self.conf['server'][server]['channel'] or self.conf['server'][server]['channel'][destination]['logging']):
-                    self.base_addlog(self.base_timestamp() + ' **' + client + ' ' + message + '**', [server,destination])
+                    self.base_addlog(line, [server,destination])
                 ircbot_on.ircbot_on.on_ctcp(self,server,client,args)
             else:
                 # print and a clean version of the message
