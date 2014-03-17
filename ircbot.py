@@ -182,6 +182,87 @@ class ircbot:
                 if n % 5 == 0:
                     time.sleep(2)
 
+    def base_function(self,client,msg,function,args,destpair):
+        server = destpair[0]
+        destination = destpair[1]
+        msg_pm = msg[0]
+        msg_cmd = msg[1]
+        msg_cmdcln = msg[2]
+        #####SPLIT HERE
+        functions = []
+        for module in self.modules:
+            functions = functions + dir(getattr(__import__(module),module))
+        privmsg = self.conf['function']['default']['privmsg']
+        if('fn_' + function in self.conf['function'] and 'privmsg' in self.conf['function']['fn_' + function]):
+            privmsg = self.conf['function']['fn_' + function]['privmsg']
+        for func in functions:
+            if('fn_' + function==func or (func[:3]=='fn_' and 'fn_' + function=='fn_' + func[3:].replace('_',''))):
+                function = func[3:]
+        if('fn_' + function in functions and (not msg_pm or privmsg)):
+            method = False
+            #search modules for the method with the same name as the function requested.
+            for module in self.modules:
+                if(hasattr(__import__(module),module) and hasattr(getattr(__import__(module),module),'fn_' + function)):
+                    method = getattr(getattr(__import__(module),module),'fn_' + function)
+                if(isinstance(method,collections.Callable)):
+                    break
+	    #if you managed to find a method, check it works
+            if(isinstance(method, collections.Callable)):
+                #####SPLIT FOR CHK_FUNC_DISABLED
+                #check if the function has been disabled
+                disabled = False
+                disabled = self.conf['function']['default']['disabled']
+                if('fn_' + function in self.conf['function'] and 'disabled' in self.conf['function']['fn_' + function]):
+                    disabled = self.conf['function']['fn_' + function]['disabled']
+                if(disabled):
+                    out = "This function has been disabled, sorry"
+                else:
+                #####END SPLIT
+                    ######SPLIT FOR CHK_FUNC_TIME_DELAY
+                    time_delay = 0
+                    time_delay = self.conf['function']['default']['time_delay']
+                    if('fn_' + function in self.conf['function'] and 'time_delay' in self.conf['function']['fn_' + function]):
+                        time_delay = self.conf['function']['fn_' + function]['time_delay']
+                    last_used = 0
+                    if('fn_' + function in self.core['function'] and 'last_used' in self.core['function']['fn_' + function]):
+                        last_used = self.core['function']['fn_' + function]['last_used']
+                    if(last_used!=0 and time_delay!=0 and (int(time.time())-last_used)<time_delay):
+                        out = "You're trying to use this function too fast after its last use, sorry. Please wait."
+                    else:
+                    #######END SPLIT
+                        #this part wants to be changed to start another thread I guess, then this thread can monitor it.
+                        #info needed will be max run time (loop for that long before check if it's dead (or replied) and then kill it.)
+                        #also have to check processor and ram usage, I guess
+                        #will need to get the id of the thread I just started, too
+                        out = str(method(self,args,client,[server,destination]))
+                        #record the time it was used.
+                        if('fn_' + function not in self.core['function']):
+                            self.core['function']['fn_' + function] = {}
+                        self.core['function']['fn_' + function]['last_used'] = int(time.time())
+                        #check where this function is meant to send its answer to, and how
+                        return_to = self.conf['function']['default']['return_to']
+                        if('fn_' + function in self.conf['function'] and 'return_to' in self.conf['function']['fn_' + function]):
+                            return_to = self.conf['function']['fn_' + function]['return_to']
+                        if(return_to == 'channel' or return_to == 'notice'):
+                            destpair = [server,destination]
+                        elif(return_to == 'privmsg'):
+                            destpair = [server,client]
+                        notice = False
+                        if(return_to == 'notice'):
+                            notice = True
+            # if we can't handle the function, let them know
+            elif(msg_pm):
+             #   self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
+                hallobase.hallobase.fn_staff(self,function + ' ' + args,client,[server,destination])
+            elif(msg_cmd and msg_cmdcln):
+                self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
+        ##### END SPLIT 
+        if(out is not None):
+            return [out,destpair,notice]
+        else:
+            return None
+
+
     def base_parse(self,server,data):
         # take a line of data from irc server's socket and process it
         nick = self.conf['server'][server]['nick']
@@ -223,114 +304,52 @@ class ircbot:
                     ignore_list = self.conf['server'][server]['channel'][destination]['ignore_list']
                 if(client.lower() in ignore_list):
                     msg_cmd = False
-            #command colon variable, if command is followed by a colon and command doesn't exist, throw an error
-            msg_cmdcln = False
-            # print and a clean version of the message
-            print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + client + '> ' + message)
             # if it's a private message, answer to the client, not to yourself
             if msg_pm:
                 destination = client
-            #log the message
-            if(msg_pm or self.conf['server'][server]['channel'][destination]['logging']):
-                self.base_addlog(self.base_timestamp() + ' <' + client + '> ' + message, [server,msg_pm and client or destination])
-            # if it's a public message, parse out the prefixed nick and clean up added whitespace/colons
-            if msg_cmd:
-                message = message[len(nick):]
-                if(len(message)>=1):
-                    if(message[0] == ','):
-                        message = message[1:]
-                    if(message[0] == ':'):
-                        message = message[1:]
-                        msg_cmdcln = True
-                    while(message[0] == ' ' and len(message)>=1):
-                        message = message[1:]
-            # now handle functions!
             if msg_ctcp:
                 client = data.split('!')[0][1:].lower()
                 args = ':'.join(data.split(':')[2:])[1:-1]
-                print(self.base_timestamp() + ' [' + server + '] The above was a ctcp one.')
+                # print and a clean version of the message
+                print(self.base_timestamp() + ' [' + server + '] ' + destination + ' **' + client + ' ' + message + '**')
+                #log the message
+                if(msg_pm or server not in self.conf['server'] or destination not in self.conf['server'][server]['channel'] or self.conf['server'][server]['channel'][destination]['logging']):
+                    self.base_addlog(self.base_timestamp() + ' **' + client + ' ' + message + '**', [server,destination])
                 ircbot_on.ircbot_on.on_ctcp(self,server,client,args)
-            elif msg_cmd or msg_pm:
+            else:
+                # print and a clean version of the message
+                print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + client + '> ' + message)
+                #log the message
+                if(msg_pm or server not in self.conf['server'] or destination not in self.conf['server'][server]['channel'] or self.conf['server'][server]['channel'][destination]['logging']):
+                    self.base_addlog(self.base_timestamp() + ' <' + client + '> ' + message, [server,destination])
+            #command colon variable, if command is followed by a colon and command doesn't exist, throw an error
+            msg_cmdcln = False
+            # if it's a public message, parse out the prefixed nick and clean up added whitespace/colons
+            if msg_cmd:
+                message = message[len(nick):]
+                if(len(message)>=1 and message[0] == ','):
+                    message = message[1:]
+                if(len(message)>=1 and message[0] == ':'):
+                    message = message[1:]
+                    msg_cmdcln = True
+                while(len(message)>=1 and message[0] == ' '):
+                    message = message[1:]
+            # now handle functions!
+            if msg_cmd or msg_pm:
                 if(len(message) > 0):
                     function = message.split()[0].lower()
                 else:
-                    function = ''.lower()
+                    function = ''
                 args = message[len(function):]
                 # parse out leading whitespace
                 if(len(args)>=1):
                     while(len(args)>=1 and args[0] in [' ',',']):
                         args = args[1:]
                 #Encase functions in error handling, because programmers might make functions which are a tad crashy
-           #     found = False
                 try:
-                    functions = []
-                    for module in self.modules:
-                        functions = functions + dir(getattr(__import__(module),module))
-                    privmsg = self.conf['function']['default']['privmsg']
-                    if('fn_' + function in self.conf['function'] and 'privmsg' in self.conf['function']['fn_' + function]):
-                        privmsg = self.conf['function']['fn_' + function]['privmsg']
-                    for func in functions:
-                        if('fn_' + function==func or (func[:3]=='fn_' and 'fn_' + function=='fn_' + func[3:].replace('_',''))):
-                            function = func[3:]
-                    if('fn_' + function in functions and (not msg_pm or privmsg)):
-                        method = False
-                        addonmodule = False
-                        if(hasattr(self,'fn_' + function)):
-                            method = getattr(self,'fn_' + function)
-                        if(not isinstance(method, collections.Callable)):
-                            for module in self.modules:
-                                if(hasattr(__import__(module),module) and hasattr(getattr(__import__(module),module),'fn_' + function)):
-                                    method = getattr(getattr(__import__(module),module),'fn_' + function)
-                                    addonmodule = True
-                                if(isinstance(method,collections.Callable)):
-                                    break
-                        if(isinstance(method, collections.Callable)):
-                            #check if the function has been disabled
-                            disabled = False
-                            disabled = self.conf['function']['default']['disabled']
-                            if('fn_' + function in self.conf['function'] and 'disabled' in self.conf['function']['fn_' + function]):
-                                disabled = self.conf['function']['fn_' + function]['disabled']
-                            if(disabled):
-                                out = "This function has been disabled, sorry"
-                            else:
-                                time_delay = 0
-                                time_delay = self.conf['function']['default']['time_delay']
-                                if('fn_' + function in self.conf['function'] and 'time_delay' in self.conf['function']['fn_' + function]):
-                                    time_delay = self.conf['function']['fn_' + function]['time_delay']
-                                last_used = 0
-                                if('fn_' + function in self.core['function'] and 'last_used' in self.core['function']['fn_' + function]):
-                                    last_used = self.core['function']['fn_' + function]['last_used']
-                                if(last_used!=0 and time_delay!=0 and (int(time.time())-last_used)<time_delay):
-                                    out = "You're trying to use this function too fast after its last use, sorry. Please wait."
-                                else:
-                                    if(addonmodule):
-                                        #this part wants to be changed to start another thread I guess, then this thread can monitor it.
-                                        #info needed will be max run time (loop for that long before check if it's dead (or replied) and then kill it.)
-                                        #also have to check processor and ram usage, I guess
-                                        #will need to get the id of the thread I just started, too
-                                        out = str(method(self,args,client,[server,destination]))
-                                    else:
-                                        out = str(method(args,client,[server,destination]))
-                                    #record the time it was used.
-                                    if('fn_' + function not in self.core['function']):
-                                        self.core['function']['fn_' + function] = {}
-                                    self.core['function']['fn_' + function]['last_used'] = int(time.time())
-                            #check where this function is meant to send its answer to, and how
-                            return_to = self.conf['function']['default']['return_to']
-                            if('fn_' + function in self.conf['function'] and 'return_to' in self.conf['function']['fn_' + function]):
-                                return_to = self.conf['function']['fn_' + function]['return_to']
-                            if(return_to == 'channel'):
-                                self.base_say(out,[server,destination])
-                            elif(return_to == 'privmsg'):
-                                self.base_say(out,[server,client])
-                            elif(return_to == 'notice'):
-                                self.base_say(out,[server,destination],True)
-                    # if we can't handle the function, let them know
-                    elif(msg_pm):
-                     #   self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
-                        hallobase.hallobase.fn_staff(self,function + ' ' + args,client,[server,destination])
-                    elif(msg_cmd and msg_cmdcln):
-                        self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
+                    out = base_function(self,client,[msg_pm,msg_cmd,msg_cmdcln],function,args,[server,destination])
+                    if(out is not None):
+                        self.base_say(out[0],out[1],out[2])
                 except Exception as e:
                     # if we have an error, let them know and print it to the screen
                     if(self.open):
