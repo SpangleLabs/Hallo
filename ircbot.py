@@ -347,7 +347,7 @@ class ircbot:
                         args = args[1:]
                 #Encase functions in error handling, because programmers might make functions which are a tad crashy
                 try:
-                    out = self.base_function(self,client,[msg_pm,msg_cmd,msg_cmdcln],function,args,[server,destination])
+                    out = self.base_function(client,[msg_pm,msg_cmd,msg_cmdcln],function,args,[server,destination])
                     if(out is not None):
                         self.base_say(out[0],out[1],out[2])
                 except Exception as e:
