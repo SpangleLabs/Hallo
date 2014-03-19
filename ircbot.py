@@ -552,8 +552,8 @@ class ircbot:
         except Exception as e:
             print("CONNECTION ERROR: " + str(e))
             self.core['server'][server]['open'] = False
-            del self.core['server'][server]
-            del self.conf['server'][server]
+         #   del self.core['server'][server]
+         #   del self.conf['server'][server]
           #  self.conf['servers'].remove(server)
         Thread(target=self.base_connect, args=(server,)).start()
         nextline = ""

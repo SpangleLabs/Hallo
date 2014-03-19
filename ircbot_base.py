@@ -534,6 +534,7 @@ class ircbot_base:
                 return "Please give two inputs, the server name first, then the server's port."
             else:
                 if(args.split()[0] in self.conf['server']):
+                    self.conf['server'][args.split()[0]]['port'] = int(args.split()[1])
                     self.base_say("Changed " + args.split()[0] + " port to: " + args.split()[1],destination)
                     self.core['server'][args.split()[0]]['lastping'] = 1
                     return "Changed " + args.split()[0] + " port to: " + args.split()[1] + "."
