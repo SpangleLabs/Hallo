@@ -103,6 +103,12 @@ class ircbot_base:
         'Connects to a new server. Requires godmode'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             args = args.lower()
+            if(':' in args):
+                argsplit = args.split(':')
+                port = int(argsplit[1])
+                args = argsplit[0]
+            else:
+                port = 6667
             argsplit = args.split('.')
             title = max(argsplit,key=len)
             if(title not in self.conf['server']):
@@ -115,7 +121,7 @@ class ircbot_base:
                 self.conf['server'][title]['nick'] = self.conf['server'][destination[0]]['nick']
                 self.conf['server'][title]['full_name'] = self.conf['server'][destination[0]]['full_name']
                 self.conf['server'][title]['pass'] = False
-                self.conf['server'][title]['port'] = self.conf['server'][destination[0]]['port']
+                self.conf['server'][title]['port'] = port
                 self.conf['server'][title]['channel'] = {}
                 self.conf['server'][title]['admininform'] = []
                 self.conf['server'][title]['pingdiff'] = 600

@@ -3,7 +3,6 @@
 SHORT:HALLO GETTHEMLITTLESITH -> KICKS THREE RANDOM USERS OTHER THAN D000242 AND SELF IN A QUICK SEQUENCE, ONLY D000242 CAN USE THIS COMMAND. 
 
 SHORT:02:59:50 <@dr-spangle> define function?
-SHORT:00:33:22 < dr-spangle> -urbandictionary func
 
 SHORT:'ban' function, bans users from channel
 SHORT:'topic' function to change topic
@@ -20,6 +19,7 @@ LONG:wolfram alpha API integration. I have an AppID: XJA93W-225U2U4XKJ
 
 SHORT:Bronyradio integration
 SHORT:http://bronyradio.com/inc/merge.php
+SHORT:http://ponyvillefm.com/inc/merge.php
 
 SHORT:00:14:02 < deer-spangle> auto currency: https://blockchain.info/ticker
 
