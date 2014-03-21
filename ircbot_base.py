@@ -445,7 +445,7 @@ class ircbot_base:
     def fn_swear_comment_message(self,args,client,destination):
         'Set the message for comment swears, format is "swear_comment_message <channel> <message>" {swear} in the message will be replaced with the swear that was used.'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            channel = args.split()[0]
+            channel = args.split()[0].lower()
             message = ' '.join(args.split()[1:])
             if(channel in self.conf['server'][destination[0]]['channel']):
                 self.conf['server'][destination[0]]['channel'][channel]['swearlist']['commentmsg'] = message
