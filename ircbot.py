@@ -177,7 +177,7 @@ class ircbot:
                     print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line).encode('ascii','replace').decode())
                     self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + line + endl).encode('utf-8'))
                 if(destination[1][0] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
-                    self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '>: ' + line,destination)
+                    self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line,destination)
                 # avoid flooding
                 if n % 5 == 0:
                     time.sleep(2)
@@ -185,7 +185,8 @@ class ircbot:
     def base_function(self,client,msg,function,args,destpair):
         server = destpair[0]
         destination = destpair[1]
-        out = 'strange error, sorry'
+        out = 'Strange error, sorry'
+        notice = False
         msg_pm = msg[0]
         msg_cmd = msg[1]
         msg_cmdcln = msg[2]
@@ -257,7 +258,7 @@ class ircbot:
             hallobase.hallobase.fn_staff(self,function + ' ' + args,client,[server,destination])
             out = 'Message sent to staff members.'
         elif(msg_cmd and msg_cmdcln):
-            out = '"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.'
+            out = '"' + function + '" not defined.  Try "/msg ' + client + ' help commands" for a list of commands.'
         ##### END SPLIT 
         if(out is not None):
             return [out,destpair,notice]
