@@ -185,6 +185,7 @@ class ircbot:
     def base_function(self,client,msg,function,args,destpair):
         server = destpair[0]
         destination = destpair[1]
+        out = 'strange error, sorry'
         msg_pm = msg[0]
         msg_cmd = msg[1]
         msg_cmdcln = msg[2]
@@ -240,22 +241,23 @@ class ircbot:
                             self.core['function']['fn_' + function] = {}
                         self.core['function']['fn_' + function]['last_used'] = int(time.time())
                         #check where this function is meant to send its answer to, and how
-                        return_to = self.conf['function']['default']['return_to']
-                        if('fn_' + function in self.conf['function'] and 'return_to' in self.conf['function']['fn_' + function]):
-                            return_to = self.conf['function']['fn_' + function]['return_to']
-                        if(return_to == 'channel' or return_to == 'notice'):
-                            destpair = [server,destination]
-                        elif(return_to == 'privmsg'):
-                            destpair = [server,client]
-                        notice = False
-                        if(return_to == 'notice'):
-                            notice = True
-            # if we can't handle the function, let them know
-            elif(msg_pm):
-             #   self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
-                hallobase.hallobase.fn_staff(self,function + ' ' + args,client,[server,destination])
-            elif(msg_cmd and msg_cmdcln):
-                self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
+                    return_to = self.conf['function']['default']['return_to']
+                    if('fn_' + function in self.conf['function'] and 'return_to' in self.conf['function']['fn_' + function]):
+                        return_to = self.conf['function']['fn_' + function]['return_to']
+                    if(return_to == 'channel' or return_to == 'notice'):
+                        destpair = [server,destination]
+                    elif(return_to == 'privmsg'):
+                        destpair = [server,client]
+                    notice = False
+                    if(return_to == 'notice'):
+                        notice = True
+        # if we can't handle the function, let them know
+        elif(msg_pm):
+        #   self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
+            hallobase.hallobase.fn_staff(self,function + ' ' + args,client,[server,destination])
+            out = 'Message sent to staff members.'
+        elif(msg_cmd and msg_cmdcln):
+            out = '"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.'
         ##### END SPLIT 
         if(out is not None):
             return [out,destpair,notice]
