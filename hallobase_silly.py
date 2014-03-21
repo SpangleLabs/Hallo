@@ -6,6 +6,7 @@ import ircbot_chk   #for checking users have appropriate permissions to use cert
 import euler        #for WH40k quote importing
 import urllib.request, urllib.error, urllib.parse    #for urbandictionary function
 import json         #for urbandictionary function
+import xmltodict    #for ponyvillefm functionality
 
 class hallobase_silly():
    # def init(self):
@@ -356,4 +357,40 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
     def fn_urban(self,args,client,destination):
         'Alias of urban_dictionary function.'
         return hallobase_silly.fn_urban_dictionary(self,args,client,destination)
+
+    def fn_song(self,args,client,destination):
+        'States the current song on ponyvillefm'
+        url = 'http://ponyvillefm.com/inc/merge.php'
+        pagerequest = urllib.request.Request(url)
+        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+        pageopener = urllib.request.build_opener()
+        pageinfo = str(pageopener.open(pagerequest).info())
+        code = pageopener.open(pagerequest).read().decode('utf-8')
+        songdict = xmltodict.parse(code)
+        return "Current song on ponyvillefm: " + songdict['SHOUTCASTSERVER']['SONGTITLE']
+
+    def fn_nextsong(self,args,client,destination):
+        'States the next song on ponyvillefm'
+        url = 'http://ponyvillefm.com/inc/merge.php'
+        pagerequest = urllib.request.Request(url)
+        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+        pageopener = urllib.request.build_opener()
+        pageinfo = str(pageopener.open(pagerequest).info())
+        code = pageopener.open(pagerequest).read().decode('utf-8')
+        songdict = xmltodict.parse(code)
+        return "Next song on ponyvillefm: " + songdict['SHOUTCASTSERVER']['NEXTTITLE']
+
+    def fn_listeners(self,args,client,destination):
+        'States the current number of listeners to ponyvillefm'
+        url = 'http://ponyvillefm.com/inc/merge.php'
+        pagerequest = urllib.request.Request(url)
+        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+        pageopener = urllib.request.build_opener()
+        pageinfo = str(pageopener.open(pagerequest).info())
+        code = pageopener.open(pagerequest).read().decode('utf-8')
+        songdict = xmltodict.parse(code)
+        return "Current number of listeners to ponyvillefm: " + songdict['SHOUTCASTSERVER']['CURRENTLISTENERS']
+
+
+
 
