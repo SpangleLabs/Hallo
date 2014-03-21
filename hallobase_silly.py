@@ -353,4 +353,7 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
         else:
             return "Sorry, I cannot find a definition for " + args + "."
 
+    def fn_urban(self,args,client,destination):
+        'Alias of urban_dictionary function.'
+        return hallobase_silly.fn_urban_dictionary(self,args,client,destination)
 
