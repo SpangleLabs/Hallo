@@ -911,3 +911,61 @@ class ircbot_base:
         else:
             return "Insufficient privileges."
 
+    def fn_chan_alias_add(self,args,client,destination):
+        'Adds a channel alias, for use with chk_destination, gods only.'
+        args = args.split()
+        if(args[0][0]=='#'):
+            channel = args[0].lower()
+            del args[0]
+        elif(args[1][0]=='#'):
+            channel = args[1].lower()
+            del args[1]
+        elif(args[2][0]=='#'):
+            channel = args[2].lower()
+            del args[2]
+        else:
+            return "No channel specified."
+        if(args[0] in self.conf['server']):
+            server = args[0].lower()
+            del args[0]
+        elif(args[1] in self.conf['server']):
+            server = args[1].lower()
+            del args[1]
+        else:
+            return "No server specified."
+        alias = args[0]
+        if('alias_chan' not in self.conf):
+            self.conf['alias_chan'] = {}
+        if(alias in self.conf['alias_chan']):
+            return "Alias by this name already exists."
+        if(ircbot_chk.ircbot_chk.chk_god(self,server,client)):
+            self.conf['alias_chan'][alias] = {}
+            self.conf['alias_chan'][alias]['server'] = server
+            self.conf['alias_chan'][alias]['channel'] = channel
+            return "Added channel alias for " + alias + " pointing to {" + server + "," + channel + "}"
+        else:
+            return "Only gods can add channel aliases."
+
+    def fn_chan_alias_list(self,args,client,destination):
+        'Lists all channel aliases.'
+        if('alias_chan' not in self.conf):
+            return "There are no aliases."
+        else:
+            return "Channel aliases: " + ', '.join([item + "->{" + self.conf['alias_chan'][item]['server'] + "," + self.conf['alias_chan'][item]['channel'] + "}" for item in self.conf['alias_chan']])
+
+    def fn_chan_alias_del(self,args,client,destination):
+        'Delete channel alias. Gods only. format: chan_alias_del <alias>'
+        if('alias_chan' not in self.conf):
+            return "There are no aliases."
+        if(args in self.conf['alias_chan']):
+            return "That isn't a valid alias."
+        if(ircbot_chk.ircbot_chk.chk_god(self,server,client)):
+            del self.conf['alias_chan'][args]
+            return "Removed " + args + " channel alias."
+        else:
+            return "Only gods can delete channel aliases."
+
+
+
+
+
