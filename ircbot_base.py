@@ -938,7 +938,7 @@ class ircbot_base:
             self.conf['alias_chan'] = {}
         if(alias in self.conf['alias_chan']):
             return "Alias by this name already exists."
-        if(ircbot_chk.ircbot_chk.chk_god(self,server,client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             self.conf['alias_chan'][alias] = {}
             self.conf['alias_chan'][alias]['server'] = server
             self.conf['alias_chan'][alias]['channel'] = channel

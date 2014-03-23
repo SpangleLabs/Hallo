@@ -84,29 +84,29 @@ class ircbot_chk:
 
     def fnn_chk_channel(self,server,client,destchan):
         if(destchan=='*' and ircbot_chk.chk_op(self,server,client)):
-            return [[destserv,chan] for chan in self.conf['server'][destserv]['channel']]
+            return [[server,chan] for chan in self.conf['server'][server]['channel']]
         asterix = False
         if(destchan[-1]=='*' and ircbot_chk.chk_op(self,server,client)):
             asterix = True
             destchan = destchan[:-1]
         chanlist = [[None,'No channels match this truncation.']]
-        foreach(chan in self.conf['server'][destserv]['channel']):
+        for chan in self.conf['server'][server]['channel']:
             if(chan[:len(destchan)]==destchan):
-                chanlist.append([destserv,chan])
+                chanlist.append([server,chan])
         if(len(chanlist)==1):
             chanlist = [[None,'No channels match this truncation.']]
         elif(not asterix and len(chanlist)>2):
             chanlist = [[None,'Too many channels match this truncation.']]
         else:
             chanlist = chanlist[1:]
-        if(chanlist[0][0] is not None):
+        if(chanlist[0] != [[None,'No channels match this truncation.']]):
             return chanlist
         else:
-            closechan = difflib.get_close_matches(destchan,[chan for chan in self.conf['server'][destserv]['channel']])
+            closechan = difflib.get_close_matches(destchan,[chan for chan in self.conf['server'][server]['channel']])
             if(len(closechan)==0 or closechan[0]==''):
                 return [[None,'No channel names are close to this one']]
             else:
-                return [[destchan,closechan[0]]
+                return [[server,closechan[0]]]
 
     def chk_destination(self,server,channel,client,string):
         'Checks for valid server-channel pairs or known aliases, or close guesses, and returns proper pairs'
@@ -114,9 +114,9 @@ class ircbot_chk:
             return [[None,'No destination given.']]
         if(string[0]=='.'):
             #alias. not ready yet
-            if('alias_chan' in self.conf):
+            if('alias_chan' not in self.conf):
                 return [[None,'No aliases are set.']]
-            if(args in self.conf['alias_chan']):
+            if(string[1:] not in self.conf['alias_chan']):
                 return [[None,'No alias by that name.']]
             return [[self.conf['alias_chan'][string[1:]]['server'],self.conf['alias_chan'][string[1:]]['channel']]]
         if(string[0]=='#'):
@@ -146,7 +146,7 @@ class ircbot_chk:
             else:
                 if(destserv=='*' and ircbot.chk_god(self,server,client)):
                     list = []
-                    foreach(serv in self.conf['server']):
+                    for serv in self.conf['server']:
                         list = list + ircbot_chk.fnn_chk_channel(self,serv,client,destchan)
                     list = [item for item in list if item[0] is not None]
                     if(len(list)==0):
@@ -154,12 +154,12 @@ class ircbot_chk:
                     else:
                         return list
                 asterix = False
-                if(destserv[-1]=='*' and ircbot_chk_god(self,server,client)):
+                if(destserv[-1]=='*' and ircbot_chk.chk_god(self,server,client)):
                     asterix = True
                     destserv = destserv[:-1]
                 list = [[None,'No channels match this truncation.']]
-                foreach(serv in self.conf['server']):
-                    if(serv[:len(destserv)]==destserv)
+                for serv in self.conf['server']:
+                    if(serv[:len(destserv)]==destserv):
                         list = list + ircbot_chk.fnn_chk_channel(self,serv,client,destchan)
                 list = [item for item in list if item[0] is not None]
                 list.insert(0,[None,'No channels match this truncation.'])
@@ -169,7 +169,7 @@ class ircbot_chk:
                     list = [[None,'Too many servers match this truncation.']]
                 else:
                     list = list[1:]
-                if(list[0][0] is not None):
+                if(list[0] != [[None,'No channels match this truncation.']]):
                     return list
                 else:
                     closeserv = difflib.get_close_matches(destserv,[serv for serv in self.conf['server']])
@@ -184,18 +184,18 @@ class ircbot_chk:
                 return [[None,'There is no channel by the same name as this one on that server']]
         else:
             asterix = False
-            if(string[-1]=='*' and ircbot_chk_god(self,server,client)):
+            if(string[-1]=='*' and ircbot_chk.chk_god(self,server,client)):
                 asterix = True
                 string = string[:-1]
             list = [[None,'No servers match this truncation.']]
-            foreach(serv in self.conf['server']):
+            for serv in self.conf['server']:
                 if(serv[:len(string)]==string and channel in self.conf['server'][serv]['channel']):
                     list.append([serv,channel])
             if(len(list)==1):
                 list = [[None,'No servers match this truncation.']]
             elif(not asterix and len(list)>2):
                 list = [[None,'Too many servers match this truncation']]
-            if(list[0][0] is not None):
+            if(list[0] != [[None,'No servers match this truncation.']]):
                 return list
             else:
                 closeserv = difflib.get_close_matches(string,[serv for serv in self.conf['server']])

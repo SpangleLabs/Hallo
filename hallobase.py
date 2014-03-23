@@ -832,25 +832,43 @@ class hallobase():
         'Say a message into a channel or server/channel pair (in the format "{server,channel}"). Format: say <channel> <message>'
         dest = args.split()[0]
         message = ' '.join(args.split()[1:])
-        if(dest[0]=='{' and dest[-1]=='}'):
-            dest = dest[1:-1]
-            dest_serv = dest.split(',')[0].lower()
-            dest_chan = dest.split(',')[1].lower()
+        destlist = ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,dest)
+    #    if(dest[0]=='{' and dest[-1]=='}'):
+    #        dest = dest[1:-1]
+    #        dest_serv = dest.split(',')[0].lower()
+    #        dest_chan = dest.split(',')[1].lower()
+    #    else:
+    #        dest_serv = destination[0].lower()
+    #        dest_chan = dest.lower()
+    #    if(dest_serv.lower() not in self.conf['server']):
+    #        return "I'm not in any server by this name."
+    #    if(dest_chan[0]=='#'):
+    #        if(dest_chan not in self.conf['server'][dest_serv]['channel']):
+    #            return "I'm not in that channel."
+    #        if(ircbot_chk.ircbot_chk.chk_swear(self,dest_serv,dest_chan,message)!=['none','none']):
+    #            return "That message contains a word which is on swearlist for that channel."
+    #    else:
+    #        if(len(ircbot_chk.ircbot_chk.chk_recipientonline(self,dest_serv,[dest_chan]))==0):
+    #            return "That person isn't online."
+        if(len(destlist)==1 and destlist[0][0] is None):
+            return "Failed to find destination, error returned was: " + destlist[0][1]
+        skipped = 0
+        for destpair in destlist:
+            if(ircbot_chk.ircbot_chk.chk_swear(self,destpair[0],destpair[1],message)!=['none','none']):
+                skipped = skipped + 1
+            else:
+                if(self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']):
+                    self.base_say(message,destpair)
+        if(skipped==0):
+            if(len(destlist)==1):
+                return "Message sent."
+            else:
+                return "Messages sent to " + str(len([destpair for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']])) + " channels: " + ', '.join(["{" + destpair[0] + "," + destpair[1] + "}" for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']])
         else:
-            dest_serv = destination[0].lower()
-            dest_chan = dest.lower()
-        if(dest_serv.lower() not in self.conf['server']):
-            return "I'm not in any server by this name."
-        if(dest_chan[0]=='#'):
-            if(dest_chan not in self.conf['server'][dest_serv]['channel']):
-                return "I'm not in that channel."
-            if(ircbot_chk.ircbot_chk.chk_swear(self,dest_serv,dest_chan,message)!=['none','none']):
-                return "That message contains a word which is on swearlist for that channel."
-        else:
-            if(len(ircbot_chk.ircbot_chk.chk_recipientonline(self,dest_serv,[dest_chan]))==0):
-                return "That person isn't online."
-        self.base_say(message,[dest_serv,dest_chan])
-        return "Message sent."
+            if(len(destlist)==1):
+                return "That message contains a word which is on the swearlist for that channel."
+            else:
+                return "Messages sent to " + str(len([destpair for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']])-skipped) + " channels: " + ', '.join(["{" + destpair[0] + "," + destpair[1] + "}" for destpair in destlist if sel.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']]) + " But not sent to " + str(skipped) + " channels, due to swearlist violation: " + ', '.join(["{" + destpair[0] + "," + destpair[1] + "}" for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']])
 
 
 
