@@ -186,7 +186,7 @@ class ircbot:
     def base_function(self,client,msg,function,args,destpair):
         server = destpair[0]
         destination = destpair[1]
-        out = 'Strange error, sorry'
+        out = None
         notice = False
         msg_pm = msg[0]
         msg_cmd = msg[1]
