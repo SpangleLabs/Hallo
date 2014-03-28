@@ -143,7 +143,8 @@ class ircbot:
                 self.base_addlog(self.base_timestamp() + ' Hallo has quit.',[server,channel])
         #    time.sleep(1)
         if('open' in self.core['server'][server] and self.core['server'][server]['open']):
-            self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
+            #self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
+            self.core['server'][server]['socket'].send(('QUIT :Will I dream?' + endl).encode('utf-8'))
             self.core['server'][server]['socket'].close()
         #    self.conf['server'][server]['connected'] = False
             self.core['server'][server]['open'] = False
@@ -259,6 +260,8 @@ class ircbot:
             out = 'Message sent to staff members.'
         elif(msg_cmd and msg_cmdcln):
             out = '"' + function + '" not defined.  Try "/msg ' + client + ' help commands" for a list of commands.'
+        else:
+            out = None
         ##### END SPLIT 
         if(out is not None):
             return [out,destpair,notice]
