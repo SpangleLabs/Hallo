@@ -821,6 +821,10 @@ class euler:
         #preflight checks please
         numerator = args.split('/')[0]
         denominator = args.split('/')[1]
+        if(not ircbot_chk.ircbot_chk.chk_msg_numbers(self,numerator)):
+            return "Numerator must be an integer."
+        if(not ircbot_chk.ircbot_chk.chk_msg_numbers(self,denominator)):
+            return "Denominator must be an integer."
         numerator_factors = euler.fnn_euler_primefactors(self,int(numerator))
         denominator_factors = euler.fnn_euler_primefactors(self,int(denominator))
         numerator_factors_new = euler.fnn_listminus(self,numerator_factors,euler.fnn_intersection(self,denominator_factors,numerator_factors))
