@@ -1,6 +1,7 @@
 #from ircbot import ircbot
 import math
 import collections
+import ircbot_chk
 
 class euler:
     def fn_euler(self, args, client, destination):
@@ -805,6 +806,10 @@ class euler:
         'Returns the highest common factor of two numbers. Format: highest_common_factor <number1> <number2>'
         numberone = args.split()[0]
         numbertwo = args.split()[1]
+        if(not ircbot_chk.ircbot_chk.chk_msg_numbers(self,numberone)):
+            return "Both arguments must be integers."
+        if(not ircbot_chk.ircbot_chk.chk_msg_numbers(self,numbertwo)):
+            return "Both arguments must be integers."
         numberone_factors = euler.fnn_euler_primefactors(self,int(numberone))
         numbertwo_factors = euler.fnn_euler_primefactors(self,int(numbertwo))
         common_factors = euler.fnn_intersection(self,numberone_factors,numbertwo_factors)
