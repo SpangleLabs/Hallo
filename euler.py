@@ -417,31 +417,6 @@ class euler:
         string = string + decimal
         return string
 
-
-    def fn_number(self,args,client,destination):
-        'Returns the textual representation of a given number. Format: number <number>'
-        if(args.count(' ')==0):
-            number = args
-            lang = "american"
-        elif(args.split()[1].lower() == "british" or args.split()[1].lower() == "english"):
-            number = args.split()[0]
-            lang = "english"
-        elif(args.split()[1].lower() == "european" or args.split()[1].lower() == "french"):
-            number = args.split()[0]
-            lang = "european"
-        else:
-            number = args.split()[0]
-            lang = "american"
-        if(ircbot_chk.ircbot_chk.chk_msg_numbers(self,number)):
-            number = number
-        elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,number)):
-            number = mod_calc.fn_calc(self,number,client,destination)
-            if(str(number)[-1]=='.'):
-                number = number[:-1]
-        else:
-            return "You must enter a valid number or calculation."
-        return euler.fnn_euler_numberword(self,number,lang) + "."
-
     def fnn_euler_17(self):
         total = 0
         for x in range(1,1001):
