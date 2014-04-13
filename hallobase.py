@@ -151,6 +151,36 @@ class hallobase():
             self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + client + endl).encode('utf-8'))
             return 'Voice status taken.'
 
+    def fn_invite(self,args,client,destination):
+        'Invite someone to a channel'
+        args_split = args.split()
+        if(not ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
+            return "This function is for ops only."
+        if(len(args_split) == 1):
+            if(ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args_split[0])[0][0] is not None):
+                nick = client
+                channel = ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args_split[0])
+            else:
+                nick = args_split[0]
+                channel = [destination]
+        else:
+            if(ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args_split[0])[0][0] is not None):
+                nick = args_split[1]
+                channel = ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args_split[0])
+            elif(ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args_split[1])[0][0] is not None):
+                nick = args_split[0]
+                channel = ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args_split[1])
+            else:
+                return "Invalid channel."
+        channels = []
+        for destpair in channel:
+            if(destpair[0]==destination[0]):
+                channels.append(destpair[1])
+        for chan in channels:
+            self.core['server'][destination[0]]['socket'].send(('INVITE '  + nick + ' ' + chan + endl).encode('utf-8'))
+        return "Invited " + nick + " to " + ', '.join(channels) + "."
+
+
     def fn_roll(self, args, client, destination):
         'Roll X-Y returns a random number between X and Y. Format: "roll <min>-<max>" or "roll <num>d<sides>"'
         if(args.count('-')==1):
@@ -250,11 +280,7 @@ class hallobase():
        #strip brackets
         calc = calc.replace(' ','').lower()
        #make sure only legit characters are allowed
-        legit_chars = ['0','1','2','3','4','5','6','7','8','9','.','(',')','^','*','x','/','+','-','pi','e']
-        stripped = calc
-        for legit_char in legit_chars:
-            stripped = stripped.replace(legit_char,'')
-        if(stripped != ''):
+        if(not ircbot_chk.ircbot_chk.chk_msg_calc):
             return 'Error, Invalid characters in expression'
        #make sure openbrackets don't outnumber close
         elif(calc.count('(')>calc.count(')')):

@@ -68,6 +68,8 @@ class ircbot_chk:
 
     def chk_swear(self,server,channel,message):
         'checks to see if a message has swearing, returns a 2 item list, first item is: "none", "possible", "inform" or "comment", second item is whatever swear'
+        if(channel not in self.conf['server'][server]['channel']):
+            return ["none","none"]
         if(self.conf['server'][server]['channel'][channel]['sweardetect']):
             for swear in self.conf['server'][server]['channel'][channel]['swearlist']['possible']:
                 if(re.search(swear,message,re.I)):
@@ -210,7 +212,25 @@ class ircbot_chk:
         #checked everything, not sure what happens now
         return [[None,'Something very strange happened.']]
 
+    def chk_msg_numbers(self,args):
+        'checks that an argument is purely numbers'
+        validchars = [str(x) for x in range(10)]
+        for char in validchars:
+            args = args.replace(char,"")
+        if(args==""):
+            return True
+        else:
+            return False
 
+    def chk_msg_calc(self,args):
+        'checks that an argument is purely numbers and calculation characters'
+        validchars = [str(x) for x in range(10)] + [".","(",")","^","*","x","/","+","-","pi","e"]
+        for char in validchars:
+            args = args.replace(char,"")
+        if(args==""):
+            return True
+        else:
+            return False
 
 
 

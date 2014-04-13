@@ -801,6 +801,16 @@ class euler:
                 return False
         return True
 
+    def fn_highest_common_factor(self,args,client,destination):
+        'Returns the highest common factor of two numbers. Format: highest_common_factor <number1> <number2>'
+        numberone = args.split()[0]
+        numbertwo = args.split()[1]
+        numberone_factors = euler.fnn_euler_primefactors(self,int(numberone))
+        numbertwo_factors = euler.fnn_euler_primefactors(self,int(numbertwo))
+        common_factors = euler.fnn_intersection(self,numberone_factors,numbertwo_factors)
+        hcf = euler.fnn_product(self,common_factors)
+        return "The highest common factor of " + numberone + " and " + numbertwo + " is " + str(hcf) + "."
+
     def fn_simplify_fraction(self,args,client,destination):
         'Returns a fraction in its simplest form. simplify_fraction <numerator>/<denominator>'
         #preflight checks please
