@@ -2,6 +2,7 @@
 import math
 import collections
 import ircbot_chk
+import hallobase
 
 class euler:
     def fn_euler(self, args, client, destination):
@@ -420,13 +421,26 @@ class euler:
     def fn_number(self,args,client,destination):
         'Returns the textual representation of a given number. Format: number <number>'
         if(args.count(' ')==0):
-            return euler.fnn_euler_numberword(self,args) + "."
+            number = args
+            lang = "american"
         elif(args.split()[1].lower() == "british" or args.split()[1].lower() == "english"):
-            return euler.fnn_euler_numberword(self,args.split()[0],"english") + "."
+            number = args.split()[0]
+            lang = "english"
         elif(args.split()[1].lower() == "european" or args.split()[1].lower() == "french"):
-            return euler.fnn_euler_numberword(self,args.split()[0],"european") + "."
+            number = args.split()[0]
+            lang = "european"
         else:
-            return euler.fnn_euler_numberword(self,args.split()[0]) + "."
+            number = args.split()[0]
+            lang = "american"
+        if(ircbot_chk.ircbot_chk.chk_msg_numbers(self,number)):
+            number = number
+        elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,number)):
+            number = hallobase.hallobase.fn_calc(self,number,client,destination)
+            if(str(number)[-1]=='.'):
+                number = number[:-1]
+        else:
+            return "You must enter a valid number or calculation."
+        return euler.fnn_euler_numberword(self,number,lang) + "."
 
     def fnn_euler_17(self):
         total = 0
@@ -804,6 +818,8 @@ class euler:
 
     def fn_highest_common_factor(self,args,client,destination):
         'Returns the highest common factor of two numbers. Format: highest_common_factor <number1> <number2>'
+        if(len(args.split())!=2):
+            return "You must provide two arguments."
         numberone = args.split()[0]
         numbertwo = args.split()[1]
         if(not ircbot_chk.ircbot_chk.chk_msg_numbers(self,numberone)):
