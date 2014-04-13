@@ -585,14 +585,14 @@ class hallobase():
             return "I'm confused by your input, are you trying to convert between three units? or not provided me something to convert to?"
         valuestr = ''
         for char in from_to[0]:
-            if(char in [str(x) for x in range(10)] + ['.']):
+            if(char in [str(x) for x in range(10)] + ['.',"(",")","^","*","x","/","+","-"]):
                 valuestr = valuestr + char
             else:
                 break
         from_to[0] = from_to[0][len(valuestr):]
         if(valuestr==''):
             for char in from_to[0][::-1]:
-                if(char in [str(x) for x in range(10)] + ['.']):
+                if(char in [str(x) for x in range(10)] + ['.',"(",")","^","*","x","/","+","-"]):
                     valuestr = char + valuestr
                 else:
                     break
@@ -602,7 +602,12 @@ class hallobase():
         unit_from = from_to[0]
         while(unit_from[0]==' '):
             unit_from = unit_from[1:]
-        value = float(valuestr)
+        if(ircbot_chk.ircbot_chk.chk_msg_numbers(self,valuestr)):
+            value = float(valuestr)
+        elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,valuestr)):
+            value = float(hallobase.fn_calc(self,valuestr,client,destination))
+        else:
+            return "Invalid number."
         try:
             convert = pickle.load(open('store/convert.p','rb'))
         except:
