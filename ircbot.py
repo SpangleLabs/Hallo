@@ -259,7 +259,7 @@ class ircbot:
             hallobase.hallobase.fn_staff(self,function + ' ' + args,client,[server,destination])
             out = 'Message sent to staff members.'
         elif(msg_cmd and msg_cmdcln):
-            out = '"' + function + '" not defined.  Try "/msg ' + client + ' help commands" for a list of commands.'
+            out = '"' + function + '" not defined.  Try "/msg ' + self.conf['server'][server]['nick'] + ' help commands" for a list of commands.'
         else:
             out = None
         ##### END SPLIT 

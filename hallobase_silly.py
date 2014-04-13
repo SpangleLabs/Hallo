@@ -378,6 +378,8 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
         pageinfo = str(pageopener.open(pagerequest).info())
         code = pageopener.open(pagerequest).read().decode('utf-8')
         songdict = xmltodict.parse(code)
+        if(songdict['SHOUTCASTSERVER']['NEXTTITLE'] is None):
+            return "Next song data currently unavailable for ponyvillefm."
         return "Next song on ponyvillefm: " + songdict['SHOUTCASTSERVER']['NEXTTITLE']
 
     def fn_listeners(self,args,client,destination):

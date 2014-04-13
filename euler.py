@@ -435,7 +435,7 @@ class euler:
         if(ircbot_chk.ircbot_chk.chk_msg_numbers(self,number)):
             number = number
         elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,number)):
-            number = hallobase.hallobase.fn_calc(self,number,client,destination)
+            number = mod_calc.fn_calc(self,number,client,destination)
             if(str(number)[-1]=='.'):
                 number = number[:-1]
         else:
