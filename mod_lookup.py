@@ -1,6 +1,9 @@
 import urllib.request, urllib.error, urllib.parse    #for urbandictionary function
 import json         #for urbandictionary function
 import xmltodict    #for ponyvillefm functionality
+import pickle
+import random
+import difflib
 
 import ircbot_chk
 
@@ -63,4 +66,38 @@ class mod_lookup:
         code = pageopener.open(pagerequest).read().decode('utf-8')
         songdict = xmltodict.parse(code)
         return "Current number of listeners to ponyvillefm: " + songdict['SHOUTCASTSERVER']['CURRENTLISTENERS']
+
+    def fn_random_cocktail(self,args,client,destination):
+        'Delivers ingredients and recipes for a random cocktail. Format: random_cocktail'
+        cocktails = pickle.load(open('store/cocktails.p','rb'))
+        number = random.randint(0,len(cocktails))
+        cocktail = cocktails[number]
+        output = "Randomly selected cocktail is: " + cocktail['name'] + " (#" + str(number) + "). The ingredients are: "
+        ingredients = []
+        for ingredient in cocktail['ingredients']:
+            ingredients.append(ingredient[0] + ingredient[1])
+        output = output + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
+        if(output[-1]!='.'):
+            output = output + "."
+        return output
+
+    def fn_cocktail(self,args,client,destination):
+        'Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>'
+        cocktails = pickle.load(open('store/cocktails.p','rb'))
+        cocktailnames = []
+        for cocktail in cocktails:
+            cocktailnames.append(cocktail['name'].lower())
+        closest = difflib.get_close_matches(args.lower(),cocktailnames)
+        if(len(closest)==0 or closest[0]==''):
+            return "I haven't got anything close to that name."
+        else:
+            for cocktail in cocktails:
+                if(cocktail['name'].lower()==closest[0].lower()):
+                    break
+            ingredients = []
+            for ingredient in cocktail['ingredients']:
+                ingredients.append(ingredient[0] + ingredient[1])
+            if(cocktail['instructions'][-1]!='.'):
+                cocktail['instructions'] = cocktail['instructions'] + "."
+            return "Closest I have is " + closest[0] + ". The ingredients are: " + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
 

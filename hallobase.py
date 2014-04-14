@@ -1,27 +1,11 @@
-#from euler import eulerclass
-#import euler
-#from ircbot import ircbot
-#import shelve
-import random
-#import bsddb3 as bsddb
-import base64
-import urllib.request, urllib.error, urllib.parse
 import time
-import re
 import math
 ##from PIL import Image
-import io
-import pickle
-import euler
 import threading
-import json
-import difflib
 ##import psutil
 
 import ircbot_chk
 
-
-endl = '\r\n'
 class hallobase():
 
     def fn_channels(self,args,client,destination):
