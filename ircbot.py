@@ -22,6 +22,7 @@ import idlechan
 import ircbot_on
 import ircbot_base
 import ircbot_chk
+import mod_chan_ctrl
 
 endl = '\r\n' # constant for ease/readability
 
@@ -256,7 +257,7 @@ class ircbot:
         # if we can't handle the function, let them know
         elif(msg_pm):
         #   self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
-            hallobase.hallobase.fn_staff(self,function + ' ' + args,client,[server,destination])
+            mod_chan_ctrl.mod_chan_ctrl.fn_staff(self,function + ' ' + args,client,[server,destination])
             out = 'Message sent to staff members.'
         elif(msg_cmd and msg_cmdcln):
             out = '"' + function + '" not defined.  Try "/msg ' + self.conf['server'][server]['nick'] + ' help commands" for a list of commands.'
