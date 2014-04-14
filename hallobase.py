@@ -180,73 +180,6 @@ class hallobase():
             self.core['server'][destination[0]]['socket'].send(('INVITE '  + nick + ' ' + chan + endl).encode('utf-8'))
         return "Invited " + nick + " to " + ', '.join(channels) + "."
 
-
-    def fn_roll(self, args, client, destination):
-        'Roll X-Y returns a random number between X and Y. Format: "roll <min>-<max>" or "roll <num>d<sides>"'
-        if(args.count('-')==1):
-            num = args.split('-')
-            try:
-                ranges = int(num[0])
-            except:
-                return "Invalid start of range."
-            try:
-                rangee = int(num[1])
-            except:
-                return "Invalid end of range."
-            if(ranges<rangee):
-                rand = random.randint(ranges,rangee)
-                return 'I roll ' + str(rand) + '!!!'
-            else:
-                return 'Smaller number goes first, I bet it was ari or Ripp_ who tried putting them in the other way.'
-        elif(args.lower().count('d')==1):
-            num = args.lower().split('d')
-            try:
-                sides = int(num[1])
-            except:
-                return "Invalid number of sides."
-            try:
-                dice = int(num[0])
-            except:
-                return "Invalid number of dice."
-            if(dice>100):
-                return "Too many dice. Was it beets again messing with that?"
-            if(sides>1000000):
-                return "At this point, the dice would approximate a sphere."
-            if(sides>0 and dice>0):
-                if(dice > 1):
-                    string = "I roll "
-                    total = 0
-                    roll = random.randint(1,sides)
-                    total = total + roll
-                    string = string + str(roll)
-                    for x in range(dice-1):
-                        roll = random.randint(1,sides)
-                        total = total + roll
-                        string = string + ", " + str(roll)
-                    string = string + ". The total is " + str(total) + "."
-                    return string
-                elif(dice == 1):
-                    return "I roll " + str(random.randint(1,sides)) + '!!!'
-                else:
-                    return "Integer number of dice, greater than 0, less than or equal to 1, but not equal to 1. How did you do this?"
-            else:
-                return "You need to roll more than zero dice with more than zero sides. (Was it ari again who did that? or zephyr?)"
-        else:
-            return "Please give input in the form of X-Y or XdY."
-
-    def fn_choose(self, args, client, destination):
-        'Choose X, Y or Z or ... Returns one of the options separated by "or" or a comma. Format: choose <first_option>, <second_option> ... <n-1th option> or <nth option>'
-        while(len(args)>1 and args[0] in [' ',':']):
-            args = args[1:]
-        choices = re.compile(', | or ',re.IGNORECASE).split(args)
-        numchoices = len(choices)
-        if(numchoices==1):
-           return 'Please present me with more than 1 thing to choose from!'
-        else:
-           rand = random.randint(0,numchoices-1)
-           choice = choices[rand]
-           return 'I choose "' + choice + '".'
-
     def fn_boop(self,args,client,destination):
         'Boops people. Format: boop <name>'
         if(args==''):
@@ -283,23 +216,6 @@ class hallobase():
                 self.base_say('\x01ACTION boops ' + args[0] + '.\x01',[destination[0],args[0]])
                 return 'done.'
                 
-    def fn_eightball(self,args,client,destination):
-        'Magic 8 ball. Format: eightball'
-        responses = ['It is certain','It is decidedly so','Without a doubt','Yes definitely','You may rely on it','As I see it yes','Most likely','Outlook good','Yes','Signs point to yes','Reply hazy try again','Ask again later','Better not tell you now','Cannot predict now','Concentrate and ask again',"Don't count on it",'My reply is no','My sources say no','Outlook not so good','Very doubtful']
-        rand = random.randint(0,len(responses)-1)
-        return responses[rand] + "."
-
-    def fn_chosen_one(self,args,client,destination):
-        'Specifies who the chosen one is. Format: chosen_one'
-        names = ircbot_chk.ircbot_chk.chk_names(self,destination[0],destination[1])
-        tempnameslist = names
-        nameslist = []
-        for name in tempnameslist:
-            if('_S' != name and self.conf['server'][destination[0]]['nick'] not in name):
-                nameslist.append(name.replace('+','').replace('%','').replace('@','').replace('~','').replace('&',''))
-        rand = random.randint(0,len(nameslist)-1)
-        return 'It should be obvious by now that ' + nameslist[rand] + ' is the chosen one.'
-
     def fn_channels(self,args,client,destination):
         'Hallo will tell you which channels he is in, ops only. Format: "channels" for channels on current server, "channels all" for all channels on all servers.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
@@ -309,13 +225,6 @@ class hallobase():
                 return "On this server, I'm in these channels: " + ', '.join(channel for channel in self.conf['server'][destination[0]]['channel'] if self.conf['server'][destination[0]]['channel'][channel]['in_channel']) + "."
         else:
             return "Sorry, this function is for gods only."
-
-    def fn_am_i_registered(self,args,client,destination):
-        'Hallo checks if you are registered, tells you result. Format: am_i_registered'
-        if(ircbot_chk.ircbot_chk.chk_userregistered(self,destination[0],client)):
-            return "Yup, you are registered."
-        else:
-            return "It doesn't seem you are registered with nickserv right now."
 
     def fn_active_threads(self,args,client,destination):
         'Returns current number of active threads.. should probably be gods only, but it is not. Format: active_thread'
@@ -435,7 +344,5 @@ class hallobase():
 
 
 
-#convert_currency_update
-#-pull currency data from somewhere
 
 
