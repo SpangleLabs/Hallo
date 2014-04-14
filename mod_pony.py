@@ -1,4 +1,5 @@
-
+import random
+import ircbot_chk
 
 class mod_pony:
 
