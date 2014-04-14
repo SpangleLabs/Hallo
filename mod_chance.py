@@ -107,7 +107,7 @@ class mod_chance:
 
     def fn_thought_for_the_day(self,args,client,destination):
         'WH40K Thought for the day. Format: thought_for_the_day'
-        thoughts = euler.euler.fnn_euler_readfiletolist(self,'store/WH40K_ToTD2.txt')
+        thoughts = mod_euler.mod_euler.fnn_euler_readfiletolist(self,'store/WH40K_ToTD2.txt')
         rand = random.randint(0,len(thoughts)-1)
         if(thoughts[rand][-1] not in ['.','!','?']):
             thoughts[rand] = thoughts[rand] + "."
@@ -124,7 +124,7 @@ class mod_chance:
 
     def fn_ouija(self,args,client,destination):
         'Ouija board function. "Ouija board" is copyright Hasbro. Format: ouija <message>'
-        words = euler.euler.fnn_euler_readfiletolist(self,'store/ouija_wordlist.txt')
+        words = mod_euler.mod_euler.fnn_euler_readfiletolist(self,'store/ouija_wordlist.txt')
         numwords = random.randint(1,3)
         string = "I'm getting a message from the other side..."
         for x in range(numwords):

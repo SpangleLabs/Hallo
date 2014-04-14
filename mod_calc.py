@@ -1,5 +1,5 @@
 import ircbot_chk
-import euler
+import mod_euler
 
 class mod_calc:
 
@@ -194,7 +194,7 @@ class mod_calc:
             number = number[:-1]
         else:
             return "You must enter a valid number or calculation."
-        return euler.euler.fnn_euler_numberword(self,number,lang) + "."
+        return mod_euler.mod_euler.fnn_euler_numberword(self,number,lang) + "."
 
     def fn_highest_common_factor(self,args,client,destination):
         'Returns the highest common factor of two numbers. Format: highest_common_factor <number1> <number2>'
@@ -206,10 +206,10 @@ class mod_calc:
             return "Both arguments must be integers."
         if(not ircbot_chk.ircbot_chk.chk_msg_numbers(self,numbertwo)):
             return "Both arguments must be integers."
-        numberone_factors = euler.euler.fnn_euler_primefactors(self,int(numberone))
-        numbertwo_factors = euler.euler.fnn_euler_primefactors(self,int(numbertwo))
-        common_factors = euler.euler.fnn_intersection(self,numberone_factors,numbertwo_factors)
-        hcf = euler.euler.fnn_product(self,common_factors)
+        numberone_factors = mod_euler.mod_euler.fnn_euler_primefactors(self,int(numberone))
+        numbertwo_factors = mod_euler.mod_euler.fnn_euler_primefactors(self,int(numbertwo))
+        common_factors = mod_euler.mod_euler.fnn_intersection(self,numberone_factors,numbertwo_factors)
+        hcf = mod_euler.mod_euler.fnn_product(self,common_factors)
         return "The highest common factor of " + numberone + " and " + numbertwo + " is " + str(hcf) + "."
 
     def fn_simplify_fraction(self,args,client,destination):
@@ -221,10 +221,10 @@ class mod_calc:
             return "Numerator must be an integer."
         if(not ircbot_chk.ircbot_chk.chk_msg_numbers(self,denominator)):
             return "Denominator must be an integer."
-        numerator_factors = euler.euler.fnn_euler_primefactors(self,int(numerator))
-        denominator_factors = euler.euler.fnn_euler_primefactors(self,int(denominator))
-        numerator_factors_new = euler.euler.fnn_listminus(self,numerator_factors,euler.euler.fnn_intersection(self,denominator_factors,numerator_factors))
-        denominator_factors_new = euler.euler.fnn_listminus(self,denominator_factors,euler.euler.fnn_intersection(self,denominator_factors,numerator_factors))
-        numerator_new = euler.euler.fnn_product(self,numerator_factors_new)
-        denominator_new = euler.euler.fnn_product(self,denominator_factors_new)
+        numerator_factors = mod_euler.mod_euler.fnn_euler_primefactors(self,int(numerator))
+        denominator_factors = mod_euler.mod_euler.fnn_euler_primefactors(self,int(denominator))
+        numerator_factors_new = mod_euler.mod_euler.fnn_listminus(self,numerator_factors,mod_euler.mod_euler.fnn_intersection(self,denominator_factors,numerator_factors))
+        denominator_factors_new = mod_euler.mod_euler.fnn_listminus(self,denominator_factors,mod_euler.mod_euler.fnn_intersection(self,denominator_factors,numerator_factors))
+        numerator_new = mod_euler.mod_euler.fnn_product(self,numerator_factors_new)
+        denominator_new = mod_euler.mod_euler.fnn_product(self,denominator_factors_new)
         return numerator + "/" + denominator + " = " + str(numerator_new) + "/" + str(denominator_new) + "."

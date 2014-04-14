@@ -9,8 +9,8 @@ class mod_euler:
         'Project Euler functions. Format: "euler list" to list project euler solutions. "euler <number>" for the solution to project euler problem of the given number.'
         if(args.replace(' ','').isdigit()):
             #try and do that euler function command
-            if(hasattr(euler,'fnn_euler_' + args) and isinstance(getattr(euler,'fnn_euler_' + args), collections.Callable)):
-                eulerfunc = getattr(euler,'fnn_euler_' + args)
+            if(hasattr(mod_euler,'fnn_euler_' + args) and isinstance(getattr(mod_euler,'fnn_euler_' + args), collections.Callable)):
+                eulerfunc = getattr(mod_euler,'fnn_euler_' + args)
                 if(hasattr(eulerfunc, '__call__')):
                     try:
                         answer = "Euler project problem " + args + "? I think the answer is: " + str(eulerfunc(self)) + "."
@@ -24,12 +24,12 @@ class mod_euler:
         elif(args.replace(' ','').lower() == 'list'):
             #list all available project Euler answers
             problem_funcs = []
-            for fn in dir(euler):
+            for fn in dir(mod_euler):
                 if(fn[:10] == 'fnn_euler_' and fn[10:].isdigit()):
                     problem_funcs.append(fn[10:])
             answer = "Currently I can do Project Euler problems " + ', '.join(sorted(problem_funcs,key=int)[:-1]) + " and " + sorted(problem_funcs,key=int)[-1] + '.'
         else:
-            count = sum(1 for fn in dir(euler) if fn[:10] == 'fnn_euler_' and fn[10:].isdigit())
+            count = sum(1 for fn in dir(mod_euler) if fn[:10] == 'fnn_euler_' and fn[10:].isdigit())
             answer = "I'm learning to complete the project Euler programming problems. I've not done many so far, I've only done " + str(count) + " of the 434 problems. But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, say 'Hallo Euler {num}' for the answer to challenge number {num}."
         return answer
 
@@ -109,7 +109,7 @@ class mod_euler:
         for num in range(1,maximum+1):
             for x in range(1,num+1):
                 if(num%x == 0):
-                    if(euler.fnn_euler_isprime(self,x)):
+                    if(mod_euler.fnn_euler_isprime(self,x)):
                         if(x not in factors):
                             factors[x] = 1
                         dividescount = 1
@@ -135,7 +135,7 @@ class mod_euler:
         prime = 1
         while num_primes < 10001:
             test = test + 1
-            if(euler.fnn_euler_isprime(self,test)):
+            if(mod_euler.fnn_euler_isprime(self,test)):
                 num_primes = num_primes + 1
                 prime = test
         return prime
@@ -156,7 +156,7 @@ class mod_euler:
         return filearray
 
     def fnn_euler_8(self):
-        string = euler.fnn_euler_readfiletostring(self,"euler/euler_8_string.txt")
+        string = mod_euler.fnn_euler_readfiletostring(self,"euler/euler_8_string.txt")
         biggestproduct = 0
         while(len(string)>=5):
             substring = string[0:5]
@@ -191,7 +191,7 @@ class mod_euler:
         return primesum
 
     def fnn_euler_11(self):
-        raw_box = euler.fnn_euler_readfiletostring(self,"euler/euler_11_grid.txt")
+        raw_box = mod_euler.fnn_euler_readfiletostring(self,"euler/euler_11_grid.txt")
         arr_box = raw_box.split()
         biggestproduct = 0
         answerx = 0
@@ -260,7 +260,7 @@ class mod_euler:
         for x in range(2,int(math.sqrt(args))+1):
             if(args%x == 0):
                 factors.append(x)
-                factors.extend(euler.fnn_euler_primefactors(self,args//x))
+                factors.extend(mod_euler.fnn_euler_primefactors(self,args//x))
                 notprime = True
                 break
         if(not notprime):
@@ -271,7 +271,7 @@ class mod_euler:
     def fn_prime_factors(self,args,client,destination):
         'Returns the prime factors of a given number. Format: prime_factors <number>'
         args = int(args)
-        prime_factors = euler.fnn_euler_primefactors(self,args)
+        prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
     def fnn_euler_12(self):
@@ -280,14 +280,14 @@ class mod_euler:
         while numfactors<500:
             number = number + 1
             if(number%2 == 0):
-                numfactors = euler.fnn_euler_numfactors(self,number+1)*euler.fnn_euler_numfactors(self,number/2)
+                numfactors = mod_euler.fnn_euler_numfactors(self,number+1)*mod_euler.fnn_euler_numfactors(self,number/2)
             else:
-                numfactors = euler.fnn_euler_numfactors(self,(number+1)/2)*euler.fnn_euler_numfactors(self,number)
+                numfactors = mod_euler.fnn_euler_numfactors(self,(number+1)/2)*mod_euler.fnn_euler_numfactors(self,number)
         triangle = ((number+1)*number)/2
         return triangle
 
     def fnn_euler_13(self):
-        arr_numbers = euler.fnn_euler_readfiletolist(self,"euler/euler_13_numbers.txt")
+        arr_numbers = mod_euler.fnn_euler_readfiletolist(self,"euler/euler_13_numbers.txt")
         total = 0
         for number in arr_numbers:
             total = total + int(number)
@@ -299,10 +299,10 @@ class mod_euler:
             return seq
         elif(num%2 == 0):
             seq.append(num//2)
-            return euler.fnn_euler_collatz(self,seq)
+            return mod_euler.fnn_euler_collatz(self,seq)
         else:
             seq.append(3*num+1)
-            return euler.fnn_euler_collatz(self,seq)
+            return mod_euler.fnn_euler_collatz(self,seq)
 
     def fn_hailstone(self,args,client,destination):
         'Returns the hailstone sequence for a given number. Format: hailstone <number>'
@@ -310,7 +310,7 @@ class mod_euler:
             return "The hailstone function has to be given with a number (to generate the collatz sequence of.)"
         else:
             args = int(args)
-            sequence = euler.fnn_euler_collatz(self,[args])
+            sequence = mod_euler.fnn_euler_collatz(self,[args])
             return "Hailstone (Collatz) sequence for " + str(args) + ": " + '->'.join(str(x) for x in sequence) + " (" + str(len(sequence)) + " steps.)"
 
     def fnn_euler_14(self):
@@ -420,11 +420,11 @@ class mod_euler:
     def fnn_euler_17(self):
         total = 0
         for x in range(1,1001):
-            total = total + len(euler.fnn_euler_numberword(self,str(x)).replace(' ','').replace('-',''))
+            total = total + len(mod_euler.fnn_euler_numberword(self,str(x)).replace(' ','').replace('-',''))
         return total
 
     def fnn_euler_18(self):
-        arr_triangle = euler.fnn_euler_readfiletolist(self,"euler/euler_18_triangle.txt")
+        arr_triangle = mod_euler.fnn_euler_readfiletolist(self,"euler/euler_18_triangle.txt")
         for x in range(len(arr_triangle)):
             arr_triangle[x] = arr_triangle[x].split()
         for row in range(len(arr_triangle)-2,-1,-1):
@@ -468,12 +468,12 @@ class mod_euler:
         total = 0
         for x in range(10000):
             if(x not in amicable):
-                factors = euler.fnn_euler_factorise(self,x)
+                factors = mod_euler.fnn_euler_factorise(self,x)
                 factortotal = 0
                 for factor in factors:
                     factortotal = factortotal + factor
                 othernumber = factortotal-x
-                otherfactors = euler.fnn_euler_factorise(self,othernumber)
+                otherfactors = mod_euler.fnn_euler_factorise(self,othernumber)
                 otherfactortotal = 0
                 for otherfactor in otherfactors:
                     otherfactortotal = otherfactortotal + otherfactor
@@ -485,7 +485,7 @@ class mod_euler:
         return total
 
     def fnn_euler_22(self):
-        raw_names = euler.fnn_euler_readfiletostring(self,"euler/euler_22_names.txt")
+        raw_names = mod_euler.fnn_euler_readfiletostring(self,"euler/euler_22_names.txt")
         arr_names = sorted(raw_names.replace('"','').split(','))
         total = 0
         name_num = 0
@@ -503,7 +503,7 @@ class mod_euler:
         sumoftwo = [0] * 28150
         total = (28150/2)*(1+28150)-28150
         for x in range(28150):
-            factors = euler.fnn_euler_factorise(self,x)
+            factors = mod_euler.fnn_euler_factorise(self,x)
             factortotal = 0
             for factor in factors:
                 factortotal = factortotal + factor
@@ -576,9 +576,9 @@ class mod_euler:
         maxnines = 0
         maxd = 0
         for d in range(1,1000):
-            factors = euler.fnn_euler_primefactors(self,d)
-            factors = euler.fnn_euler_removelistitems(self,factors,2)
-            factors = euler.fnn_euler_removelistitems(self,factors,5)
+            factors = mod_euler.fnn_euler_primefactors(self,d)
+            factors = mod_euler.fnn_euler_removelistitems(self,factors,2)
+            factors = mod_euler.fnn_euler_removelistitems(self,factors,5)
             product = 1
             for factor in factors:
                 product = product*factor
@@ -598,7 +598,7 @@ class mod_euler:
         maxlength = 0
         maxproduct = 1
         for b in range(1,1000):
-            if(euler.fnn_euler_isprime(self,b)):
+            if(mod_euler.fnn_euler_isprime(self,b)):
                 for a in range(1,1000):
                     length = 0
                     n = 0
@@ -606,7 +606,7 @@ class mod_euler:
                         length = length + 1
                         n = n + 1
                         answer = (n**2) + (a*n) + b
-                        if not euler.fnn_euler_isprime(self,answer):
+                        if not mod_euler.fnn_euler_isprime(self,answer):
                             break
                     if(length>maxlength):
                         maxlength = length
@@ -619,7 +619,7 @@ class mod_euler:
                             length = length + 1
                             n = n + 1
                             answer = (n**2) - (a*n) + b
-                            if not euler.fnn_euler_isprime(self,answer):
+                            if not mod_euler.fnn_euler_isprime(self,answer):
                                 break
                         if(length>maxlength):
                             maxlength = length
@@ -639,7 +639,7 @@ class mod_euler:
     def fnn_euler_29(self):
         answers = []
         for a in range(2,101):
-            afactors = euler.fnn_euler_primefactors(self,a)
+            afactors = mod_euler.fnn_euler_primefactors(self,a)
        #     answer = a
             for b in range(2,101):
        #         answer = answer * a
@@ -679,7 +679,7 @@ class mod_euler:
                 if(remaining==0):
                     change.append(x*[coins[coinnum]])
                 else:
-                    changeadd = euler.fnn_euler_change(self,coins,coinnum+1,remaining)
+                    changeadd = mod_euler.fnn_euler_change(self,coins,coinnum+1,remaining)
                     for changeoption in changeadd:
                         change.append(x*[coins[coinnum]]+changeoption)
         return change
@@ -697,7 +697,7 @@ class mod_euler:
                 if(remaining==0):
                     change = change + 1
                 else:
-                    changeadd = euler.fnn_euler_change(self,coins,coinnum+1,remaining)
+                    changeadd = mod_euler.fnn_euler_change(self,coins,coinnum+1,remaining)
                     change = change + changeadd
         return change
 
@@ -705,7 +705,7 @@ class mod_euler:
         'Returns the number of ways to give change for a given amount (in pence, using british coins.) Format: change_options <number>'
         args = int(args)
         coins = [200,100,50,20,10,5,2,1]
-        options = euler.fnn_euler_change(self,coins,0,args)
+        options = mod_euler.fnn_euler_change(self,coins,0,args)
         reply = 'Possible ways to give that change: '
         for option in options:
             reply = reply + '[' + ','.join(str(x) for x in option) + '],'
@@ -713,7 +713,7 @@ class mod_euler:
 
     def fnn_euler_31(self):
         coins = [200,100,50,20,10,5,2,1]
-        options = euler.fnn_euler_change(self,coins,0,200)
+        options = mod_euler.fnn_euler_change(self,coins,0,200)
         numoptions = len(options)
      #   numoptions = euler.fnn_euler_changecount(self,coins,0,200)
         return numoptions
@@ -796,17 +796,17 @@ class mod_euler:
         total_numerator_factors = []
         total_denominator_factors = []
         for denominator in range(11,100):
-            denominator_factors = euler.fnn_euler_primefactors(self,denominator)
+            denominator_factors = mod_euler.fnn_euler_primefactors(self,denominator)
             for numerator in range(10,denominator):
-                numerator_factors = euler.fnn_euler_primefactors(self,numerator)
+                numerator_factors = mod_euler.fnn_euler_primefactors(self,numerator)
                 if(str(numerator)[0] in str(denominator)):
                     if(str(denominator)[0]==str(denominator)[1]):
                         denominator_new = int(str(denominator)[1])
                     else:
                         denominator_new = int(str(denominator).replace(str(numerator)[0],''))
                     numerator_new = int(str(numerator)[1])
-                    numerator_factors_new = euler.fnn_euler_primefactors(self,numerator_new)
-                    denominator_factors_new = euler.fnn_euler_primefactors(self,denominator_new)
+                    numerator_factors_new = mod_euler.fnn_euler_primefactors(self,numerator_new)
+                    denominator_factors_new = mod_euler.fnn_euler_primefactors(self,denominator_new)
                     if(denominator_new!=0):
                         if((numerator/denominator-numerator_new/denominator_new)**2<epsilon):
                             print("found one." + str(numerator) + "/" + str(denominator))
@@ -818,15 +818,15 @@ class mod_euler:
                     else:
                         denominator_new = int(str(denominator).replace(str(numerator)[1],''))
                     numerator_new = int(str(numerator)[0])
-                    numerator_factors_new = euler.fnn_euler_primefactors(self,numerator_new)
-                    denominator_factors_new = euler.fnn_euler_primefactors(self,denominator_new)
+                    numerator_factors_new = mod_euler.fnn_euler_primefactors(self,numerator_new)
+                    denominator_factors_new = mod_euler.fnn_euler_primefactors(self,denominator_new)
                     if(denominator_new!=0):
                         if((numerator/denominator-numerator_new/denominator_new)**2<epsilon):
                             print("found one." + str(numerator) + "/" + str(denominator))
                             total_numerator_factors = total_numerator_factors + numerator_factors_new
                             total_denominator_factors = total_denominator_factors + denominator_factors_new
-        total_denominator_factors_new = euler.fnn_listminus(self,total_denominator_factors,euler.fnn_intersection(self,total_denominator_factors,total_numerator_factors))
-        total_denominator_new = euler.fnn_product(self,total_denominator_factors_new)
+        total_denominator_factors_new = mod_euler.fnn_listminus(self,total_denominator_factors,mod_euler.fnn_intersection(self,total_denominator_factors,total_numerator_factors))
+        total_denominator_new = mod_euler.fnn_product(self,total_denominator_factors_new)
         return total_denominator_new
  
     def fnn_euler_34(self):
@@ -849,7 +849,7 @@ class mod_euler:
             strx = str(x)
             for digit in range(len(strx)):
                 rotatex = strx[digit:] + strx[:digit]
-                prime = prime and euler.fnn_euler_isprime(self,int(rotatex))
+                prime = prime and mod_euler.fnn_euler_isprime(self,int(rotatex))
             if(prime):
                 number += 1
                 print(x)
@@ -864,9 +864,9 @@ class mod_euler:
     def fnn_euler_36(self):
         total = 0
         for a in range(10**6):
-            if(euler.fnn_ispalindrome(self,str(a))):
+            if(mod_euler.fnn_ispalindrome(self,str(a))):
                 binary = bin(a)[2:]
-                if(euler.fnn_ispalindrome(self,binary)):
+                if(mod_euler.fnn_ispalindrome(self,binary)):
                     total += a
         return total
 
@@ -878,8 +878,8 @@ class mod_euler:
             strnumber = str(number)
             truncatable = True
             for x in range(len(strnumber)):
-                truncatable = truncatable and euler.fnn_euler_isprime(self,int(strnumber[x:]))
-                truncatable = truncatable and euler.fnn_euler_isprime(self,int(strnumber[:len(strnumber)-x]))
+                truncatable = truncatable and mod_euler.fnn_euler_isprime(self,int(strnumber[x:]))
+                truncatable = truncatable and mod_euler.fnn_euler_isprime(self,int(strnumber[:len(strnumber)-x]))
             if(truncatable):
                 print('found one. ' + strnumber)
                 num_found += 1
@@ -896,7 +896,7 @@ class mod_euler:
                 constr = constr + str(x*n)
                 n += 1
             if(len(constr)==9 and int(constr)>max_constr):
-                if(euler.fnn_listinlist(self,[str(x) for x in list(range(1,10))],list(constr))):
+                if(mod_euler.fnn_listinlist(self,[str(x) for x in list(range(1,10))],list(constr))):
                     print('new max: ' + constr)
                     max_constr = int(constr)
         return max_constr
@@ -955,8 +955,8 @@ class mod_euler:
         for x in range(2,8*10**6):
             digits = len(str(x))
             if(x%2!=0 and x%3!=0 and x%5!=0):
-                if(euler.fnn_listinlist(self,[str(x) for x in range(1,digits+1)],list(str(x)))):
-                    if(euler.fnn_euler_isprime(self,x)):
+                if(mod_euler.fnn_listinlist(self,[str(x) for x in range(1,digits+1)],list(str(x)))):
+                    if(mod_euler.fnn_euler_isprime(self,x)):
                         print('this is one. ' + str(x))
                         max_pandigitalprime = x
         return max_pandigitalprime
@@ -969,7 +969,7 @@ class mod_euler:
         return value
         
     def fnn_euler_42(self):
-        filestring = euler.fnn_euler_readfiletostring(self,'euler/euler_42_words.txt')
+        filestring = mod_euler.fnn_euler_readfiletostring(self,'euler/euler_42_words.txt')
         words = [word.replace('"','') for word in filestring.split(',')]
         longestword = max(words,key=len)
         triangles = []
@@ -979,7 +979,7 @@ class mod_euler:
             triangles.append(0.5*x*(x+1))
             x += 1
         for word in words:
-            if(euler.fnn_euler_wordvalue(self,word) in triangles):
+            if(mod_euler.fnn_euler_wordvalue(self,word) in triangles):
                 print('found a triangle word: ' + word)
                 count += 1
         return count
@@ -1029,7 +1029,7 @@ class mod_euler:
         return pandigitals
 
     def fnn_euler_43(self):
-        pandigitals = euler.fnn_euler_pandigitals(self)
+        pandigitals = mod_euler.fnn_euler_pandigitals(self)
         sum = 0
         for pandigital in pandigitals:
             if(int(str(pandigital)[1:4])%2==0 and int(str(pandigital)[2:5])%3==0 and int(str(pandigital)[3:6])%5==0 and int(str(pandigital)[4:7])%7==0 and int(str(pandigital)[5:8])%11==0):
@@ -1075,7 +1075,7 @@ class mod_euler:
 
     def fnn_euler_67(self):
         #this is the same as  problem 18, but bigger file.
-        arr_triangle = euler.fnn_euler_readfiletolist(self,"euler/euler_67_triangle.txt")
+        arr_triangle = mod_euler.fnn_euler_readfiletolist(self,"euler/euler_67_triangle.txt")
         for x in range(len(arr_triangle)):
             arr_triangle[x] = arr_triangle[x].split()
         for row in range(len(arr_triangle)-2,-1,-1):

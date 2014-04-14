@@ -72,12 +72,12 @@ class mod_games():
             args = int(args)
         except:
             return "Invalid timestamp"
-        return games.fnn_date(self,args) + "."
+        return mod_games.fnn_date(self,args) + "."
 
     def fn_random_card(self,args,client,destination):
         'Picks a random card from a deck. Format: random_card'
-        card = games.fnn_randcard(self,[])
-        carddesc = games.fnn_cardname(self,card)
+        card = mod_games.fnn_randcard(self,[])
+        carddesc = mod_games.fnn_cardname(self,card)
         return "I have chosen the " + carddesc + "."
 
     def fn_highscores(self,args,client,destination):
@@ -89,7 +89,7 @@ class mod_games():
             game_name = game
             if('game_name' in self.conf['highscores'][game]):
                 game_name = self.conf['highscores'][game]['game_name']
-            output = output + game_name + "> Score: " + str(self.conf['highscores'][game]['score']) + ", Player: " + self.conf['highscores'][game]['name'] + ", Date: " + games.fnn_date(self,self.conf['highscores'][game]['date']) + ".\n"
+            output = output + game_name + "> Score: " + str(self.conf['highscores'][game]['score']) + ", Player: " + self.conf['highscores'][game]['name'] + ", Date: " + mod_games.fnn_date(self,self.conf['highscores'][game]['date']) + ".\n"
         return output
 
     def fn_higher_or_lower(self,args,client,destination):
@@ -112,14 +112,14 @@ class mod_games():
                 self.games['server'][destination[0]]['player'][client]['higher_or_lower'] = {}
                 self.games['server'][destination[0]]['player'][client]['higher_or_lower']['start_time'] = time.time()
                 self.games['server'][destination[0]]['player'][client]['higher_or_lower']['last_time'] = time.time()
-                first_card = games.fnn_randcard(self,[])
+                first_card = mod_games.fnn_randcard(self,[])
                 self.games['server'][destination[0]]['player'][client]['higher_or_lower']['last_card'] = first_card
                 self.games['server'][destination[0]]['player'][client]['higher_or_lower']['cards'] = [first_card]
                 self.games['server'][destination[0]]['player'][client]['higher_or_lower']['turns'] = 1
-                return "You have started a game of higher or lower. Your first card is: " + games.fnn_cardname(self,first_card) + "."
+                return "You have started a game of higher or lower. Your first card is: " + mod_games.fnn_cardname(self,first_card) + "."
         elif(args.lower()=='lower'):
             if(client in self.games['server'][destination[0]]['player'] and 'higher_or_lower' in self.games['server'][destination[0]]['player'][client]):
-                next_card = games.fnn_randcard(self,self.games['server'][destination[0]]['player'][client]['higher_or_lower']['cards'])
+                next_card = mod_games.fnn_randcard(self,self.games['server'][destination[0]]['player'][client]['higher_or_lower']['cards'])
                 cardnum = int(next_card[1:].replace('j','11').replace('q','12').replace('k','13'))
                 last_cardnum = int(self.games['server'][destination[0]]['player'][client]['higher_or_lower']['last_card'][1:].replace('j','11').replace('q','12').replace('k','13'))
                 if(cardnum<last_cardnum):
@@ -127,13 +127,13 @@ class mod_games():
                     self.games['server'][destination[0]]['player'][client]['higher_or_lower']['cards'].append(next_card)
                     self.games['server'][destination[0]]['player'][client]['higher_or_lower']['turns'] += 1
                     turns = self.games['server'][destination[0]]['player'][client]['higher_or_lower']['turns']
-                    return "Your " + games.fnn_ordinal(self,turns) + " card is " + games.fnn_cardname(self,next_card) + ", which is lower! Congrats! Do you think the next card will be higher or lower?"
+                    return "Your " + mod_games.fnn_ordinal(self,turns) + " card is " + mod_games.fnn_cardname(self,next_card) + ", which is lower! Congrats! Do you think the next card will be higher or lower?"
                 elif(cardnum==last_cardnum):
                     self.games['server'][destination[0]]['player'][client]['higher_or_lower']['last_card'] = next_card
                     self.games['server'][destination[0]]['player'][client]['higher_or_lower']['cards'].append(next_card)
                     self.games['server'][destination[0]]['player'][client]['higher_or_lower']['turns'] += 1
                     turns = self.games['server'][destination[0]]['player'][client]['higher_or_lower']['turns']
-                    return "Your " + games.fnn_ordinal(self,turns) + " card is " + games.fnn_cardname(self,next_card) + ", which is the same (that's fine.) Do you think the next card will be higher or lower?"
+                    return "Your " + mod_games.fnn_ordinal(self,turns) + " card is " + mod_games.fnn_cardname(self,next_card) + ", which is the same (that's fine.) Do you think the next card will be higher or lower?"
                 else:
                     turns = self.games['server'][destination[0]]['player'][client]['higher_or_lower']['turns']
                     del self.games['server'][destination[0]]['player'][client]['higher_or_lower']
@@ -143,21 +143,21 @@ class mod_games():
                         self.conf['highscores']['higher_or_lower'] = {}
                     if('score' not in self.conf['highscores']['higher_or_lower'] or turns>self.conf['highscores']['higher_or_lower']['score']):
                         if('score' in self.conf['highscores']['higher_or_lower']):
-                            previous_score = " (previous highscore was: " + str(self.conf['highscores']['higher_or_lower']['score']) + " cards, set by " + self.conf['highscores']['higher_or_lower']['name'] + " " + games.fnn_date(self,self.conf['highscores']['higher_or_lower']['date']) + ".)"
+                            previous_score = " (previous highscore was: " + str(self.conf['highscores']['higher_or_lower']['score']) + " cards, set by " + self.conf['highscores']['higher_or_lower']['name'] + " " + mod_games.fnn_date(self,self.conf['highscores']['higher_or_lower']['date']) + ".)"
                         else:
                             previous_score = ""
                         self.conf['highscores']['higher_or_lower']['game_name'] = 'Higher or lower'
                         self.conf['highscores']['higher_or_lower']['score'] = turns
                         self.conf['highscores']['higher_or_lower']['name'] = client
                         self.conf['highscores']['higher_or_lower']['date'] = time.time()
-                        return "Your " + games.fnn_ordinal(self,turns+1) + " card is " + games.fnn_cardname(self,next_card) + ". Sorry, that's higher, you lose. You managed " + str(turns) + " cards though, that's a new highscore!" + previous_score
+                        return "Your " + mod_games.fnn_ordinal(self,turns+1) + " card is " + mod_games.fnn_cardname(self,next_card) + ". Sorry, that's higher, you lose. You managed " + str(turns) + " cards though, that's a new highscore!" + previous_score
                     else:
-                        return "Your " + games.fnn_ordinal(self,turns+1) + " card is " + games.fnn_cardname(self,next_card) + ". Sorry, that's higher, you lose. You managed " + str(turns) + " cards though."
+                        return "Your " + mod_games.fnn_ordinal(self,turns+1) + " card is " + mod_games.fnn_cardname(self,next_card) + ". Sorry, that's higher, you lose. You managed " + str(turns) + " cards though."
             else:
                 return "You're not currently playing a game, use 'higher_or_lower start' to start a game."
         elif(args.lower()=='higher'):
             if(client in self.games['server'][destination[0]]['player'] and 'higher_or_lower' in self.games['server'][destination[0]]['player'][client]):
-                next_card = games.fnn_randcard(self,self.games['server'][destination[0]]['player'][client]['higher_or_lower']['cards'])
+                next_card = mod_games.fnn_randcard(self,self.games['server'][destination[0]]['player'][client]['higher_or_lower']['cards'])
                 cardnum = int(next_card[1:].replace('j','11').replace('q','12').replace('k','13'))
                 last_cardnum = int(self.games['server'][destination[0]]['player'][client]['higher_or_lower']['last_card'][1:].replace('j','11').replace('q','12').replace('k','13'))
                 if(cardnum>last_cardnum):
@@ -165,13 +165,13 @@ class mod_games():
                     self.games['server'][destination[0]]['player'][client]['higher_or_lower']['cards'].append(next_card)
                     self.games['server'][destination[0]]['player'][client]['higher_or_lower']['turns'] += 1
                     turns = self.games['server'][destination[0]]['player'][client]['higher_or_lower']['turns']
-                    return "Your " + games.fnn_ordinal(self,turns) + " card is " + games.fnn_cardname(self,next_card) + ", which is higher! Congrats! Do you think the next card will be higher or lower?"
+                    return "Your " + mod_games.fnn_ordinal(self,turns) + " card is " + mod_games.fnn_cardname(self,next_card) + ", which is higher! Congrats! Do you think the next card will be higher or lower?"
                 elif(cardnum==last_cardnum):
                     self.games['server'][destination[0]]['player'][client]['higher_or_lower']['last_card'] = next_card
                     self.games['server'][destination[0]]['player'][client]['higher_or_lower']['cards'].append(next_card)
                     self.games['server'][destination[0]]['player'][client]['higher_or_lower']['turns'] += 1
                     turns = self.games['server'][destination[0]]['player'][client]['higher_or_lower']['turns']
-                    return "Your " + games.fnn_ordinal(self,turns) + " card is " + games.fnn_cardname(self,next_card) + ", which is the same (that's fine.) Do you think the next card will be higher or lower?"
+                    return "Your " + mod_games.fnn_ordinal(self,turns) + " card is " + mod_games.fnn_cardname(self,next_card) + ", which is the same (that's fine.) Do you think the next card will be higher or lower?"
                 else:
                     turns = self.games['server'][destination[0]]['player'][client]['higher_or_lower']['turns']
                     del self.games['server'][destination[0]]['player'][client]['higher_or_lower']
@@ -181,16 +181,16 @@ class mod_games():
                         self.conf['highscores']['higher_or_lower'] = {}
                     if('score' not in self.conf['highscores']['higher_or_lower'] or turns>self.conf['highscores']['higher_or_lower']['score']):
                         if('score' in self.conf['highscores']['higher_or_lower']):
-                            previous_score = " (previous highscore was: " + str(self.conf['highscores']['higher_or_lower']['score']) + " cards, set by " + self.conf['highscores']['higher_or_lower']['name'] + " " + games.fnn_date(self,self.conf['highscores']['higher_or_lower']['date']) + ".)"
+                            previous_score = " (previous highscore was: " + str(self.conf['highscores']['higher_or_lower']['score']) + " cards, set by " + self.conf['highscores']['higher_or_lower']['name'] + " " + mod_games.fnn_date(self,self.conf['highscores']['higher_or_lower']['date']) + ".)"
                         else:
                             previous_score = ""
                         self.conf['highscores']['higher_or_lower']['game_name'] = 'Higher or lower'
                         self.conf['highscores']['higher_or_lower']['score'] = turns
                         self.conf['highscores']['higher_or_lower']['name'] = client
                         self.conf['highscores']['higher_or_lower']['date'] = time.time()
-                        return "Your " + games.fnn_ordinal(self,turns+1) + " card is " + games.fnn_cardname(self,next_card) + ". Sorry, that's lower, you lose. You managed " + str(turns) + " cards though, that's a new highscore!" + previous_score
+                        return "Your " + mod_games.fnn_ordinal(self,turns+1) + " card is " + mod_games.fnn_cardname(self,next_card) + ". Sorry, that's lower, you lose. You managed " + str(turns) + " cards though, that's a new highscore!" + previous_score
                     else:
-                        return "Your " + games.fnn_ordinal(self,turns+1) + " card is " + games.fnn_cardname(self,next_card) + ". Sorry, that's lower, you lose. You managed " + str(turns) + " cards though."
+                        return "Your " + mod_games.fnn_ordinal(self,turns+1) + " card is " + mod_games.fnn_cardname(self,next_card) + ". Sorry, that's lower, you lose. You managed " + str(turns) + " cards though."
             else:
                 return "You're not currently playing a game, use 'higher_or_lower start' to start a game."
         elif(args.lower()=='end'):
@@ -203,7 +203,7 @@ class mod_games():
                     self.conf['highscores']['higher_or_lower'] = {}
                 if('score' not in self.conf['highscores']['higher_or_lower'] or turns>self.conf['highscores']['higher_or_lower']['score']):
                     if('score' in self.conf['highscores']['higher_or_lower']):
-                        previous_score = " (previous highscore was: " + str(self.conf['highscores']['higher_or_lower']['score']) + " cards, set by " + self.conf['highscores']['higher_or_lower']['name'] + " " + games.fnn_date(self,self.conf['highscores']['higher_or_lower']['date']) + ".)"
+                        previous_score = " (previous highscore was: " + str(self.conf['highscores']['higher_or_lower']['score']) + " cards, set by " + self.conf['highscores']['higher_or_lower']['name'] + " " + mod_games.fnn_date(self,self.conf['highscores']['higher_or_lower']['date']) + ".)"
                     else:
                         previous_score = "."
                     self.conf['highscores']['higher_or_lower']['game_name'] = 'Higher or lower'
@@ -241,51 +241,51 @@ class mod_games():
                 self.games['server'][destination[0]]['player'][client]['blackjack']['start_time'] = time.time()
                 self.games['server'][destination[0]]['player'][client]['blackjack']['last_time'] = time.time()
                 self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'] = []
-                first_card = games.fnn_randcard(self,[])
+                first_card = mod_games.fnn_randcard(self,[])
                 self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'].append(first_card)
-                second_card = games.fnn_randcard(self,[first_card])
+                second_card = mod_games.fnn_randcard(self,[first_card])
                 self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] = [second_card]
-                third_card = games.fnn_randcard(self,[first_card,second_card])
+                third_card = mod_games.fnn_randcard(self,[first_card,second_card])
                 self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'].append(third_card)
-                forth_card = games.fnn_randcard(self,[first_card,second_card,third_card])
+                forth_card = mod_games.fnn_randcard(self,[first_card,second_card,third_card])
                 self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'] = []
                 self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'].append(forth_card)
                 if((first_card[1:]=='1' and third_card[1:] in ['10','j','q','k']) or (third_card[1:]=='1' and first_card[1:] in ['10','j','q','k'])):
                     del self.games['server'][destination[0]]['player'][client]['blackjack']
-                    return "You have started a game of Blackjack (H17), you have been dealt a " + games.fnn_cardname(self,first_card) + " and a " + games.fnn_cardname(self,third_card) + ". Congratulations! That's a blackjack! You win."
+                    return "You have started a game of Blackjack (H17), you have been dealt a " + mod_games.fnn_cardname(self,first_card) + " and a " + mod_games.fnn_cardname(self,third_card) + ". Congratulations! That's a blackjack! You win."
                 #insert a check for a blackjack here.
-                return "You have started a game of Blackjack (H17), you have been dealt a " + games.fnn_cardname(self,first_card) + " and a " + games.fnn_cardname(self,third_card) + ". The dealer has a " + games.fnn_cardname(self,second_card) + " and another, covered, card. Would you like to hit or stick?"
+                return "You have started a game of Blackjack (H17), you have been dealt a " + mod_games.fnn_cardname(self,first_card) + " and a " + mod_games.fnn_cardname(self,third_card) + ". The dealer has a " + mod_games.fnn_cardname(self,second_card) + " and another, covered, card. Would you like to hit or stick?"
         elif(args.lower()=='hit'):
             if(client in self.games['server'][destination[0]]['player'] and 'blackjack' in self.games['server'][destination[0]]['player'][client]):
-                new_card = games.fnn_randcard(self,self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'])
+                new_card = mod_games.fnn_randcard(self,self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'])
                 self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'].append(new_card)
-                card_sum = games.fnn_cardsum(self,self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'])
+                card_sum = mod_games.fnn_cardsum(self,self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'])
                 if(card_sum>21):
                     del self.games['server'][destination[0]]['player'][client]['blackjack']
-                    return "You have been dealt a " + games.fnn_cardname(self,new_card) + ", which means your hand sums to " + str(card_sum) + ". You've gone bust. You lose, sorry."
+                    return "You have been dealt a " + mod_games.fnn_cardname(self,new_card) + ", which means your hand sums to " + str(card_sum) + ". You've gone bust. You lose, sorry."
                 else:
-                    return "You have been dealt a " + games.fnn_cardname(self,new_card) + ", would you like to hit or stick?"
+                    return "You have been dealt a " + mod_games.fnn_cardname(self,new_card) + ", would you like to hit or stick?"
             else:
                 return "You're not even playing a game of blackjack, use 'blackjack start' to start playing one."
         elif(args.lower()=='stick' or args.lower()=='stand'):
             if(client in self.games['server'][destination[0]]['player'] and 'blackjack' in self.games['server'][destination[0]]['player'][client]):
                 #game is over, deal to finish dealer's hand, sum up both player and dealer hands, see who wins.
-                player_sum = games.fnn_cardsum(self,self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'])
-                player_aces = len(games.fnn_cardsinhand(self,self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'],'1'))
+                player_sum = mod_games.fnn_cardsum(self,self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'])
+                player_aces = len(mod_games.fnn_cardsinhand(self,self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'],'1'))
                 if(player_aces>0 and player_sum<=11):
                     player_sum = player_sum + 10
-                output = "Your hand is: " + ', '.join([games.fnn_cardname(self,card) for card in self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand']]) + ". Which sums to: " + str(player_sum) + ".\n"
-                dealer_sum = games.fnn_cardsum(self,self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards']) 
-                dealer_aces = len(games.fnn_cardsinhand(self,self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'],'1'))
+                output = "Your hand is: " + ', '.join([mod_games.fnn_cardname(self,card) for card in self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand']]) + ". Which sums to: " + str(player_sum) + ".\n"
+                dealer_sum = mod_games.fnn_cardsum(self,self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards']) 
+                dealer_aces = len(mod_games.fnn_cardsinhand(self,self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'],'1'))
                 if(dealer_aces>0 and dealer_sum<=11):
                     dealer_sum = dealer_sum + 10
                 dealer_newcards = 0
                 while(dealer_sum<17 or (dealer_sum==17 and dealer_aces>0)):
                     dealer_newcards += 1
-                    dealer_newcard = games.fnn_randcard(self,self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'])
+                    dealer_newcard = mod_games.fnn_randcard(self,self.games['server'][destination[0]]['player'][client]['blackjack']['player_hand'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'])
                     self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'].append(dealer_newcard)
-                    dealer_sum = games.fnn_cardsum(self,self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards']) 
-                    dealer_aces = len(games.fnn_cardsinhand(self,self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'],'1'))
+                    dealer_sum = mod_games.fnn_cardsum(self,self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards']) 
+                    dealer_aces = len(mod_games.fnn_cardsinhand(self,self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards'],'1'))
                     if(dealer_aces>0 and dealer_sum<=11):
                         dealer_sum = dealer_sum + 10
                 if(dealer_newcards!=0):
@@ -293,7 +293,7 @@ class mod_games():
                     if(dealer_newcards!=1):
                         plural = 'cards'
                     output = output + "The dealer deals himself " + str(dealer_newcards) + " more " + plural + ".\n"
-                output = output + "The dealer's hand is: " + ', '.join([games.fnn_cardname(self,card) for card in self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards']]) + ". Which sums to: " + str(dealer_sum) + "\n"
+                output = output + "The dealer's hand is: " + ', '.join([mod_games.fnn_cardname(self,card) for card in self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_upcard'] + self.games['server'][destination[0]]['player'][client]['blackjack']['dealer_downcards']]) + ". Which sums to: " + str(dealer_sum) + "\n"
                 if(dealer_sum>21):
                     output = output + "Dealer busts.\n"
                 if(dealer_sum==player_sum):
