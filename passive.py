@@ -8,7 +8,6 @@ import math
 import io
 #import pickle
 import euler
-import hallobase
 #import threading
 import json
 #import difflib
@@ -18,8 +17,8 @@ from subprocess import call
 
 
 import ircbot_chk   #for swear detect function
-import hallobase    #for _S replies
-import hallobase_silly  #for foof
+import mod_chance   
+import mod_pony
 import megahal_mod  #for recording messages into brains.
 import games        #for higher or lower
 
@@ -56,7 +55,7 @@ class passive():
             return out
        # if(message.lower().replace(' ','') == "foof"):
         if re.search(r'foo[o]*f[!]*',args,re.I):
-            out = hallobase_silly.hallobase_silly.fn_foof(self,args,client,destination)
+            out = mod_chance.mode_chance.fn_foof(self,args,client,destination)
             return out
         if(re.search(r'(pew)+',args,re.I)):
             out = passive.fnn_pew(self,args,client,destination)
@@ -240,7 +239,7 @@ class passive():
     def fnn_extrayammering(self, args, client, destination):
         'Does some extra chatting, probably super buggy.'
         if((args.lower().find("who") >= 0) and (args.lower().find("best pony") >=0 or args.lower().find("bestpony".lower()) >=0)):
-            message = client + ': ' + hallobase_silly.hallobase_silly.fn_bestpony(self,args,client,destination)
+            message = client + ': ' + mod_pony.mod_pony.fn_bestpony(self,args,client,destination)
             return str(message)
         elif(args.lower().find("open") >= 0 and (args.lower().find("pod bay") >=0 or args.lower().find("podbay") >=0) and args.lower().find("door") >= 0):
             message = "I'm sorry " + client + ", but I'm afraid I can't do that."
