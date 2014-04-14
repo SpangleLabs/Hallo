@@ -1,28 +1,10 @@
 import random
-#import base64
-#import urllib.request, urllib.error, urllib.parse
-#import time
-#import re
-#import math
-#from PIL import Image
-#import io
-#import pickle
-#import euler
-#import hallobase
-#import threading
-#import json
-#import difflib
-#import re
-#import html.parser
 
-
-
-endl = '\r\n'
-class idlechan():
+class mod_idlechan():
     def fnn_idlechan(self,args,client,destination):
         # SPANGLE ADDED THIS, should do things in channels, once they've been idle for a set amount of time.
         if(args.lower()=='chat to _s'):
-            return idlechan.fnn_chat_to_s(self,args,client,destination)
+            return mod_idlechan.fnn_chat_to_s(self,args,client,destination)
         elif(args.lower()=='deer'):
             return 'deer deer deer.' 
         else:

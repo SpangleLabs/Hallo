@@ -17,11 +17,10 @@ import hashlib
 import random
 
 import hallobase
-import passive
-import idlechan
 import ircbot_on
 import ircbot_base
 import ircbot_chk
+import mod_passive
 import mod_chan_ctrl
 
 endl = '\r\n' # constant for ease/readability
@@ -372,7 +371,7 @@ class ircbot:
             elif msg_pub:
                 #passive functions
            #     if(self.conf['server'][server]['channel'][destination]['passivefunc']):
-                out = passive.passive.fnn_passive(self,message,client,[server,destination])
+                out = mod_passive.mod_passive.fnn_passive(self,message,client,[server,destination])
                 if(out is not None):
                     self.base_say(out,[server,destination])
         elif('JOIN' == data.split()[1]):

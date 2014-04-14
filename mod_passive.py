@@ -1,16 +1,8 @@
-import random
-#import base64
 import urllib.request, urllib.error, urllib.parse
-import time
-#import re
 import math
 ##from PIL import Image
 import io
-#import pickle
-import euler
-#import threading
 import json
-#import difflib
 import re
 import html.parser
 from subprocess import call
@@ -20,14 +12,14 @@ import ircbot_chk   #for swear detect function
 import mod_chance   
 import mod_pony
 import megahal_mod  #for recording messages into brains.
-import games        #for higher or lower
+import mod_games        #for higher or lower
 
 
 endl = '\r\n'
-class passive():
+class mod_passive():
     def fnn_passive(self,args,client,destination):
         # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
-        passive.fnn_sweardetect(self,args,client,destination)
+        mod_passive.fnn_sweardetect(self,args,client,destination)
         megahal_mod.megahal_mod.fnn_megahalrecord(self,args,client,destination)
         if(len(args)>2 and args[:2].lower()=='_s' and '_s' not in [user.lower() for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']]):
             return megahal_mod.megahal_mod.fn_speak(self,args[2:],client,destination)
@@ -38,19 +30,19 @@ class passive():
                 self.games = {}
             if('server' in self.games and destination[0] in self.games['server'] and 'player' in self.games['server'][destination[0]] and client in self.games['server'][destination[0]]['player'] and 'higher_or_lower' in self.games['server'][destination[0]]['player'][client]):
                 if(args.lower()=='higher'):
-                    return games.games.fn_higher_or_lower(self,'higher',client,destination)
+                    return mod_games.mod_games.fn_higher_or_lower(self,'higher',client,destination)
                 if(args.lower()=='lower'):
-                    return games.games.fn_higher_or_lower(self,'lower',client,destination)
+                    return mod_games.mod_games.fn_higher_or_lower(self,'lower',client,destination)
         if(args.lower()=='hit' or args.lower()=='stick' or args.lower()=='stand'):
             try:
                self.games
             except NameError:
                self.games = {}
             if('server' in self.games and destination[0] in self.games['server'] and 'player' in self.games['server'][destination[0]] and client in self.games['server'][destination[0]]['player'] and 'blackjack' in self.games['server'][destination[0]]['player'][client]):
-                return games.games.fn_blackjack(self,args,client,destination)
+                return mod_games.mod_games.fn_blackjack(self,args,client,destination)
         if(not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']):
             return None
-        out = passive.fnn_extrayammering(self,args,client,destination)
+        out = mod_passive.fnn_extrayammering(self,args,client,destination)
         if(out is not None):
             return out
        # if(message.lower().replace(' ','') == "foof"):
@@ -58,16 +50,16 @@ class passive():
             out = mod_chance.mode_chance.fn_foof(self,args,client,destination)
             return out
         if(re.search(r'(pew)+',args,re.I)):
-            out = passive.fnn_pew(self,args,client,destination)
+            out = mod_passive.fnn_pew(self,args,client,destination)
             return out
         if(re.search(r'haskell.jpg',args,re.I)):
-            out = passive.fnn_haskell(self,args,client,destination)
+            out = mod_passive.fnn_haskell(self,args,client,destination)
             return out
-        out = passive.fnn_urldetect(self,args,client,destination)
+        out = mod_passive.fnn_urldetect(self,args,client,destination)
         if(out is not None):
             return out
         if(args.lower()=='beep'):
-            return passive.fnn_beep(self,args,client,destination)
+            return mod_passive.fnn_beep(self,args,client,destination)
 
     def fnn_urldetect(self, args, client, destination):
         'Detects URLs posted in channel, then returns the page title.'
@@ -125,7 +117,7 @@ class passive():
                     img_width = api_dict['data']['images'][int(pic_number)]['width']
                     img_height = api_dict['data']['images'][int(pic_number)]['height']
                     img_size = api_dict['data']['images'][int(pic_number)]['size']
-                    img_sizestr = passive.fnn_sizestr(self,int(img_size))
+                    img_sizestr = mod_passive.fnn_sizestr(self,int(img_size))
                     return "Imgur album> " + album_info + " | Image " + str(int(pic_number)+1) + " of " + str(album_count) + " | Current image: " + str(img_width) + "x" + str(img_height) + ", " + img_sizestr + "."
                 else:
 		    #http://i.imgur.com/2XBqIIT.jpg example imgur direct link
@@ -143,7 +135,7 @@ class passive():
                     img_width = str(api_dict['data']['width'])
                     img_height = str(api_dict['data']['height'])
                     img_size = api_dict['data']['size']
-                    img_sizestr = str(passive.fnn_sizestr(self,int(img_size)))
+                    img_sizestr = str(mod_passive.fnn_sizestr(self,int(img_size)))
                     views = str(api_dict['data']['views'])
                     return "Imgur> Title: " + title + " | Size: " + img_width + "x" + img_height + " | Filesize: " + img_sizestr + " | Views: " + views + "."
             elif("image" in pagetype):
@@ -154,7 +146,7 @@ class passive():
                 image_width = '???'
                 image_height = '???'
                 filesize = len(code)
-                filesizestr = passive.fnn_sizestr(self,filesize)
+                filesizestr = mod_passive.fnn_sizestr(self,filesize)
                 return "Image: " + pagetype + " (" + str(image_width) + "px by " + str(image_height) + "px) " + filesizestr + "."
             elif('youtube.com' in url or 'youtu.be' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8','ignore')

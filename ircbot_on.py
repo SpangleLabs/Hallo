@@ -3,7 +3,7 @@ from subprocess import call
 
 import ircbot_chk
 import ircbot_base
-import idlechan    #for idle channel functions
+import mod_idlechan    #for idle channel functions
 
 endl = '\r\n'
 
@@ -159,7 +159,7 @@ class ircbot_on:
                         if('idle_time' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['idle_time']!=0 and self.core['server'][server]['channel'][channel]['last_message']!=0 and (int(time.time())-self.core['server'][server]['channel'][channel]['last_message'])>self.conf['server'][server]['channel'][channel]['idle_time']):
                             print("channel idle")
                             self.core['server'][server]['channel'][channel]['last_message'] = int(time.time())
-                            out = idlechan.idlechan.fnn_idlechan(self,self.conf['server'][server]['channel'][channel]['idle_args'],'',[server,channel])
+                            out = mod_idlechan.mod_idlechan.fnn_idlechan(self,self.conf['server'][server]['channel'][channel]['idle_args'],'',[server,channel])
                             if(out is not None):
                                 self.base_say(out,[server,channel])
   #          print('aad' + server)
