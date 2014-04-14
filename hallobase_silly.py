@@ -3,10 +3,6 @@ import time         #checking the time for the time function
 import pickle       #to load amarr scriptures
 
 import ircbot_chk   #for checking users have appropriate permissions to use certain functions
-import euler        #for WH40k quote importing
-import urllib.request, urllib.error, urllib.parse    #for urbandictionary function
-import json         #for urbandictionary function
-import xmltodict    #for ponyvillefm functionality
 
 class hallobase_silly():
    # def init(self):
@@ -237,4 +233,84 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
             return train
         else:
             return "You have insufficient power to summon a train."
+
+    def fn_boop(self,args,client,destination):
+        'Boops people. Format: boop <name>'
+        if(args==''):
+            return "This function boops people, as such you need to specify a person for me to boop, in the form 'Hallo boop <name>' but without the <> brackets."
+        args = args.split()
+        if(len(args)>=2):
+            if(args[0][0]=='#'):
+                online = ''.join(ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],[args[1]]))
+                if(online==' ' or online==''):
+                    return 'No one called "' + args + '" is online.'
+                else:
+                    self.base_say('\x01ACTION boops ' + args[1] + '.\x01',[destination[0],args[0]])
+                    return 'done.'
+            elif(args[1][0]=='#'):
+                online = ''.join(ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],[args[0]]))
+                if(online==' ' or online==''):
+                    return 'No one called "' + args + '" is online.'
+                else:
+                    self.base_say('\x01ACTION boops ' + args[0] + '.\x01',[destination[0],args[1]])
+                    return 'done.'
+            else:
+                return "Please specify a channel."
+        elif(destination[1][0]=='#'):
+            online = ''.join(ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],args))
+            if(online==' ' or online==''):
+                return 'No one called "' + args[0] + '" is online.'
+            else:
+                return '\x01ACTION boops ' + args[0] + '.\x01'
+        else:
+            online = ''.join(ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],args))
+            if(online==' ' or online==''):
+                return 'No one called "' + args[0] + '" is online.'
+            else:
+                self.base_say('\x01ACTION boops ' + args[0] + '.\x01',[destination[0],args[0]])
+                return 'done.'
+
+    def fn_in_space(self,args,client,destination):
+        'Returns the number of people in space right now, and their names. Format: in_space'
+        pagerequest = urllib.request.Request('http://www.howmanypeopleareinspacerightnow.com/space.json')
+        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+        pageopener = urllib.request.build_opener()
+        pageinfo = str(pageopener.open(pagerequest).info())
+        code = pageopener.open(pagerequest).read()
+        space = json.loads(code.decode('utf-8'))
+        return "There are " + str(space['number']) + " people in space right now. Their names are: " + ', '.join(x['name'] for x in space['people']) + "."
+
+    def fn_random_cocktail(self,args,client,destination):
+        'Delivers ingredients and recipes for a random cocktail. Format: random_cocktail'
+        cocktails = pickle.load(open('store/cocktails.p','rb'))
+        number = random.randint(0,len(cocktails))
+        cocktail = cocktails[number]
+        output = "Randomly selected cocktail is: " + cocktail['name'] + " (#" + str(number) + "). The ingredients are: "
+        ingredients = []
+        for ingredient in cocktail['ingredients']:
+            ingredients.append(ingredient[0] + ingredient[1])
+        output = output + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
+        if(output[-1]!='.'):
+            output = output + "."
+        return output
+
+    def fn_cocktail(self,args,client,destination):
+        'Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>'
+        cocktails = pickle.load(open('store/cocktails.p','rb'))
+        cocktailnames = []
+        for cocktail in cocktails:
+            cocktailnames.append(cocktail['name'].lower())
+        closest = difflib.get_close_matches(args.lower(),cocktailnames)
+        if(len(closest)==0 or closest[0]==''):
+            return "I haven't got anything close to that name."
+        else:
+            for cocktail in cocktails:
+                if(cocktail['name'].lower()==closest[0].lower()):
+                    break
+            ingredients = []
+            for ingredient in cocktail['ingredients']:
+                ingredients.append(ingredient[0] + ingredient[1])
+            if(cocktail['instructions'][-1]!='.'):
+                cocktail['instructions'] = cocktail['instructions'] + "."
+            return "Closest I have is " + closest[0] + ". The ingredients are: " + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
 

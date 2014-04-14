@@ -5,7 +5,7 @@ import datetime
 
 
 
-class games():
+class mod_games():
 
     def fnn_randcard(self,exclude_cards):
         'Picks a random card from a deck, excluding those given to it in a list'

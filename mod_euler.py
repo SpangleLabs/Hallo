@@ -4,7 +4,7 @@ import collections
 import ircbot_chk
 import hallobase
 
-class euler:
+class mod_euler:
     def fn_euler(self, args, client, destination):
         'Project Euler functions. Format: "euler list" to list project euler solutions. "euler <number>" for the solution to project euler problem of the given number.'
         if(args.replace(' ','').isdigit()):
