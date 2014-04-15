@@ -9,39 +9,38 @@ import imp
 
 class hallobase_oper:
 
-    def fn_god_add(self,args,client,destination):
-        'Adds a member to godlist. Requires godmode.'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            args = args.replace(' ','').lower()
-            if(ircbot_chk.ircbot_chk.chk_nickregistered(self,destination[0],args)):
-                if(args not in self.conf['server'][destination[0]]['gods']):
-                    self.conf['server'][destination[0]]['gods'].append(args)
-                    return "Added " + args + " to godlist for this server."
-                else:
-                    return "This person is already in the god list."
-            else:
-                return "This person's not registered, so I can't add them to the godlist."
-        else:
-            return "Insufficient privileges to add a member to godlist."
-
-    def fn_god_list(self,args,client,destination):
-        'Lists godlist for this server. Requires godmode'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            return "Godlist for this server: " + ', '.join(self.conf['server'][destination[0]]['gods']) + "."
-        else:
-            return "Insufficient privileges to list godlist."
-
-    def fn_god_del(self,args,client,destination):
-        'Removes someone from the godlist. Requires godmode'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            args = args.replace(' ','').lower()
-            if(args in self.conf['server'][destination[0]]['gods']):
-                self.conf['server'][destination[0]]['gods'].remove(args)
-                return "Removed " + args + " from godlist."
-            else:
-                return "That person isn't even in the godlist."
-        else:
-            return "Insufficient privileges to remove someone from godlist."
+    def fn_god(self,args,client,destination):
+        'Modify godlist, add, list or delete. Format: god <add/list/del> <username>'
+         if(not ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+             return "Insufficient privileges to modify godlist."
+         args_split = args.lower().split()
+         if(len(args_split)<2 and args_split[0]!='list'):
+             return "Invalid number of arguments, please provide a username or a function."
+         if(args_split[0] in ['add','list','del','delete','remove']):
+             rawfunc = args_split[0]
+             if(len(args_split)>1):
+                 nick = args_split[1]
+         elif(args_split[1] in ['add','del','delete','remove']):
+             rawfunc = args_split[1]
+             nick = args_split[0]
+         else:
+             return "Please specify a function. Valid functions are: add, list and delete."
+         if(rawfunc == 'add'):
+             if(not ircbot_chk.ircbot_chk.chk_nickregistered(self,destination[0],nick)):
+                 return "This person's not registered, so I can't add them to the godlist."
+             if(nick in self.conf['server'][destination[0]]['gods']):
+                 return "This person is already in the god list."
+             self.conf['server'][destination[0]]['gods'].append(nick)
+             return "Added " + nick + " to the godlist for this server."
+         elif(rawfunc == 'list'):
+             return "Godlist for this serber: " + ', '.join(self.conf['server'][destination[0]]['gods']) + '.'
+         elif(rawfunc in ['del','delete','remove']):
+             if(args not in self.conf['server'][destination[0]]['gods']):
+                 return "That person isn't even in the godlist."
+             self.conf['server'][destination[0]]['gods'].remove(nick)
+             return "Removed " + args + " from the godlist."
+         else:
+             return "Function not recognised."
 
     def fn_ops_add(self,args,client,destination):
         'Adds a member to the ops list. Requires godmode.'
