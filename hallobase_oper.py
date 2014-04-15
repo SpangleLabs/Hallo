@@ -90,7 +90,7 @@ class hallobase_oper:
             rawfunc = args_split[1]
             nick = args_split[0]
         else:
-            return "Please specify a function. Valid functions are: add list and delete."
+            return "Please specify a function. Valid functions are: add, list and delete."
         if(rawfunc == 'add'):
             if('ignore_list' not in self.conf['server'][destination[0]]['channel'][destination[1]]):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'] = []
@@ -112,36 +112,37 @@ class hallobase_oper:
         else:
             return "Function not recognised."
 
-    def fn_nickserv_registered_add(self,args,client,destination):
-        'Add a string to the list of nickserv messages to look for when checking if a nick is registered'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            args = args.lower().replace(' ','')
-            if(args not in self.conf['nickserv']['registered']):
-                self.conf['nickserv']['registered'].append(args)
-                return "Added " + args + " to the nickserv registered list."
-            else:
-                return "This message is already on the nickserv registered list."
+    def fn_nickserv_registered(self,args,client,destination):
+        'Modify nickserv registered list. Add, list or delete. Format: nickserv_registered <add/list/del> <message>'
+        if(not ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+            return "Insufficient privileges to modify nickserv_registered list."
+        args_split = args.lower().split()
+        if(len(args_split)<2 and args_split[0]!='list'):
+            return "Invalid number of arguments, please provide a message and a function."
+        if(args_split[0] in ['add','list','del','delete','remove']):
+            rawfunc = args_split[0]
+            if(len(args_split)>1):
+                message = ''.join(args_split[1:])
+        elif(args_split[-1] in ['add','del','delete','remove']):
+            rawfunc = args_split[-1]
+            message = ''.join(args_split[:-1])
         else:
-            return "Sorry, this function is for gods only."
+            return "Please specify a function. Valid functions are: add, list and delete."
+    if(rawfunc == 'add'):
+        if(message in self.conf['nickserv']['registered']):
+            return "This message is already on the nickserv registered list."
+        self.conf['nickserv']['registered'].append(message)
+        return "Added " + message + " to the nickserv registered list."
+    elif(rawfunc == 'list'):
+        return "Nick registered nickserv messages: " + ', '.join(self.conf['nickserv']['registered']) + "."
+    elif(rawfunc in ['del','delete','remove']):
+        if(message not in self.conf['nickserv']['registered']):
+            return "This message isn't even on the nickserv registered list."
+        self.conf['server']['registered'].remove(message)
+        return "Removed " + message + " from nickserv registered list."
+    else:
+        return "Function not recognised."
 
-    def fn_nickserv_registered_list(self,args,client,destination):
-        'Lists all the nickserv messages to look for when checking if a nick is registered.'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            return "Nick registered nickserv messages: " + ', '.join(self.conf['nickserv']['registered']) + "."
-        else:
-            return "Sorry, this function is for gods only."
-
-    def fn_nickserv_registered_del(self,args,client,destination):
-        'Deletes a string from the list of nickserv messages to look for when checking is a nick is registered'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            args = args.lower().replace(' ','')
-            if(args in self.conf['nickserv']['registered']):
-                self.conf['server']['registered'].remove(args)
-                return "Removed " + args + " from nickserv registered list."
-            else:
-                return "This message isn't even on the nickserv registered list."
-        else:
-            return "Sorry, this function is for gods only."
 
     def fn_nickserv_online_add(self,args,client,destination):
         'Add a string to the list of nickserv messages to look for when checking if a nick is online'
