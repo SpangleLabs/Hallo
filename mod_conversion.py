@@ -1,5 +1,7 @@
 import re
 import pickle
+import urllib.request, urllib.error, urllib.parse
+import xmltodict
 
 import ircbot_chk
 import mod_calc
@@ -287,4 +289,60 @@ class mod_conversion:
             return "Value for " + unit + " set to " + str(value) + " " + convert['types'][convert['units'][unit]['type']]['base_unit'] + "."
         else:
             return "You have insufficient privileges to update the value of a conversion unit."
+
+    def fnn_convert_update_1_eurobank(self,args,client,destination):
+        'Updates the value of conversion currency units using the European Central Bank xml info.'
+        url = 'http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml'
+        pagerequest = urllib.request.Request(url)
+        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+        pageopener = urllib.request.build_opener()
+        pageinfo = str(pageopener.open(pagerequest).info())
+        code = pageopener.open(pagerequest).read().decode('utf-8')
+        eurobankdict = xmltodict.parse(code)
+        try:
+            convert = pickle.load(open('store/convert.p','rb'))
+        except:
+            return "Could not load conversion data."
+        for item in eurobankdict['gesmes:Envelope']['Cube']['Cube']['Cube']:
+            unit = item['@currency'].lower()
+            value = 1/float(item['@rate'].replace(',',''))
+            if(unit not in convert['units']):
+                convert['units'][unit] = {}
+                convert['units'][unit]['type'] = 'currency'
+            convert['units'][unit]['value'] = value
+        pickle.dump(convert,open('store/convert.p','wb'))
+        return "Currency values updated using European Central bank data."
+
+    def fnn_convert_update_2_moneyconvertor(self,args,client,destination):
+        'Updated the value of conversion currency units using The Money Convertor data.'
+        url = 'http://themoneyconverter.com/rss-feed/EUR/rss.xml'
+        pagerequest = urllib.request.Request(url)
+        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+        pageopener = urllib.request.build_opener()
+        pageinfo = str(pageopener.open(pagerequest).info())
+        code = pageopener.open(pagerequest).read().decode('utf-8')
+        moneyconvdict = xmltodict.parse(code)
+        try:
+            convert = pickle.load(open('store/convert.p','rb'))
+        except:
+            return "Could not load conversion data."
+        for item in moneyconvdict['rss']['channel']['item']:
+            unit = item['title'].split('/')[0].lower()
+            value = 1/float(item['description'].split('=')[1].split()[0].replace(',',''))
+            if(unit=='eur'):
+                continue
+            if(unit not in convert['units']):
+                convert['units'][unit] = {}
+                convert['units'][unit]['type'] = 'currency'
+            convert['units'][unit]['value'] = value
+        pickle.dump(convert,open('store/convert.p','wb'))
+        return "Currency values updated using TheMoneyConvertor data."
+
+    def fn_convert_currency_update(self,args,client,destination):
+        'Update currency conversion figures, using data from the money convertor and the european central bank.'
+        line1 = mod_conversion.fnn_convert_update_2_moneyconvertor(self,args,client,destination)
+        line2 = mod_conversion.fnn_convert_update_1_eurobank(self,args,client,destination)
+        return line1 + "\n" + line2 + "\n" + "Completed update."
+
+
 
