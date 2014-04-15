@@ -16,7 +16,6 @@ import imp
 import hashlib
 import random
 
-import hallobase
 import ircbot_on
 import ircbot_base
 import ircbot_chk

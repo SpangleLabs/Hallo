@@ -2,7 +2,6 @@
 import math
 import collections
 import ircbot_chk
-import hallobase
 
 class mod_euler:
     def fn_euler(self, args, client, destination):
