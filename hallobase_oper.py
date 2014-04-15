@@ -33,7 +33,7 @@ class hallobase_oper:
             self.conf['server'][destination[0]]['gods'].append(nick)
             return "Added " + nick + " to the godlist for this server."
         elif(rawfunc == 'list'):
-            return "Godlist for this serber: " + ', '.join(self.conf['server'][destination[0]]['gods']) + '.'
+            return "Godlist for this server: " + ', '.join(self.conf['server'][destination[0]]['gods']) + '.'
         elif(rawfunc in ['del','delete','remove']):
             if(args not in self.conf['server'][destination[0]]['gods']):
                 return "That person isn't even in the godlist."
@@ -42,39 +42,38 @@ class hallobase_oper:
         else:
             return "Function not recognised."
 
-    def fn_ops_add(self,args,client,destination):
-        'Adds a member to the ops list. Requires godmode.'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            args = args.replace(' ','').lower()
-            if(ircbot_chk.ircbot_chk.chk_nickregistered(self,destination[0],args)):
-                if(args not in self.conf['server'][destination[0]]['ops']):
-                    self.conf['server'][destination[0]]['ops'].append(args)
-                    return "Added " + args + " to ops list."
-                else:
-                    return "That person is already in the op list."
-            else:
+    def fn_ops(self,args,client,destination):
+        'Modify ops list. Add, list or delete. Format: ops <add/list/del> <username>'
+        if(not ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+            return "Insufficient privileges to modify ops list."
+        args_split = args.lower().split()
+        if(len(args_split)<2 and args_split[0]!='list'):
+            return "Invalid number of arguments, please provide a username and a function."
+        if(args_split[0] in ['add','list','del','delete','remove']):
+            rawfunc = args_split[0]
+            if(len(args_split)>1):
+                nick = args_split[1]
+        elif(args_split[1] in ['add','del','delete','remove']):
+            rawfunc = args_split[1]
+            nick = args_split[0]
+        else:
+            return "Please specify a function. Valid functions are: add, list and delete."
+        if(rawfunc == 'add'):
+            if(not ircbot_chk.ircbot_chk.chk_nickregistered(self,destination[0],nick)):
                 return "This person's not registered, so I can't add them to the ops list."
+            if(nick in self.conf['server'][destination[0]]['ops']):
+                return "This person is already in the ops list."
+            self.conf['server'][destination[0]]['ops'].append(nick)
+            return "Added " + nick + " to the ops list for this server."
+        elif(rawfunc == 'list'):
+            return "Ops list for this server: " + ', '.join(self.conf['server'][destination[0]]['ops']) + '.'
+        elif(rawfunc in ['del','delete','remove']):
+           if(args not in self.conf['server'][destination[0]]['ops']):
+               return "That person isn't even in the ops list."
+           self.conf['server'][destination[0]]['ops'].remove(nick)
+           return "Removed " + args + " from the ops list."
         else:
-            return "Insufficient privileges to add member to ops list."
-
-    def fn_ops_list(self,args,client,destination):
-        'Lists ops list for this server. Requires godmode.'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            return "Ops list for this server: " + ', '.join(self.conf['server'][destination[0]]['ops']) + "."
-        else:
-            return "Insufficient privileges list ops for this server."
-
-    def fn_ops_del(self,args,client,destination):
-        'Removes someone from the ops list. Requires godmode.'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            args = args.replace(' ','').lower()
-            if(args in self.conf['server'][destination[0]]['ops']):
-                self.conf['server'][destination[0]]['ops'].remove(args)
-                return "Removed " + args + " from ops list."
-            else:
-                return "That person isn't even in the ops list."
-        else:
-            return "Insufficient privileges to remove someone from ops list."
+           return "Function not recognised."
 
     def fn_ignore_list_add(self,args,client,destination):
         'Adds a user to the ignore list, ops only.'
