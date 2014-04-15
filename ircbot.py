@@ -257,6 +257,8 @@ class ircbot:
         elif(msg_pm):
         #   self.base_say('"' + function + '" not defined.  Try "/msg ' + nick + ' help commands" for a list of commands.',[server,destination])
             out = mod_chan_ctrl.mod_chan_ctrl.fn_staff(self,function + ' ' + args,client,[server,destination])
+            if(out is None):
+                return '"' + function + '" not defined. Try "/msg ' + self.conf['server'][server]['nick'] + ' help commands" for a list of commands.'
         elif(msg_cmd and msg_cmdcln):
             out = '"' + function + '" not defined.  Try "/msg ' + self.conf['server'][server]['nick'] + ' help commands" for a list of commands.'
         else:
