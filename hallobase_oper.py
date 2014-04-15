@@ -75,44 +75,42 @@ class hallobase_oper:
         else:
            return "Function not recognised."
 
-    def fn_ignore_list_add(self,args,client,destination):
-        'Adds a user to the ignore list, ops only.'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            args = args.lower().replace(' ','')
+    def fn_ignore_list(self,args,client,destination):
+        'Modify ignore list. Add, list or delete. Format: ignore_list <add/list/del> <username>'
+        if(not ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
+            return "Insufficient privileges to modify ignore list."
+        args_split = args.lower().split()
+        if(len(args_split)<2 and args_split[0]!='list'):
+            return "Invalid number of arguments, please provide a username and a function."
+        if(args_split[0] in ['add','list','del','delete','remove']):
+            rawfunc = args_split[0]
+            if(len(args_split)>1):
+                nick = args_split[1]
+        elif(args_split[1] in ['add','del','delete','remove']):
+            rawfunc = args_split[1]
+            nick = args_split[0]
+        else:
+            return "Please specify a function. Valid functions are: add list and delete."
+        if(rawfunc == 'add'):
             if('ignore_list' not in self.conf['server'][destination[0]]['channel'][destination[1]]):
                 self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'] = []
-            if(args not in self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list']):
-                self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'].append(args)
-                return "Added " + args + " to the ignore list."
-            else:
+            if(nick in self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list']):
                 return "This person is already on the ignore list."
-        else:
-            return "Sorry, this function is for ops only."
-
-    def fn_ignore_list_list(self,args,client,destination):
-        'List users on the ignore list for this channel. Ops only.'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            if('ignore_list' in self.conf['server'][destination[0]]['channel'][destination[1]]):
-                return "Users on ignore list for this channel: " + ', '.join(self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list']) + "."
-            else:
+            self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'].append(nick)
+            return "Added " + args + " to the ignore list."
+        elif(rawfunc == 'list'):
+            if('ignore_list' not in self.conf['server'][destination[0]]['channel'][destination[1]]):
                 return "There is no ignore list for this channel."
+            return "Users on ignore list for this channel: " + ', '.join(self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list']) + "."
+        elif(rawfunc in ['del','delete','remove']):
+            if('ignore_list' not in self.conf['server'][destination[0]]['channel'][destination[1]]):
+                return "There isn't an ignore list for this channel."
+            if(nick not in self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list']):
+                return nick + " isn't even on the ignore list for " + destination[1] + "."
+            self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'].remove(nick)
+            return "Removed " + nick + " from the ignore list."
         else:
-            return "Sorry, this function is for ops only."
-
-    def fn_ignore_list_del(self,args,client,destination):
-        'Delete a user from the ignore list for a channel, ops only.'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            args = args.lower().replace(' ','')
-            if('ignore_list' in self.conf['server'][destination[0]]['channel'][destination[1]]):
-                if(args in self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list']):
-                    self.conf['server'][destination[0]]['channel'][destination[1]]['ignore_list'].remove(args)
-                    return "Removed " + args + " from the ignore list."
-                else:
-                    return args + " isn't even on the ignore list for " + destination[0] + "."
-            else:
-                return "There isn't even an ignore list for this channel."
-        else:
-            return "Sorry, this function is for ops only."
+            return "Function not recognised."
 
     def fn_nickserv_registered_add(self,args,client,destination):
         'Add a string to the list of nickserv messages to look for when checking if a nick is registered'
