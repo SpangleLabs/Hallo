@@ -187,9 +187,12 @@ class mod_chan_ctrl:
     def fn_staff(self,args,client,destination):
         'Sends a message to all online staff members, and posts a message in the staff channel. Format: staff <message>'
         if(not ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            for admin in ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],self.conf['server'][destination[0]]['admininform']):
-                hallobase_ctrl.hallobase_ctrl.base_say(client + ' has sent a message to all staff members. The message is as follows: ' + args,[destination[0],admin])
-            hallobase_ctrl.hallobase_ctrl.base_say(client + ' has sent a message to all staff members. The message is as follows: ' + args,[destination[0],'#ukofequestriaircstaff'])
+            if('admininform' in self.conf['server'][destination[0]]):
+                for admin in ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],self.conf['server'][destination[0]]['admininform']):
+                    self.base_say(client + ' has sent a message to all staff members. The message is as follows: ' + args,[destination[0],admin])
+            if('admininform_chan' in self.conf['server'][destination[0]]):
+                for adminchan in self.conf['server'][destination[0]]['admininform_chan']:
+                    self.base_say(client + ' has sent a message to all staff members. The message is as follows: ' + args,[destination[0],adminchan])
             return "Message delivered. A staff member will be in contact with you shortly. :)"
 
     def fn_kick(self, args, client, destination):
