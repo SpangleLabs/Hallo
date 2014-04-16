@@ -2,6 +2,7 @@ import re
 import pickle
 import urllib.request, urllib.error, urllib.parse
 import xmltodict
+import time
 
 import ircbot_chk
 import mod_calc
@@ -310,6 +311,7 @@ class mod_conversion:
                 convert['units'][unit] = {}
                 convert['units'][unit]['type'] = 'currency'
             convert['units'][unit]['value'] = value
+        convert['units']['eur']['last_update'] = time.time()
         pickle.dump(convert,open('store/convert.p','wb'))
         return "Currency values updated using European Central bank data."
 
@@ -335,6 +337,7 @@ class mod_conversion:
                 convert['units'][unit] = {}
                 convert['units'][unit]['type'] = 'currency'
             convert['units'][unit]['value'] = value
+        convert['units']['eur']['last_update'] = time.time()
         pickle.dump(convert,open('store/convert.p','wb'))
         return "Currency values updated using TheMoneyConvertor data."
 
@@ -355,11 +358,12 @@ class mod_conversion:
             if('EUR' not in item['Symbol']):
                 continue
             unit = item['Symbol'].lower().replace('eur','')
-            value = 0.5*(float(item['Bid'])+float(item['Ask']))
+            value = 1/(0.5*(float(item['Bid'])+float(item['Ask'])))
             if(unit not in convert['units']):
                 convert['units'][unit] = {}
                 convert['units'][unit]['type'] = 'currency'
             convert['units'][unit]['value'] = value
+        convert['units']['eur']['last_update'] = time.time()
         pickle.dump(convert,open('store/convert.p','wb'))
         return "Currency values updated using Forex data."
 
