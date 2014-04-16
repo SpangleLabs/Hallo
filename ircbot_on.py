@@ -4,6 +4,7 @@ from subprocess import call
 import ircbot_chk
 import ircbot_base
 import mod_idlechan    #for idle channel functions
+import mod_conversion
 
 endl = '\r\n'
 
@@ -167,6 +168,9 @@ class ircbot_on:
   #      print('bbb')
         if(servers==0):
             self.base_close()
+        if('convert_currency_update' not in self.core or (time.time()-self.core['convert_currency_update'])>3600):
+            self.core['convert_currency_update'] = time.time()
+            mod_conversion.mod_conversion.fn_convert_currency_update(self,'','',['',''])
         megahalclose = []
   #      print('ccc')
         for filename in self.megahal:
