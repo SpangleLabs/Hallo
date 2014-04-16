@@ -158,6 +158,7 @@ class mod_conversion:
             convert['units'][name] = {}
             convert['units'][name]['type'] = type
             convert['units'][name]['value'] = value
+            convert['units'][name]['last_update'] = time.time()
             pickle.dump(convert,open('store/convert.p','wb'))
             return "Added " + name + " as a " + type + " unit, with a value of " + str(value) + " " + convert['types'][type]['base_unit'] + "."
         else:
@@ -287,6 +288,7 @@ class mod_conversion:
             except:
                 return "No valid value given."
             convert['units'][unit]['value'] = value
+            convert['units'][unit]['last_update'] = time.time()
             pickle.dump(convert,open('store/convert.p','wb'))
             return "Value for " + unit + " set to " + str(value) + " " + convert['types'][convert['units'][unit]['type']]['base_unit'] + "."
         else:
