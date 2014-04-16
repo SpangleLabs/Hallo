@@ -3,6 +3,7 @@ import pickle
 import urllib.request, urllib.error, urllib.parse
 import xmltodict
 import time
+import datetime
 
 import ircbot_chk
 import mod_calc
@@ -304,13 +305,19 @@ class mod_conversion:
             convert = pickle.load(open('store/convert.p','rb'))
         except:
             return "Could not load conversion data."
+        update_datestr = eurobankdict['gesmes:Envelope']['Cube']['Cube']['@time']
+        update_date = datetime.date(update_datestr.split('-')[0],update_datestr.split('-')[1],update_datestr.split('-')[2])
+        update_timestamp = (update_date-datetime.date(1970,1,1)).total_seconds()
         for item in eurobankdict['gesmes:Envelope']['Cube']['Cube']['Cube']:
             unit = item['@currency'].lower()
             value = 1/float(item['@rate'].replace(',',''))
+            if('last_update' in convert['units'][unit] and convert['units'][unit]['last_update'] > update_timestamp):
+                continue
             if(unit not in convert['units']):
                 convert['units'][unit] = {}
                 convert['units'][unit]['type'] = 'currency'
             convert['units'][unit]['value'] = value
+            convert['units'][unit]['last_update'] = update_timestamp
         convert['units']['eur']['last_update'] = time.time()
         pickle.dump(convert,open('store/convert.p','wb'))
         return "Currency values updated using European Central bank data."
@@ -331,12 +338,18 @@ class mod_conversion:
         for item in moneyconvdict['rss']['channel']['item']:
             unit = item['title'].split('/')[0].lower()
             value = 1/float(item['description'].split('=')[1].split()[0].replace(',',''))
+            update_datestr = item['pubDate']
+            update_date = time.strptime(update_datestr,'%a, %d %b %Y %H:%M:%S %Z')
+            update_time = time.mktime(update_date)
+            if('last_update' in convert['units'][unit] and convert['units'][unit]['last_update'] > update_time):
+                continue
             if(unit=='eur'):
                 continue
             if(unit not in convert['units']):
                 convert['units'][unit] = {}
                 convert['units'][unit]['type'] = 'currency'
             convert['units'][unit]['value'] = value
+            convert['units'][unit]['last_update'] = update_time
         convert['units']['eur']['last_update'] = time.time()
         pickle.dump(convert,open('store/convert.p','wb'))
         return "Currency values updated using TheMoneyConvertor data."
@@ -359,10 +372,16 @@ class mod_conversion:
                 continue
             unit = item['Symbol'].lower().replace('eur','')
             value = 1/(0.5*(float(item['Bid'])+float(item['Ask'])))
+            update_datestr = item['Time']
+            update_date = time.strptime(update_datestr,'%Y-%b-%d %H:%M:%S')
+            update_time = time.mktime(update_date) + 5*3600
+            if('last_update' convert['units'][unit] and convert['units'][unit]['last_update'] > update_time):
+                continue
             if(unit not in convert['units']):
                 convert['units'][unit] = {}
                 convert['units'][unit]['type'] = 'currency'
             convert['units'][unit]['value'] = value
+            convert['units'][unit]['last_update'] = update_time
         convert['units']['eur']['last_update'] = time.time()
         pickle.dump(convert,open('store/convert.p','wb'))
         return "Currency values updated using Forex data."
