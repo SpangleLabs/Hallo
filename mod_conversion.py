@@ -63,8 +63,12 @@ class mod_conversion:
         unit_to = unit_to.replace(' ','')
         if(convert['units'][unit_to]['type'] != convert['units'][unit_from]['type']):
             return 'These units are not of the same type, a conversion cannot be made.'
+        update_str = ''
+        if('last_update' in convert['units'][unit_to] and 'last_update' in convert['units'][unit_from]):
+            last_update = min(convert['units'][unit_to]['last_update'],convert['units'][unit_from]['last_update'])
+            update_str = ' (Last updated: ' + datetime.datetime.fromtimestamp(last_update).strftime('%Y-%m-%d %H:%M:%S') + '.)'
         result = value*convert['units'][unit_from]['value']/convert['units'][unit_to]['value']
-        return str(value) + ' ' + unit_from + ' is ' + str(result) + ' ' + unit_to + "."
+        return str(value) + ' ' + unit_from + ' is ' + str(result) + ' ' + unit_to + "." + update_str
 
     def fn_convert_add_alias(self,args,client,destination):
         'Add a new alias for a conversion unit. Format: convert_add_alias <name> <unit>'
@@ -308,7 +312,7 @@ class mod_conversion:
         except:
             return "Could not load conversion data."
         update_datestr = eurobankdict['gesmes:Envelope']['Cube']['Cube']['@time']
-        update_date = datetime.date(update_datestr.split('-')[0],update_datestr.split('-')[1],update_datestr.split('-')[2])
+        update_date = datetime.date(int(update_datestr.split('-')[0]),int(update_datestr.split('-')[1]),int(update_datestr.split('-')[2]))
         update_timestamp = (update_date-datetime.date(1970,1,1)).total_seconds()
         for item in eurobankdict['gesmes:Envelope']['Cube']['Cube']['Cube']:
             unit = item['@currency'].lower()
@@ -375,9 +379,9 @@ class mod_conversion:
             unit = item['Symbol'].lower().replace('eur','')
             value = 1/(0.5*(float(item['Bid'])+float(item['Ask'])))
             update_datestr = item['Time']
-            update_date = time.strptime(update_datestr,'%Y-%b-%d %H:%M:%S')
+            update_date = time.strptime(update_datestr,'%Y-%m-%d %H:%M:%S')
             update_time = time.mktime(update_date) + 5*3600
-            if('last_update' convert['units'][unit] and convert['units'][unit]['last_update'] > update_time):
+            if('last_update' in convert['units'][unit] and convert['units'][unit]['last_update'] > update_time):
                 continue
             if(unit not in convert['units']):
                 convert['units'][unit] = {}
