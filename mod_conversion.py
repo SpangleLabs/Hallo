@@ -38,7 +38,10 @@ class mod_conversion:
         if(ircbot_chk.ircbot_chk.chk_msg_numbers(self,valuestr)):
             value = float(valuestr)
         elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,valuestr)):
-            value = float(mod_calc.mod_calc.fn_calc(self,valuestr,client,destination))
+            valuestr = mod_calc.mod_calc.fn_calc(self,valuestr,client,destination)
+            if(valuestr[-1]=='.'):
+                valuestr = valuestr[:-1]
+            value = float(valuestr)
         else:
             return "Invalid number."
         try:
@@ -68,6 +71,9 @@ class mod_conversion:
             last_update = min(convert['units'][unit_to]['last_update'],convert['units'][unit_from]['last_update'])
             update_str = ' (Last updated: ' + datetime.datetime.fromtimestamp(last_update).strftime('%Y-%m-%d %H:%M:%S') + '.)'
         result = value*convert['units'][unit_from]['value']/convert['units'][unit_to]['value']
+        if('decimals' in convert['types'][convert['units'][unit_to]['type']]):
+            if(round(result,convert['types'][convert['units'][unit_to]['type']]['decimals'])!=0):
+                result = round(result,convert['types'][convert['units'][unit_to]['type']]['decimals'])
         return str(value) + ' ' + unit_from + ' is ' + str(result) + ' ' + unit_to + "." + update_str
 
     def fn_convert_add_alias(self,args,client,destination):
@@ -391,7 +397,6 @@ class mod_conversion:
         convert['units']['eur']['last_update'] = time.time()
         pickle.dump(convert,open('store/convert.p','wb'))
         return "Currency values updated using Forex data."
-
 
     def fn_convert_currency_update(self,args,client,destination):
         'Update currency conversion figures, using data from the money convertor and the european central bank.'

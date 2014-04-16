@@ -214,7 +214,7 @@ class ircbot_chk:
 
     def chk_msg_numbers(self,args):
         'checks that an argument is purely numbers'
-        validchars = [str(x) for x in range(10)]
+        validchars = [str(x) for x in range(10)] + ['.']
         for char in validchars:
             args = args.replace(char,"")
         if(args==""):
