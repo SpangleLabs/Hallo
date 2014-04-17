@@ -1,5 +1,6 @@
 import ircbot_chk
 
+endl = '\r\n'
 class mod_chan_ctrl:
     
     def fn_op(self, args, client, destination):

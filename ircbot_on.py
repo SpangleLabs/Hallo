@@ -2,7 +2,6 @@ import time
 from subprocess import call
 
 import ircbot_chk
-import ircbot_base
 import mod_idlechan    #for idle channel functions
 import mod_conversion
 
@@ -142,7 +141,7 @@ class ircbot_on:
                 servers = servers+1
             # if you're supposed to be connected, but have pinged out, reconnect
             print('aab' + server)
-            if(server in self.core['server'] and 'reconnect' in self.core['server'][server] and self.core['server'][server]['reconnect']):
+            if('reconnect' in self.core['server'][server] and self.core['server'][server]['reconnect']):
                 print("TIMED OUT FROM " + server + ", RECONNECTING.")
                 self.core['server'][server]['reconnect'] = False
                 self.core['server'][server]['open'] = False

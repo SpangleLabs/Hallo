@@ -17,7 +17,6 @@ import hashlib
 import random
 
 import ircbot_on
-import ircbot_base
 import ircbot_chk
 import mod_passive
 import mod_chan_ctrl
@@ -529,8 +528,8 @@ class ircbot:
         while(self.open):
             try:
                 ircbot_on.ircbot_on.on_coreloop(self)
-            except:
-                pass
+            except Exception as e:
+                print("coreloop error: " + str(e))
             time.sleep(0.1)
 
     def base_run(self,server):
