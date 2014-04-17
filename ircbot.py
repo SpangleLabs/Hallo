@@ -13,7 +13,6 @@ from threading import Thread
 import collections
 import imp
 #from megahal import *
-import hashlib
 import random
 
 import ircbot_on

@@ -5,6 +5,7 @@ import os
 import pickle
 import importlib
 import imp
+import hashlib
 
 
 class hallobase_oper:
