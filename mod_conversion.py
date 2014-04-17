@@ -1,12 +1,11 @@
 import re
 import pickle
-import urllib.request, urllib.error, urllib.parse
-import xmltodict
 import time
 import datetime
 
 import ircbot_chk
 import mod_calc
+import mod_lookup
 
 class mod_conversion:
 
@@ -307,12 +306,7 @@ class mod_conversion:
     def fnn_convert_update_1_eurobank(self,args,client,destination):
         'Updates the value of conversion currency units using the European Central Bank xml info.'
         url = 'http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml'
-        pagerequest = urllib.request.Request(url)
-        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-        pageopener = urllib.request.build_opener()
-        pageinfo = str(pageopener.open(pagerequest).info())
-        code = pageopener.open(pagerequest).read().decode('utf-8')
-        eurobankdict = xmltodict.parse(code)
+        eurobankdict = mod_lookup.mod_lookup.fnn_loadxml(self,url)
         try:
             convert = pickle.load(open('store/convert.p','rb'))
         except:
@@ -337,12 +331,7 @@ class mod_conversion:
     def fnn_convert_update_2_moneyconvertor(self,args,client,destination):
         'Updates the value of conversion currency units using The Money Convertor data.'
         url = 'http://themoneyconverter.com/rss-feed/EUR/rss.xml'
-        pagerequest = urllib.request.Request(url)
-        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-        pageopener = urllib.request.build_opener()
-        pageinfo = str(pageopener.open(pagerequest).info())
-        code = pageopener.open(pagerequest).read().decode('utf-8')
-        moneyconvdict = xmltodict.parse(code)
+        moneyconvdict = mod_lookup.mod_lookup.fnn_loadxml(self,url)
         try:
             convert = pickle.load(open('store/convert.p','rb'))
         except:
@@ -369,12 +358,7 @@ class mod_conversion:
     def fnn_convert_update_3_forex(self,args,client,destination):
         'Updates the value of conversion currency units using FOREX data.'
         url = 'http://rates.fxcm.com/RatesXML3'
-        pagerequest = urllib.request.Request(url)
-        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-        pageopener = urllib.request.build_opener()
-        pageinfo = str(pageopener.open(pagerequest).info())
-        code = pageopener.open(pagerequest).read().decode('utf-8')
-        forexdict = xmltodict.parse(code)
+        forexdict = mod_lookup.mod_lookup.fnn_loadxml(self,url)
         try:
             convert = pickle.load(open('store/convert.p','rb'))
         except:
