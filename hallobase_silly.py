@@ -270,14 +270,5 @@ _ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
                 self.base_say('\x01ACTION boops ' + args[0] + '.\x01',[destination[0],args[0]])
                 return 'done.'
 
-    def fn_in_space(self,args,client,destination):
-        'Returns the number of people in space right now, and their names. Format: in_space'
-        pagerequest = urllib.request.Request('http://www.howmanypeopleareinspacerightnow.com/space.json')
-        pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-        pageopener = urllib.request.build_opener()
-        pageinfo = str(pageopener.open(pagerequest).info())
-        code = pageopener.open(pagerequest).read()
-        space = json.loads(code.decode('utf-8'))
-        return "There are " + str(space['number']) + " people in space right now. Their names are: " + ', '.join(x['name'] for x in space['people']) + "."
 
 

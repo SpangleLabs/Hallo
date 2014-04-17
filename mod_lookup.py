@@ -101,3 +101,7 @@ class mod_lookup:
                 cocktail['instructions'] = cocktail['instructions'] + "."
             return "Closest I have is " + closest[0] + ". The ingredients are: " + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
 
+    def fn_in_space(self,args,client,destination):
+        'Returns the number of people in space right now, and their names. Format: in_space'
+        space = mod_lookup.fnn_loadjson(self,'http://www.howmanypeopleareinspacerightnow.com/space.json')
+        return "There are " + str(space['number']) + " people in space right now. Their names are: " + ', '.join(x['name'] for x in space['people']) + "."
