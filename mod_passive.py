@@ -47,7 +47,7 @@ class mod_passive():
             return out
        # if(message.lower().replace(' ','') == "foof"):
         if re.search(r'foo[o]*f[!]*',args,re.I):
-            out = mod_chance.mode_chance.fn_foof(self,args,client,destination)
+            out = mod_chance.mod_chance.fn_foof(self,args,client,destination)
             return out
         if(re.search(r'(pew)+',args,re.I)):
             out = mod_passive.fnn_pew(self,args,client,destination)

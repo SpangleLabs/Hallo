@@ -136,12 +136,12 @@ class ircbot_on:
         'This function is ran once every 0.1 seconds.'
         servers = 0
         # loop through all servers, to do per-seerver tasks
-  #      print('aaa')
+        print('aaa')
         for server in self.conf['server']:
             if(self.conf['server'][server]['connected']):
                 servers = servers+1
             # if you're supposed to be connected, but have pinged out, reconnect
-  #          print('aab' + server)
+            print('aab' + server)
             if(server in self.core['server'] and 'reconnect' in self.core['server'][server] and self.core['server'][server]['reconnect']):
                 print("TIMED OUT FROM " + server + ", RECONNECTING.")
                 self.core['server'][server]['reconnect'] = False
@@ -163,16 +163,16 @@ class ircbot_on:
                             out = mod_idlechan.mod_idlechan.fnn_idlechan(self,self.conf['server'][server]['channel'][channel]['idle_args'],'',[server,channel])
                             if(out is not None):
                                 self.base_say(out,[server,channel])
-  #          print('aad' + server)
+            print('aad' + server)
         #if not connected to any servers, shut down
-  #      print('bbb')
+        print('bbb')
         if(servers==0):
             self.base_close()
         if('convert_currency_update' not in self.core or (time.time()-self.core['convert_currency_update'])>3600):
             self.core['convert_currency_update'] = time.time()
             mod_conversion.mod_conversion.fn_convert_currency_update(self,'','',['',''])
         megahalclose = []
-  #      print('ccc')
+        print('ccc')
         for filename in self.megahal:
             if((int(time.time())-self.megahal[filename]['last_used'])>600):
                 megahalclose.append(filename)
