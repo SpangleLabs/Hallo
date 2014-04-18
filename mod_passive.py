@@ -2,7 +2,6 @@ import urllib.request, urllib.error, urllib.parse
 import math
 ##from PIL import Image
 import io
-import json
 import re
 import html.parser
 from subprocess import call
@@ -11,6 +10,7 @@ from subprocess import call
 import ircbot_chk   #for swear detect function
 import mod_chance   
 import mod_pony
+import mod_lookup
 import megahal_mod  #for recording messages into brains.
 import mod_games        #for higher or lower
 
@@ -98,13 +98,7 @@ class mod_passive():
 		    #http://imgur.com/a/qJctj#0 example imgur album
                     imgur_id = url.split('/')[-1].split('#')[0]
                     api_url = 'https://api.imgur.com/3/album/' + imgur_id
-                    pagerequest = urllib.request.Request(api_url)
-                    pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-                    pagerequest.add_header('Authorization','Client-ID 3afbdcb1353b72f')
-                    pageopener = urllib.request.build_opener()
-                    pageinfo = str(pageopener.open(pagerequest).info())
-                    api_code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
-                    api_dict = json.loads(api_code)
+                    api_dict = mod_lookup.mod_lookup.fnn_loadjson(self,api_url,['Authorization','Client-ID 3afbdcb1353b72f'])
                     title = api_dict['data']['title']
                     views = api_dict['data']['views']
                     if('section' in api_dict['data']):
@@ -124,13 +118,7 @@ class mod_passive():
 		    #http://imgur.com/2XBqIIT example imgur link
                     imgur_id = url.split('/')[-1].split('.')[0]
                     api_url = 'https://api.imgur.com/3/image/' + imgur_id
-                    pagerequest = urllib.request.Request(api_url)
-                    pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-                    pagerequest.add_header('Authorization','Client-ID 3afbdcb1353b72f')
-                    pageopener = urllib.request.build_opener()
-                    pageinfo = str(pageopener.open(pagerequest).info())
-                    api_code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
-                    api_dict = json.loads(api_code)
+                    api_dict = mod_lookup.mod_lookup.fnn_loadjson(self,api_url,['Authorization','Client-ID 3afbdcb1353b72f'])
                     title = str(api_dict['data']['title'])
                     img_width = str(api_dict['data']['width'])
                     img_height = str(api_dict['data']['height'])
@@ -190,11 +178,7 @@ class mod_passive():
                 code = pageopener.open(pagerequest).read().decode('utf-8')
                 movie_code = re.search('title/(tt[0-9]*)',code).group(1)
                 api_url = 'http://www.omdbapi.com/?i=' + movie_code
-                api_pagerequest = urllib.request.Request(api_url)
-                api_pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-                api_pageopener = urllib.request.build_opener()
-                api_code = api_pageopener.open(api_pagerequest).read()
-                api_dict = json.loads(api_code.decode('utf-8'))
+                api_dict = mod_lookup.mod_lookup.fnn_loadjson(self,api_url)
                 title = api_dict['Title']
                 year = api_dict['Year']
                 genre = api_dict['Genre']

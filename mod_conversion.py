@@ -382,12 +382,65 @@ class mod_conversion:
         pickle.dump(convert,open('store/convert.p','wb'))
         return "Currency values updated using Forex data."
 
+    def fnn_convert_update_crypto(self,url,currcode,convert):
+        'Gets current value of a cryptocurrency.'
+        crypt_dict = mod_lookup.mod_lookup.fnn_loadjson(self,url)
+        crypt_dest = list(crypt_dict[currcode])[0]
+        crypt_vol = 0
+        crypt_tot = 0
+        for crypt_source in crypt_dict[currcode][crypt_dest]:
+            crypt_vol = crypt_vol + float(crypt_dict[currcode][crypt_dest][crypt_source]['volume'])
+            crypt_tot = crypt_tot + (float(crypt_dict[currcode][crypt_dest][crypt_source]['last'])*float(crypt_dict[currcode][crypt_dest][crypt_source]['volume']))
+        if(crypt_vol==0):
+            return False
+        crypt_value = (crypt_tot/crypt_vol)*convert['units'][crypt_dest]['value']
+        return crypt_value
+
+    def fnn_convert_update_4_crypto(self,args,client,destination):
+        'Updates values for 4 cryptocurrencies, using preev.org data.'
+        convert = pickle.load(open('store/convert.p','rb'))
+        ltc_url = 'http://preev.com/pulse/units:ltc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken'
+        ltc_val = mod_conversion.fnn_convert_update_crypto(self,ltc_url,'ltc',convert)
+        if(ltc_val):
+            if('ltc' not in convert['units']):
+                convert['units']['ltc'] = {}
+                convert['units']['ltc']['type'] = 'currency'
+            convert['units']['ltc']['value'] = ltc_val
+            convert['units']['ltc']['last_update'] = time.time()
+        ppc_url = 'http://preev.com/pulse/units:ppc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken'
+        ppc_val = mod_conversion.fnn_convert_update_crypto(self,ppc_url,'ppc',convert)
+        if(ppc_val):
+            if('ppc' not in convert['units']):
+                convert['units']['ppc'] = {}
+                convert['units']['ppc']['type'] = 'currency'
+            convert['units']['ppc']['value'] = ppc_val
+            convert['units']['ppc']['last_update'] = time.time()
+        btc_url = 'http://preev.com/pulse/units:btc+eur/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken'
+        btc_val = mod_conversion.fnn_convert_update_crypto(self,btc_url,'btc',convert)
+        if(btc_val):
+            if('btc' not in convert['units']):
+                convert['units']['btc'] = {}
+                convert['units']['btc']['type'] = 'currency'
+            convert['units']['btc']['value'] = btc_val
+            convert['units']['btc']['last_update'] = time.time()
+        xdg_url = 'http://preev.com/pulse/units:xdg+btc/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken'
+        xdg_val = mod_conversion.fnn_convert_update_crypto(self,xdg_url,'xdg',convert)
+        if(xdg_val):
+            if('xdg' not in convert['units']):
+                convert['units']['xdg'] = {}
+                convert['units']['xdg']['type'] = 'currency'
+            convert['units']['xdg']['value'] = xdg_val
+            convert['units']['xdg']['last_update'] = time.time()
+        pickle.dump(convert,open('store/convert.p','wb'))
+        return "Updated cryptocurrencies from preev.org data."
+
     def fn_convert_currency_update(self,args,client,destination):
         'Update currency conversion figures, using data from the money convertor and the european central bank.'
         line1 = mod_conversion.fnn_convert_update_2_moneyconvertor(self,args,client,destination)
         line2 = mod_conversion.fnn_convert_update_1_eurobank(self,args,client,destination)
         line3 = mod_conversion.fnn_convert_update_3_forex(self,args,client,destination)
-        return line1 + "\n" + line2 + "\n" + line3 + "\n" + "Completed update."
+        line4 = mod_conversion.fnn_convert_update_4_crypto(self,args,client,destination)
+        return line1 + "\n" + line2 + "\n" + line3 + "\n" + line4 + "\n" + "Completed update."
 
 
 
