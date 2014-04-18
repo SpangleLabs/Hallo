@@ -116,6 +116,7 @@ class ircbot_chk:
             return [[None,'No destination given.']]
         if(string[0]=='.'):
             #alias. not ready yet
+            string = string.lower()
             if('alias_chan' not in self.conf):
                 return [[None,'No aliases are set.']]
             if(string[1:] not in self.conf['alias_chan']):
