@@ -392,7 +392,7 @@ class hallobase_oper:
 
     def fn_chan_alias_add(self,args,client,destination):
         'Adds a channel alias, for use with chk_destination, gods only.'
-        args = args.split()
+        args = args.lower().split()
         if(args[0][0]=='#'):
             channel = args[0].lower()
             del args[0]
