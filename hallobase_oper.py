@@ -10,6 +10,7 @@ import random
 import hashlib
 
 
+endl = '\r\n'
 class hallobase_oper:
 
     def fn_god(self,args,client,destination):
