@@ -135,7 +135,7 @@ class ircbot_on:
         'This function is ran once every 0.1 seconds.'
         servers = 0
         # loop through all servers, to do per-seerver tasks
-        print('aaa')
+        #print('aaa')
         for server in self.conf['server']:
             if(self.conf['server'][server]['connected']):
                 servers = servers+1
