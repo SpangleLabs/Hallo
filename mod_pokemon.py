@@ -9,3 +9,12 @@ class mod_pokemon:
         pokemon = pickle.load(open('store/pokemon.p','rb'))
         randmon = pokemon[random.randint(0,len(pokemon))+1]
         return "I choose you, " + randmon['Name'] + "!"
+
+    def fn_i(self,args,client,destination):
+        'Hacky alias for I_choose_you'
+        if('you' in args):
+            args = args.split('you')[1]
+            return mod_pokemon.fn_i_choose_you(self,args,client,destination)
+        else:
+            return "Huh?"
+
