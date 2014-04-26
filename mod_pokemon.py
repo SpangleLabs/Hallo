@@ -12,6 +12,7 @@ class mod_pokemon:
 
     def fn_i(self,args,client,destination):
         'Hacky alias for I_choose_you'
+        args = args.lower()
         if('you' in args):
             args = args.split('you')[1]
             return mod_pokemon.fn_i_choose_you(self,args,client,destination)
