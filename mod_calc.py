@@ -120,9 +120,12 @@ class mod_calc:
         for tempans in calc.split('+'):
             if tempans != '':
                 answer = answer + float(tempans)
-        answer = str(answer)
-        if answer[-2:] == '.0':
-            answer = answer[:-2]
+        answer = '{0:.10f}'.format(answer)
+        if('.' in answer):
+            while(answer[-1]=='0'):
+                answer = answer[:-1]
+        if answer[-1] == '.':
+            answer = answer[:-1]
         return answer
 
     def fn_calc(self, args, client, destination):
