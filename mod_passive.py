@@ -76,6 +76,8 @@ class mod_passive():
             pageinfo = str(pageopener.open(pagerequest).info())
             if("Content-Type:" in pageinfo):
                 pagetype = pageinfo.split()[pageinfo.split().index('Content-Type:')+1]
+            else:
+                pagetype = ''
             if('speedtest.net' in url):
                 if(url[-4:]=='.png'):
                     number = url[32:-4]
