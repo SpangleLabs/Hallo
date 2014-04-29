@@ -100,7 +100,7 @@ class mod_passive():
 		    #http://imgur.com/a/qJctj#0 example imgur album
                     imgur_id = url.split('/')[-1].split('#')[0]
                     api_url = 'https://api.imgur.com/3/album/' + imgur_id
-                    api_dict = mod_lookup.mod_lookup.fnn_loadjson(self,api_url,['Authorization','Client-ID 3afbdcb1353b72f'])
+                    api_dict = mod_lookup.mod_lookup.fnn_loadjson(self,api_url,[['Authorization','Client-ID 3afbdcb1353b72f']])
                     title = api_dict['data']['title']
                     views = api_dict['data']['views']
                     if('section' in api_dict['data']):
