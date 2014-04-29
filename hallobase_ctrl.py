@@ -1,6 +1,7 @@
 import ircbot_chk
 import sys
 from threading import Thread
+import collections
 
 class hallobase_ctrl:
 
