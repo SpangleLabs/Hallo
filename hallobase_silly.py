@@ -67,7 +67,9 @@ class hallobase_silly():
         numquotes = len(ariquotes)
         rand = random.randint(0,numquotes-1)
         quote = ariquotes[rand]
-        return quote + "."
+        if(quote[-1] not in ['.','?','!']):
+            quote = quote + '.'
+        return quote
 
     def fn_time(self, args, client, destination):
         'Current time for a given user. Format: time <username>'
