@@ -120,7 +120,7 @@ class mod_passive():
 		    #http://imgur.com/2XBqIIT example imgur link
                     imgur_id = url.split('/')[-1].split('.')[0]
                     api_url = 'https://api.imgur.com/3/image/' + imgur_id
-                    api_dict = mod_lookup.mod_lookup.fnn_loadjson(self,api_url,['Authorization','Client-ID 3afbdcb1353b72f'])
+                    api_dict = mod_lookup.mod_lookup.fnn_loadjson(self,api_url,[['Authorization','Client-ID 3afbdcb1353b72f']])
                     title = str(api_dict['data']['title'])
                     img_width = str(api_dict['data']['width'])
                     img_height = str(api_dict['data']['height'])
