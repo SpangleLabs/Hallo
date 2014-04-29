@@ -123,7 +123,8 @@ class mod_conversion:
             return "Could not load conversion data."
         args = args.lower()
         if(args.replace(' ','') == ''):
-            return "All conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias']]) + "."
+           # return "All conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias']]) + "."
+            return "There are too many conversion aliases to list, specify a unit or unit type. Valid unit types are: " + ', '.join([type for type in convert['types']]) + "."
         elif(args in convert['types']):
             return args + " conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias'] if convert['units'][convert['alias'][alias]]['type'] == args]) + "."
         elif(args in convert['units']):
