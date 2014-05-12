@@ -305,10 +305,11 @@ class ircbot:
                 self.core['server'][server]['channel'][destination]['last_message'] = int(time.time())
             if(msg_cmd):
                 ignore_list = []
-                if('ignore_list' in self.conf['server'][server]['channel'][destination]):
-                    ignore_list = self.conf['server'][server]['channel'][destination]['ignore_list']
-                if(client.lower() in ignore_list):
-                    msg_cmd = False
+                if(destination!=nick):
+                    if('ignore_list' in self.conf['server'][server]['channel'][destination]):
+                        ignore_list = self.conf['server'][server]['channel'][destination]['ignore_list']
+                    if(client.lower() in ignore_list):
+                        msg_cmd = False
             # if it's a private message, answer to the client, not to yourself
             if msg_pm:
                 destination = client
