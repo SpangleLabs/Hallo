@@ -216,6 +216,90 @@ class mod_chan_ctrl:
         else:
             return 'Insufficient privileges to kick.'
 
+    def fn_auto(self,args,client,destination):
+        'Automatically apply flags to a user when they join a channel. Format: auto add {user} {flags} {channel}, auto list {channel}, or auto del {user} {channel}'
+        args = args.split()
+        cmd = ''
+        user = ''
+        chan = ''
+        flags = ''
+        if(not ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
+            return "This function is for ops only."
+        for arg in args:
+            if(cmd=='' and arg.lower() in ['add','list','del','delete','remove']):
+                if(arg in ['add']):
+                    cmd = 'add'
+                elif(arg in ['list']):
+                    cmd = 'list'
+                elif(arg in ['del','delete','remove']):
+                    cmd = 'del'
+                else:
+                    cmd = 'list'
+            elif(flags=='' and len(arg)==2 and arg[0] in ['-','+']):
+                flags = arg
+            elif(chan=='' and ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,arg.lower())[0][0] is not None):
+                chan = ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,arg.lower())
+            elif(user==''):
+                user = arg
+            else:
+                return "I do not understand your inputs. Please input a command and its required data. add commands requires user and flags (channel optional.) list command requires channel (optional). del command requires user (channel optional.)"
+        if(cmd==''):
+            return "Please specify a command. Either add, list or delete."
+        if(chan==''):
+            chan = [destination]
+        if(cmd=='add'):
+            if(user=='' or flags==''):
+                return "You must specify a user and flags to apply to that user."
+            chandone = []
+            output = []
+            for channel in chan:
+                if(channel[0] not in [channeldone[0] for channeldone in chandone] and not ircbot_chk.ircbot_chk.chk_op(self,channel[0],client)):
+                    output.append('You are not in op list for ' + channel[0])
+                    continue
+                if(channel[0] not in [channeldone[0] for channeldone in chandone] and not ircbot_chk.ircbot_chk.chk_nickregistered(self,channel[0],user)):
+                    output.append('User ' + user + " is not registered on " + channel[0])
+                    continue
+                chandone.append(channel)
+                if('auto_list' not in self.conf['server'][channel[0]]['channel'][channel[1]]):
+                    self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list'] = []
+                if({'user':user,'flag':'+'+flags[1]} in self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list'] or {'user':user,'flag':'-'+flags[1]} in self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list']):
+                    output.append("User " + user + " already has that flag or an opposing flag in " + channel[0] + ":" + channel[1])
+                    continue
+                if(channel[0] not in [channeldone[0] for channeldone in chandone] and not ircbot_chk.ircbot_chk.chk_userregistered(self,channel[0],user)):
+                    self.core['server'][channel[0]]['socket'].send(('MODE ' + channel[1] + ' ' + flag + ' ' + user + endl).encode('utf-8'))
+                self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list'].append({'user': user,'flag': flag})
+            return "".join([outputline + "\n" for outputline in output]) + "I will automatically add the " + flag + " flag to " + user + " whenever they join " + ', '.join([channel[0] + ':' + channel[1] for channel in chandone]) + "."
+        if(cmd=='list'):
+            output = []
+            for channel in chan:
+                if('auto_list' in self.conf['server'][channel[0]]['channel'][channel[1]]):
+                    output.append(channel[0] + ":" + channel[1] + "> " + ', '.join([entry['flag'] + ' ' + entry['user'] for entry in self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list']]))
+            if(len(output)==0):
+                return "There are no autoflags set for that channel"
+            return "\n".join(output)
+        if(cmd=='del'):
+            if(user==''):
+                return "Please specify a user to remove flags from."
+            chandone = []
+            output = []
+            for channel in chan:
+                if(channel[0] not in [channeldone[0] for channeldone in chandone] and not ircbot_chk.ircbot_chk.chk_op(self,channel[0],client)):
+                    output.append('You are not in op list for ' + channel[0])
+                    continue
+                if('auto_list' not in self.conf['server'][channel[0]]['channel'][channel[1]]):
+                    continue
+                if(user not in [entry['user'] for entry in self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list']]):
+                    continue
+                for userentry in [entry for entry in self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list'] if entry['user'] == user]:
+                    self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list'].remove(userentry)
+            if(len(output)==0):
+                return "There are no autoflags set for that user in that channel."
+            return "Removed all auto flags for " + user + " on " + ', '.join([channel[0] + ':' + channel[1] for channel in chan]) + "."
+
+
+
+
+
     def fn_voice_add(self,args,client,destination):
         'Adds a user to psuedoautovoice, format is "voice_add {user} {channel}"'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):

@@ -144,13 +144,13 @@ class mod_passive():
                 length_str = str(int(int(length)/60)) + "m " + str(int(length)-(60*(int(int(length)/60)))) + "s"
                 views = re.search('<span class="watch-view-count[^>]*>[\n\r\s]*([0-9,+]*)',code).group(1)
                 #title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&')
-                title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split())
+                title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code,re.I).group(1)[:-10].split())
                 h = html.parser.HTMLParser()
                 title = h.unescape(title)
                 return "Youtube video> Title: " + title + " | Length: " + length_str + " | Views: " + views + "."
             elif('amazon.co.uk' in url or 'amazon.com' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
-                title = re.search('<title>([^<]*)</title>',code).group(1)
+                title = re.search('<title>([^<]*)</title>',code,re.I).group(1)
                 price = re.search('<b class="priceLarge">([^<]*)</b>',code).group(1)
                 if(code.count('There are no customer reviews yet.')!=0):
                     reviewstr = "No reviews yet."
@@ -190,7 +190,7 @@ class mod_passive():
             else:
                 code = pageopener.open(pagerequest).read(4096).decode('utf-8','ignore')
                 if(code.count('</title>')>=1):
-                    title = re.search('<title([-A-Z0-9"=' + "'" + ' ]*)>([^<]*)</title>',code).group(2)
+                    title = re.search('<title([-A-Z0-9"=' + "'" + ' ]*)>([^<]*)</title>',code,re.I).group(2)
                     h = html.parser.HTMLParser()
                     title = h.unescape(title)
                     if(title!=""):
