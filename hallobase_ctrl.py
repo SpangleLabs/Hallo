@@ -3,6 +3,7 @@ import sys
 from threading import Thread
 import collections
 
+endl = '\r\n'
 class hallobase_ctrl:
 
     def fn_say(self,args,client,destination):
