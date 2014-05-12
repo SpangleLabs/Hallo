@@ -23,10 +23,10 @@ class ircbot_on:
         # handle join events from other users (or from hallo!)
         if('auto_list' in self.conf['server'][server]['channel'][channel]):
             for entry in self.conf['server'][server]['channel'][channel]['auto_list']:
-                if(client.lower()==self.conf['server'][server]['channel'][channel]['auto_list'][entry]['user']):
+                if(client.lower()==entry['user']):
                     for x in range(7):
                         if(ircbot_chk.ircbot_chk.chk_userregistered(self,server,client)):
-                            self.core['server'][server]['socket'].send(('MODE ' + channel + ' ' + self.conf['server'][server]['channel'][channel]['auto_list'][entry]['flag'] + ' ' + client + endl).encode('utf-8'))
+                            self.core['server'][server]['socket'].send(('MODE ' + channel + ' ' + entry['flag'] + ' ' + client + endl).encode('utf-8'))
                             break
                         time.sleep(5)
         if(client.lower() == self.conf['server'][server]['nick'].lower()):
@@ -35,10 +35,10 @@ class ircbot_on:
             namesonline = [x.lower() for x in namesonline]
             if('auto_list' in self.conf['server'][server]['channel'][channel]):
                 for entry in self.conf['server'][server]['channel'][channel]['auto_list']:
-                    if(self.conf['server'][server]['channel'][channel]['auto_list'][entry]['user'] in namesonline):
+                    if(entry['user'] in namesonline):
                         for x in range(7):
                             if(ircbot_chk.ircbot_chk.chk_userregistered(self,server,user)):
-                                self.core['server'][server]['socket'].send(('MODE ' + channel + ' ' + self.conf['server'][server]['channel'][channel]['auto_list'][entry]['flag'] + ' ' + self.conf['server'][server]['channel'][channel]['auto_list'][entry]['user'] + endl).encode('utf-8'))
+                                self.core['server'][server]['socket'].send(('MODE ' + channel + ' ' + entry['flag'] + ' ' + entry['user'] + endl).encode('utf-8'))
                                 break
                             time.sleep(5)
         else:
@@ -101,10 +101,10 @@ class ircbot_on:
         for channel in self.conf['server'][server]['channel']:
             if('auto_list' in self.conf['server'][server]['channel'][channel]):
                 for entry in self.conf['server'][server]['channel'][channel]['auto_list']:
-                    if(newnick == self.conf['server'][server]['channel'][channel]['auto_list'][entry]['user']):
+                    if(newnick == entry['user']):
                         for x in range(7):
                             if(ircbot_chk.ircbot_chk.chk_userregistered(self,server,newnick)):
-                                self.core['server'][server]['socket'].send(('MODE ' + channel + ' ' + self.conf['server'][server]['channel'][channel]['auto_list'][entry]['flag'] + '' + newnick + endl).encode('utf-8'))
+                                self.core['server'][server]['socket'].send(('MODE ' + channel + ' ' + entry['flag'] + '' + newnick + endl).encode('utf-8'))
                                 break
                             time.sleep(5)
 
