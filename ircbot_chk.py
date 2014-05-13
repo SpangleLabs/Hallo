@@ -18,6 +18,8 @@ class ircbot_chk:
 
     def chk_userregistered(self,server,client):
         # check if a user is registered and logged in
+        if(not self.conf['server'][server]['connected']):
+            return False
         self.core['server'][server]['check']['userregistered'] = False
         self.base_say('INFO ' + client,[server,'nickserv'])
         for x in range(12):
@@ -30,6 +32,8 @@ class ircbot_chk:
 
     def chk_nickregistered(self,server,client):
         # check if a nick is registered
+        if(not self.conf['server'][server]['connected']):
+            return False
         self.core['server'][server]['check']['nickregistered'] = False
         self.base_say('INFO ' + client,[server,'nickserv'])
         for x in range(12):
@@ -42,6 +46,8 @@ class ircbot_chk:
 
     def chk_recipientonline(self,server,clients):
         # check if a list of recipients are online
+        if(not self.conf['server'][server]['connected']):
+            return []
         self.core['server'][server]['check']['recipientonline'] = ""
         self.core['server'][server]['socket'].send(('ISON ' + ' '.join(clients) + endl).encode('utf-8'))
         for a in range(6):
@@ -55,6 +61,8 @@ class ircbot_chk:
 
     def chk_names(self,server,channel):
         # check for a userlist of whatever channel
+        if(not self.conf['server'][server]['connected']):
+            return []
         self.core['server'][server]['check']['names'] = ""
         self.core['server'][server]['socket'].send(('NAMES ' + channel + endl).encode('utf-8'))
         for a in range(6):
@@ -68,6 +76,8 @@ class ircbot_chk:
 
     def chk_swear(self,server,channel,message):
         'checks to see if a message has swearing, returns a 2 item list, first item is: "none", "possible", "inform" or "comment", second item is whatever swear'
+        if(not self.conf['server'][server]['connected']):
+            return ["none","none"]
         if(channel not in self.conf['server'][server]['channel']):
             return ["none","none"]
         if(self.conf['server'][server]['channel'][channel]['sweardetect']):
