@@ -459,6 +459,8 @@ class hallobase_oper:
     def fn_nicklist_fix(self,args,client,destination):
         'fixing user lists. temp function. lowercases everyone.'
         for server in self.core['server']:
+            if(not self.conf['server'][server]['connected']):
+                continue
             for channel in self.core['server'][server]['channel']:
                 names = ircbot_chk.ircbot_chk.chk_names(self,server,channel)
                 namesprocessed = []
