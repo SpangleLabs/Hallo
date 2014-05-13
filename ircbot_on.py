@@ -112,6 +112,12 @@ class ircbot_on:
                 self.core['server'][server]['channel'][channel]['user_list'].append(newnick.lower())
         if(client == self.conf['server'][server]['nick']):
             self.conf['server'][server]['nick'] = newnick
+        if(client.lower() in self.core['server'][server]['auth_op']):
+            self.core['server'][server]['auth_op'].remove(client.lower())
+            self.core['server'][server]['auth_op'].append(newnick.lower())
+        if(client.lower() in self.core['server'][server]['auth_god']):
+            self.core['server'][server]['auth_god'].remove(client.lower())
+            self.core['server'][server]['auth_god'].append(newnick.lower())
         for channel in self.conf['server'][server]['channel']:
             if('auto_list' in self.conf['server'][server]['channel'][channel]):
                 for entry in self.conf['server'][server]['channel'][channel]['auto_list']:
