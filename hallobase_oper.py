@@ -462,6 +462,8 @@ class hallobase_oper:
             if(not self.conf['server'][server]['connected']):
                 continue
             for channel in self.core['server'][server]['channel']:
+                if(not self.conf['server'][server]['channel'][channel]['in_channel']):
+                    continue
                 names = ircbot_chk.ircbot_chk.chk_names(self,server,channel)
                 namesprocessed = []
                 for name in names:
