@@ -240,7 +240,7 @@ class mod_chan_ctrl:
             elif(chan=='' and ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,arg.lower())[0][0] is not None):
                 chan = ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,arg.lower())
             elif(user==''):
-                user = arg
+                user = arg.lower()
             else:
                 return "I do not understand your inputs. Please input a command and its required data. add commands requires user and flags (channel optional.) list command requires channel (optional). del command requires user (channel optional.)"
         if(cmd==''):
@@ -292,6 +292,7 @@ class mod_chan_ctrl:
                     continue
                 for userentry in [entry for entry in self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list'] if entry['user'] == user]:
                     self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list'].remove(userentry)
+                    output.append('Removed ' + userentry['flag'] + ' flag from ' + user + ' in ' + channel[0] + ':' + channel[1])
             if(len(output)==0):
                 return "There are no autoflags set for that user in that channel."
             return "Removed all auto flags for " + user + " on " + ', '.join([channel[0] + ':' + channel[1] for channel in chan]) + "."
