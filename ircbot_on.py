@@ -48,12 +48,25 @@ class ircbot_on:
     def on_part(self,server,client,channel,args):
         #pass # override this method to handle PART events from other users
         self.core['server'][server]['channel'][channel]['user_list'].remove(client.lower())
+        stillonserver = False
+        for channel in self.core['server'][server]:
+            if(client.lower() in self.core['server'][server]['channel'][channel]['user_list']):
+                stillonserver = True
+        if(not stillonserver):
+            if(client.lower() in self.core['server'][server]['auth_op']):
+                self.core['server'][server]['auth_op'].remove(client.lower())
+            if(client.lower() in self.core['server'][server]['auth_god']):
+                self.core['server'][server]['auth_god'].remove(client.lower())
 
     def on_quit(self,server,client,args):
         #pass # override this method to handle QUIT events from other users
         for channel in self.conf['server'][server]['channel']:
             if(client.lower() in self.core['server'][server]['channel'][channel]['user_list']):
                 self.core['server'][server]['channel'][channel]['user_list'].remove(client.lower())
+        if(client.lower() in self.core['server'][server]['auth_op']):
+            self.core['server'][server]['auth_op'].remove(client.lower())
+        if(client.lower() in self.core['server'][server]['auth_god']):
+            self.core['server'][server]['auth_god'].remove(client.lower())
 
     def on_mode(self,server,client,channel,mode,args):
          #pass # override this method to handle MODE changes

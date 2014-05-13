@@ -9,12 +9,38 @@ class ircbot_chk:
     def chk_op(self,server,client):
         # check if someone has op status for this bot
         client = client.lower()
-        return ircbot_chk.chk_userregistered(self,server,client) and ((len(self.conf['server'][server]['ops'])!=0 and self.conf['server'][server]['ops'].count(client) > 0) or (len(self.conf['server'][server]['gods'])!=0 and self.conf['server'][server]['gods'].count(client) > 0))
+        if('auth_op' in self.core['server'][server]):
+            if(client in self.core['server'][server]['auth_op']):
+                return True
+            else:
+                check = ircbot_chk.chk_userregistered(self,server,client) and (client in self.conf['server'][server]['ops'] or client in self.conf['server'][server]['gods'])
+                if(check):
+                    self.core['server'][server]['auth_op'].append(client)
+                return check
+        else:
+            check = ircbot_chk.chk_userregistered(self,server,client) and (client in self.conf['server'][server]['ops'] or client in self.conf['server'][server]['gods'])
+            if(check):
+                self.core['server'][server]['auth_op'] = []
+                self.core['server'][server]['auth_op'].append(client)
+            return check
 
     def chk_god(self,server,client):
         # check if someone has god status for this bot
         client = client.lower()
-        return ircbot_chk.chk_userregistered(self,server,client) and len(self.conf['server'][server]['gods'])!=0 and self.conf['server'][server]['gods'].count(client) > 0
+        if('auth_god' in self.core['server'][server]):
+            if(client in self.core['server'][server]['auth_god']):
+                return True
+            else:
+                check = ircbot_chk.chk_userregistered(self,server,client) and client in self.conf['server'][server]['gods']
+                if(check):
+                    self.core['server'][server]['auth_op'].append(client)
+                return check
+        else:
+            check = ircbot_chk.chk_userregistered(self,server,client) and client in self.conf['server'][server]['gods']
+            if(check):
+                self.core['server'][server]['auth_god'] = []
+                self.core['server'][server]['auth_god'].append(client)
+            return check
 
     def chk_userregistered(self,server,client):
         # check if a user is registered and logged in
