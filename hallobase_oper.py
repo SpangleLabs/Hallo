@@ -468,7 +468,7 @@ class hallobase_oper:
                 namesprocessed = []
                 for name in names:
                     name = name.lower()
-                    if(name[0] in ['+','@','~','&']):
+                    if(name[0] in ['+','%','@','~','&']):
                         name = name[1:]
                     namesprocessed.append(name)
                 self.core['server'][server]['channel'][channel]['user_list'] = namesprocessed
