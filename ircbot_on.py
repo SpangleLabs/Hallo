@@ -38,7 +38,7 @@ class ircbot_on:
                 for entry in self.conf['server'][server]['channel'][channel]['auto_list']:
                     if(entry['user'] in namesonline):
                         for x in range(7):
-                            if(ircbot_chk.ircbot_chk.chk_userregistered(self,server,user)):
+                            if(ircbot_chk.ircbot_chk.chk_userregistered(self,server,entry['user'])):
                                 self.core['server'][server]['socket'].send(('MODE ' + channel + ' ' + entry['flag'] + ' ' + entry['user'] + endl).encode('utf-8'))
                                 break
                             time.sleep(5)

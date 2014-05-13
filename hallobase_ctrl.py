@@ -72,16 +72,15 @@ class hallobase_ctrl:
 
     def fn_part(self,args,client,destination):
         'Leave a channel.  Use "part <channel>".  Requires op'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            if(args.replace(' ','')==""):
-                self.core['server'][destination[0]]['socket'].send(('PART ' + destination[1] + endl).encode('utf-8'))
-                self.conf['server'][destination[0]]['channel'][destination[1]]['in_channel'] = False
-            else:
-                self.core['server'][destination[0]]['socket'].send(('PART ' + args + endl).encode('utf-8'))
-                self.conf['server'][destination[0]]['channel'][args.split()[0]]['in_channel'] = False
-            return 'Parted ' + args + '.'
-        else:
+        if(not ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             return 'Insufficient privileges to part.'
+        if(args.replace(' ','')==""):
+            self.core['server'][destination[0]]['socket'].send(('PART ' + destination[1] + endl).encode('utf-8'))
+            self.conf['server'][destination[0]]['channel'][destination[1]]['in_channel'] = False
+        else:
+            self.core['server'][destination[0]]['socket'].send(('PART ' + args + endl).encode('utf-8'))
+            self.conf['server'][destination[0]]['channel'][args.split()[0]]['in_channel'] = False
+        return 'Parted ' + args + '.'
 
     def fn_quit(self,args,client,destination):
         'Quit IRC.  Use "quit".  Requires godmode.'
