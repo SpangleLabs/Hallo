@@ -33,44 +33,42 @@ class hallobase_ctrl:
 
     def fn_join(self,args,client,destination):
         'Join a channel.  Use "join <channel>".  Requires op'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            channel = args.split()[0].lower()
-            password = args[len(channel):]
-            while(len(password)>0 and password[0]==' '):
-                password = password[1:]
-            while(len(password)>0 and password[-1:]==' '):
-                password = password[:-1]
-            if(channel not in self.conf['server'][destination[0]]['channel']):
-            #    self.conf['server'][destination[0]]['channels'].append(channel)
-                self.conf['server'][destination[0]]['channel'][channel] = {}
-                self.core['server'][destination[0]]['channel'][channel] = {}
-                self.conf['server'][destination[0]]['channel'][channel]['logging'] = True
-                self.conf['server'][destination[0]]['channel'][channel]['megahal_record'] = False
-                self.conf['server'][destination[0]]['channel'][channel]['sweardetect'] = False
-                self.conf['server'][destination[0]]['channel'][channel]['in_channel'] = False
-                self.conf['server'][destination[0]]['channel'][channel]['caps'] = False
-                self.conf['server'][destination[0]]['channel'][channel]['passivefunc'] = True
-                self.conf['server'][destination[0]]['channel'][channel]['idle_time'] = 0
-                self.conf['server'][destination[0]]['channel'][channel]['idle_args'] = ''
-                self.conf['server'][destination[0]]['channel'][channel]['voice_list'] = []
-                self.conf['server'][destination[0]]['channel'][channel]['pass'] = password
-                self.core['server'][destination[0]]['channel'][channel]['last_message'] = int(time.time())
-                self.conf['server'][destination[0]]['channel'][channel]['swearlist'] = {}
-                self.conf['server'][destination[0]]['channel'][channel]['swearlist']['possible'] = []
-                self.conf['server'][destination[0]]['channel'][channel]['swearlist']['inform'] = []
-                self.conf['server'][destination[0]]['channel'][channel]['swearlist']['comment'] = []
-                self.conf['server'][destination[0]]['channel'][channel]['swearlist']['commentmsg'] = ''
-            if(password == ''):
-                if(self.conf['server'][destination[0]]['channel'][channel]['pass'] == ''):
-                    self.core['server'][destination[0]]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
-                else:
-                    self.core['server'][destination[0]]['socket'].send(('JOIN ' + channel + ' ' + self.conf['server'][destination[0]]['channel'][args]['pass'] + endl).encode('utf-8'))
-            else:
-                self.core['server'][destination[0]]['socket'].send(('JOIN ' + channel + ' ' + password + endl).encode('utf-8'))
-                self.conf['server'][destination[0]]['channel'][channel]['pass'] = password
-            return 'Joined ' + channel + '.'
-        else:
+        if(not ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             return 'Insufficient privileges to join.'
+        channel = args.split()[0].lower()
+        password = args[len(channel):]
+        while(len(password)>0 and password[0]==' '):
+            password = password[1:]
+        while(len(password)>0 and password[-1:]==' '):
+            password = password[:-1]
+        if(channel not in self.conf['server'][destination[0]]['channel']):
+        #    self.conf['server'][destination[0]]['channels'].append(channel)
+            self.core['server'][destination[0]]['channel'][channel] = {}
+            self.core['server'][destination[0]]['channel'][channel]['last_message'] = int(time.time())
+            self.conf['server'][destination[0]]['channel'][channel] = {}
+            self.conf['server'][destination[0]]['channel'][channel]['logging'] = True
+            self.conf['server'][destination[0]]['channel'][channel]['megahal_record'] = False
+            self.conf['server'][destination[0]]['channel'][channel]['sweardetect'] = False
+            self.conf['server'][destination[0]]['channel'][channel]['in_channel'] = False
+            self.conf['server'][destination[0]]['channel'][channel]['caps'] = False
+            self.conf['server'][destination[0]]['channel'][channel]['passivefunc'] = True
+            self.conf['server'][destination[0]]['channel'][channel]['idle_time'] = 0
+            self.conf['server'][destination[0]]['channel'][channel]['idle_args'] = ''
+            self.conf['server'][destination[0]]['channel'][channel]['pass'] = password
+            self.conf['server'][destination[0]]['channel'][channel]['swearlist'] = {}
+            self.conf['server'][destination[0]]['channel'][channel]['swearlist']['possible'] = []
+            self.conf['server'][destination[0]]['channel'][channel]['swearlist']['inform'] = []
+            self.conf['server'][destination[0]]['channel'][channel]['swearlist']['comment'] = []
+            self.conf['server'][destination[0]]['channel'][channel]['swearlist']['commentmsg'] = ''
+        if(password == ''):
+            if(self.conf['server'][destination[0]]['channel'][channel]['pass'] == ''):
+                self.core['server'][destination[0]]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
+            else:
+                self.core['server'][destination[0]]['socket'].send(('JOIN ' + channel + ' ' + self.conf['server'][destination[0]]['channel'][args]['pass'] + endl).encode('utf-8'))
+        else:
+            self.core['server'][destination[0]]['socket'].send(('JOIN ' + channel + ' ' + password + endl).encode('utf-8'))
+            self.conf['server'][destination[0]]['channel'][channel]['pass'] = password
+        return 'Joined ' + channel + '.'
 
     def fn_part(self,args,client,destination):
         'Leave a channel.  Use "part <channel>".  Requires op'
