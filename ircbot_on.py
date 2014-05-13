@@ -33,6 +33,7 @@ class ircbot_on:
             self.conf['server'][server]['channel'][channel]['in_channel'] = True
             namesonline = ircbot_chk.ircbot_chk.chk_names(self,server,channel)
             namesonline = [x.lower() for x in namesonline]
+            self.core['server'][server]['channel'][channel]['user_list'] = namesonline
             if('auto_list' in self.conf['server'][server]['channel'][channel]):
                 for entry in self.conf['server'][server]['channel'][channel]['auto_list']:
                     if(entry['user'] in namesonline):
@@ -51,7 +52,7 @@ class ircbot_on:
     def on_quit(self,server,client,args):
         #pass # override this method to handle QUIT events from other users
         for channel in self.conf['server'][server]['channel']:
-            if(client in self.core['server'][server]['channel'][channel]['user_list']):
+            if(client.lower() in self.core['server'][server]['channel'][channel]['user_list']):
                 self.core['server'][server]['channel'][channel]['user_list'].remove(client.lower())
 
     def on_mode(self,server,client,channel,mode,args):
@@ -93,7 +94,7 @@ class ircbot_on:
     def on_nickchange(self,server,client,newnick):
         # handle people changing their nick
         for channel in self.conf['server'][server]['channel']:
-            if(client in self.core['server'][server]['channel'][channel]['user_list']):
+            if(client.lower() in self.core['server'][server]['channel'][channel]['user_list']):
                 self.core['server'][server]['channel'][channel]['user_list'].remove(client.lower())
                 self.core['server'][server]['channel'][channel]['user_list'].append(newnick.lower())
         if(client == self.conf['server'][server]['nick']):
@@ -114,7 +115,7 @@ class ircbot_on:
         pass # override to do something on invite
 
     def on_kick(self,server,client,channel,message):
-        self.core['server'][server]['channel'][channel]['user_list'].remove(client)
+        self.core['server'][server]['channel'][channel]['user_list'].remove(client.lower())
         if(client == self.conf['server'][server]['nick']):
             self.conf['server'][server]['channel'][channel]['in_channel'] = False
 
@@ -127,11 +128,10 @@ class ircbot_on:
             if(self.core['server'][server]['check']['recipientonline']==''):
                 self.core['server'][server]['check']['recipientonline'] = ' '
         elif(code == "353"):
+            #This is a NAMES request reply, tells you who is in a channel
             channel = data.split(':')[1].split()[-1].lower()
             self.core['server'][server]['check']['names'] = ':'.join(data.split(':')[2:])
-            self.core['server'][server]['channel'][channel]['user_list'] = [nick.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','') for nick in self.core['server'][server]['check']['names'].split()]
-            if(self.core['server'][server]['check']['names']==''):
-                self.core['server'][server]['check']['names'] = ' '
+            self.core['server'][server]['channel'][channel]['user_list'] = [nick.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','').lower() for nick in self.core['server'][server]['check']['names'].split()]
 
     def on_rawdata(self,server,data,unhandled):
         pass # override this method to do general data handling
