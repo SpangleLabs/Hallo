@@ -32,7 +32,7 @@ class ircbot_on:
         if(client.lower() == self.conf['server'][server]['nick'].lower()):
             self.conf['server'][server]['channel'][channel]['in_channel'] = True
             namesonline = ircbot_chk.ircbot_chk.chk_names(self,server,channel)
-            namesonline = [x.lower() for x in namesonline]
+            namesonline = [x.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','').lower() for x in namesonline]
             self.core['server'][server]['channel'][channel]['user_list'] = namesonline
             if('auto_list' in self.conf['server'][server]['channel'][channel]):
                 for entry in self.conf['server'][server]['channel'][channel]['auto_list']:
