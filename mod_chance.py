@@ -82,9 +82,8 @@ class mod_chance:
     def fn_chosen_one(self,args,client,destination):
         'Specifies who the chosen one is. Format: chosen_one'
         names = ircbot_chk.ircbot_chk.chk_names(self,destination[0],destination[1])
-        tempnameslist = names
         nameslist = []
-        for name in tempnameslist:
+        for name in names:
             if('_S' != name and self.conf['server'][destination[0]]['nick'] not in name):
                 nameslist.append(name.replace('+','').replace('%','').replace('@','').replace('~','').replace('&',''))
         rand = random.randint(0,len(nameslist)-1)
