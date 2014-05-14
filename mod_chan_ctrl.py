@@ -297,56 +297,6 @@ class mod_chan_ctrl:
                 return "There are no autoflags set for that user in that channel."
             return "Removed all auto flags for " + user + " on " + ', '.join([channel[0] + ':' + channel[1] for channel in chan]) + "."
 
-
-
-
-
-    def fn_voice_add(self,args,client,destination):
-        'Adds a user to psuedoautovoice, format is "voice_add {user} {channel}"'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            args = args.lower()
-            channel = destination[1]
-            if(len(args.split())>1):
-                channel = args.split()[1]
-                args = args.split()[0]
-            if(args not in self.conf['server'][destination[0]]['channel'][channel]['voice_list']):
-                if(ircbot_chk.ircbot_chk.chk_nickregistered(self,destination[0],args)):
-                    self.conf['server'][destination[0]]['channel'][channel]['voice_list'].append(args)
-                    if(ircbot_chk.ircbot_chk.chk_userregistered(self,destination[0],args)):
-                        self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' +v ' + args + endl).encode('utf-8'))
-                    return "Added " + args + " to the pseudoautovoice list for " + channel + "."
-                else:
-                    return "It seems that " + args + " isn't a registered nick."
-            else:
-                return args + " is already on my pseudo-auto-voice list for " + channel + "."
-        else:
-            return "Sorry, this function is for ops only."
-
-    def fn_voice_list(self,args,client,destination):
-        'Lists users on pseudoautovoice, ops only. no arguments, or channel to list'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            if(args==''):
-                args = destination[1]
-            return "Users on pseudoautovoice list for " + args + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][args]['voice_list']) + "."
-        else:
-            return "Sorry, this function is for ops only."
-
-    def fn_voice_del(self,args,client,destination):
-        'Remove a user from autovoice list, ops only. same arguments as voice_add'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            args = args.lower()
-            channel = destination[1]
-            if(len(args.split())>1):
-                channel = args.split()[1]
-                args = args.split()[0]
-            if(args in self.conf['server'][destination[0]]['channel'][channel]['voice_list']):
-                self.conf['server'][destination[0]]['channel'][channel]['voice_list'].remove(args)
-                return "Removed " + args + " from pseudo-auto-voice list for " + channel + "."
-            else:
-                return args + " isn't even on the autovoice list for " + channel + "."
-        else:
-            return "Sorry, this function is for ops only."
-
     def fn_admin_inform_add(self,args,client,destination):
         'Add a user to the admin swear inform list, ops only.'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
