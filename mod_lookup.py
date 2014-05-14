@@ -109,3 +109,9 @@ class mod_lookup:
         'Returns the number of people in space right now, and their names. Format: in_space'
         space = mod_lookup.fnn_loadjson(self,'http://www.howmanypeopleareinspacerightnow.com/space.json')
         return "There are " + str(space['number']) + " people in space right now. Their names are: " + ', '.join(x['name'] for x in space['people']) + "."
+
+    def fnn_weather(self,args,client,destination):
+        'Random weather'
+        weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
+        return weather[random.randint(0,len(weather)-1)]
+

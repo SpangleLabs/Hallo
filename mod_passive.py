@@ -234,6 +234,9 @@ class mod_passive():
         elif(("who is" in args.lower() or "what is" in args.lower()) and "muffinmare" in args.lower()):
             message = "muffinmare is another bot, she was built by ripp_, and very kindly gives out free muffins to people."
             return message
+        elif(self.conf['server'][destination[0]]['nick'].lower() in args.lower() and 'with the weather' in args.lower()):
+            message = mod_lookup.mod_lookup.fnn_weather(self,args,client,destination)
+            return message
         else:
             pass
 
