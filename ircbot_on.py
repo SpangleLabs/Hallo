@@ -194,17 +194,17 @@ class ircbot_on:
         if('convert_currency_update' not in self.core or (time.time()-self.core['convert_currency_update'])>3600):
             self.core['convert_currency_update'] = time.time()
             mod_conversion.mod_conversion.fn_convert_currency_update(self,'','',['',''])
-        megahalclose = []
-        #print('ccc')
-        for filename in self.megahal:
-            if((int(time.time())-self.megahal[filename]['last_used'])>600):
-                megahalclose.append(filename)
-        for filename in megahalclose:
-            self.megahal[filename]['brain'].sync()
-            self.megahal[filename]['brain'].close()
-            del self.megahal[filename]
-            print("Closed megahal brain: " + filename)
-        del megahalclose
+  #      megahalclose = []
+  #      #print('ccc')
+  #      for filename in self.megahal:
+  #          if((int(time.time())-self.megahal[filename]['last_used'])>600):
+  #              megahalclose.append(filename)
+  #      for filename in megahalclose:
+  #          self.megahal[filename]['brain'].sync()
+  #          self.megahal[filename]['brain'].close()
+  #          del self.megahal[filename]
+  #          print("Closed megahal brain: " + filename)
+  #      del megahalclose
   #      print('ddd')
 
 

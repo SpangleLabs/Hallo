@@ -513,8 +513,8 @@ class ircbot:
             try:
                 importlib.import_module(mod)
                 imp.reload(sys.modules[mod])
-                if(modload not in self.modules):
-                    self.modules.append(modload)
+                if(mod not in self.modules):
+                    self.modules.append(mod)
             except:
                 print('Module: ' + mod + ' missing. Skipping it.')
             imp.release_lock()
