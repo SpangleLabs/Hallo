@@ -12,7 +12,7 @@ class mod_chan_ctrl:
                 if(args[0] in self.conf['server'][destination[0]]['channel']):
                     channel = args[0]
                     nick = args[1]
-                elif(args[1] in self.comf['server'][destination[0]]['channel']):
+                elif(args[1] in self.conf['server'][destination[0]]['channel']):
                     channel = args[1]
                     nick = args[0]
                 else:
@@ -41,7 +41,7 @@ class mod_chan_ctrl:
                 if(args[0] in self.conf['server'][destination[0]]['channel']):
                     channel = args[0]
                     nick = args[1]
-                elif(args[1] in self.comf['server'][destination[0]]['channel']):
+                elif(args[1] in self.conf['server'][destination[0]]['channel']):
                     channel = args[1]
                     nick = args[0]
                 else:
@@ -70,7 +70,7 @@ class mod_chan_ctrl:
                 if(args[0] in self.conf['server'][destination[0]]['channel']):
                     channel = args[0]
                     nick = args[1]
-                elif(args[1] in self.comf['server'][destination[0]]['channel']):
+                elif(args[1] in self.conf['server'][destination[0]]['channel']):
                     channel = args[1]
                     nick = args[0]
                 else:
@@ -98,7 +98,7 @@ class mod_chan_ctrl:
             if(args[0] in self.conf['server'][destination[0]]['channel']):
                 channel = args[0]
                 nick = args[1]
-            elif(args[1] in self.comf['server'][destination[0]]['channel']):
+            elif(args[1] in self.conf['server'][destination[0]]['channel']):
                 channel = args[1]
                 nick = args[0]
             else:
