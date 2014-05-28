@@ -259,14 +259,14 @@ class mod_chan_ctrl:
                 if(channel[0] not in [channeldone[0] for channeldone in chandone] and not ircbot_chk.ircbot_chk.chk_nickregistered(self,channel[0],user)):
                     output.append('User ' + user + " is not registered on " + channel[0])
                     continue
-                chandone.append(channel)
                 if('auto_list' not in self.conf['server'][channel[0]]['channel'][channel[1]]):
                     self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list'] = []
                 if({'user':user,'flag':'+'+flags[1]} in self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list'] or {'user':user,'flag':'-'+flags[1]} in self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list']):
                     output.append("User " + user + " already has that flag or an opposing flag in " + channel[0] + ":" + channel[1])
                     continue
-                if(channel[0] not in [channeldone[0] for channeldone in chandone] and not ircbot_chk.ircbot_chk.chk_userregistered(self,channel[0],user)):
+                if(channel[0] not in [channeldone[0] for channeldone in chandone] and ircbot_chk.ircbot_chk.chk_userregistered(self,channel[0],user)):
                     self.core['server'][channel[0]]['socket'].send(('MODE ' + channel[1] + ' ' + flags + ' ' + user + endl).encode('utf-8'))
+                chandone.append(channel)
                 self.conf['server'][channel[0]]['channel'][channel[1]]['auto_list'].append({'user': user,'flag': flags})
             return "".join([outputline + "\n" for outputline in output]) + "I will automatically add the " + flags + " flag to " + user + " whenever they join " + ', '.join([channel[0] + ':' + channel[1] for channel in chandone]) + "."
         if(cmd=='list'):
