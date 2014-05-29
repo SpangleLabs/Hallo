@@ -19,6 +19,15 @@ class mod_pokemon:
         else:
             return "Huh?"
 
+    def fn_pick_a_team(self,args,client,destination):
+        'Generates a team of pokemon for you.'
+        args = args.lower()
+        pokemon = pickle.load(open('store/pokemon.p','rb'))
+        team = []
+        for a in range(6):
+            team.append(pokemon[random.randint(1,len(pokemon))]['Name'])
+        return "Your team is: " + ', '.join(team[:5]) + ' and ' + team[5] + '.'
+
     def fn_pokedex(self,args,client,destination):
         'Returns a random pokedex entry for a given pokemon.'
         args = args.lower()
