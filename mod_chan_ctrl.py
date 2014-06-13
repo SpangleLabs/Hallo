@@ -390,7 +390,7 @@ class mod_chan_ctrl:
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
             if(len(args.split())>=3):
                 args = args.lower().split()
-                args[2] = ' '.join(args.split()[2:])
+                args[2] = ' '.join(args[2:])
                 if(args[0] in ['possible','inform','comment']):
                     list = args[0]
                     del args[0]
