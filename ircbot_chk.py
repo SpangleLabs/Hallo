@@ -148,10 +148,11 @@ class ircbot_chk:
 
     def chk_destination(self,server,channel,client,string):
         'Checks for valid server-channel pairs or known aliases, or close guesses, and returns proper pairs'
+        string = string.strip()
         if(len(string)==0):
             return [[None,'No destination given.']]
         if(string[0]=='.'):
-            #alias. not ready yet
+            #alias.
             string = string.lower()
             if('alias_chan' not in self.conf):
                 return [[None,'No aliases are set.']]
