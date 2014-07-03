@@ -49,8 +49,8 @@ class ircbot_on:
         #pass # override this method to handle PART events from other users
         self.core['server'][server]['channel'][channel]['user_list'].remove(client.lower())
         stillonserver = False
-        for channel in self.core['server'][server]:
-            if(client.lower() in self.core['server'][server]['channel'][channel]['user_list']):
+        for channel_server in self.core['server'][server]['channel']:
+            if(client.lower() in self.core['server'][server]['channel'][channel_server]['user_list']):
                 stillonserver = True
         if(not stillonserver):
             if(client.lower() in self.core['server'][server]['auth_op']):
