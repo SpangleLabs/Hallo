@@ -63,9 +63,9 @@ class ircbot_on:
         for channel in self.conf['server'][server]['channel']:
             if(client.lower() in self.core['server'][server]['channel'][channel]['user_list']):
                 self.core['server'][server]['channel'][channel]['user_list'].remove(client.lower())
-        if(client.lower() in self.core['server'][server]['auth_op']):
+        if('auth_op' in self.core['server'][server] and client.lower() in self.core['server'][server]['auth_op']):
             self.core['server'][server]['auth_op'].remove(client.lower())
-        if(client.lower() in self.core['server'][server]['auth_god']):
+        if('auth_god' in self.core['server'][server] and client.lower() in self.core['server'][server]['auth_god']):
             self.core['server'][server]['auth_god'].remove(client.lower())
 
     def on_mode(self,server,client,channel,mode,args):
@@ -115,7 +115,7 @@ class ircbot_on:
         if(client.lower() in self.core['server'][server]['auth_op']):
             self.core['server'][server]['auth_op'].remove(client.lower())
             self.core['server'][server]['auth_op'].append(newnick.lower())
-        if(client.lower() in self.core['server'][server]['auth_god']):
+        if('auth_god' in self.core['server'][server] and client.lower() in self.core['server'][server]['auth_god']):
             self.core['server'][server]['auth_god'].remove(client.lower())
             self.core['server'][server]['auth_god'].append(newnick.lower())
         for channel in self.conf['server'][server]['channel']:
@@ -124,7 +124,7 @@ class ircbot_on:
                     if(newnick == entry['user']):
                         for x in range(7):
                             if(ircbot_chk.ircbot_chk.chk_userregistered(self,server,newnick)):
-                                self.core['server'][server]['socket'].send(('MODE ' + channel + ' ' + entry['flag'] + '' + newnick + endl).encode('utf-8'))
+                                self.core['server'][server]['socket'].send(('MODE ' + channel + ' ' + entry['flag'] + ' ' + newnick + endl).encode('utf-8'))
                                 break
                             time.sleep(5)
 

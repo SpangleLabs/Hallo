@@ -390,8 +390,9 @@ class mod_conversion:
         crypt_vol = 0
         crypt_tot = 0
         for crypt_source in crypt_dict[currcode][crypt_dest]:
-            crypt_vol = crypt_vol + float(crypt_dict[currcode][crypt_dest][crypt_source]['volume'])
-            crypt_tot = crypt_tot + (float(crypt_dict[currcode][crypt_dest][crypt_source]['last'])*float(crypt_dict[currcode][crypt_dest][crypt_source]['volume']))
+            if(crypt_dict[currcode][crypt_dest][crypt_source] is not None):
+                crypt_vol = crypt_vol + float(crypt_dict[currcode][crypt_dest][crypt_source]['volume'])
+                crypt_tot = crypt_tot + (float(crypt_dict[currcode][crypt_dest][crypt_source]['last'])*float(crypt_dict[currcode][crypt_dest][crypt_source]['volume']))
         if(crypt_vol==0):
             return False
         crypt_value = (crypt_tot/crypt_vol)*convert['units'][crypt_dest]['value']
