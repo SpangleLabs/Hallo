@@ -182,7 +182,7 @@ class ircbot_chk:
                 if(destchan in self.conf['server'][destserv]['channel']):
                     return [[destserv,destchan]]
                 else:
-                    return ircbot_chk.fnn_chk_channel(self,server,client,destchan)
+                    return ircbot_chk.fnn_chk_channel(self,destserv,client,destchan)
             else:
                 if(destserv=='*' and ircbot_chk.chk_god(self,server,client)):
                     list = []
