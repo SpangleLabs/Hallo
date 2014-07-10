@@ -1,5 +1,6 @@
 import ircbot_chk
 import mod_euler
+import math
 
 class mod_calc:
 
