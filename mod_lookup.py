@@ -4,6 +4,7 @@ import xmltodict    #for ponyvillefm functionality
 import pickle
 import random
 import difflib
+import re      #for turning wikicode to plaintext
 
 import ircbot_chk
 
@@ -18,6 +19,7 @@ class mod_lookup:
         pageopener = urllib.request.build_opener()
         pageinfo = str(pageopener.open(pagerequest).info())
         code = pageopener.open(pagerequest).read().decode('utf-8')
+        print(code[:1000])
         returndict = json.loads(code)
         return returndict
 
@@ -114,4 +116,19 @@ class mod_lookup:
         'Random weather'
         weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
         return weather[random.randint(0,len(weather)-1)]
+
+    def fn_wiki(self,args,client,destination):
+        'Reads the first paragraph from a wikipedia article'
+        url = 'http://en.wikipedia.org/w/api.php?format=json&action=query&titles='+args.strip().replace(' ','_')+'&prop=revisions&rvprop=content&redirects=True'
+        article = mod_lookup.fnn_loadjson(self,url)
+        articletext = article['query']['pages'][list(article['query']['pages'])[0]]['revisions'][0]['*']
+        oldscan = articletext
+        newscan = re.sub('{{[^{^}]*}}','',oldscan)
+        while(newscan!=oldscan):
+           oldscan = newscan
+           newscan = re.sub('{{[^{^}]*}}','',oldscan)
+        plaintext = re.sub(r'<!--[^>]*-->','',re.sub(r'\[\[([^]]*)]]',r'\1',re.sub(r'\[\[[^]^|]*\|([^]]*)]]',r'\1',re.sub(r'<ref[^<]*</ref>','',newscan.replace('\'\'','')))))
+        plaintext = re.sub(r'<ref[^>]*/>','',plaintext)
+        firstparagraph = plaintext.lstrip().split('\n')[0]
+        return firstparagraph
 

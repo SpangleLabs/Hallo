@@ -4,6 +4,7 @@ from subprocess import call
 import ircbot_chk
 import mod_idlechan    #for idle channel functions
 import mod_conversion
+import hallobase_ctrl
 
 endl = '\r\n'
 
@@ -130,7 +131,7 @@ class ircbot_on:
 
     def on_invite(self,server,client,channel):
         if(ircbot_chk.ircbot_chk.chk_op(self,server,client)):
-            ircbot_base.ircbot_base.fn_join(self,channel,client,[server,''])
+            hallobase_ctrl.hallobase_ctrl.fn_join(self,channel,client,[server,''])
         pass # override to do something on invite
 
     def on_kick(self,server,client,channel,message):

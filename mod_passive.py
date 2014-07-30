@@ -11,8 +11,9 @@ import ircbot_chk   #for swear detect function
 import mod_chance   
 import mod_pony
 import mod_lookup
-import megahal_mod  #for recording messages into brains.
+#import megahal_mod  #for recording messages into brains.
 import mod_games        #for higher or lower
+import mod_calc      #for auto calculation when calculations posted in channel.
 
 
 endl = '\r\n'
@@ -20,9 +21,9 @@ class mod_passive():
     def fnn_passive(self,args,client,destination):
         # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
         mod_passive.fnn_sweardetect(self,args,client,destination)
-        megahal_mod.megahal_mod.fnn_megahalrecord(self,args,client,destination)
-        if(len(args)>2 and args[:2].lower()=='_s' and '_s' not in [user.lower() for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']]):
-            return megahal_mod.megahal_mod.fn_speak(self,args[2:],client,destination)
+     #   megahal_mod.megahal_mod.fnn_megahalrecord(self,args,client,destination)
+     #   if(len(args)>2 and args[:2].lower()=='_s' and '_s' not in [user.lower() for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']]):
+     #       return megahal_mod.megahal_mod.fn_speak(self,args[2:],client,destination)
         if(args.lower()=='higher' or args.lower()=='lower'):
             try:
                 self.games
@@ -60,6 +61,8 @@ class mod_passive():
             return out
         if(args.lower()=='beep'):
             return mod_passive.fnn_beep(self,args,client,destination)
+        if(ircbot_chk.ircbot_chk.chk_msg_calc(self,args) and not ircbot_chk.ircbot_chk.chk_msg_numbers(self,args)):
+            return mod_calc.mod_calc.fn_calc(self,args,client,destination)
 
     def fnn_urldetect(self, args, client, destination):
         'Detects URLs posted in channel, then returns the page title.'
@@ -142,7 +145,7 @@ class mod_passive():
                 code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
                 length = re.search('length_seconds": ([0-9]*)', code).group(1)
                 length_str = str(int(int(length)/60)) + "m " + str(int(length)-(60*(int(int(length)/60)))) + "s"
-                views = re.search('<span class="watch-view-count[^>]*>[\n\r\s]*([0-9,+]*)',code).group(1)
+                views = re.search('class="watch-view-count[^>]*>[\n\r\s]*([0-9,+]*)',code).group(1)
                 #title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&')
                 title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code,re.I).group(1)[:-10].split())
                 h = html.parser.HTMLParser()
