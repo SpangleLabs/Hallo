@@ -19,7 +19,6 @@ class mod_lookup:
         pageopener = urllib.request.build_opener()
         pageinfo = str(pageopener.open(pagerequest).info())
         code = pageopener.open(pagerequest).read().decode('utf-8')
-        print(code[:1000])
         returndict = json.loads(code)
         return returndict
 

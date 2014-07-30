@@ -195,6 +195,7 @@ class ircbot_on:
         if('convert_currency_update' not in self.core or (time.time()-self.core['convert_currency_update'])>3600):
             self.core['convert_currency_update'] = time.time()
             mod_conversion.mod_conversion.fn_convert_currency_update(self,'','',['',''])
+            print('updated currencies')
   #      megahalclose = []
   #      #print('ccc')
   #      for filename in self.megahal:
