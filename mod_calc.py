@@ -194,8 +194,8 @@ class mod_calc:
             number = number
         elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,number)):
             number = mod_calc.fn_calc(self,number,client,destination)
-        if(str(number)[-1]=='.'):
-            number = number[:-1]
+            if(str(number)[-1]=='.'):
+                number = number[:-1]
         else:
             return "You must enter a valid number or calculation."
         return mod_euler.mod_euler.fnn_euler_numberword(self,number,lang) + "."
