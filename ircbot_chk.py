@@ -262,7 +262,7 @@ class ircbot_chk:
 
     def chk_msg_calc(self,args):
         'checks that an argument is purely numbers and calculation characters'
-        validchars = [str(x) for x in range(10)] + [".","(",")","^","*","x","/","+","-","pi","e"]
+        validchars = [str(x) for x in range(10)] + [".","(",")","^","*","x","/","+","-","pi","e"," "]
         for char in validchars:
             args = args.replace(char,"")
         if(args==""):
