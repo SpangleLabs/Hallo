@@ -45,6 +45,16 @@ class mod_calc:
         else:
             return 'Looks good.'
 
+    def fnn_calc_triggy(self,calc,runncalc):
+        tempans = mod_calc.fnn_calc_process(self,runncalc)
+        runncalc = '('+runncalc+')'
+        before = calc.split(runncalc)[0]
+        trigdict = [{'name':'acos','func':math.acos},{'name':'asin','func':math.asin},{'name':'atan','func':math.atan},{'name':'cos','func':math.cos},{'name':'sin','func':math.sin},{'name':'tan','func':math.tan}]
+        for trig in trigdict:
+            if(before[-len(trig['name']):]==trig['name']):
+                return [trig['name']+runncalc,trig['func'](float(tempans))]
+        return [runncalc,tempans]
+
     def fnn_calc_process(self, calc):
       ##constant evaluation
         while calc.count('pi')!=0:
@@ -73,14 +83,19 @@ class mod_calc:
                 elif nextchar == ')':
                     bracket -= 1
                 if bracket == 0:
-                    tempans = mod_calc.fnn_calc_process(self,runncalc)
-                    if mod_calc.fnn_calc_before(self,calc,'(' + runncalc + ')') != '':
+                    #tempans = mod_calc.fnn_calc_process(self,runncalc)
+                    #runncalc = '('+runncalc+')'
+                    trigcheck = mod_calc.fnn_calc_triggy(self,calc,runncalc)
+                    tempans = trigcheck[1]
+                    runncalc = trigcheck[0]
+                    if mod_calc.fnn_calc_before(self,calc,runncalc) != '':
                         tempans = '*' + str(tempans)
-                    if mod_calc.fnn_calc_after(self,calc,'(' + runncalc + ')') != '':
+                    if mod_calc.fnn_calc_after(self,calc,runncalc) != '':
                         tempans = str(tempans) + '*'
-                    calc = calc.replace('(' + runncalc + ')',str(tempans))
+                    calc = calc.replace(runncalc,str(tempans))
                     break
                 runncalc = runncalc + nextchar
+        calc = calc.replace(')','')
 #        del tempcalc, bracket, runncalc, nextchat, tempans
       ##powers processing
         while calc.count('^') != 0:
