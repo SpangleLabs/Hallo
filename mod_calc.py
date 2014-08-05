@@ -49,7 +49,7 @@ class mod_calc:
         tempans = mod_calc.fnn_calc_process(self,runncalc)
         runncalc = '('+runncalc+')'
         before = calc.split(runncalc)[0]
-        trigdict = [{'name':'acos','func':math.acos},{'name':'asin','func':math.asin},{'name':'atan','func':math.atan},{'name':'cos','func':math.cos},{'name':'sin','func':math.sin},{'name':'tan','func':math.tan}]
+        trigdict = [{'name':'acos','func':math.acos},{'name':'asin','func':math.asin},{'name':'atan','func':math.atan},{'name':'cos','func':math.cos},{'name':'sin','func':math.sin},{'name':'tan','func':math.tan},{'name':'sqrt','func':math.sqrt},{'name':'log','func':math.log},{'name':'acosh','func':math.acosh},{'name':'asinh','func':math.asinh},{'name':'atanh','func':math.atanh},{'name':'cosh','func':math.cosh},{'name':'sinh','func':math.sinh},{'name':'tanh','func':math.tanh},{'name':'gamma','func':math.gamma}]
         for trig in trigdict:
             if(before[-len(trig['name']):]==trig['name']):
                 return [trig['name']+runncalc,trig['func'](float(tempans))]
@@ -109,7 +109,15 @@ class mod_calc:
             post_calc = mod_calc.fnn_calc_after(self,calc,'**')
             calc = calc.replace(str(pre_calc) + '**' + str(post_calc),str(float(pre_calc) ** float(post_calc)))
             del pre_calc, post_calc
-      ##division processing
+      ##modulo processing
+        while calc.count('%') != 0:
+            pre_calc = mod_calc.fnn_calc_before(self,calc,'%')
+            post_calc = mod_calc.fnn_calc_after(self,calc,'%')
+            if float(post_calc) == 0:
+                return 'error, no division by zero, sorry.'
+            calc = calc.replace(str(pre_calc) + '%' + str(post_calc),str(float(pre_calc) % float(post_calc)))
+            del pre_calc, post_calc
+      ##multiplication processing
         while calc.count('/') != 0:
             pre_calc = mod_calc.fnn_calc_before(self,calc,'/')
             post_calc = mod_calc.fnn_calc_after(self,calc,'/')
