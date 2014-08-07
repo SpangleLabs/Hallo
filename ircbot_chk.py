@@ -254,6 +254,8 @@ class ircbot_chk:
         'checks that an argument is purely numbers'
         args = args.lower()
         validchars = [str(x) for x in range(10)] + ['.']
+        if(args[0]=='-'):
+            args = args[1:]
         for char in validchars:
             args = args.replace(char,"")
         if(args==""):
