@@ -50,9 +50,9 @@ class mod_passive():
         if re.search(r'foo[o]*f[!]*',args,re.I):
             out = mod_chance.mod_chance.fn_foof(self,args,client,destination)
             return out
-        if(re.search(r'(pew)+',args,re.I)):
-            out = mod_passive.fnn_pew(self,args,client,destination)
-            return out
+    #    if(re.search(r'(pew)+',args,re.I)):
+    #        out = mod_passive.fnn_pew(self,args,client,destination)
+    #        return out
         if(re.search(r'haskell.jpg',args,re.I)):
             out = mod_passive.fnn_haskell(self,args,client,destination)
             return out
@@ -108,9 +108,9 @@ class mod_passive():
                     views = api_dict['data']['views']
                     if('section' in api_dict['data']):
                         section = api_dict['data']['section']
-                        album_info = 'Album title: ' + title + ' | Gallery views: ' + str(views) + ' | Section: ' + section
+                        album_info = 'Album title: ' + title + ' | Gallery views: ' + "{:,}".format(views) + ' | Section: ' + section
                     else:
-                        album_info = 'Album title: ' + title + ' | Gallery views: ' + str(views)
+                            album_info = 'Album title: ' + title + ' | Gallery views: ' + "{:,}".format(views)
                     pic_number = url.split('#')[-1]
                     album_count = api_dict['data']['images_count']
                     img_width = api_dict['data']['images'][int(pic_number)]['width']
@@ -129,8 +129,8 @@ class mod_passive():
                     img_height = str(api_dict['data']['height'])
                     img_size = api_dict['data']['size']
                     img_sizestr = str(mod_passive.fnn_sizestr(self,int(img_size)))
-                    views = str(api_dict['data']['views'])
-                    return "Imgur> Title: " + title + " | Size: " + img_width + "x" + img_height + " | Filesize: " + img_sizestr + " | Views: " + views + "."
+                    views = api_dict['data']['views']
+                    return "Imgur> Title: " + title + " | Size: " + img_width + "x" + img_height + " | Filesize: " + img_sizestr + " | Views: " + "{:,}".format(views) + "."
             elif("image" in pagetype):
                 code = pageopener.open(pagerequest).read()
                 image_file = io.BytesIO(code)
