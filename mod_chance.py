@@ -134,7 +134,7 @@ class mod_chance:
 
     def fn_scriptures(self,args,client,destination):
         'Recites a passage from the Amarr scriptures. Format: scriptures'
-        scriptures = pickle.load(open('store/scriptures.p','rb'))
+        scriptures = pickle.load(open('store/scriptures.p','rb'),errors='ignore')
         rand = random.randint(0,len(scriptures)-1)
         if(scriptures[rand][-1] not in ['.','!','?']):
             scriptures[rand] = scriptures[rand] + "."
