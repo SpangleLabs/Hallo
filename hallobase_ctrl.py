@@ -8,6 +8,8 @@ class hallobase_ctrl:
 
     def fn_say(self,args,client,destination):
         'Say a message into a channel or server/channel pair (in the format "{server,channel}"). Format: say <channel> <message>'
+        if(not ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
+            return 'Insufficient privileges to speak as hallo.'
         dest = args.split()[0]
         message = ' '.join(args.split()[1:])
         destlist = ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,dest)
