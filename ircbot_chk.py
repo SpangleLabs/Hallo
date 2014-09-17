@@ -48,7 +48,7 @@ class ircbot_chk:
             return False
         self.core['server'][server]['check']['userregistered'] = False
         self.base_say('INFO ' + client,[server,'nickserv'])
-        for x in range(12):
+        for _ in range(12):
             print(self.base_timestamp() + ' [' + server + "] waiting for nickserv")
             if(self.core['server'][server]['check']['userregistered']):
                 print(self.base_timestamp() + ' [' + server + '] got the reply.')
@@ -62,7 +62,7 @@ class ircbot_chk:
             return False
         self.core['server'][server]['check']['nickregistered'] = False
         self.base_say('INFO ' + client,[server,'nickserv'])
-        for x in range(12):
+        for _ in range(12):
             print(self.base_timestamp() + ' [' + server + '] waiting for nickserv')
             if(self.core['server'][server]['check']['nickregistered']):
                 print(self.base_timestamp() + ' [' + server + '] got the reply.')
@@ -76,7 +76,7 @@ class ircbot_chk:
             return []
         self.core['server'][server]['check']['recipientonline'] = ""
         self.core['server'][server]['socket'].send(('ISON ' + ' '.join(clients) + endl).encode('utf-8'))
-        for a in range(6):
+        for _ in range(6):
             print(self.base_timestamp() + ' [' + server + '] waiting for input on which recipients are online')
             if(self.core['server'][server]['check']['recipientonline'] == ""):
                 time.sleep(0.5)
@@ -91,7 +91,7 @@ class ircbot_chk:
             return []
         self.core['server'][server]['check']['names'] = ""
         self.core['server'][server]['socket'].send(('NAMES ' + channel + endl).encode('utf-8'))
-        for a in range(6):
+        for _ in range(6):
             if(self.core['server'][server]['check']['names']==""):
                 print(self.base_timestamp() + ' [' + server + '] waiting for userlist')
                 time.sleep(0.5)
@@ -185,32 +185,32 @@ class ircbot_chk:
                     return ircbot_chk.fnn_chk_channel(self,destserv,client,destchan)
             else:
                 if(destserv=='*' and ircbot_chk.chk_god(self,server,client)):
-                    list = []
+                    out_list = []
                     for serv in self.conf['server']:
-                        list = list + ircbot_chk.fnn_chk_channel(self,serv,client,destchan)
-                    list = [item for item in list if item[0] is not None]
-                    if(len(list)==0):
+                        out_list = out_list + ircbot_chk.fnn_chk_channel(self,serv,client,destchan)
+                    out_list = [item for item in out_list if item[0] is not None]
+                    if(len(out_list)==0):
                         return [[None,'Cannot find any channels matching your specification on any server.']]
                     else:
-                        return list
+                        return out_list
                 asterix = False
                 if(destserv[-1]=='*' and ircbot_chk.chk_god(self,server,client)):
                     asterix = True
                     destserv = destserv[:-1]
-                list = [[None,'No channels match this truncation.']]
+                out_list = [[None,'No channels match this truncation.']]
                 for serv in self.conf['server']:
                     if(serv[:len(destserv)]==destserv):
-                        list = list + ircbot_chk.fnn_chk_channel(self,serv,client,destchan)
-                list = [item for item in list if item[0] is not None]
-                list.insert(0,[None,'No channels match this truncation.'])
-                if(len(list)==1):
-                    list = [[None,'No servers match this truncation.']]
-                elif(not asterix and len(list)>2):
-                    list = [[None,'Too many servers match this truncation.']]
+                        out_list = out_list + ircbot_chk.fnn_chk_channel(self,serv,client,destchan)
+                out_list = [item for item in out_list if item[0] is not None]
+                out_list.insert(0,[None,'No channels match this truncation.'])
+                if(len(out_list)==1):
+                    out_list = [[None,'No servers match this truncation.']]
+                elif(not asterix and len(out_list)>2):
+                    out_list = [[None,'Too many servers match this truncation.']]
                 else:
-                    list = list[1:]
-                if(list[0] != [[None,'No channels match this truncation.']]):
-                    return list
+                    out_list = out_list[1:]
+                if(out_list[0] != [[None,'No channels match this truncation.']]):
+                    return out_list
                 else:
                     closeserv = difflib.get_close_matches(destserv,[serv for serv in self.conf['server']])
                     if(len(closeserv)==0 or closeserv[0]==''):
@@ -227,16 +227,16 @@ class ircbot_chk:
             if(string[-1]=='*' and ircbot_chk.chk_god(self,server,client)):
                 asterix = True
                 string = string[:-1]
-            list = [[None,'No servers match this truncation.']]
+            out_list = [[None,'No servers match this truncation.']]
             for serv in self.conf['server']:
                 if(serv[:len(string)]==string and channel in self.conf['server'][serv]['channel']):
-                    list.append([serv,channel])
-            if(len(list)==1):
-                list = [[None,'No servers match this truncation.']]
-            elif(not asterix and len(list)>2):
-                list = [[None,'Too many servers match this truncation']]
-            if(list[0] != [[None,'No servers match this truncation.']]):
-                return list
+                    out_list.append([serv,channel])
+            if(len(out_list)==1):
+                out_list = [[None,'No servers match this truncation.']]
+            elif(not asterix and len(out_list)>2):
+                out_list = [[None,'Too many servers match this truncation']]
+            if(out_list[0] != [[None,'No servers match this truncation.']]):
+                return out_list
             else:
                 closeserv = difflib.get_close_matches(string,[serv for serv in self.conf['server']])
                 if(len(closeserv)==0 or closeserv[0]==''):
