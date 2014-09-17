@@ -206,7 +206,7 @@ class ircbot:
                     method = getattr(getattr(__import__(module),module),'fn_' + function)
                 if(isinstance(method,collections.Callable)):
                     break
-	    #if you managed to find a method, check it works
+        #if you managed to find a method, check it works
             if(isinstance(method, collections.Callable)):
                 #####SPLIT FOR CHK_FUNC_DISABLED
                 #check if the function has been disabled
@@ -369,7 +369,7 @@ class ircbot:
                     ircbot_on.ircbot_on.on_pm(self,server,client,msg_pm and nick or destination,':'.join(data.split(':')[2:]).replace(endl,''))
             elif msg_pub:
                 #passive functions
-           #     if(self.conf['server'][server]['channel'][destination]['passivefunc']):
+#               if(self.conf['server'][server]['channel'][destination]['passivefunc']):
                 out = mod_passive.mod_passive.fnn_passive(self,message,client,[server,destination])
                 if(out is not None):
                     self.base_say(out,[server,destination])
@@ -462,9 +462,9 @@ class ircbot:
             # if not handled, be confused ^_^
             unhandled = True
             print(self.base_timestamp() + ' [' + server + '] Unhandled data: ' + data)
-  #          logunhandleddata = open('/home/dr-spangle/http/log_unhandleddata.txt','a')
-  #          logunhandleddata.write(data + '\n---\n')
-  #          logunhandleddata.close()
+#            logunhandleddata = open('/home/dr-spangle/http/log_unhandleddata.txt','a')
+#            logunhandleddata.write(data + '\n---\n')
+#            logunhandleddata.close()
         ircbot_on.ircbot_on.on_rawdata(self,server,data,unhandled)
 
     def base_connect(self,server):
@@ -557,9 +557,9 @@ class ircbot:
         except Exception as e:
             print("CONNECTION ERROR: " + str(e))
             self.core['server'][server]['open'] = False
-         #   del self.core['server'][server]
-         #   del self.conf['server'][server]
-          #  self.conf['servers'].remove(server)
+#            del self.core['server'][server]
+#            del self.conf['server'][server]
+#            self.conf['servers'].remove(server)
         Thread(target=self.base_connect, args=(server,)).start()
         nextline = ""
         while(self.open and server in self.core['server'] and self.core['server'][server]['open']):
