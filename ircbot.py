@@ -30,7 +30,7 @@ class ircbot:
         self.longcat = False
         ircbot_on.ircbot_on.on_init(self)
 #        self.base_start()
-  #      self.megahal = MegaHAL()
+#        self.megahal = MegaHAL()
 
     def base_buildconfig(self):
         #if config file is empty or contains no servers, ask a series of questions to the user to build one.
