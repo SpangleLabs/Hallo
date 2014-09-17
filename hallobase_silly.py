@@ -3,9 +3,11 @@ import time         #checking the time for the time function
 
 import ircbot_chk   #for checking users have appropriate permissions to use certain functions
 
+endl = "\r\n"
+
 class hallobase_silly():
-   # def init(self):
-   #     self.longcat = False
+#    def init(self):
+#        self.longcat = False
 
     def fn_slowclap(self,args,client,destination):
         'Slowclap. Format: slowclap'
