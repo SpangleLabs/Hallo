@@ -72,12 +72,12 @@ class hallobase_oper:
         elif(rawfunc == 'list'):
             return "Ops list for this server: " + ', '.join(self.conf['server'][destination[0]]['ops']) + '.'
         elif(rawfunc in ['del','delete','remove']):
-           if(args not in self.conf['server'][destination[0]]['ops']):
-               return "That person isn't even in the ops list."
-           self.conf['server'][destination[0]]['ops'].remove(nick)
-           return "Removed " + args + " from the ops list."
+            if(args not in self.conf['server'][destination[0]]['ops']):
+                return "That person isn't even in the ops list."
+            self.conf['server'][destination[0]]['ops'].remove(nick)
+            return "Removed " + args + " from the ops list."
         else:
-           return "Function not recognised."
+            return "Function not recognised."
 
     def fn_ignore_list(self,args,client,destination):
         'Modify ignore list. Add, list or delete. Format: ignore_list <add/list/del> <username>'
