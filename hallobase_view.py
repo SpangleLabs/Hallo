@@ -1,7 +1,11 @@
 import ircbot_chk
 import time
-import math
 import threading
+#import psutil   used in fn_uptime
+import pprint
+import random
+import hashlib
+import os
 
 class hallobase_view:
 
@@ -19,14 +23,15 @@ class hallobase_view:
         'Returns current number of active threads.. should probably be gods only, but it is not. Format: active_thread'
         return "I think I have " + str(threading.active_count()) + " active threads right now."
 
-    def fn_uptime(self,args,client,destination):
-        'Returns hardware uptime. Format: uptime'
-        uptime = time.time()-psutil.get_boot_time()
-        days = math.floor(uptime/86400)
-        hours = math.floor((uptime-86400*days)/3600)
-        minutes = math.floor((uptime-86400*days-3600*hours)/60)
-        seconds = uptime-86400*days-3600*hours-minutes*60
-        return "My current (hardware) uptime is " + str(days) + " days, " + str(hours) + " hours, " + str(minutes) + " minutes and " + str(seconds) + " seconds."
+#####DISABLED UNTIL PSUTIL CAN BE NOT USED
+#    def fn_uptime(self,args,client,destination):
+#        'Returns hardware uptime. Format: uptime'
+#        uptime = time.time()-psutil.get_boot_time()
+#        days = math.floor(uptime/86400)
+#        hours = math.floor((uptime-86400*days)/3600)
+#        minutes = math.floor((uptime-86400*days-3600*hours)/60)
+#        seconds = uptime-86400*days-3600*hours-minutes*60
+#        return "My current (hardware) uptime is " + str(days) + " days, " + str(hours) + " hours, " + str(minutes) + " minutes and " + str(seconds) + " seconds."
 
     def fn_megahal_view(self,args,client,destination):
         'View the megahal variable, privmsg only. gods only.'
