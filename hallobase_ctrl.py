@@ -1,5 +1,6 @@
 import ircbot_chk
 import sys
+import time
 from threading import Thread
 import collections
 
@@ -31,7 +32,7 @@ class hallobase_ctrl:
             if(len(destlist)==1):
                 return "That message contains a word which is on the swearlist for that channel."
             else:
-                return "Messages sent to " + str(len([destpair for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']])-skipped) + " channels: " + ', '.join(["{" + destpair[0] + "," + destpair[1] + "}" for destpair in destlist if sel.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']]) + " But not sent to " + str(skipped) + " channels, due to swearlist violation: " + ', '.join(["{" + destpair[0] + "," + destpair[1] + "}" for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']])
+                return "Messages sent to " + str(len([destpair for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']])-skipped) + " channels: " + ', '.join(["{" + destpair[0] + "," + destpair[1] + "}" for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']]) + " But not sent to " + str(skipped) + " channels, due to swearlist violation: " + ', '.join(["{" + destpair[0] + "," + destpair[1] + "}" for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']])
 
     def fn_join(self,args,client,destination):
         'Join a channel.  Use "join <channel>".  Requires op'
@@ -87,7 +88,7 @@ class hallobase_ctrl:
     def fn_quit(self,args,client,destination):
         'Quit IRC.  Use "quit".  Requires godmode.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-      #      self.megahal.sync()
+#            self.megahal.sync()
             self.base_close()
             sys.exit(0)
         else:
@@ -106,12 +107,12 @@ class hallobase_ctrl:
             argsplit = args.split('.')
             title = max(argsplit,key=len)
             if(title not in self.conf['server']):
-         #       self.conf['servers'].append(title)
+#                self.conf['servers'].append(title)
                 self.conf['server'][title] = {}
                 self.conf['server'][title]['ops'] = list(self.conf['server'][destination[0]]['ops'])
                 self.conf['server'][title]['gods'] = list(self.conf['server'][destination[0]]['gods'])
                 self.conf['server'][title]['address'] = args
-          #      self.conf['server'][title]['channels'] = []
+#               self.conf['server'][title]['channels'] = []
                 self.conf['server'][title]['nick'] = self.conf['server'][destination[0]]['nick']
                 self.conf['server'][title]['full_name'] = self.conf['server'][destination[0]]['full_name']
                 self.conf['server'][title]['pass'] = False
@@ -131,7 +132,7 @@ class hallobase_ctrl:
             if(args.replace(' ','')==''):
                 self.base_say('Disconnecting...',destination)
                 args = args.lower()
-  #               self.core['server'][destination[0]]['open'] = False
+#                 self.core['server'][destination[0]]['open'] = False
                 self.conf['server'][destination[0]]['connected'] = False
                 self.base_disconnect(destination[0])
                 return "Disconnected."
@@ -173,7 +174,7 @@ class hallobase_ctrl:
                             listed_to = self.conf['function'][fn]['listed_to']
                         if(listed_to in access_level):
                             commands.append(fn)
-       #         functions = functions + [ module + '.' + module + '.' + i for i in dir(getattr(__import__(module),module))]
+#                functions = functions + [ module + '.' + module + '.' + i for i in dir(getattr(__import__(module),module))]
             return ', '.join(cmd[3:] for cmd in commands) + "."
         elif(args != ''):
             fn = 'fn_'+args.lower().split()[0]
