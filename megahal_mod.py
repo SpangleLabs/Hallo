@@ -8,7 +8,7 @@ class megahal_mod():
 
     def fn_speak(self,args,client,destination):
         'He can talk!'
-      #  if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+#        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
         if(True):
             chan_filename = 'store/brains/megahal_' + destination[0] + '_' + destination[1] + '.jar'
             diffchannel = False
