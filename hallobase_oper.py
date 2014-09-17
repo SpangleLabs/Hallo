@@ -147,7 +147,7 @@ class hallobase_oper:
         else:
             return "Function not recognised."
 
-    def fn_nickserv_online(Self,args,client,destination):
+    def fn_nickserv_online(self,args,client,destination):
         'Modify nickserv online list. Add, list or delete. Format: nickserv_online <add/list/del> <message>'
         if(not ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             return "Insufficient privileges to modify nickserv_online list."
@@ -214,7 +214,7 @@ class hallobase_oper:
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             args = args.replace(' ','')
             oldnick = self.conf['server'][destination[0]]['nick']
-         #   self.conf['server'][destination[0]]['nick'] = args
+#            self.conf['server'][destination[0]]['nick'] = args
             self.core['server'][destination[0]]['socket'].send(('NICK ' + args + endl).encode('utf-8'))
             if(self.conf['server'][destination[0]]['pass'] != False):
                 self.base_say('identify ' + self.conf['server'][destination[0]]['pass'],[destination[0],'nickserv'])
@@ -236,54 +236,54 @@ class hallobase_oper:
         'Set a function config variable, Format: function_conf <function> <variable> <value>, functionname should include "fn_" and variable can be "listed_to", "disabled", "repair", "privmsg", "max_run_time", "time_delay" or "return_to"'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             if(len(args.split())>=3):
-                 function = args.split()[0].lower()
-                 variable = args.split()[1].lower()
-                 value = ' '.join(args.split()[2:])
-                 functions = dir(self)
-                 for module in self.modules:
-                     functions = functions + dir(getattr(__import__(module),module))
-                 functions = functions + ['default']
-                 if(function in functions):
-                     if(function not in self.conf['function']):
-                         self.conf['function'][function] = {}
-                     if(variable=='disabled' or variable=='privmsg'):
-                         if(value.lower() in ['true','on','1']):
-                             self.conf['function'][function][variable] = True
-                             return "Set " + variable + " to True for " + function + "."
-                         elif(value.lower() in ['false','off','0']):
-                             self.conf['function'][function][variable] = False
-                             return "Set " + variable + " to False for " + function + "."
-                         else:
-                             return "That's an invalid value for " + variable + ". It can only be True or False."
-                     elif(variable=='max_run_time' or variable=='time_delay'):
-                         try:
-                             self.conf['function'][function][variable] = int(value)
-                             return "Set " + variable + " to " + value + " for " + function + "."
-                         except TypeError:
-                             return "That's an invalid value for " + variable + ". It must be a number (in seconds)."
-                     elif(variable=='listed_to'):
-                         if(value.lower() in ['user','op','god']):
-                             self.conf['function'][function][variable] = value.lower()
-                             return "Set " + variable + " to " + value + " for " + function + "."
-                         else:
-                             return "That's an invalid value for " + variable + ". It must be 'user', 'op', or 'god'."
-                     elif(variable=='return_to'):
-                         if(value.lower() in ['channel','notice','privmsg','none']):
-                             self.conf['function'][function][variable] = value.lower()
-                             return "Set " + variable + " to " + value + " for " + function + "."
-                         else:
-                             return "That's an invalid value for " + variable + ". It must be 'channel', 'notice', 'privmsg' or 'none'."
-                     elif(variable=='repair'):
-                         if(value.lower() in ['false','off','0']):
-                             self.conf['function'][function][variable] = False
-                             return "Set " + variable + " to False for " + function + "."
-                         else:
-                             self.conf['function'][function][variable] = value
-                             return "Set " + variable + " to " + value + " for " + function + "."
-                     else:
-                         return "Invalid variable. Valid variables are 'listed_to', 'disabled', 'repair', 'privmsg', 'max_run_time' or 'return_to'."
-                 else:
-                     return "Invalid function."
+                function = args.split()[0].lower()
+                variable = args.split()[1].lower()
+                value = ' '.join(args.split()[2:])
+                functions = dir(self)
+                for module in self.modules:
+                    functions = functions + dir(getattr(__import__(module),module))
+                functions = functions + ['default']
+                if(function in functions):
+                    if(function not in self.conf['function']):
+                        self.conf['function'][function] = {}
+                    if(variable=='disabled' or variable=='privmsg'):
+                        if(value.lower() in ['true','on','1']):
+                            self.conf['function'][function][variable] = True
+                            return "Set " + variable + " to True for " + function + "."
+                        elif(value.lower() in ['false','off','0']):
+                            self.conf['function'][function][variable] = False
+                            return "Set " + variable + " to False for " + function + "."
+                        else:
+                            return "That's an invalid value for " + variable + ". It can only be True or False."
+                    elif(variable=='max_run_time' or variable=='time_delay'):
+                        try:
+                            self.conf['function'][function][variable] = int(value)
+                            return "Set " + variable + " to " + value + " for " + function + "."
+                        except TypeError:
+                            return "That's an invalid value for " + variable + ". It must be a number (in seconds)."
+                    elif(variable=='listed_to'):
+                        if(value.lower() in ['user','op','god']):
+                            self.conf['function'][function][variable] = value.lower()
+                            return "Set " + variable + " to " + value + " for " + function + "."
+                        else:
+                            return "That's an invalid value for " + variable + ". It must be 'user', 'op', or 'god'."
+                    elif(variable=='return_to'):
+                        if(value.lower() in ['channel','notice','privmsg','none']):
+                            self.conf['function'][function][variable] = value.lower()
+                            return "Set " + variable + " to " + value + " for " + function + "."
+                        else:
+                            return "That's an invalid value for " + variable + ". It must be 'channel', 'notice', 'privmsg' or 'none'."
+                    elif(variable=='repair'):
+                        if(value.lower() in ['false','off','0']):
+                            self.conf['function'][function][variable] = False
+                            return "Set " + variable + " to False for " + function + "."
+                        else:
+                            self.conf['function'][function][variable] = value
+                            return "Set " + variable + " to " + value + " for " + function + "."
+                    else:
+                        return "Invalid variable. Valid variables are 'listed_to', 'disabled', 'repair', 'privmsg', 'max_run_time' or 'return_to'."
+                else:
+                    return "Invalid function."
             else:
                 return "Not enough arguments given, please provide me with a function name, variable and value. Function names should include preceeding fn_ and variables can be 'listed_to', 'disabled', 'repair','privmsg', 'max_run_time', 'time_delay' or 'return_to'."
         else:
@@ -295,7 +295,7 @@ class hallobase_oper:
             if(destination[1][0] == '#'):
                 return "I'm not posting my whole core variable here, that would be rude."
             else:
-          #      return "erm, really? my core variable... erm, if you insist. Here goes:\n" + pprint.pformat(self.core)
+#                return "erm, really? my core variable... erm, if you insist. Here goes:\n" + pprint.pformat(self.core)
                 prettycore = pprint.pformat(self.core)
                 filename = "core_" + hashlib.md5(str(random.randint(1,1000)*time.time()).encode('utf-8')).hexdigest() + ".txt"
                 link = "http://sucs.org/~drspangle/" + filename
@@ -439,7 +439,7 @@ class hallobase_oper:
             return "There are no aliases."
         if(args in self.conf['alias_chan']):
             return "That isn't a valid alias."
-        if(ircbot_chk.ircbot_chk.chk_god(self,server,client)):
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
             del self.conf['alias_chan'][args]
             return "Removed " + args + " channel alias."
         else:
@@ -449,7 +449,7 @@ class hallobase_oper:
         'Returns a user list for a given channel. format: nicklist <channel>'
         channels = ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args)
         if(channels[0][0] is None):
-           return "This is not a valid channel, or one I am not part of. Error returned was: " + channels[0][1]
+            return "This is not a valid channel, or one I am not part of. Error returned was: " + channels[0][1]
         output = []
         for channel in channels:
             userlist = self.core['server'][channel[0]]['channel'][channel[1]]['user_list']
