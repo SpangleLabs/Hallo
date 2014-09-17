@@ -15,9 +15,9 @@ class ircbot_on:
 
     def on_ping(self,server,code):
         # handle pings from servers.
-   #     call(["beep","-f 25","-l 50"])
-   #     time.sleep(0.15)
-   #     call(["beep","-f 40","-l 40"])
+#        call(["beep","-f 25","-l 50"])
+#        time.sleep(0.15)
+#        call(["beep","-f 40","-l 40"])
         pass
 
     def on_join(self,server,client,channel):
@@ -70,7 +70,7 @@ class ircbot_on:
             self.core['server'][server]['auth_god'].remove(client.lower())
 
     def on_mode(self,server,client,channel,mode,args):
-         #pass # override this method to handle MODE changes
+        #pass # override this method to handle MODE changes
         if(mode=='-k'):
             self.conf['server'][server]['channel'][channel]['pass'] = ''
         elif(mode=='+k'):
@@ -123,7 +123,7 @@ class ircbot_on:
             if('auto_list' in self.conf['server'][server]['channel'][channel]):
                 for entry in self.conf['server'][server]['channel'][channel]['auto_list']:
                     if(newnick == entry['user']):
-                        for x in range(7):
+                        for _ in range(7):
                             if(ircbot_chk.ircbot_chk.chk_userregistered(self,server,newnick)):
                                 self.core['server'][server]['socket'].send(('MODE ' + channel + ' ' + entry['flag'] + ' ' + newnick + endl).encode('utf-8'))
                                 break
@@ -177,7 +177,7 @@ class ircbot_on:
                 time.sleep(1)
                 Thread(target=self.base_run, args=(server,)).start()
             # if you're connected, check each channel, if you're in any channels there, check for idlechan activation.
-  #          print('aac' + server)
+#            print('aac' + server)
             if(self.conf['server'][server]['connected']):
                 for channel in self.conf['server'][server]['channel']:
                     if(self.conf['server'][server]['channel'][channel]['in_channel']):
@@ -196,17 +196,17 @@ class ircbot_on:
             self.core['convert_currency_update'] = time.time()
             mod_conversion.mod_conversion.fn_convert_currency_update(self,'','',['',''])
             print('updated currencies')
-  #      megahalclose = []
-  #      #print('ccc')
-  #      for filename in self.megahal:
-  #          if((int(time.time())-self.megahal[filename]['last_used'])>600):
-  #              megahalclose.append(filename)
-  #      for filename in megahalclose:
-  #          self.megahal[filename]['brain'].sync()
-  #          self.megahal[filename]['brain'].close()
-  #          del self.megahal[filename]
-  #          print("Closed megahal brain: " + filename)
-  #      del megahalclose
-  #      print('ddd')
+#        megahalclose = []
+#        #print('ccc')
+#        for filename in self.megahal:
+#            if((int(time.time())-self.megahal[filename]['last_used'])>600):
+#                megahalclose.append(filename)
+#        for filename in megahalclose:
+#            self.megahal[filename]['brain'].sync()
+#            self.megahal[filename]['brain'].close()
+#            del self.megahal[filename]
+#            print("Closed megahal brain: " + filename)
+#        del megahalclose
+#        print('ddd')
 
 
