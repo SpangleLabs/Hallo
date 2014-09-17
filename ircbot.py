@@ -8,18 +8,15 @@
 #pprint is used to view the config
 #importlib is used to import modules on the fly, hopefully
 #copy is used to copy the self.conf variable
-import socket, time, os, _thread, re, pickle, pprint, importlib, copy
+import socket, time, os, pickle, importlib
 from threading import Thread
 import collections
 import imp
 #from megahal import *
-import random
 import sys
 
 import ircbot_on
-import ircbot_chk
 import mod_passive
-import mod_chan_ctrl
 
 endl = '\r\n' # constant for ease/readability
 

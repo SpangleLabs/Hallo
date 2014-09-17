@@ -1,5 +1,4 @@
 import time
-from subprocess import call
 from threading import Thread
 
 import ircbot_chk

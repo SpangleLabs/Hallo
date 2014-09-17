@@ -4,7 +4,6 @@ import math
 import io
 import re
 import html.parser
-from subprocess import call
 
 
 import ircbot_chk   #for swear detect function

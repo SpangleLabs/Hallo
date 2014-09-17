@@ -1,6 +1,5 @@
 import random       #for choosing ouija words, pony episodes, etc
 import time         #checking the time for the time function
-import pickle       #to load amarr scriptures
 
 import ircbot_chk   #for checking users have appropriate permissions to use certain functions
 

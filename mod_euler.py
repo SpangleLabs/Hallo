@@ -1,7 +1,5 @@
-#from ircbot import ircbot
 import math
 import collections
-import ircbot_chk
 
 class mod_euler:
     def fn_euler(self, args, client, destination):
