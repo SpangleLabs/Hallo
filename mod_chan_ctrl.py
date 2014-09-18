@@ -335,13 +335,13 @@ class mod_chan_ctrl:
                 args = args.split()
                 args[2] = ' '.join(args[2:])
                 if(args[0].lower() in ['possible','inform','comment']):
-                    list = args[0].lower()
+                    swearlist = args[0].lower()
                     del args[0]
                 elif(args[1].lower() in ['possible','inform','comment']):
-                    list = args[1].lower()
+                    swearlist = args[1].lower()
                     del args[1]
                 elif(args[2].lower() in ['possible','inform','comment']):
-                    list = args[2].lower()
+                    swearlist = args[2].lower()
                     del args[2]
                 else:
                     return "No valid lists given. Valid lists are 'possible', 'inform' or 'comment'."
@@ -353,8 +353,8 @@ class mod_chan_ctrl:
                     regex = args[0]
                 else:
                     return "I'm not in that channel."
-                self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()].append(regex)
-                return "Added " + regex + " to " + list + " swear list for " + channel + "."
+                self.conf['server'][destination[0]]['channel'][channel]['swearlist'][swearlist.lower()].append(regex)
+                return "Added " + regex + " to " + swearlist + " swear list for " + channel + "."
             else:
                 return "Not enough arguments, remember to provide me with a list, then channel, then the regex for the swear you want to add. Lists are either 'possible', 'inform' or 'comment'."
         else:
@@ -366,16 +366,16 @@ class mod_chan_ctrl:
             if(len(args.split())>=2):
                 args = args.lower().split()
                 if(args[0] in ['possible','inform','comment']):
-                    list = args[0]
+                    swearlist = args[0]
                     channel = args[1]
                 elif(args[1] in ['possible','inform','comment']):
-                    list = args[1]
+                    swearlist = args[1]
                     channel = args[0]
                 else:
                     return "That's not a valid list."
                 if(channel in self.conf['server'][destination[0]]['channel']):
                     if(destination[1]!=channel):
-                        return "Here is the " + list + " swear list for " + channel + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()]) + "."
+                        return "Here is the " + swearlist + " swear list for " + channel + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][channel]['swearlist'][swearlist.lower()]) + "."
                     else:
                         return "I'm not printing a swear list in a channel."
                 else:
@@ -392,13 +392,13 @@ class mod_chan_ctrl:
                 args = args.lower().split()
                 args[2] = ' '.join(args[2:])
                 if(args[0] in ['possible','inform','comment']):
-                    list = args[0]
+                    swearlist = args[0]
                     del args[0]
                 elif(args[1] in ['possible','inform','comment']):
-                    list = args[1]
+                    swearlist = args[1]
                     del args[1]
                 elif(args[2] in ['possible','inform','comment']):
-                    list = args[2]
+                    swearlist = args[2]
                     del args[2]
                 else:
                     return "That's not a valid list. Valid lists are 'possible', 'inform' or 'comment'."
@@ -410,11 +410,11 @@ class mod_chan_ctrl:
                     regex = args[0]
                 else:
                     return "I'm not in that channel."
-                if(regex in self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()]):
-                    self.conf['server'][destination[0]]['channel'][channel]['swearlist'][list.lower()].remove(regex)
-                    return "Removed " + regex + " from " + list + " swear list for " + channel + "."
+                if(regex in self.conf['server'][destination[0]]['channel'][channel]['swearlist'][swearlist.lower()]):
+                    self.conf['server'][destination[0]]['channel'][channel]['swearlist'][swearlist.lower()].remove(regex)
+                    return "Removed " + regex + " from " + swearlist + " swear list for " + channel + "."
                 else:
-                    return "That's not in the " + list + " swear list for " + channel + "."
+                    return "That's not in the " + swearlist + " swear list for " + channel + "."
             else:
                 return "Not enough arguments, remember to provide me with a list, then channel, then the regex for the swear you want to remove. Lists are either 'possible', 'inform' or 'comment'."
         else:
