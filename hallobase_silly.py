@@ -77,39 +77,39 @@ class hallobase_silly():
         timestamp = time.time()
         timezone = 'UTC'
         if(args==''):
-           name = 'time'
+            name = 'time'
         else:
-           name = args.split()[0].lower()
+            name = args.split()[0].lower()
         if(name=='d000242' or name=='d00242' or name=='eli'):
-           offset = 8
-           timezone = 'for D000242'
+            offset = 8
+            timezone = 'for D000242'
         elif(name=='icebreaker' or name=='ice' or name=='isaac'):
-           offset = -7
-           timezone = 'for icebreaker'
+            offset = -7
+            timezone = 'for icebreaker'
         elif(name=='ari' or name=='finnbot' or name=='finbot'):
-           offset = 3
-           timezone = 'for ari'
+            offset = 3
+            timezone = 'for ari'
         elif(name=='beets' or name=='ruth'):
-           offset = -4
-           timezone = 'for beets'
+            offset = -4
+            timezone = 'for beets'
         elif(name=='dolphin' or name=='fucker'):
-           offset = -7
-           timezone = 'for dolphin'
+            offset = -7
+            timezone = 'for dolphin'
         elif(name=='dr-spangle' or name=='dr-spang1e' or name=='hallo' or name=='spangle' or name=='josh' or name=='britfag' or name=='britbot'):
-           offset = 1 
-           timezone = 'for spangle'
+            offset = 1 
+            timezone = 'for spangle'
         elif(name=='zephyr' or name=='zephyr42' or name=='safi'):
-           offset = 1
-           timezone = 'for zephyr'
+            offset = 1
+            timezone = 'for zephyr'
         elif(name=='eve' or name=='eve online' or name=='spreadsheetsonline' or name=='spreadsheets online'):
-           offset = 0
-           timezone = 'for EvE'
+            offset = 0
+            timezone = 'for EvE'
         elif(name=='time'):
-           offset = 0
-           timezone = ''
+            offset = 0
+            timezone = ''
         else:
-           offset = 0
-           timezone = 'UTC (Not sure what your input meant.)'
+            offset = 0
+            timezone = 'UTC (Not sure what your input meant.)'
         timestamp = timestamp+(3600*offset)
         timeword = time.strftime('%H:%M:%S %d/%m/%Y',time.gmtime(timestamp))
         return 'The time is ' + timeword + ' ' + timezone + '.'
@@ -129,23 +129,23 @@ class hallobase_silly():
     def fn_mods(self, args, client, destination):
         'Mods.. asleep? Format: "mods asleep" to post pictures of arctic terns. "mods napping" to post pictures of plush arctic terns.'
         if(args.lower()=='asleep'):
-           number = random.randint(0,61)
-           if(number < 10):
-              link = 'http://dr-spangle.com/AT/0' + str(number) + '.JPG'
-           else:
-              link = 'http://dr-spangle.com/AT/' + str(number) + '.JPG'
-           return 'Mods are asleep? Post arctic terns!! ' + link
+            number = random.randint(0,61)
+            if(number < 10):
+                link = 'http://dr-spangle.com/AT/0' + str(number) + '.JPG'
+            else:
+                link = 'http://dr-spangle.com/AT/' + str(number) + '.JPG'
+            return 'Mods are asleep? Post arctic terns!! ' + link
         elif(args.lower()=='napping'):
-           number = random.randint(0,1)
-           link = 'http://dr-spangle.com/AT/N0' + str(number) + '.JPG'
-           return 'Mods are napping? Post plush arctic terns! ' + link
+            number = random.randint(0,1)
+            link = 'http://dr-spangle.com/AT/N0' + str(number) + '.JPG'
+            return 'Mods are napping? Post plush arctic terns! ' + link
         else:
-           return 'I am not sure I care.'
+            return 'I am not sure I care.'
 
     def fn_silence_the_rabble(self,args,client,destination):
         'ETD only. deops all but D000242 and self. sets mute. Format: silence_the_rabble'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client) and destination[1].lower() == '#ecco-the-dolphin'):
-           # names = ircbot_chk.ircbot_chk.chk_names(self,destination[0],destination[1])
+#            names = ircbot_chk.ircbot_chk.chk_names(self,destination[0],destination[1])
             if('@' + self.conf['server'][destination[0]]['nick'] not in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']):
                 return 'I cannot handle it, master!'
             for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']:
@@ -165,10 +165,10 @@ class hallobase_silly():
         'ETD only. voices and unvoices Dolphin repeatedly. Format: poke_the_asshole'
         if('000242' in client and destination[1].lower() == '#ecco-the-dolphin'):
             if(args.isdigit()):
-                 number = int(args)
+                number = int(args)
             else:
-                 number = 5
-            for x in range(number):
+                number = 5
+            for _ in range(number):
                 self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v Dolphin' + endl).encode('utf-8'))
                 self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +v Dolphin' + endl).encode('utf-8'))
             return 'Dolphin: You awake yet?'
@@ -208,9 +208,9 @@ class hallobase_silly():
 
     def fn_dragon(self,args,client,destination):
         'Prints ascii dragon. Format: dragon'
-        dragon = r''',-,- / / | ,-' _/ / / (-_ _,-' `Z_/ "#: ,-'_,-. \
-_ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
-\_________________,-' | \ \ Wny \ '''
+#        dragon = r''',-,- / / | ,-' _/ / / (-_ _,-' `Z_/ "#: ,-'_,-. \
+#_ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
+#\_________________,-' | \ \ Wny \ '''
         dragon = r'''hmm.. nah. have another deer.
        ""\/ \/""
          "\__/"
