@@ -1,7 +1,7 @@
-import urllib.request, urllib.error, urllib.parse
+import urllib.request #, urllib.error, urllib.parse
 import math
 ##from PIL import Image
-import io
+##import io
 import re
 import html.parser
 
@@ -20,9 +20,9 @@ class mod_passive():
     def fnn_passive(self,args,client,destination):
         # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
         mod_passive.fnn_sweardetect(self,args,client,destination)
-     #   megahal_mod.megahal_mod.fnn_megahalrecord(self,args,client,destination)
-     #   if(len(args)>2 and args[:2].lower()=='_s' and '_s' not in [user.lower() for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']]):
-     #       return megahal_mod.megahal_mod.fn_speak(self,args[2:],client,destination)
+#        megahal_mod.megahal_mod.fnn_megahalrecord(self,args,client,destination)
+#        if(len(args)>2 and args[:2].lower()=='_s' and '_s' not in [user.lower() for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']]):
+#            return megahal_mod.megahal_mod.fn_speak(self,args[2:],client,destination)
         if(args.lower()=='higher' or args.lower()=='lower'):
             try:
                 self.games
@@ -35,9 +35,9 @@ class mod_passive():
                     return mod_games.mod_games.fn_higher_or_lower(self,'lower',client,destination)
         if(args.lower()=='hit' or args.lower()=='stick' or args.lower()=='stand'):
             try:
-               self.games
+                self.games
             except NameError:
-               self.games = {}
+                self.games = {}
             if('server' in self.games and destination[0] in self.games['server'] and 'player' in self.games['server'][destination[0]] and client in self.games['server'][destination[0]]['player'] and 'blackjack' in self.games['server'][destination[0]]['player'][client]):
                 return mod_games.mod_games.fn_blackjack(self,args,client,destination)
         if(not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']):
@@ -45,7 +45,7 @@ class mod_passive():
         out = mod_passive.fnn_extrayammering(self,args,client,destination)
         if(out is not None):
             return out
-       # if(message.lower().replace(' ','') == "foof"):
+#        if(message.lower().replace(' ','') == "foof"):
         if re.search(r'foo[o]*f[!]*',args,re.I):
             out = mod_chance.mod_chance.fn_foof(self,args,client,destination)
             return out
@@ -97,9 +97,9 @@ class mod_passive():
                 ping = re.search('<h3>Ping</h3><p>([0-9]*)',code).group(1)
                 return "Speedtest> Download: " + download + "Mb/s | Upload: " + upload + "Mb/s | Ping: " + ping + "ms"
             elif('imgur.com' in url):
-		#3afbdcb1353b72f imgur API client-ID
+#           3afbdcb1353b72f imgur API client-ID
                 if('/a/' in url):
-		    #http://imgur.com/a/qJctj#0 example imgur album
+#           http://imgur.com/a/qJctj#0 example imgur album
                     imgur_id = url.split('/')[-1].split('#')[0]
                     api_url = 'https://api.imgur.com/3/album/' + imgur_id
                     api_dict = mod_lookup.mod_lookup.fnn_loadjson(self,api_url,[['Authorization','Client-ID 3afbdcb1353b72f']])
@@ -118,8 +118,8 @@ class mod_passive():
                     img_sizestr = mod_passive.fnn_sizestr(self,int(img_size))
                     return "Imgur album> " + album_info + " | Image " + str(int(pic_number)+1) + " of " + str(album_count) + " | Current image: " + str(img_width) + "x" + str(img_height) + ", " + img_sizestr + "."
                 else:
-		    #http://i.imgur.com/2XBqIIT.jpg example imgur direct link
-		    #http://imgur.com/2XBqIIT example imgur link
+# http://i.imgur.com/2XBqIIT.jpg example imgur direct link
+# http://imgur.com/2XBqIIT example imgur link
                     imgur_id = url.split('/')[-1].split('.')[0]
                     api_url = 'https://api.imgur.com/3/image/' + imgur_id
                     api_dict = mod_lookup.mod_lookup.fnn_loadjson(self,api_url,[['Authorization','Client-ID 3afbdcb1353b72f']])
@@ -132,7 +132,7 @@ class mod_passive():
                     return "Imgur> Title: " + title + " | Size: " + img_width + "x" + img_height + " | Filesize: " + img_sizestr + " | Views: " + "{:,}".format(views) + "."
             elif("image" in pagetype):
                 code = pageopener.open(pagerequest).read()
-                image_file = io.BytesIO(code)
+            #    image_file = io.BytesIO(code)
             #    im = Image.open(image_file)
             #    image_width, image_height = im.size
                 image_width = '???'
@@ -166,18 +166,18 @@ class mod_passive():
                 title = re.search('<meta property="og:title" content="([^"]*)">',code).group(1)
                 price = re.search('itemprop="price"([^>]*)>([^<]*)</span>',code).group(2)
                 if(code.count('Current bid:')==1):
-                    type = 'Buy it now.'
+                    page_type = 'Buy it now.'
                     time_left = re.search('id="vi-cdown_timeLeft">([^<]*)<',code).group(1)
                 else:
-                    type = 'Auction'
+                    page_type = 'Auction'
                     bids = re.search('<span id="qty-test">([0-9]*)</span> <span>bids',code).group(1)
                     if(bids==1):
-                        type = type + ", " + bids + "bid."
+                        page_type = page_type + ", " + bids + "bid."
                     else:
-                        type = type + ", " + bids + "bids."
+                        page_type = page_type + ", " + bids + "bids."
                     time_left = re.search('id="vi-cdown_timeLeft">([^<]*)<',code).group(1)
                 #time left
-                return "eBay> Title: " + title + " | " + type + " | Time left: " + time_left + "."
+                return "eBay> Title: " + title + " | " + page_type + " | Time left: " + time_left + "."
             elif('imdb.com/title' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8')
                 movie_code = re.search('title/(tt[0-9]*)',code).group(1)
@@ -227,9 +227,9 @@ class mod_passive():
         elif(("irc client" in args.lower() or "irc program" in args.lower() or "chat client" in args.lower()) and ("which" in args.lower() or "what" in args.lower()) and ("get" in args.lower() or "use" in args.lower())):
             message = "For windows: Hexchat is a good irc client. Try http://hexchat.org For mac: Colloquy is a good choice http://colloquy.info/ For linux: xchat (for a graphical interface) http://xchat.org or for command line linux: irssi http://irssi.org Or for a web client, try http://mibbit.com"
             return message
-     #   elif("when" in args.lower() and ("more pony" in args.lower() or "season 4" in args.lower() or "S04" in args.upper() or ("next season" in args.lower() and ("pony" in args.lower() or "mlp" in args.lower())))):
-     #       message = "It's finally been announced! Season 4 of pony starts on the 23rd of November!"
-     #       return message
+#        elif("when" in args.lower() and ("more pony" in args.lower() or "season 4" in args.lower() or "S04" in args.upper() or ("next season" in args.lower() and ("pony" in args.lower() or "mlp" in args.lower())))):
+#            message = "It's finally been announced! Season 4 of pony starts on the 23rd of November!"
+#            return message
         elif(("who is" in args.lower() or "what is" in args.lower()) and "hallo" in args.lower()):
             message = "I'm Hallo, I'm a bot built by dr-spangle, I do a couple of useful things like calculate things and choose options."
             return message
