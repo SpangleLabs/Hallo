@@ -1,4 +1,4 @@
-import urllib.request, urllib.error, urllib.parse    #for urbandictionary function
+import urllib.request #, urllib.error, urllib.parse    #for urbandictionary function
 import json         #for urbandictionary function
 import xmltodict    #for ponyvillefm functionality
 import pickle
@@ -17,7 +17,7 @@ class mod_lookup:
         for header in headers:
             pagerequest.add_header(header[0],header[1])
         pageopener = urllib.request.build_opener()
-        pageinfo = str(pageopener.open(pagerequest).info())
+#        pageinfo = str(pageopener.open(pagerequest).info())
         code = pageopener.open(pagerequest).read().decode('utf-8')
         returndict = json.loads(code)
         return returndict
@@ -29,7 +29,7 @@ class mod_lookup:
         for header in headers:
             pagerequest.add_header(header[0],header[1])
         pageopener = urllib.request.build_opener()
-        pageinfo = str(pageopener.open(pagerequest).info())
+#        pageinfo = str(pageopener.open(pagerequest).info())
         code = pageopener.open(pagerequest).read().decode('utf-8')
         returndict = xmltodict.parse(code)
         return returndict
@@ -124,8 +124,8 @@ class mod_lookup:
         oldscan = articletext
         newscan = re.sub('{{[^{^}]*}}','',oldscan)
         while(newscan!=oldscan):
-           oldscan = newscan
-           newscan = re.sub('{{[^{^}]*}}','',oldscan)
+            oldscan = newscan
+            newscan = re.sub('{{[^{^}]*}}','',oldscan)
         plaintext = re.sub(r'<!--[^>]*-->','',re.sub(r'\[\[([^]]*)]]',r'\1',re.sub(r'\[\[[^]^|]*\|([^]]*)]]',r'\1',re.sub(r'<ref[^<]*</ref>','',newscan.replace('\'\'','')))))
         plaintext = re.sub(r'<ref[^>]*/>','',plaintext)
         firstparagraph = plaintext.lstrip().split('\n')[0]
