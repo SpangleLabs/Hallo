@@ -24,7 +24,7 @@ class mod_pokemon:
         args = args.lower()
         pokemon = pickle.load(open('store/pokemon.p','rb'))
         team = []
-        for a in range(6):
+        for _ in range(6):
             team.append(pokemon[random.randint(1,len(pokemon))]['Name'])
         return "Your team is: " + ', '.join(team[:5]) + ' and ' + team[5] + '.'
 
@@ -36,7 +36,7 @@ class mod_pokemon:
             if(len(pokemon[mon]['Evolve_To'])==0):
                 fully_evolved.append(pokemon[mon])
         team = []
-        for a in range(6):
+        for _ in range(6):
             team.append(fully_evolved[random.randint(0,len(fully_evolved))]['Name'])
         return "Your team is: " + ', '.join(team[:5]) + ' and ' + team[5] + '.'
 
