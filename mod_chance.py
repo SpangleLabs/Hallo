@@ -46,7 +46,7 @@ class mod_chance:
                     roll = random.randint(1,sides)
                     total = total + roll
                     string = string + str(roll)
-                    for x in range(dice-1):
+                    for _ in range(dice-1):
                         roll = random.randint(1,sides)
                         total = total + roll
                         string = string + ", " + str(roll)
@@ -68,11 +68,11 @@ class mod_chance:
         choices = re.compile(', | or ',re.IGNORECASE).split(args)
         numchoices = len(choices)
         if(numchoices==1):
-           return 'Please present me with more than 1 thing to choose from!'
+            return 'Please present me with more than 1 thing to choose from!'
         else:
-           rand = random.randint(0,numchoices-1)
-           choice = choices[rand]
-           return 'I choose "' + choice + '".'
+            rand = random.randint(0,numchoices-1)
+            choice = choices[rand]
+            return 'I choose "' + choice + '".'
 
     def fn_eightball(self,args,client,destination):
         'Magic 8 ball. Format: eightball'
@@ -127,7 +127,7 @@ class mod_chance:
         words = mod_euler.mod_euler.fnn_euler_readfiletolist(self,'store/ouija_wordlist.txt')
         numwords = random.randint(1,3)
         string = "I'm getting a message from the other side..."
-        for x in range(numwords):
+        for _ in range(numwords):
             rand = random.randint(0,len(words)-1)
             string = string + ' ' + words[rand]
         return string + "."
