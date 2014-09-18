@@ -193,7 +193,7 @@ class mod_euler:
         biggestproduct = 0
         answerx = 0
         answery = 0
-        dir = ''
+        directrion = ''
         #vertical checks
         for x in range(0,20):
             for y in range(0,17):
@@ -202,7 +202,7 @@ class mod_euler:
                     biggestproduct = product
                     answerx = x
                     answery = y
-                    dir = "vertical"
+                    directrion = "vertical"
         #horizontal checks
         for x in range(0,17):
             for y in range(0,20):
@@ -211,7 +211,7 @@ class mod_euler:
                     biggestproduct = product
                     answerx = x
                     answery = y
-                    dir = "horizontal"
+                    directrion = "horizontal"
         #diagonal check \
         for x in range(0,17):
             for y in range(0,17):
@@ -220,7 +220,7 @@ class mod_euler:
                     biggestproduct = product
                     answerx = x
                     answery = y
-                    dir = "diagonal \\"
+                    directrion = "diagonal \\"
         #diagonal check /
         for x in range(3,20):
             for y in range(0,17):
@@ -229,8 +229,8 @@ class mod_euler:
                     biggestproduct = product
                     answerx = x
                     answery = y
-                    dir = "diagonal /"
-        return "biggest product is: " + str(biggestproduct) + " the coords are: (" + str(answerx) + "," + str(answery) + ") in the direction: " + dir
+                    directrion = "diagonal /"
+        return "biggest product is: " + str(biggestproduct) + " the coords are: (" + str(answerx) + "," + str(answery) + ") in the direction: " + directrion
 
     def fnn_euler_factorise(self,args):
         args = int(args)
@@ -331,7 +331,7 @@ class mod_euler:
                     num = (3*num)+1
                     length = length + 1
             if(maxchain < lengths[start]):
-               # print "new longest chain, it starts at: " + str(start) + " and is " + str(lengths[start]) + " steps long. Exploited a " + str(jump) + " step jump! meaning I only had to do " + str(lengths[start]-jump) + " steps myself."
+#                print "new longest chain, it starts at: " + str(start) + " and is " + str(lengths[start]) + " steps long. Exploited a " + str(jump) + " step jump! meaning I only had to do " + str(lengths[start]-jump) + " steps myself."
                 maxchain = lengths[start]
                 maxstart = start
         return maxstart
@@ -353,7 +353,7 @@ class mod_euler:
         return total
 
 
-    def fnn_euler_numberword(self,number,type="american"):
+    def fnn_euler_numberword(self,number,lang_type="american"):
         digits = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen']
         tens = ['zero','ten','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety']
         segs = ['','thousand','million','billion','trillion','quadrillion','quintillion','sextillion','septillion','octillion','nonillion','decillion','undecillion','duodecillion','tredecillion']
@@ -401,11 +401,11 @@ class mod_euler:
                 if(segment[2]!="0"):
                     string = string + "-" + digits[int(segment[2])]
             if(seg!=(segments-1) and segment != "000"):
-                if(type.lower() == "american"):
+                if(lang_type.lower() == "american"):
                     string = string + " " + segs[segments-seg-1]
-                elif(type.lower() == "english"):
+                elif(lang_type.lower() == "english"):
                     string = string + " " + englishsegs[segments-seg-1]
-                elif(type.lower() == "european"):
+                elif(lang_type.lower() == "european"):
                     string = string + " " + europeansegs[segments-seg-1]
                 else:
                     string = string + " " + segs[segments-seg-1]
@@ -508,18 +508,18 @@ class mod_euler:
             if(factortotal>x):
                 abundantnumbers.append(x)
                 for othernumber in abundantnumbers:
-                    sum = othernumber+x
-                    if(sum<28150):
-                        if(sumoftwo[sum] != 1):
-                            sumoftwo[sum] = 1
-                            total = total - (sum)
+                    ab_sum = othernumber+x
+                    if(ab_sum<28150):
+                        if(sumoftwo[ab_sum] != 1):
+                            sumoftwo[ab_sum] = 1
+                            total = total - (ab_sum)
                     else:
                         break
-       # total = 0
-       # for y in range(len(sumoftwo)):
-       #     if(sumoftwo[y]==0):
-       #         total = total + y
-       # return len(abundantnumbers)
+#        total = 0
+#        for y in range(len(sumoftwo)):
+#            if(sumoftwo[y]==0):
+#                total = total + y
+#        return len(abundantnumbers)
         return total
 
     def fnn_euler_24(self):
@@ -562,9 +562,9 @@ class mod_euler:
             string = string + bignumber
             return string
 
-    def fnn_euler_removelistitems(self,list,remove):
+    def fnn_euler_removelistitems(self,list_in,remove):
         newlist = []
-        for item in list:
+        for item in list_in:
             if(item != remove):
                 newlist.append(item)
         return newlist
@@ -579,7 +579,7 @@ class mod_euler:
             product = 1
             for factor in factors:
                 product = product*factor
-       #     print "d = " + str(d) + ", product = " + str(product)
+#            print "d = " + str(d) + ", product = " + str(product)
             nines = 0
             while True:
                 nines = (nines * 10) + 9
@@ -587,7 +587,7 @@ class mod_euler:
                     if(nines>maxnines):
                         maxnines = nines
                         maxd = d
-       #                 print "New record: " + str(d) + " requires " + str(len(str(nines))) + " nines."
+#                        print "New record: " + str(d) + " requires " + str(len(str(nines))) + " nines."
                     break
         return maxd
 
@@ -608,7 +608,7 @@ class mod_euler:
                     if(length>maxlength):
                         maxlength = length
                         maxproduct = a * b
-       #                 print "new record: a = " + str(a) + ", b = " + str(b) + ", length = " + str(length)
+#                        print "new record: a = " + str(a) + ", b = " + str(b) + ", length = " + str(length)
                     length = 0
                     n = 0
                     if(a<b):
@@ -621,7 +621,7 @@ class mod_euler:
                         if(length>maxlength):
                             maxlength = length
                             maxproduct = -(a * b)
-       #                     print "new record: a = -" + str(a) + ", b = " + str(b) + ", length = " + str(length)
+#                            print "new record: a = -" + str(a) + ", b = " + str(b) + ", length = " + str(length)
         return maxproduct
 
     def fnn_euler_28(self):
@@ -637,18 +637,17 @@ class mod_euler:
         answers = []
         for a in range(2,101):
             afactors = mod_euler.fnn_euler_primefactors(self,a)
-       #     answer = a
+#            answer = a
             for b in range(2,101):
-       #         answer = answer * a
+#                answer = answer * a
                 answer = sorted(b * afactors)
                 if(answer not in answers):
                     answers.append(answer)
         return len(answers)
 
     def fnn_euler_30(self):
-     #   number = 10
-     #   while True:
-        digits = [0,1,2,3,4,5,6,7,8,9]
+#        number = 10
+#        while True:
         powerdigits = []
         for digit in range(10):
             powerdigits.append(digit**5)
@@ -712,7 +711,7 @@ class mod_euler:
         coins = [200,100,50,20,10,5,2,1]
         options = mod_euler.fnn_euler_change(self,coins,0,200)
         numoptions = len(options)
-     #   numoptions = euler.fnn_euler_changecount(self,coins,0,200)
+#        numoptions = euler.fnn_euler_changecount(self,coins,0,200)
         return numoptions
 
     def fnn_euler_32(self):
@@ -757,9 +756,9 @@ class mod_euler:
         products = list(set(products))
         return sum(products)
 
-    def fnn_product(self,list):
+    def fnn_product(self,list_in):
         product = 1
-        for number in list:
+        for number in list_in:
             product = product*number
         return product
 
@@ -793,9 +792,7 @@ class mod_euler:
         total_numerator_factors = []
         total_denominator_factors = []
         for denominator in range(11,100):
-            denominator_factors = mod_euler.fnn_euler_primefactors(self,denominator)
             for numerator in range(10,denominator):
-                numerator_factors = mod_euler.fnn_euler_primefactors(self,numerator)
                 if(str(numerator)[0] in str(denominator)):
                     if(str(denominator)[0]==str(denominator)[1]):
                         denominator_new = int(str(denominator)[1])
@@ -840,7 +837,6 @@ class mod_euler:
 
     def fnn_euler_35(self):
         number = 0
-        circprimes = []
         for x in range(10**6):
             prime = True
             strx = str(x)
@@ -902,7 +898,6 @@ class mod_euler:
         epsilon = 0.00000001
         max_p = 0
         max_p_count = 0
-        max_p_list = []
         for p in range(1,1001):
             p_count = 0
             p_list = []
@@ -915,7 +910,6 @@ class mod_euler:
             if(p_count>max_p_count):
                 max_p = p
                 max_p_count = p_count
-                max_p_list = p_list
         return "Maximum triangles for given perimeter is " + str(max_p_count) + " for the perimeter of " + str(max_p) + "."
 
     def fnn_euler_40(self):
@@ -1027,25 +1021,24 @@ class mod_euler:
 
     def fnn_euler_43(self):
         pandigitals = mod_euler.fnn_euler_pandigitals(self)
-        sum = 0
+        pandigital_sum = 0
         for pandigital in pandigitals:
             if(int(str(pandigital)[1:4])%2==0 and int(str(pandigital)[2:5])%3==0 and int(str(pandigital)[3:6])%5==0 and int(str(pandigital)[4:7])%7==0 and int(str(pandigital)[5:8])%11==0):
                 if(int(str(pandigital)[6:9])%13==0 and int(str(pandigital)[7:10])%17==0):
                     print('found one: ' + str(pandigital))
-                    sum += pandigital
-        return sum
+                    pandigital_sum += pandigital
+        return pandigital_sum
 
     def fnn_euler_44(self):
         epsilon = 0.000001
-        pentagonals = []
         pentagonals = [0,1]
         smallest_diff = 10**9
         for x in range(2,3000):
             pentagonals.append(int(x*(3*x-1)/2))
             for y in range(1,x):
-                sum = pentagonals[x] + pentagonals[y]
+                pentagonal_sum = pentagonals[x] + pentagonals[y]
                 diff = pentagonals[x] - pentagonals[y]
-                sumpent = (1+(1+24*sum)**0.5)/6
+                sumpent = (1+(1+24*pentagonal_sum)**0.5)/6
                 diffpent = (1+(1+24*diff)**0.5)/6
                 if(sumpent%1<epsilon and diffpent%1<epsilon):
                     print('found one.')
