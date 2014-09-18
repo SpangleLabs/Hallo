@@ -123,8 +123,8 @@ class mod_conversion:
             return "Could not load conversion data."
         args = args.lower()
         if(args.replace(' ','') == ''):
-           # return "All conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias']]) + "."
-            return "There are too many conversion aliases to list, specify a unit or unit type. Valid unit types are: " + ', '.join([type for type in convert['types']]) + "."
+#            return "All conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias']]) + "."
+            return "There are too many conversion aliases to list, specify a unit or unit type. Valid unit types are: " + ', '.join([conv_type for conv_type in convert['types']]) + "."
         elif(args in convert['types']):
             return args + " conversion aliases: " + ', '.join([alias + '->' + convert['alias'][alias] for alias in convert['alias'] if convert['units'][convert['alias'][alias]]['type'] == args]) + "."
         elif(args in convert['units']):
@@ -145,13 +145,13 @@ class mod_conversion:
             args = args.split()
             args[2] = ''.join(args[2:])
             if(args[0] in convert['types']):
-                type = args[0]
+                conv_type = args[0]
                 del args[0]
             elif(args[1] in convert['types']):
-                type = args[1]
+                conv_type = args[1]
                 del args[1]
             elif(args[2] in convert['types']):
-                type = args[2]
+                conv_type = args[2]
                 del args[2]
             else:
                 return "Unit type does not seem to be defined."
@@ -166,11 +166,11 @@ class mod_conversion:
                     return "Value does not seem to be defined."
             name = args[0]
             convert['units'][name] = {}
-            convert['units'][name]['type'] = type
+            convert['units'][name]['type'] = conv_type
             convert['units'][name]['value'] = value
             convert['units'][name]['last_update'] = time.time()
             pickle.dump(convert,open('store/convert.p','wb'))
-            return "Added " + name + " as a " + type + " unit, with a value of " + str(value) + " " + convert['types'][type]['base_unit'] + "."
+            return "Added " + name + " as a " + conv_type + " unit, with a value of " + str(value) + " " + convert['types'][conv_type]['base_unit'] + "."
         else:
             return "You have insufficient privileges to add a conversion unit."
 
@@ -262,9 +262,9 @@ class mod_conversion:
             return "Could not load conversion data."
         args = args.lower()
         if(args == 'simple'):
-            return 'Conversion unit types: ' + ', '.join([type for type in convert['types']]) + "."
+            return 'Conversion unit types: ' + ', '.join([conv_type for conv_type in convert['types']]) + "."
         else:
-            return 'Conversion unit types: ' + ', '.join([type + ' ( base unit: ' + convert['types'][type]['base_unit'] + ')' for type in convert['types']]) + "."
+            return 'Conversion unit types: ' + ', '.join([type + ' ( base unit: ' + convert['types'][conv_type]['base_unit'] + ')' for conv_type in convert['types']]) + "."
  
     def fn_convert_default_unit(self,args,client,destination):
         'Returns the default unit for a given type. Format: convert_default_unit <type>'
