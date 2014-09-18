@@ -43,11 +43,11 @@ class mod_games():
         return str(datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S'))
 
     def fnn_cardsum(self,cards):
-        sum = 0
+        card_sum = 0
         for card in cards:
             cardvalue = int(card[1:].replace('j','10').replace('q','10').replace('k','10'))
-            sum = sum + cardvalue
-        return sum
+            card_sum = card_sum + cardvalue
+        return card_sum
 
     def fnn_cardsinhand(self,hand,check):
         cards = []
