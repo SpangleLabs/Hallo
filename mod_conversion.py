@@ -479,7 +479,7 @@ class mod_conversion:
         while(len(args)>=3 and not stop):
             codon = args[:3]
             args = args[3:]
-            for(protein in codon_table):
+            for protein in codon_table :
                 if(codon in codon_table[protein]):
                     strand += [protein]
                     if(protein=="STOP"):
