@@ -1,7 +1,5 @@
 
 
-SHORT:02:59:47 <@dr-spangle> roll, throw specific error on floating point?
-MED:maybe make roll work with floating point
 
 SHORT:12:23:31 <@dr-spangle> -fix calc
 SHORT:19:08:16 < deer-spangle> hallo calc (2+3)-3
