@@ -234,7 +234,9 @@ class ircbot:
                         #info needed will be max run time (loop for that long before check if it's dead (or replied) and then kill it.)
                         #also have to check processor and ram usage, I guess
                         #will need to get the id of the thread I just started, too
-                        out = str(method(self,args,client,[server,destination]))
+                        out = method(self,args,client,[server,destination])
+                        if(out is not None):
+                            out = str(out)
                         #record the time it was used.
                         if('fn_' + function not in self.core['function']):
                             self.core['function']['fn_' + function] = {}
