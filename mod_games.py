@@ -452,6 +452,7 @@ class mod_games():
         if(len(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])==0):
             return
         self.base_say("Game has finished!",destination)
+        winner = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'].keys()[0]
         if(len(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])>=2):
             winner = mod_games.fnn_ddr_winner(self,self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'],destination)
             self.base_say("Winner is: "+winner,destination)
