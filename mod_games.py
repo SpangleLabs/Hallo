@@ -339,7 +339,44 @@ class mod_games():
         else:
             return "I don't understand this input." + ' Syntax: "blackjack start" to start a game, "blackjack hit" to hit, "blackjack stick" to stick, and "blackjack end" to quit the game.'
 
+    def fnn_ddr_start(self,type):
+        'Helper method, starts off a DDR game.'
+        
+    def fnn_ddr_turn(self):
+        'Helper method, does a turn of a DDR game.'
+        
+    def fnn_ddr_end(self):
+        'Helper method, ends a DDR game.'
 
-
-
+    def fn_ddr(self,args,client,destination):
+        'Starts a new game of DDR. Format: ddr <difficulty>. Where difficulty is easy, medium or hard.'
+        #check in a channel
+        if(destination[1][0]!="#"):
+            return "You must play DDR in a channel, not privmsg."
+        #initialise games variable
+        try:
+            self.games
+        except:
+            self.games = {}
+        if('server' not in self.games):
+            self.games['server'] = {}
+        if(destination[0] not in self.games['server']):
+            self.games['server'][destination[0]] = {}
+        if('channel' not in self.games['server'][destination[0]]):
+            self.games['server'][destination[0]]['channel'] = {}
+        #check no game is going
+        if(destination[1] in self.games['server'][destination[0]]['channel']):
+            return "A game is already in progress here."
+        #check the given arguments
+        args = args.lower().strip()
+        if(args in ['','easy']):
+            self.fnn_ddr_start("easy")
+        elif(args in ['medium','med']):
+            self.fnn_ddr_start("medium")
+        elif(args in ['hard']):
+            self.fnn_ddr_start("hard")
+        else:
+            return "Invalid difficulty mode. Please specify easy, medium or hard."
+        return self.fnn_ddr_end()
+        
 
