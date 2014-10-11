@@ -6,6 +6,7 @@ import hashlib
 import os
 
 import ircbot_chk
+from _winapi import NULL
 
 class mod_games():
 
@@ -339,15 +340,167 @@ class mod_games():
         else:
             return "I don't understand this input." + ' Syntax: "blackjack start" to start a game, "blackjack hit" to hit, "blackjack stick" to stick, and "blackjack end" to quit the game.'
 
-    def fnn_ddr_start(self,type):
-        'Helper method, starts off a DDR game.'
+    def fnn_ddr_start(self,difficulty,destination):
+        'Helper method, starts and runs a DDR game.'
+        if(difficulty=="hard"):
+            num_turns = 20
+            time_min = 1
+            time_max = 2
+        elif(difficulty=="medium"):
+            num_turns = 15
+            time_min = 3
+            time_max = 5
+        else:
+            num_turns = 10
+            time_min = 5
+            time_max = 8
+        directions = ['^','v','>','<']
+        self.games['server'][destination[0]]['channel'][destination[1]]['ddr'] = {}
+        self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'] = {}
+        self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['num_turns'] = -1
+        self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_direction'] = ''
+        self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time'] = 0
+        self.base_say("Starting new game of DDR in 5 seconds, say 'join' to join.",destination)
+        time.sleep(5)
+        if(len(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])==0):
+            self.base_say("0 players joined. Game over.",destination)
+            return
+        num_players = len(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])
+        self.base_say(str(num_players)+" players joined: "+", ".join(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])+". Starting game.",destination)
+        for turn in range(num_turns):
+            direction = directions[random.randint(0,3)]
+            self.base_say(direction,destination)
+            self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['num_turns'] = turn
+            self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_direction'] = direction
+            self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time'] = time.time()
+            time.sleep(random.uniform(time_min,time_max))
+        return
+    
+    def fnn_ddr_join(self,player,destination):
+        'Processes a join request from a potential player.'
+        try:
+            self.games
+        except:
+            return
+        if('server' not in self.games):
+            return
+        if(destination[0] not in self.games['server']):
+            return
+        if('channel' not in self.games['server'][destination[0]]):
+            return
+        if(destination[1] not in self.games['server'][destination[0]]['channel']):
+            return
+        if('ddr' not in self.games['server'][destination[0]]['channel'][destination[1]]):
+            return
+        if(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['num_turns']!=-1):
+            return
+        self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player] = {}
+        self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits'] = 0
+        self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['lag'] = 0
+        self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['last_hit'] = 0
+        return
+    
+    def fnn_ddr_move(self,player,move,destination):
+        'Processes a potential move by a player.'
+        move = move.lower()
+        try:
+            self.games
+        except:
+            return
+        if('server' not in self.games):
+            return
+        if(destination[0] not in self.games['server']):
+            return
+        if('channel' not in self.games['server'][destination[0]]):
+            return
+        if(destination[1] not in self.games['server'][destination[0]]['channel']):
+            return
+        if('ddr' not in self.games['server'][destination[0]]['channel'][destination[1]]):
+            return
+        if(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['num_turns']==-1):
+            return
+        if(player not in self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players']):
+            return
+        if(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['last_hit']>self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time']):
+            return
+        if(move==self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_direction']):
+            self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits'] += 1
+            lag = time.time()-self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time']
+            self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['lag'] = lag
+            self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['last_hit'] = time.time()
         
-    def fnn_ddr_turn(self):
-        'Helper method, does a turn of a DDR game.'
-        
-    def fnn_ddr_end(self):
+    def fnn_ddr_end(self,destination):
         'Helper method, ends a DDR game.'
+        if(len(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])==0):
+            return
+        self.base_say("Game has finished!",destination)
+        if(len(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])>=2):
+            winner = self.fnn_ddr_winner(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])
+            self.base_say("Winner is: "+winner)
+        total_turns = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['num_turns']+1
+        for player in self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players']:
+            hits = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits']
+            lag = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['lag']
+            self.base_say(player+" rating is: "+self.fnn_ddr_rating(total_turns,hits,lag))
+        if('highscores' not in self.conf):
+            self.conf['highscores'] = {}
+        if('ddr' not in self.conf['highscores']):
+            self.conf['highscores']['ddr'] = {}
+        ######DOWN FROM HERE IS NOT DONE
+        winner_hits = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][winner]['hits']
+        winner_lag = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][winner]['lag']
+        if('score' not in self.conf['highscores']['ddr']):
+            self.fnn_ddr_new_highscore(winner,winner_hits,winner_lag,destination)
+            return
+        if(winner_hits>self.conf['highscores']['ddr']['hits']):
+            self.fnn_ddr_new_highscore(winner,winner_hits,winner_lag,destination)
+            return
+        if(winner_hits==self.conf['highscores']['ddr']['hits'] and winner_lag<self.conf['highscores']['ddr']['lag']):
+            self.fnn_ddr_new_highscore(winner,winner_hits,winner_lag,destination)
+            return
+        return
+        
+    def fnn_ddr_new_highscore(self,player,hits,lag,destination):
+        'Helper function, sets a new highscore for DDR'
+        self.base_say(player+" has set a new DDR highscore with "+str(hits)+" hits and "+str(lag)+" lag!",destination)
+        self.conf['highscores']['ddr']['score'] = str(hits)+" hits, "+str(lag)+"s lag"
+        self.conf['highscores']['ddr']['hits'] = hits
+        self.conf['highscores']['ddr']['lag'] = lag
+        self.conf['highscores']['ddr']['name'] = player
+        self.conf['highscores']['ddr']['date'] = time.time()
+        
+    def fnn_ddr_winner(self,players):
+        'Helper function, tells which player is winner from a set of players'
+        winner = ''
+        winner_hits = 0
+        winner_lag = 0
+        for player in players:
+            if(player['hits']>winner_hits):
+                winner = player
+                winner_hits = player['hits']
+                winner_lag = player['lag']
+            elif(player['hits']==winner_hits):
+                if(player['lag']<winner_lag):
+                    winner = player
+                    winner_hits = player['hits']
+                    winner_lag = player['lag']
+        return winner
 
+    def fnn_ddr_rating(self,turns,hits,lag):
+        if(hits==turns):
+            if(lag<5):
+                return "Marvelous!!"
+            else:
+                return "Perfect!"
+        elif(turns>=hits*0.75):
+            return "Great"
+        elif(turns>=hits*0.5):
+            return "Good"
+        elif(turns>=hits*0.25):
+            return "Almost"
+        else:
+            return "Miss."
+        
     def fn_ddr(self,args,client,destination):
         'Starts a new game of DDR. Format: ddr <difficulty>. Where difficulty is easy, medium or hard.'
         #check in a channel
@@ -364,19 +517,21 @@ class mod_games():
             self.games['server'][destination[0]] = {}
         if('channel' not in self.games['server'][destination[0]]):
             self.games['server'][destination[0]]['channel'] = {}
+        if(destination[1] not in self.games['server'][destination[0]]['channel']):
+            self.games['server'][destination[0]]['channel'][destination[1]] = {}
         #check no game is going
-        if(destination[1] in self.games['server'][destination[0]]['channel']):
+        if('ddr' in self.games['server'][destination[0]]['channel'][destination[1]]):
             return "A game is already in progress here."
         #check the given arguments
         args = args.lower().strip()
         if(args in ['','easy']):
-            self.fnn_ddr_start("easy")
+            self.fnn_ddr_start("easy",destination)
         elif(args in ['medium','med']):
-            self.fnn_ddr_start("medium")
+            self.fnn_ddr_start("medium",destination)
         elif(args in ['hard']):
-            self.fnn_ddr_start("hard")
+            self.fnn_ddr_start("hard",destination)
         else:
             return "Invalid difficulty mode. Please specify easy, medium or hard."
-        return self.fnn_ddr_end()
+        return self.fnn_ddr_end(destination)
         
 
