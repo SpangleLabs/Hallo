@@ -409,32 +409,43 @@ class mod_games():
         'Processes a potential move by a player.'
         move = move.lower().strip()
         move.replace('w','^').replace('a','<').replace('s','v').replace('d','>')
+        print("1")
         try:
             self.games
         except:
             return
+        print("2")
         if('server' not in self.games):
             return
+        print("3")
         if(destination[0] not in self.games['server']):
             return
+        print("4")
         if('channel' not in self.games['server'][destination[0]]):
             return
+        print("5")
         if(destination[1] not in self.games['server'][destination[0]]['channel']):
             return
+        print("6")
         if('ddr' not in self.games['server'][destination[0]]['channel'][destination[1]]):
             return
+        print("7")
         if(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['num_turns']==-1):
             return
+        print("8")
         if(player not in self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players']):
             return
+        print("9")
         if(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['last_hit']>self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time']):
             return
+        print("a")
         if(move==self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_direction']):
             print("hit")
             self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits'] += 1
             lag = time.time()-self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time']
             self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['lag'] = lag
             self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['last_hit'] = time.time()
+        print("b")
         
     def fnn_ddr_end(self,destination):
         'Helper method, ends a DDR game.'
@@ -510,7 +521,7 @@ class mod_games():
         elif(hits>=turns*0.25):
             return "Almost"
         else:
-            return "Miss."
+            return "Failure."
         
     def fn_ddr(self,args,client,destination):
         'Starts a new game of DDR. Format: ddr <difficulty>. Where difficulty is easy, medium or hard.'
@@ -544,6 +555,6 @@ class mod_games():
         else:
             return "Invalid difficulty mode. Please specify easy, medium or hard."
         mod_games.fnn_ddr_end(self,destination)
-        return ""
+        return
         
 
