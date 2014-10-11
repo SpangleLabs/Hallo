@@ -434,7 +434,7 @@ class mod_games():
             return
         self.base_say("Game has finished!",destination)
         if(len(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])>=2):
-            winner = mod_games.fnn_ddr_winner(self,self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])
+            winner = mod_games.fnn_ddr_winner(self,self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'],destination)
             self.base_say("Winner is: "+winner)
         total_turns = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['num_turns']+1
         for player in self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players']:
@@ -468,21 +468,21 @@ class mod_games():
         self.conf['highscores']['ddr']['name'] = player
         self.conf['highscores']['ddr']['date'] = time.time()
         
-    def fnn_ddr_winner(self,players):
+    def fnn_ddr_winner(self,players,destination):
         'Helper function, tells which player is winner from a set of players'
         winner = ''
         winner_hits = 0
         winner_lag = 0
         for player in players:
-            if(player['hits']>winner_hits):
+            if(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits']>winner_hits):
                 winner = player
-                winner_hits = player['hits']
-                winner_lag = player['lag']
-            elif(player['hits']==winner_hits):
-                if(player['lag']<winner_lag):
+                winner_hits = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits']
+                winner_lag = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['lag']
+            elif(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits']==winner_hits):
+                if(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['lag']<winner_lag):
                     winner = player
-                    winner_hits = player['hits']
-                    winner_lag = player['lag']
+                    winner_hits = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits']
+                    winner_lag = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['lag']
         return winner
 
     def fnn_ddr_rating(self,turns,hits,lag):
