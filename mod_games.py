@@ -434,13 +434,13 @@ class mod_games():
             return
         self.base_say("Game has finished!",destination)
         if(len(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])>=2):
-            winner = self.fnn_ddr_winner(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])
+            winner = mod_games.fnn_ddr_winner(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])
             self.base_say("Winner is: "+winner)
         total_turns = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['num_turns']+1
         for player in self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players']:
             hits = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits']
             lag = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['lag']
-            self.base_say(player+" rating is: "+self.fnn_ddr_rating(total_turns,hits,lag))
+            self.base_say(player+" rating is: "+mod_games.fnn_ddr_rating(total_turns,hits,lag))
         if('highscores' not in self.conf):
             self.conf['highscores'] = {}
         if('ddr' not in self.conf['highscores']):
@@ -449,13 +449,13 @@ class mod_games():
         winner_hits = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][winner]['hits']
         winner_lag = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][winner]['lag']
         if('score' not in self.conf['highscores']['ddr']):
-            self.fnn_ddr_new_highscore(winner,winner_hits,winner_lag,destination)
+            mod_games.fnn_ddr_new_highscore(winner,winner_hits,winner_lag,destination)
             return
         if(winner_hits>self.conf['highscores']['ddr']['hits']):
-            self.fnn_ddr_new_highscore(winner,winner_hits,winner_lag,destination)
+            mod_games.fnn_ddr_new_highscore(winner,winner_hits,winner_lag,destination)
             return
         if(winner_hits==self.conf['highscores']['ddr']['hits'] and winner_lag<self.conf['highscores']['ddr']['lag']):
-            self.fnn_ddr_new_highscore(winner,winner_hits,winner_lag,destination)
+            mod_games.fnn_ddr_new_highscore(winner,winner_hits,winner_lag,destination)
             return
         return
         
@@ -524,13 +524,13 @@ class mod_games():
         #check the given arguments
         args = args.lower().strip()
         if(args in ['','easy']):
-            self.fnn_ddr_start("easy",destination)
+            mod_games.fnn_ddr_start("easy",destination)
         elif(args in ['medium','med']):
-            self.fnn_ddr_start("medium",destination)
+            mod_games.fnn_ddr_start("medium",destination)
         elif(args in ['hard']):
-            self.fnn_ddr_start("hard",destination)
+            mod_games.fnn_ddr_start("hard",destination)
         else:
             return "Invalid difficulty mode. Please specify easy, medium or hard."
-        return self.fnn_ddr_end(destination)
+        return mod_games.fnn_ddr_end(destination)
         
 
