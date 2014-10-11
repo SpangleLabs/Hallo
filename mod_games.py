@@ -429,6 +429,7 @@ class mod_games():
         if(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['last_hit']>self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time']):
             return
         if(move==self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_direction']):
+            print("hit")
             self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits'] += 1
             lag = time.time()-self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time']
             self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['lag'] = lag
@@ -501,11 +502,11 @@ class mod_games():
                 return "Marvelous!!"
             else:
                 return "Perfect!"
-        elif(turns>=hits*0.75):
+        elif(hits>=turns*0.75):
             return "Great"
-        elif(turns>=hits*0.5):
+        elif(hits>=turns*0.5):
             return "Good"
-        elif(turns>=hits*0.25):
+        elif(hits>=turns*0.25):
             return "Almost"
         else:
             return "Miss."
@@ -541,6 +542,7 @@ class mod_games():
             mod_games.fnn_ddr_start(self,"hard",destination)
         else:
             return "Invalid difficulty mode. Please specify easy, medium or hard."
-        return mod_games.fnn_ddr_end(self,destination)
+        mod_games.fnn_ddr_end(self,destination)
+        return ""
         
 
