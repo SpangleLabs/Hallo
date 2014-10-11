@@ -6,7 +6,6 @@ import hashlib
 import os
 
 import ircbot_chk
-from _winapi import NULL
 
 class mod_games():
 
