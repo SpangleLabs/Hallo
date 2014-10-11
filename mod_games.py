@@ -441,12 +441,12 @@ class mod_games():
         self.base_say("Game has finished!",destination)
         if(len(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])>=2):
             winner = mod_games.fnn_ddr_winner(self,self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'],destination)
-            self.base_say("Winner is: "+winner)
+            self.base_say("Winner is: "+winner,destination)
         total_turns = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['num_turns']+1
         for player in self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players']:
             hits = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits']
             lag = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['lag']
-            self.base_say(player+" rating is: "+mod_games.fnn_ddr_rating(self,total_turns,hits,lag))
+            self.base_say(player+" rating is: "+mod_games.fnn_ddr_rating(self,total_turns,hits,lag),destination)
         if('highscores' not in self.conf):
             self.conf['highscores'] = {}
         if('ddr' not in self.conf['highscores']):
