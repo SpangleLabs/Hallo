@@ -45,7 +45,7 @@ class mod_passive():
         ##GAME: DDR
         if(args.lower().strip()=='join'):
             mod_games.mod_games.fnn_ddr_join(self,client,destination)
-        if(args.lower().strip() in ['^','<','>','v']):
+        if(args.lower().strip() in ['^','<','>','v','w','s','a','d']):
             mod_games.mod_games.fnn_ddr_move(self,client,args.lower().strip(),destination)
         ##check if passive functions are disabled.
         if(not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']):
