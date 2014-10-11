@@ -1,8 +1,11 @@
 import random
 import time
 import datetime
+import pprint
+import hashlib
+import os
 
-
+import ircbot_chk
 
 class mod_games():
 
@@ -91,6 +94,26 @@ class mod_games():
             output = output + game_name + "> Score: " + str(self.conf['highscores'][game]['score']) + ", Player: " + self.conf['highscores'][game]['name'] + ", Date: " + mod_games.fnn_date(self,self.conf['highscores'][game]['date']) + ".\n"
         return output
 
+    def fn_games_view(self,args,client,destination):
+        'View the games variable, privmsg only. gods only.'
+        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+            if(destination[1][0] == '#'):
+                return "I'm not posting my whole core variable here, that would be rude."
+            else:
+#                return "erm, really? my core variable... erm, if you insist. Here goes:\n" + pprint.pformat(self.core)
+                prettycore = pprint.pformat(self.games)
+                filename = "core_" + hashlib.md5(str(random.randint(1,1000)*time.time()).encode('utf-8')).hexdigest() + ".txt"
+                link = "http://sucs.org/~drspangle/" + filename
+                file = open("../public_html/" + filename,'w')
+                file.write(prettycore)
+                file.close()
+                self.base_say("Core written to " + link + " it will be deleted in 30 seconds. Act fast.",destination)
+                time.sleep(30)
+                os.remove("../public_html/" + filename)
+                return "File removed."
+        else:
+            return "Insufficient privileges to view core variable."
+        
     def fn_higher_or_lower(self,args,client,destination):
         'Play a game of higher or lower. Format: "higher_or_lower start" to start a game, "higher_or_lower higher" to guess the next card will be higher, "higher_or_lower lower" to guess the next card will be lower, "higher_or_lower end" to quit the game.'
         try:
