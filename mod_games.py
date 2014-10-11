@@ -9,6 +9,12 @@ import ircbot_chk
 
 class mod_games():
 
+    def fn_games_clear(self,args,client,destination):
+        if(not ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
+            return "This function is for gods only."
+        del self.games
+        return "Deleted all games."
+    
     def fnn_randcard(self,exclude_cards):
         'Picks a random card from a deck, excluding those given to it in a list'
         deck = [y + str(x).replace('11','j').replace('12','q').replace('13','k') for y in ['s','c','d','h'] for x in range(1,14)]
@@ -450,13 +456,17 @@ class mod_games():
         winner_lag = self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][winner]['lag']
         if('score' not in self.conf['highscores']['ddr']):
             mod_games.fnn_ddr_new_highscore(self,winner,winner_hits,winner_lag,destination)
+            del self.games['server'][destination[0]]['channel'][destination[1]]['ddr']
             return
         if(winner_hits>self.conf['highscores']['ddr']['hits']):
             mod_games.fnn_ddr_new_highscore(self,winner,winner_hits,winner_lag,destination)
+            del self.games['server'][destination[0]]['channel'][destination[1]]['ddr']
             return
         if(winner_hits==self.conf['highscores']['ddr']['hits'] and winner_lag<self.conf['highscores']['ddr']['lag']):
             mod_games.fnn_ddr_new_highscore(self,winner,winner_hits,winner_lag,destination)
+            del self.games['server'][destination[0]]['channel'][destination[1]]['ddr']
             return
+        del self.games['server'][destination[0]]['channel'][destination[1]]['ddr']
         return
         
     def fnn_ddr_new_highscore(self,player,hits,lag,destination):
