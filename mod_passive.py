@@ -23,6 +23,7 @@ class mod_passive():
 #        megahal_mod.megahal_mod.fnn_megahalrecord(self,args,client,destination)
 #        if(len(args)>2 and args[:2].lower()=='_s' and '_s' not in [user.lower() for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']]):
 #            return megahal_mod.megahal_mod.fn_speak(self,args[2:],client,destination)
+        ##GAME: higher or lower
         if(args.lower()=='higher' or args.lower()=='lower'):
             try:
                 self.games
@@ -33,6 +34,7 @@ class mod_passive():
                     return mod_games.mod_games.fn_higher_or_lower(self,'higher',client,destination)
                 if(args.lower()=='lower'):
                     return mod_games.mod_games.fn_higher_or_lower(self,'lower',client,destination)
+        ##GAME: blackjack
         if(args.lower()=='hit' or args.lower()=='stick' or args.lower()=='stand'):
             try:
                 self.games
@@ -40,6 +42,12 @@ class mod_passive():
                 self.games = {}
             if('server' in self.games and destination[0] in self.games['server'] and 'player' in self.games['server'][destination[0]] and client in self.games['server'][destination[0]]['player'] and 'blackjack' in self.games['server'][destination[0]]['player'][client]):
                 return mod_games.mod_games.fn_blackjack(self,args,client,destination)
+        ##GAME: DDR
+        if(args.lower().strip()=='join'):
+            mod_games.mod_games.fnn_ddr_join(self,client,destination)
+        if(args.lower().strip() in ['^','<','>','v']):
+            mod_games.mod_games.fnn_ddr_move(self,client,args.lower().strip(),destination)
+        ##check if passive functions are disabled.
         if(not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']):
             return None
         out = mod_passive.fnn_extrayammering(self,args,client,destination)
