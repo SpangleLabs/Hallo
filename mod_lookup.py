@@ -1,4 +1,5 @@
 import urllib.request #, urllib.error, urllib.parse    #for urbandictionary function
+import urllib.parse
 import json         #for urbandictionary function
 import xmltodict    #for ponyvillefm functionality
 import pickle
@@ -10,7 +11,7 @@ import ircbot_chk
 
 class mod_lookup:
 
-    def fnn_loadjson(self,url,headers=[]):
+    def fnn_loadjson(self,url,headers=[],jsonfix=False):
         'Takes a url to a json resource, pulls it and returns a dictionary.'
         pagerequest = urllib.request.Request(url)
         pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
@@ -19,6 +20,8 @@ class mod_lookup:
         pageopener = urllib.request.build_opener()
 #        pageinfo = str(pageopener.open(pagerequest).info())
         code = pageopener.open(pagerequest).read().decode('utf-8')
+        if(jsonfix):
+            code = code.replace(',,',',').replace(',,',',').replace('[,','[').replace(',]',']')
         returndict = json.loads(code)
         return returndict
 
@@ -131,3 +134,23 @@ class mod_lookup:
         firstparagraph = plaintext.lstrip().split('\n')[0]
         return firstparagraph
 
+    def fn_translate(self,args,client,destination):
+        'Translates a given block of text. Format: translate <from>-><to> <text>'
+        if(len(args.split())<2):
+            return "Please specify a translation request and some text, in the format: {from}->{to} {text}"
+        lang_change = args.split()[0]
+        trans_str = args.split()[1:]
+        if('->' not in lang_change):
+            return "Please specify a translation request and some text, in the format: {from}->{to} {text}"
+        lang_from = lang_change.split('->')[0]
+        lang_to = lang_change.split('->')[1]
+        trans_safe = urllib.parse.quote(trans_str,'')
+        url = "http://translate.google.com/translate_a/t?client=t&text="+trans_safe+"&hl=en&sl="+lang_from+"&tl="+lang_to+"&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1"
+        transdict = mod_lookup.fnn_loadjson(self,url,[],True)
+        return "Translation: "+transdict[0][0][0]
+        
+        
+        
+        
+        
+        
