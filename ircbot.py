@@ -175,7 +175,7 @@ class ircbot:
                 if(destination[1][0] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
                     self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line,destination)
                 # avoid flooding
-                if n % 5 == 0:
+                if n % 5 == 4:
                     time.sleep(2)
 
     def base_function(self,client,msg,function,args,destpair):
