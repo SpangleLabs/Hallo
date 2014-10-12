@@ -374,10 +374,10 @@ class mod_games():
         self.base_say(str(num_players)+" players joined: "+", ".join(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'])+". Starting game.",destination)
         for turn in range(num_turns):
             direction = directions[random.randint(0,3)]
-            self.base_say(direction,destination)
             self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['num_turns'] = turn
             self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_direction'] = direction
             self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time'] = time.time()
+            self.base_say(direction,destination)
             time.sleep(random.uniform(time_min,time_max))
         return
     
