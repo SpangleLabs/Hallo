@@ -21,7 +21,8 @@ class mod_lookup:
 #        pageinfo = str(pageopener.open(pagerequest).info())
         code = pageopener.open(pagerequest).read().decode('utf-8')
         if(jsonfix):
-            code = code.replace(',,',',').replace(',,',',').replace('[,','[').replace(',]',']')
+            code = re.sub(',+',',',code)
+            code = code.replace('[,','[').replace(',]',']')
         returndict = json.loads(code)
         return returndict
 
