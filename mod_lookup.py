@@ -139,7 +139,7 @@ class mod_lookup:
         if(len(args.split())<2):
             return "Please specify a translation request and some text, in the format: {from}->{to} {text}"
         lang_change = args.split()[0]
-        trans_str = args.split()[1:]
+        trans_str = ' '.join(args.split()[1:])
         if('->' not in lang_change):
             return "Please specify a translation request and some text, in the format: {from}->{to} {text}"
         lang_from = lang_change.split('->')[0]
