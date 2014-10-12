@@ -427,13 +427,18 @@ class mod_games():
             return
         if(player not in self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players']):
             return
-        if(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['last_hit']>self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time']):
-            return
         if(move==self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_direction']):
-            self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits'] += 1
-            lag = time.time()-self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time']
-            self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['lag'] = lag
+            if(self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['last_hit']>self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time']):
+                self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['hits'] += 1
+                lag = time.time()-self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['last_time']
+                self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['lag'] = lag
+                self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['last_hit'] = time.time()
+                return
+            else:
+                return
+        else:
             self.games['server'][destination[0]]['channel'][destination[1]]['ddr']['players'][player]['last_hit'] = time.time()
+            
         
     def fnn_ddr_end(self,destination):
         'Helper method, ends a DDR game.'
