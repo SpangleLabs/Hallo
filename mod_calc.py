@@ -2,6 +2,7 @@ import ircbot_chk
 import mod_euler
 import math
 
+endl = "\r\n"
 class mod_calc:
 
     def fnn_calc_after(self, calc, sub):
