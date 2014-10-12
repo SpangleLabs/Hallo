@@ -534,6 +534,16 @@ class ircbot:
                 print("coreloop error: " + str(e))
             time.sleep(0.1)
 
+    def base_decode(self,bytes):
+        try:
+            text = bytes.decode('utf-8')
+        except UnicodeDecodeError:
+            try:
+                text = bytes.decode('iso-8859-1')
+            except UnicodeDecodeError:
+                text = bytes.decode('cp1252')
+        return text
+
     def base_run(self,server):
         # begin pulling data from a given server
         self.core['server'][server] = {}
@@ -566,7 +576,7 @@ class ircbot:
         nextline = ""
         while(self.open and server in self.core['server'] and self.core['server'][server]['open']):
             try:
-                nextbyte = self.core['server'][server]['socket'].recv(1).decode('utf-8','replace')
+                nextbyte = self.base_decode(self.core['server'][server]['socket'].recv(1))
             except:
                 nextbyte = ""
             if(nextbyte==""):
