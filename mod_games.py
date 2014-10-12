@@ -408,7 +408,7 @@ class mod_games():
     def fnn_ddr_move(self,player,move,destination):
         'Processes a potential move by a player.'
         move = move.lower().strip()
-        move.replace('w','^').replace('a','<').replace('s','v').replace('d','>')
+        move = move.replace('w','^').replace('a','<').replace('s','v').replace('d','>')
         print("1")
         try:
             self.games
