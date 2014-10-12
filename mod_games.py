@@ -500,17 +500,17 @@ class mod_games():
     def fnn_ddr_rating(self,turns,hits,lag):
         if(hits==turns):
             if(lag<5):
-                return "Marvelous!!"
+                return "Marvelous!! ("+str(hits)+" hits, "+str(lag)+"s lag.)"
             else:
-                return "Perfect!"
+                return "Perfect! ("+str(hits)+" hits, "+str(lag)+"s lag.)"
         elif(hits>=turns*0.75):
-            return "Great"
+            return "Great ("+str(hits)+" hits, "+str(lag)+"s lag.)"
         elif(hits>=turns*0.5):
-            return "Good"
+            return "Good ("+str(hits)+" hits, "+str(lag)+"s lag.)"
         elif(hits>=turns*0.25):
-            return "Almost"
+            return "Almost ("+str(hits)+" hits, "+str(lag)+"s lag.)"
         else:
-            return "Failure."
+            return "Failure. ("+str(hits)+" hits, "+str(lag)+"s lag.)"
         
     def fn_ddr(self,args,client,destination):
         'Starts a new game of DDR. Format: ddr <difficulty>. Where difficulty is easy, medium or hard.'
