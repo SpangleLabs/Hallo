@@ -573,20 +573,21 @@ class ircbot:
 #            del self.conf['server'][server]
 #            self.conf['servers'].remove(server)
         Thread(target=self.base_connect, args=(server,)).start()
-        nextline = ""
+        nextline = b""
         while(self.open and server in self.core['server'] and self.core['server'][server]['open']):
             try:
-                nextbyte = self.base_decode(self.core['server'][server]['socket'].recv(1))
+                nextbyte = self.core['server'][server]['socket'].recv(1)
             except:
-                nextbyte = ""
-            if(nextbyte==""):
+                nextbyte = b""
+            if(nextbyte==b""):
                 self.core['server'][server]['lastping'] = 1
                 self.core['server'][server]['reconnect'] = True
-            if(nextbyte!="\n"):
+            if(nextbyte!=b"\n"):
                 nextline = nextline + nextbyte
             else:
-                Thread(target=self.base_parse, args=(server,nextline)).start()
-                nextline = ""
+                nextstring = self.base_decode(nextline)
+                Thread(target=self.base_parse, args=(server,nextstring)).start()
+                nextline = b""
 
 if __name__ == '__main__':
     ircbot().base_start("store/config.p")
