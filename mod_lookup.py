@@ -142,9 +142,12 @@ class mod_lookup:
         lang_change = args.split()[0]
         trans_str = ' '.join(args.split()[1:])
         if('->' not in lang_change):
-            return "Please specify a translation request and some text, in the format: {from}->{to} {text}"
-        lang_from = lang_change.split('->')[0]
-        lang_to = lang_change.split('->')[1]
+            lang_from = "auto"
+            lang_to = "en"
+            trans_str = lang_change+' '+trans_str
+        else:
+            lang_from = lang_change.split('->')[0]
+            lang_to = lang_change.split('->')[1]
         trans_safe = urllib.parse.quote(trans_str,'')
         url = "http://translate.google.com/translate_a/t?client=t&text="+trans_safe+"&hl=en&sl="+lang_from+"&tl="+lang_to+"&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1"
         transdict = mod_lookup.fnn_loadjson(self,url,[],True)
