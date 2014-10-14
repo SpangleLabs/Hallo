@@ -488,4 +488,25 @@ class mod_conversion:
         if(not stop):
             strand += ["..."]
         return "-".join(strand)
+    
 
+    def fnn_convert_list_types(self,unit1=None,unit2=None):
+        'Lists possible unit types for given units.'
+        convert = pickle.load(open('store/convert2.p','rb'))
+        if(unit1 is None):
+            return list(convert['types'])
+        if(unit2 is None):
+            returnlist = []
+            for unittype in convert['types']:
+                if(unit1 in convert['types'][unittype]['units']):
+                    returnlist.add(unittype)
+            return returnlist
+        returnlist = []
+        for unittype in convert['types']:
+            if(unit1 in convert['types'][unittype]['units'] and unit2 in convert['types'][unittype]['units']):
+                returnlist.add(unittype)
+        return returnlist
+        
+        
+        
+        
