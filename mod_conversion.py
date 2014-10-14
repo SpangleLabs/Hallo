@@ -507,6 +507,38 @@ class mod_conversion:
                 returnlist.add(unittype)
         return returnlist
         
-        
-        
+    def fnn_convert_process_string(self,args):
+        'Processes the convert input into a dictionary of types and values'
+        args = args.lower()
+        from_to = re.compile(' into | to | in |->',re.IGNORECASE).split(args)
+        if(len(from_to)>2):
+            return "I'm confused by your input, are you trying to convert between three units? or not provided me something to convert to?"
+        valuestr = ''
+        for char in from_to[0]:
+            if(char in [str(x) for x in range(10)] + ['.',"(",")","^","*","x","/","+","-"]):
+                valuestr = valuestr + char
+            else:
+                break
+        from_to[0] = from_to[0][len(valuestr):]
+        if(valuestr==''):
+            for char in from_to[0][::-1]:
+                if(char in [str(x) for x in range(10)] + ['.',"(",")","^","*","x","/","+","-"]):
+                    valuestr = char + valuestr
+                else:
+                    break
+            from_to[0] = from_to[0][:len(from_to[0])-len(valuestr)]
+            if(valuestr==''):
+                valuestr = '1'
+        unit_from = from_to[0]
+        while(unit_from[0]==' '):
+            unit_from = unit_from[1:]
+        if(ircbot_chk.ircbot_chk.chk_msg_numbers(self,valuestr)):
+            value = float(valuestr)
+        elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,valuestr)):
+            valuestr = mod_calc.mod_calc.fn_calc(self,valuestr,client,destination)
+            if(valuestr[-1]=='.'):
+                valuestr = valuestr[:-1]
+            value = float(valuestr)
+        else:
+            return "Invalid number."
         
