@@ -514,21 +514,15 @@ class mod_conversion:
         if(len(from_to)>2):
             return "I'm confused by your input, are you trying to convert between three units? or not provided me something to convert to?"
         valuestr = ''
-        for char in from_to[0]:
-            if(char in [str(x) for x in range(10)] + ['.',"(",")","^","*","x","/","+","-"]):
-                valuestr = valuestr + char
-            else:
-                break
-        from_to[0] = from_to[0][len(valuestr):]
-        if(valuestr==''):
-            for char in from_to[0][::-1]:
-                if(char in [str(x) for x in range(10)] + ['.',"(",")","^","*","x","/","+","-"]):
-                    valuestr = char + valuestr
-                else:
-                    break
-            from_to[0] = from_to[0][:len(from_to[0])-len(valuestr)]
-            if(valuestr==''):
-                valuestr = '1'
+        from_to[0] = from_to[0].strip()
+        #find the section of the first part which is a number or simple mathematical formula
+        valuesearch = re.search(r'^[0-9.()*+/^-]+',from_to[0])
+        if(valuesearch is None):
+            valuesearch = re.search(r'[0-9.()*+/^-]+$',from_to[0])
+        if(valuesearch is None):
+            valuestr = '1'
+        else:
+            valuestr = valuesearch.group(0)
         unit_from = from_to[0]
         while(unit_from[0]==' '):
             unit_from = unit_from[1:]
