@@ -506,12 +506,29 @@ class mod_conversion:
                 returnlist.add(unittype)
         return returnlist
         
+    def fnn_convert_check_alias(self,convert,unit):
+        'Checks through possible aliases for a unit, to see if it matches any aliases'
+        return_list = []
+        for unittype in convert['types']:
+            if(unit in convert['types'][unittype]['units']):
+                return_list.append({'unit':unit,'type':unittype})
+            if(unit in convert['types'][unittype]['alias']):
+                return_list.append({'unit':convert['types'][unittype]['alias'][unit],'type':unittype})
+        return return_list
+            
     def fnn_convert_process_string(self,convert,args,client,destination):
         'Processes the convert input into a dictionary of types and values'
-        args = args.lower()
+        args = args.lower().strip()
+        #check if there's a specified unit type
+        unit_type = None
+        type_split = re.split(r'{([a-z]*)}')
+        if(len(type_split)>=2):
+            unit_type = type_split[1]
+        args = ''.join(type_split[::2])
+        #split the argument up 
         from_to = re.compile(' into | to | in |->',re.IGNORECASE).split(args)
         if(len(from_to)>2):
-            raise ValueError("Converting between three units")
+            raise ValueError("Converting between three+ units")
         from_to[0] = from_to[0].strip()
         #find the section of the first part which is a number or simple mathematical formula
         valuesearch = re.split(r'^([0-9.()*+/^-]+)',from_to[0])
@@ -538,13 +555,17 @@ class mod_conversion:
                 raise ValueError("Invalid number")
         else:
             raise ValueError("Invalid number.")
+        #Get the destination unit
+        unit_to_list = self.fnn_convert_check_alias(convert,unit_from)
         if(len(from_to)==1):
-            unit_types = self.fnn_convert_list_types(unit_from)
-            if(len(unit_types)!=1):
+            unit_types = [item['type'] for item in unit_to_list]
+            if(len(unit_types)==1):
+                unit_type = unit_types[0]
+            if(unit_type is None):
                 raise ValueError("Undefined unit type")
             else:
                 unit_to = convert['units'][unit_types[0]]['base_unit']
         else:
-            unit_to = from_to[1]
-        return [value,unit_from,unit_to]
+            unit_to = from_to[1].strip()
+        return [value,unit_from,unit_to,unit_type]
         
