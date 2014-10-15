@@ -490,9 +490,8 @@ class mod_conversion:
         return "-".join(strand)
     
 
-    def fnn_convert_list_types(self,unit1=None,unit2=None):
+    def fnn_convert_list_types(self,convert,unit1=None,unit2=None):
         'Lists possible unit types for given units.'
-        convert = pickle.load(open('store/convert2.p','rb'))
         if(unit1 is None):
             return list(convert['types'])
         if(unit2 is None):
@@ -507,32 +506,45 @@ class mod_conversion:
                 returnlist.add(unittype)
         return returnlist
         
-    def fnn_convert_process_string(self,args):
+    def fnn_convert_process_string(self,convert,args,client,destination):
         'Processes the convert input into a dictionary of types and values'
         args = args.lower()
         from_to = re.compile(' into | to | in |->',re.IGNORECASE).split(args)
         if(len(from_to)>2):
-            return "I'm confused by your input, are you trying to convert between three units? or not provided me something to convert to?"
-        valuestr = ''
+            raise ValueError("Converting between three units")
         from_to[0] = from_to[0].strip()
         #find the section of the first part which is a number or simple mathematical formula
-        valuesearch = re.search(r'^[0-9.()*+/^-]+',from_to[0])
-        if(valuesearch is None):
-            valuesearch = re.search(r'[0-9.()*+/^-]+$',from_to[0])
-        if(valuesearch is None):
-            valuestr = '1'
-        else:
-            valuestr = valuesearch.group(0)
-        unit_from = from_to[0]
-        while(unit_from[0]==' '):
-            unit_from = unit_from[1:]
+        valuesearch = re.split(r'^([0-9.()*+/^-]+)',from_to[0])
+        if(len(valuesearch)==1):
+            valuesearch = re.split(r'([0-9.()*+/^-]+)$',from_to[0])
+            if(len(valuesearch)==1):
+                valuesearch = ['','1',from_to[0]]
+            else:
+                valuesearch = valuesearch[::-1]
+        valuestr = valuesearch[1]
+        unit_from = valuesearch[2].strip()
+        #process valuestr into a number or calculate
         if(ircbot_chk.ircbot_chk.chk_msg_numbers(self,valuestr)):
-            value = float(valuestr)
+            try:
+                value = float(valuestr)
+            except ValueError:
+                raise ValueError("Invalid number")
         elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,valuestr)):
             valuestr = mod_calc.mod_calc.fn_calc(self,valuestr,client,destination)
-            if(valuestr[-1]=='.'):
-                valuestr = valuestr[:-1]
-            value = float(valuestr)
+            valuestr = valuestr.strip('.')
+            try:
+                value = float(valuestr)
+            except ValueError:
+                raise ValueError("Invalid number")
         else:
-            return "Invalid number."
+            raise ValueError("Invalid number.")
+        if(len(from_to)==1):
+            unit_types = self.fnn_convert_list_types(unit_from)
+            if(len(unit_types)!=1):
+                raise ValueError("Undefined unit type")
+            else:
+                unit_to = convert['units'][unit_types[0]]['base_unit']
+        else:
+            unit_to = from_to[1]
+        return [value,unit_from,unit_to]
         
