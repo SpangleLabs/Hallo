@@ -506,14 +506,20 @@ class mod_conversion:
                 returnlist.add(unittype)
         return returnlist
         
-    def fnn_convert_check_alias(self,convert,unit):
+    def fnn_convert_check_alias(self,convert,unit,unit_type=None):
         'Checks through possible aliases for a unit, to see if it matches any aliases'
         return_list = []
-        for unittype in convert['types']:
-            if(unit in convert['types'][unittype]['units']):
-                return_list.append({'unit':unit,'type':unittype})
-            if(unit in convert['types'][unittype]['alias']):
-                return_list.append({'unit':convert['types'][unittype]['alias'][unit],'type':unittype})
+        if(unit_type is None):
+            for unit_type in convert['types']:
+                if(unit in convert['types'][unit_type]['units']):
+                    return_list.append({'unit':unit,'type':unit_type})
+                if(unit in convert['types'][unit_type]['alias']):
+                    return_list.append({'unit':convert['types'][unit_type]['alias'][unit],'type':unit_type})
+        else:
+            if(unit in convert['types'][unit_type]['units']):
+                return_list.append({'unit':unit,'type':unit_type})
+            if(unit in convert['types'][unit_type]['alias']):
+                return_list.append({'unit':convert['types'][unit_type]['alias'][unit],'type':unit_type})
         return return_list
             
     def fnn_convert_process_string(self,convert,args,client,destination):
@@ -556,9 +562,12 @@ class mod_conversion:
         else:
             raise ValueError("Invalid number.")
         #Get the destination unit
-        unit_to_list = self.fnn_convert_check_alias(convert,unit_from)
+        unit_from_list = self.fnn_convert_check_alias(convert,unit_from)
+        if(len(unit_from_list)==1):
+            unit_from = unit_from_list[0]['unit']
+            unit_type = unit_from_list[0]['type']
         if(len(from_to)==1):
-            unit_types = [item['type'] for item in unit_to_list]
+            unit_types = [item['type'] for item in unit_from_list]
             if(len(unit_types)==1):
                 unit_type = unit_types[0]
             if(unit_type is None):
@@ -567,5 +576,6 @@ class mod_conversion:
                 unit_to = convert['units'][unit_types[0]]['base_unit']
         else:
             unit_to = from_to[1].strip()
+            unit_to_list = self.fnn_convert_check_alias(convert,unit_to)
         return [value,unit_from,unit_to,unit_type]
         
