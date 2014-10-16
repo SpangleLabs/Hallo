@@ -521,7 +521,17 @@ class mod_conversion:
             if(unit in convert['types'][unit_type]['alias']):
                 return_list.append({'unit':convert['types'][unit_type]['alias'][unit],'type':unit_type})
         return return_list
-            
+
+    def fnn_convert_combine_lists(self,convert,list_from,list_to):
+        'Combines two lists of units/types, returns a list of elements where unit types match.'
+        return_list = []
+        for unit_from in list_from:
+            for unit_to in list_to:
+                if(unit_from['type']==unit_to['type']):
+                    return_list.append({'unit_from':unit_from,'unit_to':unit_to})
+        return return_list
+                    
+
     def fnn_convert_process_string(self,convert,args,client,destination):
         'Processes the convert input into a dictionary of types and values'
         args = args.lower().strip()
@@ -545,7 +555,7 @@ class mod_conversion:
             else:
                 valuesearch = valuesearch[::-1]
         valuestr = valuesearch[1]
-        unit_from = valuesearch[2].strip()
+        string_from = valuesearch[2].strip()
         #process valuestr into a number or calculate
         if(ircbot_chk.ircbot_chk.chk_msg_numbers(self,valuestr)):
             try:
@@ -562,20 +572,32 @@ class mod_conversion:
         else:
             raise ValueError("Invalid number.")
         #Get the destination unit
-        unit_from_list = self.fnn_convert_check_alias(convert,unit_from)
-        if(len(unit_from_list)==1):
-            unit_from = unit_from_list[0]['unit']
-            unit_type = unit_from_list[0]['type']
+        list_from = self.fnn_convert_check_alias(convert,string_from,unit_type)
+        if(len(list_from)==0):
+            raise ValueError("Invalid unit to convert from")
+        if(len(list_from)==1):
+            unit_from = list_from[0]['unit']
+            unit_type = list_from[0]['type']
         if(len(from_to)==1):
-            unit_types = [item['type'] for item in unit_from_list]
-            if(len(unit_types)==1):
-                unit_type = unit_types[0]
             if(unit_type is None):
                 raise ValueError("Undefined unit type")
             else:
-                unit_to = convert['units'][unit_types[0]]['base_unit']
+                unit_to = convert['units'][unit_type]['base_unit']
         else:
-            unit_to = from_to[1].strip()
-            unit_to_list = self.fnn_convert_check_alias(convert,unit_to)
+            if(unit_type is None):
+                list_to = self.fnn_convert_check_alias(convert,from_to[1])
+                list_match = self.fnn_convert_combine_lists(convert,list_from,list_to)
+                if(len(list_match)==1):
+                    unit_to = list_match[0]['unit_to']['unit']
+                    unit_from = list_match[0]['unit_from']['unit']
+                    unit_type = list_match[0]['unit_from']['type']
+                else:
+                    raise ValueError("Ambiguous unit type, please specify.")
+            else:
+                list_to = self.fnn_convert_check_alias(convert,from_to[1],unit_type)
+                if(len(list_to)==1):
+                    unit_to = list_to[0]['unit']
+                else:
+                    raise ValueError("Invalid unit to convert to")
         return [value,unit_from,unit_to,unit_type]
         
