@@ -7,6 +7,13 @@ import ircbot_chk
 import mod_calc
 import mod_lookup
 
+class ConversionParseError(Exception):
+    def __init__(self,value):
+        self.value = value
+        
+    def __str__(self):
+        return repr(self.value)
+
 class mod_conversion:
 
     def fn_convert(self,args,client,destination):
@@ -489,23 +496,6 @@ class mod_conversion:
             strand += ["..."]
         return "-".join(strand)
     
-
-    def fnn_convert_list_types(self,convert,unit1=None,unit2=None):
-        'Lists possible unit types for given units.'
-        if(unit1 is None):
-            return list(convert['types'])
-        if(unit2 is None):
-            returnlist = []
-            for unittype in convert['types']:
-                if(unit1 in convert['types'][unittype]['units']):
-                    returnlist.add(unittype)
-            return returnlist
-        returnlist = []
-        for unittype in convert['types']:
-            if(unit1 in convert['types'][unittype]['units'] and unit2 in convert['types'][unittype]['units']):
-                returnlist.add(unittype)
-        return returnlist
-        
     def fnn_convert_check_alias(self,convert,unit,unit_type=None):
         'Checks through possible aliases for a unit, to see if it matches any aliases'
         return_list = []
@@ -530,7 +520,6 @@ class mod_conversion:
                 if(unit_from['type']==unit_to['type']):
                     return_list.append({'unit_from':unit_from,'unit_to':unit_to})
         return return_list
-                    
 
     def fnn_convert_process_string(self,convert,args,client,destination):
         'Processes the convert input into a dictionary of types and values'
@@ -544,7 +533,7 @@ class mod_conversion:
         #split the argument up 
         from_to = re.compile(' into | to | in |->',re.IGNORECASE).split(args)
         if(len(from_to)>2):
-            raise ValueError("Converting between three+ units")
+            raise ConversionParseError("Converting between three+ units")
         from_to[0] = from_to[0].strip()
         #find the section of the first part which is a number or simple mathematical formula
         valuesearch = re.split(r'^([0-9.()*+/^-]+)',from_to[0])
@@ -561,26 +550,26 @@ class mod_conversion:
             try:
                 value = float(valuestr)
             except ValueError:
-                raise ValueError("Invalid number")
+                raise ConversionParseError("Invalid number")
         elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,valuestr)):
             valuestr = mod_calc.mod_calc.fn_calc(self,valuestr,client,destination)
             valuestr = valuestr.strip('.')
             try:
                 value = float(valuestr)
             except ValueError:
-                raise ValueError("Invalid number")
+                raise ConversionParseError("Invalid number")
         else:
-            raise ValueError("Invalid number.")
+            raise ConversionParseError("Invalid number.")
         #Get the destination unit
         list_from = mod_conversion.fnn_convert_check_alias(self,convert,string_from,unit_type)
         if(len(list_from)==0):
-            raise ValueError("Invalid unit to convert from")
+            raise ConversionParseError("Invalid unit to convert from")
         if(len(list_from)==1):
             unit_from = list_from[0]['unit']
             unit_type = list_from[0]['type']
         if(len(from_to)==1):
             if(unit_type is None):
-                raise ValueError("Undefined unit type")
+                raise ConversionParseError("Undefined unit type")
             else:
                 unit_to = convert['units'][unit_type]['base_unit']
         else:
@@ -592,13 +581,13 @@ class mod_conversion:
                     unit_from = list_match[0]['unit_from']['unit']
                     unit_type = list_match[0]['unit_from']['type']
                 else:
-                    raise ValueError("Ambiguous unit type, please specify.")
+                    raise ConversionParseError("Ambiguous unit type, please specify.")
             else:
                 list_to = mod_conversion.fnn_convert_check_alias(self,convert,from_to[1],unit_type)
                 if(len(list_to)==1):
                     unit_to = list_to[0]['unit']
                 else:
-                    raise ValueError("Invalid unit to convert to")
+                    raise ConversionParseError("Invalid unit to convert to")
         return [value,unit_from,unit_to,unit_type]
         
     def fnn_convert_to_base(self,convert,value,unit_from,unit_type):
@@ -642,8 +631,8 @@ class mod_conversion:
         convert = pickle.load(open('store/convert2.p','rb'))
         try:
             parsed = mod_conversion.fnn_convert_process_string(self,convert,args,client,destination)
-        except ValueError as err:
-            return "Conversion parsing error: "+err
+        except ConversionParseError as err:
+            return "Conversion parsing error: "+str(err)
         base_value = mod_conversion.fnn_convert_to_base(self,convert,parsed[0],parsed[1],parsed[3])
         result_value = mod_conversion.fnn_convert_from_base(self,convert,base_value,parsed[2],parsed[3])
         return mod_conversion.fnn_convert_output_string(self,convert,parsed[0],result_value,parsed[1],parsed[2],parsed[3])
