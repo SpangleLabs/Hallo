@@ -622,10 +622,10 @@ class mod_conversion:
         string_to = str(value_to)
         if('decimals' in convert['types'][unit_type]):
             if(round(value_to,convert['types'][unit_type]['decimals'])!=0):
-                string_to = round(value_to,convert['types'][unit_type]['decimals'])
+                string_to = str(round(value_to,convert['types'][unit_type]['decimals']))
         if('decimals' in convert['types'][unit_type]['units'][unit_to]):
             if(round(value_to,convert['types'][unit_type]['units'][unit_to]['decimals'])!=0):
-                string_to = round(value_to,convert['types'][unit_type]['units'][unit_to]['decimals'])
+                string_to = str(round(value_to,convert['types'][unit_type]['units'][unit_to]['decimals']))
         #pluralisation
         #last update
         last_update = ""
