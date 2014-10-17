@@ -572,7 +572,7 @@ class mod_conversion:
         else:
             raise ValueError("Invalid number.")
         #Get the destination unit
-        list_from = self.fnn_convert_check_alias(convert,string_from,unit_type)
+        list_from = mod_conversion.fnn_convert_check_alias(convert,string_from,unit_type)
         if(len(list_from)==0):
             raise ValueError("Invalid unit to convert from")
         if(len(list_from)==1):
@@ -585,8 +585,8 @@ class mod_conversion:
                 unit_to = convert['units'][unit_type]['base_unit']
         else:
             if(unit_type is None):
-                list_to = self.fnn_convert_check_alias(convert,from_to[1])
-                list_match = self.fnn_convert_combine_lists(convert,list_from,list_to)
+                list_to = mod_conversion.fnn_convert_check_alias(convert,from_to[1])
+                list_match = mod_conversion.fnn_convert_combine_lists(convert,list_from,list_to)
                 if(len(list_match)==1):
                     unit_to = list_match[0]['unit_to']['unit']
                     unit_from = list_match[0]['unit_from']['unit']
@@ -594,7 +594,7 @@ class mod_conversion:
                 else:
                     raise ValueError("Ambiguous unit type, please specify.")
             else:
-                list_to = self.fnn_convert_check_alias(convert,from_to[1],unit_type)
+                list_to = mod_conversion.fnn_convert_check_alias(convert,from_to[1],unit_type)
                 if(len(list_to)==1):
                     unit_to = list_to[0]['unit']
                 else:
@@ -640,10 +640,10 @@ class mod_conversion:
     def fn_convertv2(self,args,client,destination):
         'New convert function, more features and adaptability than the old convert function.'
         convert = pickle.load(open('store/convert2.p','rb'))
-        parsed = self.fnn_convert_process_string(convert,args,client,destination)
-        base_value = self.fnn_convert_to_base(convert,parsed[0],parsed[1],parsed[3])
-        result_value = self.fnn_convert_from_base(convert,base_value,parsed[2],parsed[3])
-        return self.fnn_convert_output_string(convert,parsed[0],result_value,parsed[1],parsed[2],parsed[3])
+        parsed = mod_conversion.fnn_convert_process_string(convert,args,client,destination)
+        base_value = mod_conversion.fnn_convert_to_base(convert,parsed[0],parsed[1],parsed[3])
+        result_value = mod_conversion.fnn_convert_from_base(convert,base_value,parsed[2],parsed[3])
+        return mod_conversion.fnn_convert_output_string(convert,parsed[0],result_value,parsed[1],parsed[2],parsed[3])
         
         
         
