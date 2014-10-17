@@ -513,13 +513,13 @@ class mod_conversion:
             for unit_type in convert['types']:
                 if(unit in convert['types'][unit_type]['units']):
                     return_list.append({'unit':unit,'type':unit_type})
-                if(unit in convert['types'][unit_type]['aliases']):
-                    return_list.append({'unit':convert['types'][unit_type]['aliases'][unit],'type':unit_type})
+                if(unit in convert['types'][unit_type]['alias']):
+                    return_list.append({'unit':convert['types'][unit_type]['alias'][unit],'type':unit_type})
         else:
             if(unit in convert['types'][unit_type]['units']):
                 return_list.append({'unit':unit,'type':unit_type})
-            if(unit in convert['types'][unit_type]['aliases']):
-                return_list.append({'unit':convert['types'][unit_type]['aliases'][unit],'type':unit_type})
+            if(unit in convert['types'][unit_type]['alias']):
+                return_list.append({'unit':convert['types'][unit_type]['alias'][unit],'type':unit_type})
         return return_list
 
     def fnn_convert_combine_lists(self,convert,list_from,list_to):
