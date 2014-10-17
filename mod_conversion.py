@@ -48,8 +48,8 @@ class mod_conversion:
         except:
             return "Failed to load conversion data."
         if(unit_from.replace(' ','') not in convert['units']):
-            if(unit_from.replace(' ','') in convert['alias']):
-                unit_from = convert['alias'][unit_from.replace(' ','')]
+            if(unit_from.replace(' ','') in convert['aliases']):
+                unit_from = convert['aliases'][unit_from.replace(' ','')]
             else:
                 return unit_from + ' is not a recognised unit.'
         unit_from = unit_from.replace(' ','')
@@ -58,8 +58,8 @@ class mod_conversion:
         else:
             unit_to = from_to[1]
         if(unit_to.replace(' ','') not in convert['units']):
-            if(unit_to.replace(' ','') in convert['alias']):
-                unit_to = convert['alias'][unit_to.replace(' ','')]
+            if(unit_to.replace(' ','') in convert['aliases']):
+                unit_to = convert['aliases'][unit_to.replace(' ','')]
             else:
                 return unit_to + ' is not a recognised unit.'
         unit_to = unit_to.replace(' ','')
