@@ -603,7 +603,7 @@ class mod_conversion:
         
     def fnn_convert_to_base(self,convert,value,unit_from,unit_type):
         'Converts a unit to the base unit for that type.'
-        value = value/convert['types'][unit_type]['units']['value']
+        value = value/convert['types'][unit_type]['units'][unit_from]['value']
         if('offset' in convert['types'][unit_type]['units'][unit_from]):
             value = value-convert['types'][unit_type]['units'][unit_from]['offset']
         return value
@@ -612,7 +612,7 @@ class mod_conversion:
         'Converts a unit from the base unit for that type.'
         if('offset' in convert['types'][unit_type]['units'][unit_to]):
             value = value+convert['types'][unit_type]['units'][unit_to]['offset']
-        value = value*convert['types'][unit_type]['units']['value']
+        value = value*convert['types'][unit_type]['units'][unit_to]['value']
         return value
     
     def fnn_convert_output_string(self,convert,value_from,value_to,unit_from,unit_to,unit_type):
