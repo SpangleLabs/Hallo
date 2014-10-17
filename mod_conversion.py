@@ -537,7 +537,7 @@ class mod_conversion:
         args = args.lower().strip()
         #check if there's a specified unit type
         unit_type = None
-        type_split = re.split(r'{([a-z]*)}')
+        type_split = re.split(r'{([a-z]*)}',args)
         if(len(type_split)>=2):
             unit_type = type_split[1]
         args = ''.join(type_split[::2])
