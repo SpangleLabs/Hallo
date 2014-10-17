@@ -606,6 +606,8 @@ class mod_conversion:
     
     def fnn_convert_output_string(self,convert,value_from,value_to,unit_from,unit_to,unit_type):
         'Turns a value into a string for output.'
+        unit_string_from = unit_from
+        unit_string_to = unit_to
         #prefixes
         #decimals
         string_to = str(value_to)
@@ -616,6 +618,13 @@ class mod_conversion:
             if(round(value_to,convert['types'][unit_type]['units'][unit_to]['decimals'])!=0):
                 string_to = str(round(value_to,convert['types'][unit_type]['units'][unit_to]['decimals']))
         #pluralisation
+        if(value_from != 1):
+            if('pluralise' in convert['types'][unit_type] and convert['types'][unit_type]['pluralise'] not False):
+                plural = convert['types'][unit_type]['pluralise']
+                if('pluralise' not in convert['types'][unit_type]['units'][unit_to]):
+                    unit_string_to = unit_string_to.plural
+                elif(convert['types'][unit_type]['units'][unit_to]['pluralise'] is not False):
+                    unit_string_to = unit_string_to.convert['types'][unit_type]['units'][unit_to]['pluralise']
         #last update
         last_update = ""
         if('last_update' in convert['types'][unit_type]['units'][unit_from]):
@@ -623,7 +632,7 @@ class mod_conversion:
                 last_update_time = min(convert['types'][unit_type]['units'][unit_from]['last_update'],convert['types'][unit_type]['units'][unit_to]['last_update'])
                 last_update = ' (Last updated: ' + datetime.datetime.fromtimestamp(last_update_time).strftime('%Y-%m-%d %H:%M:%S') + '.)'
         #output
-        output_string = str(value_from)+" "+unit_from+" is "+string_to+" "+unit_to+"."+last_update
+        output_string = str(value_from)+" "+unit_string_from+" is "+string_to+" "+unit_string_to+"."+last_update
         return output_string
         
     def fn_convertv2(self,args,client,destination):
