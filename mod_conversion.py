@@ -48,8 +48,8 @@ class mod_conversion:
         except:
             return "Failed to load conversion data."
         if(unit_from.replace(' ','') not in convert['units']):
-            if(unit_from.replace(' ','') in convert['aliases']):
-                unit_from = convert['aliases'][unit_from.replace(' ','')]
+            if(unit_from.replace(' ','') in convert['alias']):
+                unit_from = convert['alias'][unit_from.replace(' ','')]
             else:
                 return unit_from + ' is not a recognised unit.'
         unit_from = unit_from.replace(' ','')
@@ -58,8 +58,8 @@ class mod_conversion:
         else:
             unit_to = from_to[1]
         if(unit_to.replace(' ','') not in convert['units']):
-            if(unit_to.replace(' ','') in convert['aliases']):
-                unit_to = convert['aliases'][unit_to.replace(' ','')]
+            if(unit_to.replace(' ','') in convert['alias']):
+                unit_to = convert['alias'][unit_to.replace(' ','')]
             else:
                 return unit_to + ' is not a recognised unit.'
         unit_to = unit_to.replace(' ','')
@@ -513,13 +513,13 @@ class mod_conversion:
             for unit_type in convert['types']:
                 if(unit in convert['types'][unit_type]['units']):
                     return_list.append({'unit':unit,'type':unit_type})
-                if(unit in convert['types'][unit_type]['alias']):
-                    return_list.append({'unit':convert['types'][unit_type]['alias'][unit],'type':unit_type})
+                if(unit in convert['types'][unit_type]['aliases']):
+                    return_list.append({'unit':convert['types'][unit_type]['aliases'][unit],'type':unit_type})
         else:
             if(unit in convert['types'][unit_type]['units']):
                 return_list.append({'unit':unit,'type':unit_type})
-            if(unit in convert['types'][unit_type]['alias']):
-                return_list.append({'unit':convert['types'][unit_type]['alias'][unit],'type':unit_type})
+            if(unit in convert['types'][unit_type]['aliases']):
+                return_list.append({'unit':convert['types'][unit_type]['aliases'][unit],'type':unit_type})
         return return_list
 
     def fnn_convert_combine_lists(self,convert,list_from,list_to):
