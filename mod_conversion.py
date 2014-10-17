@@ -601,3 +601,49 @@ class mod_conversion:
                     raise ValueError("Invalid unit to convert to")
         return [value,unit_from,unit_to,unit_type]
         
+    def fnn_convert_to_base(self,convert,value,unit_from,unit_type):
+        'Converts a unit to the base unit for that type.'
+        value = value/convert['types'][unit_type]['units']['value']
+        if('offset' in convert['types'][unit_type]['units'][unit_from]):
+            value = value-convert['types'][unit_type]['units'][unit_from]['offset']
+        return value
+    
+    def fnn_convert_from_base(self,convert,value,unit_to,unit_type):
+        'Converts a unit from the base unit for that type.'
+        if('offset' in convert['types'][unit_type]['units'][unit_to]):
+            value = value+convert['types'][unit_type]['units'][unit_to]['offset']
+        value = value*convert['types'][unit_type]['units']['value']
+        return value
+    
+    def fnn_convert_output_string(self,convert,value_from,value_to,unit_from,unit_to,unit_type):
+        'Turns a value into a string for output.'
+        #prefixes
+        #decimals
+        string_to = str(value_to)
+        if('decimals' in convert['types'][unit_type]):
+            if(round(value_to,convert['types'][unit_type]['decimals'])!=0):
+                string_to = round(value_to,convert['types'][unit_type]['decimals'])
+        if('decimals' in convert['types'][unit_type]['units'][unit_to]):
+            if(round(value_to,convert['types'][unit_type]['units'][unit_to]['decimals'])!=0):
+                string_to = round(value_to,convert['types'][unit_type]['units'][unit_to]['decimals'])
+        #pluralisation
+        #last update
+        last_update = ""
+        if('last_update' in convert['types'][unit_type]['units'][unit_from]):
+            if('last_update' in convert['types'][unit_type]['units'][unit_to]):
+                last_update_time = min(convert['types'][unit_type]['units'][unit_from]['last_update'],convert['types'][unit_type]['units'][unit_to]['last_update'])
+                last_update = ' (Last updated: ' + datetime.datetime.fromtimestamp(last_update_time).strftime('%Y-%m-%d %H:%M:%S') + '.)'
+        #output
+        output_string = str(value_from)+" "+unit_from+" is "+string_to+" "+unit_to+"."+last_update
+        return output_string
+        
+    def fn_convertv2(self,args,client,destination):
+        'New convert function, more features and adaptability than the old convert function.'
+        convert = pickle.load(open('store/convert2.p','rb'))
+        parsed = self.fnn_convert_process_string(convert,args,client,destination)
+        base_value = self.fnn_convert_to_base(convert,parsed[0],parsed[1],parsed[3])
+        result_value = self.fnn_convert_from_base(convert,base_value,parsed[2],parsed[3])
+        return self.fnn_convert_output_string(convert,parsed[0],result_value,parsed[1],parsed[2],parsed[3])
+        
+        
+        
