@@ -640,7 +640,10 @@ class mod_conversion:
     def fn_convertv2(self,args,client,destination):
         'New convert function, more features and adaptability than the old convert function.'
         convert = pickle.load(open('store/convert2.p','rb'))
-        parsed = mod_conversion.fnn_convert_process_string(self,convert,args,client,destination)
+        try:
+            parsed = mod_conversion.fnn_convert_process_string(self,convert,args,client,destination)
+        except ValueError as err:
+            return "Conversion parsing error: "+err
         base_value = mod_conversion.fnn_convert_to_base(self,convert,parsed[0],parsed[1],parsed[3])
         result_value = mod_conversion.fnn_convert_from_base(self,convert,base_value,parsed[2],parsed[3])
         return mod_conversion.fnn_convert_output_string(self,convert,parsed[0],result_value,parsed[1],parsed[2],parsed[3])
