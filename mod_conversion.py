@@ -604,11 +604,42 @@ class mod_conversion:
         value = value/convert['types'][unit_type]['units'][unit_to]['value']
         return value
     
+    def fnn_convert_output_prefix(self,convert,value,unit,unit_type):
+        if('prefixes' not in convert['types'][unit_type]):
+            return [value,'']
+        if(convert['types'][unit_type]['prefixes'] not in convert['prefixes']):
+            return [value,'']
+        best_prefix = ''
+        best_value = value
+        for prefix in convert['prefixes']:
+            temp_value = value/prefix['value']
+            if(best_value<1 and temp_value>best_value):
+                best_prefix = prefix['name']
+                best_value = temp_value
+                continue
+            if(best_value>1 and temp_value>1 and temp_value<best_value):
+                best_prefix = prefix['name']
+                best_value = temp_value
+                continue
+        return [best_value,best_prefix]
+    
+    def fnn_convert_output_plural(self,convert,value,unit,unit_type):
+        if(value==1):
+            if('name' in convert['types'][unit_type]['units'][unit]):
+                return convert['types'][unit_type]['units'][unit]['name']
+            return unit
+        if('plural' in convert['types'][unit_type]['units'][unit]):
+            return convert['types'][unit_type]['units']['plural']
+                
     def fnn_convert_output_string(self,convert,value_from,value_to,unit_from,unit_to,unit_type):
         'Turns a value into a string for output.'
-        unit_string_from = unit_from
-        unit_string_to = unit_to
         #prefixes
+        prefix_from = mod_conversion.fnn_convert_output_prefix(self,convert,value_from,unit_from,unit_type)
+        pref_from = prefix_from[1]
+        value_from = prefix_from[0]
+        prefix_to = mod_conversion.fnn_convert_output_prefix(self,convert,value_to,unit_to,unit_type)
+        pref_to = prefix_to[1]
+        value_to = prefix_to[0]
         #decimals
         string_to = str(value_to)
         if('decimals' in convert['types'][unit_type]):
@@ -618,13 +649,8 @@ class mod_conversion:
             if(round(value_to,convert['types'][unit_type]['units'][unit_to]['decimals'])!=0):
                 string_to = str(round(value_to,convert['types'][unit_type]['units'][unit_to]['decimals']))
         #pluralisation
-        if(value_from != 1):
-            if('pluralise' in convert['types'][unit_type] and convert['types'][unit_type]['pluralise'] not False):
-                plural = convert['types'][unit_type]['pluralise']
-                if('pluralise' not in convert['types'][unit_type]['units'][unit_to]):
-                    unit_string_to = unit_string_to.plural
-                elif(convert['types'][unit_type]['units'][unit_to]['pluralise'] is not False):
-                    unit_string_to = unit_string_to.convert['types'][unit_type]['units'][unit_to]['pluralise']
+        unit_string_from = pref_from+mod_conversion.fnn_convert_output_plural(self,convert,value_from,unit_from,unit_type)
+        unit_string_to = pref_to+mod_conversion.fnn_convert_output_plural(self,convert,value_to,unit_to,unit_type)
         #last update
         last_update = ""
         if('last_update' in convert['types'][unit_type]['units'][unit_from]):
