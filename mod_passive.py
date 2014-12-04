@@ -150,7 +150,7 @@ class mod_passive():
                 return "Image: " + pagetype + " (" + str(image_width) + "px by " + str(image_height) + "px) " + filesizestr + "."
             elif('youtube.com' in url or 'youtu.be' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
-                length = re.search('length_seconds": ([0-9]*)', code).group(1)
+                length = re.search('length_seconds": "([0-9]*)', code).group(1)
                 length_str = str(int(int(length)/60)) + "m " + str(int(length)-(60*(int(int(length)/60)))) + "s"
                 views = re.search('class="watch-view-count[^>]*>[\n\r\s]*([0-9,+]*)',code).group(1)
                 #title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&')
