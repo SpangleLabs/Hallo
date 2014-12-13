@@ -4,8 +4,6 @@ LONG:12:20:50 <@dr-spangle> -memory/time management thread?
 
 MED:08:41:32 < dr-spangle> -make it so ops can be defined by channel, and their op powers can only modify those channels
 
-SHORT:08:49:50 < dr-spangle> -admininform lists by channel, so channel swears only go to one channel's list, also privmsgs
-
 MED:move base_function out of base_parse to a new thing.
 
 
