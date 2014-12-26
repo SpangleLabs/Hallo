@@ -164,7 +164,7 @@ class mod_lookup:
             return "No results."
         else:
             result = returnlist[0]
-            link = "http://e621.net/post/show/"+result['id']
+            link = "http://e621.net/post/show/"+str(result['id'])
             if(result['rating']=='e'):
                 rating = "(Explicit)"
             elif(result['rating']=="q"):
