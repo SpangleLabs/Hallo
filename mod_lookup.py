@@ -155,11 +155,11 @@ class mod_lookup:
         transdict = mod_lookup.fnn_loadjson(self,url,[],True)
         return "Translation: "+transdict[0][0][0]
         
-    def fn_randomporn(self,args,client,destination):
+    def fn_random_porn(self,args,client,destination):
         'Returns a random e621 result using the search you specify. Format: msg <tags>'
         args = args.replace(' ','%20')
         url = 'https://e621.net/post/index.json?tags='+args+'%20order:random%20score:%3E0&limit=1'
-        returnlist = self.fnn_loadjson(url)
+        returnlist = mod_lookup.fnn_loadjson(self,url)
         if(len(returnlist)==0):
             return "No results."
         else:
@@ -175,6 +175,8 @@ class mod_lookup:
                 rating = "(Unknown)"
             return "e621 search for \""+args+"\" returned: "+link+" "+rating
         
-        
+    def fn_butts(self,args,client,destination):
+        'Returns a random image from e621 for the search "butt". Format: butts'
+        return mod_lookup.fn_random_porn(self,"butt",client,destination)
         
         
