@@ -14,6 +14,7 @@ import collections
 import imp
 #from megahal import *
 import sys
+import re
 
 import ircbot_on
 import mod_passive
@@ -154,7 +155,10 @@ class ircbot:
             command = 'NOTICE'
         if(self.open and self.core['server'][destination[0]]['open']):
             if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
+                urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',msg)
                 msg = msg.upper()
+                for url in urls:
+                    msg = msg.replace(url.upper(),url)
             for n, line in enumerate(msg.split('\n')):
                 if((len(line)+len(destination[1]))>maxlength):
                     linefirst = line[:(maxlength-3-len(destination[1]))] + '...'
