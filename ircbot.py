@@ -538,14 +538,14 @@ class ircbot:
                 print("coreloop error: " + str(e))
             time.sleep(0.1)
 
-    def base_decode(self,bytes):
+    def base_decode(self,raw_bytes):
         try:
-            text = bytes.decode('utf-8')
+            text = raw_bytes.decode('utf-8')
         except UnicodeDecodeError:
             try:
-                text = bytes.decode('iso-8859-1')
+                text = raw_bytes.decode('iso-8859-1')
             except UnicodeDecodeError:
-                text = bytes.decode('cp1252')
+                text = raw_bytes.decode('cp1252')
         return text
 
     def base_run(self,server):
