@@ -49,7 +49,7 @@ class mod_games():
             return str(number) + "th"
 
     def fnn_date(self,timestamp):
-        return str(datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S'))
+        return str(datetime.datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S'))
 
     def fnn_cardsum(self,cards):
         card_sum = 0
