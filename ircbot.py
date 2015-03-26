@@ -16,7 +16,7 @@ import imp
 import sys
 import re
 
-from lib import xmltodict
+from xml.dom import minidom
 
 import ircbot_on
 import mod_passive
@@ -33,14 +33,34 @@ class Hallo:
 
     def loadFromXml(self):
         try:
-            file = open("config/config,xml","r")
-            code = file.read()
-            file.close()
-            returnDict = xmltodict.parse(code)
-            return returnDict
+            doc = minidom.parse("config/config,xml")
+            self.mDefaultNick = doc.getElementsByTagName("default_nick")[0].firstChild.data
+            self.mDefaultPrefix = doc.getElementsByTagName("default_prefix")[0].firstChild.data
+            self.mDefaultFullName = doc.getElementsByTagName("default_full_name")[0].firstChild.data
+            return
         except (FileNotFoundError, IOError):
             print("Error loading config")
             print("Maybe this should create a new config.")
+            
+    def saveToXml(self):
+        doc = minidom.Document();
+        #create root element
+        root = doc.createElement("config")
+        doc.appendChild(root)
+        #create default_nick element
+        defaultNickElement = doc.createElement("default_nick")
+        defaultNickElement.appendChild(doc.createTextNode(self.mDefaultNick))
+        doc.appendChild(defaultNickElement)
+        #create default_prefix element
+        defaultPrefixElement = doc.createElement("default_prefix")
+        defaultPrefixElement.appendChild(doc.createTextNode(self.mDefaultPrefix))
+        doc.appendChild(defaultPrefixElement)
+        #create default_full_name element
+        defaultFullNameElement = doc.createElement("default_full_name")
+        defaultFullNameElement.appendChild(doc.createTextNode(self.mDefaultFullName))
+        doc.appendChild(defaultFullNameElement)
+        #save XML
+        doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
 
     def base_buildconfig(self):
         #if config file is empty or contains no servers, ask a series of questions to the user to build one.
