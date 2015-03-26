@@ -29,10 +29,17 @@ class Hallo:
     mDefaultNick = "Hallo"
     mDefaultPrefix = None
     mDefaultFullName = "HalloBot HalloHost HalloServer :an irc bot by spangle"
+    mOpen = False
     mServerList = []
 
     def __init__(self):
+        #load config
+        self.loadFromXml()
+        self.mOpen = True
+        #TODO: connect to servers
+        #run startup events
         ircbot_on.ircbot_on.on_init(self)
+        
 
     def loadFromXml(self):
         try:
@@ -82,6 +89,13 @@ class Hallo:
         for server in self.mServerList:
             if(server.getName()==serverName):
                 self.mServerList.remove(server)
+                
+    def close(self):
+        'Shuts down the entire program'
+        for server in self.mServerList:
+            server.disconnect()
+        self.saveToXml()
+        self.mOpen = False
 
     def base_buildconfig(self):
         #if config file is empty or contains no servers, ask a series of questions to the user to build one.
