@@ -16,6 +16,8 @@ import imp
 import sys
 import re
 
+from lib import xmltodict
+
 import ircbot_on
 import mod_passive
 
@@ -31,6 +33,17 @@ class Hallo:
         ircbot_on.ircbot_on.on_init(self)
 #        self.base_start()
 #        self.megahal = MegaHAL()
+
+    def loadFromXml(self):
+        try:
+            file = open("config/config,xml","r")
+            code = file.read()
+            file.close()
+            returnDict = xmltodict.parse(code)
+            return returnDict
+        except (FileNotFoundError, IOError):
+            print("Error loading config")
+            print("Maybe this should create a new config.")
 
     def base_buildconfig(self):
         #if config file is empty or contains no servers, ask a series of questions to the user to build one.
