@@ -27,6 +27,7 @@ class Hallo:
     mDefaultNick = "Hallo"
     mDefaultPrefix = None
     mDefaultFullName = "HalloBot HalloHost HalloServer :an irc bot by spangle"
+    mServerList = []
 
     def __init__(self):
         ircbot_on.ircbot_on.on_init(self)
@@ -61,6 +62,24 @@ class Hallo:
         doc.appendChild(defaultFullNameElement)
         #save XML
         doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
+        
+    def addServer(self,server):
+        #adds a new server to the server list
+        self.mServerList += server
+        
+    def getServerByName(self,serverName):
+        for server in self.mServerList:
+            if(server.getName()==serverName):
+                return server
+        return None
+    
+    def removeServer(self,server):
+        self.mServerList.remove(server)
+        
+    def removeServerByName(self,serverName):
+        for server in self.mServerList:
+            if(server.getName()==serverName):
+                self.mServerList.remove(server)
 
     def base_buildconfig(self):
         #if config file is empty or contains no servers, ask a series of questions to the user to build one.
