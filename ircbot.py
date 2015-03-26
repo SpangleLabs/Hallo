@@ -21,7 +21,9 @@ import mod_passive
 
 endl = '\r\n' # constant for ease/readability
 
-class ircbot:
+class Hallo:
+    mDefaultNick = "Hallo"
+    mDefaultPrefix = None
 
     def __init__(self):
         # connect
@@ -594,5 +596,5 @@ class ircbot:
                 nextline = b""
 
 if __name__ == '__main__':
-    ircbot().base_start("store/config.p")
+    Hallo().base_start("store/config.p")
 #    ircbot().run(raw_input('network: '), raw_input('nick: '), [raw_input('channel: ')])
