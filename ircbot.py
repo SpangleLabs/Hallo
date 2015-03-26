@@ -18,6 +18,8 @@ import re
 
 from xml.dom import minidom
 
+from inc.commons import Commons
+
 import ircbot_on
 import mod_passive
 
@@ -158,7 +160,7 @@ class Hallo:
 
     def base_timestamp(self):
         # return the timestamp, e.g. [05:21:42]
-        return '[' + str(time.gmtime()[3]).rjust(2,'0') + ':' + str(time.gmtime()[4]).rjust(2,'0') + ':' + str(time.gmtime()[5]).rjust(2,'0') + ']'
+        return Commons.currentTimestamp()
     
     def base_addlog(self,msg,destination):
         # log a message for future reference
