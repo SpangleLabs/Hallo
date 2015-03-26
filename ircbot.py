@@ -1,9 +1,9 @@
-#socket connets to the server
-#time gets time for timestamps and does sleep
+#socket connects to the server
+#time gets time for time stamps and does sleep
 #os makes directories for logs, and gets the process ID
 #sys is used to kill itself
-#thread is used for multithreading
-#re is used for regex, for sweardetect
+#thread is used for multi threading
+#re is used for regex, for swear detect
 #pickle is used to store the config, also scriptures
 #pprint is used to view the config
 #importlib is used to import modules on the fly, hopefully
@@ -26,6 +26,7 @@ endl = '\r\n' # constant for ease/readability
 class Hallo:
     mDefaultNick = "Hallo"
     mDefaultPrefix = None
+    mDefaultFullName = "HalloBot HalloHost HalloServer :an irc bot by spangle"
 
     def __init__(self):
         # connect
