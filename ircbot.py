@@ -37,6 +37,8 @@ class Hallo:
         self.loadFromXml()
         self.mOpen = True
         #TODO: connect to servers
+        #TODO: deprecate and remove this
+        self.base_start()
         #run startup events
         ircbot_on.ircbot_on.on_init(self)
         
@@ -525,18 +527,18 @@ class Hallo:
         if self.conf['server'][server]['pass']:
             self.base_say('IDENTIFY ' + self.conf['server'][server]['pass'], [server,'nickserv'])
 
-    def base_start(self,configfile="store/config.p"):
+    def base_start(self):
         #starts up the bot, starts base_run on each server.
-        self.configfile = configfile
+        #TODO: remove configfile loading
         try:
-            self.conf = pickle.load(open(configfile,"rb"))
+            self.conf = pickle.load(open("store/config.p","rb"))
         except EOFError:
             self.conf = {}
         self.megahal = {}
         self.core = {}
         self.core['server'] = {}
         self.core['function'] = {}
-        self.mOpen = True
+        #TODO: deprecate this, use different module loading
         self.modules = []
         try:
             allowedmodules = pickle.load(open('store/allowedmodules.p','rb'))
@@ -552,13 +554,18 @@ class Hallo:
             except:
                 print('Module: ' + mod + ' missing. Skipping it.')
             imp.release_lock()
+        #TODO: when server object is implemented, replace this
+        #if(len(mServerList)==0):
         if('server' not in self.conf or len(self.conf['server'])==0):
             self.conf = self.manualServerConnect()
+        #connect to servers
+        #TODO: replace this with stuff from loadFromXml, loading server objects like that.
         print('connecting to servers')
         for server in self.conf['server']:
             if(self.conf['server'][server]['connected']):
                 Thread(target=self.base_run, args=(server,)).start()
         time.sleep(2)
+        #main loop, sticks around throughout the running of the bot
         print('connected to all servers.')
         while(self.mOpen):
             try:
@@ -623,5 +630,5 @@ class Hallo:
                 nextline = b""
 
 if __name__ == '__main__':
-    Hallo().base_start("store/config.p")
+    Hallo()
 #    ircbot().run(raw_input('network: '), raw_input('nick: '), [raw_input('channel: ')])
