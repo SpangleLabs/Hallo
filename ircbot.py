@@ -27,7 +27,7 @@ endl = '\r\n' # constant for ease/readability
 
 class Hallo:
     mDefaultNick = "Hallo"
-    mDefaultPrefix = None
+    mDefaultPrefix = False
     mDefaultFullName = "HalloBot HalloHost HalloServer :an irc bot by spangle"
     mOpen = False
     mServerList = []
@@ -553,7 +553,7 @@ class Hallo:
                 print('Module: ' + mod + ' missing. Skipping it.')
             imp.release_lock()
         if('server' not in self.conf or len(self.conf['server'])==0):
-            self.conf = self.base_buildconfig()
+            self.conf = self.manualServerConnect()
         print('connecting to servers')
         for server in self.conf['server']:
             if(self.conf['server'][server]['connected']):
