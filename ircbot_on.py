@@ -1,6 +1,8 @@
 import time
 from threading import Thread
 
+from inc.commons import Commons
+
 import ircbot_chk
 import mod_idlechan    #for idle channel functions
 import mod_conversion
@@ -96,7 +98,7 @@ class ircbot_on:
         # handle notices
         if(self.core['server'][server]['connected'] == False):
             self.core['server'][server]['connected'] = True
-            print(self.base_timestamp() + ' [' + server + "] ok we're connected now.")
+            print(Commons.currentTimestamp() + ' [' + server + "] ok we're connected now.")
         if('endofmessage' in args.replace(' ','').lower() and self.core['server'][server]['motdend'] == False):
             self.core['server'][server]['motdend'] = True
         if(any(nickservmsg in args.replace(' ','').lower() for nickservmsg in self.conf['nickserv']['online']) and client.lower()=='nickserv' and self.core['server'][server]['check']['userregistered'] == False):

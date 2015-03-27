@@ -2,6 +2,8 @@ import time #sleeps for checks that have to send data to the server and listen f
 import re   #for chk_swear
 import difflib #for chk_destination
 
+from inc.commons import Commons
+
 endl = '\r\n'
 
 class ircbot_chk:
@@ -49,9 +51,9 @@ class ircbot_chk:
         self.core['server'][server]['check']['userregistered'] = False
         self.base_say('INFO ' + client,[server,'nickserv'])
         for _ in range(12):
-            print(self.base_timestamp() + ' [' + server + "] waiting for nickserv")
+            print(Commons.currentTimestamp() + ' [' + server + "] waiting for nickserv")
             if(self.core['server'][server]['check']['userregistered']):
-                print(self.base_timestamp() + ' [' + server + '] got the reply.')
+                print(Commons.currentTimestamp() + ' [' + server + '] got the reply.')
                 break
             time.sleep(0.5)
         return self.core['server'][server]['check']['userregistered']
@@ -63,9 +65,9 @@ class ircbot_chk:
         self.core['server'][server]['check']['nickregistered'] = False
         self.base_say('INFO ' + client,[server,'nickserv'])
         for _ in range(12):
-            print(self.base_timestamp() + ' [' + server + '] waiting for nickserv')
+            print(Commons.currentTimestamp() + ' [' + server + '] waiting for nickserv')
             if(self.core['server'][server]['check']['nickregistered']):
-                print(self.base_timestamp() + ' [' + server + '] got the reply.')
+                print(Commons.currentTimestamp() + ' [' + server + '] got the reply.')
                 break
             time.sleep(0.5)
         return self.core['server'][server]['check']['nickregistered']
@@ -77,7 +79,7 @@ class ircbot_chk:
         self.core['server'][server]['check']['recipientonline'] = ""
         self.core['server'][server]['socket'].send(('ISON ' + ' '.join(clients) + endl).encode('utf-8'))
         for _ in range(6):
-            print(self.base_timestamp() + ' [' + server + '] waiting for input on which recipients are online')
+            print(Commons.currentTimestamp() + ' [' + server + '] waiting for input on which recipients are online')
             if(self.core['server'][server]['check']['recipientonline'] == ""):
                 time.sleep(0.5)
             else:
@@ -93,10 +95,10 @@ class ircbot_chk:
         self.core['server'][server]['socket'].send(('NAMES ' + channel + endl).encode('utf-8'))
         for _ in range(6):
             if(self.core['server'][server]['check']['names']==""):
-                print(self.base_timestamp() + ' [' + server + '] waiting for userlist')
+                print(Commons.currentTimestamp() + ' [' + server + '] waiting for userlist')
                 time.sleep(0.5)
             else:
-                print(self.base_timestamp() + ' [' + server + '] got the list: ' + self.core['server'][server]['check']['names'])
+                print(Commons.currentTimestamp() + ' [' + server + '] got the list: ' + self.core['server'][server]['check']['names'])
                 break
         return self.core['server'][server]['check']['names'].split()
 
