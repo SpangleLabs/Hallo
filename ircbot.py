@@ -50,7 +50,7 @@ class Hallo:
             return
         except (FileNotFoundError, IOError):
             print("Error loading config")
-            print("Maybe this should create a new config.")
+            self.manualServerConnect()
             
     def saveToXml(self):
         doc = minidom.Document();
@@ -145,80 +145,6 @@ class Hallo:
         print("Config file saved.")
         
 
-    def base_buildconfig(self):
-        #if config file is empty or contains no servers, ask a series of questions to the user to build one.
-        print("A configuration file needs creating. A series of questions will be asked to create one. default options will be indicated in square brackets.")
-        nick = input("What nickname should the bot use? [Hallo9000]")
-        nick = nick.replace(' ','')
-        if(nick==''):
-            nick = 'Hallo9000'
-        god_nick = input("What nickname is the bot operator using? [deer-spangle]")
-        god_nick = god_nick.replace(' ','')
-        if(god_nick==''):
-            god_nick = 'deer-spangle'
-        server_addr = input("What server should the bot connect to? [irc.canternet.org]")
-        server_addr = server_addr.replace(' ','')
-        if(server_addr==''):
-            server_addr = 'irc.canternet.org'
-        server_port = input("What port should the bot be connecting to on that server? [6667]")
-        server_port = server_port.replace(' ','')
-        if(server_port==''):
-            server_port = '6667'
-        server_port = int(server_port)
-        channels = input("Which channels should the bot join? (comma separated) [#hallotest]")
-        channels = channels.replace(' ','')
-        if(channels==''):
-            channels = '#hallotest'
-        channel_list = channels.split(',')
-        argsplit = server_addr.split('.')
-        server_name = max(argsplit,key=len)
-        conf = {}
-        conf['function'] = {}
-        conf['function']['default'] = {}
-        conf['function']['default']['disabled'] = False
-        conf['function']['default']['listed_to'] = 'user'
-        conf['function']['default']['max_run_time'] = 180
-        conf['function']['default']['privmsg'] = True
-        conf['function']['default']['repair'] = False
-        conf['function']['default']['return_to'] = 'channel'
-        conf['function']['default']['time_delay'] = 0
-        conf['nickserv'] = {}
-        conf['nickserv']['online'] = ['lastseen:now','isonlinefrom:','iscurrentlyonline','nosuchnick','userseen:now']
-        conf['nickserv']['registered'] = ['registered:']
-        conf['server'] = {}
-        conf['server'][server_name] = {}
-        conf['server'][server_name]['ops'] = []
-        conf['server'][server_name]['gods'] = [god_nick]
-        conf['server'][server_name]['address'] = server_addr
-        conf['server'][server_name]['nick'] = nick
-        conf['server'][server_name]['full_name'] = 'HalloBot HalloHost HalloServer :an irc bot by spangle'
-        conf['server'][server_name]['pass'] = False
-        conf['server'][server_name]['port'] = server_port
-        conf['server'][server_name]['channel'] = {}
-        conf['server'][server_name]['admininform'] = []
-        conf['server'][server_name]['pingdiff'] = 600
-        conf['server'][server_name]['connected'] = True
-        for channel in channel_list:
-            conf['server'][server_name]['channel'][channel] = {}
-            conf['server'][server_name]['channel'][channel]['logging'] = True
-            conf['server'][server_name]['channel'][channel]['megahal_record'] = False
-            conf['server'][server_name]['channel'][channel]['sweardetect'] = False
-            conf['server'][server_name]['channel'][channel]['in_channel'] = True
-            conf['server'][server_name]['channel'][channel]['caps'] = False
-            conf['server'][server_name]['channel'][channel]['passivefunc'] = True
-            conf['server'][server_name]['channel'][channel]['idle_time'] = 0
-            conf['server'][server_name]['channel'][channel]['idle_args'] = ''
-            conf['server'][server_name]['channel'][channel]['voice_list'] = []
-            conf['server'][server_name]['channel'][channel]['pass'] = ''
-            conf['server'][server_name]['channel'][channel]['swearlist'] = {}
-            conf['server'][server_name]['channel'][channel]['swearlist']['possible'] = []
-            conf['server'][server_name]['channel'][channel]['swearlist']['inform'] = []
-            conf['server'][server_name]['channel'][channel]['swearlist']['comment'] = []
-            conf['server'][server_name]['channel'][channel]['swearlist']['commentmsg'] = ''
-        print("Config file created.")
-        pickle.dump(conf,open(self.configfile,"wb"))
-        print("Config file saved.")
-        return conf
     
     def base_addlog(self,msg,destination):
         # log a message for future reference
