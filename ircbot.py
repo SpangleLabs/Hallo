@@ -145,7 +145,58 @@ class Hallo:
         #TODO: remove this
         pickle.dump(self.conf,open(self.configfile,"wb"))
         print("Config file saved.")
-        
+
+    def base_start(self):
+        #starts up the bot, starts base_run on each server.
+        #TODO: remove configfile loading
+        try:
+            self.conf = pickle.load(open("store/config.p","rb"))
+        except EOFError:
+            self.conf = {}
+        self.megahal = {}
+        self.core = {}
+        self.core['server'] = {}
+        self.core['function'] = {}
+        #TODO: deprecate this, use different module loading
+        self.modules = []
+        try:
+            allowedmodules = pickle.load(open('store/allowedmodules.p','rb'))
+        except:
+            allowedmodules = []
+        for mod in allowedmodules:
+            imp.acquire_lock()
+            try:
+                importlib.import_module(mod)
+                imp.reload(sys.modules[mod])
+                if(mod not in self.modules):
+                    self.modules.append(mod)
+            except:
+                print('Module: ' + mod + ' missing. Skipping it.')
+            imp.release_lock()
+        #TODO: when server object is implemented, replace this
+        #if(len(mServerList)==0):
+        if('server' not in self.conf or len(self.conf['server'])==0):
+            self.conf = self.manualServerConnect()
+        #connect to servers
+        #TODO: replace this with stuff from loadFromXml, loading server objects like that.
+        print('connecting to servers')
+        for server in self.conf['server']:
+            if(self.conf['server'][server]['connected']):
+                Thread(target=self.base_run, args=(server,)).start()
+        time.sleep(2)
+        #main loop, sticks around throughout the running of the bot
+        print('connected to all servers.')
+        while(self.mOpen):
+            try:
+                ircbot_on.ircbot_on.on_coreloop(self)
+            except Exception as e:
+                print("coreloop error: " + str(e))
+            time.sleep(0.1)
+
+
+#######################################################
+#######EVERYTHING BELOW HERE WILL NEED BREAKING INTO OTHER OBJECTS
+#######################################################
 
     
     def base_addlog(self,msg,destination):
@@ -526,53 +577,6 @@ class Hallo:
                     self.core['server'][server]['socket'].send(('JOIN ' + channel + ' ' + self.conf['server'][server]['channel'][channel]['pass'] + endl).encode('utf-8'))
         if self.conf['server'][server]['pass']:
             self.base_say('IDENTIFY ' + self.conf['server'][server]['pass'], [server,'nickserv'])
-
-    def base_start(self):
-        #starts up the bot, starts base_run on each server.
-        #TODO: remove configfile loading
-        try:
-            self.conf = pickle.load(open("store/config.p","rb"))
-        except EOFError:
-            self.conf = {}
-        self.megahal = {}
-        self.core = {}
-        self.core['server'] = {}
-        self.core['function'] = {}
-        #TODO: deprecate this, use different module loading
-        self.modules = []
-        try:
-            allowedmodules = pickle.load(open('store/allowedmodules.p','rb'))
-        except:
-            allowedmodules = []
-        for mod in allowedmodules:
-            imp.acquire_lock()
-            try:
-                importlib.import_module(mod)
-                imp.reload(sys.modules[mod])
-                if(mod not in self.modules):
-                    self.modules.append(mod)
-            except:
-                print('Module: ' + mod + ' missing. Skipping it.')
-            imp.release_lock()
-        #TODO: when server object is implemented, replace this
-        #if(len(mServerList)==0):
-        if('server' not in self.conf or len(self.conf['server'])==0):
-            self.conf = self.manualServerConnect()
-        #connect to servers
-        #TODO: replace this with stuff from loadFromXml, loading server objects like that.
-        print('connecting to servers')
-        for server in self.conf['server']:
-            if(self.conf['server'][server]['connected']):
-                Thread(target=self.base_run, args=(server,)).start()
-        time.sleep(2)
-        #main loop, sticks around throughout the running of the bot
-        print('connected to all servers.')
-        while(self.mOpen):
-            try:
-                ircbot_on.ircbot_on.on_coreloop(self)
-            except Exception as e:
-                print("coreloop error: " + str(e))
-            time.sleep(0.1)
 
     def base_decode(self,raw_bytes):
         try:
