@@ -89,7 +89,7 @@ class hallobase_ctrl:
         'Quit IRC.  Use "quit".  Requires godmode.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
 #            self.megahal.sync()
-            self.base_close()
+            self.close()
             sys.exit(0)
         else:
             return 'Insufficient privileges to quit.'

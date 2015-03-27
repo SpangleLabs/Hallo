@@ -186,14 +186,6 @@ class Hallo:
         log = open('logs/' + destination[0] + '/' + destination[1] + '/' + filename, 'a')
         log.write(msg.encode('ascii','ignore').decode() + '\n')
         log.close()
-        
-    def base_close(self):
-        # disconnect
-        for server in self.conf['server']:
-            if(self.conf['server'][server]['connected']):
-                self.base_disconnect(server)
-        pickle.dump(self.conf,open(self.configfile,"wb"))
-        self.open = False
 
     def base_disconnect(self,server):
         for channel in self.conf['server'][server]['channel']:
@@ -210,13 +202,13 @@ class Hallo:
 
     def base_say(self,msg,destination,notice=False):
         # if the connection is open...
-        #if not self.open: return
+        #if not self.mOpen: return
         # send the message, accounting for linebreaks
         maxlength = 450 # max message length, inc channel name.
         command = 'PRIVMSG'
         if(notice):
             command = 'NOTICE'
-        if(self.open and self.core['server'][destination[0]]['open']):
+        if(self.mOpen and self.core['server'][destination[0]]['open']):
             if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
                 urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',msg)
                 msg = msg.upper()
@@ -430,7 +422,7 @@ class Hallo:
                         self.base_say(out[0],out[1],out[2])
                 except Exception as e:
                     # if we have an error, let them know and print it to the screen
-                    if(self.open):
+                    if(self.mOpen):
                         self.base_say('Error occured.  Try "/msg ' + nick + ' help"',[server,destination])
                     print('ERROR: ' + str(e))
                 if(msg_pm):
@@ -570,7 +562,7 @@ class Hallo:
         self.core = {}
         self.core['server'] = {}
         self.core['function'] = {}
-        self.open = True
+        self.mOpen = True
         self.modules = []
         try:
             allowedmodules = pickle.load(open('store/allowedmodules.p','rb'))
@@ -594,7 +586,7 @@ class Hallo:
                 Thread(target=self.base_run, args=(server,)).start()
         time.sleep(2)
         print('connected to all servers.')
-        while(self.open):
+        while(self.mOpen):
             try:
                 ircbot_on.ircbot_on.on_coreloop(self)
             except Exception as e:
@@ -641,7 +633,7 @@ class Hallo:
 #            self.conf['servers'].remove(server)
         Thread(target=self.base_connect, args=(server,)).start()
         nextline = b""
-        while(self.open and server in self.core['server'] and self.core['server'][server]['open']):
+        while(self.mOpen and server in self.core['server'] and self.core['server'][server]['open']):
             try:
                 nextbyte = self.core['server'][server]['socket'].recv(1)
             except:
