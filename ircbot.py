@@ -1,9 +1,9 @@
-#socket connets to the server
-#time gets time for timestamps and does sleep
+#socket connects to the server
+#time gets time for time stamps and does sleep
 #os makes directories for logs, and gets the process ID
 #sys is used to kill itself
-#thread is used for multithreading
-#re is used for regex, for sweardetect
+#thread is used for multi threading
+#re is used for regex, for swear detect
 #pickle is used to store the config, also scriptures
 #pprint is used to view the config
 #importlib is used to import modules on the fly, hopefully
@@ -16,98 +16,188 @@ import imp
 import sys
 import re
 
+from xml.dom import minidom
+
+from inc.commons import Commons
+
 import ircbot_on
 import mod_passive
 
 endl = '\r\n' # constant for ease/readability
 
-class ircbot:
+class Hallo:
+    mDefaultNick = "Hallo"
+    mDefaultPrefix = False
+    mDefaultFullName = "HalloBot HalloHost HalloServer :an irc bot by spangle"
+    mOpen = False
+    mServerList = []
 
     def __init__(self):
-        # connect
-        self.longcat = False
+        #load config
+        self.loadFromXml()
+        self.mOpen = True
+        #TODO: connect to servers
+        #TODO: deprecate and remove this
+        self.base_start()
+        #run startup events
         ircbot_on.ircbot_on.on_init(self)
-#        self.base_start()
-#        self.megahal = MegaHAL()
+        
 
-    def base_buildconfig(self):
-        #if config file is empty or contains no servers, ask a series of questions to the user to build one.
-        print("A configuration file needs creating. A series of questions will be asked to create one. default options will be indicated in square brackets.")
-        nick = input("What nickname should the bot use? [Hallo9000]")
-        nick = nick.replace(' ','')
-        if(nick==''):
-            nick = 'Hallo9000'
-        god_nick = input("What nickname is the bot operator using? [deer-spangle]")
-        god_nick = god_nick.replace(' ','')
-        if(god_nick==''):
-            god_nick = 'deer-spangle'
-        server_addr = input("What server should the bot connect to? [irc.canternet.org]")
-        server_addr = server_addr.replace(' ','')
-        if(server_addr==''):
-            server_addr = 'irc.canternet.org'
-        server_port = input("What port should the bot be connecting to on that server? [6667]")
-        server_port = server_port.replace(' ','')
-        if(server_port==''):
-            server_port = '6667'
-        server_port = int(server_port)
-        channels = input("Which channels should the bot join? (comma separated) [#hallotest]")
-        channels = channels.replace(' ','')
-        if(channels==''):
-            channels = '#hallotest'
-        channel_list = channels.split(',')
-        argsplit = server_addr.split('.')
-        server_name = max(argsplit,key=len)
-        conf = {}
-        conf['function'] = {}
-        conf['function']['default'] = {}
-        conf['function']['default']['disabled'] = False
-        conf['function']['default']['listed_to'] = 'user'
-        conf['function']['default']['max_run_time'] = 180
-        conf['function']['default']['privmsg'] = True
-        conf['function']['default']['repair'] = False
-        conf['function']['default']['return_to'] = 'channel'
-        conf['function']['default']['time_delay'] = 0
-        conf['nickserv'] = {}
-        conf['nickserv']['online'] = ['lastseen:now','isonlinefrom:','iscurrentlyonline','nosuchnick','userseen:now']
-        conf['nickserv']['registered'] = ['registered:']
-        conf['server'] = {}
-        conf['server'][server_name] = {}
-        conf['server'][server_name]['ops'] = []
-        conf['server'][server_name]['gods'] = [god_nick]
-        conf['server'][server_name]['address'] = server_addr
-        conf['server'][server_name]['nick'] = nick
-        conf['server'][server_name]['full_name'] = 'HalloBot HalloHost HalloServer :an irc bot by spangle'
-        conf['server'][server_name]['pass'] = False
-        conf['server'][server_name]['port'] = server_port
-        conf['server'][server_name]['channel'] = {}
-        conf['server'][server_name]['admininform'] = []
-        conf['server'][server_name]['pingdiff'] = 600
-        conf['server'][server_name]['connected'] = True
-        for channel in channel_list:
-            conf['server'][server_name]['channel'][channel] = {}
-            conf['server'][server_name]['channel'][channel]['logging'] = True
-            conf['server'][server_name]['channel'][channel]['megahal_record'] = False
-            conf['server'][server_name]['channel'][channel]['sweardetect'] = False
-            conf['server'][server_name]['channel'][channel]['in_channel'] = True
-            conf['server'][server_name]['channel'][channel]['caps'] = False
-            conf['server'][server_name]['channel'][channel]['passivefunc'] = True
-            conf['server'][server_name]['channel'][channel]['idle_time'] = 0
-            conf['server'][server_name]['channel'][channel]['idle_args'] = ''
-            conf['server'][server_name]['channel'][channel]['voice_list'] = []
-            conf['server'][server_name]['channel'][channel]['pass'] = ''
-            conf['server'][server_name]['channel'][channel]['swearlist'] = {}
-            conf['server'][server_name]['channel'][channel]['swearlist']['possible'] = []
-            conf['server'][server_name]['channel'][channel]['swearlist']['inform'] = []
-            conf['server'][server_name]['channel'][channel]['swearlist']['comment'] = []
-            conf['server'][server_name]['channel'][channel]['swearlist']['commentmsg'] = ''
+    def loadFromXml(self):
+        try:
+            doc = minidom.parse("config/config,xml")
+            self.mDefaultNick = doc.getElementsByTagName("default_nick")[0].firstChild.data
+            self.mDefaultPrefix = doc.getElementsByTagName("default_prefix")[0].firstChild.data
+            self.mDefaultFullName = doc.getElementsByTagName("default_full_name")[0].firstChild.data
+            return
+        except (FileNotFoundError, IOError):
+            print("Error loading config")
+            self.manualServerConnect()
+            
+    def saveToXml(self):
+        doc = minidom.Document();
+        #create root element
+        root = doc.createElement("config")
+        doc.appendChild(root)
+        #create default_nick element
+        defaultNickElement = doc.createElement("default_nick")
+        defaultNickElement.appendChild(doc.createTextNode(self.mDefaultNick))
+        doc.appendChild(defaultNickElement)
+        #create default_prefix element
+        defaultPrefixElement = doc.createElement("default_prefix")
+        defaultPrefixElement.appendChild(doc.createTextNode(self.mDefaultPrefix))
+        doc.appendChild(defaultPrefixElement)
+        #create default_full_name element
+        defaultFullNameElement = doc.createElement("default_full_name")
+        defaultFullNameElement.appendChild(doc.createTextNode(self.mDefaultFullName))
+        doc.appendChild(defaultFullNameElement)
+        #save XML
+        doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
+        
+    def addServer(self,server):
+        #adds a new server to the server list
+        self.mServerList += server
+        
+    def getServerByName(self,serverName):
+        for server in self.mServerList:
+            if(server.getName()==serverName):
+                return server
+        return None
+    
+    def removeServer(self,server):
+        self.mServerList.remove(server)
+        
+    def removeServerByName(self,serverName):
+        for server in self.mServerList:
+            if(server.getName()==serverName):
+                self.mServerList.remove(server)
+                
+    def close(self):
+        'Shuts down the entire program'
+        for server in self.mServerList:
+            server.disconnect()
+        self.saveToXml()
+        self.mOpen = False
+    
+    def manualServerConnect(self):
+        print("No servers have been loaded or connected to. Please connect to a server.")
+        godNick = input("What nickname is the bot operator using? [deer-spangle]")
+        godNick = godNick.replace(' ','')
+        if(godNick==''):
+            godNick = 'deer-spangle'
+        serverAddr = input("What server should the bot connect to? [irc.freenode.net:6667]")
+        serverAddr = serverAddr.replace(' ','')
+        if(serverAddr==''):
+            serverAddr = 'irc.freenode.net:6667'
+        serverUrl = serverAddr.split(':')[0]
+        serverPort = serverAddr.split(':')[1]
+        serverMatch = re.match(r'([a-z\d\.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})',serverUrl,re.I)
+        serverName = serverMatch.group(2)
+        #TODO: remove all this crap
+        self.conf = {}
+        self.conf['function'] = {}
+        self.conf['function']['default'] = {}
+        self.conf['function']['default']['disabled'] = False
+        self.conf['function']['default']['listed_to'] = 'user'
+        self.conf['function']['default']['max_run_time'] = 180
+        self.conf['function']['default']['privmsg'] = True
+        self.conf['function']['default']['repair'] = False
+        self.conf['function']['default']['return_to'] = 'channel'
+        self.conf['function']['default']['time_delay'] = 0
+        self.conf['nickserv'] = {}
+        self.conf['nickserv']['online'] = ['lastseen:now','isonlinefrom:','iscurrentlyonline','nosuchnick','userseen:now']
+        self.conf['nickserv']['registered'] = ['registered:']
+        self.conf['server'] = {}
+        self.conf['server'][serverName] = {}
+        self.conf['server'][serverName]['ops'] = []
+        self.conf['server'][serverName]['gods'] = [godNick]
+        self.conf['server'][serverName]['address'] = serverName
+        self.conf['server'][serverName]['nick'] = self.mDefaultNick
+        self.conf['server'][serverName]['full_name'] = self.mDefaultFullName
+        self.conf['server'][serverName]['pass'] = False
+        self.conf['server'][serverName]['port'] = serverPort
+        self.conf['server'][serverName]['channel'] = {}
+        self.conf['server'][serverName]['admininform'] = []
+        self.conf['server'][serverName]['pingdiff'] = 600
+        self.conf['server'][serverName]['connected'] = True
         print("Config file created.")
-        pickle.dump(conf,open(self.configfile,"wb"))
+        self.saveToXml()
+        #TODO: remove this
+        pickle.dump(self.conf,open(self.configfile,"wb"))
         print("Config file saved.")
-        return conf
 
-    def base_timestamp(self):
-        # return the timestamp, e.g. [05:21:42]
-        return '[' + str(time.gmtime()[3]).rjust(2,'0') + ':' + str(time.gmtime()[4]).rjust(2,'0') + ':' + str(time.gmtime()[5]).rjust(2,'0') + ']'
+    def base_start(self):
+        #starts up the bot, starts base_run on each server.
+        #TODO: remove configfile loading
+        try:
+            self.conf = pickle.load(open("store/config.p","rb"))
+        except EOFError:
+            self.conf = {}
+        self.megahal = {}
+        self.core = {}
+        self.core['server'] = {}
+        self.core['function'] = {}
+        #TODO: deprecate this, use different module loading
+        self.modules = []
+        try:
+            allowedmodules = pickle.load(open('store/allowedmodules.p','rb'))
+        except:
+            allowedmodules = []
+        for mod in allowedmodules:
+            imp.acquire_lock()
+            try:
+                importlib.import_module(mod)
+                imp.reload(sys.modules[mod])
+                if(mod not in self.modules):
+                    self.modules.append(mod)
+            except:
+                print('Module: ' + mod + ' missing. Skipping it.')
+            imp.release_lock()
+        #TODO: when server object is implemented, replace this
+        #if(len(mServerList)==0):
+        if('server' not in self.conf or len(self.conf['server'])==0):
+            self.conf = self.manualServerConnect()
+        #connect to servers
+        #TODO: replace this with stuff from loadFromXml, loading server objects like that.
+        print('connecting to servers')
+        for server in self.conf['server']:
+            if(self.conf['server'][server]['connected']):
+                Thread(target=self.base_run, args=(server,)).start()
+        time.sleep(2)
+        #main loop, sticks around throughout the running of the bot
+        print('connected to all servers.')
+        while(self.mOpen):
+            try:
+                ircbot_on.ircbot_on.on_coreloop(self)
+            except Exception as e:
+                print("coreloop error: " + str(e))
+            time.sleep(0.1)
+
+
+#######################################################
+#######EVERYTHING BELOW HERE WILL NEED BREAKING INTO OTHER OBJECTS
+#######################################################
+
     
     def base_addlog(self,msg,destination):
         # log a message for future reference
@@ -123,20 +213,12 @@ class ircbot:
         log = open('logs/' + destination[0] + '/' + destination[1] + '/' + filename, 'a')
         log.write(msg.encode('ascii','ignore').decode() + '\n')
         log.close()
-        
-    def base_close(self):
-        # disconnect
-        for server in self.conf['server']:
-            if(self.conf['server'][server]['connected']):
-                self.base_disconnect(server)
-        pickle.dump(self.conf,open(self.configfile,"wb"))
-        self.open = False
 
     def base_disconnect(self,server):
         for channel in self.conf['server'][server]['channel']:
         #    self.base_say('Daisy daisy give me your answer do...',[server,channel])
             if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
-                self.base_addlog(self.base_timestamp() + ' Hallo has quit.',[server,channel])
+                self.base_addlog(Commons.currentTimestamp() + ' Hallo has quit.',[server,channel])
         #    time.sleep(1)
         if('open' in self.core['server'][server] and self.core['server'][server]['open']):
             #self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
@@ -147,13 +229,13 @@ class ircbot:
 
     def base_say(self,msg,destination,notice=False):
         # if the connection is open...
-        #if not self.open: return
+        #if not self.mOpen: return
         # send the message, accounting for linebreaks
         maxlength = 450 # max message length, inc channel name.
         command = 'PRIVMSG'
         if(notice):
             command = 'NOTICE'
-        if(self.open and self.core['server'][destination[0]]['open']):
+        if(self.mOpen and self.core['server'][destination[0]]['open']):
             if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
                 urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',msg)
                 msg = msg.upper()
@@ -163,21 +245,21 @@ class ircbot:
                 if((len(line)+len(destination[1]))>maxlength):
                     linefirst = line[:(maxlength-3-len(destination[1]))] + '...'
                     line = line[(maxlength-3-len(destination[1])):]
-                    print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linefirst).encode('ascii','replace').decode())
+                    print((Commons.currentTimestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linefirst).encode('ascii','replace').decode())
                     self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + linefirst + endl).encode('utf-8'))
                     while((len(line)+len(destination[1]))>(maxlength-3)):
                         linechunk = '...' + line [:(maxlength-6-len(destination[1]))] + '..'
                         line = line[(maxlength-6-len(destination[1])):]
-                        print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linechunk).encode('ascii','replace').decode())
+                        print((Commons.currentTimestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linechunk).encode('ascii','replace').decode())
                         self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + linechunk + endl).encode('utf-8'))
                     lineend = '...' + line
-                    print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + lineend).encode('ascii','replace').decode())
+                    print((Commons.currentTimestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + lineend).encode('ascii','replace').decode())
                     self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + lineend + endl).encode('utf-8'))
                 else:
-                    print((self.base_timestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line).encode('ascii','replace').decode())
+                    print((Commons.currentTimestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line).encode('ascii','replace').decode())
                     self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + line + endl).encode('utf-8'))
                 if(destination[1][0] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
-                    self.base_addlog(self.base_timestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line,destination)
+                    self.base_addlog(Commons.currentTimestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line,destination)
                 # avoid flooding
                 if n % 5 == 4:
                     time.sleep(2)
@@ -290,7 +372,7 @@ class ircbot:
                 logbrokendata.close()
         elif('PING' == data.split()[0]):
             # return pings so we don't get timed out
-            print(self.base_timestamp() + ' [' + server + '] PING')
+            print(Commons.currentTimestamp() + ' [' + server + '] PING')
             self.core['server'][server]['socket'].send(('PONG ' + data.split()[1] + endl).encode('utf-8'))
             ircbot_on.ircbot_on.on_ping(self,server,data.split()[1])
         elif('PRIVMSG' == data.split()[1]):
@@ -323,9 +405,9 @@ class ircbot:
                 args = ':'.join(data.split(':')[2:])[1:-1]
                 # print and a clean version of the message
                 if(len(args)>=6 and args[:6] == 'ACTION'):
-                    line = self.base_timestamp() + ' [' + server + '] ' + destination + ' **' + client + ' ' + args[7:] + '**'
+                    line = Commons.currentTimestamp() + ' [' + server + '] ' + destination + ' **' + client + ' ' + args[7:] + '**'
                 else:
-                    line = self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + client + ' (CTCP)> ' + args
+                    line = Commons.currentTimestamp() + ' [' + server + '] ' + destination + ' <' + client + ' (CTCP)> ' + args
                 print(line)
                 #log the message
                 if(msg_pm or server not in self.conf['server'] or destination not in self.conf['server'][server]['channel'] or self.conf['server'][server]['channel'][destination]['logging']):
@@ -333,10 +415,10 @@ class ircbot:
                 ircbot_on.ircbot_on.on_ctcp(self,server,client,args)
             else:
                 # print and a clean version of the message
-                print(self.base_timestamp() + ' [' + server + '] ' + destination + ' <' + client + '> ' + message)
+                print(Commons.currentTimestamp() + ' [' + server + '] ' + destination + ' <' + client + '> ' + message)
                 #log the message
                 if(msg_pm or server not in self.conf['server'] or destination not in self.conf['server'][server]['channel'] or self.conf['server'][server]['channel'][destination]['logging']):
-                    self.base_addlog(self.base_timestamp() + ' <' + client + '> ' + message, [server,destination])
+                    self.base_addlog(Commons.currentTimestamp() + ' <' + client + '> ' + message, [server,destination])
             #command colon variable, if command is followed by a colon and command doesn't exist, throw an error
             msg_cmdcln = False
             # if it's a public message, parse out the prefixed nick and clean up added whitespace/colons
@@ -367,7 +449,7 @@ class ircbot:
                         self.base_say(out[0],out[1],out[2])
                 except Exception as e:
                     # if we have an error, let them know and print it to the screen
-                    if(self.open):
+                    if(self.mOpen):
                         self.base_say('Error occured.  Try "/msg ' + nick + ' help"',[server,destination])
                     print('ERROR: ' + str(e))
                 if(msg_pm):
@@ -383,27 +465,27 @@ class ircbot:
             # handle JOIN events
             channel = ':'.join(data.split(':')[2:]).replace(endl,'').lower()
             client = data.split('!')[0][1:]
-            print(self.base_timestamp() + ' [' + server + '] ' + client + ' joined ' + channel)
+            print(Commons.currentTimestamp() + ' [' + server + '] ' + client + ' joined ' + channel)
             if(self.conf['server'][server]['channel'][channel]['logging']):
-                self.base_addlog(self.base_timestamp() + ' ' + client + ' joined ' + channel,[server,channel])
+                self.base_addlog(Commons.currentTimestamp() + ' ' + client + ' joined ' + channel,[server,channel])
             ircbot_on.ircbot_on.on_join(self,server,client,channel)
         elif('PART' == data.split()[1]):
             # handle PART events
             channel = data.split()[2]
             client = data.split('!')[0][1:]
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
-            print(self.base_timestamp() + ' [' + server + '] ' + client + ' left ' + channel + ' (' + message + ')')
+            print(Commons.currentTimestamp() + ' [' + server + '] ' + client + ' left ' + channel + ' (' + message + ')')
             if(self.conf['server'][server]['channel'][channel]['logging']):
-                self.base_addlog(self.base_timestamp() + ' ' + client + ' left ' + channel + ' (' + message + ')',[server,channel])
+                self.base_addlog(Commons.currentTimestamp() + ' ' + client + ' left ' + channel + ' (' + message + ')',[server,channel])
             ircbot_on.ircbot_on.on_part(self,server,client,channel,message)
         elif('QUIT' == data.split()[1]):
             #handle QUIT events
             client = data.split('!')[0][1:]
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
-            print(self.base_timestamp() + ' [' + server + '] ' + client + ' quit: ' + message)
+            print(Commons.currentTimestamp() + ' [' + server + '] ' + client + ' quit: ' + message)
             for channel in self.conf['server'][server]['channel']:
                 if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging'] and client in self.core['server'][server]['channel'][channel]['user_list']):
-                    self.base_addlog(self.base_timestamp() + ' ' + client + ' quit: ' + message,[server,channel])
+                    self.base_addlog(Commons.currentTimestamp() + ' ' + client + ' quit: ' + message,[server,channel])
             ircbot_on.ircbot_on.on_quit(self,server,client,message)
         elif('MODE' == data.split()[1]):
             # handle MODE events
@@ -414,18 +496,18 @@ class ircbot:
                 args = ' '.join(data.split()[4:]).replace(endl, '')
             else:
                 args = ''
-            print(self.base_timestamp() + ' [' + server + '] ' + client + ' set ' + mode + ' ' + args + ' on ' + channel)
+            print(Commons.currentTimestamp() + ' [' + server + '] ' + client + ' set ' + mode + ' ' + args + ' on ' + channel)
             if(channel in self.conf['server'][server]['channel'] and 'logging' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['logging']):
-                self.base_addlog(self.base_timestamp() + ' ' + client + ' set ' + mode + ' ' + args + ' on ' + channel,[server,channel])
+                self.base_addlog(Commons.currentTimestamp() + ' ' + client + ' set ' + mode + ' ' + args + ' on ' + channel,[server,channel])
             ircbot_on.ircbot_on.on_mode(self,server,client,channel,mode,args)
         elif('NOTICE' == data.split()[1]):
             # handle NOTICE messages
             channel = data.split()[2].replace(endl,'')
             client = data.split('!')[0][1:]
             message = ':'.join(data.split(':')[2:]).replace(endl,'')
-            print(self.base_timestamp() + ' [' + server + '] ' + channel + ' Notice from ' + client + ': ' + message)
+            print(Commons.currentTimestamp() + ' [' + server + '] ' + channel + ' Notice from ' + client + ': ' + message)
             if(channel in self.conf['server'][server]['channel'] and 'logging' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['logging']):
-                self.base_addlog(self.base_timestamp() + ' ' + channel + ' notice from ' + client + ': ' + message,[server,channel])
+                self.base_addlog(Commons.currentTimestamp() + ' ' + channel + ' notice from ' + client + ': ' + message,[server,channel])
             ircbot_on.ircbot_on.on_notice(self,server,client,channel,message)
         elif('NICK' == data.split()[1]):
             #handle nick changes
@@ -434,27 +516,27 @@ class ircbot:
                 newnick = data.split(':')[2]
             else:
                 newnick = data.split()[2]
-            print(self.base_timestamp() + ' [' + server + '] Nick change: ' + client + ' -> ' + newnick)
+            print(Commons.currentTimestamp() + ' [' + server + '] Nick change: ' + client + ' -> ' + newnick)
             for channel in self.conf['server'][server]['channel']:
                 if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging'] and client in self.core['server'][server]['channel'][channel]['user_list']):
-                    self.base_addlog(self.base_timestamp() + ' Nick change: ' + client + ' -> ' + newnick,[server,channel])
+                    self.base_addlog(Commons.currentTimestamp() + ' Nick change: ' + client + ' -> ' + newnick,[server,channel])
             ircbot_on.ircbot_on.on_nickchange(self,server,client,newnick)
         elif('INVITE' == data.split()[1]):
             #handle invites
             client = data.split('!')[0][1:]
             channel = ':'.join(data.split(':')[2:]).replace(endl,'')
-            print(self.base_timestamp() + ' [' + server + '] invite to ' + channel + ' from ' + client)
+            print(Commons.currentTimestamp() + ' [' + server + '] invite to ' + channel + ' from ' + client)
             if(channel in self.conf['server'][server]['channel'] and 'logging' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['logging']):
-                self.base_addlog(self.base_timestamp() + ' invite to ' + channel + ' from ' + client,[server,'@SERVER'])
+                self.base_addlog(Commons.currentTimestamp() + ' invite to ' + channel + ' from ' + client,[server,'@SERVER'])
             ircbot_on.ircbot_on.on_invite(self,server,client,channel)
         elif('KICK' == data.split()[1]):
             #handle kicks
             channel = data.split()[2]
             client = data.split()[3]
             message = ':'.join(data.split(':')[4:]).replace(endl,'')
-            print(self.base_timestamp() + ' [' + server + '] ' + client + ' was kicked from ' + channel + ': ' + message)
+            print(Commons.currentTimestamp() + ' [' + server + '] ' + client + ' was kicked from ' + channel + ': ' + message)
             if(self.conf['server'][server]['channel'][channel]['logging']):
-                self.base_addlog(self.base_timestamp() + ' ' + client + ' was kicked from ' + channel + ': ' + message,[server,channel])
+                self.base_addlog(Commons.currentTimestamp() + ' ' + client + ' was kicked from ' + channel + ': ' + message,[server,channel])
             ircbot_on.ircbot_on.on_kick(self,server,client,channel,message)
         elif data == '':
             #blank message thingy
@@ -463,11 +545,11 @@ class ircbot:
         elif(len(data.split()[1]) == 3 and data.split()[1].isdigit()):
             #if this, it's a server info message. There's a few we care about, but the 376 end of MOTD is what we really want (what we really really want)
             ircbot_on.ircbot_on.on_numbercode(self,server,data.split()[1],data)
-            print(self.base_timestamp() + ' [' + server + '] Server info: ' + data)
+            print(Commons.currentTimestamp() + ' [' + server + '] Server info: ' + data)
         elif not data.replace(endl, '').isspace():
             # if not handled, be confused ^_^
             unhandled = True
-            print(self.base_timestamp() + ' [' + server + '] Unhandled data: ' + data)
+            print(Commons.currentTimestamp() + ' [' + server + '] Unhandled data: ' + data)
 #            logunhandleddata = open('/home/dr-spangle/http/log_unhandleddata.txt','a')
 #            logunhandleddata.write(data + '\n---\n')
 #            logunhandleddata.close()
@@ -476,17 +558,17 @@ class ircbot:
     def base_connect(self,server):
         count = 0
         while(self.core['server'][server]['connected'] == False and count<30):
-            print(self.base_timestamp() + " Not connected to " + server + " yet")
+            print(Commons.currentTimestamp() + " Not connected to " + server + " yet")
             time.sleep(0.5)
             count += 1
         self.conf['server'][server]['connected'] = True
-        print(self.base_timestamp() + " sending nick and user info to server: " + server)
+        print(Commons.currentTimestamp() + " sending nick and user info to server: " + server)
         self.core['server'][server]['socket'].send(('NICK ' + self.conf['server'][server]['nick'] + endl).encode('utf-8'))
         self.core['server'][server]['socket'].send(('USER ' + self.conf['server'][server]['full_name'] + endl).encode('utf-8'))
-        print(self.base_timestamp() + " sent nick and user info to " + server)
+        print(Commons.currentTimestamp() + " sent nick and user info to " + server)
         while(self.core['server'][server]['motdend'] == False):
             time.sleep(0.5)
-        print(self.base_timestamp() + " joining channels on " + server + ", identifying.")
+        print(Commons.currentTimestamp() + " joining channels on " + server + ", identifying.")
         for channel in self.conf['server'][server]['channel']:
             if(self.conf['server'][server]['channel'][channel]['in_channel']):
                 if(self.conf['server'][server]['channel'][channel]['pass'] == ''):
@@ -495,48 +577,6 @@ class ircbot:
                     self.core['server'][server]['socket'].send(('JOIN ' + channel + ' ' + self.conf['server'][server]['channel'][channel]['pass'] + endl).encode('utf-8'))
         if self.conf['server'][server]['pass']:
             self.base_say('IDENTIFY ' + self.conf['server'][server]['pass'], [server,'nickserv'])
-
-    def base_start(self,configfile="store/config.p"):
-        #starts up the bot, starts base_run on each server.
-        self.configfile = configfile
-        try:
-            self.conf = pickle.load(open(configfile,"rb"))
-        except EOFError:
-            self.conf = {}
-        self.megahal = {}
-        self.core = {}
-        self.core['server'] = {}
-        self.core['function'] = {}
-        self.open = True
-        self.modules = []
-        try:
-            allowedmodules = pickle.load(open('store/allowedmodules.p','rb'))
-        except:
-            allowedmodules = []
-        for mod in allowedmodules:
-            imp.acquire_lock()
-            try:
-                importlib.import_module(mod)
-                imp.reload(sys.modules[mod])
-                if(mod not in self.modules):
-                    self.modules.append(mod)
-            except:
-                print('Module: ' + mod + ' missing. Skipping it.')
-            imp.release_lock()
-        if('server' not in self.conf or len(self.conf['server'])==0):
-            self.conf = self.base_buildconfig()
-        print('connecting to servers')
-        for server in self.conf['server']:
-            if(self.conf['server'][server]['connected']):
-                Thread(target=self.base_run, args=(server,)).start()
-        time.sleep(2)
-        print('connected to all servers.')
-        while(self.open):
-            try:
-                ircbot_on.ircbot_on.on_coreloop(self)
-            except Exception as e:
-                print("coreloop error: " + str(e))
-            time.sleep(0.1)
 
     def base_decode(self,raw_bytes):
         try:
@@ -578,7 +618,7 @@ class ircbot:
 #            self.conf['servers'].remove(server)
         Thread(target=self.base_connect, args=(server,)).start()
         nextline = b""
-        while(self.open and server in self.core['server'] and self.core['server'][server]['open']):
+        while(self.mOpen and server in self.core['server'] and self.core['server'][server]['open']):
             try:
                 nextbyte = self.core['server'][server]['socket'].recv(1)
             except:
@@ -594,5 +634,5 @@ class ircbot:
                 nextline = b""
 
 if __name__ == '__main__':
-    ircbot().base_start("store/config.p")
+    Hallo()
 #    ircbot().run(raw_input('network: '), raw_input('nick: '), [raw_input('channel: ')])
