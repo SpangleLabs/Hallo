@@ -96,6 +96,55 @@ class Hallo:
             server.disconnect()
         self.saveToXml()
         self.mOpen = False
+    
+    def manualServerConnect(self):
+        print("No servers have been loaded or connected to. Please connect to a server.")
+        godNick = input("What nickname is the bot operator using? [deer-spangle]")
+        godNick = godNick.replace(' ','')
+        if(godNick==''):
+            godNick = 'deer-spangle'
+        serverAddr = input("What server should the bot connect to? [irc.freenode.net:6667]")
+        serverAddr = serverAddr.replace(' ','')
+        if(serverAddr==''):
+            serverAddr = 'irc.freenode.net:6667'
+        serverUrl = serverAddr.split(':')[0]
+        serverPort = serverAddr.split(':')[1]
+        serverMatch = re.match(r'([a-z\d\.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})',serverUrl,re.I)
+        serverName = serverMatch.group(2)
+        #TODO: remove all this crap
+        conf = {}
+        conf['function'] = {}
+        conf['function']['default'] = {}
+        conf['function']['default']['disabled'] = False
+        conf['function']['default']['listed_to'] = 'user'
+        conf['function']['default']['max_run_time'] = 180
+        conf['function']['default']['privmsg'] = True
+        conf['function']['default']['repair'] = False
+        conf['function']['default']['return_to'] = 'channel'
+        conf['function']['default']['time_delay'] = 0
+        conf['nickserv'] = {}
+        conf['nickserv']['online'] = ['lastseen:now','isonlinefrom:','iscurrentlyonline','nosuchnick','userseen:now']
+        conf['nickserv']['registered'] = ['registered:']
+        conf['server'] = {}
+        conf['server'][serverName] = {}
+        conf['server'][serverName]['ops'] = []
+        conf['server'][serverName]['gods'] = [godNick]
+        conf['server'][serverName]['address'] = serverName
+        conf['server'][serverName]['nick'] = self.mDefaultNick
+        conf['server'][serverName]['full_name'] = self.mDefaultFullName
+        conf['server'][serverName]['pass'] = False
+        conf['server'][serverName]['port'] = serverPort
+        conf['server'][serverName]['channel'] = {}
+        conf['server'][serverName]['admininform'] = []
+        conf['server'][serverName]['pingdiff'] = 600
+        conf['server'][serverName]['connected'] = True
+        print("Config file created.")
+        self.saveToXml()
+        #TODO: remove this
+        pickle.dump(conf,open(self.configfile,"wb"))
+        print("Config file saved.")
+        return conf
+        
 
     def base_buildconfig(self):
         #if config file is empty or contains no servers, ask a series of questions to the user to build one.
