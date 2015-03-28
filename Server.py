@@ -22,3 +22,14 @@ class Server(object):
         Method to read from stream and process. Will call an internal parsing method or whatnot
         '''
         raise NotImplementedError
+
+    @staticmethod
+    def fromXml(xmlString):
+        '''
+        Constructor to build a new server object from xml
+        '''
+        
+    def toXml(self):
+        '''
+        Returns an XML representation of the server object
+        '''
