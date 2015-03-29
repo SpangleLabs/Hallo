@@ -1,3 +1,4 @@
+from xml.dom import minidom
 
 
 class Server(object):
@@ -126,4 +127,34 @@ class ServerIRC(Server):
         '''
         Returns an XML representation of the server object
         '''
+        #create document
+        doc = minidom.Document()
+        #create root element
+        root = doc.createElement("server")
+        doc.appendChild(root)
+        #create name element
+        nameElement = doc.createElement("name")
+        nameElement.appendChild(doc.createTextNode(self.mName))
+        doc.appendChild(nameElement)
+        #create autoconnect element
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
