@@ -4,6 +4,13 @@ class Server(object):
     '''
     Generic server object. An interface for ServerIRC or ServerSkype or whatever objects.
     '''
+    mOpen = False
+    mChannelList = []
+    mUserList = []
+    mConnection = None
+    mNick = None
+    mPrefix = None
+    mFullName = None
 
     def __init__(self, params):
         '''
