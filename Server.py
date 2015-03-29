@@ -5,6 +5,7 @@ class Server(object):
     Generic server object. An interface for ServerIRC or ServerSkype or whatever objects.
     '''
     #Persistent/saved class variables
+    mHallo = None               #The hallo object that created this server
     mName = None                #server name
     mAutoConnect = True         #Whether to automatically connect to this server when hallo starts
     mChannelList = []           #list of channels on this server (which may or may not be currently active)
@@ -44,6 +45,41 @@ class Server(object):
         '''
         Returns an XML representation of the server object
         '''
+    
+    def getName(self):
+        'Name getter'
+        return self.mName
+    
+    def getNick(self):
+        'Nick getter'
+        if(self.mNick==None):
+            return self.mHallo.getNick()
+        return self.mNick
+    
+    def setNick(self,nick):
+        'Nick setter'
+        self.mNick = nick
+        
+    def getPrefix(self):
+        'Prefix getter'
+        if(self.mPrefix==None):
+            return self.mHallo.getDefaultPrefix()
+        return self.mPrefix
+    
+    def setPrefix(self,prefix):
+        'Prefix setter'
+        self.mPrefix = prefix
+    
+    def getFullName(self):
+        'Full name getter'
+        if(self.mFullName==None):
+            return self.mHallo.getDefaultFullName()
+        return self.mFullName
+    
+    def setFullName(self,fullName):
+        'Full name setter'
+        self.mFullName = fullName
+        
         
 class ServerIRC(Server):
     #Persistent/saved class variables
