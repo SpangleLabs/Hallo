@@ -98,6 +98,30 @@ class Hallo:
             server.disconnect()
         self.saveToXml()
         self.mOpen = False
+        
+    def getDefaultNick(self):
+        'Default nick getter'
+        return self.mDefaultNick
+
+    def setDefaultNick(self,defaultNick):
+        'Default nick setter'
+        self.mDefaultNick = defaultNick
+        
+    def getDefaultPrefix(self):
+        'Default prefix getter'
+        return self.mDefaultPrefix
+    
+    def setDefaultPrefix(self,defaultPrefix):
+        'Default prefix setter'
+        self.mDefaultPrefix = defaultPrefix
+        
+    def getDefaultFullName(self):
+        'Default full name getter'
+        return self.mDefaultFullName
+    
+    def setDefaultFullName(self,defaultFullName):
+        'Default full name setter'
+        self.mDefaultFullName = defaultFullName
     
     def manualServerConnect(self):
         print("No servers have been loaded or connected to. Please connect to a server.")
