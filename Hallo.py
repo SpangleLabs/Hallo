@@ -73,8 +73,9 @@ class Hallo:
         root.appendChild(defaultFullNameElement)
         #TODO: create server list
         serverListElement = doc.createElement("server_list")
-        #elem = minidom.parseString(s).firstChild
-        #doc.firstChild.appendChild(elem)
+        for serverItem in self.mServerList:
+            serverElement = minidom.parse(serverItem.toXml()).firstChild
+            serverListElement.appendChild(serverElement)
         root.appendChild(serverListElement)
         #save XML
         doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
