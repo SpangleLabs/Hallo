@@ -133,7 +133,7 @@ class ServerIRC(Server):
         root = doc.createElement("server")
         doc.appendChild(root)
         #create name element
-        nameElement = doc.createElement("name")
+        nameElement = doc.createElement("server_name")
         nameElement.appendChild(doc.createTextNode(self.mName))
         root.appendChild(nameElement)
         #create auto connect element
@@ -143,12 +143,12 @@ class ServerIRC(Server):
         #TODO:create channel list element
         #create nick element
         if(self.mNick is not None):
-            nickElement = doc.createElement("nick")
+            nickElement = doc.createElement("server_nick")
             nickElement.appendChild(doc.createTextNode(self.mNick))
             root.appendChild(nickElement)
         #create prefix element
         if(self.mPrefix is not None):
-            prefixElement = doc.createElement("prefix")
+            prefixElement = doc.createElement("server_prefix")
             prefixElement.appendChild(doc.createTextNode(self.mPrefix))
             root.appendChild(prefixElement)
         #create full name element
