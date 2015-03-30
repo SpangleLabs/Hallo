@@ -62,15 +62,15 @@ class Hallo:
         #create default_nick element
         defaultNickElement = doc.createElement("default_nick")
         defaultNickElement.appendChild(doc.createTextNode(self.mDefaultNick))
-        doc.appendChild(defaultNickElement)
+        root.appendChild(defaultNickElement)
         #create default_prefix element
         defaultPrefixElement = doc.createElement("default_prefix")
         defaultPrefixElement.appendChild(doc.createTextNode(self.mDefaultPrefix))
-        doc.appendChild(defaultPrefixElement)
+        root.appendChild(defaultPrefixElement)
         #create default_full_name element
         defaultFullNameElement = doc.createElement("default_full_name")
         defaultFullNameElement.appendChild(doc.createTextNode(self.mDefaultFullName))
-        doc.appendChild(defaultFullNameElement)
+        root.appendChild(defaultFullNameElement)
         #save XML
         doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
         
