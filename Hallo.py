@@ -71,6 +71,8 @@ class Hallo:
         defaultFullNameElement = doc.createElement("default_full_name")
         defaultFullNameElement.appendChild(doc.createTextNode(self.mDefaultFullName))
         root.appendChild(defaultFullNameElement)
+        #TODO: create server list
+        #serverListElement = doc.createElement("servers")
         #save XML
         doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
         
