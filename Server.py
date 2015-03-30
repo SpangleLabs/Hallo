@@ -135,14 +135,41 @@ class ServerIRC(Server):
         #create name element
         nameElement = doc.createElement("name")
         nameElement.appendChild(doc.createTextNode(self.mName))
-        doc.appendChild(nameElement)
-        #create autoconnect element
-        
-        
-        
-        
-        
-        
+        root.appendChild(nameElement)
+        #create auto connect element
+        autoConnectElement = doc.createElement("auto_connect")
+        autoConnectElement.appendChild(doc.createTextNode(self.mAutoConnect))
+        root.appendChild(autoConnectElement)
+        #TODO:create channel list element
+        #create nick element
+        if(self.mNick is not None):
+            nickElement = doc.createElement("nick")
+            nickElement.appendChild(doc.createTextNode(self.mNick))
+            root.appendChild(nickElement)
+        #create prefix element
+        if(self.mPrefix is not None):
+            prefixElement = doc.createElement("prefix")
+            prefixElement.appendChild(doc.createTextNode(self.mPrefix))
+            root.appendChild(prefixElement)
+        #create full name element
+        if(self.mFullName is not None):
+            fullNameElement = doc.createElement("full_name")
+            fullNameElement.appendChild(doc.createTextNode(self.mFullName))
+            root.appendChild(fullNameElement)
+        #create server address element
+        serverAddressElement = doc.createElement("server_address")
+        serverAddressElement.appendChild(doc.createTextNode(self.mServerAddress))
+        root.appendChild(serverAddressElement)
+        #create server port element
+        serverPortElement = doc.createElement("server_port")
+        serverPortElement.appendChild(doc.createTextNode(self.mServerPort))
+        root.appendChild(serverPortElement)
+        #create nickserv pass element
+        nickservPassElement = doc.createElement("nickserv_pass")
+        nickservPassElement.appendChild(doc.createTextNode(self.mNickservPass))
+        root.appendChild(nickservPassElement)
+        #output XML string
+        return doc.toxml()
         
         
         
