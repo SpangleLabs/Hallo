@@ -72,7 +72,10 @@ class Hallo:
         defaultFullNameElement.appendChild(doc.createTextNode(self.mDefaultFullName))
         root.appendChild(defaultFullNameElement)
         #TODO: create server list
-        #serverListElement = doc.createElement("servers")
+        serverListElement = doc.createElement("server_list")
+        #elem = minidom.parseString(s).firstChild
+        #doc.firstChild.appendChild(elem)
+        root.appendChild(serverListElement)
         #save XML
         doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
         
