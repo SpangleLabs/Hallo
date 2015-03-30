@@ -132,6 +132,10 @@ class ServerIRC(Server):
         #create root element
         root = doc.createElement("server")
         doc.appendChild(root)
+        #create type element
+        typeElement = doc.createElement("server_type")
+        typeElement.appendChild(doc.createTextNode("IRC"))
+        root.appendChild(typeElement)
         #create name element
         nameElement = doc.createElement("server_name")
         nameElement.appendChild(doc.createTextNode(self.mName))
