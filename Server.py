@@ -1,7 +1,6 @@
 from xml.dom import minidom
 from inc.commons import Commons
 import socket
-import time
 
 #TODO: investigate this
 endl = '\r\n'
@@ -115,7 +114,7 @@ class ServerIRC(Server):
     mNickservPass = None        #Password to identify with nickserv
     #IRC specific dynamic variables
     mSocket = None              #Socket to communicate to the server
-    mBuffer = b""               #Byte buffer from the socket
+    mWelcomeMessage = ""        #Server's welcome message when connecting. MOTD and all.
     
     def __init__(self,hallo):
         '''
@@ -155,26 +154,27 @@ class ServerIRC(Server):
             self.mOpen = False
             #TODO: remove line
             self.mHallo.core['server'][self.mName]['open'] = False
-        #TODO: URGENT. FIGURE OUT HOW TO DO EVERYTHING AFTER THIS. IT'S A HORROR MESS
-        count = 0
-        while(self.mHallo.core['server'][self.mName]['connected'] == False and count<30):
-            print(Commons.currentTimestamp() + " Not connected to " + self.mName + " yet")
-            time.sleep(0.5)
-            count += 1
-        self.mHallo.conf['server'][self.mName]['connected'] = True
+        #Wait for the first message back from the server.
+        print(Commons.currentTimestamp() + " waiting for first message from server: " + self.mName)
+        firstLine = self.readLineFromSocket()  #TODO: make this timeout somehow.
+        self.mWelcomeMessage += firstLine+"\n"
         #Send nick and full name to server
         print(Commons.currentTimestamp() + " sending nick and user info to server: " + self.mName)
         self.mSocket.send(('NICK ' + self.getNick() + endl).encode('utf-8'))
         self.mSocket.send(('USER ' + self.getFullName() + endl).encode('utf-8'))
         #Wait for MOTD to end
-        print(Commons.currentTimestamp() + " sent nick and user info to " + self.mName)
-        while(self.mHallo.core['server'][self.mName]['motdend'] == False):
-            time.sleep(0.5)
+        while(True):
+            nextWelcomeLine = self.readLineFromSocket()
+            self.mWelcomeMessage += nextWelcomeLine+"\n"
+            if("376" in nextWelcomeLine or "endofmessage" in nextWelcomeLine.replace(' ','').lower()):
+                break
         #Identify with nickserv
-        if self.mHallo.conf['server'][self.mName]['pass']:
-            self.mHallo.base_say('IDENTIFY ' + self.conf['server'][self.mName]['pass'], [self.mName,'nickserv'])
+        if self.mNickservPass:
+            #TODO: update this
+            self.mHallo.base_say('IDENTIFY ' + self.mNickservPass, [self.mName,'nickserv'])
         #Join channels
         print(Commons.currentTimestamp() + " joining channels on " + self.mName + ", identifying.")
+        #TODO: update this with Channel objects
         for channel in self.mHallo.conf['server'][self.mName]['channel']:
             if(self.mHallo.conf['server'][self.mName]['channel'][channel]['in_channel']):
                 if(self.mHallo.conf['server'][self.mName]['channel'][channel]['pass'] == ''):
