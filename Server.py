@@ -183,7 +183,21 @@ class ServerIRC(Server):
                     self.mHallo.core['server'][self.mName]['socket'].send(('JOIN ' + channel + ' ' + self.mHallo.conf['server'][self.mName]['channel'][channel]['pass'] + endl).encode('utf-8'))
     
     def disconnect(self):
-        raise NotImplementedError
+        'Disconnect from the server'
+        #TODO: upgrade this when logging is upgraded
+        for channel in self.mHallo.conf['server'][self.mName]['channel']:
+        #    self.mHallo.base_say('Daisy daisy give me your answer do...',[server,channel])
+            if(self.mHallo.conf['server'][self.mName]['channel'][channel]['in_channel'] and self.mHallo.conf['server'][self.mName]['channel'][channel]['logging']):
+                self.mHallo.base_addlog(Commons.currentTimestamp() + ' '+self.getNick()+' has quit.',[self.mName,channel])
+        #    time.sleep(1)
+        if(self.mOpen):
+            #self.mHallo.core['server'][self.mName]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
+            self.mSocket.send(('QUIT :Will I dream?' + endl).encode('utf-8'))
+            self.mSocket.close()
+            self.mOpen = False
+            #Remove self from Hallo's server list
+            self.mHallo.removeServer()
+            
     
     def run(self):
         '''
