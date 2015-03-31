@@ -5,8 +5,8 @@ class Server(object):
     '''
     Generic server object. An interface for ServerIRC or ServerSkype or whatever objects.
     '''
-    #Persistent/saved class variables
     mHallo = None               #The hallo object that created this server
+    #Persistent/saved class variables
     mName = None                #server name
     mAutoConnect = True         #Whether to automatically connect to this server when hallo starts
     mChannelList = []           #list of channels on this server (which may or may not be currently active)
@@ -91,6 +91,7 @@ class Server(object):
         
         
 class ServerIRC(Server):
+    mHallo = None               #The hallo object that created this server
     #Persistent/saved class variables
     mName = None                #server name
     mAutoConnect = True         #Whether to automatically connect to this server when hallo starts
