@@ -19,6 +19,7 @@ import re
 from xml.dom import minidom
 
 from inc.commons import Commons
+from Server import ServerIRC
 
 import ircbot_on
 import mod_passive
@@ -222,6 +223,18 @@ class Hallo:
             except Exception as e:
                 print("coreloop error: " + str(e))
             time.sleep(0.1)
+            
+    def createServerFromXml(self,xmlString):
+        try:
+            doc = minidom.parse(xmlString)
+            serverType = doc.getElementsByTagName("server_type")[0].firstChild.data
+            serverObject = None
+            if(serverType=="irc"):
+                serverObject = ServerIRC.fromXml()
+            return serverObject
+        except (FileNotFoundError, IOError):
+            print("Error loading server XML")
+        
 
 
 #######################################################
