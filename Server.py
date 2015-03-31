@@ -122,6 +122,20 @@ class ServerIRC(Server):
         '''
         Constructor to build a new server object from xml
         '''
+        doc = minidom.parse(xmlString)
+        newServer = ServerIRC()
+        newServer.mName = doc.getElementsByTagName("server_name")[0].firstChild.data
+        newServer.mAutoConnect = doc.getElementsByTagName("auto_connect")[0].firstChild.data
+        if(len(doc.getElementsByTagName("server_nick"))!=0):
+            newServer.mNick = doc.getElementsByTagName("server_nick")[0].firstChild.data
+        if(len(doc.getElementsByTagName("server_prefix"))!=0):
+            newServer.mPrefix = doc.getElementsByTagName("server_prefix")[0].firstChild.data
+        if(len(doc.getElementsByTagName("full_name"))!=0):
+            newServer.mFullName = doc.getElementsByTagName("full_name")[0].firstChild.data
+        newServer.mServerAddress = doc.getElementsByTagName("server_address")[0].firstChild.data
+        newServer.mServerPort = doc.getElementsByTagName("server_port")[0].firstChild.data
+        newServer.mNickservPass = doc.getElementsByTagName("nickserv_pass")[0].firstChild.data
+        return newServer
         
     def toXml(self):
         '''
