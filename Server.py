@@ -18,10 +18,11 @@ class Server(object):
     mOpen = False               #Whether or not to keep reading from server
     mUserList = []              #Users on this server
 
-    def __init__(self, params):
+    def __init__(self,hallo,params):
         '''
         Constructor for server object
         '''
+        self.mHallo = hallo
         raise NotImplementedError
     
     def connect(self):
@@ -37,7 +38,7 @@ class Server(object):
         raise NotImplementedError
 
     @staticmethod
-    def fromXml(xmlString):
+    def fromXml(xmlString,hallo):
         '''
         Constructor to build a new server object from xml
         '''
@@ -108,10 +109,11 @@ class ServerIRC(Server):
     mServerPort = None          #Port to connect to server
     mNickservPass = None        #Password to identify with nickserv
     
-    def __init__(self, params):
+    def __init__(self,hallo):
         '''
         Constructor for server object
         '''
+        self.mHallo = hallo
         raise NotImplementedError
     
     def connect(self):
@@ -127,12 +129,12 @@ class ServerIRC(Server):
         raise NotImplementedError
 
     @staticmethod
-    def fromXml(xmlString):
+    def fromXml(xmlString,hallo):
         '''
         Constructor to build a new server object from xml
         '''
         doc = minidom.parse(xmlString)
-        newServer = ServerIRC()
+        newServer = ServerIRC(hallo)
         newServer.mName = doc.getElementsByTagName("server_name")[0].firstChild.data
         newServer.mAutoConnect = doc.getElementsByTagName("auto_connect")[0].firstChild.data
         if(len(doc.getElementsByTagName("server_nick"))!=0):
