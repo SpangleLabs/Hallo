@@ -202,6 +202,7 @@ class ServerIRC(Server):
                 return self.decodeLine(nextLine)
 
     def decodeLine(self,rawBytes):
+        'Decodes a line of bytes, trying a couple character sets'
         try:
             outputLine = rawBytes.decode('utf-8')
         except UnicodeDecodeError:
