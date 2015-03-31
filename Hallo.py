@@ -88,6 +88,8 @@ class Hallo:
     def addServer(self,server):
         #adds a new server to the server list
         self.mServerList += server
+        if(server.getAutoConnect()):
+            server.connect()
         
     def getServerByName(self,serverName):
         for server in self.mServerList:
