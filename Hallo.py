@@ -25,7 +25,7 @@ import ircbot_on
 import mod_passive
 
 #TODO: investigate this
-endl = '\r\n' # constant for ease/readability
+endl = Commons.mEndLine
 
 class Hallo:
     mDefaultNick = "Hallo"

@@ -3,7 +3,7 @@ from inc.commons import Commons
 import socket
 
 #TODO: investigate this
-endl = '\r\n'
+endl = Commons.mEndLine
 
 class Server(object):
     '''
