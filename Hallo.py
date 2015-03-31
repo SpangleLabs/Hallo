@@ -24,6 +24,7 @@ from Server import ServerIRC
 import ircbot_on
 import mod_passive
 
+#TODO: investigate this
 endl = '\r\n' # constant for ease/readability
 
 class Hallo:
