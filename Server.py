@@ -81,6 +81,14 @@ class Server(object):
         'Full name setter'
         self.mFullName = fullName
         
+    def getAutoConnect(self):
+        'AutoConnect getter'
+        return self.mAutoConnect
+    
+    def setAutoConnect(self,autoConnect):
+        'AutoConnect setter'
+        self.mAutoConnect = autoConnect
+        
         
 class ServerIRC(Server):
     #Persistent/saved class variables
