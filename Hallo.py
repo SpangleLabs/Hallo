@@ -236,7 +236,7 @@ class Hallo:
             serverType = doc.getElementsByTagName("server_type")[0].firstChild.data
             serverObject = None
             if(serverType=="irc"):
-                serverObject = ServerIRC.fromXml()
+                serverObject = ServerIRC.fromXml(xmlString,self)
             return serverObject
         except (FileNotFoundError, IOError):
             print("Error loading server XML")
