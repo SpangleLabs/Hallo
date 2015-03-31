@@ -51,6 +51,10 @@ class Server(object):
         Returns an XML representation of the server object
         '''
     
+    def getHallo(self):
+        'Returns the Hallo instance that created this Server'
+        return self.mHallo
+    
     def getName(self):
         'Name getter'
         return self.mName
