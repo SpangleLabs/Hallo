@@ -114,7 +114,6 @@ class ServerIRC(Server):
         Constructor for server object
         '''
         self.mHallo = hallo
-        raise NotImplementedError
     
     def connect(self):
         raise NotImplementedError
