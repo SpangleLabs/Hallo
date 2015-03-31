@@ -50,6 +50,10 @@ class Hallo:
             self.mDefaultNick = doc.getElementsByTagName("default_nick")[0].firstChild.data
             self.mDefaultPrefix = doc.getElementsByTagName("default_prefix")[0].firstChild.data
             self.mDefaultFullName = doc.getElementsByTagName("default_full_name")[0].firstChild.data
+            serverListXml = doc.getElementsByTagName("server_list")[0]
+            for serverXml in serverListXml.getElementsByTagName("server"):
+                serverObject = self.createServerFromXml(serverXml.toxml())
+                self.addServer(serverObject)
             return
         except (FileNotFoundError, IOError):
             print("Error loading config")
