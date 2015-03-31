@@ -162,12 +162,18 @@ class ServerIRC(Server):
             time.sleep(0.5)
             count += 1
         self.mHallo.conf['server'][self.mName]['connected'] = True
+        #Send nick and full name to server
         print(Commons.currentTimestamp() + " sending nick and user info to server: " + self.mName)
-        self.mHallo.core['server'][self.mName]['socket'].send(('NICK ' + self.mHallo.conf['server'][self.mName]['nick'] + endl).encode('utf-8'))
-        self.mHallo.core['server'][self.mName]['socket'].send(('USER ' + self.mHallo.conf['server'][self.mName]['full_name'] + endl).encode('utf-8'))
+        self.mSocket.send(('NICK ' + self.getNick() + endl).encode('utf-8'))
+        self.mSocket.send(('USER ' + self.getFullName() + endl).encode('utf-8'))
+        #Wait for MOTD to end
         print(Commons.currentTimestamp() + " sent nick and user info to " + self.mName)
         while(self.mHallo.core['server'][self.mName]['motdend'] == False):
             time.sleep(0.5)
+        #Identify with nickserv
+        if self.mHallo.conf['server'][self.mName]['pass']:
+            self.mHallo.base_say('IDENTIFY ' + self.conf['server'][self.mName]['pass'], [self.mName,'nickserv'])
+        #Join channels
         print(Commons.currentTimestamp() + " joining channels on " + self.mName + ", identifying.")
         for channel in self.mHallo.conf['server'][self.mName]['channel']:
             if(self.mHallo.conf['server'][self.mName]['channel'][channel]['in_channel']):
@@ -175,8 +181,6 @@ class ServerIRC(Server):
                     self.mHallo.core['server'][self.mName]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
                 else:
                     self.mHallo.core['server'][self.mName]['socket'].send(('JOIN ' + channel + ' ' + self.mHallo.conf['server'][self.mName]['channel'][channel]['pass'] + endl).encode('utf-8'))
-        if self.mHallo.conf['server'][self.mName]['pass']:
-            self.mHallo.base_say('IDENTIFY ' + self.conf['server'][self.mName]['pass'], [self.mName,'nickserv'])
     
     def disconnect(self):
         raise NotImplementedError
