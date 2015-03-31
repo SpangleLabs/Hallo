@@ -1,5 +1,10 @@
 from xml.dom import minidom
+from inc.commons import Commons
+import socket
+import time
 
+#TODO: investigate this
+endl = '\r\n'
 
 class Server(object):
     '''
@@ -108,6 +113,9 @@ class ServerIRC(Server):
     mServerAddress = None       #Address to connect to server
     mServerPort = None          #Port to connect to server
     mNickservPass = None        #Password to identify with nickserv
+    #IRC specific dynamic variables
+    mSocket = None              #Socket to communicate to the server
+    mBuffer = b""               #Byte buffer from the socket
     
     def __init__(self,hallo):
         '''
@@ -116,7 +124,59 @@ class ServerIRC(Server):
         self.mHallo = hallo
     
     def connect(self):
-        raise NotImplementedError
+        #TODO: remove all this core and conf
+        # begin pulling data from a given server
+        self.mHallo.core['server'][self.mName] = {}
+        self.mHallo.core['server'][self.mName]['check'] = {}
+        self.mHallo.core['server'][self.mName]['check']['names'] = ""
+        self.mHallo.core['server'][self.mName]['check']['recipientonline'] = ""
+        self.mHallo.core['server'][self.mName]['check']['nickregistered'] = False
+        self.mHallo.core['server'][self.mName]['check']['userregistered'] = False
+        self.mHallo.core['server'][self.mName]['channel'] = {}
+        for channel in self.mHallo.conf['server'][self.mName]['channel']:
+            self.mHallo.core['server'][self.mName]['channel'][channel] = {}
+            self.mHallo.core['server'][self.mName]['channel'][channel]['last_message'] = 0
+            self.mHallo.core['server'][self.mName]['channel'][channel]['user_list'] = []
+            if(self.mHallo.conf['server'][self.mName]['channel'][channel]['megahal_record']):
+                self.mHallo.core['server'][self.mName]['channel'][channel]['megahalcount'] = 0
+        self.mHallo.core['server'][self.mName]['lastping'] = 0
+        self.mHallo.core['server'][self.mName]['connected'] = False
+        self.mHallo.core['server'][self.mName]['motdend'] = False
+        self.mHallo.core['server'][self.mName]['open'] = True
+        #End of the mess.
+        self.mOpen = True
+        #Create new socket
+        self.mSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            #Connect to socket
+            self.mSocket.connect((self.mServerAddress,self.mServerPort))
+        except Exception as e:
+            print("CONNECTION ERROR: " + str(e))
+            self.mOpen = False
+            #TODO: remove line
+            self.mHallo.core['server'][self.mName]['open'] = False
+        #TODO: URGENT. FIGURE OUT HOW TO DO EVERYTHING AFTER THIS. IT'S A HORROR MESS
+        count = 0
+        while(self.mHallo.core['server'][self.mName]['connected'] == False and count<30):
+            print(Commons.currentTimestamp() + " Not connected to " + self.mName + " yet")
+            time.sleep(0.5)
+            count += 1
+        self.mHallo.conf['server'][self.mName]['connected'] = True
+        print(Commons.currentTimestamp() + " sending nick and user info to server: " + self.mName)
+        self.mHallo.core['server'][self.mName]['socket'].send(('NICK ' + self.mHallo.conf['server'][self.mName]['nick'] + endl).encode('utf-8'))
+        self.mHallo.core['server'][self.mName]['socket'].send(('USER ' + self.mHallo.conf['server'][self.mName]['full_name'] + endl).encode('utf-8'))
+        print(Commons.currentTimestamp() + " sent nick and user info to " + self.mName)
+        while(self.mHallo.core['server'][self.mName]['motdend'] == False):
+            time.sleep(0.5)
+        print(Commons.currentTimestamp() + " joining channels on " + self.mName + ", identifying.")
+        for channel in self.mHallo.conf['server'][self.mName]['channel']:
+            if(self.mHallo.conf['server'][self.mName]['channel'][channel]['in_channel']):
+                if(self.mHallo.conf['server'][self.mName]['channel'][channel]['pass'] == ''):
+                    self.mHallo.core['server'][self.mName]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
+                else:
+                    self.mHallo.core['server'][self.mName]['socket'].send(('JOIN ' + channel + ' ' + self.mHallo.conf['server'][self.mName]['channel'][channel]['pass'] + endl).encode('utf-8'))
+        if self.mHallo.conf['server'][self.mName]['pass']:
+            self.mHallo.base_say('IDENTIFY ' + self.conf['server'][self.mName]['pass'], [self.mName,'nickserv'])
     
     def disconnect(self):
         raise NotImplementedError
@@ -126,6 +186,30 @@ class ServerIRC(Server):
         Method to read from stream and process. Will call an internal parsing method or whatnot
         '''
         raise NotImplementedError
+    
+    def readLineFromSocket(self):
+        'Private method to read a line from the IRC socket.'
+        nextLine = b""
+        while(self.mOpen):
+            try:
+                nextByte = self.mSocket.recv(1)
+            except:
+                #TODO: reconnect
+                nextByte = b""
+            if(nextByte!=b"\n"):
+                nextLine = nextLine + nextByte
+            else:
+                return self.decodeLine(nextLine)
+
+    def decodeLine(self,rawBytes):
+        try:
+            outputLine = rawBytes.decode('utf-8')
+        except UnicodeDecodeError:
+            try:
+                outputLine = rawBytes.decode('iso-8859-1')
+            except UnicodeDecodeError:
+                outputLine = rawBytes.decode('cp1252')
+        return outputLine
 
     @staticmethod
     def fromXml(xmlString,hallo):
