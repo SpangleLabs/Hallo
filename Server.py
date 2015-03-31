@@ -14,7 +14,6 @@ class Server(object):
     mName = None                #server name
     mAutoConnect = True         #Whether to automatically connect to this server when hallo starts
     mChannelList = []           #list of channels on this server (which may or may not be currently active)
-    mConnection = None          #Connection for the server, socket or whatnot
     mNick = None                #Nickname to use on this server
     mPrefix = None              #Prefix to use with functions on this server
     mFullName = None            #Full name to use on this server
