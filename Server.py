@@ -219,13 +219,14 @@ class ServerIRC(Server):
         #TODO: get channel address
         #If it's raw data, just send it.
         if(msgType=="raw"):
-            self.sendRaw(data)
+            for dataLine in data.split("\n"):
+                self.sendRaw(dataLine)
             return
-    
+
     def sendRaw(self,data):
         'Sends raw data to the server'
-        self.mSocket.send((data).encode("utf-8"))
-    
+        self.mSocket.send((data+endl).encode("utf-8"))
+
     def readLineFromSocket(self):
         'Private method to read a line from the IRC socket.'
         nextLine = b""
