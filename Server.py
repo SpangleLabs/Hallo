@@ -228,7 +228,7 @@ class ServerIRC(Server):
             msgTypeName = "NOTICE"
         else:
             msgTypeName = "PRIVMSG"
-        msgMaxLength = maxMsgLength-len(msgTypeName+' '+destinationName+' ')
+        maxLineLength = maxMsgLength-len(msgTypeName+' '+destinationName+' '+endl)
 
     def sendRaw(self,data):
         'Sends raw data to the server'
