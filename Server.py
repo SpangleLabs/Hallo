@@ -218,7 +218,7 @@ class ServerIRC(Server):
         if(msgType not in ["message","notice","raw"]):
             msgType = "message"
         #TODO: get channel address
-        destinationName = channel.getName()
+        destinationName = channel.getAddress()
         #If it's raw data, just send it.
         if(msgType=="raw"):
             for dataLine in data.split("\n"):
