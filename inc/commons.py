@@ -17,3 +17,16 @@ class Commons(object):
     def chunkString(string, length):
         return (string[0+i:length+i] for i in range(0, len(string), length))
     
+    @staticmethod
+    def chunkStringDot(string,length):
+        if(len(string)<length):
+            return [string]
+        else:
+            listOfStrings = [string[:length-3]+'...']
+            restOfString = string[length-3:]
+            while(restOfString>length-3):
+                listOfStrings += ['...'+restOfString[:length-6]+'...']
+                restOfString = restOfString[length-6:]
+            listOfStrings += ['...'+restOfString]
+            return listOfStrings
+    
