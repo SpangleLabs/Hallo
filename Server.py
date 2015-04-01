@@ -210,7 +210,9 @@ class ServerIRC(Server):
         '''
         Method to read from stream and process. Will call an internal parsing method or whatnot
         '''
-        raise NotImplementedError
+        while(self.mOpen):
+            nextLine = self.readLineFromSocket()
+            #Parse line
     
     def send(self,data,channel=None,msgType="message"):
         'Sends a message to the server, or a specific channel in the server'
