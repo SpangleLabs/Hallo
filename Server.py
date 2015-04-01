@@ -214,21 +214,29 @@ class ServerIRC(Server):
     
     def send(self,data,channel=None,msgType="message"):
         'Sends a message to the server, or a specific channel in the server'
-        maxMsgLength = 450  #Maximum length of a message sent to the server
+        maxMsgLength = 512  #Maximum length of a message sent to the server
         if(msgType not in ["message","notice","raw"]):
             msgType = "message"
-        #TODO: get channel address
-        destinationName = channel.getAddress()
         #If it's raw data, just send it.
         if(msgType=="raw"):
             for dataLine in data.split("\n"):
                 self.sendRaw(dataLine)
             return
+        #Get message type
         if(msgType=="notice"):
             msgTypeName = "NOTICE"
         else:
             msgTypeName = "PRIVMSG"
+        #TODO: get channel address
+        destinationName = channel.getAddress()
+        #Get max line length
         maxLineLength = maxMsgLength-len(msgTypeName+' '+destinationName+' '+endl)
+        #Split and send
+        for dataLine in data.split("\n"):
+            dataLineSplit = Commons.chunkStringDot(dataLine,maxLineLength)
+            for dataLineLine in dataLineSplit:
+                self.sendRaw(msgTypeName+' '+destinationName+' '+dataLineLine)
+        
 
     def sendRaw(self,data):
         'Sends raw data to the server'
