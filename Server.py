@@ -203,7 +203,7 @@ class ServerIRC(Server):
             self.mSocket.close()
             self.mOpen = False
             #Remove self from Hallo's server list
-            self.mHallo.removeServer()
+            self.mHallo.removeServer(self)
             
     
     def run(self):
