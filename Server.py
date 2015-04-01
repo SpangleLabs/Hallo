@@ -216,7 +216,7 @@ class ServerIRC(Server):
         'Sends a message to the server, or a specific channel in the server'
         if(msgType not in ["message","notice","raw"]):
             msgType = "message"
-        #TODO: get channel name
+        #TODO: get channel address
         #If it's raw data, just send it.
         if(msgType=="raw"):
             self.sendRaw(data)
