@@ -39,6 +39,10 @@ class Server(object):
         Method to read from stream and process. Will call an internal parsing method or whatnot
         '''
         raise NotImplementedError
+    
+    def send(self,data,channel=None,msgType="message"):
+        'Sends a message to the server, or a specific channel in the server'
+        raise NotImplementedError
 
     @staticmethod
     def fromXml(xmlString,hallo):
@@ -207,6 +211,20 @@ class ServerIRC(Server):
         Method to read from stream and process. Will call an internal parsing method or whatnot
         '''
         raise NotImplementedError
+    
+    def send(self,data,channel=None,msgType="message"):
+        'Sends a message to the server, or a specific channel in the server'
+        if(msgType not in ["message","notice","raw"]):
+            msgType = "message"
+        #TODO: get channel name
+        #If it's raw data, just send it.
+        if(msgType=="raw"):
+            self.sendRaw(data)
+            return
+    
+    def sendRaw(self,data):
+        'Sends raw data to the server'
+        self.mSocket.send((data).encode("utf-8"))
     
     def readLineFromSocket(self):
         'Private method to read a line from the IRC socket.'
