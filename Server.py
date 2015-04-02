@@ -1,5 +1,6 @@
 from xml.dom import minidom
 from inc.commons import Commons
+from threading import Thread
 import socket
 
 #TODO: investigate this
@@ -213,6 +214,7 @@ class ServerIRC(Server):
         while(self.mOpen):
             nextLine = self.readLineFromSocket()
             #Parse line
+            Thread(target=self.parseLine, args=(nextLine)).start()
     
     def send(self,data,channel=None,msgType="message"):
         'Sends a message to the server, or a specific channel in the server'
@@ -238,7 +240,10 @@ class ServerIRC(Server):
             dataLineSplit = Commons.chunkStringDot(dataLine,maxLineLength)
             for dataLineLine in dataLineSplit:
                 self.sendRaw(msgTypeName+' '+destinationName+' '+dataLineLine)
-        
+                
+    def parseLine(self,newLine):
+        'Parses a line from the IRC server'
+        return
 
     def sendRaw(self,data):
         'Sends raw data to the server'
