@@ -243,6 +243,10 @@ class ServerIRC(Server):
                 
     def parseLine(self,newLine):
         'Parses a line from the IRC server'
+        #Cleaning up carriage returns
+        newLine = newLine.replace("\r","")
+        #TODO: add stuff about time last ping was seen, for reconnection checking
+        #Big scary switch
         return
 
     def sendRaw(self,data):
