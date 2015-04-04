@@ -144,8 +144,10 @@ class ircbot_on:
     def on_numbercode(self,server,code,data):
         #handle 3 digit number codes sent by servers.
         if(code == "376"):
+            #This is the end of the MOTD.
             self.core['server'][server]['motdend'] = True
         elif(code == "303"):
+            #This is an ISON request reply, tells you which users are online
             self.core['server'][server]['check']['recipientonline'] = ':'.join(data.split(':')[2:])
             if(self.core['server'][server]['check']['recipientonline']==''):
                 self.core['server'][server]['check']['recipientonline'] = ' '
