@@ -249,9 +249,39 @@ class ServerIRC(Server):
         if(len(newLine)<5 or (newLine[0] != ":" and newLine[0:4] != "PING")):
             self.parseLineUnhandled(newLine)
             self.parseLineRaw(newLine,"unhandled")
-        elif(data.split()[0] == "PING"):
+        elif(newLine.split()[0] == "PING"):
             self.parseLinePing(newLine)
             self.parseLineRaw(newLine,"ping")
+        elif(newLine.split()[0] == "PRIVMSG"):
+            self.parseLineMessage(newLine)
+            self.parseLineRaw(newLine,"message")
+        elif(newLine.split()[1] == "JOIN"):
+            self.parseLineJoin(newLine)
+            self.parseLineRaw(newLine,"join")
+        elif(newLine.split()[1] == "PART"):
+            self.parseLinePart(newLine)
+            self.parseLineRaw(newLine,"part")
+        elif(newLine.split()[1] == "QUIT"):
+            self.parseLineQuit(newLine)
+            self.parseLineRaw(newLine,"quit")
+        elif(newLine.split()[1] == "MODE"):
+            self.parseLineMode(newLine)
+            self.parseLineRaw(newLine,"mode")
+        elif(newLine.split()[1] == "NOTICE"):
+            self.parseLineNotice(newLine)
+            self.parseLineRaw(newLine,"notice")
+        elif(newLine.split()[1] == "NICK"):
+            self.parseLineNick(newLine)
+            self.parseLineRaw(newLine,"nick")
+        elif(newLine.split()[1] == "INVITE"):
+            self.parseLineInvite(newLine)
+            self.parseLineRaw(newLine,"invite")
+        elif(newLine.split()[1] == "KICK"):
+            self.parseLineKick(newLine)
+            self.parseLineRaw(newLine,"kick")
+        else:
+            self.parseLineUnhandled(newLine)
+            self.parseLineRaw(newLine,"unhandled")
         return
     
     def parseLinePing(self,pingLine):
