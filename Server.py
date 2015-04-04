@@ -279,6 +279,9 @@ class ServerIRC(Server):
         elif(newLine.split()[1] == "KICK"):
             self.parseLineKick(newLine)
             self.parseLineRaw(newLine,"kick")
+        elif(len(newLine.split()[1])==3 and newLine.split()[1].isdigit()):
+            self.parseLineNumeric(newLine)
+            self.parseLineRaw(newLine,"numeric")
         else:
             self.parseLineUnhandled(newLine)
             self.parseLineRaw(newLine,"unhandled")
