@@ -246,8 +246,52 @@ class ServerIRC(Server):
         #Cleaning up carriage returns
         newLine = newLine.replace("\r","")
         #TODO: add stuff about time last ping was seen, for reconnection checking
-        #Big scary switch
+        if(len(newLine)<5 or (newLine[0] != ":" and newLine[0:4] != "PING")):
+            self.parseLineUnhandled(newLine)
+            self.parseLineRaw(newLine,"unhandled")
+        elif(data.split()[0] == "PING"):
+            self.parseLinePing(newLine)
+            self.parseLineRaw(newLine,"ping")
         return
+    
+    def parseLinePing(self,pingLine):
+        'Parses a PING message from the server'
+        
+    def parseLineMessage(self,messageLine):
+        'Parses a PRIVMSG message from the server'
+        
+    def parseLineJoin(self,joinLine):
+        'Parses a JOIN message from the server'
+        
+    def parseLinePart(self,partLine):
+        'Parses a PART message from the server'
+    
+    def parseLineQuit(self,quitLine):
+        'Parses a QUIT message from the server'
+        
+    def parseLineMode(self,modeLine):
+        'Parses a MODE message from the server'
+    
+    def parseLineNotice(self,noticeLine):
+        'Parses a NOTICE message from the server'
+        
+    def parseLineNick(self,nickLine):
+        'Parses a NICK message from the server'
+        
+    def parseLineInvite(self,inviteLine):
+        'Parses an INVITE message from the server'
+        
+    def parseLineKick(self,kickLine):
+        'Parses a KICK message from the server'
+        
+    def parseLineNumeric(self,numericLine):
+        'Parses a numeric message from the server'
+        
+    def parseLineUnhandled(self,unhandledLine):
+        'Parses an unhandled message from the server'
+        
+    def parseLineRaw(self,rawLine,lineType):
+        'Handed all raw data, along with the type of message'
 
     def sendRaw(self,data):
         'Sends raw data to the server'
