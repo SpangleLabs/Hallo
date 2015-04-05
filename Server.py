@@ -2,6 +2,10 @@ from xml.dom import minidom
 from inc.commons import Commons
 from threading import Thread
 import socket
+import time
+
+#TODO: I would rather depricate this
+import ircbot_chk
 
 #TODO: investigate this
 endl = Commons.mEndLine
@@ -306,13 +310,48 @@ class ServerIRC(Server):
         #Parse out where the message went to (e.g. channel or private message to Hallo)
         messageDestination = messageLine.split()[2].lower()
         # test for private message, public message, or CTCP message.
-        msg_pm = messageDestination.lower() == self.mNick.lower()
+        msg_pm = messageDestination.lower() == self.getNick().lower()
         msg_pub = not msg_pm
         #msg_cmd = message[0:len(nick)].lower() == nick.lower()
         msg_ctcp = messageText.split(':')[2][0] == '\x01'
         
     def parseLineJoin(self,joinLine):
         'Parses a JOIN message from the server'
+        #Parse out the channel and client from the JOIN data
+        joinChannel = ':'.join(joinLine.split(':')[2:]).replace(endl,'').lower()
+        joinClient = joinLine.split('!')[0][1:]
+        #Print to console
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + joinClient + ' joined ' + joinChannel)
+        #If channel does logging, log
+        if(self.mHallo.conf['server'][self.mName]['channel'][joinChannel]['logging']):
+            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + joinClient + ' joined ' + joinChannel,[self.mName,joinChannel])
+        #Apply automatic flags as required
+        if('auto_list' in self.mHallo.conf['server'][self.mName]['channel'][joinChannel]):
+            for entry in self.mHallo.conf['server'][self.mName]['channel'][joinChannel]['auto_list']:
+                if(joinClient.lower()==entry['user']):
+                    for x in range(7):
+                        #Need a new way to check if users are registered
+                        if(ircbot_chk.ircbot_chk.chk_userregistered(self.mHallo,self.mName,joinClient)):
+                            self.sendRaw('MODE ' + joinChannel + ' ' + entry['flag'] + ' ' + joinClient)
+                            break
+                        time.sleep(5)
+        #If hallo has joined a channel, get the user list and apply automatic flags as required
+        if(joinClient.lower() == self.getNick().lower()):
+            self.mHallo.conf['server'][self.mName]['channel'][joinChannel]['in_channel'] = True
+            namesonline = ircbot_chk.ircbot_chk.chk_names(self.mHallo,self.mName,joinChannel)
+            namesonline = [x.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','').lower() for x in namesonline]
+            self.mHallo.core['server'][self.mName]['channel'][joinChannel]['user_list'] = namesonline
+            if('auto_list' in self.mHallo.conf['server'][self.mName]['channel'][joinChannel]):
+                for entry in self.mHallo.conf['server'][self.mName]['channel'][joinChannel]['auto_list']:
+                    if(entry['user'] in namesonline):
+                        for x in range(7):
+                            if(ircbot_chk.ircbot_chk.chk_userregistered(self,self.mName,entry['user'])):
+                                self.sendRaw('MODE ' + joinChannel + ' ' + entry['flag'] + ' ' + entry['user'])
+                                break
+                            time.sleep(5)
+        else:
+            #If it was not hallo joining a channel, add nick to user list
+            self.mHallo.core['server'][self.mName]['channel'][joinChannel]['user_list'].append(joinClient.lower())
         
     def parseLinePart(self,partLine):
         'Parses a PART message from the server'
