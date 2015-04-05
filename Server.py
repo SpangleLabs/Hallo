@@ -299,6 +299,17 @@ class ServerIRC(Server):
         
     def parseLineMessage(self,messageLine):
         'Parses a PRIVMSG message from the server'
+        #Parse out the message text
+        messageText = ':'.join(messageLine.split(':')[2:]).replace(endl, '')
+        #Parse out the message sender
+        messageSender = messageLine.split('!')[0].replace(':', '')
+        #Parse out where the message went to (e.g. channel or private message to Hallo)
+        messageDestination = messageLine.split()[2].lower()
+        # test for private message, public message, or CTCP message.
+        msg_pm = messageDestination.lower() == self.mNick.lower()
+        msg_pub = not msg_pm
+        #msg_cmd = message[0:len(nick)].lower() == nick.lower()
+        msg_ctcp = messageText.split(':')[2][0] == '\x01'
         
     def parseLineJoin(self,joinLine):
         'Parses a JOIN message from the server'
