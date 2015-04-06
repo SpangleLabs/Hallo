@@ -323,6 +323,7 @@ class ServerIRC(Server):
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + joinClient + ' joined ' + joinChannel)
         #If channel does logging, log
+        #TODO: replace with newer logging
         if(self.mHallo.conf['server'][self.mName]['channel'][joinChannel]['logging']):
             self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + joinClient + ' joined ' + joinChannel,[self.mName,joinChannel])
         #Apply automatic flags as required
@@ -357,6 +358,29 @@ class ServerIRC(Server):
         
     def parseLinePart(self,partLine):
         'Parses a PART message from the server'
+        #Parse out channel, client and message from PART data
+        partChannel = partLine.split()[2]
+        partClient = partLine.split('!')[0][1:]
+        partMessage = ':'.join(partLine.split(':')[2:]).replace(endl,'')
+        #Print message to console
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + partClient + ' left ' + partChannel + ' (' + partMessage + ')')
+        #If channel does logging, log the PART data
+        #TODO: replace with newer logging
+        if(self.mHallo.conf['server'][self.mName]['channel'][partChannel]['logging']):
+            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + partClient + ' left ' + partChannel + ' (' + partMessage + ')',[self.mName,partChannel])
+        #Remove user from channel's user list
+        self.mHallo.core['server'][self.mName]['channel'][partChannel]['user_list'].remove(partClient.lower())
+        #Try to work out if the user is still on the server
+        #TODO: this needs to be nicer
+        stillonserver = False
+        for channel_server in self.mHallo.core['server'][self.mName]['channel']:
+            if(partClient.lower() in self.mHallo.core['server'][self.mName]['channel'][channel_server]['user_list']):
+                stillonserver = True
+        if(not stillonserver):
+            if(partClient.lower() in self.mHallo.core['server'][self.mName]['auth_op']):
+                self.mHallo.core['server'][self.mHallo.mName]['auth_op'].remove(partClient.lower())
+            if(partClient.lower() in self.mHallo.core['server'][self.mName]['auth_god']):
+                self.mHallo.core['server'][self.mName]['auth_god'].remove(partClient.lower())
     
     def parseLineQuit(self,quitLine):
         'Parses a QUIT message from the server'
