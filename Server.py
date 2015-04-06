@@ -330,7 +330,8 @@ class ServerIRC(Server):
             for entry in self.mHallo.conf['server'][self.mName]['channel'][joinChannel]['auto_list']:
                 if(joinClient.lower()==entry['user']):
                     for x in range(7):
-                        #Need a new way to check if users are registered
+                        #TODO: Need a new way to check if users are registered
+                        #TODO: http://stackoverflow.com/questions/1682920/determine-if-a-user-is-idented-on-irc
                         if(ircbot_chk.ircbot_chk.chk_userregistered(self.mHallo,self.mName,joinClient)):
                             self.sendRaw('MODE ' + joinChannel + ' ' + entry['flag'] + ' ' + joinClient)
                             break
@@ -345,6 +346,7 @@ class ServerIRC(Server):
                 for entry in self.mHallo.conf['server'][self.mName]['channel'][joinChannel]['auto_list']:
                     if(entry['user'] in namesonline):
                         for x in range(7):
+                            #TODO: Replace this with a new way to check users are registered
                             if(ircbot_chk.ircbot_chk.chk_userregistered(self,self.mName,entry['user'])):
                                 self.sendRaw('MODE ' + joinChannel + ' ' + entry['flag'] + ' ' + entry['user'])
                                 break
