@@ -385,6 +385,24 @@ class ServerIRC(Server):
     
     def parseLineQuit(self,quitLine):
         'Parses a QUIT message from the server'
+        #Parse client and message
+        quitClient = quitLine.split('!')[0][1:]
+        quitMessage = ':'.join(quitLine.split(':')[2:]).replace(endl,'')
+        #Print message to console
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + quitClient + ' quit: ' + quitMessage)
+        #Log to all channels on server
+        for channel in self.mHallo.conf['server'][self.mName]['channel']:
+            if(self.mHallo.conf['server'][self.mName]['channel'][channel]['in_channel'] and self.mHallo.conf['server'][self.mName]['channel'][channel]['logging'] and quitClient in self.mHallo.core['server'][self.mName]['channel'][channel]['user_list']):
+                self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + quitClient + ' quit: ' + quitMessage,[self.mName,channel])
+        #Remove user from user list on all channels
+        for channel in self.mHallo.conf['server'][self.mName]['channel']:
+            if(quitClient.lower() in self.mHallo.core['server'][self.mName]['channel'][channel]['user_list']):
+                self.mHallo.core['server'][self.mName]['channel'][channel]['user_list'].remove(quitClient.lower())
+        #Remove auth stuff from user
+        if('auth_op' in self.mHallo.core['server'][self.mName] and quitClient.lower() in self.mHallo.core['server'][self.mName]['auth_op']):
+            self.mHallo.core['server'][self.mName]['auth_op'].remove(quitClient.lower())
+        if('auth_god' in self.mHallo.core['server'][self.mName] and quitClient.lower() in self.mHallo.core['server'][self.mName]['auth_god']):
+            self.mHallo.core['server'][self.mName]['auth_god'].remove(quitClient.lower())
         
     def parseLineMode(self,modeLine):
         'Parses a MODE message from the server'
