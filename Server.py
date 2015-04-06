@@ -314,6 +314,7 @@ class ServerIRC(Server):
         msg_pub = not msg_pm
         #msg_cmd = message[0:len(nick)].lower() == nick.lower()
         msg_ctcp = messageText.split(':')[2][0] == '\x01'
+        #TODO: the rest of processing for messages.
         
     def parseLineJoin(self,joinLine):
         'Parses a JOIN message from the server'
