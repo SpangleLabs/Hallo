@@ -414,6 +414,16 @@ class ServerIRC(Server):
             modeArgs = ' '.join(modeLine.split()[4:])
         else:
             modeArgs = ''
+        #Print to console
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + modeClient + ' set ' + modeMode + ' ' + modeArgs + ' on ' + modeChannel)
+        #Logging, if enabled
+        if(modeChannel in self.mHallo.conf['server'][self.mName]['channel'] and 'logging' in self.mHallo.conf['server'][self.mName]['channel'][modeChannel] and self.mHallo.conf['server'][self.mName]['channel'][modeChannel]['logging']):
+            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + modeClient + ' set ' + modeMode + ' ' + modeArgs + ' on ' + modeChannel,[self.mName,modeChannel])
+        #If a channel password has been set, store it
+        if(modeMode=='-k'):
+            self.mHallo.conf['server'][self.mName]['channel'][modeChannel]['pass'] = ''
+        elif(modeMode=='+k'):
+            self.mHallo.conf['server'][self.mName]['channel'][modeChannel]['pass'] = modeArgs
     
     def parseLineNotice(self,noticeLine):
         'Parses a NOTICE message from the server'
