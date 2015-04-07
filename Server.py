@@ -406,6 +406,14 @@ class ServerIRC(Server):
         
     def parseLineMode(self,modeLine):
         'Parses a MODE message from the server'
+        #Parsing out MODE data
+        modeChannel = modeLine.split()[2].lower()
+        modeClient = modeLine.split('!')[0][1:]
+        modeMode = modeLine.split()[3]
+        if(len(modeLine.split())>=4):
+            modeArgs = ' '.join(modeLine.split()[4:])
+        else:
+            modeArgs = ''
     
     def parseLineNotice(self,noticeLine):
         'Parses a NOTICE message from the server'
