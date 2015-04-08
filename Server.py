@@ -436,7 +436,7 @@ class ServerIRC(Server):
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + noticeChannel + ' Notice from ' + noticeClient + ': ' + noticeMessage)
         #Logging, if enabled
         if(noticeChannel in self.mHallo.conf['server'][self.mName]['channel'] and 'logging' in self.mHallo.conf['server'][self.mName]['channel'][noticeChannel] and self.mHallo.conf['server'][self.mName]['channel'][noticeChannel]['logging']):
-            self.base_addlog(Commons.currentTimestamp() + ' ' + noticeChannel + ' notice from ' + noticeClient + ': ' + noticeMessage,[self.mName,noticeChannel])
+            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + noticeChannel + ' notice from ' + noticeClient + ': ' + noticeMessage,[self.mName,noticeChannel])
         #TODO: DEPRICATED. I am sure this is not required.
         if(self.core['server'][self.mName]['connected'] == False):
             self.core['server'][self.mName]['connected'] = True
@@ -464,7 +464,7 @@ class ServerIRC(Server):
         #Log, if logging
         for channel in self.mHallo.conf['server'][self.mName]['channel']:
             if(self.mHallo.conf['server'][self.mName]['channel'][channel]['in_channel'] and self.mHallo.conf['server'][self.mName]['channel'][channel]['logging'] and nickClient in self.mHallo.core['server'][self.mName]['channel'][channel]['user_list']):
-                self.base_addlog(Commons.currentTimestamp() + ' Nick change: ' + nickClient + ' -> ' + nickNewNick,[self.mName,channel])
+                self.mHallo.base_addlog(Commons.currentTimestamp() + ' Nick change: ' + nickClient + ' -> ' + nickNewNick,[self.mName,channel])
         #Update nick list for each channel
         for channel in self.mHallo.conf['server'][self.mName]['channel']:
             if(nickClient.lower() in self.mHallo.core['server'][self.mName]['channel'][channel]['user_list']):
@@ -501,7 +501,7 @@ class ServerIRC(Server):
         print(Commons.currentTimestamp() + ' [' + self.mName + '] invite to ' + inviteChannel + ' from ' + inviteClient)
         #Logging, if applicable
         if(inviteChannel in self.mHallo.conf['server'][self.mName]['channel'] and 'logging' in self.mHallo.conf['server'][self.mName]['channel'][inviteChannel] and self.mHallo.conf['server'][self.mName]['channel'][inviteChannel]['logging']):
-            self.base_addlog(Commons.currentTimestamp() + ' invite to ' + inviteChannel + ' from ' + inviteClient,[self.mName,'@SERVER'])
+            self.mHallo.base_addlog(Commons.currentTimestamp() + ' invite to ' + inviteChannel + ' from ' + inviteClient,[self.mName,'@SERVER'])
         #Check if they are an op, then join the channel.
         #TODO: change this logic, when channel object exists
         if(ircbot_chk.ircbot_chk.chk_op(self.mHallo,self.mName,inviteClient)):
