@@ -528,10 +528,9 @@ class ServerIRC(Server):
             except:
                 #TODO: reconnect
                 nextByte = b""
-            if(nextByte!=b"\n"):
-                nextLine = nextLine + nextByte
-            else:
-                return self.decodeLine(nextLine)
+            nextLine = nextLine + nextByte
+            if(nextLine.endswith(endl.encode())):
+                return self.decodeLine(nextLine[:-len(endl)])
 
     def decodeLine(self,rawBytes):
         'Decodes a line of bytes, trying a couple character sets'
