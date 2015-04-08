@@ -550,6 +550,8 @@ class ServerIRC(Server):
 
     def parseLineUnhandled(self,unhandledLine):
         'Parses an unhandled message from the server'
+        #Print it to console
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] Unhandled data: ' + unhandledLine)
         
     def parseLineRaw(self,rawLine,lineType):
         'Handed all raw data, along with the type of message'
