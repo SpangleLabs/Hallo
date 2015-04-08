@@ -536,11 +536,13 @@ class ServerIRC(Server):
         if(numericCode == "376"):
             self.mHallo.core['server'][self.mName]['motdend'] = True
         #Check for ISON response, telling you which users are online
+        #TODO: use locks to make this pleasant.
         elif(numericCode == "303"):
             self.mHallo.core['server'][self.mName]['check']['recipientonline'] = ':'.join(numericLine.split(':')[2:])
             if(self.mHallo.core['server'][self.mName]['check']['recipientonline']==''):
                 self.mHallo.core['server'][self.mName]['check']['recipientonline'] = ' '
         #Check for NAMES request reply, telling you who is in a channel.
+        #TODO: use locks to make this pleasant.
         elif(numericCode == "353"):
             channel = numericLine.split(':')[1].split()[-1].lower()
             self.mHallo.core['server'][self.mName]['check']['names'] = ':'.join(numericLine.split(':')[2:])
