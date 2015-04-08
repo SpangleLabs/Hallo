@@ -523,10 +523,29 @@ class ServerIRC(Server):
         #If it was the bot who was kicked, set "in channel" status to False
         if(kickClient == self.mHallo.conf['server'][self.mName]['nick']):
             self.mHallo.conf['server'][self.mName]['channel'][kickChannel]['in_channel'] = False
-        
+
     def parseLineNumeric(self,numericLine):
         'Parses a numeric message from the server'
-        
+        #Parse out numeric line data
+        numericCode = numericLine.split()[1]
+        #Print to console
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] Server info: ' + numericLine)
+        #TODO: add logging?
+        #Check for end of MOTD
+        #TODO: deprecate
+        if(numericCode == "376"):
+            self.mHallo.core['server'][self.mName]['motdend'] = True
+        #Check for ISON response, telling you which users are online
+        elif(numericCode == "303"):
+            self.mHallo.core['server'][self.mName]['check']['recipientonline'] = ':'.join(numericLine.split(':')[2:])
+            if(self.mHallo.core['server'][self.mName]['check']['recipientonline']==''):
+                self.mHallo.core['server'][self.mName]['check']['recipientonline'] = ' '
+        #Check for NAMES request reply, telling you who is in a channel.
+        elif(numericCode == "353"):
+            channel = numericLine.split(':')[1].split()[-1].lower()
+            self.mHallo.core['server'][self.mName]['check']['names'] = ':'.join(numericLine.split(':')[2:])
+            self.mHallo.core['server'][self.mName]['channel'][channel]['user_list'] = [nick.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','').lower() for nick in self.mHallo.core['server'][self.mName]['check']['names'].split()]
+
     def parseLineUnhandled(self,unhandledLine):
         'Parses an unhandled message from the server'
         
