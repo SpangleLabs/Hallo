@@ -427,6 +427,28 @@ class ServerIRC(Server):
     
     def parseLineNotice(self,noticeLine):
         'Parses a NOTICE message from the server'
+        #Parsing out NOTICE data
+        noticeChannel = noticeLine.split()[2].replace(endl,'')
+        noticeClient = noticeLine.split('!')[0][1:]
+        noticeMessage = ':'.join(noticeLine.split(':')[2:]).replace(endl,'')
+        #Print to console
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + noticeChannel + ' Notice from ' + noticeClient + ': ' + noticeMessage)
+        #Logging, if enabled
+        if(noticeChannel in self.mHallo.conf['server'][self.mName]['channel'] and 'logging' in self.mHallo.conf['server'][self.mName]['channel'][noticeChannel] and self.mHallo.conf['server'][self.mName]['channel'][noticeChannel]['logging']):
+            self.base_addlog(Commons.currentTimestamp() + ' ' + noticeChannel + ' notice from ' + noticeClient + ': ' + noticeMessage,[self.mName,noticeChannel])
+        #TODO: DEPRICATED. I am sure this is not required.
+        if(self.core['server'][self.mName]['connected'] == False):
+            self.core['server'][self.mName]['connected'] = True
+            print(Commons.currentTimestamp() + ' [' + self.mName + "] ok we're connected now.")
+        #Checking for end of MOTD.
+        if('endofmessage' in noticeMessage.replace(' ','').lower() and self.mHallo.core['server'][self.mName]['motdend'] == False):
+            self.mHallo.core['server'][self.mName]['motdend'] = True
+        #Checking if user is registered
+        #TODO: deprecate this. Use locks, and use STATUS or ACC commands to nickserv
+        if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['online']) and noticeClient.lower()=='nickserv' and self.mHallo.core['server'][self.mName]['check']['userregistered'] == False):
+            self.core['server'][self.mName]['check']['userregistered'] = True
+        if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['registered']) and noticeClient.lower()=='nickserv' and self.core['server'][self.mName]['check']['nickregistered'] == False):
+            self.core['server'][self.mName]['check']['nickregistered'] = True
         
     def parseLineNick(self,nickLine):
         'Parses a NICK message from the server'
