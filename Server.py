@@ -509,6 +509,20 @@ class ServerIRC(Server):
         
     def parseLineKick(self,kickLine):
         'Parses a KICK message from the server'
+        #Parse out KICK data
+        kickChannel = kickLine.split()[2]
+        kickClient = kickLine.split()[3]
+        kickMessage = ':'.join(kickLine.split(':')[4:])
+        #Print to console
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + kickClient + ' was kicked from ' + kickChannel + ': ' + kickMessage)
+        #Log, if applicable
+        if(self.mHallo.conf['server'][self.mName]['channel'][kickChannel]['logging']):
+            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + kickClient + ' was kicked from ' + kickChannel + ': ' + kickMessage,[self.mName,kickChannel])
+        #Remove kicked user from userlist
+        self.mHallo.core['server'][self.mName]['channel'][kickChannel]['user_list'].remove(kickClient.lower())
+        #If it was the bot who was kicked, set "in channel" status to False
+        if(kickClient == self.mHallo.conf['server'][self.mName]['nick']):
+            self.mHallo.conf['server'][self.mName]['channel'][kickChannel]['in_channel'] = False
         
     def parseLineNumeric(self,numericLine):
         'Parses a numeric message from the server'
