@@ -438,8 +438,8 @@ class ServerIRC(Server):
         if(noticeChannel in self.mHallo.conf['server'][self.mName]['channel'] and 'logging' in self.mHallo.conf['server'][self.mName]['channel'][noticeChannel] and self.mHallo.conf['server'][self.mName]['channel'][noticeChannel]['logging']):
             self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + noticeChannel + ' notice from ' + noticeClient + ': ' + noticeMessage,[self.mName,noticeChannel])
         #TODO: DEPRICATED. I am sure this is not required.
-        if(self.core['server'][self.mName]['connected'] == False):
-            self.core['server'][self.mName]['connected'] = True
+        if(self.mHallo.core['server'][self.mName]['connected'] == False):
+            self.mHallo.core['server'][self.mName]['connected'] = True
             print(Commons.currentTimestamp() + ' [' + self.mName + "] ok we're connected now.")
         #Checking for end of MOTD.
         if('endofmessage' in noticeMessage.replace(' ','').lower() and self.mHallo.core['server'][self.mName]['motdend'] == False):
@@ -447,9 +447,9 @@ class ServerIRC(Server):
         #Checking if user is registered
         #TODO: deprecate this. Use locks, and use STATUS or ACC commands to nickserv
         if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['online']) and noticeClient.lower()=='nickserv' and self.mHallo.core['server'][self.mName]['check']['userregistered'] == False):
-            self.core['server'][self.mName]['check']['userregistered'] = True
-        if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['registered']) and noticeClient.lower()=='nickserv' and self.core['server'][self.mName]['check']['nickregistered'] == False):
-            self.core['server'][self.mName]['check']['nickregistered'] = True
+            self.mHallo.core['server'][self.mName]['check']['userregistered'] = True
+        if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['registered']) and noticeClient.lower()=='nickserv' and self.mHallo.core['server'][self.mName]['check']['nickregistered'] == False):
+            self.mHallo.core['server'][self.mName]['check']['nickregistered'] = True
         
     def parseLineNick(self,nickLine):
         'Parses a NICK message from the server'
@@ -474,7 +474,7 @@ class ServerIRC(Server):
         if(nickClient == self.getNick()):
             self.mNick = nickNewNick
         #Update auth_op lists
-        if('auth_op' in self.core['server'][self.mName] and nickClient.lower() in self.mHallo.core['server'][self.mName]['auth_op']):
+        if('auth_op' in self.mHallo.core['server'][self.mName] and nickClient.lower() in self.mHallo.core['server'][self.mName]['auth_op']):
             self.mHallo.core['server'][self.mName]['auth_op'].remove(nickClient.lower())
             self.mHallo.core['server'][self.mName]['auth_op'].append(nickNewNick.lower())
         #Update auth_god lists
