@@ -4,8 +4,9 @@ from threading import Thread
 import socket
 import time
 
-#TODO: I would rather depricate this
+#TODO: I would rather depricate these
 import ircbot_chk
+import hallobase_ctrl
 
 #TODO: investigate this
 endl = Commons.mEndLine
@@ -493,6 +494,18 @@ class ServerIRC(Server):
         
     def parseLineInvite(self,inviteLine):
         'Parses an INVITE message from the server'
+        #Parse out INVITE data
+        inviteClient = inviteLine.split('!')[0][1:]
+        inviteChannel = ':'.join(inviteLine.split(':')[2:])
+        #Print to console
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] invite to ' + inviteChannel + ' from ' + inviteClient)
+        #Logging, if applicable
+        if(inviteChannel in self.mHallo.conf['server'][self.mName]['channel'] and 'logging' in self.mHallo.conf['server'][self.mName]['channel'][inviteChannel] and self.mHallo.conf['server'][self.mName]['channel'][inviteChannel]['logging']):
+            self.base_addlog(Commons.currentTimestamp() + ' invite to ' + inviteChannel + ' from ' + inviteClient,[self.mName,'@SERVER'])
+        #Check if they are an op, then join the channel.
+        #TODO: change this logic, when channel object exists
+        if(ircbot_chk.ircbot_chk.chk_op(self.mHallo,self.mName,inviteClient)):
+            hallobase_ctrl.hallobase_ctrl.fn_join(self.mHallo,inviteChannel,inviteClient,[self.mName,''])
         
     def parseLineKick(self,kickLine):
         'Parses a KICK message from the server'
