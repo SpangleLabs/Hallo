@@ -173,8 +173,8 @@ class ServerIRC(Server):
         self.mWelcomeMessage += firstLine+"\n"
         #Send nick and full name to server
         print(Commons.currentTimestamp() + " sending nick and user info to server: " + self.mName)
-        self.mSocket.send(('NICK ' + self.getNick() + endl).encode('utf-8'))
-        self.mSocket.send(('USER ' + self.getFullName() + endl).encode('utf-8'))
+        self.sendRaw('NICK ' + self.getNick())
+        self.sendRaw('USER ' + self.getFullName())
         #Wait for MOTD to end
         while(True):
             nextWelcomeLine = self.readLineFromSocket()
@@ -191,9 +191,9 @@ class ServerIRC(Server):
         for channel in self.mHallo.conf['server'][self.mName]['channel']:
             if(self.mHallo.conf['server'][self.mName]['channel'][channel]['in_channel']):
                 if(self.mHallo.conf['server'][self.mName]['channel'][channel]['pass'] == ''):
-                    self.mHallo.core['server'][self.mName]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
+                    self.sendRaw('JOIN ' + channel)
                 else:
-                    self.mHallo.core['server'][self.mName]['socket'].send(('JOIN ' + channel + ' ' + self.mHallo.conf['server'][self.mName]['channel'][channel]['pass'] + endl).encode('utf-8'))
+                    self.sendRaw('JOIN ' + channel + ' ' + self.mHallo.conf['server'][self.mName]['channel'][channel]['pass'])
     
     def disconnect(self):
         'Disconnect from the server'
@@ -205,7 +205,7 @@ class ServerIRC(Server):
         #    time.sleep(1)
         if(self.mOpen):
             #self.mHallo.core['server'][self.mName]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
-            self.mSocket.send(('QUIT :Will I dream?' + endl).encode('utf-8'))
+            self.sendRaw('QUIT :Will I dream?')
             self.mSocket.close()
             self.mOpen = False
             #Remove self from Hallo's server list
@@ -305,7 +305,7 @@ class ServerIRC(Server):
     def parseLineMessage(self,messageLine):
         'Parses a PRIVMSG message from the server'
         #Parse out the message text
-        messageText = ':'.join(messageLine.split(':')[2:]).replace(endl, '')
+        messageText = ':'.join(messageLine.split(':')[2:])
         #Parse out the message sender
         messageSender = messageLine.split('!')[0].replace(':', '')
         #Parse out where the message went to (e.g. channel or private message to Hallo)
@@ -320,7 +320,7 @@ class ServerIRC(Server):
     def parseLineJoin(self,joinLine):
         'Parses a JOIN message from the server'
         #Parse out the channel and client from the JOIN data
-        joinChannel = ':'.join(joinLine.split(':')[2:]).replace(endl,'').lower()
+        joinChannel = ':'.join(joinLine.split(':')[2:]).lower()
         joinClient = joinLine.split('!')[0][1:]
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + joinClient + ' joined ' + joinChannel)
@@ -363,7 +363,7 @@ class ServerIRC(Server):
         #Parse out channel, client and message from PART data
         partChannel = partLine.split()[2]
         partClient = partLine.split('!')[0][1:]
-        partMessage = ':'.join(partLine.split(':')[2:]).replace(endl,'')
+        partMessage = ':'.join(partLine.split(':')[2:])
         #Print message to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + partClient + ' left ' + partChannel + ' (' + partMessage + ')')
         #If channel does logging, log the PART data
@@ -388,7 +388,7 @@ class ServerIRC(Server):
         'Parses a QUIT message from the server'
         #Parse client and message
         quitClient = quitLine.split('!')[0][1:]
-        quitMessage = ':'.join(quitLine.split(':')[2:]).replace(endl,'')
+        quitMessage = ':'.join(quitLine.split(':')[2:])
         #Print message to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + quitClient + ' quit: ' + quitMessage)
         #Log to all channels on server
@@ -429,9 +429,9 @@ class ServerIRC(Server):
     def parseLineNotice(self,noticeLine):
         'Parses a NOTICE message from the server'
         #Parsing out NOTICE data
-        noticeChannel = noticeLine.split()[2].replace(endl,'')
+        noticeChannel = noticeLine.split()[2]
         noticeClient = noticeLine.split('!')[0][1:]
-        noticeMessage = ':'.join(noticeLine.split(':')[2:]).replace(endl,'')
+        noticeMessage = ':'.join(noticeLine.split(':')[2:])
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + noticeChannel + ' Notice from ' + noticeClient + ': ' + noticeMessage)
         #Logging, if enabled
