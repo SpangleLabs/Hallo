@@ -80,7 +80,7 @@ class Hallo:
         defaultFullNameElement = doc.createElement("default_full_name")
         defaultFullNameElement.appendChild(doc.createTextNode(self.mDefaultFullName))
         root.appendChild(defaultFullNameElement)
-        #TODO: create server list
+        #create server list
         serverListElement = doc.createElement("server_list")
         for serverItem in self.mServerList:
             serverElement = minidom.parse(serverItem.toXml()).firstChild
