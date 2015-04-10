@@ -36,10 +36,11 @@ class Hallo:
     mServerList = []
 
     def __init__(self):
+        #Create ServerFactory
+        self.mServerFactory = ServerFactory(self)
         #load config
         self.loadFromXml()
         self.mOpen = True
-        self.mServerFactory = ServerFactory(self)
         #TODO: connect to servers
         #TODO: deprecate and remove this
         self.base_start()
