@@ -56,7 +56,7 @@ class Hallo:
             self.mDefaultFullName = doc.getElementsByTagName("default_full_name")[0].firstChild.data
             serverListXml = doc.getElementsByTagName("server_list")[0]
             for serverXml in serverListXml.getElementsByTagName("server"):
-                serverObject = self.createServerFromXml(serverXml.toxml())
+                serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
                 self.addServer(serverObject)
             return
         except (FileNotFoundError, IOError):
@@ -233,17 +233,6 @@ class Hallo:
             except Exception as e:
                 print("coreloop error: " + str(e))
             time.sleep(0.1)
-            
-    def createServerFromXml(self,xmlString):
-        try:
-            doc = minidom.parse(xmlString)
-            serverType = doc.getElementsByTagName("server_type")[0].firstChild.data
-            serverObject = None
-            if(serverType=="irc"):
-                serverObject = ServerIRC.fromXml(xmlString,self)
-            return serverObject
-        except (FileNotFoundError, IOError):
-            print("Error loading server XML")
         
 
 
