@@ -19,7 +19,7 @@ import re
 from xml.dom import minidom
 
 from inc.commons import Commons
-from Server import ServerIRC
+from Server import Server, ServerFactory, ServerIRC
 
 import ircbot_on
 import mod_passive
@@ -32,12 +32,14 @@ class Hallo:
     mDefaultPrefix = False
     mDefaultFullName = "HalloBot HalloHost HalloServer :an irc bot by spangle"
     mOpen = False
+    mServerFactory = None
     mServerList = []
 
     def __init__(self):
         #load config
         self.loadFromXml()
         self.mOpen = True
+        self.mServerFactory = ServerFactory(self)
         #TODO: connect to servers
         #TODO: deprecate and remove this
         self.base_start()
