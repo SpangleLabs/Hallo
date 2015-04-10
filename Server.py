@@ -11,6 +11,26 @@ import hallobase_ctrl
 #TODO: investigate this
 endl = Commons.mEndLine
 
+class ServerFactory:
+    '''
+    Server factory, makes servers. Basically looks at xml, finds server type, and passes to appropriate Server object constructor
+    '''
+    mHallo = None           #Parent Hallo object
+    
+    def __init__(self,hallo):
+        '''
+        Constructs the Server Factory, stores Hallo object.
+        '''
+        self.mHallo = hallo
+    
+    def newServerFromXml(self,xmlString):
+        doc = minidom.parse(xmlString)
+        serverType = doc.getElementsByTagName("server_type")[0].firstChild.data
+        if(serverType=="irc"):
+            return ServerIRC.fromXml(xmlString,self.mHallo)
+        else:
+            return None
+
 class Server(object):
     '''
     Generic server object. An interface for ServerIRC or ServerSkype or whatever objects.
@@ -652,23 +672,4 @@ class ServerIRC(Server):
         #output XML string
         return doc.toxml()
 
-class ServerFactory:
-    '''
-    Server factory, makes servers. Basically looks at xml, finds server type, and passes to appropriate Server object constructor
-    '''
-    mHallo = None           #Parent Hallo object
-    
-    def __init__(self,hallo):
-        '''
-        Constructs the Server Factory, stores Hallo object.
-        '''
-        self.mHallo = hallo
-    
-    def newServerFromXml(self,xmlString):
-        doc = minidom.parse(xmlString)
-        serverType = doc.getElementsByTagName("server_type")[0].firstChild.data
-        if(serverType=="irc"):
-            return ServerIRC.fromXml(xmlString,self.mHallo)
-        else:
-            return None
         
