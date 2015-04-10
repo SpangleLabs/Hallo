@@ -214,9 +214,9 @@ class Hallo:
             except:
                 print('Module: ' + mod + ' missing. Skipping it.')
             imp.release_lock()
-        #TODO: when server object is implemented, replace this
-        #if(len(mServerList)==0):
-        if('server' not in self.conf or len(self.conf['server'])==0):
+        #If no servers, ask for a new server
+        #TODO: make this check if any servers are connected
+        if(len(self.mServerList)==0):
             self.conf = self.manualServerConnect()
         #connect to servers
         #TODO: replace this with stuff from loadFromXml, loading server objects like that.
