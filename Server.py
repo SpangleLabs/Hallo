@@ -651,18 +651,9 @@ class ServerIRC(Server):
         root.appendChild(nickservPassElement)
         #output XML string
         return doc.toxml()
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
+class ServerFactory:
+    '''
+    Server factory, makes servers. Basically looks at xml, finds server type, and passes to appropriate Server object constructor
+    '''
         
