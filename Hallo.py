@@ -44,8 +44,6 @@ class Hallo:
         #TODO: connect to servers
         #TODO: deprecate and remove this
         self.base_start()
-        #run startup events
-        ircbot_on.ircbot_on.on_init(self)
         
 
     def loadFromXml(self):
@@ -221,7 +219,7 @@ class Hallo:
         #connect to servers
         #TODO: replace this with stuff from loadFromXml, loading server objects like that.
         print('connecting to servers')
-        for server in self.conf['server']:
+        for server in self.mServerList:
             if(self.conf['server'][server]['connected']):
                 Thread(target=self.base_run, args=(server,)).start()
         time.sleep(2)
