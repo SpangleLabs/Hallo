@@ -44,6 +44,25 @@ class Hallo:
         #TODO: connect to servers
         #TODO: deprecate and remove this
         self.base_start()
+        #If no servers, ask for a new server
+        #TODO: make this check if any servers are connected
+        if(len(self.mServerList)==0):
+            self.conf = self.manualServerConnect()
+        #connect to servers
+        #TODO: replace this with stuff from loadFromXml, loading server objects like that.
+        print('connecting to servers')
+        for server in self.mServerList:
+            if(self.conf['server'][server]['connected']):
+                Thread(target=self.base_run, args=(server,)).start()
+        time.sleep(2)
+        #main loop, sticks around throughout the running of the bot
+        print('connected to all servers.')
+        while(self.mOpen):
+            try:
+                ircbot_on.ircbot_on.on_coreloop(self)
+            except Exception as e:
+                print("coreloop error: " + str(e))
+            time.sleep(0.1)
         
 
     def loadFromXml(self):
@@ -212,26 +231,6 @@ class Hallo:
             except:
                 print('Module: ' + mod + ' missing. Skipping it.')
             imp.release_lock()
-        #If no servers, ask for a new server
-        #TODO: make this check if any servers are connected
-        if(len(self.mServerList)==0):
-            self.conf = self.manualServerConnect()
-        #connect to servers
-        #TODO: replace this with stuff from loadFromXml, loading server objects like that.
-        print('connecting to servers')
-        for server in self.mServerList:
-            if(self.conf['server'][server]['connected']):
-                Thread(target=self.base_run, args=(server,)).start()
-        time.sleep(2)
-        #main loop, sticks around throughout the running of the bot
-        print('connected to all servers.')
-        while(self.mOpen):
-            try:
-                ircbot_on.ircbot_on.on_coreloop(self)
-            except Exception as e:
-                print("coreloop error: " + str(e))
-            time.sleep(0.1)
-        
 
 
 #######################################################
