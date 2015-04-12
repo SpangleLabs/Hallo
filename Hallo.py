@@ -279,40 +279,6 @@ class Hallo:
                 if n % 5 == 4:
                     time.sleep(2)
 
-
-    def base_connect(self,server):
-        count = 0
-        while(self.core['server'][server]['connected'] == False and count<30):
-            print(Commons.currentTimestamp() + " Not connected to " + server + " yet")
-            time.sleep(0.5)
-            count += 1
-        self.conf['server'][server]['connected'] = True
-        print(Commons.currentTimestamp() + " sending nick and user info to server: " + server)
-        self.core['server'][server]['socket'].send(('NICK ' + self.conf['server'][server]['nick'] + endl).encode('utf-8'))
-        self.core['server'][server]['socket'].send(('USER ' + self.conf['server'][server]['full_name'] + endl).encode('utf-8'))
-        print(Commons.currentTimestamp() + " sent nick and user info to " + server)
-        while(self.core['server'][server]['motdend'] == False):
-            time.sleep(0.5)
-        print(Commons.currentTimestamp() + " joining channels on " + server + ", identifying.")
-        for channel in self.conf['server'][server]['channel']:
-            if(self.conf['server'][server]['channel'][channel]['in_channel']):
-                if(self.conf['server'][server]['channel'][channel]['pass'] == ''):
-                    self.core['server'][server]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
-                else:
-                    self.core['server'][server]['socket'].send(('JOIN ' + channel + ' ' + self.conf['server'][server]['channel'][channel]['pass'] + endl).encode('utf-8'))
-        if self.conf['server'][server]['pass']:
-            self.base_say('IDENTIFY ' + self.conf['server'][server]['pass'], [server,'nickserv'])
-
-    def base_decode(self,raw_bytes):
-        try:
-            text = raw_bytes.decode('utf-8')
-        except UnicodeDecodeError:
-            try:
-                text = raw_bytes.decode('iso-8859-1')
-            except UnicodeDecodeError:
-                text = raw_bytes.decode('cp1252')
-        return text
-
     def base_addlog(self,msg,destination):
         # log a message for future reference
         if(not os.path.exists('logs/')):
