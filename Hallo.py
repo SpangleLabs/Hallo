@@ -156,7 +156,8 @@ class Hallo:
         self.mDefaultFullName = defaultFullName
     
     def manualServerConnect(self):
-        print("No servers have been loaded or connected to. Please connect to a server.")
+        #TODO: add ability to connect to non-IRC servers
+        print("No servers have been loaded or connected to. Please connect to an IRC server.")
         godNick = input("What nickname is the bot operator using? [deer-spangle]")
         godNick = godNick.replace(' ','')
         if(godNick==''):
@@ -169,6 +170,12 @@ class Hallo:
         serverPort = serverAddr.split(':')[1]
         serverMatch = re.match(r'([a-z\d\.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})',serverUrl,re.I)
         serverName = serverMatch.group(2)
+        #Create the server object
+        newServer = Server(self,serverName,serverUrl,serverPort)
+        #Add new server to server list
+        self.addServer(newServer)
+        #Save XML
+        self.saveToXml()
         #TODO: remove all this crap
         self.conf = {}
         self.conf['function'] = {}
@@ -197,7 +204,6 @@ class Hallo:
         self.conf['server'][serverName]['pingdiff'] = 600
         self.conf['server'][serverName]['connected'] = True
         print("Config file created.")
-        self.saveToXml()
         #TODO: remove this
         pickle.dump(self.conf,open(self.configfile,"wb"))
         print("Config file saved.")
