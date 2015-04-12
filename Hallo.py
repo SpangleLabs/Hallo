@@ -48,12 +48,11 @@ class Hallo:
         #TODO: make this check if any servers are connected
         if(len(self.mServerList)==0):
             self.conf = self.manualServerConnect()
-        #connect to servers
-        #TODO: replace this with stuff from loadFromXml, loading server objects like that.
+        #connect to autoconnect servers
         print('connecting to servers')
         for server in self.mServerList:
-            if(self.conf['server'][server]['connected']):
-                Thread(target=self.base_run, args=(server,)).start()
+            if(server.getAutoConnect()):
+                Thread(target=server.run).start()
         time.sleep(2)
         #main loop, sticks around throughout the running of the bot
         print('connected to all servers.')
