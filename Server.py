@@ -149,11 +149,16 @@ class ServerIRC(Server):
     mSocket = None              #Socket to communicate to the server
     mWelcomeMessage = ""        #Server's welcome message when connecting. MOTD and all.
     
-    def __init__(self,hallo):
+    def __init__(self,hallo,serverName=None,serverUrl=None,serverPort=6667):
         '''
         Constructor for server object
         '''
         self.mHallo = hallo
+        if(serverName is not None):
+            self.mName = serverName
+        if(serverUrl is not None):
+            self.mServerAddress = serverUrl
+            self.mServerPort = serverPort
     
     def connect(self):
         #TODO: remove all this core and conf
