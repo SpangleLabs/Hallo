@@ -240,7 +240,7 @@ class Hallo:
 #######EVERYTHING BELOW HERE WILL NEED BREAKING INTO OTHER OBJECTS
 #######################################################
 
-    
+
 
     def base_disconnect(self,server):
         for channel in self.conf['server'][server]['channel']:
@@ -264,6 +264,7 @@ class Hallo:
         if(notice):
             command = 'NOTICE'
         if(self.mOpen and self.core['server'][destination[0]]['open']):
+            #TODO: move this bit to channel object
             if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
                 urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',msg)
                 msg = msg.upper()
