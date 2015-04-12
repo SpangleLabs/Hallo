@@ -134,13 +134,15 @@ class hallobase_ctrl:
                 args = args.lower()
 #                 self.core['server'][destination[0]]['open'] = False
                 self.conf['server'][destination[0]]['connected'] = False
-                self.base_disconnect(destination[0])
+                serverObject = self.getServerByName(destination[0])
+                serverObject.disconnect()
                 return "Disconnected."
             else:
                 if(args.lower() in self.core['server']):
                     self.base_say('Disconnecting from ' + args,destination)
                     self.conf['server'][args.lower()]['connected'] = False
-                    self.base_disconnect(args.lower())
+                    serverObject = self.getServerByName(args.lower())
+                    serverObject.disconnect()
                     return "Disconnected from " + args + "."
                 else:
                     return "I'm not on any server by that id."
