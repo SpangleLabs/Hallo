@@ -63,7 +63,6 @@ class Hallo:
             except Exception as e:
                 print("coreloop error: " + str(e))
             time.sleep(0.1)
-        
 
     def loadFromXml(self):
         try:
@@ -79,7 +78,7 @@ class Hallo:
         except (FileNotFoundError, IOError):
             print("Error loading config")
             self.manualServerConnect()
-            
+
     def saveToXml(self):
         doc = minidom.Document();
         #create root element
