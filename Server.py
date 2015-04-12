@@ -236,6 +236,8 @@ class ServerIRC(Server):
         '''
         Method to read from stream and process. Will call an internal parsing method or whatnot
         '''
+        if(not self.mOpen):
+            self.connect()
         while(self.mOpen):
             nextLine = self.readLineFromSocket()
             #Parse line
