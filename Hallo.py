@@ -58,6 +58,7 @@ class Hallo:
         print('connected to all servers.')
         while(self.mOpen):
             try:
+                #TODO: replace this with whatever
                 ircbot_on.ircbot_on.on_coreloop(self)
             except Exception as e:
                 print("coreloop error: " + str(e))
