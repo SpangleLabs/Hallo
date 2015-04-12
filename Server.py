@@ -11,6 +11,9 @@ import hallobase_ctrl
 #TODO: investigate this
 endl = Commons.mEndLine
 
+class ServerException(Exception):
+    pass
+
 class ServerFactory:
     '''
     Server factory, makes servers. Basically looks at xml, finds server type, and passes to appropriate Server object constructor
@@ -161,6 +164,16 @@ class ServerIRC(Server):
             self.mServerPort = serverPort
     
     def connect(self):
+        while(True):
+            try:
+                self.rawConnect()
+                break
+            except ServerException:
+                print("Failed to connect. Waiting 3 seconds before reconnect.")
+                time.sleep(3)
+                continue
+    
+    def rawConnect(self):
         #TODO: remove all this core and conf
         # begin pulling data from a given server
         self.mHallo.core['server'][self.mName] = {}
@@ -244,7 +257,12 @@ class ServerIRC(Server):
         if(not self.mOpen):
             self.connect()
         while(self.mOpen):
-            nextLine = self.readLineFromSocket()
+            try:
+                nextLine = self.readLineFromSocket()
+            except ServerException:
+                print("Server disconnected. Reconnecting.")
+                self.mOpen = False
+                self.connect()
             #Parse line
             Thread(target=self.parseLine, args=(nextLine)).start()
     
@@ -590,8 +608,8 @@ class ServerIRC(Server):
             try:
                 nextByte = self.mSocket.recv(1)
             except:
-                #TODO: reconnect
-                nextByte = b""
+                #Raise an exception, to reconnect.
+                raise ServerException
             nextLine = nextLine + nextByte
             if(nextLine.endswith(endl.encode())):
                 return self.decodeLine(nextLine[:-len(endl)])
