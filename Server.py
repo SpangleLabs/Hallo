@@ -619,7 +619,8 @@ class ServerIRC(Server):
             newServer.mFullName = doc.getElementsByTagName("full_name")[0].firstChild.data
         newServer.mServerAddress = doc.getElementsByTagName("server_address")[0].firstChild.data
         newServer.mServerPort = doc.getElementsByTagName("server_port")[0].firstChild.data
-        newServer.mNickservPass = doc.getElementsByTagName("nickserv_pass")[0].firstChild.data
+        if(len(doc.getElementsByTagName("nickserv_pass"))!=0):
+            newServer.mNickservPass = doc.getElementsByTagName("nickserv_pass")[0].firstChild.data
         return newServer
         
     def toXml(self):
@@ -668,9 +669,10 @@ class ServerIRC(Server):
         serverPortElement.appendChild(doc.createTextNode(self.mServerPort))
         root.appendChild(serverPortElement)
         #create nickserv pass element
-        nickservPassElement = doc.createElement("nickserv_pass")
-        nickservPassElement.appendChild(doc.createTextNode(self.mNickservPass))
-        root.appendChild(nickservPassElement)
+        if(self.mNickservPass is not None):
+            nickservPassElement = doc.createElement("nickserv_pass")
+            nickservPassElement.appendChild(doc.createTextNode(self.mNickservPass))
+            root.appendChild(nickservPassElement)
         #output XML string
         return doc.toxml()
 
