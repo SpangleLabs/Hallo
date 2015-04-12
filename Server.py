@@ -352,14 +352,26 @@ class ServerIRC(Server):
         #Parse out the message text
         messageText = ':'.join(messageLine.split(':')[2:])
         #Parse out the message sender
-        messageSender = messageLine.split('!')[0].replace(':', '')
+        messageSenderName = messageLine.split('!')[0].replace(':', '')
         #Parse out where the message went to (e.g. channel or private message to Hallo)
-        messageDestination = messageLine.split()[2].lower()
-        # test for private message, public message, or CTCP message.
-        msg_pm = messageDestination.lower() == self.getNick().lower()
-        msg_pub = not msg_pm
+        messageDestinationName = messageLine.split()[2].lower()
+        #Test for private message, public message, or CTCP message.
+        messagePrivateBool = messageDestinationName.lower() == self.getNick().lower()
+        messagePublicBool = not messagePrivateBool
+        #TODO: check this
+        messageCtcpBool = messageText.split(':')[2][0] == '\x01'
         #msg_cmd = message[0:len(nick)].lower() == nick.lower()
-        msg_ctcp = messageText.split(':')[2][0] == '\x01'
+        #TODO: Figure out if the message is a command.
+        ##If it's a privmsg it's a command
+        ##If it is public and starts with channel's prefix, it's a command
+        ##If channel prefix is name, check that there's a comma or colon?
+        #If public message, return stuff to channel, else to sender
+        outgoingDestinationName = messageDestinationName
+        if(messagePrivateBool):
+            outgoingDestinationName = messageSenderName
+        #TODO: If CTCP, get client, see if it's a /me
+        #Print to console
+        #Log stuff
         #TODO: the rest of processing for messages.
         
     def parseLineJoin(self,joinLine):
