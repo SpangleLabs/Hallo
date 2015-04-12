@@ -242,19 +242,6 @@ class Hallo:
 
 
 
-    def base_disconnect(self,server):
-        for channel in self.conf['server'][server]['channel']:
-        #    self.base_say('Daisy daisy give me your answer do...',[server,channel])
-            if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
-                self.base_addlog(Commons.currentTimestamp() + ' Hallo has quit.',[server,channel])
-        #    time.sleep(1)
-        if('open' in self.core['server'][server] and self.core['server'][server]['open']):
-            #self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
-            self.core['server'][server]['socket'].send(('QUIT :Will I dream?' + endl).encode('utf-8'))
-            self.core['server'][server]['socket'].close()
-        #    self.conf['server'][server]['connected'] = False
-            self.core['server'][server]['open'] = False
-
     def base_say(self,msg,destination,notice=False):
         # if the connection is open...
         #if not self.mOpen: return
