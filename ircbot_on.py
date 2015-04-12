@@ -168,18 +168,6 @@ class ircbot_on:
         for server in self.conf['server']:
             if(self.conf['server'][server]['connected']):
                 servers = servers+1
-            # if you're supposed to be connected, but have pinged out, reconnect
-        #    print('aab' + server)
-            if('reconnect' in self.core['server'][server] and self.core['server'][server]['reconnect']):
-                print("TIMED OUT FROM " + server + ", RECONNECTING.")
-                self.core['server'][server]['reconnect'] = False
-                self.core['server'][server]['open'] = False
-                self.core['server'][server]['socket'].close()
-                time.sleep(1)
-                del self.core['server'][server]
-                self.core['server'][server] = {}
-                time.sleep(1)
-                Thread(target=self.base_run, args=(server,)).start()
             # if you're connected, check each channel, if you're in any channels there, check for idlechan activation.
 #            print('aac' + server)
             if(self.conf['server'][server]['connected']):
@@ -196,6 +184,8 @@ class ircbot_on:
         #print('bbb')
         if(servers==0):
             self.close()
+        #Update currencies
+        #TODO: move this to persistant function stuff, eventually
         if('convert_currency_update' not in self.core or (time.time()-self.core['convert_currency_update'])>3600):
             self.core['convert_currency_update'] = time.time()
             mod_conversion.mod_conversion.fn_convert_currency_update(self,'','',['',''])
