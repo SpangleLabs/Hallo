@@ -195,7 +195,6 @@ class Hallo:
         print("Config file saved.")
 
     def base_start(self):
-        #starts up the bot, starts base_run on each server.
         #TODO: remove configfile loading
         try:
             self.conf = pickle.load(open("store/config.p","rb"))
@@ -418,52 +417,6 @@ class Hallo:
             return [out,destpair,notice]
         else:
             return None
-        
-    def base_run(self,server):
-        # begin pulling data from a given server
-        self.core['server'][server] = {}
-        self.core['server'][server]['check'] = {}
-        self.core['server'][server]['check']['names'] = ""
-        self.core['server'][server]['check']['recipientonline'] = ""
-        self.core['server'][server]['check']['nickregistered'] = False
-        self.core['server'][server]['check']['userregistered'] = False
-        self.core['server'][server]['channel'] = {}
-        for channel in self.conf['server'][server]['channel']:
-            self.core['server'][server]['channel'][channel] = {}
-            self.core['server'][server]['channel'][channel]['last_message'] = 0
-            self.core['server'][server]['channel'][channel]['user_list'] = []
-            if(self.conf['server'][server]['channel'][channel]['megahal_record']):
-                self.core['server'][server]['channel'][channel]['megahalcount'] = 0
-        self.core['server'][server]['lastping'] = 0
-        self.core['server'][server]['connected'] = False
-        self.core['server'][server]['motdend'] = False
-        self.core['server'][server]['open'] = True
-        self.core['server'][server]['socket'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            self.core['server'][server]['socket'].connect((self.conf['server'][server]['address'],self.conf['server'][server]['port']))
-        except Exception as e:
-            print("CONNECTION ERROR: " + str(e))
-            self.core['server'][server]['open'] = False
-#            del self.core['server'][server]
-#            del self.conf['server'][server]
-#            self.conf['servers'].remove(server)
-        Thread(target=self.base_connect, args=(server,)).start()
-        nextline = b""
-        while(self.mOpen and server in self.core['server'] and self.core['server'][server]['open']):
-            try:
-                nextbyte = self.core['server'][server]['socket'].recv(1)
-            except:
-                nextbyte = b""
-            if(nextbyte==b""):
-                self.core['server'][server]['lastping'] = 1
-                self.core['server'][server]['reconnect'] = True
-            if(nextbyte!=b"\n"):
-                nextline = nextline + nextbyte
-            else:
-                nextstring = self.base_decode(nextline)
-                Thread(target=self.base_parse, args=(server,nextstring)).start()
-                nextline = b""
-
 
     def base_parse(self,server,data):
         # take a line of data from irc server's socket and process it
