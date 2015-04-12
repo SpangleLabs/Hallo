@@ -177,19 +177,6 @@ class Hallo:
         #Save XML
         self.saveToXml()
         #TODO: remove all this crap
-        self.conf = {}
-        self.conf['function'] = {}
-        self.conf['function']['default'] = {}
-        self.conf['function']['default']['disabled'] = False
-        self.conf['function']['default']['listed_to'] = 'user'
-        self.conf['function']['default']['max_run_time'] = 180
-        self.conf['function']['default']['privmsg'] = True
-        self.conf['function']['default']['repair'] = False
-        self.conf['function']['default']['return_to'] = 'channel'
-        self.conf['function']['default']['time_delay'] = 0
-        self.conf['nickserv'] = {}
-        self.conf['nickserv']['online'] = ['lastseen:now','isonlinefrom:','iscurrentlyonline','nosuchnick','userseen:now']
-        self.conf['nickserv']['registered'] = ['registered:']
         self.conf['server'] = {}
         self.conf['server'][serverName] = {}
         self.conf['server'][serverName]['ops'] = []
@@ -214,7 +201,20 @@ class Hallo:
         try:
             self.conf = pickle.load(open("store/config.p","rb"))
         except EOFError:
+            #TODO: remove all this crap
             self.conf = {}
+            self.conf['function'] = {}
+            self.conf['function']['default'] = {}
+            self.conf['function']['default']['disabled'] = False
+            self.conf['function']['default']['listed_to'] = 'user'
+            self.conf['function']['default']['max_run_time'] = 180
+            self.conf['function']['default']['privmsg'] = True
+            self.conf['function']['default']['repair'] = False
+            self.conf['function']['default']['return_to'] = 'channel'
+            self.conf['function']['default']['time_delay'] = 0
+            self.conf['nickserv'] = {}
+            self.conf['nickserv']['online'] = ['lastseen:now','isonlinefrom:','iscurrentlyonline','nosuchnick','userseen:now']
+            self.conf['nickserv']['registered'] = ['registered:']
         self.megahal = {}
         self.core = {}
         self.core['server'] = {}
