@@ -370,6 +370,12 @@ class ServerIRC(Server):
         if(messagePrivateBool):
             outgoingDestinationName = messageSenderName
         #TODO: If CTCP, get client, see if it's a /me
+        if(not messageCtcpBool):
+            # print and a clean version of the message
+            print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName + ' <' + messageSenderName + '> ' + messageText)
+            #log the message
+         #   if(msg_pm or server not in self.conf['server'] or destination not in self.conf['server'][server]['channel'] or self.conf['server'][server]['channel'][destination]['logging']):
+         #       self.base_addlog(Commons.currentTimestamp() + ' <' + client + '> ' + message, [server,destination])
         #Print to console
         #Log stuff
         #TODO: the rest of processing for messages.
