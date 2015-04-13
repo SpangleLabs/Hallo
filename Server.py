@@ -374,8 +374,10 @@ class ServerIRC(Server):
             # print and a clean version of the message
             print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName + ' <' + messageSenderName + '> ' + messageText)
             #log the message
-         #   if(msg_pm or server not in self.conf['server'] or destination not in self.conf['server'][server]['channel'] or self.conf['server'][server]['channel'][destination]['logging']):
-         #       self.base_addlog(Commons.currentTimestamp() + ' <' + client + '> ' + message, [server,destination])
+            if(messagePrivateBool):
+                self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
+            if(messageDestinationName not in self.mChannelList or messageDestination.getLogging()):
+                self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
         #Print to console
         #Log stuff
         #TODO: the rest of processing for messages.
