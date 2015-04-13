@@ -377,6 +377,7 @@ class ServerIRC(Server):
         #Get relevant objects.
         if(messagePublicBool):
             messageChannel = self.getChannelByName(messageDestinationName)
+        messageSender = self.getUserByName(messageSenderName)
         #msg_cmd = message[0:len(nick)].lower() == nick.lower()
         #TODO: Figure out if the message is a command.
         ##If it's a privmsg it's a command
