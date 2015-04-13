@@ -137,6 +137,13 @@ class Server(object):
                 return channel
         return None
         
+    def getUserByName(self,userName):
+        'Returns a User object with the specified user name.'
+        for user in self.mUserList:
+            if(user.getName()==userName):
+                return user
+        return None
+        
         
 class ServerIRC(Server):
     mHallo = None               #The hallo object that created this server
