@@ -130,6 +130,13 @@ class Server(object):
         'AutoConnect setter'
         self.mAutoConnect = autoConnect
         
+    def getChannelByName(self,channelName):
+        'Returns a Channel object with the specified channel name.'
+        for channel in self.mChannelList:
+            if(channel.getName()==channelName):
+                return channel
+        return None
+        
         
 class ServerIRC(Server):
     mHallo = None               #The hallo object that created this server
