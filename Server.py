@@ -389,12 +389,13 @@ class ServerIRC(Server):
             outgoingDestinationName = messageSenderName
         #TODO: If CTCP, get client, see if it's a /me
         if(not messageCtcpBool):
-            # print and a clean version of the message
+            #Print the message to console
             print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName + ' <' + messageSenderName + '> ' + messageText)
-            #log the message
+            #Log the message
             if(messagePrivateBool):
-                self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
-            elif(messageChannel not in self.mChannelList or messageChannel.getLogging()):
+                if(messageSender is None or messageSender.getLogging()):
+                    self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
+            elif(messageChannel is None or messageChannel.getLogging()):
                 self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
         else:
             #Figure out how to print and save CTCP messages
