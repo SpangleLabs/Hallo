@@ -43,12 +43,12 @@ class Server(object):
     mName = None                #server name
     mAutoConnect = True         #Whether to automatically connect to this server when hallo starts
     mChannelList = []           #list of channels on this server (which may or may not be currently active)
+    mUserList = []              #Users on this server (not all of which are online)
     mNick = None                #Nickname to use on this server
     mPrefix = None              #Prefix to use with functions on this server
     mFullName = None            #Full name to use on this server
     #Dynamic/unsaved class variables
     mOpen = False               #Whether or not to keep reading from server
-    mUserList = []              #Users on this server
 
     def __init__(self,hallo,params):
         '''
@@ -144,13 +144,13 @@ class ServerIRC(Server):
     mName = None                #server name
     mAutoConnect = True         #Whether to automatically connect to this server when hallo starts
     mChannelList = []           #list of channels on this server (which may or may not be currently active)
+    mUserList = []              #Users on this server (not all of which are online)
     mConnection = None          #Connection for the server, socket or whatnot
     mNick = None                #Nickname to use on this server
     mPrefix = None              #Prefix to use with functions on this server
     mFullName = None            #Full name to use on this server
     #Dynamic/unsaved class variables
     mOpen = False               #Whether or not to keep reading from server
-    mUserList = []              #Users on this server
     #IRC specific variables
     mServerAddress = None       #Address to connect to server
     mServerPort = None          #Port to connect to server
@@ -367,6 +367,9 @@ class ServerIRC(Server):
         messagePublicBool = not messagePrivateBool
         #TODO: check this
         messageCtcpBool = messageText.split(':')[2][0] == '\x01'
+        #Get relevant objects.
+        if(messagePublicBool):
+            messageChannel = self.getChannelByName(messageDestinationName)
         #msg_cmd = message[0:len(nick)].lower() == nick.lower()
         #TODO: Figure out if the message is a command.
         ##If it's a privmsg it's a command
@@ -383,8 +386,11 @@ class ServerIRC(Server):
             #log the message
             if(messagePrivateBool):
                 self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
-            if(messageDestinationName not in self.mChannelList or messageDestination.getLogging()):
+            elif(messageChannel not in self.mChannelList or messageChannel.getLogging()):
                 self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
+        else:
+            #Figure out how to print and save CTCP messages
+            pass
         #Print to console
         #Log stuff
         #TODO: the rest of processing for messages.
