@@ -10,3 +10,16 @@ class Destination:
         Constructor
         '''
         
+        
+class Channel(Destination):
+    def __init__(self, params):
+        '''
+        Constructor
+        '''
+    
+    
+class User(Destination):
+    def __init__(self, params):
+        '''
+        Constructor
+        '''
