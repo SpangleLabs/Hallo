@@ -234,8 +234,7 @@ class ServerIRC(Server):
                 break
         #Identify with nickserv
         if self.mNickservPass:
-            #TODO: update this
-            self.mHallo.base_say('IDENTIFY ' + self.mNickservPass, [self.mName,'nickserv'])
+            self.sendRaw('IDENTIFY ' + self.mNickservPass, [self.mName,'nickserv'])
         #Join channels
         print(Commons.currentTimestamp() + " joining channels on " + self.mName + ", identifying.")
         #TODO: update this with Channel objects
@@ -295,7 +294,7 @@ class ServerIRC(Server):
         else:
             msgTypeName = "PRIVMSG"
         #TODO: get channel address
-        destinationName = channel.getAddress()
+        destinationName = channel.getName()
         #Get max line length
         maxLineLength = maxMsgLength-len(msgTypeName+' '+destinationName+' '+endl)
         #Split and send
