@@ -220,7 +220,7 @@ class ServerIRC(Server):
             self.mHallo.core['server'][self.mName]['open'] = False
         #Wait for the first message back from the server.
         print(Commons.currentTimestamp() + " waiting for first message from server: " + self.mName)
-        firstLine = self.readLineFromSocket()  #TODO: make this timeout somehow.
+        firstLine = self.readLineFromSocket()
         self.mWelcomeMessage += firstLine+"\n"
         #Send nick and full name to server
         print(Commons.currentTimestamp() + " sending nick and user info to server: " + self.mName)
