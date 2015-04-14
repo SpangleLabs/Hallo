@@ -3,6 +3,9 @@ import sys
 import time
 from threading import Thread
 import collections
+import re
+
+from Server import ServerIRC
 
 endl = '\r\n'
 class hallobase_ctrl:
@@ -100,29 +103,35 @@ class hallobase_ctrl:
             args = args.lower()
             if(':' in args):
                 argsplit = args.split(':')
-                port = int(argsplit[1])
-                args = argsplit[0]
+                serverPort = int(argsplit[1])
+                serverAddress = argsplit[0]
             else:
-                port = 6667
-            argsplit = args.split('.')
-            title = max(argsplit,key=len)
-            if(title not in self.conf['server']):
-#                self.conf['servers'].append(title)
-                self.conf['server'][title] = {}
-                self.conf['server'][title]['ops'] = list(self.conf['server'][destination[0]]['ops'])
-                self.conf['server'][title]['gods'] = list(self.conf['server'][destination[0]]['gods'])
-                self.conf['server'][title]['address'] = args
-#               self.conf['server'][title]['channels'] = []
-                self.conf['server'][title]['nick'] = self.conf['server'][destination[0]]['nick']
-                self.conf['server'][title]['full_name'] = self.conf['server'][destination[0]]['full_name']
-                self.conf['server'][title]['pass'] = False
-                self.conf['server'][title]['port'] = port
-                self.conf['server'][title]['channel'] = {}
-                self.conf['server'][title]['admininform'] = []
-                self.conf['server'][title]['pingdiff'] = 600
-                self.conf['server'][title]['connected'] = False
-            Thread(target=self.base_run, args=(title,)).start()
-            return "Connected to " + args + " [" + title + "]."
+                serverPort = 6667
+                serverAddress = args
+            serverMatch = re.match(r'([a-z\d\.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})',serverAddress,re.I)
+            serverName = serverMatch.group(2)
+            serverObject = self.getServerByName(serverName)
+            if(serverObject is None):
+                serverNew = ServerIRC(self,serverName,serverAddress,serverPort)
+                self.addServer(serverNew)
+                Thread(target=serverNew.run).start()
+                #TODO: remove all this
+                self.conf['server'][serverName] = {}
+                self.conf['server'][serverName]['ops'] = list(self.conf['server'][destination[0]]['ops'])
+                self.conf['server'][serverName]['gods'] = list(self.conf['server'][destination[0]]['gods'])
+                self.conf['server'][serverName]['address'] = args
+#               self.conf['server'][serverName]['channels'] = []
+                self.conf['server'][serverName]['nick'] = self.conf['server'][destination[0]]['nick']
+                self.conf['server'][serverName]['full_name'] = self.conf['server'][destination[0]]['full_name']
+                self.conf['server'][serverName]['pass'] = False
+                self.conf['server'][serverName]['port'] = serverPort
+                self.conf['server'][serverName]['channel'] = {}
+                self.conf['server'][serverName]['admininform'] = []
+                self.conf['server'][serverName]['pingdiff'] = 600
+                self.conf['server'][serverName]['connected'] = False
+            else:
+                Thread(target=serverObject.run).start()
+            return "Connected to " + serverAddress + " [" + serverName + "]."
         else:
             return "Insufficient privileges to connect to a new server."
 
@@ -134,13 +143,15 @@ class hallobase_ctrl:
                 args = args.lower()
 #                 self.core['server'][destination[0]]['open'] = False
                 self.conf['server'][destination[0]]['connected'] = False
-                self.base_disconnect(destination[0])
+                serverObject = self.getServerByName(destination[0])
+                serverObject.disconnect()
                 return "Disconnected."
             else:
                 if(args.lower() in self.core['server']):
                     self.base_say('Disconnecting from ' + args,destination)
                     self.conf['server'][args.lower()]['connected'] = False
-                    self.base_disconnect(args.lower())
+                    serverObject = self.getServerByName(args.lower())
+                    serverObject.disconnect()
                     return "Disconnected from " + args + "."
                 else:
                     return "I'm not on any server by that id."

@@ -19,29 +19,48 @@ import re
 from xml.dom import minidom
 
 from inc.commons import Commons
+from Server import Server, ServerFactory, ServerIRC
 
 import ircbot_on
 import mod_passive
 
-endl = '\r\n' # constant for ease/readability
+endl = Commons.mEndLine
 
 class Hallo:
     mDefaultNick = "Hallo"
     mDefaultPrefix = False
     mDefaultFullName = "HalloBot HalloHost HalloServer :an irc bot by spangle"
     mOpen = False
+    mServerFactory = None
     mServerList = []
 
     def __init__(self):
+        #Create ServerFactory
+        self.mServerFactory = ServerFactory(self)
         #load config
         self.loadFromXml()
         self.mOpen = True
-        #TODO: connect to servers
         #TODO: deprecate and remove this
         self.base_start()
-        #run startup events
-        ircbot_on.ircbot_on.on_init(self)
-        
+        #If no servers, ask for a new server
+        if(len(self.mServerList)==0):
+            if(sum([server.getAutoConnect() for server in self.mServerList])==0):
+                self.conf = self.manualServerConnect()
+        #connect to autoconnect servers
+        print('connecting to servers')
+        for server in self.mServerList:
+            if(server.getAutoConnect()):
+                Thread(target=server.run).start()
+        time.sleep(2)
+        #main loop, sticks around throughout the running of the bot
+        print('connected to all servers.')
+        while(self.mOpen):
+            try:
+                #TODO: replace this with whatever
+                ircbot_on.ircbot_on.on_coreloop(self)
+            except Exception as e:
+                print("coreloop error: " + str(e))
+            time.sleep(0.1)
 
     def loadFromXml(self):
         try:
@@ -49,11 +68,15 @@ class Hallo:
             self.mDefaultNick = doc.getElementsByTagName("default_nick")[0].firstChild.data
             self.mDefaultPrefix = doc.getElementsByTagName("default_prefix")[0].firstChild.data
             self.mDefaultFullName = doc.getElementsByTagName("default_full_name")[0].firstChild.data
+            serverListXml = doc.getElementsByTagName("server_list")[0]
+            for serverXml in serverListXml.getElementsByTagName("server"):
+                serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
+                self.addServer(serverObject)
             return
         except (FileNotFoundError, IOError):
             print("Error loading config")
             self.manualServerConnect()
-            
+
     def saveToXml(self):
         doc = minidom.Document();
         #create root element
@@ -62,15 +85,21 @@ class Hallo:
         #create default_nick element
         defaultNickElement = doc.createElement("default_nick")
         defaultNickElement.appendChild(doc.createTextNode(self.mDefaultNick))
-        doc.appendChild(defaultNickElement)
+        root.appendChild(defaultNickElement)
         #create default_prefix element
         defaultPrefixElement = doc.createElement("default_prefix")
         defaultPrefixElement.appendChild(doc.createTextNode(self.mDefaultPrefix))
-        doc.appendChild(defaultPrefixElement)
+        root.appendChild(defaultPrefixElement)
         #create default_full_name element
         defaultFullNameElement = doc.createElement("default_full_name")
         defaultFullNameElement.appendChild(doc.createTextNode(self.mDefaultFullName))
-        doc.appendChild(defaultFullNameElement)
+        root.appendChild(defaultFullNameElement)
+        #create server list
+        serverListElement = doc.createElement("server_list")
+        for serverItem in self.mServerList:
+            serverElement = minidom.parse(serverItem.toXml()).firstChild
+            serverListElement.appendChild(serverElement)
+        root.appendChild(serverListElement)
         #save XML
         doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
         
@@ -98,9 +127,34 @@ class Hallo:
             server.disconnect()
         self.saveToXml()
         self.mOpen = False
+        
+    def getDefaultNick(self):
+        'Default nick getter'
+        return self.mDefaultNick
+
+    def setDefaultNick(self,defaultNick):
+        'Default nick setter'
+        self.mDefaultNick = defaultNick
+        
+    def getDefaultPrefix(self):
+        'Default prefix getter'
+        return self.mDefaultPrefix
+    
+    def setDefaultPrefix(self,defaultPrefix):
+        'Default prefix setter'
+        self.mDefaultPrefix = defaultPrefix
+        
+    def getDefaultFullName(self):
+        'Default full name getter'
+        return self.mDefaultFullName
+    
+    def setDefaultFullName(self,defaultFullName):
+        'Default full name setter'
+        self.mDefaultFullName = defaultFullName
     
     def manualServerConnect(self):
-        print("No servers have been loaded or connected to. Please connect to a server.")
+        #TODO: add ability to connect to non-IRC servers
+        print("No servers have been loaded or connected to. Please connect to an IRC server.")
         godNick = input("What nickname is the bot operator using? [deer-spangle]")
         godNick = godNick.replace(' ','')
         if(godNick==''):
@@ -113,20 +167,13 @@ class Hallo:
         serverPort = serverAddr.split(':')[1]
         serverMatch = re.match(r'([a-z\d\.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})',serverUrl,re.I)
         serverName = serverMatch.group(2)
+        #Create the server object
+        newServer = Server(self,serverName,serverUrl,serverPort)
+        #Add new server to server list
+        self.addServer(newServer)
+        #Save XML
+        self.saveToXml()
         #TODO: remove all this crap
-        self.conf = {}
-        self.conf['function'] = {}
-        self.conf['function']['default'] = {}
-        self.conf['function']['default']['disabled'] = False
-        self.conf['function']['default']['listed_to'] = 'user'
-        self.conf['function']['default']['max_run_time'] = 180
-        self.conf['function']['default']['privmsg'] = True
-        self.conf['function']['default']['repair'] = False
-        self.conf['function']['default']['return_to'] = 'channel'
-        self.conf['function']['default']['time_delay'] = 0
-        self.conf['nickserv'] = {}
-        self.conf['nickserv']['online'] = ['lastseen:now','isonlinefrom:','iscurrentlyonline','nosuchnick','userseen:now']
-        self.conf['nickserv']['registered'] = ['registered:']
         self.conf['server'] = {}
         self.conf['server'][serverName] = {}
         self.conf['server'][serverName]['ops'] = []
@@ -141,18 +188,29 @@ class Hallo:
         self.conf['server'][serverName]['pingdiff'] = 600
         self.conf['server'][serverName]['connected'] = True
         print("Config file created.")
-        self.saveToXml()
         #TODO: remove this
         pickle.dump(self.conf,open(self.configfile,"wb"))
         print("Config file saved.")
 
     def base_start(self):
-        #starts up the bot, starts base_run on each server.
         #TODO: remove configfile loading
         try:
             self.conf = pickle.load(open("store/config.p","rb"))
         except EOFError:
+            #TODO: remove all this crap
             self.conf = {}
+            self.conf['function'] = {}
+            self.conf['function']['default'] = {}
+            self.conf['function']['default']['disabled'] = False
+            self.conf['function']['default']['listed_to'] = 'user'
+            self.conf['function']['default']['max_run_time'] = 180
+            self.conf['function']['default']['privmsg'] = True
+            self.conf['function']['default']['repair'] = False
+            self.conf['function']['default']['return_to'] = 'channel'
+            self.conf['function']['default']['time_delay'] = 0
+            self.conf['nickserv'] = {}
+            self.conf['nickserv']['online'] = ['lastseen:now','isonlinefrom:','iscurrentlyonline','nosuchnick','userseen:now']
+            self.conf['nickserv']['registered'] = ['registered:']
         self.megahal = {}
         self.core = {}
         self.core['server'] = {}
@@ -173,59 +231,13 @@ class Hallo:
             except:
                 print('Module: ' + mod + ' missing. Skipping it.')
             imp.release_lock()
-        #TODO: when server object is implemented, replace this
-        #if(len(mServerList)==0):
-        if('server' not in self.conf or len(self.conf['server'])==0):
-            self.conf = self.manualServerConnect()
-        #connect to servers
-        #TODO: replace this with stuff from loadFromXml, loading server objects like that.
-        print('connecting to servers')
-        for server in self.conf['server']:
-            if(self.conf['server'][server]['connected']):
-                Thread(target=self.base_run, args=(server,)).start()
-        time.sleep(2)
-        #main loop, sticks around throughout the running of the bot
-        print('connected to all servers.')
-        while(self.mOpen):
-            try:
-                ircbot_on.ircbot_on.on_coreloop(self)
-            except Exception as e:
-                print("coreloop error: " + str(e))
-            time.sleep(0.1)
 
 
 #######################################################
 #######EVERYTHING BELOW HERE WILL NEED BREAKING INTO OTHER OBJECTS
 #######################################################
 
-    
-    def base_addlog(self,msg,destination):
-        # log a message for future reference
-        if(not os.path.exists('logs/')):
-            os.makedirs('logs/')
-        if(not os.path.exists('logs/' + destination[0])):
-            os.makedirs('logs/' + destination[0])
-        if(not os.path.exists('logs/' + destination[0] + '/' + destination[1])):
-            os.makedirs('logs/' + destination[0] + '/' + destination[1])
-        # date is the file name
-        filename = str(time.gmtime()[0]).rjust(4,'0') + '-' + str(time.gmtime()[1]).rjust(2,'0') + '-' + str(time.gmtime()[2]).rjust(2,'0') + '.txt'
-        # open and write the message
-        log = open('logs/' + destination[0] + '/' + destination[1] + '/' + filename, 'a')
-        log.write(msg.encode('ascii','ignore').decode() + '\n')
-        log.close()
 
-    def base_disconnect(self,server):
-        for channel in self.conf['server'][server]['channel']:
-        #    self.base_say('Daisy daisy give me your answer do...',[server,channel])
-            if(self.conf['server'][server]['channel'][channel]['in_channel'] and self.conf['server'][server]['channel'][channel]['logging']):
-                self.base_addlog(Commons.currentTimestamp() + ' Hallo has quit.',[server,channel])
-        #    time.sleep(1)
-        if('open' in self.core['server'][server] and self.core['server'][server]['open']):
-            #self.core['server'][server]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
-            self.core['server'][server]['socket'].send(('QUIT :Will I dream?' + endl).encode('utf-8'))
-            self.core['server'][server]['socket'].close()
-        #    self.conf['server'][server]['connected'] = False
-            self.core['server'][server]['open'] = False
 
     def base_say(self,msg,destination,notice=False):
         # if the connection is open...
@@ -236,6 +248,7 @@ class Hallo:
         if(notice):
             command = 'NOTICE'
         if(self.mOpen and self.core['server'][destination[0]]['open']):
+            #TODO: move this bit to channel object
             if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
                 urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',msg)
                 msg = msg.upper()
@@ -263,6 +276,21 @@ class Hallo:
                 # avoid flooding
                 if n % 5 == 4:
                     time.sleep(2)
+
+    def base_addlog(self,msg,destination):
+        # log a message for future reference
+        if(not os.path.exists('logs/')):
+            os.makedirs('logs/')
+        if(not os.path.exists('logs/' + destination[0])):
+            os.makedirs('logs/' + destination[0])
+        if(not os.path.exists('logs/' + destination[0] + '/' + destination[1])):
+            os.makedirs('logs/' + destination[0] + '/' + destination[1])
+        # date is the file name
+        filename = str(time.gmtime()[0]).rjust(4,'0') + '-' + str(time.gmtime()[1]).rjust(2,'0') + '-' + str(time.gmtime()[2]).rjust(2,'0') + '.txt'
+        # open and write the message
+        log = open('logs/' + destination[0] + '/' + destination[1] + '/' + filename, 'a')
+        log.write(msg.encode('ascii','ignore').decode() + '\n')
+        log.close()
 
     def base_function(self,client,msg,function,args,destpair):
         server = destpair[0]
@@ -353,7 +381,6 @@ class Hallo:
             return [out,destpair,notice]
         else:
             return None
-
 
     def base_parse(self,server,data):
         # take a line of data from irc server's socket and process it
@@ -555,83 +582,7 @@ class Hallo:
 #            logunhandleddata.close()
         ircbot_on.ircbot_on.on_rawdata(self,server,data,unhandled)
 
-    def base_connect(self,server):
-        count = 0
-        while(self.core['server'][server]['connected'] == False and count<30):
-            print(Commons.currentTimestamp() + " Not connected to " + server + " yet")
-            time.sleep(0.5)
-            count += 1
-        self.conf['server'][server]['connected'] = True
-        print(Commons.currentTimestamp() + " sending nick and user info to server: " + server)
-        self.core['server'][server]['socket'].send(('NICK ' + self.conf['server'][server]['nick'] + endl).encode('utf-8'))
-        self.core['server'][server]['socket'].send(('USER ' + self.conf['server'][server]['full_name'] + endl).encode('utf-8'))
-        print(Commons.currentTimestamp() + " sent nick and user info to " + server)
-        while(self.core['server'][server]['motdend'] == False):
-            time.sleep(0.5)
-        print(Commons.currentTimestamp() + " joining channels on " + server + ", identifying.")
-        for channel in self.conf['server'][server]['channel']:
-            if(self.conf['server'][server]['channel'][channel]['in_channel']):
-                if(self.conf['server'][server]['channel'][channel]['pass'] == ''):
-                    self.core['server'][server]['socket'].send(('JOIN ' + channel + endl).encode('utf-8'))
-                else:
-                    self.core['server'][server]['socket'].send(('JOIN ' + channel + ' ' + self.conf['server'][server]['channel'][channel]['pass'] + endl).encode('utf-8'))
-        if self.conf['server'][server]['pass']:
-            self.base_say('IDENTIFY ' + self.conf['server'][server]['pass'], [server,'nickserv'])
 
-    def base_decode(self,raw_bytes):
-        try:
-            text = raw_bytes.decode('utf-8')
-        except UnicodeDecodeError:
-            try:
-                text = raw_bytes.decode('iso-8859-1')
-            except UnicodeDecodeError:
-                text = raw_bytes.decode('cp1252')
-        return text
-
-    def base_run(self,server):
-        # begin pulling data from a given server
-        self.core['server'][server] = {}
-        self.core['server'][server]['check'] = {}
-        self.core['server'][server]['check']['names'] = ""
-        self.core['server'][server]['check']['recipientonline'] = ""
-        self.core['server'][server]['check']['nickregistered'] = False
-        self.core['server'][server]['check']['userregistered'] = False
-        self.core['server'][server]['channel'] = {}
-        for channel in self.conf['server'][server]['channel']:
-            self.core['server'][server]['channel'][channel] = {}
-            self.core['server'][server]['channel'][channel]['last_message'] = 0
-            self.core['server'][server]['channel'][channel]['user_list'] = []
-            if(self.conf['server'][server]['channel'][channel]['megahal_record']):
-                self.core['server'][server]['channel'][channel]['megahalcount'] = 0
-        self.core['server'][server]['lastping'] = 0
-        self.core['server'][server]['connected'] = False
-        self.core['server'][server]['motdend'] = False
-        self.core['server'][server]['open'] = True
-        self.core['server'][server]['socket'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            self.core['server'][server]['socket'].connect((self.conf['server'][server]['address'],self.conf['server'][server]['port']))
-        except Exception as e:
-            print("CONNECTION ERROR: " + str(e))
-            self.core['server'][server]['open'] = False
-#            del self.core['server'][server]
-#            del self.conf['server'][server]
-#            self.conf['servers'].remove(server)
-        Thread(target=self.base_connect, args=(server,)).start()
-        nextline = b""
-        while(self.mOpen and server in self.core['server'] and self.core['server'][server]['open']):
-            try:
-                nextbyte = self.core['server'][server]['socket'].recv(1)
-            except:
-                nextbyte = b""
-            if(nextbyte==b""):
-                self.core['server'][server]['lastping'] = 1
-                self.core['server'][server]['reconnect'] = True
-            if(nextbyte!=b"\n"):
-                nextline = nextline + nextbyte
-            else:
-                nextstring = self.base_decode(nextline)
-                Thread(target=self.base_parse, args=(server,nextstring)).start()
-                nextline = b""
 
 if __name__ == '__main__':
     Hallo()
