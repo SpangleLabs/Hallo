@@ -440,7 +440,18 @@ class ServerIRC(Server):
                 self.base_addlog(logLine, [self.mName,messageDestinationName])
         elif(messageChannel is None or messageChannel.getLogging()):
             self.base_addlog(logLine, [self.mName,messageDestinationName])
-        #TODO: If CTCP, get client, see if it's a /me
+        #Reply to certain types of CTCP command
+        if(messageCtcpCommand.lower()=='version'):
+            self.sendRaw('NOTICE ' + messageSenderName + ' :\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01')
+        elif(messageCtcpCommand.lower()=='time'):
+            self.sendRaw('NOTICE ' + messageSenderName + ' :\x01TIME Fribsday 15 Nov 2024 ' + str(time.gmtime()[3]+100).rjust(2,'0') + ':' + str(time.gmtime()[4]+20).rjust(2,'0') + ':' + str(time.gmtime()[5]).rjust(2,'0') + 'GMT\x01')
+        elif(messageCtcpCommand.lower()=='ping'):
+            self.sendRaw('NOTICE ' + messageSenderName + ' :\x01PING ' + messageCtcpArguments + '\x01')
+        elif(messageCtcpCommand.lower()=='userinfo'):
+            self.sendRaw('NOTICE ' + messageSenderName + " :\x01Hello, I'm hallo, I'm a robot who does a few different things, mostly roll numbers and choose things, occassionally giving my input on who is the best pony. dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01")
+        elif(messageCtcpCommand].lower()=='clientinfo'):
+            self.sendRaw('NOTICE ' + messageSenderName + ' :\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01')
+
         
     def parseLineJoin(self,joinLine):
         'Parses a JOIN message from the server'
