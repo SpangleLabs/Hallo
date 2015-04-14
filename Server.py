@@ -372,8 +372,11 @@ class ServerIRC(Server):
         #Test for private message, public message, or CTCP message.
         messagePrivateBool = messageDestinationName.lower() == self.getNick().lower()
         messagePublicBool = not messagePrivateBool
-        #TODO: check this
         messageCtcpBool = messageText.split(':')[2][0] == '\x01'
+        #If CTCP, get message text and ctcp command
+        if(messageCtcpBool):
+            messageText = messageText[1:-1]
+            messageCtcpCommand = messageText.split()[0]
         #Get relevant objects.
         if(messagePublicBool):
             messageChannel = self.getChannelByName(messageDestinationName)
