@@ -396,7 +396,7 @@ class ServerIRC(Server):
         ##If it is public and starts with channel's prefix, it's a command
         ##If channel prefix is name, check that there's a comma or colon?
         #If public message, return stuff to channel, else to sender
-        #TODO: the rest of processing for messages.
+        #TODO: pass to passive function checker
         
     def parseLineCtcp(self,ctcpLine):
         'Parses a CTCP message from the server'
