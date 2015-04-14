@@ -12,6 +12,13 @@ class Destination:
         '''
         self.mName = name
         
+    def getName(self):
+        'Name getter'
+        return self.mName
+    
+    def setName(self,name):
+        'Name setter'
+        self.mName = name
         
 class Channel(Destination):
     def __init__(self, params):
