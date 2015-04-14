@@ -369,14 +369,14 @@ class ServerIRC(Server):
         messageSenderName = messageLine.split('!')[0].replace(':', '')
         #Parse out where the message went to (e.g. channel or private message to Hallo)
         messageDestinationName = messageLine.split()[2].lower()
-        #Test for private message, public message, or CTCP message.
+        #Test for CTCP message, hand to CTCP parser if so.
+        messageCtcpBool = messageText.split(':')[2][0] == '\x01'
+        if(messageCtcpBool):
+            self.parseLineCtcp(messageLine)
+            return
+        #Test for private message or public message.
         messagePrivateBool = messageDestinationName.lower() == self.getNick().lower()
         messagePublicBool = not messagePrivateBool
-        messageCtcpBool = messageText.split(':')[2][0] == '\x01'
-        #If CTCP, get message text and ctcp command
-        if(messageCtcpBool):
-            messageText = messageText[1:-1]
-            messageCtcpCommand = messageText.split()[0]
         #Get relevant objects.
         if(messagePublicBool):
             messageChannel = self.getChannelByName(messageDestinationName)
@@ -387,25 +387,60 @@ class ServerIRC(Server):
         ##If it is public and starts with channel's prefix, it's a command
         ##If channel prefix is name, check that there's a comma or colon?
         #If public message, return stuff to channel, else to sender
-        outgoingDestinationName = messageDestinationName
+        outgoingDestination = messageChannel
         if(messagePrivateBool):
-            outgoingDestinationName = messageSenderName
-        #TODO: If CTCP, get client, see if it's a /me
-        if(not messageCtcpBool):
-            #Print the message to console
-            print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName + ' <' + messageSenderName + '> ' + messageText)
-            #Log the message
-            if(messagePrivateBool):
-                if(messageSender is None or messageSender.getLogging()):
-                    self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
-            elif(messageChannel is None or messageChannel.getLogging()):
+            outgoingDestination = messageSender
+        #Print message to console
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName + ' <' + messageSenderName + '> ' + messageText)
+        #Log the message
+        if(messagePrivateBool):
+            if(messageSender is None or messageSender.getLogging()):
                 self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
-        else:
-            #Figure out how to print and save CTCP messages
-            pass
+        elif(messageChannel is None or messageChannel.getLogging()):
+            self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
         #Print to console
         #Log stuff
         #TODO: the rest of processing for messages.
+        
+    def parseLineCtcp(self,ctcpLine):
+        'Parses a CTCP message from the server'
+        #Parse out the ctcp message text
+        messageText = ':'.join(ctcpLine.split(':')[2:])[1:-1]
+        #Parse out the message sender
+        messageSenderName = ctcpLine.split('!')[0].replace(':', '')
+        #Parse out where the message went to (e.g. channel or private message to Hallo)
+        messageDestinationName = ctcpLine.split()[2].lower()
+        #Parse out the CTCP command and arguments
+        messageCtcpCommand = messageText.split()[0]
+        messageCtcpArguments = ' '.join(messageText.split()[1:])
+        #Test for private message or public message
+        messagePrivateBool = messageDestinationName.lower() == self.getNick().lower()
+        messagePublicBool = not messagePrivateBool
+        #Get relevant objects.
+        if(messagePublicBool):
+            messageChannel = self.getChannelByName(messageDestinationName)
+        messageSender = self.getUserByName(messageSenderName)
+        #Print message to console
+        if(messageCtcpCommand.lower()=="action"):
+            consoleLine = Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName
+            consoleLine += '**' + messageSenderName + ' ' + messageCtcpArguments + '**'
+        else:
+            consoleLine = Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName
+            consoleLine += ' <' + messageSenderName + ' (CTCP)> ' + messageText
+        print(consoleLine)
+        #Log the message
+        if(messageCtcpCommand.lower()=="action"):
+            logLine = Commons.currentTimestamp() + messageDestinationName
+            logLine += '**' + messageSenderName + ' ' + messageCtcpArguments + '**'
+        else:
+            logLine = Commons.currentTimestamp() + messageDestinationName
+            logLine += ' <' + messageSenderName + ' (CTCP)> ' + messageText
+        if(messagePrivateBool):
+            if(messageSender is None or messageSender.getLogging()):
+                self.base_addlog(logLine, [self.mName,messageDestinationName])
+        elif(messageChannel is None or messageChannel.getLogging()):
+            self.base_addlog(logLine, [self.mName,messageDestinationName])
+        #TODO: If CTCP, get client, see if it's a /me
         
     def parseLineJoin(self,joinLine):
         'Parses a JOIN message from the server'
