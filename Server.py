@@ -449,7 +449,7 @@ class ServerIRC(Server):
             self.sendRaw('NOTICE ' + messageSenderName + ' :\x01PING ' + messageCtcpArguments + '\x01')
         elif(messageCtcpCommand.lower()=='userinfo'):
             self.sendRaw('NOTICE ' + messageSenderName + " :\x01Hello, I'm hallo, I'm a robot who does a few different things, mostly roll numbers and choose things, occassionally giving my input on who is the best pony. dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01")
-        elif(messageCtcpCommand].lower()=='clientinfo'):
+        elif(messageCtcpCommand.lower()=='clientinfo'):
             self.sendRaw('NOTICE ' + messageSenderName + ' :\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01')
 
         
