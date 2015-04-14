@@ -293,7 +293,7 @@ class ServerIRC(Server):
             msgTypeName = "NOTICE"
         else:
             msgTypeName = "PRIVMSG"
-        #TODO: get channel address
+        #Get channel or user name
         destinationName = channel.getName()
         #Get max line length
         maxLineLength = maxMsgLength-len(msgTypeName+' '+destinationName+' '+endl)
