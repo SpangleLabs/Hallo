@@ -40,13 +40,12 @@ class Hallo:
         #load config
         self.loadFromXml()
         self.mOpen = True
-        #TODO: connect to servers
         #TODO: deprecate and remove this
         self.base_start()
         #If no servers, ask for a new server
-        #TODO: make this check if any servers are connected
         if(len(self.mServerList)==0):
-            self.conf = self.manualServerConnect()
+            if(sum([server.getAutoConnect() for server in self.mServerList])==0):
+                self.conf = self.manualServerConnect()
         #connect to autoconnect servers
         print('connecting to servers')
         for server in self.mServerList:
