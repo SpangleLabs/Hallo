@@ -234,7 +234,7 @@ class ServerIRC(Server):
                 break
         #Identify with nickserv
         if self.mNickservPass:
-            self.sendRaw('IDENTIFY ' + self.mNickservPass, [self.mName,'nickserv'])
+            self.send('IDENTIFY ' + self.mNickservPass,self.getUserByName("nickserv"))
         #Join channels
         print(Commons.currentTimestamp() + " joining channels on " + self.mName + ", identifying.")
         #TODO: update this with Channel objects
