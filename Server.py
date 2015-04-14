@@ -430,10 +430,10 @@ class ServerIRC(Server):
         print(consoleLine)
         #Log the message
         if(messageCtcpCommand.lower()=="action"):
-            logLine = Commons.currentTimestamp() + messageDestinationName
+            logLine = Commons.currentTimestamp()
             logLine += '**' + messageSenderName + ' ' + messageCtcpArguments + '**'
         else:
-            logLine = Commons.currentTimestamp() + messageDestinationName
+            logLine = Commons.currentTimestamp()
             logLine += ' <' + messageSenderName + ' (CTCP)> ' + messageText
         if(messagePrivateBool):
             if(messageSender is None or messageSender.getLogging()):
