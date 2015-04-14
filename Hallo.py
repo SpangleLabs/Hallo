@@ -24,7 +24,6 @@ from Server import Server, ServerFactory, ServerIRC
 import ircbot_on
 import mod_passive
 
-#TODO: investigate this
 endl = Commons.mEndLine
 
 class Hallo:

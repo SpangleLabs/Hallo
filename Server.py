@@ -8,7 +8,6 @@ import time
 import ircbot_chk
 import hallobase_ctrl
 
-#TODO: investigate this
 endl = Commons.mEndLine
 
 class ServerException(Exception):
