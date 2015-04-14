@@ -378,18 +378,11 @@ class ServerIRC(Server):
         messagePrivateBool = messageDestinationName.lower() == self.getNick().lower()
         messagePublicBool = not messagePrivateBool
         #Get relevant objects.
+        messageSender = self.getUserByName(messageSenderName)
+        messageDestination = messageSender
         if(messagePublicBool):
             messageChannel = self.getChannelByName(messageDestinationName)
-        messageSender = self.getUserByName(messageSenderName)
-        #msg_cmd = message[0:len(nick)].lower() == nick.lower()
-        #TODO: Figure out if the message is a command.
-        ##If it's a privmsg it's a command
-        ##If it is public and starts with channel's prefix, it's a command
-        ##If channel prefix is name, check that there's a comma or colon?
-        #If public message, return stuff to channel, else to sender
-        outgoingDestination = messageChannel
-        if(messagePrivateBool):
-            outgoingDestination = messageSender
+            messageDestination = messageChannel
         #Print message to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName + ' <' + messageSenderName + '> ' + messageText)
         #Log the message
@@ -398,8 +391,11 @@ class ServerIRC(Server):
                 self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
         elif(messageChannel is None or messageChannel.getLogging()):
             self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
-        #Print to console
-        #Log stuff
+        #TODO: Figure out if the message is a command.
+        ##If it's a privmsg it's a command
+        ##If it is public and starts with channel's prefix, it's a command
+        ##If channel prefix is name, check that there's a comma or colon?
+        #If public message, return stuff to channel, else to sender
         #TODO: the rest of processing for messages.
         
     def parseLineCtcp(self,ctcpLine):
