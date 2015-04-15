@@ -50,8 +50,15 @@ class Destination:
         'Returns the server object that this destination belongs to'
 
 class Channel(Destination):
-    mType = "channel"
+    mType = "channel"           #This is a channel object
     
     
 class User(Destination):
-    mType = "user"
+    mType = "user"              #This is a user object
+    mIdentified = False         #Whether the user is identified with nickserv
+    
+    def isIdentified(self):
+        'Checks whether this user is identified'
+        #TODO: If false, do an ident check
+        return self.mIdentified
+    
