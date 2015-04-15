@@ -49,6 +49,7 @@ class Destination:
 
     def getServer(self):
         'Returns the server object that this destination belongs to'
+        return self.mServer
     
     def updateActivity(self):
         'Updates LastActive timestamp'
