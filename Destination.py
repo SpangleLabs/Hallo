@@ -62,6 +62,7 @@ class Destination:
 class Channel(Destination):
     mType = "channel"           #This is a channel object
     mPassword = None            #Channel password, or none.
+    mUserList = []              #Users in the channel
     
     def getPassword(self):
         'Channel password getter'
@@ -70,6 +71,18 @@ class Channel(Destination):
     def setPassword(self,password):
         'Channel password setter'
         self.mPassword = password
+    
+    def getUserList(self):
+        'Returns the full user list of the channel'
+        return self.mUserList
+
+    def addUser(self,user):
+        'Adds a new user to a given channel'
+        self.mUserList.append(user)
+    
+    def setUserList(self,userList):
+        'Sets the entire user list of a channel'
+        self.mUserList = userList
     
 class User(Destination):
     mType = "user"              #This is a user object
