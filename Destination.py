@@ -43,7 +43,7 @@ class Destination:
         else:
             return True
     
-    def hasLogging(self):
+    def getLogging(self):
         'Boolean, whether the destination is supposed to have logging.'
         return self.mLogging
 
