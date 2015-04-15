@@ -4,8 +4,9 @@ class Destination:
     '''
     Destination is an object that both Channel and User inherit from. It just means messages can be sent to these entities.
     '''
-    mName = None
-    mType = None
+    mName = None        #Destination name, where to send messages
+    mType = None        #The type of destination, "channel" or "user"
+    mLogging = True     #Whether logging is enabled for this destination
 
     def __init__(self,name):
         '''
@@ -38,6 +39,10 @@ class Destination:
             return False
         else:
             return True
+    
+    def hasLogging(self):
+        'Boolean, whether the destination is supposed to have logging.'
+        return self.mLogging
 
 class Channel(Destination):
     mType = "channel"
