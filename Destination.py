@@ -4,15 +4,17 @@ class Destination:
     '''
     Destination is an object that both Channel and User inherit from. It just means messages can be sent to these entities.
     '''
-    mName = None        #Destination name, where to send messages
     mType = None        #The type of destination, "channel" or "user"
+    mServer = None      #The server object this destination belongs to
+    mName = None        #Destination name, where to send messages
     mLogging = True     #Whether logging is enabled for this destination
 
-    def __init__(self,name):
+    def __init__(self,name,server):
         '''
         Constructor
         '''
         self.mName = name.lower()
+        self.mServer = server
         
     def getName(self):
         'Name getter'
@@ -44,17 +46,12 @@ class Destination:
         'Boolean, whether the destination is supposed to have logging.'
         return self.mLogging
 
+    def getServer(self):
+        'Returns the server object that this destination belongs to'
+
 class Channel(Destination):
     mType = "channel"
-    def __init__(self, params):
-        '''
-        Constructor
-        '''
     
     
 class User(Destination):
     mType = "user"
-    def __init__(self, params):
-        '''
-        Constructor
-        '''
