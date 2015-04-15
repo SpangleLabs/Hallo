@@ -79,10 +79,13 @@ class Channel(Destination):
     def addUser(self,user):
         'Adds a new user to a given channel'
         self.mUserList.add(user)
+        user.addChannel(self)
     
     def setUserList(self,userList):
         'Sets the entire user list of a channel'
         self.mUserList = userList
+        for user in userList:
+            user.addChannel(self)
     
 class User(Destination):
     mType = "user"              #This is a user object
