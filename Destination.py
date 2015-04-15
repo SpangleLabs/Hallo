@@ -1,4 +1,4 @@
-
+import time
 
 class Destination:
     '''
@@ -8,6 +8,7 @@ class Destination:
     mServer = None      #The server object this destination belongs to
     mName = None        #Destination name, where to send messages
     mLogging = True     #Whether logging is enabled for this destination
+    mLastActive = None  #Timestamp of when they were last active
 
     def __init__(self,name,server):
         '''
@@ -48,6 +49,14 @@ class Destination:
 
     def getServer(self):
         'Returns the server object that this destination belongs to'
+    
+    def updateActivity(self):
+        'Updates LastActive timestamp'
+        self.mLastActive = time.time()
+        
+    def getLastActive(self):
+        'Returns when the destination was last active'
+        return self.mLastActive
 
 class Channel(Destination):
     mType = "channel"           #This is a channel object
