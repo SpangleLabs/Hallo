@@ -86,10 +86,22 @@ class Channel(Destination):
     
 class User(Destination):
     mType = "user"              #This is a user object
-    mIdentified = False         #Whether the user is identified with nickserv
+    mIdentified = False         #Whether the user is identified (with nickserv)
+    mChannelList = set()        #List of channels this user is in
     
     def isIdentified(self):
         'Checks whether this user is identified'
         #TODO: If false, do an ident check
         return self.mIdentified
     
+    def getChannelList(self):
+        'Returns the list of channels this user is in'
+        return self.mChannelList
+    
+    def addChannel(self,channel):
+        'Adds a new channel to a given user'
+        self.mChannelList.add(channel)
+        
+    def setChannelList(self,channelList):
+        'Sets the entire channel list of a user'
+        self.mChannelList = channelList
