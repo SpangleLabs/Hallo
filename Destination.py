@@ -10,15 +10,15 @@ class Destination:
         '''
         Constructor
         '''
-        self.mName = name
+        self.mName = name.lower()
         
     def getName(self):
         'Name getter'
-        return self.mName
+        return self.mName.lower()
     
     def setName(self,name):
         'Name setter'
-        self.mName = name
+        self.mName = name.lower()
         
 class Channel(Destination):
     def __init__(self, params):
