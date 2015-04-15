@@ -51,7 +51,15 @@ class Destination:
 
 class Channel(Destination):
     mType = "channel"           #This is a channel object
+    mPassword = None            #Channel password, or none.
     
+    def getPassword(self):
+        'Channel password getter'
+        return self.mPassword
+    
+    def setPassword(self,password):
+        'Channel password setter'
+        self.mPassword = password
     
 class User(Destination):
     mType = "user"              #This is a user object
