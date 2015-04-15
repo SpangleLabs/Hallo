@@ -54,6 +54,10 @@ class Destination:
     def updateActivity(self):
         'Updates LastActive timestamp'
         self.mLastActive = time.time()
+        if(self.mInChannel==False):
+            self.mInChannel = True
+        if(self.mOnline==False):
+            self.mOnline = True
         
     def getLastActive(self):
         'Returns when the destination was last active'
@@ -63,6 +67,7 @@ class Channel(Destination):
     mType = "channel"           #This is a channel object
     mPassword = None            #Channel password, or none.
     mUserList = set()              #Users in the channel
+    mInChannel = False          #Whether or not hallo is in the channel
     
     def getPassword(self):
         'Channel password getter'
@@ -91,6 +96,7 @@ class User(Destination):
     mType = "user"              #This is a user object
     mIdentified = False         #Whether the user is identified (with nickserv)
     mChannelList = set()        #List of channels this user is in
+    mOnline = False             #Whether or not the user is online
     
     def isIdentified(self):
         'Checks whether this user is identified'
