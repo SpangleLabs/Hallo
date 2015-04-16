@@ -106,6 +106,10 @@ class Channel(Destination):
         'Whether or not passive functions are enabled in this channel'
         return self.mPassiveEnabled
     
+    def setPassiveEnabled(self,passiveEnabled):
+        'Sets whether pasive functions are enabled in this channel'
+        self.mPassiveEnabled = passiveEnabled
+    
 class User(Destination):
     mType = "user"              #This is a user object
     mIdentified = False         #Whether the user is identified (with nickserv)
