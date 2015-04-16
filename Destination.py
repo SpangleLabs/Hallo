@@ -64,7 +64,7 @@ class Destination:
         'Returns when the destination was last active'
         return self.mLastActive
     
-    def getUseCapsLock(self):
+    def isUpperCase(self):
         'Returns a boolean representing whether to use caps lock'
         return self.mUseCapsLock
 
@@ -73,6 +73,7 @@ class Channel(Destination):
     mPassword = None            #Channel password, or none.
     mUserList = set()              #Users in the channel
     mInChannel = False          #Whether or not hallo is in the channel
+    mPassiveEnabled = True       #Whether to use passive functions in the channel
     
     def getPassword(self):
         'Channel password getter'
@@ -96,6 +97,9 @@ class Channel(Destination):
         self.mUserList = userList
         for user in userList:
             user.addChannel(self)
+            
+    def isEnabledPassive(self):
+        ''
     
 class User(Destination):
     mType = "user"              #This is a user object
