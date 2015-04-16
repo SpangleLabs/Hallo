@@ -67,6 +67,10 @@ class Destination:
     def isUpperCase(self):
         'Returns a boolean representing whether to use caps lock'
         return self.mUseCapsLock
+    
+    def setUpperCase(self,upperCase):
+        'Sets whether the desintation uses caps lock'
+        self.mUseCapsLock = upperCase
 
 class Channel(Destination):
     mType = "channel"           #This is a channel object
