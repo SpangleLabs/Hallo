@@ -69,7 +69,7 @@ class Destination:
         return self.mUseCapsLock
     
     def setUpperCase(self,upperCase):
-        'Sets whether the desintation uses caps lock'
+        'Sets whether the destination uses caps lock'
         self.mUseCapsLock = upperCase
 
 class Channel(Destination):
