@@ -9,6 +9,7 @@ class Destination:
     mName = None        #Destination name, where to send messages
     mLogging = True     #Whether logging is enabled for this destination
     mLastActive = None  #Timestamp of when they were last active
+    mUseCapsLock = False    #Whether to use caps lock when communicating to this destination
 
     def __init__(self,name,server):
         '''
@@ -62,6 +63,10 @@ class Destination:
     def getLastActive(self):
         'Returns when the destination was last active'
         return self.mLastActive
+    
+    def getUseCapsLock(self):
+        'Returns a boolean representing whether to use caps lock'
+        return self.mUseCapsLock
 
 class Channel(Destination):
     mType = "channel"           #This is a channel object
