@@ -102,8 +102,9 @@ class Channel(Destination):
         for user in userList:
             user.addChannel(self)
             
-    def isEnabledPassive(self):
-        ''
+    def isPassiveEnabled(self):
+        'Whether or not passive functions are enabled in this channel'
+        return self.mPassiveEnabled
     
 class User(Destination):
     mType = "user"              #This is a user object
