@@ -158,6 +158,10 @@ class Channel(Destination):
         passiveEnabledElement = doc.createElement("passive_enabled")
         passiveEnabledElement.appendChild(doc.createTextNode(self.mPassiveEnabled))
         root.appendChild(passiveEnabledElement)
+        #create autojoin element, whether or not to automatically join a channel
+        autoJoinElement = doc.createElement("auto_join")
+        autoJoinElement.appendChild(doc.createTextNode(self.mAutoJoin))
+        root.appendChild(autoJoinElement)
         #output XML string
         return doc.toxml()
     
