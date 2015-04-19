@@ -91,6 +91,13 @@ class Channel(Destination):
     mPassiveEnabled = True      #Whether to use passive functions in the channel
     mAutoJoin = True            #Whether hallo should automatically join this channel when loading
     
+    def __init__(self,name,server):
+        '''
+        Constructor for channel object
+        '''
+        self.mName = name.lower()
+        self.mServer = server
+
     def getPassword(self):
         'Channel password getter'
         return self.mPassword
@@ -166,14 +173,36 @@ class Channel(Destination):
         return doc.toxml()
     
     @staticmethod
-    def fromXml(xmlString):
+    def fromXml(xmlString,server):
         'Loads a new Destination object from XML'
+        doc = minidom.parse(xmlString)
+        newServer = ServerIRC(hallo)
+        newServer.mName = doc.getElementsByTagName("server_name")[0].firstChild.data
+        newServer.mAutoConnect = doc.getElementsByTagName("auto_connect")[0].firstChild.data
+        if(len(doc.getElementsByTagName("server_nick"))!=0):
+            newServer.mNick = doc.getElementsByTagName("server_nick")[0].firstChild.data
+        if(len(doc.getElementsByTagName("server_prefix"))!=0):
+            newServer.mPrefix = doc.getElementsByTagName("server_prefix")[0].firstChild.data
+        if(len(doc.getElementsByTagName("full_name"))!=0):
+            newServer.mFullName = doc.getElementsByTagName("full_name")[0].firstChild.data
+        newServer.mServerAddress = doc.getElementsByTagName("server_address")[0].firstChild.data
+        newServer.mServerPort = doc.getElementsByTagName("server_port")[0].firstChild.data
+        if(len(doc.getElementsByTagName("nickserv_pass"))!=0):
+            newServer.mNickservPass = doc.getElementsByTagName("nickserv_pass")[0].firstChild.data
+        return newServer
     
 class User(Destination):
     mType = "user"              #This is a user object
     mIdentified = False         #Whether the user is identified (with nickserv)
     mChannelList = set()        #List of channels this user is in
     mOnline = False             #Whether or not the user is online
+
+    def __init__(self,name,server):
+        '''
+        Constructor for user object
+        '''
+        self.mName = name.lower()
+        self.mServer = server
     
     def isIdentified(self):
         'Checks whether this user is identified'
