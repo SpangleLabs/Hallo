@@ -86,9 +86,10 @@ class Destination:
 class Channel(Destination):
     mType = "channel"           #This is a channel object
     mPassword = None            #Channel password, or none.
-    mUserList = set()              #Users in the channel
+    mUserList = set()           #Users in the channel
     mInChannel = False          #Whether or not hallo is in the channel
-    mPassiveEnabled = True       #Whether to use passive functions in the channel
+    mPassiveEnabled = True      #Whether to use passive functions in the channel
+    mAutoJoin = True            #Whether hallo should automatically join this channel when loading
     
     def getPassword(self):
         'Channel password getter'
@@ -120,6 +121,14 @@ class Channel(Destination):
     def setPassiveEnabled(self,passiveEnabled):
         'Sets whether pasive functions are enabled in this channel'
         self.mPassiveEnabled = passiveEnabled
+    
+    def isAutoJoin(self):
+        'Whether or not hallo should automatically join this channel'
+        return self.mAutoJoin
+    
+    def setAutoJoin(self,autoJoin):
+        'Sets whether hallo automatically joins this channel'
+        self.mAutoJoin = autoJoin
         
     def toXml(self):
         'Returns the Channel object XML'
