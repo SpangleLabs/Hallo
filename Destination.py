@@ -174,7 +174,7 @@ class Channel(Destination):
     
     @staticmethod
     def fromXml(xmlString,server):
-        'Loads a new Destination object from XML'
+        'Loads a new Channel object from XML'
         doc = minidom.parse(xmlString)
         newName = doc.getElementsByTagName("channel_name")[0].firstChild.data
         newChannel = Channel(newName,server)
