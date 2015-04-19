@@ -119,7 +119,7 @@ class Channel(Destination):
         return self.mPassiveEnabled
     
     def setPassiveEnabled(self,passiveEnabled):
-        'Sets whether pasive functions are enabled in this channel'
+        'Sets whether passive functions are enabled in this channel'
         self.mPassiveEnabled = passiveEnabled
     
     def isAutoJoin(self):
