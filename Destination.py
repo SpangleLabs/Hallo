@@ -15,6 +15,7 @@ class Destination:
         '''
         Constructor
         '''
+        raise NotImplementedError
         self.mName = name.lower()
         self.mServer = server
         
@@ -71,6 +72,14 @@ class Destination:
     def setUpperCase(self,upperCase):
         'Sets whether the destination uses caps lock'
         self.mUseCapsLock = upperCase
+        
+    def toXml(self):
+        'Returns the Destination object XML'
+        raise NotImplementedError
+    
+    @staticmethod
+    def fromXml(xmlString):
+        'Loads a new Destination object from XML'
 
 class Channel(Destination):
     mType = "channel"           #This is a channel object
