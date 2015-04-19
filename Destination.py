@@ -1,5 +1,7 @@
 import time
 
+from xml.dom import minidom
+
 class Destination:
     '''
     Destination is an object that both Channel and User inherit from. It just means messages can be sent to these entities.
@@ -118,6 +120,41 @@ class Channel(Destination):
     def setPassiveEnabled(self,passiveEnabled):
         'Sets whether pasive functions are enabled in this channel'
         self.mPassiveEnabled = passiveEnabled
+        
+    def toXml(self):
+        'Returns the Channel object XML'
+        #create document
+        doc = minidom.Document()
+        #create root element
+        root = doc.createElement("channel")
+        doc.appendChild(root)
+        #create name element
+        nameElement = doc.createElement("channel_name")
+        nameElement.appendChild(doc.createTextNode(self.mName))
+        root.appendChild(nameElement)
+        #create logging element
+        loggingElement = doc.createElement("logging")
+        loggingElement.appendChild(doc.createTextNode(self.mLogging))
+        root.appendChild(loggingElement)
+        #create caps_lock element, to say whether to use caps lock
+        capsLockElement = doc.createElement("caps_lock")
+        capsLockElement.appendChild(doc.createTextNode(self.mUseCapsLock))
+        root.appendChild(capsLockElement)
+        #create password element
+        if(self.mPassword is not None):
+            passwordElement = doc.createElement("password")
+            passwordElement.appendChild(doc.createTextNode(self.mPassword))
+            root.appendChild(passwordElement)
+        #create passive_enabled element, saying whether passive functions are enabled
+        passiveEnabledElement = doc.createElement("passive_enabled")
+        passiveEnabledElement.appendChild(doc.createTextNode(self.mPassiveEnabled))
+        root.appendChild(passiveEnabledElement)
+        #output XML string
+        return doc.toxml()
+    
+    @staticmethod
+    def fromXml(xmlString):
+        'Loads a new Destination object from XML'
     
 class User(Destination):
     mType = "user"              #This is a user object
