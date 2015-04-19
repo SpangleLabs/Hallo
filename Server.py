@@ -245,12 +245,12 @@ class ServerIRC(Server):
         #Join channels
         print(Commons.currentTimestamp() + " joining channels on " + self.mName + ", identifying.")
         #TODO: update this with Channel objects
-        for channel in self.mHallo.conf['server'][self.mName]['channel']:
-            if(self.mHallo.conf['server'][self.mName]['channel'][channel]['in_channel']):
-                if(self.mHallo.conf['server'][self.mName]['channel'][channel]['pass'] == ''):
-                    self.sendRaw('JOIN ' + channel)
+        for channel in self.mChannelList:
+            if(channel.isAutoJoin()):
+                if(channel.getPassword() is None):
+                    self.sendRaw('JOIN ' + channel.getName())
                 else:
-                    self.sendRaw('JOIN ' + channel + ' ' + self.mHallo.conf['server'][self.mName]['channel'][channel]['pass'])
+                    self.sendRaw('JOIN ' + channel.getName() + ' ' + channel.getPassword())
     
     def disconnect(self):
         'Disconnect from the server'
