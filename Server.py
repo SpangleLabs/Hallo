@@ -8,6 +8,8 @@ import time
 import ircbot_chk
 import hallobase_ctrl
 
+from Destination import Channel
+
 endl = Commons.mEndLine
 
 class ServerException(Exception):
@@ -135,6 +137,11 @@ class Server(object):
             if(channel.getName()==channelName):
                 return channel
         return None
+    
+    def addChannel(self,channelObject):
+        'Adds a channel to the channel list'
+        if(self.getChannelByName(channelObject.getName()) is None):
+            self.mChannelList.append(channelObject)
         
     def getUserByName(self,userName):
         'Returns a User object with the specified user name.'
@@ -729,6 +736,11 @@ class ServerIRC(Server):
         newServer.mServerPort = doc.getElementsByTagName("server_port")[0].firstChild.data
         if(len(doc.getElementsByTagName("nickserv_pass"))!=0):
             newServer.mNickservPass = doc.getElementsByTagName("nickserv_pass")[0].firstChild.data
+        #Load channels
+        channelListXml = doc.getElementsByTagName("channel_list")[0]
+        for channelXml in channelListXml.getElementsByTagName("channel"):
+            channelObject = Channel.fromXml(channelXml.toxml(),newServer)
+            newServer.addChannel(channelObject)
         return newServer
         
     def toXml(self):
