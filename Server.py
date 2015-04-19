@@ -231,8 +231,8 @@ class ServerIRC(Server):
         self.mWelcomeMessage += firstLine+"\n"
         #Send nick and full name to server
         print(Commons.currentTimestamp() + " sending nick and user info to server: " + self.mName)
-        self.sendRaw('NICK ' + self.getNick())
-        self.sendRaw('USER ' + self.getFullName())
+        self.send('NICK ' + self.getNick(),None,"raw")
+        self.send('USER ' + self.getFullName(),None,"raw")
         #Wait for MOTD to end
         while(True):
             nextWelcomeLine = self.readLineFromSocket()
@@ -248,9 +248,9 @@ class ServerIRC(Server):
         for channel in self.mChannelList:
             if(channel.isAutoJoin()):
                 if(channel.getPassword() is None):
-                    self.sendRaw('JOIN ' + channel.getName())
+                    self.send('JOIN ' + channel.getName(),None,"raw")
                 else:
-                    self.sendRaw('JOIN ' + channel.getName() + ' ' + channel.getPassword())
+                    self.send('JOIN ' + channel.getName() + ' ' + channel.getPassword(),None,"raw")
     
     def disconnect(self):
         'Disconnect from the server'
@@ -262,7 +262,7 @@ class ServerIRC(Server):
         #    time.sleep(1)
         if(self.mOpen):
             #self.mHallo.core['server'][self.mName]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
-            self.sendRaw('QUIT :Will I dream?')
+            self.send('QUIT :Will I dream?',None,"raw")
             self.mSocket.close()
             self.mOpen = False
             #Remove self from Hallo's server list
@@ -473,7 +473,7 @@ class ServerIRC(Server):
                         #TODO: Need a new way to check if users are registered
                         #TODO: http://stackoverflow.com/questions/1682920/determine-if-a-user-is-idented-on-irc
                         if(ircbot_chk.ircbot_chk.chk_userregistered(self.mHallo,self.mName,joinClient)):
-                            self.sendRaw('MODE ' + joinChannel + ' ' + entry['flag'] + ' ' + joinClient)
+                            self.send('MODE ' + joinChannel + ' ' + entry['flag'] + ' ' + joinClient,None,"raw")
                             break
                         time.sleep(5)
         #If hallo has joined a channel, get the user list and apply automatic flags as required
@@ -488,7 +488,7 @@ class ServerIRC(Server):
                         for x in range(7):
                             #TODO: Replace this with a new way to check users are registered
                             if(ircbot_chk.ircbot_chk.chk_userregistered(self,self.mName,entry['user'])):
-                                self.sendRaw('MODE ' + joinChannel + ' ' + entry['flag'] + ' ' + entry['user'])
+                                self.send('MODE ' + joinChannel + ' ' + entry['flag'] + ' ' + entry['user'],None,"raw")
                                 break
                             time.sleep(5)
         else:
@@ -625,7 +625,7 @@ class ServerIRC(Server):
                     if(nickNewNick == entry['user']):
                         for _ in range(7):
                             if(ircbot_chk.ircbot_chk.chk_userregistered(self.mHallo,self.mName,nickNewNick)):
-                                self.sendRaw('MODE ' + channel + ' ' + entry['flag'] + ' ' + nickNewNick)
+                                self.send('MODE ' + channel + ' ' + entry['flag'] + ' ' + nickNewNick,None,"raw")
                                 break
                             time.sleep(5)
         
