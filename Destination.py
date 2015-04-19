@@ -165,7 +165,7 @@ class Channel(Destination):
         passiveEnabledElement = doc.createElement("passive_enabled")
         passiveEnabledElement.appendChild(doc.createTextNode(self.mPassiveEnabled))
         root.appendChild(passiveEnabledElement)
-        #create autojoin element, whether or not to automatically join a channel
+        #create auto_join element, whether or not to automatically join a channel
         autoJoinElement = doc.createElement("auto_join")
         autoJoinElement.appendChild(doc.createTextNode(self.mAutoJoin))
         root.appendChild(autoJoinElement)
@@ -176,20 +176,15 @@ class Channel(Destination):
     def fromXml(xmlString,server):
         'Loads a new Destination object from XML'
         doc = minidom.parse(xmlString)
-        newServer = ServerIRC(hallo)
-        newServer.mName = doc.getElementsByTagName("server_name")[0].firstChild.data
-        newServer.mAutoConnect = doc.getElementsByTagName("auto_connect")[0].firstChild.data
-        if(len(doc.getElementsByTagName("server_nick"))!=0):
-            newServer.mNick = doc.getElementsByTagName("server_nick")[0].firstChild.data
-        if(len(doc.getElementsByTagName("server_prefix"))!=0):
-            newServer.mPrefix = doc.getElementsByTagName("server_prefix")[0].firstChild.data
-        if(len(doc.getElementsByTagName("full_name"))!=0):
-            newServer.mFullName = doc.getElementsByTagName("full_name")[0].firstChild.data
-        newServer.mServerAddress = doc.getElementsByTagName("server_address")[0].firstChild.data
-        newServer.mServerPort = doc.getElementsByTagName("server_port")[0].firstChild.data
-        if(len(doc.getElementsByTagName("nickserv_pass"))!=0):
-            newServer.mNickservPass = doc.getElementsByTagName("nickserv_pass")[0].firstChild.data
-        return newServer
+        newName = doc.getElementsByTagName("channel_name")[0].firstChild.data
+        newChannel = Channel(newName,server)
+        newChannel.mLogging = doc.getElementsByTagName("logging")[0].firstChild.data
+        newChannel.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
+        if(len(doc.getElementsByTagName("password"))!=0):
+            newChannel.mPassword = doc.getElementsByTagName("password")[0].firstChild.data
+        newChannel.mPassiveEnabled = doc.getElementsByTagName("passive_enabled")[0].firstChild.data
+        newChannel.mAutoJoin = doc.getElementsByTagName("auto_join")[0].firstChild.data
+        return newChannel
     
 class User(Destination):
     mType = "user"              #This is a user object
