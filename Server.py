@@ -364,7 +364,7 @@ class ServerIRC(Server):
         'Parses a PING message from the server'
         print(Commons.currentTimestamp() + "["+self.mName+"] PING")
         pingNumber = pingLine.split()[1]
-        self.sendRaw("PONG "+pingNumber)
+        self.send("PONG "+pingNumber,None,"raw")
         
     def parseLineMessage(self,messageLine):
         'Parses a PRIVMSG message from the server'
