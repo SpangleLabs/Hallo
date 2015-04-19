@@ -752,7 +752,12 @@ class ServerIRC(Server):
         autoConnectElement = doc.createElement("auto_connect")
         autoConnectElement.appendChild(doc.createTextNode(self.mAutoConnect))
         root.appendChild(autoConnectElement)
-        #TODO:create channel list element
+        #create channel list
+        channelListElement = doc.createElement("channel_list")
+        for channelItem in self.mChannelList:
+            channelElement = minidom.parse(channelItem.toXml()).firstChild
+            channelListElement.appendChild(channelElement)
+        root.appendChild(channelListElement)
         #create nick element
         if(self.mNick is not None):
             nickElement = doc.createElement("server_nick")
