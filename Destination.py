@@ -215,3 +215,54 @@ class User(Destination):
     def setChannelList(self,channelList):
         'Sets the entire channel list of a user'
         self.mChannelList = channelList
+        
+    def toXml(self):
+        'Returns the Channel object XML'
+        raise NotImplementedError
+        #create document
+        doc = minidom.Document()
+        #create root element
+        root = doc.createElement("channel")
+        doc.appendChild(root)
+        #create name element
+        nameElement = doc.createElement("channel_name")
+        nameElement.appendChild(doc.createTextNode(self.mName))
+        root.appendChild(nameElement)
+        #create logging element
+        loggingElement = doc.createElement("logging")
+        loggingElement.appendChild(doc.createTextNode(self.mLogging))
+        root.appendChild(loggingElement)
+        #create caps_lock element, to say whether to use caps lock
+        capsLockElement = doc.createElement("caps_lock")
+        capsLockElement.appendChild(doc.createTextNode(self.mUseCapsLock))
+        root.appendChild(capsLockElement)
+        #create password element
+        if(self.mPassword is not None):
+            passwordElement = doc.createElement("password")
+            passwordElement.appendChild(doc.createTextNode(self.mPassword))
+            root.appendChild(passwordElement)
+        #create passive_enabled element, saying whether passive functions are enabled
+        passiveEnabledElement = doc.createElement("passive_enabled")
+        passiveEnabledElement.appendChild(doc.createTextNode(self.mPassiveEnabled))
+        root.appendChild(passiveEnabledElement)
+        #create auto_join element, whether or not to automatically join a channel
+        autoJoinElement = doc.createElement("auto_join")
+        autoJoinElement.appendChild(doc.createTextNode(self.mAutoJoin))
+        root.appendChild(autoJoinElement)
+        #output XML string
+        return doc.toxml()
+    
+    @staticmethod
+    def fromXml(xmlString,server):
+        'Loads a new Destination object from XML'
+        raise NotImplementedError
+        doc = minidom.parse(xmlString)
+        newName = doc.getElementsByTagName("channel_name")[0].firstChild.data
+        newChannel = Channel(newName,server)
+        newChannel.mLogging = doc.getElementsByTagName("logging")[0].firstChild.data
+        newChannel.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
+        if(len(doc.getElementsByTagName("password"))!=0):
+            newChannel.mPassword = doc.getElementsByTagName("password")[0].firstChild.data
+        newChannel.mPassiveEnabled = doc.getElementsByTagName("passive_enabled")[0].firstChild.data
+        newChannel.mAutoJoin = doc.getElementsByTagName("auto_join")[0].firstChild.data
+        return newChannel
