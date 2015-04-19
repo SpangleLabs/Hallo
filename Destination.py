@@ -217,15 +217,14 @@ class User(Destination):
         self.mChannelList = channelList
         
     def toXml(self):
-        'Returns the Channel object XML'
-        raise NotImplementedError
+        'Returns the User object XML'
         #create document
         doc = minidom.Document()
         #create root element
-        root = doc.createElement("channel")
+        root = doc.createElement("user")
         doc.appendChild(root)
         #create name element
-        nameElement = doc.createElement("channel_name")
+        nameElement = doc.createElement("user_name")
         nameElement.appendChild(doc.createTextNode(self.mName))
         root.appendChild(nameElement)
         #create logging element
@@ -236,19 +235,6 @@ class User(Destination):
         capsLockElement = doc.createElement("caps_lock")
         capsLockElement.appendChild(doc.createTextNode(self.mUseCapsLock))
         root.appendChild(capsLockElement)
-        #create password element
-        if(self.mPassword is not None):
-            passwordElement = doc.createElement("password")
-            passwordElement.appendChild(doc.createTextNode(self.mPassword))
-            root.appendChild(passwordElement)
-        #create passive_enabled element, saying whether passive functions are enabled
-        passiveEnabledElement = doc.createElement("passive_enabled")
-        passiveEnabledElement.appendChild(doc.createTextNode(self.mPassiveEnabled))
-        root.appendChild(passiveEnabledElement)
-        #create auto_join element, whether or not to automatically join a channel
-        autoJoinElement = doc.createElement("auto_join")
-        autoJoinElement.appendChild(doc.createTextNode(self.mAutoJoin))
-        root.appendChild(autoJoinElement)
         #output XML string
         return doc.toxml()
     
