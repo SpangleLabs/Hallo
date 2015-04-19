@@ -240,15 +240,12 @@ class User(Destination):
     
     @staticmethod
     def fromXml(xmlString,server):
-        'Loads a new Destination object from XML'
-        raise NotImplementedError
+        'Loads a new User object from XML'
         doc = minidom.parse(xmlString)
-        newName = doc.getElementsByTagName("channel_name")[0].firstChild.data
-        newChannel = Channel(newName,server)
-        newChannel.mLogging = doc.getElementsByTagName("logging")[0].firstChild.data
-        newChannel.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
-        if(len(doc.getElementsByTagName("password"))!=0):
-            newChannel.mPassword = doc.getElementsByTagName("password")[0].firstChild.data
-        newChannel.mPassiveEnabled = doc.getElementsByTagName("passive_enabled")[0].firstChild.data
-        newChannel.mAutoJoin = doc.getElementsByTagName("auto_join")[0].firstChild.data
-        return newChannel
+        newName = doc.getElementsByTagName("user_name")[0].firstChild.data
+        newUser = User(newName,server)
+        newUser.mLogging = doc.getElementsByTagName("logging")[0].firstChild.data
+        newUser.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
+        return newUser
+    
+    
