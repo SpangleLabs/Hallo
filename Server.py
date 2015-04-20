@@ -453,28 +453,29 @@ class ServerIRC(Server):
         'Parses a JOIN message from the server'
         #Parse out the channel and client from the JOIN data
         joinChannelName = ':'.join(joinLine.split(':')[2:]).lower()
-        joinClient = joinLine.split('!')[0][1:]
+        joinClientName = joinLine.split('!')[0][1:]
         #Get relevant objects
-        joinChannel = self.getChannelByName(joinChannelName) 
+        joinChannel = self.getChannelByName(joinChannelName)
+        joinClient = self.getUserByName(joinClientName) #TODO: create if they don't exist
         #Print to console
-        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + joinClient + ' joined ' + joinChannel.getName())
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + joinClient.getName() + ' joined ' + joinChannel.getName())
         #If channel does logging, log
         #TODO: replace with newer logging
         if(joinChannel.getLogging()):
-            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + joinClient + ' joined ' + joinChannel.getName(),[self.mName,joinChannel.getName()])
+            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + joinClient.getName() + ' joined ' + joinChannel.getName(),[self.mName,joinChannel.getName()])
         #Apply automatic flags as required
         if('auto_list' in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]):
             for entry in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]['auto_list']:
-                if(joinClient.lower()==entry['user']):
+                if(joinClient.getName().lower()==entry['user']):
                     for x in range(7):
                         #TODO: Need a new way to check if users are registered
                         #TODO: http://stackoverflow.com/questions/1682920/determine-if-a-user-is-idented-on-irc
-                        if(ircbot_chk.ircbot_chk.chk_userregistered(self.mHallo,self.mName,joinClient)):
-                            self.send('MODE ' + joinChannel.getName() + ' ' + entry['flag'] + ' ' + joinClient,None,"raw")
+                        if(ircbot_chk.ircbot_chk.chk_userregistered(self.mHallo,self.mName,joinClient.getName())):
+                            self.send('MODE ' + joinChannel.getName() + ' ' + entry['flag'] + ' ' + joinClient.getName(),None,"raw")
                             break
                         time.sleep(5)
         #If hallo has joined a channel, get the user list and apply automatic flags as required
-        if(joinClient.lower() == self.getNick().lower()):
+        if(joinClient.getName().lower() == self.getNick().lower()):
             joinChannel.setInChannel(True)
             namesonline = ircbot_chk.ircbot_chk.chk_names(self.mHallo,self.mName,joinChannel.getName())
             namesonline = [x.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','').lower() for x in namesonline]
@@ -490,7 +491,7 @@ class ServerIRC(Server):
                             time.sleep(5)
         else:
             #If it was not hallo joining a channel, add nick to user list
-            self.mHallo.core['server'][self.mName]['channel'][joinChannel.getName()]['user_list'].append(joinClient.lower())
+            joinChannel.addUser(joinClient)
         
     def parseLinePart(self,partLine):
         'Parses a PART message from the server'
