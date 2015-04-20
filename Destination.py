@@ -224,6 +224,14 @@ class User(Destination):
         'Sets the entire channel list of a user'
         self.mChannelList = channelList
         
+    def isOnline(self):
+        'Whether the user appears to be online'
+        return self.mOnline
+    
+    def setOnline(self,online):
+        'Sets whether the user is online'
+        self.mOnline = online
+        
     def toXml(self):
         'Returns the User object XML'
         #create document
