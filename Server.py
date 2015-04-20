@@ -263,9 +263,6 @@ class ServerIRC(Server):
             self.send('QUIT :Will I dream?',None,"raw")
             self.mSocket.close()
             self.mOpen = False
-            #Remove self from Hallo's server list
-            self.mHallo.removeServer(self)
-            
     
     def run(self):
         '''
