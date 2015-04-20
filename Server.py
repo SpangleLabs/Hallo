@@ -253,10 +253,10 @@ class ServerIRC(Server):
     def disconnect(self):
         'Disconnect from the server'
         #TODO: upgrade this when logging is upgraded
-        for channel in self.mHallo.conf['server'][self.mName]['channel']:
+        for channel in self.mChannelList:
         #    self.mHallo.base_say('Daisy daisy give me your answer do...',[server,channel])
-            if(self.mHallo.conf['server'][self.mName]['channel'][channel]['in_channel'] and self.mHallo.conf['server'][self.mName]['channel'][channel]['logging']):
-                self.mHallo.base_addlog(Commons.currentTimestamp() + ' '+self.getNick()+' has quit.',[self.mName,channel])
+            if(channel.isInChannel() and channel.getLogging()):
+                self.mHallo.base_addlog(Commons.currentTimestamp() + ' '+self.getNick()+' has quit.',[self.mName,channel.getName()])
         #    time.sleep(1)
         if(self.mOpen):
             #self.mHallo.core['server'][self.mName]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
