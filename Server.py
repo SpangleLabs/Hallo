@@ -8,7 +8,7 @@ import time
 import ircbot_chk
 import hallobase_ctrl
 
-from Destination import Channel
+from Destination import Destination,Channel,User
 
 endl = Commons.mEndLine
 
