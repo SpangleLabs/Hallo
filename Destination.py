@@ -137,6 +137,14 @@ class Channel(Destination):
         'Sets whether hallo automatically joins this channel'
         self.mAutoJoin = autoJoin
         
+    def isInChannel(self):
+        'Whether or not hallo is in this channel'
+        return self.mInChannel
+    
+    def setInChannel(self,inChannel):
+        'Sets whether hallo is in this channel'
+        self.mInChannel = inChannel
+        
     def toXml(self):
         'Returns the Channel object XML'
         #create document
