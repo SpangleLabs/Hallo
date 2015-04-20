@@ -223,8 +223,6 @@ class ServerIRC(Server):
         except Exception as e:
             print("CONNECTION ERROR: " + str(e))
             self.mOpen = False
-            #TODO: remove line
-            self.mHallo.core['server'][self.mName]['open'] = False
         #Wait for the first message back from the server.
         print(Commons.currentTimestamp() + " waiting for first message from server: " + self.mName)
         firstLine = self.readLineFromSocket()
