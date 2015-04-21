@@ -120,6 +120,11 @@ class Channel(Destination):
         self.mUserList = userList
         for user in userList:
             user.addChannel(self)
+    
+    def removeUser(self,user):
+        'Removes a user from a given channel'
+        self.mUserList.remove(user)
+        user.removeChannel(self)
             
     def isPassiveEnabled(self):
         'Whether or not passive functions are enabled in this channel'
@@ -219,6 +224,10 @@ class User(Destination):
     def addChannel(self,channel):
         'Adds a new channel to a given user'
         self.mChannelList.add(channel)
+    
+    def removeChannel(self,channel):
+        'Removes a channel from a given user'
+        self.mChannelList.remove(channel)
         
     def setChannelList(self,channelList):
         'Sets the entire channel list of a user'
