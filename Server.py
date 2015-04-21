@@ -509,14 +509,14 @@ class ServerIRC(Server):
         if(partChannel.getLogging()):
             self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + partClient.getName() + ' left ' + partChannel.getName() + ' (' + partMessage + ')',[self.mName,partChannel.getName()])
         #Remove user from channel's user list
-        self.mHallo.core['server'][self.mName]['channel'][partChannel.getName()]['user_list'].remove(partClient.getName().lower())
+        partChannel.removeUser(partClient)
         #Try to work out if the user is still on the server
         #TODO: this needs to be nicer
-        stillonserver = False
+        userStillOnServer = False
         for channel_server in self.mChannelList:
-            if(partClient.getName().lower() in self.mHallo.core['server'][self.mName]['channel'][channel_server.getName()]['user_list']):
-                stillonserver = True
-        if(not stillonserver):
+            if(partClient in channel_server.getUserList()):
+                userStillOnServer = True
+        if(not userStillOnServer):
             if(partClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_op']):
                 self.mHallo.core['server'][self.mHallo.mName]['auth_op'].remove(partClient.getName().lower())
             if(partClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_god']):
