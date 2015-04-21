@@ -149,6 +149,8 @@ class Channel(Destination):
     def setInChannel(self,inChannel):
         'Sets whether hallo is in this channel'
         self.mInChannel = inChannel
+        if(inChannel == False):
+            self.mUserList = set()
         
     def toXml(self):
         'Returns the Channel object XML'
