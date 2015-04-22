@@ -554,16 +554,19 @@ class ServerIRC(Server):
             modeArgs = ' '.join(modeLine.split()[4:])
         else:
             modeArgs = ''
+        #Get client and channel objects
+        modeChannel = self.getChannelByName(modeChannel)
+        modeClient = self.getUserByName(modeClient)
         #Print to console
-        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + modeClient + ' set ' + modeMode + ' ' + modeArgs + ' on ' + modeChannel)
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + modeClient.getName() + ' set ' + modeMode + ' ' + modeArgs + ' on ' + modeChannel.getName())
         #Logging, if enabled
-        if(modeChannel in self.mHallo.conf['server'][self.mName]['channel'] and 'logging' in self.mHallo.conf['server'][self.mName]['channel'][modeChannel] and self.mHallo.conf['server'][self.mName]['channel'][modeChannel]['logging']):
-            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + modeClient + ' set ' + modeMode + ' ' + modeArgs + ' on ' + modeChannel,[self.mName,modeChannel])
+        if(modeChannel.getLogging()):
+            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + modeClient.getName() + ' set ' + modeMode + ' ' + modeArgs + ' on ' + modeChannel.getName(),[self.mName,modeChannel.getName()])
         #If a channel password has been set, store it
         if(modeMode=='-k'):
-            self.mHallo.conf['server'][self.mName]['channel'][modeChannel]['pass'] = ''
+            modeChannel.setPassword(None)
         elif(modeMode=='+k'):
-            self.mHallo.conf['server'][self.mName]['channel'][modeChannel]['pass'] = modeArgs
+            modeChannel.setPassword(modeArgs)
     
     def parseLineNotice(self,noticeLine):
         'Parses a NOTICE message from the server'
