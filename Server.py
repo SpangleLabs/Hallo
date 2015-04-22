@@ -604,27 +604,24 @@ class ServerIRC(Server):
             nickNewNick = nickLine.split(':')[2]
         else:
             nickNewNick = nickLine.split()[2]
+        #Get user object
+        nickClient = self.getUserByName(nickClient)
         #Print to console
-        print(Commons.currentTimestamp() + ' [' + self.mName + '] Nick change: ' + nickClient + ' -> ' + nickNewNick)
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] Nick change: ' + nickClient.getName() + ' -> ' + nickNewNick)
         #Log, if logging
-        for channel in self.mHallo.conf['server'][self.mName]['channel']:
-            if(self.mHallo.conf['server'][self.mName]['channel'][channel]['in_channel'] and self.mHallo.conf['server'][self.mName]['channel'][channel]['logging'] and nickClient in self.mHallo.core['server'][self.mName]['channel'][channel]['user_list']):
-                self.mHallo.base_addlog(Commons.currentTimestamp() + ' Nick change: ' + nickClient + ' -> ' + nickNewNick,[self.mName,channel])
-        #Update nick list for each channel
-        for channel in self.mHallo.conf['server'][self.mName]['channel']:
-            if(nickClient.lower() in self.mHallo.core['server'][self.mName]['channel'][channel]['user_list']):
-                self.mHallo.core['server'][self.mName]['channel'][channel]['user_list'].remove(nickClient.lower())
-                self.mHallo.core['server'][self.mName]['channel'][channel]['user_list'].append(nickNewNick.lower())
+        for channel in self.mChannelList:
+            if(channel.isInChannel() and channel.getLogging() and channel.isUserInChannel(nickClient)):
+                self.mHallo.base_addlog(Commons.currentTimestamp() + ' Nick change: ' + nickClient.getName() + ' -> ' + nickNewNick,[self.mName,channel.getName()])
         #If it was the bots nick that just changed, update that.
-        if(nickClient == self.getNick()):
+        if(nickClient.getName() == self.getNick()):
             self.mNick = nickNewNick
         #Update auth_op lists
-        if('auth_op' in self.mHallo.core['server'][self.mName] and nickClient.lower() in self.mHallo.core['server'][self.mName]['auth_op']):
-            self.mHallo.core['server'][self.mName]['auth_op'].remove(nickClient.lower())
+        if('auth_op' in self.mHallo.core['server'][self.mName] and nickClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_op']):
+            self.mHallo.core['server'][self.mName]['auth_op'].remove(nickClient.getName().lower())
             self.mHallo.core['server'][self.mName]['auth_op'].append(nickNewNick.lower())
         #Update auth_god lists
-        if('auth_god' in self.mHallo.core['server'][self.mName] and nickClient.lower() in self.mHallo.core['server'][self.mName]['auth_god']):
-            self.mHallo.core['server'][self.mName]['auth_god'].remove(nickClient.lower())
+        if('auth_god' in self.mHallo.core['server'][self.mName] and nickClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_god']):
+            self.mHallo.core['server'][self.mName]['auth_god'].remove(nickClient.getName().lower())
             self.mHallo.core['server'][self.mName]['auth_god'].append(nickNewNick.lower())
         #Check whether this verifies anything that means automatic flags need to be applied
         for channel in self.mHallo.conf['server'][self.mName]['channel']:
@@ -636,6 +633,8 @@ class ServerIRC(Server):
                                 self.send('MODE ' + channel + ' ' + entry['flag'] + ' ' + nickNewNick,None,"raw")
                                 break
                             time.sleep(5)
+        #Update name for user object
+        nickClient.setName(nickNewNick)
         
     def parseLineInvite(self,inviteLine):
         'Parses an INVITE message from the server'
