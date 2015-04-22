@@ -158,6 +158,15 @@ class Server(object):
                 return user
         return None
         
+    def rightsCheck(self,rightName):
+        'Checks the value of the right with the specified name. Returns boolean'
+        rightValue = self.mPermissionMask.getRight(rightName)
+        #If PermissionMask contains that right, return it.
+        if(rightValue in [True,False]):
+            return rightValue
+        #Fallback to the parent Hallo's decision.
+        return self.mHallo.rightsCheck(rightName)
+        
         
 class ServerIRC(Server):
     mHallo = None               #The hallo object that created this server
