@@ -21,6 +21,7 @@ from xml.dom import minidom
 from inc.commons import Commons
 from Server import Server, ServerFactory
 from PermissionMask import PermissionMask
+from UserGroup import UserGroup
 
 import ircbot_on
 import mod_passive
@@ -76,6 +77,10 @@ class Hallo:
             for serverXml in serverListXml.getElementsByTagName("server"):
                 serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
                 self.addServer(serverObject)
+            userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
+            for userGroupXml in userGroupListXml.getElementsByTagName("user_group"):
+                userGroupObject = UserGroup.fromXml(userGroupXml.toxml())
+                self.addUserGroup(userGroupObject)
             if(len(doc.getElementsByTagName("permission_mask"))!=0):
                 self.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
             return
