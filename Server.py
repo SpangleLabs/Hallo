@@ -8,6 +8,7 @@ import time
 import ircbot_chk
 
 from Destination import Destination,Channel,User
+from PermissionMask import PermissionMask
 
 endl = Commons.mEndLine
 
@@ -47,6 +48,7 @@ class Server(object):
     mNick = None                #Nickname to use on this server
     mPrefix = None              #Prefix to use with functions on this server
     mFullName = None            #Full name to use on this server
+    mPermissionMask = None      #PermissionMask for the server
     #Dynamic/unsaved class variables
     mOpen = False               #Whether or not to keep reading from server
 
@@ -55,6 +57,7 @@ class Server(object):
         Constructor for server object
         '''
         self.mHallo = hallo
+        self.mPermissionMask = PermissionMask()
         raise NotImplementedError
     
     def connect(self):
