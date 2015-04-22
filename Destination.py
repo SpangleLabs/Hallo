@@ -162,6 +162,15 @@ class Channel(Destination):
         self.mInChannel = inChannel
         if(inChannel == False):
             self.mUserList = set()
+
+    def rightsCheck(self,rightName):
+        'Checks the value of the right with the specified name. Returns boolean'
+        rightValue = self.mPermissionMask.getRight(rightName)
+        #If PermissionMask contains that right, return it.
+        if(rightValue in [True,False]):
+            return rightValue
+        #Fallback to the parent Server's decision.
+        return self.mServer.rightsCheck(rightName)
         
     def toXml(self):
         'Returns the Channel object XML'
