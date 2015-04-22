@@ -41,6 +41,9 @@ class UserGroup:
     def getPermissionMask(self):
         return self.mPermissionMask
     
+    def setPermissionMask(self,newPermissionMask):
+        self.mPermissionMask = newPermissionMask
+    
     def getHallo(self):
         return self.mHallo
     
@@ -69,8 +72,14 @@ class UserGroup:
         return doc.toxml()
     
     @staticmethod
-    def fromXml(xmlString):
-        pass
+    def fromXml(xmlString,hallo):
+        'Loads a new UserGroup object from XML'
+        doc = minidom.parse(xmlString)
+        newName = doc.getElementsByTagName("name")[0].firstChild.data
+        newUserGroup = UserGroup(newName,hallo)
+        if(len(doc.getElementsByTagName("permission_mask"))!=0):
+            newUserGroup.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
+        return newUserGroup
     
     
     
