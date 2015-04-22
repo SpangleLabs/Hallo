@@ -33,22 +33,22 @@ class UserGroup:
         return userObject.getServer().rightsCheck(rightName)
     
     def getName(self):
-        pass
+        return self.mName
     
-    def setName(self):
-        pass
+    def setName(self,newName):
+        self.mName = newName
     
     def getPermissionMask(self):
-        pass
+        return self.mPermissionMask
     
     def getHallo(self):
-        pass
+        return self.mHallo
     
     def addUser(self,newUser):
-        pass
+        self.mUserList.add(newUser)
     
     def removeUser(self,removeUser):
-        pass
+        self.mUserList.remove(removeUser)
     
     def toXml(self):
         pass
