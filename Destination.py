@@ -85,6 +85,7 @@ class Destination:
     @staticmethod
     def fromXml(xmlString):
         'Loads a new Destination object from XML'
+        raise NotImplementedError
 
 class Channel(Destination):
     mType = "channel"           #This is a channel object
