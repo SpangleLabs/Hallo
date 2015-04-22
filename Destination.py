@@ -345,9 +345,12 @@ class User(Destination):
         newUser.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
         #Load UserGroups from XML
         userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
-        for userGroupXml in userGroupListXml.getElementsByTagName("user_group"):
-            userGroupObject = UserGroup.fromXml(userGroupXml.toxml())
-            self.addUserGroup(userGroupObject)
+        for userGroupXml in userGroupListXml.getElementsByTagName("user_group_name"):
+            userGroupName = userGroupXml.firstChild.data
+            userGroup = server.getHallo().getUserGroupByName(userGroupName)
+            if(userGroup is not None):
+                newUser.addUserGroup(userGroup)
+        #Add PermissionMask, if one exists
         if(len(doc.getElementsByTagName("permission_mask"))!=0):
             newUser.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newUser
