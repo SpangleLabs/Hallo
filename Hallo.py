@@ -123,6 +123,21 @@ class Hallo:
             root.appendChild(permissionMaskElement)
         #save XML
         doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
+    
+    def addUserGroup(self,userGroup):
+        'Adds a new UserGroup to the UserGroup list'
+        userGroupName = userGroup.getName()
+        self.mUserGroupList[userGroupName] = userGroup
+    
+    def getUserGroupByName(self,userGroupName):
+        'Returns the UserGroup with the specified name'
+        if(userGroupName in self.mUserGroupList):
+            return self.mUserGroupList[userGroupName]
+        return None
+    
+    def removeUserGroupByName(self,userGroupName):
+        'Removes a user group specified by name'
+        del self.mUserGroupList[userGroupName]
         
     def addServer(self,server):
         #adds a new server to the server list
