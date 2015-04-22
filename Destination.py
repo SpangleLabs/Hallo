@@ -232,6 +232,7 @@ class User(Destination):
     mIdentified = False         #Whether the user is identified (with nickserv)
     mChannelList = set()        #List of channels this user is in
     mOnline = False             #Whether or not the user is online
+    mUserGroupList = {}         #List of UserGroups this User is a member of
 
     def __init__(self,name,server):
         '''
@@ -260,6 +261,25 @@ class User(Destination):
     def setChannelList(self,channelList):
         'Sets the entire channel list of a user'
         self.mChannelList = channelList
+    
+    def addUserGroup(self,newUserGroup):
+        'Adds a User to a UserGroup'
+        newUserGroupName = newUserGroup.getName()
+        self.mUserGroupList[newUserGroupName] = newUserGroup
+    
+    def getUserGroupByName(self,userGroupName):
+        'Returns the UserGroup with the matching name'
+        if(userGroupName in self.mUserGroupList):
+            return self.mUserGroupList[userGroupName]
+        return None
+    
+    def getUserGroupList(self):
+        'Returns the full list of UserGroups this User is a member of'
+        return self.mUserGroupList
+    
+    def removeUserGroupByName(self,userGroupName):
+        'Removes the UserGroup by the given name from a user'
+        del self.mUserGroupList[userGroupName]
         
     def isOnline(self):
         'Whether the user appears to be online'
@@ -275,7 +295,9 @@ class User(Destination):
         #If PermissionMask contains that right, return it.
         if(rightValue in [True,False]):
             return rightValue
-        #TODO: check UserGroup.
+        #Check UserGroup rights, if any apply
+        if(len(self.mUserGroupList)!=0):
+            return any([userGroup.rightsCheck(rightName,self,channelObject) for userGroup in self.mUserGroupList.values()])
         #Fall back to channel, if defined
         if(channelObject is not None):
             return channelObject.rightsCheck(rightName)
@@ -301,6 +323,13 @@ class User(Destination):
         capsLockElement = doc.createElement("caps_lock")
         capsLockElement.appendChild(doc.createTextNode(self.mUseCapsLock))
         root.appendChild(capsLockElement)
+        #create user_group list
+        userGroupListElement = doc.createElement("user_group_list")
+        for userGroupName in self.mUserGroupList:
+            userGroupElement = doc.createElement("user_group_name")
+            userGroupElement.appendChild(doc.createTextNode(userGroupName))
+            userGroupListElement.appendChild(userGroupElement)
+        root.appendChild(userGroupListElement)
         #create permission_mask element
         if(not self.mPermissionMask.isEmpty()):
             permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
@@ -316,6 +345,14 @@ class User(Destination):
         newUser = User(newName,server)
         newUser.mLogging = doc.getElementsByTagName("logging")[0].firstChild.data
         newUser.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
+        #Load UserGroups from XML
+        userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
+        for userGroupXml in userGroupListXml.getElementsByTagName("user_group_name"):
+            userGroupName = userGroupXml.firstChild.data
+            userGroup = server.getHallo().getUserGroupByName(userGroupName)
+            if(userGroup is not None):
+                newUser.addUserGroup(userGroup)
+        #Add PermissionMask, if one exists
         if(len(doc.getElementsByTagName("permission_mask"))!=0):
             newUser.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newUser

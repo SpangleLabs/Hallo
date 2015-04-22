@@ -21,6 +21,7 @@ from xml.dom import minidom
 from inc.commons import Commons
 from Server import Server, ServerFactory
 from PermissionMask import PermissionMask
+from UserGroup import UserGroup
 
 import ircbot_on
 import mod_passive
@@ -34,6 +35,7 @@ class Hallo:
     mOpen = False
     mServerFactory = None
     mPermissionMask = None
+    mUserGroupList = {}
     mServerList = []
 
     def __init__(self):
@@ -75,6 +77,10 @@ class Hallo:
             for serverXml in serverListXml.getElementsByTagName("server"):
                 serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
                 self.addServer(serverObject)
+            userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
+            for userGroupXml in userGroupListXml.getElementsByTagName("user_group"):
+                userGroupObject = UserGroup.fromXml(userGroupXml.toxml())
+                self.addUserGroup(userGroupObject)
             if(len(doc.getElementsByTagName("permission_mask"))!=0):
                 self.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
             return
@@ -105,12 +111,33 @@ class Hallo:
             serverElement = minidom.parse(serverItem.toXml()).firstChild
             serverListElement.appendChild(serverElement)
         root.appendChild(serverListElement)
+        #create user_group list
+        userGroupListElement = doc.createElement("user_group_list")
+        for userGroupName in self.mUserGroupList:
+            userGroupElement = minidom.parse(self.mUserGroupList[userGroupName].toXml()).firstChild
+            userGroupListElement.appendChild(userGroupElement)
+        root.appendChild(userGroupListElement)
         #Create permission_mask element, if it's not empty.
         if(not self.mPermissionMask.isEmpty()):
             permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
             root.appendChild(permissionMaskElement)
         #save XML
         doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
+    
+    def addUserGroup(self,userGroup):
+        'Adds a new UserGroup to the UserGroup list'
+        userGroupName = userGroup.getName()
+        self.mUserGroupList[userGroupName] = userGroup
+    
+    def getUserGroupByName(self,userGroupName):
+        'Returns the UserGroup with the specified name'
+        if(userGroupName in self.mUserGroupList):
+            return self.mUserGroupList[userGroupName]
+        return None
+    
+    def removeUserGroupByName(self,userGroupName):
+        'Removes a user group specified by name'
+        del self.mUserGroupList[userGroupName]
         
     def addServer(self,server):
         #adds a new server to the server list
