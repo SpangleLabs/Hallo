@@ -76,8 +76,7 @@ class Hallo:
                 serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
                 self.addServer(serverObject)
             if(len(doc.getElementsByTagName("permission_mask"))!=0):
-                PermissionMaskXml = doc.getElementsByTagName("permission_mask")[0]
-                self.mPermissionMask = PermissionMask.fromXml(PermissionMaskXml.toxml())
+                self.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
             return
         except (FileNotFoundError, IOError):
             print("Error loading config")
