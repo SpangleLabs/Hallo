@@ -676,7 +676,7 @@ class ServerIRC(Server):
             self.mHallo.base_addlog(Commons.currentTimestamp() + ' invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName(),[self.mName,'@SERVER'])
         #Check if they are an op, then join the channel.
         #TODO: change this logic, when channel object exists
-        if(ircbot_chk.ircbot_chk.chk_op(self.mHallo,self.mName,inviteClient.getName())):
+        if(inviteClient.rightsCheck("invite_channel",inviteChannel)):
             self.joinChannel(inviteChannel)
         
     def parseLineKick(self,kickLine):
