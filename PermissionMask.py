@@ -27,6 +27,10 @@ class PermissionMask(object):
             value = False
         if(value in [True,False]):
             self.mRightsMap[right] = value
+    
+    def isEmpty(self):
+        'Returns a boolean representing whether the PermissionMask is "empty" or has no rights set.'
+        return len(self.mRightsMap)==0
 
     def toXml(self):
         'Returns the FunctionMask object XML'
