@@ -170,6 +170,7 @@ class ServerIRC(Server):
     mNick = None                #Nickname to use on this server
     mPrefix = None              #Prefix to use with functions on this server
     mFullName = None            #Full name to use on this server
+    mPermissionMask = None      #PermissionMask for the server
     #Dynamic/unsaved class variables
     mOpen = False               #Whether or not to keep reading from server
     #IRC specific variables
@@ -185,6 +186,7 @@ class ServerIRC(Server):
         Constructor for server object
         '''
         self.mHallo = hallo
+        self.mPermissionMask = PermissionMask()
         if(serverName is not None):
             self.mName = serverName
         if(serverUrl is not None):
@@ -768,6 +770,8 @@ class ServerIRC(Server):
         for channelXml in channelListXml.getElementsByTagName("channel"):
             channelObject = Channel.fromXml(channelXml.toxml(),newServer)
             newServer.addChannel(channelObject)
+        if(len(doc.getElementsByTagName("permission_mask"))!=0):
+            newServer.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newServer
         
     def toXml(self):
