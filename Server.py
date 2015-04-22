@@ -79,11 +79,13 @@ class Server(object):
         '''
         Constructor to build a new server object from xml
         '''
+        raise NotImplementedError
         
     def toXml(self):
         '''
         Returns an XML representation of the server object
         '''
+        raise NotImplementedError
     
     def getHallo(self):
         'Returns the Hallo instance that created this Server'
@@ -142,6 +144,10 @@ class Server(object):
         'Adds a channel to the channel list'
         if(self.getChannelByName(channelObject.getName()) is None):
             self.mChannelList.append(channelObject)
+            
+    def joinchannel(self,channelObject):
+        'Joins a specified channel'
+        raise NotImplementedError
         
     def getUserByName(self,userName):
         'Returns a User object with the specified user name.'
@@ -242,7 +248,7 @@ class ServerIRC(Server):
             self.send('IDENTIFY ' + self.mNickservPass,self.getUserByName("nickserv"))
         #Join channels
         print(Commons.currentTimestamp() + " joining channels on " + self.mName + ", identifying.")
-        #TODO: update this with Channel objects
+        #Join relevant channels
         for channel in self.mChannelList:
             if(channel.isAutoJoin()):
                 if(channel.getPassword() is None):
@@ -304,6 +310,15 @@ class ServerIRC(Server):
             dataLineSplit = Commons.chunkStringDot(dataLine,maxLineLength)
             for dataLineLine in dataLineSplit:
                 self.sendRaw(msgTypeName+' '+destinationName+' '+dataLineLine)
+    
+    def joinchannel(self,channelObject):
+        'Joins a specified channel'
+        if(channelObject not in self.mChannelList):
+            self.addChannel(channelObject)
+        if(channelObject.getPassword() is None):
+            self.send('JOIN ' + channelObject.getName(),None,"raw")
+        else:
+            self.send('JOIN ' + channelObject.getName() + ' ' + channelObject.getPassword(),None,"raw")
 
     def sendRaw(self,data):
         'Sends raw data to the server'
