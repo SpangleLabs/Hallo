@@ -268,6 +268,19 @@ class User(Destination):
     def setOnline(self,online):
         'Sets whether the user is online'
         self.mOnline = online
+
+    def rightsCheck(self,rightName,channelObject=None):
+        'Checks the value of the right with the specified name. Returns boolean'
+        rightValue = self.mPermissionMask.getRight(rightName)
+        #If PermissionMask contains that right, return it.
+        if(rightValue in [True,False]):
+            return rightValue
+        #TODO: check UserGroup.
+        #Fall back to channel, if defined
+        if(channelObject is not None):
+            return channelObject.rightsCheck(rightName)
+        #Fall back to the parent Server's decision.
+        return self.mServer.rightsCheck(rightName)
         
     def toXml(self):
         'Returns the User object XML'
