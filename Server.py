@@ -599,13 +599,13 @@ class ServerIRC(Server):
     def parseLineNick(self,nickLine):
         'Parses a NICK message from the server'
         #Parse out NICK change data
-        nickClient = nickLine.split('!')[0][1:]
+        nickClientName = nickLine.split('!')[0][1:]
         if(nickLine.count(':')>1):
             nickNewNick = nickLine.split(':')[2]
         else:
             nickNewNick = nickLine.split()[2]
         #Get user object
-        nickClient = self.getUserByName(nickClient)
+        nickClient = self.getUserByName(nickClientName)
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] Nick change: ' + nickClient.getName() + ' -> ' + nickNewNick)
         #Log, if logging
@@ -639,17 +639,20 @@ class ServerIRC(Server):
     def parseLineInvite(self,inviteLine):
         'Parses an INVITE message from the server'
         #Parse out INVITE data
-        inviteClient = inviteLine.split('!')[0][1:]
-        inviteChannel = ':'.join(inviteLine.split(':')[2:])
+        inviteClientName = inviteLine.split('!')[0][1:]
+        inviteChannelName = ':'.join(inviteLine.split(':')[2:])
+        #Get destination objects
+        inviteClient = self.getUserByName(inviteClientName)
+        inviteChannel = self.getUserByName(inviteChannelName)
         #Print to console
-        print(Commons.currentTimestamp() + ' [' + self.mName + '] invite to ' + inviteChannel + ' from ' + inviteClient)
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName())
         #Logging, if applicable
-        if(inviteChannel in self.mHallo.conf['server'][self.mName]['channel'] and 'logging' in self.mHallo.conf['server'][self.mName]['channel'][inviteChannel] and self.mHallo.conf['server'][self.mName]['channel'][inviteChannel]['logging']):
-            self.mHallo.base_addlog(Commons.currentTimestamp() + ' invite to ' + inviteChannel + ' from ' + inviteClient,[self.mName,'@SERVER'])
+        if(inviteChannel in self.mHallo.conf['server'][self.mName]['channel'] and inviteChannel.getLogging()):
+            self.mHallo.base_addlog(Commons.currentTimestamp() + ' invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName(),[self.mName,'@SERVER'])
         #Check if they are an op, then join the channel.
         #TODO: change this logic, when channel object exists
-        if(ircbot_chk.ircbot_chk.chk_op(self.mHallo,self.mName,inviteClient)):
-            hallobase_ctrl.hallobase_ctrl.fn_join(self.mHallo,inviteChannel,inviteClient,[self.mName,''])
+        if(ircbot_chk.ircbot_chk.chk_op(self.mHallo,self.mName,inviteClient.getName())):
+            hallobase_ctrl.hallobase_ctrl.fn_join(self.mHallo,inviteChannel.getName(),inviteClient.getName(),[self.mName,''])
         
     def parseLineKick(self,kickLine):
         'Parses a KICK message from the server'
