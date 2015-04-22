@@ -128,6 +128,10 @@ class Channel(Destination):
             user.removeChannel(self)
         except KeyError:
             pass
+    
+    def isUserInChannel(self,user):
+        'Returns a boolean as to whether the user is in this channel'
+        return user in self.mUserList
             
     def isPassiveEnabled(self):
         'Whether or not passive functions are enabled in this channel'
