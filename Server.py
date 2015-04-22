@@ -643,11 +643,11 @@ class ServerIRC(Server):
         inviteChannelName = ':'.join(inviteLine.split(':')[2:])
         #Get destination objects
         inviteClient = self.getUserByName(inviteClientName)
-        inviteChannel = self.getUserByName(inviteChannelName)
+        inviteChannel = self.getChannelByName(inviteChannelName)
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName())
         #Logging, if applicable
-        if(inviteChannel in self.mHallo.conf['server'][self.mName]['channel'] and inviteChannel.getLogging()):
+        if(inviteChannel.getName() in self.mHallo.conf['server'][self.mName]['channel'] and inviteChannel.getLogging()):
             self.mHallo.base_addlog(Commons.currentTimestamp() + ' invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName(),[self.mName,'@SERVER'])
         #Check if they are an op, then join the channel.
         #TODO: change this logic, when channel object exists
