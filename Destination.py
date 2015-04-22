@@ -195,6 +195,10 @@ class Channel(Destination):
         autoJoinElement = doc.createElement("auto_join")
         autoJoinElement.appendChild(doc.createTextNode(self.mAutoJoin))
         root.appendChild(autoJoinElement)
+        #create permission_mask element
+        if(not self.mPermissionMask.isEmpty()):
+            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            root.appendChild(permissionMaskElement)
         #output XML string
         return doc.toxml()
     
@@ -275,6 +279,10 @@ class User(Destination):
         capsLockElement = doc.createElement("caps_lock")
         capsLockElement.appendChild(doc.createTextNode(self.mUseCapsLock))
         root.appendChild(capsLockElement)
+        #create permission_mask element
+        if(not self.mPermissionMask.isEmpty()):
+            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            root.appendChild(permissionMaskElement)
         #output XML string
         return doc.toxml()
     
