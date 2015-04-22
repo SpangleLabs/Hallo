@@ -251,10 +251,7 @@ class ServerIRC(Server):
         #Join relevant channels
         for channel in self.mChannelList:
             if(channel.isAutoJoin()):
-                if(channel.getPassword() is None):
-                    self.send('JOIN ' + channel.getName(),None,"raw")
-                else:
-                    self.send('JOIN ' + channel.getName() + ' ' + channel.getPassword(),None,"raw")
+                self.joinchannel(channel)
     
     def disconnect(self):
         'Disconnect from the server'
