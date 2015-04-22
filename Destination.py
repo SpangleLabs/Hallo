@@ -1,6 +1,7 @@
 import time
 
 from xml.dom import minidom
+from PermissionMask import PermissionMask
 
 class Destination:
     '''
@@ -12,6 +13,7 @@ class Destination:
     mLogging = True     #Whether logging is enabled for this destination
     mLastActive = None  #Timestamp of when they were last active
     mUseCapsLock = False    #Whether to use caps lock when communicating to this destination
+    mPermissionMask = None  #PermissionMask for the destination object
 
     def __init__(self,name,server):
         '''
@@ -20,6 +22,7 @@ class Destination:
         raise NotImplementedError
         self.mName = name.lower()
         self.mServer = server
+        self.mPermissionMask = PermissionMask()
         
     def getName(self):
         'Name getter'
