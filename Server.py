@@ -4,7 +4,7 @@ from threading import Thread
 import socket
 import time
 
-#TODO: I would rather depricate these
+#TODO: I would rather deprecate these
 import ircbot_chk
 
 from Destination import Destination,Channel,User
