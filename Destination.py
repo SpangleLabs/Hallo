@@ -321,6 +321,12 @@ class User(Destination):
         capsLockElement = doc.createElement("caps_lock")
         capsLockElement.appendChild(doc.createTextNode(self.mUseCapsLock))
         root.appendChild(capsLockElement)
+        #create user_group list
+        userGroupListElement = doc.createElement("user_group_list")
+        for userGroupName in self.mUserGroupList:
+            userGroupElement = minidom.parse(self.mUserGroupList[userGroupName].toXml()).firstChild
+            userGroupListElement.appendChild(userGroupElement)
+        root.appendChild(userGroupListElement)
         #create permission_mask element
         if(not self.mPermissionMask.isEmpty()):
             permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
