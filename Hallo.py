@@ -8,7 +8,7 @@
 #pprint is used to view the config
 #importlib is used to import modules on the fly, hopefully
 #copy is used to copy the self.conf variable
-import socket, time, os, pickle, importlib
+import time, os, pickle, importlib
 from threading import Thread
 import collections
 import imp
@@ -19,7 +19,7 @@ import re
 from xml.dom import minidom
 
 from inc.commons import Commons
-from Server import Server, ServerFactory, ServerIRC
+from Server import Server, ServerFactory
 from PermissionMask import PermissionMask
 
 import ircbot_on
