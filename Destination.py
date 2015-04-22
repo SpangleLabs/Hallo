@@ -232,6 +232,7 @@ class User(Destination):
     mIdentified = False         #Whether the user is identified (with nickserv)
     mChannelList = set()        #List of channels this user is in
     mOnline = False             #Whether or not the user is online
+    mUserGroupList = {}         #List of UserGroups this User is a member of
 
     def __init__(self,name,server):
         '''
@@ -260,6 +261,25 @@ class User(Destination):
     def setChannelList(self,channelList):
         'Sets the entire channel list of a user'
         self.mChannelList = channelList
+    
+    def addUserGroup(self,newUserGroup):
+        'Adds a User to a UserGroup'
+        newUserGroupName = newUserGroup.getName()
+        self.mUserGroupList[newUserGroupName] = newUserGroup
+    
+    def getUserGroupByName(self,userGroupName):
+        'Returns the UserGroup with the matching name'
+        if(userGroupName in self.mUserGroupList):
+            return self.mUserGroupList[userGroupName]
+        return None
+    
+    def getUserGroupList(self):
+        'Returns the full list of UserGroups this User is a member of'
+        return self.mUserGroupList
+    
+    def removeUserGroupByName(self,userGroupName):
+        'Removes the UserGroup by the given name from a user'
+        del self.mUserGroupList[userGroupName]
         
     def isOnline(self):
         'Whether the user appears to be online'
