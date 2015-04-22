@@ -137,6 +137,24 @@ class Hallo:
         self.saveToXml()
         self.mOpen = False
         
+    def rightsCheck(self,rightName):
+        'Checks the value of the right with the specified name. Returns boolean'
+        rightValue = self.mPermissionMask.getRight(rightName)
+        #If PermissionMask contains that right, return it.
+        if(rightValue in [True,False]):
+            return rightValue
+        #If it's a function right, go to default_function right
+        if(rightName.startswith("function_")):
+            return self.rightsCheck("default_function")
+        #If default_function is not defined, define and return it as True
+        if(rightName=="default_function"):
+            self.mPermissionMask.setRight("default_function",True)
+            return True
+        else:
+            #Else, define and return False
+            self.mPermissionMask.setRight(rightName,True)
+            return False
+        
     def getDefaultNick(self):
         'Default nick getter'
         return self.mDefaultNick
