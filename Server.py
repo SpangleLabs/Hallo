@@ -547,16 +547,16 @@ class ServerIRC(Server):
     def parseLineMode(self,modeLine):
         'Parses a MODE message from the server'
         #Parsing out MODE data
-        modeChannel = modeLine.split()[2].lower()
-        modeClient = modeLine.split('!')[0][1:]
+        modeChannelName = modeLine.split()[2].lower()
+        modeClientName = modeLine.split('!')[0][1:]
         modeMode = modeLine.split()[3]
         if(len(modeLine.split())>=4):
             modeArgs = ' '.join(modeLine.split()[4:])
         else:
             modeArgs = ''
         #Get client and channel objects
-        modeChannel = self.getChannelByName(modeChannel)
-        modeClient = self.getUserByName(modeClient)
+        modeChannel = self.getChannelByName(modeChannelName)
+        modeClient = self.getUserByName(modeClientName)
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + modeClient.getName() + ' set ' + modeMode + ' ' + modeArgs + ' on ' + modeChannel.getName())
         #Logging, if enabled
@@ -571,14 +571,17 @@ class ServerIRC(Server):
     def parseLineNotice(self,noticeLine):
         'Parses a NOTICE message from the server'
         #Parsing out NOTICE data
-        noticeChannel = noticeLine.split()[2]
-        noticeClient = noticeLine.split('!')[0][1:]
+        noticeChannelName = noticeLine.split()[2]
+        noticeClientName = noticeLine.split('!')[0][1:]
         noticeMessage = ':'.join(noticeLine.split(':')[2:])
+        #Get client and channel objects
+        noticeChannel = self.getChannelByName(noticeChannelName)
+        noticeClient = self.getUserByName(noticeClientName)
         #Print to console
-        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + noticeChannel + ' Notice from ' + noticeClient + ': ' + noticeMessage)
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + noticeChannel.getName() + ' Notice from ' + noticeClient.getName() + ': ' + noticeMessage)
         #Logging, if enabled
-        if(noticeChannel in self.mHallo.conf['server'][self.mName]['channel'] and 'logging' in self.mHallo.conf['server'][self.mName]['channel'][noticeChannel] and self.mHallo.conf['server'][self.mName]['channel'][noticeChannel]['logging']):
-            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + noticeChannel + ' notice from ' + noticeClient + ': ' + noticeMessage,[self.mName,noticeChannel])
+        if(noticeChannel.getLogging()):
+            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + noticeChannel.getName() + ' notice from ' + noticeClient.getName() + ': ' + noticeMessage,[self.mName,noticeChannel.getName()])
         #TODO: DEPRICATED. I am sure this is not required.
         if(self.mHallo.core['server'][self.mName]['connected'] == False):
             self.mHallo.core['server'][self.mName]['connected'] = True
@@ -588,9 +591,9 @@ class ServerIRC(Server):
             self.mHallo.core['server'][self.mName]['motdend'] = True
         #Checking if user is registered
         #TODO: deprecate this. Use locks, and use STATUS or ACC commands to nickserv
-        if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['online']) and noticeClient.lower()=='nickserv' and self.mHallo.core['server'][self.mName]['check']['userregistered'] == False):
+        if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['online']) and noticeClient.getName().lower()=='nickserv' and self.mHallo.core['server'][self.mName]['check']['userregistered'] == False):
             self.mHallo.core['server'][self.mName]['check']['userregistered'] = True
-        if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['registered']) and noticeClient.lower()=='nickserv' and self.mHallo.core['server'][self.mName]['check']['nickregistered'] == False):
+        if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['registered']) and noticeClient.getName().lower()=='nickserv' and self.mHallo.core['server'][self.mName]['check']['nickregistered'] == False):
             self.mHallo.core['server'][self.mName]['check']['nickregistered'] = True
         
     def parseLineNick(self,nickLine):
