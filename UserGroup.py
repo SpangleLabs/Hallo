@@ -7,10 +7,10 @@ class UserGroup:
     '''
     UserGroup object, mostly exists for a speedy way to appply a PermissionsMask to a large amount of users at once
     '''
-    mName = None
-    mPermissionMask = None
-    mHallo = None
-    mUserList = set()
+    mName = None            #Name of the UserGroup
+    mPermissionMask = None  #PermissionMask for the UserGroup
+    mHallo = None           #Hallo instance that owns this UserGroup
+    mUserList = set()       #Dynamic userlist of this group
 
     def __init__(self,hallo,name):
         '''
@@ -51,7 +51,22 @@ class UserGroup:
         self.mUserList.remove(removeUser)
     
     def toXml(self):
-        pass
+        'Returns the UserGroup object XML'
+        #create document
+        doc = minidom.Document()
+        #create root element
+        root = doc.createElement("user_group")
+        doc.appendChild(root)
+        #create name element
+        nameElement = doc.createElement("name")
+        nameElement.appendChild(doc.createTextNode(self.mName))
+        root.appendChild(nameElement)
+        #create permission_mask element
+        if(not self.mPermissionMask.isEmpty()):
+            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            root.appendChild(permissionMaskElement)
+        #output XML string
+        return doc.toxml()
     
     @staticmethod
     def fromXml(xmlString):
