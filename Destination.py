@@ -123,8 +123,11 @@ class Channel(Destination):
     
     def removeUser(self,user):
         'Removes a user from a given channel'
-        self.mUserList.remove(user)
-        user.removeChannel(self)
+        try:
+            self.mUserList.remove(user)
+            user.removeChannel(self)
+        except KeyError:
+            pass
             
     def isPassiveEnabled(self):
         'Whether or not passive functions are enabled in this channel'
