@@ -210,6 +210,8 @@ class Channel(Destination):
             newChannel.mPassword = doc.getElementsByTagName("password")[0].firstChild.data
         newChannel.mPassiveEnabled = doc.getElementsByTagName("passive_enabled")[0].firstChild.data
         newChannel.mAutoJoin = doc.getElementsByTagName("auto_join")[0].firstChild.data
+        if(len(doc.getElementsByTagName("permission_mask"))!=0):
+            newChannel.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newChannel
     
 class User(Destination):
@@ -284,6 +286,8 @@ class User(Destination):
         newUser = User(newName,server)
         newUser.mLogging = doc.getElementsByTagName("logging")[0].firstChild.data
         newUser.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
+        if(len(doc.getElementsByTagName("permission_mask"))!=0):
+            newUser.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newUser
     
     
