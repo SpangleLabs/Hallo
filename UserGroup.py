@@ -35,9 +35,6 @@ class UserGroup:
     def getName(self):
         return self.mName
     
-    def setName(self,newName):
-        self.mName = newName
-    
     def getPermissionMask(self):
         return self.mPermissionMask
     
