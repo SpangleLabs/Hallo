@@ -295,7 +295,9 @@ class User(Destination):
         #If PermissionMask contains that right, return it.
         if(rightValue in [True,False]):
             return rightValue
-        #TODO: check UserGroup.
+        #Check UserGroup rights, if any apply
+        if(len(self.mUserGroupList)!=0):
+            return any([userGroup.rightsCheck(rightName,self,channelObject) for userGroup in self.mUserGroupList.values()])
         #Fall back to channel, if defined
         if(channelObject is not None):
             return channelObject.rightsCheck(rightName)
