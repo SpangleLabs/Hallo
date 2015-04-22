@@ -105,6 +105,10 @@ class Hallo:
             serverElement = minidom.parse(serverItem.toXml()).firstChild
             serverListElement.appendChild(serverElement)
         root.appendChild(serverListElement)
+        #Create permission_mask element, if it's not empty.
+        if(not self.mPermissionMask.isEmpty()):
+            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            root.appendChild(permissionMaskElement)
         #save XML
         doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
         
