@@ -324,7 +324,8 @@ class User(Destination):
         #create user_group list
         userGroupListElement = doc.createElement("user_group_list")
         for userGroupName in self.mUserGroupList:
-            userGroupElement = minidom.parse(self.mUserGroupList[userGroupName].toXml()).firstChild
+            userGroupElement = doc.createElement("user_group_name")
+            userGroupElement.appendChild(doc.createTextNode(userGroupName))
             userGroupListElement.appendChild(userGroupElement)
         root.appendChild(userGroupListElement)
         #create permission_mask element
@@ -342,6 +343,11 @@ class User(Destination):
         newUser = User(newName,server)
         newUser.mLogging = doc.getElementsByTagName("logging")[0].firstChild.data
         newUser.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
+        #Load UserGroups from XML
+        userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
+        for userGroupXml in userGroupListXml.getElementsByTagName("user_group"):
+            userGroupObject = UserGroup.fromXml(userGroupXml.toxml())
+            self.addUserGroup(userGroupObject)
         if(len(doc.getElementsByTagName("permission_mask"))!=0):
             newUser.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newUser
