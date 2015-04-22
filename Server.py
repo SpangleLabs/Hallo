@@ -829,6 +829,9 @@ class ServerIRC(Server):
             nickservPassElement = doc.createElement("nickserv_pass")
             nickservPassElement.appendChild(doc.createTextNode(self.mNickservPass))
             root.appendChild(nickservPassElement)
+        if(not self.mPermissionMask.isEmpty()):
+            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            root.appendChild(permissionMaskElement)
         #output XML string
         return doc.toxml()
 
