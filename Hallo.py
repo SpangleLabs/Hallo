@@ -20,6 +20,7 @@ from xml.dom import minidom
 
 from inc.commons import Commons
 from Server import Server, ServerFactory, ServerIRC
+from PermissionMask import PermissionMask
 
 import ircbot_on
 import mod_passive
@@ -32,11 +33,13 @@ class Hallo:
     mDefaultFullName = "HalloBot HalloHost HalloServer :an irc bot by spangle"
     mOpen = False
     mServerFactory = None
+    mPermissionMask = None
     mServerList = []
 
     def __init__(self):
         #Create ServerFactory
         self.mServerFactory = ServerFactory(self)
+        self.mPermissionMask = PermissionMask()
         #load config
         self.loadFromXml()
         self.mOpen = True
@@ -72,6 +75,9 @@ class Hallo:
             for serverXml in serverListXml.getElementsByTagName("server"):
                 serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
                 self.addServer(serverObject)
+            if(len(doc.getElementsByTagName("permission_mask"))!=0):
+                PermissionMaskXml = doc.getElementsByTagName("permission_mask")[0]
+                self.mPermissionMask = PermissionMask.fromXml(PermissionMaskXml.toxml())
             return
         except (FileNotFoundError, IOError):
             print("Error loading config")
