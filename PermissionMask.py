@@ -17,7 +17,16 @@ class PermissionMask(object):
         'Sets the value of the specified right in the rights map'
         if(value == None and right in self.mRightsMap):
             del self.mRightsMap[right]
-        self.mRightsMap[right] = value
+        try:
+            value = value.lower()
+        except AttributeError:
+            pass
+        if(value=='true' or value=='1' or value==1):
+            value = True
+        if(value=='false' or value=='0' or value==0):
+            value = False
+        if(value in [True,False]):
+            self.mRightsMap[right] = value
 
     def toXml(self):
         'Returns the FunctionMask object XML'
@@ -26,6 +35,8 @@ class PermissionMask(object):
         #create root element
         root = doc.createElement("permission_mask")
         doc.appendChild(root)
+        #Add rights list element
+        rightListElement = doc.createElement("right_list")
         #create rights elements
         for mapRight in self.mRightsMap:
             if(self.mRightsMap[mapRight]==None):
@@ -40,11 +51,21 @@ class PermissionMask(object):
             valueElement.appendChild(doc.createTextNode(self.mRightsMap[mapRight]))
             rightElement.appendChild(valueElement)
             #Add right element to list
-            root.appendChild(rightElement)
+            rightListElement.appendChild(rightElement)
+        root.appendChild(rightListElement)
         #output XML string
         return doc.toxml()
     
     @staticmethod
     def fromXml(xmlString):
         'Loads a new Destination object from XML'
-        raise NotImplementedError
+        doc = minidom.parse(xmlString)
+        newMask = PermissionMask()
+        #Load rights
+        rightsListXml = doc.getElementsByTagName("right_list")
+        for rightXml in rightsListXml.getElementsByTagName("right"):
+            rightName = rightXml.getElementsByTagName("name")[0].firstChild.data
+            rightValue = rightXml.getElementsByTagName("value")[0].firstChild.data
+            newMask.setRight(rightName,rightValue)
+        return newMask
+
