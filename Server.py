@@ -6,7 +6,6 @@ import time
 
 #TODO: I would rather depricate these
 import ircbot_chk
-import hallobase_ctrl
 
 from Destination import Destination,Channel,User
 
@@ -664,7 +663,7 @@ class ServerIRC(Server):
         #Check if they are an op, then join the channel.
         #TODO: change this logic, when channel object exists
         if(ircbot_chk.ircbot_chk.chk_op(self.mHallo,self.mName,inviteClient.getName())):
-            hallobase_ctrl.hallobase_ctrl.fn_join(self.mHallo,inviteChannel.getName(),inviteClient.getName(),[self.mName,''])
+            self.joinChannel(inviteChannel)
         
     def parseLineKick(self,kickLine):
         'Parses a KICK message from the server'
