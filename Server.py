@@ -717,7 +717,6 @@ class ServerIRC(Server):
         if(numericCode == "376"):
             self.mHallo.core['server'][self.mName]['motdend'] = True
         #Check for ISON response, telling you which users are online
-        #TODO: use locks to make this pleasant.
         elif(numericCode == "303"):
             #Parse out data
             usersOnline = ':'.join(numericLine.split(':')[2:])
