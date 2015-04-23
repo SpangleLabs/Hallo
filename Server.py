@@ -719,9 +719,12 @@ class ServerIRC(Server):
         #Check for ISON response, telling you which users are online
         #TODO: use locks to make this pleasant.
         elif(numericCode == "303"):
-            self.mHallo.core['server'][self.mName]['check']['recipientonline'] = ':'.join(numericLine.split(':')[2:])
-            if(self.mHallo.core['server'][self.mName]['check']['recipientonline']==''):
-                self.mHallo.core['server'][self.mName]['check']['recipientonline'] = ' '
+            #Parse out data
+            usersOnline = ':'.join(numericLine.split(':')[2:])
+            usersOnlineList = usersOnline.split()
+            #Check if users are being checked
+            if(all([usersOnlineList in self.mCheckUsersOnlineCheckList])):
+                    self.mCheckUsersOnlineOnlineList = usersOnlineList
         #Check for NAMES request reply, telling you who is in a channel.
         elif(numericCode == "353"):
             #Parse out data
