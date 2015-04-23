@@ -141,7 +141,9 @@ class Server(object):
         for channel in self.mChannelList:
             if(channel.getName()==channelName):
                 return channel
-        return None
+        newChannel = Channel(channelName,self)
+        self.addChannel(newChannel)
+        return newChannel
     
     def addChannel(self,channelObject):
         'Adds a channel to the channel list'
@@ -157,7 +159,15 @@ class Server(object):
         for user in self.mUserList:
             if(user.getName()==userName):
                 return user
-        return None
+        #No user by that name exists, so create one.
+        newUser = User(userName,self)
+        self.addUser(newUser)
+        return newUser
+    
+    def addUser(self,userObject):
+        'Adds a user to the user list'
+        if(self.getUserByName(userObject.getName()) is None):
+            self.mUserList.append(userObject)
         
     def rightsCheck(self,rightName):
         'Checks the value of the right with the specified name. Returns boolean'
@@ -293,7 +303,10 @@ class ServerIRC(Server):
         #    self.mHallo.base_say('Daisy daisy give me your answer do...',[server,channel])
             if(channel.isInChannel() and channel.getLogging()):
                 self.mHallo.base_addlog(Commons.currentTimestamp() + ' '+self.getNick()+' has quit.',[self.mName,channel.getName()])
+            channel.setInChannel(False)
         #    time.sleep(1)
+        for user in self.mUserList:
+            user.setOnline(False)
         if(self.mOpen):
             #self.mHallo.core['server'][self.mName]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
             self.send('QUIT :Will I dream?',None,"raw")
@@ -341,10 +354,14 @@ class ServerIRC(Server):
             for dataLineLine in dataLineSplit:
                 self.sendRaw(msgTypeName+' '+destinationName+' '+dataLineLine)
     
-    def joinchannel(self,channelObject):
+    def joinChannel(self,channelObject):
         'Joins a specified channel'
+        #If channel isn't in channel list, add it
         if(channelObject not in self.mChannelList):
             self.addChannel(channelObject)
+        #Set channel to AutoJoin, for the future
+        channelObject.setAutoJoin(True)
+        #Send JOIN command
         if(channelObject.getPassword() is None):
             self.send('JOIN ' + channelObject.getName(),None,"raw")
         else:
@@ -424,9 +441,11 @@ class ServerIRC(Server):
         messagePublicBool = not messagePrivateBool
         #Get relevant objects.
         messageSender = self.getUserByName(messageSenderName)
+        messageSender.updateActivity()
         messageDestination = messageSender
         if(messagePublicBool):
             messageChannel = self.getChannelByName(messageDestinationName)
+            messageChannel.updateActivity()
             messageDestination = messageChannel
         #Print message to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName + ' <' + messageSenderName + '> ' + messageText)
@@ -460,7 +479,9 @@ class ServerIRC(Server):
         #Get relevant objects.
         if(messagePublicBool):
             messageChannel = self.getChannelByName(messageDestinationName)
+            messageChannel.updateActivity()
         messageSender = self.getUserByName(messageSenderName)
+        messageSender.updateActivity()
         #Print message to console
         if(messageCtcpCommand.lower()=="action"):
             consoleLine = Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName
@@ -501,7 +522,8 @@ class ServerIRC(Server):
         joinClientName = joinLine.split('!')[0][1:]
         #Get relevant objects
         joinChannel = self.getChannelByName(joinChannelName)
-        joinClient = self.getUserByName(joinClientName) #TODO: create if they don't exist
+        joinClient = self.getUserByName(joinClientName)
+        joinClient.updateActivity()
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + joinClient.getName() + ' joined ' + joinChannel.getName())
         #If channel does logging, log
@@ -560,7 +582,7 @@ class ServerIRC(Server):
             if(partClient in channel_server.getUserList()):
                 userStillOnServer = True
         if(not userStillOnServer):
-            partClient.setIdentified(False)
+            partClient.setOnline(False)
     
     def parseLineQuit(self,quitLine):
         'Parses a QUIT message from the server'
@@ -579,7 +601,13 @@ class ServerIRC(Server):
         for channel in self.mChannelList:
             channel.removeUser(quitClient)
         #Remove auth stuff from user
-        quitClient.setIdentified(False)
+        quitClient.setOnline(False)
+        #If it was hallo which quit, set all channels to out of channel and all users to offline
+        if(quitClient.getName().lower()==self.getNick().lower()):
+            for channel in self.mChannelList:
+                channel.setInChannel(False)
+            for user in self.mUserList:
+                user.setOnline(False)
         
     def parseLineMode(self,modeLine):
         'Parses a MODE message from the server'
@@ -613,7 +641,9 @@ class ServerIRC(Server):
         noticeMessage = ':'.join(noticeLine.split(':')[2:])
         #Get client and channel objects
         noticeChannel = self.getChannelByName(noticeChannelName)
+        noticeChannel.updateActivity()
         noticeClient = self.getUserByName(noticeClientName)
+        noticeClient.updateActivity()
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + noticeChannel.getName() + ' Notice from ' + noticeClient.getName() + ': ' + noticeMessage)
         #Logging, if enabled
@@ -677,6 +707,7 @@ class ServerIRC(Server):
         inviteChannelName = ':'.join(inviteLine.split(':')[2:])
         #Get destination objects
         inviteClient = self.getUserByName(inviteClientName)
+        inviteClient.updateActivity()
         inviteChannel = self.getChannelByName(inviteChannelName)
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName())
@@ -790,6 +821,7 @@ class ServerIRC(Server):
                     while(userName[0] in ['~','&','@','%','+']):
                         userName = userName[1:]
                     userObject = self.getUserByName(userName)
+                    userObject.setOnline(True)
                     userObjectList.add(userObject)
                 channelObject.setUserList(userObjectList)
                 #release lock
@@ -914,6 +946,11 @@ class ServerIRC(Server):
         for channelXml in channelListXml.getElementsByTagName("channel"):
             channelObject = Channel.fromXml(channelXml.toxml(),newServer)
             newServer.addChannel(channelObject)
+        #Load users
+        userListXml = doc.getElementsByTagName("user_list")[0]
+        for userXml in userListXml.getElementsByTagName("user"):
+            userObject = User.fromXml(userXml.toxml(),newServer)
+            newServer.addUser(userObject)
         if(len(doc.getElementsByTagName("permission_mask"))!=0):
             newServer.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newServer
@@ -942,9 +979,17 @@ class ServerIRC(Server):
         #create channel list
         channelListElement = doc.createElement("channel_list")
         for channelItem in self.mChannelList:
-            channelElement = minidom.parse(channelItem.toXml()).firstChild
-            channelListElement.appendChild(channelElement)
+            if(channelItem.isPersistent()):
+                channelElement = minidom.parse(channelItem.toXml()).firstChild
+                channelListElement.appendChild(channelElement)
         root.appendChild(channelListElement)
+        #create user list
+        userListElement = doc.createElement("user_list")
+        for userItem in self.mUserList:
+            if(userItem.isPersistent()):
+                userElement = minidom.parse(userItem.toXml()).firstChild
+                userListElement.appendChild(userElement)
+        root.appendChild(userListElement)
         #create nick element
         if(self.mNick is not None):
             nickElement = doc.createElement("server_nick")

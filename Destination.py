@@ -61,9 +61,9 @@ class Destination:
     def updateActivity(self):
         'Updates LastActive timestamp'
         self.mLastActive = time.time()
-        if(self.mInChannel==False):
+        if(self.mType=="channel"):
             self.mInChannel = True
-        if(self.mOnline==False):
+        if(self.mType=="user"):
             self.mOnline = True
         
     def getLastActive(self):
@@ -77,6 +77,10 @@ class Destination:
     def setUpperCase(self,upperCase):
         'Sets whether the destination uses caps lock'
         self.mUseCapsLock = upperCase
+    
+    def isPersistent(self):
+        'Defines whether a Destination object is persistent. That is to say, whether it needs saving, or can be generated anew.'
+        raise NotImplementedError
         
     def toXml(self):
         'Returns the Destination object XML'
@@ -93,7 +97,7 @@ class Channel(Destination):
     mUserList = set()           #Users in the channel
     mInChannel = False          #Whether or not hallo is in the channel
     mPassiveEnabled = True      #Whether to use passive functions in the channel
-    mAutoJoin = True            #Whether hallo should automatically join this channel when loading
+    mAutoJoin = False           #Whether hallo should automatically join this channel when loading
     
     def __init__(self,name,server):
         '''
@@ -171,6 +175,29 @@ class Channel(Destination):
             return rightValue
         #Fallback to the parent Server's decision.
         return self.mServer.rightsCheck(rightName)
+    
+    def isPersistent(self):
+        'Defines whether Channel is persistent. That is to say, whether it needs saving, or can be generated anew.'
+        #If you need to rejoin this channel, then you need to save it
+        if(self.mAutoJoin is True):
+            return True
+        #If channel has a password, you need to save it
+        if(self.mPassword is not None):
+            return True
+        #If channel has logging disabled, save it
+        if(self.mLogging is False):
+            return True
+        #If channel has caps lock, save it
+        if(self.mUseCapsLock is True):
+            return True
+        #If channel has specific permissions set, save it
+        if(not self.mPermissionMask.isEmpty()):
+            return True
+        #If channel has passive functions disabled, save it
+        if(self.mPassiveEnabled is False):
+            return True
+        #Otherwise it can be generated anew to be identical.
+        return False
         
     def toXml(self):
         'Returns the Channel object XML'
@@ -298,6 +325,9 @@ class User(Destination):
     def setOnline(self,online):
         'Sets whether the user is online'
         self.mOnline = online
+        if(online is False):
+            self.mIdentified = False
+            self.mChannelList = set()
 
     def rightsCheck(self,rightName,channelObject=None):
         'Checks the value of the right with the specified name. Returns boolean'
@@ -313,6 +343,23 @@ class User(Destination):
             return channelObject.rightsCheck(rightName)
         #Fall back to the parent Server's decision.
         return self.mServer.rightsCheck(rightName)
+    
+    def isPersistent(self):
+        'Defines whether User is persistent. That is to say, whether it needs saving, or can be generated anew.'
+        #If user is in any groups, save it
+        if(len(self.mUserGroupList)!=0):
+            return True
+        #If user has logging disabled, save it
+        if(self.mLogging is False):
+            return True
+        #If user has caps lock, save it
+        if(self.mUseCapsLock is True):
+            return True
+        #If user has specific permissions set, save it
+        if(not self.mPermissionMask.isEmpty()):
+            return True
+        #Otherwise it can be generated anew to be identical.
+        return False
         
     def toXml(self):
         'Returns the User object XML'
