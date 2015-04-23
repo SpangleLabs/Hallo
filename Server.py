@@ -294,6 +294,8 @@ class ServerIRC(Server):
             if(channel.isInChannel() and channel.getLogging()):
                 self.mHallo.base_addlog(Commons.currentTimestamp() + ' '+self.getNick()+' has quit.',[self.mName,channel.getName()])
         #    time.sleep(1)
+        for user in self.mUserList:
+            user.setOnline(False)
         if(self.mOpen):
             #self.mHallo.core['server'][self.mName]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
             self.send('QUIT :Will I dream?',None,"raw")
