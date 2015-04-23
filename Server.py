@@ -4,10 +4,11 @@ from threading import Thread
 import socket
 import time
 
-#TODO: I would rather depricate these
+#TODO: I would rather deprecate these
 import ircbot_chk
 
-from Destination import Destination,Channel,User
+from Destination import Channel,User
+from PermissionMask import PermissionMask
 
 endl = Commons.mEndLine
 
@@ -47,6 +48,7 @@ class Server(object):
     mNick = None                #Nickname to use on this server
     mPrefix = None              #Prefix to use with functions on this server
     mFullName = None            #Full name to use on this server
+    mPermissionMask = None      #PermissionMask for the server
     #Dynamic/unsaved class variables
     mOpen = False               #Whether or not to keep reading from server
 
@@ -55,6 +57,7 @@ class Server(object):
         Constructor for server object
         '''
         self.mHallo = hallo
+        self.mPermissionMask = PermissionMask()
         raise NotImplementedError
     
     def connect(self):
@@ -155,6 +158,15 @@ class Server(object):
                 return user
         return None
         
+    def rightsCheck(self,rightName):
+        'Checks the value of the right with the specified name. Returns boolean'
+        rightValue = self.mPermissionMask.getRight(rightName)
+        #If PermissionMask contains that right, return it.
+        if(rightValue in [True,False]):
+            return rightValue
+        #Fallback to the parent Hallo's decision.
+        return self.mHallo.rightsCheck(rightName)
+        
         
 class ServerIRC(Server):
     mHallo = None               #The hallo object that created this server
@@ -167,6 +179,7 @@ class ServerIRC(Server):
     mNick = None                #Nickname to use on this server
     mPrefix = None              #Prefix to use with functions on this server
     mFullName = None            #Full name to use on this server
+    mPermissionMask = None      #PermissionMask for the server
     #Dynamic/unsaved class variables
     mOpen = False               #Whether or not to keep reading from server
     #IRC specific variables
@@ -182,6 +195,7 @@ class ServerIRC(Server):
         Constructor for server object
         '''
         self.mHallo = hallo
+        self.mPermissionMask = PermissionMask()
         if(serverName is not None):
             self.mName = serverName
         if(serverUrl is not None):
@@ -662,7 +676,7 @@ class ServerIRC(Server):
             self.mHallo.base_addlog(Commons.currentTimestamp() + ' invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName(),[self.mName,'@SERVER'])
         #Check if they are an op, then join the channel.
         #TODO: change this logic, when channel object exists
-        if(ircbot_chk.ircbot_chk.chk_op(self.mHallo,self.mName,inviteClient.getName())):
+        if(inviteClient.rightsCheck("invite_channel",inviteChannel)):
             self.joinChannel(inviteChannel)
         
     def parseLineKick(self,kickLine):
@@ -765,6 +779,8 @@ class ServerIRC(Server):
         for channelXml in channelListXml.getElementsByTagName("channel"):
             channelObject = Channel.fromXml(channelXml.toxml(),newServer)
             newServer.addChannel(channelObject)
+        if(len(doc.getElementsByTagName("permission_mask"))!=0):
+            newServer.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newServer
         
     def toXml(self):
@@ -822,6 +838,10 @@ class ServerIRC(Server):
             nickservPassElement = doc.createElement("nickserv_pass")
             nickservPassElement.appendChild(doc.createTextNode(self.mNickservPass))
             root.appendChild(nickservPassElement)
+        #create permission_mask element
+        if(not self.mPermissionMask.isEmpty()):
+            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            root.appendChild(permissionMaskElement)
         #output XML string
         return doc.toxml()
 
