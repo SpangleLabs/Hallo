@@ -721,11 +721,16 @@ class ServerIRC(Server):
             if(self.mHallo.core['server'][self.mName]['check']['recipientonline']==''):
                 self.mHallo.core['server'][self.mName]['check']['recipientonline'] = ' '
         #Check for NAMES request reply, telling you who is in a channel.
-        #TODO: use locks to make this pleasant.
         elif(numericCode == "353"):
-            channel = numericLine.split(':')[1].split()[-1].lower()
-            self.mHallo.core['server'][self.mName]['check']['names'] = ':'.join(numericLine.split(':')[2:])
-            self.mHallo.core['server'][self.mName]['channel'][channel]['user_list'] = [nick.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','').lower() for nick in self.mHallo.core['server'][self.mName]['check']['names'].split()]
+            #Parse out data
+            channelName = numericLine.split(':')[1].split()[-1].lower()
+            channelUserList = ':'.join(numericLine.split(':')[2:])
+            #Get channel object
+            channelObject = self.getChannelByName(channelName)
+            #Check channel is being checked
+            if(channelObject == self.mCheckChannelUserListChannel):
+                #Set user list
+                self.mCheckChannelUserListUserList = channelUserList.split()
 
     def parseLineUnhandled(self,unhandledLine):
         'Parses an unhandled message from the server'
