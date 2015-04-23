@@ -657,14 +657,6 @@ class ServerIRC(Server):
         #If it was the bots nick that just changed, update that.
         if(nickClient.getName() == self.getNick()):
             self.mNick = nickNewNick
-        #Update auth_op lists
-        if('auth_op' in self.mHallo.core['server'][self.mName] and nickClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_op']):
-            self.mHallo.core['server'][self.mName]['auth_op'].remove(nickClient.getName().lower())
-            self.mHallo.core['server'][self.mName]['auth_op'].append(nickNewNick.lower())
-        #Update auth_god lists
-        if('auth_god' in self.mHallo.core['server'][self.mName] and nickClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_god']):
-            self.mHallo.core['server'][self.mName]['auth_god'].remove(nickClient.getName().lower())
-            self.mHallo.core['server'][self.mName]['auth_god'].append(nickNewNick.lower())
         #Check whether this verifies anything that means automatic flags need to be applied
         for channel in self.mHallo.conf['server'][self.mName]['channel']:
             if('auto_list' in self.mHallo.conf['server'][self.mName]['channel'][channel]):
