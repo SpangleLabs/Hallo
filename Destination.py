@@ -98,6 +98,7 @@ class Channel(Destination):
     mInChannel = False          #Whether or not hallo is in the channel
     mPassiveEnabled = True      #Whether to use passive functions in the channel
     mAutoJoin = False           #Whether hallo should automatically join this channel when loading
+    mPrefix = None              #Prefix for calling functions. None means inherit from Server. False means use nick.
     
     def __init__(self,name,server):
         '''
@@ -113,6 +114,16 @@ class Channel(Destination):
     def setPassword(self,password):
         'Channel password setter'
         self.mPassword = password
+        
+    def getPrefix(self):
+        'Returns the channel prefix.'
+        if(self.mPrefix is None):
+            return self.mServer.getPrefix()
+        return self.mPrefix
+    
+    def setPrefix(self,newPrefix):
+        'Sets the channel function prefix.'
+        self.mPrefix = newPrefix
     
     def getUserList(self):
         'Returns the full user list of the channel'
