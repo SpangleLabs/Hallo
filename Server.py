@@ -774,6 +774,9 @@ class ServerIRC(Server):
                 #use response
                 userObjectList = set()
                 for userName in self.mCheckChannelUserListUserList:
+                    #Strip flags from user name
+                    while(userName[0] in ['~','&','@','%','+']):
+                        userName = userName[1:]
                     userObject = self.getUserByName(userName)
                     userObjectList.add(userObject)
                 channelObject.setUserList(userObjectList)
