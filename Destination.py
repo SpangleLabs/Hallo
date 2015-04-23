@@ -243,7 +243,8 @@ class User(Destination):
     
     def isIdentified(self):
         'Checks whether this user is identified'
-        #TODO: If false, do an ident check
+        if(not self.mIdentified):
+            self.checkIdentity()
         return self.mIdentified
     
     def checkIdentity(self):
