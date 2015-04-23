@@ -1,5 +1,8 @@
 import time
 
+from xml.dom import minidom
+from PermissionMask import PermissionMask
+
 class Destination:
     '''
     Destination is an object that both Channel and User inherit from. It just means messages can be sent to these entities.
@@ -9,13 +12,17 @@ class Destination:
     mName = None        #Destination name, where to send messages
     mLogging = True     #Whether logging is enabled for this destination
     mLastActive = None  #Timestamp of when they were last active
+    mUseCapsLock = False    #Whether to use caps lock when communicating to this destination
+    mPermissionMask = None  #PermissionMask for the destination object
 
     def __init__(self,name,server):
         '''
         Constructor
         '''
+        raise NotImplementedError
         self.mName = name.lower()
         self.mServer = server
+        self.mPermissionMask = PermissionMask()
         
     def getName(self):
         'Name getter'
@@ -43,7 +50,7 @@ class Destination:
         else:
             return True
     
-    def hasLogging(self):
+    def getLogging(self):
         'Boolean, whether the destination is supposed to have logging.'
         return self.mLogging
 
@@ -54,16 +61,47 @@ class Destination:
     def updateActivity(self):
         'Updates LastActive timestamp'
         self.mLastActive = time.time()
+        if(self.mInChannel==False):
+            self.mInChannel = True
+        if(self.mOnline==False):
+            self.mOnline = True
         
     def getLastActive(self):
         'Returns when the destination was last active'
         return self.mLastActive
+    
+    def isUpperCase(self):
+        'Returns a boolean representing whether to use caps lock'
+        return self.mUseCapsLock
+    
+    def setUpperCase(self,upperCase):
+        'Sets whether the destination uses caps lock'
+        self.mUseCapsLock = upperCase
+        
+    def toXml(self):
+        'Returns the Destination object XML'
+        raise NotImplementedError
+    
+    @staticmethod
+    def fromXml(xmlString):
+        'Loads a new Destination object from XML'
+        raise NotImplementedError
 
 class Channel(Destination):
     mType = "channel"           #This is a channel object
     mPassword = None            #Channel password, or none.
-    mUserList = set()              #Users in the channel
+    mUserList = set()           #Users in the channel
+    mInChannel = False          #Whether or not hallo is in the channel
+    mPassiveEnabled = True      #Whether to use passive functions in the channel
+    mAutoJoin = True            #Whether hallo should automatically join this channel when loading
     
+    def __init__(self,name,server):
+        '''
+        Constructor for channel object
+        '''
+        self.mName = name.lower()
+        self.mServer = server
+
     def getPassword(self):
         'Channel password getter'
         return self.mPassword
@@ -79,15 +117,129 @@ class Channel(Destination):
     def addUser(self,user):
         'Adds a new user to a given channel'
         self.mUserList.add(user)
+        user.addChannel(self)
     
     def setUserList(self,userList):
         'Sets the entire user list of a channel'
         self.mUserList = userList
+        for user in userList:
+            user.addChannel(self)
+    
+    def removeUser(self,user):
+        'Removes a user from a given channel'
+        try:
+            self.mUserList.remove(user)
+            user.removeChannel(self)
+        except KeyError:
+            pass
+    
+    def isUserInChannel(self,user):
+        'Returns a boolean as to whether the user is in this channel'
+        return user in self.mUserList
+            
+    def isPassiveEnabled(self):
+        'Whether or not passive functions are enabled in this channel'
+        return self.mPassiveEnabled
+    
+    def setPassiveEnabled(self,passiveEnabled):
+        'Sets whether passive functions are enabled in this channel'
+        self.mPassiveEnabled = passiveEnabled
+    
+    def isAutoJoin(self):
+        'Whether or not hallo should automatically join this channel'
+        return self.mAutoJoin
+    
+    def setAutoJoin(self,autoJoin):
+        'Sets whether hallo automatically joins this channel'
+        self.mAutoJoin = autoJoin
+        
+    def isInChannel(self):
+        'Whether or not hallo is in this channel'
+        return self.mInChannel
+    
+    def setInChannel(self,inChannel):
+        'Sets whether hallo is in this channel'
+        self.mInChannel = inChannel
+        if(inChannel == False):
+            self.mUserList = set()
+
+    def rightsCheck(self,rightName):
+        'Checks the value of the right with the specified name. Returns boolean'
+        rightValue = self.mPermissionMask.getRight(rightName)
+        #If PermissionMask contains that right, return it.
+        if(rightValue in [True,False]):
+            return rightValue
+        #Fallback to the parent Server's decision.
+        return self.mServer.rightsCheck(rightName)
+        
+    def toXml(self):
+        'Returns the Channel object XML'
+        #create document
+        doc = minidom.Document()
+        #create root element
+        root = doc.createElement("channel")
+        doc.appendChild(root)
+        #create name element
+        nameElement = doc.createElement("channel_name")
+        nameElement.appendChild(doc.createTextNode(self.mName))
+        root.appendChild(nameElement)
+        #create logging element
+        loggingElement = doc.createElement("logging")
+        loggingElement.appendChild(doc.createTextNode(self.mLogging))
+        root.appendChild(loggingElement)
+        #create caps_lock element, to say whether to use caps lock
+        capsLockElement = doc.createElement("caps_lock")
+        capsLockElement.appendChild(doc.createTextNode(self.mUseCapsLock))
+        root.appendChild(capsLockElement)
+        #create password element
+        if(self.mPassword is not None):
+            passwordElement = doc.createElement("password")
+            passwordElement.appendChild(doc.createTextNode(self.mPassword))
+            root.appendChild(passwordElement)
+        #create passive_enabled element, saying whether passive functions are enabled
+        passiveEnabledElement = doc.createElement("passive_enabled")
+        passiveEnabledElement.appendChild(doc.createTextNode(self.mPassiveEnabled))
+        root.appendChild(passiveEnabledElement)
+        #create auto_join element, whether or not to automatically join a channel
+        autoJoinElement = doc.createElement("auto_join")
+        autoJoinElement.appendChild(doc.createTextNode(self.mAutoJoin))
+        root.appendChild(autoJoinElement)
+        #create permission_mask element
+        if(not self.mPermissionMask.isEmpty()):
+            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            root.appendChild(permissionMaskElement)
+        #output XML string
+        return doc.toxml()
+    
+    @staticmethod
+    def fromXml(xmlString,server):
+        'Loads a new Channel object from XML'
+        doc = minidom.parse(xmlString)
+        newName = doc.getElementsByTagName("channel_name")[0].firstChild.data
+        newChannel = Channel(newName,server)
+        newChannel.mLogging = doc.getElementsByTagName("logging")[0].firstChild.data
+        newChannel.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
+        if(len(doc.getElementsByTagName("password"))!=0):
+            newChannel.mPassword = doc.getElementsByTagName("password")[0].firstChild.data
+        newChannel.mPassiveEnabled = doc.getElementsByTagName("passive_enabled")[0].firstChild.data
+        newChannel.mAutoJoin = doc.getElementsByTagName("auto_join")[0].firstChild.data
+        if(len(doc.getElementsByTagName("permission_mask"))!=0):
+            newChannel.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
+        return newChannel
     
 class User(Destination):
     mType = "user"              #This is a user object
     mIdentified = False         #Whether the user is identified (with nickserv)
     mChannelList = set()        #List of channels this user is in
+    mOnline = False             #Whether or not the user is online
+    mUserGroupList = {}         #List of UserGroups this User is a member of
+
+    def __init__(self,name,server):
+        '''
+        Constructor for user object
+        '''
+        self.mName = name.lower()
+        self.mServer = server
     
     def isIdentified(self):
         'Checks whether this user is identified'
@@ -101,7 +253,108 @@ class User(Destination):
     def addChannel(self,channel):
         'Adds a new channel to a given user'
         self.mChannelList.add(channel)
+    
+    def removeChannel(self,channel):
+        'Removes a channel from a given user'
+        self.mChannelList.remove(channel)
         
     def setChannelList(self,channelList):
         'Sets the entire channel list of a user'
         self.mChannelList = channelList
+    
+    def addUserGroup(self,newUserGroup):
+        'Adds a User to a UserGroup'
+        newUserGroupName = newUserGroup.getName()
+        self.mUserGroupList[newUserGroupName] = newUserGroup
+    
+    def getUserGroupByName(self,userGroupName):
+        'Returns the UserGroup with the matching name'
+        if(userGroupName in self.mUserGroupList):
+            return self.mUserGroupList[userGroupName]
+        return None
+    
+    def getUserGroupList(self):
+        'Returns the full list of UserGroups this User is a member of'
+        return self.mUserGroupList
+    
+    def removeUserGroupByName(self,userGroupName):
+        'Removes the UserGroup by the given name from a user'
+        del self.mUserGroupList[userGroupName]
+        
+    def isOnline(self):
+        'Whether the user appears to be online'
+        return self.mOnline
+    
+    def setOnline(self,online):
+        'Sets whether the user is online'
+        self.mOnline = online
+
+    def rightsCheck(self,rightName,channelObject=None):
+        'Checks the value of the right with the specified name. Returns boolean'
+        rightValue = self.mPermissionMask.getRight(rightName)
+        #If PermissionMask contains that right, return it.
+        if(rightValue in [True,False]):
+            return rightValue
+        #Check UserGroup rights, if any apply
+        if(len(self.mUserGroupList)!=0):
+            return any([userGroup.rightsCheck(rightName,self,channelObject) for userGroup in self.mUserGroupList.values()])
+        #Fall back to channel, if defined
+        if(channelObject is not None):
+            return channelObject.rightsCheck(rightName)
+        #Fall back to the parent Server's decision.
+        return self.mServer.rightsCheck(rightName)
+        
+    def toXml(self):
+        'Returns the User object XML'
+        #create document
+        doc = minidom.Document()
+        #create root element
+        root = doc.createElement("user")
+        doc.appendChild(root)
+        #create name element
+        nameElement = doc.createElement("user_name")
+        nameElement.appendChild(doc.createTextNode(self.mName))
+        root.appendChild(nameElement)
+        #create logging element
+        loggingElement = doc.createElement("logging")
+        loggingElement.appendChild(doc.createTextNode(self.mLogging))
+        root.appendChild(loggingElement)
+        #create caps_lock element, to say whether to use caps lock
+        capsLockElement = doc.createElement("caps_lock")
+        capsLockElement.appendChild(doc.createTextNode(self.mUseCapsLock))
+        root.appendChild(capsLockElement)
+        #create user_group list
+        userGroupListElement = doc.createElement("user_group_list")
+        for userGroupName in self.mUserGroupList:
+            userGroupElement = doc.createElement("user_group_name")
+            userGroupElement.appendChild(doc.createTextNode(userGroupName))
+            userGroupListElement.appendChild(userGroupElement)
+        root.appendChild(userGroupListElement)
+        #create permission_mask element
+        if(not self.mPermissionMask.isEmpty()):
+            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            root.appendChild(permissionMaskElement)
+        #output XML string
+        return doc.toxml()
+    
+    @staticmethod
+    def fromXml(xmlString,server):
+        'Loads a new User object from XML'
+        doc = minidom.parse(xmlString)
+        newName = doc.getElementsByTagName("user_name")[0].firstChild.data
+        newUser = User(newName,server)
+        newUser.mLogging = doc.getElementsByTagName("logging")[0].firstChild.data
+        newUser.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
+        #Load UserGroups from XML
+        userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
+        for userGroupXml in userGroupListXml.getElementsByTagName("user_group_name"):
+            userGroupName = userGroupXml.firstChild.data
+            userGroup = server.getHallo().getUserGroupByName(userGroupName)
+            if(userGroup is not None):
+                newUser.addUserGroup(userGroup)
+        #Add PermissionMask, if one exists
+        if(len(doc.getElementsByTagName("permission_mask"))!=0):
+            newUser.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
+        return newUser
+    
+    

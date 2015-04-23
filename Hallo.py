@@ -8,7 +8,7 @@
 #pprint is used to view the config
 #importlib is used to import modules on the fly, hopefully
 #copy is used to copy the self.conf variable
-import socket, time, os, pickle, importlib
+import time, os, pickle, importlib
 from threading import Thread
 import collections
 import imp
@@ -19,7 +19,9 @@ import re
 from xml.dom import minidom
 
 from inc.commons import Commons
-from Server import Server, ServerFactory, ServerIRC
+from Server import Server, ServerFactory
+from PermissionMask import PermissionMask
+from UserGroup import UserGroup
 
 import ircbot_on
 import mod_passive
@@ -32,11 +34,14 @@ class Hallo:
     mDefaultFullName = "HalloBot HalloHost HalloServer :an irc bot by spangle"
     mOpen = False
     mServerFactory = None
+    mPermissionMask = None
+    mUserGroupList = {}
     mServerList = []
 
     def __init__(self):
         #Create ServerFactory
         self.mServerFactory = ServerFactory(self)
+        self.mPermissionMask = PermissionMask()
         #load config
         self.loadFromXml()
         self.mOpen = True
@@ -72,6 +77,12 @@ class Hallo:
             for serverXml in serverListXml.getElementsByTagName("server"):
                 serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
                 self.addServer(serverObject)
+            userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
+            for userGroupXml in userGroupListXml.getElementsByTagName("user_group"):
+                userGroupObject = UserGroup.fromXml(userGroupXml.toxml())
+                self.addUserGroup(userGroupObject)
+            if(len(doc.getElementsByTagName("permission_mask"))!=0):
+                self.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
             return
         except (FileNotFoundError, IOError):
             print("Error loading config")
@@ -100,8 +111,33 @@ class Hallo:
             serverElement = minidom.parse(serverItem.toXml()).firstChild
             serverListElement.appendChild(serverElement)
         root.appendChild(serverListElement)
+        #create user_group list
+        userGroupListElement = doc.createElement("user_group_list")
+        for userGroupName in self.mUserGroupList:
+            userGroupElement = minidom.parse(self.mUserGroupList[userGroupName].toXml()).firstChild
+            userGroupListElement.appendChild(userGroupElement)
+        root.appendChild(userGroupListElement)
+        #Create permission_mask element, if it's not empty.
+        if(not self.mPermissionMask.isEmpty()):
+            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            root.appendChild(permissionMaskElement)
         #save XML
         doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
+    
+    def addUserGroup(self,userGroup):
+        'Adds a new UserGroup to the UserGroup list'
+        userGroupName = userGroup.getName()
+        self.mUserGroupList[userGroupName] = userGroup
+    
+    def getUserGroupByName(self,userGroupName):
+        'Returns the UserGroup with the specified name'
+        if(userGroupName in self.mUserGroupList):
+            return self.mUserGroupList[userGroupName]
+        return None
+    
+    def removeUserGroupByName(self,userGroupName):
+        'Removes a user group specified by name'
+        del self.mUserGroupList[userGroupName]
         
     def addServer(self,server):
         #adds a new server to the server list
@@ -127,6 +163,24 @@ class Hallo:
             server.disconnect()
         self.saveToXml()
         self.mOpen = False
+        
+    def rightsCheck(self,rightName):
+        'Checks the value of the right with the specified name. Returns boolean'
+        rightValue = self.mPermissionMask.getRight(rightName)
+        #If PermissionMask contains that right, return it.
+        if(rightValue in [True,False]):
+            return rightValue
+        #If it's a function right, go to default_function right
+        if(rightName.startswith("function_")):
+            return self.rightsCheck("default_function")
+        #If default_function is not defined, define and return it as True
+        if(rightName=="default_function"):
+            self.mPermissionMask.setRight("default_function",True)
+            return True
+        else:
+            #Else, define and return False
+            self.mPermissionMask.setRight(rightName,True)
+            return False
         
     def getDefaultNick(self):
         'Default nick getter'
