@@ -198,6 +198,9 @@ class ServerIRC(Server):
     mCheckUsersOnlineLock = None            #Thread lock for checking which users are online
     mCheckUsersOnlineCheckList = None       #List of users' names to check
     mCheckUsersOnlineOnlineList = None      #List of users' names who are online
+    mCheckUserIdentifyLock = None           #Thread lock for checking if a user is identified with nickserv
+    mCheckUserIdentifyUser = None           #User name which is being checked
+    mCheckUserIdentifyResult = None         #Boolean, whether or not the user is identified
     
     def __init__(self,hallo,serverName=None,serverUrl=None,serverPort=6667):
         '''
@@ -207,6 +210,7 @@ class ServerIRC(Server):
         self.mPermissionMask = PermissionMask()
         self.mCheckChannelUserListLock = Lock()
         self.mCheckUsersOnlineLock = Lock()
+        self.mCheckUserIdentifyLock = Lock()
         if(serverName is not None):
             self.mName = serverName
         if(serverUrl is not None):
