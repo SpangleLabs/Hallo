@@ -560,7 +560,7 @@ class ServerIRC(Server):
             if(partClient in channel_server.getUserList()):
                 userStillOnServer = True
         if(not userStillOnServer):
-            partClient.setIdentified(False)
+            partClient.setOnline(False)
     
     def parseLineQuit(self,quitLine):
         'Parses a QUIT message from the server'
@@ -579,7 +579,7 @@ class ServerIRC(Server):
         for channel in self.mChannelList:
             channel.removeUser(quitClient)
         #Remove auth stuff from user
-        quitClient.setIdentified(False)
+        quitClient.setOnline(False)
         
     def parseLineMode(self,modeLine):
         'Parses a MODE message from the server'
