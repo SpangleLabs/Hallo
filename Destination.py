@@ -175,6 +175,29 @@ class Channel(Destination):
             return rightValue
         #Fallback to the parent Server's decision.
         return self.mServer.rightsCheck(rightName)
+    
+    def isPersistent(self):
+        'Defines whether Channel is persistent. That is to say, whether it needs saving, or can be generated anew.'
+        #If you need to rejoin this channel, then you need to save it
+        if(self.mAutoJoin is True):
+            return True
+        #If channel has a password, you need to save it
+        if(self.mPassword is not None):
+            return True
+        #If channel has logging disabled, save it
+        if(self.mLogging is False):
+            return True
+        #If channel has caps lock, save it
+        if(self.mUseCapsLock is True):
+            return True
+        #If channel has specific permissions set, save it
+        if(not self.mPermissionMask.isEmpty()):
+            return True
+        #If channel has passive functions disabled, save it
+        if(self.mPassiveEnabled is False):
+            return True
+        #Otherwise it can be generated anew to be identical.
+        return False
         
     def toXml(self):
         'Returns the Channel object XML'
