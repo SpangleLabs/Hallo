@@ -15,6 +15,8 @@ class Function:
     '''
     Generic function object. All functions inherit from this.
     '''
+    mHelpName = None    #Name for use in help listing
+    mNames = set()         #Names which can be used to address the function
 
     def __init__(self, params):
         '''
@@ -46,11 +48,11 @@ class Function:
 
     def passiveRun(self,event,fullLine,userObject,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
-        raise NotImplementedError
+        pass
         
     def getHelpName(self):
         'Returns the name to be printed for help documentation'
-        raise NotImplementedError
+        return self.mHelpName
     
     def getHelpDocs(self,arguments=None):
         'Returns the help documentation, specific to given arguments, if supplied'
@@ -58,6 +60,6 @@ class Function:
     
     def getNames(self):
         'Returns the list of names for directly addressing the function'
-        raise NotImplementedError
+        return self.mNames.add(self.mHelpName)
     
     
