@@ -141,7 +141,9 @@ class Server(object):
         for channel in self.mChannelList:
             if(channel.getName()==channelName):
                 return channel
-        return None
+        newChannel = Channel(channelName,self)
+        self.addChannel(newChannel)
+        return newChannel
     
     def addChannel(self,channelObject):
         'Adds a channel to the channel list'
@@ -157,7 +159,10 @@ class Server(object):
         for user in self.mUserList:
             if(user.getName()==userName):
                 return user
-        return None
+        #No user by that name exists, so create one.
+        newUser = User(userName,self)
+        self.addUser(newUser)
+        return newUser
     
     def addUser(self,userObject):
         'Adds a user to the user list'
