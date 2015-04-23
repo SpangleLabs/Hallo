@@ -915,8 +915,12 @@ class ServerIRC(Server):
         else:
             nickservElement = doc.getElementsByTagName("nickserv")[0]
             newServer.mNickservNick = nickservElement.getElementsByTagName("nick")[0].firstChild.data
-            newServer.mNickservIdentCommand = nickservElement.getElementsByTagName("identity_command")[0].firstChild.data
-            newServer.mNickservIdentResponse = nickservElement.getElementsByTagName("identity_response")[0].firstChild.data
+            if(len(nickservElement.getElementsByTagName("identity_command"))==0):
+                newServer.mNickservIdentCommand = None
+                newServer.mNickservIdentResponse = None
+            else:
+                newServer.mNickservIdentCommand = nickservElement.getElementsByTagName("identity_command")[0].firstChild.data
+                newServer.mNickservIdentResponse = nickservElement.getElementsByTagName("identity_response")[0].firstChild.data
             if(len(nickservElement.getElementsByTagName("password"))!=0):
                 newServer.mNickservPass = nickservElement.getElementsByTagName("password")[0].firstChild.data
         #Load channels
@@ -991,13 +995,14 @@ class ServerIRC(Server):
                 nickservPassElement.appendChild(doc.createTextNode(self.mNickservPass))
                 nickservElement.appendChild(nickservPassElement)
             #Nickserv identity check command element
-            nickservIdentCommandElement = doc.createElement("identity_command")
-            nickservIdentCommandElement.appendChild(doc.createTextNode(self.mNickservIdentCommand))
-            nickservElement.appendChild(nickservIdentCommandElement)
-            #Nickserv identity check response element
-            nickservIdentResponseElement = doc.createElement("identity_response")
-            nickservIdentResponseElement.appendChild(doc.createTextNode(self.mNickservIdentResponse))
-            nickservElement.appendChild(nickservIdentResponseElement)
+            if(self.mNickservIdentCommand is not None):
+                nickservIdentCommandElement = doc.createElement("identity_command")
+                nickservIdentCommandElement.appendChild(doc.createTextNode(self.mNickservIdentCommand))
+                nickservElement.appendChild(nickservIdentCommandElement)
+                #Nickserv identity check response element
+                nickservIdentResponseElement = doc.createElement("identity_response")
+                nickservIdentResponseElement.appendChild(doc.createTextNode(self.mNickservIdentResponse))
+                nickservElement.appendChild(nickservIdentResponseElement)
             #Add nickserv element to document
             root.appendChild(nickservElement)
         #create permission_mask element
