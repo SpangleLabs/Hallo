@@ -61,9 +61,9 @@ class Destination:
     def updateActivity(self):
         'Updates LastActive timestamp'
         self.mLastActive = time.time()
-        if(self.mInChannel==False):
+        if(self.mType=="channel"):
             self.mInChannel = True
-        if(self.mOnline==False):
+        if(self.mType=="user"):
             self.mOnline = True
         
     def getLastActive(self):
