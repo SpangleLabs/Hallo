@@ -354,7 +354,7 @@ class ServerIRC(Server):
             for dataLineLine in dataLineSplit:
                 self.sendRaw(msgTypeName+' '+destinationName+' '+dataLineLine)
     
-    def joinchannel(self,channelObject):
+    def joinChannel(self,channelObject):
         'Joins a specified channel'
         if(channelObject not in self.mChannelList):
             self.addChannel(channelObject)
