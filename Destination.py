@@ -243,8 +243,18 @@ class User(Destination):
     
     def isIdentified(self):
         'Checks whether this user is identified'
-        #TODO: If false, do an ident check
+        if(not self.mIdentified):
+            self.checkIdentity()
         return self.mIdentified
+    
+    def setIdentified(self,identified):
+        'Sets whether this user is identified'
+        self.mIdentified = identified
+    
+    def checkIdentity(self):
+        'Checks with the server whether this user is identified.'
+        identityResult = self.mServer.checkIdentity(self)
+        self.mIdentified = identityResult
     
     def getChannelList(self):
         'Returns the list of channels this user is in'

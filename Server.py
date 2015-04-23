@@ -1,8 +1,9 @@
 from xml.dom import minidom
 from inc.commons import Commons
-from threading import Thread
+from threading import Thread,Lock
 import socket
 import time
+import re
 
 #TODO: I would rather deprecate these
 import ircbot_chk
@@ -166,6 +167,10 @@ class Server(object):
             return rightValue
         #Fallback to the parent Hallo's decision.
         return self.mHallo.rightsCheck(rightName)
+    
+    def checkUserIdentity(self,userObject):
+        'Check if a user is identified and verified'
+        raise NotImplementedError
         
         
 class ServerIRC(Server):
@@ -186,9 +191,21 @@ class ServerIRC(Server):
     mServerAddress = None       #Address to connect to server
     mServerPort = None          #Port to connect to server
     mNickservPass = None        #Password to identify with nickserv
+    mNickservNick = "nickserv"  #Nickserv's nick, None if nickserv does not exist
+    mNickservIdentCommand = "STATUS"    #Command to send to nickserv to check if a user is identified
+    mNickservIdentResponse = "\b3\b"    #Regex to search for to validate identity in response to IdentCommand
     #IRC specific dynamic variables
     mSocket = None              #Socket to communicate to the server
     mWelcomeMessage = ""        #Server's welcome message when connecting. MOTD and all.
+    mCheckChannelUserListLock = None        #Thread lock for checking a channel's user list
+    mCheckChannelUserListChannel = None     #Channel to check user list of
+    mCheckChannelUserListUserList = None    #User name list of checked channel
+    mCheckUsersOnlineLock = None            #Thread lock for checking which users are online
+    mCheckUsersOnlineCheckList = None       #List of users' names to check
+    mCheckUsersOnlineOnlineList = None      #List of users' names who are online
+    mCheckUserIdentityLock = None           #Thread lock for checking if a user is identified with nickserv
+    mCheckUserIdentityUser = None           #User name which is being checked
+    mCheckUserIdentityResult = None         #Boolean, whether or not the user is identified
     
     def __init__(self,hallo,serverName=None,serverUrl=None,serverPort=6667):
         '''
@@ -196,6 +213,9 @@ class ServerIRC(Server):
         '''
         self.mHallo = hallo
         self.mPermissionMask = PermissionMask()
+        self.mCheckChannelUserListLock = Lock()
+        self.mCheckUsersOnlineLock = Lock()
+        self.mCheckUserIdentityLock = Lock()
         if(serverName is not None):
             self.mName = serverName
         if(serverUrl is not None):
@@ -492,7 +512,7 @@ class ServerIRC(Server):
         if('auto_list' in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]):
             for entry in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]['auto_list']:
                 if(joinClient.getName().lower()==entry['user']):
-                    for x in range(7):
+                    for _ in range(7):
                         #TODO: Need a new way to check if users are registered
                         #TODO: http://stackoverflow.com/questions/1682920/determine-if-a-user-is-idented-on-irc
                         if(ircbot_chk.ircbot_chk.chk_userregistered(self.mHallo,self.mName,joinClient.getName())):
@@ -502,13 +522,11 @@ class ServerIRC(Server):
         #If hallo has joined a channel, get the user list and apply automatic flags as required
         if(joinClient.getName().lower() == self.getNick().lower()):
             joinChannel.setInChannel(True)
-            namesonline = ircbot_chk.ircbot_chk.chk_names(self.mHallo,self.mName,joinChannel.getName())
-            namesonline = [x.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','').lower() for x in namesonline]
-            self.mHallo.core['server'][self.mName]['channel'][joinChannel.getName()]['user_list'] = namesonline
+            self.checkChannelUserList(joinChannel)
             if('auto_list' in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]):
                 for entry in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]['auto_list']:
-                    if(entry['user'] in namesonline):
-                        for x in range(7):
+                    if(entry['user'] in joinChannel.getUserList()):
+                        for _ in range(7):
                             #TODO: Replace this with a new way to check users are registered
                             if(ircbot_chk.ircbot_chk.chk_userregistered(self,self.mName,entry['user'])):
                                 self.send('MODE ' + joinChannel.getName() + ' ' + entry['flag'] + ' ' + entry['user'],None,"raw")
@@ -542,10 +560,7 @@ class ServerIRC(Server):
             if(partClient in channel_server.getUserList()):
                 userStillOnServer = True
         if(not userStillOnServer):
-            if(partClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_op']):
-                self.mHallo.core['server'][self.mHallo.mName]['auth_op'].remove(partClient.getName().lower())
-            if(partClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_god']):
-                self.mHallo.core['server'][self.mName]['auth_god'].remove(partClient.getName().lower())
+            partClient.setIdentified(False)
     
     def parseLineQuit(self,quitLine):
         'Parses a QUIT message from the server'
@@ -564,10 +579,7 @@ class ServerIRC(Server):
         for channel in self.mChannelList:
             channel.removeUser(quitClient)
         #Remove auth stuff from user
-        if('auth_op' in self.mHallo.core['server'][self.mName] and quitClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_op']):
-            self.mHallo.core['server'][self.mName]['auth_op'].remove(quitClient.getName().lower())
-        if('auth_god' in self.mHallo.core['server'][self.mName] and quitClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_god']):
-            self.mHallo.core['server'][self.mName]['auth_god'].remove(quitClient.getName().lower())
+        quitClient.setIdentified(False)
         
     def parseLineMode(self,modeLine):
         'Parses a MODE message from the server'
@@ -615,11 +627,16 @@ class ServerIRC(Server):
         if('endofmessage' in noticeMessage.replace(' ','').lower() and self.mHallo.core['server'][self.mName]['motdend'] == False):
             self.mHallo.core['server'][self.mName]['motdend'] = True
         #Checking if user is registered
-        #TODO: deprecate this. Use locks, and use STATUS or ACC commands to nickserv
-        if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['online']) and noticeClient.getName().lower()=='nickserv' and self.mHallo.core['server'][self.mName]['check']['userregistered'] == False):
-            self.mHallo.core['server'][self.mName]['check']['userregistered'] = True
-        if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['registered']) and noticeClient.getName().lower()=='nickserv' and self.mHallo.core['server'][self.mName]['check']['nickregistered'] == False):
-            self.mHallo.core['server'][self.mName]['check']['nickregistered'] = True
+        if(noticeClient.getName()==self.mNickservNick and self.mCheckUserIdentityUser is not None and self.mNickservIdentCommand is not None):
+            #check if notice message contains command and user name
+            if(self.mCheckUserIdentityUser in noticeMessage and self.mNickservIdentCommand in noticeMessage):
+                #Make regex query of identity response
+                regexIdentResponse = re.compile(self.mNickservIdentResponse)
+                #check if response is in notice message
+                if(regexIdentResponse.search(noticeMessage) is not None):
+                    self.mCheckUserIdentityResult = True
+                else:
+                    self.mCheckUserIdentityResult = False
         
     def parseLineNick(self,nickLine):
         'Parses a NICK message from the server'
@@ -640,14 +657,6 @@ class ServerIRC(Server):
         #If it was the bots nick that just changed, update that.
         if(nickClient.getName() == self.getNick()):
             self.mNick = nickNewNick
-        #Update auth_op lists
-        if('auth_op' in self.mHallo.core['server'][self.mName] and nickClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_op']):
-            self.mHallo.core['server'][self.mName]['auth_op'].remove(nickClient.getName().lower())
-            self.mHallo.core['server'][self.mName]['auth_op'].append(nickNewNick.lower())
-        #Update auth_god lists
-        if('auth_god' in self.mHallo.core['server'][self.mName] and nickClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_god']):
-            self.mHallo.core['server'][self.mName]['auth_god'].remove(nickClient.getName().lower())
-            self.mHallo.core['server'][self.mName]['auth_god'].append(nickNewNick.lower())
         #Check whether this verifies anything that means automatic flags need to be applied
         for channel in self.mHallo.conf['server'][self.mName]['channel']:
             if('auto_list' in self.mHallo.conf['server'][self.mName]['channel'][channel]):
@@ -711,17 +720,24 @@ class ServerIRC(Server):
         if(numericCode == "376"):
             self.mHallo.core['server'][self.mName]['motdend'] = True
         #Check for ISON response, telling you which users are online
-        #TODO: use locks to make this pleasant.
         elif(numericCode == "303"):
-            self.mHallo.core['server'][self.mName]['check']['recipientonline'] = ':'.join(numericLine.split(':')[2:])
-            if(self.mHallo.core['server'][self.mName]['check']['recipientonline']==''):
-                self.mHallo.core['server'][self.mName]['check']['recipientonline'] = ' '
+            #Parse out data
+            usersOnline = ':'.join(numericLine.split(':')[2:])
+            usersOnlineList = usersOnline.split()
+            #Check if users are being checked
+            if(all([usersOnlineList in self.mCheckUsersOnlineCheckList])):
+                    self.mCheckUsersOnlineOnlineList = usersOnlineList
         #Check for NAMES request reply, telling you who is in a channel.
-        #TODO: use locks to make this pleasant.
         elif(numericCode == "353"):
-            channel = numericLine.split(':')[1].split()[-1].lower()
-            self.mHallo.core['server'][self.mName]['check']['names'] = ':'.join(numericLine.split(':')[2:])
-            self.mHallo.core['server'][self.mName]['channel'][channel]['user_list'] = [nick.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','').lower() for nick in self.mHallo.core['server'][self.mName]['check']['names'].split()]
+            #Parse out data
+            channelName = numericLine.split(':')[1].split()[-1].lower()
+            channelUserList = ':'.join(numericLine.split(':')[2:])
+            #Get channel object
+            channelObject = self.getChannelByName(channelName)
+            #Check channel is being checked
+            if(channelObject == self.mCheckChannelUserListChannel):
+                #Set user list
+                self.mCheckChannelUserListUserList = channelUserList.split()
 
     def parseLineUnhandled(self,unhandledLine):
         'Parses an unhandled message from the server'
@@ -754,7 +770,112 @@ class ServerIRC(Server):
             except UnicodeDecodeError:
                 outputLine = rawBytes.decode('cp1252')
         return outputLine
+    
+    def checkChannelUserList(self,channelObject):
+        'Checks and updates the user list of a specified channel'
+        #get lock
+        self.mCheckChannelUserListLock.acquire()
+        self.mCheckChannelUserListChannel = channelObject
+        self.mCheckChannelUserListUserList = None
+        #send request
+        self.send("NAMES "+channelObject.getName(),None,"raw")
+        #loop for 5 seconds
+        for _ in range(10):
+            #if reply is here
+            if(self.mCheckChannelUserListUserList is not None):
+                #use response
+                userObjectList = set()
+                for userName in self.mCheckChannelUserListUserList:
+                    #Strip flags from user name
+                    while(userName[0] in ['~','&','@','%','+']):
+                        userName = userName[1:]
+                    userObject = self.getUserByName(userName)
+                    userObjectList.add(userObject)
+                channelObject.setUserList(userObjectList)
+                #release lock
+                self.mCheckChannelUserListChannel = None
+                self.mCheckChannelUserListUserList = None
+                self.mCheckChannelUserListLock.release()
+                #return
+                return
+            #sleep 0.5seconds
+            time.sleep(0.5)
+        #release lock
+        self.mCheckChannelUserListChannel = None
+        self.mCheckChannelUserListUserList = None
+        self.mCheckChannelUserListLock.release()
+        #return
+        return
+    
+    def checkUsersOnline(self,checkUserList):
+        'Checks a list of users to see which are online, returns a list of online users'
+        #get lock
+        self.mCheckChannelUserListLock.aquire()
+        self.mCheckUsersOnlineCheckList = checkUserList
+        self.mCheckUsersOnlineOnlineList = None
+        #send request
+        self.send("ISON " + " ".join(checkUserList),None,"raw")
+        #loop for 5 seconds
+        for _ in range(10):
+            #if reply is here
+            if(self.mCheckUsersOnlineOnlineList is not None):
+                #use response
+                for userName in self.mCheckUsersOnlineCheckList:
+                    userObject = self.getUserByName(userName)
+                    if(userName in self.mCheckUsersOnlineOnlineList):
+                        userObject.setOnline(True)
+                    else:
+                        userObject.setOnline(False)
+                #release lock
+                response = self.mCheckUsersOnlineOnlineList
+                self.mCheckUsersOnlineCheckList = None
+                self.mCheckUsersOnlineOnlineList = None
+                self.mCheckUsersOnlineLock.release()
+                #return response
+                return response
+            #sleep 0.5 seconds
+            time.sleep(0.5)
+        #release lock
+        self.mCheckUsersOnlineCheckList = None
+        self.mCheckUsersOnlineOnlineList = None
+        self.mCheckUsersOnlineLock.release()
+        #return empty list
+        return []
 
+    def checkUserIdentity(self,userObject):
+        'Check if a user is identified and verified'
+        if(self.mNickservNick is None or self.mNickservIdentCommand is None):
+            return False
+        #get nickserv object
+        nickservObject = self.getUserByName(self.mNickservNick)
+        #get check user lock
+        self.mCheckUserIdentityLock.aquire()
+        self.mCheckUserIdentityUser = userObject.getName()
+        self.mCheckUserIdentityResult = None
+        #send whatever request
+        self.send(self.mNickservIdentCommand+" "+userObject.getName(),nickservObject,"message")
+        #loop for 5 seconds
+        for _ in range(10):
+            #if response
+            if(self.mCheckUserIdentityResult is not None):
+                #use response
+                response = self.mCheckUserIdentityResult
+                #release lock
+                self.mCheckUserIdentityUser = None
+                self.mCheckUserIdentityResult = None
+                self.mCheckUserIdentityLock.release()
+                #return
+                return response
+            #sleep 0.5
+            time.sleep(0.5)
+        #release lock
+        self.mCheckUserIdentityUser = None
+        self.mCheckUserIdentityResult = None
+        self.mCheckUserIdentityLock.release()
+        #return false
+        return False
+        
+        
     @staticmethod
     def fromXml(xmlString,hallo):
         '''
@@ -772,8 +893,22 @@ class ServerIRC(Server):
             newServer.mFullName = doc.getElementsByTagName("full_name")[0].firstChild.data
         newServer.mServerAddress = doc.getElementsByTagName("server_address")[0].firstChild.data
         newServer.mServerPort = doc.getElementsByTagName("server_port")[0].firstChild.data
-        if(len(doc.getElementsByTagName("nickserv_pass"))!=0):
-            newServer.mNickservPass = doc.getElementsByTagName("nickserv_pass")[0].firstChild.data
+        if(len(doc.getElementsByTagName("nickserv"))==0):
+            newServer.mNickservNick = None
+            newServer.mNickservPass = None
+            newServer.mNickservIdentCommand = None
+            newServer.mNickservIdentResponse = None
+        else:
+            nickservElement = doc.getElementsByTagName("nickserv")[0]
+            newServer.mNickservNick = nickservElement.getElementsByTagName("nick")[0].firstChild.data
+            if(len(nickservElement.getElementsByTagName("identity_command"))==0):
+                newServer.mNickservIdentCommand = None
+                newServer.mNickservIdentResponse = None
+            else:
+                newServer.mNickservIdentCommand = nickservElement.getElementsByTagName("identity_command")[0].firstChild.data
+                newServer.mNickservIdentResponse = nickservElement.getElementsByTagName("identity_response")[0].firstChild.data
+            if(len(nickservElement.getElementsByTagName("password"))!=0):
+                newServer.mNickservPass = nickservElement.getElementsByTagName("password")[0].firstChild.data
         #Load channels
         channelListXml = doc.getElementsByTagName("channel_list")[0]
         for channelXml in channelListXml.getElementsByTagName("channel"):
@@ -833,11 +968,29 @@ class ServerIRC(Server):
         serverPortElement = doc.createElement("server_port")
         serverPortElement.appendChild(doc.createTextNode(self.mServerPort))
         root.appendChild(serverPortElement)
-        #create nickserv pass element
-        if(self.mNickservPass is not None):
-            nickservPassElement = doc.createElement("nickserv_pass")
-            nickservPassElement.appendChild(doc.createTextNode(self.mNickservPass))
-            root.appendChild(nickservPassElement)
+        #Create nickserv element
+        if(self.mNickservNick is not None):
+            nickservElement = doc.createElement("nickserv")
+            #Nickserv nick element
+            nickservNickElement = doc.createElement("nick")
+            nickservNickElement.appendChild(doc.createTextNode(self.mNickservNick))
+            nickservElement.appendChild(nickservNickElement)
+            #Nickserv password element
+            if(self.mNickservPass is not None):
+                nickservPassElement = doc.createElement("password")
+                nickservPassElement.appendChild(doc.createTextNode(self.mNickservPass))
+                nickservElement.appendChild(nickservPassElement)
+            #Nickserv identity check command element
+            if(self.mNickservIdentCommand is not None):
+                nickservIdentCommandElement = doc.createElement("identity_command")
+                nickservIdentCommandElement.appendChild(doc.createTextNode(self.mNickservIdentCommand))
+                nickservElement.appendChild(nickservIdentCommandElement)
+                #Nickserv identity check response element
+                nickservIdentResponseElement = doc.createElement("identity_response")
+                nickservIdentResponseElement.appendChild(doc.createTextNode(self.mNickservIdentResponse))
+                nickservElement.appendChild(nickservIdentResponseElement)
+            #Add nickserv element to document
+            root.appendChild(nickservElement)
         #create permission_mask element
         if(not self.mPermissionMask.isEmpty()):
             permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
