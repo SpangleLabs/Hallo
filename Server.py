@@ -189,6 +189,9 @@ class ServerIRC(Server):
     #IRC specific dynamic variables
     mSocket = None              #Socket to communicate to the server
     mWelcomeMessage = ""        #Server's welcome message when connecting. MOTD and all.
+    mCheckChannelUserListLock = None        #Thread lock for checking a channel's user list
+    mCheckChannelUserListChannel = None     #Channel to check user list of
+    mCheckChannelUserListUserList = None    #User list of checked channel
     
     def __init__(self,hallo,serverName=None,serverUrl=None,serverPort=6667):
         '''
@@ -754,6 +757,22 @@ class ServerIRC(Server):
             except UnicodeDecodeError:
                 outputLine = rawBytes.decode('cp1252')
         return outputLine
+    
+    def checkChannelUserList(self,channelObject):
+        'Checks and updates the user list of a specified channel'
+        #get lock
+        #mCheckChannelUserListLock
+        #mCheckChannelUserListChannel
+        #mCheckChannelUserListUserList
+        #send request
+        #loop for 5 seconds
+            #if reply is here
+                #use response
+                #release lock
+                #return
+        #fail
+        #release lock
+        #return
 
     @staticmethod
     def fromXml(xmlString,hallo):
