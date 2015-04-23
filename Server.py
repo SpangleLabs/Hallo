@@ -583,6 +583,12 @@ class ServerIRC(Server):
             channel.removeUser(quitClient)
         #Remove auth stuff from user
         quitClient.setOnline(False)
+        #If it was hallo which quit, set all channels to out of channel and all users to offline
+        if(quitClient.getName().lower()==self.getNick().lower()):
+            for channel in self.mChannelList:
+                channel.setInChannel(False)
+            for user in self.mUserList:
+                user.setOnline(False)
         
     def parseLineMode(self,modeLine):
         'Parses a MODE message from the server'
