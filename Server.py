@@ -186,6 +186,9 @@ class ServerIRC(Server):
     mServerAddress = None       #Address to connect to server
     mServerPort = None          #Port to connect to server
     mNickservPass = None        #Password to identify with nickserv
+    mNickservNick = "nickserv"  #Nickserv's nick, None if nickserv does not exist
+    mNickservIdentCommand = "STATUS"    #Command to send to nickserv to check if a user is identified
+    mNickservIdentResponse = "\b3\b"    #Regex to search for to validate identity in response to IdentCommand
     #IRC specific dynamic variables
     mSocket = None              #Socket to communicate to the server
     mWelcomeMessage = ""        #Server's welcome message when connecting. MOTD and all.
@@ -917,11 +920,28 @@ class ServerIRC(Server):
         serverPortElement = doc.createElement("server_port")
         serverPortElement.appendChild(doc.createTextNode(self.mServerPort))
         root.appendChild(serverPortElement)
-        #create nickserv pass element
-        if(self.mNickservPass is not None):
-            nickservPassElement = doc.createElement("nickserv_pass")
-            nickservPassElement.appendChild(doc.createTextNode(self.mNickservPass))
-            root.appendChild(nickservPassElement)
+        #Create nickserv element
+        if(self.mNickservNick is not None):
+            nickservElement = doc.createElement("nickserv")
+            #Nickserv nick element
+            nickservNickElement = doc.createElement("nick")
+            nickservNickElement.appendChild(doc.createTextNode(self.mNickservNick))
+            nickservElement.appendChild(nickservNickElement)
+            #Nickserv password element
+            if(self.mNickservPass is not None):
+                nickservPassElement = doc.createElement("password")
+                nickservPassElement.appendChild(doc.createTextNode(self.mNickservPass))
+                nickservElement.appendChild(nickservPassElement)
+            #Nickserv identity check command element
+            nickservIdentCommandElement = doc.createElement("identify_command")
+            nickservIdentCommandElement.appendChild(doc.createTextNode(self.mNickservIdentCommand))
+            nickservElement.appendChild(nickservIdentCommandElement)
+            #Nickserv identity check response element
+            nickservIdentResponseElement = doc.createElement("identify_response")
+            nickservIdentResponseElement.appendChild(doc.createTextNode(self.mNickservIdentResponse))
+            nickservElement.appendChild(nickservIdentResponseElement)
+            #Add nickserv element to document
+            root.appendChild(nickservElement)
         #create permission_mask element
         if(not self.mPermissionMask.isEmpty()):
             permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
