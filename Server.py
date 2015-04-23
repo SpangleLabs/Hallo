@@ -191,7 +191,10 @@ class ServerIRC(Server):
     mWelcomeMessage = ""        #Server's welcome message when connecting. MOTD and all.
     mCheckChannelUserListLock = None        #Thread lock for checking a channel's user list
     mCheckChannelUserListChannel = None     #Channel to check user list of
-    mCheckChannelUserListUserList = None    #User list of checked channel
+    mCheckChannelUserListUserList = None    #User name list of checked channel
+    mCheckUsersOnlineLock = None            #Thread lock for checking which users are online
+    mCheckUsersOnlineCheckList = None       #List of users' names to check
+    mCheckUsersOnlineOnlineList = None      #List of users' names who are online
     
     def __init__(self,hallo,serverName=None,serverUrl=None,serverPort=6667):
         '''
@@ -200,6 +203,7 @@ class ServerIRC(Server):
         self.mHallo = hallo
         self.mPermissionMask = PermissionMask()
         self.mCheckChannelUserListLock = Lock()
+        self.mCheckUsersOnlineLock = Lock()
         if(serverName is not None):
             self.mName = serverName
         if(serverUrl is not None):
@@ -795,6 +799,22 @@ class ServerIRC(Server):
         self.mCheckChannelUserListLock.release()
         #return
         return
+    
+    def checkUsersOnline(self,checkUserList):
+        'Checks a list of users to see which are online, returns a list of online users'
+        #get lock
+        self.mCheckChannelUserListLock.aquire()
+        self.mCheckUsersOnlineCheckList = checkUserList
+        self.mCheckUsersOnlineOnlineList = None
+        #send request
+        #loop for 5 seconds
+            #if reply is here
+                #use response
+                #release lock
+                #return response
+            #sleep 0.5 seconds
+        #release lock
+        #return empty list
 
     @staticmethod
     def fromXml(xmlString,hallo):
