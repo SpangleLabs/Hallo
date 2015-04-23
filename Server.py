@@ -796,6 +796,8 @@ class ServerIRC(Server):
             #sleep 0.5seconds
             time.sleep(0.5)
         #release lock
+        self.mCheckChannelUserListChannel = None
+        self.mCheckChannelUserListUserList = None
         self.mCheckChannelUserListLock.release()
         #return
         return
