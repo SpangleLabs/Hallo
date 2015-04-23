@@ -327,6 +327,7 @@ class User(Destination):
         self.mOnline = online
         if(online is False):
             self.mIdentified = False
+            self.mChannelList = set()
 
     def rightsCheck(self,rightName,channelObject=None):
         'Checks the value of the right with the specified name. Returns boolean'
