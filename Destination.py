@@ -97,7 +97,7 @@ class Channel(Destination):
     mUserList = set()           #Users in the channel
     mInChannel = False          #Whether or not hallo is in the channel
     mPassiveEnabled = True      #Whether to use passive functions in the channel
-    mAutoJoin = True            #Whether hallo should automatically join this channel when loading
+    mAutoJoin = False           #Whether hallo should automatically join this channel when loading
     
     def __init__(self,name,server):
         '''

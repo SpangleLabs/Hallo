@@ -356,8 +356,12 @@ class ServerIRC(Server):
     
     def joinChannel(self,channelObject):
         'Joins a specified channel'
+        #If channel isn't in channel list, add it
         if(channelObject not in self.mChannelList):
             self.addChannel(channelObject)
+        #Set channel to AutoJoin, for the future
+        channelObject.setAutoJoin(True)
+        #Send JOIN command
         if(channelObject.getPassword() is None):
             self.send('JOIN ' + channelObject.getName(),None,"raw")
         else:
