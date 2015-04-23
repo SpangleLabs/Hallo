@@ -340,6 +340,23 @@ class User(Destination):
             return channelObject.rightsCheck(rightName)
         #Fall back to the parent Server's decision.
         return self.mServer.rightsCheck(rightName)
+    
+    def isPersistent(self):
+        'Defines whether User is persistent. That is to say, whether it needs saving, or can be generated anew.'
+        #If user is in any groups, save it
+        if(len(self.mUserGroupList)!=0):
+            return True
+        #If user has logging disabled, save it
+        if(self.mLogging is False):
+            return True
+        #If user has caps lock, save it
+        if(self.mUseCapsLock is True):
+            return True
+        #If user has specific permissions set, save it
+        if(not self.mPermissionMask.isEmpty()):
+            return True
+        #Otherwise it can be generated anew to be identical.
+        return False
         
     def toXml(self):
         'Returns the User object XML'
