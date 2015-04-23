@@ -247,6 +247,10 @@ class User(Destination):
             self.checkIdentity()
         return self.mIdentified
     
+    def setIdentified(self,identified):
+        'Sets whether this user is identified'
+        self.mIdentified = identified
+    
     def checkIdentity(self):
         'Checks with the server whether this user is identified.'
         identityResult = self.mServer.checkIdentity(self)
