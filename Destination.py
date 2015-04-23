@@ -86,6 +86,10 @@ class Destination:
     def fromXml(xmlString):
         'Loads a new Destination object from XML'
         raise NotImplementedError
+    
+    def isPersistent(self):
+        'Defines whether a Destination object is persistent. That is to say, whether it needs saving, or can be generated anew.'
+        raise NotImplementedError
 
 class Channel(Destination):
     mType = "channel"           #This is a channel object
