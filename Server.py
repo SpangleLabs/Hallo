@@ -560,10 +560,7 @@ class ServerIRC(Server):
             if(partClient in channel_server.getUserList()):
                 userStillOnServer = True
         if(not userStillOnServer):
-            if(partClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_op']):
-                self.mHallo.core['server'][self.mHallo.mName]['auth_op'].remove(partClient.getName().lower())
-            if(partClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_god']):
-                self.mHallo.core['server'][self.mName]['auth_god'].remove(partClient.getName().lower())
+            partClient.setIdentified(False)
     
     def parseLineQuit(self,quitLine):
         'Parses a QUIT message from the server'
@@ -582,10 +579,7 @@ class ServerIRC(Server):
         for channel in self.mChannelList:
             channel.removeUser(quitClient)
         #Remove auth stuff from user
-        if('auth_op' in self.mHallo.core['server'][self.mName] and quitClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_op']):
-            self.mHallo.core['server'][self.mName]['auth_op'].remove(quitClient.getName().lower())
-        if('auth_god' in self.mHallo.core['server'][self.mName] and quitClient.getName().lower() in self.mHallo.core['server'][self.mName]['auth_god']):
-            self.mHallo.core['server'][self.mName]['auth_god'].remove(quitClient.getName().lower())
+        quitClient.setIdentified(False)
         
     def parseLineMode(self,modeLine):
         'Parses a MODE message from the server'
