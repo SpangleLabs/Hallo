@@ -852,7 +852,7 @@ class ServerIRC(Server):
 
     def checkUserIdentity(self,userObject):
         'Check if a user is identified and verified'
-        if(self.mNickservNick is None):
+        if(self.mNickservNick is None or self.mNickservIdentCommand is None):
             return False
         #get nickserv object
         nickservObject = self.getUserByName(self.mNickservNick)
@@ -861,14 +861,27 @@ class ServerIRC(Server):
         self.mCheckUserIdentityUser = userObject.getName()
         self.mCheckUserIdentityResult = None
         #send whatever request
+        self.send(self.mNickservIdentCommand+" "+userObject.getName(),nickservObject,"message")
         #loop for 5 seconds
+        for _ in range(10):
             #if response
+            if(self.mCheckUserIdentityResult is not None):
                 #use response
+                response = self.mCheckUserIdentityResult
                 #release lock
+                self.mCheckUserIdentityUser = None
+                self.mCheckUserIdentityResult = None
+                self.mCheckUserIdentityLock.release()
                 #return
+                return response
             #sleep 0.5
+            time.sleep(0.5)
         #release lock
+        self.mCheckUserIdentityUser = None
+        self.mCheckUserIdentityResult = None
+        self.mCheckUserIdentityLock.release()
         #return false
+        return False
         
         
     @staticmethod
