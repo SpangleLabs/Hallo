@@ -496,7 +496,7 @@ class ServerIRC(Server):
         if('auto_list' in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]):
             for entry in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]['auto_list']:
                 if(joinClient.getName().lower()==entry['user']):
-                    for x in range(7):
+                    for _ in range(7):
                         #TODO: Need a new way to check if users are registered
                         #TODO: http://stackoverflow.com/questions/1682920/determine-if-a-user-is-idented-on-irc
                         if(ircbot_chk.ircbot_chk.chk_userregistered(self.mHallo,self.mName,joinClient.getName())):
