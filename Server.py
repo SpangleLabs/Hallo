@@ -506,13 +506,11 @@ class ServerIRC(Server):
         #If hallo has joined a channel, get the user list and apply automatic flags as required
         if(joinClient.getName().lower() == self.getNick().lower()):
             joinChannel.setInChannel(True)
-            namesonline = ircbot_chk.ircbot_chk.chk_names(self.mHallo,self.mName,joinChannel.getName())
-            namesonline = [x.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','').lower() for x in namesonline]
-            self.mHallo.core['server'][self.mName]['channel'][joinChannel.getName()]['user_list'] = namesonline
+            self.checkChannelUserList(joinChannel)
             if('auto_list' in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]):
                 for entry in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]['auto_list']:
-                    if(entry['user'] in namesonline):
-                        for x in range(7):
+                    if(entry['user'] in joinChannel.getUserList()):
+                        for _ in range(7):
                             #TODO: Replace this with a new way to check users are registered
                             if(ircbot_chk.ircbot_chk.chk_userregistered(self,self.mName,entry['user'])):
                                 self.send('MODE ' + joinChannel.getName() + ' ' + entry['flag'] + ' ' + entry['user'],None,"raw")
