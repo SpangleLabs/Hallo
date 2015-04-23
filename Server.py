@@ -158,6 +158,11 @@ class Server(object):
             if(user.getName()==userName):
                 return user
         return None
+    
+    def addUser(self,userObject):
+        'Adds a user to the user list'
+        if(self.getUserByName(userObject.getName()) is None):
+            self.mUserList.append(userObject)
         
     def rightsCheck(self,rightName):
         'Checks the value of the right with the specified name. Returns boolean'
@@ -923,6 +928,11 @@ class ServerIRC(Server):
         for channelXml in channelListXml.getElementsByTagName("channel"):
             channelObject = Channel.fromXml(channelXml.toxml(),newServer)
             newServer.addChannel(channelObject)
+        #Load users
+        userListXml = doc.getElementsByTagName("user_list")[0]
+        for userXml in userListXml.getElementsByTagName("user"):
+            userObject = User.fromXml(userXml.toxml(),newServer)
+            newServer.addUser(userObject)
         if(len(doc.getElementsByTagName("permission_mask"))!=0):
             newServer.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newServer
