@@ -3,6 +3,7 @@ from inc.commons import Commons
 from threading import Thread,Lock
 import socket
 import time
+import re
 
 #TODO: I would rather deprecate these
 import ircbot_chk
@@ -632,11 +633,16 @@ class ServerIRC(Server):
         if('endofmessage' in noticeMessage.replace(' ','').lower() and self.mHallo.core['server'][self.mName]['motdend'] == False):
             self.mHallo.core['server'][self.mName]['motdend'] = True
         #Checking if user is registered
-        #TODO: deprecate this. Use locks, and use STATUS or ACC commands to nickserv
-        if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['online']) and noticeClient.getName().lower()=='nickserv' and self.mHallo.core['server'][self.mName]['check']['userregistered'] == False):
-            self.mHallo.core['server'][self.mName]['check']['userregistered'] = True
-        if(any(nickservmsg in noticeMessage.replace(' ','').lower() for nickservmsg in self.mHallo.conf['nickserv']['registered']) and noticeClient.getName().lower()=='nickserv' and self.mHallo.core['server'][self.mName]['check']['nickregistered'] == False):
-            self.mHallo.core['server'][self.mName]['check']['nickregistered'] = True
+        if(noticeClient.getName()==self.mNickservNick and self.mCheckUserIdentityUser is not None and self.mNickservIdentCommand is not None):
+            #check if notice message contains command and user name
+            if(self.mCheckUserIdentityUser in noticeMessage and self.mNickservIdentCommand in noticeMessage):
+                #Make regex query of identity response
+                regexIdentResponse = re.compile(self.mNickservIdentResponse)
+                #check if response is in notice message
+                if(regexIdentResponse.search(noticeMessage) is not None):
+                    self.mCheckUserIdentityResult = True
+                else:
+                    self.mCheckUserIdentityResult = False
         
     def parseLineNick(self,nickLine):
         'Parses a NICK message from the server'
