@@ -441,9 +441,11 @@ class ServerIRC(Server):
         messagePublicBool = not messagePrivateBool
         #Get relevant objects.
         messageSender = self.getUserByName(messageSenderName)
+        messageSender.updateActivity()
         messageDestination = messageSender
         if(messagePublicBool):
             messageChannel = self.getChannelByName(messageDestinationName)
+            messageChannel.updateActivity()
             messageDestination = messageChannel
         #Print message to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName + ' <' + messageSenderName + '> ' + messageText)
@@ -477,7 +479,9 @@ class ServerIRC(Server):
         #Get relevant objects.
         if(messagePublicBool):
             messageChannel = self.getChannelByName(messageDestinationName)
+            messageChannel.updateActivity()
         messageSender = self.getUserByName(messageSenderName)
+        messageSender.updateActivity()
         #Print message to console
         if(messageCtcpCommand.lower()=="action"):
             consoleLine = Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName
@@ -518,7 +522,8 @@ class ServerIRC(Server):
         joinClientName = joinLine.split('!')[0][1:]
         #Get relevant objects
         joinChannel = self.getChannelByName(joinChannelName)
-        joinClient = self.getUserByName(joinClientName) #TODO: create if they don't exist
+        joinClient = self.getUserByName(joinClientName)
+        joinClient.updateActivity()
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + joinClient.getName() + ' joined ' + joinChannel.getName())
         #If channel does logging, log
@@ -636,7 +641,9 @@ class ServerIRC(Server):
         noticeMessage = ':'.join(noticeLine.split(':')[2:])
         #Get client and channel objects
         noticeChannel = self.getChannelByName(noticeChannelName)
+        noticeChannel.updateActivity()
         noticeClient = self.getUserByName(noticeClientName)
+        noticeClient.updateActivity()
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + noticeChannel.getName() + ' Notice from ' + noticeClient.getName() + ': ' + noticeMessage)
         #Logging, if enabled
@@ -700,6 +707,7 @@ class ServerIRC(Server):
         inviteChannelName = ':'.join(inviteLine.split(':')[2:])
         #Get destination objects
         inviteClient = self.getUserByName(inviteClientName)
+        inviteClient.updateActivity()
         inviteChannel = self.getChannelByName(inviteChannelName)
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName())
