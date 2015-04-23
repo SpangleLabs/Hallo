@@ -293,6 +293,7 @@ class ServerIRC(Server):
         #    self.mHallo.base_say('Daisy daisy give me your answer do...',[server,channel])
             if(channel.isInChannel() and channel.getLogging()):
                 self.mHallo.base_addlog(Commons.currentTimestamp() + ' '+self.getNick()+' has quit.',[self.mName,channel.getName()])
+            channel.setInChannel(False)
         #    time.sleep(1)
         for user in self.mUserList:
             user.setOnline(False)
