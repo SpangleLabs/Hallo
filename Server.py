@@ -807,14 +807,33 @@ class ServerIRC(Server):
         self.mCheckUsersOnlineCheckList = checkUserList
         self.mCheckUsersOnlineOnlineList = None
         #send request
+        self.send("ISON " + " ".join(checkUserList),None,"raw")
         #loop for 5 seconds
+        for _ in range(10):
             #if reply is here
+            if(self.mCheckUsersOnlineOnlineList is not None):
                 #use response
+                for userName in self.mCheckUsersOnlineCheckList:
+                    userObject = self.getUserByName(userName)
+                    if(userName in self.mCheckUsersOnlineOnlineList):
+                        userObject.setOnline(True)
+                    else:
+                        userObject.setOnline(False)
                 #release lock
+                response = self.mCheckUsersOnlineOnlineList
+                self.mCheckUsersOnlineCheckList = None
+                self.mCheckUsersOnlineOnlineList = None
+                self.mCheckUsersOnlineLock.release()
                 #return response
+                return response
             #sleep 0.5 seconds
+            time.sleep(0.5)
         #release lock
+        self.mCheckUsersOnlineCheckList = None
+        self.mCheckUsersOnlineOnlineList = None
+        self.mCheckUsersOnlineLock.release()
         #return empty list
+        return []
 
     @staticmethod
     def fromXml(xmlString,hallo):
