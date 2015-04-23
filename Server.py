@@ -1,6 +1,6 @@
 from xml.dom import minidom
 from inc.commons import Commons
-from threading import Thread
+from threading import Thread,Lock
 import socket
 import time
 
@@ -199,6 +199,7 @@ class ServerIRC(Server):
         '''
         self.mHallo = hallo
         self.mPermissionMask = PermissionMask()
+        self.mCheckChannelUserListLock = Lock()
         if(serverName is not None):
             self.mName = serverName
         if(serverUrl is not None):
@@ -761,18 +762,33 @@ class ServerIRC(Server):
     def checkChannelUserList(self,channelObject):
         'Checks and updates the user list of a specified channel'
         #get lock
-        #mCheckChannelUserListLock
-        #mCheckChannelUserListChannel
-        #mCheckChannelUserListUserList
+        self.mCheckChannelUserListLock.acquire()
+        self.mCheckChannelUserListChannel = channelObject
+        self.mCheckChannelUserListUserList = None
         #send request
+        self.send("NAMES "+channelObject.getName(),None,"raw")
         #loop for 5 seconds
+        for _ in range(10):
             #if reply is here
+            if(self.mCheckChannelUserListUserList is not None):
                 #use response
+                userObjectList = set()
+                for userName in self.mCheckChannelUserListUserList:
+                    userObject = self.getUserByName(userName)
+                    userObjectList.add(userObject)
+                channelObject.setUserList(userObjectList)
                 #release lock
+                self.mCheckChannelUserListChannel = None
+                self.mCheckChannelUserListUserList = None
+                self.mCheckChannelUserListLock.release()
                 #return
-        #fail
+                return
+            #sleep 0.5seconds
+            time.sleep(0.5)
         #release lock
+        self.mCheckChannelUserListLock.release()
         #return
+        return
 
     @staticmethod
     def fromXml(xmlString,hallo):
