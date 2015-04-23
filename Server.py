@@ -821,6 +821,7 @@ class ServerIRC(Server):
                     while(userName[0] in ['~','&','@','%','+']):
                         userName = userName[1:]
                     userObject = self.getUserByName(userName)
+                    userObject.setOnline(True)
                     userObjectList.add(userObject)
                 channelObject.setUserList(userObjectList)
                 #release lock
