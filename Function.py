@@ -65,6 +65,8 @@ class Function:
         
     def getHelpName(self):
         'Returns the name to be printed for help documentation'
+        if(self.mHelpName is None):
+            raise NotImplementedError
         return self.mHelpName
     
     def getHelpDocs(self,arguments=None):
