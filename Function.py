@@ -18,6 +18,18 @@ class Function:
     mHelpName = None    #Name for use in help listing
     mNames = set()      #Names which can be used to address the function
     mHelpDocs = None    #Help documentation, if it's just a single line, can be set here
+    #Static constants
+    EVENT_PING = "ping"            #Event constant signifying a server ping has been received
+    EVENT_MESSAGE = "message"      #Event constant signifying a standard message
+    EVENT_JOIN = "join_channel"    #Event constant signifying someone joined a channel
+    EVENT_LEAVE = "leave_channel"  #Event constant signifying someone left a channel
+    EVENT_QUIT = "quit"            #Event constant signifying someone disconnected
+    EVENT_CHNAME = "name_change"   #Event constant signifying someone changed their name
+    EVENT_KICK = "kick"            #Event constant signifying someone was forcibly removed from the channel
+    EVENT_NOTICE = "notice"        #Event constant signifying a notice was received. (IRC only?)
+    EVENT_MODE = "mode_change"     #Event constant signifying a channel mode change. (IRC only?)
+    EVENT_CTCP = "message_ctcp"    #Event constant signifying a CTCP message received (IRC only)
+    
 
     def __init__(self, params):
         '''
