@@ -10,10 +10,10 @@ class FunctionDispatcher(object):
     classdocs
     '''
     mHallo = None       #Hallo object which owns this
-    mModuleList = []    #List of available modules
+    mModuleList = []    #List of available module names
     mFunctionDict = {}  #Dictionary of function names to function classes
     mPersistentFunctions = {}   #Dictionary of persistent function objects
-    mEventFunctions = {}        #Dictionary with events as keys and sets of functions (which may want to act on those events) as arguments
+    mEventFunctions = {}        #Dictionary with events as keys and sets of function classes (which may want to act on those events) as arguments
 
 
     def __init__(self, params):
@@ -41,19 +41,19 @@ class FunctionDispatcher(object):
         fullModuleName = "modules."+moduleName
         #Check if module has already been imported
         if(fullModuleName in sys.modules):
+            #TODO: Remove old instances from dictionaries?
             moduleObject = sys.modules[fullModuleName]
             imp.reload(moduleObject)
         else:
             moduleObject = importlib.import_module(fullModuleName)
         #Loop through module, searching for Function subclasses.
         for functionClass in inspect.getmembers(moduleObject,inspect.isclass):
-            #Make sure it's not the base Function class
-            if(functionClass == Function):
+            #Check it's a valid function object
+            if(not self.checkFunction(functionClass)):
                 continue
-            #Make sure it is a subclass of Function
-            if(not issubclass(functionClass,Function)):
-                continue
-            #Check some 
+            #Get list of names and add function to the dictionary
+            #If persistent, load object and store it
+            #Get list of passive events, add all to that dictionary
             
     def checkFunction(self,functionClass):
         'Checks a potential class to see if it is a valid Function subclass class'
