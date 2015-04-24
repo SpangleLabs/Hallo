@@ -12,7 +12,7 @@ class Roll(Function):
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Roll X-Y returns a random number between X and Y. Format: \"roll <min>-<max>\" or \"roll <num>d<sides>\""
 
-    def __init__(self, params):
+    def __init__(self):
         '''
         Constructor
         '''
