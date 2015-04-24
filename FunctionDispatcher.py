@@ -1,4 +1,6 @@
-
+import importlib
+import imp
+import sys
 
 class FunctionDispatcher(object):
     '''
@@ -15,6 +17,9 @@ class FunctionDispatcher(object):
         '''
         Constructor
         '''
+        #Load all functions
+        for moduleName in self.mModuleList:
+            self.reloadModule(moduleName)
     
     def dispatch(self,functionName,functionArgs,userObject,channelObject=None):
         'Sends the function call out to whichever function, if one is found'
@@ -25,10 +30,19 @@ class FunctionDispatcher(object):
         pass
     
     def reloadModule(self,moduleName):
-        'Reloads a function module. Returns True on success, False on failure'
+        'Reloads a function module, or loads it if it is not already loaded. Returns True on success, False on failure'
         #Check it's an allowed module
         if(moduleName not in self.mModuleList):
             return False
+        #Create full name TODO: allow bypass for User, Channel, Destination, Server, Hallo, Function, FunctionDispatcher, UserGroup, PermissionMask reloading
+        fullModuleName = "modules."+moduleName
+        #Check if module has already been imported
+        if(fullModuleName in sys.modules):
+            moduleObject = sys.modules[fullModuleName]
+            imp.reload(moduleObject)
+        else:
+            moduleObject = importlib.import_module(fullModuleName)
+        
     
     def toXml(self):
         'Output the FunctionDispatcher in XML'
