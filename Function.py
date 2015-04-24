@@ -16,7 +16,8 @@ class Function:
     Generic function object. All functions inherit from this.
     '''
     mHelpName = None    #Name for use in help listing
-    mNames = set()         #Names which can be used to address the function
+    mNames = set()      #Names which can be used to address the function
+    mHelpDocs = None    #Help documentation, if it's just a single line, can be set here
 
     def __init__(self, params):
         '''
@@ -56,7 +57,9 @@ class Function:
     
     def getHelpDocs(self,arguments=None):
         'Returns the help documentation, specific to given arguments, if supplied'
-        raise NotImplementedError
+        if(self.mHelpDocs is None):
+            raise NotImplementedError
+        return self.mHelpDocs
     
     def getNames(self):
         'Returns the list of names for directly addressing the function'
