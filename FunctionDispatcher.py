@@ -1,6 +1,9 @@
 import importlib
 import imp
 import sys
+import inspect
+
+from Function import Function
 
 class FunctionDispatcher(object):
     '''
@@ -42,7 +45,48 @@ class FunctionDispatcher(object):
             imp.reload(moduleObject)
         else:
             moduleObject = importlib.import_module(fullModuleName)
-        
+        #Loop through module, searching for Function subclasses.
+        for functionClass in inspect.getmembers(moduleObject,inspect.isclass):
+            #Make sure it's not the base Function class
+            if(functionClass == Function):
+                continue
+            #Make sure it is a subclass of Function
+            if(not issubclass(functionClass,Function)):
+                continue
+            #Check some 
+            
+    def checkFunction(self,functionClass):
+        'Checks a potential class to see if it is a valid Function subclass class'
+        #Make sure it's not the Function class
+        if(functionClass == Function):
+            return False
+        #Make sure it is a subclass of Function
+        if(not issubclass(functionClass,Function)):
+            return False
+        #Create function object
+        functionObject = functionClass()
+        #Check that help name is defined
+        try:
+            helpName = functionObject.getHelpName()
+        except NotImplementedError:
+            return False
+        #Check that help docs are defined
+        try:
+            functionObject.getHelpDocs()
+        except NotImplementedError:
+            return False
+        #Check that names list is not empty
+        try:
+            namesList = functionObject.getNames()
+            if(len(namesList)==0):
+                return False
+            #Check that names list contains help name
+            if(helpName not in namesList):
+                return False
+        except NotImplementedError:
+            return False
+        #If it passed all those tests, it's valid, probably
+        return True
     
     def toXml(self):
         'Output the FunctionDispatcher in XML'
