@@ -119,6 +119,34 @@ class FunctionDispatcher(object):
     
     def unloadFunction(self,functionClass):
         'Unloads a function class from all the relevant dictionaries'
+        #Get module of function
+        moduleName = functionClass.__module__
+        moduleObject = sys.modules[moduleName]
+        #Check that function is loaded
+        if(moduleObject not in self.mFunctionDict):
+            return
+        if(functionClass not in self.mFunctionDict[moduleObject]):
+            return
+        #Get nameslist and events list
+        namesList = self.mFunctionDict[moduleObject][functionClass]['names']
+        eventsList = self.mFunctionDict[moduleObject][functionClass]['events']
+        #Remove names from mFunctionNames
+        for functionName in namesList:
+            del self.mFunctionNames[functionName]
+        #Remove events from mEventFunctions
+        for functionEvent in eventsList:
+            if(functionEvent not in self.mEventFunctions):
+                continue
+            if(functionClass not in self.mEventFunctions[functionEvent]):
+                continue
+            self.mEventFunctions[functionEvent].remove(functionClass)
+        #If persistent, save object and remove from mPersistentFunctions
+        if(functionClass.isPersistent()):
+            functionObject = self.mPersistentFunctions[functionClass]
+            functionObject.saveFunction()
+            del self.mPersistentFunctions[functionClass]
+        #Remove from mFunctionDict
+        del self.mFunctionDict[moduleObject][functionClass]
     
     def toXml(self):
         'Output the FunctionDispatcher in XML'
