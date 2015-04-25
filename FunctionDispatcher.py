@@ -155,7 +155,10 @@ class FunctionDispatcher(object):
         #If persistent, save object and remove from mPersistentFunctions
         if(functionClass.isPersistent()):
             functionObject = self.mPersistentFunctions[functionClass]
-            functionObject.saveFunction()
+            try:
+                functionObject.saveFunction()
+            except:
+                pass
             del self.mPersistentFunctions[functionClass]
         #Remove from mFunctionDict
         del self.mFunctionDict[moduleObject][functionClass]
