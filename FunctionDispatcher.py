@@ -45,6 +45,8 @@ class FunctionDispatcher(object):
             imp.reload(moduleObject)
         else:
             moduleObject = importlib.import_module(fullModuleName)
+        #Unload module, if it was loaded.
+        self.unloadModule(moduleObject)
         #Loop through module, searching for Function subclasses.
         for functionClass in inspect.getmembers(moduleObject,inspect.isclass):
             #Check it's a valid function object
