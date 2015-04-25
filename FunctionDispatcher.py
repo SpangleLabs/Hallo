@@ -2,6 +2,7 @@ import importlib
 import imp
 import sys
 import inspect
+from xml.dom import minidom
 
 from Function import Function
 
@@ -165,7 +166,22 @@ class FunctionDispatcher(object):
     
     def toXml(self):
         'Output the FunctionDispatcher in XML'
-        pass
+        #create document
+        doc = minidom.Document()
+        #create root element
+        root = doc.createElement("function_dispatcher")
+        doc.appendChild(root)
+        #create name element
+        moduleListElement = doc.createElement("module_list")
+        for moduleName in self.mModuleList:
+            moduleElement = doc.createElement("module")
+            moduleNameElement = doc.createElement("name")
+            moduleNameElement.appendChild(doc.createTextNode(moduleName))
+            moduleElement.appendChild(moduleNameElement)
+            moduleListElement.appendChild(moduleElement)
+        root.appendChild(moduleListElement)
+        #output XML string
+        return doc.toxml()
     
     @staticmethod
     def fromXml():
