@@ -52,9 +52,11 @@ class FunctionDispatcher(object):
             #Check it's a valid function object
             if(not self.checkFunction(functionClass)):
                 continue
-            #Get list of names and add function to the dictionary
-            #If persistent, load object and store it
-            #Get list of passive events, add all to that dictionary
+            #Try and load function, if it fails, try and unload it.
+            try:
+                self.loadFunction(functionClass)
+            except NotImplementedError:
+                self.unloadFunction(functionClass)
             
     def unloadModule(self,moduleObject):
         'Unloads a module, unloading all the functions it contains'
