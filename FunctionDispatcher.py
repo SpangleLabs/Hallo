@@ -11,10 +11,10 @@ class FunctionDispatcher(object):
     '''
     mHallo = None       #Hallo object which owns this
     mModuleList = []    #List of available module names
-    mFunctionDict = {}  #Dictionary of function names to function classes
-    mPersistentFunctions = {}   #Dictionary of persistent function objects
+    mFunctionDict = {}  #Dictionary of moduleObjects->functionClasses->nameslist/eventslist
+    mFunctionNames = {}         #Dictionary of names -> functionClasses
+    mPersistentFunctions = {}   #Dictionary of persistent function objects. functionClass->functionObject
     mEventFunctions = {}        #Dictionary with events as keys and sets of function classes (which may want to act on those events) as arguments
-
 
     def __init__(self, params):
         '''
@@ -87,6 +87,38 @@ class FunctionDispatcher(object):
             return False
         #If it passed all those tests, it's valid, probably
         return True
+    
+    def loadFunction(self,functionClass):
+        'Loads a function class into all the relevant dictionaries'
+        #Get module of function
+        moduleName = functionClass.__module__
+        moduleObject = sys.modules[moduleName]
+        #If function is persistent, load it up and add to mPersistentFunctions
+        if(functionClass.isPersistent()):
+            functionObject = functionClass.loadFunction()
+            self.mPersistentFunctions[functionClass] = functionObject
+        else:
+            functionObject = functionClass()
+        #Get names list and events list
+        namesList = functionObject.getNames()
+        eventsList = functionObject.getPassiveEvents()
+        #Add names list and events list to mFunctionDict
+        if(moduleObject not in self.mFunctionDict):
+            self.mFunctionDict[moduleObject] = {}
+        self.mFunctionDict[moduleObject][functionClass] = {}
+        self.mFunctionDict[moduleObject][functionClass]['names'] = namesList
+        self.mFunctionDict[moduleObject][functionClass]['events'] = eventsList
+        #Add function to mFunctionNames
+        for functionName in namesList:
+            self.mFunctionNames[functionName] = functionClass
+        #Add function to mEventFunctions
+        for functionEvent in eventsList:
+            if(functionEvent not in self.mEventFunctions):
+                self.mEventFunctions[functionEvent] = set()
+            self.mEventFunctions[functionEvent].add(functionClass)
+    
+    def unloadFunction(self,functionClass):
+        'Unloads a function class from all the relevant dictionaries'
     
     def toXml(self):
         'Output the FunctionDispatcher in XML'
