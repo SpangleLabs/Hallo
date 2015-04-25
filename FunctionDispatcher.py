@@ -11,7 +11,7 @@ class FunctionDispatcher(object):
     classdocs
     '''
     mHallo = None       #Hallo object which owns this
-    mModuleList = []    #List of available module names
+    mModuleList = set()    #List of available module names
     mFunctionDict = {}  #Dictionary of moduleObjects->functionClasses->nameslist/eventslist
     mFunctionNames = {}         #Dictionary of names -> functionClasses
     mPersistentFunctions = {}   #Dictionary of persistent function objects. functionClass->functionObject
@@ -184,6 +184,14 @@ class FunctionDispatcher(object):
         return doc.toxml()
     
     @staticmethod
-    def fromXml():
+    def fromXml(xmlString):
         'Loads a new FunctionDispatcher from XML'
-        pass
+        newFunctionDispatcher = FunctionDispatcher()
+        doc = minidom.parse(xmlString)
+        #Load module list from XML
+        moduleListElement = doc.getElementsByTagName("module_list")[0]
+        for moduleXml in moduleListElement.getElementsByTagName("module"):
+            moduleNameElement = moduleXml.getElementsByTagName("name")
+            moduleName = moduleNameElement.firstChild.data
+            newFunctionDispatcher.mModuleList.add(moduleName)
+        return newFunctionDispatcher
