@@ -41,7 +41,6 @@ class FunctionDispatcher(object):
         fullModuleName = "modules."+moduleName
         #Check if module has already been imported
         if(fullModuleName in sys.modules):
-            #TODO: Remove old instances from dictionaries?
             moduleObject = sys.modules[fullModuleName]
             imp.reload(moduleObject)
         else:
@@ -54,6 +53,15 @@ class FunctionDispatcher(object):
             #Get list of names and add function to the dictionary
             #If persistent, load object and store it
             #Get list of passive events, add all to that dictionary
+            
+    def unloadModule(self,moduleObject):
+        'Unloads a module, unloading all the functions it contains'
+        #If module isn't in mFunctionDict, cancel
+        if(moduleObject not in self.mFunctionDict):
+            return
+        for functionClass in self.mFunctionDict[moduleObject]:
+            self.unloadFunction(functionClass)
+        del self.mFunctionDict[moduleObject]
             
     def checkFunction(self,functionClass):
         'Checks a potential class to see if it is a valid Function subclass class'
