@@ -10,9 +10,9 @@ class FunctionDispatcher(object):
     '''
     classdocs
     '''
-    mHallo = None       #Hallo object which owns this
-    mModuleList = set()    #List of available module names
-    mFunctionDict = {}  #Dictionary of moduleObjects->functionClasses->nameslist/eventslist
+    mHallo = None               #Hallo object which owns this
+    mModuleList = set()         #List of available module names, then function names, then various variables
+    mFunctionDict = {}          #Dictionary of moduleObjects->functionClasses->nameslist/eventslist
     mFunctionNames = {}         #Dictionary of names -> functionClasses
     mPersistentFunctions = {}   #Dictionary of persistent function objects. functionClass->functionObject
     mEventFunctions = {}        #Dictionary with events as keys and sets of function classes (which may want to act on those events) as arguments
