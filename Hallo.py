@@ -22,6 +22,7 @@ from inc.commons import Commons
 from Server import Server, ServerFactory
 from PermissionMask import PermissionMask
 from UserGroup import UserGroup
+from FunctionDispatcher import FunctionDispatcher
 
 import ircbot_on
 import mod_passive
@@ -35,6 +36,7 @@ class Hallo:
     mOpen = False
     mServerFactory = None
     mPermissionMask = None
+    mFunctionDispatcher = None
     mUserGroupList = {}
     mServerList = []
 
@@ -73,6 +75,7 @@ class Hallo:
             self.mDefaultNick = doc.getElementsByTagName("default_nick")[0].firstChild.data
             self.mDefaultPrefix = doc.getElementsByTagName("default_prefix")[0].firstChild.data
             self.mDefaultFullName = doc.getElementsByTagName("default_full_name")[0].firstChild.data
+            self.mFunctionDispatcher = FunctionDispatcher.fromXml(doc.getElementsByTagName("function_dispatcher")[0].toxml())
             serverListXml = doc.getElementsByTagName("server_list")[0]
             for serverXml in serverListXml.getElementsByTagName("server"):
                 serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
