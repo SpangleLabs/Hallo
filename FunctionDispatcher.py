@@ -35,6 +35,16 @@ class FunctionDispatcher(object):
         'Dispatches a event call to passive functions, if any apply'
         pass
     
+    def checkFunctionCall(self,functionClass,userObject,channelObject):
+        'Checks if a function can be called. Returns boolean, True if allowed'
+        #Get function name
+        functionName = functionClass.__name__
+        rightName = "function_"+functionName
+        #Check rights
+        if(userObject.rightsCheck(rightName) is False):
+            return False
+        return True
+    
     def reloadModule(self,moduleName):
         'Reloads a function module, or loads it if it is not already loaded. Returns True on success, False on failure'
         #Check it's an allowed module
@@ -53,7 +63,7 @@ class FunctionDispatcher(object):
         #Loop through module, searching for Function subclasses.
         for functionClass in inspect.getmembers(moduleObject,inspect.isclass):
             #Check it's a valid function object
-            if(not self.checkFunction(functionClass)):
+            if(not self.checkFunctionClass(functionClass)):
                 continue
             #Try and load function, if it fails, try and unload it.
             try:
@@ -70,7 +80,7 @@ class FunctionDispatcher(object):
             self.unloadFunction(functionClass)
         del self.mFunctionDict[moduleObject]
             
-    def checkFunction(self,functionClass):
+    def checkFunctionClass(self,functionClass):
         'Checks a potential class to see if it is a valid Function subclass class'
         #Make sure it's not the Function class
         if(functionClass == Function):
