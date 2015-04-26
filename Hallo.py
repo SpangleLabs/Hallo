@@ -278,22 +278,6 @@ class Hallo:
         self.core = {}
         self.core['server'] = {}
         self.core['function'] = {}
-        #TODO: deprecate this, use different module loading
-        self.modules = []
-        try:
-            allowedmodules = pickle.load(open('store/allowedmodules.p','rb'))
-        except:
-            allowedmodules = []
-        for mod in allowedmodules:
-            imp.acquire_lock()
-            try:
-                importlib.import_module(mod)
-                imp.reload(sys.modules[mod])
-                if(mod not in self.modules):
-                    self.modules.append(mod)
-            except:
-                print('Module: ' + mod + ' missing. Skipping it.')
-            imp.release_lock()
 
 
 #######################################################
