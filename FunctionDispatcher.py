@@ -27,14 +27,21 @@ class FunctionDispatcher(object):
         for moduleName in self.mModuleList:
             self.reloadModule(moduleName)
     
-    def dispatch(self,functionName,functionArgs,userObject,channelObject=None):
+    def dispatch(self,functionMessage,userObject,channelObject=None):
         'Sends the function call out to whichever function, if one is found'
+        #Find the function name
         pass
     
     def dispatchPassive(self,event,fullLine,userObject,channelObject=None):
         'Dispatches a event call to passive functions, if any apply'
         pass
     
+    def getFunctionByName(self,functionName):
+        'Find a functionClass by a name specified by a user. Not functionClass.__name__'
+        if(functionName in self.mFunctionNames):
+            return self.mFunctionNames[functionName]
+        return None
+        
     def checkFunctionCall(self,functionClass,userObject,channelObject):
         'Checks if a function can be called. Returns boolean, True if allowed'
         #Get function name
