@@ -2,7 +2,7 @@
 #time gets time for time stamps and does sleep
 #os makes directories for logs, and gets the process ID
 #sys is used to kill itself
-#thread is used for multi threading
+#Thread is used for multi threading
 #re is used for regex, for swear detect
 #pickle is used to store the config, also scriptures
 #pprint is used to view the config
