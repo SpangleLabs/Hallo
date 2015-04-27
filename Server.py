@@ -496,6 +496,7 @@ class ServerIRC(Server):
         messagePrivateBool = messageDestinationName.lower() == self.getNick().lower()
         messagePublicBool = not messagePrivateBool
         #Get relevant objects.
+        messageChannel = None
         if(messagePublicBool):
             messageChannel = self.getChannelByName(messageDestinationName)
             messageChannel.updateActivity()
@@ -532,6 +533,9 @@ class ServerIRC(Server):
             self.send("\x01Hello, I'm hallo, I'm a robot who does a few different things, mostly roll numbers and choose things, occassionally giving my input on who is the best pony. dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01",messageSender,"notice")
         elif(messageCtcpCommand.lower()=='clientinfo'):
             self.send('\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01',messageSender,"notice")
+        #Pass to passive FunctionDispatcher
+        functionDispatcher = self.mHallo.getFunctionDispatcher()
+        functionDispatcher.dispatchPassive(self,Function.EVENT_CTCP,messageText,self,messageSender,messageChannel)
 
         
     def parseLineJoin(self,joinLine):
