@@ -54,3 +54,29 @@ class Roll(Function):
         'Generates a random number between rangeMin and rangeMax'
         rand = random.randint(rangeMin,rangeMax)
         return "I roll "+str(rand)+"!!!"
+
+class Choose(Function):
+    '''
+    Function to pick one of multiple given options
+    '''
+    mHelpName = "choose"                        #Name for use in help listing
+    mNames = set(["choose","pick"])             #Names which can be used to address the function
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Choose X, Y or Z or ... Returns one of the options separated by "or" or a comma. Format: choose <first_option>, <second_option> ... <n-1th option> or <nth option>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,channelObject=None):
+        choices = re.compile(', | or ',re.IGNORECASE).split(line)
+        numchoices = len(choices)
+        if(numchoices==1):
+            return 'Please present me with more than 1 thing to choose from!'
+        else:
+            rand = random.randint(0,numchoices-1)
+            choice = choices[rand]
+            return 'I choose "' + choice + '".'
+    
