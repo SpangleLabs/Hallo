@@ -29,6 +29,8 @@ class FunctionDispatcher(object):
     
     def dispatch(self,functionMessage,userObject,destinationObject):
         'Sends the function call out to whichever function, if one is found'
+        #Get server object
+        serverObject = destinationObject.getServer()
         #Find the function name. Try joining each amount of words in the message until you find a valid function name
         functionMessageSplit = functionMessage.split()
         for functionNameTest in [' '.join(functionMessageSplit[:x+1]) for x in range(len(functionMessageSplit))]:
@@ -36,14 +38,16 @@ class FunctionDispatcher(object):
             functionArgsTest = ' '.join(functionMessageSplit)[len(functionNameTest):].strip()
             if(functionClassTest is not None):
                 break
+        #If function isn't found, output a not found message
         if(functionClassTest is None):
-            #TODO: say "This is not a recognised function"
-            print("This is not a recognised function")
+            serverObject.send("This is not a recognised function.",destinationObject)
+            print("This is not a recognised function.")
         functionClass = functionClassTest
         functionArgs = functionArgsTest
+        #Check function rights and permissions
         if(not self.checkFunctionCall(functionClass,userObject,destinationObject)):
-            #TODO: say "You do not have permission to use this function"
-            print("You do not have permission to use this function")
+            serverObject.send("You do not have permission to use this function.",destinationObject)
+            print("You do not have permission to use this function.")
         #If persistent, get the object, otherwise make one
         if(functionClass.isPersistent()):
             functionObject = self.mPersistentFunctions[functionClass]
@@ -51,11 +55,11 @@ class FunctionDispatcher(object):
             functionObject = functionClass()
         try:
             response = functionObject.run(functionArgs,userObject,destinationObject)
-            #TODO: say response to destinationObject
             if(response is not None):
+                serverObject.send(response,destinationObject)
                 print(response)
         except Exception as e:
-            #TODO: say "Function failed with error message.."
+            serverObject.send("Function failed with error message: "+str(e),destinationObject)
             print("Function: "+str(functionClass.__module__)+" "+str(functionClass.__name__))
             print("Function error: "+str(e))
     
