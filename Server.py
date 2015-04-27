@@ -580,6 +580,9 @@ class ServerIRC(Server):
         else:
             #If it was not hallo joining a channel, add nick to user list
             joinChannel.addUser(joinClient)
+        #Pass to passive FunctionDispatcher
+        functionDispatcher = self.mHallo.getFunctionDispatcher()
+        functionDispatcher.dispatchPassive(self,Function.EVENT_JOIN,None,self,joinClient,joinChannel)
         
     def parseLinePart(self,partLine):
         'Parses a PART message from the server'
