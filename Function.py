@@ -37,7 +37,7 @@ class Function:
         '''
         raise NotImplementedError
     
-    def run(self,line,userObject,channelObject=None):
+    def run(self,line,userObject,destinationObject):
         'Runs the function when it is called directly'
         raise NotImplementedError
 

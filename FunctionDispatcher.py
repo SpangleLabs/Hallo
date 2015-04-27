@@ -27,9 +27,35 @@ class FunctionDispatcher(object):
         for moduleName in self.mModuleList:
             self.reloadModule(moduleName)
     
-    def dispatch(self,functionMessage,userObject,channelObject=None):
+    def dispatch(self,functionMessage,userObject,destinationObject):
         'Sends the function call out to whichever function, if one is found'
-        #Find the function name
+        #Find the function name. Try joining each amount of words in the message until you find a valid function name
+        functionMessageSplit = functionMessage.split()
+        for functionNameTest in [' '.join(functionMessageSplit[:x+1]) for x in range(len(functionMessageSplit))]:
+            functionClassTest = self.getFunctionByName(functionNameTest)
+            functionArgsTest = ' '.join(functionMessageSplit)[len(functionNameTest):].strip()
+            if(functionClassTest is not None):
+                break
+        if(functionClassTest is None):
+            #TODO: say "This is not a recognised function"
+            print("This is not a recognised function")
+        functionClass = functionClassTest
+        functionArgs = functionArgsTest
+        if(not self.checkFunctionCall(functionClass,userObject,destinationObject)):
+            #TODO: say "You do not have permission to use this function"
+            print("You do not have permission to use this function")
+        #If persistent, get the object, otherwise make one
+        if(functionClass.isPersistent()):
+            functionObject = self.mPersistentFunctions[functionClass]
+        else:
+            functionObject = functionClass()
+        try:
+            response = functionObject.run(functionArgs,userObject,destinationObject)
+            #TODO: say response to destinationObject
+        except Exception as e:
+            #TODO: say "Function failed with error message.."
+            print("Function: "+str(functionClass.__module__)+" "+str(functionClass.__name__))
+            print("Function error: "+str(e))
         pass
     
     def dispatchPassive(self,event,fullLine,userObject,channelObject=None):
