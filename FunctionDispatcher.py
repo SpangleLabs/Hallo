@@ -52,7 +52,8 @@ class FunctionDispatcher(object):
         try:
             response = functionObject.run(functionArgs,userObject,destinationObject)
             #TODO: say response to destinationObject
-            print(response)
+            if(response is not None):
+                print(response)
         except Exception as e:
             #TODO: say "Function failed with error message.."
             print("Function: "+str(functionClass.__module__)+" "+str(functionClass.__name__))
