@@ -664,6 +664,12 @@ class ServerIRC(Server):
             modeChannel.setPassword(None)
         elif(modeMode=='+k'):
             modeChannel.setPassword(modeArgs)
+        #Pass to passive FunctionDispatcher
+        functionDispatcher = self.mHallo.getFunctionDispatcher()
+        modeFull = modeMode
+        if(modeArgs != ''):
+            modeFull = modeMode+' '+modeArgs
+        functionDispatcher.dispatchPassive(self,Function.EVENT_MODE,modeFull,self,modeClient,modeChannel)
     
     def parseLineNotice(self,noticeLine):
         'Parses a NOTICE message from the server'
