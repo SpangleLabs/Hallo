@@ -57,7 +57,6 @@ class FunctionDispatcher(object):
             #TODO: say "Function failed with error message.."
             print("Function: "+str(functionClass.__module__)+" "+str(functionClass.__name__))
             print("Function error: "+str(e))
-        pass
     
     def dispatchPassive(self,event,fullLine,userObject,channelObject=None):
         'Dispatches a event call to passive functions, if any apply'
