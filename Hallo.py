@@ -8,12 +8,10 @@
 #pprint is used to view the config
 #importlib is used to import modules on the fly, hopefully
 #copy is used to copy the self.conf variable
-import time, os, pickle, importlib
+import time, os, pickle
 from threading import Thread
 import collections
-import imp
 #from megahal import *
-import sys
 import re
 
 from xml.dom import minidom
