@@ -785,6 +785,9 @@ class ServerIRC(Server):
         #If it was the bot who was kicked, set "in channel" status to False
         if(kickClient.getName() == self.getNick()):
             kickChannel.setInChannel(False)
+        #Pass to passive FunctionDispatcher
+        functionDispatcher = self.mHallo.getFunctionDispatcher()
+        functionDispatcher.dispatchPassive(self,Function.EVENT_KICK,kickMessage,self,kickClient,kickChannel)
 
     def parseLineNumeric(self,numericLine):
         'Parses a numeric message from the server'
