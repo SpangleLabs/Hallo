@@ -349,6 +349,7 @@ class ServerIRC(Server):
         #Get max line length
         maxLineLength = maxMsgLength-len(msgTypeName+' '+destinationName+' '+endl)
         #Split and send
+        #TODO: log
         for dataLine in data.split("\n"):
             dataLineSplit = Commons.chunkStringDot(dataLine,maxLineLength)
             for dataLineLine in dataLineSplit:
