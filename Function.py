@@ -26,6 +26,7 @@ class Function:
     EVENT_QUIT = "quit"            #Event constant signifying someone disconnected
     EVENT_CHNAME = "name_change"   #Event constant signifying someone changed their name
     EVENT_KICK = "kick"            #Event constant signifying someone was forcibly removed from the channel
+    EVENT_INVITE = "invite"        #Event constant signifying someone has invited hallo to a channel
     EVENT_NOTICE = "notice"        #Event constant signifying a notice was received. (IRC only?)
     EVENT_MODE = "mode_change"     #Event constant signifying a channel mode change. (IRC only?)
     EVENT_CTCP = "message_ctcp"    #Event constant signifying a CTCP message received (IRC only)
