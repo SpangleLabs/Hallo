@@ -762,6 +762,9 @@ class ServerIRC(Server):
         #TODO: change this logic, when channel object exists
         if(inviteClient.rightsCheck("invite_channel",inviteChannel)):
             self.joinChannel(inviteChannel)
+        #Pass to passive FunctionDispatcher
+        functionDispatcher = self.mHallo.getFunctionDispatcher()
+        functionDispatcher.dispatchPassive(self,Function.EVENT_INVITE,None,self,inviteClient,inviteChannel)
         
     def parseLineKick(self,kickLine):
         'Parses a KICK message from the server'
