@@ -70,13 +70,34 @@ class FunctionDispatcher(object):
     
     def dispatchPassive(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Dispatches a event call to passive functions, if any apply'
+        #Get destination object
+        destinationObject = channelObject
+        if(destinationObject is None):
+            destinationObject = userObject
         #Get list of functions that want things
         functionList = self.mEventFunctions[event]
         for functionClass in functionList:
             #Check function rights and permissions
             if(not self.checkFunctionPermissions(functionClass,serverObject,userObject,channelObject)):
                 continue
-        pass
+            #If persistent, get the object, otherwise make one
+            if(functionClass.isPersistent()):
+                functionObject = self.mPersistentFunctions[functionClass]
+            else:
+                functionObject = functionClass()
+            #Try running the function, if it fails, return an error message
+            try:
+                response = functionObject.passiveRun(self,event,fullLine,serverObject,userObject,channelObject)
+                if(response is not None):
+                    if(destinationObject is not None):
+                        serverObject.send(response,destinationObject)
+                    print(response)
+                return
+            except Exception as e:
+                print("Passive Function: "+str(functionClass.__module__)+" "+str(functionClass.__name__))
+                print("Function event: "+str(event))
+                print("Function error: "+str(e))
+                return
     
     def getFunctionByName(self,functionName):
         'Find a functionClass by a name specified by a user. Not functionClass.__name__'
