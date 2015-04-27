@@ -329,7 +329,7 @@ class ServerIRC(Server):
             #Parse line
             Thread(target=self.parseLine, args=(nextLine)).start()
     
-    def send(self,data,channel=None,msgType="message"):
+    def send(self,data,destinationObject=None,msgType="message"):
         'Sends a message to the server, or a specific channel in the server'
         maxMsgLength = 512  #Maximum length of a message sent to the server
         if(msgType not in ["message","notice","raw"]):
@@ -345,7 +345,14 @@ class ServerIRC(Server):
         else:
             msgTypeName = "PRIVMSG"
         #Get channel or user name
-        destinationName = channel.getName()
+        destinationName = destinationObject.getName()
+        #Find out if destination wants caps lock
+        if(destinationObject.isUpperCase()):
+            #Find any URLs, convert line to uppercase, then convert URLs back to original
+            urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',dataLine)
+            dataLine = dataLine.upper()
+            for url in urls:
+                dataLine = dataLine.replace(url.upper(),url)
         #Get max line length
         maxLineLength = maxMsgLength-len(msgTypeName+' '+destinationName+' '+endl)
         #Split and send
