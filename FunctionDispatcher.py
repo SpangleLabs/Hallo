@@ -53,6 +53,7 @@ class FunctionDispatcher(object):
             functionObject = self.mPersistentFunctions[functionClass]
         else:
             functionObject = functionClass()
+        #Try running the function, if it fails, return an error message
         try:
             response = functionObject.run(functionArgs,userObject,destinationObject)
             if(response is not None):
@@ -69,9 +70,8 @@ class FunctionDispatcher(object):
         functionList = self.mEventFunctions[event]
         for functionClass in functionList:
             #Check function rights and permissions
-            if(self.checkFunctionPermissions(functionClass,serverObject,userObject,channelObject)):
-                serverObject.send("You do not have permission to use this function.",destinationObject)
-                print("You do not have permission to use this function.")
+            if(not self.checkFunctionPermissions(functionClass,serverObject,userObject,channelObject)):
+                continue
         pass
     
     def getFunctionByName(self,functionName):
