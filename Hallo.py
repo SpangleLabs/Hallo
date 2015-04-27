@@ -215,6 +215,10 @@ class Hallo:
         'Default full name setter'
         self.mDefaultFullName = defaultFullName
     
+    def getFunctionDispatcher(self):
+        'Returns the FunctionDispatcher object'
+        return self.mFunctionDispatcher
+    
     def manualServerConnect(self):
         #TODO: add ability to connect to non-IRC servers
         print("No servers have been loaded or connected to. Please connect to an IRC server.")
