@@ -59,7 +59,7 @@ class FunctionDispatcher(object):
             print("Function: "+str(functionClass.__module__)+" "+str(functionClass.__name__))
             print("Function error: "+str(e))
     
-    def dispatchPassive(self,event,fullLine,userObject,channelObject=None):
+    def dispatchPassive(self,event,fullLine,userObject=None,channelObject=None):
         'Dispatches a event call to passive functions, if any apply'
         pass
     
