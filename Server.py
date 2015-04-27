@@ -705,6 +705,9 @@ class ServerIRC(Server):
                     self.mCheckUserIdentityResult = True
                 else:
                     self.mCheckUserIdentityResult = False
+        #Pass to passive FunctionDispatcher
+        functionDispatcher = self.mHallo.getFunctionDispatcher()
+        functionDispatcher.dispatchPassive(self,Function.EVENT_NOTICE,noticeMessage,self,noticeClient,noticeChannel)
         
     def parseLineNick(self,nickLine):
         'Parses a NICK message from the server'
