@@ -42,12 +42,14 @@ class FunctionDispatcher(object):
         if(functionClassTest is None):
             serverObject.send("This is not a recognised function.",destinationObject)
             print("This is not a recognised function.")
+            return
         functionClass = functionClassTest
         functionArgs = functionArgsTest
         #Check function rights and permissions
         if(not self.checkFunctionPermissions(functionClass,serverObject,userObject,destinationObject)):
             serverObject.send("You do not have permission to use this function.",destinationObject)
             print("You do not have permission to use this function.")
+            return
         #If persistent, get the object, otherwise make one
         if(functionClass.isPersistent()):
             functionObject = self.mPersistentFunctions[functionClass]
@@ -59,10 +61,12 @@ class FunctionDispatcher(object):
             if(response is not None):
                 serverObject.send(response,destinationObject)
                 print(response)
+            return
         except Exception as e:
             serverObject.send("Function failed with error message: "+str(e),destinationObject)
             print("Function: "+str(functionClass.__module__)+" "+str(functionClass.__name__))
             print("Function error: "+str(e))
+            return
     
     def dispatchPassive(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Dispatches a event call to passive functions, if any apply'
