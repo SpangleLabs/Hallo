@@ -8,7 +8,7 @@ from Function import Function
 
 class FunctionDispatcher(object):
     '''
-    classdocs
+    FunctionDispatcher is a class to manage functions and to send function requests to the relevant function.
     '''
     mHallo = None               #Hallo object which owns this
     mModuleList = set()         #List of available module names, then function names, then various variables
