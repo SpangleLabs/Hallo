@@ -45,7 +45,7 @@ class FunctionDispatcher(object):
         functionClass = functionClassTest
         functionArgs = functionArgsTest
         #Check function rights and permissions
-        if(not self.checkFunctionPermissions(functionClass,userObject,destinationObject)):
+        if(not self.checkFunctionPermissions(functionClass,serverObject,userObject,destinationObject)):
             serverObject.send("You do not have permission to use this function.",destinationObject)
             print("You do not have permission to use this function.")
         #If persistent, get the object, otherwise make one
@@ -69,7 +69,7 @@ class FunctionDispatcher(object):
         functionList = self.mEventFunctions[event]
         for functionClass in functionList:
             #Check function rights and permissions
-            if(userObject is not None not self.checkFunctionCall(functionClass,userObject,destinationObject)):
+            if(self.checkFunctionPermissions(functionClass,serverObject,userObject,channelObject)):
                 serverObject.send("You do not have permission to use this function.",destinationObject)
                 print("You do not have permission to use this function.")
         pass
@@ -80,7 +80,7 @@ class FunctionDispatcher(object):
             return self.mFunctionNames[functionName]
         return None
         
-    def checkFunctionPermissions(self,functionClass,userObject,channelObject):
+    def checkFunctionPermissions(self,functionClass,serverObject,userObject,channelObject):
         'Checks if a function can be called. Returns boolean, True if allowed'
         #Get function name
         functionName = functionClass.__name__
@@ -89,8 +89,11 @@ class FunctionDispatcher(object):
         if(userObject is not None):
             if(userObject.rightsCheck(rightName,channelObject) is False):
                 return False
-        else:
+        elif(channelObject is not None):
             if(channelObject.rightsCheck(rightName) is False):
+                return False
+        elif(serverObject is not None):
+            if(serverObject.rightsCheck(rightName) is False):
                 return False
         return True
     
