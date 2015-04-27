@@ -45,7 +45,7 @@ class FunctionDispatcher(object):
         functionClass = functionClassTest
         functionArgs = functionArgsTest
         #Check function rights and permissions
-        if(not self.checkFunctionCall(functionClass,userObject,destinationObject)):
+        if(not self.checkFunctionPermissions(functionClass,userObject,destinationObject)):
             serverObject.send("You do not have permission to use this function.",destinationObject)
             print("You do not have permission to use this function.")
         #If persistent, get the object, otherwise make one
@@ -63,8 +63,15 @@ class FunctionDispatcher(object):
             print("Function: "+str(functionClass.__module__)+" "+str(functionClass.__name__))
             print("Function error: "+str(e))
     
-    def dispatchPassive(self,event,fullLine,userObject=None,channelObject=None):
+    def dispatchPassive(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Dispatches a event call to passive functions, if any apply'
+        #Get list of functions that want things
+        functionList = self.mEventFunctions[event]
+        for functionClass in functionList:
+            #Check function rights and permissions
+            if(userObject is not None not self.checkFunctionCall(functionClass,userObject,destinationObject)):
+                serverObject.send("You do not have permission to use this function.",destinationObject)
+                print("You do not have permission to use this function.")
         pass
     
     def getFunctionByName(self,functionName):
@@ -73,14 +80,18 @@ class FunctionDispatcher(object):
             return self.mFunctionNames[functionName]
         return None
         
-    def checkFunctionCall(self,functionClass,userObject,channelObject):
+    def checkFunctionPermissions(self,functionClass,userObject,channelObject):
         'Checks if a function can be called. Returns boolean, True if allowed'
         #Get function name
         functionName = functionClass.__name__
         rightName = "function_"+functionName
         #Check rights
-        if(userObject.rightsCheck(rightName) is False):
-            return False
+        if(userObject is not None):
+            if(userObject.rightsCheck(rightName,channelObject) is False):
+                return False
+        else:
+            if(channelObject.rightsCheck(rightName) is False):
+                return False
         return True
     
     def reloadModule(self,moduleName):
