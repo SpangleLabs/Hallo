@@ -637,6 +637,9 @@ class ServerIRC(Server):
                 channel.setInChannel(False)
             for user in self.mUserList:
                 user.setOnline(False)
+        #Pass to passive FunctionDispatcher
+        functionDispatcher = self.mHallo.getFunctionDispatcher()
+        functionDispatcher.dispatchPassive(self,Function.EVENT_QUIT,quitMessage,self,quitClient,None)
         
     def parseLineMode(self,modeLine):
         'Parses a MODE message from the server'
