@@ -456,11 +456,16 @@ class ServerIRC(Server):
                 self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
         elif(messageChannel is None or messageChannel.getLogging()):
             self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
-        #TODO: Figure out if the message is a command.
-        ##If it's a privmsg it's a command
-        ##If it is public and starts with channel's prefix, it's a command
-        ##If channel prefix is name, check that there's a comma or colon?
-        #If public message, return stuff to channel, else to sender
+        #Get the prefix
+        actingPrefix = self.getPrefix()
+        if(messagePublicBool):
+            actingPrefix = messageChannel.getPrefix()
+        if(actingPrefix is False):
+            actingPrefix = self.getNick()
+        #Figure out if the message is a command, Send to FunctionDispatcher
+        if(messagePrivateBool or messageText.startswith(actingPrefix)):
+            functionDispatcher = self.mHallo.getFunctionDispatcher()
+            functionDispatcher.dispatch(messageText,messageSender,messageDestination)
         #TODO: pass to passive function checker
         
     def parseLineCtcp(self,ctcpLine):
