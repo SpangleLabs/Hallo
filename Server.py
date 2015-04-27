@@ -10,6 +10,7 @@ import ircbot_chk
 
 from Destination import Channel,User
 from PermissionMask import PermissionMask
+from Function import Function
 
 endl = Commons.mEndLine
 
@@ -470,10 +471,12 @@ class ServerIRC(Server):
         if(actingPrefix is False):
             actingPrefix = self.getNick()
         #Figure out if the message is a command, Send to FunctionDispatcher
+        functionDispatcher = self.mHallo.getFunctionDispatcher()
         if(messagePrivateBool or messageText.startswith(actingPrefix)):
-            functionDispatcher = self.mHallo.getFunctionDispatcher()
             functionDispatcher.dispatch(messageText,messageSender,messageDestination)
-        #TODO: pass to passive function checker
+        else:
+            #Pass to passive function checker
+            functionDispatcher.dispatchPassive(Function.EVENT_MESSAGE,messageText,self,messageSender,messageChannel)
         
     def parseLineCtcp(self,ctcpLine):
         'Parses a CTCP message from the server'
