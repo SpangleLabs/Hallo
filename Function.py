@@ -59,7 +59,7 @@ class Function:
         'Returns a list of events which this function may want to respond to in a passive way'
         return set()
 
-    def passiveRun(self,event,fullLine,userObject,channelObject=None):
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
         pass
         
