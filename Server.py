@@ -609,6 +609,9 @@ class ServerIRC(Server):
                 userStillOnServer = True
         if(not userStillOnServer):
             partClient.setOnline(False)
+        #Pass to passive FunctionDispatcher
+        functionDispatcher = self.mHallo.getFunctionDispatcher()
+        functionDispatcher.dispatchPassive(self,Function.EVENT_LEAVE,None,self,partClient,partChannel)
     
     def parseLineQuit(self,quitLine):
         'Parses a QUIT message from the server'
