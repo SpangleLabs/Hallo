@@ -431,6 +431,9 @@ class ServerIRC(Server):
         print(Commons.currentTimestamp() + "["+self.mName+"] PING")
         pingNumber = pingLine.split()[1]
         self.send("PONG "+pingNumber,None,"raw")
+        #Pass to passive FunctionDispatcher
+        functionDispatcher = self.mHallo.getFunctionDispatcher()
+        functionDispatcher.dispatchPassive(self,Function.EVENT_PING,pingNumber,self,None,None)
         
     def parseLineMessage(self,messageLine):
         'Parses a PRIVMSG message from the server'
