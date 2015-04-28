@@ -113,4 +113,34 @@ class EightBall(Function):
                     self.mNames.add(magic+eight+space+"ball")
         return self.mNames.add(self.mHelpName)
     
+class ChoosenOne(Function):
+    '''
+    Selects a random user from a channel
+    '''
+    mHelpName = "choosen one"                        #Name for use in help listing
+    mNames = set(["choosen one","chosenone","random user"])             #Names which can be used to address the function
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Specifies who the chosen one is. Format: chosen one"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,channelObject=None):
+        #If this command is run in privmsg, it won't work
+        if(channelObject is None or channelObject.getType()!="channel"):
+            return "This function can only be used in a channel"
+        #Get the user list
+        userSet = channelObject.getUserList()
+        #Get list of users' names
+        namesList = [userObject.getName() for userObject in userSet]
+        rand = random.randint(0,len(namesList)-1)
+        return 'It should be obvious by now that ' + namesList[rand] + ' is the chosen one.'
+    
+    
+    
+    
+    
     
