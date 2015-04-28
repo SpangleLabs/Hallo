@@ -33,7 +33,7 @@ class FunctionDispatcher(object):
         serverObject = destinationObject.getServer()
         #Find the function name. Try joining each amount of words in the message until you find a valid function name
         functionMessageSplit = functionMessage.split()
-        for functionNameTest in [' '.join(functionMessageSplit[:x+1]) for x in range(len(functionMessageSplit))]:
+        for functionNameTest in [' '.join(functionMessageSplit[:x+1]) for x in range(len(functionMessageSplit))[::-1]]:
             functionClassTest = self.getFunctionByName(functionNameTest)
             functionArgsTest = ' '.join(functionMessageSplit)[len(functionNameTest):].strip()
             if(functionClassTest is not None):
