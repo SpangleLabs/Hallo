@@ -21,6 +21,7 @@ from PermissionMask import PermissionMask
 from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
 
+#TODO: deprecate
 import ircbot_on
 
 endl = Commons.mEndLine
