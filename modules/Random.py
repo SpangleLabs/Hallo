@@ -1,5 +1,6 @@
 import re
 import random
+import time
 
 from Function import Function
 
@@ -140,7 +141,55 @@ class ChoosenOne(Function):
         return 'It should be obvious by now that ' + namesList[rand] + ' is the chosen one.'
     
     
+class Foof(Function):
+    '''
+    FOOOOOOOOOF DOOOOOOOOOOF
+    '''
+    mHelpName = "foof"                        #Name for use in help listing
+    mNames = set(["foof","fooof","foooof"])             #Names which can be used to address the function
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "FOOOOOOOOOF. Format: foof"
     
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
     
+    def run(self,line,userObject,destinationObject=None):
+        'FOOOOOOOOOF. Format: foof'
+        rand = random.randint(0,2)
+        if(rand==0):
+            return 'doof'
+        elif(rand==1):
+            return 'doooooof'
+        else:
+            if(random.randint(0,20)==15):
+                serverObject = userObject.getServer()
+                serverObject.send('powering up...',destinationObject);
+                time.sleep(5);
+                return 'd' * 100 + 'o' * 1000 + 'f' * 200 + '!' * 50
+            else:
+                return 'ddddoooooooooooooooooooooffffffffff.'
     
+    def getNames(self):
+        'Returns the list of names for directly addressing the function'
+        self.mNames = set(['f'+'o'*x+'f' for x in range(2,20)])
+        return self.mNames.add(self.mHelpName)
+    
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+        'Replies to an event not directly addressed to the bot.'
+        #Check if message matches any variation of foof
+        if(re.search(r'foo[o]*f[!]*',fullLine,re.I)):
+            #get destination object
+            destinationObject = channelObject
+            if(destinationObject is None):
+                destinationObject = userObject
+            #Return response
+            out = self.run(fullLine,userObject,destinationObject)
+            return out
+    
+    def getPassiveEvents(self):
+        'Returns a list of events which this function may want to respond to in a passive way'
+        return set(Function.EVENT_MESSAGE)
     
