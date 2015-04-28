@@ -287,45 +287,6 @@ class Hallo:
 #######################################################
 
 
-
-    def base_say(self,msg,destination,notice=False):
-        # if the connection is open...
-        #if not self.mOpen: return
-        # send the message, accounting for linebreaks
-        maxlength = 450 # max message length, inc channel name.
-        command = 'PRIVMSG'
-        if(notice):
-            command = 'NOTICE'
-        if(self.mOpen and self.core['server'][destination[0]]['open']):
-            #TODO: move this bit to channel object
-            if(destination[1][0] == '#' and self.conf['server'][destination[0]]['channel'][destination[1]]['caps']):
-                urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',msg)
-                msg = msg.upper()
-                for url in urls:
-                    msg = msg.replace(url.upper(),url)
-            for n, line in enumerate(msg.split('\n')):
-                if((len(line)+len(destination[1]))>maxlength):
-                    linefirst = line[:(maxlength-3-len(destination[1]))] + '...'
-                    line = line[(maxlength-3-len(destination[1])):]
-                    print((Commons.currentTimestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linefirst).encode('ascii','replace').decode())
-                    self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + linefirst + endl).encode('utf-8'))
-                    while((len(line)+len(destination[1]))>(maxlength-3)):
-                        linechunk = '...' + line [:(maxlength-6-len(destination[1]))] + '..'
-                        line = line[(maxlength-6-len(destination[1])):]
-                        print((Commons.currentTimestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + linechunk).encode('ascii','replace').decode())
-                        self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + linechunk + endl).encode('utf-8'))
-                    lineend = '...' + line
-                    print((Commons.currentTimestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + lineend).encode('ascii','replace').decode())
-                    self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + lineend + endl).encode('utf-8'))
-                else:
-                    print((Commons.currentTimestamp() + ' [' + destination[0] + '] ' + destination[1] + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line).encode('ascii','replace').decode())
-                    self.core['server'][destination[0]]['socket'].send((command + ' ' + destination[1] + ' :' + line + endl).encode('utf-8'))
-                if(destination[1][0] != '#' or self.conf['server'][destination[0]]['channel'][destination[1]]['logging']):
-                    self.base_addlog(Commons.currentTimestamp() + ' <' + self.conf['server'][destination[0]]['nick'] + '> ' + line,destination)
-                # avoid flooding
-                if n % 5 == 4:
-                    time.sleep(2)
-
     def base_addlog(self,msg,destination):
         # log a message for future reference
         if(not os.path.exists('logs/')):
