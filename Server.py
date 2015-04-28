@@ -460,9 +460,9 @@ class ServerIRC(Server):
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestination.getName() + ' <' + messageSenderName + '> ' + messageText)
         #Log the message
         if(messagePrivateBool):
-            if(messageSender is None or messageSender.getLogging()):
+            if(messageSender.getLogging()):
                 self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestination.getName()])
-        elif(messageChannel is None or messageChannel.getLogging()):
+        elif(messageChannel.getLogging()):
             self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestination.getName()])
         #Get the prefix
         actingPrefix = self.getPrefix()
