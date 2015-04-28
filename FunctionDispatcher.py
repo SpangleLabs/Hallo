@@ -257,6 +257,11 @@ class FunctionDispatcher(object):
             del self.mPersistentFunctions[functionClass]
         #Remove from mFunctionDict
         del self.mFunctionDict[moduleObject][functionClass]
+        
+    def close(self):
+        'Shut down FunctionDispatcher, save all functions, etc'
+        for moduleObject in self.mFunctionDict:
+            self.unloadModule(moduleObject)
     
     def toXml(self):
         'Output the FunctionDispatcher in XML'
