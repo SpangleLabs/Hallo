@@ -177,6 +177,7 @@ class Hallo:
         'Shuts down the entire program'
         for server in self.mServerList:
             server.disconnect()
+        self.mFunctionDispatcher.close()
         self.saveToXml()
         self.mOpen = False
         
