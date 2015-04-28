@@ -10,7 +10,6 @@
 #copy is used to copy the self.conf variable
 import time, os, pickle
 from threading import Thread
-import collections
 #from megahal import *
 import re
 
@@ -23,7 +22,6 @@ from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
 
 import ircbot_on
-import mod_passive
 
 endl = Commons.mEndLine
 
