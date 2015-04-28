@@ -301,15 +301,12 @@ class ServerIRC(Server):
         'Disconnect from the server'
         #TODO: upgrade this when logging is upgraded
         for channel in self.mChannelList:
-        #    self.mHallo.base_say('Daisy daisy give me your answer do...',[server,channel])
             if(channel.isInChannel() and channel.getLogging()):
                 self.mHallo.base_addlog(Commons.currentTimestamp() + ' '+self.getNick()+' has quit.',[self.mName,channel.getName()])
             channel.setInChannel(False)
-        #    time.sleep(1)
         for user in self.mUserList:
             user.setOnline(False)
         if(self.mOpen):
-            #self.mHallo.core['server'][self.mName]['socket'].send(('QUIT :Daisy daisy give me your answer do...' + endl).encode('utf-8'))
             self.send('QUIT :Will I dream?',None,"raw")
             self.mSocket.close()
             self.mOpen = False
