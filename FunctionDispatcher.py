@@ -104,6 +104,7 @@ class FunctionDispatcher(object):
     
     def getFunctionByName(self,functionName):
         'Find a functionClass by a name specified by a user. Not functionClass.__name__'
+        functionName = functionName.lower()
         if(functionName in self.mFunctionNames):
             return self.mFunctionNames[functionName]
         return None
