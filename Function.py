@@ -8,6 +8,10 @@ class Function:
     mNames = set()      #Names which can be used to address the function
     mHelpDocs = None    #Help documentation, if it's just a single line, can be set here
     #Static constants
+    EVENT_SECOND = "time_second"   #Event which happens every second
+    EVENT_MINUTE = "time_minute"   #Event which happens every minute
+    EVENT_HOUR = "time_hour"       #Event which happens every hour
+    EVENT_DAY = "time_day"         #Event which happens every day
     EVENT_PING = "ping"            #Event constant signifying a server ping has been received
     EVENT_MESSAGE = "message"      #Event constant signifying a standard message
     EVENT_JOIN = "join_channel"    #Event constant signifying someone joined a channel
