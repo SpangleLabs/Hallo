@@ -14,15 +14,14 @@ from threading import Thread
 import re
 
 from xml.dom import minidom
+from datetime import datetime
 
 from inc.commons import Commons
 from Server import Server, ServerFactory
 from PermissionMask import PermissionMask
 from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
-
-#TODO: deprecate
-import ircbot_on
+from Function import Function
 
 endl = Commons.mEndLine
 
@@ -61,13 +60,24 @@ class Hallo:
         time.sleep(2)
         #main loop, sticks around throughout the running of the bot
         print('connected to all servers.')
+        self.coreLoopTimeEvents()
+    
+    def coreLoopTimeEvents(self):
+        'Runs a loop to keep hallo running, while calling time events with the FunctionDispatcher passive dispatcher'
+        lastDateTime = datetime.now()
         while(self.mOpen):
-            try:
-                #TODO: replace this with whatever
-                ircbot_on.ircbot_on.on_coreloop(self)
-            except Exception as e:
-                print("coreloop error: " + str(e))
+            nowDateTime = datetime.now()
+            if(nowDateTime.second!=lastDateTime.second):
+                self.mFunctionDispatcher.dispatchPassive(Function.EVENT_SECOND,None,None,None,None)
+            if(nowDateTime.minute!=lastDateTime.minute):
+                self.mFunctionDispatcher.dispatchPassive(Function.EVENT_MINUTE,None,None,None,None)
+            if(nowDateTime.hour!=lastDateTime.hour):
+                self.mFunctionDispatcher.dispatchPassive(Function.EVENT_HOUR,None,None,None,None)
+            if(nowDateTime.day!=lastDateTime.day):
+                self.mFunctionDispatcher.dispatchPassive(Function.EVENT_DAY,None,None,None,None)
+            lastDateTime = nowDateTime
             time.sleep(0.1)
+        
 
     def loadFromXml(self):
         try:
