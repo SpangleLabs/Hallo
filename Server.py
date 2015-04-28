@@ -621,7 +621,7 @@ class ServerIRC(Server):
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + quitClient.getName() + ' quit: ' + quitMessage)
         #Log to all channels on server
         for channel in self.mChannelList:
-            if(quitClient.isInChannel() and quitClient.getLogging() and quitClient in self.mHallo.core['server'][self.mName]['channel'][channel.getName()]['user_list']):
+            if(quitClient.isInChannel() and quitClient.getLogging()):
                 self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + quitClient.getName() + ' quit: ' + quitMessage,[self.mName,channel.getName()])
         #Remove user from user list on all channels
         for channel in self.mChannelList:
@@ -684,13 +684,6 @@ class ServerIRC(Server):
         #Logging, if enabled
         if(noticeChannel.getLogging()):
             self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + noticeChannel.getName() + ' notice from ' + noticeClient.getName() + ': ' + noticeMessage,[self.mName,noticeChannel.getName()])
-        #TODO: DEPRICATED. I am sure this is not required.
-        if(self.mHallo.core['server'][self.mName]['connected'] == False):
-            self.mHallo.core['server'][self.mName]['connected'] = True
-            print(Commons.currentTimestamp() + ' [' + self.mName + "] ok we're connected now.")
-        #Checking for end of MOTD.
-        if('endofmessage' in noticeMessage.replace(' ','').lower() and self.mHallo.core['server'][self.mName]['motdend'] == False):
-            self.mHallo.core['server'][self.mName]['motdend'] = True
         #Checking if user is registered
         if(noticeClient.getName()==self.mNickservNick and self.mCheckUserIdentityUser is not None and self.mNickservIdentCommand is not None):
             #check if notice message contains command and user name
@@ -753,7 +746,7 @@ class ServerIRC(Server):
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName())
         #Logging, if applicable
-        if(inviteChannel.getName() in self.mHallo.conf['server'][self.mName]['channel'] and inviteChannel.getLogging()):
+        if(inviteChannel.getLogging()):
             self.mHallo.base_addlog(Commons.currentTimestamp() + ' invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName(),[self.mName,'@SERVER'])
         #Check if they are an op, then join the channel.
         #TODO: change this logic, when channel object exists
@@ -793,12 +786,8 @@ class ServerIRC(Server):
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] Server info: ' + numericLine)
         #TODO: add logging?
-        #Check for end of MOTD
-        #TODO: deprecate
-        if(numericCode == "376"):
-            self.mHallo.core['server'][self.mName]['motdend'] = True
         #Check for ISON response, telling you which users are online
-        elif(numericCode == "303"):
+        if(numericCode == "303"):
             #Parse out data
             usersOnline = ':'.join(numericLine.split(':')[2:])
             usersOnlineList = usersOnline.split()
