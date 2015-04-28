@@ -62,7 +62,7 @@ class Choose(Function):
     mHelpName = "choose"                        #Name for use in help listing
     mNames = set(["choose","pick"])             #Names which can be used to address the function
     #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Choose X, Y or Z or ... Returns one of the options separated by "or" or a comma. Format: choose <first_option>, <second_option> ... <n-1th option> or <nth option>"
+    mHelpDocs = "Choose X, Y or Z or ... Returns one of the options separated by \"or\" or a comma. Format: choose <first_option>, <second_option> ... <n-1th option> or <nth option>"
     
     def __init__(self):
         '''
