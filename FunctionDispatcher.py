@@ -70,6 +70,9 @@ class FunctionDispatcher(object):
     
     def dispatchPassive(self,event,fullLine,serverObject=None,userObject=None,channelObject=None):
         'Dispatches a event call to passive functions, if any apply'
+        #If this event is not used, skip this
+        if(event not in self.mEventFunctions or len(self.mEventFunctions[event])==0):
+            return
         #Get destination object
         destinationObject = channelObject
         if(destinationObject is None):
