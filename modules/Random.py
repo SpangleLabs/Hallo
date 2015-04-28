@@ -80,3 +80,37 @@ class Choose(Function):
             choice = choices[rand]
             return 'I choose "' + choice + '".'
     
+class EightBall(Function):
+    '''
+    Magic 8 ball. Format: eightball
+    '''
+    #Name for use in help listing
+    mHelpName = "eightball"
+    #Names which can be used to address the function
+    mNames = set(["eightball"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Magic 8 ball. Format: eightball"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,channelObject=None):
+        responses = ['It is certain','It is decidedly so','Without a doubt','Yes definitely','You may rely on it']
+        responses += ['As I see it yes','Most likely','Outlook good','Yes','Signs point to yes']
+        responses += ['Reply hazy try again','Ask again later','Better not tell you now','Cannot predict now','Concentrate and ask again']
+        responses += ["Don't count on it",'My reply is no','My sources say no','Outlook not so good','Very doubtful']
+        rand = random.randint(0,len(responses)-1)
+        return responses[rand] + "."
+    
+    def getNames(self):
+        'Returns the list of names for directly addressing the function'
+        for magic in ['magic ','']:
+            for eight in ['eight','8']:
+                for space in [' ','-','']:
+                    self.mNames.add(magic+eight+space+"ball")
+        return self.mNames.add(self.mHelpName)
+    
+    
