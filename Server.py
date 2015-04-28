@@ -333,7 +333,7 @@ class ServerIRC(Server):
         if(msgType not in ["message","notice","raw"]):
             msgType = "message"
         #If it's raw data, just send it.
-        if(msgType=="raw"):
+        if(msgType=="raw" or destinationObject is None):
             for dataLine in data.split("\n"):
                 self.sendRaw(dataLine)
             return
