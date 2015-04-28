@@ -34,13 +34,13 @@ class mod_calc:
         return num
 
     def fnn_calc_preflight(self, calc):
-      ##preflight checks
-       #strip brackets
+        ##preflight checks
+        #strip brackets
         calc = calc.replace(' ','').lower()
-       #make sure only legit characters are allowed
+        #make sure only legit characters are allowed
         if(not ircbot_chk.ircbot_chk.chk_msg_calc):
             return 'Error, Invalid characters in expression'
-       #make sure openbrackets don't outnumber close
+        #make sure openbrackets don't outnumber close
         elif(calc.count('(')>calc.count(')')):
             return 'Error, too many open brackets'
         else:
@@ -57,7 +57,7 @@ class mod_calc:
         return [runncalc,tempans]
 
     def fnn_calc_process(self, calc):
-      ##constant evaluation
+        ##constant evaluation
         while calc.count('pi')!=0:
             tempans = math.pi
             if(mod_calc.fnn_calc_before(self,calc,'pi') != ''):
@@ -72,8 +72,8 @@ class mod_calc:
             if(mod_calc.fnn_calc_after(self,calc,'e') != ''):
                 tempans = str(tempans) + '*'
             calc = calc.replace('e',str(tempans))
-#        del tempans
-      ##bracket processing
+        #del tempans
+        ##bracket processing
         while calc.count('(') != 0:
             tempcalc = calc[calc.find('(')+1:]
             bracket = 1;
@@ -97,20 +97,20 @@ class mod_calc:
                     break
                 runncalc = runncalc + nextchar
         calc = calc.replace(')','')
-#        del tempcalc, bracket, runncalc, nextchat, tempans
-      ##powers processing
+        #del tempcalc, bracket, runncalc, nextchat, tempans
+        ##powers processing
         while calc.count('^') != 0:
             pre_calc = mod_calc.fnn_calc_before(self,calc,'^')
             post_calc = mod_calc.fnn_calc_after(self,calc,'^')
             calc = calc.replace(str(pre_calc) + '^' + str(post_calc),str(float(pre_calc) ** float(post_calc)))
             del pre_calc, post_calc
-      ##powers processing2
+        ##powers processing2
         while calc.count('**') != 0:
             pre_calc = mod_calc.fnn_calc_before(self,calc,'**')
             post_calc = mod_calc.fnn_calc_after(self,calc,'**')
             calc = calc.replace(str(pre_calc) + '**' + str(post_calc),str(float(pre_calc) ** float(post_calc)))
             del pre_calc, post_calc
-      ##modulo processing
+        ##modulo processing
         while calc.count('%') != 0:
             pre_calc = mod_calc.fnn_calc_before(self,calc,'%')
             post_calc = mod_calc.fnn_calc_after(self,calc,'%')
@@ -118,7 +118,7 @@ class mod_calc:
                 return 'error, no division by zero, sorry.'
             calc = calc.replace(str(pre_calc) + '%' + str(post_calc),str(float(pre_calc) % float(post_calc)))
             del pre_calc, post_calc
-      ##multiplication processing
+        ##multiplication processing
         while calc.count('/') != 0:
             pre_calc = mod_calc.fnn_calc_before(self,calc,'/')
             post_calc = mod_calc.fnn_calc_after(self,calc,'/')
@@ -126,19 +126,19 @@ class mod_calc:
                 return 'error, no division by zero, sorry.'
             calc = calc.replace(str(pre_calc) + '/' + str(post_calc),str(float(pre_calc) / float(post_calc)))
             del pre_calc, post_calc
-      ##multiplication processing
+        ##multiplication processing
         while calc.count('*') != 0:
             pre_calc = mod_calc.fnn_calc_before(self,calc,'*')
             post_calc = mod_calc.fnn_calc_after(self,calc,'*')
             calc = calc.replace(str(pre_calc) + '*' + str(post_calc),str(float(pre_calc) * float(post_calc)))
             del pre_calc, post_calc
-      ##multiplication processing2
+        ##multiplication processing2
         while calc.count('x') != 0:
             pre_calc = mod_calc.fnn_calc_before(self,calc,'x')
             post_calc = mod_calc.fnn_calc_after(self,calc,'x')
             calc = calc.replace(str(pre_calc) + 'x' + str(post_calc),str(float(pre_calc) * float(post_calc)))
             del pre_calc, post_calc
-      ##addition processing
+        ##addition processing
         calc = calc.replace('-','+-')
         answer = 0
         calc = calc.replace('e+','e')
@@ -157,7 +157,7 @@ class mod_calc:
         'Calculate function, calculates the answer to mathematical expressions using custom built python scripts. Format: calc <calculation>'
         calc = args
         answer = 0
-      ##check for equals signs
+        ##check for equals signs
         if(calc.count('=')>=1):
             calcparts = calc.split('=')
             ansparts = []
