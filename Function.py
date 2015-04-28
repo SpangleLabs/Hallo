@@ -1,15 +1,4 @@
 
-FUNC_EVENT_PING = "ping"            #Event constant signifying a server ping has been received
-FUNC_EVENT_MESSAGE = "message"      #Event constant signifying a standard message
-FUNC_EVENT_JOIN = "join_channel"    #Event constant signifying someone joined a channel
-FUNC_EVENT_LEAVE = "leave_channel"  #Event constant signifying someone left a channel
-FUNC_EVENT_QUIT = "quit"            #Event constant signifying someone disconnected
-FUNC_EVENT_CHNAME = "name_change"   #Event constant signifying someone changed their name
-FUNC_EVENT_KICK = "kick"            #Event constant signifying someone was forcibly removed from the channel
-FUNC_EVENT_NOTICE = "notice"        #Event constant signifying a notice was received. (IRC only?)
-FUNC_EVENT_MODE = "mode_change"     #Event constant signifying a channel mode change. (IRC only?)
-FUNC_EVENT_CTCP = "message_ctcp"    #Event constant signifying a CTCP message received (IRC only)
-
 
 class Function:
     '''
