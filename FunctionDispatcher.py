@@ -68,7 +68,7 @@ class FunctionDispatcher(object):
             print("Function error: "+str(e))
             return
     
-    def dispatchPassive(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+    def dispatchPassive(self,event,fullLine,serverObject=None,userObject=None,channelObject=None):
         'Dispatches a event call to passive functions, if any apply'
         #Get destination object
         destinationObject = channelObject
@@ -89,7 +89,7 @@ class FunctionDispatcher(object):
             try:
                 response = functionObject.passiveRun(self,event,fullLine,serverObject,userObject,channelObject)
                 if(response is not None):
-                    if(destinationObject is not None):
+                    if(destinationObject is not None and serverObject is not None):
                         serverObject.send(response,destinationObject)
                     print(response)
                 return
@@ -120,6 +120,8 @@ class FunctionDispatcher(object):
         elif(serverObject is not None):
             if(serverObject.rightsCheck(rightName) is False):
                 return False
+        if(self.mHallo.rightsCheck(rightName) is False):
+            return False
         return True
     
     def reloadModule(self,moduleName):
