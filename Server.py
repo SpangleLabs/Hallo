@@ -457,13 +457,13 @@ class ServerIRC(Server):
             messageChannel.updateActivity()
             messageDestination = messageChannel
         #Print message to console
-        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestinationName + ' <' + messageSenderName + '> ' + messageText)
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestination.getName() + ' <' + messageSenderName + '> ' + messageText)
         #Log the message
         if(messagePrivateBool):
             if(messageSender is None or messageSender.getLogging()):
-                self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
+                self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestination.getName()])
         elif(messageChannel is None or messageChannel.getLogging()):
-            self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestinationName])
+            self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestination.getName()])
         #Get the prefix
         actingPrefix = self.getPrefix()
         if(messagePublicBool):
