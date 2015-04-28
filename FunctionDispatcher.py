@@ -104,7 +104,12 @@ class FunctionDispatcher(object):
     
     def getFunctionByName(self,functionName):
         'Find a functionClass by a name specified by a user. Not functionClass.__name__'
+        #Convert name to lower case
         functionName = functionName.lower()
+        if(functionName in self.mFunctionNames):
+            return self.mFunctionNames[functionName]
+        #Check without underscores. People might still use underscores to separate words in a function name
+        functionName = functionName.replace('_',' ')
         if(functionName in self.mFunctionNames):
             return self.mFunctionNames[functionName]
         return None
