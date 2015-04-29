@@ -1,4 +1,4 @@
-<config>
+<!DOCTYPE config SYSTEM "config.dtd"><config>
 <default_nick>Hallo</default_nick>
 <default_prefix>False</default_prefix>
 <default_full_name>HalloBot HalloHost HalloServer :a bot by spangle</default_full_name>

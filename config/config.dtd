@@ -1,0 +1,16 @@
+<!ELEMENT config (default_nick,default_prefix,default_full_name,function_dispatcher,server_list,user_group_list,permission_mask?)>
+<!ELEMENT default_nick (#PCDATA)>
+<!ELEMENT default_prefix (#PCDATA)>
+<!ELEMENT default_full_name (#PCDATA)>
+<!ELEMENT function_dispatcher (#PCDATA)>
+<!ELEMENT server_list (server*)>
+
+
+<!ELEMENT user_group_list (user_group*)>
+
+
+<!ELEMENT permission_mask (right_list)>
+<!ELEMENT right_list (right*)>
+<!ELEMENT right (name,value)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT value (#PCDATA)>
