@@ -689,7 +689,7 @@ class ServerIRC(Server):
             #check if notice message contains command and user name
             if(self.mCheckUserIdentityUser in noticeMessage and self.mNickservIdentCommand in noticeMessage):
                 #Make regex query of identity response
-                regexIdentResponse = re.compile(self.mNickservIdentResponse)
+                regexIdentResponse = re.compile(self.mNickservIdentResponse,re.IGNORECASE)
                 #check if response is in notice message
                 if(regexIdentResponse.search(noticeMessage) is not None):
                     self.mCheckUserIdentityResult = True
