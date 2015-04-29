@@ -45,7 +45,7 @@ class Hallo:
         self.mOpen = True
         #TODO: manual FunctionDispatcher construction, user input
         if(self.mFunctionDispatcher is None):
-            self.mFunctionDispatcher = FunctionDispatcher(set("Random"))
+            self.mFunctionDispatcher = FunctionDispatcher(set("Random","ServerControl"))
         #TODO: deprecate and remove this
         self.base_start()
         #If no servers, ask for a new server
