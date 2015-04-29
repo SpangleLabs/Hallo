@@ -3,6 +3,7 @@ import random
 import time
 
 from Function import Function
+from inc.commons import Commons
 
 class Roll(Function):
     '''
@@ -192,4 +193,27 @@ class Foof(Function):
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
         return set(Function.EVENT_MESSAGE)
+
+class ThoughtForTheDay(Function):
+    '''
+    WH40K Thought for the day.
+    '''
+    mHelpName = "thought for the day"                        #Name for use in help listing
+    #Names which can be used to address the function
+    mNames = set(["thought for the day","thoughtfortheday","thought of the day","40k quote","wh40k quote","quote 40k"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "WH40K Thought for the day. Format: thought_for_the_day"
     
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        'WH40K Thought for the day. Format: thought_for_the_day'
+        thoughtList = Commons.readFiletoList('store/WH40K_ToTD2.txt')
+        rand = random.randint(0,len(thoughtList)-1)
+        if(thoughtList[rand][-1] not in ['.','!','?']):
+            thoughtList[rand] = thoughtList[rand] + "."
+        return '"' + thoughtList[rand] + '"'
