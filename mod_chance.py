@@ -1,7 +1,6 @@
 import random
 import pickle
 
-import mod_euler
 import ircbot_chk
 
 class mod_chance:
