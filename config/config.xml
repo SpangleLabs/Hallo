@@ -12,7 +12,30 @@
 		</module>
 	</module_list>
 </function_dispatcher>
-<server_list></server_list>
+<server_list>
+	<server>
+		<server_type>irc</server_type>
+		<server_name>shadowworld</server_name>
+		<auto_connect>True</auto_connect>
+		<channel_list>
+		
+		</channel_list>
+		<user_list>
+		
+		</user_list>
+		<server_address>irc.shadowworld.net</server_address>
+		<server_port>6669</server_port>
+		<nickserv>
+			<nick>nickserv</nick>
+			<password>lightside</password>
+			<identity_command>status</identity_command>
+			<identity_response>status [^ ]+ 3</identity_response>
+		</nickserv>
+		<permission_mask>
+		
+		</permission_mask>
+	</server>
+</server_list>
 <user_group_list></user_group_list>
 <permission_mask>
 	<right_list>
