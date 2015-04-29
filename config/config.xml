@@ -83,6 +83,45 @@
 			<identity_response>status [^ ]+ 3</identity_response>
 		</nickserv>
 	</server>
+	<server>
+		<server_type>irc</server_type>
+		<server_name>psigenix</server_name>
+		<auto_connect>True</auto_connect>
+		<channel_list>
+			<channel>
+				<channel_name>#hallotest</channel_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<passive_enabled>True</passive_enabled>
+				<auto_join>True</auto_join>
+			</channel>
+			<channel>
+				<channel_name>#micronations</channel_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<passive_enabled>True</passive_enabled>
+				<auto_join>True</auto_join>
+			</channel>
+		</channel_list>
+		<user_list>
+			<user>
+				<user_name>deer-spangle</user_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<user_group_membership>
+					<user_group_name>god</user_group_name>
+				</user_group_membership>
+			</user>
+		</user_list>
+		<server_address>irc.psigenix.net</server_address>
+		<server_port>6666</server_port>
+		<nickserv>
+			<nick>nickserv</nick>
+			<password>lightside</password>
+			<identity_command>status</identity_command>
+			<identity_response>status [^ ]+ 3</identity_response>
+		</nickserv>
+	</server>
 </server_list>
 <user_group_list>
 	<user_group>
