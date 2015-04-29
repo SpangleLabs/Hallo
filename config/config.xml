@@ -80,7 +80,7 @@
 			<nick>nickserv</nick>
 			<password>lightside</password>
 			<identity_command>status</identity_command>
-			<identity_response>status [^ ]+ 3</identity_response>
+			<identity_response>^status [^ ]+ 3$</identity_response>
 		</nickserv>
 	</server>
 	<server>
@@ -119,7 +119,76 @@
 			<nick>nickserv</nick>
 			<password>lightside</password>
 			<identity_command>status</identity_command>
-			<identity_response>status [^ ]+ 3</identity_response>
+			<identity_response>^status [^ ]+ 3$</identity_response>
+		</nickserv>
+	</server>
+	<server>
+		<server_type>irc</server_type>
+		<server_name>canternet</server_name>
+		<auto_connect>True</auto_connect>
+		<channel_list>
+			<channel>
+				<channel_name>#hallotest</channel_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<passive_enabled>True</passive_enabled>
+				<auto_join>True</auto_join>
+			</channel>
+			<channel>
+				<channel_name>#sexydragon</channel_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<passive_enabled>True</passive_enabled>
+				<auto_join>True</auto_join>
+			</channel>
+			<channel>
+				<channel_name>#sexydeer</channel_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<passive_enabled>True</passive_enabled>
+				<auto_join>True</auto_join>
+			</channel>
+			<channel>
+				<channel_name>#cloudsdaleunderground</channel_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<passive_enabled>True</passive_enabled>
+				<auto_join>True</auto_join>
+			</channel>
+			<channel>
+				<channel_name>#ukofequestriaircstaff</channel_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<password>mareplaysellsponies</password>
+				<passive_enabled>True</passive_enabled>
+				<auto_join>False</auto_join>
+			</channel>
+		</channel_list>
+		<user_list>
+			<user>
+				<user_name>deer-spangle</user_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<user_group_membership>
+					<user_group_name>god</user_group_name>
+				</user_group_membership>
+			</user>
+			<user>
+				<user_name>zephyr</user_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<user_group_membership>
+					<user_group_name>god</user_group_name>
+				</user_group_membership>
+			</user>
+		</user_list>
+		<server_address>irc.canternet.org</server_address>
+		<server_port>6666</server_port>
+		<nickserv>
+			<nick>nickserv</nick>
+			<password>lightside</password>
+			<identity_command>acc</identity_command>
+			<identity_response>^[^ ]+ acc 3 [^ ]$</identity_response>
 		</nickserv>
 	</server>
 </server_list>
