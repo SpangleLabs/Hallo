@@ -196,7 +196,7 @@ class Hallo:
             return True
         else:
             #Else, define and return False
-            self.mPermissionMask.setRight(rightName,True)
+            self.mPermissionMask.setRight(rightName,False)
             return False
         
     def getDefaultNick(self):
