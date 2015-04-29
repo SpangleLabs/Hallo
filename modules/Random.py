@@ -2,6 +2,8 @@ import re
 import random
 import time
 
+from xml.dom import minidom
+
 from Function import Function
 from inc.commons import Commons
 
@@ -217,3 +219,32 @@ class ThoughtForTheDay(Function):
         if(thoughtList[rand][-1] not in ['.','!','?']):
             thoughtList[rand] = thoughtList[rand] + "."
         return '"' + thoughtList[rand] + '"'
+
+class Scriptures(Function):
+    '''
+    Amarr scriptures
+    '''
+    #Name for use in help listing
+    mHelpName = "scriptures"
+    #Names which can be used to address the function
+    mNames = set(["scriptures","amarr scriptures","amarr"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Recites a passage from the Amarr scriptures. Format: scriptures"
+    
+    mScriptureList = []
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        self.loadFromXml()
+    
+    def loadFromXml(self):
+        doc = minidom.parse("store/scriptures.xml")
+        scriptureListXml = doc.getElementsByTagName("scriptures")[0]
+        for scriptureXml in scriptureListXml.getElementsByTagName("scripture"):
+            self.mScriptureList.append(scriptureXml.firstChild.data)
+    
+    def run(self,line,userObject,destinationObject=None):
+        rand = random.randint(0,len(self.mScriptureList)-1)
+        return self.mScriptureList[rand]
