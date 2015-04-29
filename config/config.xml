@@ -41,7 +41,38 @@
 			</channel>
 		</channel_list>
 		<user_list>
-		
+			<user>
+				<user_name>deer-spangle</user_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<user_group_list>
+					<user_group_name>god</user_group_name>
+				</user_group_list>
+			</user>
+			<user>
+				<user_name>c00242</user_name>
+				<logging>True</logging>
+				<caps_lock>True</caps_lock>
+				<user_group_list>
+					<user_group_name>god</user_group_name>
+				</user_group_list>
+			</user>
+			<user>
+				<user_name>zephyr</user_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<user_group_list>
+					<user_group_name>god</user_group_name>
+				</user_group_list>
+			</user>
+			<user>
+				<user_name>ari</user_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<user_group_list>
+					<user_group_name>operator</user_group_name>
+				</user_group_list>
+			</user>
 		</user_list>
 		<server_address>irc.shadowworld.net</server_address>
 		<server_port>6669</server_port>
