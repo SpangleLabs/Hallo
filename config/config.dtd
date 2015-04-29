@@ -18,8 +18,10 @@
 <!ELEMENT passive_enabled (#PCDATA)>
 <!ELEMENT auto_join (#PCDATA)>
 <!ELEMENT user_list (user*)>
-<!ELEMENT user (user_name,logging,caps_lock,user_group_list,permission_mask?)>
+<!ELEMENT user (user_name,logging,caps_lock,user_group_membership,permission_mask?)>
 <!ELEMENT user_name (#PCDATA)>
+<!ELEMENT user_group_membership (user_group_name*)>
+<!ELEMENT user_group_name (#PCDATA)>
 <!ELEMENT server_nick (#PCDATA)>
 <!ELEMENT server_prefix (#PCDATA)>
 <!ELEMENT full_name (#PCDATA)>
