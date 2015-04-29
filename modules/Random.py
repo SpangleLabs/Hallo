@@ -217,3 +217,29 @@ class ThoughtForTheDay(Function):
         if(thoughtList[rand][-1] not in ['.','!','?']):
             thoughtList[rand] = thoughtList[rand] + "."
         return '"' + thoughtList[rand] + '"'
+    
+class Ouija(Function):
+    '''
+    Ouija board function. "Ouija board" is copyright Hasbro.
+    '''
+    #Name for use in help listing
+    mHelpName = "ouija"
+    #Names which can be used to address the function
+    mNames = set(["ouija","ouija board","random words","message from the other side"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Ouija board function. Format: ouija <message>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        wordList = Commons.readFiletoList('store/ouija_wordlist.txt')
+        outputString = "I'm getting a message from the other side..."
+        outputString += " ".join([wordList[random.randint(0,len(wordList)-1)] for _ in range(random.randint(1,3))])
+        outputString += "."
+        return outputString
+
+
