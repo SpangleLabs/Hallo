@@ -30,3 +30,12 @@ class Commons(object):
             listOfStrings += ['...'+restOfString]
             return listOfStrings
     
+    @staticmethod
+    def readFiletoList(filename):
+        f = open(filename,"r")
+        fileList = []
+        rawLine = f.readline()
+        while rawLine != '':
+            fileList.append(rawLine.replace("\n",''))
+            rawLine = f.readline()
+        return fileList
