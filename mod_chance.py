@@ -1,5 +1,4 @@
 import random
-import pickle
 
 import ircbot_chk
 
@@ -13,3 +12,4 @@ class mod_chance:
             return responses[rand] + "."
         else:
             return '"playball" not defined. Try "/msg Hallo help commands" for a list of commands.'
+
