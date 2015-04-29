@@ -392,7 +392,7 @@ class User(Destination):
         capsLockElement.appendChild(doc.createTextNode(self.mUseCapsLock))
         root.appendChild(capsLockElement)
         #create user_group list
-        userGroupListElement = doc.createElement("user_group_list")
+        userGroupListElement = doc.createElement("user_group_membership")
         for userGroupName in self.mUserGroupList:
             userGroupElement = doc.createElement("user_group_name")
             userGroupElement.appendChild(doc.createTextNode(userGroupName))
@@ -414,7 +414,7 @@ class User(Destination):
         newUser.mLogging = doc.getElementsByTagName("logging")[0].firstChild.data
         newUser.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
         #Load UserGroups from XML
-        userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
+        userGroupListXml = doc.getElementsByTagName("user_group_membership")[0]
         for userGroupXml in userGroupListXml.getElementsByTagName("user_group_name"):
             userGroupName = userGroupXml.firstChild.data
             userGroup = server.getHallo().getUserGroupByName(userGroupName)
