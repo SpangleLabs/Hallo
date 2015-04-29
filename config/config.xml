@@ -14,5 +14,20 @@
 </function_dispatcher>
 <server_list></server_list>
 <user_group_list></user_group_list>
-<permission_mask></permission_mask>
+<permission_mask>
+	<right_list>
+		<right>
+			<name>invite_channel</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>default_function</name>
+			<value>True</value>
+		</right>
+		<right>
+			<name>function_Join</name>
+			<value>False</value>
+		</right>
+	</right_list>
+</permission_mask>
 </config>
