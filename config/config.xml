@@ -31,12 +31,32 @@
 			<identity_command>status</identity_command>
 			<identity_response>status [^ ]+ 3</identity_response>
 		</nickserv>
-		<permission_mask>
-		
-		</permission_mask>
 	</server>
 </server_list>
-<user_group_list></user_group_list>
+<user_group_list>
+	<user_group>
+		<name>god</name>
+		<permission_mask>
+			<right_list>
+				<right>
+					<name>function_Join</name>
+					<value>True</value>
+				</right>
+			</right_list>
+		</permission_mask>
+	</user_group>
+	<user_group>
+		<name>operator</name>
+		<permission_mask>
+			<right_list>
+				<right>
+					<name>function_Join</name>
+					<value>True</value>
+				</right>
+			</right_list>
+		</permission_mask>
+	</user_group>
+</user_group_list>
 <permission_mask>
 	<right_list>
 		<right>
