@@ -1,0 +1,9 @@
+<config>
+<default_nick>Hallo</default_nick>
+<default_prefix>False</default_prefix>
+<default_full_name>HalloBot HalloHost HalloServer :a bot by spangle</default_full_name>
+<function_dispatcher></function_dispatcher>
+<server_list></server_list>
+<user_group_list></user_group_list>
+<permission_mask></permission_mask>
+</config>
