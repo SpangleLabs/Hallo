@@ -18,7 +18,27 @@
 		<server_name>shadowworld</server_name>
 		<auto_connect>True</auto_connect>
 		<channel_list>
-		
+			<channel>
+				<channel_name>#hallotest</channel_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<passive_enabled>True</passive_enabled>
+				<auto_join>True</auto_join>
+			</channel>
+			<channel>
+				<channel_name>#ecco-the-dolphin</channel_name>
+				<logging>True</logging>
+				<caps_lock>True</caps_lock>
+				<passive_enabled>True</passive_enabled>
+				<auto_join>True</auto_join>
+			</channel>
+			<channel>
+				<channel_name>#beringsea</channel_name>
+				<logging>True</logging>
+				<caps_lock>False</caps_lock>
+				<passive_enabled>True</passive_enabled>
+				<auto_join>True</auto_join>
+			</channel>
 		</channel_list>
 		<user_list>
 		
