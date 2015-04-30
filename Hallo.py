@@ -138,7 +138,7 @@ class Hallo:
             permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
             root.appendChild(permissionMaskElement)
         #save XML
-        doc.writexml(open("config/config.xml","w"),indent="  ",addindent="  ",newl="\n")
+        doc.writexml(open("config/config.xml","w"),addindent="\t",newl="\r\n")
     
     def addUserGroup(self,userGroup):
         'Adds a new UserGroup to the UserGroup list'
