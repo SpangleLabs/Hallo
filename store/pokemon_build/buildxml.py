@@ -49,6 +49,7 @@ for x in p:
         evolveToXml = doc.createElement("evolve_to")
         evolveToXml.appendChild(doc.createTextNode(evolveTo))
         pokemonXml.appendChild(evolveToXml)
+    ##START WORK ON POKEDEX ENTRIES
     dexEntryListXml = doc.createElement("dex_entry_list")
     code = downloadPage("http://bulbapedia.bulbagarden.net"+b[x])
     animeDexSearch = re.search(animeDexRegex,code)
@@ -72,6 +73,7 @@ for x in p:
         entryXml.appendChild(doc.createTextNode(animeDexEntryEntryy))
         dexEntryXml.appendChild(entryXml)
         dexEntryListXml.appendChild(dexEntryXml)
+    #GAME POKEDEX ENTRIES
     for game in gamesList:
         gameName = game.replace(' ','_')
         if(gameName in p[x]['Dex_entries']['Games']):
@@ -86,7 +88,10 @@ for x in p:
             entryXml = doc.createElement("entry")
             entryXml.appendChild(doc.createTextNode(p[x]['Dex_entries']['Games'][gameName]))
             dexEntryXml.appendChild(entryXml)
+            dexEntryListXml.appendChild(dexEntryXml)
+    pokemonXml.appendChild(dexEntryListXml)
     print()
+    root.append(pokemonXml)
                 
 with codecs.open("pokemon.xml", "w", "utf-8") as out:
     doc.writexml(out)
