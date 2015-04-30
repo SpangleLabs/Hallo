@@ -99,7 +99,7 @@ for x in p:
             dexEntryListXml.appendChild(dexEntryXml)
     pokemonXml.appendChild(dexEntryListXml)
     print()
-    root.append(pokemonXml)
+    root.appendChild(pokemonXml)
                 
 with codecs.open("pokemon.xml", "w", "utf-8") as out:
     doc.writexml(out)
