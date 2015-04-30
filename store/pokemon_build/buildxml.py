@@ -32,15 +32,23 @@ for x in p:
     dexNumberXml = doc.createElement("dex_number")
     dexNumberXml.appendChild(doc.createTextNode(p[x]['Dex_National']))
     pokemonXml.appendChild(dexNumberXml)
+    bulbaLink = "http://bulbapedia.bulbagarden.net"+b[x]
     bulbaLinkXml = doc.createElement("link_bulbapedia")
-    bulbaLinkXml.appendChild(doc.createTextNode("http://bulbapedia.bulbagarden.net"+b[x]))
+    bulbaLinkXml.appendChild(doc.createTextNode(bulbaLink))
     pokemonXml.appendChild(bulbaLinkXml)
+    bulbaEditLink = bulbaLink.replace("/wiki/","/w/index.php?title=")+"&action=edit"
+    bulbaEditLinkXml = doc.createElement("link_bulbapedia_edit")
+    bulbaEditLinkXml.appendChild(doc.createTextNode(bulbaEditLink))
+    pokemonXml.appendChild(bulbaEditLinkXml)
     pokemonDbXml = doc.createElement("link_pokemondb")
     pokemonDbXml.appendChild(doc.createTextNode("http://pokemondb.net/pokedex/"+str(x)))
     pokemonXml.appendChild(pokemonDbXml)
     serebiiLinkXml = doc.createElement("link_serebii")
     serebiiLinkXml.appendChild(doc.createTextNode("http://www.serebii.net/pokedex-xy/"+format(x,'03')+".shtml"))
     pokemonXml.appendChild(serebiiLinkXml)
+    psypokeLinkXml = doc.createElement("link_psypokes")
+    psypokeLinkXml.appendChild(doc.createTextNode("http://www.psypokes.com/dex/psydex/"+format(x,'03')+"/general"))
+    pokemonXml.appendChild(psypokeLinkXml)
     if(p[x]['Evolve_From']!="0"):
         evolveFromXml = doc.createElement("evolve_from")
         evolveFromXml.appendChild(doc.createTextNode(p[x]['Evolve_From']))
@@ -51,7 +59,7 @@ for x in p:
         pokemonXml.appendChild(evolveToXml)
     ##START WORK ON POKEDEX ENTRIES
     dexEntryListXml = doc.createElement("dex_entry_list")
-    code = downloadPage("http://bulbapedia.bulbagarden.net"+b[x])
+    code = downloadPage(bulbaLink)
     animeDexSearch = re.search(animeDexRegex,code)
     if(animeDexSearch is None):
         print("no anime dex section")
