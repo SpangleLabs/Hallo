@@ -102,6 +102,6 @@ for x in p:
     root.appendChild(pokemonXml)
                 
 with codecs.open("pokemon.xml", "w", "utf-8") as out:
-    doc.writexml(out)
+    doc.writexml(out,addindent="\t",newl="\r\n")
 
 #doc.writexml(open("C:/users/joshua/git/hallo/store/pokemon-3.xml","w"))
