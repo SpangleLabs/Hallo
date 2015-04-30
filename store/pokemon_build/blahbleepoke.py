@@ -1,8 +1,6 @@
 import re
 from xml.dom import minidom
 import urllib.request
-import urllib.parse
-import time
 import codecs
 import pickle
 
@@ -20,8 +18,8 @@ tagRegex = re.compile('<[^>]*>')
 animeDexRegex = re.compile('<h3><span[^>]*>[^<]*dex entries</span></h3>(.*?)<h3>',re.DOTALL|re.IGNORECASE)
 animeDexEntryRegex = re.compile('<td> *<a[^>]*>([A-Z]+[0-9]+)</a>[^<]*</td>[^<]*<td> *<strong class="selflink">[^<]*</strong>[^<]*</td>[^<]*<td>[^<]*</td>[^<]*<td>(.*?)</td>',re.DOTALL|re.IGNORECASE)
 gamesList = ['Red','Blue','Yellow','Gold','Silver','Crystal','Ruby','Sapphire','Emerald','Fire Red','Leaf Green','Diamond','Pearl','Platinum','Heart Gold','Soul Silver','Black','White','Black 2','White 2','X','Y','Omega Ruby','Alpha Sapphire']
-p = pickle.load(open("C:/users/joshua/git/hallo/store/pokemon.p","rb"))
-b = pickle.load(open("D:/downloads/txt/pokelinklist.p","rb"))
+p = pickle.load(open("pokemon.p","rb"))
+b = pickle.load(open("pokelinklist.p","rb"))
 doc = minidom.Document()
 root = doc.createElement("pokemon_list")
 doc.appendChild(root)
@@ -90,7 +88,7 @@ for x in p:
             dexEntryXml.appendChild(entryXml)
     print()
                 
-with codecs.open("C:/users/joshua/git/hallo/store/pokemon-2.xml", "w", "utf-8") as out:
+with codecs.open("pokemon.xml", "w", "utf-8") as out:
     doc.writexml(out)
 
 #doc.writexml(open("C:/users/joshua/git/hallo/store/pokemon-3.xml","w"))
