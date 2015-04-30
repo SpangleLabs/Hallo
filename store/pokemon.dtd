@@ -1,0 +1,12 @@
+<!ELEMENT pokemon_list (pokemon*)>
+<!ELEMENT pokemon (name,dex_number,evolve_from?,evolve_to*,dex_entry_list)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT dex_number (#PCDATA)>
+<!ELEMENT evolve_from (#PCDATA)>
+<!ELEMENT evolve_to (#PCDATA)>
+<!ELEMENT dex_entry_list (dex_entry*)>
+<!ELEMENT dex_entry (type,game|episode,entry)>
+<!ELEMENT type (#PCDATA)>
+<!ELEMENT game (#PCDATA)>
+<!ELEMENT episode (#PCDATA)>
+<!ELEMENT entry (#PCDATA)>

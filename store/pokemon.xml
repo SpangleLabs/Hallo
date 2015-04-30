@@ -1,0 +1,129 @@
+<!DOCTYPE pokemon_list SYSTEM "pokemon.dtd"><pokemon_list>
+	<pokemon>
+		<name>Bulbasaur</name>
+		<dex_number>1</dex_number>
+		<evolve_to>2</evolve_to>
+		<dex_entry_list>
+			<dex_entry>
+				<type>anime</type>
+				<episode>EP010</episode>
+				<entry>Bulbasaur. It bears the seed of a plant on its back from birth. The seed slowly develops. Researchers are unsure whether to classify Bulbasaur as a plant or animal. Bulbasaur are extremely calm and very difficult to capture in the wild. </entry>
+			</dex_entry>
+			<dex_entry>
+				<type>anime</type>
+				<episode>XY039</episode>
+				<entry>Bulbasaur, the Seed Pokémon. A young Bulbasaur uses the nutrients from its seed for the energy it needs to grow.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Red</game>
+				<entry>A strange seed was planted on its back at birth. The plant sprouts and grows with this POKéMON.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Blue</game>
+				<entry>A strange seed was planted on its back at birth. The plant sprouts and grows with this POKéMON.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Yellow</game>
+				<entry>It can go for days without eating a single morsel. In the bulb on its back, it stores energy.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Gold</game>
+				<entry>The seed on its back is filled with nutrients. The seed grows steadily larger as its body grows.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Silver</game>
+				<entry>It carries a seed on its back right from birth. As it grows older, the seed also grows larger.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Crystal</game>
+				<entry>While it is young, it uses the nutrients that are stored in the seeds on its back in order to grow.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Ruby</game>
+				<entry>BULBASAUR can be seen napping in bright sunlight. There is a seed on its back. By soaking up the sun’s rays, the seed grows progressively larger.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Sapphire</game>
+				<entry>BULBASAUR can be seen napping in bright sunlight. There is a seed on its back. By soaking up the sun’s rays, the seed grows progressively larger.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Emerald</game>
+				<entry>BULBASAUR can be seen napping in bright sunlight. There is a seed on its back. By soaking up the sun’s rays, the seed grows progressively larger.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Fire Red</game>
+				<entry>There is a plant seed on its back right from the day this POKéMON is born. The seed slowly grows larger.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Leaf Green</game>
+				<entry>A strange seed was planted on its back at birth. The plant sprouts and grows with this POKéMON.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Diamond</game>
+				<entry>For some time after its birth, it grows by gaining nourishment from the seed on its back.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Pearl</game>
+				<entry>For some time after its birth, it grows by gaining nourishment from the seed on its back.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Platinum</game>
+				<entry>For some time after its birth, it grows by gaining nourishment from the seed on its back.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Heart Gold</game>
+				<entry>The seed on its back is filled with nutrients. The seed grows steadily larger as its body grows.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Soul Silver</game>
+				<entry>It carries a seed on its back right from birth. As it grows older, the seed also grows larger.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Black</game>
+				<entry>For some time after its birth, it grows by gaining nourishment from the seed on its back.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>White</game>
+				<entry>For some time after its birth, it grows by gaining nourishment from the seed on its back.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Black 2</game>
+				<entry>For some time after its birth, it grows by gaining nourishment from the seed on its back.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>White 2</game>
+				<entry>For some time after its birth, it grows by gaining nourishment from the seed on its back.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>X</game>
+				<entry>A strange seed was planted on its back at birth. The plant sprouts and grows with this Pokémon.</entry>
+			</dex_entry>
+			<dex_entry>
+				<type>game</type>
+				<game>Y</game>
+				<entry>For some time after its birth, it grows by gaining nourishment from the seed on its back.</entry>
+			</dex_entry>
+		</dex_entry_list>
+	</pokemon>
+</pokemon_list>
