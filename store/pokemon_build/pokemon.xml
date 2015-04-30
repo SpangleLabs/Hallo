@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+﻿<?xml version="1.0" ?>
 <pokemon_list>
 	<pokemon>
 		<name>Bulbasaur</name>
@@ -23202,7 +23202,7 @@
 		</dex_entry_list>
 	</pokemon>
 	<pokemon>
-		<name>Marril</name>
+		<name>Marill</name>
 		<dex_number>183</dex_number>
 		<link_bulbapedia>http://bulbapedia.bulbagarden.net/wiki/Marill_(Pok%C3%A9mon)</link_bulbapedia>
 		<link_bulbapedia_edit>http://bulbapedia.bulbagarden.net/w/index.php?title=Marill_(Pok%C3%A9mon)&amp;action=edit</link_bulbapedia_edit>
@@ -48185,7 +48185,7 @@
 		</dex_entry_list>
 	</pokemon>
 	<pokemon>
-		<name>Bornzong</name>
+		<name>Bronzong</name>
 		<dex_number>437</dex_number>
 		<link_bulbapedia>http://bulbapedia.bulbagarden.net/wiki/Bronzong_(Pok%C3%A9mon)</link_bulbapedia>
 		<link_bulbapedia_edit>http://bulbapedia.bulbagarden.net/w/index.php?title=Bronzong_(Pok%C3%A9mon)&amp;action=edit</link_bulbapedia_edit>
