@@ -102,10 +102,16 @@ class Hallo:
             self.manualServerConnect()
 
     def saveToXml(self):
-        doc = minidom.Document();
-        #create root element
-        root = doc.createElement("config")
-        doc.appendChild(root)
+        #Create document, with DTD
+        docimp = minidom.DOMImplementation()
+        doctype = docimp.createDocumentType(
+            qualifiedName='config',
+            publicId='', 
+            systemId='config.dtd',
+        )
+        doc = docimp.createDocument(None, 'config', doctype)
+        #get root element
+        root = doc.getElementsByTagName("config")[0]
         #create default_nick element
         defaultNickElement = doc.createElement("default_nick")
         defaultNickElement.appendChild(doc.createTextNode(self.mDefaultNick))
