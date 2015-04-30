@@ -126,4 +126,17 @@
 			</dex_entry>
 		</dex_entry_list>
 	</pokemon>
+	<pokemon>
+		<name>Ivysaur</name>
+		<dex_number>2</dex_number>
+		<evolve_from>1</evolve_from>
+		<evolve_to>3</evolve_to>
+		<dex_entry_list>
+			<dex_entry>
+				<type>anime</type>
+				<episode>EP051</episode>
+				<entry>The Seed Pokémon, Ivysaur, Bulbasaur's evolved form. The bulb on its back absorbs nourishment and blooms into a large flower.</entry>
+			</dex_entry>
+		</dex_entry_list>
+	</pokemon>
 </pokemon_list>
