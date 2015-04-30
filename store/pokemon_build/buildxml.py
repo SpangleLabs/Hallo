@@ -20,8 +20,14 @@ animeDexEntryRegex = re.compile('<td> *<a[^>]*>([A-Z]+[0-9]+)</a>[^<]*</td>[^<]*
 gamesList = ['Red','Blue','Yellow','Gold','Silver','Crystal','Ruby','Sapphire','Emerald','Fire Red','Leaf Green','Diamond','Pearl','Platinum','Heart Gold','Soul Silver','Black','White','Black 2','White 2','X','Y','Omega Ruby','Alpha Sapphire']
 p = pickle.load(open("pokemon.p","rb"))
 b = pickle.load(open("pokelinklist.p","rb"))
-doc = minidom.Document()
-root = doc.createElement("pokemon_list")
+docimp = minidom.DOMImplementation()
+doctype = docimp.createDocumentType(
+    qualifiedName='pokemon_list',
+    publicId='', 
+    systemId='pokemon.dtd',
+)
+doc = docimp.createDocument(None, 'pokemon_list', doctype)
+root = doc.getElementsByTagName("pokemon_list")[0]
 doc.appendChild(root)
 for x in p:
     print("Starting: "+p[x]['Name'])
