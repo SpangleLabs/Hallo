@@ -1105,4 +1105,7 @@ class ServerIRC(Server):
         'Type getter'
         return "irc"
 
-        
+    def getServerPort(self):
+        'mServerPort getter'
+        return self.mServerPort
+    
