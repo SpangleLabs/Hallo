@@ -397,7 +397,8 @@ class ServerIRC(Server):
 
     def sendRaw(self,data):
         'Sends raw data to the server'
-        self.mSocket.send((data+endl).encode("utf-8"))
+        if(self.mOpen):
+            self.mSocket.send((data+endl).encode("utf-8"))
                 
     def parseLine(self,newLine):
         'Parses a line from the IRC server'
