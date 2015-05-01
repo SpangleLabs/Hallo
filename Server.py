@@ -150,11 +150,15 @@ class Server(object):
         'Adds a channel to the channel list'
         if(self.getChannelByName(channelObject.getName()) is None):
             self.mChannelList.append(channelObject)
-            
-    def joinchannel(self,channelObject):
+
+    def joinChannel(self,channelObject):
         'Joins a specified channel'
         raise NotImplementedError
-        
+
+    def leaveChannel(self,channelObject):
+        'Leaves a specified channel'
+        raise NotImplementedError
+
     def getUserByName(self,userName):
         'Returns a User object with the specified user name.'
         for user in self.mUserList:
@@ -372,6 +376,16 @@ class ServerIRC(Server):
             self.send('JOIN ' + channelObject.getName(),None,"raw")
         else:
             self.send('JOIN ' + channelObject.getName() + ' ' + channelObject.getPassword(),None,"raw")
+
+    def leaveChannel(self,channelObject):
+        'Leaves a specified channel'
+        #If channel isn't in channel list, do nothing
+        if(channelObject not in self.mChannelList):
+            return
+        #Set channel to not AutoJoin, for the future
+        channelObject.setAutoJoin(False)
+        #Send PART command
+        self.send('PART ' + channelObject.getName(),None,"raw")
 
     def sendRaw(self,data):
         'Sends raw data to the server'
