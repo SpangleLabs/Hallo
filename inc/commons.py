@@ -40,7 +40,8 @@ class Commons(object):
             rawLine = f.readline()
         return fileList
     
-    def getDomainName(self,url):
+    @staticmethod
+    def getDomainName(url):
         'Gets the domain name of a URL, removing the TLD'
         #Sanitise the URL, removing protocol and directories
         url = url.split("://")[-1]
