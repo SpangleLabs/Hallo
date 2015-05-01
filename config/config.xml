@@ -198,7 +198,19 @@
 		<permission_mask>
 			<right_list>
 				<right>
-					<name>function_Join</name>
+					<name>function_JoinChannel</name>
+					<value>True</value>
+				</right>
+				<right>
+					<name>function_LeaveChannel</name>
+					<value>True</value>
+				</right>
+				<right>
+					<name>function_Shutdown</name>
+					<value>True</value>
+				</right>
+				<right>
+					<name>function_Disconnect</name>
 					<value>True</value>
 				</right>
 			</right_list>
@@ -209,7 +221,11 @@
 		<permission_mask>
 			<right_list>
 				<right>
-					<name>function_Join</name>
+					<name>function_JoinChannel</name>
+					<value>True</value>
+				</right>
+				<right>
+					<name>function_LeaveChannel</name>
 					<value>True</value>
 				</right>
 			</right_list>
@@ -227,7 +243,19 @@
 			<value>True</value>
 		</right>
 		<right>
-			<name>function_Join</name>
+			<name>function_JoinChannel</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_LeaveChannel</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_Shutdown</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_Disconnect</name>
 			<value>False</value>
 		</right>
 	</right_list>
