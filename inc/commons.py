@@ -39,3 +39,24 @@ class Commons(object):
             fileList.append(rawLine.replace("\n",''))
             rawLine = f.readline()
         return fileList
+    
+    def getDomainName(self,url):
+        'Gets the domain name of a URL, removing the TLD'
+        #Sanitise the URL, removing protocol and directories
+        url = url.split("://")[-1]
+        url = url.split("/")[0]
+        url = url.split(":")[0]
+        #Get the list of TLDs, from mozilla's publicsuffix.org
+        tldList = [x.strip() for x in open("store/tld_list.txt","rb").read().decode("utf-8").split("\n")]
+        urlSplit = url.split(".")
+        urlTld = None
+        for tldTest in ['.'.join(urlSplit[x:]) for x in range(len(urlSplit))]:
+            if(tldTest in tldList):
+                urlTld = tldTest
+                break
+        #If you didn't find the TLD, just return the longest bit.
+        if(urlTld is None):
+            return urlSplit.sort(key=len)[-1]
+        #Else return the last part before the TLD
+        return url[:-len(urlTld)-1].split('.')[-1]
+        
