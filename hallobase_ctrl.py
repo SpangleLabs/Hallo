@@ -1,6 +1,4 @@
 import ircbot_chk
-import sys
-import time
 from threading import Thread
 import collections
 import re
