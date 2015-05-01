@@ -167,7 +167,7 @@ class Hallo:
         
     def getServerByName(self,serverName):
         for server in self.mServerList:
-            if(server.getName()==serverName):
+            if(server.getName().lower()==serverName.lower()):
                 return server
         return None
     
