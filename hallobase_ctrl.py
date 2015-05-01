@@ -73,29 +73,6 @@ class hallobase_ctrl:
         else:
             return "Insufficient privileges to connect to a new server."
 
-    def fn_disconnect(self,args,client,destination):
-        'Disconnects from server. Requires godmode.'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            if(args.replace(' ','')==''):
-                self.base_say('Disconnecting...',destination)
-                args = args.lower()
-#                 self.core['server'][destination[0]]['open'] = False
-                self.conf['server'][destination[0]]['connected'] = False
-                serverObject = self.getServerByName(destination[0])
-                serverObject.disconnect()
-                return "Disconnected."
-            else:
-                if(args.lower() in self.core['server']):
-                    self.base_say('Disconnecting from ' + args,destination)
-                    self.conf['server'][args.lower()]['connected'] = False
-                    serverObject = self.getServerByName(args.lower())
-                    serverObject.disconnect()
-                    return "Disconnected from " + args + "."
-                else:
-                    return "I'm not on any server by that id."
-        else:
-            return "Insufficient privileges to disconnect from server."
-
     def fn_help(self,args,client,destination):
         'Gives information about commands.  Use "help commands" for a list of commands, or "help <command>" for help on a specific command.'
         if(args.lower() == 'commands'):

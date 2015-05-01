@@ -1,6 +1,7 @@
 
 from Function import Function
 from copyreg import constructor
+from multiprocessing.managers import Server
 
 class JoinChannel(Function):
     '''
@@ -80,3 +81,32 @@ class Shutdown(Function):
         halloObject = serverObject.getHallo()
         halloObject.close()
         return "Shutting down."
+
+class Disconnect(Function):
+    '''
+    Disconnects from a Server
+    '''
+    #Name for use in help listing
+    mHelpName = "disconnect"
+    #Names which can be used to address the Function
+    mNames = set(["disconnect","quit"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Disconnects from a server."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        serverObject = userObject.getServer()
+        halloObject = serverObject.getHallo()
+        if(line.strip()!=""):
+            serverObject = halloObject.getServerByName(line)
+        if(serverObject is None):
+            return "Invalid server."
+        serverObject.setAutoConnect(False)
+        serverObject.disconnect()
+        return "Disconnected from server: "+serverObject.getName()+"."
+
