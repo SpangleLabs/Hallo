@@ -1,5 +1,6 @@
 
 from Function import Function
+from copyreg import constructor
 
 class JoinChannel(Function):
     '''
@@ -56,3 +57,26 @@ class LeaveChannel(Function):
             return "I'm not in that channel."
         serverObject.leaveChannel(channelObject)
         return "Left "+channelName+"."
+
+class Shutdown(Function):
+    '''
+    Shuts down hallo entirely.
+    '''
+    #Name for use in help listing
+    mHelpName = "shutdown"
+    #Names which can be used to address the Function
+    mNames = set(["shutdown"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Shuts down hallo entirely."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        serverObject = userObject.getServer()
+        halloObject = serverObject.getHallo()
+        halloObject.close()
+        return "Shutting down."

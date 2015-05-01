@@ -37,15 +37,6 @@ class hallobase_ctrl:
             else:
                 return "Messages sent to " + str(len([destpair for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']])-skipped) + " channels: " + ', '.join(["{" + destpair[0] + "," + destpair[1] + "}" for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']]) + " But not sent to " + str(skipped) + " channels, due to swearlist violation: " + ', '.join(["{" + destpair[0] + "," + destpair[1] + "}" for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']])
 
-    def fn_quit(self,args,client,destination):
-        'Quit IRC.  Use "quit".  Requires godmode.'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-#            self.megahal.sync()
-            self.close()
-            sys.exit(0)
-        else:
-            return 'Insufficient privileges to quit.'
-
     def fn_connect(self,args,client,destination):
         'Connects to a new server. Requires godmode'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
