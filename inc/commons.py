@@ -60,4 +60,14 @@ class Commons(object):
             return urlSplit.sort(key=len)[-1]
         #Else return the last part before the TLD
         return url[:-len(urlTld)-1].split('.')[-1]
+    
+    @staticmethod
+    def stringToBool(string):
+        'Converts a string to a boolean.'
+        string = string.lower()
+        if(string in [1,'1','true','t','yes','y']):
+            return True
+        if(string in [0,'0','false','f','no','n']):
+            return False
+        return None
         
