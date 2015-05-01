@@ -136,6 +136,10 @@ class Server(object):
     def setAutoConnect(self,autoConnect):
         'AutoConnect setter'
         self.mAutoConnect = autoConnect
+    
+    def isConnected(self):
+        'Returns boolean representing whether the server is connected or not.'
+        return self.mOpen
         
     def getChannelByName(self,channelName):
         'Returns a Channel object with the specified channel name.'
