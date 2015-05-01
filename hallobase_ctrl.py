@@ -37,18 +37,6 @@ class hallobase_ctrl:
             else:
                 return "Messages sent to " + str(len([destpair for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']])-skipped) + " channels: " + ', '.join(["{" + destpair[0] + "," + destpair[1] + "}" for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']]) + " But not sent to " + str(skipped) + " channels, due to swearlist violation: " + ', '.join(["{" + destpair[0] + "," + destpair[1] + "}" for destpair in destlist if self.conf['server'][destpair[0]]['channel'][destpair[1]]['in_channel']])
 
-    def fn_part(self,args,client,destination):
-        'Leave a channel.  Use "part <channel>".  Requires op'
-        if(not ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            return 'Insufficient privileges to part.'
-        if(args.replace(' ','')==""):
-            self.core['server'][destination[0]]['socket'].send(('PART ' + destination[1] + endl).encode('utf-8'))
-            self.conf['server'][destination[0]]['channel'][destination[1]]['in_channel'] = False
-        else:
-            self.core['server'][destination[0]]['socket'].send(('PART ' + args + endl).encode('utf-8'))
-            self.conf['server'][destination[0]]['channel'][args.split()[0]]['in_channel'] = False
-        return 'Parted ' + args + '.'
-
     def fn_quit(self,args,client,destination):
         'Quit IRC.  Use "quit".  Requires godmode.'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
