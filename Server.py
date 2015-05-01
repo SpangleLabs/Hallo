@@ -1109,37 +1109,37 @@ class ServerIRC(Server):
         'mServerPort getter'
         return self.mServerPort
     
-    def setNickservNick(self,nickservNick):
-        'mNickservNick setter'
-        self.mNickservNick = nickservNick
-    
     def getNickservNick(self):
         'mNickservNick getter'
         return self.mNickservNick
     
-    def setNickservIdentityCommand(self,nickservIdentityCommand):
-        'mNickservIdentityCommand setter'
-        self.mNickservIdentCommand = nickservIdentityCommand
+    def setNickservNick(self,nickservNick):
+        'mNickservNick setter'
+        self.mNickservNick = nickservNick
     
     def getNickservIdentityCommand(self):
         'mNickservIdentityCommand getter'
         return self.mNickservIdentCommand
     
-    def setNickservIdentityResponse(self,nickservIdentityResponse):
-        'mNickservIdentityResponse setter'
-        self.mNickservIdentResponse = nickservIdentityResponse
+    def setNickservIdentityCommand(self,nickservIdentityCommand):
+        'mNickservIdentityCommand setter'
+        self.mNickservIdentCommand = nickservIdentityCommand
     
     def getNickservIdentityResponse(self):
         'mNickservIdentityResponse getter'
         return self.mNickservIdentResponse
+    
+    def setNickservIdentityResponse(self,nickservIdentityResponse):
+        'mNickservIdentityResponse setter'
+        self.mNickservIdentResponse = nickservIdentityResponse
+    
+    def getNickservPass(self):
+        'mNickservPass getter'
+        return self.mNickservPass
     
     def setNickservPass(self,nickservPass):
         'mNickservPass setter'
         self.mNickservPass = nickservPass
         if(self.mNickservPass is not None):
             self.send('IDENTIFY ' + self.mNickservPass,self.getUserByName("nickserv"))
-    
-    def getNickservPass(self):
-        'mNickservPass getter'
-        return self.mNickservPass
     
