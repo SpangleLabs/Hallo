@@ -137,6 +137,10 @@ class Server(object):
         'AutoConnect setter'
         self.mAutoConnect = autoConnect
     
+    def getType(self):
+        'Type getter'
+        raise NotImplementedError
+    
     def isConnected(self):
         'Returns boolean representing whether the server is connected or not.'
         return self.mOpen
@@ -1020,7 +1024,7 @@ class ServerIRC(Server):
         doc.appendChild(root)
         #create type element
         typeElement = doc.createElement("server_type")
-        typeElement.appendChild(doc.createTextNode("irc"))
+        typeElement.appendChild(doc.createTextNode(self.getType()))
         root.appendChild(typeElement)
         #create name element
         nameElement = doc.createElement("server_name")
@@ -1096,5 +1100,9 @@ class ServerIRC(Server):
             root.appendChild(permissionMaskElement)
         #output XML string
         return doc.toxml()
+    
+    def getType(self):
+        'Type getter'
+        return "irc"
 
         
