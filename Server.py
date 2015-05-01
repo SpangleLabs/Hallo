@@ -1101,6 +1101,13 @@ class ServerIRC(Server):
         #output XML string
         return doc.toxml()
     
+    def setNick(self,nick):
+        'Nick setter'
+        oldNick = self.getNick()
+        self.mNick = nick
+        if(nick!=oldNick):
+            self.send("NICK "+self.mNick,None,"raw")
+    
     def getType(self):
         'Type getter'
         return "irc"
