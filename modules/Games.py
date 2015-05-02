@@ -1,4 +1,5 @@
 import random
+from Function import Function
 
 class Card:
     '''
@@ -169,4 +170,26 @@ class Hand:
     def containsCard(self,cardObject):
         'Checks whether a hand contains a specified card'
         return cardObject in self.mCardList
-            
+
+class RandomCard(Function):
+    '''
+    Returns a random card from a fresh deck.
+    '''
+    #Name for use in help listing
+    mHelpName = "card"
+    #Names which can be used to address the function
+    mNames = set(["card","random card","randomcard"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Picks a random card from a deck. Format: random_card"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        newDeck = Deck()
+        newDeck.shuffle()
+        randomCard = newDeck.getNextCard()
+        return "I have chosen the " + randomCard.toString() + "."
