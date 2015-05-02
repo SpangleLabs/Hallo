@@ -1,0 +1,7 @@
+<!ELEMENT pony_episodes (pony_episode*)>
+<!ELEMENT pony_episode (season,episode,full_code,name,song)>
+<!ELEMENT season (#PCDATA)>
+<!ELEMENT episode (#PCDATA)>
+<!ELEMENT full_name (#PCDATA)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT song (#PCDATA)>

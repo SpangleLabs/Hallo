@@ -1,0 +1,674 @@
+<!DOCTYPE pony_episodes SYSTEM "pony_episodes.dtd"><pony_episodes>
+	<pony_episode>
+		<season>1</season>
+		<episode>1</episode>
+		<full_code>S01E01</full_code>
+		<name>Episode 1</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>2</episode>
+		<full_code>S01E02</full_code>
+		<name>Episode 2</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>3</episode>
+		<full_code>S01E03</full_code>
+		<name>The Ticket Master</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>4</episode>
+		<full_code>S01E04</full_code>
+		<name>Applebuck Season</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>5</episode>
+		<full_code>S01E05</full_code>
+		<name>Griffon the Brush-Off</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>6</episode>
+		<full_code>S01E06</full_code>
+		<name>Boast Busters</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>7</episode>
+		<full_code>S01E07</full_code>
+		<name>Dragonshy</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>8</episode>
+		<full_code>S01E08</full_code>
+		<name>Look Before You Sleep</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>9</episode>
+		<full_code>S01E09</full_code>
+		<name>Bridle Gossip</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>10</episode>
+		<full_code>S01E10</full_code>
+		<name>Swarm of the Century</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>11</episode>
+		<full_code>S01E11</full_code>
+		<name>Winter Wrap-Up</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>12</episode>
+		<full_code>S01E12</full_code>
+		<name>Call of the Cutie</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>13</episode>
+		<full_code>S01E13</full_code>
+		<name>Fall Weather Friends</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>14</episode>
+		<full_code>S01E14</full_code>
+		<name>Suited for Success</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>15</episode>
+		<full_code>S01E15</full_code>
+		<name>Feeling Pinkie Keen</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>16</episode>
+		<full_code>S01E16</full_code>
+		<name>Sonic Rainboom</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>17</episode>
+		<full_code>S01E17</full_code>
+		<name>Stare Master</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>18</episode>
+		<full_code>S01E18</full_code>
+		<name>The Show Stoppers</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>19</episode>
+		<full_code>S01E19</full_code>
+		<name>A Dog and Pony Show</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>20</episode>
+		<full_code>S01E20</full_code>
+		<name>Green is not your Color</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>21</episode>
+		<full_code>S01E21</full_code>
+		<name>Over a Barrel</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>22</episode>
+		<full_code>S01E22</full_code>
+		<name>A Bird in the Hoof</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>23</episode>
+		<full_code>S01E23</full_code>
+		<name>The Cutie Mark Chronicles</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>24</episode>
+		<full_code>S01E24</full_code>
+		<name>Owls well that Ends well</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>25</episode>
+		<full_code>S01E25</full_code>
+		<name>Party of One</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>1</season>
+		<episode>26</episode>
+		<full_code>S01E26</full_code>
+		<name>The Best Night Ever</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>1</episode>
+		<full_code>S02E01</full_code>
+		<name>Return of Harmony Part 1</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>2</episode>
+		<full_code>S02E02</full_code>
+		<name>Return of Harmony Part 2</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>3</episode>
+		<full_code>S02E03</full_code>
+		<name>Lesson Zero</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>4</episode>
+		<full_code>S02E04</full_code>
+		<name>Luna Eclipsed</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>5</episode>
+		<full_code>S02E05</full_code>
+		<name>Sisterhooves Social</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>6</episode>
+		<full_code>S02E06</full_code>
+		<name>The Cutie Pox</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>7</episode>
+		<full_code>S02E07</full_code>
+		<name>May the Best Pet Win</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>8</episode>
+		<full_code>S02E08</full_code>
+		<name>The Mysterious Mare Do Well</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>9</episode>
+		<full_code>S02E09</full_code>
+		<name>Sweet and Elite</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>10</episode>
+		<full_code>S02E10</full_code>
+		<name>Secret of My Excess</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>11</episode>
+		<full_code>S02E11</full_code>
+		<name>Hearth's Warming Eve</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>12</episode>
+		<full_code>S02E12</full_code>
+		<name>Family Appreciation Day</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>13</episode>
+		<full_code>S02E13</full_code>
+		<name>Baby Cakes</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>14</episode>
+		<full_code>S02E14</full_code>
+		<name>The Last Roundup</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>15</episode>
+		<full_code>S02E15</full_code>
+		<name>The Super Speedy Cider Squeezy 6000</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>16</episode>
+		<full_code>S02E16</full_code>
+		<name>Read it and Weep</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>17</episode>
+		<full_code>S02E17</full_code>
+		<name>Hearts and Hooves day</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>18</episode>
+		<full_code>S02E18</full_code>
+		<name>A Friend In Deed</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>19</episode>
+		<full_code>S02E19</full_code>
+		<name>Putting Your Hoof Down</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>20</episode>
+		<full_code>S02E20</full_code>
+		<name>It's About Time</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>21</episode>
+		<full_code>S02E21</full_code>
+		<name>Dragon Quest</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>22</episode>
+		<full_code>S02E22</full_code>
+		<name>Hurricane Fluttershy</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>23</episode>
+		<full_code>S02E23</full_code>
+		<name>Ponyville Confidential</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>24</episode>
+		<full_code>S02E24</full_code>
+		<name>MMMystery on the Friendship Express</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>25</episode>
+		<full_code>S02E25</full_code>
+		<name>Canterlot Wedding Part 1</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>2</season>
+		<episode>26</episode>
+		<full_code>S02E26</full_code>
+		<name>Canterlot Wedding Part 2</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>1</episode>
+		<full_code>S03E01</full_code>
+		<name>The Crystal Empire Part 1</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>2</episode>
+		<full_code>S03E02</full_code>
+		<name>The Crystal Empire Part 2</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>3</episode>
+		<full_code>S03E03</full_code>
+		<name>Too Many Pinkie Pies</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>4</episode>
+		<full_code>S03E04</full_code>
+		<name>One Bad Apple</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>5</episode>
+		<full_code>S03E05</full_code>
+		<name>Magic Duel</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>6</episode>
+		<full_code>S03E06</full_code>
+		<name>Sleepless in Ponyville</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>7</episode>
+		<full_code>S03E07</full_code>
+		<name>Wonderbolts Academy</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>8</episode>
+		<full_code>S03E08</full_code>
+		<name>Apple Family Reunion</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>9</episode>
+		<full_code>S03E09</full_code>
+		<name>Spike at your Service</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>10</episode>
+		<full_code>S03E10</full_code>
+		<name>Keep Calm and Flutter On</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>11</episode>
+		<full_code>S03E11</full_code>
+		<name>Just for Sidekicks</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>12</episode>
+		<full_code>S03E12</full_code>
+		<name>Games Ponies Play</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>3</season>
+		<episode>13</episode>
+		<full_code>S03E13</full_code>
+		<name>Magical Mystery Cure</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>1</episode>
+		<full_code>S04E01</full_code>
+		<name>Princess Twilight Sparkle (Part 1)</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>2</episode>
+		<full_code>S04E02</full_code>
+		<name>Princess Twilight Sparkle (Part 2)</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>3</episode>
+		<full_code>S04E03</full_code>
+		<name>Castle Mane-ia</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>4</episode>
+		<full_code>S04E04</full_code>
+		<name>Daring Don't</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>5</episode>
+		<full_code>S04E05</full_code>
+		<name>Flight to the Finish</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>6</episode>
+		<full_code>S04E06</full_code>
+		<name>Power Ponies</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>7</episode>
+		<full_code>S04E07</full_code>
+		<name>Bats!</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>8</episode>
+		<full_code>S04E08</full_code>
+		<name>Rarity Takes Manehattan</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>9</episode>
+		<full_code>S04E09</full_code>
+		<name>Pinkie Apple Pie</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>10</episode>
+		<full_code>S04E10</full_code>
+		<name>Rainbow Falls</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>11</episode>
+		<full_code>S04E11</full_code>
+		<name>Three's a Crowd</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>12</episode>
+		<full_code>S04E12</full_code>
+		<name>Pinkie Pride</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>13</episode>
+		<full_code>S04E13</full_code>
+		<name>Simple Ways</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>14</episode>
+		<full_code>S04E14</full_code>
+		<name>Filli Vanilli</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>15</episode>
+		<full_code>S04E15</full_code>
+		<name>Twilight Time</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>16</episode>
+		<full_code>S04E16</full_code>
+		<name>It Aint's Easy Being Breezies</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>17</episode>
+		<full_code>S04E17</full_code>
+		<name>Somepony to Watch Over Me</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>18</episode>
+		<full_code>S04E18</full_code>
+		<name>Maud Pie</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>19</episode>
+		<full_code>S04E19</full_code>
+		<name>For Whom The Sweetie Belle Tolls</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>20</episode>
+		<full_code>S04E20</full_code>
+		<name>Leap of Faith</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>21</episode>
+		<full_code>S04E21</full_code>
+		<name>Testing Testing 1, 2, 3</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>22</episode>
+		<full_code>S04E22</full_code>
+		<name>Trade Ya!</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>23</episode>
+		<full_code>S04E23</full_code>
+		<name>Inspiration Manifestation</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>24</episode>
+		<full_code>S04E24</full_code>
+		<name>Equestria Games</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>25</episode>
+		<full_code>S04E25</full_code>
+		<name>Twilight's Kingdom (Part 1)</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>4</season>
+		<episode>26</episode>
+		<full_code>S04E26</full_code>
+		<name>Twilight's Kingdom (Part 2)</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>5</season>
+		<episode>1</episode>
+		<full_code>S05E01</full_code>
+		<name>The Cutie Map (Part 1)</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>5</season>
+		<episode>2</episode>
+		<full_code>S05E02</full_code>
+		<name>The Cutie Map (Part 2)</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>5</season>
+		<episode>3</episode>
+		<full_code>S05E03</full_code>
+		<name>Castle Sweet Castle</name>
+		<song>True</song>
+	</pony_episode>
+	<pony_episode>
+		<season>5</season>
+		<episode>4</episode>
+		<full_code>S05E04</full_code>
+		<name>Bloom & Gloom</name>
+		<song>False</song>
+	</pony_episode>
+	<pony_episode>
+		<season>5</season>
+		<episode>5</episode>
+		<full_code>S05E05</full_code>
+		<name>Tanks for the Memories</name>
+		<song>True</song>
+	</pony_episode>
+</pony_episodes>
