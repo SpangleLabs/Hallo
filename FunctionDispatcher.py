@@ -51,10 +51,7 @@ class FunctionDispatcher(object):
             print("You do not have permission to use this function.")
             return
         #If persistent, get the object, otherwise make one
-        if(functionClass.isPersistent()):
-            functionObject = self.mPersistentFunctions[functionClass]
-        else:
-            functionObject = functionClass()
+        functionObject = self.getFunctionObject(functionClass)
         #Try running the function, if it fails, return an error message
         try:
             response = functionObject.run(functionArgs,userObject,destinationObject)
@@ -84,10 +81,7 @@ class FunctionDispatcher(object):
             if(not self.checkFunctionPermissions(functionClass,serverObject,userObject,channelObject)):
                 continue
             #If persistent, get the object, otherwise make one
-            if(functionClass.isPersistent()):
-                functionObject = self.mPersistentFunctions[functionClass]
-            else:
-                functionObject = functionClass()
+            functionObject = self.getFunctionObject(functionClass)
             #Try running the function, if it fails, return an error message
             try:
                 response = functionObject.passiveRun(self,event,fullLine,serverObject,userObject,channelObject)
@@ -120,6 +114,14 @@ class FunctionDispatcher(object):
         for moduleObject in self.mFunctionDict:
             functionClassList += list(self.mFunctionDict[moduleObject])
         return functionClassList
+    
+    def getFunctionObject(self,functionClass):
+        'If persistent, gets an object from dictionary. Otherwise creates a new object.'
+        if(functionClass.isPersistent()):
+            functionObject = self.mPersistentFunctions[functionClass]
+        else:
+            functionObject = functionClass()
+        return functionObject
         
     def checkFunctionPermissions(self,functionClass,serverObject,userObject=None,channelObject=None):
         'Checks if a function can be called. Returns boolean, True if allowed'
