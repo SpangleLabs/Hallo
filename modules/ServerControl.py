@@ -243,5 +243,49 @@ class Connect(Function):
         return "Connected to new IRC server: "+newServerObject.getName()+"."
         
         
-        
-        
+class Say(Function):
+    '''
+    Function to enable speaking through hallo
+    '''
+    #Name for use in help listing
+    mHelpName = "say"
+    #Names which can be used to address the Function
+    mNames = set(["say","message","msg"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Say a message into a channel or server/channel pair (in the format \"{server,channel}\"). Format: say <channel> <message>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        'Say a message into a channel or server/channel pair (in the format "{server,channel}"). Format: say <channel> <message>'
+        halloObject = userObject.getServer().getHallo()
+        destinationString = line.split()[0]
+        message = line[len(destinationString):].strip()
+        #Setting up variable
+        destinationServerString,destinationChannelString = None,None
+        #Looping possible server-channel separators, seeing if any are in use.
+        destinationSeparators = ["->",">",",",".","/",":"]
+        for destinationSeparator in destinationSeparators:
+            if(destinationString.count(destinationSeparator)!=0):
+                destinationServerString = destinationString.split(destinationSeparator)[0]
+                destinationChannelString = destinationString.split(destinationSeparator)[1]
+                break
+        #If no separator, use current server and input as channel
+        if(destinationServerString is None):
+            destinationServerString = userObject.getServer().getName()
+            destinationChannelString = destinationString
+        #Try to find server object
+        destinationServerObject = halloObject.getServerByName(destinationServerString)
+        if(destinationServerObject is None):
+            return "Invalid server name."
+        #Try to find channel object
+        channelObject = destinationServerObject.getChannelByName(destinationChannelString)
+        if(channelObject.isInChannel() is False):
+            return "I am not in that channel."
+        #Send the message
+        destinationServerObject.send(message,channelObject)
+        return "Message sent."
