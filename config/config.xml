@@ -217,6 +217,10 @@
 					<name>function_Connect</name>
 					<value>True</value>
 				</right>
+				<right>
+					<name>function_Say</name>
+					<value>True</value>
+				</right>
 			</right_list>
 		</permission_mask>
 	</user_group>
@@ -230,6 +234,10 @@
 				</right>
 				<right>
 					<name>function_LeaveChannel</name>
+					<value>True</value>
+				</right>
+				<right>
+					<name>function_Say</name>
 					<value>True</value>
 				</right>
 			</right_list>
@@ -264,6 +272,10 @@
 		</right>
 		<right>
 			<name>function_Connect</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_Say</name>
 			<value>False</value>
 		</right>
 	</right_list>
