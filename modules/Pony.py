@@ -96,4 +96,67 @@ class BestPony(Function):
         outputMessage = randomHalf1.replace("{X}",chosenPony['name']) + randomHalf2.replace("{Y}",chosenPony['pronoun'])
         return outputMessage
     
+class Cupcake(Function):
+    '''
+    Gives out cupcakes
+    '''
+    #Name for use in help listing
+    mHelpName = "cupcake"
+    #Names which can be used to address the function
+    mNames = set(["cupcake","give cupcake","give cupcake to"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>"
     
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        'Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>'
+        if(line.strip()==''):
+            return "You must specify a recipient for the cupcake."
+        #Get some required objects
+        serverObject = userObject.getServer()
+        recipientUserName = line.split()[0]
+        recipientUserObject = serverObject.getUserByName(recipientUserName)
+        #If user isn't online, I can't send a cupcake
+        if(not recipientUserObject.isOnline()):
+            return "No one called " + recipientUserName + " is online."
+        #Generate the output message, adding cupcake type if required
+        if(recipientUserName==line.strip()):
+            outputMessage = "\x01ACTION gives " + recipientUserName + " a cupcake, from " + userObject.getName() + ".\x01"
+        else:
+            cupcakeType = line[len(recipientUserName):].strip()
+            outputMessage = "\x01ACTION gives " + recipientUserName + " a " + cupcakeType + " cupcake, from " + userObject.getName() + ".\x01"
+        #Get both users channel lists, and then the intersection
+        userChannelList = userObject.getChannelList()
+        recipientChannelList = recipientUserObject.getChannelList()
+        intersectionList = userChannelList.intersection(recipientChannelList)
+        #If current channel is in the intersection, send there.
+        if(destinationObject in intersectionList):
+            return outputMessage
+        #Get list of channels that hallo is in inside that intersection
+        validChannels = [chan for chan in intersectionList if chan.isInChannel()]
+        #If length of valid channel list is nonzero, pick a channel and send.
+        if(len(validChannels)!=0):
+            chosenChannel = random.choice(validChannels)
+            serverObject.send(outputMessage,chosenChannel,"message")
+            return "Cupcake sent."
+        #If no valid intersection channels, see if there are any valid recipient channels
+        validChannels = [chan for chan in recipientChannelList if chan.isInChannel()]
+        if(len(validChannels)!=0):
+            chosenChannel = random.choice(validChannels)
+            serverObject.send(outputMessage,chosenChannel,"message")
+            return "Cupcake sent."
+        #Otherwise, use privmsg
+        serverObject.send(outputMessage,recipientUserObject,"message")
+        return "Cupcake sent."
+        
+        
+        
+
+
+
+
