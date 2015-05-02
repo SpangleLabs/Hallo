@@ -70,4 +70,16 @@ class Commons(object):
         if(string in [0,'0','false','f','no','n']):
             return False
         return None
+    
+    @staticmethod
+    def ordinal(number):
+        'Returns the ordinal of a number'
+        if(number%10==1 and number%100!=11):
+            return str(number) + "st"
+        elif(number%10==2 and number%100!=12):
+            return str(number) + "nd"
+        elif(number%10==3 and number%100!=13):
+            return str(number) + "rd"
+        else:
+            return str(number) + "th"
         
