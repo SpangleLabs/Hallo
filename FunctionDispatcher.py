@@ -154,7 +154,11 @@ class FunctionDispatcher(object):
             moduleObject = sys.modules[fullModuleName]
             imp.reload(moduleObject)
         else:
-            moduleObject = importlib.import_module(fullModuleName)
+            #Try and load new module, return False if it doesn't exist
+            try:
+                moduleObject = importlib.import_module(fullModuleName)
+            except ImportError:
+                return False
         #Unload module, if it was loaded.
         self.unloadModule(moduleObject)
         #Loop through module, searching for Function subclasses.
