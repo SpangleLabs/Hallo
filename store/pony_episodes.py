@@ -21,7 +21,7 @@ for episode in episodes:
     print("\t\t<episode>"+str(episodeNum)+"</episode>")
     fullCode = episode[:6]
     print("\t\t<full_code>"+fullCode+"</full_code>")
-    name = ' '.join(episode.split()[2:])
+    name = ' '.join(episode.split()[2:]).replace("&","&amp;")
     print("\t\t<name>"+name+"</name>")
     if(episode in songepisodes):
         print("\t\t<song>True</song>")
