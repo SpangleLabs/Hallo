@@ -8,7 +8,7 @@ class PonyEpisode(Function):
     Ouija board function. "Ouija board" is copyright Hasbro.
     '''
     #Name for use in help listing
-    mHelpName = "pony eposide"
+    mHelpName = "pony episode"
     #Names which can be used to address the function
     mNames = set(["pony episode","ponyep","pony ep","mlp episode","episode pony","random pony episode","random mlp episode"])
     #Help documentation, if it's just a single line, can be set here
@@ -21,11 +21,13 @@ class PonyEpisode(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
+        #Load XML
         doc = minidom.parse("store/pony_episodes.xml")
         ponyEpisodesListXml = doc.getElementsByTagName("pony_episodes")[0]
         numEpisodes = len(ponyEpisodesListXml.getElementsByTagName("pony_episode"))
         episodeList = []
         songList = []
+        #Loop through pony episodes, adding to episodeList (or songList, if there is a song)
         for ponyEpisodeXml in ponyEpisodesListXml.getElementsByTagName("pony_episode"):
             episodeDict = {}
             episodeDict['name'] = ponyEpisodeXml.getElementsByTagName("name")[0].firstChild.data
@@ -33,6 +35,7 @@ class PonyEpisode(Function):
             if(Commons.stringToBool(ponyEpisodeXml.getElementsByTagName("song")[0].firstChild.data)):
                 songList.append(episodeDict)
             episodeList.append(episodeDict)
+        #If song, get episode from song list, otherwise get one from episode list
         if(line.strip().lower()!="song"):
             numEpisodes = len(episodeList)
             rand = random.randint(0,numEpisodes-1)
@@ -41,9 +44,28 @@ class PonyEpisode(Function):
             numEpisodes = len(songList)
             rand = random.randint(0,numEpisodes-1)
             episode = songList[rand]
+        #Return output
         return "You should choose: " + episode['full_code'] + " - " + episode['name'] + "."
     
+class BestPony(Function):
+    '''
+    Selects a pony from MLP and declares it bestpony.
+    '''
+    #Name for use in help listing
+    mHelpName = "bestpony"
+    #Names which can be used to address the function
+    mNames = set(["bestpony","best pony","random pony","pony","bestpone","best pone","pone"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Who is bestpony? Format: bestpony"
     
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        pass
     
     
     
