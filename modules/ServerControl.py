@@ -289,3 +289,40 @@ class Say(Function):
         #Send the message
         destinationServerObject.send(message,channelObject)
         return "Message sent."
+
+class Help(Function):
+    '''
+    Allows users to request help on using Hallo
+    '''
+    #Name for use in help listing
+    mHelpName = "help"
+    #Names which can be used to address the Function
+    mNames = set(["help","readme","info","read me"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Gives information about commands.  Use \"help\" for a list of commands, or \"help <command>\" for help on a specific command."
+    
+    mHalloObject = None     #Hallo object containing everything.
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        self.mHalloObject = userObject.getServer().getHallo()
+        if(line.strip()==""):
+            return self.listAllFunctions()
+        else:
+            functionName = line.strip().lower()
+            return self.getHelpOnFunction(functionName)
+        
+    def listAllFunctions(self):
+        'Returns a list of all functions.'
+    
+        
+    def getHelpOnFunction(self,functionName):
+        'Returns help documentation on a specified function.'
+    
+    
+        
