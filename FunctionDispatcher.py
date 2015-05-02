@@ -113,6 +113,13 @@ class FunctionDispatcher(object):
         if(functionName in self.mFunctionNames):
             return self.mFunctionNames[functionName]
         return None
+    
+    def getFunctionClassList(self):
+        'Returns a simple flat list of all function classes.'
+        functionClassList = []
+        for moduleObject in self.mFunctionDict:
+            functionClassList += list(self.mFunctionDict[moduleObject])
+        return functionClassList
         
     def checkFunctionPermissions(self,functionClass,serverObject,userObject=None,channelObject=None):
         'Checks if a function can be called. Returns boolean, True if allowed'
