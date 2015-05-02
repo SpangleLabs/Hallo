@@ -1,5 +1,7 @@
-import random
 from Function import Function
+import random
+import time
+from inc.commons import Commons
 
 class Card:
     '''
@@ -82,6 +84,19 @@ class Card:
         if(self.mValue in [self.CARD_JACK,self.CARD_QUEEN,self.CARD_KING]):
             return 10
         return int(self.mValue)
+    
+    def __int__(self):
+        return self.toInt()
+    
+    def toInt(self):
+        'Converts the card value to integer, for higher or lower and similar'
+        if(self.mValue == self.CARD_JACK):
+            return 11
+        if(self.mValue == self.CARD_QUEEN):
+            return 12
+        if(self.mValue == self.CARD_KING):
+            return 13
+        return self.mValue
     
     def isInDeck(self):
         'boolean, whether the card is still in the deck.'
@@ -193,3 +208,231 @@ class RandomCard(Function):
         newDeck.shuffle()
         randomCard = newDeck.getNextCard()
         return "I have chosen the " + randomCard.toString() + "."
+
+class Game:
+    '''
+    Generic Game object. Stores players and location.
+    '''
+    mPlayers = set()
+    mChannel = None
+    mStartTime = None
+    mLastTime = None
+    
+    def __init__(self,playerList,channelObject):
+        self.mPlayers = set(playerList)
+        self.mChannel = channelObject
+        self.mStartTime = time.time()
+        self.mLastTime = time.time()
+    
+    def updateTime(self):
+        'Updates the time that something last happened to this game'
+        self.mLastTime = time.time()
+    
+    def getPlayers(self):
+        'Returns the list of players'
+        return self.mPlayers
+    
+    def containsPlayer(self,userObject):
+        'Whether or not this game contains a specified player'
+        return userObject in self.mPlayers
+    
+    def getChannel(self):
+        'Returns the channel (or destination) this game is happening in'
+        return self.mChannel
+    
+
+class HigherOrLowerGame(Game):
+    '''
+    Game of Higher or Lower.
+    '''
+    mDeck = None
+    mLastCard = None
+    mCardList = []
+    mTurns = 0
+    mLost = False
+    
+    def __init__(self,userObject,channelObject):
+        self.mPlayers = set([userObject])
+        self.mChannel = channelObject
+        self.mStartTime = time.time()
+        self.mLastTime = time.time()
+        self.mDeck = Deck()
+        self.mDeck.shuffle()
+
+    def getNextCard(self):
+        'Gets a new card from the deck and adds to the list'
+        self.updateTime()
+        self.mTurns += 1
+        nextCard = self.mDeck.getNextCard()
+        self.mCardList.append(nextCard)
+        self.mLastCard = nextCard
+        return nextCard
+    
+    def getTurns(self):
+        'Turns getter'
+        return self.mTurns
+    
+    def isLost(self):
+        'Lost getter. (Avoided the getLost() joke.)'
+        return self.mLost
+    
+    def isHighScore(self):
+        'Checks if this game is a high score. Returns boolean'
+        pass
+    
+    def guessHigher(self):
+        'User has guessed the next card is higher.'
+        lastCard = self.mLastCard
+        nextCard = self.getNextCard()
+        if(nextCard.toInt() > lastCard.toInt()):
+            outputString = "Your " + Commons.ordinal(self.mTurns) + " card is " + nextCard.toString() + ", which is higher! "
+            outputString += "Congrats! Do you think the next card will be higher or lower?"
+            return outputString
+        if(nextCard.toInt() == lastCard.toInt()):
+            outputString = "Your " + Commons.ordinal(self.mTurns) + " card is " + nextCard.toString() + ", which is the same (that's fine.) "
+            outputString += "Do you think the next card will be higher or lower?"
+            return outputString
+        if(nextCard.toInt() < lastCard.toInt()):
+            #TODO: high scores
+            outputString = "Your " + Commons.ordinal(self.mTurns) + " card is " + nextCard.toString() + ". Sorry, that's lower, you lose."
+            outputString += " You managed " + str(self.mTurns-1) + " cards though."
+            self.mLost = True
+            return outputString
+
+    def guessLower(self):
+        'User has guessed the next card is higher.'
+        lastCard = self.mLastCard
+        nextCard = self.getNextCard()
+        if(nextCard.toInt() < lastCard.toInt()):
+            outputString = "Your " + Commons.ordinal(self.mTurns) + " card is " + nextCard.toString() + ", which is lower! "
+            outputString += "Congrats! Do you think the next card will be higher or lower?"
+            return outputString
+        if(nextCard.toInt() == lastCard.toInt()):
+            outputString = "Your " + Commons.ordinal(self.mTurns) + " card is " + nextCard.toString() + ", which is the same (that's fine.) "
+            outputString += "Do you think the next card will be higher or lower?"
+            return outputString
+        if(nextCard.toInt() > lastCard.toInt()):
+            #TODO: high scores
+            outputString = "Your " + Commons.ordinal(self.mTurns) + " card is " + nextCard.toString() + ". Sorry, that's higher, you lose."
+            outputString += " You managed " + str(self.mTurns-1) + " cards though."
+            self.mLost = True
+            return outputString
+
+class HigherOrLower(Function):
+    '''
+    Function to play Higher or Lower
+    '''
+    #Name for use in help listing
+    mHelpName = "card"
+    #Names which can be used to address the function
+    mNames = set(["card","random card","randomcard"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Picks a random card from a deck. Format: random_card"
+    
+    mGameList = []
+    mStartCommands = ["start"]
+    mEndCommands = ["end","quit","escape"]
+    mHighCommands = ["higher","high","more","more","greater","greater","bigger",">"]
+    mLowCommands = ["lower","low","less","small","<"]
+    
+    #Boring functions
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    @staticmethod
+    def isPersistent(self):
+        'Returns boolean representing whether this function is supposed to be persistent or not'
+        return True
+    
+    @staticmethod
+    def loadFunction():
+        'Loads the function, persistent functions only.'
+        return HigherOrLower()
+    
+    def saveFunction(self):
+        'Saves the function, persistent functions only.'
+        #TODO: save all games to XML perhaps?
+        pass
+
+    def getPassiveEvents(self):
+        'Returns a list of events which this function may want to respond to in a passive way'
+        return set(Function.EVENT_MESSAGE)
+
+    #Interesting functions from here
+    def run(self,line,userObject,destinationObject=None):
+        lineClean = line.strip().lower()
+        if(lineClean in [""]+self.mStartCommands):
+            return self.newGame(userObject,destinationObject)
+        elif(any(cmd in lineClean for cmd in self.mEndCommands)):
+            return self.quitGame(userObject,destinationObject)
+        elif(any(cmd in lineClean for cmd in self.mHighCommands)):
+            return self.guessHigher(userObject,destinationObject)
+        elif(any(cmd in lineClean for cmd in self.mLowCommands)):
+            return self.guessLower(userObject,destinationObject)
+        outputString = "I don't understand this input." 
+        outputString += ' Syntax: "higher_or_lower start" to start a game, '
+        outputString += '"higher_or_lower higher" to guess the next card will be higher, '
+        outputString += '"higher_or_lower lower" to guess the next card will be lower, '
+        outputString += '"higher_or_lower end" to quit the game.'
+        return outputString
+    
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+        'Replies to an event not directly addressed to the bot.'
+        cleanFullLine = fullLine.strip().lower()
+        if(any(cmd in cleanFullLine for cmd in self.mEndCommands)):
+            return self.quitGame(userObject,channelObject,True)
+        elif(any(cmd in cleanFullLine for cmd in self.mHighCommands)):
+            return self.guessHigher(userObject,channelObject,True)
+        elif(any(cmd in cleanFullLine for cmd in self.mLowCommands)):
+            return self.guessLower(userObject,channelObject,True)
+        pass
+    
+    def findGame(self,userObject):
+        'Finds the game a specified user is in, None otherwise.'
+        for game in self.mGameList:
+            if(game.containsPlayer(userObject)):
+                return game
+        return None
+    
+    def newGame(self,userObject,destinationObject):
+        'User request to create a new game'
+        currentGame = self.findGame(userObject)
+        if(currentGame is not None):
+            return "You're already playing a game."
+        newGame = HigherOrLowerGame(userObject,destinationObject)
+        self.mGameList.append(newGame)
+        
+    def quitGame(self,userObject,destinationObject,passive=False):
+        'User request to quit game'
+        currentGame = self.findGame(userObject)
+        if(currentGame is None and not passive):
+            return "You're not playing a game."
+        raise NotImplementedError
+    
+    def guessHigher(self,userObject,destinationObject,passive=False):
+        'User guessed next card is higher'
+        currentGame = self.findGame(userObject)
+        if(currentGame is None and not passive):
+            return "You're not playing a game."
+        outputString = currentGame.guessHigher()
+        if(currentGame.isLost()):
+            self.mGameList.remove(currentGame)
+        return outputString
+    
+    def guessLower(self,userObject,destinationObject,passive=False):
+        'User guessed next card is lower'
+        currentGame = self.findGame(userObject)
+        if(currentGame is None and not passive):
+            return "You're not playing a game."
+        outputString = currentGame.guessLower()
+        if(currentGame.isLost()):
+            self.mGameList.remove(currentGame)
+        return outputString
+    
+        
+        
+        
+        
