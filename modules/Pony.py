@@ -65,8 +65,35 @@ class BestPony(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
-        pass
-    
-    
+        #Load XML
+        doc = minidom.parse("store/ponies.xml")
+        ponyListXml = doc.getElementsByTagName("ponies")[0]
+        #Use the weighted list of categories to pick a category for the pony
+        weightedCategories = ["mane6", "mane6", "mane6", "mane6", "mane6", "princess", "princess", "princess", "princess", "cmc", "cmc", "cmc", "ponyville", "ponyville", "villain", "villain", "wonderbolt", "wonderbolt", "canterlot", "cloudsdale", "foal", "hearthswarming", "notapony", "other", "pet"]
+        randomCategory = random.choice(weightedCategories)
+        ponyList = []
+        #Loop through ponies, adding to pony list.
+        for ponyEpisodeXml in ponyListXml.getElementsByTagName("pony"):
+            ponyDict = {}
+            ponyDict['name'] = ponyEpisodeXml.getElementsByTagName("name")[0].firstChild.data
+            ponyDict['pronoun'] = ponyEpisodeXml.getElementsByTagName("full_code")[0].firstChild.data
+            ponyDict['categories'] = [categoryXml.firstChild.data for categoryXml in ponyEpisodeXml.getElementsByTagName("category")]
+            if(randomCategory in ponyDict['categories']):
+                ponyList.append(ponyDict)
+        #Select the two halves of the message to display
+        messageHalf1 = ["Obviously {X} is best pony because ", "Well, everyone knows that {X} is bestpony, I mean ", "The best pony is certainly {X}, ", "There's no debate, {X} is bestpony, ", "Bestpony? You must be talking about {X}, "]
+        messageHalf2 = ["{Y}'s just such a distinctive character.", "{Y} really just stands out.", "{Y} really makes the show worth watching for me.", "{Y} stands up for what's best for everypony.", "I can really identify with that character.", "I just love the colourscheme I suppose.", "I mean, why not?"]
+        randomHalf1 = random.choice(messageHalf1)
+        randomHalf2 = random.choice(messageHalf2)
+        #Select a random pony, or, if it's eli, select Pinkie Pie
+        chosenPony = random.choice(ponyList)
+        if(userObject.getName().endswith("000242")):
+            chosenPony = {}
+            chosenPony['name'] = "Pinkie Pie"
+            chosenPony['pronoun'] = "she"
+            chosenPony['categories'] = ["mane6"]
+        #Assemble and output the message
+        outputMessage = randomHalf1.replace("{X}",chosenPony['name']) + randomHalf2.replace("{Y}",chosenPony['pronoun'])
+        return outputMessage
     
     
