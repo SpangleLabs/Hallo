@@ -319,10 +319,19 @@ class Help(Function):
         
     def listAllFunctions(self):
         'Returns a list of all functions.'
+        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
     
         
     def getHelpOnFunction(self,functionName):
         'Returns help documentation on a specified function.'
-    
+        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionClass = functionDispatcher.getFunctionByName(functionName)
+        if(functionClass is None):
+            return "No function by that name exists"
+        try:
+            helpMessage = "Documentation for \""+functionClass.getHelpName()+"\": "+functionClass.getHelpDocs()
+            return helpMessage
+        except NotImplementedError:
+            return "No documentation exists for that function"
     
         
