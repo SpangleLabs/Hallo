@@ -1,4 +1,4 @@
-
+import random
 
 class Card:
     '''
@@ -29,6 +29,7 @@ class Card:
     mSuit = None
     mColour = None
     mValue = None
+    mInDeck = True
 
     def __init__(self,deck,suit,value):
         '''
@@ -80,4 +81,92 @@ class Card:
         if(self.mValue in [self.CARD_JACK,self.CARD_QUEEN,self.CARD_KING]):
             return 10
         return int(self.mValue)
+    
+    def isInDeck(self):
+        'boolean, whether the card is still in the deck.'
+        return self.mInDeck
+    
+    def setInDeck(self,inDeck):
+        'mInDeck setter'
+        self.mInDeck = inDeck
+    
+    def getSuit(self):
+        'Suit getter'
+        return self.mSuit
+    
+    def getColour(self):
+        'Colour getter'
+        return self.mColour
+    
+    def getValue(self):
+        'Value getter'
+        return self.mValue
 
+class Deck:
+    '''
+    Deck object, for use by higher or lower, blackjack, and any other card games.
+    Generates 52 cards and can then shuffle them.
+    WILL NOT SHUFFLE BY DEFAULT.
+    '''
+    mCardList = []  #List of cards in the deck.
+    mAllCards = []  #All the cards which were originally in the deck.
+    
+    def __init__(self):
+        cardList = []
+        for cardSuit in [Card.SUIT_HEARTS,Card.SUIT_CLUBS,Card.SUIT_DIAMONDS,Card.SUIT_SPADES]:
+            suitList = []
+            for cardValue in [Card.CARD_ACE,Card.CARD_2,Card.CARD_3,Card.CARD_4,Card.CARD_5,Card.CARD_6,Card.CARD_7,Card.CARD_8,Card.CARD_9,Card.CARD_10,Card.CARD_JACK,Card.CARD_QUEEN,Card.CARD_KING]:
+                newCard = Card(self,cardSuit,cardValue)
+                suitList.append(newCard)
+            if(cardSuit in [Card.SUIT_DIAMONDS,Card.SUIT_SPADES]):
+                suitList.reverse()
+            cardList += suitList
+        self.mCardList = cardList
+        self.mAllCards = cardList
+    
+    def shuffle(self):
+        'Shuffles the deck'
+        random.shuffle(self.mCardList)
+    
+    def getNextCard(self):
+        'Gets the next card from the deck'
+        nextCard = self.mCardList.pop(0)
+        nextCard.setInDeck(False)
+        return nextCard
+    
+    def isEmpty(self):
+        'Boolean, whether the deck is empty.'
+        return len(self.mCardList) == 0
+    
+    def getCard(self,suit,value):
+        'Returns the card object for this deck with the specified suit and value.'
+        for card in self.mAllCards:
+            if(suit == card.getSuit() and value == card.getValue()):
+                return card
+    
+class Hand:
+    '''
+    Hand of cards, stores a set of cards in an order.
+    '''
+    mCardList = []
+    mPlayer = None
+    
+    def __init__(self,userObject):
+        self.mPlayer = userObject
+    
+    def shuffle(self):
+        'Shuffles a hand'
+        random.shuffle(self.mCardList)
+    
+    def addCard(self,newCard):
+        'Adds a new card to the hand'
+        self.mCardList.append(newCard)
+        
+    def sumTotal(self):
+        'Returns the sum total of the hand.'
+        return sum([card.sumValue() for card in self.mCardList])
+    
+    def containsCard(self,cardObject):
+        'Checks whether a hand contains a specified card'
+        return cardObject in self.mCardList
+            
