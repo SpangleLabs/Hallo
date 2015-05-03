@@ -641,8 +641,11 @@ class HigherOrLower(Function):
     def quitGame(self,userObject,destinationObject,passive=False):
         'User request to quit game'
         currentGame = self.findGame(userObject)
-        if(currentGame is None and not passive):
-            return "You're not playing a game."
+        if(currentGame is None):
+            if(not passive):
+                return "You're not playing a game."
+            else:
+                return None
         outputString = currentGame.quitGame()
         self.mGameList.remove(currentGame)
         return outputString
@@ -650,8 +653,11 @@ class HigherOrLower(Function):
     def guessHigher(self,userObject,destinationObject,passive=False):
         'User guessed next card is higher'
         currentGame = self.findGame(userObject)
-        if(currentGame is None and not passive):
-            return "You're not playing a game."
+        if(currentGame is None):
+            if(not passive):
+                return "You're not playing a game."
+            else:
+                return None
         outputString = currentGame.guessHigher()
         if(currentGame.isLost()):
             self.mGameList.remove(currentGame)
@@ -660,8 +666,11 @@ class HigherOrLower(Function):
     def guessLower(self,userObject,destinationObject,passive=False):
         'User guessed next card is lower'
         currentGame = self.findGame(userObject)
-        if(currentGame is None and not passive):
-            return "You're not playing a game."
+        if(currentGame is None):
+            if(not passive):
+                return "You're not playing a game."
+            else:
+                return None
         outputString = currentGame.guessLower()
         if(currentGame.isLost()):
             self.mGameList.remove(currentGame)
@@ -848,8 +857,11 @@ class Blackjack(Function):
     def quitGame(self,userObject,destinationObject,passive=False):
         'User request to quit game'
         currentGame = self.findGame(userObject)
-        if(currentGame is None and not passive):
-            return "You're not playing a game."
+        if(currentGame is None):
+            if(not passive):
+                return "You're not playing a game."
+            else:
+                return None
         outputString = currentGame.quitGame()
         self.mGameList.remove(currentGame)
         return outputString
@@ -857,8 +869,11 @@ class Blackjack(Function):
     def hit(self,userObject,destinationObject,passive=False):
         'User wants to hit'
         currentGame = self.findGame(userObject)
-        if(currentGame is None and not passive):
-            return "You're not playing a game."
+        if(currentGame is None):
+            if(not passive):
+                return "You're not playing a game."
+            else:
+                return None
         outputString = currentGame.hit()
         if(currentGame.isLost()):
             self.mGameList.remove(currentGame)
@@ -867,8 +882,11 @@ class Blackjack(Function):
     def stick(self,userObject,destinationObject,passive=False):
         'User wants to stick'
         currentGame = self.findGame(userObject)
-        if(currentGame is None and not passive):
-            return "You're not playing a game."
+        if(currentGame is None):
+            if(not passive):
+                return "You're not playing a game."
+            else:
+                return None
         return
         outputString = currentGame.stick()
         self.mGameList.remove(currentGame)
