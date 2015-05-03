@@ -896,13 +896,18 @@ class DDRGame(Game):
     '''
     Game of DDR.
     '''
+    DIFFICULTY_EASY = "easy"
+    DIFFICULTY_MEDIUM = "medium"
+    DIFFICULTY_HARD = "hard"
     HIGH_SCORE_NAME = "ddr"
     mLastMove = None
+    mDifficulty = None
     mPlayersMoved = set()
     mPlayerDict = {}
     
     
-    def __init__(self,userObject,channelObject):
+    def __init__(self,gameDifficulty,userObject,channelObject):
+        self.mDifficulty = gameDifficulty
         self.mPlayers = set([userObject])
         self.mChannel = channelObject
         self.mStartTime = time.time()
@@ -988,20 +993,29 @@ class DDR(Function):
             return self.makeMove(cleanFullLine,userObject,channelObject,True)
         pass
     
-    def findGame(self,userObject):
-        'Finds the game a specified user is in, None otherwise.'
+    def findGame(self,destinationObject):
+        'Finds the game running in a specified channel, None otherwise.'
         for game in self.mGameList:
-            if(game.containsPlayer(userObject)):
+            if(game.getChannel()==destinationObject):
                 return game
         return None
     
     def newGame(self,lineClean,userObject,destinationObject):
         'Starts a new game'
-        return
-        currentGame = self.findGame(userObject)
+        currentGame = self.findGame(destinationObject)
         if(currentGame is not None):
             return "You're already playing a game."
-        newGame = DDRGame(userObject,destinationObject)
+        #Find out the game difficulty
+        if("easy" in lineClean):
+            gameDifficulty = DDRGame.DIFFICULTY_EASY
+        elif("med" in lineClean):
+            gameDifficulty = DDRGame.DIFFICULTY_MEDIUM
+        elif("hard" in lineClean):
+            gameDifficulty = DDRGame.DIFFICULTY_HARD
+        else:
+            "Invalid difficulty mode. Please specify easy, medium or hard."
+        #Create the new game and start it
+        newGame = DDRGame(gameDifficulty,userObject,destinationObject)
         outputString = newGame.startGame()
         self.mGameList.append(newGame)
         return outputString
