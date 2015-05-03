@@ -359,6 +359,7 @@ class Game:
     mChannel = None
     mStartTime = None
     mLastTime = None
+    mLost = False
     
     def __init__(self,playerList,channelObject):
         self.mPlayers = set(playerList)
@@ -382,6 +383,10 @@ class Game:
         'Returns the channel (or destination) this game is happening in'
         return self.mChannel
     
+    def isLost(self):
+        'Lost getter. (Avoided the getLost() joke.)'
+        return self.mLost
+    
 
 class HigherOrLowerGame(Game):
     '''
@@ -392,7 +397,6 @@ class HigherOrLowerGame(Game):
     mLastCard = None
     mCardList = []
     mTurns = 0
-    mLost = False
     mHighScoresObject = None
     
     
@@ -419,10 +423,6 @@ class HigherOrLowerGame(Game):
     def getTurns(self):
         'Turns getter'
         return self.mTurns
-    
-    def isLost(self):
-        'Lost getter. (Avoided the getLost() joke.)'
-        return self.mLost
     
     def checkHighScore(self):
         'Checks if this game is a high score. Returns boolean'
