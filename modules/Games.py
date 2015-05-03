@@ -459,9 +459,16 @@ class HigherOrLowerGame(Game):
             self.mLost = True
             #TODO: high scores
             isHighScore = self.checkHighScore()
+            if(isHighScore):
+                previousScore = self.mHighScoresObject.getHighScore(self.HIGH_SCORE_NAME)
+                previousScoreText = "(previous highscore was: " + previousScore['score'] + ", set by " + previousScore['player'] + " " + Commons.formatUnixTime(previousScore['date']) + ".)"
+                self.updateHighScore()
             #Output message
             outputString = "Your " + Commons.ordinal(self.mTurns) + " card is " + nextCard.toString() + ". Sorry, that's lower, you lose."
-            outputString += " You managed " + str(self.mTurns-1) + " cards though."
+            if(isHighScore):
+                outputString += " You managed " + str(self.mTurns-1) + " cards though, that's a new highscore!" + previousScoreText
+            else:
+                outputString += " You managed " + str(self.mTurns-1) + " cards though."
             return outputString
 
     def guessLower(self):
@@ -480,9 +487,16 @@ class HigherOrLowerGame(Game):
             self.mLost = True
             #TODO: high scores
             isHighScore = self.checkHighScore()
+            if(isHighScore):
+                previousScore = self.mHighScoresObject.getHighScore(self.HIGH_SCORE_NAME)
+                previousScoreText = "(previous highscore was: " + previousScore['score'] + ", set by " + previousScore['player'] + " " + Commons.formatUnixTime(previousScore['date']) + ".)"
+                self.updateHighScore()
             #Output message
             outputString = "Your " + Commons.ordinal(self.mTurns) + " card is " + nextCard.toString() + ". Sorry, that's higher, you lose."
-            outputString += " You managed " + str(self.mTurns-1) + " cards though."
+            if(isHighScore):
+                outputString += " You managed " + str(self.mTurns-1) + " cards though, that's a new highscore!" + previousScoreText
+            else:
+                outputString += " You managed " + str(self.mTurns-1) + " cards though."
             return outputString
 
 class HigherOrLower(Function):
