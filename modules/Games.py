@@ -209,6 +209,57 @@ class RandomCard(Function):
         randomCard = newDeck.getNextCard()
         return "I have chosen the " + randomCard.toString() + "."
 
+class HighScores(Function):
+    '''
+    High scores function, also stores all high scores.
+    '''
+    #Name for use in help listing
+    mHelpName = "highscores"
+    #Names which can be used to address the function
+    mNames = set(["highscores","high scores","highscore","high score","hiscore","hiscores"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "View the highscores for all games. Format: highscores"
+    
+    mHighScores = {}
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    @staticmethod
+    def isPersistent(self):
+        'Returns boolean representing whether this function is supposed to be persistent or not'
+        return True
+    
+    @staticmethod
+    def loadFunction():
+        'Loads the function, persistent functions only.'
+        return HighScores()
+    
+    def saveFunction(self):
+        'Saves the function, persistent functions only.'
+        #TODO: save all games to XML perhaps?
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        pass
+    
+    def addHighScore(self,gameName,score,userName,data={}):
+        'Adds a new highscore to the list. Overwriting the old high score for that game if it exists'
+        newDict = {}
+        newDict['score'] = score
+        newDict['player'] = userName
+        newDict['data'] = data
+        self.mHighScores[gameName] = newDict
+    
+    def getHighScore(self,gameName):
+        'Returns the high score for a specified game.'
+        if(gameName in self.mHighScores):
+            return self.mHighScores[gameName]
+        return None
+
 class Game:
     '''
     Generic Game object. Stores players and location.
