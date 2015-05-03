@@ -902,8 +902,11 @@ class DDRGame(Game):
     HIGH_SCORE_NAME = "ddr"
     mLastMove = None
     mDifficulty = None
+    mPlayers = set()
+    mChannel = None
     mPlayersMoved = set()
     mPlayerDict = {}
+    mCanJoin = True
     
     
     def __init__(self,gameDifficulty,userObject,channelObject):
@@ -915,6 +918,14 @@ class DDRGame(Game):
     
     def startGame(self):
         pass
+    
+    def run(self):
+        'Launched into a new thread, this function actually plays the DDR game.'
+        pass
+    
+    def canJoin(self):
+        'Boolean, whether players can join.'
+        return self.mCanJoin
     
     def joinGame(self,userObject):
         pass
