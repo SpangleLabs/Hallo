@@ -1,0 +1,9 @@
+<!ELEMENT high_score_list (high_score*)>
+<!ELEMENT high_score (game_name,player_name,score,date,data*)>
+<!ELEMENT game_name (#PCDATA)>
+<!ELEMENT player_name (#PCDATA)>
+<!ELEMENT score (#PCDATA)>
+<!ELEMENT date (#PCDATA)>
+<!ELEMENT data (var,value)>
+<!ELEMENT var (#PCDATA)>
+<!ELEMENT value (#PCDATA)>
