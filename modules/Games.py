@@ -498,7 +498,23 @@ class HigherOrLowerGame(Game):
             else:
                 outputString += " You managed " + str(self.mTurns-1) + " cards though."
             return outputString
-
+        
+    def quitGame(self):
+        'User has quit the game'
+        #check high scores
+        isHighScore = self.checkHighScore()
+        if(isHighScore):
+            previousScore = self.mHighScoresObject.getHighScore(self.HIGH_SCORE_NAME)
+            previousScoreText = "(previous highscore was: " + previousScore['score'] + ", set by " + previousScore['player'] + " " + Commons.formatUnixTime(previousScore['date']) + ".)"
+            self.updateHighScore()
+        #Create output
+        if(isHighScore):
+            return "Sorry to see you quit, you had managed " + str(self.mTurns-1) + " cards, which is a new highscore!" + previousScoreText
+        else:
+            return "Sorry to see you quit, you had managed " + str(self.mTurns-1) + " cards."
+    
+    
+    
 class HigherOrLower(Function):
     '''
     Function to play Higher or Lower
@@ -591,7 +607,9 @@ class HigherOrLower(Function):
         currentGame = self.findGame(userObject)
         if(currentGame is None and not passive):
             return "You're not playing a game."
-        raise NotImplementedError
+        outputString = currentGame.quitGame()
+        self.mGameList.remove(currentGame)
+        return outputString
     
     def guessHigher(self,userObject,destinationObject,passive=False):
         'User guessed next card is higher'
