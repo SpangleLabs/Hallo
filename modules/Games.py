@@ -179,6 +179,10 @@ class Hand:
         'Adds a new card to the hand'
         self.mCardList.append(newCard)
         
+    def getCardList(self):
+        'Returns the card list'
+        return self.mCardList
+        
     def sumTotal(self):
         'Returns the sum total of the hand.'
         return sum([card.sumValue() for card in self.mCardList])
@@ -705,7 +709,12 @@ class BlackjackGame(Game):
         
     def stick(self):
         'Player decided to stick.'
+        #Get total of player's hand
         playerSum = self.mPlayerHand.sumTotal()
+        #If player has an ace and total is less than or equal to 11, the ace is high.
+        if(self.mPlayerHand.containsValue(Card.CARD_ACE) and playerSum<=11):
+            playerSum += 10
+        output = "Your hand is: " + ", ".join([str(card) for card in self.mPlayerHand.cardsInHand()])
         pass
 
     def quitGame(self):
