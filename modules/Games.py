@@ -873,7 +873,6 @@ class Blackjack(Function):
             return "You're not playing a game."
         return
         outputString = currentGame.stick()
-        if(currentGame.isLost()):
-            self.mGameList.remove(currentGame)
+        self.mGameList.remove(currentGame)
         return outputString
     
