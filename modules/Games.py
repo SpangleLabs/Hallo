@@ -2,6 +2,7 @@ from Function import Function
 import random
 import time
 from inc.commons import Commons
+from xml.dom import minidom
 
 class Card:
     '''
@@ -241,7 +242,51 @@ class HighScores(Function):
     def saveFunction(self):
         'Saves the function, persistent functions only.'
         #TODO: save all games to XML perhaps?
-        pass
+        #Create document, with DTD
+        docimp = minidom.DOMImplementation()
+        doctype = docimp.createDocumentType(
+            qualifiedName='high_score_list',
+            publicId='', 
+            systemId='high_score_list.dtd',
+        )
+        doc = docimp.createDocument(None,'high_score_list',doctype)
+        #get root element
+        root = doc.getElementsByTagName("high_score_list")[0]
+        #Loop through games
+        for gameName in self.mHighScores:
+            highScoreXml = doc.createElement("high_score")
+            #Add date element
+            dateXml = doc.createElement("date")
+            dateXml.appendChild(doc.createTextNode(self.mHighScores[gameName]['date']))
+            highScoreXml.appendChild(dateXml)
+            #add game_name element
+            gameNameXml = doc.createElement("game_name")
+            gameNameXml.appendChild(doc.createTextNode(gameName))
+            highScoreXml.appendChild(gameNameXml)
+            #add player_name element
+            playerNameXml = doc.createElement("player_name")
+            playerNameXml.appendChild(doc.createTextNode(self.mHighScores[gameName]['player']))
+            highScoreXml.appendChild(playerNameXml)
+            #add score element
+            scoreXml = doc.createElement("score")
+            scoreXml.appendChild(doc.createTextNode(self.mHighScores[gameName]['score']))
+            highScoreXml.appendChild(scoreXml)
+            #Loop through extra data, adding that.
+            for dataVar in self.mHighScores[gameName]['data']:
+                dataXml = doc.createElement("data")
+                #Add variable name element
+                varXml = doc.createElement("var")
+                varXml.appendChild(doc.createTextNode(dataVar))
+                dataXml.appendChild(varXml)
+                #Add value name element
+                valueXml = doc.createElement("value")
+                valueXml.appendChild(doc.createTextNode(self.mHighScores[gameName]['data'][dataVar]))
+                dataXml.appendChild(valueXml)
+                #Add the data element to the high score
+                highScoreXml.appendChild(dataXml)
+            root.appendChild(highScoreXml)
+        #save XML
+        doc.writexml(open("store/high_score_list.xml","w"),addindent="\t",newl="\r\n")
     
     def run(self,line,userObject,destinationObject=None):
         pass
@@ -251,6 +296,7 @@ class HighScores(Function):
         newDict = {}
         newDict['score'] = score
         newDict['player'] = userName
+        newDict['date'] = time.time()
         newDict['data'] = data
         self.mHighScores[gameName] = newDict
     
