@@ -320,7 +320,13 @@ class HighScores(Function):
         doc.writexml(open("store/high_score_list.xml","w"),addindent="\t",newl="\r\n")
     
     def run(self,line,userObject,destinationObject=None):
-        pass
+        outputLines = ["High scores:"]
+        for gameName in self.mHighScores:
+            score = self.mHighScores[gameName]['score']
+            player = self.mHighScores[gameName]['player']
+            date = self.mHighScores[gameName]['date']
+            outputLines.append(gameName + "> Score: "+score+", Player: "+player+", Date: "+date)
+        return "\n".join(outputLines)
     
     def addHighScore(self,gameName,score,userName,data={}):
         'Adds a new highscore to the list. Overwriting the old high score for that game if it exists'
