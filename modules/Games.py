@@ -759,7 +759,7 @@ class BlackjackGame(Game):
 
 class Blackjack(Function):
     '''
-    Function to play Higher or Lower
+    Function to play Blackjack
     '''
     #Name for use in help listing
     mHelpName = "blackjack"
@@ -874,3 +874,134 @@ class Blackjack(Function):
         self.mGameList.remove(currentGame)
         return outputString
     
+class DDRGame(Game):
+    '''
+    Game of DDR.
+    '''
+    HIGH_SCORE_NAME = "ddr"
+    mLastMove = None
+    mPlayersMoved = set()
+    mPlayerDict = {}
+    
+    
+    def __init__(self,userObject,channelObject):
+        self.mPlayers = set([userObject])
+        self.mChannel = channelObject
+        self.mStartTime = time.time()
+        self.mLastTime = time.time()
+    
+    def startGame(self):
+        pass
+    
+    def joinGame(self,userObject):
+        pass
+    
+    def makeMove(self):
+        pass
+    
+    def quitGame(self):
+        pass
+
+class DDR(Function):
+    '''
+    Function to play IRC DDR (Dance Dance Revolution)
+    '''
+    #Name for use in help listing
+    mHelpName = "ddr"
+    #Names which can be used to address the function
+    mNames = set(["ddr","dance dance revolution","dansu dansu","dancing stage"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Plays dance dance revolution. Hallo says directions and users must respond to them correctly and in the fastest time they can"
+    
+    mGameList = []
+    mStartCommands = ["start","easy","medium","med","hard"]
+    mJoinCommands = ["join"]
+    mEndCommands = ["end","quit","escape"]
+    mMoveCommands = ["^",">","<","v","w","a","d","s"]
+    
+    #Boring functions
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    @staticmethod
+    def isPersistent(self):
+        'Returns boolean representing whether this function is supposed to be persistent or not'
+        return True
+    
+    @staticmethod
+    def loadFunction():
+        'Loads the function, persistent functions only.'
+        return DDR()
+    
+    def saveFunction(self):
+        'Saves the function, persistent functions only.'
+        #TODO: save all games to XML perhaps?
+        pass
+
+    def getPassiveEvents(self):
+        'Returns a list of events which this function may want to respond to in a passive way'
+        return set(Function.EVENT_MESSAGE)
+
+    #Interesting functions from here
+    def run(self,line,userObject,destinationObject=None):
+        lineClean = line.strip().lower()
+        if(lineClean in [""]+self.mStartCommands):
+            return self.newGame(lineClean,userObject,destinationObject)
+        elif(any(cmd in lineClean for cmd in self.mJoinCommands)):
+            return self.joinGame(lineClean,userObject,destinationObject)
+        elif(any(cmd in lineClean for cmd in self.mEndCommands)):
+            return self.quitGame(lineClean,userObject,destinationObject)
+        elif(any(cmd in lineClean for cmd in self.mMoveCommands)):
+            return self.makeMove(lineClean,userObject,destinationObject)
+        outputString = "Invalid difficulty mode. Please specify easy, medium or hard."
+        return outputString
+    
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+        'Replies to an event not directly addressed to the bot.'
+        cleanFullLine = fullLine.strip().lower()
+        if(any(cmd in cleanFullLine for cmd in self.mJoinCommands)):
+            return self.joinGame(cleanFullLine,userObject,channelObject,True)
+        elif(any(cmd in cleanFullLine for cmd in self.mEndCommands)):
+            return self.quitGame(cleanFullLine,userObject,channelObject,True)
+        elif(any(cmd in cleanFullLine for cmd in self.mMoveCommands)):
+            return self.makeMove(cleanFullLine,userObject,channelObject,True)
+        pass
+    
+    def findGame(self,userObject):
+        'Finds the game a specified user is in, None otherwise.'
+        for game in self.mGameList:
+            if(game.containsPlayer(userObject)):
+                return game
+        return None
+    
+    def newGame(self,lineClean,userObject,destinationObject):
+        'Starts a new game'
+        return
+        currentGame = self.findGame(userObject)
+        if(currentGame is not None):
+            return "You're already playing a game."
+        newGame = DDRGame(userObject,destinationObject)
+        outputString = newGame.startGame()
+        self.mGameList.append(newGame)
+        return outputString
+    
+    def joinGame(self,lineClean,userObject,destinationObject):
+        'Player requests to join a game'
+        pass
+    
+    def quitGame(self,lineClean,userObject,destinationObject):
+        'Player requests to quit a game'
+        pass
+    
+    def makeMove(self,lineClean,userObject,destinationObject):
+        'Player makes a move'
+        pass
+
+
+
+
+
+        
