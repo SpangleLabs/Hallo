@@ -714,8 +714,38 @@ class BlackjackGame(Game):
         #If player has an ace and total is less than or equal to 11, the ace is high.
         if(self.mPlayerHand.containsValue(Card.CARD_ACE) and playerSum<=11):
             playerSum += 10
-        output = "Your hand is: " + ", ".join([str(card) for card in self.mPlayerHand.cardsInHand()])
-        pass
+        outputString = "Your hand is: " + ", ".join([str(card) for card in self.mPlayerHand.getCardList()]) + "\n"
+        #Get total of dealer's hand
+        dealerSum = self.mDealerHand.sumTotal()
+        if(self.mDealerHand.containsValue(Card.CARD_ACE) and dealerSum<=11):
+            dealerSum += 10
+        #Dealer continues to deal himself cards, in accordance with H17 rules
+        dealerNewCards = 0
+        if(dealerSum<17 or (dealerSum==17 and self.mDealerHand.containsValue(Card.CARD_ACE))):
+            dealerNewCards += 1
+            dealerNewCard = self.mDeck.getNextCard()
+            self.mDealerHand.addCard(dealerNewCard)
+            if(self.mDealerHand.containsValue(Card.CARD_ACE) and dealerSum<=11):
+                dealerSum += 10
+        #if dealer has dealt himself more cards, say that.
+        if(dealerNewCards!=0):
+            cardPlural = 'card'
+            if(dealerNewCards!=1):
+                cardPlural = 'cards'
+            outputString += "The dealer deals himself " + str(dealerNewCards) + " more " + cardPlural + ".\n"
+        #Say the dealer's hand
+        outputString += "The dealer's hand is: " + ", ".join([str(card) for card in self.mDealerHand.getCardList()]) + "\n"
+        #Check if dealer is bust
+        if(dealerSum>21):
+            outputString += "Dealer busts.\n"
+        #See who wins
+        if(dealerSum==playerSum):
+            outputString += "It's a tie, dealer wins."
+        elif(dealerSum > playerSum and dealerSum <= 21):
+            outputString += "Dealer wins."
+        else:
+            outputString += "You win! Congratulations!" 
+        return outputString
 
     def quitGame(self):
         'Player wants to quit'
