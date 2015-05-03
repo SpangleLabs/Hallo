@@ -521,8 +521,7 @@ class HigherOrLowerGame(Game):
         else:
             return "Sorry to see you quit, you had managed " + str(self.mTurns-1) + " cards."
     
-    
-    
+
 class HigherOrLower(Function):
     '''
     Function to play Higher or Lower
@@ -690,5 +689,128 @@ class BlackjackGame(Game):
     def stick(self):
         'Player decided to stick.'
         pass
+
+    def quitGame(self):
+        'Player wants to quit'
+        pass
+
+
+class Blackjack(Function):
+    '''
+    Function to play Higher or Lower
+    '''
+    #Name for use in help listing
+    mHelpName = "blackjack"
+    #Names which can be used to address the function
+    mNames = set(["blackjack","twentyone","twenty one","twenty-one","21"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Picks a random card from a deck. Format: random_card"
+    
+    mGameList = []
+    mStartCommands = ["start"]
+    mEndCommands = ["end","quit","escape"]
+    mHitCommands = ["hit"]
+    mStickCommands = ["stick","stand"]
+    
+    #Boring functions
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    @staticmethod
+    def isPersistent(self):
+        'Returns boolean representing whether this function is supposed to be persistent or not'
+        return True
+    
+    @staticmethod
+    def loadFunction():
+        'Loads the function, persistent functions only.'
+        return Blackjack()
+    
+    def saveFunction(self):
+        'Saves the function, persistent functions only.'
+        #TODO: save all games to XML perhaps?
+        pass
+
+    def getPassiveEvents(self):
+        'Returns a list of events which this function may want to respond to in a passive way'
+        return set(Function.EVENT_MESSAGE)
+
+    #Interesting functions from here
+    def run(self,line,userObject,destinationObject=None):
+        lineClean = line.strip().lower()
+        if(lineClean in [""]+self.mStartCommands):
+            return self.newGame(userObject,destinationObject)
+        elif(any(cmd in lineClean for cmd in self.mEndCommands)):
+            return self.quitGame(userObject,destinationObject)
+        elif(any(cmd in lineClean for cmd in self.mHitCommands)):
+            return self.hit(userObject,destinationObject)
+        elif(any(cmd in lineClean for cmd in self.mStickCommands)):
+            return self.stick(userObject,destinationObject)
+        outputString = "I don't understand this input." 
+        outputString += ' Syntax: "blackjack start" to start a game, '
+        outputString += '"blackjack hit" to hit, "blackjack stick" to stick, '
+        outputString += 'and "blackjack end" to quit the game.'
+        return outputString
+    
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+        'Replies to an event not directly addressed to the bot.'
+        cleanFullLine = fullLine.strip().lower()
+        if(any(cmd in cleanFullLine for cmd in self.mEndCommands)):
+            return self.quitGame(userObject,channelObject,True)
+        elif(any(cmd in cleanFullLine for cmd in self.mHitCommands)):
+            return self.hit(userObject,channelObject,True)
+        elif(any(cmd in cleanFullLine for cmd in self.mStickCommands)):
+            return self.stick(userObject,channelObject,True)
+        pass
+    
+    def findGame(self,userObject):
+        'Finds the game a specified user is in, None otherwise.'
+        for game in self.mGameList:
+            if(game.containsPlayer(userObject)):
+                return game
+        return None
+    
+    def newGame(self,userObject,destinationObject):
+        'User request to create a new game'
+        currentGame = self.findGame(userObject)
+        if(currentGame is not None):
+            return "You're already playing a game."
+        newGame = BlackjackGame(userObject,destinationObject)
+        outputString = newGame.startGame()
+        self.mGameList.append(newGame)
+        return outputString
         
-        
+    def quitGame(self,userObject,destinationObject,passive=False):
+        'User request to quit game'
+        currentGame = self.findGame(userObject)
+        if(currentGame is None and not passive):
+            return "You're not playing a game."
+        outputString = currentGame.quitGame()
+        self.mGameList.remove(currentGame)
+        return outputString
+    
+    def hit(self,userObject,destinationObject,passive=False):
+        'User wants to hit'
+        currentGame = self.findGame(userObject)
+        if(currentGame is None and not passive):
+            return "You're not playing a game."
+        return
+        outputString = currentGame.guessHigher()
+        if(currentGame.isLost()):
+            self.mGameList.remove(currentGame)
+        return outputString
+    
+    def stick(self,userObject,destinationObject,passive=False):
+        'User wants to stick'
+        currentGame = self.findGame(userObject)
+        if(currentGame is None and not passive):
+            return "You're not playing a game."
+        return
+        outputString = currentGame.guessLower()
+        if(currentGame.isLost()):
+            self.mGameList.remove(currentGame)
+        return outputString
+    
