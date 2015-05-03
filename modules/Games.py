@@ -187,6 +187,10 @@ class Hand:
         'Checks whether a hand contains a specified card'
         return cardObject in self.mCardList
     
+    def containsValue(self,value):
+        'Checks whether a hand contains a specified card value'
+        return value in [card.getValue() for card in self.mCardList]
+    
     def cardsInHand(self):
         'Returns the number of cards in the hand'
         return len(self.mCardList)
@@ -636,6 +640,55 @@ class HigherOrLower(Function):
         return outputString
     
         
+class BlackjackGame(Game):
+    '''
+    Game of Blackjack.
+    '''
+    HIGH_SCORE_NAME = "blackjack"
+    mDeck = None
+    mPlayerHand = None
+    mDealerHand = None
+    mLastCard = None
+    mLost = False
+    mHighScoresObject = None
+    
+    
+    def __init__(self,userObject,channelObject):
+        self.mPlayers = set([userObject])
+        self.mChannel = channelObject
+        self.mStartTime = time.time()
+        self.mLastTime = time.time()
+        self.mDeck = Deck()
+        self.mDeck.shuffle()
+        self.mPlayerHand = Hand()
+        self.mDealerHand = Hand()
+    
+    def startGame(self):
+        'Starts the game. Returns the opening line'
+        #Deal out the opening hands
+        firstCard = self.mDeck.getNextCard()
+        self.mPlayerHand.addCard(firstCard)
+        secondCard = self.mDeck.getNextCard()
+        self.mDealerHand.addCard(secondCard)
+        thirdCard = self.mDeck.getNextCard()
+        self.mPlayerHand.addCard(thirdCard)
+        forthCard = self.mDeck.getNextCard()
+        self.mDealerHand.addCard(forthCard)
+        #Write the first half of output
+        outputString = "You have started a game of Blackjack (H17), you have been dealt a " + firstCard.toString() + " and a " + thirdCard.toString() + "."
+        #Check if they have been dealt a blackjack
+        if(self.mPlayerHand.containsValue(Card.CARD_ACE) and any([self.mPlayerHand.containsValue(value) for value in [Card.CARD_10,Card.CARD_JACK,Card.CARD_QUEEN,Card.CARD_KING]])):
+            return outputString + "Congratulations! That's a blackjack! You win."
+        #Write the rest of the output
+        outputString += " The dealer has a " + secondCard.toString() + " and another, covered, card. Would you like to hit or stick?"
+        return outputString
+    
+    def hit(self):
+        'Player decided to hit.'
+        pass
         
+    def stick(self):
+        'Player decided to stick.'
+        pass
         
         
