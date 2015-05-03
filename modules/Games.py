@@ -436,6 +436,11 @@ class HigherOrLowerGame(Game):
         if(currentScore>lastScore):
             return True
         return False
+        
+    def startGame(self):
+        'Starts the new game'
+        firstCard = self.getNextCard()
+        return "You have started a game of higher or lower. Your first card is: " + firstCard.toString() + "."
     
     def updateHighScore(self):
         'Updates the high score with current game. Checks that it is high score first.'
@@ -608,6 +613,8 @@ class HigherOrLower(Function):
             return "You're already playing a game."
         newGame = HigherOrLowerGame(userObject,destinationObject)
         self.mGameList.append(newGame)
+        outputString = newGame.startGame()
+        return outputString
         
     def quitGame(self,userObject,destinationObject,passive=False):
         'User request to quit game'
