@@ -457,7 +457,7 @@ class HigherOrLowerGame(Game):
             return outputString
         if(nextCard.toInt() < lastCard.toInt()):
             self.mLost = True
-            #TODO: high scores
+            #high scores
             isHighScore = self.checkHighScore()
             if(isHighScore):
                 previousScore = self.mHighScoresObject.getHighScore(self.HIGH_SCORE_NAME)
@@ -485,7 +485,7 @@ class HigherOrLowerGame(Game):
             return outputString
         if(nextCard.toInt() > lastCard.toInt()):
             self.mLost = True
-            #TODO: high scores
+            #high scores
             isHighScore = self.checkHighScore()
             if(isHighScore):
                 previousScore = self.mHighScoresObject.getHighScore(self.HIGH_SCORE_NAME)
