@@ -379,11 +379,14 @@ class HigherOrLowerGame(Game):
     '''
     Game of Higher or Lower.
     '''
+    HIGH_SCORE_NAME = "higher_or_lower"
     mDeck = None
     mLastCard = None
     mCardList = []
     mTurns = 0
     mLost = False
+    mHighScoresObject = None
+    
     
     def __init__(self,userObject,channelObject):
         self.mPlayers = set([userObject])
@@ -392,6 +395,9 @@ class HigherOrLowerGame(Game):
         self.mLastTime = time.time()
         self.mDeck = Deck()
         self.mDeck.shuffle()
+        functionDispatcher = userObject.getServer().getHallo().getFunctionDispatcher()
+        highScoresClass = functionDispatcher.getFunctionByName("highscores")
+        self.mHighScoresObject = functionDispatcher.getFunctionObject(highScoresClass)
 
     def getNextCard(self):
         'Gets a new card from the deck and adds to the list'
@@ -410,9 +416,32 @@ class HigherOrLowerGame(Game):
         'Lost getter. (Avoided the getLost() joke.)'
         return self.mLost
     
-    def isHighScore(self):
+    def checkHighScore(self):
         'Checks if this game is a high score. Returns boolean'
-        pass
+        highScore = self.mHighScoresObject.getHighScore(self.HIGH_SCORE_NAME)
+        if(highScore is None):
+            return True
+        lastScore = int(highScore['data']['cards'])
+        currentScore = self.mTurns
+        if(self.mLost):
+            currentScore = self.mTurns-1
+        if(currentScore>lastScore):
+            return True
+        return False
+    
+    def updateHighScore(self):
+        'Updates the high score with current game. Checks that it is high score first.'
+        if(not self.checkHighScore()):
+            return False
+        currentScore = self.mTurns
+        if(self.mLost):
+            currentScore = self.mTurns-1
+        userName = list(self.mPlayers)[0].getName()
+        score = str(currentScore)+" cards"
+        gameData = {}
+        gameData['cards'] = currentScore
+        self.mHighScoresObject.addHighScore(self.HIGH_SCORE_NAME,score,userName,gameData)
+        return True
     
     def guessHigher(self):
         'User has guessed the next card is higher.'
@@ -427,10 +456,12 @@ class HigherOrLowerGame(Game):
             outputString += "Do you think the next card will be higher or lower?"
             return outputString
         if(nextCard.toInt() < lastCard.toInt()):
+            self.mLost = True
             #TODO: high scores
+            isHighScore = self.checkHighScore()
+            #Output message
             outputString = "Your " + Commons.ordinal(self.mTurns) + " card is " + nextCard.toString() + ". Sorry, that's lower, you lose."
             outputString += " You managed " + str(self.mTurns-1) + " cards though."
-            self.mLost = True
             return outputString
 
     def guessLower(self):
@@ -446,10 +477,12 @@ class HigherOrLowerGame(Game):
             outputString += "Do you think the next card will be higher or lower?"
             return outputString
         if(nextCard.toInt() > lastCard.toInt()):
+            self.mLost = True
             #TODO: high scores
+            isHighScore = self.checkHighScore()
+            #Output message
             outputString = "Your " + Commons.ordinal(self.mTurns) + " card is " + nextCard.toString() + ". Sorry, that's higher, you lose."
             outputString += " You managed " + str(self.mTurns-1) + " cards though."
-            self.mLost = True
             return outputString
 
 class HigherOrLower(Function):
