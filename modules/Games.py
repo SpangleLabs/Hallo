@@ -186,6 +186,13 @@ class Hand:
     def sumTotal(self):
         'Returns the sum total of the hand.'
         return sum([card.sumValue() for card in self.mCardList])
+        
+    def blackjackTotal(self):
+        'Returns the blackjack total of the hand. (Takes aces as 11 if that doesn\'t make you bust.'
+        sumTotal = self.sumTotal()
+        if(sumTotal<=11 and self.containsValue(Card.CARD_ACE)):
+            sumTotal += 11
+        return sumTotal
     
     def containsCard(self,cardObject):
         'Checks whether a hand contains a specified card'
@@ -717,23 +724,14 @@ class BlackjackGame(Game):
     def stick(self):
         'Player decided to stick.'
         #Get total of player's hand
-        playerSum = self.mPlayerHand.sumTotal()
-        #If player has an ace and total is less than or equal to 11, the ace is high.
-        if(self.mPlayerHand.containsValue(Card.CARD_ACE) and playerSum<=11):
-            playerSum += 10
+        playerSum = self.mPlayerHand.blackjackTotal()
         outputString = "Your hand is: " + self.mPlayerHand.toString() + "\n"
-        #Get total of dealer's hand
-        dealerSum = self.mDealerHand.sumTotal()
-        if(self.mDealerHand.containsValue(Card.CARD_ACE) and dealerSum<=11):
-            dealerSum += 10
         #Dealer continues to deal himself cards, in accordance with H17 rules
         dealerNewCards = 0
-        if(dealerSum<17 or (dealerSum==17 and self.mDealerHand.containsValue(Card.CARD_ACE))):
+        if(self.mDealerHand.blackjackTotal()<17 or (self.mDealerHand.blackjackTotal()==17 and self.mDealerHand.containsValue(Card.CARD_ACE))):
             dealerNewCards += 1
             dealerNewCard = self.mDeck.getNextCard()
             self.mDealerHand.addCard(dealerNewCard)
-            if(self.mDealerHand.containsValue(Card.CARD_ACE) and dealerSum<=11):
-                dealerSum += 10
         #if dealer has dealt himself more cards, say that.
         if(dealerNewCards!=0):
             cardPlural = 'card'
@@ -743,12 +741,12 @@ class BlackjackGame(Game):
         #Say the dealer's hand
         outputString += "The dealer's hand is: " + self.mDealerHand.toString() + "\n"
         #Check if dealer is bust
-        if(dealerSum>21):
+        if(self.mDealerHand.blackjackTotal()>21):
             outputString += "Dealer busts.\n"
         #See who wins
-        if(dealerSum==playerSum):
+        if(self.mDealerHand.blackjackTotal()==playerSum):
             outputString += "It's a tie, dealer wins."
-        elif(dealerSum > playerSum and dealerSum <= 21):
+        elif(self.mDealerHand.blackjackTotal() > playerSum and self.mDealerHand.blackjackTotal() <= 21):
             outputString += "Dealer wins."
         else:
             outputString += "You win! Congratulations!"
@@ -756,7 +754,7 @@ class BlackjackGame(Game):
 
     def quitGame(self):
         'Player wants to quit'
-        return "You have quit the game. You had " + self.mPlayerHand.sumTotal() + " and the dealer had " + self.mDealerHand.sumTotal()
+        return "You have quit the game. You had " + str(self.mPlayerHand.blackjackTotal()) + " and the dealer had " + str(self.mDealerHand.blackjackTotal()) + "."
 
 
 class Blackjack(Function):
