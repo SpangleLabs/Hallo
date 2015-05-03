@@ -804,8 +804,7 @@ class Blackjack(Function):
         currentGame = self.findGame(userObject)
         if(currentGame is None and not passive):
             return "You're not playing a game."
-        return
-        outputString = currentGame.guessHigher()
+        outputString = currentGame.hit()
         if(currentGame.isLost()):
             self.mGameList.remove(currentGame)
         return outputString
@@ -816,7 +815,7 @@ class Blackjack(Function):
         if(currentGame is None and not passive):
             return "You're not playing a game."
         return
-        outputString = currentGame.guessLower()
+        outputString = currentGame.stick()
         if(currentGame.isLost()):
             self.mGameList.remove(currentGame)
         return outputString
