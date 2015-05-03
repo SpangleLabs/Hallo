@@ -751,12 +751,12 @@ class BlackjackGame(Game):
         elif(dealerSum > playerSum and dealerSum <= 21):
             outputString += "Dealer wins."
         else:
-            outputString += "You win! Congratulations!" 
+            outputString += "You win! Congratulations!"
         return outputString
 
     def quitGame(self):
         'Player wants to quit'
-        pass
+        return "You have quit the game. You had " + self.mPlayerHand.sumTotal() + " and the dealer had " + self.mDealerHand.sumTotal()
 
 
 class Blackjack(Function):
