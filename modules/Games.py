@@ -186,6 +186,10 @@ class Hand:
     def containsCard(self,cardObject):
         'Checks whether a hand contains a specified card'
         return cardObject in self.mCardList
+    
+    def cardsInHand(self):
+        'Returns the number of cards in the hand'
+        return len(self.mCardList)
 
 class RandomCard(Function):
     '''
