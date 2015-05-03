@@ -202,6 +202,13 @@ class Hand:
     def cardsInHand(self):
         'Returns the number of cards in the hand'
         return len(self.mCardList)
+    
+    def __str__(self):
+        return self.toString()
+
+    def toString(self):
+        'Returns a string representing the cards in the hand.'
+        return ", ".join([card.toString() for card in self.mCardList])
 
 class RandomCard(Function):
     '''
@@ -714,7 +721,7 @@ class BlackjackGame(Game):
         #If player has an ace and total is less than or equal to 11, the ace is high.
         if(self.mPlayerHand.containsValue(Card.CARD_ACE) and playerSum<=11):
             playerSum += 10
-        outputString = "Your hand is: " + ", ".join([str(card) for card in self.mPlayerHand.getCardList()]) + "\n"
+        outputString = "Your hand is: " + self.mPlayerHand.toString() + "\n"
         #Get total of dealer's hand
         dealerSum = self.mDealerHand.sumTotal()
         if(self.mDealerHand.containsValue(Card.CARD_ACE) and dealerSum<=11):
@@ -734,7 +741,7 @@ class BlackjackGame(Game):
                 cardPlural = 'cards'
             outputString += "The dealer deals himself " + str(dealerNewCards) + " more " + cardPlural + ".\n"
         #Say the dealer's hand
-        outputString += "The dealer's hand is: " + ", ".join([str(card) for card in self.mDealerHand.getCardList()]) + "\n"
+        outputString += "The dealer's hand is: " + self.mDealerHand.toString() + "\n"
         #Check if dealer is bust
         if(dealerSum>21):
             outputString += "Dealer busts.\n"
