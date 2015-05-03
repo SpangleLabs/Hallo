@@ -247,7 +247,7 @@ class HighScores(Function):
                 gameName = highScoreXml.getElementsByTagName("game_name")[0].firstChild.data
                 #Get date, add to dict
                 gameDate = highScoreXml.getElementsByTagName("date")[0].firstChild.data
-                gameDict['date'] = gameDate
+                gameDict['date'] = float(gameDate)
                 #Get player name, add to dict
                 playerName = highScoreXml.getElementsByTagName("player_name")[0].firstChild.data
                 gameDict['player'] = playerName
