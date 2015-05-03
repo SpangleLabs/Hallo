@@ -237,7 +237,30 @@ class HighScores(Function):
     @staticmethod
     def loadFunction():
         'Loads the function, persistent functions only.'
-        return HighScores()
+        try:
+            highScoreDict = {}
+            doc = minidom.parse("store/high_score_list.xml")
+            for highScoreXml in doc.getElementsByTagName("high_score"):
+                gameDict = {}
+                gameName = highScoreXml.getElementsByTagName("game_name")[0].firstChild.data
+                gameDate = highScoreXml.getElementsByTagName("date")[0].firstChild.data
+                gameDict['date'] = gameDate
+                playerName = highScoreXml.getElementsByTagName("player_name")[0].firstChild.data
+                gameDict['player'] = playerName
+                gameScore = highScoreXml.getElementsByTagName("score")[0].firstChild.data
+                gameDict['score'] = gameScore
+                gameData = {}
+                for dataXml in highScoreXml.getElementsByTagName("data"):
+                    dataVar = dataXml.getElementsByTagName("var")[0].firstChild.data
+                    dataValue = dataXml.getElementsByTagName("value")[0].firstChild.data
+                    gameData[dataVar] = dataValue
+                gameDict['data'] = gameData
+                highScoreDict[gameName] = gameDict
+            newHighScores = HighScores()
+            newHighScores.mHighScores = highScoreDict
+            return newHighScores
+        except (FileNotFoundError, IOError):
+            return HighScores()
     
     def saveFunction(self):
         'Saves the function, persistent functions only.'
@@ -255,14 +278,14 @@ class HighScores(Function):
         #Loop through games
         for gameName in self.mHighScores:
             highScoreXml = doc.createElement("high_score")
-            #Add date element
-            dateXml = doc.createElement("date")
-            dateXml.appendChild(doc.createTextNode(self.mHighScores[gameName]['date']))
-            highScoreXml.appendChild(dateXml)
             #add game_name element
             gameNameXml = doc.createElement("game_name")
             gameNameXml.appendChild(doc.createTextNode(gameName))
             highScoreXml.appendChild(gameNameXml)
+            #Add date element
+            dateXml = doc.createElement("date")
+            dateXml.appendChild(doc.createTextNode(self.mHighScores[gameName]['date']))
+            highScoreXml.appendChild(dateXml)
             #add player_name element
             playerNameXml = doc.createElement("player_name")
             playerNameXml.appendChild(doc.createTextNode(self.mHighScores[gameName]['player']))
