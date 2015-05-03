@@ -907,7 +907,7 @@ class DDRGame(Game):
     mPlayersMoved = set()
     mPlayerDict = {}
     mCanJoin = True
-    
+    mGameOver = False
     
     def __init__(self,gameDifficulty,userObject,channelObject):
         self.mDifficulty = gameDifficulty
@@ -926,6 +926,10 @@ class DDRGame(Game):
     def canJoin(self):
         'Boolean, whether players can join.'
         return self.mCanJoin
+    
+    def isGameOver(self):
+        'Boolean, whether the game is over.'
+        return self.mGameOver
     
     def joinGame(self,userObject):
         pass
