@@ -932,7 +932,11 @@ class DDRGame(Game):
         return self.mGameOver
     
     def joinGame(self,userObject):
-        pass
+        if(self.canJoin()):
+            self.mPlayers.add(userObject)
+            return userObject.getName() + " has joined."
+        else:
+            return "This game cannot be joined now."
     
     def makeMove(self):
         pass
