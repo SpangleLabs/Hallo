@@ -191,6 +191,10 @@ class Hand:
         'Checks whether a hand contains a specified card value'
         return value in [card.getValue() for card in self.mCardList]
     
+    def countValue(self,value):
+        'Counts how many cards of a specified value are in the hand'
+        return [card.getValue() for card in self.mCardList].count(value)
+    
     def cardsInHand(self):
         'Returns the number of cards in the hand'
         return len(self.mCardList)
@@ -691,10 +695,17 @@ class BlackjackGame(Game):
     
     def hit(self):
         'Player decided to hit.'
-        pass
+        newCard = self.mDeck.getNextCard()
+        self.mPlayerHand.addCard(newCard)
+        outputString = "You have been dealt a " + newCard.toString() + ","
+        if(self.mPlayerHand.sumTotal()>21):
+            self.mLost = True
+            return outputString + " which means your hand sums to " + str(self.mPlayerHand.sumTotal()) + ". You've gone bust. You lose, sorry."
+        return outputString + " would you like to hit or stick?"
         
     def stick(self):
         'Player decided to stick.'
+        playerSum = self.mPlayerHand.sumTotal()
         pass
 
     def quitGame(self):
