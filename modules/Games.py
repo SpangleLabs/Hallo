@@ -240,22 +240,30 @@ class HighScores(Function):
         try:
             highScoreDict = {}
             doc = minidom.parse("store/high_score_list.xml")
+            #Loop through high scores
             for highScoreXml in doc.getElementsByTagName("high_score"):
                 gameDict = {}
+                #Get name
                 gameName = highScoreXml.getElementsByTagName("game_name")[0].firstChild.data
+                #Get date, add to dict
                 gameDate = highScoreXml.getElementsByTagName("date")[0].firstChild.data
                 gameDict['date'] = gameDate
+                #Get player name, add to dict
                 playerName = highScoreXml.getElementsByTagName("player_name")[0].firstChild.data
                 gameDict['player'] = playerName
+                #Get score, add to dict
                 gameScore = highScoreXml.getElementsByTagName("score")[0].firstChild.data
                 gameDict['score'] = gameScore
+                #Get extra data
                 gameData = {}
                 for dataXml in highScoreXml.getElementsByTagName("data"):
                     dataVar = dataXml.getElementsByTagName("var")[0].firstChild.data
                     dataValue = dataXml.getElementsByTagName("value")[0].firstChild.data
                     gameData[dataVar] = dataValue
                 gameDict['data'] = gameData
+                #Add game to list
                 highScoreDict[gameName] = gameDict
+            #Create new object, set the highscore list and return it
             newHighScores = HighScores()
             newHighScores.mHighScores = highScoreDict
             return newHighScores
