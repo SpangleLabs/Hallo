@@ -1,4 +1,5 @@
 import time
+import datetime
 
 class Commons(object):
     '''
@@ -82,4 +83,9 @@ class Commons(object):
             return str(number) + "rd"
         else:
             return str(number) + "th"
+    
+    @staticmethod
+    def formatUnixTime(timeStamp):
+        'Returns a string, formatted datetime from a timestamp'
+        return str(datetime.datetime.utcfromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S'))
         
