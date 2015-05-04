@@ -36,20 +36,6 @@ class mod_lookup:
         returndict = xmltodict.parse(code)
         return returndict
 
-    def fn_random_cocktail(self,args,client,destination):
-        'Delivers ingredients and recipes for a random cocktail. Format: random_cocktail'
-        cocktails = pickle.load(open('store/cocktails.p','rb'))
-        number = random.randint(0,len(cocktails))
-        cocktail = cocktails[number]
-        output = "Randomly selected cocktail is: " + cocktail['name'] + " (#" + str(number) + "). The ingredients are: "
-        ingredients = []
-        for ingredient in cocktail['ingredients']:
-            ingredients.append(ingredient[0] + ingredient[1])
-        output = output + ", ".join(ingredients) + ". The recipe is: " + cocktail['instructions']
-        if(output[-1]!='.'):
-            output = output + "."
-        return output
-
     def fn_cocktail(self,args,client,destination):
         'Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>'
         cocktails = pickle.load(open('store/cocktails.p','rb'))
