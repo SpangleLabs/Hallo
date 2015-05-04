@@ -978,10 +978,27 @@ class DDRGame(Game):
             return "This game cannot be joined now."
     
     def makeMove(self,direction,userObject):
-        pass
+        if(userObject not in self.mPlayers):
+            return
+        if(userObject in self.mPlayersMoved):
+            return
+        self.mPlayersMoved.add(userObject)
+        if(direction==self.mLastMove):
+            lag = time.time() - self.mLastTime
+            self.mPlayerDict[userObject]['hits'] += 1
+            self.mPlayerDict[userObject]['lag'] += lag
+        return
     
     def quitGame(self,userObject):
-        pass
+        if(userObject not in self.mPlayers):
+            return "You're not playing"
+        self.mPlayers.remove(userObject)
+        del self.mPlayerDict[userObject]
+        if(len(self.mPlayers)==0):
+            self.mGameOver = True
+            return "All players quit. game over."
+        else:
+            return userObject.getName() + " has quit the game."
 
 class DDR(Function):
     '''
