@@ -119,9 +119,37 @@ class Cocktail(Function):
             outputString += "."
         return outputString
         
-        
-        
-        
-        
-        
+class InSpace(Function):
+    '''
+    Looks up the current amount and names of people in space
+    '''
+    #Name for use in help listing
+    mHelpName = "in space"
+    #Names which can be used to address the function
+    mNames = set(["in space","inspace","space"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns the number of people in space right now, and their names. Format: in space"
     
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        spaceDict = Commons.loadUrlJson("http://www.howmanypeopleareinspacerightnow.com/space.json")
+        spaceNumber = str(spaceDict['number'])
+        spaceNames = ", ".join(person['name'] for person in spaceDict['people'])
+        outputString = "There are " + spaceNumber + " people in space right now. "
+        outputString += "Their names are: " + spaceNames + "."
+
+    def getPassiveEvents(self):
+        'Returns a list of events which this function may want to respond to in a passive way'
+        return set(Function.EVENT_MESSAGE)
+    
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+        'Replies to an event not directly addressed to the bot.'
+        cleanFullLine = fullLine.lower()
+        if("in space" in cleanFullLine and ("who" in cleanFullLine or "how many" in cleanFullLine)):
+            return self.run(cleanFullLine,userObject,channelObject)
+

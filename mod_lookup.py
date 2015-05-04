@@ -33,11 +33,6 @@ class mod_lookup:
         code = pageopener.open(pagerequest).read().decode('utf-8')
         returndict = xmltodict.parse(code)
         return returndict
-        
-    def fn_in_space(self,args,client,destination):
-        'Returns the number of people in space right now, and their names. Format: in_space'
-        space = mod_lookup.fnn_loadjson(self,'http://www.howmanypeopleareinspacerightnow.com/space.json')
-        return "There are " + str(space['number']) + " people in space right now. Their names are: " + ', '.join(x['name'] for x in space['people']) + "."
 
     def fnn_weather(self,args,client,destination):
         'Random weather'
