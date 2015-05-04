@@ -1,5 +1,8 @@
 import time
 import datetime
+import urllib.request
+import re
+import json
 
 class Commons(object):
     '''
@@ -88,4 +91,25 @@ class Commons(object):
     def formatUnixTime(timeStamp):
         'Returns a string, formatted datetime from a timestamp'
         return str(datetime.datetime.utcfromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S'))
+    
+    @staticmethod
+    def loadUrlString(url,headers=[]):
+        'Takes a url to an xml resource, pulls it and returns a dictionary.'
+        pageRequest = urllib.request.Request(url)
+        pageRequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+        for header in headers:
+            pageRequest.add_header(header[0],header[1])
+        pageOpener = urllib.request.build_opener()
+        code = pageOpener.open(pageRequest).read().decode('utf-8')
+        return code
+
+    @staticmethod
+    def loadUrlJson(url,headers=[],jsonFix=False):
+        'Takes a url to a json resource, pulls it and returns a dictionary.'
+        code = Commons.loadUrlString(url,headers)
+        if(jsonFix):
+            code = re.sub(',+',',',code)
+            code = code.replace('[,','[').replace(',]',']')
+        outputDict = json.loads(code)
+        return outputDict
         
