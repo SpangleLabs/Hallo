@@ -912,7 +912,7 @@ class DDRGame(Game):
     def __init__(self,gameDifficulty,userObject,channelObject):
         self.mDifficulty = gameDifficulty
         self.mPlayers = set([userObject])
-        self.mPlayerDict[userObject] = {}
+        self.mPlayerDict[userObject] = {'hits':0,'lag':0}
         self.mChannel = channelObject
         self.mStartTime = time.time()
         self.mLastTime = time.time()
@@ -968,6 +968,7 @@ class DDRGame(Game):
     def joinGame(self,userObject):
         if(self.canJoin()):
             self.mPlayers.add(userObject)
+            self.mPlayerDict[userObject] = {'hits':0,'lag':0}
             return userObject.getName() + " has joined."
         else:
             return "This game cannot be joined now."
