@@ -1,7 +1,6 @@
 import urllib.request #, urllib.error, urllib.parse    #for urbandictionary function
 import json         #for urbandictionary function
 import xmltodict    #for ponyvillefm functionality
-import random
 import re      #for turning wikicode to plaintext
 
 class mod_lookup:
@@ -32,9 +31,3 @@ class mod_lookup:
         code = pageopener.open(pagerequest).read().decode('utf-8')
         returndict = xmltodict.parse(code)
         return returndict
-
-    def fnn_weather(self,args,client,destination):
-        'Random weather'
-        weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
-        return weather[random.randint(0,len(weather)-1)]
-        

@@ -253,4 +253,25 @@ class Translate(Function):
         translationString = " ".join([x[0] for x in transDict[0]])
         return "Translation: "+translationString
     
+class Weather(Function):
+    '''
+    Currently returns a random weather phrase. In future perhaps nightvale weather?
+    '''
+    #Name for use in help listing
+    mHelpName = "weather"
+    #Names which can be used to address the function
+    mNames = set(["weather","random weather"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Random weather"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
 
+    def run(self,line,userObject,destinationObject=None):
+        weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
+        return random.choice(weather)
+        
+    
