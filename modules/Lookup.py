@@ -2,6 +2,7 @@ from Function import Function
 from inc.commons import Commons
 import random
 from xml.dom import minidom
+import difflib
 
 class UrbanDictionary(Function):
     '''
@@ -64,4 +65,63 @@ class RandomCocktail(Function):
         if(outputString[-1]!='.'):
             outputString += "."
         return outputString
+
+class Cocktail(Function):
+    '''
+    Cocktail lookup function.
+    '''
+    #Name for use in help listing
+    mHelpName = "cocktail"
+    #Names which can be used to address the function
+    mNames = set(["cocktail"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        'Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>'
+        doc = minidom.parse("store/cocktail_list.xml")
+        cocktailListXml = doc.getElementsByTagName("cocktail_list")[0]
+        cocktailNames = []
+        #Loop through cocktails, adding names to list
+        for cocktailXml in cocktailListXml.getElementsByTagName("cocktail"):
+            cocktailName = cocktailXml.getElementsByTagName("name")[0].firstChild.data
+            cocktailNames.append(cocktailName)
+        #Find the closest matching names
+        closestMatches = difflib.get_close_matches(line.lower(),cocktailNames)
+        #If there are no close matches, return error
+        if(len(closestMatches)==0 or closestMatches[0]==''):
+            return "I haven't got anything close to that name."
+        #Get closest match XML
+        closestMatchName = closestMatches[0]
+        for cocktailXml in cocktailListXml.getElementsByTagName("cocktail"):
+            cocktailName = cocktailXml.getElementsByTagName("name")[0].firstChild.data
+            if(cocktailName.lower()==closestMatchName.lower()):
+                break
+        #Get instructions
+        cocktailInstructions = cocktailXml.getElementsByTagName("instructions")[0].firstChild.data
+        #Get list of ingredients
+        ingredientList = []
+        for ingredientXml in cocktailXml.getElementsByTagName("ingredients"):
+            ingredientAmount = ingredientXml.getElementsByTagName("amount")[0].firstChild.data
+            ingredientName = ingredientXml.getElementsByTagName("name")[0].firstChild.data
+            ingredientList.append(ingredientAmount + ingredientName)
+        #Construct output
+        outputString = "Closest I have is " + closestMatchName + "."
+        outputString += "The ingredients are: " + ", ".join(ingredientList) + "."
+        outputString += "The recipe is: " + cocktailInstructions
+        if(outputString[-1]!="."):
+            outputString += "."
+        return outputString
+        
+        
+        
+        
+        
+        
     
