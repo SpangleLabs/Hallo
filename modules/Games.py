@@ -3,6 +3,7 @@ import random
 import time
 from inc.commons import Commons
 from xml.dom import minidom
+from threading import Thread
 
 class Card:
     '''
@@ -911,12 +912,14 @@ class DDRGame(Game):
     def __init__(self,gameDifficulty,userObject,channelObject):
         self.mDifficulty = gameDifficulty
         self.mPlayers = set([userObject])
+        self.mPlayerDict[userObject]
         self.mChannel = channelObject
         self.mStartTime = time.time()
         self.mLastTime = time.time()
     
     def startGame(self):
-        pass
+        'Launches the new thread to play the game.'
+        Thread(target=self.run).start()
     
     def run(self):
         'Launched into a new thread, this function actually plays the DDR game.'
