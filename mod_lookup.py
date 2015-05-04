@@ -38,24 +38,6 @@ class mod_lookup:
         returndict = xmltodict.parse(code)
         return returndict
 
-    def fn_urban_dictionary(self,args,client,destination):
-        'Gives the top urbandictionary definition for a word. Format: urban_dictionary <word>'
-        args = args.replace(' ','').lower()
-        url = 'http://api.urbandictionary.com/v0/define?term=' + args
-        urbandict = mod_lookup.fnn_loadjson(self,url)
-        if(len(urbandict['list'])>0):
-            definition = urbandict['list'][0]['definition'].replace("\r",'').replace("\n",'')
-            if(ircbot_chk.ircbot_chk.chk_swear(self,destination[0],destination[1],definition)==["none","none"]):
-                return definition
-            else:
-                return "Sorry, I cannot define that word here, as that would be against the rules on swearing."
-        else:
-            return "Sorry, I cannot find a definition for " + args + "."
-
-    def fn_urban(self,args,client,destination):
-        'Alias of urban_dictionary function.'
-        return mod_lookup.fn_urban_dictionary(self,args,client,destination)
-
     def fn_song(self,args,client,destination):
         'States the current song on ponyvillefm'
         url = 'http://ponyvillefm.com/inc/merge.php'
