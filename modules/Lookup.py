@@ -4,6 +4,7 @@ import random
 from xml.dom import minidom
 import difflib
 import re
+import urllib.parse
 
 class UrbanDictionary(Function):
     '''
@@ -214,3 +215,42 @@ class Wiki(Function):
         plainText = re.sub(r'<ref[^>]*/>','',plainText)
         firstParagraph = plainText.strip().split('\n')[0]
         return firstParagraph
+    
+class Translate(Function):
+    '''
+    Uses google translate to translate a phrase to english, or to any specified language
+    '''
+    #Name for use in help listing
+    mHelpName = "translate"
+    #Names which can be used to address the function
+    mNames = set(["translate"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Translates a given block of text. Format: translate <from>-><to> <text>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        if(len(line.split())<=1):
+            langChange = ''
+            transString = line
+        else:
+            langChange = line.split()[0]
+            transString = ' '.join(line.split()[1:])
+        if('->' not in langChange):
+            langFrom = "auto"
+            langTo = "en"
+            transString = langChange+' '+transString
+        else:
+            langFrom = langChange.split('->')[0]
+            langTo = langChange.split('->')[1]
+        transSafe = urllib.parse.quote(transString.strip(),'')
+        url = "http://translate.google.com/translate_a/t?client=t&text="+transSafe+"&hl=en&sl="+langFrom+"&tl="+langTo+"&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1"
+        transDict = Commons.loadUrlJson(url,[],True)
+        translationString = " ".join([x[0] for x in transDict[0]])
+        return "Translation: "+translationString
+    
+

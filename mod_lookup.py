@@ -1,5 +1,4 @@
 import urllib.request #, urllib.error, urllib.parse    #for urbandictionary function
-import urllib.parse
 import json         #for urbandictionary function
 import xmltodict    #for ponyvillefm functionality
 import random
@@ -39,26 +38,6 @@ class mod_lookup:
         weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
         return weather[random.randint(0,len(weather)-1)]
 
-    def fn_translate(self,args,client,destination):
-        'Translates a given block of text. Format: translate <from>-><to> <text>'
-        if(len(args.split())<2):
-            lang_change = ''
-            trans_str = args
-        else:
-            lang_change = args.split()[0]
-            trans_str = ' '.join(args.split()[1:])
-        if('->' not in lang_change):
-            lang_from = "auto"
-            lang_to = "en"
-            trans_str = lang_change+' '+trans_str
-        else:
-            lang_from = lang_change.split('->')[0]
-            lang_to = lang_change.split('->')[1]
-        trans_safe = urllib.parse.quote(trans_str.strip(),'')
-        url = "http://translate.google.com/translate_a/t?client=t&text="+trans_safe+"&hl=en&sl="+lang_from+"&tl="+lang_to+"&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1"
-        transdict = mod_lookup.fnn_loadjson(self,url,[],True)
-        return "Translation: "+transdict[0][0][0]
-        
     def fn_random_porn(self,args,client,destination):
         'Returns a random e621 result using the search you specify. Format: msg <tags>'
         args = args.replace(' ','%20')
@@ -78,7 +57,7 @@ class mod_lookup:
             else:
                 rating = "(Unknown)"
             return "e621 search for \""+args+"\" returned: "+link+" "+rating
-        
+
     def fn_butts(self,args,client,destination):
         'Returns a random image from e621 for the search "butt". Format: butts'
         return mod_lookup.fn_random_porn(self,"butt",client,destination)
