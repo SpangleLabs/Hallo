@@ -302,7 +302,6 @@ class HighScores(Function):
     
     def saveFunction(self):
         'Saves the function, persistent functions only.'
-        #TODO: save all games to XML perhaps?
         #Create document, with DTD
         docimp = minidom.DOMImplementation()
         doctype = docimp.createDocumentType(
