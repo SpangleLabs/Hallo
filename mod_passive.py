@@ -195,10 +195,7 @@ class mod_passive():
 
     def fnn_extrayammering(self, args, client, destination):
         'Does some extra chatting, probably super buggy.'
-        if((args.lower().find("who") >= 0) and (args.lower().find("best pony") >=0 or args.lower().find("bestpony".lower()) >=0)):
-            message = client + ': ' + mod_pony.mod_pony.fn_bestpony(self,args,client,destination)
-            return str(message)
-        elif(args.lower().find("open") >= 0 and (args.lower().find("pod bay") >=0 or args.lower().find("podbay") >=0) and args.lower().find("door") >= 0):
+        if(args.lower().find("open") >= 0 and (args.lower().find("pod bay") >=0 or args.lower().find("podbay") >=0) and args.lower().find("door") >= 0):
             message = "I'm sorry " + client + ", but I'm afraid I can't do that."
             return message
         elif(("irc client" in args.lower() or "irc program" in args.lower() or "chat client" in args.lower()) and ("which" in args.lower() or "what" in args.lower()) and ("get" in args.lower() or "use" in args.lower())):

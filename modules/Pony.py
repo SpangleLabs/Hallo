@@ -96,6 +96,16 @@ class BestPony(Function):
         outputMessage = randomHalf1.replace("{X}",chosenPony['name']) + randomHalf2.replace("{Y}",chosenPony['pronoun'])
         return outputMessage
     
+    def getPassiveEvents(self):
+        'Returns a list of events which this function may want to respond to in a passive way'
+        return set(Function.EVENT_MESSAGE)
+    
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+        'Replies to an event not directly addressed to the bot.'
+        cleanFullLine = fullLine.lower()
+        if("who" in cleanFullLine and ("best pony" in cleanFullLine or "bestpony" in cleanFullLine)):
+            return self.run(cleanFullLine,userObject,channelObject)
+
 class Cupcake(Function):
     '''
     Gives out cupcakes
