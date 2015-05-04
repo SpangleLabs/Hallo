@@ -1095,19 +1095,41 @@ class DDR(Function):
         self.mGameList.append(newGame)
         return outputString
     
-    def joinGame(self,lineClean,userObject,destinationObject):
+    def joinGame(self,lineClean,userObject,destinationObject,passive=False):
         'Player requests to join a game'
         pass
     
-    def quitGame(self,lineClean,userObject,destinationObject):
+    def quitGame(self,lineClean,userObject,destinationObject,passive=False):
         'Player requests to quit a game'
-        pass
+        currentGame = self.findGame(destinationObject)
+        if(currentGame is None):
+            if(not passive):
+                return "You're not playing a game."
+            else:
+                return None
+        outputString = currentGame.quitGame(userObject)
+        if(currentGame.isGameOver()):
+            self.mGameList.remove(currentGame)
+        return outputString
     
-    def makeMove(self,lineClean,userObject,destinationObject):
+    def makeMove(self,lineClean,userObject,destinationObject,passive=False):
         'Player makes a move'
-        pass
-
-
+        currentGame = self.findGame(destinationObject)
+        if(currentGame is None):
+            if(not passive):
+                return "You're not playing a game."
+            else:
+                return None
+        outputString = None
+        if(lineClean in ["<","a"]):
+            outputString = currentGame.makeMove(DDRGame.DIRECTION_LEFT,userObject)
+        if(lineClean in [">","d"]):
+            outputString = currentGame.makeMove(DDRGame.DIRECTION_RIGHT,userObject)
+        if(lineClean in ["^","w"]):
+            outputString = currentGame.makeMove(DDRGame.DIRECTION_UP,userObject)
+        if(lineClean in ["v","s"]):
+            outputString = currentGame.makeMove(DDRGame.DIRECTION_DOWN,userObject)
+        return outputString
 
 
 
