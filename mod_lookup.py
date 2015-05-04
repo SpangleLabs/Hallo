@@ -36,26 +36,6 @@ class mod_lookup:
         returndict = xmltodict.parse(code)
         return returndict
 
-    def fn_song(self,args,client,destination):
-        'States the current song on ponyvillefm'
-        url = 'http://ponyvillefm.com/inc/merge.php'
-        songdict = mod_lookup.fnn_loadxml(self,url)
-        return "Current song on ponyvillefm: " + songdict['SHOUTCASTSERVER']['SONGTITLE']
-
-    def fn_nextsong(self,args,client,destination):
-        'States the next song on ponyvillefm'
-        url = 'http://ponyvillefm.com/inc/merge.php'
-        songdict = mod_lookup.fnn_loadxml(self,url)
-        if(songdict['SHOUTCASTSERVER']['NEXTTITLE'] is None):
-            return "Next song data currently unavailable for ponyvillefm."
-        return "Next song on ponyvillefm: " + songdict['SHOUTCASTSERVER']['NEXTTITLE']
-
-    def fn_listeners(self,args,client,destination):
-        'States the current number of listeners to ponyvillefm'
-        url = 'http://ponyvillefm.com/inc/merge.php'
-        songdict = mod_lookup.fnn_loadxml(self,url)
-        return "Current number of listeners to ponyvillefm: " + songdict['SHOUTCASTSERVER']['CURRENTLISTENERS']
-
     def fn_random_cocktail(self,args,client,destination):
         'Delivers ingredients and recipes for a random cocktail. Format: random_cocktail'
         cocktails = pickle.load(open('store/cocktails.p','rb'))
