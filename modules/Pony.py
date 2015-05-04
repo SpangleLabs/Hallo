@@ -22,7 +22,7 @@ class PonyEpisode(Function):
     
     def run(self,line,userObject,destinationObject=None):
         #Load XML
-        doc = minidom.parse("store/pony_episodes.xml")
+        doc = minidom.parse("store/pony/pony_episodes.xml")
         ponyEpisodesListXml = doc.getElementsByTagName("pony_episodes")[0]
         numEpisodes = len(ponyEpisodesListXml.getElementsByTagName("pony_episode"))
         episodeList = []
@@ -66,7 +66,7 @@ class BestPony(Function):
     
     def run(self,line,userObject,destinationObject=None):
         #Load XML
-        doc = minidom.parse("store/ponies.xml")
+        doc = minidom.parse("store/pony/ponies.xml")
         ponyListXml = doc.getElementsByTagName("ponies")[0]
         #Use the weighted list of categories to pick a category for the pony
         weightedCategories = ["mane6", "mane6", "mane6", "mane6", "mane6", "princess", "princess", "princess", "princess", "cmc", "cmc", "cmc", "ponyville", "ponyville", "villain", "villain", "wonderbolt", "wonderbolt", "canterlot", "cloudsdale", "foal", "hearthswarming", "notapony", "other", "pet"]
