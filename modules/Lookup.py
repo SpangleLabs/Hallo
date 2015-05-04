@@ -3,6 +3,7 @@ from inc.commons import Commons
 import random
 from xml.dom import minidom
 import difflib
+import re
 
 class UrbanDictionary(Function):
     '''
@@ -176,3 +177,40 @@ class TimestampToDate(Function):
         except:
             return "Invalid timestamp"
         return Commons.formatUnixTime(line) + "."
+
+class Wiki(Function):
+    '''
+    Lookup wiki article and return the first paragraph or so.
+    '''
+    #Name for use in help listing
+    mHelpName = "wiki"
+    #Names which can be used to address the function
+    mNames = set(["wiki","wikipedia"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Reads the first paragraph from a wikipedia article"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        lineClean = line.strip().replace(" ","_")
+        url = 'http://en.wikipedia.org/w/api.php?format=json&action=query&titles='+lineClean+'&prop=revisions&rvprop=content&redirects=True'
+        articleDict = Commons.loadUrlJson(url)
+        pageCode = list(articleDict['query']['pages'])[0]
+        articleText = articleDict['query']['pages'][pageCode]['revisions'][0]['*']
+        oldScan = articleText
+        newScan = re.sub('{{[^{^}]*}}','',oldScan)
+        while(newScan!=oldScan):
+            oldScan = newScan
+            newScan = re.sub('{{[^{^}]*}}','',oldScan)
+        plainText = newScan.replace('\'\'','')
+        plainText = re.sub(r'<ref[^<]*</ref>','',plainText)
+        plainText = re.sub(r'\[\[([^]]*)]]',r'\1',plainText)
+        plainText = re.sub(r'\[\[[^]^|]*\|([^]]*)]]',r'\1',plainText)
+        plainText = re.sub(r'<!--[^>]*-->','',plainText)
+        plainText = re.sub(r'<ref[^>]*/>','',plainText)
+        firstParagraph = plainText.strip().split('\n')[0]
+        return firstParagraph

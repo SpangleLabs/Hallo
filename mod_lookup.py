@@ -39,21 +39,6 @@ class mod_lookup:
         weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
         return weather[random.randint(0,len(weather)-1)]
 
-    def fn_wiki(self,args,client,destination):
-        'Reads the first paragraph from a wikipedia article'
-        url = 'http://en.wikipedia.org/w/api.php?format=json&action=query&titles='+args.strip().replace(' ','_')+'&prop=revisions&rvprop=content&redirects=True'
-        article = mod_lookup.fnn_loadjson(self,url)
-        articletext = article['query']['pages'][list(article['query']['pages'])[0]]['revisions'][0]['*']
-        oldscan = articletext
-        newscan = re.sub('{{[^{^}]*}}','',oldscan)
-        while(newscan!=oldscan):
-            oldscan = newscan
-            newscan = re.sub('{{[^{^}]*}}','',oldscan)
-        plaintext = re.sub(r'<!--[^>]*-->','',re.sub(r'\[\[([^]]*)]]',r'\1',re.sub(r'\[\[[^]^|]*\|([^]]*)]]',r'\1',re.sub(r'<ref[^<]*</ref>','',newscan.replace('\'\'','')))))
-        plaintext = re.sub(r'<ref[^>]*/>','',plaintext)
-        firstparagraph = plaintext.lstrip().split('\n')[0]
-        return firstparagraph
-
     def fn_translate(self,args,client,destination):
         'Translates a given block of text. Format: translate <from>-><to> <text>'
         if(len(args.split())<2):
