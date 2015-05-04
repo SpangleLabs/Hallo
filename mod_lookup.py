@@ -7,8 +7,6 @@ import random
 import difflib
 import re      #for turning wikicode to plaintext
 
-import ircbot_chk
-
 class mod_lookup:
 
     def fnn_loadjson(self,url,headers=[],jsonfix=False):
