@@ -1072,7 +1072,11 @@ class DDR(Function):
         'Finds the game running in a specified channel, None otherwise.'
         for game in self.mGameList:
             if(game.getChannel()==destinationObject):
-                return game
+                if(game.isGameOver()):
+                    self.mGameList.remove(game)
+                    return None
+                else:
+                    return game
         return None
     
     def newGame(self,lineClean,userObject,destinationObject):
@@ -1097,7 +1101,13 @@ class DDR(Function):
     
     def joinGame(self,lineClean,userObject,destinationObject,passive=False):
         'Player requests to join a game'
-        pass
+        currentGame = self.findGame(destinationObject)
+        if(currentGame is None):
+            if(not passive):
+                return "There is no game happening in this channel."
+            else:
+                return None
+        outputString = currentGame.
     
     def quitGame(self,lineClean,userObject,destinationObject,passive=False):
         'Player requests to quit a game'
