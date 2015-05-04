@@ -5,7 +5,7 @@ from inc.commons import Commons
 
 class PonyEpisode(Function):
     '''
-    Ouija board function. "Ouija board" is copyright Hasbro.
+    Random pony episode function.
     '''
     #Name for use in help listing
     mHelpName = "pony episode"
