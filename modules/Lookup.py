@@ -153,3 +153,26 @@ class InSpace(Function):
         if("in space" in cleanFullLine and ("who" in cleanFullLine or "how many" in cleanFullLine)):
             return self.run(cleanFullLine,userObject,channelObject)
 
+class TimestampToDate(Function):
+    '''
+    Converts an unix timestamp to a date
+    '''
+    #Name for use in help listing
+    mHelpName = "date"
+    #Names which can be used to address the function
+    mNames = set(["timestamp to date","unix timestamp","unix","unix timestamp to date"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns the date from a given unix timestamp. Format: date <timestamp>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        try:
+            line = int(line)
+        except:
+            return "Invalid timestamp"
+        return Commons.formatUnixTime(line) + "."
