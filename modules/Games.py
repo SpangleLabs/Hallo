@@ -912,7 +912,7 @@ class DDRGame(Game):
     def __init__(self,gameDifficulty,userObject,channelObject):
         self.mDifficulty = gameDifficulty
         self.mPlayers = set([userObject])
-        self.mPlayerDict[userObject]
+        self.mPlayerDict[userObject] = {}
         self.mChannel = channelObject
         self.mStartTime = time.time()
         self.mLastTime = time.time()
@@ -923,7 +923,39 @@ class DDRGame(Game):
     
     def run(self):
         'Launched into a new thread, this function actually plays the DDR game.'
-        pass
+        serverObject = self.mChannel.getServer()
+        if(self.mDifficulty==self.DIFFICULTY_HARD):
+            numTurns = 20
+            timeMin = 1
+            timeMax = 2
+        elif(self.mDifficulty==self.DIFFICULTY_MEDIUM):
+            numTurns = 15
+            timeMin = 3
+            timeMax = 5
+        else:
+            numTurns = 10
+            timeMin = 5
+            timeMax = 8
+        directions = ['^','v','>','<']
+        #Send first message and wait for new players to join
+        outputString = "Starting new game of DDR in 5 seconds, say 'join' to join."
+        serverObject.send(outputString,self.mChannel,"message")
+        time.sleep(5)
+        #Output how many players joined and begin
+        self.mCanJoin = False
+        outputString = str(len(self.mPlayers)) + " players joined: "+", ".join([player.getName() for player in self.mPlayers]) + ". Starting game."
+        serverObject.send(outputString,self.mChannel,"message")
+        #Do the various turns of the game
+        for _ in range(numTurns):
+            if(self.isGameOver()):
+                return
+            direction = random.choice(directions)
+            self.mLastMove = direction
+            self.mPlayersMoved = set()
+            self.updateTime()
+            serverObject.send(direction,self.mChannel,"message")
+            time.sleep(random.uniform(timeMin,timeMax))
+        #TODO: end game
     
     def canJoin(self):
         'Boolean, whether players can join.'
