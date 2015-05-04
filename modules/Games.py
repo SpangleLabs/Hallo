@@ -904,6 +904,7 @@ class DDRGame(Game):
     DIRECTION_RIGHT = ">"
     DIRECTION_UP = "^"
     DIRECTION_DOWN = "v"
+    mHighScoreObject = None
     mLastMove = None
     mDifficulty = None
     mPlayers = set()
@@ -912,6 +913,7 @@ class DDRGame(Game):
     mPlayerDict = {}
     mCanJoin = True
     mGameOver = False
+    mNumTurns = None
     
     def __init__(self,gameDifficulty,userObject,channelObject):
         self.mDifficulty = gameDifficulty
@@ -920,6 +922,9 @@ class DDRGame(Game):
         self.mChannel = channelObject
         self.mStartTime = time.time()
         self.mLastTime = time.time()
+        functionDispatcher = userObject.getServer().getHallo().getFunctionDispatcher()
+        highScoresClass = functionDispatcher.getFunctionByName("highscores")
+        self.mHighScoresObject = functionDispatcher.getFunctionObject(highScoresClass)
     
     def startGame(self):
         'Launches the new thread to play the game.'
@@ -929,15 +934,15 @@ class DDRGame(Game):
         'Launched into a new thread, this function actually plays the DDR game.'
         serverObject = self.mChannel.getServer()
         if(self.mDifficulty==self.DIFFICULTY_HARD):
-            numTurns = 20
+            self.mNumTurns = 20
             timeMin = 1
             timeMax = 2
         elif(self.mDifficulty==self.DIFFICULTY_MEDIUM):
-            numTurns = 15
+            self.mNumTurns = 15
             timeMin = 3
             timeMax = 5
         else:
-            numTurns = 10
+            self.mNumTurns = 10
             timeMin = 5
             timeMax = 8
         directions = [self.DIRECTION_LEFT,self.DIRECTION_RIGHT,self.DIRECTION_UP,self.DIRECTION_DOWN]
@@ -950,7 +955,7 @@ class DDRGame(Game):
         outputString = str(len(self.mPlayers)) + " players joined: "+", ".join([player.getName() for player in self.mPlayers]) + ". Starting game."
         serverObject.send(outputString,self.mChannel,"message")
         #Do the various turns of the game
-        for _ in range(numTurns):
+        for _ in range(self.mNumTurns):
             if(self.isGameOver()):
                 return
             direction = random.choice(directions)
@@ -959,8 +964,88 @@ class DDRGame(Game):
             self.updateTime()
             serverObject.send(direction,self.mChannel,"message")
             time.sleep(random.uniform(timeMin,timeMax))
-        #TODO: end game
+        #end game
+        #Set game over
+        self.mGameOver = True
+        outputString = "Game has finished!"
+        serverObject.send(outputString,self.mChannel,"message")
+        #See who wins
+        winnerPlayer = self.findWinner()
+        outputString = "Winner is: "+winnerPlayer.getName()
+        serverObject.send(outputString,self.mChannel,"message")
+        #Output player ratings
+        for player in self.mPlayers:
+            outputString = self.playerRating(player)
+            serverObject.send(outputString,self.mChannel,"message")
+        #Check if they have a highscore
+        if(self.checkHighScore(winnerPlayer)):
+            self.updateHighScore()
+            serverObject.send(winnerPlayer.getName()+" has set a new DDR highscore with "+str(self.mPlayerDict[winnerPlayer]['hits'])+" hits and "+str(self.mPlayerDict[winnerPlayer]['lag'])+" lag!",self.mChannel,"message")
+        #Game ended
+        
+    def findWinner(self):
+        'Determines which player won.'
+        winner = None
+        winnerHits = 0
+        winnerLag = 0
+        for player in self.mPlayerDict:
+            if(self.mPlayerDict[player]['hits']>winnerHits):
+                winner = player
+                winnerHits = self.mPlayerDict[player]['hits']
+                winnerLag = self.mPlayerDict[player]['lag']
+            elif(self.mPlayerDict[player]['hits'] == winnerHits):
+                if(self.mPlayerDict[player]['lag'] < winnerLag):
+                    winner = player
+                    winnerHits = self.mPlayerDict[player]['hits']
+                    winnerLag = self.mPlayerDict[player]['lag']
+        return winner
     
+    def playerRating(self,playerObject):
+        'Determines rating for a specified player'
+        hits = self.mPlayerDict[playerObject]['hits']
+        lag = self.mPlayerDict[playerObject]['lag']
+        if(hits==self.mNumTurns):
+            if(lag<5):
+                return "Marvelous!! ("+str(hits)+" hits, "+str(lag)+"s lag.)"
+            else:
+                return "Perfect! ("+str(hits)+" hits, "+str(lag)+"s lag.)"
+        elif(hits>=self.mNumTurns*0.75):
+            return "Great ("+str(hits)+" hits, "+str(lag)+"s lag.)"
+        elif(hits>=self.mNumTurns*0.5):
+            return "Good ("+str(hits)+" hits, "+str(lag)+"s lag.)"
+        elif(hits>=self.mNumTurns*0.25):
+            return "Almost ("+str(hits)+" hits, "+str(lag)+"s lag.)"
+        else:
+            return "Failure. ("+str(hits)+" hits, "+str(lag)+"s lag.)"
+
+    def checkHighScore(self,winnerPlayer):
+        'Checks if this game is a high score. Returns boolean'
+        highScore = self.mHighScoresObject.getHighScore(self.HIGH_SCORE_NAME)
+        if(highScore is None):
+            return True
+        lastHits = int(highScore['data']['hits'])
+        lastLag = float(highScore['data']['lag'])
+        winnerHits = self.mPlayerDict[winnerPlayer]['hits']
+        winnerLag = self.mPlayerDict[winnerPlayer]['lag']
+        if(winnerHits>lastHits):
+            return True
+        if(winnerHits==lastHits and winnerLag < lastLag):
+            return True
+        return False
+    
+    def updateHighScore(self,winnerPlayer):
+        'Updates the high score with current game. Checks that it is high score first.'
+        if(not self.checkHighScore(winnerPlayer)):
+            return False
+        winnerHits = self.mPlayerDict[winnerPlayer]['hits']
+        winnerLag = self.mPlayerDict[winnerPlayer]['lag']
+        winnerScore = str(winnerHits) + " hits, " + "{0:.3f}".format(winnerLag) + "s lag"
+        gameData = {}
+        gameData['hits'] = winnerHits
+        gameData['lag'] = winnerLag
+        self.mHighScoresObject.addHighScore(self.HIGH_SCORE_NAME,winnerScore,winnerPlayer.getName(),gameData)
+        return True
+
     def canJoin(self):
         'Boolean, whether players can join.'
         return self.mCanJoin
