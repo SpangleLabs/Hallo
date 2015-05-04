@@ -900,6 +900,10 @@ class DDRGame(Game):
     DIFFICULTY_MEDIUM = "medium"
     DIFFICULTY_HARD = "hard"
     HIGH_SCORE_NAME = "ddr"
+    DIRECTION_LEFT = "<"
+    DIRECTION_RIGHT = ">"
+    DIRECTION_UP = "^"
+    DIRECTION_DOWN = "v"
     mLastMove = None
     mDifficulty = None
     mPlayers = set()
@@ -936,7 +940,7 @@ class DDRGame(Game):
             numTurns = 10
             timeMin = 5
             timeMax = 8
-        directions = ['^','v','>','<']
+        directions = [self.DIRECTION_LEFT,self.DIRECTION_RIGHT,self.DIRECTION_UP,self.DIRECTION_DOWN]
         #Send first message and wait for new players to join
         outputString = "Starting new game of DDR in 5 seconds, say 'join' to join."
         serverObject.send(outputString,self.mChannel,"message")
@@ -973,10 +977,10 @@ class DDRGame(Game):
         else:
             return "This game cannot be joined now."
     
-    def makeMove(self):
+    def makeMove(self,direction,userObject):
         pass
     
-    def quitGame(self):
+    def quitGame(self,userObject):
         pass
 
 class DDR(Function):
