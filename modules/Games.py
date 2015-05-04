@@ -1083,7 +1083,7 @@ class DDR(Function):
         'Starts a new game'
         currentGame = self.findGame(destinationObject)
         if(currentGame is not None):
-            return "You're already playing a game."
+            return "There's already a game going in this channel."
         #Find out the game difficulty
         if("easy" in lineClean):
             gameDifficulty = DDRGame.DIFFICULTY_EASY
@@ -1107,14 +1107,15 @@ class DDR(Function):
                 return "There is no game happening in this channel."
             else:
                 return None
-        outputString = currentGame.
+        outputString = currentGame.joinGame(userObject)
+        return outputString
     
     def quitGame(self,lineClean,userObject,destinationObject,passive=False):
         'Player requests to quit a game'
         currentGame = self.findGame(destinationObject)
         if(currentGame is None):
             if(not passive):
-                return "You're not playing a game."
+                return "There is no game happening in this channel."
             else:
                 return None
         outputString = currentGame.quitGame(userObject)
@@ -1127,7 +1128,7 @@ class DDR(Function):
         currentGame = self.findGame(destinationObject)
         if(currentGame is None):
             if(not passive):
-                return "You're not playing a game."
+                return "There is no game happening in this channel."
             else:
                 return None
         outputString = None
