@@ -141,6 +141,9 @@ class Server(object):
         'Type getter'
         raise NotImplementedError
     
+    def getPermissionMask(self):
+        return self.mPermissionMask
+    
     def isConnected(self):
         'Returns boolean representing whether the server is connected or not.'
         return self.mOpen

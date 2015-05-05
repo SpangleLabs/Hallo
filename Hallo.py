@@ -229,6 +229,9 @@ class Hallo:
         'Default full name setter'
         self.mDefaultFullName = defaultFullName
     
+    def getPermissionMask(self):
+        return self.mPermissionMask
+    
     def getFunctionDispatcher(self):
         'Returns the FunctionDispatcher object'
         return self.mFunctionDispatcher

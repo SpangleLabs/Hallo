@@ -81,6 +81,9 @@ class Destination:
     def isPersistent(self):
         'Defines whether a Destination object is persistent. That is to say, whether it needs saving, or can be generated anew.'
         raise NotImplementedError
+    
+    def getPermissionMask(self):
+        return self.mPermissionMask
         
     def toXml(self):
         'Returns the Destination object XML'
