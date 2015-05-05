@@ -117,12 +117,14 @@ class EightBall(Function):
                     self.mNames.add(magic+eight+space+"ball")
         return self.mNames.add(self.mHelpName)
 
-class ChoosenOne(Function):
+class ChosenOne(Function):
     '''
     Selects a random user from a channel
     '''
-    mHelpName = "choosen one"                        #Name for use in help listing
-    mNames = set(["choosen one","chosenone","random user"])             #Names which can be used to address the function
+    #Name for use in help listing
+    mHelpName = "chosen one"
+    #Names which can be used to address the function
+    mNames = set(["chosen one","chosenone","random user","random person"])
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Specifies who the chosen one is. Format: chosen one"
     
