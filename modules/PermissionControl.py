@@ -23,6 +23,11 @@ class Permissions(Function):
 
     def run(self,line,userObject,destinationObject=None):
         lineSplit = line.split()
+        if(len(lineSplit)<3):
+            return "You need to specify a location, a right and the value"
+        boolInput = lineSplit[-1]
+        rightInput = lineSplit[-2]
+        locationInput = lineSplit[:-3]
         locationInput = lineSplit[0].lower()
         #Search for the permissionMask they want.
         permissionMask = self.findPermissionMask(locationInput,userObject,destinationObject)
