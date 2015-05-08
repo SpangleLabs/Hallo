@@ -5,6 +5,27 @@
 <function_dispatcher>
 	<module_list>
 		<module>
+			<name>Furry</name>
+		</module>
+		<module>
+			<name>Games</name>
+		</module>
+		<module>
+			<name>HalloControl</name>
+		</module>
+		<module>
+			<name>Lookup</name>
+		</module>
+		<module>
+			<name>PermissionControl</name>
+		</module>
+		<module>
+			<name>Pokemon</name>
+		</module>
+		<module>
+			<name>Pony</name>
+		</module>
+		<module>
 			<name>Random</name>
 		</module>
 		<module>
