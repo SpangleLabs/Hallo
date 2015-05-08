@@ -161,27 +161,6 @@ class hallobase_oper:
         else:
             return "Insufficient privileges to change password."
 
-    def fn_module_reload(self,args,client,destination):
-        'reloads a specified module. Godmode only.'
-        try:
-            allowedmodules = pickle.load(open('store/allowedmodules.p','rb'))
-        except IOError:
-            allowedmodules = []
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            args = args.lower().replace(' ','')
-            if(args in allowedmodules):
-                imp.acquire_lock()
-                importlib.import_module(args)
-                imp.reload(sys.modules[args])
-                imp.release_lock()
-                if(args not in self.modules):
-                    self.modules.append(args)
-                return "Reloaded module."
-            else:
-                return "This module is not allowed. sorry."
-        else:
-            return "Insufficient privileges."
-
     def fn_nicklist(self,args,client,destination):
         'Returns a user list for a given channel. format: nicklist <channel>'
         channels = ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args)
