@@ -223,14 +223,6 @@ class hallobase_oper:
         else:
             return "Insufficient privileges to change function variables."
 
-    def fn_config_save(self,args,client,destination):
-        'Save the config and pickle it. godmod only.'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            pickle.dump(self.conf,open(self.configfile,"wb"))
-            return "config file saved."
-        else:
-            return "Insufficient privileges to save config file."
-
     def fn_module_reload(self,args,client,destination):
         'reloads a specified module. Godmode only.'
         try:
