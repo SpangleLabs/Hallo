@@ -1,13 +1,8 @@
 import ircbot_chk
-import pprint
-import time
-import os
 import pickle
 import sys
 import importlib
 import imp
-import random
-import hashlib
 
 
 endl = '\r\n'
