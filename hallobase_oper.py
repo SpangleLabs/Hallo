@@ -131,24 +131,5 @@ class hallobase_oper:
             output.append("Users in " + channel[0] + ":" + channel[1] + "> (" + str(len(userlist)) + ") " + ', '.join(userlist) + ".")
         return "\n".join(output)
 
-    def fn_nicklist_fix(self,args,client,destination):
-        'fixing user lists. temp function. lowercases everyone.'
-        for server in self.core['server']:
-            if(not self.conf['server'][server]['connected']):
-                continue
-            for channel in self.core['server'][server]['channel']:
-                if(not self.conf['server'][server]['channel'][channel]['in_channel']):
-                    continue
-                names = ircbot_chk.ircbot_chk.chk_names(self,server,channel)
-                namesprocessed = []
-                for name in names:
-                    name = name.lower()
-                    if(name[0] in ['+','%','@','~','&']):
-                        name = name[1:]
-                    namesprocessed.append(name)
-                self.core['server'][server]['channel'][channel]['user_list'] = namesprocessed
-        return "Success?"
-
-
 
 
