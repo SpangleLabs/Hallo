@@ -445,4 +445,56 @@ class EditServer(Function):
         if(serverPort is not None or serverAddress is not None):
             serverObject.reconnect()
         return "Modified the IRC server: "+serverObject.getName()+"."
-        
+
+class ListUsers(Function):
+    '''
+    Lists users in a specified channel.
+    '''
+    #Name for use in help listing
+    mHelpName = "list users"
+    #Names which can be used to address the Function
+    mNames = set(["list users","nick list","nicklist","list channel"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns a user list for a given channel."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Useful object
+        halloObject = userObject.getServer().getHallo()
+        #See if a server was specified.
+        serverName = self.findParameter("server",line)
+        #Get server object. If invalid, use current
+        serverObject = halloObject.getServerByName(serverName)
+        if(serverObject is None):
+            serverObject = userObject.getServer()
+        #Remove server name from line and trim
+        if(serverName is not None):
+            line = line.replace("server="+serverName,"").strip()
+        #See if channel was specified with equals syntax
+        channelName = self.findParameter("channel",line) or self.findParameter("chan",line)
+        #If not specified with equals syntax, check if just said.
+        if(channelName is None):
+            channelName = line
+        #Get channel object
+        channelObject = serverObject.getChannelByName(channelName)
+        #Get user list
+        userList = channelObject.getUserList()
+        #Output
+        outputString = "Users in "+channelName+": "
+        outputString += ", ".join(userList)
+        outputString += "."
+        return outputString
+    
+    def findParameter(self,paramName,line):
+        'Finds a parameter value in a line, if the format parameter=value exists in the line'
+        paramValue = None
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramSearch = paramRegex.search(line)
+        if(paramSearch is not None):
+            paramValue = paramSearch.group(2)
+        return paramValue
