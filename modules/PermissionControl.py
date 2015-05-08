@@ -14,7 +14,7 @@ class Permissions(Function):
     
     HALLO_NAMES = ["hallo","core","all","*","default"]
     SERVER_NAMES = ["server","serv","s"]
-    CHANNEL_NAMES = ["channel","chan","room"]
+    CHANNEL_NAMES = ["channel","chan","room","c"]
     USER_GROUP_NAMES = ["usergroup","user_group","user-group","group"]
     USER_NAMES = ["user","person","u"]
     
