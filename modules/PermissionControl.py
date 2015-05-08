@@ -47,9 +47,34 @@ class Permissions(Function):
             return "I'm not sure how to interpret that PermissionMask location"
         #If they've specified a server & channel or server & user, parse here
         if(len(locationInput)==2):
-            #TODO: this
-            return "NOT YET IMPLEMENTED server & channel/server & user"
-        ##All following have len(locationInput)==1.
+            #Find server object.
+            if(any([locationInput[0].startswith(serverStr+"=") for serverStr in self.SERVER_NAMES])):
+                serverName = locationInput[0].split("=")[1]
+                locationOther = locationInput[1]
+            elif(any([locationInput[1].startswith(serverStr+"=") for serverStr in self.SERVER_NAMES])):
+                serverName = locationInput[1].split("=")[1]
+                locationOther = locationInput[0]
+            else:
+                return "No server name found."
+            serverObject = userObject.getServer().getHallo().getServerByName(serverName)
+            if(serverObject is None):
+                return "No server exists by that name."
+            #Check if they have specified a channel
+            if(any([locationInput[0].startswith(channelStr+"=") for channelStr in self.CHANNEL_NAMES])):
+                #Get channel by that name
+                channelName = locationInput[0].split("=")[1]
+                channelObject = userObject.getServer().getChannelByName(channelName)
+                permissionMask = channelObject.getPermissionMask()
+                return permissionMask
+            #Check if they've specified a user
+            if(any([locationInput[0].startswith(userStr+"=") for userStr in self.USER_NAMES])):
+                #Get the user by that name
+                userName = locationInput[0].split("=")[1]
+                userObject.getServer().getUserByName(userName)
+                permissionMask = userObject.getPermissionMask()
+                return permissionMask
+            return "Input not understood. You specified a server but not channel or user?"
+        ##All following have length locationInput ==1.
         #Check if they want to set generic hallo permissions
         if(locationInput[0] in self.HALLO_NAMES):
             permissionMask = userObject.getServer().getHallo().getPermissionMask()
@@ -72,6 +97,13 @@ class Permissions(Function):
             if(destinationObject==None or destinationObject==userObject):
                 return "You can't set generic channel permissions in a privmsg."
             permissionMask = destinationObject.getPermissionMask()
+            return permissionMask
+        #Check if they have specified a channel
+        if(any([locationInput[0].startswith(channelStr+"=") for channelStr in self.CHANNEL_NAMES])):
+            #Get channel by that name
+            channelName = locationInput[0].split("=")[1]
+            channelObject = userObject.getServer().getChannelByName(channelName)
+            permissionMask = channelObject.getPermissionMask()
             return permissionMask
         #Check if they've specified a user group?
         if(any([locationInput[0].startswith(userGroupStr+"=") for userGroupStr in self.USER_GROUP_NAMES])):
