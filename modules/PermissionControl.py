@@ -1,4 +1,5 @@
 from Function import Function
+from inc.commons import Commons
 
 class Permissions(Function):
     '''
@@ -31,20 +32,27 @@ class Permissions(Function):
         rightInput = lineSplit[-2]
         locationInput = lineSplit[:-3]
         #Search for the permissionMask they want.
-        permissionMask = self.findPermissionMask(locationInput,userObject,destinationObject)
+        try:
+            permissionMask = self.findPermissionMask(locationInput,userObject,destinationObject)
+        #If it comes back with an error message, return that error
+        except Exception as e:
+            return str(e)
         #If it comes back unspecified, generic error message
         if(permissionMask is None):
             return "I can't find that permission mask. Specify which you wish to modify as user={username}, or similarly for usergroup, channel, server or hallo."
-        #If it comes back with an error message, return that error
-        #TODO: use exception.
-        if(permissionMask.__class__.__name__ == "str"):
-            return permissionMask
+        #Turn boolInput into a boolean
+        boolBool = Commons.stringToBool(boolInput)
+        #Check if boolean input is valid
+        if(boolBool is None):
+            return "I don't understand your boolean value. Please use true or false."
+        #Set the right
+        permissionMask.setRight(rightInput,boolBool)
         pass
     
     def findPermissionMask(self,locationInput,userObject,destinationObject):
         #If locationInput is a list with more than 2 elements, I don't know how to proceed.
         if(len(locationInput)>2):
-            return "I'm not sure how to interpret that PermissionMask location"
+            raise Exception("I'm not sure how to interpret that PermissionMask location")
         #If they've specified a server & channel or server & user, parse here
         if(len(locationInput)==2):
             #Find server object.
@@ -55,10 +63,10 @@ class Permissions(Function):
                 serverName = locationInput[1].split("=")[1]
                 locationOther = locationInput[0]
             else:
-                return "No server name found."
+                raise Exception("No server name found.")
             serverObject = userObject.getServer().getHallo().getServerByName(serverName)
             if(serverObject is None):
-                return "No server exists by that name."
+                raise Exception("No server exists by that name.")
             #Check if they have specified a channel
             if(any([locationOther.startswith(channelStr+"=") for channelStr in self.CHANNEL_NAMES])):
                 #Get channel by that name
@@ -73,7 +81,7 @@ class Permissions(Function):
                 userObject.getServer().getUserByName(userName)
                 permissionMask = userObject.getPermissionMask()
                 return permissionMask
-            return "Input not understood. You specified a server but not channel or user?"
+            raise Exception("Input not understood. You specified a server but not channel or user?")
         ##All following have length locationInput ==1.
         #Check if they want to set generic hallo permissions
         if(locationInput[0] in self.HALLO_NAMES):
@@ -88,14 +96,14 @@ class Permissions(Function):
             serverName = locationInput[0].split("=")[1]
             serverObject = userObject.getServer().getHallo().getServerByName(serverName)
             if(serverObject is None):
-                return "No server exists by that name."
+                raise Exception("No server exists by that name.")
             permissionMask = serverObject.getPermissionMask()
             return permissionMask
         #Check if they've asked for current channel
         if(locationInput[0] in self.CHANNEL_NAMES):
             #Check if this is a channel, and not privmsg.
             if(destinationObject==None or destinationObject==userObject):
-                return "You can't set generic channel permissions in a privmsg."
+                raise Exception("You can't set generic channel permissions in a privmsg.")
             permissionMask = destinationObject.getPermissionMask()
             return permissionMask
         #Check if they have specified a channel
@@ -112,7 +120,7 @@ class Permissions(Function):
             halloObject = userObject.getServer().getHallo()
             userGroupObject = halloObject.getUserGroupByName(userGroupName)
             if(userGroupObject==None):
-                return "No user group exists by that name."
+                raise Exception("No user group exists by that name.")
             #get permission mask and output
             permissionMask = userGroupObject.getPermissionMask()
             return permissionMask
@@ -128,7 +136,7 @@ class Permissions(Function):
             userList = destinationObject.getUserList()
             userListMatching = [userObject for userObject in userList if userObject.getName()==locationInput[0]]
             if(len(userListMatching)==0):
-                return "I do not understand your input. I cannot find that Permission Mask."
+                raise Exception("I do not understand your input. I cannot find that Permission Mask.")
             userObject = userListMatching[0]
             permissionMask = userObject.getPermissionMask()
             return permissionMask
