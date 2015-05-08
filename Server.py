@@ -68,6 +68,9 @@ class Server(object):
     def disconnect(self):
         raise NotImplementedError
     
+    def reconnect(self):
+        raise NotImplementedError
+    
     def run(self):
         '''
         Method to read from stream and process. Will call an internal parsing method or whatnot
@@ -325,6 +328,10 @@ class ServerIRC(Server):
             self.send('QUIT :Will I dream?',None,"raw")
             self.mSocket.close()
             self.mOpen = False
+    
+    def reconnect(self):
+        #TODO: IMPORTANT
+        raise NotImplementedError
     
     def run(self):
         '''
