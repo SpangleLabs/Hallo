@@ -352,5 +352,119 @@ class Help(Function):
             return helpMessage
         except NotImplementedError:
             return "No documentation exists for that function"
+
+class EditServer(Function):
+    '''
+    Edits a Server
+    '''
+    #Name for use in help listing
+    mHelpName = "edit server"
+    #Names which can be used to address the Function
+    mNames = set(["edit server","server edit"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Edits a server's configuration."
     
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        'Runs the function'
+        currentServer = userObject.getServer()
+        halloObject = currentServer.getHallo()
+        #Split line, to find server name
+        lineSplit = line.split()
+        serverName = lineSplit[0]
+        #See is a server by this name is known
+        serverObject = halloObject.getServerByName(serverName)
+        if(serverObject is None):
+            return "This is not a recognised server name. Please specify server name, then whichever variables and values you wish to set. In variable=value pairs."
+        #Get protocol and go through protocols branching to whatever function to handle modifying servers of that protocol.
+        serverProtocol = serverObject.getType()
+        if(serverProtocol=="irc"):
+            return self.editServerIrc(line,userObject,destinationObject)
+        #Add in ELIF statements here, to make user Connect Function support other protocols
+        else:
+            return "Unrecognised server protocol"
+    
+    def findParameter(self,paramName,line):
+        'Finds a parameter value in a line, if the format parameter=value exists in the line'
+        paramValue = None
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramSearch = paramRegex.search(line)
+        if(paramSearch is not None):
+            paramValue = paramSearch.group(2)
+        return paramValue
+    
+    def editServerIrc(self,line,userObject,destinationObject):
+        'Processes arguments in order to edit an IRC server'
+        raise NotImplementedError
+        #Get some handy objects
+        currentServer = userObject.getServer()
+        halloObject = currentServer.getHallo()
+        #Set all variables to none as default
+        serverAddress,serverPort = None,None
+        serverName = None
+        #Find the URL, if specified
+        urlRegex = re.compile("(^|\s)(irc://)?(([a-z.]+\.[a-z]+)(:([0-9]+))?)(\s|$)",re.IGNORECASE)
+        urlSearch = urlRegex.search(line)
+        if(urlSearch is not None):
+            line = line.replace(urlSearch.group(0)," ")
+            serverAddress = urlSearch.group(4).lower()
+            serverPort = int(urlSearch.group(6))
+        #Find the serverAddress, if specified with equals notation
+        serverAddress = self.findParameter("server_address",line) or serverAddress
+        #Find the serverPort, if specified with equals notation
+        serverPortParam = self.findParameter("server_port",line)
+        if(serverPortParam is not None):
+            try:
+                serverPort = int(serverPortParam)
+            except ValueError:
+                return "Invalid port number."
+        #Check serverAddress and serverPort are set
+        if(serverAddress is None):
+            return "No server address specified."
+        if(serverPort is None):
+            serverPort = currentServer.getServerPort()
+        #Get server name
+        serverName = self.findParameter("name",line) or serverName
+        serverName = self.findParameter("server_name",line) or serverName
+        #if server name is null, get it from serverAddress
+        if(serverName is None):
+            serverName = Commons.getDomainName(serverAddress)
+        #Get other parameters, if set.
+        autoConnect = Commons.stringToBool(self.findParameter("auto_connect",line)) or True
+        serverNick = self.findParameter("server_nick",line) or self.findParameter("nick",line)
+        serverPrefix = self.findParameter("server_prefix",line) or self.findParameter("prefix",line)
+        fullName = self.findParameter("full_name",line)
+        nickservNick = "nickserv"
+        nickservIdentityCommand = "status"
+        nickservIdentityResponse = "^status [^ ]+ 3$"
+        nickservPassword = None
+        if(currentServer.getType()=="irc"):
+            nickservNick = currentServer.getNickservNick()
+            nickservIdentityCommand = currentServer.getNickservIdentityCommand()
+            nickservIdentityResponse = currentServer.getNickservIdentityResponse()
+            nickservPassword = currentServer.getNickservPassword()
+        nickservNick = self.findParameter("nickserv_nick",line) or nickservNick
+        nickservIdentityCommand = self.findParameter("nickserv_identity_command",line) or nickservIdentityCommand
+        nickservIdentityResponse = self.findParameter("nickserv_identity_response",line) or nickservIdentityResponse
+        nickservPassword = self.findParameter("nickserv_password",line) or nickservPassword
+        #Create this serverIRC object
+        newServerObject = ServerIRC(halloObject,serverName,serverAddress,serverPort)
+        newServerObject.setAutoConnect(autoConnect)
+        newServerObject.setNick(serverNick)
+        newServerObject.setPrefix(serverPrefix)
+        newServerObject.setFullName(fullName)
+        newServerObject.setNickservNick(nickservNick)
+        newServerObject.setNickservIdentityCommand(nickservIdentityCommand)
+        newServerObject.setNickservIdentityResponse(nickservIdentityResponse)
+        newServerObject.getNickservPass(nickservPassword)
+        #Add the new object to Hallo's list
+        halloObject.addServer(newServerObject)
+        #Connect to the new server object.
+        Thread(target=newServerObject.run).start()
+        return "Connected to new IRC server: "+newServerObject.getName()+"."
         
