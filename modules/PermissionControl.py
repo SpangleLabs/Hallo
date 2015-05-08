@@ -60,16 +60,16 @@ class Permissions(Function):
             if(serverObject is None):
                 return "No server exists by that name."
             #Check if they have specified a channel
-            if(any([locationInput[0].startswith(channelStr+"=") for channelStr in self.CHANNEL_NAMES])):
+            if(any([locationOther.startswith(channelStr+"=") for channelStr in self.CHANNEL_NAMES])):
                 #Get channel by that name
-                channelName = locationInput[0].split("=")[1]
+                channelName = locationOther.split("=")[1]
                 channelObject = userObject.getServer().getChannelByName(channelName)
                 permissionMask = channelObject.getPermissionMask()
                 return permissionMask
             #Check if they've specified a user
-            if(any([locationInput[0].startswith(userStr+"=") for userStr in self.USER_NAMES])):
+            if(any([locationOther.startswith(userStr+"=") for userStr in self.USER_NAMES])):
                 #Get the user by that name
-                userName = locationInput[0].split("=")[1]
+                userName = locationOther.split("=")[1]
                 userObject.getServer().getUserByName(userName)
                 permissionMask = userObject.getPermissionMask()
                 return permissionMask
