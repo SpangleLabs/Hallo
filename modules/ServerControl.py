@@ -400,13 +400,8 @@ class EditServer(Function):
     
     def editServerIrc(self,line,serverObject,userObject,destinationObject):
         'Processes arguments in order to edit an IRC server'
-        raise NotImplementedError
-        #Get some handy objects
-        currentServer = userObject.getServer()
-        halloObject = currentServer.getHallo()
         #Set all variables to none as default
         serverAddress,serverPort = None,None
-        serverName = None
         #Find the URL, if specified
         urlRegex = re.compile("(^|\s)(irc://)?(([a-z.]+\.[a-z]+)(:([0-9]+))?)(\s|$)",re.IGNORECASE)
         urlSearch = urlRegex.search(line)
