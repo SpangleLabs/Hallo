@@ -384,7 +384,7 @@ class EditServer(Function):
         #Get protocol and go through protocols branching to whatever function to handle modifying servers of that protocol.
         serverProtocol = serverObject.getType()
         if(serverProtocol=="irc"):
-            return self.editServerIrc(line,userObject,destinationObject)
+            return self.editServerIrc(line,serverObject,userObject,destinationObject)
         #Add in ELIF statements here, to make user Connect Function support other protocols
         else:
             return "Unrecognised server protocol"
@@ -398,7 +398,7 @@ class EditServer(Function):
             paramValue = paramSearch.group(2)
         return paramValue
     
-    def editServerIrc(self,line,userObject,destinationObject):
+    def editServerIrc(self,line,serverObject,userObject,destinationObject):
         'Processes arguments in order to edit an IRC server'
         raise NotImplementedError
         #Get some handy objects
@@ -423,48 +423,31 @@ class EditServer(Function):
                 serverPort = int(serverPortParam)
             except ValueError:
                 return "Invalid port number."
-        #Check serverAddress and serverPort are set
-        if(serverAddress is None):
-            return "No server address specified."
-        if(serverPort is None):
-            serverPort = currentServer.getServerPort()
-        #Get server name
-        serverName = self.findParameter("name",line) or serverName
-        serverName = self.findParameter("server_name",line) or serverName
-        #if server name is null, get it from serverAddress
-        if(serverName is None):
-            serverName = Commons.getDomainName(serverAddress)
-        #Get other parameters, if set.
-        autoConnect = Commons.stringToBool(self.findParameter("auto_connect",line)) or True
-        serverNick = self.findParameter("server_nick",line) or self.findParameter("nick",line)
-        serverPrefix = self.findParameter("server_prefix",line) or self.findParameter("prefix",line)
-        fullName = self.findParameter("full_name",line)
-        nickservNick = "nickserv"
-        nickservIdentityCommand = "status"
-        nickservIdentityResponse = "^status [^ ]+ 3$"
-        nickservPassword = None
-        if(currentServer.getType()=="irc"):
-            nickservNick = currentServer.getNickservNick()
-            nickservIdentityCommand = currentServer.getNickservIdentityCommand()
-            nickservIdentityResponse = currentServer.getNickservIdentityResponse()
-            nickservPassword = currentServer.getNickservPassword()
-        nickservNick = self.findParameter("nickserv_nick",line) or nickservNick
-        nickservIdentityCommand = self.findParameter("nickserv_identity_command",line) or nickservIdentityCommand
-        nickservIdentityResponse = self.findParameter("nickserv_identity_response",line) or nickservIdentityResponse
-        nickservPassword = self.findParameter("nickserv_password",line) or nickservPassword
-        #Create this serverIRC object
-        newServerObject = ServerIRC(halloObject,serverName,serverAddress,serverPort)
-        newServerObject.setAutoConnect(autoConnect)
-        newServerObject.setNick(serverNick)
-        newServerObject.setPrefix(serverPrefix)
-        newServerObject.setFullName(fullName)
-        newServerObject.setNickservNick(nickservNick)
-        newServerObject.setNickservIdentityCommand(nickservIdentityCommand)
-        newServerObject.setNickservIdentityResponse(nickservIdentityResponse)
-        newServerObject.getNickservPass(nickservPassword)
-        #Add the new object to Hallo's list
-        halloObject.addServer(newServerObject)
-        #Connect to the new server object.
-        Thread(target=newServerObject.run).start()
-        return "Connected to new IRC server: "+newServerObject.getName()+"."
+        #If serverAddress or serverPort are set, edit those and reconnect.
+        if(serverAddress is not None):
+            serverObject.setServerAddress(serverAddress)
+        if(serverPort is not None):
+            serverObject.setServerPort(serverPort)
+        #Get other parameters, if set. defaulting to whatever server defaults.
+        autoConnect = Commons.stringToBool(self.findParameter("auto_connect",line)) or serverObject.getAutoConnect()
+        serverNick = self.findParameter("server_nick",line) or self.findParameter("nick",line) or serverObject.getNick()
+        serverPrefix = self.findParameter("server_prefix",line) or self.findParameter("prefix",line) or serverObject.getPrefix()
+        fullName = self.findParameter("full_name",line) or serverObject.getFullName()
+        nickservNick = self.findParameter("nickserv_nick",line) or serverObject.getNickservNick()
+        nickservIdentityCommand = self.findParameter("nickserv_identity_command",line) or serverObject.getNickservIdentityCommand()
+        nickservIdentityResponse = self.findParameter("nickserv_identity_response",line) or serverObject.getNickservIdentityResponse()
+        nickservPassword = self.findParameter("nickserv_password",line) or serverObject.getNickservPass()
+        #Set all the new variables
+        serverObject.setAutoConnect(autoConnect)
+        serverObject.setNick(serverNick)
+        serverObject.setPrefix(serverPrefix)
+        serverObject.setFullName(fullName)
+        serverObject.setNickservNick(nickservNick)
+        serverObject.setNickservIdentityCommand(nickservIdentityCommand)
+        serverObject.setNickservIdentityResponse(nickservIdentityResponse)
+        serverObject.getNickservPass(nickservPassword)
+        #If server address or server port was changed, reconnect.
+        if(serverPort is not None or serverAddress is not None):
+            serverObject.reconnect()
+        return "Modified the IRC server: "+serverObject.getName()+"."
         
