@@ -161,63 +161,6 @@ class hallobase_oper:
         else:
             return "Insufficient privileges to change password."
 
-    def fn_function_conf(self,args,client,destination):
-        'Set a function config variable, Format: function_conf <function> <variable> <value>, functionname should include "fn_" and variable can be "listed_to", "disabled", "repair", "privmsg", "max_run_time", "time_delay" or "return_to"'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            if(len(args.split())>=3):
-                function = args.split()[0].lower()
-                variable = args.split()[1].lower()
-                value = ' '.join(args.split()[2:])
-                functions = dir(self)
-                for module in self.modules:
-                    functions = functions + dir(getattr(__import__(module),module))
-                functions = functions + ['default']
-                if(function in functions):
-                    if(function not in self.conf['function']):
-                        self.conf['function'][function] = {}
-                    if(variable=='disabled' or variable=='privmsg'):
-                        if(value.lower() in ['true','on','1']):
-                            self.conf['function'][function][variable] = True
-                            return "Set " + variable + " to True for " + function + "."
-                        elif(value.lower() in ['false','off','0']):
-                            self.conf['function'][function][variable] = False
-                            return "Set " + variable + " to False for " + function + "."
-                        else:
-                            return "That's an invalid value for " + variable + ". It can only be True or False."
-                    elif(variable=='max_run_time' or variable=='time_delay'):
-                        try:
-                            self.conf['function'][function][variable] = int(value)
-                            return "Set " + variable + " to " + value + " for " + function + "."
-                        except TypeError:
-                            return "That's an invalid value for " + variable + ". It must be a number (in seconds)."
-                    elif(variable=='listed_to'):
-                        if(value.lower() in ['user','op','god']):
-                            self.conf['function'][function][variable] = value.lower()
-                            return "Set " + variable + " to " + value + " for " + function + "."
-                        else:
-                            return "That's an invalid value for " + variable + ". It must be 'user', 'op', or 'god'."
-                    elif(variable=='return_to'):
-                        if(value.lower() in ['channel','notice','privmsg','none']):
-                            self.conf['function'][function][variable] = value.lower()
-                            return "Set " + variable + " to " + value + " for " + function + "."
-                        else:
-                            return "That's an invalid value for " + variable + ". It must be 'channel', 'notice', 'privmsg' or 'none'."
-                    elif(variable=='repair'):
-                        if(value.lower() in ['false','off','0']):
-                            self.conf['function'][function][variable] = False
-                            return "Set " + variable + " to False for " + function + "."
-                        else:
-                            self.conf['function'][function][variable] = value
-                            return "Set " + variable + " to " + value + " for " + function + "."
-                    else:
-                        return "Invalid variable. Valid variables are 'listed_to', 'disabled', 'repair', 'privmsg', 'max_run_time' or 'return_to'."
-                else:
-                    return "Invalid function."
-            else:
-                return "Not enough arguments given, please provide me with a function name, variable and value. Function names should include preceeding fn_ and variables can be 'listed_to', 'disabled', 'repair','privmsg', 'max_run_time', 'time_delay' or 'return_to'."
-        else:
-            return "Insufficient privileges to change function variables."
-
     def fn_module_reload(self,args,client,destination):
         'reloads a specified module. Godmode only.'
         try:
