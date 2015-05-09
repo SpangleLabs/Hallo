@@ -122,4 +122,18 @@ class Commons(object):
         if(message.replace(".","").isdigit()):
             return True
         return False
-        
+    
+    @staticmethod
+    def checkCalculation(message):
+        'checks that an argument is purely numbers and calculation characters'
+        message = message.strip().lower()
+        validChars = [str(x) for x in range(10)]
+        validChars += [".",")","^","*","x","/","%","+","-","pi","e"," "]
+        validChars += ["acos(","asin(","atan(","cos(","sin(","tan(","sqrt(","log("]
+        validChars += ["acosh(","asinh(","atanh(","cosh(","sinh(","tanh(","gamma(","("]
+        for char in validChars:
+            message = message.replace(char,"")
+        if(message==""):
+            return True
+        else:
+            return False
