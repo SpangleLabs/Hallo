@@ -1,9 +1,6 @@
 import math
 import collections
 
-import ircbot_chk
-import mod_calc
-
 class mod_euler:
     def fn_euler(self, args, client, destination):
         'Project Euler functions. Format: "euler list" to list project euler solutions. "euler <number>" for the solution to project euler problem of the given number.'
@@ -116,28 +113,6 @@ class mod_euler:
             if(item != remove):
                 newlist.append(item)
         return newlist
-
-    def fnn_euler_26(self):
-        maxnines = 0
-        maxd = 0
-        for d in range(1,1000):
-            factors = mod_euler.fnn_euler_primefactors(self,d)
-            factors = mod_euler.fnn_euler_removelistitems(self,factors,2)
-            factors = mod_euler.fnn_euler_removelistitems(self,factors,5)
-            product = 1
-            for factor in factors:
-                product = product*factor
-#            print "d = " + str(d) + ", product = " + str(product)
-            nines = 0
-            while True:
-                nines = (nines * 10) + 9
-                if(nines%product==0):
-                    if(nines>maxnines):
-                        maxnines = nines
-                        maxd = d
-#                        print "New record: " + str(d) + " requires " + str(len(str(nines))) + " nines."
-                    break
-        return maxd
 
     def fnn_euler_27(self):
         maxlength = 0

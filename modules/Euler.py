@@ -95,6 +95,13 @@ class Euler(Function):
                     factors.append(number/x)
         return factors
     
+    def removeListItems(self,inputList,removeItem):
+        newList = []
+        for item in inputList:
+            if(item != removeItem):
+                newList.append(item)
+        return newList
+    
     def euler1(self):
         threeCount = math.floor(999/3)
         fiveCount = math.floor(999/5)
@@ -463,6 +470,33 @@ class Euler(Function):
             b = c
             length = len(str(c))
         return num
+    
+    def euler26(self):
+        #Get PrimeFactors function
+        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionClass = functionDispatcher.getFunctionByName("prime factors")
+        functionObject = functionDispatcher.getFunctionObject(functionClass)
+        #Do processing
+        maxnines = 0
+        maxd = 0
+        for d in range(1,1000):
+            factors = functionObject.findPrimeFactors(d)
+            factors = self.removeListItems(factors,2)
+            factors = self.removeListItems(factors,5)
+            product = 1
+            for factor in factors:
+                product = product*factor
+#            print "d = " + str(d) + ", product = " + str(product)
+            nines = 0
+            while True:
+                nines = (nines * 10) + 9
+                if(nines%product==0):
+                    if(nines>maxnines):
+                        maxnines = nines
+                        maxd = d
+#                        print "New record: " + str(d) + " requires " + str(len(str(nines))) + " nines."
+                    break
+        return maxd
 
 
 
