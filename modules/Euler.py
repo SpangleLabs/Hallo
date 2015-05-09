@@ -1,4 +1,5 @@
 from Function import Function
+import math
 
 class Euler(Function):
     '''
@@ -63,7 +64,14 @@ class Euler(Function):
         return outputString
     
     def euler1(self):
-        return
+        threeCount = math.floor(999/3)
+        fiveCount = math.floor(999/5)
+        fifteenCount = math.floor(999/15)
+        threeSum = 3*((0.5*(threeCount**2))+(0.5*threeCount))
+        fiveSum = 5*((0.5*(fiveCount**2))+(0.5*fiveCount))
+        fifteenSum = 15*((0.5*(fifteenCount**2))+(0.5*fifteenCount))
+        answer = threeSum + fiveSum - fifteenSum
+        return answer
     
     
     
