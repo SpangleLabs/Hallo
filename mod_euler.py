@@ -40,21 +40,6 @@ class mod_euler:
             raw_line = f.readline()
         return filearray
 
-    def fnn_euler_45(self):
-        epsilon = 0.0000001
-        tripenthex = 0
-        for x in range(40756,10**9):
-            xtri = (-1+(1+8*x)**0.5)/2
-            if(xtri%1<epsilon):
-                xpent = (1+(1+24*x)**0.5)/6
-                if(xpent%1<epsilon):
-                    xhex = (1+(1+8*x)**0.5)/4
-                    if(xhex%1<epsilon):
-                        print('found it.')
-                        tripenthex = x
-                        break
-        return tripenthex
-
 
 
     def fnn_euler_67(self):
