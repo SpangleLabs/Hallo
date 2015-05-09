@@ -171,6 +171,10 @@ class Hallo:
                 return server
         return None
     
+    def getServerList(self):
+        'Returns the server list for hallo'
+        return self.mServerList
+    
     def removeServer(self,server):
         self.mServerList.remove(server)
         
