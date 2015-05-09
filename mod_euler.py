@@ -40,23 +40,6 @@ class mod_euler:
             raw_line = f.readline()
         return filearray
 
-    def fnn_euler_44(self):
-        epsilon = 0.000001
-        pentagonals = [0,1]
-        smallest_diff = 10**9
-        for x in range(2,3000):
-            pentagonals.append(int(x*(3*x-1)/2))
-            for y in range(1,x):
-                pentagonal_sum = pentagonals[x] + pentagonals[y]
-                diff = pentagonals[x] - pentagonals[y]
-                sumpent = (1+(1+24*pentagonal_sum)**0.5)/6
-                diffpent = (1+(1+24*diff)**0.5)/6
-                if(sumpent%1<epsilon and diffpent%1<epsilon):
-                    print('found one.')
-                    if(diff<smallest_diff):
-                        smallest_diff = diff
-        return smallest_diff
-
     def fnn_euler_45(self):
         epsilon = 0.0000001
         tripenthex = 0
