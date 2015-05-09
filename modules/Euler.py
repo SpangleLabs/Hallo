@@ -279,6 +279,32 @@ class Euler(Function):
             total = total + int(number)
         return str(total)[0:10]
     
+    def euler14(self):
+        lengths = [0] * 1000000
+        maxChain = 0
+        maxStart = 0
+        for start in range(1,1000000):
+            num = start
+            length = 1
+            while True:
+                if(num==1):
+                    lengths[start] = length
+                    break
+                if(num < 1000000 and lengths[num] != 0):
+                    lengths[start] = length + lengths[num]
+                    break
+                if(num%2 == 0):
+                    num = num//2
+                    length = length + 1
+                else:
+                    num = (3*num)+1
+                    length = length + 1
+            if(maxChain < lengths[start]):
+#                print "new longest chain, it starts at: " + str(start) + " and is " + str(lengths[start]) + " steps long. Exploited a " + str(jump) + " step jump! meaning I only had to do " + str(lengths[start]-jump) + " steps myself."
+                maxChain = lengths[start]
+                maxStart = start
+        return maxStart
+    
     
     
     
