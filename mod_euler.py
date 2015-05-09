@@ -170,12 +170,6 @@ class mod_euler:
         string = string + decimal
         return string
 
-    def fnn_euler_17(self):
-        total = 0
-        for x in range(1,1001):
-            total = total + len(mod_euler.fnn_euler_numberword(self,str(x)).replace(' ','').replace('-',''))
-        return total
-
     def fnn_euler_18(self):
         arr_triangle = mod_euler.fnn_euler_readfiletolist(self,"euler/euler_18_triangle.txt")
         for x in range(len(arr_triangle)):

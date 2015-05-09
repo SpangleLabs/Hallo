@@ -321,7 +321,17 @@ class Euler(Function):
             total = total + int(bigNumber[x])
         return total
     
-    
+    def euler17(self):
+        #Get Number function
+        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionClass = functionDispatcher.getFunctionByName("number")
+        functionObject = functionDispatcher.getFunctionObject(functionClass)
+        #Do processing
+        total = 0
+        for x in range(1,1001):
+            total = total + len(functionObject.numberWord(str(x)).replace(' ','').replace('-',''))
+        return total
+        
     
     
     
