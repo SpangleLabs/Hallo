@@ -68,19 +68,6 @@ class mod_euler:
                 return False
         return True
 
-    def fnn_euler_35(self):
-        number = 0
-        for x in range(10**6):
-            prime = True
-            strx = str(x)
-            for digit in range(len(strx)):
-                rotatex = strx[digit:] + strx[:digit]
-                prime = prime and mod_euler.fnn_euler_isprime(self,int(rotatex))
-            if(prime):
-                number += 1
-                print(x)
-        return number
-
     def fnn_ispalindrome(self,args):
         if(args==args[::-1]):
             return True

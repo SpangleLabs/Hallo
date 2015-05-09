@@ -702,6 +702,19 @@ class Euler(Function):
             if(total==x):
                 totalsum += x
         return totalsum
+    
+    def euler35(self):
+        number = 0
+        for x in range(10**6):
+            prime = True
+            strx = str(x)
+            for digit in range(len(strx)):
+                rotatex = strx[digit:] + strx[:digit]
+                prime = prime and self.checkPrime(int(rotatex))
+            if(prime):
+                number += 1
+                print(x)
+        return number
 
 
 
