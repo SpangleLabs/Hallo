@@ -109,18 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_24(self):
-        digits = [0,1,2,3,4,5,6,7,8,9]
-        permutation = 1000000-1
-        string = ''
-        while len(digits)!=1:
-            number = int(math.floor(permutation/math.factorial(len(digits)-1)))
-            string = string + str(digits[number])
-            del digits[number]
-            permutation = permutation - int(math.factorial(len(digits))*number)
-        string = string + str(digits[0])
-        return string
-
     def fnn_euler_25(self):
         length = 0
         a = 1
