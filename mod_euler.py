@@ -68,23 +68,6 @@ class mod_euler:
                 return False
         return True
 
-    def fnn_euler_37(self):
-        total = 0
-        num_found = 0
-        number = 10
-        while num_found<11 and number<10**7:
-            strnumber = str(number)
-            truncatable = True
-            for x in range(len(strnumber)):
-                truncatable = truncatable and mod_euler.fnn_euler_isprime(self,int(strnumber[x:]))
-                truncatable = truncatable and mod_euler.fnn_euler_isprime(self,int(strnumber[:len(strnumber)-x]))
-            if(truncatable):
-                print('found one. ' + strnumber)
-                num_found += 1
-                total += number
-            number += 1
-        return total
-
     def fnn_euler_38(self):
         max_constr = 0
         for x in range(10**5):

@@ -730,6 +730,23 @@ class Euler(Function):
                 if(self.checkPalindrome(binary)):
                     total += a
         return total
+    
+    def euler37(self):
+        total = 0
+        num_found = 0
+        number = 10
+        while num_found<11 and number<10**7:
+            strnumber = str(number)
+            truncatable = True
+            for x in range(len(strnumber)):
+                truncatable = truncatable and self.checkPrime(int(strnumber[x:]))
+                truncatable = truncatable and self.checkPrime(int(strnumber[:len(strnumber)-x]))
+            if(truncatable):
+                print('found one. ' + strnumber)
+                num_found += 1
+                total += number
+            number += 1
+        return total
 
 
 
