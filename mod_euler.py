@@ -68,21 +68,6 @@ class mod_euler:
                 return False
         return True
 
-    def fnn_ispalindrome(self,args):
-        if(args==args[::-1]):
-            return True
-        else:
-            return False
-
-    def fnn_euler_36(self):
-        total = 0
-        for a in range(10**6):
-            if(mod_euler.fnn_ispalindrome(self,str(a))):
-                binary = bin(a)[2:]
-                if(mod_euler.fnn_ispalindrome(self,binary)):
-                    total += a
-        return total
-
     def fnn_euler_37(self):
         total = 0
         num_found = 0

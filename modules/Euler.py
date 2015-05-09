@@ -76,6 +76,12 @@ class Euler(Function):
             return True
         else:
             return False
+        
+    def checkPalindrome(self,inputString):
+        if(inputString==inputString[::-1]):
+            return True
+        else:
+            return False
     
     def findNumberOfFactors(self,number):
         number = int(number)
@@ -715,6 +721,15 @@ class Euler(Function):
                 number += 1
                 print(x)
         return number
+    
+    def euler36(self):
+        total = 0
+        for a in range(10**6):
+            if(self.checkPalindrome(str(a))):
+                binary = bin(a)[2:]
+                if(self.checkPalindrome(binary)):
+                    total += a
+        return total
 
 
 
