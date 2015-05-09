@@ -364,6 +364,14 @@ class Euler(Function):
                     day = day + 31
         return total
     
+    def euler20(self):
+        number = math.factorial(100)
+        number = str(number)
+        total = 0
+        for x in range(len(number)):
+            total = total + int(number[x])
+        return total
+    
     
     
     

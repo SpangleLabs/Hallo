@@ -109,14 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_20(self):
-        number = math.factorial(100)
-        number = str(number)
-        total = 0
-        for x in range(len(number)):
-            total = total + int(number[x])
-        return total
-
     def fnn_euler_21(self):
         amicable = []
         total = 0
