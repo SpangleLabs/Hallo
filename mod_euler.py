@@ -114,48 +114,6 @@ class mod_euler:
                 newlist.append(item)
         return newlist
 
-    def fnn_euler_32(self):
-        digits = [1,2,3,4,5,6,7,8,9]
-        products = []
-        for a in range(9):
-            adigit = digits[a]
-            adigits = list(digits)
-            adigits.remove(adigit)
-            for b in range(8):
-                bdigit = adigits[b]
-                bdigits = list(adigits)
-                bdigits.remove(bdigit)
-                for c in range(7):
-                    cdigit = bdigits[c]
-                    cdigits = list(bdigits)
-                    cdigits.remove(cdigit)
-                    for d in range(6):
-                        ddigit = cdigits[d]
-                        ddigits = list(cdigits)
-                        ddigits.remove(ddigit)
-                        for e in range(5):
-                            edigit = ddigits[e]
-                            edigits = list(ddigits)
-                            edigits.remove(edigit)
-                            productone = (adigit*10+bdigit)*(cdigit*100+ddigit*10+edigit)
-                            producttwo = adigit*(bdigit*1000+cdigit*100+ddigit*10+edigit)
-                            failone = False
-                            failtwo = False
-                            for f in range(4):
-                                if(str(edigits[f]) not in list(str(productone)) or productone>9999):
-                                    failone = True
-                            for g in range(4):
-                                if(str(edigits[g]) not in list(str(producttwo)) or producttwo<1000 or producttwo>9999):
-                                    failtwo = True
-                            if(not failone):
-                                print(str(adigit)+str(bdigit)+"*"+str(cdigit)+str(ddigit)+str(edigit)+"="+str(productone))
-                                products.append(productone)
-                            if(not failtwo):
-                                print(str(adigit)+"*"+str(bdigit)+str(cdigit)+str(ddigit)+str(edigit)+"="+str(producttwo))
-                                products.append(producttwo)
-        products = list(set(products))
-        return sum(products)
-
     def fnn_product(self,list_in):
         product = 1
         for number in list_in:

@@ -585,6 +585,48 @@ class Euler(Function):
         numoptions = len(options)
 #        numoptions = euler.fnn_euler_changecount(self,coins,0,200)
         return numoptions
+    
+    def euler32(self):
+        digits = [1,2,3,4,5,6,7,8,9]
+        products = []
+        for a in range(9):
+            adigit = digits[a]
+            adigits = list(digits)
+            adigits.remove(adigit)
+            for b in range(8):
+                bdigit = adigits[b]
+                bdigits = list(adigits)
+                bdigits.remove(bdigit)
+                for c in range(7):
+                    cdigit = bdigits[c]
+                    cdigits = list(bdigits)
+                    cdigits.remove(cdigit)
+                    for d in range(6):
+                        ddigit = cdigits[d]
+                        ddigits = list(cdigits)
+                        ddigits.remove(ddigit)
+                        for e in range(5):
+                            edigit = ddigits[e]
+                            edigits = list(ddigits)
+                            edigits.remove(edigit)
+                            productOne = (adigit*10+bdigit)*(cdigit*100+ddigit*10+edigit)
+                            productTwo = adigit*(bdigit*1000+cdigit*100+ddigit*10+edigit)
+                            failOne = False
+                            failTwo = False
+                            for f in range(4):
+                                if(str(edigits[f]) not in list(str(productOne)) or productOne>9999):
+                                    failOne = True
+                            for g in range(4):
+                                if(str(edigits[g]) not in list(str(productTwo)) or productTwo<1000 or productTwo>9999):
+                                    failTwo = True
+                            if(not failOne):
+                                print(str(adigit)+str(bdigit)+"*"+str(cdigit)+str(ddigit)+str(edigit)+"="+str(productOne))
+                                products.append(productOne)
+                            if(not failTwo):
+                                print(str(adigit)+"*"+str(bdigit)+str(cdigit)+str(ddigit)+str(edigit)+"="+str(productTwo))
+                                products.append(productTwo)
+        products = list(set(products))
+        return sum(products)
 
 
 
