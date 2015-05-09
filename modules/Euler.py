@@ -195,3 +195,13 @@ class Euler(Function):
                     answer = a*b*int(c)
         return "a = " + str(answera) + ", b = " + str(answerb) + ", c = " + str(answerc) + " and a*b*c = " + str(answer)
     
+    def euler10(self):
+        numbers = [0] * 2000000
+        primeSum = 2
+        for x in range(3,2000000,2):
+            if(numbers[x]==0):
+                primeSum = primeSum + x
+                for y in range(x,2000000,x):
+                    numbers[y] = 1
+        return primeSum
+    
