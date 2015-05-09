@@ -417,4 +417,25 @@ class Euler(Function):
             total = total + score
         return total
     
+    def euler23(self):
+        abundantNumbers = []
+        sumOfTwo = [0] * 28150
+        total = (28150/2)*(1+28150)-28150
+        for x in range(28150):
+            factors = self.findFactors(x)
+            factorTotal = 0
+            for factor in factors:
+                factorTotal = factorTotal + factor
+            factorTotal = factorTotal - x
+            if(factorTotal>x):
+                abundantNumbers.append(x)
+                for otherNumber in abundantNumbers:
+                    abSum = otherNumber+x
+                    if(abSum<28150):
+                        if(sumOfTwo[abSum] != 1):
+                            sumOfTwo[abSum] = 1
+                            total = total - (abSum)
+                    else:
+                        break
+        return total
     

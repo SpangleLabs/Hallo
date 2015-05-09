@@ -109,33 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_23(self):
-        abundantnumbers = []
-        sumoftwo = [0] * 28150
-        total = (28150/2)*(1+28150)-28150
-        for x in range(28150):
-            factors = mod_euler.fnn_euler_factorise(self,x)
-            factortotal = 0
-            for factor in factors:
-                factortotal = factortotal + factor
-            factortotal = factortotal - x
-            if(factortotal>x):
-                abundantnumbers.append(x)
-                for othernumber in abundantnumbers:
-                    ab_sum = othernumber+x
-                    if(ab_sum<28150):
-                        if(sumoftwo[ab_sum] != 1):
-                            sumoftwo[ab_sum] = 1
-                            total = total - (ab_sum)
-                    else:
-                        break
-#        total = 0
-#        for y in range(len(sumoftwo)):
-#            if(sumoftwo[y]==0):
-#                total = total + y
-#        return len(abundantnumbers)
-        return total
-
     def fnn_euler_24(self):
         digits = [0,1,2,3,4,5,6,7,8,9]
         permutation = 1000000-1
