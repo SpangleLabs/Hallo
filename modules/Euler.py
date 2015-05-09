@@ -789,7 +789,34 @@ class Euler(Function):
                 maxPCount = pCount
         return "Maximum triangles for given perimeter is " + str(maxPCount) + " for the perimeter of " + str(maxP) + "."
 
-
+    def euler40(self):
+        stringLength = 0
+        product = 1
+        for number in range(1,10**6):
+            addLength = len(str(number))
+            if(stringLength<1<=stringLength+addLength):
+                print('digit is ' + str(number)[1-stringLength-1])
+                product = product*int(str(number)[1-stringLength-1])
+            if(stringLength<10<=stringLength+addLength):
+                print('digit is ' + str(number)[10-stringLength-1])
+                product = product*int(str(number)[10-stringLength-1])
+            if(stringLength<100<=stringLength+addLength):
+                print('digit is ' + str(number)[100-stringLength-1])
+                product = product*int(str(number)[100-stringLength-1])
+            if(stringLength<1000<=stringLength+addLength):
+                print('digit is ' + str(number)[1000-stringLength-1])
+                product = product*int(str(number)[1000-stringLength-1])
+            if(stringLength<10000<=stringLength+addLength):
+                print('digit is ' + str(number)[10000-stringLength-1])
+                product = product*int(str(number)[10000-stringLength-1])
+            if(stringLength<100000<=stringLength+addLength):
+                print('digit is ' + str(number)[100000-stringLength-1])
+                product = product*int(str(number)[100000-stringLength-1])
+            if(stringLength<1000000<=stringLength+addLength):
+                print('digit is ' + str(number)[1000000-stringLength-1])
+                product = product*int(str(number)[1000000-stringLength-1])
+            stringLength += addLength
+        return product
 
 
 

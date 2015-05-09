@@ -68,35 +68,6 @@ class mod_euler:
                 return False
         return True
 
-    def fnn_euler_40(self):
-        stringlength = 0
-        product = 1
-        for number in range(1,10**6):
-            addlength = len(str(number))
-            if(stringlength<1<=stringlength+addlength):
-                print('digit is ' + str(number)[1-stringlength-1])
-                product = product*int(str(number)[1-stringlength-1])
-            if(stringlength<10<=stringlength+addlength):
-                print('digit is ' + str(number)[10-stringlength-1])
-                product = product*int(str(number)[10-stringlength-1])
-            if(stringlength<100<=stringlength+addlength):
-                print('digit is ' + str(number)[100-stringlength-1])
-                product = product*int(str(number)[100-stringlength-1])
-            if(stringlength<1000<=stringlength+addlength):
-                print('digit is ' + str(number)[1000-stringlength-1])
-                product = product*int(str(number)[1000-stringlength-1])
-            if(stringlength<10000<=stringlength+addlength):
-                print('digit is ' + str(number)[10000-stringlength-1])
-                product = product*int(str(number)[10000-stringlength-1])
-            if(stringlength<100000<=stringlength+addlength):
-                print('digit is ' + str(number)[100000-stringlength-1])
-                product = product*int(str(number)[100000-stringlength-1])
-            if(stringlength<1000000<=stringlength+addlength):
-                print('digit is ' + str(number)[1000000-stringlength-1])
-                product = product*int(str(number)[1000000-stringlength-1])
-            stringlength += addlength
-        return product
-
     def fnn_euler_41(self):
         max_pandigitalprime = 1
         for x in range(2,8*10**6):
