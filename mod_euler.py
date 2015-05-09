@@ -149,16 +149,6 @@ class mod_euler:
                     change = change + changeadd
         return change
 
-    def fn_change_options(self,args,client,destination):
-        'Returns the number of ways to give change for a given amount (in pence, using british coins.) Format: change_options <number>'
-        args = int(args)
-        coins = [200,100,50,20,10,5,2,1]
-        options = mod_euler.fnn_euler_change(self,coins,0,args)
-        reply = 'Possible ways to give that change: '
-        for option in options:
-            reply = reply + '[' + ','.join(str(x) for x in option) + '],'
-        return reply + "."
-
     def fnn_euler_31(self):
         coins = [200,100,50,20,10,5,2,1]
         options = mod_euler.fnn_euler_change(self,coins,0,200)

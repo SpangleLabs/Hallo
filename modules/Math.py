@@ -202,6 +202,55 @@ class PrimeFactors(Function):
         else:
             return factors
 
-
+class ChangeOptions(Function):
+    '''
+    Returns the number of options for change in UK currency for a certain value
+    '''
+    #Name for use in help listing
+    mHelpName = "change options"
+    #Names which can be used to address the Function
+    mNames = set(["change options","changeoptions","change","change ways"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns the different ways to give change for a given amount (in pence, using british coins.) Format: change_options <number>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        'Returns the number of ways to give change for a given amount (in pence, using british coins.) Format: change_options <number>'
+        lineClean = line.strip().lower()
+        try:
+            number = int(lineClean)
+        except:
+            return "That's not a valid number."
+        if(number>20):
+            return "For reasons of output length, I can't return change options for more than 20 pence."
+        coins = [200,100,50,20,10,5,2,1]
+        options = self.changeOptions(coins,0,number)
+        outputString = 'Possible ways to give that change: '
+        for option in options:
+            outputString += '[' + ','.join(str(x) for x in option) + '],'
+        return outputString + "."
+    
+    def changeOptions(self,coins,coinnum,amount):
+        coinamount = amount//coins[coinnum]
+        change = []
+        if(amount==0):
+            return None
+        elif(coinnum==len(coins)-1):
+            change.append([coins[coinnum]]*(amount//coins[coinnum]))
+        else:
+            for x in range(coinamount,-1,-1):
+                remaining = amount - x*coins[coinnum]
+                if(remaining==0):
+                    change.append(x*[coins[coinnum]])
+                else:
+                    changeadd = self.changeOptions(coins,coinnum+1,remaining)
+                    for changeoption in changeadd:
+                        change.append(x*[coins[coinnum]]+changeoption)
+        return change
 
 
