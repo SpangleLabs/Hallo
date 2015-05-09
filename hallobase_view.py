@@ -1,6 +1,5 @@
 import ircbot_chk
 import time
-import threading
 #import psutil   used in fn_uptime
 import pprint
 import random
@@ -8,10 +7,6 @@ import hashlib
 import os
 
 class hallobase_view:
-
-    def fn_active_threads(self,args,client,destination):
-        'Returns current number of active threads.. should probably be gods only, but it is not. Format: active_thread'
-        return "I think I have " + str(threading.active_count()) + " active threads right now."
 
 #####DISABLED UNTIL PSUTIL CAN BE NOT USED
 #    def fn_uptime(self,args,client,destination):
