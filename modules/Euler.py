@@ -539,6 +539,23 @@ class Euler(Function):
             total = total + 4*n + 10*gap
             n = n + gap*4
         return total
+    
+    def euler29(self):
+        #Get PrimeFactors function
+        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionClass = functionDispatcher.getFunctionByName("prime factors")
+        functionObject = functionDispatcher.getFunctionObject(functionClass)
+        #Do processing
+        answers = []
+        for a in range(2,101):
+            afactors = functionObject.findPrimeFactors(a)
+#            answer = a
+            for b in range(2,101):
+#                answer = answer * a
+                answer = sorted(b * afactors)
+                if(answer not in answers):
+                    answers.append(answer)
+        return len(answers)
 
 
 

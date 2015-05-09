@@ -114,18 +114,6 @@ class mod_euler:
                 newlist.append(item)
         return newlist
 
-    def fnn_euler_29(self):
-        answers = []
-        for a in range(2,101):
-            afactors = mod_euler.fnn_euler_primefactors(self,a)
-#            answer = a
-            for b in range(2,101):
-#                answer = answer * a
-                answer = sorted(b * afactors)
-                if(answer not in answers):
-                    answers.append(answer)
-        return len(answers)
-
     def fnn_euler_30(self):
 #        number = 10
 #        while True:
