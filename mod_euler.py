@@ -33,62 +33,6 @@ class mod_euler:
             answer = "I'm learning to complete the project Euler programming problems. I've not done many so far, I've only done " + str(count) + " of the 434 problems. But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, say 'Hallo Euler {num}' for the answer to challenge number {num}."
         return answer
 
-    def fnn_euler_1(self):
-        threes = math.floor(999/3)
-        fives = math.floor(999/5)
-        fifteens = math.floor(999/15)
-        threesum = 3*((0.5*(threes**2))+(0.5*threes))
-        fivesum = 5*((0.5*(fives**2))+(0.5*fives))
-        fifteensum = 15*((0.5*(fifteens**2))+(0.5*fifteens))
-        answer = threesum + fivesum - fifteensum
-        return answer
-
-    def fnn_euler_2(self):
-        previous_num = 1
-        current_num = 2
-        answer = 0
-        while current_num < 4000000:
-            if(current_num % 2 == 0):
-                answer = answer + current_num
-            new_num = current_num + previous_num
-            previous_num = current_num
-            current_num = new_num
-        return answer
-
-    def fnn_euler_3(self):
-        limit = 600851475143
-        factorlimit = int(math.floor(math.sqrt(limit)))
-        biggestprimefactor = 1
-        for i in range(1,factorlimit):
-            if(limit%i == 0):
-                checkprime = i
-                checkprimelimit = int(math.floor(math.sqrt(checkprime)))
-                checkprimefactor = 1
-                for j in range(1,checkprimelimit):
-                    if(checkprime%j == 0):
-                        checkprimefactor = j
-                if(checkprimefactor == 1):
-                    biggestprimefactor = i
-        return biggestprimefactor
-
-    def fnn_euler_4(self):
-        biggestpalandrome = 0
-        biggestpalandromex = 0
-        biggestpalandromey = 0
-        stoploop = 100
-        for x in range(999,100,-1):
-            if(x < stoploop):
-                break
-            for y in range(999,x,-1):
-                product = x * y
-                reverseproduct = int(str(product)[::-1])
-                if(product == reverseproduct and product > biggestpalandrome):
-                    biggestpalandrome = product
-                    biggestpalandromex = x
-                    biggestpalandromey = y
-                    stoploop = int(math.floor(biggestpalandrome/999))
-        return "answer is: " + str(biggestpalandrome) + " = " + str(biggestpalandromex) + "x" + str(biggestpalandromey)
-
     def fnn_euler_isprime(self,args):
         checkprime = args
         checkprimefactor = 1
@@ -102,43 +46,6 @@ class mod_euler:
             return True
         else:
             return False
-
-    def fnn_euler_5(self):
-        factors = {}
-        maximum = 20
-        for num in range(1,maximum+1):
-            for x in range(1,num+1):
-                if(num%x == 0):
-                    if(mod_euler.fnn_euler_isprime(self,x)):
-                        if(x not in factors):
-                            factors[x] = 1
-                        dividescount = 1
-                        for attempt in range(1,6):
-                            if(num%(x**attempt) == 0):
-                                dividescount = attempt
-                        if(factors[x] < dividescount):
-                            factors[x] = dividescount
-        answer = 1
-        for prime, power in factors.items():
-            answer = answer*(prime**power)
-        return answer
-
-    def fnn_euler_6(self):
-        answer = 0
-        for x in range(1,101):
-            answer = answer + x*(0.5*(101**2)-0.5*101) - x**2
-        return answer
-
-    def fnn_euler_7(self):
-        num_primes = 0
-        test = 1
-        prime = 1
-        while num_primes < 10001:
-            test = test + 1
-            if(mod_euler.fnn_euler_isprime(self,test)):
-                num_primes = num_primes + 1
-                prime = test
-        return prime
 
     def fnn_euler_readfiletostring(self,filename):
         f = open(filename,"r")
@@ -154,41 +61,6 @@ class mod_euler:
             num_line = num_line + 1
             raw_line = f.readline()
         return filearray
-
-    def fnn_euler_8(self):
-        string = mod_euler.fnn_euler_readfiletostring(self,"euler/euler_8_string.txt")
-        biggestproduct = 0
-        while(len(string)>=5):
-            substring = string[0:5]
-            product = int(substring[0])*int(substring[1])*int(substring[2])*int(substring[3])*int(substring[4])
-            biggestproduct = max(product, biggestproduct)
-            string = string[1:]
-        return biggestproduct
-
-    def fnn_euler_9(self):
-        answera = 0
-        answerb = 0
-        answerc = 0
-        answer = 0
-        for b in range(500,0,-1):
-            for a in range(b-1,0,-1):
-                c = math.sqrt(a**2+b**2)
-                if(c-math.floor(c)<=0.001 and a+b+int(c)==1000):
-                    answera = a
-                    answerb = b
-                    answerc = int(c)
-                    answer = a*b*int(c)
-        return "a = " + str(answera) + ", b = " + str(answerb) + ", c = " + str(answerc) + " and a*b*c = " + str(answer)
-
-    def fnn_euler_10(self):
-        numbers = [0] * 2000000
-        primesum = 2
-        for x in range(3,2000000,2):
-            if(numbers[x]==0):
-                primesum = primesum + x
-                for y in range(x,2000000,x):
-                    numbers[y] = 1
-        return primesum
 
     def fnn_euler_11(self):
         raw_box = mod_euler.fnn_euler_readfiletostring(self,"euler/euler_11_grid.txt")
