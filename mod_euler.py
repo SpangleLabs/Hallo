@@ -109,26 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_collatz(self,seq):
-        num = int(seq[-1])
-        if(num==1):
-            return seq
-        elif(num%2 == 0):
-            seq.append(num//2)
-            return mod_euler.fnn_euler_collatz(self,seq)
-        else:
-            seq.append(3*num+1)
-            return mod_euler.fnn_euler_collatz(self,seq)
-
-    def fn_hailstone(self,args,client,destination):
-        'Returns the hailstone sequence for a given number. Format: hailstone <number>'
-        if(args == "" or not args.isdigit()):
-            return "The hailstone function has to be given with a number (to generate the collatz sequence of.)"
-        else:
-            args = int(args)
-            sequence = mod_euler.fnn_euler_collatz(self,[args])
-            return "Hailstone (Collatz) sequence for " + str(args) + ": " + '->'.join(str(x) for x in sequence) + " (" + str(len(sequence)) + " steps.)"
-
     def fnn_euler_14(self):
         lengths = [0] * 1000000
         maxchain = 0
