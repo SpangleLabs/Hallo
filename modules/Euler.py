@@ -63,6 +63,38 @@ class Euler(Function):
             print("EULER ERROR: " + str(e))
         return outputString
     
+    def checkPrime(self,inputNumber):
+        checkPrime = inputNumber
+        checkPrimeFactor = 1
+        if(checkPrime<=0):
+            return False
+        for j in range(2,int(math.floor(math.sqrt(checkPrime)))+1):
+            if(checkPrime%j == 0):
+                checkPrimeFactor = j
+                break
+        if(checkPrimeFactor == 1 and inputNumber!=1):
+            return True
+        else:
+            return False
+    
+    def findNumberOfFactors(self,number):
+        number = int(number)
+        numFactors = 2
+        for x in range(2,int(math.sqrt(number))+1):
+            if(number%x == 0):
+                numFactors = numFactors + 2
+        return numFactors
+    
+    def findFactors(self,number):
+        number = int(number)
+        factors = []
+        for x in range(1,int(math.sqrt(number))+1):
+            if(number%x == 0):
+                factors.append(x)
+                if(number/x!=x):
+                    factors.append(number/x)
+        return factors
+    
     def euler1(self):
         threeCount = math.floor(999/3)
         fiveCount = math.floor(999/5)
@@ -118,20 +150,6 @@ class Euler(Function):
                     biggestPalandromeY = y
                     stopLoop = int(math.floor(biggestPalandrome/999))
         return "answer is: " + str(biggestPalandrome) + " = " + str(biggestPalandromeX) + "x" + str(biggestPalandromeY)
-    
-    def checkPrime(self,inputNumber):
-        checkPrime = inputNumber
-        checkPrimeFactor = 1
-        if(checkPrime<=0):
-            return False
-        for j in range(2,int(math.floor(math.sqrt(checkPrime)))+1):
-            if(checkPrime%j == 0):
-                checkPrimeFactor = j
-                break
-        if(checkPrimeFactor == 1 and inputNumber!=1):
-            return True
-        else:
-            return False
     
     def euler5(self):
         factors = {}
@@ -252,14 +270,6 @@ class Euler(Function):
         outputString += " the coords are: (" + str(answerX) + "," + str(answerY) + ") in the direction: " + direction
         return outputString
     
-    def findNumberOfFactors(self,number):
-        number = int(number)
-        numFactors = 2
-        for x in range(2,int(math.sqrt(number))+1):
-            if(number%x == 0):
-                numFactors = numFactors + 2
-        return numFactors
-    
     def euler12(self):
         number = 1
         numFactors = 0
@@ -371,16 +381,6 @@ class Euler(Function):
         for x in range(len(number)):
             total = total + int(number[x])
         return total
-    
-    def findFactors(self,number):
-        number = int(number)
-        factors = []
-        for x in range(1,int(math.sqrt(number))+1):
-            if(number%x == 0):
-                factors.append(x)
-                if(number/x!=x):
-                    factors.append(number/x)
-        return factors
     
     def euler21(self):
         amicable = []
