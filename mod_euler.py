@@ -67,18 +67,6 @@ class mod_euler:
             else:
                 return False
         return True
- 
-    def fnn_euler_34(self):
-        totalsum = 0
-        factorials = [math.factorial(x) for x in range(10)]
-        for x in range(3,10**6):
-            strx = str(x)
-            total = 0
-            for number in strx:
-                total = total + factorials[int(number)]
-            if(total==x):
-                totalsum += x
-        return totalsum
 
     def fnn_euler_35(self):
         number = 0

@@ -691,7 +691,17 @@ class Euler(Function):
         totalDenominatorNew = self.listProduct(totalDenominatorFactorsNew)
         return totalDenominatorNew
 
-
+    def euler34(self):
+        totalsum = 0
+        factorials = [math.factorial(x) for x in range(10)]
+        for x in range(3,10**6):
+            strx = str(x)
+            total = 0
+            for number in strx:
+                total = total + factorials[int(number)]
+            if(total==x):
+                totalsum += x
+        return totalsum
 
 
 
