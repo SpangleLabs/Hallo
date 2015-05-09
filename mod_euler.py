@@ -114,41 +114,6 @@ class mod_euler:
                 newlist.append(item)
         return newlist
 
-    def fnn_euler_change(self,coins,coinnum,amount):
-        coinamount = amount//coins[coinnum]
-        change = []
-        if(amount==0):
-            return None
-        elif(coinnum==len(coins)-1):
-            change.append([coins[coinnum]]*(amount//coins[coinnum]))
-        else:
-            for x in range(coinamount,-1,-1):
-                remaining = amount - x*coins[coinnum]
-                if(remaining==0):
-                    change.append(x*[coins[coinnum]])
-                else:
-                    changeadd = mod_euler.fnn_euler_change(self,coins,coinnum+1,remaining)
-                    for changeoption in changeadd:
-                        change.append(x*[coins[coinnum]]+changeoption)
-        return change
-
-    def fnn_euler_changecount(self,coins,coinnum,amount):
-        coinamount = amount//coins[coinnum]
-        change = 0
-        if(amount==0):
-            return 0
-        elif(coinnum==len(coins)-1):
-            change = 1
-        else:
-            for x in range(coinamount,-1,-1):
-                remaining = amount - x*coins[coinnum]
-                if(remaining==0):
-                    change = change + 1
-                else:
-                    changeadd = mod_euler.fnn_euler_changecount(self,coins,coinnum+1,remaining)
-                    change = change + changeadd
-        return change
-
     def fnn_euler_32(self):
         digits = [1,2,3,4,5,6,7,8,9]
         products = []
