@@ -109,26 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_19(self):
-        day = 1+365
-        year = 0
-        total = 0
-        while year < 101:
-            year = year + 1
-            for month in range(12):
-                if(day%7==0):
-                    total = total + 1
-                if(month == 2):
-                    if((year%4 == 0 and year%100 != 0) or year%400 == 0):
-                        day = day + 29
-                    else:
-                        day = day + 28 
-                elif(month in [9,11,4,6]):
-                    day = day + 30
-                else:
-                    day = day + 31
-        return total
-
     def fnn_euler_20(self):
         number = math.factorial(100)
         number = str(number)
