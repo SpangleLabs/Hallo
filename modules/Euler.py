@@ -32,7 +32,16 @@ class Euler(Function):
             return outputString
     
     def listAll(self):
-        return
+        #list all available project Euler answers
+        problemFuncNames = []
+        for funcName in dir(self):
+            if(funcName[:5] == 'euler' and funcName[5:].isdigit()):
+                problemFuncNames.append(funcName[5:])
+        problemFuncNames = sorted(problemFuncNames,key=int)
+        outputString = "Currently I can do Project Euler problems " 
+        outputString += ', '.join(problemFuncNames[:-1]) 
+        outputString += " and " + problemFuncNames[-1] + "."
+        return outputString
     
     def euler1(self):
         return
