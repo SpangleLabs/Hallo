@@ -73,6 +73,17 @@ class Euler(Function):
         answer = threeSum + fiveSum - fifteenSum
         return answer
     
+    def euler2(self):
+        previousNum = 1
+        currentNum = 2
+        answer = 0
+        while currentNum < 4000000:
+            if(currentNum % 2 == 0):
+                answer = answer + currentNum
+            newNum = currentNum + previousNum
+            previousNum = currentNum
+            currentNum = newNum
+        return answer
     
     
     
