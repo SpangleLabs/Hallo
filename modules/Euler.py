@@ -153,5 +153,10 @@ class Euler(Function):
             answer = answer*(prime**power)
         return answer
     
+    def euler6(self):
+        answer = 0
+        for x in range(1,101):
+            answer = answer + x*(0.5*(101**2)-0.5*101) - x**2
+        return answer
     
     
