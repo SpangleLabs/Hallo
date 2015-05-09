@@ -114,39 +114,6 @@ class mod_euler:
                 newlist.append(item)
         return newlist
 
-    def fnn_euler_27(self):
-        maxlength = 0
-        maxproduct = 1
-        for b in range(1,1000):
-            if(mod_euler.fnn_euler_isprime(self,b)):
-                for a in range(1,1000):
-                    length = 0
-                    n = 0
-                    while True:
-                        length = length + 1
-                        n = n + 1
-                        answer = (n**2) + (a*n) + b
-                        if not mod_euler.fnn_euler_isprime(self,answer):
-                            break
-                    if(length>maxlength):
-                        maxlength = length
-                        maxproduct = a * b
-#                        print "new record: a = " + str(a) + ", b = " + str(b) + ", length = " + str(length)
-                    length = 0
-                    n = 0
-                    if(a<b):
-                        while True:
-                            length = length + 1
-                            n = n + 1
-                            answer = (n**2) - (a*n) + b
-                            if not mod_euler.fnn_euler_isprime(self,answer):
-                                break
-                        if(length>maxlength):
-                            maxlength = length
-                            maxproduct = -(a * b)
-#                            print "new record: a = -" + str(a) + ", b = " + str(b) + ", length = " + str(length)
-        return maxproduct
-
     def fnn_euler_28(self):
         total = 1
         n = 1

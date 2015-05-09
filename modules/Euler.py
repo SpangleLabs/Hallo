@@ -497,6 +497,39 @@ class Euler(Function):
 #                        print "New record: " + str(d) + " requires " + str(len(str(nines))) + " nines."
                     break
         return maxd
+    
+    def euler27(self):
+        maxLength = 0
+        maxProduct = 1
+        for b in range(1,1000):
+            if(self.checkPrime(b)):
+                for a in range(1,1000):
+                    length = 0
+                    n = 0
+                    while True:
+                        length = length + 1
+                        n = n + 1
+                        answer = (n**2) + (a*n) + b
+                        if not self.checkPrime(answer):
+                            break
+                    if(length>maxLength):
+                        maxLength = length
+                        maxProduct = a * b
+#                        print "new record: a = " + str(a) + ", b = " + str(b) + ", length = " + str(length)
+                    length = 0
+                    n = 0
+                    if(a<b):
+                        while True:
+                            length = length + 1
+                            n = n + 1
+                            answer = (n**2) - (a*n) + b
+                            if not self.checkPrime(answer):
+                                break
+                        if(length>maxLength):
+                            maxLength = length
+                            maxProduct = -(a * b)
+#                            print "new record: a = -" + str(a) + ", b = " + str(b) + ", length = " + str(length)
+        return maxProduct
 
 
 
