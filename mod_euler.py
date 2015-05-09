@@ -109,19 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_25(self):
-        length = 0
-        a = 1
-        b = 1
-        num = 2
-        while length<1000:
-            num = num + 1
-            c = a + b
-            a = b
-            b = c
-            length = len(str(c))
-        return num
-
     def fnn_euler_readdecimal(self,fraction):
         fraction = str(fraction)
         if(fraction.count('/')!=1):

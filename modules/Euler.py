@@ -451,7 +451,18 @@ class Euler(Function):
         string = string + str(digits[0])
         return string
 
-
+    def euler25(self):
+        length = 0
+        a = 1
+        b = 1
+        num = 2
+        while length<1000:
+            num = num + 1
+            c = a + b
+            a = b
+            b = c
+            length = len(str(c))
+        return num
 
 
 
