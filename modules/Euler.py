@@ -205,3 +205,64 @@ class Euler(Function):
                     numbers[y] = 1
         return primeSum
     
+    def euler11(self):
+        rawBox = open("store/euler/euler_11_grid.txt").read()[:-1]
+        arrBox = rawBox.split()
+        biggestProduct = 0
+        answerX = 0
+        answerY = 0
+        direction = ''
+        #vertical checks
+        for x in range(0,20):
+            for y in range(0,17):
+                product = int(arrBox[x+20*y])*int(arrBox[x+20*y+20])*int(arrBox[x+20*y+40])*int(arrBox[x+20*y+60])
+                if(product>biggestProduct):
+                    biggestProduct = product
+                    answerX = x
+                    answerY = y
+                    direction = "vertical"
+        #horizontal checks
+        for x in range(0,17):
+            for y in range(0,20):
+                product = int(arrBox[x+20*y])*int(arrBox[x+20*y+1])*int(arrBox[x+20*y+2])*int(arrBox[x+20*y+3])
+                if(product>biggestProduct):
+                    biggestProduct = product
+                    answerX = x
+                    answerY = y
+                    direction = "horizontal"
+        #diagonal check \
+        for x in range(0,17):
+            for y in range(0,17):
+                product = int(arrBox[x+20*y])*int(arrBox[x+20*y+21])*int(arrBox[x+20*y+42])*int(arrBox[x+20*y+63])
+                if(product>biggestProduct):
+                    biggestProduct = product
+                    answerX = x
+                    answerY = y
+                    direction = "diagonal \\"
+        #diagonal check /
+        for x in range(3,20):
+            for y in range(0,17):
+                product = int(arrBox[x+20*y])*int(arrBox[x+20*y+19])*int(arrBox[x+20*y+38])*int(arrBox[x+20*y+57])
+                if(product>biggestProduct):
+                    biggestProduct = product
+                    answerX = x
+                    answerY = y
+                    direction = "diagonal /"
+        outputString = "biggest product is: " + str(biggestProduct)
+        outputString += " the coords are: (" + str(answerX) + "," + str(answerY) + ") in the direction: " + direction
+        return outputString
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

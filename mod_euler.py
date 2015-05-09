@@ -62,51 +62,6 @@ class mod_euler:
             raw_line = f.readline()
         return filearray
 
-    def fnn_euler_11(self):
-        raw_box = mod_euler.fnn_euler_readfiletostring(self,"euler/euler_11_grid.txt")
-        arr_box = raw_box.split()
-        biggestproduct = 0
-        answerx = 0
-        answery = 0
-        directrion = ''
-        #vertical checks
-        for x in range(0,20):
-            for y in range(0,17):
-                product = int(arr_box[x+20*y])*int(arr_box[x+20*y+20])*int(arr_box[x+20*y+40])*int(arr_box[x+20*y+60])
-                if(product>biggestproduct):
-                    biggestproduct = product
-                    answerx = x
-                    answery = y
-                    directrion = "vertical"
-        #horizontal checks
-        for x in range(0,17):
-            for y in range(0,20):
-                product = int(arr_box[x+20*y])*int(arr_box[x+20*y+1])*int(arr_box[x+20*y+2])*int(arr_box[x+20*y+3])
-                if(product>biggestproduct):
-                    biggestproduct = product
-                    answerx = x
-                    answery = y
-                    directrion = "horizontal"
-        #diagonal check \
-        for x in range(0,17):
-            for y in range(0,17):
-                product = int(arr_box[x+20*y])*int(arr_box[x+20*y+21])*int(arr_box[x+20*y+42])*int(arr_box[x+20*y+63])
-                if(product>biggestproduct):
-                    biggestproduct = product
-                    answerx = x
-                    answery = y
-                    directrion = "diagonal \\"
-        #diagonal check /
-        for x in range(3,20):
-            for y in range(0,17):
-                product = int(arr_box[x+20*y])*int(arr_box[x+20*y+19])*int(arr_box[x+20*y+38])*int(arr_box[x+20*y+57])
-                if(product>biggestproduct):
-                    biggestproduct = product
-                    answerx = x
-                    answery = y
-                    directrion = "diagonal /"
-        return "biggest product is: " + str(biggestproduct) + " the coords are: (" + str(answerx) + "," + str(answery) + ") in the direction: " + directrion
-
     def fnn_euler_factorise(self,args):
         args = int(args)
         factors = []
