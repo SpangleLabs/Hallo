@@ -43,7 +43,7 @@ class Euler(Function):
             if(funcName[:5] == 'euler' and funcName[5:].isdigit()):
                 problemFuncNames.append(funcName[5:])
         problemFuncNames = sorted(problemFuncNames,key=int)
-        outputString = "Currently I can do Project Euler problems " 
+        outputString = "Currently I can do "+str(len(problemFuncNames))+" Project Euler problems " 
         outputString += ', '.join(problemFuncNames[:-1]) 
         outputString += " and " + problemFuncNames[-1] + "."
         return outputString
