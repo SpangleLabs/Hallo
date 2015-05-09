@@ -313,6 +313,14 @@ class Euler(Function):
             routes = routes*(x+y+1)/(y+1)
         return routes
     
+    def euler16(self):
+        bigNumber = 2**1000
+        bigNumber = str(bigNumber)
+        total = 0
+        for x in range(len(bigNumber)):
+            total = total + int(bigNumber[x])
+        return total
+    
     
     
     

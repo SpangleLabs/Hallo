@@ -109,15 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_16(self):
-        bignumber = 2**1000
-        bignumber = str(bignumber)
-        total = 0
-        for x in range(len(bignumber)):
-            total = total + int(bignumber[x])
-        return total
-
-
     def fnn_euler_numberword(self,number,lang_type="american"):
         digits = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen']
         tens = ['zero','ten','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety']
