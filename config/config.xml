@@ -253,6 +253,14 @@
 					<value>True</value>
 				</right>
 				<right>
+					<name>function_ListUsers</name>
+					<value>True</value>
+				</right>
+				<right>
+					<name>function_ListChannels</name>
+					<value>True</value>
+				</right>
+				<right>
 					<name>function_Permissions</name>
 					<value>True</value>
 				</right>
@@ -323,6 +331,14 @@
 		</right>
 		<right>
 			<name>function_EditServer</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_ListUsers</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_ListChannels</name>
 			<value>False</value>
 		</right>
 		<right>
