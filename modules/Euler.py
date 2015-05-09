@@ -817,7 +817,17 @@ class Euler(Function):
                 product = product*int(str(number)[1000000-stringLength-1])
             stringLength += addLength
         return product
-
+    
+    def euler41(self):
+        maxPandigitalPrime = 1
+        for x in range(2,8*10**6):
+            digits = len(str(x))
+            if(x%2!=0 and x%3!=0 and x%5!=0):
+                if(self.checkListInList([str(x) for x in range(1,digits+1)],list(str(x)))):
+                    if(self.checkPrime(x)):
+                        print('this is one. ' + str(x))
+                        maxPandigitalPrime = x
+        return maxPandigitalPrime
 
 
 

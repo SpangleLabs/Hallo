@@ -1,4 +1,3 @@
-import math
 import collections
 
 class mod_euler:
@@ -30,20 +29,6 @@ class mod_euler:
             answer = "I'm learning to complete the project Euler programming problems. I've not done many so far, I've only done " + str(count) + " of the 434 problems. But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, say 'Hallo Euler {num}' for the answer to challenge number {num}."
         return answer
 
-    def fnn_euler_isprime(self,args):
-        checkprime = args
-        checkprimefactor = 1
-        if(checkprime<=0):
-            return False
-        for j in range(2,int(math.floor(math.sqrt(checkprime)))+1):
-            if(checkprime%j == 0):
-                checkprimefactor = j
-                break
-        if(checkprimefactor == 1 and args!=1):
-            return True
-        else:
-            return False
-
     def fnn_euler_readfiletostring(self,filename):
         f = open(filename,"r")
         return f.read()[:-1]
@@ -58,26 +43,6 @@ class mod_euler:
             num_line = num_line + 1
             raw_line = f.readline()
         return filearray
-
-    def fnn_listinlist(self,listsmall,listbig):
-        listtest = list(listbig)
-        for x in listsmall:
-            if(x in listtest):
-                listtest.remove(x)
-            else:
-                return False
-        return True
-
-    def fnn_euler_41(self):
-        max_pandigitalprime = 1
-        for x in range(2,8*10**6):
-            digits = len(str(x))
-            if(x%2!=0 and x%3!=0 and x%5!=0):
-                if(mod_euler.fnn_listinlist(self,[str(x) for x in range(1,digits+1)],list(str(x)))):
-                    if(mod_euler.fnn_euler_isprime(self,x)):
-                        print('this is one. ' + str(x))
-                        max_pandigitalprime = x
-        return max_pandigitalprime
 
     def fnn_euler_wordvalue(self,word):
         value = 0
