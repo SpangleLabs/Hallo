@@ -114,15 +114,6 @@ class mod_euler:
                 newlist.append(item)
         return newlist
 
-    def fnn_euler_28(self):
-        total = 1
-        n = 1
-        for x in range(1,501):
-            gap = x*2
-            total = total + 4*n + 10*gap
-            n = n + gap*4
-        return total
-
     def fnn_euler_29(self):
         answers = []
         for a in range(2,101):

@@ -530,6 +530,15 @@ class Euler(Function):
                             maxProduct = -(a * b)
 #                            print "new record: a = -" + str(a) + ", b = " + str(b) + ", length = " + str(length)
         return maxProduct
+    
+    def euler28(self):
+        total = 1
+        n = 1
+        for x in range(1,501):
+            gap = x*2
+            total = total + 4*n + 10*gap
+            n = n + gap*4
+        return total
 
 
 
