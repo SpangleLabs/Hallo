@@ -159,4 +159,15 @@ class Euler(Function):
             answer = answer + x*(0.5*(101**2)-0.5*101) - x**2
         return answer
     
+    def euler7(self):
+        numPrimes = 0
+        test = 1
+        prime = 1
+        while numPrimes < 10001:
+            test = test + 1
+            if(self.checkPrime(test)):
+                numPrimes = numPrimes + 1
+                prime = test
+        return prime
+    
     
