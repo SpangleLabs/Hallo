@@ -144,42 +144,6 @@ class mod_euler:
             else:
                 return False
         return True
-
-    def fnn_euler_33(self):
-        epsilon = 0.0000001
-        total_numerator_factors = []
-        total_denominator_factors = []
-        for denominator in range(11,100):
-            for numerator in range(10,denominator):
-                if(str(numerator)[0] in str(denominator)):
-                    if(str(denominator)[0]==str(denominator)[1]):
-                        denominator_new = int(str(denominator)[1])
-                    else:
-                        denominator_new = int(str(denominator).replace(str(numerator)[0],''))
-                    numerator_new = int(str(numerator)[1])
-                    numerator_factors_new = mod_euler.fnn_euler_primefactors(self,numerator_new)
-                    denominator_factors_new = mod_euler.fnn_euler_primefactors(self,denominator_new)
-                    if(denominator_new!=0):
-                        if((numerator/denominator-numerator_new/denominator_new)**2<epsilon):
-                            print("found one." + str(numerator) + "/" + str(denominator))
-                            total_numerator_factors = total_numerator_factors + numerator_factors_new
-                            total_denominator_factors = total_denominator_factors + denominator_factors_new
-                elif(str(numerator)[1] in str(denominator) and str(numerator)[1] != "0"):
-                    if(str(denominator)[0]==str(denominator)[1]):
-                        denominator_new = int(str(denominator)[1])
-                    else:
-                        denominator_new = int(str(denominator).replace(str(numerator)[1],''))
-                    numerator_new = int(str(numerator)[0])
-                    numerator_factors_new = mod_euler.fnn_euler_primefactors(self,numerator_new)
-                    denominator_factors_new = mod_euler.fnn_euler_primefactors(self,denominator_new)
-                    if(denominator_new!=0):
-                        if((numerator/denominator-numerator_new/denominator_new)**2<epsilon):
-                            print("found one." + str(numerator) + "/" + str(denominator))
-                            total_numerator_factors = total_numerator_factors + numerator_factors_new
-                            total_denominator_factors = total_denominator_factors + denominator_factors_new
-        total_denominator_factors_new = mod_euler.fnn_listminus(self,total_denominator_factors,mod_euler.fnn_intersection(self,total_denominator_factors,total_numerator_factors))
-        total_denominator_new = mod_euler.fnn_product(self,total_denominator_factors_new)
-        return total_denominator_new
  
     def fnn_euler_34(self):
         totalsum = 0

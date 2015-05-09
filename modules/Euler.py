@@ -102,6 +102,28 @@ class Euler(Function):
                 newList.append(item)
         return newList
     
+    def listMinus(self,listOne,listTwo):
+        listMinus = list(listOne)
+        for x in listTwo:
+            if(x in listMinus):
+                listMinus.remove(x)
+        return listMinus
+    
+    def listIntersection(self,listOne,listTwo):
+        intersection = []
+        tempList = list(listTwo)
+        for x in listOne:
+            if(x in tempList):
+                intersection.append(x)
+                tempList.remove(x)
+        return intersection
+    
+    def listProduct(self,inputList):
+        product = 1
+        for number in inputList:
+            product = product*number
+        return product
+    
     def euler1(self):
         threeCount = math.floor(999/3)
         fiveCount = math.floor(999/5)
@@ -627,6 +649,62 @@ class Euler(Function):
                                 products.append(productTwo)
         products = list(set(products))
         return sum(products)
+
+    def euler33(self):
+        #Get PrimeFactors function
+        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionClass = functionDispatcher.getFunctionByName("prime factors")
+        functionObject = functionDispatcher.getFunctionObject(functionClass)
+        #Do processing
+        epsilon = 0.0000001
+        totalNumeratorFactors = []
+        totalDenominatorFactors = []
+        for denominator in range(11,100):
+            for numerator in range(10,denominator):
+                if(str(numerator)[0] in str(denominator)):
+                    if(str(denominator)[0]==str(denominator)[1]):
+                        denominatorNew = int(str(denominator)[1])
+                    else:
+                        denominatorNew = int(str(denominator).replace(str(numerator)[0],''))
+                    numeratorNew = int(str(numerator)[1])
+                    numeratorFactorsNew = functionObject.findPrimeFactors(numeratorNew)
+                    denominatorFactorsNew = functionObject.findPrimeFactors(denominatorNew)
+                    if(denominatorNew!=0):
+                        if((numerator/denominator-numeratorNew/denominatorNew)**2<epsilon):
+                            print("found one." + str(numerator) + "/" + str(denominator))
+                            totalNumeratorFactors = totalNumeratorFactors + numeratorFactorsNew
+                            totalDenominatorFactors = totalDenominatorFactors + denominatorFactorsNew
+                elif(str(numerator)[1] in str(denominator) and str(numerator)[1] != "0"):
+                    if(str(denominator)[0]==str(denominator)[1]):
+                        denominatorNew = int(str(denominator)[1])
+                    else:
+                        denominatorNew = int(str(denominator).replace(str(numerator)[1],''))
+                    numeratorNew = int(str(numerator)[0])
+                    numeratorFactorsNew = functionObject.findPrimeFactors(numeratorNew)
+                    denominatorFactorsNew = functionObject.findPrimeFactors(denominatorNew)
+                    if(denominatorNew!=0):
+                        if((numerator/denominator-numeratorNew/denominatorNew)**2<epsilon):
+                            print("found one." + str(numerator) + "/" + str(denominator))
+                            totalNumeratorFactors = totalNumeratorFactors + numeratorFactorsNew
+                            totalDenominatorFactors = totalDenominatorFactors + denominatorFactorsNew
+        totalDenominatorFactorsNew = self.listMinus(totalDenominatorFactors,self.listIntersection(totalDenominatorFactors,totalNumeratorFactors))
+        totalDenominatorNew = self.listProduct(totalDenominatorFactorsNew)
+        return totalDenominatorNew
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
