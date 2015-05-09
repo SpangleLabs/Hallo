@@ -11,6 +11,8 @@ class Euler(Function):
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Project Euler functions. Format: \"euler list\" to list project euler solutions. \"euler <number>\" for the solution to project euler problem of the given number."
     
+    mHalloObject = None
+    
     def __init__(self):
         '''
         Constructor
@@ -18,11 +20,13 @@ class Euler(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
+        #Some functions might need this.
+        self.mHalloObject = userObject.getServer().getHallo()
         lineClean = line.strip().lower()
         if(lineClean=="list"):
             return self.listAll()
         elif(lineClean.isdigit()):
-            return "Project euler"
+            return self.runFunction(lineClean)
         else:
             countSolutions = len(funcName for funcName in dir(self) if funcName[:5] == 'euler' and funcName[5:].isdigit())
             outputString = "I'm learning to complete the project Euler programming problems."
@@ -43,5 +47,32 @@ class Euler(Function):
         outputString += " and " + problemFuncNames[-1] + "."
         return outputString
     
+    def runFunction(self,numberString):
+        functionName = "euler"+numberString
+        functionNames = [funcName for funcName in dir(self) if funcName[:5] == 'euler' and funcName[5:].isdigit()]
+        if(functionName not in functionNames):
+            return "I don't think I've solved that one yet."
+        functionObject = getattr(self,functionName)
+        if(not hasattr(functionObject,"__call__")):
+            return "That doesn't seem to work."
+        try:
+            outputString = "Euler project problem " + numberString + "? I think the answer is: " + str(functionObject()) + "."
+        except Exception as e:
+            outputString = "Hmm, seems that one doesn't work... darnit."
+            print("EULER ERROR: " + str(e))
+        return outputString
+    
     def euler1(self):
         return
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
