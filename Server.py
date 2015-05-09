@@ -160,6 +160,9 @@ class Server(object):
         self.addChannel(newChannel)
         return newChannel
     
+    def getChannelList(self):
+        return self.mChannelList
+    
     def addChannel(self,channelObject):
         'Adds a channel to the channel list'
         if(self.getChannelByName(channelObject.getName()) is None):
