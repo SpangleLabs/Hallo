@@ -39,60 +39,6 @@ class mod_euler:
             num_line = num_line + 1
             raw_line = f.readline()
         return filearray
-        
-
-    def fnn_euler_pandigitals(self):
-        pandigitals = []
-        digits = list(range(10))
-        for a in range(9):
-            adigit = digits[a+1]
-            adigits = list(digits)
-            del adigits[a+1]
-            for b in range(9):
-                bdigit = adigits[b]
-                bdigits = list(adigits)
-                del bdigits[b]
-                for c in range(8):
-                    cdigit = bdigits[c]
-                    cdigits = list(bdigits)
-                    del cdigits[c]
-                    for d in range(7):
-                        ddigit = cdigits[d]
-                        ddigits = list(cdigits)
-                        del ddigits[d]
-                        for e in range(6):
-                            edigit = ddigits[e]
-                            edigits = list(ddigits)
-                            del edigits[e]
-                            for f in range(5):
-                                fdigit = edigits[f]
-                                fdigits = list(edigits)
-                                del fdigits[f]
-                                for g in range(4):
-                                    gdigit = fdigits[g]
-                                    gdigits = list(fdigits)
-                                    del gdigits[g]
-                                    for h in range(3):
-                                        hdigit = gdigits[h]
-                                        hdigits = list(gdigits)
-                                        del hdigits[h]
-                                        for i in range(2):
-                                            idigit = hdigits[i]
-                                            idigits = list(hdigits)
-                                            del idigits[i]
-                                            jdigit = idigits[0]
-                                            pandigitals.append(1000000000*adigit+100000000*bdigit+10000000*cdigit+1000000*ddigit+100000*edigit+10000*fdigit+1000*gdigit+100*hdigit+10*idigit+jdigit)
-        return pandigitals
-
-    def fnn_euler_43(self):
-        pandigitals = mod_euler.fnn_euler_pandigitals(self)
-        pandigital_sum = 0
-        for pandigital in pandigitals:
-            if(int(str(pandigital)[1:4])%2==0 and int(str(pandigital)[2:5])%3==0 and int(str(pandigital)[3:6])%5==0 and int(str(pandigital)[4:7])%7==0 and int(str(pandigital)[5:8])%11==0):
-                if(int(str(pandigital)[6:9])%13==0 and int(str(pandigital)[7:10])%17==0):
-                    print('found one: ' + str(pandigital))
-                    pandigital_sum += pandigital
-        return pandigital_sum
 
     def fnn_euler_44(self):
         epsilon = 0.000001
