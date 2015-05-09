@@ -109,14 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_15(self):
-        gridsize = 20
-        x = gridsize
-        routes = 1
-        for y in range(x):
-            routes = routes*(x+y+1)/(y+1)
-        return routes
-
     def fnn_euler_16(self):
         bignumber = 2**1000
         bignumber = str(bignumber)

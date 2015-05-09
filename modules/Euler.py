@@ -305,7 +305,13 @@ class Euler(Function):
                 maxStart = start
         return maxStart
     
-    
+    def euler15(self):
+        gridSize = 20
+        x = gridSize
+        routes = 1
+        for y in range(x):
+            routes = routes*(x+y+1)/(y+1)
+        return routes
     
     
     
