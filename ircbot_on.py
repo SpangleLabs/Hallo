@@ -3,7 +3,6 @@ import time
 from inc.commons import Commons
 
 import ircbot_chk
-import mod_idlechan    #for idle channel functions
 import mod_conversion
 
 endl = '\r\n'
@@ -166,15 +165,15 @@ class ircbot_on:
                 servers = servers+1
             # if you're connected, check each channel, if you're in any channels there, check for idlechan activation.
 #            print('aac' + server)
-            if(self.conf['server'][server]['connected']):
-                for channel in self.conf['server'][server]['channel']:
-                    if(self.conf['server'][server]['channel'][channel]['in_channel']):
-                        if('idle_time' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['idle_time']!=0 and self.core['server'][server]['channel'][channel]['last_message']!=0 and (int(time.time())-self.core['server'][server]['channel'][channel]['last_message'])>self.conf['server'][server]['channel'][channel]['idle_time']):
-                            print("channel idle")
-                            self.core['server'][server]['channel'][channel]['last_message'] = int(time.time())
-                            out = mod_idlechan.mod_idlechan.fnn_idlechan(self,self.conf['server'][server]['channel'][channel]['idle_args'],'',[server,channel])
-                            if(out is not None):
-                                self.base_say(out,[server,channel])
+#            if(self.conf['server'][server]['connected']):
+#                for channel in self.conf['server'][server]['channel']:
+#                    if(self.conf['server'][server]['channel'][channel]['in_channel']):
+#                        if('idle_time' in self.conf['server'][server]['channel'][channel] and self.conf['server'][server]['channel'][channel]['idle_time']!=0 and self.core['server'][server]['channel'][channel]['last_message']!=0 and (int(time.time())-self.core['server'][server]['channel'][channel]['last_message'])>self.conf['server'][server]['channel'][channel]['idle_time']):
+#                            print("channel idle")
+#                            self.core['server'][server]['channel'][channel]['last_message'] = int(time.time())
+#                            out = mod_idlechan.mod_idlechan.fnn_idlechan(self,self.conf['server'][server]['channel'][channel]['idle_args'],'',[server,channel])
+#                            if(out is not None):
+#                                self.base_say(out,[server,channel])
         #    print('aad' + server)
         #if not connected to any servers, shut down
         #print('bbb')
