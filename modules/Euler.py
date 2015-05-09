@@ -85,7 +85,21 @@ class Euler(Function):
             currentNum = newNum
         return answer
     
-    
+    def euler3(self):
+        limit = 600851475143
+        factorLimit = int(math.floor(math.sqrt(limit)))
+        biggestPrimeFactor = 1
+        for i in range(1,factorLimit):
+            if(limit%i == 0):
+                checkPrime = i
+                checkPrimeLimit = int(math.floor(math.sqrt(checkPrime)))
+                checkPrimeFactor = 1
+                for j in range(1,checkPrimeLimit):
+                    if(checkPrime%j == 0):
+                        checkPrimeFactor = j
+                if(checkPrimeFactor == 1):
+                    biggestPrimeFactor = i
+        return biggestPrimeFactor
     
     
     
