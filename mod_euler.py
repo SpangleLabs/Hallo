@@ -109,67 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_numberword(self,number,lang_type="american"):
-        digits = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen']
-        tens = ['zero','ten','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety']
-        segs = ['','thousand','million','billion','trillion','quadrillion','quintillion','sextillion','septillion','octillion','nonillion','decillion','undecillion','duodecillion','tredecillion']
-        europeansegs = ['','thousand','million','milliard','billion','billiard','trillion','trilliard','quadrillion','quadrilliard','quintillion','quintilliard','sextillion','sextilliard','septillion']
-        englishsegs = ['','thousand','million','thousand million','billion','thousand billion','trillion','thousand trillion','quadrillion','thousand quadrillion','quintillion','thousand quintillion','sextillion','thousand sextillion','septillion']
-        if(number.count('.')>1):
-            return "There's too many decimal points in that."
-        elif(number.count('.')==1):
-            expnumber = number.split('.')
-            numberdecimal = expnumber[1]
-            number = expnumber[0]
-            decimal = " point"
-            for num in numberdecimal:
-                decimal = decimal + " " + digits[int(num)]
-        else:
-            decimal = ""
-        number = str(number)
-        if(number[0]=="-"):
-            number = number[1:]
-            string = 'negative '
-        else:
-            string = ''
-#check the number is just digits here
-        segments = int(math.ceil(float(len(number))/3)+0.01)
-        number = number.rjust(3*segments,'0')
-        if(number == "000"):
-            string = "zero"
-        for seg in range(segments):
-            start = seg*3
-            end = start+3
-            segment = number[start:end]
-            #string = string + "(" + segment + ")"
-            if(segment[0]!="0"):
-                string = string + digits[int(segment[0])] + " hundred "
-                if(int(segment[1:]) != 0):
-                    string = string + "and "
-            elif(seg!=0 and int(segment[1:])!=0):
-                string = string + "and "
-            if(int(segment[1:]) == 0):
-                pass
-            elif(int(segment[1:]) < 20):
-                string = string + digits[int(segment[1:])]
-            else:
-                string = string + tens[int(segment[1])]
-                if(segment[2]!="0"):
-                    string = string + "-" + digits[int(segment[2])]
-            if(seg!=(segments-1) and segment != "000"):
-                if(lang_type.lower() == "american"):
-                    string = string + " " + segs[segments-seg-1]
-                elif(lang_type.lower() == "english"):
-                    string = string + " " + englishsegs[segments-seg-1]
-                elif(lang_type.lower() == "european"):
-                    string = string + " " + europeansegs[segments-seg-1]
-                else:
-                    string = string + " " + segs[segments-seg-1]
-            if(seg!=(segments-1) and int(number[end:end+3])!=0):
-                string = string + ', '
-        string = string + decimal
-        return string
-
     def fnn_euler_18(self):
         arr_triangle = mod_euler.fnn_euler_readfiletolist(self,"euler/euler_18_triangle.txt")
         for x in range(len(arr_triangle)):

@@ -200,30 +200,6 @@ class mod_calc:
         numbersum = sum(float(x) for x in numberlist)
         return "The average of " + ', '.join(numberlist) + " is: " + str(numbersum/float(len(numberlist))) + "."
 
-    def fn_number(self,args,client,destination):
-        'Returns the textual representation of a given number. Format: number <number>'
-        if(args.count(' ')==0):
-            number = args
-            lang = "american"
-        elif(args.split()[1].lower() == "british" or args.split()[1].lower() == "english"):
-            number = args.split()[0]
-            lang = "english"
-        elif(args.split()[1].lower() == "european" or args.split()[1].lower() == "french"):
-            number = args.split()[0]
-            lang = "european"
-        else:
-            number = args.split()[0]
-            lang = "american"
-        if(ircbot_chk.ircbot_chk.chk_msg_numbers(self,number)):
-            number = number
-        elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,number)):
-            number = mod_calc.fn_calc(self,number,client,destination)
-            if(str(number)[-1]=='.'):
-                number = number[:-1]
-        else:
-            return "You must enter a valid number or calculation."
-        return mod_euler.mod_euler.fnn_euler_numberword(self,number,lang) + "."
-
     def fn_highest_common_factor(self,args,client,destination):
         'Returns the highest common factor of two numbers. Format: highest_common_factor <number1> <number2>'
         if(len(args.split())!=2):
