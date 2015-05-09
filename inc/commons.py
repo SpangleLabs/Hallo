@@ -112,4 +112,14 @@ class Commons(object):
             code = code.replace('[,','[').replace(',]',']')
         outputDict = json.loads(code)
         return outputDict
+    
+    @staticmethod
+    def checkNumbers(message):
+        'checks that an argument is purely numbers'
+        message = message.lower()
+        if(message.count(".")>1):
+            return False
+        if(message.replace(".","").isdigit()):
+            return True
+        return False
         
