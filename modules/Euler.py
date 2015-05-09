@@ -372,6 +372,35 @@ class Euler(Function):
             total = total + int(number[x])
         return total
     
+    def findFactors(self,number):
+        number = int(number)
+        factors = []
+        for x in range(1,int(math.sqrt(number))+1):
+            if(number%x == 0):
+                factors.append(x)
+                if(number/x!=x):
+                    factors.append(number/x)
+        return factors
     
+    def euler21(self):
+        amicable = []
+        total = 0
+        for x in range(10000):
+            if(x not in amicable):
+                factors = self.findFactors(x)
+                factorTotal = 0
+                for factor in factors:
+                    factorTotal = factorTotal + factor
+                otherNumber = factorTotal-x
+                otherFactors = self.findFactors(otherNumber)
+                otherFactorTotal = 0
+                for otherFactor in otherFactors:
+                    otherFactorTotal = otherFactorTotal + otherFactor
+                if(otherFactorTotal-otherNumber==x and otherNumber!=x):
+                    print("found a pair: " + str(x) + " and " + str(factorTotal-x))
+                    amicable.append(x)
+                    amicable.append(factorTotal-x)
+                    total = total + x + otherNumber
+        return total
     
     

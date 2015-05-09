@@ -109,27 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_21(self):
-        amicable = []
-        total = 0
-        for x in range(10000):
-            if(x not in amicable):
-                factors = mod_euler.fnn_euler_factorise(self,x)
-                factortotal = 0
-                for factor in factors:
-                    factortotal = factortotal + factor
-                othernumber = factortotal-x
-                otherfactors = mod_euler.fnn_euler_factorise(self,othernumber)
-                otherfactortotal = 0
-                for otherfactor in otherfactors:
-                    otherfactortotal = otherfactortotal + otherfactor
-                if(otherfactortotal-othernumber==x and othernumber!=x):
-                    print("found a pair: " + str(x) + " and " + str(factortotal-x))
-                    amicable.append(x)
-                    amicable.append(factortotal-x)
-                    total = total + x + othernumber
-        return total
-
     def fnn_euler_22(self):
         raw_names = mod_euler.fnn_euler_readfiletostring(self,"euler/euler_22_names.txt")
         arr_names = sorted(raw_names.replace('"','').split(','))
