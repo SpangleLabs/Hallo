@@ -194,12 +194,6 @@ class mod_calc:
                 answer = mod_calc.fnn_calc_preflight(self,calc)
         return answer + "."
 
-    def fn_average(self,args,client,destination):
-        'finds the average of a list of numbers. Format: avg <number1> <number2> ... <number n-1> <number n>'
-        numberlist = args.split()
-        numbersum = sum(float(x) for x in numberlist)
-        return "The average of " + ', '.join(numberlist) + " is: " + str(numbersum/float(len(numberlist))) + "."
-
     def fn_highest_common_factor(self,args,client,destination):
         'Returns the highest common factor of two numbers. Format: highest_common_factor <number1> <number2>'
         if(len(args.split())!=2):

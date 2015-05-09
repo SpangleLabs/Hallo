@@ -253,4 +253,31 @@ class ChangeOptions(Function):
                         change.append(x*[coins[coinnum]]+changeoption)
         return change
 
-
+class Average(Function):
+    '''
+    Finds the average of a given list of numbers.
+    '''
+    #Name for use in help listing
+    mHelpName = "average"
+    #Names which can be used to address the Function
+    mNames = set(["average","avg","mean"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Finds the average of a list of numbers. Format: average <number1> <number2> ... <number n-1> <number n>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        numberList = line.split()
+        try:
+            numberSum = sum(float(x) for x in numberList)
+        except:
+            return "Please only input a list of numbers"
+        return "The average of " + ', '.join(numberList) + " is: " + str(numberSum/float(len(numberList))) + "."
+    
+    
+    
+    
