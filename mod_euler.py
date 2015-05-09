@@ -109,20 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_22(self):
-        raw_names = mod_euler.fnn_euler_readfiletostring(self,"euler/euler_22_names.txt")
-        arr_names = sorted(raw_names.replace('"','').split(','))
-        total = 0
-        name_num = 0
-        for name in arr_names:
-            name_num = name_num + 1
-            value = 0
-            for letter in range(len(name)):
-                value = value + ord(name[letter])-64
-            score = value * name_num
-            total = total + score
-        return total
-
     def fnn_euler_23(self):
         abundantnumbers = []
         sumoftwo = [0] * 28150

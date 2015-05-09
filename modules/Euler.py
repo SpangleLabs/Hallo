@@ -403,4 +403,18 @@ class Euler(Function):
                     total = total + x + otherNumber
         return total
     
+    def euler22(self):
+        rawNames = open("store/euler/euler_22_names.txt","r").read()[:-1]
+        arrNames = sorted(rawNames.replace('"','').split(','))
+        total = 0
+        nameNum = 0
+        for name in arrNames:
+            nameNum = nameNum + 1
+            value = 0
+            for letter in range(len(name)):
+                value = value + ord(name[letter])-64
+            score = value * nameNum
+            total = total + score
+        return total
+    
     
