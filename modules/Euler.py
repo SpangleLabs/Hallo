@@ -937,6 +937,18 @@ class Euler(Function):
                         break
         return tripenthex
 
+    def euler67(self):
+        #this is the same as  problem 18, but bigger file.
+        arr_triangle = open("store/euler/euler_67_triangle.txt","r").read()[:-1].split("\n")
+        for x in range(len(arr_triangle)):
+            arr_triangle[x] = arr_triangle[x].split()
+        for row in range(len(arr_triangle)-2,-1,-1):
+            for col in range(len(arr_triangle[row])):
+                if(int(arr_triangle[row+1][col]) > int(arr_triangle[row+1][col+1])):
+                    arr_triangle[row][col] = int(arr_triangle[row][col]) + int(arr_triangle[row+1][col])
+                else:
+                    arr_triangle[row][col] = int(arr_triangle[row][col]) + int(arr_triangle[row+1][col+1])
+        return arr_triangle[0][0]
 
 
 

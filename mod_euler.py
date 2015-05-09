@@ -29,32 +29,6 @@ class mod_euler:
             answer = "I'm learning to complete the project Euler programming problems. I've not done many so far, I've only done " + str(count) + " of the 434 problems. But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, say 'Hallo Euler {num}' for the answer to challenge number {num}."
         return answer
 
-    def fnn_euler_readfiletolist(self,filename):
-        f = open(filename,"r")
-        filearray = []
-        num_line = 0
-        raw_line = f.readline()
-        while raw_line != '':
-            filearray.append(raw_line.replace("\n",''))
-            num_line = num_line + 1
-            raw_line = f.readline()
-        return filearray
-
-
-
-    def fnn_euler_67(self):
-        #this is the same as  problem 18, but bigger file.
-        arr_triangle = mod_euler.fnn_euler_readfiletolist(self,"euler/euler_67_triangle.txt")
-        for x in range(len(arr_triangle)):
-            arr_triangle[x] = arr_triangle[x].split()
-        for row in range(len(arr_triangle)-2,-1,-1):
-            for col in range(len(arr_triangle[row])):
-                if(int(arr_triangle[row+1][col]) > int(arr_triangle[row+1][col+1])):
-                    arr_triangle[row][col] = int(arr_triangle[row][col]) + int(arr_triangle[row+1][col])
-                else:
-                    arr_triangle[row][col] = int(arr_triangle[row][col]) + int(arr_triangle[row+1][col+1])
-        return arr_triangle[0][0]
-
 
 
 
