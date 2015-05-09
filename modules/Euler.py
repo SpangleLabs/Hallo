@@ -101,7 +101,23 @@ class Euler(Function):
                     biggestPrimeFactor = i
         return biggestPrimeFactor
     
-    
+    def euler4(self):
+        biggestPalandrome = 0
+        biggestPalandromeX = 0
+        biggestPalandromeY = 0
+        stopLoop = 100
+        for x in range(999,100,-1):
+            if(x < stopLoop):
+                break
+            for y in range(999,x,-1):
+                product = x * y
+                reverseProduct = int(str(product)[::-1])
+                if(product == reverseProduct and product > biggestPalandrome):
+                    biggestPalandrome = product
+                    biggestPalandromeX = x
+                    biggestPalandromeY = y
+                    stopLoop = int(math.floor(biggestPalandrome/999))
+        return "answer is: " + str(biggestPalandrome) + " = " + str(biggestPalandromeX) + "x" + str(biggestPalandromeY)
     
     
     
