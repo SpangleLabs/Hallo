@@ -193,20 +193,3 @@ class mod_calc:
             else:
                 answer = mod_calc.fnn_calc_preflight(self,calc)
         return answer + "."
-
-    def fn_simplify_fraction(self,args,client,destination):
-        'Returns a fraction in its simplest form. simplify_fraction <numerator>/<denominator>'
-        #preflight checks please
-        numerator = args.split('/')[0]
-        denominator = args.split('/')[1]
-        if(not ircbot_chk.ircbot_chk.chk_msg_numbers(self,numerator)):
-            return "Numerator must be an integer."
-        if(not ircbot_chk.ircbot_chk.chk_msg_numbers(self,denominator)):
-            return "Denominator must be an integer."
-        numerator_factors = mod_euler.mod_euler.fnn_euler_primefactors(self,int(numerator))
-        denominator_factors = mod_euler.mod_euler.fnn_euler_primefactors(self,int(denominator))
-        numerator_factors_new = mod_euler.mod_euler.fnn_listminus(self,numerator_factors,mod_euler.mod_euler.fnn_intersection(self,denominator_factors,numerator_factors))
-        denominator_factors_new = mod_euler.mod_euler.fnn_listminus(self,denominator_factors,mod_euler.mod_euler.fnn_intersection(self,denominator_factors,numerator_factors))
-        numerator_new = mod_euler.mod_euler.fnn_product(self,numerator_factors_new)
-        denominator_new = mod_euler.mod_euler.fnn_product(self,denominator_factors_new)
-        return numerator + "/" + denominator + " = " + str(numerator_new) + "/" + str(denominator_new) + "."

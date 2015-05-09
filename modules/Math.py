@@ -296,13 +296,14 @@ class HighestCommonFactor(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
-        #Getting functionDispatcher
+        #Getting functionDispatcher and required function objects
         halloObject = userObject.getServer().getHallo()
         functionDispatcher = halloObject.getFunctionDispatcher()
         primeFactorsClass = functionDispatcher.getFunctionByName("prime factors")
         eulerClass = functionDispatcher.getFunctionByName("euler")
         primeFactorsObject = functionDispatcher.getFunctionObject(primeFactorsClass)
         eulerObject = functionDispatcher.getFunctionObject(eulerClass)
+        #Preflight checks
         if(len(line.split())!=2):
             return "You must provide two arguments."
         inputOne = line.split()[0]
@@ -312,13 +313,57 @@ class HighestCommonFactor(Function):
             numberTwo = int(inputTwo)
         except:
             return "Both arguments must be integers."
+        #Get prime factors of each, get intersection, then product of that.
         numberOneFactors = primeFactorsObject.findPrimeFactors(numberOne)
         numberTwoFactors = primeFactorsObject.findPrimeFactors(numberTwo)
         commonFactors = eulerObject.listIntersection(numberOneFactors,numberTwoFactors)
         HCF = eulerObject.listProduct(commonFactors)
         return "The highest common factor of " + numberOne + " and " + numberTwo + " is " + str(HCF) + "."
     
+class SimplifyFraction(Function):
+    '''
+    Simplifies an inputted fraction
+    '''
+    #Name for use in help listing
+    mHelpName = "simplify fraction"
+    #Names which can be used to address the Function
+    mNames = set(["simplify fraction","simplifyfraction","fraction","simple fraction","base fraction","fraction simplify"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns a fraction in its simplest form. Format: simplify fraction <numerator>/<denominator>"
     
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Getting functionDispatcher and required function objects
+        halloObject = userObject.getServer().getHallo()
+        functionDispatcher = halloObject.getFunctionDispatcher()
+        primeFactorsClass = functionDispatcher.getFunctionByName("prime factors")
+        eulerClass = functionDispatcher.getFunctionByName("euler")
+        primeFactorsObject = functionDispatcher.getFunctionObject(primeFactorsClass)
+        eulerObject = functionDispatcher.getFunctionObject(eulerClass)
+        #preflight checks
+        if(line.count("/")!=1):
+            return "Please give input in the form: <numerator>/<denominator>"
+        #Get numerator and denominator
+        numeratorString = line.split('/')[0]
+        denominatorString = line.split('/')[1]
+        try:
+            numerator = int(numeratorString)
+            denominator = int(denominatorString)
+        except:
+            return "Numerator and denominator must be integers."
+        #Sort all this and get the value
+        numeratorFactors = primeFactorsObject.findPrimeFactors(numerator)
+        denominatorFactors = primeFactorsObject.findPrimeFactors(denominator)
+        numeratorFactorsNew = eulerObject.listMinus(numeratorFactors,eulerObject.listIntersection(denominatorFactors,numeratorFactors))
+        denominatorFactorsNew = eulerObject.listMinus(denominatorFactors,eulerObject.listIntersection(denominatorFactors,numeratorFactors))
+        numeratorNew = eulerObject.listProduct(numeratorFactorsNew)
+        denominatorNew = eulerObject.listProduct(denominatorFactorsNew)
+        return numerator + "/" + denominator + " = " + str(numeratorNew) + "/" + str(denominatorNew) + "."
     
     
     
