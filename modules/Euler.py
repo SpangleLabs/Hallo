@@ -180,3 +180,18 @@ class Euler(Function):
             string = string[1:]
         return biggestProduct
     
+    def euler9(self):
+        answera = 0
+        answerb = 0
+        answerc = 0
+        answer = 0
+        for b in range(500,0,-1):
+            for a in range(b-1,0,-1):
+                c = math.sqrt(a**2+b**2)
+                if(c-math.floor(c)<=0.001 and a+b+int(c)==1000):
+                    answera = a
+                    answerb = b
+                    answerc = int(c)
+                    answer = a*b*int(c)
+        return "a = " + str(answera) + ", b = " + str(answerb) + ", c = " + str(answerc) + " and a*b*c = " + str(answer)
+    
