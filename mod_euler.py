@@ -68,24 +68,6 @@ class mod_euler:
                 return False
         return True
 
-    def fnn_euler_39(self):
-        epsilon = 0.00000001
-        max_p = 0
-        max_p_count = 0
-        for p in range(1,1001):
-            p_count = 0
-            p_list = []
-            for a in range(1,int(p/2)):
-                b = (p*p-2*p*a)/(2*(a-p))
-                c = (a*a+b*b)**0.5
-                if(b%1<epsilon and c%1<epsilon):
-                    p_count += 1
-                    p_list.append([int(a),int(b),int(c)])
-            if(p_count>max_p_count):
-                max_p = p
-                max_p_count = p_count
-        return "Maximum triangles for given perimeter is " + str(max_p_count) + " for the perimeter of " + str(max_p) + "."
-
     def fnn_euler_40(self):
         stringlength = 0
         product = 1

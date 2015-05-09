@@ -771,6 +771,23 @@ class Euler(Function):
                     maxConstr = int(constr)
         return maxConstr
 
+    def euler39(self):
+        epsilon = 0.00000001
+        maxP = 0
+        maxPCount = 0
+        for p in range(1,1001):
+            pCount = 0
+            pList = []
+            for a in range(1,int(p/2)):
+                b = (p*p-2*p*a)/(2*(a-p))
+                c = (a*a+b*b)**0.5
+                if(b%1<epsilon and c%1<epsilon):
+                    pCount += 1
+                    pList.append([int(a),int(b),int(c)])
+            if(pCount>maxPCount):
+                maxP = p
+                maxPCount = pCount
+        return "Maximum triangles for given perimeter is " + str(maxPCount) + " for the perimeter of " + str(maxP) + "."
 
 
 
