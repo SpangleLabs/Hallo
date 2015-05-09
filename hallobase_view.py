@@ -9,16 +9,6 @@ import os
 
 class hallobase_view:
 
-    def fn_channels(self,args,client,destination):
-        'Hallo will tell you which channels he is in, ops only. Format: "channels" for channels on current server, "channels all" for all channels on all servers.'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            if(args.lower()=='all'):
-                return "On all servers, I am on these channels: " + ', '.join(server + "-" + channel for server in self.conf['server'] for channel in self.conf['server'][server]['channel'] if self.conf['server'][server]['channel'][channel]['in_channel']) + "."
-            else:
-                return "On this server, I'm in these channels: " + ', '.join(channel for channel in self.conf['server'][destination[0]]['channel'] if self.conf['server'][destination[0]]['channel'][channel]['in_channel']) + "."
-        else:
-            return "Sorry, this function is for gods only."
-
     def fn_active_threads(self,args,client,destination):
         'Returns current number of active threads.. should probably be gods only, but it is not. Format: active_thread'
         return "I think I have " + str(threading.active_count()) + " active threads right now."

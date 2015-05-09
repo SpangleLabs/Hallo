@@ -498,3 +498,90 @@ class ListUsers(Function):
         if(paramSearch is not None):
             paramValue = paramSearch.group(2)
         return paramValue
+    
+class ListChannels(Function):
+    '''
+    Lists channels in a specified server, or for all of hallo.
+    '''
+    #Name for use in help listing
+    mHelpName = "list channels"
+    #Names which can be used to address the Function
+    mNames = set(["list channels","channel list","chanlist","channels"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Hallo will tell you which channels he is in. Format: \"list channels\" for channels on current server, \"list channels all\" for all channels on all servers."
+    
+    HALLO_NAMES = ["hallo","core","all","*","default"]
+    SERVER_NAMES = ["server","serv","s"]
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        'Hallo will tell you which channels he is in, ops only. Format: "channels" for channels on current server, "channels all" for all channels on all servers.'
+        lineClean = line.strip().lower()
+        halloObject = userObject.getServer().getHallo()
+        #If they ask for all channels, give them all channels.
+        if(lineClean==self.HALLO_NAMES):
+            outputString = "On all servers, I am on these channels: "
+            serverList = halloObject.getServerList()
+            channelTitleList = []
+            for serverObject in serverList:
+                serverName = serverObject.getName()
+                inChannelNameList = self.getInChannelNamesList(serverObject)
+                channelTitleList += [serverName+"-"+channelName for channelName in inChannelNameList]
+            outputString += ', '.join(channelTitleList) 
+            outputString += "."
+            return outputString
+        #If nothing specified, or "server", then output current server channel list
+        if(lineClean=="" or lineClean in self.SERVER_NAMES):
+            serverObject = userObject.getServer()
+            inChannelNameList = self.getInChannelNamesList(serverObject)
+            outputString = "On this server, I'm in these channels: " 
+            outputString += ', '.join(inChannelNameList) + "."
+            return outputString
+        #If a server is specified, get that server's channel list
+        if(self.findAnyParameter(self.SERVER_NAMES,lineClean)):
+            serverName = lineClean.split("=")[1]
+            serverObject = halloObject.getServerByName(serverName)
+            if(serverObject is None):
+                return "I don't recognise that server name."
+            inChannelNameList = self.getInChannelNamesList(serverObject)
+            outputString = "On "+serverObject.getName()+" server, I'm in these channels: " 
+            outputString += ', '.join(inChannelNameList) + "."
+            return outputString
+        #Check if whatever input they gave is a server
+        serverObject = halloObject.getServerByName(lineClean)
+        if(serverObject is None):
+            #Otherwise, return an error
+            outputString = "I don't understand your input, please specify a server, or hallo, or no input to get the current server's list"
+            return outputString
+        inChannelNameList = self.getInChannelNamesList(serverObject)
+        outputString = "On "+serverObject.getName()+" server, I'm in these channels: " 
+        outputString += ', '.join(inChannelNameList) + "."
+        return outputString
+    
+    def findParameter(self,paramName,line):
+        'Finds a parameter value in a line, if the format parameter=value exists in the line'
+        paramValue = None
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramSearch = paramRegex.search(line)
+        if(paramSearch is not None):
+            paramValue = paramSearch.group(2)
+        return paramValue
+
+    def findAnyParameter(self,paramList,line):
+        'Finds one of any parameter in a line.'
+        for paramName in paramList:
+            if(self.findParameter(paramName,line) is not None):
+                return True
+        return False
+    
+    def getInChannelNamesList(self,serverObject):
+        channelList = serverObject.getChannelList()
+        inChannelList = [channel for channel in channelList if channel.isInChannel()]
+        inChannelNamesList = [channel.getName() for channel in inChannelList]
+        return inChannelNamesList
+        
