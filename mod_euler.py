@@ -109,18 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_18(self):
-        arr_triangle = mod_euler.fnn_euler_readfiletolist(self,"euler/euler_18_triangle.txt")
-        for x in range(len(arr_triangle)):
-            arr_triangle[x] = arr_triangle[x].split()
-        for row in range(len(arr_triangle)-2,-1,-1):
-            for col in range(len(arr_triangle[row])):
-                if(int(arr_triangle[row+1][col]) > int(arr_triangle[row+1][col+1])):
-                    arr_triangle[row][col] = int(arr_triangle[row][col]) + int(arr_triangle[row+1][col])
-                else:
-                    arr_triangle[row][col] = int(arr_triangle[row][col]) + int(arr_triangle[row+1][col+1])
-        return arr_triangle[0][0]
-
     def fnn_euler_19(self):
         day = 1+365
         year = 0

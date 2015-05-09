@@ -332,8 +332,17 @@ class Euler(Function):
             total = total + len(functionObject.numberWord(str(x)).replace(' ','').replace('-',''))
         return total
         
-    
-    
+    def euler18(self):
+        arrTriangle = open("store/euler/euler_18_triangle.txt","r").read()[:-1].split("\n")
+        for x in range(len(arrTriangle)):
+            arrTriangle[x] = arrTriangle[x].split()
+        for row in range(len(arrTriangle)-2,-1,-1):
+            for col in range(len(arrTriangle[row])):
+                if(int(arrTriangle[row+1][col]) > int(arrTriangle[row+1][col+1])):
+                    arrTriangle[row][col] = int(arrTriangle[row][col]) + int(arrTriangle[row+1][col])
+                else:
+                    arrTriangle[row][col] = int(arrTriangle[row][col]) + int(arrTriangle[row+1][col+1])
+        return arrTriangle[0][0]
     
     
     
