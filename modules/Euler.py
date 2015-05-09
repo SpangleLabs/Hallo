@@ -119,9 +119,39 @@ class Euler(Function):
                     stopLoop = int(math.floor(biggestPalandrome/999))
         return "answer is: " + str(biggestPalandrome) + " = " + str(biggestPalandromeX) + "x" + str(biggestPalandromeY)
     
+    def checkPrime(self,inputNumber):
+        checkPrime = inputNumber
+        checkPrimeFactor = 1
+        if(checkPrime<=0):
+            return False
+        for j in range(2,int(math.floor(math.sqrt(checkPrime)))+1):
+            if(checkPrime%j == 0):
+                checkPrimeFactor = j
+                break
+        if(checkPrimeFactor == 1 and inputNumber!=1):
+            return True
+        else:
+            return False
     
-    
-    
+    def euler5(self):
+        factors = {}
+        maximum = 20
+        for num in range(1,maximum+1):
+            for x in range(1,num+1):
+                if(num%x == 0):
+                    if(self.checkPrime(x)):
+                        if(x not in factors):
+                            factors[x] = 1
+                        dividesCount = 1
+                        for attempt in range(1,6):
+                            if(num%(x**attempt) == 0):
+                                dividesCount = attempt
+                        if(factors[x] < dividesCount):
+                            factors[x] = dividesCount
+        answer = 1
+        for prime, power in factors.items():
+            answer = answer*(prime**power)
+        return answer
     
     
     
