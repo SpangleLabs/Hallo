@@ -556,6 +556,23 @@ class Euler(Function):
                 if(answer not in answers):
                     answers.append(answer)
         return len(answers)
+    
+    def euler30(self):
+#        number = 10
+#        while True:
+        powerDigits = []
+        for digit in range(10):
+            powerDigits.append(digit**5)
+        total = 0
+        for number in range(10,200000):
+            strNumber = str(number)
+            lenNumber = len(strNumber)
+            numberTotal = 0
+            for x in range(lenNumber):
+                numberTotal = numberTotal + powerDigits[int(strNumber[x])]
+            if(numberTotal==number):
+                total = total + number
+        return total
 
 
 

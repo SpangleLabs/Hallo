@@ -114,23 +114,6 @@ class mod_euler:
                 newlist.append(item)
         return newlist
 
-    def fnn_euler_30(self):
-#        number = 10
-#        while True:
-        powerdigits = []
-        for digit in range(10):
-            powerdigits.append(digit**5)
-        total = 0
-        for number in range(10,200000):
-            strnumber = str(number)
-            lennumber = len(strnumber)
-            numbertotal = 0
-            for x in range(lennumber):
-                numbertotal = numbertotal + powerdigits[int(strnumber[x])]
-            if(numbertotal==number):
-                total = total + number
-        return total
-
     def fnn_euler_change(self,coins,coinnum,amount):
         coinamount = amount//coins[coinnum]
         change = []
