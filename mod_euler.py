@@ -29,10 +29,6 @@ class mod_euler:
             answer = "I'm learning to complete the project Euler programming problems. I've not done many so far, I've only done " + str(count) + " of the 434 problems. But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, say 'Hallo Euler {num}' for the answer to challenge number {num}."
         return answer
 
-    def fnn_euler_readfiletostring(self,filename):
-        f = open(filename,"r")
-        return f.read()[:-1]
-
     def fnn_euler_readfiletolist(self,filename):
         f = open(filename,"r")
         filearray = []
@@ -43,29 +39,6 @@ class mod_euler:
             num_line = num_line + 1
             raw_line = f.readline()
         return filearray
-
-    def fnn_euler_wordvalue(self,word):
-        value = 0
-        word = word.upper()
-        for char in word:
-            value += ord(char)-64
-        return value
-        
-    def fnn_euler_42(self):
-        filestring = mod_euler.fnn_euler_readfiletostring(self,'euler/euler_42_words.txt')
-        words = [word.replace('"','') for word in filestring.split(',')]
-        longestword = max(words,key=len)
-        triangles = []
-        count = 0
-        x = 1
-        while (0.5*x*(x+1)) < 26*len(longestword):
-            triangles.append(0.5*x*(x+1))
-            x += 1
-        for word in words:
-            if(mod_euler.fnn_euler_wordvalue(self,word) in triangles):
-                print('found a triangle word: ' + word)
-                count += 1
-        return count
         
 
     def fnn_euler_pandigitals(self):

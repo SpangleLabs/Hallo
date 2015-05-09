@@ -110,6 +110,13 @@ class Euler(Function):
                     factors.append(number/x)
         return factors
     
+    def findWordValue(self,word):
+        value = 0
+        word = word.upper()
+        for char in word:
+            value += ord(char)-64
+        return value
+    
     def removeListItems(self,inputList,removeItem):
         newList = []
         for item in inputList:
@@ -828,6 +835,22 @@ class Euler(Function):
                         print('this is one. ' + str(x))
                         maxPandigitalPrime = x
         return maxPandigitalPrime
+    
+    def euler42(self):
+        fileString = open("store/euler/euler_42_words.txt","r").read()[:-1]
+        words = [word.replace('"','') for word in fileString.split(',')]
+        longestWord = max(words,key=len)
+        triangles = []
+        count = 0
+        x = 1
+        while (0.5*x*(x+1)) < 26*len(longestWord):
+            triangles.append(0.5*x*(x+1))
+            x += 1
+        for word in words:
+            if(self.findWordValue(word) in triangles):
+                print('found a triangle word: ' + word)
+                count += 1
+        return count
 
 
 
