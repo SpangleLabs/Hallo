@@ -155,9 +155,52 @@ class NumberWord(Function):
         string = string + decimal
         return string
 
+class PrimeFactors(Function):
+    '''
+    Finds prime factors of a specified number
+    '''
+    #Name for use in help listing
+    mHelpName = "prime factors"
+    #Names which can be used to address the Function
+    mNames = set(["prime factors","prime factor","primefactors","primefactor"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns the prime factors of a given number. Format: prime factors <number>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        lineClean = line.strip().lower()
+        if(lineClean.isdigit()):
+            number = int(lineClean)
+        #TODO: implement this, once calc is transferred
+#        elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,args)):
+#            args = mod_calc.mod_calc.fn_calc(self,args,client,destination)
+#            if(str(args)[-1]=='.'):
+#                args = args[:-1]
+#            args = int(args)
+        else:
+            return "This is not a valid number or calculation."
+        prime_factors = self.findPrimeFactors(number)
+        return "The prime factors of " + str(number) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-
-
+    def findPrimeFactors(self,number):
+        number = int(number)
+        factors = []
+        notPrime = False
+        for x in range(2,int(math.sqrt(number))+1):
+            if(number%x == 0):
+                factors.append(x)
+                factors.extend(self.findPrimeFactors(number//x))
+                notPrime = True
+                break
+        if(not notPrime):
+            return [number]
+        else:
+            return factors
 
 
 

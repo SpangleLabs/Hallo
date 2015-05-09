@@ -95,20 +95,6 @@ class mod_euler:
         else:
             return factors
 
-    def fn_prime_factors(self,args,client,destination):
-        'Returns the prime factors of a given number. Format: prime_factors <number>'
-        if(ircbot_chk.ircbot_chk.chk_msg_numbers(self,args)):
-            args = int(args)
-        elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,args)):
-            args = mod_calc.mod_calc.fn_calc(self,args,client,destination)
-            if(str(args)[-1]=='.'):
-                args = args[:-1]
-            args = int(args)
-        else:
-            return "This is not a valid number or calculation."
-        prime_factors = mod_euler.fnn_euler_primefactors(self,args)
-        return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
-
     def fnn_euler_readdecimal(self,fraction):
         fraction = str(fraction)
         if(fraction.count('/')!=1):
