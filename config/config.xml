@@ -5,6 +5,9 @@
 <function_dispatcher>
 	<module_list>
 		<module>
+			<name>Euler</name>
+		</module>
+		<module>
 			<name>Furry</name>
 		</module>
 		<module>
@@ -15,6 +18,9 @@
 		</module>
 		<module>
 			<name>Lookup</name>
+		</module>
+		<module>
+			<name>Math</name>
 		</module>
 		<module>
 			<name>PermissionControl</name>
