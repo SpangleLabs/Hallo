@@ -252,7 +252,25 @@ class Euler(Function):
         outputString += " the coords are: (" + str(answerX) + "," + str(answerY) + ") in the direction: " + direction
         return outputString
     
+    def findNumberOfFactors(self,number):
+        number = int(number)
+        numFactors = 2
+        for x in range(2,int(math.sqrt(number))+1):
+            if(number%x == 0):
+                numFactors = numFactors + 2
+        return numFactors
     
+    def euler12(self):
+        number = 1
+        numFactors = 0
+        while numFactors<500:
+            number = number + 1
+            if(number%2 == 0):
+                numFactors = self.findNumberOfFactors(number+1)*self.findNumberOfFactors(number/2)
+            else:
+                numFactors = self.findNumberOfFactors((number+1)/2)*self.findNumberOfFactors(number)
+        triangle = ((number+1)*number)/2
+        return triangle
     
     
     

@@ -109,18 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_12(self):
-        number = 1
-        numfactors = 0
-        while numfactors<500:
-            number = number + 1
-            if(number%2 == 0):
-                numfactors = mod_euler.fnn_euler_numfactors(self,number+1)*mod_euler.fnn_euler_numfactors(self,number/2)
-            else:
-                numfactors = mod_euler.fnn_euler_numfactors(self,(number+1)/2)*mod_euler.fnn_euler_numfactors(self,number)
-        triangle = ((number+1)*number)/2
-        return triangle
-
     def fnn_euler_13(self):
         arr_numbers = mod_euler.fnn_euler_readfiletolist(self,"euler/euler_13_numbers.txt")
         total = 0
