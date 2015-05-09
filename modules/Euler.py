@@ -573,6 +573,18 @@ class Euler(Function):
             if(numberTotal==number):
                 total = total + number
         return total
+    
+    def euler31(self):
+        #Get ChangeOptions function
+        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionClass = functionDispatcher.getFunctionByName("change options")
+        functionObject = functionDispatcher.getFunctionObject(functionClass)
+        #Do processing
+        coins = [200,100,50,20,10,5,2,1]
+        options = functionObject.changeOptions(coins,0,200)
+        numoptions = len(options)
+#        numoptions = euler.fnn_euler_changecount(self,coins,0,200)
+        return numoptions
 
 
 

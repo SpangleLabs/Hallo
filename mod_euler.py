@@ -145,16 +145,9 @@ class mod_euler:
                 if(remaining==0):
                     change = change + 1
                 else:
-                    changeadd = mod_euler.fnn_euler_change(self,coins,coinnum+1,remaining)
+                    changeadd = mod_euler.fnn_euler_changecount(self,coins,coinnum+1,remaining)
                     change = change + changeadd
         return change
-
-    def fnn_euler_31(self):
-        coins = [200,100,50,20,10,5,2,1]
-        options = mod_euler.fnn_euler_change(self,coins,0,200)
-        numoptions = len(options)
-#        numoptions = euler.fnn_euler_changecount(self,coins,0,200)
-        return numoptions
 
     def fnn_euler_32(self):
         digits = [1,2,3,4,5,6,7,8,9]
