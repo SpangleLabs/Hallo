@@ -278,6 +278,55 @@ class Average(Function):
             return "Please only input a list of numbers"
         return "The average of " + ', '.join(numberList) + " is: " + str(numberSum/float(len(numberList))) + "."
     
+class HighestCommonFactor(Function):
+    '''
+    Finds the highest common factor of a pair of numbers.
+    '''
+    #Name for use in help listing
+    mHelpName = "highest common factor"
+    #Names which can be used to address the Function
+    mNames = set(["highest common factor","highestcommonfactor","hcf"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns the highest common factor of two numbers. Format: highest common factor <number1> <number2>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Getting functionDispatcher
+        halloObject = userObject.getServer().getHallo()
+        functionDispatcher = halloObject.getFunctionDispatcher()
+        primeFactorsClass = functionDispatcher.getFunctionByName("prime factors")
+        eulerClass = functionDispatcher.getFunctionByName("euler")
+        primeFactorsObject = functionDispatcher.getFunctionObject(primeFactorsClass)
+        eulerObject = functionDispatcher.getFunctionObject(eulerClass)
+        if(len(line.split())!=2):
+            return "You must provide two arguments."
+        inputOne = line.split()[0]
+        inputTwo = line.split()[1]
+        try:
+            numberOne = int(inputOne)
+            numberTwo = int(inputTwo)
+        except:
+            return "Both arguments must be integers."
+        numberOneFactors = primeFactorsObject.findPrimeFactors(numberOne)
+        numberTwoFactors = primeFactorsObject.findPrimeFactors(numberTwo)
+        commonFactors = eulerObject.listIntersection(numberOneFactors,numberTwoFactors)
+        HCF = eulerObject.listProduct(commonFactors)
+        return "The highest common factor of " + numberOne + " and " + numberTwo + " is " + str(HCF) + "."
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     

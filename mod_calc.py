@@ -194,22 +194,6 @@ class mod_calc:
                 answer = mod_calc.fnn_calc_preflight(self,calc)
         return answer + "."
 
-    def fn_highest_common_factor(self,args,client,destination):
-        'Returns the highest common factor of two numbers. Format: highest_common_factor <number1> <number2>'
-        if(len(args.split())!=2):
-            return "You must provide two arguments."
-        numberone = args.split()[0]
-        numbertwo = args.split()[1]
-        if(not ircbot_chk.ircbot_chk.chk_msg_numbers(self,numberone)):
-            return "Both arguments must be integers."
-        if(not ircbot_chk.ircbot_chk.chk_msg_numbers(self,numbertwo)):
-            return "Both arguments must be integers."
-        numberone_factors = mod_euler.mod_euler.fnn_euler_primefactors(self,int(numberone))
-        numbertwo_factors = mod_euler.mod_euler.fnn_euler_primefactors(self,int(numbertwo))
-        common_factors = mod_euler.mod_euler.fnn_intersection(self,numberone_factors,numbertwo_factors)
-        hcf = mod_euler.mod_euler.fnn_product(self,common_factors)
-        return "The highest common factor of " + numberone + " and " + numbertwo + " is " + str(hcf) + "."
-
     def fn_simplify_fraction(self,args,client,destination):
         'Returns a fraction in its simplest form. simplify_fraction <numerator>/<denominator>'
         #preflight checks please
