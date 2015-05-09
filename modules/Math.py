@@ -365,9 +365,206 @@ class SimplifyFraction(Function):
         denominatorNew = eulerObject.listProduct(denominatorFactorsNew)
         return numerator + "/" + denominator + " = " + str(numeratorNew) + "/" + str(denominatorNew) + "."
     
+class Calculate(Function):
+    '''
+    Standard calculator function
+    '''
+    #Name for use in help listing
+    mHelpName = "calc"
+    #Names which can be used to address the Function
+    mNames = set(["calc","calculate","calculator"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Calculate function, calculates the answer to mathematical expressions. Format: calc <calculation>"
     
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
     
+    def run(self,line,userObject,destinationObject=None):
+        calc = line
+        answer = 0
+        ##check for equals signs, and split at them if so.
+        if(calc.count('=')>=1):
+            calcParts = calc.split('=')
+            ansParts = []
+            numberAnswers = []
+            num_calcs = 0
+            for calcPart in calcParts:
+                #run preflight checks, if it passes do the calculation, if it doesn't return the same text.
+                try:
+                    self.preflightChecks(calcPart)
+                    calcPart = calcPart.replace(' ','').lower()
+                    anspart = self.processCalculation(calcPart)
+                    ansParts.append(anspart)
+                    numberAnswers.append(anspart)
+                    num_calcs = num_calcs + 1
+                except Exception as e:
+                    ansParts.append(calcPart)
+            answer = '='.join(ansParts)
+            #Check if all number results are equal.
+            if(not numberAnswers or numberAnswers.count(numberAnswers[0]) == len(numberAnswers)):
+                answer += "\n" + "Wait, that's not right..."
+            return answer
+        #If there's no equals signs, collapse it all together
+        calc = calc.replace(' ','').lower()
+        try:
+            self.preflightChecks(calc)
+            answer = self.processCalculation(calc)
+        except Exception as e:
+            answer = str(e)
     
+    def afterInfix(self,calc,subStr):
+        #If substring is at the end, return empty string.
+        if(calc.endswith(subStr)):
+            return ""
+        #Find position and get the calculation after that position.
+        pos = calc.find(str(subStr))
+        postCalc = calc[pos+len(subStr):]
+        #Check each substring of postCalc for whether it's a valid float, starting from longest.
+        for subPostCalc in [postCalc[:len(postCalc)-x] for x in range(len(postCalc))]:
+            try:
+                float(subPostCalc)
+                return subPostCalc
+            except:
+                pass
+        return ""
+
+    def beforeInfix(self,calc,subStr):
+        #If substring is at the start, return empty string.
+        if(calc.startswith(subStr)):
+            return ""
+        #Find position and get the calculation before that position.
+        pos = calc.find(str(subStr))
+        preCalc = calc[:pos]
+        #Check each substring of preCalc for whether it's a valid float, starting from longest.
+        for subPreCalc in [preCalc[x:] for x in range(len(preCalc))]:
+            try:
+                float(subPreCalc)
+                return subPreCalc
+            except:
+                pass
+        return ""
+
+    def preflightChecks(self, calc):
+        #strip spaces
+        calcClean = calc.replace(' ','').lower()
+        #make sure only legit characters are allowed
+        if(not Commons.checkCalculation(calcClean)):
+            raise Exception('Error, Invalid characters in expression')
+        #make sure open brackets don't out-number close
+        if(calc.count('(')>calc.count(')')):
+            raise Exception('Error, too many open brackets')
+        return True
+
+    def processTrigonometry(self,calc,runningCalc):
+        tempAnswer = self.processCalculation(runningCalc)
+        runningCalc = '('+runningCalc+')'
+        before = calc.split(runningCalc)[0]
+        trigDict = {'acos':math.acos,'asin':math.asin,'atan':math.atan,'cos':math.cos,'sin':math.sin,'tan':math.tan,'sqrt':math.sqrt,'log':math.log,'acosh':math.acosh,'asinh':math.asinh,'atanh':math.atanh,'cosh':math.cosh,'sinh':math.sinh,'tanh':math.tanh,'gamma':math.gamma}
+        for trigName in trigDict:
+            if(before[-len(trigName):]==trigName):
+                return [trigName+runningCalc,trigDict[trigName](float(tempAnswer))]
+        return [runningCalc,tempAnswer]
+
+    def processCalculation(self, calc):
+        ##constant evaluation
+        while calc.count('pi')!=0:
+            tempAnswer = math.pi
+            if(self.beforeInfix(calc,'pi') != ''):
+                tempAnswer = '*' + str(tempAnswer)
+            if(self.afterInfix(calc,'pi') != ''):
+                tempAnswer = str(tempAnswer) + '*'
+            calc = calc.replace('pi',str(tempAnswer))
+        while calc.count('e') != 0:
+            tempAnswer = math.e
+            if(self.beforeInfix(calc,'e') != ''):
+                tempAnswer = '*' + str(tempAnswer)
+            if(self.afterInfix(calc,'e') != ''):
+                tempAnswer = str(tempAnswer) + '*'
+            calc = calc.replace('e',str(tempAnswer))
+        del tempAnswer
+        ##bracket processing
+        while calc.count('(') != 0:
+            tempCalc = calc[calc.find('(')+1:]
+            bracket = 1;
+            runningCalc = ''
+            #Loop through the string
+            for nextChar in tempCalc:
+                if nextChar == '(':
+                    bracket += 1 
+                elif nextChar == ')':
+                    bracket -= 1
+                if bracket == 0:
+                    #tempans = mod_calc.fnn_calc_process(self,runningCalc)
+                    #runningCalc = '('+runningCalc+')'
+                    trigcheck = self.processTrigonometry(calc,runningCalc)
+                    tempAnswer = trigcheck[1]
+                    runningCalc = trigcheck[0]
+                    if self.beforeInfix(calc,runningCalc) != '':
+                        tempAnswer = '*' + str(tempAnswer)
+                    if self.afterInfix(calc,runningCalc) != '':
+                        tempAnswer = str(tempAnswer) + '*'
+                    calc = calc.replace(runningCalc,str(tempAnswer))
+                    break
+                runningCalc = runningCalc + nextChar
+        calc = calc.replace(')','')
+        del tempCalc, bracket, runningCalc, nextChar, tempAnswer
+        ##powers processing
+        while calc.count('^') != 0:
+            preCalc = self.beforeInfix(calc,'^')
+            postCalc = self.afterInfix(calc,'^')
+            calc = calc.replace(str(preCalc) + '^' + str(postCalc),str(float(preCalc) ** float(postCalc)))
+            del preCalc, postCalc
+        ##powers processing 2
+        while calc.count('**') != 0:
+            preCalc = self.beforeInfix(calc,'**')
+            postCalc = self.afterInfix(calc,'**')
+            calc = calc.replace(str(preCalc) + '**' + str(postCalc),str(float(preCalc) ** float(postCalc)))
+            del preCalc, postCalc
+        ##modulo processing
+        while calc.count('%') != 0:
+            preCalc = self.beforeInfix(calc,'%')
+            postCalc = self.afterInfix(calc,'%')
+            if float(postCalc) == 0:
+                return 'error, no division by zero, sorry.'
+            calc = calc.replace(str(preCalc) + '%' + str(postCalc),str(float(preCalc) % float(postCalc)))
+            del preCalc, postCalc
+        ##multiplication processing
+        while calc.count('/') != 0:
+            preCalc = self.beforeInfix(calc,'/')
+            postCalc = self.afterInfix(calc,'/')
+            if float(postCalc) == 0:
+                return 'error, no division by zero, sorry.'
+            calc = calc.replace(str(preCalc) + '/' + str(postCalc),str(float(preCalc) / float(postCalc)))
+            del preCalc, postCalc
+        ##multiplication processing
+        while calc.count('*') != 0:
+            preCalc = self.beforeInfix(calc,'*')
+            postCalc = self.afterInfix(calc,'*')
+            calc = calc.replace(str(preCalc) + '*' + str(postCalc),str(float(preCalc) * float(postCalc)))
+            del preCalc, postCalc
+        ##multiplication processing2
+        while calc.count('x') != 0:
+            preCalc = self.beforeInfix(calc,'x')
+            postCalc = self.afterInfix(self,calc,'x')
+            calc = calc.replace(str(preCalc) + 'x' + str(postCalc),str(float(preCalc) * float(postCalc)))
+            del preCalc, postCalc
+        ##addition processing
+        calc = calc.replace('-','+-')
+        answer = 0
+        calc = calc.replace('e+','e')
+        for tempAnswer in calc.split('+'):
+            if tempAnswer != '':
+                answer = answer + float(tempAnswer)
+        answer = '{0:.10f}'.format(answer)
+        if('.' in answer):
+            while(answer[-1]=='0'):
+                answer = answer[:-1]
+        if answer[-1] == '.':
+            answer = answer[:-1]
+        return answer
     
     
     
