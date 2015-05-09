@@ -68,20 +68,6 @@ class mod_euler:
                 return False
         return True
 
-    def fnn_euler_38(self):
-        max_constr = 0
-        for x in range(10**5):
-            constr = ''
-            n = 1
-            while len(constr)<9:
-                constr = constr + str(x*n)
-                n += 1
-            if(len(constr)==9 and int(constr)>max_constr):
-                if(mod_euler.fnn_listinlist(self,[str(x) for x in list(range(1,10))],list(constr))):
-                    print('new max: ' + constr)
-                    max_constr = int(constr)
-        return max_constr
-
     def fnn_euler_39(self):
         epsilon = 0.00000001
         max_p = 0

@@ -82,6 +82,15 @@ class Euler(Function):
             return True
         else:
             return False
+        
+    def checkListInList(self,listSmall,listBig):
+        listTest = list(listBig)
+        for x in listSmall:
+            if(x in listTest):
+                listTest.remove(x)
+            else:
+                return False
+        return True
     
     def findNumberOfFactors(self,number):
         number = int(number)
@@ -747,6 +756,20 @@ class Euler(Function):
                 total += number
             number += 1
         return total
+    
+    def euler38(self):
+        maxConstr = 0
+        for x in range(10**5):
+            constr = ''
+            n = 1
+            while len(constr)<9:
+                constr = constr + str(x*n)
+                n += 1
+            if(len(constr)==9 and int(constr)>maxConstr):
+                if(self.checkListInList([str(x) for x in list(range(1,10))],list(constr))):
+                    print('new max: ' + constr)
+                    maxConstr = int(constr)
+        return maxConstr
 
 
 
