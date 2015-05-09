@@ -272,6 +272,12 @@ class Euler(Function):
         triangle = ((number+1)*number)/2
         return triangle
     
+    def euler13(self):
+        arrNumbers = open("store/euler/euler_13_numbers.txt","r").read()[:-1]
+        total = 0
+        for number in arrNumbers:
+            total = total + int(number)
+        return str(total)[0:10]
     
     
     

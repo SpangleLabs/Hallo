@@ -109,13 +109,6 @@ class mod_euler:
         prime_factors = mod_euler.fnn_euler_primefactors(self,args)
         return "The prime factors of " + str(args) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
-    def fnn_euler_13(self):
-        arr_numbers = mod_euler.fnn_euler_readfiletolist(self,"euler/euler_13_numbers.txt")
-        total = 0
-        for number in arr_numbers:
-            total = total + int(number)
-        return str(total)[0:10]
-
     def fnn_euler_collatz(self,seq):
         num = int(seq[-1])
         if(num==1):
