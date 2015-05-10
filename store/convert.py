@@ -19,17 +19,17 @@ def addUnit(unitName,c,doc,parentElement):
             unitElement.appendChild(nameElement)
     #Add value
     valueElement = doc.createElement("value")
-    valueElement.appendChild(doc.createTextNode(c['units'][unitName]['value']))
+    valueElement.appendChild(doc.createTextNode(str(c['units'][unitName]['value'])))
     unitElement.appendChild(valueElement)
     #Add offset
     if('offset' in c['units'][unitName]):
         offsetElement = doc.createElement("offset")
-        offsetElement.appendChild(doc.createTextNode(c['units'][unitName]['offset']))
+        offsetElement.appendChild(doc.createTextNode(str(c['units'][unitName]['offset'])))
         unitElement.appendChild(offsetElement)
     #Add last update
     if('last_update' in c['units'][unitName]):
         lastUpdateElement = doc.createElement("last_update")
-        lastUpdateElement.appendChild(doc.createTextNode(c['units'][unitName]['last_update']))
+        lastUpdateElement.appendChild(doc.createTextNode(str(c['units'][unitName]['last_update'])))
         unitElement.appendChild(lastUpdateElement)
     #Add to parent element
     parentElement.appendChild(unitElement)
@@ -56,7 +56,7 @@ for typeName in c['types']:
     #Add decimals, if exists
     if('decimals' in c['types'][typeName]):
         decimalsElement = doc.createElement("decimals")
-        decimalsElement.appendChild(doc.createTextNode(c['types'][typeName]['decimals']))
+        decimalsElement.appendChild(doc.createTextNode(str(c['types'][typeName]['decimals'])))
         typeElement.appendChild(decimalsElement)
     #Add base unit
     baseUnitName = c['types'][typeName]['base_unit']
