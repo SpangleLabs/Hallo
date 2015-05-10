@@ -1,4 +1,4 @@
-
+from xml.dom import minidom
 
 class ConvertRepo:
     '''
@@ -143,11 +143,28 @@ class ConvertPrefix:
     @staticmethod
     def fromXml(xmlString):
         'Loads a new ConvertUnit object from XML.'
-        raise NotImplementedError
+        doc = minidom.parse(xmlString)
+        newName = doc.getElementsByTagName("name")[0].firstChild.data
+        newValue = doc.getElementsByTagName("value")[0].firstChild.data
+        newPrefix = ConvertPrefix(newName,newValue)
+        return newPrefix
     
     def toXml(self):
         'Outputs a ConvertUnit object as XML.'
-        raise NotImplementedError
+        #create document
+        doc = minidom.Document()
+        #create root element
+        root = doc.createElement("prefix")
+        doc.appendChild(root)
+        #Add name
+        nameElement = doc.createElement("name")
+        nameElement.appendChild(doc.createTextNode(self.mPrefix))
+        root.appendChild(nameElement)
+        #Add multiplier
+        valueElement = doc.createElement("value")
+        valueElement.appendChild(doc.createTextNode(str(self.mMultiplier)))
+        root.appendChild(valueElement)
+        return doc.toxml()
     
 class ConvertPrefixGroup:
     '''
