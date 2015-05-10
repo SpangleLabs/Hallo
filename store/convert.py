@@ -71,5 +71,8 @@ for typeName in c['types']:
     root.appendChild(typeElement)
     
 
+#save XML
+doc.writexml(open("convert.xml","w"),addindent="\t",newl="\r\n")
+
 print("now add <prefix_group> elements manually to <convert>")
 print("then add <valid_prefix_group> elements manually to any and all <unit> elements")
