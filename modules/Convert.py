@@ -164,6 +164,7 @@ class ConvertPrefix:
         valueElement = doc.createElement("value")
         valueElement.appendChild(doc.createTextNode(str(self.mMultiplier)))
         root.appendChild(valueElement)
+        #Return XML
         return doc.toxml()
     
 class ConvertPrefixGroup:
@@ -185,15 +186,43 @@ class ConvertPrefixGroup:
     def getPrefixByName(self):
         raise NotImplementedError
     
+    def addPrefix(self,prefix):
+        'Adds a new prefix to the prefix list'
+        self.mPrefixList.append(prefix)
+    
     @staticmethod
     def fromXml(xmlString):
         'Loads a new ConvertUnit object from XML.'
-        raise NotImplementedError
+        #Load document
+        doc = minidom.parse(xmlString)
+        #Get name and create object
+        newName = doc.getElementsByTagName("name")[0].firstChild.data
+        newPrefixGroup = ConvertPrefixGroup(newName)
+        #Loop through prefix elements, creating and adding objects.
+        for prefixXml in doc.getElementsByTagName("prefix"):
+            prefixObject = ConvertPrefix.fromXml(prefixXml.toxml())
+            newPrefixGroup.addPrefix(prefixObject)
+        #Return created PrefixGroup
+        return newPrefixGroup
     
     def toXml(self):
         'Outputs a ConvertUnit object as XML.'
-        raise NotImplementedError
-
+        #create document
+        doc = minidom.Document()
+        #create root element
+        root = doc.createElement("prefix_group")
+        doc.appendChild(root)
+        #Add name element
+        nameElement = doc.createElement("name")
+        nameElement.appendChild(doc.createTextNode(self.mName))
+        root.appendChild(nameElement)
+        #Add prefixes
+        for prefixObject in self.mPrefixList:
+            prefixElement = minidom.parse(prefixObject.toXml()).firstChild
+            root.appendChild(prefixElement)
+        #Output XML
+        return doc.toxml()
+        
 
 
 
