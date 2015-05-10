@@ -8,4 +8,4 @@ f = r.sub("><",f)
 open("convert.xml","w").write(f)
 
 doc = minidom.parse("convert.xml")
-doc.writexml(open("convert.xml","w"),addindent="\t",newl="\r\n")
+doc.writexml(open("convert.xml","w"),addindent="\t",newl="\n")
