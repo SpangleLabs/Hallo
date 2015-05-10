@@ -1,0 +1,12 @@
+<!ELEMENT convert (prefix_group*,type*)>
+<!ELEMENT prefix_group (prefix*)>
+<!ELEMENT prefix (name,value)>
+<!ELEMENT type (name,decimals?,base_unit,unit*)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT decimals (#PCDATA)>
+<!ELEMENT base_unit (unit)>
+<!ELEMENT unit (name+,valid_prefix_group?,value,offset?,last_update?)>
+<!ELEMENT valid_prefix_group (#PCDATA)>
+<!ELEMENT value (#PCDATA)>
+<!ELEMENT offset (#PCDATA)>
+<!ELEMENT last_update (#PCDATA)>
