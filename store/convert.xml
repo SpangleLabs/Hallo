@@ -1,0 +1,1361 @@
+<?xml version="1.0" ?>
+<!DOCTYPE convert
+  SYSTEM 'convert.dtd'>
+<convert>
+	<prefix_group>
+		<name>SI</name>
+		<prefix>
+			<name>yotta</name>
+			<value>1000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>zetta</name>
+			<value>1000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>exa</name>
+			<value>1000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>peta</name>
+			<value>1000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>tera</name>
+			<value>1000000000000</value>
+		</prefix>
+		<prefix>
+			<name>giga</name>
+			<value>1000000000</value>
+		</prefix>
+		<prefix>
+			<name>mega</name>
+			<value>1000000</value>
+		</prefix>
+		<prefix>
+			<name>kilo</name>
+			<value>1000</value>
+		</prefix>
+		<prefix>
+			<name>hecto</name>
+			<value>100</value>
+		</prefix>
+		<prefix>
+			<name>deca</name>
+			<value>10</value>
+		</prefix>
+		<prefix>
+			<name>deci</name>
+			<value>0.1</value>
+		</prefix>
+		<prefix>
+			<name>centi</name>
+			<value>0.01</value>
+		</prefix>
+		<prefix>
+			<name>milli</name>
+			<value>0.001</value>
+		</prefix>
+		<prefix>
+			<name>micro</name>
+			<value>1e-06</value>
+		</prefix>
+		<prefix>
+			<name>nano</name>
+			<value>1e-09</value>
+		</prefix>
+		<prefix>
+			<name>pico</name>
+			<value>1e-12</value>
+		</prefix>
+		<prefix>
+			<name>femto</name>
+			<value>1e-15</value>
+		</prefix>
+		<prefix>
+			<name>atto</name>
+			<value>1e-18</value>
+		</prefix>
+		<prefix>
+			<name>zepto</name>
+			<value>1e-21</value>
+		</prefix>
+		<prefix>
+			<name>yocto</name>
+			<value>1e-24</value>
+		</prefix>
+	</prefix_group>
+	<prefix_group>
+		<name>SI-big</name>
+		<prefix>
+			<name>yotta</name>
+			<value>1000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>zetta</name>
+			<value>1000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>exa</name>
+			<value>1000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>peta</name>
+			<value>1000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>tera</name>
+			<value>1000000000000</value>
+		</prefix>
+		<prefix>
+			<name>giga</name>
+			<value>1000000000</value>
+		</prefix>
+		<prefix>
+			<name>mega</name>
+			<value>1000000</value>
+		</prefix>
+		<prefix>
+			<name>kilo</name>
+			<value>1000</value>
+		</prefix>
+		<prefix>
+			<name>hecto</name>
+			<value>100</value>
+		</prefix>
+		<prefix>
+			<name>deca</name>
+			<value>10</value>
+		</prefix>
+	</prefix_group>
+	<prefix_group>
+		<name>SI-small</name>
+		<prefix>
+			<name>deci</name>
+			<value>0.1</value>
+		</prefix>
+		<prefix>
+			<name>centi</name>
+			<value>0.01</value>
+		</prefix>
+		<prefix>
+			<name>milli</name>
+			<value>0.001</value>
+		</prefix>
+		<prefix>
+			<name>micro</name>
+			<value>1e-06</value>
+		</prefix>
+		<prefix>
+			<name>nano</name>
+			<value>1e-09</value>
+		</prefix>
+		<prefix>
+			<name>pico</name>
+			<value>1e-12</value>
+		</prefix>
+		<prefix>
+			<name>femto</name>
+			<value>1e-15</value>
+		</prefix>
+		<prefix>
+			<name>atto</name>
+			<value>1e-18</value>
+		</prefix>
+		<prefix>
+			<name>zepto</name>
+			<value>1e-21</value>
+		</prefix>
+		<prefix>
+			<name>yocto</name>
+			<value>1e-24</value>
+		</prefix>
+	</prefix_group>
+	<prefix_group>
+		<name>SI-binary</name>
+		<prefix>
+			<name>yobi</name>
+			<value>1208925819614629174706176</value>
+		</prefix>
+		<prefix>
+			<name>zebi</name>
+			<value>1180591620717411303424</value>
+		</prefix>
+		<prefix>
+			<name>exbi</name>
+			<value>1152921504606846976</value>
+		</prefix>
+		<prefix>
+			<name>pebi</name>
+			<value>1125899906842624</value>
+		</prefix>
+		<prefix>
+			<name>tebi</name>
+			<value>1099511627776</value>
+		</prefix>
+		<prefix>
+			<name>gibi</name>
+			<value>1073741824</value>
+		</prefix>
+		<prefix>
+			<name>mebi</name>
+			<value>1048576</value>
+		</prefix>
+		<prefix>
+			<name>kibi</name>
+			<value>1024</value>
+		</prefix>
+	</prefix_group>
+	<type>
+		<name>length</name>
+		<decimals>3</decimals>
+		<base_unit>
+			<unit>
+				<name>metres</name>
+				<name>meters</name>
+				<name>metre</name>
+				<name>meter</name>
+				<name>m</name>
+				<valid_prefix_group>SI</valid_prefix_group>
+				<value>1</value>
+			</unit>
+		</base_unit>
+		<unit>
+			<name>light-years</name>
+			<name>light-year</name>
+			<name>lightyears</name>
+			<name>lightyear</name>
+			<name>ly</name>
+			<value>9460730472580800</value>
+		</unit>
+		<unit>
+			<name>miles</name>
+			<name>mile</name>
+			<value>1609.344</value>
+		</unit>
+		<unit>
+			<name>inches</name>
+			<name>inch</name>
+			<name>in</name>
+			<name>&quot;</name>
+			<value>0.0254</value>
+		</unit>
+		<unit>
+			<name>feet</name>
+			<name>foot</name>
+			<name>ft</name>
+			<name>'</name>
+			<value>0.3</value>
+		</unit>
+		<unit>
+			<name>yards</name>
+			<name>yard</name>
+			<value>0.9</value>
+		</unit>
+		<unit>
+			<name>marathons</name>
+			<name>marathon</name>
+			<value>42195.0</value>
+		</unit>
+		<unit>
+			<name>cubits</name>
+			<name>cubit</name>
+			<value>0.4572</value>
+		</unit>
+		<unit>
+			<name>astronomical units</name>
+			<name>astronomical unit</name>
+			<name>au</name>
+			<value>149597870691.6</value>
+		</unit>
+		<unit>
+			<name>parsecs</name>
+			<name>parsec</name>
+			<name>pc</name>
+			<value>3.08567758e+16</value>
+		</unit>
+		<unit>
+			<name>li</name>
+			<value>500.0</value>
+			<last_update>1403611590.123979</last_update>
+		</unit>
+		<unit>
+			<name>chances</name>
+			<name>chance</name>
+			<name>chance flared xl</name>
+			<name>xl flared chance</name>
+			<name>xl chance flared</name>
+			<valid_prefix_group>SI</valid_prefix_group>
+			<value>0.44196</value>
+		</unit>
+	</type>
+	<type>
+		<name>currency</name>
+		<decimals>3</decimals>
+		<base_unit>
+			<unit>
+				<name>eur</name>
+				<name>eurogolds</name>
+				<name>eurogold</name>
+				<name>euro</name>
+				<value>1</value>
+				<last_update>1417290091.764403</last_update>
+			</unit>
+		</base_unit>
+		<unit>
+			<name>brl</name>
+			<name>brazilian real</name>
+			<value>0.3125771674882237</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>pen</name>
+			<name>peruvian nuevo sol</name>
+			<value>0.27507440762726315</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>mdl</name>
+			<name>moldovan leu</name>
+			<value>0.05354557370869494</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>sar</name>
+			<name>saudi riyal</name>
+			<value>0.21415339807904402</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>nad</name>
+			<name>namibian dollar</name>
+			<value>0.07257873704288097</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>xpf</name>
+			<name>cfp franc</name>
+			<value>0.008380000157544002</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>bhd</name>
+			<name>bahraini dinar</name>
+			<value>2.135839384878257</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>lbp</name>
+			<name>lebanese pound</name>
+			<value>0.0005327203582979109</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>xof</name>
+			<name>west african cfa franc</name>
+			<value>0.0015244901723741038</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>hrk</name>
+			<name>croatian kuna</name>
+			<value>0.13034037084442313</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>ils</name>
+			<name>israeli new shekel</name>
+			<value>0.20618599213606625</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>ngn</name>
+			<name>nigerian naira</name>
+			<value>0.004500693714425673</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>syp</name>
+			<name>syrian pound</name>
+			<value>0.004716211410779184</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>pyg</name>
+			<name>paraguayan guarani</name>
+			<value>0.00017336891954630824</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>sek</name>
+			<name>swedish krona</name>
+			<name>swedish crown</name>
+			<value>0.10774573299960888</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>ppc</name>
+			<name>peercoins</name>
+			<name>peercoin</name>
+			<name>ppcoin</name>
+			<value>0.58865572875258</value>
+			<last_update>1417290092.155191</last_update>
+		</unit>
+		<unit>
+			<name>qar</name>
+			<name>qatari riyal</name>
+			<value>0.2206253847155146</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>dop</name>
+			<name>dominican peso</name>
+			<value>0.018212630641476168</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>cop</name>
+			<name>colombian peso</name>
+			<value>0.0003646027584947785</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>dkk</name>
+			<name>danish krone</name>
+			<value>0.1343986667652257</value>
+			<last_update>1417230000.0</last_update>
+		</unit>
+		<unit>
+			<name>idr</name>
+			<name>indonesian rupiah</name>
+			<value>6.567646005141312e-05</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>pab</name>
+			<name>panamanian balboa</name>
+			<value>0.8030773925683219</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>mur</name>
+			<name>mauritian rupee</name>
+			<value>0.025280250537394924</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>xcd</name>
+			<name>east caribbean dollar</name>
+			<value>0.29743580591718793</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>aed</name>
+			<name>uae dirham</name>
+			<name>united arab emirates dirham</name>
+			<value>0.21867291779647674</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>bam</name>
+			<name>bosnia and herzegovina convertible mark</name>
+			<value>0.5112918811962185</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>kes</name>
+			<name>kenyan shilling</name>
+			<value>0.00890747106118533</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>lak</name>
+			<name>lao kip</name>
+			<value>9.97462903232483e-05</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>xdg</name>
+			<name>dogecoins</name>
+			<name>doge</name>
+			<name>dogecoin</name>
+			<value>0.00019568340439186767</value>
+			<last_update>1417290092.531997</last_update>
+		</unit>
+		<unit>
+			<name>eek</name>
+			<name>estonian kroon</name>
+			<value>0.06391148514952731</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>fjd</name>
+			<name>fiji dollar</name>
+			<value>0.41030017560847515</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>awg</name>
+			<name>aruban florin</name>
+			<value>0.44864576276509355</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>gmd</name>
+			<name>gambian dalasi</name>
+			<value>0.018632528892530927</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>hkd</name>
+			<name>hong kong dollar</name>
+			<value>0.10362275514253828</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>vnd</name>
+			<name>dong</name>
+			<name>vietnamese dong</name>
+			<value>3.770443613918775e-05</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>myr</name>
+			<name>malaysian ringgit</name>
+			<value>0.2374473460510132</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>isk</name>
+			<name>icelandic krona</name>
+			<value>0.006490134994807891</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>khr</name>
+			<name>cambodian riel</name>
+			<value>0.00019812736748582889</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>bob</name>
+			<name>boliviano</name>
+			<name>bolivian boliviano</name>
+			<value>0.11593194794655537</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>mkd</name>
+			<name>macedonian denar</name>
+			<value>0.016249836689141275</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>uah</name>
+			<name>ukrainian hryvnia</name>
+			<value>0.05352846242168117</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>mxn</name>
+			<name>mexican peso</name>
+			<value>0.05763217073876374</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>czk</name>
+			<name>czech koruna</name>
+			<value>0.036163749457543755</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>lvl</name>
+			<name>latvian lats</name>
+			<value>1.4228799089356858</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>lkr</name>
+			<name>sri lankan rupee</name>
+			<value>0.006126680640399872</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>mga</name>
+			<name>malagasy ariary</name>
+			<value>0.00030752955359010005</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>vef</name>
+			<value>0.12747232575807793</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>gbp</name>
+			<name>pound sterling</name>
+			<name>queensgolds</name>
+			<name>pounds</name>
+			<name>quid</name>
+			<name>queensgold</name>
+			<name>queengold</name>
+			<name>pound</name>
+			<name>qg</name>
+			<name>golds</name>
+			<name>queengolds</name>
+			<value>1.2565339766787293</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>jod</name>
+			<name>jordanian dinar</name>
+			<value>1.1326824185035</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>bbd</name>
+			<name>barbados dollar</name>
+			<value>0.40153869628416095</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>ghs</name>
+			<name>ghanaian cedi</name>
+			<value>0.250928435210278</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>rub</name>
+			<name>ruble</name>
+			<name>russian ruble</name>
+			<value>0.016073369143728228</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>cny</name>
+			<name>rmb</name>
+			<name>yuan</name>
+			<name>chinese yuan</name>
+			<value>0.13072613136930394</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>chf</name>
+			<name>swiss franc</name>
+			<value>0.8321475231128974</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>ugx</name>
+			<name>ugangan shilling</name>
+			<value>0.00028933142368035527</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>uyu</name>
+			<name>uruguayan peso</name>
+			<value>0.034074603618654754</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>scr</name>
+			<name>seychelles rupee</name>
+			<value>0.0566468572606826</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>nzd</name>
+			<name>new zealand dollar</name>
+			<value>0.6297110256103474</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>cyp</name>
+			<value>1.7086131187315257</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>usd</name>
+			<name>dolla</name>
+			<name>dollar</name>
+			<name>united states dollar</name>
+			<name>dollars</name>
+			<name>usagolds</name>
+			<name>gringogolds</name>
+			<value>0.8030773925683219</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>mad</name>
+			<name>moroccan dirham</name>
+			<value>0.09079106252780476</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>inr</name>
+			<name>indian rupee</name>
+			<value>0.0129115358375171</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>zar</name>
+			<name>south african rand</name>
+			<value>0.07257873704288097</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>ars</name>
+			<name>argentine peso</name>
+			<value>0.09416080594117021</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>tnd</name>
+			<name>tunisian dinar</name>
+			<value>0.4364887102195102</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>twd</name>
+			<name>new taiwan dollar</name>
+			<value>0.025915275707435195</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>bgn</name>
+			<name>bulgarian lev</name>
+			<value>0.5112918811962185</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>minimum wage for an hour</name>
+			<name>hours of minimum wage</name>
+			<name>minimum wage</name>
+			<name>hour of min wage</name>
+			<name>min wage</name>
+			<name>hour of minimum wage</name>
+			<name>min wage for an hour</name>
+			<name>hours of min wage</name>
+			<value>10.378688</value>
+		</unit>
+		<unit>
+			<name>pkr</name>
+			<name>pakistani rupee</name>
+			<value>0.007889677690098037</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>nok</name>
+			<name>norwegian krone</name>
+			<value>0.11423101394874911</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>btc</name>
+			<name>bitcoin</name>
+			<name>bitcoins</name>
+			<value>301.0513913721041</value>
+			<last_update>1417290092.343321</last_update>
+		</unit>
+		<unit>
+			<name>kwd</name>
+			<name>kuwaiti dinar</name>
+			<value>2.7558078650756466</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>npr</name>
+			<name>nepalese rupee</name>
+			<value>0.008069710028688625</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>xaf</name>
+			<name>central african cfa franc</name>
+			<value>0.0015244901723741038</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>bsd</name>
+			<name>bahamian dollar</name>
+			<value>0.8030773925683219</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>aud</name>
+			<name>australian dollar</name>
+			<value>0.6832841368754783</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>cad</name>
+			<name>canadian dollar</name>
+			<value>0.7034723394676122</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>omr</name>
+			<name>omani rial</name>
+			<value>2.088641964994361</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>jmd</name>
+			<name>jamaican dollar</name>
+			<value>0.007097030602395958</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>huf</name>
+			<name>hungarian forint</name>
+			<value>0.0032593461751572635</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>gtq</name>
+			<name>guatemalan quetzal</name>
+			<value>0.10511069206981873</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>thb</name>
+			<name>thai baht</name>
+			<value>0.024454577334421728</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>bmd</name>
+			<name>bermudian dollar</name>
+			<value>0.8030773925683219</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>egp</name>
+			<name>egyptian pound</name>
+			<value>0.11236965120460266</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>try</name>
+			<name>turkish lira</name>
+			<value>0.36169766415648485</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>ron</name>
+			<name>romanian leu</name>
+			<value>0.22584579249288583</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>krw</name>
+			<name>south korean won</name>
+			<value>0.000722798478529441</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>ltc</name>
+			<name>litecoin</name>
+			<name>litecoins</name>
+			<value>2.834863195766176</value>
+			<last_update>1417290091.958901</last_update>
+		</unit>
+		<unit>
+			<name>pln</name>
+			<name>polish zloty</name>
+			<name>zloty</name>
+			<value>0.23905658708472882</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>ltl</name>
+			<name>lithuanian litas</name>
+			<value>0.2896200185356812</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>sgd</name>
+			<name>singapore dollar</name>
+			<value>0.6158469743438151</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>mvr</name>
+			<name>maldivian rufiyaa</name>
+			<value>0.05247608402470574</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>bdt</name>
+			<name>bangladeshi taka</name>
+			<value>0.010385486407371535</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>jpy</name>
+			<name>yen</name>
+			<name>japanese yen</name>
+			<value>0.006767031213405163</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>php</name>
+			<name>philippine peso</name>
+			<value>0.01786325145116589</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+		<unit>
+			<name>rsd</name>
+			<name>serbian dinar</name>
+			<value>0.008290341006596624</value>
+			<last_update>1417219200.0</last_update>
+		</unit>
+		<unit>
+			<name>clp</name>
+			<name>chilean peso</name>
+			<value>0.0013205703902710727</value>
+			<last_update>1417281810.0</last_update>
+		</unit>
+	</type>
+	<type>
+		<name>volume</name>
+		<decimals>5</decimals>
+		<base_unit>
+			<unit>
+				<name>metres^3</name>
+				<name>metre^3</name>
+				<name>cubic metres</name>
+				<name>cubic metre</name>
+				<value>1</value>
+			</unit>
+		</base_unit>
+		<unit>
+			<name>litres</name>
+			<name>litre</name>
+			<value>0.001</value>
+		</unit>
+		<unit>
+			<name>inches^3</name>
+			<name>inch^3</name>
+			<name>cubic inches</name>
+			<name>cubic inch</name>
+			<value>1.6387064000000003e-05</value>
+		</unit>
+		<unit>
+			<name>feet^3</name>
+			<name>foot^3</name>
+			<name>cubic feet</name>
+			<name>cubic foot</name>
+			<value>0.0283168466</value>
+		</unit>
+		<unit>
+			<name>miles^3</name>
+			<name>mile^3</name>
+			<name>cubic miles</name>
+			<name>cubic mile</name>
+			<value>4168181830</value>
+		</unit>
+		<unit>
+			<name>teaspoons</name>
+			<name>teaspoon</name>
+			<name>tsp</name>
+			<value>5.919390469999999e-06</value>
+		</unit>
+		<unit>
+			<name>tablespoons</name>
+			<name>tablespoon</name>
+			<name>tb</name>
+			<name>tbs</name>
+			<name>tbsp</name>
+			<name>tblsp</name>
+			<name>tblspn</name>
+			<value>1.7758171400000003e-05</value>
+		</unit>
+		<unit>
+			<name>fluid ounces</name>
+			<name>fluid ounce</name>
+			<name>fl oz</name>
+			<name>fl. oz.</name>
+			<name>oz. fl.</name>
+			<value>2.8413074200000003e-05</value>
+		</unit>
+		<unit>
+			<name>fluid drams</name>
+			<name>fluid dram</name>
+			<name>fluid drachms</name>
+			<name>fluid drachm</name>
+			<name>fluidrams</name>
+			<name>fluidram</name>
+			<name>fluidrachms</name>
+			<name>fluidrachm</name>
+			<value>3.6966912e-06</value>
+		</unit>
+		<unit>
+			<name>gills</name>
+			<name>gill</name>
+			<value>0.000142065371</value>
+		</unit>
+		<unit>
+			<name>pints</name>
+			<name>pint</name>
+			<name>imperial pint</name>
+			<name>pt</name>
+			<value>0.000568261485</value>
+		</unit>
+		<unit>
+			<name>quarts</name>
+			<name>quart</name>
+			<name>imperial quarts</name>
+			<name>imperial quart</name>
+			<value>0.00113652297</value>
+		</unit>
+		<unit>
+			<name>gallons</name>
+			<name>gallon</name>
+			<name>imperial gallons</name>
+			<name>imperial gallon</name>
+			<value>0.00454609188</value>
+		</unit>
+		<unit>
+			<name>minims</name>
+			<name>minim</name>
+			<name>imperial minims</name>
+			<name>imperial minim</name>
+			<value>6.16115199e-08</value>
+		</unit>
+		<unit>
+			<name>barrels</name>
+			<name>barrel</name>
+			<name>beer barrels</name>
+			<name>beer barrel</name>
+			<name>imperial beer barrels</name>
+			<name>imperial beer barrel</name>
+			<value>0.136274824</value>
+		</unit>
+		<unit>
+			<name>oil barrels</name>
+			<name>oil barrel</name>
+			<name>bbl</name>
+			<value>0.158987295</value>
+		</unit>
+		<unit>
+			<name>cords</name>
+			<name>cord</name>
+			<value>3.62455636</value>
+		</unit>
+		<unit>
+			<name>pecks</name>
+			<name>peck</name>
+			<value>0.00909218376</value>
+		</unit>
+		<unit>
+			<name>bushels</name>
+			<name>bushel</name>
+			<name>bsh</name>
+			<name>bu</name>
+			<value>0.036368735</value>
+		</unit>
+		<unit>
+			<name>hogsheads</name>
+			<name>hogshead</name>
+			<value>0.238480942</value>
+		</unit>
+	</type>
+	<type>
+		<name>area</name>
+		<base_unit>
+			<unit>
+				<name>metres^2</name>
+				<name>metre^2</name>
+				<name>square metres</name>
+				<name>square metre</name>
+				<valid_prefix_group>SI</valid_prefix_group>
+				<value>1</value>
+			</unit>
+		</base_unit>
+		<unit>
+			<name>wales</name>
+			<name>area of wales</name>
+			<value>20779000000.0</value>
+			<last_update>1408015456.957003</last_update>
+		</unit>
+		<unit>
+			<name>inches^2</name>
+			<name>inch^2</name>
+			<name>square inches</name>
+			<name>square inch</name>
+			<value>0.00064516</value>
+		</unit>
+		<unit>
+			<name>feet^2</name>
+			<name>foot^2</name>
+			<name>square feet</name>
+			<name>square foot</name>
+			<value>0.09</value>
+			<last_update>1408015517.553096</last_update>
+		</unit>
+		<unit>
+			<name>yards^2</name>
+			<name>yard^2</name>
+			<name>square yards</name>
+			<name>square yard</name>
+			<value>0.83612736</value>
+		</unit>
+		<unit>
+			<name>miles^2</name>
+			<name>mile^2</name>
+			<name>square miles</name>
+			<name>square mile</name>
+			<value>2589988.1103359996</value>
+		</unit>
+		<unit>
+			<name>acres</name>
+			<name>acre</name>
+			<value>4046.85642</value>
+			<last_update>1403612063.582362</last_update>
+		</unit>
+	</type>
+	<type>
+		<name>mass</name>
+		<decimals>5</decimals>
+		<base_unit>
+			<unit>
+				<name>grams</name>
+				<name>gram</name>
+				<name>grammes</name>
+				<name>gramme</name>
+				<name>g</name>
+				<value>1</value>
+			</unit>
+		</base_unit>
+		<unit>
+			<name>ounces</name>
+			<name>ounce</name>
+			<name>oz</name>
+			<value>28.3495</value>
+			<last_update>1403874312.920224</last_update>
+		</unit>
+		<unit>
+			<name>suns</name>
+			<name>sun</name>
+			<value>1.9891e+33</value>
+		</unit>
+		<unit>
+			<name>electrokitty</name>
+			<value>50000.0</value>
+			<last_update>1403476164.555262</last_update>
+		</unit>
+		<unit>
+			<name>kitten</name>
+			<value>450.0</value>
+			<last_update>1403476174.808028</last_update>
+		</unit>
+		<unit>
+			<name>graves</name>
+			<name>grave</name>
+			<value>1000.0</value>
+		</unit>
+		<unit>
+			<name>pounds</name>
+			<name>pound</name>
+			<name>lbs</name>
+			<name>lb</name>
+			<value>453.59237</value>
+			<last_update>1407337206.098722</last_update>
+		</unit>
+		<unit>
+			<name>tonne</name>
+			<value>10000000</value>
+			<last_update>1408015546.129227</last_update>
+		</unit>
+		<unit>
+			<name>tons</name>
+			<name>ton</name>
+			<name>short tons</name>
+			<name>short ton</name>
+			<value>907185</value>
+		</unit>
+	</type>
+	<type>
+		<name>temperature</name>
+		<decimals>2</decimals>
+		<base_unit>
+			<unit>
+				<name>kelvin</name>
+				<value>1</value>
+			</unit>
+		</base_unit>
+		<unit>
+			<name>celcius</name>
+			<value>1</value>
+			<offset>273.15</offset>
+		</unit>
+		<unit>
+			<name>farenheit</name>
+			<value>0.5555555555555556</value>
+			<offset>255.372</offset>
+		</unit>
+		<unit>
+			<name>rankine</name>
+			<value>0.5555555555555556</value>
+		</unit>
+	</type>
+	<type>
+		<name>time</name>
+		<decimals>2</decimals>
+		<base_unit>
+			<unit>
+				<name>seconds</name>
+				<name>second</name>
+				<valid_prefix_group>SI-small</valid_prefix_group>
+				<value>1</value>
+			</unit>
+		</base_unit>
+		<unit>
+			<name>minutes</name>
+			<name>minute</name>
+			<value>60.0</value>
+		</unit>
+		<unit>
+			<name>years</name>
+			<name>year</name>
+			<value>31556952.0</value>
+		</unit>
+		<unit>
+			<name>common years</name>
+			<name>common year</name>
+			<value>31536000.0</value>
+		</unit>
+		<unit>
+			<name>sidereal years</name>
+			<name>sidereal year</name>
+			<value>31558149.503999997</value>
+		</unit>
+		<unit>
+			<name>leap years</name>
+			<name>leap year</name>
+			<value>31622400.0</value>
+		</unit>
+		<unit>
+			<name>weeks</name>
+			<name>week</name>
+			<value>604800.0</value>
+		</unit>
+		<unit>
+			<name>days</name>
+			<name>day</name>
+			<value>86400.0</value>
+		</unit>
+		<unit>
+			<name>moons</name>
+			<name>moon</name>
+			<value>2548800.0</value>
+			<last_update>1403599969.286233</last_update>
+		</unit>
+		<unit>
+			<name>hours</name>
+			<name>hour</name>
+			<value>3600.0</value>
+		</unit>
+		<unit>
+			<name>coasties</name>
+			<name>coastie</name>
+			<value>1800.0</value>
+			<last_update>1408015395.460473</last_update>
+		</unit>
+		<unit>
+			<name>fortnights</name>
+			<name>fortnight</name>
+			<value>1209600.0</value>
+		</unit>
+		<unit>
+			<name>planck time units</name>
+			<name>planck time unit</name>
+			<name>planck times</name>
+			<name>planck time</name>
+			<value>5.391063199999999e-44</value>
+		</unit>
+		<unit>
+			<name>moments</name>
+			<name>moment</name>
+			<value>90</value>
+		</unit>
+		<unit>
+			<name>olympiads</name>
+			<name>olympiad</name>
+			<value>126227808.0</value>
+		</unit>
+		<unit>
+			<name>lustra</name>
+			<name>lustrum</name>
+			<value>157784760.0</value>
+		</unit>
+		<unit>
+			<name>decades</name>
+			<name>decade</name>
+			<value>315569520.0</value>
+		</unit>
+		<unit>
+			<name>jubilees</name>
+			<name>jubilee</name>
+			<value>1577847600.0</value>
+		</unit>
+		<unit>
+			<name>centuries</name>
+			<name>century</name>
+			<value>3155695200.0</value>
+		</unit>
+		<unit>
+			<name>milleniums</name>
+			<name>millenium</name>
+			<value>31556952000.0</value>
+		</unit>
+		<unit>
+			<name>galactic years</name>
+			<name>galactic year</name>
+			<value>7100314200000000.0</value>
+		</unit>
+	</type>
+	<type>
+		<name>speed</name>
+		<decimals>2</decimals>
+		<base_unit>
+			<unit>
+				<name>m/s</name>
+				<name>metres per second</name>
+				<name>metre per second</name>
+				<name>metres/second</name>
+				<name>metre/second</name>
+				<value>1</value>
+			</unit>
+		</base_unit>
+		<unit>
+			<name>km/h</name>
+			<name>km/hr</name>
+			<name>kph</name>
+			<name>kmph</name>
+			<name>kilometres per hour</name>
+			<name>kilometre per hour</name>
+			<name>kilometres an hour</name>
+			<name>kilometre an hour</name>
+			<name>kilometres/hour</name>
+			<name>kilometre/hour</name>
+			<value>0.2777777777777778</value>
+		</unit>
+		<unit>
+			<name>mph</name>
+			<name>miles per hour</name>
+			<name>mile per hour</name>
+			<name>miles an hour</name>
+			<name>mile an hour</name>
+			<name>miles/hour</name>
+			<name>mile/hour</name>
+			<value>0.44704</value>
+		</unit>
+		<unit>
+			<name>mach</name>
+			<name>mach number</name>
+			<value>340.29</value>
+		</unit>
+	</type>
+</convert>

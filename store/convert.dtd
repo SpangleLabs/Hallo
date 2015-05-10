@@ -1,5 +1,5 @@
 <!ELEMENT convert (prefix_group*,type*)>
-<!ELEMENT prefix_group (prefix*)>
+<!ELEMENT prefix_group (name,prefix*)>
 <!ELEMENT prefix (name,value)>
 <!ELEMENT type (name,decimals?,base_unit,unit*)>
 <!ELEMENT name (#PCDATA)>
