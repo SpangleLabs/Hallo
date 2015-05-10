@@ -61,6 +61,7 @@ class ConvertUnit:
     Conversion unit object.
     '''
     mNames = []
+    mAbbreviations = []
     mValue = None
     mType = None
     mOffset = None
@@ -163,9 +164,10 @@ class ConvertPrefix:
     Conversion prefix.
     '''
     mPrefix = None
+    mAbbreviation = None
     mMultiplier = None
     
-    def __init__(self,prefix,multiplier):
+    def __init__(self,prefix,abbreviation,multiplier):
         raise NotImplementedError
     
     def getPrefix(self):
