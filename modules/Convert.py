@@ -60,8 +60,9 @@ class ConvertUnit:
     '''
     Conversion unit object.
     '''
-    mNames = []
-    mAbbreviations = []
+    mNameList = []
+    mAbbreviationList = []
+    mValidPrefixGroup = None
     mValue = None
     mType = None
     mOffset = None
@@ -101,7 +102,43 @@ class ConvertUnit:
     
     def toXml(self):
         'Outputs a ConvertUnit object as XML.'
-        raise NotImplementedError
+        #create document
+        doc = minidom.Document()
+        #create root element
+        root = doc.createElement("unit")
+        doc.appendChild(root)
+        #Add name elements
+        for nameStr in self.mNameList:
+            nameElement = doc.createElement("name")
+            nameElement.appendChild(doc.createTextNode(nameStr))
+            root.appendChild(nameElement)
+        #Add abbreviations
+        for abbrStr in self.mAbbreviationList:
+            abbrElement = doc.createElement("abbr")
+            abbrElement.appendChild(doc.createTextNode(abbrStr))
+            root.appendChild(abbrElement)
+        #Add prefix group
+        if(self.mValidPrefixGroup is not None):
+            validPrefixGroupName = self.mValidPrefixGroup.getName()
+            validPrefixGroupElement = doc.createElement("valid_prefix_group")
+            validPrefixGroupElement.appendChild(doc.createTextNode(validPrefixGroupName))
+            root.appendChild(validPrefixGroupElement)
+        #Add value element
+        valueElement = doc.createElement("value")
+        valueElement.appendChild(doc.createTextNode(str(self.mValue)))
+        root.appendChild(valueElement)
+        #Add offset
+        if(self.mOffset is not None):
+            offsetElement = doc.createElement("offset")
+            offsetElement.appendChild(doc.createTextNode(str(self.mOffset)))
+            root.appendChild(offsetElement)
+        #Add update time
+        if(self.mLastUpdated is not None):
+            lastUpdateElement = doc.createElement("last_update")
+            lastUpdateElement.appendChild(doc.createTextNode(str(self.mLastUpdated)))
+            root.appendChild(lastUpdateElement)
+        #Output XML
+        return doc.toxml()
     
 class ConvertPrefixGroup:
     '''
