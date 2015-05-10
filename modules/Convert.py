@@ -124,8 +124,58 @@ class ConvertMeasure:
         'Creates a new measure, equal in value but with a different unit.'
         raise NotImplementedError
 
-
-
+class ConvertPrefix:
+    '''
+    Conversion prefix.
+    '''
+    mPrefix = None
+    mMultiplier = None
+    
+    def __init__(self,prefix,multiplier):
+        raise NotImplementedError
+    
+    def getPrefix(self):
+        raise NotImplementedError
+    
+    def getMultiplier(self):
+        raise NotImplementedError
+    
+    @staticmethod
+    def fromXml(xmlString):
+        'Loads a new ConvertUnit object from XML.'
+        raise NotImplementedError
+    
+    def toXml(self):
+        'Outputs a ConvertUnit object as XML.'
+        raise NotImplementedError
+    
+class ConvertPrefixGroup:
+    '''
+    Group of Conversion Prefixes.
+    '''
+    mName = None
+    mPrefixList = []
+    
+    def __init__(self,name):
+        raise NotImplementedError
+    
+    def getName(self):
+        return self.mName
+    
+    def getPrefixList(self):
+        return self.mPrefixList
+    
+    def getPrefixByName(self):
+        raise NotImplementedError
+    
+    @staticmethod
+    def fromXml(xmlString):
+        'Loads a new ConvertUnit object from XML.'
+        raise NotImplementedError
+    
+    def toXml(self):
+        'Outputs a ConvertUnit object as XML.'
+        raise NotImplementedError
 
 
 
