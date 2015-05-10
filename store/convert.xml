@@ -241,6 +241,11 @@
 			<value>0.0254</value>
 		</unit>
 		<unit>
+			<name>sticks</name>
+			<name>stick</name>
+			<value>0.508</value>
+		</unit>
+		<unit>
 			<name>feet</name>
 			<name>foot</name>
 			<name>ft</name>
@@ -972,6 +977,18 @@
 			<value>1.7758171400000003e-05</value>
 		</unit>
 		<unit>
+			<name>sticks</name>
+			<name>stick</name>
+			<name>sticks of butter</name>
+			<name>stick of butter</name>
+			<value>0.00014206537120000002</value>
+		</unit>
+		<unit>
+			<name>cups</name>
+			<name>cup</name>
+			<value>0.000236588237</value>
+		</unit>
+		<unit>
 			<name>fluid ounces</name>
 			<name>fluid ounce</name>
 			<name>fl oz</name>
@@ -1134,6 +1151,14 @@
 			<name>oz</name>
 			<value>28.3495</value>
 			<last_update>1403874312.920224</last_update>
+		</unit>
+		<unit>
+			<name>sticks</name>
+			<name>stick</name>
+			<name>sticks of butter</name>
+			<name>stick of butter</name>
+			<name>sticks of butter</name>
+			<value>113.398</value>
 		</unit>
 		<unit>
 			<name>suns</name>
