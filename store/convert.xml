@@ -3,7 +3,7 @@
   SYSTEM 'convert.dtd'>
 <convert>
 	<prefix_group>
-		<name>SI</name>
+		<name>si</name>
 		<prefix>
 			<name>yotta</name>
 			<value>1000000000000000000000000</value>
@@ -86,7 +86,173 @@
 		</prefix>
 	</prefix_group>
 	<prefix_group>
-		<name>SI-big</name>
+		<name>si-square</name>
+		<prefix>
+			<name>yotta</name>
+			<value>1000000000000000000000000000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>zetta</name>
+			<value>1000000000000000000000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>exa</name>
+			<value>1000000000000000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>peta</name>
+			<value>1000000000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>tera</name>
+			<value>1000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>giga</name>
+			<value>1000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>mega</name>
+			<value>1000000000000</value>
+		</prefix>
+		<prefix>
+			<name>kilo</name>
+			<value>1000000</value>
+		</prefix>
+		<prefix>
+			<name>hecto</name>
+			<value>10000</value>
+		</prefix>
+		<prefix>
+			<name>deca</name>
+			<value>100</value>
+		</prefix>
+		<prefix>
+			<name>deci</name>
+			<value>0.01</value>
+		</prefix>
+		<prefix>
+			<name>centi</name>
+			<value>0.0001</value>
+		</prefix>
+		<prefix>
+			<name>milli</name>
+			<value>0.000001</value>
+		</prefix>
+		<prefix>
+			<name>micro</name>
+			<value>1e-12</value>
+		</prefix>
+		<prefix>
+			<name>nano</name>
+			<value>1e-18</value>
+		</prefix>
+		<prefix>
+			<name>pico</name>
+			<value>1e-24</value>
+		</prefix>
+		<prefix>
+			<name>femto</name>
+			<value>1e-30</value>
+		</prefix>
+		<prefix>
+			<name>atto</name>
+			<value>1e-36</value>
+		</prefix>
+		<prefix>
+			<name>zepto</name>
+			<value>1e-42</value>
+		</prefix>
+		<prefix>
+			<name>yocto</name>
+			<value>1e-48</value>
+		</prefix>
+	</prefix_group>
+	<prefix_group>
+		<name>si-cube</name>
+		<prefix>
+			<name>yotta</name>
+			<value>1000000000000000000000000000000000000000000000000000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>zetta</name>
+			<value>1000000000000000000000000000000000000000000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>exa</name>
+			<value>1000000000000000000000000000000000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>peta</name>
+			<value>1000000000000000000000000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>tera</name>
+			<value>1000000000000000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>giga</name>
+			<value>1000000000000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>mega</name>
+			<value>1000000000000000000</value>
+		</prefix>
+		<prefix>
+			<name>kilo</name>
+			<value>1000000000</value>
+		</prefix>
+		<prefix>
+			<name>hecto</name>
+			<value>1000000</value>
+		</prefix>
+		<prefix>
+			<name>deca</name>
+			<value>1000</value>
+		</prefix>
+		<prefix>
+			<name>deci</name>
+			<value>0.001</value>
+		</prefix>
+		<prefix>
+			<name>centi</name>
+			<value>1e-06</value>
+		</prefix>
+		<prefix>
+			<name>milli</name>
+			<value>1e-09</value>
+		</prefix>
+		<prefix>
+			<name>micro</name>
+			<value>1e-18</value>
+		</prefix>
+		<prefix>
+			<name>nano</name>
+			<value>1e-27</value>
+		</prefix>
+		<prefix>
+			<name>pico</name>
+			<value>1e-36</value>
+		</prefix>
+		<prefix>
+			<name>femto</name>
+			<value>1e-45</value>
+		</prefix>
+		<prefix>
+			<name>atto</name>
+			<value>1e-54</value>
+		</prefix>
+		<prefix>
+			<name>zepto</name>
+			<value>1e-63</value>
+		</prefix>
+		<prefix>
+			<name>yocto</name>
+			<value>1e-72</value>
+		</prefix>
+	</prefix_group>
+	<prefix_group>
+		<name>si-big</name>
 		<prefix>
 			<name>yotta</name>
 			<value>1000000000000000000000000</value>
@@ -129,7 +295,7 @@
 		</prefix>
 	</prefix_group>
 	<prefix_group>
-		<name>SI-small</name>
+		<name>si-small</name>
 		<prefix>
 			<name>deci</name>
 			<value>0.1</value>
@@ -172,7 +338,7 @@
 		</prefix>
 	</prefix_group>
 	<prefix_group>
-		<name>SI-binary</name>
+		<name>si-binary</name>
 		<prefix>
 			<name>yobi</name>
 			<value>1208925819614629174706176</value>
