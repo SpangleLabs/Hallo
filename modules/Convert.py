@@ -102,71 +102,6 @@ class ConvertUnit:
         'Outputs a ConvertUnit object as XML.'
         raise NotImplementedError
     
-class ConvertMeasure:
-    '''
-    Convert meaure object. An amount with a unit.
-    '''
-    mAmount = None
-    mUnit = None
-    
-    def __init__(self,amount,unit):
-        raise NotImplementedError
-    
-    def getUnit(self):
-        'Returns the unit of the measure.'
-        raise NotImplementedError
-    
-    def getAmount(self):
-        'Returns the amount of the measure.'
-        raise NotImplementedError
-    
-    def convertTo(self,unit):
-        'Creates a new measure, equal in value but with a different unit.'
-        raise NotImplementedError
-
-class ConvertPrefix:
-    '''
-    Conversion prefix.
-    '''
-    mPrefix = None
-    mMultiplier = None
-    
-    def __init__(self,prefix,multiplier):
-        raise NotImplementedError
-    
-    def getPrefix(self):
-        raise NotImplementedError
-    
-    def getMultiplier(self):
-        raise NotImplementedError
-    
-    @staticmethod
-    def fromXml(xmlString):
-        'Loads a new ConvertUnit object from XML.'
-        doc = minidom.parse(xmlString)
-        newName = doc.getElementsByTagName("name")[0].firstChild.data
-        newValue = doc.getElementsByTagName("value")[0].firstChild.data
-        newPrefix = ConvertPrefix(newName,newValue)
-        return newPrefix
-    
-    def toXml(self):
-        'Outputs a ConvertUnit object as XML.'
-        #create document
-        doc = minidom.Document()
-        #create root element
-        root = doc.createElement("prefix")
-        doc.appendChild(root)
-        #Add name
-        nameElement = doc.createElement("name")
-        nameElement.appendChild(doc.createTextNode(self.mPrefix))
-        root.appendChild(nameElement)
-        #Add multiplier
-        valueElement = doc.createElement("value")
-        valueElement.appendChild(doc.createTextNode(str(self.mMultiplier)))
-        root.appendChild(valueElement)
-        #Return XML
-        return doc.toxml()
-    
 class ConvertPrefixGroup:
     '''
     Group of Conversion Prefixes.
@@ -222,6 +157,71 @@ class ConvertPrefixGroup:
             root.appendChild(prefixElement)
         #Output XML
         return doc.toxml()
+
+class ConvertPrefix:
+    '''
+    Conversion prefix.
+    '''
+    mPrefix = None
+    mMultiplier = None
+    
+    def __init__(self,prefix,multiplier):
+        raise NotImplementedError
+    
+    def getPrefix(self):
+        raise NotImplementedError
+    
+    def getMultiplier(self):
+        raise NotImplementedError
+    
+    @staticmethod
+    def fromXml(xmlString):
+        'Loads a new ConvertUnit object from XML.'
+        doc = minidom.parse(xmlString)
+        newName = doc.getElementsByTagName("name")[0].firstChild.data
+        newValue = doc.getElementsByTagName("value")[0].firstChild.data
+        newPrefix = ConvertPrefix(newName,newValue)
+        return newPrefix
+    
+    def toXml(self):
+        'Outputs a ConvertUnit object as XML.'
+        #create document
+        doc = minidom.Document()
+        #create root element
+        root = doc.createElement("prefix")
+        doc.appendChild(root)
+        #Add name
+        nameElement = doc.createElement("name")
+        nameElement.appendChild(doc.createTextNode(self.mPrefix))
+        root.appendChild(nameElement)
+        #Add multiplier
+        valueElement = doc.createElement("value")
+        valueElement.appendChild(doc.createTextNode(str(self.mMultiplier)))
+        root.appendChild(valueElement)
+        #Return XML
+        return doc.toxml()
+    
+class ConvertMeasure:
+    '''
+    Convert meaure object. An amount with a unit.
+    '''
+    mAmount = None
+    mUnit = None
+    
+    def __init__(self,amount,unit):
+        raise NotImplementedError
+    
+    def getUnit(self):
+        'Returns the unit of the measure.'
+        raise NotImplementedError
+    
+    def getAmount(self):
+        'Returns the amount of the measure.'
+        raise NotImplementedError
+    
+    def convertTo(self,unit):
+        'Creates a new measure, equal in value but with a different unit.'
+        raise NotImplementedError
         
 
 
