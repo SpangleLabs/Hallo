@@ -404,9 +404,19 @@ class ConvertPrefixGroup:
         if(prefix in self.mPrefixList):
             self.mPrefixList.remove(prefix)
     
-    def getPrefixByName(self):
-        'Gets the prefix with the specified name or abbreviation'
+    def getPrefixByName(self,name):
+        'Gets the prefix with the specified name'
         raise NotImplementedError
+    
+    def getPrefixByAbbreviation(self,abbreviation):
+        'Gets the prefix with the specified abbreviation'
+        for prefixObject in self.mPrefixList:
+            if(prefixObject.getAbbreviation() == abbreviation):
+                return prefixObject
+        for prefixObject in self.mPrefixList:
+            if(prefixObject.getAbbreviation().lower() == abbreviation.lower()):
+                return prefixObject
+        return None
     
     @staticmethod
     def fromXml(repo,xmlString):
