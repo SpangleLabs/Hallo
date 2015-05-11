@@ -252,7 +252,7 @@ class ConvertPrefixGroup:
         newPrefixGroup = ConvertPrefixGroup(newName)
         #Loop through prefix elements, creating and adding objects.
         for prefixXml in doc.getElementsByTagName("prefix"):
-            prefixObject = ConvertPrefix.fromXml(prefixXml.toxml())
+            prefixObject = ConvertPrefix.fromXml(self,prefixXml.toxml())
             newPrefixGroup.addPrefix(prefixObject)
         #Return created PrefixGroup
         return newPrefixGroup
@@ -282,9 +282,14 @@ class ConvertPrefix:
     mPrefix = None
     mAbbreviation = None
     mMultiplier = None
+    mPrefixGroup = None
     
-    def __init__(self,prefix,abbreviation,multiplier):
+    def __init__(self,prefixGroup,prefix,abbreviation,multiplier):
         raise NotImplementedError
+    
+    def getPrefixGroup(self):
+        'Returns the prefix group of the prefix'
+        return self.mPrefixGroup
     
     def getPrefix(self):
         'Returns the name of the prefix'
@@ -299,13 +304,13 @@ class ConvertPrefix:
         raise NotImplementedError
     
     @staticmethod
-    def fromXml(xmlString):
+    def fromXml(prefixGroup,xmlString):
         'Loads a new ConvertUnit object from XML.'
         doc = minidom.parse(xmlString)
         newName = doc.getElementsByTagName("name")[0].firstChild.data
         newAbbreviation = doc.getElementsByTagName("abbr")[0].firstChild.data
         newValue = doc.getElementsByTagName("value")[0].firstChild.data
-        newPrefix = ConvertPrefix(newName,newAbbreviation,newValue)
+        newPrefix = ConvertPrefix(prefixGroup,newName,newAbbreviation,newValue)
         return newPrefix
     
     def toXml(self):
