@@ -718,15 +718,25 @@ class Convert(Function):
     
     def convertOneUnit(self,fromMeasureList):
         'Converts a single given measure into whatever base unit of the type the measure is.'
-        from 
-        raise NotImplementedError
+        outputLines = []
+        for fromMeasure in fromMeasureList:
+            toMeasure = fromMeasure.convertToBase()
+            outputLines.append(self.outputLine(fromMeasure,toMeasure))
+        if(len(outputLines)==0):
+            return "I don't understand your input. (No units specified.) Please format like so: convert <value> <old unit> to <new unit>"
+        return "\n".join(outputLines)
     
     def convertTwoUnit(self,fromMeasureList,userInputTo):
         'Converts a single given measure into whatever unit is specified.'
         raise NotImplementedError
         
-
-
+    def outputLine(self,fromMeasure,toMeasure):
+        'Creates a line to output for the equality of a fromMeasure and toMeasure.'
+        lastUpdate = toMeasure.getUnit().getLastUpdated() or fromMeasure.getUnit().getLastUpdated()
+        outputString = fromMeasure.toString() + " = " + toMeasure.toString() + "."
+        if(lastUpdate is not None):
+            outputString += " (Last updated: " + Commons.formatUnixTime(lastUpdate) + ")"
+        return outputString
 
 
 
