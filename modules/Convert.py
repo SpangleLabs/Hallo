@@ -1,5 +1,4 @@
 from xml.dom import minidom
-from doctest import REPORT_CDIFF
 
 class ConvertRepo:
     '''
