@@ -129,7 +129,7 @@ class ConvertType:
         newName = doc.getElementsByTagName("name")[0].firstChild.data
         newType = ConvertPrefixGroup(repo,newName)
         #Get number of decimals
-        newDecimals = doc.getElementsByTagName("decimals")[0].firstChild.data
+        newDecimals = int(doc.getElementsByTagName("decimals")[0].firstChild.data)
         newType.setDecimals(newDecimals)
         #Get base unit
         baseUnitXml = doc.getElementsByTagName("base_unit")[0].getElementsByTagName("unit")[0]
@@ -144,7 +144,30 @@ class ConvertType:
     
     def toXml(self):
         'Writes ConvertType object as XML'
-        raise NotImplementedError
+        #create document
+        doc = minidom.Document()
+        #create root element
+        root = doc.createElement("type")
+        doc.appendChild(root)
+        #Add name element
+        nameElement = doc.createElement("name")
+        nameElement.appendChild(doc.createTextNode(self.mName))
+        root.appendChild(nameElement)
+        #Add decimals element
+        nameElement = doc.createElement("decimals")
+        nameElement.appendChild(doc.createTextNode(str(self.mDecimals)))
+        root.appendChild(nameElement)
+        #Add base unit element
+        baseUnitElement = doc.createElement("base_unit")
+        baseUnitUnitElement = minidom.parse(self.mBaseUnit.toXml()).firstChild
+        baseUnitElement.appendChild(baseUnitUnitElement)
+        root.appendChild(baseUnitElement)
+        #Add units
+        for unitObject in self.mUnitList:
+            unitElement = minidom.parse(unitObject.toXml()).firstChild
+            root.appendChild(unitElement)
+        #Output XML
+        return doc.toxml()
 
 class ConvertUnit:
     '''
