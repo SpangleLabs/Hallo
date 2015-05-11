@@ -406,7 +406,13 @@ class ConvertPrefixGroup:
     
     def getPrefixByName(self,name):
         'Gets the prefix with the specified name'
-        raise NotImplementedError
+        for prefixObject in self.mPrefixList:
+            if(prefixObject.getName() == name):
+                return prefixObject
+        for prefixObject in self.mPrefixList:
+            if(prefixObject.getName().lower() == name.lower()):
+                return prefixObject
+        return None
     
     def getPrefixByAbbreviation(self,abbreviation):
         'Gets the prefix with the specified abbreviation'
