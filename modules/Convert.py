@@ -60,9 +60,9 @@ class ConvertType:
     '''
     Conversion unit type object.
     '''
+    mRepo = None
     mName = None
     mUnitList = []
-    mRepo = None
     
     def __init__(self,repo,name):
         self.mRepo = repo
@@ -110,11 +110,11 @@ class ConvertUnit:
     '''
     Conversion unit object.
     '''
+    mType = None
     mNameList = []
     mAbbreviationList = []
     mValidPrefixGroup = None
     mValue = None
-    mType = None
     mOffset = None
     mLastUpdated = None
     
@@ -123,30 +123,35 @@ class ConvertUnit:
         self.mNameList = names
         self.mValue = value
     
-    def getNames(self):
+    def getType(self):
+        'Returns the ConvertType which "owns" this ConvertUnit.'
+        return self.mType
+    
+    def getNameList(self):
         'Returns the full list of names for a unit.'
         return self.mNameList
+    
+    def addName(self,name):
+        'Adds a name to the list of names for a unit.'
+        self.mNameList.append(name)
     
     def removeName(self,name):
         'Removes a name from the list of names for a unit.'
         if(name in self.mNameList):
             self.mNameList.remove(name)
     
-    def addName(self,name):
-        'Adds a name to the list of names for a unit.'
-        self.mNameList.append(name)
-    
-    def getAbbreviations(self):
+    def getAbbreviationList(self):
         'Returns the full list of abbreviations for a unit.'
         return self.mAbbreviationList
-    
-    def removeAbbreviation(self,abbreviation):
-        'Removes an abbreviation from the list of abbreviations for a unit.'
-        self.mAbbreviationList.remove(abbreviation)
     
     def addAbbreviation(self,abbreviation):
         'Adds an abbreviation to the list of abbreviations for a unit.'
         self.mAbbreviationList.append(abbreviation)
+    
+    def removeAbbreviation(self,abbreviation):
+        'Removes an abbreviation from the list of abbreviations for a unit.'
+        if(abbreviation in self.mAbbreviationList):
+            self.mAbbreviationList.remove(abbreviation)
     
     def getPrefixGroup(self):
         'Returns the value of the unit.'
@@ -179,10 +184,6 @@ class ConvertUnit:
     def setLastUpdated(self,updateTime):
         'Changes the last updated time of the unit.'
         self.mLastUpdated = updateTime
-    
-    def getType(self):
-        'Returns the ConvertType which "owns" this ConvertUnit.'
-        return self.mType
     
     @staticmethod
     def fromXml(convertType,xmlString):
@@ -261,9 +262,9 @@ class ConvertPrefixGroup:
     '''
     Group of Conversion Prefixes.
     '''
+    mRepo = None
     mName = None
     mPrefixList = []
-    mRepo = None
     
     def __init__(self,repo,name):
         self.mRepo = repo
@@ -277,17 +278,26 @@ class ConvertPrefixGroup:
         'Returns the prefix group name'
         return self.mName
     
+    def setName(self,name):
+        'Sets the prefix group name'
+        self.mName = name
+    
     def getPrefixList(self):
         'Returns the full list of prefixes in the group'
         return self.mPrefixList
     
-    def getPrefixByName(self):
-        'Gets the prefix with the specified name or abbreviation'
-        raise NotImplementedError
-    
     def addPrefix(self,prefix):
         'Adds a new prefix to the prefix list'
         self.mPrefixList.append(prefix)
+        
+    def removePrefix(self,prefix):
+        'Removes a prefix from the prefix list'
+        if(prefix in self.mPrefixList):
+            self.mPrefixList.remove(prefix)
+    
+    def getPrefixByName(self):
+        'Gets the prefix with the specified name or abbreviation'
+        raise NotImplementedError
     
     @staticmethod
     def fromXml(repo,xmlString):
@@ -326,10 +336,10 @@ class ConvertPrefix:
     '''
     Conversion prefix.
     '''
+    mPrefixGroup = None
     mPrefix = None
     mAbbreviation = None
     mMultiplier = None
-    mPrefixGroup = None
     
     def __init__(self,prefixGroup,prefix,abbreviation,multiplier):
         self.mPrefixGroup = prefixGroup
@@ -345,13 +355,25 @@ class ConvertPrefix:
         'Returns the name of the prefix'
         return self.mPrefix
     
+    def setPrefix(self,name):
+        'Sets the name of the prefix'
+        self.mPrefix = name
+    
     def getAbbreviation(self):
         'Returns the abbreviation for the prefix'
         return self.mAbbreviation
     
+    def setAbbreviation(self,abbreviation):
+        'Sets the abbreviation for the prefix'
+        self.mAbbreviation = abbreviation
+    
     def getMultiplier(self):
         'Returns the multiplier the prefix has'
         return self.mMultiplier
+    
+    def setMultiplier(self,multiplier):
+        'Sets the multiplier the prefix has'
+        self.mMultiplier = multiplier
     
     @staticmethod
     def fromXml(prefixGroup,xmlString):
