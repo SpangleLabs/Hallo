@@ -509,6 +509,19 @@ class ConvertPrefixGroup:
                 return prefixObject
         return None
     
+    def getAppropriatePrefix(self,value):
+        multiplierBiggerThanOne = True
+        for prefixObject in self.mPrefixList:
+            multiplier = prefixObject.getMultiplier()
+            if(multiplierBiggerThanOne and multiplier<1):
+                multiplierBiggerThanOne = False
+                if(value>1):
+                    return None
+            afterPrefix = value/prefixObject.getMultiplier()
+            if(afterPrefix>1):
+                return prefixObject
+        return None
+    
     @staticmethod
     def fromXml(repo,xmlString):
         'Loads a new ConvertUnit object from XML.'
