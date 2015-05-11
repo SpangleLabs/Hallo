@@ -191,12 +191,15 @@ class ConvertPrefixGroup:
         raise NotImplementedError
     
     def getName(self):
+        'Returns the prefix group name'
         return self.mName
     
     def getPrefixList(self):
+        'Returns the full list of prefixes in the group'
         return self.mPrefixList
     
     def getPrefixByName(self):
+        'Gets the prefix with the specified name or abbreviation'
         raise NotImplementedError
     
     def addPrefix(self,prefix):
