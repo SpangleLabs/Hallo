@@ -290,7 +290,10 @@ class ConvertPrefix:
     mPrefixGroup = None
     
     def __init__(self,prefixGroup,prefix,abbreviation,multiplier):
-        raise NotImplementedError
+        self.mPrefixGroup = prefixGroup
+        self.mPrefix = prefix
+        self.mAbbreviation = abbreviation
+        self.mMultiplier = multiplier
     
     def getPrefixGroup(self):
         'Returns the prefix group of the prefix'
@@ -298,15 +301,15 @@ class ConvertPrefix:
     
     def getPrefix(self):
         'Returns the name of the prefix'
-        raise NotImplementedError
+        return self.mPrefix
     
     def getAbbreviation(self):
         'Returns the abbreviation for the prefix'
-        raise NotImplementedError
+        return self.mAbbreviation
     
     def getMultiplier(self):
         'Returns the multiplier the prefix has'
-        raise NotImplementedError
+        return self.mMultiplier
     
     @staticmethod
     def fromXml(prefixGroup,xmlString):
