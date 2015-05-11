@@ -67,11 +67,14 @@ class ConvertType:
     '''
     mRepo = None
     mName = None
+    mDecimals = 2
+    mBaseUnit = None
     mUnitList = []
     
-    def __init__(self,repo,name):
+    def __init__(self,repo,name,baseUnit):
         self.mRepo = repo
         self.mName = name
+        self.mBaseUnit = baseUnit
     
     def getRepo(self):
         'Returns the ConvertRepo which owns this ConvertType object'
@@ -84,6 +87,22 @@ class ConvertType:
     def setName(self,name):
         'Change the name of the ConvertType object'
         self.mName = name
+    
+    def getDecimals(self):
+        'Returns the number of decimals of the ConvertType object'
+        return self.mDecimals
+    
+    def setDecimals(self,decimals):
+        'Change the number of decimals of the ConvertType object'
+        self.mDecimals = decimals
+    
+    def getBaseUnit(self):
+        'Returns the base unit object of the ConvertType object'
+        return self.mBaseUnit
+    
+    def setBaseUnit(self,baseUnit):
+        'Change the base unit object of the ConvertType object'
+        self.mBaseUnit = baseUnit
     
     def getUnitList(self):
         'Returns the full list of ConvertUnit objects'
