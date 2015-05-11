@@ -77,67 +77,70 @@ class ConvertUnit:
     mLastUpdated = None
     
     def __init__(self,convertType,names,value):
-        raise NotImplementedError
+        self.mType = convertType
+        self.mNameList = names
+        self.mValue = value
     
     def getNames(self):
         'Returns the full list of names for a unit.'
-        raise NotImplementedError
+        return self.mNameList
     
     def removeName(self,name):
         'Removes a name from the list of names for a unit.'
-        raise NotImplementedError
+        if(name in self.mNameList):
+            self.mNameList.remove(name)
     
     def addName(self,name):
         'Adds a name to the list of names for a unit.'
-        raise NotImplementedError
+        self.mNameList.append(name)
     
     def getAbbreviations(self):
         'Returns the full list of abbreviations for a unit.'
-        raise NotImplementedError
+        return self.mAbbreviationList
     
     def removeAbbreviation(self,abbreviation):
         'Removes an abbreviation from the list of abbreviations for a unit.'
-        raise NotImplementedError
+        self.mAbbreviationList.remove(abbreviation)
     
     def addAbbreviation(self,abbreviation):
         'Adds an abbreviation to the list of abbreviations for a unit.'
-        raise NotImplementedError
+        self.mAbbreviationList.append(abbreviation)
     
     def getPrefixGroup(self):
         'Returns the value of the unit.'
-        raise NotImplementedError
+        return self.mValidPrefixGroup
     
     def setPrefixGroup(self,prefixGroup):
         'Changes the value of the unit.'
-        raise NotImplementedError
+        self.mValidPrefixGroup = prefixGroup
     
     def getValue(self):
         'Returns the value of the unit.'
-        raise NotImplementedError
+        return self.mValue
     
     def setValue(self,value):
         'Changes the value of the unit.'
-        raise NotImplementedError
+        self.mValue = value
     
     def getOffset(self):
         'Returns the offset of the unit.'
-        raise NotImplementedError
+        return self.mOffset
     
     def setOffset(self,offset):
         'Changes the offset of the unit.'
-        raise NotImplementedError
+        self.mOffset = offset
     
     def getLastUpdated(self):
         'Returns the last updated time of the unit.'
-        raise NotImplementedError
+        return self.mLastUpdated
     
-    def setLastUpdated(self):
+    def setLastUpdated(self,updateTime):
         'Changes the last updated time of the unit.'
-        raise NotImplementedError
+        self.mLastUpdated = updateTime
     
     def getType(self):
         'Returns the ConvertType which "owns" this ConvertUnit.'
-        raise NotImplementedError
+        return self.mType
     
     @staticmethod
     def fromXml(convertType,xmlString):
