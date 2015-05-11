@@ -191,6 +191,12 @@ class ConvertUnit:
         for abbrXml in doc.getElementsByTagName("abbr"):
             newAbbr = abbrXml.firstChild.data
             newUnit.addAbbreviation(newAbbr)
+        #Add prefix group
+        if(len(doc.getElementsByTagName("valid_prefix_group"))!=0):
+            convertRepo = convertType.getRepo()
+            validPrefixGroupName = doc.getElementsByTagName("valid_prefix_group")[0].firstChild.data
+            validPrefixGroup = convertRepo.getPrefixGroupByName(validPrefixGroupName)
+            newUnit.setPrefixGroup(validPrefixGroup)
         #Get offset
         if(len(doc.getElementsByTagName("offset"))!=0):
             newOffset = doc.getElementsByTagName("offset")
