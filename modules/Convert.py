@@ -39,6 +39,14 @@ class ConvertType:
     def __init__(self,name):
         raise NotImplementedError
     
+    def getName(self):
+        'Returns the name of the ConvertType object'
+        raise NotImplementedError
+    
+    def setName(self,name):
+        'Change the name of the ConvertType object'
+        raise NotImplementedError
+    
     def getUnitList(self):
         'Returns the full list of ConvertUnit objects'
         raise NotImplementedError
