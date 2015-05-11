@@ -29,7 +29,13 @@ class ConvertRepo:
     
     def getTypeByName(self,name):
         'Gets a ConvertType object with the matching name.'
-        raise NotImplementedError
+        for typeObject in self.mTypeList:
+            if(typeObject.getName()==name):
+                return typeObject
+        for typeObject in self.mTypeList:
+            if(typeObject.getName().lower()==name.lower()):
+                return typeObject
+        return None
     
     def getPrefixGroupList(self):
         'Returns the full list of ConvertPrefixGroup objects'
@@ -46,7 +52,10 @@ class ConvertRepo:
     
     def getPrefixGroupByName(self,name):
         'Gets a ConvertPrefixGroup object with the matching name.'
-        raise NotImplementedError
+        for prefixGroupObject in self.mPrefixGroupList:
+            if(prefixGroupObject.getName().lower()==name.lower()):
+                return prefixGroupObject
+        return None
 
     def findTypes(self,name1,name2):
         'Finds out what types are valid for a pair of names.'
