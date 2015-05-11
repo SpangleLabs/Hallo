@@ -27,6 +27,21 @@ class ConvertRepo:
     
     def getTypeByName(self,name):
         'Gets a ConvertType object with the matching name.'
+    
+    def getPrefixGroupList(self):
+        'Returns the full list of ConvertPrefixGroup objects'
+        raise NotImplementedError
+    
+    def addPrefixGroup(self,prefixGroup):
+        'Adds a new ConvertPrefixGroup object to the prefix group list'
+        raise NotImplementedError
+    
+    def removePrefixGroup(self,prefixGroup):
+        'Removes a ConvertPrefixGroup object from the prefix group list'
+        raise NotImplementedError
+    
+    def getPrefixGroupByName(self,name):
+        'Gets a ConvertPrefixGroup object with the matching name.'
 
     def findTypes(self,name1,name2):
         'Finds out what types are valid for a pair of names.'
