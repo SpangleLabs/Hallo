@@ -55,7 +55,19 @@ class ConvertRepo:
     @staticmethod
     def loadFromXml(self):
         'Loads Convert Repo from XML.'
-        raise NotImplementedError
+        doc = minidom.parse("store/convert.xml")
+        #Create new object
+        newRepo = ConvertRepo()
+        #Loop through prefix groups
+        for prefixGroupXml in doc.getElementsByTagName("prefix_group"):
+            prefixGroupObject = ConvertPrefixGroup.fromXml(newRepo,prefixGroupXml.toxml())
+            newRepo.addPrefixGroup(prefixGroupObject)
+        #Loop through types
+        for typeXml in doc.getElementsByTagName("type"):
+            typeObject = ConvertType.fromXml(newRepo,typeXml.toxml())
+            newRepo.addType(typeObject)
+        #Return new repo object
+        return newRepo
     
     def saveToXml(self):
         'Saves Convert Repo to XML.'
