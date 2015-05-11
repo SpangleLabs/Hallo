@@ -5,6 +5,7 @@ class ConvertRepo:
     Configuration repository. Stores list of ConvertTypes, ConvertPrefixGroups, etc
     '''
     mTypeList = []
+    mPrefixGroupList = []
 
     def __init__(self):
         '''
@@ -15,6 +16,17 @@ class ConvertRepo:
     def getTypeList(self):
         'Returns the full list of ConvertType objects'
         raise NotImplementedError
+    
+    def addType(self,newType):
+        'Adds a new ConvertType object to the type list'
+        raise NotImplementedError
+    
+    def removeType(self,delType):
+        'Removes a ConvertType object from the type list'
+        raise NotImplementedError
+    
+    def getTypeByName(self,name):
+        'Gets a ConvertType object with the matching name.'
 
     def findTypes(self,name1,name2):
         'Finds out what types are valid for a pair of names.'
