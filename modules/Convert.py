@@ -647,7 +647,7 @@ class ConvertMeasure:
         #Search through the line for digits, pull them amount as a preliminary amount and strip the rest of the line.
         preliminaryAmountString = Commons.getDigitsFromStartOrEnd(userInputClean)
         if(preliminaryAmountString is None):
-            return Exception("Cannot find amount.")
+            raise Exception("Cannot find amount.")
         preliminaryAmountValue = float(preliminaryAmountString)
         #Loop all units, seeing which might match userInput with prefixes. Building a list of valid measures for this input.
         newMeasureList = []
@@ -658,6 +658,9 @@ class ConvertMeasure:
             newAmount = preliminaryAmountValue * prefixObject.getMultiplier()
             newMeasure = ConvertMeasure(newAmount,unitObject)
             newMeasureList.append(newMeasure)
+        #If list is still empty, throw an exception.
+        if(len(newMeasureList)==0):
+            raise Exception("Unrecognised unit.")
         #Return list of matching measures.
         return newMeasureList
 
@@ -685,7 +688,11 @@ class Convert(Function):
         repo = ConvertRepo.loadFromXml()
         #See if the input needs splitting.
         if(splitRegex.search(line) is None):
-            return self.convertOneUnit(line)
+            try:
+                fromMeasureList = ConvertMeasure.buildListFromUserInput()
+                return self.convertOneUnit(fromMeasureList)
+            except Exception as e:
+                return "I don't understand your input. ("+str(e)+") Please format like so: convert <value> <old unit> to <new unit>"
         #Split input
         lineSplit = splitRegex.split(line)
         #If there are more than 2 parts, be confused.
@@ -693,23 +700,23 @@ class Convert(Function):
             return "I don't understand your input. (Are you specifying 3 units?) Please format like so: convert <value> <old unit> to <new unit>"
         #Try loading the first part as a measure 
         try:
-            lineFromMeasure = ConvertMeasure.buildListFromUserInput(repo,lineSplit[0])
-            return self.convertTwoUnit(lineFromMeasure,lineSplit[1])
+            fromMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[0])
+            return self.convertTwoUnit(fromMeasureList,lineSplit[1])
         except:
             #Try loading the second part as a measure
             try:
-                lineFromMeasure = ConvertMeasure.buildListFromUserInput(repo,lineSplit[1])
-                return self.convertTwoUnit(lineFromMeasure,lineSplit[0])
-            except:
+                fromMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[1])
+                return self.convertTwoUnit(fromMeasureList,lineSplit[0])
+            except Exception as e:
                 #If both fail, send an error message
-                return "I don't understand your input. (Did you specify an amount?) Please format like so: convert <value> <old unit> to <new unit>"
+                return "I don't understand your input. ("+str(e)+") Please format like so: convert <value> <old unit> to <new unit>"
     
     
-    def convertOneUnit(self,userInput):
+    def convertOneUnit(self,fromMeasureList):
         'Converts a single given measure into whatever base unit of the type the measure is.'
         raise NotImplementedError
     
-    def convertTwoUnit(self,fromMeasure,userInputTo):
+    def convertTwoUnit(self,fromMeasureList,userInputTo):
         'Converts a single given measure into whatever unit is specified.'
         raise NotImplementedError
         
