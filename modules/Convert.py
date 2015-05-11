@@ -293,6 +293,46 @@ class ConvertUnit:
     def setLastUpdated(self,updateTime):
         'Changes the last updated time of the unit.'
         self.mLastUpdated = updateTime
+        
+    def getPrefixFromUserInput(self,userInput):
+        'Returns the prefix matching the user inputed unit name. None if no prefix. False if the input does not match this unit at all.'
+        for name in self.mNameList:
+            #If {X} is in the name, it means prefix goes in the middle.
+            if("{X}" in name):
+                nameStart = name.split("{X}")[0].lower()
+                nameEnd = name.split("{X}")[1].lower()
+                #Ensure that userinput starts with first half and ends with second half.
+                if(not userInput.lower().startswith(nameStart) or not userInput.lower().endswith(nameEnd)):
+                    continue
+                userPrefix = userInput[len(nameStart):len(userInput)-len(nameEnd)]
+                #If user prefix is blank, return None
+                if(userPrefix==""):
+                    return None
+                #If no prefix group is valid, accept blank string, reject anything else.
+                if(self.mValidPrefixGroup is None):
+                    continue
+                #Get the prefix in the group whose name matches the user input
+                prefixObject = self.mValidPrefixGroup.getPrefixByName(userPrefix)
+                if(prefixObject is None):
+                    continue
+                return prefixObject
+            #So, {X} isn't in the name, so it's a standard name.
+            if(not userInput.endswith(name)):
+                continue
+            #Find out what the user said was the prefix
+            userPrefix = userInput[:len(userInput)-len(name)]
+            if(userPrefix==""):
+                return None
+            #If no prefix group is valid and user didn't input a blank string, reject
+            if(self.mValidPrefixGroup is None):
+                continue
+            #Get group's prefix that matches name
+            prefixObject = self.mValidPrefixGroup.getPrefixByName(userPrefix)
+            if(prefixObject is None):
+                continue
+            return prefixObject
+        return False
+                
     
     @staticmethod
     def fromXml(convertType,xmlString):
@@ -534,7 +574,7 @@ class ConvertPrefix:
     
 class ConvertMeasure:
     '''
-    Convert meaure object. An amount with a unit.
+    Convert measure object. An amount with a unit.
     '''
     mAmount = None
     mPrefix = None
