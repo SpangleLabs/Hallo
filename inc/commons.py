@@ -137,3 +137,18 @@ class Commons(object):
             return True
         else:
             return False
+    
+    @staticmethod
+    def isFloatString(floatString):
+        'Checks whether a string is a valid float'
+        try:
+            float(floatString)
+            return True
+        except:
+            return False
+    
+    @staticmethod
+    def getDigitsFromStartOrEnd(string):
+        'Gets the longest string of digits from the start of a string, or None'
+        return ([string[:x] for x in range(1,len(string)+1) if Commons.isFloatString(string[:x])][::-1]+[string[x:] for x in range(len(string))if Commons.isFloatString(string[x:])]+[None])[0]
+
