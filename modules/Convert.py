@@ -646,6 +646,14 @@ class ConvertMeasure:
     
     def toString(self):
         'Converts the measure to a string for output.'
+        decimalPlaces = self.mUnit.getType().getDecimals()
+        prefixGroup = self.mUnit.getPrefixGroup()
+        #If there is no prefix group, output raw.
+        if(prefixGroup is None):
+            pass
+        #Ask the prefix group for the most appropriate prefix for the value.
+        appropriatePrefix = prefixGroup.getAppropriatePrefix(self.mAmount)
+        #Output string
         raise NotImplementedError
     
     def __str__(self):
