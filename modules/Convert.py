@@ -651,7 +651,22 @@ class ConvertMeasure:
     
     def convertTo(self,unit):
         'Creates a new measure, equal in value but with a different unit.'
-        raise NotImplementedError
+        #Check units are the same type
+        if(self.mUnit.getType() != unit.getType()):
+            raise Exception("These are not the same unit type.")
+        #get base unit
+        baseUnit = self.mUnit.getType().getBaseUnit()
+        newAmount = self.mAmount * baseUnit.getValue()
+        baseOffset = baseUnit.getOffset()
+        if(baseOffset is not None):
+            newAmount = newAmount + baseOffset
+        #Convert from base unit to new unit
+        unitOffset = unit.getOffset()
+        if(baseOffset is not None):
+            newAmount = newAmount - unitOffset
+        newAmount = newAmount / unit.getValue()
+        newMeasure = ConvertMeasure(newAmount,unit)
+        return newMeasure
     
     def convertToBase(self):
         'Creates a new measure, equal in value, but with the base unit of the unit type.'
