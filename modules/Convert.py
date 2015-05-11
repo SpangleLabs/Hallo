@@ -1,5 +1,7 @@
 from xml.dom import minidom
 from inc.commons import Commons
+from Function import Function
+import re
 
 class ConvertRepo:
     '''
@@ -70,7 +72,7 @@ class ConvertRepo:
         raise NotImplementedError
     
     @staticmethod
-    def loadFromXml(self):
+    def loadFromXml():
         'Loads Convert Repo from XML.'
         doc = minidom.parse("store/convert.xml")
         #Create new object
@@ -659,8 +661,58 @@ class ConvertMeasure:
         #Return list of matching measures.
         return newMeasureList
 
-
-
+class Convert(Function):
+    '''
+    Function to convert units from one to another
+    '''
+    #Name for use in help listing
+    mHelpName = "convert"
+    #Names which can be used to address the Function
+    mNames = set(["convert","conversion"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "converts values from one unit to another. Format: convert <value> <old unit> to <new unit>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Create regex to find the place to split a user string.
+        splitRegex = re.compile(' into | to |->| in ',re.IGNORECASE)
+        #Load ConvertRepo
+        repo = ConvertRepo.loadFromXml()
+        #See if the input needs splitting.
+        if(splitRegex.search(line) is None):
+            return self.convertOneUnit(line)
+        #Split input
+        lineSplit = splitRegex.split(line)
+        #If there are more than 2 parts, be confused.
+        if(len(lineSplit)>2):
+            return "I don't understand your input. (Are you specifying 3 units?) Please format like so: convert <value> <old unit> to <new unit>"
+        #Try loading the first part as a measure 
+        try:
+            lineFromMeasure = ConvertMeasure.buildListFromUserInput(repo,lineSplit[0])
+            return self.convertTwoUnit(lineFromMeasure,lineSplit[1])
+        except:
+            #Try loading the second part as a measure
+            try:
+                lineFromMeasure = ConvertMeasure.buildListFromUserInput(repo,lineSplit[1])
+                return self.convertTwoUnit(lineFromMeasure,lineSplit[0])
+            except:
+                #If both fail, send an error message
+                return "I don't understand your input. (Did you specify an amount?) Please format like so: convert <value> <old unit> to <new unit>"
+    
+    
+    def convertOneUnit(self,userInput):
+        'Converts a single given measure into whatever base unit of the type the measure is.'
+        raise NotImplementedError
+    
+    def convertTwoUnit(self,fromMeasure,userInputTo):
+        'Converts a single given measure into whatever unit is specified.'
+        raise NotImplementedError
+        
 
 
 
