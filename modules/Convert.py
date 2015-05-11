@@ -628,11 +628,11 @@ class ConvertMeasure:
     
     def getUnit(self):
         'Returns the unit of the measure.'
-        raise NotImplementedError
+        return self.mUnit
     
     def getAmount(self):
         'Returns the amount of the measure.'
-        raise NotImplementedError
+        return self.mAmount
     
     def convertTo(self,unit):
         'Creates a new measure, equal in value but with a different unit.'
