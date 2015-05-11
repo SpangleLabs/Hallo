@@ -676,7 +676,7 @@ class ConvertMeasure:
         newAmount = self.mAmount * unitValue
         offset = baseUnit.getOffset()
         if(offset is not None):
-            newAmount = newAmount
+            newAmount = newAmount + offset
         newMeasure = ConvertMeasure(newAmount,newUnit)
         return newMeasure
     
