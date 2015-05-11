@@ -656,7 +656,14 @@ class ConvertMeasure:
     def convertToBase(self):
         'Creates a new measure, equal in value, but with the base unit of the unit type.'
         baseUnit = self.mUnit.getType().getBaseUnit()
-        raise NotImplementedError
+        newUnit = baseUnit
+        unitValue = baseUnit.getValue()
+        newAmount = self.mAmount * unitValue
+        offset = baseUnit.getOffset()
+        if(offset is not None):
+            newAmount = newAmount
+        newMeasure = ConvertMeasure(newAmount,newUnit)
+        return newMeasure
     
     def toString(self):
         'Converts the measure to a string for output.'
