@@ -644,6 +644,10 @@ class ConvertMeasure:
         'Creates a new measure, equal in value, but with the base unit of the unit type.'
         raise NotImplementedError
     
+    def toString(self):
+        'Converts the measure to a string for output.'
+        raise NotImplementedError
+    
     @staticmethod
     def buildListFromUserInput(repo,userInput):
         'Creates a new measure from a user inputed line'
