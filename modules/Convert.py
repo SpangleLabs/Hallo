@@ -640,6 +640,10 @@ class ConvertMeasure:
         'Creates a new measure, equal in value but with a different unit.'
         raise NotImplementedError
     
+    def convertToBase(self):
+        'Creates a new measure, equal in value, but with the base unit of the unit type.'
+        raise NotImplementedError
+    
     @staticmethod
     def buildListFromUserInput(repo,userInput):
         'Creates a new measure from a user inputed line'
@@ -714,6 +718,7 @@ class Convert(Function):
     
     def convertOneUnit(self,fromMeasureList):
         'Converts a single given measure into whatever base unit of the type the measure is.'
+        from 
         raise NotImplementedError
     
     def convertTwoUnit(self,fromMeasureList,userInputTo):
