@@ -648,6 +648,9 @@ class ConvertMeasure:
         'Converts the measure to a string for output.'
         raise NotImplementedError
     
+    def __str__(self):
+        return self.toString()
+    
     @staticmethod
     def buildListFromUserInput(repo,userInput):
         'Creates a new measure from a user inputed line'
