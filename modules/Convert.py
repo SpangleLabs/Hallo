@@ -59,7 +59,26 @@ class ConvertRepo:
     
     def saveToXml(self):
         'Saves Convert Repo to XML.'
-        raise NotImplementedError
+        #Create document, with DTD
+        docimp = minidom.DOMImplementation()
+        doctype = docimp.createDocumentType(
+            qualifiedName='convert',
+            publicId='', 
+            systemId='convert.dtd',
+        )
+        doc = docimp.createDocument(None,'convert',doctype)
+        #get root element
+        root = doc.getElementsByTagName("convert")[0]
+        #Add prefix groups
+        for prefixGroupObject in self.mPrefixGroupList:
+            prefixGroupElement = minidom.parse(prefixGroupObject.toXml()).firstChild
+            root.appendChild(prefixGroupElement)
+        #Add types
+        for typeObject in self.mTypeList:
+            typeElement = minidom.parse(typeObject.toXml()).firstChild
+            root.appendChild(typeElement)
+        #save XML
+        doc.writexml(open("store/convert.xml","w"),addindent="\t",newl="\n")
     
 class ConvertType:
     '''
