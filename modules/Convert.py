@@ -11,7 +11,8 @@ class ConvertRepo:
         '''
         Constructor
         '''
-        raise NotImplementedError
+        #Nothing needs doing
+        pass
     
     def getTypeList(self):
         'Returns the full list of ConvertType objects'
