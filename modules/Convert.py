@@ -631,12 +631,11 @@ class ConvertMeasure:
         raise NotImplementedError
     
     @staticmethod
-    def fromUserInput(userInput):
+    def buildListFromUserInput(userInput):
         'Creates a new measure from a user inputed line'
         #Search through the line for digits, pull them amount as a preliminary amount and strip the rest of the line.
-        #Split string in half, e.g. 'abcdef' to ['','abcdef'], then ['a','bcdef'], then ['ab','cdef'] etc, testing if part B is unit, then checking if part A is a valid prefix
-        #If prefix is not none, multiply value
-        #set value and name
+        #Loop all units, seeing which might match userInput with prefixes. Building a list of valid measures for this input.
+        #Return list of matching measures.
         raise NotImplementedError
 
 
