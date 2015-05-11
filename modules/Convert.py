@@ -248,9 +248,15 @@ class ConvertPrefix:
         raise NotImplementedError
     
     def getPrefix(self):
+        'Returns the name of the prefix'
+        raise NotImplementedError
+    
+    def getAbbreviation(self):
+        'Returns the abbreviation for the prefix'
         raise NotImplementedError
     
     def getMultiplier(self):
+        'Returns the multiplier the prefix has'
         raise NotImplementedError
     
     @staticmethod
