@@ -158,7 +158,13 @@ class ConvertType:
     
     def getUnitByName(self,name):
         'Get a unit by a specified name'
-        raise NotImplementedError
+        for unitObject in self.mUnitList:
+            if(unitObject.getName()==name):
+                return unitObject
+        for unitObject in self.mUnitList:
+            if(unitObject.getName().lower()==name.lower()):
+                return unitObject
+        return None
 
     @staticmethod
     def fromXml(repo,xmlString):
