@@ -221,9 +221,15 @@ class ConvertPrefixGroup:
     '''
     mName = None
     mPrefixList = []
+    mRepo = None
     
-    def __init__(self,name):
-        raise NotImplementedError
+    def __init__(self,repo,name):
+        self.mRepo = repo
+        self.mName = name
+    
+    def getRepo(self):
+        'Returns the ConvertRepo owning this prefix group'
+        return self.mRepo
     
     def getName(self):
         'Returns the prefix group name'
@@ -242,13 +248,13 @@ class ConvertPrefixGroup:
         self.mPrefixList.append(prefix)
     
     @staticmethod
-    def fromXml(xmlString):
+    def fromXml(repo,xmlString):
         'Loads a new ConvertUnit object from XML.'
         #Load document
         doc = minidom.parse(xmlString)
         #Get name and create object
         newName = doc.getElementsByTagName("name")[0].firstChild.data
-        newPrefixGroup = ConvertPrefixGroup(newName)
+        newPrefixGroup = ConvertPrefixGroup(repo,newName)
         #Loop through prefix elements, creating and adding objects.
         for prefixXml in doc.getElementsByTagName("prefix"):
             prefixObject = ConvertPrefix.fromXml(self,prefixXml.toxml())
