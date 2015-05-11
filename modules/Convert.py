@@ -646,10 +646,18 @@ class ConvertMeasure:
         preliminaryAmountString = Commons.getDigitsFromStartOrEnd(userInputClean)
         if(preliminaryAmountString is None):
             return Exception("Cannot find amount.")
+        preliminaryAmountValue = float(preliminaryAmountString)
         #Loop all units, seeing which might match userInput with prefixes. Building a list of valid measures for this input.
-        for unitType in 
+        newMeasureList = []
+        for unitObject in repo.getFullUnitList():
+            prefixObject = unitObject.getPrefixFromUserInput(userInput)
+            if(prefixObject is False):
+                continue
+            newAmount = preliminaryAmountValue * prefixObject.getMultiplier()
+            newMeasure = ConvertMeasure(newAmount,unitObject)
+            newMeasureList.append(newMeasure)
         #Return list of matching measures.
-        raise NotImplementedError
+        return newMeasureList
 
 
 
