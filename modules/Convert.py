@@ -83,12 +83,44 @@ class ConvertUnit:
         'Adds a name to the list of names for a unit.'
         raise NotImplementedError
     
+    def getAbbreviations(self):
+        'Returns the full list of abbreviations for a unit.'
+        raise NotImplementedError
+    
+    def removeAbbreviation(self,abbreviation):
+        'Removes an abbreviation from the list of abbreviations for a unit.'
+        raise NotImplementedError
+    
+    def addAbbreviation(self,abbreviation):
+        'Adds an abbreviation to the list of abbreviations for a unit.'
+        raise NotImplementedError
+    
+    def getPrefixGroup(self):
+        'Returns the value of the unit.'
+        raise NotImplementedError
+    
+    def setPrefixGroup(self,prefixGroup):
+        'Changes the value of the unit.'
+        raise NotImplementedError
+    
     def getValue(self):
         'Returns the value of the unit.'
         raise NotImplementedError
     
     def setValue(self,value):
         'Changes the value of the unit.'
+        raise NotImplementedError
+    
+    def getOffset(self):
+        'Returns the offset of the unit.'
+        raise NotImplementedError
+    
+    def setOffset(self,offset):
+        'Changes the offset of the unit.'
+        raise NotImplementedError
+    
+    def getLastUpdated(self):
+        'Returns the last updated time of the unit.'
         raise NotImplementedError
     
     def getType(self):
