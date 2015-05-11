@@ -660,14 +660,15 @@ class ConvertMeasure:
     def toString(self):
         'Converts the measure to a string for output.'
         decimalPlaces = self.mUnit.getType().getDecimals()
+        decimalFormat = "{:"+str(decimalPlaces)+"f}"
         prefixGroup = self.mUnit.getPrefixGroup()
         #If there is no prefix group, output raw.
         if(prefixGroup is None):
-            pass
+            return decimalFormat.format(self.mAmount) + " " + self.mUnit.getName()
         #Ask the prefix group for the most appropriate prefix for the value.
         appropriatePrefix = prefixGroup.getAppropriatePrefix(self.mAmount)
         #Output string
-        raise NotImplementedError
+        return decimalFormat.format(self.mAmount) + " " + appropriatePrefix.getName() + self.mUnit.getName()
     
     def __str__(self):
         return self.toString()
