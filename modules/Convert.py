@@ -317,7 +317,7 @@ class ConvertUnit:
                     continue
                 return prefixObject
             #So, {X} isn't in the name, so it's a standard name.
-            if(not userInput.endswith(name)):
+            if(not userInput.lower().endswith(name.lower())):
                 continue
             #Find out what the user said was the prefix
             userPrefix = userInput[:len(userInput)-len(name)]
@@ -353,7 +353,7 @@ class ConvertUnit:
                     continue
                 return prefixObject
             #So, {X} isn't in the abbreviation, so it's a standard abbreviation.
-            if(not userInput.endswith(abbreviation)):
+            if(not userInput.lower().endswith(abbreviation.lower())):
                 continue
             #Find out what the user said was the prefix
             userPrefix = userInput[:len(userInput)-len(abbreviation)]
@@ -368,7 +368,6 @@ class ConvertUnit:
                 continue
             return prefixObject
         return False
-                
     
     @staticmethod
     def fromXml(convertType,xmlString):
