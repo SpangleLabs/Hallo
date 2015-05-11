@@ -131,14 +131,40 @@ class ConvertUnit:
         'Returns the last updated time of the unit.'
         raise NotImplementedError
     
+    def setLastUpdated(self):
+        'Changes the last updated time of the unit.'
+        raise NotImplementedError
+    
     def getType(self):
         'Returns the ConvertType which "owns" this ConvertUnit.'
         raise NotImplementedError
     
     @staticmethod
-    def fromXml(xmlString):
+    def fromXml(convertType,xmlString):
         'Loads a new ConvertUnit object from XML.'
-        raise NotImplementedError
+        #Load document
+        doc = minidom.parse(xmlString)
+        #Get names, value and create object
+        newNameList = []
+        for nameXml in doc.getElementsByTagName("name"):
+            newName = nameXml.firstChild.data
+            newNameList.append(newName)
+        newValue = float(doc.getElementsByTagName("value")[0].firstChild.data)
+        newUnit = ConvertUnit(convertType,newNameList,newValue)
+        #Loop through abbreviation elements, adding them.
+        for abbrXml in doc.getElementsByTagName("abbr"):
+            newAbbr = abbrXml.firstChild.data
+            newUnit.addAbbreviation(newAbbr)
+        #Get offset
+        if(len(doc.getElementsByTagName("offset"))!=0):
+            newOffset = doc.getElementsByTagName("offset")
+            newUnit.setOffset(newOffset)
+        #Get update time
+        if(len(doc.getElementsByTagName("last_update"))!=0):
+            newLastUpdated = doc.getElementsByTagName("last_update")[0].firstChild.data
+            newUnit.setLastUpdated(newLastUpdated)
+        #Return created ConvertUnit
+        return newUnit
     
     def toXml(self):
         'Outputs a ConvertUnit object as XML.'
