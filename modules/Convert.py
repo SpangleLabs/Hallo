@@ -71,10 +71,9 @@ class ConvertType:
     mBaseUnit = None
     mUnitList = []
     
-    def __init__(self,repo,name,baseUnit):
+    def __init__(self,repo,name):
         self.mRepo = repo
         self.mName = name
-        self.mBaseUnit = baseUnit
     
     def getRepo(self):
         'Returns the ConvertRepo which owns this ConvertType object'
@@ -122,9 +121,26 @@ class ConvertType:
         raise NotImplementedError
 
     @staticmethod
-    def fromXml(xmlString):
+    def fromXml(repo,xmlString):
         'Loads a new ConvertType object from XML'
-        raise NotImplementedError
+        #Load document
+        doc = minidom.parse(xmlString)
+        #Get name and create ConvertType object
+        newName = doc.getElementsByTagName("name")[0].firstChild.data
+        newType = ConvertPrefixGroup(repo,newName)
+        #Get number of decimals
+        newDecimals = doc.getElementsByTagName("decimals")[0].firstChild.data
+        newType.setDecimals(newDecimals)
+        #Get base unit
+        baseUnitXml = doc.getElementsByTagName("base_unit")[0].getElementsByTagName("unit")[0]
+        baseUnitObject = ConvertUnit.fromXml(newType,baseUnitXml.toxml())
+        newType.setBaseUnit(baseUnitObject)
+        #Loop through unit elements, creating and adding objects.
+        for unitXml in doc.getElementsByTagName("unit"):
+            unitObject = ConvertUnit.fromXml(self,unitXml.toxml())
+            newType.addUnit(unitObject)
+        #Return created PrefixGroup
+        return newType
     
     def toXml(self):
         'Writes ConvertType object as XML'
