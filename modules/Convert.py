@@ -264,8 +264,9 @@ class ConvertPrefix:
         'Loads a new ConvertUnit object from XML.'
         doc = minidom.parse(xmlString)
         newName = doc.getElementsByTagName("name")[0].firstChild.data
+        newAbbreviation = doc.getElementsByTagName("abbr")[0].firstChild.data
         newValue = doc.getElementsByTagName("value")[0].firstChild.data
-        newPrefix = ConvertPrefix(newName,newValue)
+        newPrefix = ConvertPrefix(newName,newAbbreviation,newValue)
         return newPrefix
     
     def toXml(self):
@@ -279,6 +280,10 @@ class ConvertPrefix:
         nameElement = doc.createElement("name")
         nameElement.appendChild(doc.createTextNode(self.mPrefix))
         root.appendChild(nameElement)
+        #Add abbreviation
+        abbrElement = doc.createElement("abbr")
+        abbrElement.appendChild(doc.createTextNode(self.mAbbreviation))
+        root.appendChild(abbrElement)
         #Add multiplier
         valueElement = doc.createElement("value")
         valueElement.appendChild(doc.createTextNode(str(self.mMultiplier)))
