@@ -1,4 +1,5 @@
 from xml.dom import minidom
+from doctest import REPORT_CDIFF
 
 class ConvertRepo:
     '''
@@ -35,9 +36,15 @@ class ConvertType:
     '''
     mName = None
     mUnitList = []
+    mRepo = None
     
-    def __init__(self,name):
-        raise NotImplementedError
+    def __init__(self,repo,name):
+        self.mRepo = repo
+        self.mName = name
+    
+    def getRepo(self):
+        'Returns the ConvertRepo which owns this ConvertType object'
+        return self.mRepo
     
     def getName(self):
         'Returns the name of the ConvertType object'
