@@ -331,6 +331,42 @@ class ConvertUnit:
             if(prefixObject is None):
                 continue
             return prefixObject
+        #Do the same as above, but with abbreviations
+        for abbreviation in self.mAbbreviationList:
+            #If {X} is in the abbreviation, it means prefix goes in the middle.
+            if("{X}" in abbreviation):
+                abbreviationStart = abbreviation.split("{X}")[0].lower()
+                abbreviationEnd = abbreviation.split("{X}")[1].lower()
+                #Ensure that userinput starts with first half and ends with second half.
+                if(not userInput.lower().startswith(abbreviationStart) or not userInput.lower().endswith(abbreviationEnd)):
+                    continue
+                userPrefix = userInput[len(abbreviationStart):len(userInput)-len(abbreviationEnd)]
+                #If user prefix is blank, return None
+                if(userPrefix==""):
+                    return None
+                #If no prefix group is valid, accept blank string, reject anything else.
+                if(self.mValidPrefixGroup is None):
+                    continue
+                #Get the prefix in the group whose abbreviation matches the user input
+                prefixObject = self.mValidPrefixGroup.getPrefixByAbbreviation(userPrefix)
+                if(prefixObject is None):
+                    continue
+                return prefixObject
+            #So, {X} isn't in the abbreviation, so it's a standard abbreviation.
+            if(not userInput.endswith(abbreviation)):
+                continue
+            #Find out what the user said was the prefix
+            userPrefix = userInput[:len(userInput)-len(abbreviation)]
+            if(userPrefix==""):
+                return None
+            #If no prefix group is valid and user didn't input a blank string, reject
+            if(self.mValidPrefixGroup is None):
+                continue
+            #Get group's prefix that matches abbreviation
+            prefixObject = self.mValidPrefixGroup.getPrefixByAbbreviation(userPrefix)
+            if(prefixObject is None):
+                continue
+            return prefixObject
         return False
                 
     
