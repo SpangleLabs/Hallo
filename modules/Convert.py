@@ -74,15 +74,24 @@ class ConvertType:
     
     def getName(self):
         'Returns the name of the ConvertType object'
-        raise NotImplementedError
+        return self.mName
     
     def setName(self,name):
         'Change the name of the ConvertType object'
-        raise NotImplementedError
+        self.mName = name
     
     def getUnitList(self):
         'Returns the full list of ConvertUnit objects'
-        raise NotImplementedError
+        return self.mUnitList
+    
+    def addUnit(self,unit):
+        'Adds a new ConvertUnit object to unit list'
+        self.mUnitList.append(unit)
+        
+    def removeUnit(self,unit):
+        'Removes a ConvertUnit object to unit list'
+        if(unit in self.mUnitList):
+            self.mUnitList.remove(unit)
     
     def getUnitByName(self,name):
         'Get a unit by a specified name'
