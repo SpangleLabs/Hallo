@@ -537,6 +537,7 @@ class ConvertMeasure:
     Convert meaure object. An amount with a unit.
     '''
     mAmount = None
+    mPrefix = None
     mUnit = None
     
     def __init__(self,amount,unit):
@@ -553,7 +554,15 @@ class ConvertMeasure:
     def convertTo(self,unit):
         'Creates a new measure, equal in value but with a different unit.'
         raise NotImplementedError
-        
+    
+    @staticmethod
+    def fromUserInput(userInput):
+        'Creates a new measure from a user inputed line'
+        #Search through the line for digits, pull them amount as a preliminary amount and strip the rest of the line.
+        #Split string in half, e.g. 'abcdef' to ['','abcdef'], then ['a','bcdef'], then ['ab','cdef'] etc, testing if part B is unit, then checking if part A is a valid prefix
+        #If prefix is not none, multiply value
+        #set value and name
+        raise NotImplementedError
 
 
 
