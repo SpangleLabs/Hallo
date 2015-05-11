@@ -38,6 +38,13 @@ class ConvertRepo:
                 return typeObject
         return None
     
+    def getFullUnitList(self):
+        'Returns the full list of ConvertUnit objects, in every ConvertType object.'
+        convertUnitList = []
+        for typeObject in self.mTypeList:
+            convertUnitList += typeObject.getUnitList()
+        return convertUnitList
+    
     def getPrefixGroupList(self):
         'Returns the full list of ConvertPrefixGroup objects'
         return self.mPrefixGroupList
@@ -640,6 +647,7 @@ class ConvertMeasure:
         if(preliminaryAmountString is None):
             return Exception("Cannot find amount.")
         #Loop all units, seeing which might match userInput with prefixes. Building a list of valid measures for this input.
+        for unitType in 
         #Return list of matching measures.
         raise NotImplementedError
 
