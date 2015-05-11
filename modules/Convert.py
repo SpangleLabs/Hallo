@@ -1,4 +1,5 @@
 from xml.dom import minidom
+from inc.commons import Commons
 
 class ConvertRepo:
     '''
@@ -631,9 +632,13 @@ class ConvertMeasure:
         raise NotImplementedError
     
     @staticmethod
-    def buildListFromUserInput(userInput):
+    def buildListFromUserInput(repo,userInput):
         'Creates a new measure from a user inputed line'
+        userInputClean = userInput.strip()
         #Search through the line for digits, pull them amount as a preliminary amount and strip the rest of the line.
+        preliminaryAmountString = Commons.getDigitsFromStartOrEnd(userInputClean)
+        if(preliminaryAmountString is None):
+            return Exception("Cannot find amount.")
         #Loop all units, seeing which might match userInput with prefixes. Building a list of valid measures for this input.
         #Return list of matching measures.
         raise NotImplementedError
