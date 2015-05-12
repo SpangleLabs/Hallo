@@ -450,51 +450,6 @@ class mod_conversion:
         line3 = mod_conversion.fnn_convert_update_3_forex(self,args,client,destination)
         line4 = mod_conversion.fnn_convert_update_4_crypto(self,args,client,destination)
         return line1 + "\n" + line2 + "\n" + line3 + "\n" + line4 + "\n" + "Completed update."
-
-    def fn_protein(self,args,client,destination):
-        'Convert a set of neucleobases to a string of amino acids'
-        codon_table = {}
-        codon_table['Ala'] = ['GCU','GCC','GCA','GCG']
-        codon_table['Arg'] = ['CGU','CGC','CGA','CGG','AGA','AGG']
-        codon_table['Asn'] = ['AAU','AAC']
-        codon_table['Cys'] = ['UGU','UGC']
-        codon_table['Gln'] = ['CAA','CAG']
-        codon_table['Glu'] = ['GAA','GAG']
-        codon_table['Gly'] = ['GGU','GGC','GGA','GGG']
-        codon_table['His'] = ['CAU','CAC']
-        codon_table['Ile'] = ['AUU','AUC','AUA']
-        codon_table['START'] = ['AUG']
-        codon_table['Leu'] = ['UUA','UUG','CUU','CUC','CUA','CUG']
-        codon_table['Lys'] = ['AAA','AAG']
-        codon_table['Met'] = ['AUG']
-        codon_table['Phe'] = ['UUU','UUC']
-        codon_table['Pro'] = ['CCU','CCC','CCA','CCG']
-        codon_table['Ser'] = ['UCU','UCC','UCA','UCG','AGU','AGC']
-        codon_table['Thr'] = ['ACU','ACC','ACA','ACG']
-        codon_table['Trp'] = ['UGG']
-        codon_table['Tyr'] = ['UAU','UAC']
-        codon_table['Val'] = ['GUU','GUC','GUA','GUG']
-        codon_table['STOP'] = ['UAA','UGA','UAG']
-        args = args.upper().replace('T','U')
-        if(0 in [c in 'ACGU' for c in args]):
-            return "error, invalid neucleotides."
-        strand = ["..."]
-        if(codon_table['START'][0] in args):
-            strand = ["START"]
-            args = args.split(codon_table['START'][0])[-1]
-        stop = False
-        while(len(args)>=3 and not stop):
-            codon = args[:3]
-            args = args[3:]
-            for protein in codon_table :
-                if(codon in codon_table[protein]):
-                    strand += [protein]
-                    if(protein=="STOP"):
-                        stop = True
-                    break
-        if(not stop):
-            strand += ["..."]
-        return "-".join(strand)
     
     def fnn_convert_check_alias(self,convert,unit,unit_type=None):
         'Checks through possible aliases for a unit, to see if it matches any aliases'
