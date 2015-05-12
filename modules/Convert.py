@@ -905,7 +905,7 @@ class UpdateCurrencies(Function):
         'Updates the value of conversion currency units using The European Bank data.'
         #Get currency ConvertType
         currencyType = repo.getTypeByName("currency")
-        #Pull xml data from monet converter website
+        #Pull xml data from european bank website
         url = 'http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml'
         xmlString = Commons.loadUrlString(url)
         #Parse data
@@ -930,7 +930,7 @@ class UpdateCurrencies(Function):
         'Updates the value of conversion currency units using Forex data.'
         #Get currency ConvertType
         currencyType = repo.getTypeByName("currency")
-        #Pull xml data from monet converter website
+        #Pull xml data from forex website
         url = 'http://rates.fxcm.com/RatesXML3'
         xmlString = Commons.loadUrlString(url)
         #Parse data
@@ -953,3 +953,14 @@ class UpdateCurrencies(Function):
                 continue
             #Set Value
             currencyUnit.setValue(currencyValue)
+    
+    def updateFromPreevData(self,repo):
+        'Updates the value of conversion cryptocurrencies using Preev data.'
+        #Get currency ConvertType
+        currencyType = repo.getTypeByName("currency")
+        #Pull json data from preev website
+        jsonLtc = Commons.loadUrlJson("http://preev.com/pulse/units:ltc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken")
+        jsonPpc = Commons.loadUrlJson("http://preev.com/pulse/units:ppc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken")
+        jsonBtc = Commons.loadUrlJson("http://preev.com/pulse/units:btc+eur/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken")
+        jsonXdg = Commons.loadUrlJson("http://preev.com/pulse/units:xdg+btc/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken")
+        
