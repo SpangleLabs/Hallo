@@ -163,12 +163,18 @@ class ConvertType:
             self.mUnitList.remove(unit)
     
     def getUnitByName(self,name):
-        'Get a unit by a specified name'
+        'Get a unit by a specified name or abbreviation'
         for unitObject in self.mUnitList:
-            if(unitObject.getName()==name):
+            if(name in unitObject.getNameList()):
                 return unitObject
         for unitObject in self.mUnitList:
-            if(unitObject.getName().lower()==name.lower()):
+            if(name.lower() in [unitName.lower() for unitName in unitObject.getNameList()]):
+                return unitObject
+        for unitObject in self.mUnitList:
+            if(name in unitObject.getAbbreviationList()):
+                return unitObject
+        for unitObject in self.mUnitList:
+            if(name.lower() in [unitName.lower() for unitName in unitObject.getAbbreviationList()]):
                 return unitObject
         return None
 
@@ -863,15 +869,21 @@ class UpdateCurrencies(Function):
 
     def updateFromMoneyConverterData(self,repo):
         'Updates the value of conversion currency units using The Money Convertor data.'
+        #Get currency ConvertType
+        currencyType = repo.getTypeByName("currency")
+        #Pull xml data from monet converter website
         url = 'http://themoneyconverter.com/rss-feed/EUR/rss.xml'
         xmlString = Commons.loadUrlString(url)
+        #Parse data
         doc = minidom.parseString(xmlString)
         root = doc.getElementsByTagName("rss")[0]
         channelElement = root.getElementsByTagName("channel")[0]
+        #Loop through items, finding currencies and values
         for itemElement in channelElement.getElementsByTagName("item"):
             itemTitle = itemElement.getElementsByTagName("title")[0].firstChild.data
             currencyCode = itemTitle.replace("/EUR","")
             itemDescription = itemElement.getElementsByTagName("description")[0].firstChild.data
             currencyValue = 1/float(Commons.getDigitsFromStartOrEnd(itemDescription.split("=")[1].strip()))
             #TODO: get currency unit, set currency value.
+            currencyUnit = currencyType.getUnitByName()
             raise NotImplementedError
