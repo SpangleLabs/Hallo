@@ -3,6 +3,7 @@ from inc.commons import Commons
 from Function import Function
 import re
 import time
+from win32com.test.testall import output_checked_programs
 
 class ConvertRepo:
     '''
@@ -1115,5 +1116,10 @@ class ConvertViewRepo(Function):
         outputString += "Prefix list: " + ", ".join([prefixObject.getName() for prefixObject in prefixGroupObject.getPrefixList()])
         return outputString
     
-    
+    def outputPrefixAsString(self,prefixObject):
+        'Outputs a Conversion prefix object as a string'
+        outputString = "Prefix: (" + prefixObject.getPrefix() + ")\n"
+        outputString += "Abbreviation: " + prefixObject.getAbbreviation() + "\n"
+        outputString += "Multiplier: " + str(prefixObject.getName())
+        return outputString
     
