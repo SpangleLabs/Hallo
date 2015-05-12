@@ -707,6 +707,7 @@ class ConvertMeasure:
         'Creates a new measure from a user inputed line'
         userInputClean = userInput.strip()
         #Search through the line for digits, pull them amount as a preliminary amount and strip the rest of the line.
+        #TODO: add calculation?
         preliminaryAmountString = Commons.getDigitsFromStartOrEnd(userInputClean)
         if(preliminaryAmountString is None):
             raise Exception("Cannot find amount.")
