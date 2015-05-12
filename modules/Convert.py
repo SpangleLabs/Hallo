@@ -870,7 +870,8 @@ class UpdateCurrencies(Function):
         #Update with Forex
         outputLines.append(self.updateFromForexData(repo) or "Updated currency data from Forex.")
         #Update with Preev
-        raise NotImplementedError
+        outputLines.append(self.updateFromPreevData(repo) or "Updated currency data from PReev.")
+        #Return output
         return "\n".join(outputLines)
     
 
@@ -958,9 +959,37 @@ class UpdateCurrencies(Function):
         'Updates the value of conversion cryptocurrencies using Preev data.'
         #Get currency ConvertType
         currencyType = repo.getTypeByName("currency")
-        #Pull json data from preev website
-        jsonLtc = Commons.loadUrlJson("http://preev.com/pulse/units:ltc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken")
-        jsonPpc = Commons.loadUrlJson("http://preev.com/pulse/units:ppc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken")
-        jsonBtc = Commons.loadUrlJson("http://preev.com/pulse/units:btc+eur/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken")
-        jsonXdg = Commons.loadUrlJson("http://preev.com/pulse/units:xdg+btc/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken")
+        #Pull json data from preev website, combine into 1 dict
+        jsonDict = {}
+        jsonDict['ltc'] = Commons.loadUrlJson("http://preev.com/pulse/units:ltc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken")
+        jsonDict['ppc'] = Commons.loadUrlJson("http://preev.com/pulse/units:ppc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken")
+        jsonDict['btc'] = Commons.loadUrlJson("http://preev.com/pulse/units:btc+eur/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken")
+        jsonDict['xdg'] = Commons.loadUrlJson("http://preev.com/pulse/units:xdg+btc/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken")
+        #Loop through currency codes
+        for jsonKey in jsonDict:
+            currencyCode = jsonKey
+            #currencyDict contains the actual information about the currency
+            currencyDict = jsonDict[jsonKey][jsonKey]
+            currencyRef = list(currencyDict)[0]
+            #Add up the volume and trade from each market, to find average trade price across them all
+            totalVolume = 0
+            totalTrade = 0
+            for market in currencyDict[currencyRef]:
+                marketVolume = currencyDict[currencyRef][market]['volume']
+                marketLast = currencyDict[currencyRef][market]['last']
+                totalVolume += marketVolume
+                totalTrade += marketLast * marketVolume
+            #Calculate currency value, compared to referenced currency, from total market average
+            currencyValueRef = totalTrade/totalVolume
+            #Get the ConvertUnit object for the currency reference
+            currencyRefObject = currencyType.getUnitByName(currencyRef)
+            if(currencyRefObject is None):
+                continue
+            #Work out the value compared to base unit by multiplying value of each
+            currencyValue = currencyValueRef * currencyRefObject.getValue()
+            #Get the currency unit and update the value
+            currencyUnit = currencyType.getUnitByName(currencyCode)
+            if(currencyUnit is None):
+                continue
+            currencyUnit.setValue(currencyValue)
         
