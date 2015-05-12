@@ -790,7 +790,17 @@ class Convert(Function):
     
     def convertTwoUnit(self,fromMeasureList,userInputTo):
         'Converts a single given measure into whatever unit is specified.'
-        raise NotImplementedError
+        outputLines = []
+        for fromMeasure in fromMeasureList:
+            for toUnitObject in fromMeasure.getUnit().getType().getUnitList():
+                prefixObject = toUnitObject.getPrefixFromUserInput(userInputTo)
+                if(prefixObject is False):
+                    continue
+                toMeasure = fromMeasure.convertTo(toUnitObject)
+                outputLines.append(self.outputLineWithToPrefix(fromMeasure,toMeasure,prefixObject))
+        if(len(outputLines)==0):
+            return "I don't understand your input. (No units specified or found.) Please format like so: convert <value> <old unit> to <new unit>"
+        return "\n".join(outputLines)
         
     def outputLine(self,fromMeasure,toMeasure):
         'Creates a line to output for the equality of a fromMeasure and toMeasure.'
@@ -800,5 +810,11 @@ class Convert(Function):
             outputString += " (Last updated: " + Commons.formatUnixTime(lastUpdate) + ")"
         return outputString
 
-
+    def outputLineWithToPrefix(self,fromMeasure,toMeasure,toPrefix):
+        'Creates a line to output for the equality of a fromMeasure and toMeasure, with a specified prefix for the toMeasure.'
+        lastUpdate = toMeasure.getUnit().getLastUpdated() or fromMeasure.getUnit().getLastUpdated()
+        outputString = fromMeasure.toString() + " = " + toMeasure.toStringWithPrefix(toPrefix) + "."
+        if(lastUpdate is not None):
+            outputString += " (Last updated: " + Commons.formatUnixTime(lastUpdate) + ")"
+        return outputString
 
