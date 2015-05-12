@@ -744,6 +744,9 @@ class Convert(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
+        return self.convertParse(line)
+        
+    def convertParse(self,line,passive=False):
         #Create regex to find the place to split a user string.
         splitRegex = re.compile(' into | to |->| in ',re.IGNORECASE)
         #Load ConvertRepo
@@ -752,39 +755,47 @@ class Convert(Function):
         if(splitRegex.search(line) is None):
             try:
                 fromMeasureList = ConvertMeasure.buildListFromUserInput()
-                return self.convertOneUnit(fromMeasureList)
+                return self.convertOneUnit(fromMeasureList,passive)
             except Exception as e:
+                if(passive):
+                    return None
                 return "I don't understand your input. ("+str(e)+") Please format like so: convert <value> <old unit> to <new unit>"
         #Split input
         lineSplit = splitRegex.split(line)
         #If there are more than 2 parts, be confused.
         if(len(lineSplit)>2):
+            if(passive):
+                return None
             return "I don't understand your input. (Are you specifying 3 units?) Please format like so: convert <value> <old unit> to <new unit>"
         #Try loading the first part as a measure 
         try:
             fromMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[0])
-            return self.convertTwoUnit(fromMeasureList,lineSplit[1])
+            return self.convertTwoUnit(fromMeasureList,lineSplit[1],passive)
         except:
             #Try loading the second part as a measure
             try:
                 fromMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[1])
-                return self.convertTwoUnit(fromMeasureList,lineSplit[0])
+                return self.convertTwoUnit(fromMeasureList,lineSplit[0],passive)
             except Exception as e:
                 #If both fail, send an error message
+                if(passive):
+                    return None
                 return "I don't understand your input. ("+str(e)+") Please format like so: convert <value> <old unit> to <new unit>"
     
     
-    def convertOneUnit(self,fromMeasureList):
+    def convertOneUnit(self,fromMeasureList,passive):
         'Converts a single given measure into whatever base unit of the type the measure is.'
         outputLines = []
         for fromMeasure in fromMeasureList:
             toMeasure = fromMeasure.convertToBase()
             outputLines.append(self.outputLine(fromMeasure,toMeasure))
         if(len(outputLines)==0):
+            if(passive):
+                return None
             return "I don't understand your input. (No units specified.) Please format like so: convert <value> <old unit> to <new unit>"
         return "\n".join(outputLines)
     
-    def convertTwoUnit(self,fromMeasureList,userInputTo):
+    def convertTwoUnit(self,fromMeasureList,userInputTo,passive):
         'Converts a single given measure into whatever unit is specified.'
         outputLines = []
         for fromMeasure in fromMeasureList:
@@ -795,6 +806,8 @@ class Convert(Function):
                 toMeasure = fromMeasure.convertTo(toUnitObject)
                 outputLines.append(self.outputLineWithToPrefix(fromMeasure,toMeasure,prefixObject))
         if(len(outputLines)==0):
+            if(passive):
+                return None
             return "I don't understand your input. (No units specified or found.) Please format like so: convert <value> <old unit> to <new unit>"
         return "\n".join(outputLines)
         
@@ -814,3 +827,8 @@ class Convert(Function):
             outputString += " (Last updated: " + Commons.formatUnixTime(lastUpdate) + ")"
         return outputString
 
+    def getPassiveEvents(self):
+        return Function.EVENT_MESSAGE
+    
+    def passiveRun(self,event,fullLine,serverObject,userObject,channelObject):
+        return self.convertParse(fullLine,True)
