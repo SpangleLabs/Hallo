@@ -1074,7 +1074,7 @@ class ConvertViewRepo(Function):
         'Finds one of any parameter in a line.'
         for paramName in paramList:
             if(self.findParameter(paramName,line) is not None):
-                return True
+                return self.findParameter(paramName,line)
         return False
     
     def outputRepoAsString(self,repo):
