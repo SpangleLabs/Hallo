@@ -1192,18 +1192,20 @@ class ConvertSet(Function):
         if(len(lineSplit)>2):
             return "I don't understand your input. (Are you specifying 3 units?) Please format like so: convert <value> <old unit> to <new unit>"
         #Try loading the first part as a measure
-        raise NotImplementedError
         try:
-            fromMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[0])
-            return self.convertTwoUnit(fromMeasureList,lineSplit[1],passive)
+            varMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[0])
         except:
-            #Try loading the second part as a measure
             try:
-                fromMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[1])
-                return self.convertTwoUnit(fromMeasureList,lineSplit[0],passive)
-            except Exception as e:
-                #If both fail, send an error message
-                if(passive):
-                    return None
-                return "I don't understand your input. ("+str(e)+") Please format like so: convert <value> <old unit> to <new unit>"
+                varMeasureList = ConvertMeasure.buildListFromUserInput(repo,"1"+lineSplit[0])
+            except:
+                return "I don't understand the first half of your input."
+        #Try loading the second part as a measure
+        try:
+            refMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[1])
+        except Exception as e:
+            try:
+                refMeasureList = ConvertMeasure.buildListFromUserInput(repo,"1"+lineSplit[1])
+            except:
+                return "I don't understand the second half of your input."
+        raise NotImplementedError
         pass
