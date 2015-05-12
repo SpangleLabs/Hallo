@@ -600,7 +600,7 @@ class ConvertPrefix:
         doc = minidom.parse(xmlString)
         newName = doc.getElementsByTagName("name")[0].firstChild.data
         newAbbreviation = doc.getElementsByTagName("abbr")[0].firstChild.data
-        newValue = doc.getElementsByTagName("value")[0].firstChild.data
+        newValue = float(doc.getElementsByTagName("value")[0].firstChild.data)
         newPrefix = ConvertPrefix(prefixGroup,newName,newAbbreviation,newValue)
         return newPrefix
     
