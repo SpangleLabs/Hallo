@@ -873,7 +873,24 @@ class UpdateCurrencies(Function):
         outputLines.append(self.updateFromPreevData(repo) or "Updated currency data from PReev.")
         #Return output
         return "\n".join(outputLines)
+
+    def getPassiveEvents(self):
+        return Function.EVENT_HOUR
     
+    def passiveRun(self,event,fullLine,serverObject,userObject,channelObject):
+        #Load convert repo.
+        repo = ConvertRepo()
+        #Update with Money Converter
+        self.updateFromMoneyConverterData(repo)
+        #Update with the European Bank
+        self.updateFromEuropeanBankData(repo)
+        #Update with Forex
+        self.updateFromForexData(repo)
+        #Update with Preev
+        self.updateFromPreevData(repo)
+        #Save repo
+        repo.saveToXml()
+        return None
 
     def updateFromMoneyConverterData(self,repo):
         'Updates the value of conversion currency units using The Money Convertor data.'
