@@ -1272,13 +1272,42 @@ class ConvertSet(Function):
             return "It is ambiguous which unit you are referring to."
         #Get unit type
         refMeasure = refMeasureList[0]
-        refType = refMeasure.getUnit().getType()
+        refAmount = refMeasure.getAmount()
+        refUnit = refMeasure.getUnit()
+        refType = refUnit.getType()
+        refValue = refUnit.getValue()
+        refOffset = refUnit.getOffset()
+        baseUnit = refType.getBaseUnit()
+        baseName = baseUnit.getNameList()[0]
         #Get amount & unit name
         inputAmountString = Commons.getDigitsFromStartOrEnd(userInput)
         if(inputAmountString is None):
             return "Please specify an amount when setting a new unit."
-        inputName = userInput.
+        inputAmountFloat = float(inputAmountString)
+        #Remove amountString from userInput
+        if(userInput.startswith(inputAmountString)):
+            inputName = userInput[len(inputAmountString):]
+        else:
+            inputName = userInput[:-len(inputAmountString)]
         #Add unit
+        newUnit = ConvertUnit(refType,[inputName],1)
+        refType.addUnit(newUnit)
+        #Update offset or value, based on what the user inputed.
+        #If either given amount are zero, set the offset of varUnit.
+        if(inputAmountFloat==0 or refAmount==0):
+            #Calculate the new offset
+            newOffset = (refAmount-(inputAmountFloat*1))*refValue+refOffset
+            newUnit.setOffset(newOffset)
+            #Save repo
+            repo = refUnit.getType().getRepo()
+            repo.saveToXml()
+            #Output message
+            return "Created new unit " + inputName + " with offset: 0 " + inputName + " = " + str(newOffset) + " " + baseName + "."
+        #Get new value
+        newValue = (refAmount-((0-refOffset)/refValue))/inputAmountFloat
+        newUnit.setValue(newValue)
         #Save repo
+        repo = refUnit.getType().getRepo()
+        repo.saveToXml()
         #Output message
-        pass
+        return "Created new unit " + inputName + " with value: 1 " + inputName + " = " + str(newValue) + " " + baseName + "."
