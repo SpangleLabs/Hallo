@@ -1191,6 +1191,14 @@ class ConvertSet(Function):
         #If there are more than 2 parts, be confused.
         if(len(lineSplit)>2):
             return "I don't understand your input. (Are you specifying 3 units?) Please format like so: convert <value> <old unit> to <new unit>"
+        #Try loading the second part (reference measure) as a measure
+        try:
+            refMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[1])
+        except Exception:
+            try:
+                refMeasureList = ConvertMeasure.buildListFromUserInput(repo,"1"+lineSplit[1])
+            except:
+                return "I don't understand the second half of your input."
         #Try loading the first part as a measure
         try:
             varMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[0])
@@ -1198,14 +1206,24 @@ class ConvertSet(Function):
             try:
                 varMeasureList = ConvertMeasure.buildListFromUserInput(repo,"1"+lineSplit[0])
             except:
-                return "I don't understand the first half of your input."
-        #Try loading the second part as a measure
-        try:
-            refMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[1])
-        except Exception as e:
-            try:
-                refMeasureList = ConvertMeasure.buildListFromUserInput(repo,"1"+lineSplit[1])
-            except:
-                return "I don't understand the second half of your input."
-        raise NotImplementedError
+                #Add a unit.
+                return self.addUnit(lineSplit[0],refMeasureList)
+        return self.setUnit(varMeasureList,refMeasureList)
+    
+    def setUnit(self,varMeasureList,refMeasureList):
+        #Check lists have a shared type
+        #Check lists have exactly 1 pair sharing a type
+        #Get determined amount
+        #Set amount
+        #Save repo
+        #Output message
+        pass
+    
+    def addUnit(self,userInput,refMeasureList):
+        #Check reference measure has exactly 1 unit option
+        #Get unit type
+        #Get amount & unit name
+        #Add unit
+        #Save repo
+        #Output message
         pass
