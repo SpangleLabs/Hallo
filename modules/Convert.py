@@ -1040,24 +1040,64 @@ class ConvertViewRepo(Function):
         repo = ConvertRepo.loadFromXml()
         #Check if type is specified
         if(self.findAnyParameter(self.NAMES_TYPE,line)):
+            #Get type name and object
+            typeName = self.findAnyParameter(self.NAMES_TYPE,line)
+            typeObject = repo.getTypeByName(typeName)
+            if(typeObject is None):
+                return "Unrecognised type."
             #Check if unit & type are specified
             if(self.findAnyParameter(self.NAMES_UNIT,line)):
-                return "type and unit"
-            else:
-                return "type, no unit"
+                #Get unit name and object
+                unitName = self.findAnyParameter(self.NAMES_UNIT,line)
+                unitObject = typeObject.getUnitByName(unitName)
+                if(unitObject is None):
+                    return "Unrecognised unit."
+                return self.outputUnitAsString(unitObject)
+            #Type is defined, but not unit.
+            return self.outputTypeAsString(typeObject)
         #Check if prefix group is specified
         if(self.findAnyParameter(self.NAMES_PREFIXGROUP,line)):
             #Check if prefix & group are specified
+            prefixGroupName = self.findAnyParameter(self.NAMES_PREFIXGROUP,line)
+            prefixGroupObject = repo.getPrefixGroupByName(prefixGroupName)
+            if(prefixGroupObject is None):
+                return "Unrecognised prefix group."
+            #Check if prefix group & prefix are specified
             if(self.findAnyParameter(self.NAMES_PREFIX,line)):
-                return "group and prefix"
-            else:
-                return "group, no prefix"
+                #Get prefix name and object
+                prefixName = self.findAnyParameter(self.NAMES_PREFIX,line)
+                prefixObject = prefixGroupObject.getPrefixByName(prefixName) or prefixGroupObject.getPrefixByAbbreviation(prefixName)
+                if(prefixGroupObject is None):
+                    return "Unrecognised prefix."
+                return self.outputPrefixAsString(prefixObject)
+            #Prefix group is defined, but not prefix
+            return self.outputPrefixGroupAsString(prefixGroupObject)
         #Check if unit is specified
         if(self.findAnyParameter(self.NAMES_UNIT,line)):
-            return "unit, no type"
+            unitName = self.findAnyParameter(self.NAMES_UNIT,line)
+            outputLines = []
+            #Loop through types, getting units for each type
+            for typeObject in repo.getTypeList():
+                unitObject = typeObject.getUnitByName(unitName)
+                #If unit exists by that name, add the string format to output list
+                if(unitObject is not None):
+                    outputLines.append(self.outputUnitAsString(unitObject))
+            if(len(outputLines)==0):
+                return "Unrecognised unit."
+            return "\n".join(outputLines)
         #Check if prefix is specified
         if(self.findAnyParameter(self.NAMES_PREFIX,line)):
-            return "prefix, no group"
+            prefixName = self.findAnyParameter(self.NAMES_PREFIX,line)
+            outputLines = []
+            #Loop through groups, getting prefixes for each group
+            for prefixGroupObject in repo.getPrefixGroupList()():
+                prefixObject = prefixGroupObject.getPrefixByName(prefixName)
+                #If prefix exists by that name, add the string format to output list
+                if(prefixObject is not None):
+                    outputLines.append(self.outputPrefixAsString(prefixObject))
+            if(len(outputLines)==0):
+                return "Unrecognised prefix."
+            return "\n".join(outputLines)
         #Nothing was specified, return info on the repo.
         return self.outputRepoAsString(repo)
     
