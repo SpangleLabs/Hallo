@@ -5,6 +5,12 @@
 <function_dispatcher>
 	<module_list>
 		<module>
+			<name>Bio</name>
+		</module>
+		<module>
+			<name>Convert</name>
+		</module>
+		<module>
 			<name>Euler</name>
 		</module>
 		<module>
