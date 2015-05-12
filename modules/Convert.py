@@ -696,6 +696,15 @@ class ConvertMeasure:
     def __str__(self):
         return self.toString()
     
+    def toStringWithPrefix(self,prefix):
+        'Converts the measure to a string with the specified prefix.'
+        decimalPlaces = self.mUnit.getType().getDecimals()
+        decimalFormat = "{:"+str(decimalPlaces)+"f}"
+        #Calculate the output amount
+        outputAmount = self.mAmount / prefix.getMultiplier()
+        #Output string
+        return decimalFormat.format(outputAmount) + " " + prefix.getName() + self.mUnit.getName()
+    
     @staticmethod
     def buildListFromUserInput(repo,userInput):
         'Creates a new measure from a user inputed line'
