@@ -858,14 +858,17 @@ class UpdateCurrencies(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
+        outputLines = []
         #Load convert repo.
         repo = ConvertRepo()
         #Update with Money Converter
-        self.updateFromMoneyConverterData(repo)
+        outputLines.append(self.updateFromMoneyConverterData(repo) or "Updated currency data from The Money Converter")
         #Update with the European Bank
         #Update with Forex
         #Update with Preev
         raise NotImplementedError
+        return "\n".join(outputLines)
+    
 
     def updateFromMoneyConverterData(self,repo):
         'Updates the value of conversion currency units using The Money Convertor data.'
@@ -880,10 +883,16 @@ class UpdateCurrencies(Function):
         channelElement = root.getElementsByTagName("channel")[0]
         #Loop through items, finding currencies and values
         for itemElement in channelElement.getElementsByTagName("item"):
+            #Get currency code from title
             itemTitle = itemElement.getElementsByTagName("title")[0].firstChild.data
             currencyCode = itemTitle.replace("/EUR","")
+            #Load value from description and get the reciprocal
             itemDescription = itemElement.getElementsByTagName("description")[0].firstChild.data
             currencyValue = 1/float(Commons.getDigitsFromStartOrEnd(itemDescription.split("=")[1].strip()))
             #TODO: get currency unit, set currency value.
-            currencyUnit = currencyType.getUnitByName()
-            raise NotImplementedError
+            currencyUnit = currencyType.getUnitByName(currencyCode)
+            #If unrecognised currency, continue
+            if(currencyUnit is None):
+                continue
+            #Set value
+            currencyUnit.setValue(currencyValue)
