@@ -66,10 +66,6 @@ class ConvertRepo:
             if(prefixGroupObject.getName().lower()==name.lower()):
                 return prefixGroupObject
         return None
-
-    def findTypes(self,name1,name2):
-        'Finds out what types are valid for a pair of names.'
-        raise NotImplementedError
     
     @staticmethod
     def loadFromXml():
