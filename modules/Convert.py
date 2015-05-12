@@ -1109,4 +1109,11 @@ class ConvertViewRepo(Function):
             outputLines.append("Prefix group: " + prefixGroupName)
         return "\n".join(outputLines)
 
-
+    def outputPrefixGroupAsString(self,prefixGroupObject):
+        'Outputs a Conversion PrefixGroup object as a string'
+        outputString = "Prefix group: (" + prefixGroupObject.getName() + ")\n"
+        outputString += "Prefix list: " + ", ".join([prefixObject.getName() for prefixObject in prefixGroupObject.getPrefixList()])
+        return outputString
+    
+    
+    
