@@ -1083,7 +1083,30 @@ class ConvertViewRepo(Function):
         outputString += "Prefix groups: " + ", ".join([typeObject.getName() for typeObject in repo.getTypeList()])
         return outputString
 
+    def outputTypeAsString(self,typeObject):
+        'Outputs a Conversion Type object as a string'
+        outputString = "Conversion Type: (" + typeObject.getName() + ")\n"
+        outputString += "Decimals: " + str(typeObject.getDecimals()) + "\n"
+        outputString += "Base unit: " + typeObject.getBaseUnit().getNameList()[0] + "\n"
+        outputString += "Other units: " 
+        outputString += ", ".join([unitObject.getNames()[0] for unitObject in typeObject.getUnitList()])
+        return outputString
 
-
+    def outputUnitAsString(self,unitObject):
+        'Outputs a Conversion Unit object as a string'
+        outputLines = []
+        outputLines.append("Conversion Unit: (" + unitObject.getNameList()[0] + ")")
+        outputLines.append("Type: " + unitObject.getType().getName())
+        outputLines.append("Name list: " + ", ".join(unitObject.getNameList()))
+        outputLines.append("Abbreviation list: " + ", ".join(unitObject.getAbbreviationList()))
+        outputLines.append("Value: 1 " + unitObject.getNameList()[0] + " = " + str(unitObject.getValue()) + " " + unitObject.getType().getBaseUnit().getNameList()[0])
+        outputLines.append("Offset: 0 " + unitObject.getNameList()[0] + " = " + str(unitObject.getOffset()) + " " + unitObject.getType().getBaseUnit().getNameList()[0])
+        lastUpdate = unitObject.getLastUpdated()
+        if(lastUpdate is not None):
+            outputLines.append("Last updated: " + Commons.formatUnixTime(lastUpdate))
+        prefixGroupName = unitObject.getValidPrefixGroup().getName()
+        if(prefixGroupName is not None):
+            outputLines.append("Prefix group: " + prefixGroupName)
+        return "\n".join(outputLines)
 
 
