@@ -1211,11 +1211,34 @@ class ConvertSet(Function):
         return self.setUnit(varMeasureList,refMeasureList)
     
     def setUnit(self,varMeasureList,refMeasureList):
-        #Check lists have a shared type
+        #Find list of pairs of measures, sharing a type
+        measurePairList = []
+        for varMeasure in varMeasureList:
+            varMeasureType = varMeasure.getUnit().getType()
+            for refMeasure in refMeasureList:
+                refMeasureType = refMeasure.getUnit().getType()
+                if(varMeasureType==refMeasureType):
+                    measurePair = {}
+                    measurePair['var'] = varMeasure
+                    measurePair['ref'] = refMeasure
+                    measurePairList.append(measurePair)
         #Check lists have exactly 1 pair sharing a type
+        if(len(measurePairList)==0):
+            return "These units do not share the same type."
+        if(len(measurePairList) > 1):
+            return "It is ambiguous which units you are referring to."
+        #Get the correct varMeasure and refMeasure
+        varMeasure = measurePairList[0]['var']
+        refMeasure = measurePairList[0]['ref']
+        varUnit = varMeasure.getUnit()
+        refValue = refMeasure.getUnit().getValue()
         #Get determined amount
+        newValue = (refValue*varMeasure.getAmount())/refMeasure.getAmount()
         #Set amount
+        varUnit.setValue(newValue)
         #Save repo
+        repo = varUnit.getType().getRepo()
+        repo.saveToXml()
         #Output message
         pass
     
