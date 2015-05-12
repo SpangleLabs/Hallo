@@ -1173,7 +1173,7 @@ class ConvertSet(Function):
     #Names which can be used to address the Function
     mNames = set(["convert set"])
     #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Sets the value of a unit, Format: <amount> <unit_set> = <unit_reference>."
+    mHelpDocs = "Sets the value of a unit, Format: <amount> <unit_set> = <amount>? <unit_reference>."
     
     def __init__(self):
         '''
@@ -1182,4 +1182,28 @@ class ConvertSet(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
+        #Load Conversion Repo
+        repo = ConvertRepo()
+        #Create regex to find the place to split a user string.
+        splitRegex = re.compile(' into | to |->| in ',re.IGNORECASE)
+        #Split input
+        lineSplit = splitRegex.split(line)
+        #If there are more than 2 parts, be confused.
+        if(len(lineSplit)>2):
+            return "I don't understand your input. (Are you specifying 3 units?) Please format like so: convert <value> <old unit> to <new unit>"
+        #Try loading the first part as a measure
+        raise NotImplementedError
+        try:
+            fromMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[0])
+            return self.convertTwoUnit(fromMeasureList,lineSplit[1],passive)
+        except:
+            #Try loading the second part as a measure
+            try:
+                fromMeasureList = ConvertMeasure.buildListFromUserInput(repo,lineSplit[1])
+                return self.convertTwoUnit(fromMeasureList,lineSplit[0],passive)
+            except Exception as e:
+                #If both fail, send an error message
+                if(passive):
+                    return None
+                return "I don't understand your input. ("+str(e)+") Please format like so: convert <value> <old unit> to <new unit>"
         pass
