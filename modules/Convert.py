@@ -1011,4 +1011,24 @@ class UpdateCurrencies(Function):
             if(currencyUnit is None):
                 continue
             currencyUnit.setValue(currencyValue)
+
+class ConvertViewRepo(Function):
+    '''
+    Lists types, units, names, whatever.
+    '''
+    #Name for use in help listing
+    mHelpName = "convert view repo"
+    #Names which can be used to address the Function
+    mNames = set(["convert view repo","convert view","convert list"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns information about the conversion repository."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        pass
         
