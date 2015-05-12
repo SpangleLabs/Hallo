@@ -854,8 +854,24 @@ class UpdateCurrencies(Function):
     def run(self,line,userObject,destinationObject=None):
         #Load convert repo.
         repo = ConvertRepo()
+        #Update with Money Converter
+        self.updateFromMoneyConverterData(repo)
+        #Update with the European Bank
+        #Update with Forex
+        #Update with Preev
         raise NotImplementedError
 
-    
-
-
+    def updateFromMoneyConverterData(self,repo):
+        'Updates the value of conversion currency units using The Money Convertor data.'
+        url = 'http://themoneyconverter.com/rss-feed/EUR/rss.xml'
+        xmlString = Commons.loadUrlString(url)
+        doc = minidom.parseString(xmlString)
+        root = doc.getElementsByTagName("rss")[0]
+        channelElement = root.getElementsByTagName("channel")[0]
+        for itemElement in channelElement.getElementsByTagName("item"):
+            itemTitle = itemElement.getElementsByTagName("title")[0].firstChild.data
+            currencyCode = itemTitle.replace("/EUR","")
+            itemDescription = itemElement.getElementsByTagName("description")[0].firstChild.data
+            currencyValue = 1/float(Commons.getDigitsFromStartOrEnd(itemDescription.split("=")[1].strip()))
+            #TODO: get currency unit, set currency value.
+            raise NotImplementedError
