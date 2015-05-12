@@ -2,6 +2,7 @@ from xml.dom import minidom
 from inc.commons import Commons
 from Function import Function
 import re
+import time
 
 class ConvertRepo:
     '''
@@ -288,6 +289,7 @@ class ConvertUnit:
     
     def setValue(self,value):
         'Changes the value of the unit.'
+        self.mLastUpdated = time.time()
         self.mValue = value
     
     def getOffset(self):
