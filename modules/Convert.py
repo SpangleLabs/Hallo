@@ -399,11 +399,11 @@ class ConvertUnit:
             newUnit.setPrefixGroup(validPrefixGroup)
         #Get offset
         if(len(doc.getElementsByTagName("offset"))!=0):
-            newOffset = doc.getElementsByTagName("offset")
+            newOffset = float(doc.getElementsByTagName("offset")[0].firstChild.data)
             newUnit.setOffset(newOffset)
         #Get update time
         if(len(doc.getElementsByTagName("last_update"))!=0):
-            newLastUpdated = doc.getElementsByTagName("last_update")[0].firstChild.data
+            newLastUpdated = float(doc.getElementsByTagName("last_update")[0].firstChild.data)
             newUnit.setLastUpdated(newLastUpdated)
         #Return created ConvertUnit
         return newUnit
@@ -833,3 +833,8 @@ class Convert(Function):
     
     def passiveRun(self,event,fullLine,serverObject,userObject,channelObject):
         return self.convertParse(fullLine,True)
+
+class UpdateCurrencies(Function):
+    '''
+    Updates all currencies in the ConvertRepo
+    '''
