@@ -866,6 +866,7 @@ class UpdateCurrencies(Function):
         #Update with Money Converter
         outputLines.append(self.updateFromMoneyConverterData(repo) or "Updated currency data from The Money Converter")
         #Update with the European Bank
+        outputLines.append(self.updateFromEuropeanBankData(repo) or "Updated currency data from The European Bank")
         #Update with Forex
         #Update with Preev
         raise NotImplementedError
@@ -890,11 +891,37 @@ class UpdateCurrencies(Function):
             currencyCode = itemTitle.replace("/EUR","")
             #Load value from description and get the reciprocal
             itemDescription = itemElement.getElementsByTagName("description")[0].firstChild.data
-            currencyValue = 1/float(Commons.getDigitsFromStartOrEnd(itemDescription.split("=")[1].strip()))
-            #TODO: get currency unit, set currency value.
+            currencyValue = 1/float(Commons.getDigitsFromStartOrEnd(itemDescription.split("=")[1].strip().replace(",","")))
+            #Get currency unit, set currency value.
             currencyUnit = currencyType.getUnitByName(currencyCode)
             #If unrecognised currency, continue
             if(currencyUnit is None):
                 continue
             #Set value
             currencyUnit.setValue(currencyValue)
+
+    def updateFromEuropeanBankData(self,repo):
+        'Updates the value of conversion currency units using The European Bank data.'
+        #Get currency ConvertType
+        currencyType = repo.getTypeByName("currency")
+        #Pull xml data from monet converter website
+        url = 'http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml'
+        xmlString = Commons.loadUrlString(url)
+        #Parse data
+        doc = minidom.parseString(xmlString)
+        root = doc.getElementsByTagName("gesmes:Envelope")[0]
+        cubeOneElement = root.getElementsByTagName("Cube")[0]
+        cubeTwoElement = cubeOneElement.getElementsByTagName("Cube")[0]
+        for cubeThreeElement in cubeTwoElement.getElementsByTagName("Cube"):
+            #Get currency code from currency Attribute
+            currencyCode = cubeThreeElement.getAttributeNode("currency").nodeValue
+            #Get value from rate attribute and get reciprocal.
+            currencyValue = 1/float(cubeThreeElement.getAttributeNode("rate").nodeValue)
+            #Get currency unit
+            currencyUnit = currencyType.getUnitByName(currencyCode)
+            #If unrecognised currency, SKIP
+            if(currencyUnit is None):
+                continue
+            #Set Value
+            currencyUnit.setValue(currencyValue)
+        
