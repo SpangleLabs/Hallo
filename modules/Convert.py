@@ -1227,20 +1227,37 @@ class ConvertSet(Function):
             return "These units do not share the same type."
         if(len(measurePairList) > 1):
             return "It is ambiguous which units you are referring to."
-        #Get the correct varMeasure and refMeasure
+        #Get the correct varMeasure and refMeasure and all associated required variables
         varMeasure = measurePairList[0]['var']
         refMeasure = measurePairList[0]['ref']
+        varAmount = varMeasure.getAmount()
+        refAmount = refMeasure.getAmount()
         varUnit = varMeasure.getUnit()
-        refValue = refMeasure.getUnit().getValue()
-        #Get determined amount
-        newValue = (refValue*varMeasure.getAmount())/refMeasure.getAmount()
-        #Set amount
+        varName = varUnit.getNameList()[0]
+        baseName = varUnit.getType().getBaseUnit().getNameList()[0]
+        refUnit = refMeasure.getUnit()
+        varValue = varUnit.getValue()
+        refValue = refUnit.getValue()
+        varOffset = varUnit.getOffset()
+        refOffset = refUnit.getOffset()
+        #If either given amount are zero, set the offset of varUnit.
+        if(varAmount==0 or refAmount==0):
+            #Calculate the new offset
+            newOffset = (refAmount-(varAmount*varValue))*refValue+refOffset
+            varUnit.setOffset(newOffset)
+            #Save repo
+            repo = varUnit.getType().getRepo()
+            repo.saveToXml()
+            #Output message
+            return "Set new offset for " + varName + ": 0 " + varName + " = " + str(newOffset) + " " + baseName + "."
+        #Get new value
+        newValue = (refAmount-((varOffset-refOffset)/refValue))/varAmount
         varUnit.setValue(newValue)
         #Save repo
         repo = varUnit.getType().getRepo()
         repo.saveToXml()
         #Output message
-        pass
+        return "Set new value for " + varName + ": Δ 1 " + varName + " = Δ " + str(newValue) + " " + baseName + "."
     
     def addUnit(self,userInput,refMeasureList):
         #Check reference measure has exactly 1 unit option
