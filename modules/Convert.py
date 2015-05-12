@@ -690,8 +690,9 @@ class ConvertMeasure:
             return decimalFormat.format(self.mAmount) + " " + self.mUnit.getName()
         #Ask the prefix group for the most appropriate prefix for the value.
         appropriatePrefix = prefixGroup.getAppropriatePrefix(self.mAmount)
+        outputAmount = self.mAmount / appropriatePrefix.getMultiplier()
         #Output string
-        return decimalFormat.format(self.mAmount) + " " + appropriatePrefix.getName() + self.mUnit.getName()
+        return decimalFormat.format(outputAmount) + " " + appropriatePrefix.getName() + self.mUnit.getName()
     
     def __str__(self):
         return self.toString()
