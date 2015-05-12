@@ -864,10 +864,11 @@ class UpdateCurrencies(Function):
         #Load convert repo.
         repo = ConvertRepo()
         #Update with Money Converter
-        outputLines.append(self.updateFromMoneyConverterData(repo) or "Updated currency data from The Money Converter")
+        outputLines.append(self.updateFromMoneyConverterData(repo) or "Updated currency data from The Money Converter.")
         #Update with the European Bank
-        outputLines.append(self.updateFromEuropeanBankData(repo) or "Updated currency data from The European Bank")
+        outputLines.append(self.updateFromEuropeanBankData(repo) or "Updated currency data from The European Bank.")
         #Update with Forex
+        outputLines.append(self.updateFromForexData(repo) or "Updated currency data from Forex.")
         #Update with Preev
         raise NotImplementedError
         return "\n".join(outputLines)
@@ -924,4 +925,31 @@ class UpdateCurrencies(Function):
                 continue
             #Set Value
             currencyUnit.setValue(currencyValue)
-        
+    
+    def updateFromForexData(self,repo):
+        'Updates the value of conversion currency units using Forex data.'
+        #Get currency ConvertType
+        currencyType = repo.getTypeByName("currency")
+        #Pull xml data from monet converter website
+        url = 'http://rates.fxcm.com/RatesXML3'
+        xmlString = Commons.loadUrlString(url)
+        #Parse data
+        doc = minidom.parseString(xmlString)
+        ratesElement = doc.getElementsByTagName("Rates")
+        for rateElement in ratesElement.getElementsByTagName("Rate"):
+            #Get data from element
+            symbolData = rateElement.getElementsByTagName("Symbol")[0].firstChild.data
+            if(not symbolData.startswith("EUR")):
+                continue
+            bidData = float(rateElement.getElementsByTagName("Bid")[0].firstChild.data)
+            askData = float(rateElement.getElementsByTagName("Ask")[0].firstChild.data)
+            #Get currency code and value from data
+            currencyCode = symbolData[3:]
+            currencyValue = 1/(0.5*bidData*askData)
+            #Get currency unit
+            currencyUnit = currencyType.getUnitByName(currencyCode)
+            #If unrecognised code, skip
+            if(currencyUnit is None):
+                continue
+            #Set Value
+            currencyUnit.setValue(currencyValue)
