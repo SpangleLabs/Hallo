@@ -838,3 +838,24 @@ class UpdateCurrencies(Function):
     '''
     Updates all currencies in the ConvertRepo
     '''
+    #Name for use in help listing
+    mHelpName = "update currencies"
+    #Names which can be used to address the Function
+    mNames = set(["update currencies","convert update currencies"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Update currency conversion figures, using data from the money converter, the European central bank, forex and preev."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Load convert repo.
+        repo = ConvertRepo()
+        raise NotImplementedError
+
+    
+
+
