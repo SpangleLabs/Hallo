@@ -1057,7 +1057,8 @@ class ConvertViewRepo(Function):
         #Check if prefix is specified
         if(self.findAnyParameter(self.NAMES_PREFIX,line)):
             return "prefix, no group"
-        return "nothing specified."
+        #Nothing was specified, return info on the repo.
+        return self.outputRepoAsString(repo)
     
     def findParameter(self,paramName,line):
         'Finds a parameter value in a line, if the format parameter=value exists in the line'
@@ -1074,3 +1075,15 @@ class ConvertViewRepo(Function):
             if(self.findParameter(paramName,line) is not None):
                 return True
         return False
+    
+    def outputRepoAsString(self,repo):
+        'Outputs a Conversion Repository as a string'
+        outputString = "Conversion Repo:\n"
+        outputString += "Unit types: " + ", ".join([typeObject.getName() for typeObject in repo.getTypeList()]) + "\n"
+        outputString += "Prefix groups: " + ", ".join([typeObject.getName() for typeObject in repo.getTypeList()])
+        return outputString
+
+
+
+
+
