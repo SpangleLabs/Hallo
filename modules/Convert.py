@@ -721,6 +721,11 @@ class ConvertMeasure:
         if(preliminaryAmountString is None):
             raise Exception("Cannot find amount.")
         preliminaryAmountValue = float(preliminaryAmountString)
+        #Remove amountString from userInput
+        if(userInput.startswith(preliminaryAmountString)):
+            userInput = userInput[len(preliminaryAmountString):]
+        else:
+            userInput = userInput[:-len(preliminaryAmountString)]
         #Loop all units, seeing which might match userInput with prefixes. Building a list of valid measures for this input.
         newMeasureList = []
         for unitObject in repo.getFullUnitList():
@@ -1261,8 +1266,18 @@ class ConvertSet(Function):
     
     def addUnit(self,userInput,refMeasureList):
         #Check reference measure has exactly 1 unit option
+        if(len(refMeasureList)==0):
+            return "There is no defined unit matching the reference name."
+        if(len(refMeasureList) > 1):
+            return "It is ambiguous which unit you are referring to."
         #Get unit type
+        refMeasure = refMeasureList[0]
+        refType = refMeasure.getUnit().getType()
         #Get amount & unit name
+        inputAmountString = Commons.getDigitsFromStartOrEnd(userInput)
+        if(inputAmountString is None):
+            return "Please specify an amount when setting a new unit."
+        inputName = userInput.
         #Add unit
         #Save repo
         #Output message
