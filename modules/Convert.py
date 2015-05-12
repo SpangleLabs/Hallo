@@ -238,7 +238,7 @@ class ConvertUnit:
     mAbbreviationList = []
     mValidPrefixGroup = None
     mValue = None
-    mOffset = None
+    mOffset = 0
     mLastUpdated = None
     
     def __init__(self,convertType,names,value):
@@ -445,7 +445,7 @@ class ConvertUnit:
         valueElement.appendChild(doc.createTextNode(str(self.mValue)))
         root.appendChild(valueElement)
         #Add offset
-        if(self.mOffset is not None):
+        if(self.mOffset != 0):
             offsetElement = doc.createElement("offset")
             offsetElement.appendChild(doc.createTextNode(str(self.mOffset)))
             root.appendChild(offsetElement)
