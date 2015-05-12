@@ -1163,3 +1163,23 @@ class ConvertViewRepo(Function):
         outputString += "Multiplier: " + str(prefixObject.getName())
         return outputString
     
+class ConvertSet(Function):
+    '''
+    Function to set the value of a unit manually.
+    Will create a new unit if no unit is found.
+    '''
+    #Name for use in help listing
+    mHelpName = "convert set"
+    #Names which can be used to address the Function
+    mNames = set(["convert set"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Sets the value of a unit, Format: <amount> <unit_set> = <unit_reference>."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        pass
