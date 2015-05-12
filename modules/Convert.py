@@ -870,7 +870,9 @@ class UpdateCurrencies(Function):
         #Update with Forex
         outputLines.append(self.updateFromForexData(repo) or "Updated currency data from Forex.")
         #Update with Preev
-        outputLines.append(self.updateFromPreevData(repo) or "Updated currency data from PReev.")
+        outputLines.append(self.updateFromPreevData(repo) or "Updated currency data from Preev.")
+        #Save repo
+        repo.saveToXml()
         #Return output
         return "\n".join(outputLines)
 
