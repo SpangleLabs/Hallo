@@ -1023,6 +1023,11 @@ class ConvertViewRepo(Function):
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Returns information about the conversion repository."
     
+    NAMES_TYPE = ["type","t"]
+    NAMES_UNIT = ["unit","u"]
+    NAMES_PREFIXGROUP = ["prefixgroup","prefix_group","prefix-group","group","g","pg"]
+    NAMES_PREFIX = ["prefix","p"]
+    
     def __init__(self):
         '''
         Constructor
@@ -1030,5 +1035,42 @@ class ConvertViewRepo(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
-        pass
-        
+        #Load repo
+        repo = ConvertRepo.loadFromXml()
+        #Check if type is specified
+        if(self.findAnyParameter(self.NAMES_TYPE,line)):
+            #Check if unit & type are specified
+            if(self.findAnyParameter(self.NAMES_UNIT,line)):
+                return "type and unit"
+            else:
+                return "type, no unit"
+        #Check if prefix group is specified
+        if(self.findAnyParameter(self.NAMES_PREFIXGROUP,line)):
+            #Check if prefix & group are specified
+            if(self.findAnyParameter(self.NAMES_PREFIX,line)):
+                return "group and prefix"
+            else:
+                return "group, no prefix"
+        #Check if unit is specified
+        if(self.findAnyParameter(self.NAMES_UNIT,line)):
+            return "unit, no type"
+        #Check if prefix is specified
+        if(self.findAnyParameter(self.NAMES_PREFIX,line)):
+            return "prefix, no group"
+        return "nothing specified."
+    
+    def findParameter(self,paramName,line):
+        'Finds a parameter value in a line, if the format parameter=value exists in the line'
+        paramValue = None
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramSearch = paramRegex.search(line)
+        if(paramSearch is not None):
+            paramValue = paramSearch.group(2)
+        return paramValue
+
+    def findAnyParameter(self,paramList,line):
+        'Finds one of any parameter in a line.'
+        for paramName in paramList:
+            if(self.findParameter(paramName,line) is not None):
+                return True
+        return False
