@@ -635,11 +635,11 @@ class ConvertMeasure:
     Convert measure object. An amount with a unit.
     '''
     mAmount = None
-    mPrefix = None
     mUnit = None
     
     def __init__(self,amount,unit):
-        raise NotImplementedError
+        self.mAmount = amount
+        self.mUnit = unit
     
     def getUnit(self):
         'Returns the unit of the measure.'
