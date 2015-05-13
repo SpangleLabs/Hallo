@@ -1312,3 +1312,79 @@ class ConvertSet(Function):
         repo.saveToXml()
         #Output message
         return "Created new unit " + inputName + " with value: 1 " + inputName + " = " + str(newValue) + " " + baseName + "."
+
+class ConvertUnitRemoveName(Function):
+    '''
+    Removes a name or abbreviation from a unit, unless it's the last name.
+    '''
+    #Name for use in help listing
+    mHelpName = "convert unit remove name"
+    #Names which can be used to address the Function
+    mNames = set(["convert unit remove name","convert unit delete name","convert unit remove abbreviation","convert unit delete abbreviation","convert unit remove abbr","convert unit delete abbr"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Removes a name or abbreviation from a unit, unless it's the last name."
+    
+    NAMES_UNIT = ["unit","u"]
+    NAMES_TYPE = ["type","t"]
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Load repo, clean line
+        repo = ConvertRepo()
+        lineClean = line.strip()
+        #Check if unit is defined
+        unitName = None
+        if(self.findAnyParameter(self.NAMES_UNIT,lineClean)):
+            unitName = self.findAnyParameter(self.NAMES_UNIT,lineClean)
+        #Check if type is defined
+        typeName = None
+        if(self.findAnyParameter(self.NAMES_TYPE,lineClean)):
+            typeName = self.findAnyParameter(self.NAMES_TYPE,lineClean)
+            if(repo.getTypeByName(typeName) is None):
+                return "Invalid type specified."
+        #Clean unit and type setting from the line to just get the name to remove
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        inputName = paramRegex.sub("",lineClean)
+        #Check if description is sufficient to narrow it to 1 and only 1 unit
+        userUnitOptions = []
+        for unitObject in repo.getFullUnitList():
+            #If type is defined and not the same as current unit, skip it
+            if(typeName is not None and typeName != unitObject.getType().getName()):
+                continue
+            #if unit name is defined and not a valid name for the unit, skip it.
+            #If inputName is not a valid name for the unit, skip it.
+            #Otherwise it's the one, break
+        #Check if that narrowed it down correctly.
+        if(len(userUnitOptions)==0):
+            return "There are no units matching that description."
+        if(len(userUnitOptions)>=2):
+            return "It is ambiguous which unit you refer to."
+        #Remove name
+        userUnit = userUnitOptions[0]
+        userUnit.removeName(inputName)
+        #Save repo
+        repo.saveToXml()
+        #Output
+        return "Removed name \""+inputName+"\" from \""+userUnit.getNamelist()[0]+"\" unit."
+
+    
+    def findParameter(self,paramName,line):
+        'Finds a parameter value in a line, if the format parameter=value exists in the line'
+        paramValue = None
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramSearch = paramRegex.search(line)
+        if(paramSearch is not None):
+            paramValue = paramSearch.group(2)
+        return paramValue
+
+    def findAnyParameter(self,paramList,line):
+        'Finds one of any parameter in a line.'
+        for paramName in paramList:
+            if(self.findParameter(paramName,line) is not None):
+                return self.findParameter(paramName,line)
+        return False
