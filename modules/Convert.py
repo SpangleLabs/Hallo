@@ -1352,14 +1352,37 @@ class ConvertAddType(Function):
         #Check if decimal places is defined
         decimals = None
         if(self.findAnyParameter(self.NAMES_DECIMALS,lineClean)):
-            decimals = self.findAnyParameter(self.NAMES_DECIMALS,lineClean)
+            try:
+                decimals = int(self.findAnyParameter(self.NAMES_DECIMALS,lineClean))
+            except:
+                decimals = None
         #Clean unit and type setting from the line to just get the name to remove
         paramRegex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)",re.IGNORECASE)
+        multispaceRegex = re.compile("\s+")
         inputName = paramRegex.sub("\1\4",lineClean).strip()
+        inputName = multispaceRegex.sub(" ",inputName)
         #Check that type name doesn't already exist.
+        existingType = repo.getTypeByName(inputName)
+        if(existingType is not None):
+            return "A type by this name already exists."
         #Check base unit name was defined.
-        #Create new unit, create new type with that as base unit, add type to repo, save
+        if(unitName is None):
+            return "You must define a base unit for this type using unit=<unit name>."
+        #Create new type, Create new unit, set unit as base unit, set decimals
+        newType = ConvertType(repo,inputName)
+        newBaseUnit = ConvertUnit(newType,[unitName],1)
+        newType.setBaseUnit(newBaseUnit)
+        if(decimals is not None):
+            newType.setDecimals(decimals)
+        #add type to repo, save
+        repo.addType(newType)
+        repo.saveToXml()
         #Output message
+        outputString = "Created new type \"" +inputName + "\" with base unit \"" + unitName + "\""
+        if(decimals is not None):
+            outputString += " and " + str(decimals) + " decimal places"
+        outputString += "."
+        return outputString
     
 
 class ConvertUnitRemoveName(Function):
