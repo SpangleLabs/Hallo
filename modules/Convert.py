@@ -1144,8 +1144,9 @@ class ConvertViewRepo(Function):
         outputString = "Conversion Type: (" + typeObject.getName() + ")\n"
         outputString += "Decimals: " + str(typeObject.getDecimals()) + "\n"
         outputString += "Base unit: " + typeObject.getBaseUnit().getNameList()[0] + "\n"
-        outputString += "Other units: " 
-        outputString += ", ".join([unitObject.getNames()[0] for unitObject in typeObject.getUnitList()])
+        outputString += "Other units: "
+        unitNameList = [unitObject.getNames()[0] for unitObject in typeObject.getUnitList() if unitObject != typeObject.getBaseUnit()]
+        outputString += ", ".join(unitNameList)
         return outputString
 
     def outputUnitAsString(self,unitObject):
