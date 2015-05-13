@@ -1303,6 +1303,9 @@ class ConvertSet(Function):
             inputName = userInput[len(inputAmountString):]
         else:
             inputName = userInput[:-len(inputAmountString)]
+        #Check name isn't already in use.
+        if(refType.getUnitByName(inputName) is not None):
+            return "There's already a unit of that type by that name."
         #Add unit
         newUnit = ConvertUnit(refType,[inputName],1)
         refType.addUnit(newUnit)
