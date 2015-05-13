@@ -1357,7 +1357,7 @@ class ConvertUnitRemoveName(Function):
                 return "Invalid type specified."
         #Clean unit and type setting from the line to just get the name to remove
         paramRegex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)",re.IGNORECASE)
-        inputName = paramRegex.sub("",lineClean)
+        inputName = paramRegex.sub("\1\4",lineClean).strip()
         #Check if description is sufficient to narrow it to 1 and only 1 unit
         userUnitOptions = []
         for unitObject in repo.getFullUnitList():
