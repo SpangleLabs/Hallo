@@ -1435,7 +1435,81 @@ class ConvertSetTypeDecimals(Function):
         repo.saveToXml()
         #Output message
         return "Set the number of decimal places to display for \"" + inputType.getName() + "\" type units at " + str(decimals) + " places."
+
+class ConvertRemoveUnit(Function):
+    '''
+    Removes a specified unit from the conversion repo.
+    '''
+    #Name for use in help listing
+    mHelpName = "convert remove unit"
+    #Names which can be used to address the Function
+    mNames = set(["convert remove unit","convert delete unit","convert unit remove","convert unit delete"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Removes a specified unit from the conversion repository."
     
+    NAMES_TYPE = ["type","t"]
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Load convert repo
+        repo = ConvertRepo()
+        #Check if a type is specified
+        typeName = None
+        if(self.findAnyParameter(self.NAMES_TYPE,line)):
+            typeName = self.findAnyParameter(self.NAMES_TYPE,line)
+        #Clean type setting from the line to just get the name to remove
+        paramRegex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)",re.IGNORECASE)
+        inputName = paramRegex.sub("\1\4",line).strip()
+        #Find unit
+        if(typeName is not None):
+            typeObject = repo.getTypeByName(typeName)
+            if(typeObject is None):
+                return "This conversion type is not recognised."
+            inputUnit = typeObject.getUnitByName(inputName)
+            if(inputUnit is None):
+                return "This unit name is not recognised for that unit type."
+        else:
+            inputUnitList = []
+            for typeObject in repo.getTypeList():
+                inputUnit = typeObject.getUnitByName(inputName)
+                if(inputUnit is not None):
+                    inputUnitList.append(inputUnit)
+            #Check if results are 0
+            if(len(inputUnitList)==0):
+                return "No unit by that name is found in any type."
+            #Check if results are >=2
+            if(len(inputUnitList)>=2):
+                return ""
+            inputUnit = inputUnitList[0]
+        #Ensure it is not a base unit for its type
+        if(inputUnit == inputUnit.getType().getBaseUnit()):
+            return "You cannot remove the base unit for a unit type."
+        #Remove unit
+        inputUnitName = inputUnit.getNames()[0]
+        inputUnit.getType().removeUnit(inputUnit)
+        #Done
+        return "Removed unit \""+ inputUnitName +"\" from conversion repository."
+
+    def findParameter(self,paramName,line):
+        'Finds a parameter value in a line, if the format parameter=value exists in the line'
+        paramValue = None
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramSearch = paramRegex.search(line)
+        if(paramSearch is not None):
+            paramValue = paramSearch.group(2)
+        return paramValue
+
+    def findAnyParameter(self,paramList,line):
+        'Finds one of any parameter in a line.'
+        for paramName in paramList:
+            if(self.findParameter(paramName,line) is not None):
+                return self.findParameter(paramName,line)
+        return False
 
 class ConvertUnitRemoveName(Function):
     '''
