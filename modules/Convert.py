@@ -1365,8 +1365,13 @@ class ConvertUnitRemoveName(Function):
             if(typeName is not None and typeName != unitObject.getType().getName()):
                 continue
             #if unit name is defined and not a valid name for the unit, skip it.
+            if(unitName is not None and not unitObject.hasName(unitName)):
+                continue
             #If inputName is not a valid name for the unit, skip it.
-            #Otherwise it's the one, break
+            if(not unitObject.hasName(inputName)):
+                continue
+            #Otherwise it's the one, add it to the list
+            userUnitOptions.append(unitObject)
         #Check if that narrowed it down correctly.
         if(len(userUnitOptions)==0):
             return "There are no units matching that description."
