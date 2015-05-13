@@ -299,6 +299,7 @@ class ConvertUnit:
     
     def setOffset(self,offset):
         'Changes the offset of the unit.'
+        self.mLastUpdated = time.time()
         self.mOffset = offset
     
     def getLastUpdated(self):
