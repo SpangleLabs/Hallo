@@ -1321,6 +1321,47 @@ class ConvertSet(Function):
         #Output message
         return "Created new unit " + inputName + " with value: 1 " + inputName + " = " + str(newValue) + " " + baseName + "."
 
+class ConvertAddType(Function):
+    '''
+    Adds a new conversion type.
+    '''
+    #Name for use in help listing
+    mHelpName = "convert add type"
+    #Names which can be used to address the Function
+    mNames = set(["convert add type"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Adds a new conversion unit type and base unit."
+    
+    NAMES_BASEUNIT = ["baseunit","base_unit","base-unit","unit","u","b","bu"]
+    NAMES_DECIMALS = ["decimals","decimal","decimalplaces","dp","d"]
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Load repo, clean line
+        repo = ConvertRepo()
+        lineClean = line.strip()
+        #Check if base unit is defined
+        unitName = None
+        if(self.findAnyParameter(self.NAMES_BASEUNIT,lineClean)):
+            unitName = self.findAnyParameter(self.NAMES_BASEUNIT,lineClean)
+        #Check if decimal places is defined
+        decimals = None
+        if(self.findAnyParameter(self.NAMES_DECIMALS,lineClean)):
+            decimals = self.findAnyParameter(self.NAMES_DECIMALS,lineClean)
+        #Clean unit and type setting from the line to just get the name to remove
+        paramRegex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)",re.IGNORECASE)
+        inputName = paramRegex.sub("\1\4",lineClean).strip()
+        #Check that type name doesn't already exist.
+        #Check base unit name was defined.
+        #Create new unit, create new type with that as base unit, add type to repo, save
+        #Output message
+    
+
 class ConvertUnitRemoveName(Function):
     '''
     Removes a name or abbreviation from a unit, unless it's the last name.
