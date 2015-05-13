@@ -309,6 +309,14 @@ class ConvertUnit:
     def setLastUpdated(self,updateTime):
         'Changes the last updated time of the unit.'
         self.mLastUpdated = updateTime
+    
+    def hasName(self,inputName):
+        'Checks if a specified name is a valid name or abbreviation for this unit.'
+        if(inputName.lower() in [name.lower() for name in self.mNameList]):
+            return True
+        if(inputName.lower() in [abbr.lower() for abbr in self.mAbbreviationList]):
+            return True
+        return False
         
     def getPrefixFromUserInput(self,userInput):
         'Returns the prefix matching the user inputed unit name. None if no prefix. False if the input does not match this unit at all.'
