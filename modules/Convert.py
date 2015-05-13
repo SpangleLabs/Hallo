@@ -1320,7 +1320,7 @@ class ConvertUnitRemoveName(Function):
     #Name for use in help listing
     mHelpName = "convert unit remove name"
     #Names which can be used to address the Function
-    mNames = set(["convert unit remove name","convert unit delete name","convert unit remove abbreviation","convert unit delete abbreviation","convert unit remove abbr","convert unit delete abbr"])
+    mNames = set(["convert unit remove name","convert unit delete name","convert unit remove abbreviation","convert unit delete abbreviation","convert unit remove abbr","convert unit delete abbr","convert remove unit name","convert delete unit name","convert remove unit abbreviation","convert delete unit abbreviation","convert remove unit abbr","convert delete unit abbr"])
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Removes a name or abbreviation from a unit, unless it's the last name."
     
@@ -1348,7 +1348,7 @@ class ConvertUnitRemoveName(Function):
             if(repo.getTypeByName(typeName) is None):
                 return "Invalid type specified."
         #Clean unit and type setting from the line to just get the name to remove
-        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramRegex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)",re.IGNORECASE)
         inputName = paramRegex.sub("",lineClean)
         #Check if description is sufficient to narrow it to 1 and only 1 unit
         userUnitOptions = []
