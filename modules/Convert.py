@@ -1449,8 +1449,11 @@ class ConvertUnitRemoveName(Function):
             return "There are no units matching that description."
         if(len(userUnitOptions)>=2):
             return "It is ambiguous which unit you refer to."
-        #Remove name
+        #Check this unit has other names.
         userUnit = userUnitOptions[0]
+        if(len(userUnit.getNameList())==1):
+            return "This unit only has 1 name, you cannot remove its last name."
+        #Remove name
         userUnit.removeName(inputName)
         #Save repo
         repo.saveToXml()
