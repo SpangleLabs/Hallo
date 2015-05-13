@@ -1256,6 +1256,9 @@ class ConvertSet(Function):
         refValue = refUnit.getValue()
         varOffset = varUnit.getOffset()
         refOffset = refUnit.getOffset()
+        #If varUnit is the base unit, it cannot be set.
+        if(varUnit == varUnit.getType().getBaseUnit()):
+            return "You cannot change values of the base unit."
         #If either given amount are zero, set the offset of varUnit.
         if(varAmount==0 or refAmount==0):
             #Calculate the new offset
