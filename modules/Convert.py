@@ -1391,6 +1391,50 @@ class ConvertAddType(Function):
             outputString += " and " + str(decimals) + " decimal places"
         outputString += "."
         return outputString
+
+class ConvertSetTypeDecimals(Function):
+    '''
+    Sets the number of decimal places to show for a unit type.
+    '''
+    #Name for use in help listing
+    mHelpName = "convert set type decimals"
+    #Names which can be used to address the Function
+    mNames = set(["convert set type decimals","convert set type decimal"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Sets the number of decimal places to show for a unit type."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Load convert repo
+        repo = ConvertRepo()
+        #Get decimals from input
+        inputDecimals = Commons.getDigitsFromStartOrEnd(line)
+        #If decimals is null, return error
+        if(inputDecimals is None):
+            return "Please specify a conversion type and a number of decimal places it should output."
+        #Get type name from input
+        if(line.startswith(inputDecimals)):
+            inputName = line[len(inputDecimals):].strip()
+        else:
+            inputName = line[:-len(inputDecimals)].strip()
+        #Convert decimals to integer
+        decimals = int(float(inputDecimals))
+        #Get selected type
+        inputType = repo.getTypeByName(inputName)
+        #If type does not exist, return error
+        if(inputType is None):
+            return "This is not a recognised conversion type."
+        #Set decimals
+        inputType.setDecimals(decimals)
+        #Save repo
+        repo.saveToXml()
+        #Output message
+        return "Set the number of decimal places to display for \"" + inputType.getName() + "\" type units at " + str(decimals) + " places."
     
 
 class ConvertUnitRemoveName(Function):
@@ -1476,3 +1520,7 @@ class ConvertUnitRemoveName(Function):
             if(self.findParameter(paramName,line) is not None):
                 return self.findParameter(paramName,line)
         return False
+
+
+
+
