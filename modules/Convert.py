@@ -153,7 +153,7 @@ class ConvertType:
     
     def getUnitList(self):
         'Returns the full list of ConvertUnit objects'
-        return self.mUnitList
+        return [self.mBaseUnit]+self.mUnitList
     
     def addUnit(self,unit):
         'Adds a new ConvertUnit object to unit list'
@@ -166,16 +166,17 @@ class ConvertType:
     
     def getUnitByName(self,name):
         'Get a unit by a specified name or abbreviation'
-        for unitObject in self.mUnitList:
+        fullUnitList = [self.mBaseUnit]+self.mUnitList
+        for unitObject in fullUnitList:
             if(name in unitObject.getNameList()):
                 return unitObject
-        for unitObject in self.mUnitList:
+        for unitObject in fullUnitList:
             if(name.lower() in [unitName.lower() for unitName in unitObject.getNameList()]):
                 return unitObject
-        for unitObject in self.mUnitList:
+        for unitObject in fullUnitList:
             if(name in unitObject.getAbbreviationList()):
                 return unitObject
-        for unitObject in self.mUnitList:
+        for unitObject in fullUnitList:
             if(name.lower() in [unitName.lower() for unitName in unitObject.getAbbreviationList()]):
                 return unitObject
         return None
