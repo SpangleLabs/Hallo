@@ -1511,6 +1511,38 @@ class ConvertRemoveUnit(Function):
                 return self.findParameter(paramName,line)
         return False
 
+class ConvertUnitAddName(Function):
+    '''
+    Adds a new name to a unit.
+    '''
+    #Name for use in help listing
+    mHelpName = "convert unit add name"
+    #Names which can be used to address the Function
+    mNames = set(["convert unit add name"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Adds a new name to a unit."
+    
+    NAMES_UNIT = ["unit","u"]
+    NAMES_TYPE = ["type","t"]
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Load repository
+        repo = ConvertRepo()
+        #Check for type=
+        #Check for unit=
+        #If no unit=, try splitting the line to find where the old name ends and new name begins
+        #Start splitting from shortest left-string to longest.
+        #Find unit
+        #Add the new name
+        #Save repo
+        #Output message
+
 class ConvertUnitRemoveName(Function):
     '''
     Removes a name or abbreviation from a unit, unless it's the last name.
