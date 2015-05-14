@@ -1543,6 +1543,22 @@ class ConvertUnitAddName(Function):
         #Save repo
         #Output message
 
+    def findParameter(self,paramName,line):
+        'Finds a parameter value in a line, if the format parameter=value exists in the line'
+        paramValue = None
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramSearch = paramRegex.search(line)
+        if(paramSearch is not None):
+            paramValue = paramSearch.group(2)
+        return paramValue
+
+    def findAnyParameter(self,paramList,line):
+        'Finds one of any parameter in a line.'
+        for paramName in paramList:
+            if(self.findParameter(paramName,line) is not None):
+                return self.findParameter(paramName,line)
+        return False
+
 class ConvertUnitRemoveName(Function):
     '''
     Removes a name or abbreviation from a unit, unless it's the last name.
