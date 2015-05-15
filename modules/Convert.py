@@ -1535,7 +1535,14 @@ class ConvertUnitAddName(Function):
         #Load repository
         repo = ConvertRepo()
         #Check for type=
+        typeName = None
+        if(self.findAnyParameter(self.NAMES_TYPE,line)):
+            typeName = self.findAnyParameter(self.NAMES_TYPE,line)
         #Check for unit=
+        unitName = None
+        if(self.findAnyParameter(self.NAMES_TYPE,line)):
+            unitName = self.findAnyParameter(self.NAMES_TYPE,line)
+        #clean up the line
         #If no unit=, try splitting the line to find where the old name ends and new name begins
         #Start splitting from shortest left-string to longest.
         #Find unit
