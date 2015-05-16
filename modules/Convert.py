@@ -1545,12 +1545,43 @@ class ConvertUnitAddName(Function):
         #clean up the line
         paramRegex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)",re.IGNORECASE)
         inputName = paramRegex.sub("\1\4",line).strip()
+        #Get unit list
+        if(typeName is None):
+            unitList = repo.getFullUnitList()
+        else:
+            typeObject = repo.getTypeByName(typeName)
+            if(typeObject is None):
+                return "Unrecognised type."
+            unitList =  typeObject.getUnitList()
         #If no unit=, try splitting the line to find where the old name ends and new name begins
-        #Start splitting from shortest left-string to longest.
-        #Find unit
+        if(unitName is None):
+            #Start splitting from shortest left-string to longest.
+            lineSplit = inputName.split()
+            inputUnitList = []
+            foundName = False
+            for inputUnitName in [' '.join(lineSplit[:x+1]) for x in range(len(lineSplit))]:
+                for unitObject in unitList:
+                    if(unitObject.hasName(inputUnitName)):
+                        inputUnitList.append(unitObject)
+                        foundName = True
+                if(foundName):
+                    break
+            newUnitName = inputName[len(inputUnitName):].strip()
+        else:
+            pass
+        #If 0 units found, throw error
+        if(len(inputUnitList)==0):
+            return "No unit found by that name."
+        #If 2+ units found, throw error
+        if(len(inputUnitList)>=2):
+            return "Unit name is too ambiguous, please specify with unit= and type= ."
+        unitObject = inputUnitList[0]
         #Add the new name
+        unitObject.addName(newUnitName)
         #Save repo
+        repo.saveToXml()
         #Output message
+        return "Added \""+newUnitName+"\" as a new name for the \""+unitObject.getNameList()[0]+"\" unit."
 
     def findParameter(self,paramName,line):
         'Finds a parameter value in a line, if the format parameter=value exists in the line'
