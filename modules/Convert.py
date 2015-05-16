@@ -1568,7 +1568,11 @@ class ConvertUnitAddName(Function):
                     break
             newUnitName = inputName[len(inputUnitName):].strip()
         else:
-            pass
+            inputUnitList = []
+            for unitObject in unitList:
+                if(unitObject.hasName(inputUnitName)):
+                    inputUnitList.append(unitObject)
+            newUnitName = inputName
         #If 0 units found, throw error
         if(len(inputUnitList)==0):
             return "No unit found by that name."
