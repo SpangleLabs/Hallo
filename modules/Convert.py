@@ -877,7 +877,7 @@ class UpdateCurrencies(Function):
     def run(self,line,userObject,destinationObject=None):
         outputLines = []
         #Load convert repo.
-        repo = ConvertRepo()
+        repo = ConvertRepo.loadFromXml()
         #Update with Money Converter
         outputLines.append(self.updateFromMoneyConverterData(repo) or "Updated currency data from The Money Converter.")
         #Update with the European Bank
@@ -896,7 +896,7 @@ class UpdateCurrencies(Function):
     
     def passiveRun(self,event,fullLine,serverObject,userObject,channelObject):
         #Load convert repo.
-        repo = ConvertRepo()
+        repo = ConvertRepo.loadFromXml()
         #Update with Money Converter
         self.updateFromMoneyConverterData(repo)
         #Update with the European Bank
@@ -1198,7 +1198,7 @@ class ConvertSet(Function):
     
     def run(self,line,userObject,destinationObject=None):
         #Load Conversion Repo
-        repo = ConvertRepo()
+        repo = ConvertRepo.loadFromXml()
         #Create regex to find the place to split a user string.
         splitRegex = re.compile(' into | to |->| in ',re.IGNORECASE)
         #Split input
@@ -1350,7 +1350,7 @@ class ConvertAddType(Function):
     
     def run(self,line,userObject,destinationObject=None):
         #Load repo, clean line
-        repo = ConvertRepo()
+        repo = ConvertRepo.loadFromXml()
         lineClean = line.strip()
         #Check if base unit is defined
         unitName = None
@@ -1410,7 +1410,7 @@ class ConvertSetTypeDecimals(Function):
     
     def run(self,line,userObject,destinationObject=None):
         #Load convert repo
-        repo = ConvertRepo()
+        repo = ConvertRepo.loadFromXml()
         #Get decimals from input
         inputDecimals = Commons.getDigitsFromStartOrEnd(line)
         #If decimals is null, return error
@@ -1456,7 +1456,7 @@ class ConvertRemoveUnit(Function):
     
     def run(self,line,userObject,destinationObject=None):
         #Load convert repo
-        repo = ConvertRepo()
+        repo = ConvertRepo.loadFromXml()
         #Check if a type is specified
         typeName = None
         if(self.findAnyParameter(self.NAMES_TYPE,line)):
@@ -1532,7 +1532,7 @@ class ConvertUnitAddName(Function):
     
     def run(self,line,userObject,destinationObject=None):
         #Load repository
-        repo = ConvertRepo()
+        repo = ConvertRepo.loadFromXml()
         #Check for type=
         typeName = None
         if(self.findAnyParameter(self.NAMES_TYPE,line)):
@@ -1624,7 +1624,7 @@ class ConvertUnitAddAbbreviation(Function):
     
     def run(self,line,userObject,destinationObject=None):
         #Load repository
-        repo = ConvertRepo()
+        repo = ConvertRepo.loadFromXml()
         #Check for type=
         typeName = None
         if(self.findAnyParameter(self.NAMES_TYPE,line)):
@@ -1716,7 +1716,7 @@ class ConvertUnitRemoveName(Function):
     
     def run(self,line,userObject,destinationObject=None):
         #Load repo, clean line
-        repo = ConvertRepo()
+        repo = ConvertRepo.loadFromXml()
         lineClean = line.strip()
         #Check if unit is defined
         unitName = None
