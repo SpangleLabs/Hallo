@@ -3,7 +3,6 @@ from inc.commons import Commons
 from Function import Function
 import re
 import time
-from win32com.test.testall import output_checked_programs
 
 class ConvertRepo:
     '''
@@ -1779,6 +1778,101 @@ class ConvertUnitRemoveName(Function):
                 return self.findParameter(paramName,line)
         return False
 
-
+class ConvertUnitSetPrefixGroup(Function):
+    '''
+    Sets the prefix group for a unit.
+    '''
+    #Name for use in help listing
+    mHelpName = "convert unit remove name"
+    #Names which can be used to address the Function
+    mNames = set(["convert unit remove name","convert unit delete name","convert unit remove abbreviation","convert unit delete abbreviation","convert unit remove abbr","convert unit delete abbr","convert remove unit name","convert delete unit name","convert remove unit abbreviation","convert delete unit abbreviation","convert remove unit abbr","convert delete unit abbr"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Removes a name or abbreviation from a unit, unless it's the last name."
+    
+    NAMES_UNIT = ["unit","u"]
+    NAMES_TYPE = ["type","t"]
+    NAMES_PREFIXGROUP = ["prefixgroup","prefix_group","prefix-group","group","g","pg"]
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Load repository
+        repo = ConvertRepo.loadFromXml()
+        #Check for type=
+        typeName = None
+        if(self.findAnyParameter(self.NAMES_TYPE,line)):
+            typeName = self.findAnyParameter(self.NAMES_TYPE,line)
+        #Check for unit=
+        unitName = None
+        if(self.findAnyParameter(self.NAMES_TYPE,line)):
+            unitName = self.findAnyParameter(self.NAMES_TYPE,line)
+        #Check for prefixgroup=
+        prefixGroupName = None
+        if(self.findAnyParameter(self.NAMES_PREFIXGROUP,line)):
+            prefixGroupName = self.findAnyParameter(self.NAMES_PREFIXGROUP,line)
+        #clean up the line
+        paramRegex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)",re.IGNORECASE)
+        inputName = paramRegex.sub("\1\4",line).strip()
+        #Get prefix group
+        if(prefixGroupName is None):
+            lineSplit = inputName.split()
+            if(repo.getPrefixGroupByName(lineSplit[0]) is not None):
+                prefixGroup = repo.getPrefixGroupByName(lineSplit[0])
+                inputName = ' '.join(lineSplit[1:])
+            elif(repo.getPrefixGroupByName(lineSplit[-1]) is not None):
+                prefixGroup = repo.getPrefixGroupByName(lineSplit[-1])
+                inputName = ' '.join(lineSplit[:-1])
+            elif(lineSplit[0].lower()=="none"):
+                prefixGroup = None
+                inputName = ' '.join(lineSplit[1:])
+            elif(lineSplit[-1].lower()=="none"):
+                prefixGroup = None
+                inputName = ' '.join(lineSplit[1:])
+            else:
+                return "Prefix group not recognised."
+        else:
+            prefixGroup = repo.getPrefixGroupByName(prefixGroupName)
+            if(prefixGroup is None and prefixGroupName.lower()!="none"):
+                return "Prefix group not recognised."
+        #Get unit list
+        if(typeName is None):
+            unitList = repo.getFullUnitList()
+        else:
+            typeObject = repo.getTypeByName(typeName)
+            if(typeObject is None):
+                return "Unrecognised type."
+            unitList =  typeObject.getUnitList()
+        #If no unit=, try splitting the line to find where the old name ends and new name begins
+        if(unitName is None):
+            inputUnitList = []
+            for unitObject in unitList:
+                if(unitObject.hasName(inputName)):
+                    inputUnitList.append(unitObject)
+        else:
+            inputUnitList = []
+            for unitObject in unitList:
+                if(unitObject.hasName(unitName)):
+                    inputUnitList.append(unitObject)
+        #If 0 units found, throw error
+        if(len(inputUnitList)==0):
+            return "No unit found by that name."
+        #If 2+ units found, throw error
+        if(len(inputUnitList)>=2):
+            return "Unit name is too ambiguous, please specify with unit= and type= ."
+        unitObject = inputUnitList[0]
+        #Set the prefix group
+        unitObject.setPrefixGroup(prefixGroup)
+        #Save repo
+        repo.saveToXml()
+        #Output message
+        if(prefixGroup is None):
+            prefixGroupName = "none"
+        else:
+            prefixGroupName = prefixGroup.getName()
+        return "Set \""+prefixGroupName+"\" as the prefix group for the \""+unitObject.getNameList()[0]+"\" unit."
 
 
