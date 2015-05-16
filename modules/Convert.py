@@ -1603,6 +1603,98 @@ class ConvertUnitAddName(Function):
                 return self.findParameter(paramName,line)
         return False
 
+class ConvertUnitAddAbbreviation(Function):
+    '''
+    Adds a new abbreviation to a unit.
+    '''
+    #Name for use in help listing
+    mHelpName = "convert unit add abbreviation"
+    #Names which can be used to address the Function
+    mNames = set(["convert unit add abbreviation","convert unit add abbr"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Adds a new abbreviation to a unit."
+    
+    NAMES_UNIT = ["unit","u"]
+    NAMES_TYPE = ["type","t"]
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Load repository
+        repo = ConvertRepo()
+        #Check for type=
+        typeName = None
+        if(self.findAnyParameter(self.NAMES_TYPE,line)):
+            typeName = self.findAnyParameter(self.NAMES_TYPE,line)
+        #Check for unit=
+        unitName = None
+        if(self.findAnyParameter(self.NAMES_TYPE,line)):
+            unitName = self.findAnyParameter(self.NAMES_TYPE,line)
+        #clean up the line
+        paramRegex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)",re.IGNORECASE)
+        inputAbbr = paramRegex.sub("\1\4",line).strip()
+        #Get unit list
+        if(typeName is None):
+            unitList = repo.getFullUnitList()
+        else:
+            typeObject = repo.getTypeByName(typeName)
+            if(typeObject is None):
+                return "Unrecognised type."
+            unitList =  typeObject.getUnitList()
+        #If no unit=, try splitting the line to find where the old name ends and new name begins
+        if(unitName is None):
+            #Start splitting from shortest left-string to longest.
+            lineSplit = inputAbbr.split()
+            inputUnitList = []
+            foundAbbr = False
+            for inputUnitName in [' '.join(lineSplit[:x+1]) for x in range(len(lineSplit))]:
+                for unitObject in unitList:
+                    if(unitObject.hasName(inputUnitName)):
+                        inputUnitList.append(unitObject)
+                        foundAbbr = True
+                if(foundAbbr):
+                    break
+            newUnitAbbr = inputAbbr[len(inputUnitName):].strip()
+        else:
+            inputUnitList = []
+            for unitObject in unitList:
+                if(unitObject.hasName(inputUnitName)):
+                    inputUnitList.append(unitObject)
+            newUnitAbbr = inputAbbr
+        #If 0 units found, throw error
+        if(len(inputUnitList)==0):
+            return "No unit found by that name."
+        #If 2+ units found, throw error
+        if(len(inputUnitList)>=2):
+            return "Unit name is too ambiguous, please specify with unit= and type= ."
+        unitObject = inputUnitList[0]
+        #Add the new name
+        unitObject.addAbbreviation(newUnitAbbr)
+        #Save repo
+        repo.saveToXml()
+        #Output message
+        return "Added \""+newUnitAbbr+"\" as a new abbreviation for the \""+unitObject.getNameList()[0]+"\" unit."
+
+    def findParameter(self,paramName,line):
+        'Finds a parameter value in a line, if the format parameter=value exists in the line'
+        paramValue = None
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramSearch = paramRegex.search(line)
+        if(paramSearch is not None):
+            paramValue = paramSearch.group(2)
+        return paramValue
+
+    def findAnyParameter(self,paramList,line):
+        'Finds one of any parameter in a line.'
+        for paramName in paramList:
+            if(self.findParameter(paramName,line) is not None):
+                return self.findParameter(paramName,line)
+        return False
+
 class ConvertUnitRemoveName(Function):
     '''
     Removes a name or abbreviation from a unit, unless it's the last name.
