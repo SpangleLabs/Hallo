@@ -287,7 +287,31 @@
 					<value>True</value>
 				</right>
 				<right>
+					<name>function_ConvertAddType</name>
+					<value>True</value>
+				</right>
+				<right>
+					<name>function_ConvertSetTypeDecimals</name>
+					<value>True</value>
+				</right>
+				<right>
+					<name>function_ConvertRemoveUnit</name>
+					<value>True</value>
+				</right>
+				<right>
+					<name>function_ConvertUnitAddName</name>
+					<value>True</value>
+				</right>
+				<right>
+					<name>function_ConvertUnitAddAbbreviation</name>
+					<value>True</value>
+				</right>
+				<right>
 					<name>function_ConvertUnitRemoveName</name>
+					<value>True</value>
+				</right>
+				<right>
+					<name>function_ConvertUnitSetPrefixGroup</name>
 					<value>True</value>
 				</right>
 			</right_list>
@@ -380,7 +404,31 @@
 			<value>False</value>
 		</right>
 		<right>
+			<name>function_ConvertAddType</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_ConvertSetTypeDecimals</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_ConvertRemoveUnit</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_ConvertUnitAddName</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_ConvertUnitAddAbbreviation</name>
+			<value>False</value>
+		</right>
+		<right>
 			<name>function_ConvertUnitRemoveName</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_ConvertUnitSetPrefixGroup</name>
 			<value>False</value>
 		</right>
 	</right_list>
