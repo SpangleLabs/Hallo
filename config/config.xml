@@ -321,6 +321,10 @@
 					<name>function_Longcat</name>
 					<value>True</value>
 				</right>
+				<right>
+					<name>function_Deer</name>
+					<name>True</name>
+				</right>
 			</right_list>
 		</permission_mask>
 	</user_group>
@@ -339,6 +343,10 @@
 				<right>
 					<name>function_Say</name>
 					<value>True</value>
+				</right>
+				<right>
+					<name>function_Deer</name>
+					<name>True</name>
 				</right>
 			</right_list>
 		</permission_mask>
@@ -441,6 +449,10 @@
 		<right>
 			<name>function_Longcat</name>
 			<value>False</value>
+		</right>
+		<right>
+			<name>function_Deer</name>
+			<name>False</name>
 		</right>
 	</right_list>
 </permission_mask>
