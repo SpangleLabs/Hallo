@@ -142,18 +142,6 @@ class hallobase_silly():
         else:
             return '"poketheasshole" not defined.  Try "/msg Hallo help commands" for a list of commands.'
 
-    def fn_train(self,args,client,destination):
-        'Prints ascii train. Format: train'
-        train = r'''chugga chugga, chugga chugga, woo woo!
-            ____.-==-, _______  _______  _______  _______  _..._
-           {"""""LILI|[" " "'"]['""'"""][''"""'']["" """"][LI LI]
-  ^#^#^#^#^/_OO====OO`'OO---OO''OO---OO''OO---OO''OO---OO`'OO-OO'^#^#^#^
- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'''
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            return train
-        else:
-            return "You have insufficient power to summon a train."
-
     def fn_boop(self,args,client,destination):
         'Boops people. Format: boop <name>'
         if(args==''):

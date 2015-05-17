@@ -134,3 +134,28 @@ class Dragon(Function):
             dragon = dragonTwo
         return dragon
 
+class Train(Function):
+    '''
+    Draws an ascii train
+    '''
+    #Name for use in help listing
+    mHelpName = "train"
+    #Names which can be used to address the function
+    mNames = set(["train","ascii train"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Prints ascii train. Format: train"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        'Prints ascii train. Format: train'
+        train = r'''chugga chugga, chugga chugga, woo woo!
+            ____.-==-, _______  _______  _______  _______  _..._
+           {"""""LILI|[" " "'"]['""'"""][''"""'']["" """"][LI LI]
+  ^#^#^#^#^/_OO====OO`'OO---OO''OO---OO''OO---OO''OO---OO`'OO-OO'^#^#^#^
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'''
+        return train
