@@ -142,56 +142,6 @@ class hallobase_silly():
         else:
             return '"poketheasshole" not defined.  Try "/msg Hallo help commands" for a list of commands.'
 
-    def fn_deer(self,args,client,destination):
-        'ascii art deer. Format: deer'
-        deer = r'''   /|       |\
-`__\\       //__'
-   ||      ||
- \__`\     |'__/
-   `_\\   //_'
-   _.,:---;,._
-   \_:     :_/
-     |@. .@|
-     |     |
-     ,\.-./ \
-     ;;`-'   `---__________-----.-.
-     ;;;                         \_\
-     ';;;                         |
-      ;    |                      ;
-       \   \     \        |      /
-        \_, \    /        \     |\
-          |';|  |,,,,,,,,/ \    \ \_
-          |  |  |           \   /   |
-          \  \  |           |  / \  |
-           | || |           | |   | |
-           | || |           | |   | |
-           | || |           | |   | |
-           |_||_|           |_|   |_|
-          /_//_/           /_/   /_/'''
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            return deer
-        else:
-            return "You have insufficient privileges to summon the deer."
-
-    def fn_dragon(self,args,client,destination):
-        'Prints ascii dragon. Format: dragon'
-#        dragon = r''',-,- / / | ,-' _/ / / (-_ _,-' `Z_/ "#: ,-'_,-. \
-#_ #' _(_-'_()\ \" | ,-6-_,--' | / "" L-'\ \,--^---v--v-._ / \ |
-#\_________________,-' | \ \ Wny \ '''
-        dragon = r'''hmm.. nah. have another deer.
-       ""\/ \/""
-         "\__/"
-          (oo)
- -. ______-LJ
-  ,'        |
-  |.____..  /
-  \\      /A\
-  |A      |//'''
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            return dragon
-        else:
-            return "You have insufficient privileges."
-
     def fn_train(self,args,client,destination):
         'Prints ascii train. Format: train'
         train = r'''chugga chugga, chugga chugga, woo woo!
