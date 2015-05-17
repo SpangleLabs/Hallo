@@ -5,6 +5,9 @@
 <function_dispatcher>
 	<module_list>
 		<module>
+			<name>AsciiArt</name>
+		</module>
+		<module>
 			<name>Bio</name>
 		</module>
 		<module>
@@ -314,6 +317,10 @@
 					<name>function_ConvertUnitSetPrefixGroup</name>
 					<value>True</value>
 				</right>
+				<right>
+					<name>function_Longcat</name>
+					<value>True</value>
+				</right>
 			</right_list>
 		</permission_mask>
 	</user_group>
@@ -429,6 +436,10 @@
 		</right>
 		<right>
 			<name>function_ConvertUnitSetPrefixGroup</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_Longcat</name>
 			<value>False</value>
 		</right>
 	</right_list>
