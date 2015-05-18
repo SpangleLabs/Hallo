@@ -1033,6 +1033,27 @@ class Euler(Function):
                     longestTotal = sum(tempChain)
         return longestTotal
 
+    def euler51(self):
+        num = 0
+        solved = False
+        while(True):
+            num += 1
+            if(not self.checkPrime(num)):
+                continue
+            for digit in range(len(str(num))):
+                failures = 0
+                for x in range(10):
+                    tempNum = int(str(num).replace(str(num)[digit],str(x)))
+                    if(len(str(tempNum))!=len(str(num)) or not self.checkPrime(tempNum)):
+                        failures += 1
+                if(failures<=2):
+                    print(num)
+                    solved = True
+                    break
+            if(solved):
+                break
+        return num
+
     def euler67(self):
         #this is the same as  problem 18, but bigger file.
         arr_triangle = open("store/euler/euler_67_triangle.txt","r").read()[:-1].split("\n")
