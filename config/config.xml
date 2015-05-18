@@ -332,6 +332,10 @@
 					<name>function_SilenceTheRabble</name>
 					<value>True</value>
 				</right>
+				<right>
+					<name>function_PokeTheAsshole</name>
+					<value>True</value>
+				</right>
 			</right_list>
 		</permission_mask>
 	</user_group>
@@ -467,6 +471,10 @@
 		</right>
 		<right>
 			<name>function_SilenceTheRabble</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_PokeTheAsshole</name>
 			<value>False</value>
 		</right>
 	</right_list>
