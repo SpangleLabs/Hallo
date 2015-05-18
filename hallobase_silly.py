@@ -1,4 +1,3 @@
-import random       #for choosing ouija words, pony episodes, etc
 import time         #checking the time for the time function
 
 import ircbot_chk   #for checking users have appropriate permissions to use certain functions
@@ -66,22 +65,6 @@ class hallobase_silly():
         timestamp = timestamp+(3600*offset)
         timeword = time.strftime('%H:%M:%S %d/%m/%Y',time.gmtime(timestamp))
         return 'The time is ' + timeword + ' ' + timezone + '.'
-
-    def fn_mods(self, args, client, destination):
-        'Mods.. asleep? Format: "mods asleep" to post pictures of arctic terns. "mods napping" to post pictures of plush arctic terns.'
-        if(args.lower()=='asleep'):
-            number = random.randint(0,61)
-            if(number < 10):
-                link = 'http://dr-spangle.com/AT/0' + str(number) + '.JPG'
-            else:
-                link = 'http://dr-spangle.com/AT/' + str(number) + '.JPG'
-            return 'Mods are asleep? Post arctic terns!! ' + link
-        elif(args.lower()=='napping'):
-            number = random.randint(0,1)
-            link = 'http://dr-spangle.com/AT/N0' + str(number) + '.JPG'
-            return 'Mods are napping? Post plush arctic terns! ' + link
-        else:
-            return 'I am not sure I care.'
 
     def fn_boop(self,args,client,destination):
         'Boops people. Format: boop <name>'
