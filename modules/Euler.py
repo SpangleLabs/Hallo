@@ -923,19 +923,17 @@ class Euler(Function):
         return smallestDiff
 
     def euler45(self):
-        return "This one doesn't work yet."
-        epsilon = 0.0000001
+        epsilon = 0.00001
         tripenthex = 0
-        for x in range(40756,10**9):
+        for xhex in range(144,10**5):
+            x = xhex*(2*xhex-1)
             xtri = (-1+(1+8*x)**0.5)/2
-            if(xtri%1<epsilon):
+            if(abs(xtri-round(xtri))%1<epsilon):
                 xpent = (1+(1+24*x)**0.5)/6
-                if(xpent%1<epsilon):
-                    xhex = (1+(1+8*x)**0.5)/4
-                    if(xhex%1<epsilon):
-                        print('found it.')
-                        tripenthex = x
-                        break
+                if(abs(xpent-round(xpent))%1<epsilon):
+                    print('found it.')
+                    tripenthex = x
+                    break
         return tripenthex
     
     def euler46(self):
