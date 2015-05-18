@@ -1053,6 +1053,25 @@ class Euler(Function):
             if(solved):
                 break
         return num
+    
+    def euler52(self):
+        num = 0
+        while(True):
+            num += 1
+            numList = list(str(num))
+            if(numList!=self.listIntersection(numList,list(str(2*num)))):
+                continue
+            if(numList!=self.listIntersection(numList,list(str(3*num)))):
+                continue
+            if(numList!=self.listIntersection(numList,list(str(4*num)))):
+                continue
+            if(numList!=self.listIntersection(numList,list(str(5*num)))):
+                continue
+            if(numList!=self.listIntersection(numList,list(str(6*num)))):
+                continue
+            print(num)
+            break
+        return num
 
     def euler67(self):
         #this is the same as  problem 18, but bigger file.
