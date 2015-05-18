@@ -1072,6 +1072,15 @@ class Euler(Function):
             print(num)
             break
         return num
+    
+    def euler53(self):
+        num = 0
+        for n in range(23,101):
+            for r in range(n):
+                ncrValue = math.factorial(n)/(math.factorial(r)*math.factorial(n-r))
+                if(ncrValue>10**6):
+                    num += 1
+        return num
 
     def euler67(self):
         #this is the same as  problem 18, but bigger file.
