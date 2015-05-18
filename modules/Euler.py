@@ -286,9 +286,9 @@ class Euler(Function):
     def euler8(self):
         string = open("store/euler/euler_8_string.txt","r").read()[:-1]
         biggestProduct = 0
-        while(len(string)>=5):
-            substring = string[0:5]
-            product = int(substring[0])*int(substring[1])*int(substring[2])*int(substring[3])*int(substring[4])
+        while(len(string)>=13):
+            substring = string[0:13]
+            product = self.listProduct([int(x) for x in substring])
             biggestProduct = max(product, biggestProduct)
             string = string[1:]
         return biggestProduct
