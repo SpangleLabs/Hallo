@@ -937,6 +937,23 @@ class Euler(Function):
                         tripenthex = x
                         break
         return tripenthex
+    
+    def euler46(self):
+        num = 1
+        while(True):
+            num += 2
+            if(self.checkPrime(num)):
+                continue
+            doubleSquareNum = 0
+            doubleSquare = 2*doubleSquareNum*doubleSquareNum
+            found = True
+            while(doubleSquare<num):
+                doubleSquareNum += 1
+                doubleSquare = 2*doubleSquareNum*doubleSquareNum
+                if(self.checkPrime(num-doubleSquare)):
+                    found = False
+            if(found):
+                return num
 
     def euler67(self):
         #this is the same as  problem 18, but bigger file.
