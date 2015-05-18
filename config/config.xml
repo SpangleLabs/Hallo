@@ -323,7 +323,7 @@
 				</right>
 				<right>
 					<name>function_Deer</name>
-					<name>True</name>
+					<value>True</value>
 				</right>
 			</right_list>
 		</permission_mask>
@@ -346,7 +346,7 @@
 				</right>
 				<right>
 					<name>function_Deer</name>
-					<name>True</name>
+					<value>True</value>
 				</right>
 			</right_list>
 		</permission_mask>
@@ -452,7 +452,7 @@
 		</right>
 		<right>
 			<name>function_Deer</name>
-			<name>False</name>
+			<value>False</value>
 		</right>
 	</right_list>
 </permission_mask>
