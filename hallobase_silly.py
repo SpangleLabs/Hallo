@@ -8,22 +8,6 @@ class hallobase_silly():
 #    def init(self):
 #        self.longcat = False
 
-    def fn_slowclap(self,args,client,destination):
-        'Slowclap. Format: slowclap'
-        if(args.replace(' ','')!=''):
-            self.base_say('*clap*',[destination[0],args])
-            time.sleep(0.5)
-            self.base_say('*clap*',[destination[0],args])
-            time.sleep(2)
-            self.base_say('*clap.*',[destination[0],args])
-            return "done. :)"
-        else:
-            self.base_say('*clap*',destination)
-            time.sleep(0.5)
-            self.base_say('*clap*',destination)
-            time.sleep(2)
-            return '*clap.*'
-
     def fn_time(self, args, client, destination):
         'Current time for a given user. Format: time <username>'
         timestamp = time.time()

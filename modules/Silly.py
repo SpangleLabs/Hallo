@@ -1,5 +1,6 @@
 from Function import Function
 import random
+import time
 
 class Is(Function):
     '''
@@ -87,8 +88,45 @@ class ArcticTerns(Function):
         number = random.randint(0,61)
         link = 'http://dr-spangle.com/AT/' + str(number).zfill(2) + '.JPG'
         return 'Arctic terns!! ' + link
-            
 
+class SlowClap(Function):
+    '''
+    Makes hallo do a slow clap in the current or specified channel.
+    '''
+    #Name for use in help listing
+    mHelpName = "slowclap"
+    #Names which can be used to address the function
+    mNames = set(["slowclap","slow clap"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Slowclap. Format: slowclap"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        lineClean = line.strip().lower()
+        serverObject = userObject.getServer()
+        if(lineClean==""):
+            if(destinationObject is not None):
+                serverObject.send("*clap*",destinationObject)
+                time.sleep(0.5)
+                serverObject.send("*clap*",destinationObject)
+                time.sleep(2)
+                return '*clap.*'
+            else:
+                return "You want me to slowclap yourself?"
+        channelObject = serverObject.getChannelByName(lineClean)
+        if(not channelObject.isInChannel()):
+            return "I'm not in that channel."
+        serverObject.send("*clap*",channelObject)
+        time.sleep(0.5)
+        serverObject.send("*clap*",channelObject)
+        time.sleep(2)
+        serverObject.send("*clap.*",channelObject)
+        return "done. :)"
 
 
 
