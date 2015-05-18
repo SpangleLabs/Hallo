@@ -974,6 +974,13 @@ class Euler(Function):
                 answer = num+1-streak
                 break
         return answer
+    
+    def euler48(self):
+        num = 0
+        for x in range(1,1001):
+            num += x**x
+            num = num%10**12
+        return num%10**10
 
     def euler67(self):
         #this is the same as  problem 18, but bigger file.
