@@ -384,6 +384,11 @@ class ServerIRC(Server):
             dataLineSplit = Commons.chunkStringDot(dataLine,maxLineLength)
             for dataLineLine in dataLineSplit:
                 self.sendRaw(msgTypeName+' '+destinationName+' '+dataLineLine)
+
+    def sendRaw(self,data):
+        'Sends raw data to the server'
+        if(self.mOpen):
+            self.mSocket.send((data+endl).encode("utf-8"))
     
     def joinChannel(self,channelObject):
         'Joins a specified channel'
@@ -407,11 +412,6 @@ class ServerIRC(Server):
         channelObject.setAutoJoin(False)
         #Send PART command
         self.send('PART ' + channelObject.getName(),None,"raw")
-
-    def sendRaw(self,data):
-        'Sends raw data to the server'
-        if(self.mOpen):
-            self.mSocket.send((data+endl).encode("utf-8"))
                 
     def parseLine(self,newLine):
         'Parses a line from the IRC server'
