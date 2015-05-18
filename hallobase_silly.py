@@ -95,20 +95,6 @@ class hallobase_silly():
         else:
             return 'I am not sure I care.'
 
-    def fn_poke_the_asshole(self,args,client,destination):
-        'ETD only. voices and unvoices Dolphin repeatedly. Format: poke_the_asshole'
-        if('000242' in client and destination[1].lower() == '#ecco-the-dolphin'):
-            if(args.isdigit()):
-                number = int(args)
-            else:
-                number = 5
-            for _ in range(number):
-                self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v Dolphin' + endl).encode('utf-8'))
-                self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +v Dolphin' + endl).encode('utf-8'))
-            return 'Dolphin: You awake yet?'
-        else:
-            return '"poketheasshole" not defined.  Try "/msg Hallo help commands" for a list of commands.'
-
     def fn_boop(self,args,client,destination):
         'Boops people. Format: boop <name>'
         if(args==''):

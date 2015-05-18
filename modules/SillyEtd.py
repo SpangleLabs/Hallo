@@ -69,3 +69,39 @@ class SilenceTheRabble(Function):
             serverObject.send("MODE "+destinationObject.getName()+" -v "+userObject.getName(),None,"raw")
         serverObject.send("MODE "+destinationObject.getName()+" +m",None,"raw")
         return "I have done your bidding, master."
+
+class PokeTheAsshole(Function):
+    '''
+    Pokes dolphin a bunch, to see if he is awake.
+    '''
+    #Name for use in help listing
+    mHelpName = "poke the asshole"
+    #Names which can be used to address the function
+    mNames = set(["poke the asshole","poketheasshole"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "ETD only. Voices and unvoices Dolphin repeatedly. Format: poke the asshole"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        #TODO: check if not opped?
+        if(not userObject.endswith('000242')):
+            return "You are not my master."
+        if(destinationObject is None or destinationObject==userObject):
+            return "This function can only be used in ETD."
+        if(destinationObject.getName().lower() != "#ecco-the-dolphin"):
+            return "This function can only be used in ETD."
+        if(line.strip().isdigit()):
+            number = int(line.strip())
+        else:
+            number = 5
+        serverObject = userObject.getServer()
+        for _ in range(number):
+            serverObject.send("MODE "+destinationObject.getName()+" +v Dolphin",None,"raw")
+            serverObject.send("MODE "+destinationObject.getName()+" -v Dolphin",None,"raw")
+        return 'Dolphin: You awake yet?'
+
