@@ -952,6 +952,28 @@ class Euler(Function):
                     found = False
             if(found):
                 return num
+    
+    def euler47(self):
+        #Get PrimeFactors function
+        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionClass = functionDispatcher.getFunctionByName("prime factors")
+        functionObject = functionDispatcher.getFunctionObject(functionClass)
+        #Solve
+        num = 1
+        streak = 4
+        runningCount = 0
+        answer = 0
+        while(True):
+            num += 1
+            lenPrimeFactors = len(set(functionObject.findPrimeFactors(num)))
+            if(lenPrimeFactors!=streak):
+                runningCount = 0
+                continue
+            runningCount += 1
+            if(runningCount==streak):
+                answer = num+1-streak
+                break
+        return answer
 
     def euler67(self):
         #this is the same as  problem 18, but bigger file.
