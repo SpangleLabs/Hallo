@@ -1014,6 +1014,24 @@ class Euler(Function):
             if(answer is not None):
                 break
         return answer
+    
+    def euler50(self):
+        longestChain = 0
+        longestTotal = 0
+        chain = []
+        for x in range(1,10**4):
+            if(not self.checkPrime(x)):
+                continue
+            chain.append(x)
+            for tempChain in [chain[-x:] for x in range(longestChain,len(chain))]:
+                if(sum(tempChain)>10**6):
+                    continue
+                if(not self.checkPrime(sum(tempChain))):
+                    continue
+                if(len(tempChain)>longestChain):
+                    longestChain = len(tempChain)
+                    longestTotal = sum(tempChain)
+        return longestTotal
 
     def euler67(self):
         #this is the same as  problem 18, but bigger file.
