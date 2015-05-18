@@ -1,5 +1,3 @@
-import time         #checking the time for the time function
-
 import ircbot_chk   #for checking users have appropriate permissions to use certain functions
 
 endl = "\r\n"
@@ -7,48 +5,6 @@ endl = "\r\n"
 class hallobase_silly():
 #    def init(self):
 #        self.longcat = False
-
-    def fn_time(self, args, client, destination):
-        'Current time for a given user. Format: time <username>'
-        timestamp = time.time()
-        timezone = 'UTC'
-        if(args==''):
-            name = 'time'
-        else:
-            name = args.split()[0].lower()
-        if(name=='d000242' or name=='d00242' or name=='eli'):
-            offset = 8
-            timezone = 'for D000242'
-        elif(name=='icebreaker' or name=='ice' or name=='isaac'):
-            offset = -7
-            timezone = 'for icebreaker'
-        elif(name=='ari' or name=='finnbot' or name=='finbot'):
-            offset = 3
-            timezone = 'for ari'
-        elif(name=='beets' or name=='ruth'):
-            offset = -4
-            timezone = 'for beets'
-        elif(name=='dolphin' or name=='fucker'):
-            offset = -7
-            timezone = 'for dolphin'
-        elif(name=='dr-spangle' or name=='dr-spang1e' or name=='hallo' or name=='spangle' or name=='josh' or name=='britfag' or name=='britbot'):
-            offset = 1 
-            timezone = 'for spangle'
-        elif(name=='zephyr' or name=='zephyr42' or name=='safi'):
-            offset = 1
-            timezone = 'for zephyr'
-        elif(name=='eve' or name=='eve online' or name=='spreadsheetsonline' or name=='spreadsheets online'):
-            offset = 0
-            timezone = 'for EvE'
-        elif(name=='time'):
-            offset = 0
-            timezone = ''
-        else:
-            offset = 0
-            timezone = 'UTC (Not sure what your input meant.)'
-        timestamp = timestamp+(3600*offset)
-        timeword = time.strftime('%H:%M:%S %d/%m/%Y',time.gmtime(timestamp))
-        return 'The time is ' + timeword + ' ' + timezone + '.'
 
     def fn_boop(self,args,client,destination):
         'Boops people. Format: boop <name>'
