@@ -923,6 +923,7 @@ class Euler(Function):
         return smallestDiff
 
     def euler45(self):
+        return "This one doesn't work yet."
         epsilon = 0.0000001
         tripenthex = 0
         for x in range(40756,10**9):
