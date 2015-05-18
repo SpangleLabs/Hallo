@@ -1,5 +1,6 @@
 from Function import Function
 import math
+import itertools
 
 class Euler(Function):
     '''
@@ -981,6 +982,38 @@ class Euler(Function):
             num += x**x
             num = num%10**12
         return num%10**10
+    
+    def euler49(self):
+        answer = None
+        for x in range(10**3,10**4+1):
+            if(x == 1487):
+                continue
+            if(not self.checkPrime(x)):
+                continue
+            permsX = [int(''.join(p)) for p in itertools.permutations(str(x))]
+            for permX in permsX:
+                if(permX == x):
+                    continue
+                if(len(str(permX))!=4):
+                    continue
+                if(not self.checkPrime(permX)):
+                    continue
+                diff = permX-x
+                nextPermX = x+2*diff
+                if(nextPermX not in permsX):
+                    continue
+                if(len(str(nextPermX))!=4):
+                    continue
+                if(self.checkPrime(nextPermX)):
+                    print("found it")
+                    print(x)
+                    print(x+diff)
+                    print(x+2*diff)
+                    answer = str(x)+str(x+diff)+str(x+2*diff)
+                    break
+            if(answer is not None):
+                break
+        return answer
 
     def euler67(self):
         #this is the same as  problem 18, but bigger file.
