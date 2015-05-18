@@ -67,10 +67,6 @@ class hallobase_silly():
         timeword = time.strftime('%H:%M:%S %d/%m/%Y',time.gmtime(timestamp))
         return 'The time is ' + timeword + ' ' + timezone + '.'
 
-    def fn_is(self,args,client,destination):
-        'Placeholder. Format: is'
-        return 'I am?'
-
     def fn_(self, args, client, destination):
         'I wonder if this works. Format: '
         return 'Yes?'
