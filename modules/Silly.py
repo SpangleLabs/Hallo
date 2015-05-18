@@ -128,6 +128,57 @@ class SlowClap(Function):
         serverObject.send("*clap.*",channelObject)
         return "done. :)"
 
+class Boop(Function):
+    '''
+    Boops people. Probably on the nose.
+    '''
+    #Name for use in help listing
+    mHelpName = "boop"
+    #Names which can be used to address the function
+    mNames = set(["boop","noseboop","nose boop"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Boops people. Format: boop <name>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        'Boops people. Format: boop <name>'
+        lineClean = line.strip().lower()
+        if(lineClean==''):
+            return "This function boops people, as such you need to specify a person for me to boop, in the form 'Hallo boop <name>' but without the <> brackets."
+        #Get useful objects
+        serverObject = userObject.getServer()
+        #Split arguments, see how many there are.
+        lineSplit = lineClean.split()
+        #If one argument, check that the user is in the current channel.
+        if(len(lineSplit)==1):
+            destUserObject = serverObject.getUserByName(lineClean)
+            if(destUserObject is None or not destUserObject.isOnline()):
+                return "No one by that name is online."
+            serverObject.send("\x01ACTION boops "+destUserObject.getName()+".\x01",destinationObject)
+            return "Done."
+        #If two arguments, see if one is a channel and the other a user.
+        channelTest1 = serverObject.getChannelByName(lineSplit[0])
+        if(channelTest1.isInChannel()):
+            destChannel = channelTest1
+            destUser = serverObject.getUserByName(lineSplit[1])
+        else:
+            channelTest2 = serverObject.getChannelByName(lineSplit[1])
+            if(channelTest2.isInChannel()):
+                destChannel = channelTest2
+                destUser = serverObject.getUserByName(lineSplit[0])
+            else:
+                return "I'm not in any channel by that name."
+        #If user by that name is not online, return a message saying that.
+        if(not destUser.isOnline()):
+            return "No user by that name is online."
+        #Send boop, then return done.
+        serverObject.send("\x01ACTION boops "+destUser.getName()+".\x01",destChannel)
+        return "Done."
 
 
 
