@@ -67,10 +67,6 @@ class hallobase_silly():
         timeword = time.strftime('%H:%M:%S %d/%m/%Y',time.gmtime(timestamp))
         return 'The time is ' + timeword + ' ' + timezone + '.'
 
-    def fn_alarm(self, args, client, destination):
-        'Alarm. Format: alarm <subject>'
-        return 'woo woooooo woooooo ' + args + ' wooo wooo!'
-
     def fn_mods(self, args, client, destination):
         'Mods.. asleep? Format: "mods asleep" to post pictures of arctic terns. "mods napping" to post pictures of plush arctic terns.'
         if(args.lower()=='asleep'):

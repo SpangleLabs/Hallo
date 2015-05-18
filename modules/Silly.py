@@ -39,4 +39,23 @@ class Blank(Function):
 
     def run(self,line,userObject,destinationObject=None):
         return "Yes?"
+
+class Alarm(Function):
+    '''
+    Alarm function, responds with a wooo wooo alarm.
+    '''
+    #Name for use in help listing
+    mHelpName = "alarm"
+    #Names which can be used to address the function
+    mNames = set(["alarm"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Alarm. Format: alarm <subject>"
     
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        return 'woo woooooo woooooo ' + line + ' wooo wooo!'
