@@ -95,25 +95,6 @@ class hallobase_silly():
         else:
             return 'I am not sure I care.'
 
-    def fn_silence_the_rabble(self,args,client,destination):
-        'ETD only. deops all but D000242 and self. sets mute. Format: silence_the_rabble'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client) and destination[1].lower() == '#ecco-the-dolphin'):
-#            names = ircbot_chk.ircbot_chk.chk_names(self,destination[0],destination[1])
-            if('@' + self.conf['server'][destination[0]]['nick'] not in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']):
-                return 'I cannot handle it, master!'
-            for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']:
-                if('000242' not in user and self.conf['server'][destination[0]]['nick'] not in user):
-                    stripuser = user.replace('@','').replace('+','')
-                    if('@' in user):
-                        self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -o ' + stripuser + endl).encode('utf-8'))
-                        self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + stripuser + endl).encode('utf-8'))
-                    if('+' in user):
-                        self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' -v ' + stripuser + endl).encode('utf-8'))
-            self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +m' + endl).encode('utf-8'))
-            return 'I have done your bidding, master.'
-        else:
-            return 'You are not my master.'
-
     def fn_poke_the_asshole(self,args,client,destination):
         'ETD only. voices and unvoices Dolphin repeatedly. Format: poke_the_asshole'
         if('000242' in client and destination[1].lower() == '#ecco-the-dolphin'):

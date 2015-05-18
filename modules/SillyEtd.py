@@ -29,3 +29,42 @@ class FinnBot(Function):
         if(quote[-1] not in ['.','?','!']):
             quote = quote + '.'
         return quote
+
+class SilenceTheRabble(Function):
+    '''
+    Deops everyone except 000242 and hallo, then mutes everyone
+    '''
+    #Name for use in help listing
+    mHelpName = "silence the rabble"
+    #Names which can be used to address the function
+    mNames = set(["silence the rabble","silencetherabble"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "ETD only. De-ops all but D000242 and self. Sets mute. Format: silence the rabble"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        #TODO: check if not opped?
+        #if('@' + self.conf['server'][destination[0]]['nick'] not in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']):
+        #    return 'I cannot handle it, master!'
+        if(not userObject.endswith('000242')):
+            return "You are not my master."
+        if(destinationObject is None or destinationObject==userObject):
+            return "This function can only be used in ETD."
+        if(destinationObject.getName().lower() != "#ecco-the-dolphin"):
+            return "This function can only be used in ETD."
+        userList = destinationObject.getUserList()
+        serverObject = userObject.getServer()
+        for userObject in userList:
+            if(userObject.getName().endswith("000242")):
+                continue
+            if(userObject.getName().lower()==serverObject.getNick().lower()):
+                continue
+            serverObject.send("MODE "+destinationObject.getName()+" -o "+userObject.getName(),None,"raw")
+            serverObject.send("MODE "+destinationObject.getName()+" -v "+userObject.getName(),None,"raw")
+        serverObject.send("MODE "+destinationObject.getName()+" +m",None,"raw")
+        return "I have done your bidding, master."
