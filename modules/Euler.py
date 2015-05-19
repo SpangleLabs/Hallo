@@ -1135,6 +1135,22 @@ class Euler(Function):
             #Add 1 to fraction
             numerator += denominator
         return total
+    
+    def euler58(self):
+        numDiagPrimes = 0
+        gap = 0
+        num = 1
+        while(True):
+            gap += 2
+            for gapNum in range(1,4):
+                if(self.checkPrime(num+(gapNum*gap))):
+                    numDiagPrimes += 1
+            num += 4*gap
+            total = gap*2+1
+            if(numDiagPrimes*10 < total):
+                break
+        length = gap + 1
+        return length
         
 
     def euler67(self):
