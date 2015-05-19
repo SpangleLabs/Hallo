@@ -1093,6 +1093,20 @@ class Euler(Function):
             if(handOne.pokerBeats(handTwo)):
                 totalWins += 1
         return totalWins
+    
+    def euler55(self):
+        total = 0
+        for num in range(10**4):
+            tempNum = num
+            isLychell = True
+            for _ in range(50):
+                tempNum = tempNum + int(str(tempNum)[::-1])
+                if(self.checkPalindrome(str(tempNum))):
+                    isLychell = False
+                    break
+            if(isLychell):
+                total += 1
+        return total
 
     def euler67(self):
         #this is the same as  problem 18, but bigger file.
