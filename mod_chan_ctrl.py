@@ -3,19 +3,6 @@ import ircbot_chk
 endl = '\r\n'
 class mod_chan_ctrl:
 
-    def fn_mute(self,args,client,destination):
-        'Mutes a given channel or current channel. Format: mute <channel>'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            args = args.replace(' ','')
-            if(args==''):
-                self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +m ' + endl).encode('utf-8'))
-                return "Muted the channel."
-            else:
-                self.core['server'][destination[0]]['socket'].send(('MODE ' + args + ' +m ' + endl).encode('utf-8'))
-                return "Muted " + args + "."
-        else:
-            return "You have insufficient privileges to use this function."
-
     def fn_unmute(self,args,client,destination):
         'Unmutes a given channel or current channel if none is given. Format: unmute <channel>'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
