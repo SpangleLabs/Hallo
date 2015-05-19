@@ -255,6 +255,19 @@ class Hand:
         'Returns the number of cards in the hand'
         return len(self.mCardList)
     
+    def isStraightFlush(self):
+        'Checks whether a hand is a straight flush, for poker. Returns false or highest value'
+        #Check all cards are the same suit.
+        if(len(set([card.getSuit() for card in self.mCardList]))!=1):
+            return False
+        #Get minimum card pokeer value
+        minValue = min([card.pokerValue() for card in self.mCardList])
+        #Check that the set of card values minus minimum value is equal to the range 0-4
+        cardRange = set([card.pokerValue()-minValue for card in self.mCardList])
+        if(cardRange==set(range(5))):
+            return minValue+4
+        return False
+    
     def __str__(self):
         return self.toString()
 
