@@ -255,8 +255,14 @@ class Hand:
         'Returns the number of cards in the hand'
         return len(self.mCardList)
     
+    def isRoyalFlush(self):
+        'Checks whether a hand is a royal flush, for poker. Returns False or True'
+        if(self.isStraightFlush()==14):
+            return True
+        return False
+    
     def isStraightFlush(self):
-        'Checks whether a hand is a straight flush, for poker. Returns false or highest value'
+        'Checks whether a hand is a straight flush, for poker. Returns False or highest value'
         #Check all cards are the same suit.
         if(len(set([card.getSuit() for card in self.mCardList]))!=1):
             return False
