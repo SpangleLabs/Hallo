@@ -261,6 +261,37 @@ class Hand:
     def toString(self):
         'Returns a string representing the cards in the hand.'
         return ", ".join([card.toString() for card in self.mCardList])
+    
+    @staticmethod
+    def fromTwoLetterCodeList(deck,twoLetterCodeList):
+        'Creates a hand from a deck and a list of 2 letter codes.'
+        suitDict = {}
+        suitDict['C'] = Card.SUIT_CLUBS
+        suitDict['S'] = Card.SUIT_SPADES
+        suitDict['H'] = Card.SUIT_HEARTS
+        suitDict['D'] = Card.SUIT_DIAMONDS
+        valueDict = {}
+        valueDict['A'] = Card.CARD_ACE
+        valueDict['2'] = Card.CARD_2
+        valueDict['3'] = Card.CARD_3
+        valueDict['4'] = Card.CARD_4
+        valueDict['5'] = Card.CARD_5
+        valueDict['6'] = Card.CARD_6
+        valueDict['7'] = Card.CARD_7
+        valueDict['8'] = Card.CARD_8
+        valueDict['9'] = Card.CARD_9
+        valueDict['T'] = Card.CARD_10
+        valueDict['J'] = Card.CARD_JACK
+        valueDict['Q'] = Card.CARD_QUEEN
+        valueDict['K'] = Card.CARD_KING
+        newHand = Hand(None)
+        for letterCode in twoLetterCodeList:
+            suitCode = letterCode[1]
+            valueCode = letterCode[0]
+            cardSuit = suitDict[suitCode]
+            cardValue = valueDict[valueCode]
+            newHand.addCard(deck.getCard(cardSuit,cardValue))
+        return newHand
 
 class RandomCard(Function):
     '''
