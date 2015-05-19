@@ -3,35 +3,6 @@ import ircbot_chk
 endl = '\r\n'
 class mod_chan_ctrl:
     
-    def fn_op(self, args, client, destination):
-        'Op member in given channel, or current channel if no channel given. Or command user if no member given. Format: op <name> <channel>'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            if(len(args.split())>=2):
-                args = args.split()
-                args[1] = ''.join(args[1:])
-                if(args[0] in self.conf['server'][destination[0]]['channel']):
-                    channel = args[0]
-                    nick = args[1]
-                elif(args[1] in self.conf['server'][destination[0]]['channel']):
-                    channel = args[1]
-                    nick = args[0]
-                else:
-                    return 'Multiple arguments given, but neither are a valid channel.'
-                self.core['server'][destination[0]]['socket'].send(('MODE ' + channel + ' +o ' + nick + endl).encode('utf-8'))
-                return 'Op status given to ' + nick + ' in ' + channel + '.'
-            elif(args.replace(' ','')!=''):
-                if(args[0]=='#'):
-                    self.core['server'][destination[0]]['socket'].send(('MODE ' + args + ' +o ' + client + endl).encode('utf-8'))
-                    return 'Op status given to you in ' + args + '.'
-                else:
-                    self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +o ' + args + endl).encode('utf-8'))
-                    return 'Op status given to ' + args + '.'
-            else:
-                self.core['server'][destination[0]]['socket'].send(('MODE ' + destination[1] + ' +o ' + client + endl).encode('utf-8'))
-                return 'Op status given.'
-        else:
-            return 'Insufficient privileges to add op status.'
-    
     def fn_deop(self, args, client, destination):
         'Deop member in given channel, or current channel if no channel given. Or command user if no member given. Format: deop <name> <channel>'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
