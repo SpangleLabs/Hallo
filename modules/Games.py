@@ -94,9 +94,18 @@ class Card:
         pokerDict[self.CARD_KING] = 13
         pokerDict[self.CARD_QUEEN] = 12
         pokerDict[self.CARD_JACK] = 11
+        pokerDict[self.CARD_10] = 10
+        pokerDict[self.CARD_9] = 9
+        pokerDict[self.CARD_8] = 8
+        pokerDict[self.CARD_7] = 7
+        pokerDict[self.CARD_6] = 6
+        pokerDict[self.CARD_5] = 5
+        pokerDict[self.CARD_4] = 4
+        pokerDict[self.CARD_3] = 3
+        pokerDict[self.CARD_2] = 2
         if(self.mValue in pokerDict):
             return pokerDict[self.mValue]
-        return self.mValue
+        return None
     
     def __int__(self):
         return self.toInt()
