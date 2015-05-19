@@ -58,17 +58,6 @@ class mod_chan_ctrl:
         else:
             return "You have insufficient privileges to use this function."
 
-    def fn_staff(self,args,client,destination):
-        'Sends a message to all online staff members, and posts a message in the staff channel. Format: staff <message>'
-        if(not ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            if('admininform' in self.conf['server'][destination[0]]):
-                for admin in ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],self.conf['server'][destination[0]]['admininform']):
-                    self.base_say(client + ' has sent a message to all staff members. The message is as follows: ' + args,[destination[0],admin])
-            if('admininform_chan' in self.conf['server'][destination[0]]):
-                for adminchan in self.conf['server'][destination[0]]['admininform_chan']:
-                    self.base_say(client + ' has sent a message to all staff members. The message is as follows: ' + args,[destination[0],adminchan])
-            return "Message delivered. A staff member will be in contact with you shortly. :)"
-
     def fn_kick(self, args, client, destination):
         'Kick given user in given channel, or current channel if no channel given.'
         check = ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)
@@ -170,142 +159,6 @@ class mod_chan_ctrl:
                 return "There are no autoflags set for that user in that channel."
             return "Removed all auto flags for " + user + " on " + ', '.join([channel[0] + ':' + channel[1] for channel in chan]) + "."
 
-    def fn_admin_inform_add(self,args,client,destination):
-        'Add a user to the admin swear inform list, ops only.'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            args = args.lower().replace(' ','')
-            if(args not in self.conf['server'][destination[0]]['admininform']):
-                self.conf['server'][destination[0]]['admininform'].append(args)
-                return "Added " + args + " to the admininform list."
-            else:
-                return "This person is already on the admininform list."
-        else:
-            return "Sorry, this function is for ops only."
-
-    def fn_admin_inform_list(self,args,client,destination):
-        'Lists users who are informed when sweardetect detects swearing.'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            return "Users on admininform for this server: " + ', '.join(self.conf['server'][destination[0]]['admininform']) + "."
-        else:
-            return "Sorry, this function is for ops only."
-
-    def fn_admin_inform_del(self,args,client,destination):
-        'Delete a user from being informed about swearing in selected channels'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            args = args.lower().replace(' ','')
-            if(args in self.conf['server'][destination[0]]['admininform']):
-                self.conf['server'][destination[0]]['admininform'].remove(args)
-                return "Removed " + args + " from admininform list."
-            else:
-                return args + " isn't even on the admininform list for " + destination[0] + "."
-        else:
-            return "Sorry, this function is for ops only."
-
-    def fn_swear_add(self,args,client,destination):
-        'Add a swear to a channel swear list, format is "swear_add <list> <channel> <swearregex>". List is either "possible", "inform" or "comment"'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            if(len(args.split())>=3):
-                args = args.split()
-                args[2] = ' '.join(args[2:])
-                if(args[0].lower() in ['possible','inform','comment']):
-                    swearlist = args[0].lower()
-                    del args[0]
-                elif(args[1].lower() in ['possible','inform','comment']):
-                    swearlist = args[1].lower()
-                    del args[1]
-                elif(args[2].lower() in ['possible','inform','comment']):
-                    swearlist = args[2].lower()
-                    del args[2]
-                else:
-                    return "No valid lists given. Valid lists are 'possible', 'inform' or 'comment'."
-                if(args[0].lower() in self.conf['server'][destination[0]]['channel']):
-                    channel = args[0].lower()
-                    regex = args[1]
-                elif(args[1].lower() in self.conf['server'][destination[0]]['channel']):
-                    channel = args[1].lower()
-                    regex = args[0]
-                else:
-                    return "I'm not in that channel."
-                self.conf['server'][destination[0]]['channel'][channel]['swearlist'][swearlist.lower()].append(regex)
-                return "Added " + regex + " to " + swearlist + " swear list for " + channel + "."
-            else:
-                return "Not enough arguments, remember to provide me with a list, then channel, then the regex for the swear you want to add. Lists are either 'possible', 'inform' or 'comment'."
-        else:
-            return "Sorry, this function is for ops only."
-
-    def fn_swear_list(self,args,client,destination):
-        'Lists swears in a given channel. Format is swear_list <list> <channel>. Please only ask for this in privmsg.'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            if(len(args.split())>=2):
-                args = args.lower().split()
-                if(args[0] in ['possible','inform','comment']):
-                    swearlist = args[0]
-                    channel = args[1]
-                elif(args[1] in ['possible','inform','comment']):
-                    swearlist = args[1]
-                    channel = args[0]
-                else:
-                    return "That's not a valid list."
-                if(channel in self.conf['server'][destination[0]]['channel']):
-                    if(destination[1]!=channel):
-                        return "Here is the " + swearlist + " swear list for " + channel + ": " + ', '.join(self.conf['server'][destination[0]]['channel'][channel]['swearlist'][swearlist.lower()]) + "."
-                    else:
-                        return "I'm not printing a swear list in a channel."
-                else:
-                    return "I'm not even in that channel."
-            else:
-                return "That's not enough arguments, remember to provide me with a list, then a channel. Lists are either 'possible', 'inform' or 'comment'."
-        else:
-            return "Sorry, this function is for ops only."
-
-    def fn_swear_del(self,args,client,destination):
-        'Deletes a swear from a swear list, format is "swear_del <list> <channel> <swearregex>". List is either "possible", "inform" or "comment"'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            if(len(args.split())>=3):
-                args = args.lower().split()
-                args[2] = ' '.join(args[2:])
-                if(args[0] in ['possible','inform','comment']):
-                    swearlist = args[0]
-                    del args[0]
-                elif(args[1] in ['possible','inform','comment']):
-                    swearlist = args[1]
-                    del args[1]
-                elif(args[2] in ['possible','inform','comment']):
-                    swearlist = args[2]
-                    del args[2]
-                else:
-                    return "That's not a valid list. Valid lists are 'possible', 'inform' or 'comment'."
-                if(args[0] in self.conf['server'][destination[0]]['channel']):
-                    channel = args[0]
-                    regex = args[1]
-                elif(args[1] in self.conf['server'][destination[0]]['channel']):
-                    channel = args[1]
-                    regex = args[0]
-                else:
-                    return "I'm not in that channel."
-                if(regex in self.conf['server'][destination[0]]['channel'][channel]['swearlist'][swearlist.lower()]):
-                    self.conf['server'][destination[0]]['channel'][channel]['swearlist'][swearlist.lower()].remove(regex)
-                    return "Removed " + regex + " from " + swearlist + " swear list for " + channel + "."
-                else:
-                    return "That's not in the " + swearlist + " swear list for " + channel + "."
-            else:
-                return "Not enough arguments, remember to provide me with a list, then channel, then the regex for the swear you want to remove. Lists are either 'possible', 'inform' or 'comment'."
-        else:
-            return "Sorry, this function is for ops only."
-
-    def fn_swear_comment_message(self,args,client,destination):
-        'Set the message for comment swears, format is "swear_comment_message <channel> <message>" {swear} in the message will be replaced with the swear that was used.'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            channel = args.split()[0].lower()
-            message = ' '.join(args.split()[1:])
-            if(channel in self.conf['server'][destination[0]]['channel']):
-                self.conf['server'][destination[0]]['channel'][channel]['swearlist']['commentmsg'] = message
-                return "Set swear comment message to: " + message + "."
-            else:
-                return "I'm not in that channel."
-        else:
-            return "Insufficient privileges to set swear comment message."
-
     def fn_channel_caps(self,args,client,destination):
         'Sets or toggles caps lock for channel, ops only'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
@@ -371,21 +224,6 @@ class mod_chan_ctrl:
                 return "Megahal recording off."
         else:
             return "Insufficient privileges to set megahal recording."
-
-    def fn_channel_swear_detect(self,args,client,destination):
-        'Sets or toggles sweardetection for channel, ops only'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            if(args==''):
-                self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect']
-                return "Swear detection toggled."
-            elif(args.lower()=='true' or args.lower()=='1' or args.lower()=='on'):
-                self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect'] = True
-                return "Swear detection on."
-            else:
-                self.conf['server'][destination[0]]['channel'][destination[1]]['sweardetect'] = False
-                return "Swear detection off."
-        else:
-            return "Insufficient privileges to set swear detection."
 
     def fn_channel_passive_func(self,args,client,destination):
         'Sets or toggles passive functions for channel, gods only'
