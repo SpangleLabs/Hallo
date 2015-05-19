@@ -321,6 +321,23 @@ class Hand:
         if(cardRange==set(range(5))):
             return minValue+4
         return False
+    
+    def isThreeOfAKind(self):
+        'Checks whether a hand contains 3 of a kind, for poker. Returns False or list.'
+        threeCardValue = None
+        otherCardValues = []
+        for card in self.mCardList:
+            cardValue = card.getValue()
+            countValue = self.countValue(cardValue)
+            if(countValue==3):
+                threeCardValue = card.pokerValue()
+            else:
+                otherCardValues.append(card.pokerValue())
+        if(threeCardValue is None):
+            return False
+        maxOtherCardValue = max(otherCardValues)
+        minOtherCardValue = min(otherCardValues)
+        return [threeCardValue,maxOtherCardValue,minOtherCardValue]
 
     def __str__(self):
         return self.toString()
