@@ -348,13 +348,37 @@ class Hand:
             countValue = self.countValue(cardValue)
             if(countValue==2):
                 twoCardValues.add(card.pokerValue())
-            else:
+            elif(countValue==1):
                 otherCardValue = card.pokerValue()
+            else:
+                return False
         if(len(twoCardValues)!=2):
             return False
         maxTwoCardValue = max(twoCardValues)
         minTwoCardValue = min(twoCardValues)
         return [maxTwoCardValue,minTwoCardValue,otherCardValue]
+    
+    def isOnePair(self):
+        'Checks whether a hand contains one pair, for poker. Returns False or list.'
+        twoCardValue = None
+        otherCardValues = []
+        for card in self.mCardList:
+            cardValue = card.getValue()
+            countValue = self.countValue(cardValue)
+            if(countValue==2):
+                twoCardValue = card.pokerValue()
+            elif(countValue==1):
+                otherCardValues.append(card.pokerValue())
+            else:
+                return False
+        if(twoCardValue is None or len(otherCardValues)!=3):
+            return False
+        return [twoCardValue] + sorted(otherCardValues)[::-1]
+    
+    def pokerHighCard(self):
+        'Returns a list of poker card values, sorted from highest to lowest.'
+        cardValues = [card.pokerValue() for card in self.mCardList]
+        return sorted(cardValues)[::-1]
 
     def __str__(self):
         return self.toString()
