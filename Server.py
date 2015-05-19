@@ -45,8 +45,8 @@ class Server(object):
     #Persistent/saved class variables
     mName = None                #server name
     mAutoConnect = True         #Whether to automatically connect to this server when hallo starts
-    mChannelList = []           #list of channels on this server (which may or may not be currently active)
-    mUserList = []              #Users on this server (not all of which are online)
+    mChannelList = None         #List of channels on this server (which may or may not be currently active)
+    mUserList = None            #Users on this server (not all of which are online)
     mNick = None                #Nickname to use on this server
     mPrefix = None              #Prefix to use with functions on this server
     mFullName = None            #Full name to use on this server
@@ -58,6 +58,8 @@ class Server(object):
         '''
         Constructor for server object
         '''
+        self.mChannelList = []
+        self.mUserList = []
         self.mHallo = hallo
         self.mPermissionMask = PermissionMask()
         raise NotImplementedError
@@ -210,8 +212,8 @@ class ServerIRC(Server):
     #Persistent/saved class variables
     mName = None                #server name
     mAutoConnect = True         #Whether to automatically connect to this server when hallo starts
-    mChannelList = []           #list of channels on this server (which may or may not be currently active)
-    mUserList = []              #Users on this server (not all of which are online)
+    mChannelList = None         #list of channels on this server (which may or may not be currently active)
+    mUserList = None            #Users on this server (not all of which are online)
     mConnection = None          #Connection for the server, socket or whatnot
     mNick = None                #Nickname to use on this server
     mPrefix = None              #Prefix to use with functions on this server
@@ -243,6 +245,8 @@ class ServerIRC(Server):
         '''
         Constructor for server object
         '''
+        self.mChannelList = []
+        self.mUserList = []
         self.mHallo = hallo
         self.mPermissionMask = PermissionMask()
         self.mCheckChannelUserListLock = Lock()

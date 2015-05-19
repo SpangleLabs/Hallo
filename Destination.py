@@ -97,7 +97,7 @@ class Destination:
 class Channel(Destination):
     mType = "channel"           #This is a channel object
     mPassword = None            #Channel password, or none.
-    mUserList = set()           #Users in the channel
+    mUserList = None            #Set of users in the channel
     mInChannel = False          #Whether or not hallo is in the channel
     mPassiveEnabled = True      #Whether to use passive functions in the channel
     mAutoJoin = False           #Whether hallo should automatically join this channel when loading
@@ -107,6 +107,7 @@ class Channel(Destination):
         '''
         Constructor for channel object
         '''
+        self.mUserList = set()
         self.mName = name.lower()
         self.mServer = server
 
@@ -271,14 +272,16 @@ class Channel(Destination):
 class User(Destination):
     mType = "user"              #This is a user object
     mIdentified = False         #Whether the user is identified (with nickserv)
-    mChannelList = set()        #List of channels this user is in
+    mChannelList = None         #Set of channels this user is in
     mOnline = False             #Whether or not the user is online
-    mUserGroupList = {}         #List of UserGroups this User is a member of
+    mUserGroupList = None       #List of UserGroups this User is a member of
 
     def __init__(self,name,server):
         '''
         Constructor for user object
         '''
+        self.mChannelList = set()
+        self.mUserGroupList = {}
         self.mName = name.lower()
         self.mServer = server
     

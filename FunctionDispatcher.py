@@ -10,17 +10,22 @@ class FunctionDispatcher(object):
     '''
     FunctionDispatcher is a class to manage functions and to send function requests to the relevant function.
     '''
-    mHallo = None               #Hallo object which owns this
-    mModuleList = set()         #List of available module names, then function names, then various variables
-    mFunctionDict = {}          #Dictionary of moduleObjects->functionClasses->nameslist/eventslist
-    mFunctionNames = {}         #Dictionary of names -> functionClasses
-    mPersistentFunctions = {}   #Dictionary of persistent function objects. functionClass->functionObject
-    mEventFunctions = {}        #Dictionary with events as keys and sets of function classes (which may want to act on those events) as arguments
+    mHallo = None                 #Hallo object which owns this
+    mModuleList = None            #List of available module names, then function names, then various variables
+    mFunctionDict = None          #Dictionary of moduleObjects->functionClasses->nameslist/eventslist
+    mFunctionNames = None         #Dictionary of names -> functionClasses
+    mPersistentFunctions = None   #Dictionary of persistent function objects. functionClass->functionObject
+    mEventFunctions = None        #Dictionary with events as keys and sets of function classes (which may want to act on those events) as arguments
 
     def __init__(self,moduleList):
         '''
         Constructor
         '''
+        self.mModuleList = set()
+        self.mFunctionDict = {}
+        self.mFunctionNames = {}
+        self.mPersistentFunctions = {}
+        self.mEventFunctions = {}
         #Copy moduleList to self.mModuleList
         self.mModuleList = moduleList
         #Load all functions

@@ -8,13 +8,15 @@ class ConvertRepo:
     '''
     Configuration repository. Stores list of ConvertTypes, ConvertPrefixGroups, etc
     '''
-    mTypeList = []
-    mPrefixGroupList = []
+    mTypeList = None
+    mPrefixGroupList = None
 
     def __init__(self):
         '''
         Constructor
         '''
+        self.mTypeList = []
+        self.mPrefixGroupList = []
         #Nothing needs doing
         pass
     
@@ -116,9 +118,10 @@ class ConvertType:
     mName = None
     mDecimals = 2
     mBaseUnit = None
-    mUnitList = []
+    mUnitList = None
     
     def __init__(self,repo,name):
+        self.mUnitList = []
         self.mRepo = repo
         self.mName = name
     
@@ -234,14 +237,16 @@ class ConvertUnit:
     Conversion unit object.
     '''
     mType = None
-    mNameList = []
-    mAbbreviationList = []
+    mNameList = None
+    mAbbreviationList = None
     mValidPrefixGroup = None
     mValue = None
     mOffset = 0
     mLastUpdated = None
     
     def __init__(self,convertType,names,value):
+        self.mNameList = []
+        self.mAbbreviationList = []
         self.mType = convertType
         self.mNameList = names
         self.mValue = value
@@ -472,9 +477,10 @@ class ConvertPrefixGroup:
     '''
     mRepo = None
     mName = None
-    mPrefixList = []
+    mPrefixList = None
     
     def __init__(self,repo,name):
+        self.mPrefixList = []
         self.mRepo = repo
         self.mName = name
     

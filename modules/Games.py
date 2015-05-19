@@ -170,10 +170,12 @@ class Deck:
     Generates 52 cards and can then shuffle them.
     WILL NOT SHUFFLE BY DEFAULT.
     '''
-    mCardList = []  #List of cards in the deck.
-    mAllCards = []  #All the cards which were originally in the deck.
+    mCardList = None  #List of cards in the deck.
+    mAllCards = None  #All the cards which were originally in the deck.
     
     def __init__(self):
+        self.mCardList = []
+        self.mAllCards = []
         cardList = []
         for cardSuit in [Card.SUIT_HEARTS,Card.SUIT_CLUBS,Card.SUIT_DIAMONDS,Card.SUIT_SPADES]:
             suitList = []
@@ -210,10 +212,11 @@ class Hand:
     '''
     Hand of cards, stores a set of cards in an order.
     '''
-    mCardList = []
+    mCardList = None
     mPlayer = None
     
     def __init__(self,userObject):
+        self.mCardList = []
         self.mPlayer = userObject
     
     def shuffle(self):
@@ -666,7 +669,7 @@ class Game:
     '''
     Generic Game object. Stores players and location.
     '''
-    mPlayers = set()
+    mPlayers = None
     mChannel = None
     mStartTime = None
     mLastTime = None
@@ -706,12 +709,13 @@ class HigherOrLowerGame(Game):
     HIGH_SCORE_NAME = "higher_or_lower"
     mDeck = None
     mLastCard = None
-    mCardList = []
+    mCardList = None
     mTurns = 0
     mHighScoresObject = None
     
     
     def __init__(self,userObject,channelObject):
+        self.mCardList = []
         self.mPlayers = set([userObject])
         self.mChannel = channelObject
         self.mStartTime = time.time()
@@ -849,7 +853,7 @@ class HigherOrLower(Function):
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Picks a random card from a deck. Format: random_card"
     
-    mGameList = []
+    mGameList = None
     mStartCommands = ["start"]
     mEndCommands = ["end","quit","escape"]
     mHighCommands = ["higher","high","more","more","greater","greater","bigger",">"]
@@ -857,6 +861,7 @@ class HigherOrLower(Function):
     
     #Boring functions
     def __init__(self):
+        self.mGameList = []
         '''
         Constructor
         '''
@@ -1066,7 +1071,7 @@ class Blackjack(Function):
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Picks a random card from a deck. Format: random_card"
     
-    mGameList = []
+    mGameList = None
     mStartCommands = ["start"]
     mEndCommands = ["end","quit","escape"]
     mHitCommands = ["hit"]
@@ -1074,6 +1079,7 @@ class Blackjack(Function):
     
     #Boring functions
     def __init__(self):
+        self.mGameList = []
         '''
         Constructor
         '''
@@ -1196,15 +1202,18 @@ class DDRGame(Game):
     mHighScoreObject = None
     mLastMove = None
     mDifficulty = None
-    mPlayers = set()
+    mPlayers = None
     mChannel = None
-    mPlayersMoved = set()
-    mPlayerDict = {}
+    mPlayersMoved = None
+    mPlayerDict = None
     mCanJoin = True
     mGameOver = False
     mNumTurns = None
     
     def __init__(self,gameDifficulty,userObject,channelObject):
+        self.mPlayers = set()
+        self.mPlayersMoved = set()
+        self.mPlayerDict = {}
         self.mDifficulty = gameDifficulty
         self.mPlayers = set([userObject])
         self.mPlayerDict[userObject] = {'hits':0,'lag':0}
@@ -1385,7 +1394,7 @@ class DDR(Function):
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Plays dance dance revolution. Hallo says directions and users must respond to them correctly and in the fastest time they can"
     
-    mGameList = []
+    mGameList = None
     mStartCommands = ["start","easy","medium","med","hard"]
     mJoinCommands = ["join"]
     mEndCommands = ["end","quit","escape"]
@@ -1393,6 +1402,7 @@ class DDR(Function):
     
     #Boring functions
     def __init__(self):
+        self.mGameList = []
         '''
         Constructor
         '''

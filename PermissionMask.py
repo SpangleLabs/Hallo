@@ -5,7 +5,10 @@ class PermissionMask(object):
     '''
     Permission mask object, stores which rights are enabled or disabled by level
     '''
-    mRightsMap = {}
+    mRightsMap = None
+    
+    def __init__(self):
+        self.mRightsMap = {}
     
     def getRight(self,right):
         'Gets the value of the specified right in the rights map'

@@ -10,12 +10,13 @@ class UserGroup:
     mName = None            #Name of the UserGroup
     mPermissionMask = None  #PermissionMask for the UserGroup
     mHallo = None           #Hallo instance that owns this UserGroup
-    mUserList = set()       #Dynamic userlist of this group
+    mUserList = None        #Dynamic userlist of this group
 
     def __init__(self,hallo,name):
         '''
         Constructor
         '''
+        self.mUserList = set()
         self.mHallo = hallo
         self.mName = name
         self.mPermissionMask = PermissionMask()

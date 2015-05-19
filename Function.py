@@ -5,7 +5,7 @@ class Function:
     Generic function object. All functions inherit from this.
     '''
     mHelpName = None    #Name for use in help listing
-    mNames = set()      #Names which can be used to address the function
+    mNames = None       #Set of names which can be used to address the function
     mHelpDocs = None    #Help documentation, if it's just a single line, can be set here
     #Static constants
     EVENT_SECOND = "time_second"   #Event which happens every second
@@ -29,6 +29,7 @@ class Function:
         '''
         Constructor for the function
         '''
+        self.mNames = set()
         raise NotImplementedError
     
     def run(self,line,userObject,destinationObject):

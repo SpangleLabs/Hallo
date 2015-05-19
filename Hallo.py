@@ -33,10 +33,12 @@ class Hallo:
     mServerFactory = None
     mPermissionMask = None
     mFunctionDispatcher = None
-    mUserGroupList = {}
-    mServerList = []
+    mUserGroupList = None
+    mServerList = None
 
     def __init__(self):
+        self.mUserGroupList = {}
+        self.mServerList = []
         #Create ServerFactory
         self.mServerFactory = ServerFactory(self)
         self.mPermissionMask = PermissionMask()
