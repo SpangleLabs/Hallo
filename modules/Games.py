@@ -338,6 +338,23 @@ class Hand:
         maxOtherCardValue = max(otherCardValues)
         minOtherCardValue = min(otherCardValues)
         return [threeCardValue,maxOtherCardValue,minOtherCardValue]
+    
+    def isTwoPairs(self):
+        'Checks whether a hand contains two pairs, for poker. Returns False or list.'
+        twoCardValues = set()
+        otherCardValue = None
+        for card in self.mCardList:
+            cardValue = card.getValue()
+            countValue = self.countValue(cardValue)
+            if(countValue==2):
+                twoCardValues.add(card.pokerValue())
+            else:
+                otherCardValue = card.pokerValue()
+        if(len(twoCardValues)!=2):
+            return False
+        maxTwoCardValue = max(twoCardValues)
+        minTwoCardValue = min(twoCardValues)
+        return [maxTwoCardValue,minTwoCardValue,otherCardValue]
 
     def __str__(self):
         return self.toString()
