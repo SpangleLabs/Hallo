@@ -280,10 +280,13 @@ class Hand:
         otherCardValue = None
         for card in self.mCardList:
             cardValue = card.getValue()
-            if(self.countValue(cardValue)==4):
+            countValue = self.countValue(cardValue)
+            if(countValue==4):
                 fourCardValue = card.pokerValue()
-            else:
+            elif(countValue==1):
                 otherCardValue = card.pokerValue()
+            else:
+                return False
         if(fourCardValue is None):
             return False
         return [fourCardValue,otherCardValue]
@@ -301,6 +304,8 @@ class Hand:
                 twoCardValue = card.pokerValue()
             else:
                 return False
+        if(threeCardValue is None or twoCardValue is None):
+            return False
         return [threeCardValue,twoCardValue]
                 
     
