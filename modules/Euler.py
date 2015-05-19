@@ -1116,6 +1116,25 @@ class Euler(Function):
                 sumDigits = sum([int(x) for x in list(str(power))])
                 maxDigits = max(maxDigits,sumDigits)
         return maxDigits
+    
+    def euler57(self):
+        numerator = 3
+        denominator = 2
+        total = 0
+        #Do 1000 iterations
+        for _ in range(10**3):
+            #If numerator is longer than denominator, add to total
+            if(len(str(numerator))>len(str(denominator))):
+                total += 1
+            #Add 1 to fraction
+            numerator += denominator
+            #Flip fraction
+            temp = numerator
+            numerator = denominator
+            denominator = temp
+            #Add 1 to fraction
+            numerator += denominator
+        return total
         
 
     def euler67(self):
