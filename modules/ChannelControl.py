@@ -393,6 +393,41 @@ class Mute(Function):
         serverObject.send("MODE "+targetChannel.getName()+" +m",None,"raw")
         return "Set mute in "+targetChannel.getName()+"."
 
+class UnMute(Function):
+    '''
+    Mutes the current or a selected channel. IRC only.
+    '''
+    #Name for use in help listing
+    mHelpName = "unmute"
+    #Names which can be used to address the function
+    mNames = set(["unmute","un mute"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Unmutes a given channel or current channel if none is given. Format: unmute <channel>"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        #Get server object
+        serverObject = userObject.getServer()
+        #TODO: check if hallo has op.
+        #Check if no arguments were provided
+        if(line.strip()==""):
+            targetChannel = destinationObject
+            if(targetChannel is None or targetChannel==userObject):
+                return "You can't set mute on a privmsg."
+            serverObject.send("MODE "+targetChannel.getName()+" -m",None,"raw")
+            return "Unset mute."
+        #Get channel from user input
+        targetChannel = serverObject.getChannelByName(line.strip())
+        if(targetChannel is None or not targetChannel.isInChannel()):
+            return "I'm not in that channel."
+        serverObject.send("MODE "+targetChannel.getName()+" -m",None,"raw")
+        return "Unset mute in "+targetChannel.getName()+"."
+
 
 
 
