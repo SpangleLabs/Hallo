@@ -152,3 +152,15 @@ class Commons(object):
         'Gets the longest string of digits from the start of a string, or None'
         return ([string[:x] for x in range(1,len(string)+1) if Commons.isFloatString(string[:x])][::-1]+[string[x:] for x in range(len(string))if Commons.isFloatString(string[x:])]+[None])[0]
 
+    @staticmethod
+    def listGreater(listOne,listTwo):
+        'Checks whether listOne is "greater" than listTwo.'
+        if(len(listOne)!=len(listTwo)):
+            return Exception("Lists must be the same length.")
+        for index in range(len(listOne)):
+            if(listOne[index]==listTwo[index]):
+                continue
+            if(listOne[index]>listTwo[index]):
+                return True
+            return False
+            
