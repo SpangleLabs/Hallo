@@ -1,6 +1,7 @@
 from Function import Function
 import math
 import itertools
+from modules.Games import Deck,Hand  #Problem 54 is based on poker.
 
 class Euler(Function):
     '''
@@ -1081,6 +1082,17 @@ class Euler(Function):
                 if(ncrValue>10**6):
                     num += 1
         return num
+    
+    def euler54(self):
+        listPokerGames = open("store/euler/euler_54_poker.txt","r").read().split("\n")
+        totalWins = 0
+        for pokerGame in listPokerGames:
+            deck = Deck()
+            handOne = Hand.fromTwoLetterCodeList(deck,pokerGame.split()[:5])
+            handTwo = Hand.fromTwoLetterCodeList(deck,pokerGame.split()[5:])
+            if(handOne.pokerBeats(handTwo)):
+                totalWins += 1
+        return totalWins
 
     def euler67(self):
         #this is the same as  problem 18, but bigger file.
