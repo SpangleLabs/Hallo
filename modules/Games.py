@@ -82,10 +82,24 @@ class Card:
         return cardValue + " of " + cardSuit
         
     def sumValue(self):
-        'Outputs the value as an integer.'
-        if(self.mValue in [self.CARD_JACK,self.CARD_QUEEN,self.CARD_KING]):
-            return 10
-        return int(self.mValue)
+        'Outputs the value as an integer. For blackjack.'
+        blackJackDict = {}
+        blackJackDict[self.CARD_KING] = 10
+        blackJackDict[self.CARD_QUEEN] = 10
+        blackJackDict[self.CARD_JACK] = 10
+        blackJackDict[self.CARD_10] = 10
+        blackJackDict[self.CARD_9] = 9
+        blackJackDict[self.CARD_8] = 8
+        blackJackDict[self.CARD_7] = 7
+        blackJackDict[self.CARD_6] = 6
+        blackJackDict[self.CARD_5] = 5
+        blackJackDict[self.CARD_4] = 4
+        blackJackDict[self.CARD_3] = 3
+        blackJackDict[self.CARD_2] = 2
+        blackJackDict[self.CARD_ACE] = 1
+        if(self.mValue in blackJackDict):
+            return blackJackDict[self.mValue]
+        return None
     
     def pokerValue(self):
         'Outputs poker value. From 2 to 14.'
@@ -112,13 +126,23 @@ class Card:
     
     def toInt(self):
         'Converts the card value to integer, for higher or lower and similar'
-        if(self.mValue == self.CARD_JACK):
-            return 11
-        if(self.mValue == self.CARD_QUEEN):
-            return 12
-        if(self.mValue == self.CARD_KING):
-            return 13
-        return self.mValue
+        intDict = {}
+        intDict[self.CARD_KING] = 13
+        intDict[self.CARD_QUEEN] = 12
+        intDict[self.CARD_JACK] = 11
+        intDict[self.CARD_10] = 10
+        intDict[self.CARD_9] = 9
+        intDict[self.CARD_8] = 8
+        intDict[self.CARD_7] = 7
+        intDict[self.CARD_6] = 6
+        intDict[self.CARD_5] = 5
+        intDict[self.CARD_4] = 4
+        intDict[self.CARD_3] = 3
+        intDict[self.CARD_2] = 2
+        intDict[self.CARD_ACE] = 1
+        if(self.mValue in intDict):
+            return intDict[self.mValue]
+        return None
     
     def isInDeck(self):
         'boolean, whether the card is still in the deck.'
