@@ -307,8 +307,16 @@ class Hand:
         if(threeCardValue is None or twoCardValue is None):
             return False
         return [threeCardValue,twoCardValue]
-                
     
+    def isFlush(self):
+        'Checks whether a hand is all the same suit, for poker. Returns False or value of highest card.'
+        #Check all cards are the same suit.
+        if(len(set([card.getSuit() for card in self.mCardList]))!=1):
+            return False
+        #Get highest card value and output
+        maxValue = max([card.pokerValue() for card in self.mCardList])
+        return maxValue
+
     def __str__(self):
         return self.toString()
 
