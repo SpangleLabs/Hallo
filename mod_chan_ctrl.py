@@ -3,26 +3,6 @@ import ircbot_chk
 endl = '\r\n'
 class mod_chan_ctrl:
 
-    def fn_kick(self, args, client, destination):
-        'Kick given user in given channel, or current channel if no channel given.'
-        check = ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)
-        if(check):
-            if(len(args.split())>=2):
-                user = args.split()[0]
-                channel = args.split()[1]
-                message = ' '.join(args.split()[2:])
-                self.core['server'][destination[0]]['socket'].send(('KICK ' + channel + ' ' + user + ' ' + message + endl).encode('utf-8'))
-                return 'Kicked ' + user + ' from ' + channel + '.'
-            elif(args.replace(' ','')!=''):
-                args = args.replace(' ','')
-                channel = destination[1]
-                self.core['server'][destination[0]]['socket'].send(('KICK ' + channel + ' ' + args + endl).encode('utf-8'))
-                return 'Kicked ' + args + '.'
-            else:
-                return 'Please, tell me who to kick.'
-        else:
-            return 'Insufficient privileges to kick.'
-
     def fn_auto(self,args,client,destination):
         'Automatically apply flags to a user when they join a channel. Format: auto add {user} {flags} {channel}, auto list {channel}, or auto del {user} {channel}'
         args = args.split()

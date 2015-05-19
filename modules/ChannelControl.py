@@ -428,6 +428,96 @@ class UnMute(Function):
         serverObject.send("MODE "+targetChannel.getName()+" -m",None,"raw")
         return "Unset mute in "+targetChannel.getName()+"."
 
+class Kick(Function):
+    '''
+    Kicks a specified user from a specified channel. IRC Only.
+    '''
+    #Name for use in help listing
+    mHelpName = "kick"
+    #Names which can be used to address the function
+    mNames = set(["kick"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Kick given user in given channel, or current channel if no channel given."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        #Get server object
+        serverObject = userObject.getServer()
+        #If server isn't IRC type, we can't give op.
+        if(serverObject.getType()!="irc"):
+            return "This function is only available for IRC servers."
+        #TODO: check if hallo has op?
+        #Check input is not blank
+        if(line.strip()==""):
+            return "Please specify who to kick."
+        #Check if 1 argument is given.
+        lineSplit = line.split()
+        if(len(lineSplit)==1):
+            targetUser = serverObject.getUserByName(line.strip())
+            if(destinationObject is None or destinationObject == userObject):
+                return "I can't kick someone from a privmsg. Please specify a channel."
+            if(targetUser is None or not targetUser.isOnline() or not destinationObject.isUserInChannel(targetUser)):
+                return "That user isn't in this channel."
+            serverObject.send("KICK "+destinationObject.getName()+" "+targetUser.getName(),None,"raw")
+            return "Kicked "+targetUser.getName()+" from "+destinationObject.getName()+"."
+        #Check if first argument is a channel
+        if(lineSplit[0].startswith("#")):
+            targetChannel = serverObject.getChannelByName(lineSplit[0])
+            targetUser = serverObject.getUserByName(lineSplit[1])
+            message = ""
+            if(len(lineSplit)>2):
+                message = " ".join(lineSplit[2:])
+            if(targetChannel is None or not targetChannel.isInChannel()):
+                return "I'm not in that channel."
+            if(targetUser is None or not targetUser.isOnline()):
+                return "That user is not online."
+            if(not targetChannel.isUserInChannel(targetUser)):
+                return "That user is not in that channel."
+            serverObject.send("KICK "+targetChannel.getName()+" "+targetUser.getName()+" "+message,None,"raw")
+            return "Kicked "+targetUser.getName()+" from "+targetChannel.getName()+"."
+        #Check if second argument is a channel.
+        if(lineSplit[1].startswith("#")):
+            targetChannel = serverObject.getChannelByName(lineSplit[1])
+            targetUser = serverObject.getUserByName(lineSplit[0])
+            message = ""
+            if(len(lineSplit)>2):
+                message = " ".join(lineSplit[2:])
+            if(targetChannel is None or not targetChannel.isInChannel()):
+                return "I'm not in that channel."
+            if(targetUser is None or not targetUser.isOnline()):
+                return "That user is not online."
+            if(not targetChannel.isUserInChannel(targetUser)):
+                return "That user is not in that channel."
+            serverObject.send("KICK "+targetChannel.getName()+" "+targetUser.getName()+" "+message,None,"raw")
+            return "Kicked "+targetUser.getName()+" from "+targetChannel.getName()+"."
+        #Otherwise, it is a user and a message.
+        targetChannel = destinationObject
+        targetUser = serverObject.getUserByName(lineSplit[0])
+        message = ""
+        if(len(lineSplit)>2):
+            message = " ".join(lineSplit[2:])
+        if(destinationObject is None or destinationObject == userObject):
+            return "I can't kick someone from a privmsg. Please specify a channel."
+        if(targetChannel is None or not targetChannel.isInChannel()):
+            return "I'm not in that channel."
+        if(targetUser is None or not targetUser.isOnline()):
+            return "That user is not online."
+        if(not targetChannel.isUserInChannel(targetUser)):
+            return "That user is not in that channel."
+        serverObject.send("KICK "+targetChannel.getName()+" "+targetUser.getName()+" "+message,None,"raw")
+        return "Kicked "+targetUser.getName()+" from "+targetChannel.getName()+"."
+        
+            
+    
+
+
+
+
 
 
 
