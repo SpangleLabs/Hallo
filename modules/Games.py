@@ -274,6 +274,21 @@ class Hand:
             return minValue+4
         return False
     
+    def isFourOfAKind(self):
+        'Checks whether a hand is 4 of a kind, for poker. Returns False or list with element 0 being the value of the quadrupled card, element 1 being value of other card.'
+        fourCardValue = None
+        otherCardValue = None
+        for card in self.mCardList:
+            cardValue = card.getValue()
+            if(self.countValue(cardValue)==4):
+                fourCardValue = cardValue
+            else:
+                otherCardValue = cardValue
+        if(fourCardValue is None):
+            return False
+        return [fourCardValue,otherCardValue]
+                
+    
     def __str__(self):
         return self.toString()
 
