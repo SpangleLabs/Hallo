@@ -54,21 +54,6 @@ class mod_chan_ctrl:
         else:
             return "Insufficient privileges to set logging."
 
-    def fn_channel_megahal_record(self,args,client,destination):
-        'Sets or toggles megahal recording for channel, gods only'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            if(args==''):
-                self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record']
-                return "Megahal recording toggled."
-            elif(args.lower()=='true' or args.lower()=='1' or args.lower()=='on'):
-                self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record'] = True
-                return "Megahal recording on."
-            else:
-                self.conf['server'][destination[0]]['channel'][destination[1]]['megahal_record'] = False
-                return "Megahal recording off."
-        else:
-            return "Insufficient privileges to set megahal recording."
-
     def fn_channel_passive_func(self,args,client,destination):
         'Sets or toggles passive functions for channel, gods only'
         if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
@@ -83,27 +68,6 @@ class mod_chan_ctrl:
                 return "Passive functions off."
         else:
             return "Insufficient privileges to set passive functions status."
-
-    def fn_channel_idle_time(self,args,client,destination):
-        'Sets the amount of time a channel can be idle before idle channel functions activate, gods only'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            if(args==''):
-                return "Please provide a time, in seconds, before idle channel functions activate."
-            else:
-                self.conf['server'][destination[0]]['channel'][destination[1]]['idle_time'] = int(args)
-                if('idle_args' not in self.conf['server'][destination[0]]['channel'][destination[1]]):
-                    self.conf['server'][destination[0]]['channel'][destination[1]]['idle_args'] = ''
-                return "Idle time set to " + args + " seconds."
-        else:
-            return "Insufficient privileges to set idle channel time."
-
-    def fn_channel_idle_args(self,args,client,destination):
-        'Sets the arguments to pass to the idle channel function, gods only'
-        if(ircbot_chk.ircbot_chk.chk_god(self,destination[0],client)):
-            self.conf['server'][destination[0]]['channel'][destination[1]]['idle_args'] = args
-            return "Idle channel arguments set to: " + args + "."
-        else:
-            return "Insufficient privileges to set idle channel arguments."
 
     def fn_channel_pass(self,args,client,destination):
         'Sets a password for a channel, use channel_pass {channel} {password}'
