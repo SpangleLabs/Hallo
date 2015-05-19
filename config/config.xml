@@ -343,6 +343,10 @@
 					<name>function_Operator</name>
 					<value>True</value>
 				</right>
+				<right>
+					<name>function_DeOperator</name>
+					<value>True</value>
+				</right>
 			</right_list>
 		</permission_mask>
 	</user_group>
@@ -372,6 +376,10 @@
 				</right>
 				<right>
 					<name>function_Operator</name>
+					<value>True</value>
+				</right>
+				<right>
+					<name>function_DeOperator</name>
 					<value>True</value>
 				</right>
 			</right_list>
@@ -490,6 +498,10 @@
 		</right>
 		<right>
 			<name>function_Operator</name>
+			<value>False</value>
+		</right>
+		<right>
+			<name>function_DeOperator</name>
 			<value>False</value>
 		</right>
 	</right_list>
