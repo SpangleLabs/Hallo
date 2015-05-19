@@ -263,16 +263,11 @@ class Hand:
     
     def isStraightFlush(self):
         'Checks whether a hand is a straight flush, for poker. Returns False or highest value'
-        #Check all cards are the same suit.
-        if(len(set([card.getSuit() for card in self.mCardList]))!=1):
+        #Check if flush
+        if(not self.isFlush()):
             return False
-        #Get minimum card pokeer value
-        minValue = min([card.pokerValue() for card in self.mCardList])
-        #Check that the set of card values minus minimum value is equal to the range 0-4
-        cardRange = set([card.pokerValue()-minValue for card in self.mCardList])
-        if(cardRange==set(range(5))):
-            return minValue+4
-        return False
+        #Check if straight
+        return self.isStraight()
     
     def isFourOfAKind(self):
         'Checks whether a hand is 4 of a kind, for poker. Returns False or list with element 0 being the value of the quadrupled card, element 1 being value of other card.'
