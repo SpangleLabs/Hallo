@@ -3,35 +3,6 @@ import ircbot_chk
 endl = '\r\n'
 class mod_chan_ctrl:
 
-    def fn_invite(self,args,client,destination):
-        'Invite someone to a channel'
-        args_split = args.split()
-        if(not ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            return "This function is for ops only."
-        if(len(args_split) == 1):
-            if(ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args_split[0])[0][0] is not None):
-                nick = client
-                channel = ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args_split[0])
-            else:
-                nick = args_split[0]
-                channel = [destination]
-        else:
-            if(ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args_split[0])[0][0] is not None):
-                nick = args_split[1]
-                channel = ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args_split[0])
-            elif(ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args_split[1])[0][0] is not None):
-                nick = args_split[0]
-                channel = ircbot_chk.ircbot_chk.chk_destination(self,destination[0],destination[1],client,args_split[1])
-            else:
-                return "Invalid channel."
-        channels = []
-        for destpair in channel:
-            if(destpair[0]==destination[0]):
-                channels.append(destpair[1])
-        for chan in channels:
-            self.core['server'][destination[0]]['socket'].send(('INVITE '  + nick + ' ' + chan + endl).encode('utf-8'))
-        return "Invited " + nick + " to " + ', '.join(channels) + "."
-
     def fn_mute(self,args,client,destination):
         'Mutes a given channel or current channel. Format: mute <channel>'
         if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):

@@ -296,7 +296,67 @@ class DeVoice(Function):
         serverObject.send("MODE "+targetChannel.getName()+" -v "+targetUser.getName(),None,"raw")
         return "Voice status taken."
 
+class Invite(Function):
+    '''
+    IRC only, invites users to a given channel.
+    '''
+    #Name for use in help listing
+    mHelpName = "invite"
+    #Names which can be used to address the function
+    mNames = set(["invite"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Invite someone to a channel"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
 
+    def run(self,line,userObject,destinationObject=None):
+        #Get server object
+        serverObject = userObject.getServer()
+        #If server isn't IRC type, we can't give op.
+        if(serverObject.getType()!="irc"):
+            return "This function is only available for IRC servers."
+        #TODO: check if hallo has op?
+        lineSplit = line.split()
+        if(len(lineSplit)==0):
+            return "Please specify a person to invite and/or a channel to invite to."
+        #If 1 argument, see if it's a channel or a user.
+        if(len(lineSplit)==1):
+            if(line.startswith("#")):
+                targetChannel = serverObject.getChannelByName(line)
+                if(targetChannel is None or not targetChannel.isInChannel()):
+                    return "I'm not in that channel."
+                serverObject.send("INVITE "+userObject.getName()+" "+targetChannel.getName(),None,"raw")
+                return "Invited "+userObject.getName()+" to "+targetChannel.getName()+"."
+            if(destinationObject is None or destinationObject==userObject):
+                return "You can't invite a user to privmsg."
+            targetUser = serverObject.getUserByName(line)
+            if(targetUser is None or not targetUser.isOnline()):
+                return "That user is not online."
+            serverObject.send("INVITE "+targetUser.getName()+" "+destinationObject.getName())
+            return "Invited "+targetUser.getName()+" to "+destinationObject.getName()+"."
+        #If 2 arguments, determine which is channel and which is user.
+        if(lineSplit[0].startswith("#")):
+            targetChannel = serverObject.getChannelByName(lineSplit[0])
+            targetUser = serverObject.getUserByName(lineSplit[1])
+        elif(lineSplit[1].startswith("#")):
+            targetChannel = serverObject.getChannelByName(lineSplit[1])
+            targetUser = serverObject.getUserByName(lineSplit[0])
+        else:
+            return "Unrecognised input. Please specify user and channel."
+        #Do checks on target channel and user
+        if(targetChannel is None or not targetChannel.isInChannel()):
+            return "I'm not in that channel."
+        if(targetUser is None or not targetUser.isOnline()):
+            return "That user is not online."
+        if(targetChannel.isUserInChannel(targetUser)):
+            return "That user is already in that channel."
+        #TODO: check if hallo has op in this channel.
+        serverObject.send("INVITE "+targetUser.getName()+" "+targetChannel.getName(),None,"raw")
+        return "Invited "+targetUser.getName()+" to "+targetChannel.getName()+"."
 
 
 
