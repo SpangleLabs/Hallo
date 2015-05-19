@@ -379,6 +379,95 @@ class Hand:
         'Returns a list of poker card values, sorted from highest to lowest.'
         cardValues = [card.pokerValue() for card in self.mCardList]
         return sorted(cardValues)[::-1]
+    
+    def pokerBeats(self,otherHand):
+        'Compares hand with another hand, to see if this hand beats the other at poker. Returns true, false or none.'
+        #Check if either hand is a royal flush
+        if(self.isRoyalFlush()):
+            if(otherHand.isRoyalFlush()):
+                return None
+            return True
+        if(otherHand.isRoyalFlush()):
+            return False
+        #Check if either hand is a straight flush
+        straightFlush = self.isStraightFlush()
+        otherStraightFlush = otherHand.isStraightFlush()
+        if(straightFlush):
+            if(not otherStraightFlush):
+                return True
+            if(straightFlush==otherStraightFlush):
+                return None
+            return straightFlush > otherStraightFlush
+        if(otherStraightFlush):
+            return False
+        #Check if either hand is four of a kind
+        fourOfAKind = self.isFourOfAKind()
+        otherFourOfAKind = otherHand.isFourOfAKind()
+        if(fourOfAKind):
+            if(not otherFourOfAKind):
+                return True
+            return Commons.listGreater(fourOfAKind,otherFourOfAKind)
+        if(otherFourOfAKind):
+            return False
+        #Check if either hand is a full house
+        fullHouse = self.isFullHouse()
+        otherFullHouse = otherHand.isFullHouse()
+        if(fullHouse):
+            if(not otherFullHouse):
+                return True
+            return Commons.listGreater(fullHouse,otherFullHouse)
+        if(otherFullHouse):
+            return False
+        #Check if either hand is a flush
+        flush = self.isFlush()
+        otherFlush = otherHand.isFlush()
+        if(flush):
+            if(not otherFlush):
+                return True
+            return Commons.listGreater(flush,otherFlush)
+        if(otherFlush):
+            return False
+        #Check if either hand is a straight
+        straight = self.isStraight()
+        otherStraight = otherHand.isStraight()
+        if(straight):
+            if(not otherStraight):
+                return True
+            return Commons.listGreater(straight,otherStraight)
+        if(otherStraight):
+            return False
+        #Check if either hand is 3 of a kind
+        threeOfAKind = self.isThreeOfAKind()
+        otherThreeOfAKind = otherHand.isThreeOfAKind()
+        if(threeOfAKind):
+            if(not otherThreeOfAKind):
+                return True
+            return Commons.listGreater(threeOfAKind,otherThreeOfAKind)
+        if(otherThreeOfAKind):
+            return False
+        #Check if either hand is 2 pairs
+        twoPairs = self.isTwoPairs()
+        otherTwoPairs = otherHand.isTwoPairs()
+        if(twoPairs):
+            if(not otherTwoPairs):
+                return True
+            return Commons.listGreater(twoPairs,otherTwoPairs)
+        if(otherTwoPairs):
+            return False
+        #Check if either hand is 1 paid
+        onePair = self.isOnePair()
+        otherOnePair = otherHand.isOnePair()
+        if(onePair):
+            if(not otherOnePair):
+                return True
+            return Commons.listGreater(onePair,otherOnePair)
+        if(otherOnePair):
+            return False
+        #Compare by high card
+        highCard = self.pokerHighCard()
+        otherHighCard = otherHand.pokerHighCard()
+        return Commons.listGreater(highCard,otherHighCard)
+        
 
     def __str__(self):
         return self.toString()
