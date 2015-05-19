@@ -317,6 +317,16 @@ class Hand:
         maxValue = max([card.pokerValue() for card in self.mCardList])
         return maxValue
 
+    def isStraight(self):
+        'Checks whether a hand is a straight, for poker. Returns False or highest value'
+        #Get minimum card poker value
+        minValue = min([card.pokerValue() for card in self.mCardList])
+        #Check that the set of card values minus minimum value is equal to the range 0-4
+        cardRange = set([card.pokerValue()-minValue for card in self.mCardList])
+        if(cardRange==set(range(5))):
+            return minValue+4
+        return False
+
     def __str__(self):
         return self.toString()
 
