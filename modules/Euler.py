@@ -1107,6 +1107,16 @@ class Euler(Function):
             if(isLychell):
                 total += 1
         return total
+    
+    def euler56(self):
+        maxDigits = 0
+        for a in range(100):
+            for b in range(100):
+                power = a**b
+                sumDigits = sum([int(x) for x in list(str(power))])
+                maxDigits = max(maxDigits,sumDigits)
+        return maxDigits
+        
 
     def euler67(self):
         #this is the same as  problem 18, but bigger file.
