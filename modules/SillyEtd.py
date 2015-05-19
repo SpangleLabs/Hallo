@@ -54,12 +54,14 @@ class SilenceTheRabble(Function):
         #    return 'I cannot handle it, master!'
         if(not userObject.endswith('000242')):
             return "You are not my master."
+        serverObject = userObject.getServer()
+        if(serverObject.getType()=="irc"):
+            return "This function is only available on IRC servers."
         if(destinationObject is None or destinationObject==userObject):
             return "This function can only be used in ETD."
         if(destinationObject.getName().lower() != "#ecco-the-dolphin"):
             return "This function can only be used in ETD."
         userList = destinationObject.getUserList()
-        serverObject = userObject.getServer()
         for userObject in userList:
             if(userObject.getName().endswith("000242")):
                 continue
@@ -91,15 +93,18 @@ class PokeTheAsshole(Function):
         #TODO: check if not opped?
         if(not userObject.endswith('000242')):
             return "You are not my master."
+        serverObject = userObject.getServer()
+        if(serverObject.getType()=="irc"):
+            return "This function is only available on IRC servers."
         if(destinationObject is None or destinationObject==userObject):
             return "This function can only be used in ETD."
         if(destinationObject.getName().lower() != "#ecco-the-dolphin"):
             return "This function can only be used in ETD."
+        #Take input, or assume input is 5
         if(line.strip().isdigit()):
             number = int(line.strip())
         else:
             number = 5
-        serverObject = userObject.getServer()
         for _ in range(number):
             serverObject.send("MODE "+destinationObject.getName()+" +v Dolphin",None,"raw")
             serverObject.send("MODE "+destinationObject.getName()+" -v Dolphin",None,"raw")
