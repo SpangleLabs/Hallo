@@ -236,7 +236,7 @@ class Hand:
         'Returns the blackjack total of the hand. (Takes aces as 11 if that doesn\'t make you bust.'
         sumTotal = self.sumTotal()
         if(sumTotal<=11 and self.containsValue(Card.CARD_ACE)):
-            sumTotal += 11
+            sumTotal += 10
         return sumTotal
     
     def containsCard(self,cardObject):
