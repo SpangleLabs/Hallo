@@ -287,6 +287,21 @@ class Hand:
         if(fourCardValue is None):
             return False
         return [fourCardValue,otherCardValue]
+    
+    def isFullHouse(self):
+        'Checks whether a hand contains 3 of a kind and a pair, for poker. Returns False or list with element 0 being value of the triplicated card, element 1 being value of duplicated card.'
+        threeCardValue = None
+        twoCardValue = None
+        for card in self.mCardList:
+            cardValue = card.getValue()
+            countValue = self.countValue(cardValue)
+            if(countValue==3):
+                threeCardValue = cardValue
+            elif(countValue==2):
+                twoCardValue = cardValue
+            else:
+                return False
+        return [threeCardValue,twoCardValue]
                 
     
     def __str__(self):
