@@ -87,6 +87,17 @@ class Card:
             return 10
         return int(self.mValue)
     
+    def pokerValue(self):
+        'Outputs poker value. From 2 to 14.'
+        pokerDict = {}
+        pokerDict[self.CARD_ACE] = 14
+        pokerDict[self.CARD_KING] = 13
+        pokerDict[self.CARD_QUEEN] = 12
+        pokerDict[self.CARD_JACK] = 11
+        if(self.mValue in pokerDict):
+            return pokerDict[self.mValue]
+        return self.mValue
+    
     def __int__(self):
         return self.toInt()
     
