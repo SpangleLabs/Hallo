@@ -76,6 +76,14 @@ class Commons(object):
         return None
     
     @staticmethod
+    def isStringNull(string):
+        'Converts a string to a boolean.'
+        string = string.lower()
+        if(string in [0,'0','false','off','disabled','disable','','nul','null','none','nil']):
+            return True
+        return False
+    
+    @staticmethod
     def ordinal(number):
         'Returns the ordinal of a number'
         if(number%10==1 and number%100!=11):
