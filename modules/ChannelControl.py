@@ -1,4 +1,5 @@
 from Function import Function
+from inc.commons import Commons
 
 class Operator(Function):
     '''
@@ -512,7 +513,61 @@ class Kick(Function):
         serverObject.send("KICK "+targetChannel.getName()+" "+targetUser.getName()+" "+message,None,"raw")
         return "Kicked "+targetUser.getName()+" from "+targetChannel.getName()+"."
         
-            
+class ChannelCaps(Function):
+    '''
+    Set caps lock for a channel.
+    '''
+    #Name for use in help listing
+    mHelpName = "caps lock"
+    #Names which can be used to address the function
+    mNames = set(["caps lock","channel caps","channel caps lock","chan caps","chan caps lock","channelcapslock"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Sets caps lock for channel on or off."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        #Get server object
+        serverObject = userObject.getServer()
+        #If no arguments given, toggle caps lock in current destination
+        lineClean = line.strip()
+        if(lineClean==''):
+            destinationObject.setUpperCase(not destinationObject.isUpperCase())
+            return "Caps lock toggled."
+        #If line has 1 argument, 
+        lineSplit = lineClean.strip()
+        if(len(lineSplit)==1):
+            #Check if a boolean was specified
+            inputBool = Commons.stringToBool(lineSplit[0])
+            if(inputBool is not None):
+                destinationObject.setUpperCase(inputBool)
+                return "Caps lock set "+{False: 'off', True: 'on'}[inputBool]+"."
+            #Check if a channel was specified
+            targetChannel = serverObject.getChannelByName(lineSplit[0])
+            if(targetChannel.isInChannel()):
+                targetChannel.setUpperCase(not targetChannel.isUpperCase())
+                return "Caps lock togged in "+targetChannel.getName()+"."
+            #Otherwise input unknown
+            return "I don't understand your input, please specify a channel and whether to turn caps lock on or off."
+        #Otherwise line has 2 or more arguments.
+        #Check if first argument is boolean
+        inputBool = Commons.stringToBool(lineSplit[0])
+        targetChannelName = lineSplit[1]
+        if(inputBool is None):
+            inputBool = Commons.stringToBool(lineSplit[1])
+            targetChannelName = lineSplit[0]
+        if(inputBool is None):
+            return "I don't understand your input, please specify a channel and whether to turn caps lock on or off."
+        targetChannel = serverObject.getChannelByName(targetChannelName)
+        if(targetChannel is None or not targetChannel.isInChannel()):
+            return "I'm not in that channel."
+        destinationObject.setUpperCase(inputBool)
+        return "Caps lock set "+{False: 'off', True: 'on'}[inputBool]+" in "+targetChannel.getName()+"."
+
     
 
 

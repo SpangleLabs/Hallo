@@ -3,21 +3,6 @@ import ircbot_chk
 endl = '\r\n'
 class mod_chan_ctrl:
 
-    def fn_channel_caps(self,args,client,destination):
-        'Sets or toggles caps lock for channel, ops only'
-        if(ircbot_chk.ircbot_chk.chk_op(self,destination[0],client)):
-            if(args==''):
-                self.conf['server'][destination[0]]['channel'][destination[1]]['caps'] = not self.conf['server'][destination[0]]['channel'][destination[1]]['caps']
-                return "Caps lock toggled."
-            elif(args.lower()=='true' or args.lower()=='1' or args.lower()=='on'):
-                self.conf['server'][destination[0]]['channel'][destination[1]]['caps'] = True
-                return "Caps lock on."
-            else:
-                self.conf['server'][destination[0]]['channel'][destination[1]]['caps'] = False
-                return "Caps lock off."
-        else:
-            return "Insufficient privileges to set caps lock."
-
     def fn_channel_logging(self,args,client,destination):
         'Sets or toggles logging for channel, ops only'
         args = args.strip()
