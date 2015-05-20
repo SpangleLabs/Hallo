@@ -685,6 +685,54 @@ class ChannelPassiveFunctions(Function):
             return "I'm not in that channel."
         destinationObject.setPassiveEnabled(inputBool)
         return "Passive functions set "+{False: 'disabled', True: 'enabled'}[inputBool]+" in "+targetChannel.getName()+"."
+
+class ChannelPassword(Function):
+    '''
+    Set password for a channel.
+    '''
+    #Name for use in help listing
+    mHelpName = "channel password"
+    #Names which can be used to address the function
+    mNames = set(["channel password","chan password","channel pass","chan pass"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Sets or disables channel password."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        #Get server object
+        serverObject = userObject.getServer()
+        #If no arguments given, turn the password for current channel off.
+        lineClean = line.strip()
+        if(lineClean==''):
+            destinationObject.setPassword(None)
+            return "Channel password disabled."
+        #If line has 1 argument, set password for current channel
+        lineSplit = lineClean.strip()
+        if(len(lineSplit)==1):
+            #Check if null was specified
+            inputNull = Commons.isStringNull(lineSplit[0])
+            if(inputNull):
+                destinationObject.setPassword(None)
+                return "Channel password disabled."
+            else:
+                destinationObject.setPassword(lineSplit[0])
+                return "Channel password set."
+        #Otherwise line has 2 or more arguments.
+        #Assume first is channel, and second is password.
+        inputNull = Commons.isStringNull(lineSplit[1])
+        targetChannelName = lineSplit[0]
+        targetChannel = serverObject.getChannelByName(targetChannelName)
+        if(inputNull):
+            destinationObject.setPassword(None)
+            return "Channel password disabled for "+targetChannel.getName()+"."
+        else:
+            destinationObject.setPassword(lineSplit[1])
+            return "Channel password set for "+targetChannel.getName()+"."
     
 
 
