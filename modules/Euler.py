@@ -1151,6 +1151,44 @@ class Euler(Function):
                 break
         length = gap + 1
         return length
+    
+    def euler59(self):
+        #Get cipher data
+        raw = open("store/euler/euler_59_cipher.txt","r").read()
+        rawList = [int(x) for x in raw.split(",")]
+        #Get 3 blank lists, to unzip the list into
+        listOne = []
+        listTwo = []
+        listThr = []
+        #Loop through the list, putting first element in list 1, second in list 2, etc
+        for a in range(len(rawList)):
+            if(a%3 == 1):
+                listOne.append(rawList[a])
+            if(a%3 == 2):
+                listTwo.append(rawList[a])
+            if(a%3 == 0):
+                listThr.append(rawList[a])
+        #Find the most common character in each list
+        commonOne = max(set(listOne),key=listOne.count)
+        commonTwo = max(set(listTwo),key=listTwo.count)
+        commonThr = max(set(listThr),key=listThr.count)
+        #Find the keys for each list, assuming most common char is space
+        keyOne = ord(" ")^commonOne
+        keyTwo = ord(" ")^commonTwo
+        keyThr = ord(" ")^commonThr
+        #Put the string back together, get sum of ascii values
+        sumValues = 0
+        for a in range(len(rawList)):
+            if(a%3 == 1):
+                charValue = rawList[a]^keyOne
+            if(a%3 == 2):
+                charValue = rawList[a]^keyTwo
+            if(a%3 == 0):
+                charValue = rawList[a]^keyThr
+            print(chr(charValue),end="")
+            sumValues += charValue
+        print("Total: "+str(sumValues))
+        return sumValues
         
 
     def euler67(self):
