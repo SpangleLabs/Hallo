@@ -2,6 +2,7 @@ from Function import Function
 import random
 import time
 import re
+from xml.dom import minidom
 
 class Is(Function):
     '''
@@ -187,26 +188,26 @@ class ReplyMessage:
     '''
     mPrompt = None
     mResponseList = None
-    mBlackList = None
-    mWhiteList = None
+    mBlacklist = None
+    mWhitelist = None
     
     def __init__(self,prompt):
         self.mPrompt = re.compile(prompt)
         self.mResponseList = []
-        self.mBlackList = {}
-        self.mWhiteList = None
+        self.mBlacklist = {}
+        self.mWhitelist = None
     
     def checkDestination(self,destinationObject):
         'Checks if a given destination should be responded to.'
         serverName = destinationObject.getServer().getName().lower()
         channelName = destinationObject.getName().lower()
         #If a whitelist is set, check that
-        if(self.mWhiteList is not None):
-            if(serverName in self.mWhiteList and channelName in self.mWhiteList[serverName]):
+        if(self.mWhitelist is not None):
+            if(serverName in self.mWhitelist and channelName in self.mWhitelist[serverName]):
                 return True
             return False
         #Otherwise check blacklist
-        if(serverName in self.mBlackList and channelName in self.mBlackList[serverName]):
+        if(serverName in self.mBlacklist and channelName in self.mBlacklist[serverName]):
             return False
         return True
     
@@ -225,12 +226,49 @@ class ReplyMessage:
         'Adds a new response to the list.'
         self.mResponseList.add(response)
     
+    def addBlacklist(self,serverName,channelName):
+        'Adds a new server/channel pair to blacklist.'
+        if(serverName not in self.mBlacklist):
+            self.mBlacklist[serverName] = set()
+        self.mBlacklist[serverName].add(channelName)
+    
+    def addWhitelist(self,serverName,channelName):
+        'Adds a new server/channel pair to whitelist.'
+        if(self.mWhitelist is None):
+            self.mWhitelist = {}
+        if(serverName not in self.mWhitelist):
+            self.mWhitelist[serverName] = set()
+        self.mWhitelist[serverName].add(channelName)
+    
     def toXml(self):
         pass
     
     @staticmethod
     def fromXml(xmlString):
-        pass
-    
+        'Loads a new ReplyMessage object from XML'
+        #Load document
+        doc = minidom.parse(xmlString)
+        #Get prompt and create ReplyMessage object
+        newPrompt = doc.getElementsByTagName("prompt")[0].firstChild.data
+        newReplyMessage = ReplyMessage(newPrompt)
+        #Get responses
+        for responseXml in doc.getElementsByTagName("response"):
+            newResponse = responseXml.firstChild.data
+            newReplyMessage.addResponse(newResponse)
+        #Get blacklists
+        blacklistXmlList = doc.getElementsByTagName("blacklist")
+        for blacklistXml in blacklistXmlList:
+            newServer = blacklistXml.getElementsByTagName("server")[0].firstChild.data
+            newChannel = blacklistXml.getElementsByTagName("channel")[0].firstChild.data
+            newReplyMessage.addBlacklist(newServer,newChannel)
+        #Get whitelists
+        whitelistXmlList = doc.getElementsByTagName("whitelist")
+        for whitelistXml in whitelistXmlList:
+            newServer = whitelistXml.getElementsByTagName("server")[0].firstChild.data
+            newChannel = whitelistXml.getElementsByTagName("channel")[0].firstChild.data
+            newReplyMessage.addWhitelist(newServer,newChannel)
+        #Returned the newly built ReplyMessage
+        return newReplyMessage
+            
     
 
