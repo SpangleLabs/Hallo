@@ -91,16 +91,7 @@ class mod_passive():
                 #time left
                 return "eBay> Title: " + title + " | " + page_type + " | Time left: " + time_left + "."
             elif('imdb.com/title' in url):
-                code = pageopener.open(pagerequest).read().decode('utf-8')
-                movie_code = re.search('title/(tt[0-9]*)',code).group(1)
-                api_url = 'http://www.omdbapi.com/?i=' + movie_code
-                api_dict = mod_lookup.mod_lookup.fnn_loadjson(self,api_url)
-                title = api_dict['Title']
-                year = api_dict['Year']
-                genre = api_dict['Genre']
-                rating = api_dict['imdbRating']
-                votes = api_dict['imdbVotes']
-                return "IMDB> Title: " + title + " (" + year + ") | Rated " + rating + "/10, " + votes + " votes. | Genres: " + genre  + "."
+                return
             else:
                 return
 
