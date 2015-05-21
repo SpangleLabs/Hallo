@@ -3,6 +3,7 @@ import random
 import time
 import re
 from xml.dom import minidom
+from Destination import Channel
 
 class Is(Function):
     '''
@@ -317,6 +318,15 @@ class ReplyMessageList:
         
     def addReplyMessage(self,replyMessage):
         self.mReplyMessageList.add(replyMessage)
+        
+    def getResponse(self,fullLine,userObject,channelObject):
+        'Check ReplyMessage objects to see which response to give. Or NULL if none apply.'
+        response = None
+        for replyMessage in self.mReplyMessageList:
+            if(not replyMessage.checkDestination(channelObject)):
+                continue
+            response = response or replyMessage.checkResponse(fullLine,userObject,channelObject)
+        return response
     
     @staticmethod
     def loadFromXml():
