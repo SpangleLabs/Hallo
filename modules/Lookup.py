@@ -398,7 +398,32 @@ class UrlDetect(Function):
 
     def siteEbay(self,urlAddress,pageOpener,pageRequest):
         'Handling for ebay links'
-        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
+        #Get the ebay item id
+        itemId = urlAddress.split("/")[-1]
+        apiKey = "JoshuaCo-cc2e-4309-b962-df71218f4407"
+        #Get API response
+        apiUrl = "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid="+apiKey+"&siteid=0&version=515&ItemID="+itemId+"&IncludeSelector=Details"
+        apiDict = Commons.loadUrlJson(apiUrl)
+        #Get item data from api response
+        itemTitle = apiDict["Item"]["Title"]
+        itemPrice = str(apiDict["Item"]["CurrentPrice"]["Value"])+" "+apiDict["Item"]["CurrentPrice"]["CurrencyID"]
+        itemEndTime = apiDict["Item"]["EndTime"][:19].replace("T"," ")
+        #Start building output
+        output = "eBay> Title: " + itemTitle + " | "
+        output += "Price: " + itemPrice + " | "
+        #Check listing type
+        if(apiDict["Item"]["ListingType"]=="Chinese"):
+            #Listing type: bidding
+            itemBidCount = str(apiDict["Item"]["BidCount"])
+            if(itemBidCount=="1"):
+                output += "Auction, " + str(itemBidCount) + " bid"
+            else:
+                output += "Auction, " + str(itemBidCount) + " bids"
+        elif(apiDict["Item"]["ListingType"]=="FixedPriceItem"):
+            #Listing type: buy it now
+            output += "Buy it now | "
+        output += "Ends: " + itemEndTime
+        return output
 
     def siteFList(self,urlAddress,pageOpener,pageRequest):
         'Handling for f-list links'
@@ -420,13 +445,13 @@ class UrlDetect(Function):
         movieId = movieIdSearch.group(1)
         #Download API response
         apiUrl = 'http://www.omdbapi.com/?i=' + movieId
-        api_dict = Commons.loadUrlJson(apiUrl)
+        apiDict = Commons.loadUrlJson(apiUrl)
         #Get movie information from API response
-        movieTitle = api_dict['Title']
-        movieYear = api_dict['Year']
-        movieGenre = api_dict['Genre']
-        movieRating = api_dict['imdbRating']
-        movieVotes = api_dict['imdbVotes']
+        movieTitle = apiDict['Title']
+        movieYear = apiDict['Year']
+        movieGenre = apiDict['Genre']
+        movieRating = apiDict['imdbRating']
+        movieVotes = apiDict['imdbVotes']
         #Construct output
         output = "IMDB> Title: " +movieTitle + " (" + movieYear + ") | "
         output += "Rating "+movieRating+"/10, "+movieVotes+" votes. | "

@@ -65,22 +65,7 @@ class mod_passive():
                     reviewstr = stars + "/5 stars, from " + reviews + " reviews"
                 return "Amazon> Title: " + title + " | Price: " + price + " | " + reviewstr + "."
             elif('ebay.co.uk' in url or 'ebay.com' in url):
-                code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
-                title = re.search('<meta property="og:title" content="([^"]*)">',code).group(1)
-                price = re.search('itemprop="price"([^>]*)>([^<]*)</span>',code).group(2)
-                if(code.count('Current bid:')==1):
-                    page_type = 'Buy it now.'
-                    time_left = re.search('id="vi-cdown_timeLeft">([^<]*)<',code).group(1)
-                else:
-                    page_type = 'Auction'
-                    bids = re.search('<span id="qty-test">([0-9]*)</span> <span>bids',code).group(1)
-                    if(bids==1):
-                        page_type = page_type + ", " + bids + "bid."
-                    else:
-                        page_type = page_type + ", " + bids + "bids."
-                    time_left = re.search('id="vi-cdown_timeLeft">([^<]*)<',code).group(1)
-                #time left
-                return "eBay> Title: " + title + " | " + page_type + " | Time left: " + time_left + "."
+                return
             elif('imdb.com/title' in url):
                 return
             else:
