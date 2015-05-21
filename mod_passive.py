@@ -49,39 +49,7 @@ class mod_passive():
             if('speedtest.net' in url):
                 return
             elif('imgur.com' in url):
-#           3afbdcb1353b72f imgur API client-ID
-                if('/a/' in url):
-#           http://imgur.com/a/qJctj#0 example imgur album
-                    imgur_id = url.split('/')[-1].split('#')[0]
-                    api_url = 'https://api.imgur.com/3/album/' + imgur_id
-                    api_dict = mod_lookup.mod_lookup.fnn_loadjson(self,api_url,[['Authorization','Client-ID 3afbdcb1353b72f']])
-                    title = api_dict['data']['title']
-                    views = api_dict['data']['views']
-                    if('section' in api_dict['data']):
-                        section = api_dict['data']['section']
-                        album_info = 'Album title: ' + title + ' | Gallery views: ' + "{:,}".format(views) + ' | Section: ' + section
-                    else:
-                            album_info = 'Album title: ' + title + ' | Gallery views: ' + "{:,}".format(views)
-                    pic_number = url.split('#')[-1]
-                    album_count = api_dict['data']['images_count']
-                    img_width = api_dict['data']['images'][int(pic_number)]['width']
-                    img_height = api_dict['data']['images'][int(pic_number)]['height']
-                    img_size = api_dict['data']['images'][int(pic_number)]['size']
-                    img_sizestr = mod_passive.fnn_sizestr(self,int(img_size))
-                    return "Imgur album> " + album_info + " | Image " + str(int(pic_number)+1) + " of " + str(album_count) + " | Current image: " + str(img_width) + "x" + str(img_height) + ", " + img_sizestr + "."
-                else:
-# http://i.imgur.com/2XBqIIT.jpg example imgur direct link
-# http://imgur.com/2XBqIIT example imgur link
-                    imgur_id = url.split('/')[-1].split('.')[0]
-                    api_url = 'https://api.imgur.com/3/image/' + imgur_id
-                    api_dict = mod_lookup.mod_lookup.fnn_loadjson(self,api_url,[['Authorization','Client-ID 3afbdcb1353b72f']])
-                    title = str(api_dict['data']['title'])
-                    img_width = str(api_dict['data']['width'])
-                    img_height = str(api_dict['data']['height'])
-                    img_size = api_dict['data']['size']
-                    img_sizestr = str(mod_passive.fnn_sizestr(self,int(img_size)))
-                    views = api_dict['data']['views']
-                    return "Imgur> Title: " + title + " | Size: " + img_width + "x" + img_height + " | Filesize: " + img_sizestr + " | Views: " + "{:,}".format(views) + "."
+                return
             elif("image" in pagetype):
                 return
             elif('youtube.com' in url or 'youtu.be' in url):
