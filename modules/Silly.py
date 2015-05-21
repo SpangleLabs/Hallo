@@ -3,7 +3,6 @@ import random
 import time
 import re
 from xml.dom import minidom
-from Destination import Channel
 
 class Is(Function):
     '''
