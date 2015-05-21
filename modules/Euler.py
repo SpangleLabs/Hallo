@@ -67,17 +67,12 @@ class Euler(Function):
     
     def checkPrime(self,inputNumber):
         checkPrime = inputNumber
-        checkPrimeFactor = 1
         if(checkPrime<=0):
             return False
         for j in range(2,int(math.floor(math.sqrt(checkPrime)))+1):
             if(checkPrime%j == 0):
-                checkPrimeFactor = j
-                break
-        if(checkPrimeFactor == 1 and inputNumber!=1):
-            return True
-        else:
-            return False
+                return False
+        return True
         
     def checkPalindrome(self,inputString):
         if(inputString==inputString[::-1]):
