@@ -345,4 +345,25 @@ class UrlDetect(Function):
     def urlImage(self,urlAddress,pageOpener):
         pass
 
+    def urlImgur(self,urlAddress,pageOpener):
+        pass
+
+    def urlSpeedtest(self,urlAddress,pageOpener):
+        pass
+
+    def urlYoutube(self,urlAddress,pageOpener):
+        pass
+
+    def urlAmazon(self,urlAddress,pageOpener):
+        pass
+
+    def urlEbay(self,urlAddress,pageOpener):
+        pass
+
+    def urlImdb(self,urlAddress,pageOpener):
+        pass
+
+    def urlGeneric(self,urlAddress,pageOpener):
+        pass
+
 
