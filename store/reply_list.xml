@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<!DOCTYPE reply_list
+  SYSTEM 'reply_list.dtd'>
+<reply_list>
+	<reply>
+		<prompt>^beep$</prompt>
+		<response>boop</response>
+	</reply>
+	<reply>
+		<prompt>pew</prompt>
+		<response>pew pew</response>
+		<blacklist>
+			<server>canternet</server>
+			<channel>#ukofequestria</channel>
+		</blacklist>
+	</reply>
+	<reply>
+		<prompt>haskell.jpg</prompt>
+		<response>http://dr-spangle.com/haskell.jpg</response>
+		<whitelist>
+			<server>shadowworld</server>
+			<channel>#ecco-the-dolphin</channel>
+		</whitelist>
+	</reply>
+	<reply>
+		<prompt>open.*pod ?bay.*door</prompt>
+		<response>I'm sorry {USER}, but I'm afraid I cannot do that.</response>
+	</reply>
+	<reply>
+		<prompt>(which|what).*(irc|chat) (client|program).*(get|use)</prompt>
+		<response>For windows: Hexchat is a good irc client. Try http://hexchat.org For mac: Colloquy is a good choice http://colloquy.info/ For linux: xchat (for a graphical interface) http://xchat.org or for command line linux: irssi http://irssi.org Or for a web client, try http://mibbit.com</response>
+	</reply>
+	<reply>
+		<prompt>(who|what) is.*hallo</prompt>
+		<response>I'm Hallo, I'm a bot built by dr-spangle, I do a couple of useful things like calculate things and choose options.</response>
+	</reply>
+	<reply>
+		<prompt>MFW</prompt>
+		<response>&gt; MFW http://dr-spangle.com/mfw/001.jpg</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/002.jpg</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/003.gif</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/004.gif</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/005.png</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/006.jpg</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/007.gif</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/008.gif</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/009.png</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/010.gif</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/011.gif</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/012.gif</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/013.jpg</response>
+		<response>&gt; MFW http://dr-spangle.com/mfw/014.gif</response>
+	</reply>
+</reply_list>
