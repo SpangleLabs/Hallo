@@ -343,27 +343,43 @@ class UrlDetect(Function):
         return self.urlGeneric(urlAddress,pageOpener)
 
     def urlImage(self,urlAddress,pageOpener):
+        'Handling direct image links'
+        #Get the website name
+        urlSite = Commons.getDomainName(urlAddress).lower()
+        #If website name is speedtest or imgur, hand over to those handlers
+        if(urlSite=="speedtest"):
+            return self.urlSpeedtest(urlAddress, pageOpener)
+        if(urlSite=="imgur"):
+            return self.urlImage(urlAddress, pageOpener)
+        #Image handling
         pass
 
     def urlImgur(self,urlAddress,pageOpener):
+        'Handling imgur links'
         pass
 
     def urlSpeedtest(self,urlAddress,pageOpener):
+        'Handling speedtest links'
         pass
 
     def urlYoutube(self,urlAddress,pageOpener):
+        'Handling for youtube links'
         pass
 
     def urlAmazon(self,urlAddress,pageOpener):
+        'Handling for amazon links'
         pass
 
     def urlEbay(self,urlAddress,pageOpener):
+        'Handling for ebay links'
         pass
 
     def urlImdb(self,urlAddress,pageOpener):
+        'Handling for imdb links'
         pass
 
     def urlGeneric(self,urlAddress,pageOpener):
+        'Handling for generic links not caught by any other url handling function.'
         pass
 
 
