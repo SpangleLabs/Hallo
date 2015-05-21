@@ -390,51 +390,51 @@ class UrlDetect(Function):
 
     def siteAmazon(self,urlAddress,pageOpener,pageRequest):
         'Handling for amazon links'
-        pass
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteE621(self,urlAddress,pageOpener,pageRequest):
         'Handling for e621 links'
-        pass
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteEbay(self,urlAddress,pageOpener,pageRequest):
         'Handling for ebay links'
-        pass
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteFList(self,urlAddress,pageOpener,pageRequest):
         'Handling for f-list links'
-        pass
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteFuraffinity(self,urlAddress,pageOpener,pageRequest):
         'Handling for furaffinity links'
-        pass
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteImdb(self,urlAddress,pageOpener,pageRequest):
         'Handling for imdb links'
-        pass
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteImgur(self,urlAddress,pageOpener,pageRequest):
         'Handling imgur links'
-        pass
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
     
     def sitePastebin(self,urlAddress,pageOpener,pageRequest):
         'Handling pastebin links'
-        pass
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
     
     def siteReddit(self,urlAddress,pageOpener,pageRequest):
         'Handling reddit links'
-        pass
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteSpeedtest(self,urlAddress,pageOpener,pageRequest):
         'Handling speedtest links'
-        pass
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteWikipedia(self,urlAddress,pageOpener,pageRequest):
         'Handling for wikipedia links'
-        pass
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteYoutube(self,urlAddress,pageOpener,pageRequest):
         'Handling for youtube links'
-        pass
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
 
 
