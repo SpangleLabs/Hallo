@@ -53,6 +53,10 @@ class Destination:
     def getLogging(self):
         'Boolean, whether the destination is supposed to have logging.'
         return self.mLogging
+    
+    def setLogging(self,logging):
+        'Sets whether the destination is logging.'
+        self.mLogging = logging
 
     def getServer(self):
         'Returns the server object that this destination belongs to'

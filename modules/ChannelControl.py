@@ -1,4 +1,5 @@
 from Function import Function
+from inc.commons import Commons
 
 class Operator(Function):
     '''
@@ -512,7 +513,226 @@ class Kick(Function):
         serverObject.send("KICK "+targetChannel.getName()+" "+targetUser.getName()+" "+message,None,"raw")
         return "Kicked "+targetUser.getName()+" from "+targetChannel.getName()+"."
         
-            
+class ChannelCaps(Function):
+    '''
+    Set caps lock for a channel.
+    '''
+    #Name for use in help listing
+    mHelpName = "caps lock"
+    #Names which can be used to address the function
+    mNames = set(["caps lock","channel caps","channel caps lock","chan caps","chan caps lock","channelcapslock"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Sets caps lock for channel on or off."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        #Get server object
+        serverObject = userObject.getServer()
+        #If no arguments given, toggle caps lock in current destination
+        lineClean = line.strip()
+        if(lineClean==''):
+            destinationObject.setUpperCase(not destinationObject.isUpperCase())
+            return "Caps lock toggled."
+        #If line has 1 argument, 
+        lineSplit = lineClean.strip()
+        if(len(lineSplit)==1):
+            #Check if a boolean was specified
+            inputBool = Commons.stringToBool(lineSplit[0])
+            if(inputBool is not None):
+                destinationObject.setUpperCase(inputBool)
+                return "Caps lock set "+{False: 'off', True: 'on'}[inputBool]+"."
+            #Check if a channel was specified
+            targetChannel = serverObject.getChannelByName(lineSplit[0])
+            if(targetChannel.isInChannel()):
+                targetChannel.setUpperCase(not targetChannel.isUpperCase())
+                return "Caps lock togged in "+targetChannel.getName()+"."
+            #Otherwise input unknown
+            return "I don't understand your input, please specify a channel and whether to turn caps lock on or off."
+        #Otherwise line has 2 or more arguments.
+        #Check if first argument is boolean
+        inputBool = Commons.stringToBool(lineSplit[0])
+        targetChannelName = lineSplit[1]
+        if(inputBool is None):
+            inputBool = Commons.stringToBool(lineSplit[1])
+            targetChannelName = lineSplit[0]
+        if(inputBool is None):
+            return "I don't understand your input, please specify a channel and whether to turn caps lock on or off."
+        targetChannel = serverObject.getChannelByName(targetChannelName)
+        if(targetChannel is None or not targetChannel.isInChannel()):
+            return "I'm not in that channel."
+        destinationObject.setUpperCase(inputBool)
+        return "Caps lock set "+{False: 'off', True: 'on'}[inputBool]+" in "+targetChannel.getName()+"."
+
+class ChannelLogging(Function):
+    '''
+    Set logging for a channel.
+    '''
+    #Name for use in help listing
+    mHelpName = "logging"
+    #Names which can be used to address the function
+    mNames = set(["logging","channel logging","channel log","chan logging","chan log"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Sets or toggles logging for channel."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        #Get server object
+        serverObject = userObject.getServer()
+        #If no arguments given, toggle logging in current destination
+        lineClean = line.strip()
+        if(lineClean==''):
+            destinationObject.setLogging(not destinationObject.getLogging())
+            return "Logging toggled."
+        #If line has 1 argument, 
+        lineSplit = lineClean.strip()
+        if(len(lineSplit)==1):
+            #Check if a boolean was specified
+            inputBool = Commons.stringToBool(lineSplit[0])
+            if(inputBool is not None):
+                destinationObject.setLogging(inputBool)
+                return "Logging set "+{False: 'off', True: 'on'}[inputBool]+"."
+            #Check if a channel was specified
+            targetChannel = serverObject.getChannelByName(lineSplit[0])
+            if(targetChannel.isInChannel()):
+                targetChannel.setLogging(not targetChannel.getLogging())
+                return "Logging togged in "+targetChannel.getName()+"."
+            #Otherwise input unknown
+            return "I don't understand your input, please specify a channel and whether to turn logging on or off."
+        #Otherwise line has 2 or more arguments.
+        #Check if first argument is boolean
+        inputBool = Commons.stringToBool(lineSplit[0])
+        targetChannelName = lineSplit[1]
+        if(inputBool is None):
+            inputBool = Commons.stringToBool(lineSplit[1])
+            targetChannelName = lineSplit[0]
+        if(inputBool is None):
+            return "I don't understand your input, please specify a channel and whether to turn logging on or off."
+        targetChannel = serverObject.getChannelByName(targetChannelName)
+        if(targetChannel is None or not targetChannel.isInChannel()):
+            return "I'm not in that channel."
+        destinationObject.setLogging(inputBool)
+        return "Logging set "+{False: 'off', True: 'on'}[inputBool]+" in "+targetChannel.getName()+"."
+
+class ChannelPassiveFunctions(Function):
+    '''
+    Set whether passive functions are enabled in a channel.
+    '''
+    #Name for use in help listing
+    mHelpName = "passive"
+    #Names which can be used to address the function
+    mNames = set(["passive"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Sets or toggles logging for channel."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def getNames(self):
+        'Returns the list of names for directly addressing the function'
+        self.mNames = set(["passive"])
+        for chan in ["chan ","channel "]:
+            for passive in ["passive","passive func","passive function","passive functions"]:
+                self.mNames.add(chan+passive)
+        return self.mNames
+
+    def run(self,line,userObject,destinationObject=None):
+        #Get server object
+        serverObject = userObject.getServer()
+        #If no arguments given, toggle passive functions in current destination
+        lineClean = line.strip()
+        if(lineClean==''):
+            destinationObject.setPassiveEnabled(not destinationObject.isPassiveEnabled())
+            return "Passive functions toggled."
+        #If line has 1 argument, 
+        lineSplit = lineClean.strip()
+        if(len(lineSplit)==1):
+            #Check if a boolean was specified
+            inputBool = Commons.stringToBool(lineSplit[0])
+            if(inputBool is not None):
+                destinationObject.setPassiveEnabled(inputBool)
+                return "Passive functions set "+{False: 'disabled', True: 'enabled'}[inputBool]+"."
+            #Check if a channel was specified
+            targetChannel = serverObject.getChannelByName(lineSplit[0])
+            if(targetChannel.isInChannel()):
+                targetChannel.setPassiveEnabled(not targetChannel.isPassiveEnabled())
+                return "Passive functions togged in "+targetChannel.getName()+"."
+            #Otherwise input unknown
+            return "I don't understand your input, please specify a channel and whether to turn passive functions on or off."
+        #Otherwise line has 2 or more arguments.
+        #Check if first argument is boolean
+        inputBool = Commons.stringToBool(lineSplit[0])
+        targetChannelName = lineSplit[1]
+        if(inputBool is None):
+            inputBool = Commons.stringToBool(lineSplit[1])
+            targetChannelName = lineSplit[0]
+        if(inputBool is None):
+            return "I don't understand your input, please specify a channel and whether to turn passive functions on or off."
+        targetChannel = serverObject.getChannelByName(targetChannelName)
+        if(targetChannel is None or not targetChannel.isInChannel()):
+            return "I'm not in that channel."
+        destinationObject.setPassiveEnabled(inputBool)
+        return "Passive functions set "+{False: 'disabled', True: 'enabled'}[inputBool]+" in "+targetChannel.getName()+"."
+
+class ChannelPassword(Function):
+    '''
+    Set password for a channel.
+    '''
+    #Name for use in help listing
+    mHelpName = "channel password"
+    #Names which can be used to address the function
+    mNames = set(["channel password","chan password","channel pass","chan pass"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Sets or disables channel password."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        #Get server object
+        serverObject = userObject.getServer()
+        #If no arguments given, turn the password for current channel off.
+        lineClean = line.strip()
+        if(lineClean==''):
+            destinationObject.setPassword(None)
+            return "Channel password disabled."
+        #If line has 1 argument, set password for current channel
+        lineSplit = lineClean.strip()
+        if(len(lineSplit)==1):
+            #Check if null was specified
+            inputNull = Commons.isStringNull(lineSplit[0])
+            if(inputNull):
+                destinationObject.setPassword(None)
+                return "Channel password disabled."
+            else:
+                destinationObject.setPassword(lineSplit[0])
+                return "Channel password set."
+        #Otherwise line has 2 or more arguments.
+        #Assume first is channel, and second is password.
+        inputNull = Commons.isStringNull(lineSplit[1])
+        targetChannelName = lineSplit[0]
+        targetChannel = serverObject.getChannelByName(targetChannelName)
+        if(inputNull):
+            destinationObject.setPassword(None)
+            return "Channel password disabled for "+targetChannel.getName()+"."
+        else:
+            destinationObject.setPassword(lineSplit[1])
+            return "Channel password set for "+targetChannel.getName()+"."
     
 
 

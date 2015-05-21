@@ -69,11 +69,19 @@ class Commons(object):
     def stringToBool(string):
         'Converts a string to a boolean.'
         string = string.lower()
-        if(string in [1,'1','true','t','yes','y','on']):
+        if(string in [1,'1','true','t','yes','y','on','enabled','enable']):
             return True
-        if(string in [0,'0','false','f','no','n','off']):
+        if(string in [0,'0','false','f','no','n','off','disabled','disable']):
             return False
         return None
+    
+    @staticmethod
+    def isStringNull(string):
+        'Converts a string to a boolean.'
+        string = string.lower()
+        if(string in [0,'0','false','off','disabled','disable','','nul','null','none','nil']):
+            return True
+        return False
     
     @staticmethod
     def ordinal(number):

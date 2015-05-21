@@ -1,6 +1,7 @@
 from Function import Function
 import random
 import time
+import re
 
 class Is(Function):
     '''
@@ -180,6 +181,56 @@ class Boop(Function):
         serverObject.send("\x01ACTION boops "+destUser.getName()+".\x01",destChannel)
         return "Done."
 
-
-
+class ReplyMessage:
+    '''
+    Helper class for a reply message object.
+    '''
+    mPrompt = None
+    mResponseList = None
+    mBlackList = None
+    mWhiteList = None
+    
+    def __init__(self,prompt):
+        self.mPrompt = re.compile(prompt)
+        self.mResponseList = []
+        self.mBlackList = {}
+        self.mWhiteList = None
+    
+    def checkDestination(self,destinationObject):
+        'Checks if a given destination should be responded to.'
+        serverName = destinationObject.getServer().getName().lower()
+        channelName = destinationObject.getName().lower()
+        #If a whitelist is set, check that
+        if(self.mWhiteList is not None):
+            if(serverName in self.mWhiteList and channelName in self.mWhiteList[serverName]):
+                return True
+            return False
+        #Otherwise check blacklist
+        if(serverName in self.mBlackList and channelName in self.mBlackList[serverName]):
+            return False
+        return True
+    
+    def checkResponse(self,inputLine,userObject,destinationObject):
+        'Checks if this reply message will respond, and which response to use.'
+        if(self.mPrompt.match(inputLine)):
+            #Pick a response
+            response = random.choice(self.mResponseList)
+            response.replace("{USER}",userObject.getName())
+            response.replace("{CHANNEL}",destinationObject.getName())
+            response.replace("{SERVER}",userObject.getServer().getName())
+            return response
+        return None
+    
+    def addResponse(self,response):
+        'Adds a new response to the list.'
+        self.mResponseList.add(response)
+    
+    def toXml(self):
+        pass
+    
+    @staticmethod
+    def fromXml(xmlString):
+        pass
+    
+    
 
