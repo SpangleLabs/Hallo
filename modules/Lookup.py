@@ -327,21 +327,22 @@ class UrlDetect(Function):
             pageType = ''
         #Get the website name
         urlSite = Commons.getDomainName(urlAddress).lower()
-        #Get the correct response for the link
+        #Get response if link is an image
         if("image" in pageType):
             return self.urlImage(urlAddress,pageOpener,pageRequest,pageType)
-        if(urlSite=="imgur"):
-            return self.urlImgur(urlAddress,pageOpener,pageRequest)
-        if(urlSite=="speedtest"):
-            return self.urlSpeedtest(urlAddress,pageOpener,pageRequest)
-        if(urlSite=="youtube" or urlSite=="youtu"):
-            return self.urlYoutube(urlAddress,pageOpener,pageRequest)
+        #Get a response depending on the website
         if(urlSite=="amazon"):
-            return self.urlAmazon(urlAddress,pageOpener,pageRequest)
+            return self.siteAmazon(urlAddress,pageOpener,pageRequest)
         if(urlSite=="ebay"):
-            return self.urlEbay(urlAddress,pageOpener,pageRequest)
+            return self.siteEbay(urlAddress,pageOpener,pageRequest)
         if(urlSite=="imdb"):
-            return self.urlImdb(urlAddress,pageOpener,pageRequest)
+            return self.siteImdb(urlAddress,pageOpener,pageRequest)
+        if(urlSite=="imgur"):
+            return self.siteImgur(urlAddress,pageOpener,pageRequest)
+        if(urlSite=="speedtest"):
+            return self.siteSpeedtest(urlAddress,pageOpener,pageRequest)
+        if(urlSite=="youtube" or urlSite=="youtu"):
+            return self.siteYoutube(urlAddress,pageOpener,pageRequest)
         #If other url, return generic URL response
         return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
@@ -351,9 +352,9 @@ class UrlDetect(Function):
         urlSite = Commons.getDomainName(urlAddress).lower()
         #If website name is speedtest or imgur, hand over to those handlers
         if(urlSite=="speedtest"):
-            return self.urlSpeedtest(urlAddress,pageOpener,pageType)
+            return self.siteSpeedtest(urlAddress,pageOpener,pageType)
         if(urlSite=="imgur"):
-            return self.urlImage(urlAddress,pageOpener,pageType)
+            return self.siteImgur(urlAddress,pageOpener,pageType)
         #Image handling
         imageData = pageOpener.open(pageRequest).read()
         imageWidth, imageHeight = self.getImageSize(imageData)
@@ -361,45 +362,36 @@ class UrlDetect(Function):
         imageSizeStr = self.fileSizeToString(imageSize)
         return "Image: " + pageType + " (" + str(imageWidth) + "px by " + str(imageHeight) + "px) " + imageSizeStr + "."
 
-    def urlImgur(self,urlAddress,pageOpener,pageRequest):
-        'Handling imgur links'
-        pass
-
-    def urlSpeedtest(self,urlAddress,pageOpener,pageRequest):
-        'Handling speedtest links'
-        pass
-
-    def urlYoutube(self,urlAddress,pageOpener,pageRequest):
-        'Handling for youtube links'
-        pass
-
-    def urlAmazon(self,urlAddress,pageOpener,pageRequest):
-        'Handling for amazon links'
-        pass
-
-    def urlEbay(self,urlAddress,pageOpener,pageRequest):
-        'Handling for ebay links'
-        pass
-
-    def urlImdb(self,urlAddress,pageOpener,pageRequest):
-        'Handling for imdb links'
-        pass
-
     def urlGeneric(self,urlAddress,pageOpener,pageRequest):
         'Handling for generic links not caught by any other url handling function.'
         pass
 
+    def siteAmazon(self,urlAddress,pageOpener,pageRequest):
+        'Handling for amazon links'
+        pass
 
-    def fileSizeToString(self,size):
-        if(size<2048):
-            sizeString = str(size) + "Bytes"
-        elif(size<(2048*1024)):
-            sizeString = str(math.floor(float(size)/10.24)/100) + "KiB"
-        elif(size<(2048*1024*1024)):
-            sizeString = str(math.floor(float(size)/(1024*10.24))/100) + "MiB"
-        else:
-            sizeString = str(math.floor(float(size)/(1024*1024*10.24))/100) + "GiB"
-        return sizeString
+    def siteEbay(self,urlAddress,pageOpener,pageRequest):
+        'Handling for ebay links'
+        pass
+
+    def siteImdb(self,urlAddress,pageOpener,pageRequest):
+        'Handling for imdb links'
+        pass
+
+    def siteImgur(self,urlAddress,pageOpener,pageRequest):
+        'Handling imgur links'
+        pass
+
+    def siteSpeedtest(self,urlAddress,pageOpener,pageRequest):
+        'Handling speedtest links'
+        pass
+
+    def siteYoutube(self,urlAddress,pageOpener,pageRequest):
+        'Handling for youtube links'
+        pass
+
+
+
 
 
     def getImageSize(self,imageData):
@@ -440,3 +432,15 @@ class UrlDetect(Function):
         else:
             return
         return width, height
+
+    def fileSizeToString(self,size):
+        if(size<2048):
+            sizeString = str(size) + "Bytes"
+        elif(size<(2048*1024)):
+            sizeString = str(math.floor(float(size)/10.24)/100) + "KiB"
+        elif(size<(2048*1024*1024)):
+            sizeString = str(math.floor(float(size)/(1024*10.24))/100) + "MiB"
+        else:
+            sizeString = str(math.floor(float(size)/(1024*1024*10.24))/100) + "GiB"
+        return sizeString
+
