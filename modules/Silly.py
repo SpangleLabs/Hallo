@@ -350,3 +350,52 @@ class ReplyMessageList:
         #save XML
         doc.writexml(open("store/reply_list.xml","w"),addindent="\t",newl="\n")
 
+class Reply(Function):
+    '''
+    Function to make hallo reply to detected phrases with a specified response
+    '''
+    #Name for use in help listing
+    mHelpName = "reply"
+    #Names which can be used to address the function
+    mNames = set(["reply"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Make hallo reply to a detected phrase with a specified response."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        return "Not yet handled."
+        pass
+    
+    def getPassiveEvents(self):
+        'Returns a list of events which this function may want to respond to in a passive way'
+        return set(Function.EVENT_MESSAGE)
+
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+        'Replies to an event not directly addressed to the bot.'
+        replyMessageList = ReplyMessageList.loadFromXml()
+        response = replyMessageList.getResponse(fullLine,userObject,channelObject)
+        return response
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
