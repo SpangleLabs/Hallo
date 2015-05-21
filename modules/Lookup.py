@@ -519,7 +519,25 @@ class UrlDetect(Function):
 
     def siteYoutube(self,urlAddress,pageOpener,pageRequest):
         'Handling for youtube links'
-        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
+        #Find video id
+        if("youtu.be" in urlAddress):
+            videoId = urlAddress.split("/")[-1].split("?")[0]
+        else:
+            videoId = urlAddress.split("/")[-1].split("=")[1].split("&")[0]
+        #Find API url
+        apiKey = "AIzaSyDdpbzJ2mMTb2mKDBHADnXf4C18Lwc45A4"
+        apiUrl = "https://www.googleapis.com/youtube/v3/videos?id="+videoId+"&part=snippet,contentDetails,statistics&key="+apiKey
+        #Load API response (in json).
+        apiDict = Commons.loadUrlJson(apiUrl)
+        #Get video data from API response.
+        videoTitle = apiDict['items'][0]['snippet']['title']
+        videoDuration = apiDict['items'][0]['contentDetails']['duration'][2:].lower()
+        videoViews = apiDict['items'][0]['contentDetails']['views']
+        #Create output
+        output = "Youtube video> Title: " + videoTitle + " | "
+        output += "Length: " + videoDuration + " | "
+        output += "Views: " + videoViews + "."
+        return output
 
 
 

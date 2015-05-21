@@ -16,7 +16,6 @@ endl = '\r\n'
 class mod_passive():
     def fnn_passive(self,args,client,destination):
         # SPANGLE ADDED THIS, should run his extrayammering command, a command to say things (only) when not spoken to... oh god.
-        mod_passive.fnn_sweardetect(self,args,client,destination)
 #        megahal_mod.megahal_mod.fnn_megahalrecord(self,args,client,destination)
 #        if(len(args)>2 and args[:2].lower()=='_s' and '_s' not in [user.lower() for user in self.core['server'][destination[0]]['channel'][destination[1]]['user_list']]):
 #            return megahal_mod.megahal_mod.fn_speak(self,args[2:],client,destination)
@@ -53,15 +52,7 @@ class mod_passive():
             elif("image" in pagetype):
                 return
             elif('youtube.com' in url or 'youtu.be' in url):
-                code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
-                length = re.search('length_seconds": "([0-9]*)', code).group(1)
-                length_str = str(int(int(length)/60)) + "m " + str(int(length)-(60*(int(int(length)/60)))) + "s"
-                views = re.search('class="watch-view-count[^>]*>[\n\r\s]*([0-9,+]*)',code).group(1)
-                #title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code).group(1)[:-10].split()).replace('&lt;','<').replace('&gt;','>').replace('&#39;',"'").replace('&#039;',"'").replace('&quot;','"').replace('&amp;','&')
-                title = ' '.join(re.search('<title[-A-Z0-9"=' + "'" + ' ]*>\b*([^<]*)\b*</title>',code,re.I).group(1)[:-10].split())
-                h = html.parser.HTMLParser()
-                title = h.unescape(title)
-                return "Youtube video> Title: " + title + " | Length: " + length_str + " | Views: " + views + "."
+                return
             elif('amazon.co.uk' in url or 'amazon.com' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
                 title = re.search('<title>([^<]*)</title>',code,re.I).group(1)
