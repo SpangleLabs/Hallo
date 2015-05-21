@@ -7,6 +7,7 @@ import re
 import urllib.parse
 import struct       #UrlDetect image size
 import imghdr       #UrlDetect image size
+import math
 
 class UrbanDictionary(Function):
     '''
@@ -328,23 +329,23 @@ class UrlDetect(Function):
         urlSite = Commons.getDomainName(urlAddress).lower()
         #Get the correct response for the link
         if("image" in pageType):
-            return self.urlImage(urlAddress,pageOpener)
+            return self.urlImage(urlAddress,pageOpener,pageRequest,pageType)
         if(urlSite=="imgur"):
-            return self.urlImgur(urlAddress,pageOpener)
+            return self.urlImgur(urlAddress,pageOpener,pageRequest)
         if(urlSite=="speedtest"):
-            return self.urlSpeedtest(urlAddress,pageOpener)
+            return self.urlSpeedtest(urlAddress,pageOpener,pageRequest)
         if(urlSite=="youtube" or urlSite=="youtu"):
-            return self.urlYoutube(urlAddress,pageOpener)
+            return self.urlYoutube(urlAddress,pageOpener,pageRequest)
         if(urlSite=="amazon"):
-            return self.urlAmazon(urlAddress,pageOpener)
+            return self.urlAmazon(urlAddress,pageOpener,pageRequest)
         if(urlSite=="ebay"):
-            return self.urlEbay(urlAddress,pageOpener)
+            return self.urlEbay(urlAddress,pageOpener,pageRequest)
         if(urlSite=="imdb"):
-            return self.urlImdb(urlAddress,pageOpener)
+            return self.urlImdb(urlAddress,pageOpener,pageRequest)
         #If other url, return generic URL response
-        return self.urlGeneric(urlAddress,pageOpener)
+        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
-    def urlImage(self,urlAddress,pageOpener):
+    def urlImage(self,urlAddress,pageOpener,pageRequest,pageType):
         'Handling direct image links'
         #Get the website name
         urlSite = Commons.getDomainName(urlAddress).lower()
@@ -354,36 +355,51 @@ class UrlDetect(Function):
         if(urlSite=="imgur"):
             return self.urlImage(urlAddress, pageOpener)
         #Image handling
-        pass
+        imageData = pageOpener.open(pageRequest).read()
+        imageWidth, imageHeight = self.getImageSize(imageData)
+        imageSize = len(imageData)
+        imageSizeStr = self.fileSizeToString(imageSize)
+        return "Image: " + pageType + " (" + str(imageWidth) + "px by " + str(imageHeight) + "px) " + imageSizeStr + "."
 
-    def urlImgur(self,urlAddress,pageOpener):
+    def urlImgur(self,urlAddress,pageOpener,pageRequest):
         'Handling imgur links'
         pass
 
-    def urlSpeedtest(self,urlAddress,pageOpener):
+    def urlSpeedtest(self,urlAddress,pageOpener,pageRequest):
         'Handling speedtest links'
         pass
 
-    def urlYoutube(self,urlAddress,pageOpener):
+    def urlYoutube(self,urlAddress,pageOpener,pageRequest):
         'Handling for youtube links'
         pass
 
-    def urlAmazon(self,urlAddress,pageOpener):
+    def urlAmazon(self,urlAddress,pageOpener,pageRequest):
         'Handling for amazon links'
         pass
 
-    def urlEbay(self,urlAddress,pageOpener):
+    def urlEbay(self,urlAddress,pageOpener,pageRequest):
         'Handling for ebay links'
         pass
 
-    def urlImdb(self,urlAddress,pageOpener):
+    def urlImdb(self,urlAddress,pageOpener,pageRequest):
         'Handling for imdb links'
         pass
 
-    def urlGeneric(self,urlAddress,pageOpener):
+    def urlGeneric(self,urlAddress,pageOpener,pageRequest):
         'Handling for generic links not caught by any other url handling function.'
         pass
 
+
+    def fileSizeToString(self,size):
+        if(size<2048):
+            sizeString = str(size) + "Bytes"
+        elif(size<(2048*1024)):
+            sizeString = str(math.floor(float(size)/10.24)/100) + "KiB"
+        elif(size<(2048*1024*1024)):
+            sizeString = str(math.floor(float(size)/(1024*10.24))/100) + "MiB"
+        else:
+            sizeString = str(math.floor(float(size)/(1024*1024*10.24))/100) + "GiB"
+        return sizeString
 
 
     def getImageSize(self,imageData):
