@@ -333,14 +333,24 @@ class UrlDetect(Function):
         #Get a response depending on the website
         if(urlSite=="amazon"):
             return self.siteAmazon(urlAddress,pageOpener,pageRequest)
+        if(urlSite=="e621"):
+            return self.siteE621(urlAddress,pageOpener,pageRequest)
         if(urlSite=="ebay"):
             return self.siteEbay(urlAddress,pageOpener,pageRequest)
+        if(urlSite=="f-list"):
+            return self.siteFList(urlAddress,pageOpener,pageRequest)
+        if(urlSite=="furaffinity" or urlSite=="facdn"):
+            return self.siteFuraffinity(urlAddress,pageOpener,pageRequest)
         if(urlSite=="imdb"):
             return self.siteImdb(urlAddress,pageOpener,pageRequest)
         if(urlSite=="imgur"):
             return self.siteImgur(urlAddress,pageOpener,pageRequest)
         if(urlSite=="speedtest"):
             return self.siteSpeedtest(urlAddress,pageOpener,pageRequest)
+        if(urlSite=="reddit" or urlSite=="redd"):
+            return self.siteReddit(urlAddress,pageOpener,pageRequest)
+        if(urlSite=="wikipedia"):
+            return self.siteWikipedia(urlAddress,pageOpener,pageRequest)
         if(urlSite=="youtube" or urlSite=="youtu"):
             return self.siteYoutube(urlAddress,pageOpener,pageRequest)
         #If other url, return generic URL response
@@ -370,8 +380,20 @@ class UrlDetect(Function):
         'Handling for amazon links'
         pass
 
+    def siteE621(self,urlAddress,pageOpener,pageRequest):
+        'Handling for e621 links'
+        pass
+
     def siteEbay(self,urlAddress,pageOpener,pageRequest):
         'Handling for ebay links'
+        pass
+
+    def siteFList(self,urlAddress,pageOpener,pageRequest):
+        'Handling for f-list links'
+        pass
+
+    def siteFuraffinity(self,urlAddress,pageOpener,pageRequest):
+        'Handling for furaffinity links'
         pass
 
     def siteImdb(self,urlAddress,pageOpener,pageRequest):
@@ -381,9 +403,21 @@ class UrlDetect(Function):
     def siteImgur(self,urlAddress,pageOpener,pageRequest):
         'Handling imgur links'
         pass
+    
+    def sitePastebin(self,urlAddress,pageOpener,pageRequest):
+        'Handling pastebin links'
+        pass
+    
+    def siteReddit(self,urlAddress,pageOpener,pageRequest):
+        'Handling reddit links'
+        pass
 
     def siteSpeedtest(self,urlAddress,pageOpener,pageRequest):
         'Handling speedtest links'
+        pass
+
+    def siteWikipedia(self,urlAddress,pageOpener,pageRequest):
+        'Handling for wikipedia links'
         pass
 
     def siteYoutube(self,urlAddress,pageOpener,pageRequest):
