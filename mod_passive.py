@@ -47,21 +47,7 @@ class mod_passive():
             else:
                 pagetype = ''
             if('speedtest.net' in url):
-                if(url[-4:]=='.png'):
-                    number = url[32:-4]
-                    newurl = 'http://www.speedtest.net/my-result/' + number
-                    print("New url: " + newurl)
-                    pagerequest = urllib.request.Request(newurl)
-                    pagerequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-                    pageopener = urllib.request.build_opener()
-                    pageinfo = str(pageopener.open(pagerequest).info())
-                code = pageopener.open(pagerequest).read().decode('utf-8')
-                code = re.sub(r'\s+','',code)
-                code = ''.join(code.split())
-                download = re.search('<h3>Download</h3><p>([0-9\.]*)',code).group(1)
-                upload = re.search('<h3>Upload</h3><p>([0-9\.]*)',code).group(1)
-                ping = re.search('<h3>Ping</h3><p>([0-9]*)',code).group(1)
-                return "Speedtest> Download: " + download + "Mb/s | Upload: " + upload + "Mb/s | Ping: " + ping + "ms"
+                return
             elif('imgur.com' in url):
 #           3afbdcb1353b72f imgur API client-ID
                 if('/a/' in url):
@@ -97,15 +83,7 @@ class mod_passive():
                     views = api_dict['data']['views']
                     return "Imgur> Title: " + title + " | Size: " + img_width + "x" + img_height + " | Filesize: " + img_sizestr + " | Views: " + "{:,}".format(views) + "."
             elif("image" in pagetype):
-                code = pageopener.open(pagerequest).read()
-            #    image_file = io.BytesIO(code)
-            #    im = Image.open(image_file)
-            #    image_width, image_height = im.size
-                image_width = '???'
-                image_height = '???'
-                filesize = len(code)
-                filesizestr = mod_passive.fnn_sizestr(self,filesize)
-                return "Image: " + pagetype + " (" + str(image_width) + "px by " + str(image_height) + "px) " + filesizestr + "."
+                return
             elif('youtube.com' in url or 'youtu.be' in url):
                 code = pageopener.open(pagerequest).read().decode('utf-8','ignore')
                 length = re.search('length_seconds": "([0-9]*)', code).group(1)
@@ -156,15 +134,7 @@ class mod_passive():
                 votes = api_dict['imdbVotes']
                 return "IMDB> Title: " + title + " (" + year + ") | Rated " + rating + "/10, " + votes + " votes. | Genres: " + genre  + "."
             else:
-                code = pageopener.open(pagerequest).read(4096).decode('utf-8','ignore')
-                if(code.count('</title>')>=1):
-                    title = re.search('<title([-A-Z0-9"=' + "'" + ' ]*)>([^<]*)</title>',code,re.I).group(2)
-                    h = html.parser.HTMLParser()
-                    title = h.unescape(title)
-                    if(title!=""):
-                        return "URL title: " + title.replace("\n","")
-                else:
-                    self.base_say('I saw a link, but no title? ' + url,[destination[0],'dr-spangle'])
+                return
 
     def fnn_sizestr(self,size):
         if(size<2048):
