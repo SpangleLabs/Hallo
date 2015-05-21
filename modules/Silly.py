@@ -332,5 +332,21 @@ class ReplyMessageList:
         return newReplyMessageList
     
     def saveToXml(self):
-        pass
+        'Saves ReplyMessageList to XML.'
+        #Create document, with DTD
+        docimp = minidom.DOMImplementation()
+        doctype = docimp.createDocumentType(
+            qualifiedName='reply_list',
+            publicId='', 
+            systemId='reply_list.dtd',
+        )
+        doc = docimp.createDocument(None,'reply_list',doctype)
+        #get root element
+        root = doc.getElementsByTagName("reply_list")[0]
+        #Add reply message objects
+        for replyMessage in self.mReplyMessageList:
+            replyElement = minidom.parse(replyMessage.toXml()).firstChild
+            root.appendChild(replyElement)
+        #save XML
+        doc.writexml(open("store/reply_list.xml","w"),addindent="\t",newl="\n")
 
