@@ -192,17 +192,17 @@ class ReplyMessage:
     mWhitelist = None
     
     def __init__(self,prompt):
-        self.mPrompt = re.compile(prompt)
+        self.mPrompt = re.compile(prompt,re.IGNORECASE)
         self.mResponseList = []
         self.mBlacklist = {}
-        self.mWhitelist = None
+        self.mWhitelist = {}
     
     def checkDestination(self,destinationObject):
         'Checks if a given destination should be responded to.'
         serverName = destinationObject.getServer().getName().lower()
         channelName = destinationObject.getName().lower()
         #If a whitelist is set, check that
-        if(self.mWhitelist is not None):
+        if(len(self.mWhitelist) != 0):
             if(serverName in self.mWhitelist and channelName in self.mWhitelist[serverName]):
                 return True
             return False
@@ -234,14 +234,50 @@ class ReplyMessage:
     
     def addWhitelist(self,serverName,channelName):
         'Adds a new server/channel pair to whitelist.'
-        if(self.mWhitelist is None):
-            self.mWhitelist = {}
         if(serverName not in self.mWhitelist):
             self.mWhitelist[serverName] = set()
         self.mWhitelist[serverName].add(channelName)
     
     def toXml(self):
-        pass
+        'Writes ReplyMessage object as XML'
+        #Create document
+        doc = minidom.Document()
+        #Create root element
+        root = doc.createElement("reply")
+        doc.appendChild(root)
+        #Add prompt element
+        promptElement = doc.createElement("prompt")
+        promptElement.appendChild(doc.createTextNode(self.mPrompt.pattern))
+        root.appendChild(promptElement)
+        #Add all response elements
+        for response in self.mResponseList:
+            responseElement = doc.createElement("response")
+            responseElement.appendChild(doc.createTextNode(response))
+            root.appendChild(responseElement)
+        #Add blacklist elements
+        for serverName in self.mBlacklist:
+            for channelName in self.mBlacklist[serverName]:
+                blacklistElement = doc.createElement("blacklist")
+                serverElement = doc.createElement("server")
+                serverElement.appendChild(doc.createTextNode(serverName))
+                blacklistElement.appendChild(serverElement)
+                channelElement = doc.createElement("channel")
+                channelElement.appendChild(doc.createTextNode(channelName))
+                blacklistElement.appendChild(channelElement)
+                root.appendChild(blacklistElement)
+        #Add whitelist elements
+        for serverName in self.mWhitelist:
+            for channelName in self.mWhitelist[serverName]:
+                whitelistElement = doc.createElement("whitelist")
+                serverElement = doc.createElement("server")
+                serverElement.appendChild(doc.createTextNode(serverName))
+                whitelistElement.appendChild(serverElement)
+                channelElement = doc.createElement("channel")
+                channelElement.appendChild(doc.createTextNode(channelName))
+                whitelistElement.appendChild(channelElement)
+                root.appendChild(whitelistElement)
+        #Output XML
+        return doc.toxml()
     
     @staticmethod
     def fromXml(xmlString):
