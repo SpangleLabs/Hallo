@@ -390,6 +390,7 @@ class UrlDetect(Function):
 
     def siteAmazon(self,urlAddress,pageOpener,pageRequest):
         'Handling for amazon links'
+        #I spent ages trying to figure out the amazon API, and I gave up.
         return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteE621(self,urlAddress,pageOpener,pageRequest):
