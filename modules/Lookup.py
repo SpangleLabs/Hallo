@@ -8,6 +8,7 @@ import urllib.parse
 import struct       #UrlDetect image size
 import imghdr       #UrlDetect image size
 import math
+import html.parser
 
 class UrbanDictionary(Function):
     '''
@@ -374,7 +375,18 @@ class UrlDetect(Function):
 
     def urlGeneric(self,urlAddress,pageOpener,pageRequest):
         'Handling for generic links not caught by any other url handling function.'
-        pass
+        pageCode = pageOpener.open(pageRequest).read(4096).decode('utf-8','ignore')
+        if(pageCode.count('</title>')==0):
+            return None
+        titleSearch = re.search('<title[^>]*>([^<]*)</title>',pageCode,re.I)
+        if(titleSearch is None):
+            return None
+        titleText = titleSearch.group(2)
+        htmlParser = html.parser.HTMLParser()
+        titleClean = htmlParser.unescape(titleText).replace("\n","").strip()
+        if(titleClean!=""):
+            return "URL title: " + titleClean.replace("\n","")
+        return None
 
     def siteAmazon(self,urlAddress,pageOpener,pageRequest):
         'Handling for amazon links'
