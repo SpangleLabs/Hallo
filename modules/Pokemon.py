@@ -25,7 +25,7 @@ class RandomPokemon(Function):
         pokemonListXml = doc.getElementsByTagName("pokemon_list")[0]
         pokemonList = []
         #Loop through pokemon, adding to pokemonList
-        for pokemonXml in pokemonListXml.getElementsByTagName("pony_episode"):
+        for pokemonXml in pokemonListXml.getElementsByTagName("pokemon"):
             pokemonDict = {}
             pokemonDict['name'] = pokemonXml.getElementsByTagName("name")[0].firstChild.data
             pokemonList.append(pokemonDict)
