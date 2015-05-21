@@ -410,7 +410,28 @@ class UrlDetect(Function):
 
     def siteImdb(self,urlAddress,pageOpener,pageRequest):
         'Handling for imdb links'
-        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
+        #If URL isn't to an imdb title, just do normal url handling.
+        if('imdb.com/title' not in urlAddress):
+            return self.siteGeneric(urlAddress,pageOpener,pageRequest)
+        #Get the imdb movie ID
+        movieIdSearch = re.search('title/(tt[0-9]*)',urlAddress)
+        if(movieIdSearch is None):
+            return self.siteGeneric(urlAddress,pageOpener,pageRequest)
+        movieId = movieIdSearch.group(1)
+        #Download API response
+        apiUrl = 'http://www.omdbapi.com/?i=' + movieId
+        api_dict = Commons.loadUrlJson(apiUrl)
+        #Get movie information from API response
+        movieTitle = api_dict['Title']
+        movieYear = api_dict['Year']
+        movieGenre = api_dict['Genre']
+        movieRating = api_dict['imdbRating']
+        movieVotes = api_dict['imdbVotes']
+        #Construct output
+        output = "IMDB> Title: " +movieTitle + " (" + movieYear + ") | "
+        output += "Rating "+movieRating+"/10, "+movieVotes+" votes. | "
+        output += "Genres: " + movieGenre  + "."
+        return output
 
     def siteImgur(self,urlAddress,pageOpener,pageRequest):
         'Handling imgur links'
@@ -455,6 +476,7 @@ class UrlDetect(Function):
             albumSection = apiDict['data']['section']
             output += "Section: " + albumSection + " | "
         albumCount = apiDict['data']['images_count']
+        #If an image was specified, show some information about that specific image
         if("#" in urlAddress):
             imageNumber = int(urlAddress.split('#')[-1])
             imageWidth = apiDict['data']['images'][imageNumber]['width']
@@ -463,9 +485,9 @@ class UrlDetect(Function):
             imageSizeString = self.fileSizeToString(imageSize)
             output += "Image " + str(imageNumber+1) + " of " + str(albumCount) + " | "
             output += "Current image: " + str(imageWidth) + "x" + str(imageHeight) + ", " + imageSizeString + "."
-        else:
-            output += str(albumCount) + "images."
-        return output 
+            return output
+        output += str(albumCount) + "images."
+        return output
     
     def sitePastebin(self,urlAddress,pageOpener,pageRequest):
         'Handling pastebin links'
