@@ -23,20 +23,9 @@ class mod_passive():
         ##check if passive functions are disabled.
         if(not self.conf['server'][destination[0]]['channel'][destination[1]]['passivefunc']):
             return None
-        out = mod_passive.fnn_extrayammering(self,args,client,destination)
-        if(out is not None):
-            return out
-    #    if(re.search(r'(pew)+',args,re.I)):
-    #        out = mod_passive.fnn_pew(self,args,client,destination)
-    #        return out
-        if(re.search(r'haskell.jpg',args,re.I)):
-            out = mod_passive.fnn_haskell(self,args,client,destination)
-            return out
         out = mod_passive.fnn_urldetect(self,args,client,destination)
         if(out is not None):
             return out
-        if(args.lower()=='beep'):
-            return mod_passive.fnn_beep(self,args,client,destination)
         if(ircbot_chk.ircbot_chk.chk_msg_calc(self,args) and not ircbot_chk.ircbot_chk.chk_msg_numbers(self,args)):
             return mod_calc.mod_calc.fn_calc(self,args,client,destination)
 
@@ -192,39 +181,6 @@ class mod_passive():
         elif(swearstatus=='possible'):
             for admin in ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],self.conf['server'][destination[0]]['admininform']):
                 self.base_say(client + ' possibly just swore in ' + destination[1] + '. Check the context. The message was: ' + args,[destination[0],admin])
-
-    def fnn_extrayammering(self, args, client, destination):
-        'Does some extra chatting, probably super buggy.'
-        if(args.lower().find("open") >= 0 and (args.lower().find("pod bay") >=0 or args.lower().find("podbay") >=0) and args.lower().find("door") >= 0):
-            message = "I'm sorry " + client + ", but I'm afraid I can't do that."
-            return message
-        elif(("irc client" in args.lower() or "irc program" in args.lower() or "chat client" in args.lower()) and ("which" in args.lower() or "what" in args.lower()) and ("get" in args.lower() or "use" in args.lower())):
-            message = "For windows: Hexchat is a good irc client. Try http://hexchat.org For mac: Colloquy is a good choice http://colloquy.info/ For linux: xchat (for a graphical interface) http://xchat.org or for command line linux: irssi http://irssi.org Or for a web client, try http://mibbit.com"
-            return message
-#        elif("when" in args.lower() and ("more pony" in args.lower() or "season 4" in args.lower() or "S04" in args.upper() or ("next season" in args.lower() and ("pony" in args.lower() or "mlp" in args.lower())))):
-#            message = "It's finally been announced! Season 4 of pony starts on the 23rd of November!"
-#            return message
-        elif(("who is" in args.lower() or "what is" in args.lower()) and "hallo" in args.lower()):
-            message = "I'm Hallo, I'm a bot built by dr-spangle, I do a couple of useful things like calculate things and choose options."
-            return message
-        elif(("who is" in args.lower() or "what is" in args.lower()) and "muffinmare" in args.lower()):
-            message = "muffinmare is another bot, she was built by ripp_, and very kindly gives out free muffins to people."
-            return message
-        elif(self.conf['server'][destination[0]]['nick'].lower() in args.lower() and 'with the weather' in args.lower()):
-            message = mod_lookup.mod_lookup.fnn_weather(self,args,client,destination)
-            return message
-        else:
-            pass
-
-    def fnn_beep(self,args,client,destination):
-        #call(["beep"])
-        return "boop"
-
-    def fnn_pew(self,args,client,destination):
-        return "pew pew."
-
-    def fnn_haskell(self,args,client,destination):
-        return "http://dr-spangle.com/haskell.jpg"
 
     def fnn_sizestr(self,size):
         if(size<2048):
