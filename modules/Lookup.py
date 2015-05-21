@@ -301,6 +301,48 @@ class UrlDetect(Function):
     def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
         #Search for a link
+        urlRegex = re.compile(r'\b((https?://|www.)[-A-Z0-9+&?%@#/=~_|$:,.]*[A-Z0-9+\&@#/%=~_|$])',re.I)
+        urlSearch = urlRegex.search(fullLine)
+        if(not urlSearch):
+            return None
+        #Get link address
+        urlAddress = urlSearch.group(1)
+        #Add protocol if missing
+        if("://" not in urlAddress):
+            urlAddress = "http://" + urlAddress
+        #Ignore local links.
+        if('127.0.0.1' in urlAddress or '192.168.' in urlAddress or '10.' in urlAddress or '172.' in urlAddress):
+            return None
+        #Get page info
+        pageRequest = urllib.request.Request(urlAddress)
+        pageRequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+        pageOpener = urllib.request.build_opener()
+        pageInfo = str(pageOpener.open(pageRequest).info())
+        if("Content-Type:" in pageInfo):
+            pageType = pageInfo.split()[pageInfo.split().index('Content-Type:')+1]
+        else:
+            pageType = ''
+        #Get the website name
+        urlSite = Commons.getDomainName(urlAddress).lower()
         #Get the correct response for the link
-        #Return response
-        return None
+        if("image" in pageType):
+            return self.urlImage(urlAddress,pageOpener)
+        if(urlSite=="imgur"):
+            return self.urlImgur(urlAddress,pageOpener)
+        if(urlSite=="speedtest"):
+            return self.urlSpeedtest(urlAddress,pageOpener)
+        if(urlSite=="youtube" or urlSite=="youtu"):
+            return self.urlYoutube(urlAddress,pageOpener)
+        if(urlSite=="amazon"):
+            return self.urlAmazon(urlAddress,pageOpener)
+        if(urlSite=="ebay"):
+            return self.urlEbay(urlAddress,pageOpener)
+        if(urlSite=="imdb"):
+            return self.urlImdb(urlAddress,pageOpener)
+        #If other url, return generic URL response
+        return self.urlGeneric(urlAddress,pageOpener)
+
+    def urlImage(self,urlAddress,pageOpener):
+        pass
+
+
