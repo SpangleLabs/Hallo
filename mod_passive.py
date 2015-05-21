@@ -166,22 +166,6 @@ class mod_passive():
                 else:
                     self.base_say('I saw a link, but no title? ' + url,[destination[0],'dr-spangle'])
 
-    def fnn_sweardetect(self,args,client,destination):
-        swearcheck = ircbot_chk.ircbot_chk.chk_swear(self,destination[0],destination[1],args)
-        swearstatus = swearcheck[0]
-        swearword = swearcheck[1]
-        if(swearstatus=='comment'):
-            if(self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['commentmsg']==''):
-                self.base_say("Please don't swear in the channel. This is a PG channel.",destination)
-            else:
-                self.base_say(self.conf['server'][destination[0]]['channel'][destination[1]]['swearlist']['commentmsg'].replace('{swear}',re.search(swearword,args,re.I).group(0)),destination)
-        elif(swearstatus=='inform'):
-            for admin in ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],self.conf['server'][destination[0]]['admininform']):
-                self.base_say(client + ' just swore in ' + destination[1] + '. the message was: ' + args,[destination[0],admin])
-        elif(swearstatus=='possible'):
-            for admin in ircbot_chk.ircbot_chk.chk_recipientonline(self,destination[0],self.conf['server'][destination[0]]['admininform']):
-                self.base_say(client + ' possibly just swore in ' + destination[1] + '. Check the context. The message was: ' + args,[destination[0],admin])
-
     def fnn_sizestr(self,size):
         if(size<2048):
             sizestr = str(size) + "Bytes"
