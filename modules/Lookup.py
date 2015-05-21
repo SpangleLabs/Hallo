@@ -274,4 +274,33 @@ class Weather(Function):
         weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
         return random.choice(weather)
         
+class UrlDetect(Function):
+    '''
+    URL detection and title printing.
+    '''
+    #Name for use in help listing
+    mHelpName = "urldetect"
+    #Names which can be used to address the function
+    mNames = set(["urldetect"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "URL detection."
     
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        return "This function does not take input."
+
+    def getPassiveEvents(self):
+        'Returns a list of events which this function may want to respond to in a passive way'
+        return set(Function.EVENT_MESSAGE)
+
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+        'Replies to an event not directly addressed to the bot.'
+        #Search for a link
+        #Get the correct response for the link
+        #Return response
+        return None
