@@ -9,6 +9,7 @@ class Commons(object):
     Class of commons methods, useful anywhere, but all static.
     '''
     mEndLine = '\r\n'
+    BOOL_STRING_DICT = {True:"True",False:"False",None:"None"}
 
     @staticmethod
     def currentTimestamp():
@@ -82,6 +83,16 @@ class Commons(object):
         if(string in [0,'0','false','off','disabled','disable','','nul','null','none','nil']):
             return True
         return False
+    
+    @staticmethod
+    def stringFromFile(string):
+        'Loads a string from a file. Converting booleans or null values accordingly.'
+        inputBool = Commons.stringToBool(string)
+        if(inputBool in [True,False]):
+            return inputBool
+        if(Commons.isStringNull(string)):
+            return None
+        return string
     
     @staticmethod
     def ordinal(number):
