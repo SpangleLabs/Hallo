@@ -396,11 +396,11 @@ class User(Destination):
         root.appendChild(nameElement)
         #create logging element
         loggingElement = doc.createElement("logging")
-        loggingElement.appendChild(doc.createTextNode(self.mLogging))
+        loggingElement.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.mLogging]))
         root.appendChild(loggingElement)
         #create caps_lock element, to say whether to use caps lock
         capsLockElement = doc.createElement("caps_lock")
-        capsLockElement.appendChild(doc.createTextNode(self.mUseCapsLock))
+        capsLockElement.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.mUseCapsLock]))
         root.appendChild(capsLockElement)
         #create user_group list
         userGroupListElement = doc.createElement("user_group_membership")
@@ -422,8 +422,8 @@ class User(Destination):
         doc = minidom.parse(xmlString)
         newName = doc.getElementsByTagName("user_name")[0].firstChild.data
         newUser = User(newName,server)
-        newUser.mLogging = doc.getElementsByTagName("logging")[0].firstChild.data
-        newUser.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
+        newUser.mLogging = Commons.stringFromFile(doc.getElementsByTagName("logging")[0].firstChild.data)
+        newUser.mUseCapsLock = Commons.stringFromFile(doc.getElementsByTagName("caps_lock")[0].firstChild.data)
         #Load UserGroups from XML
         userGroupListXml = doc.getElementsByTagName("user_group_membership")[0]
         for userGroupXml in userGroupListXml.getElementsByTagName("user_group_name"):
