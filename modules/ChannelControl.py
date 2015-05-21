@@ -1,5 +1,6 @@
 from Function import Function
 from inc.commons import Commons
+from Server import Server
 
 class Operator(Function):
     '''
@@ -22,7 +23,7 @@ class Operator(Function):
         #Get server object
         serverObject = userObject.getServer()
         #If server isn't IRC type, we can't give op.
-        if(serverObject.getType()!="irc"):
+        if(serverObject.getType()!=Server.TYPE_IRC):
             return "This function is only available for IRC servers."
         #TODO: check if hallo has op?
         #If 0 arguments, op user who called command.
@@ -96,7 +97,7 @@ class DeOperator(Function):
         #Get server object
         serverObject = userObject.getServer()
         #If server isn't IRC type, we can't give op.
-        if(serverObject.getType()!="irc"):
+        if(serverObject.getType()!=Server.TYPE_IRC):
             return "This function is only available for IRC servers."
         #TODO: check if hallo has op?
         #If 0 arguments, op user who called command.
@@ -170,7 +171,7 @@ class Voice(Function):
         #Get server object
         serverObject = userObject.getServer()
         #If server isn't IRC type, we can't give op.
-        if(serverObject.getType()!="irc"):
+        if(serverObject.getType()!=Server.TYPE_IRC):
             return "This function is only available for IRC servers."
         #TODO: check if hallo has op?
         #If 0 arguments, op user who called command.
@@ -244,7 +245,7 @@ class DeVoice(Function):
         #Get server object
         serverObject = userObject.getServer()
         #If server isn't IRC type, we can't give op.
-        if(serverObject.getType()!="irc"):
+        if(serverObject.getType()!=Server.TYPE_IRC):
             return "This function is only available for IRC servers."
         #TODO: check if hallo has op?
         #If 0 arguments, op user who called command.
@@ -318,7 +319,7 @@ class Invite(Function):
         #Get server object
         serverObject = userObject.getServer()
         #If server isn't IRC type, we can't give op.
-        if(serverObject.getType()!="irc"):
+        if(serverObject.getType()!=Server.TYPE_IRC):
             return "This function is only available for IRC servers."
         #TODO: check if hallo has op?
         lineSplit = line.split()
@@ -450,7 +451,7 @@ class Kick(Function):
         #Get server object
         serverObject = userObject.getServer()
         #If server isn't IRC type, we can't give op.
-        if(serverObject.getType()!="irc"):
+        if(serverObject.getType()!=Server.TYPE_IRC):
             return "This function is only available for IRC servers."
         #TODO: check if hallo has op?
         #Check input is not blank

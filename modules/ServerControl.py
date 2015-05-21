@@ -139,7 +139,7 @@ class Connect(Function):
             return self.connectToKnownServer(existingServer)
         #Try to find what protocol is specififed, or use whatever protocol the user is using.
         lineSplit = line.split()
-        validProtocols = ["irc"]
+        validProtocols = [Server.TYPE_IRC]
         if(any([prot in [arg.lower() for arg in lineSplit] for prot in validProtocols])):
             for protocol in validProtocols:
                 if(protocol in [arg.lower() for arg in lineSplit]):
@@ -150,7 +150,7 @@ class Connect(Function):
         else:
             serverProtocol = currentServer.getType()
         #Go through protocols branching to whatever function to handle that protocol
-        if(serverProtocol=="irc"):
+        if(serverProtocol==Server.TYPE_IRC):
             return self.connectToNewServerIrc(line,userObject,destinationObject)
         #Add in ELIF statements here, to make user Connect Function support other protocols
         else:
@@ -217,7 +217,7 @@ class Connect(Function):
         nickservIdentityCommand = "status"
         nickservIdentityResponse = "^status [^ ]+ 3$"
         nickservPassword = None
-        if(currentServer.getType()=="irc"):
+        if(currentServer.getType()==Server.TYPE_IRC):
             nickservNick = currentServer.getNickservNick()
             nickservIdentityCommand = currentServer.getNickservIdentityCommand()
             nickservIdentityResponse = currentServer.getNickservIdentityResponse()
@@ -383,7 +383,7 @@ class EditServer(Function):
             return "This is not a recognised server name. Please specify server name, then whichever variables and values you wish to set. In variable=value pairs."
         #Get protocol and go through protocols branching to whatever function to handle modifying servers of that protocol.
         serverProtocol = serverObject.getType()
-        if(serverProtocol=="irc"):
+        if(serverProtocol==Server.TYPE_IRC):
             return self.editServerIrc(line,serverObject,userObject,destinationObject)
         #Add in ELIF statements here, to make user Connect Function support other protocols
         else:

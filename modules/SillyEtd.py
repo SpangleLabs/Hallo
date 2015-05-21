@@ -55,7 +55,7 @@ class SilenceTheRabble(Function):
         if(not userObject.endswith('000242')):
             return "You are not my master."
         serverObject = userObject.getServer()
-        if(serverObject.getType()=="irc"):
+        if(serverObject.getType()==Server.TYPE_IRC):
             return "This function is only available on IRC servers."
         if(destinationObject is None or destinationObject==userObject):
             return "This function can only be used in ETD."
@@ -94,7 +94,7 @@ class PokeTheAsshole(Function):
         if(not userObject.endswith('000242')):
             return "You are not my master."
         serverObject = userObject.getServer()
-        if(serverObject.getType()=="irc"):
+        if(serverObject.getType()==Server.TYPE_IRC):
             return "This function is only available on IRC servers."
         if(destinationObject is None or destinationObject==userObject):
             return "This function can only be used in ETD."

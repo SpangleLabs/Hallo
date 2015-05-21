@@ -32,7 +32,7 @@ class ServerFactory:
     def newServerFromXml(self,xmlString):
         doc = minidom.parse(xmlString)
         serverType = doc.getElementsByTagName("server_type")[0].firstChild.data
-        if(serverType=="irc"):
+        if(serverType==Server.TYPE_IRC):
             return ServerIRC.fromXml(xmlString,self.mHallo)
         else:
             return None
@@ -53,6 +53,9 @@ class Server(object):
     mPermissionMask = None      #PermissionMask for the server
     #Dynamic/unsaved class variables
     mOpen = False               #Whether or not to keep reading from server
+    
+    #Constants
+    TYPE_IRC = "irc"
 
     def __init__(self,hallo,params):
         '''
@@ -1128,7 +1131,7 @@ class ServerIRC(Server):
     
     def getType(self):
         'Type getter'
-        return "irc"
+        return Server.TYPE_IRC
 
     def getServerPort(self):
         'mServerPort getter'
