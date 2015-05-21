@@ -65,7 +65,9 @@ class Euler(Function):
             print("EULER ERROR: " + str(e))
         return outputString
     
-    def checkPrime(self,inputNumber):
+    def checkPrime(self,inputNumber,primeDict=None):
+        if(primeDict is None):
+            primeDict = {"is":set(),"not":set()}
         checkPrime = inputNumber
         if(checkPrime<=0):
             return False
@@ -87,6 +89,15 @@ class Euler(Function):
                 listTest.remove(x)
             else:
                 return False
+        return True
+    
+    def checkConcatPrimes(self,numberOne,numberTwo,primeDict):
+        checkOne = self.checkPrime(int(str(numberOne)+str(numberTwo)),primeDict)
+        if(not checkOne):
+            return False
+        checkTwo = self.checkPrime(int(str(numberTwo)+str(numberOne)),primeDict)
+        if(not checkTwo):
+            return False
         return True
     
     def findNumberOfFactors(self,number):
@@ -1184,6 +1195,47 @@ class Euler(Function):
             sumValues += charValue
         print("Total: "+str(sumValues))
         return sumValues
+    
+    def euler60(self):
+        primeDict = {}
+        primeDict['is'] = set()
+        primeDict['not'] = set()
+        bigDict = {}
+        num = 1
+        while(True):
+            num += 2
+            if(not self.checkPrime(num,primeDict)):
+                continue
+            bigDict[num] = {}
+            for numOne in bigDict:
+                if(numOne==num):
+                    continue
+                check = self.checkConcatPrimes(num,numOne,primeDict)
+                if(not check):
+                    continue
+                bigDict[numOne][num] = {}
+                for numTwo in bigDict[numOne]:
+                    if(numTwo==num):
+                        continue
+                    check = self.checkConcatPrimes(num,numTwo,primeDict)
+                    if(not check):
+                        continue
+                    bigDict[numOne][numTwo][num] = {}
+                    for numThree in bigDict[numOne][numTwo]:
+                        if(numThree==num):
+                            continue
+                        check = self.checkConcatPrimes(num,numThree,primeDict)
+                        if(not check):
+                            continue
+                        print("Found fourlist"+str([numOne,numTwo,numThree,num]))
+                        bigDict[numOne][numTwo][numThree][num] = {}
+                        for numFour in bigDict[numOne][numTwo][numThree]:
+                            if(numFour==num):
+                                continue
+                            check = self.checkConcatPrimes(num,numFour,primeDict)
+                            if(not check):
+                                continue
+                            return "sum("+str([numOne,numTwo,numThree,numFour,num])+") = "+str(sum([numOne,numTwo,numThree,numFour,num]))
         
 
     def euler67(self):
