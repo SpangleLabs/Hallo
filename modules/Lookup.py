@@ -5,6 +5,8 @@ from xml.dom import minidom
 import difflib
 import re
 import urllib.parse
+import struct       #UrlDetect image size
+import imghdr       #UrlDetect image size
 
 class UrbanDictionary(Function):
     '''
@@ -383,3 +385,42 @@ class UrlDetect(Function):
         pass
 
 
+
+    def getImageSize(self,imageData):
+        '''Determine the image type of fhandle and return its size.
+        from draco'''
+        #This function is from here: http://stackoverflow.com/questions/8032642/how-to-obtain-image-size-using-standard-python-class-without-using-external-lib
+        imageHead = imageData[:24]
+        if len(imageHead) != 24:
+            return
+        if imghdr.what(None,imageData) == 'png':
+            check = struct.unpack('>i', imageHead[4:8])[0]
+            if check != 0x0d0a1a0a:
+                return
+            width, height = struct.unpack('>ii', imageHead[16:24])
+        elif imghdr.what(None,imageData) == 'gif':
+            width, height = struct.unpack('<HH', imageHead[6:10])
+        elif imghdr.what(None,imageData) == 'jpeg':
+            try:
+                byteOffset = 0
+                size = 2
+                ftype = 0
+                while not 0xc0 <= ftype <= 0xcf:
+                    byteOffset += size
+                    byte = imageData[byteOffset]
+                    byteOffset += 1
+                    while ord(byte) == 0xff:
+                        byte = imageData[byteOffset]
+                        byteOffset += 1
+                    ftype = ord(byte)
+                    size = struct.unpack('>H', imageData[byteOffset:byteOffset+2])[0] - 2
+                    byteOffset += 2
+                # We are at a SOFn block
+                byteOffset += 1  # Skip `precision' byte.
+                height, width = struct.unpack('>HH', imageData[byteOffset:byteOffset+4])
+                byteOffset += 4
+            except Exception: #IGNORE:W0703
+                return
+        else:
+            return
+        return width, height
