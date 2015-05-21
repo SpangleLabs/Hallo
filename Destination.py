@@ -2,6 +2,7 @@ import time
 
 from xml.dom import minidom
 from PermissionMask import PermissionMask
+from inc.commons import Commons
 
 class Destination:
     '''
@@ -231,11 +232,11 @@ class Channel(Destination):
         root.appendChild(nameElement)
         #create logging element
         loggingElement = doc.createElement("logging")
-        loggingElement.appendChild(doc.createTextNode(self.mLogging))
+        loggingElement.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.mLogging]))
         root.appendChild(loggingElement)
         #create caps_lock element, to say whether to use caps lock
         capsLockElement = doc.createElement("caps_lock")
-        capsLockElement.appendChild(doc.createTextNode(self.mUseCapsLock))
+        capsLockElement.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.mUseCapsLock]))
         root.appendChild(capsLockElement)
         #create password element
         if(self.mPassword is not None):
@@ -244,11 +245,11 @@ class Channel(Destination):
             root.appendChild(passwordElement)
         #create passive_enabled element, saying whether passive functions are enabled
         passiveEnabledElement = doc.createElement("passive_enabled")
-        passiveEnabledElement.appendChild(doc.createTextNode(self.mPassiveEnabled))
+        passiveEnabledElement.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.mPassiveEnabled]))
         root.appendChild(passiveEnabledElement)
         #create auto_join element, whether or not to automatically join a channel
         autoJoinElement = doc.createElement("auto_join")
-        autoJoinElement.appendChild(doc.createTextNode(self.mAutoJoin))
+        autoJoinElement.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.mAutoJoin]))
         root.appendChild(autoJoinElement)
         #create permission_mask element
         if(not self.mPermissionMask.isEmpty()):
@@ -263,12 +264,12 @@ class Channel(Destination):
         doc = minidom.parse(xmlString)
         newName = doc.getElementsByTagName("channel_name")[0].firstChild.data
         newChannel = Channel(newName,server)
-        newChannel.mLogging = doc.getElementsByTagName("logging")[0].firstChild.data
-        newChannel.mUseCapsLock = doc.getElementsByTagName("caps_lock")[0].firstChild.data
+        newChannel.mLogging = Commons.stringFromFile(doc.getElementsByTagName("logging")[0].firstChild.data)
+        newChannel.mUseCapsLock = Commons.stringFromFile(doc.getElementsByTagName("caps_lock")[0].firstChild.data)
         if(len(doc.getElementsByTagName("password"))!=0):
             newChannel.mPassword = doc.getElementsByTagName("password")[0].firstChild.data
-        newChannel.mPassiveEnabled = doc.getElementsByTagName("passive_enabled")[0].firstChild.data
-        newChannel.mAutoJoin = doc.getElementsByTagName("auto_join")[0].firstChild.data
+        newChannel.mPassiveEnabled = Commons.stringFromFile(doc.getElementsByTagName("passive_enabled")[0].firstChild.data)
+        newChannel.mAutoJoin = Commons.stringFromFile(doc.getElementsByTagName("auto_join")[0].firstChild.data)
         if(len(doc.getElementsByTagName("permission_mask"))!=0):
             newChannel.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newChannel
