@@ -995,7 +995,7 @@ class ServerIRC(Server):
         doc = minidom.parse(xmlString)
         newServer = ServerIRC(hallo)
         newServer.mName = doc.getElementsByTagName("server_name")[0].firstChild.data
-        newServer.mAutoConnect = doc.getElementsByTagName("auto_connect")[0].firstChild.data
+        newServer.mAutoConnect = Commons.stringFromFile(doc.getElementsByTagName("auto_connect")[0].firstChild.data)
         if(len(doc.getElementsByTagName("server_nick"))!=0):
             newServer.mNick = doc.getElementsByTagName("server_nick")[0].firstChild.data
         if(len(doc.getElementsByTagName("server_prefix"))!=0):
@@ -1053,7 +1053,7 @@ class ServerIRC(Server):
         root.appendChild(nameElement)
         #create auto connect element
         autoConnectElement = doc.createElement("auto_connect")
-        autoConnectElement.appendChild(doc.createTextNode(self.mAutoConnect))
+        autoConnectElement.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.mAutoConnect]))
         root.appendChild(autoConnectElement)
         #create channel list
         channelListElement = doc.createElement("channel_list")
