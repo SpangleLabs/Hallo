@@ -414,6 +414,31 @@ class UrlDetect(Function):
 
     def siteImgur(self,urlAddress,pageOpener,pageRequest):
         'Handling imgur links'
+        #Hand off imgur album links to a different handler function.
+        if("/a/" in urlAddress):
+            return self.siteImgurAlbum(urlAddress,pageOpener,pageRequest)
+        #Handle individual imgur image links
+        #Example imgur links: http://i.imgur.com/2XBqIIT.jpg http://imgur.com/2XBqIIT
+        imgurId = urlAddress.split('/')[-1].split('.')[0]
+        apiUrl = 'https://api.imgur.com/3/image/' + imgurId
+        #Load API response (in json) using Client-ID.
+        apiDict = Commons.loadUrlJson(apiUrl,[['Authorization','Client-ID 3afbdcb1353b72f']])
+        #Get title, width, height, size, and view count from API data
+        imageTitle = str(apiDict['data']['title'])
+        imageWidth = str(apiDict['data']['width'])
+        imageHeight = str(apiDict['data']['height'])
+        imageSize = int(apiDict['data']['size'])
+        imageSizeString = self.fileSizeToString(imageSize)
+        imageViews = apiDict['data']['views']
+        #Create output and return
+        output = "Imgur> Title: " + imageTitle + " | "
+        output += "Size: " + imageWidth + "x" + imageHeight + " | "
+        output += "Filesize: " + imageSizeString + " | "
+        output += "Views: " + "{:,}".format(imageViews) + "."
+        return output
+
+    def siteImgurAlbum(self,urlAddress,pageOpener,pageRequest):
+        'Handling imgur albums'
         return self.urlGeneric(urlAddress,pageOpener,pageRequest)
     
     def sitePastebin(self,urlAddress,pageOpener,pageRequest):
