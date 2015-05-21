@@ -426,7 +426,19 @@ class UrlDetect(Function):
 
     def siteSpeedtest(self,urlAddress,pageOpener,pageRequest):
         'Handling speedtest links'
-        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
+        if(urlAddress[-4:]=='.png'):
+            urlNumber = urlAddress[32:-4]
+            urlAddress = 'http://www.speedtest.net/my-result/' + urlNumber
+            print("New url: " + urlAddress)
+            pageRequest = urllib.request.Request(urlAddress)
+            pageRequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+            pageOpener = urllib.request.build_opener()
+        pageCode = pageOpener.open(pageRequest).read().decode('utf-8')
+        pageCode = re.sub(r'\s+','',pageCode)
+        download = re.search('<h3>Download</h3><p>([0-9\.]*)',pageCode).group(1)
+        upload = re.search('<h3>Upload</h3><p>([0-9\.]*)',pageCode).group(1)
+        ping = re.search('<h3>Ping</h3><p>([0-9]*)',pageCode).group(1)
+        return "Speedtest> Download: " + download + "Mb/s | Upload: " + upload + "Mb/s | Ping: " + ping + "ms"
 
     def siteWikipedia(self,urlAddress,pageOpener,pageRequest):
         'Handling for wikipedia links'
