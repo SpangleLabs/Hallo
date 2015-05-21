@@ -614,7 +614,7 @@ class HighScores(Function):
             highScoreXml.appendChild(gameNameXml)
             #Add date element
             dateXml = doc.createElement("date")
-            dateXml.appendChild(doc.createTextNode(self.mHighScores[gameName]['date']))
+            dateXml.appendChild(doc.createTextNode(str(self.mHighScores[gameName]['date'])))
             highScoreXml.appendChild(dateXml)
             #add player_name element
             playerNameXml = doc.createElement("player_name")
