@@ -439,7 +439,33 @@ class UrlDetect(Function):
 
     def siteImgurAlbum(self,urlAddress,pageOpener,pageRequest):
         'Handling imgur albums'
-        return self.urlGeneric(urlAddress,pageOpener,pageRequest)
+        #http://imgur.com/a/qJctj#0 example imgur album
+        imgurId = urlAddress.split('/')[-1].split('#')[0]
+        apiUrl = 'https://api.imgur.com/3/album/' + imgurId
+        #Load API response (in json) using Client-ID.
+        apiDict = Commons.loadUrlJson(apiUrl,[['Authorization','Client-ID 3afbdcb1353b72f']])
+        #Get album title and view count from API data
+        albumTitle = apiDict['data']['title']
+        albumViews = apiDict['data']['views']
+        #Start on output
+        output = "Imgur album> "
+        output += "Album title: " + albumTitle + " | " 
+        output += "Gallery views: " + "{:,}".format(albumViews) + " | "
+        if('section' in apiDict['data']):
+            albumSection = apiDict['data']['section']
+            output += "Section: " + albumSection + " | "
+        albumCount = apiDict['data']['images_count']
+        if("#" in urlAddress):
+            imageNumber = int(urlAddress.split('#')[-1])
+            imageWidth = apiDict['data']['images'][imageNumber]['width']
+            imageHeight = apiDict['data']['images'][imageNumber]['height']
+            imageSize = int(apiDict['data']['images'][imageNumber]['size'])
+            imageSizeString = self.fileSizeToString(imageSize)
+            output += "Image " + str(imageNumber+1) + " of " + str(albumCount) + " | "
+            output += "Current image: " + str(imageWidth) + "x" + str(imageHeight) + ", " + imageSizeString + "."
+        else:
+            output += str(albumCount) + "images."
+        return output 
     
     def sitePastebin(self,urlAddress,pageOpener,pageRequest):
         'Handling pastebin links'
