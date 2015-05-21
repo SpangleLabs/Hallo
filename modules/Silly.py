@@ -224,7 +224,7 @@ class ReplyMessage:
     
     def addResponse(self,response):
         'Adds a new response to the list.'
-        self.mResponseList.add(response)
+        self.mResponseList.append(response)
     
     def addBlacklist(self,serverName,channelName):
         'Adds a new server/channel pair to blacklist.'
@@ -305,6 +305,32 @@ class ReplyMessage:
             newReplyMessage.addWhitelist(newServer,newChannel)
         #Returned the newly built ReplyMessage
         return newReplyMessage
-            
+
+class ReplyMessageList:
+    '''
+    Stores and handles the list of ReplyMessage objects.
+    '''
+    mReplyMessageList = None
     
+    def __init__(self):
+        self.mReplyMessageList = set()
+        
+    def addReplyMessage(self,replyMessage):
+        self.mReplyMessageList.add(replyMessage)
+    
+    @staticmethod
+    def loadFromXml():
+        'Loads ReplyMessageList from XML.'
+        doc = minidom.parse("store/reply_list.xml")
+        #Create new object
+        newReplyMessageList = ReplyMessageList()
+        #Loop through reply messages
+        for replyXml in doc.getElementsByTagName("reply"):
+            replyMessage = ReplyMessage.fromXml(replyXml.toxml())
+            newReplyMessageList.addReplyMessage(replyMessage)
+        #Return new repo object
+        return newReplyMessageList
+    
+    def saveToXml(self):
+        pass
 
