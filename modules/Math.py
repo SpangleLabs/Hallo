@@ -415,6 +415,28 @@ class Calculate(Function):
         except Exception as e:
             answer = str(e)
     
+    def getPassiveEvents(self):
+        'Returns a list of events which this function may want to respond to in a passive way'
+        return set(Function.EVENT_MESSAGE)
+
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+        'Replies to an event not directly addressed to the bot.'
+        #Check if fullLine is a calculation, and is not just numbers, and contains numbers.
+        if(not Commons.checkCalculation(fullLine)):
+            return None
+        if(Commons.checkNumbers(fullLine)):
+            return None
+        if(not any([char in fullLine for char in list(range(10))+["e","pi"]])):
+            return None
+        #Clean up the line and feed to the calculator.
+        calc = fullLine.replace(' ','').lower()
+        try:
+            self.preflightChecks(calc)
+            answer = self.processCalculation(calc)
+            return answer
+        except Exception:
+            return None
+    
     def afterInfix(self,calc,subStr):
         #If substring is at the end, return empty string.
         if(calc.endswith(subStr)):
