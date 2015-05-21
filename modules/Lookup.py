@@ -351,9 +351,9 @@ class UrlDetect(Function):
         urlSite = Commons.getDomainName(urlAddress).lower()
         #If website name is speedtest or imgur, hand over to those handlers
         if(urlSite=="speedtest"):
-            return self.urlSpeedtest(urlAddress, pageOpener)
+            return self.urlSpeedtest(urlAddress,pageOpener,pageType)
         if(urlSite=="imgur"):
-            return self.urlImage(urlAddress, pageOpener)
+            return self.urlImage(urlAddress,pageOpener,pageType)
         #Image handling
         imageData = pageOpener.open(pageRequest).read()
         imageWidth, imageHeight = self.getImageSize(imageData)
