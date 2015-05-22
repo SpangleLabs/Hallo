@@ -17,6 +17,7 @@ from PermissionMask import PermissionMask
 from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
 from Function import Function
+from inc.Logger import Logger
 
 class Hallo:
     mDefaultNick = "Hallo"
@@ -28,10 +29,12 @@ class Hallo:
     mFunctionDispatcher = None
     mUserGroupList = None
     mServerList = None
+    mLogger = None
 
     def __init__(self):
         self.mUserGroupList = {}
         self.mServerList = []
+        self.mLogger = Logger()
         #Create ServerFactory
         self.mServerFactory = ServerFactory(self)
         self.mPermissionMask = PermissionMask()
@@ -232,6 +235,10 @@ class Hallo:
     def getFunctionDispatcher(self):
         'Returns the FunctionDispatcher object'
         return self.mFunctionDispatcher
+    
+    def getLogger(self):
+        'Returns the Logger object'
+        return self.mLogger
     
     def manualServerConnect(self):
         #TODO: add ability to connect to non-IRC servers
