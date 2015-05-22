@@ -280,7 +280,7 @@ class ServerIRC(Server):
         #Wait for the first message back from the server.
         print(Commons.currentTimestamp() + " waiting for first message from server: " + self.mName)
         firstLine = self.readLineFromSocket()
-        self.mWelcomeMessage += firstLine+"\n"
+        self.mWelcomeMessage = firstLine+"\n"
         #Send nick and full name to server
         print(Commons.currentTimestamp() + " sending nick and user info to server: " + self.mName)
         self.send('NICK ' + self.getNick(),None,"raw")
