@@ -4,11 +4,7 @@
 #sys is used to kill itself
 #Thread is used for multi threading
 #re is used for regex, for swear detect
-#pickle is used to store the config, also scriptures
-#pprint is used to view the config
-#importlib is used to import modules on the fly, hopefully
-#copy is used to copy the self.conf variable
-import time, os, pickle
+import time, os
 from threading import Thread
 #from megahal import *
 import re
@@ -45,12 +41,10 @@ class Hallo:
         #TODO: manual FunctionDispatcher construction, user input
         if(self.mFunctionDispatcher is None):
             self.mFunctionDispatcher = FunctionDispatcher(set("Random","ServerControl"))
-        #TODO: deprecate and remove this
-        self.base_start()
         #If no servers, ask for a new server
         if(len(self.mServerList)==0):
             if(sum([server.getAutoConnect() for server in self.mServerList])==0):
-                self.conf = self.manualServerConnect()
+                self.manualServerConnect()
         #connect to autoconnect servers
         print('connecting to servers')
         for server in self.mServerList:
@@ -260,48 +254,7 @@ class Hallo:
         self.addServer(newServer)
         #Save XML
         self.saveToXml()
-        #TODO: remove all this crap
-        self.conf['server'] = {}
-        self.conf['server'][serverName] = {}
-        self.conf['server'][serverName]['ops'] = []
-        self.conf['server'][serverName]['gods'] = [godNick]
-        self.conf['server'][serverName]['address'] = serverName
-        self.conf['server'][serverName]['nick'] = self.mDefaultNick
-        self.conf['server'][serverName]['full_name'] = self.mDefaultFullName
-        self.conf['server'][serverName]['pass'] = False
-        self.conf['server'][serverName]['port'] = serverPort
-        self.conf['server'][serverName]['channel'] = {}
-        self.conf['server'][serverName]['admininform'] = []
-        self.conf['server'][serverName]['pingdiff'] = 600
-        self.conf['server'][serverName]['connected'] = True
-        print("Config file created.")
-        #TODO: remove this
-        pickle.dump(self.conf,open(self.configfile,"wb"))
         print("Config file saved.")
-
-    def base_start(self):
-        #TODO: remove configfile loading
-        try:
-            self.conf = pickle.load(open("store/config.p","rb"))
-        except EOFError:
-            #TODO: remove all this crap
-            self.conf = {}
-            self.conf['function'] = {}
-            self.conf['function']['default'] = {}
-            self.conf['function']['default']['disabled'] = False
-            self.conf['function']['default']['listed_to'] = 'user'
-            self.conf['function']['default']['max_run_time'] = 180
-            self.conf['function']['default']['privmsg'] = True
-            self.conf['function']['default']['repair'] = False
-            self.conf['function']['default']['return_to'] = 'channel'
-            self.conf['function']['default']['time_delay'] = 0
-            self.conf['nickserv'] = {}
-            self.conf['nickserv']['online'] = ['lastseen:now','isonlinefrom:','iscurrentlyonline','nosuchnick','userseen:now']
-            self.conf['nickserv']['registered'] = ['registered:']
-        self.megahal = {}
-        self.core = {}
-        self.core['server'] = {}
-        self.core['function'] = {}
 
 
 #######################################################

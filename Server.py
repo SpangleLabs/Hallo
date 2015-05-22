@@ -269,26 +269,7 @@ class ServerIRC(Server):
                 continue
     
     def rawConnect(self):
-        #TODO: remove all this core and conf
-        # begin pulling data from a given server
-        self.mHallo.core['server'][self.mName] = {}
-        self.mHallo.core['server'][self.mName]['check'] = {}
-        self.mHallo.core['server'][self.mName]['check']['names'] = ""
-        self.mHallo.core['server'][self.mName]['check']['recipientonline'] = ""
-        self.mHallo.core['server'][self.mName]['check']['nickregistered'] = False
-        self.mHallo.core['server'][self.mName]['check']['userregistered'] = False
-        self.mHallo.core['server'][self.mName]['channel'] = {}
-        for channel in self.mHallo.conf['server'][self.mName]['channel']:
-            self.mHallo.core['server'][self.mName]['channel'][channel] = {}
-            self.mHallo.core['server'][self.mName]['channel'][channel]['last_message'] = 0
-            self.mHallo.core['server'][self.mName]['channel'][channel]['user_list'] = []
-            if(self.mHallo.conf['server'][self.mName]['channel'][channel]['megahal_record']):
-                self.mHallo.core['server'][self.mName]['channel'][channel]['megahalcount'] = 0
-        self.mHallo.core['server'][self.mName]['lastping'] = 0
-        self.mHallo.core['server'][self.mName]['connected'] = False
-        self.mHallo.core['server'][self.mName]['motdend'] = False
-        self.mHallo.core['server'][self.mName]['open'] = True
-        #End of the mess.
+        #Begin pulling data from a given server
         self.mOpen = True
         #Create new socket
         self.mSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
