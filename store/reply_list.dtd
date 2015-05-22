@@ -1,0 +1,8 @@
+<!ELEMENT reply_list (reply*)>
+<!ELEMENT reply (prompt,response+,blacklist*,whitelist*)>
+<!ELEMENT prompt (#PCDATA)>
+<!ELEMENT response (#PCDATA)>
+<!ELEMENT blacklist (server,channel)>
+<!ELEMENT whitelist (server,channel)>
+<!ELEMENT server (#PCDATA)>
+<!ELEMENT channel (#PCDATA)>

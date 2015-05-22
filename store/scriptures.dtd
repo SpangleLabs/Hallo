@@ -1,0 +1,2 @@
+<!ELEMENT scriptures (scripture*)>
+<!ELEMENT scripture (#PCDATA)>
