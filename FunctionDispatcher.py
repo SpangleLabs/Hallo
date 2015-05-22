@@ -144,7 +144,7 @@ class FunctionDispatcher(object):
         elif(serverObject is not None):
             if(serverObject.rightsCheck(rightName) is False):
                 return False
-        if(self.mHallo.getPermissionMask().rightsCheck(rightName) is False):
+        if(self.mHallo.rightsCheck(rightName) is False):
             return False
         return True
     
