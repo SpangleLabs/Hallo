@@ -726,7 +726,7 @@ class ServerIRC(Server):
         nickClient.setName(nickNewNick)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_CHNAME,None,self,nickClient,None)
+        functionDispatcher.dispatchPassive(self,Function.EVENT_CHNAME,nickClientName,self,nickClient,None)
         
     def parseLineInvite(self,inviteLine):
         'Parses an INVITE message from the server'
