@@ -69,37 +69,67 @@ class Logger:
         return None
     
     def logMessage(self,fullLine,serverObject,userObject,channelObject):
-        return None
+        output = Commons.currentTimestamp() + " "
+        output += '<' + userObject.getName() + '> ' + fullLine
+        return output
     
     def logJoin(self,fullLine,serverObject,userObject,channelObject):
-        return None
+        output = Commons.currentTimestamp() + " "
+        output += userObject.getName() + " joined " + channelObject.getName()
+        return output
     
     def logLeave(self,fullLine,serverObject,userObject,channelObject):
-        return None
+        output = Commons.currentTimestamp() + " "
+        output += userObject.getName() + " left " + channelObject.getName()
+        if(fullLine.strip()!=""):
+            output += " (" + fullLine + ")"
+        return output
     
     def logQuit(self,fullLine,serverObject,userObject,channelObject):
         output = Commons.currentTimestamp() + " "
         output += userObject.getNick() + " has quit."
+        if(fullLine.strip()!=""):
+            output += " (" + fullLine + ")"
         return output
     
     def logNameChange(self,fullLine,serverObject,userObject,channelObject):
-        return None
+        output = Commons.currentTimestamp() + " "
+        output += "Nick change: " + fullLine + " -> " + userObject.getName()
+        return output
     
     def logKick(self,fullLine,serverObject,userObject,channelObject):
-        return None
+        output = Commons.currentTimestamp() + " "
+        output += userObject.getName() + " was kicked from " + channelObject.getName()
+        if(fullLine.strip()!=""):
+            output += " (" + fullLine + ")"
+        return output
     
     def logInvite(self,fullLine,serverObject,userObject,channelObject):
-        return None
+        output = Commons.currentTimestamp() + " "
+        output += "Invite to " + channelObject.getName() + ' from ' + userObject.getName()
+        return output
     
     def logNotice(self,fullLine,serverObject,userObject,channelObject):
-        return None
+        output = Commons.currentTimestamp() + " "
+        output += "Notice from " + userObject.getName() + ": " + fullLine
+        return output
     
     def logModeChange(self,fullLine,serverObject,userObject,channelObject):
-        return None
+        output = Commons.currentTimestamp() + " "
+        output += userObject.getName() + ' set ' + fullLine + ' on ' + channelObject.getName()
+        return output
     
     def logCtcp(self,fullLine,serverObject,userObject,channelObject):
-        return None
-        
+        ctcpCommand = fullLine.split()[0]
+        ctcpArguments = ' '.join(fullLine.split()[1:])
+        if(ctcpCommand.lower()=="action"):
+            output = Commons.currentTimestamp() + " "
+            output += "**" + userObject.getName() + ' ' + ctcpArguments + '**'
+            return output
+        output = Commons.currentTimestamp() + " "
+        output += "<" + userObject.getName() + ' (CTCP)> ' + fullLine
+        return output
+
     
     def getFileName(self,serverObject,userObject,channelObject):
         'Finds the file name of the file to write the log to.'
