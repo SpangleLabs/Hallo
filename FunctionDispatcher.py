@@ -211,6 +211,8 @@ class FunctionDispatcher(object):
         #Check that names list is not empty
         try:
             namesList = functionObject.getNames()
+            if(namesList is None):
+                return False
             if(len(namesList)==0):
                 return False
             #Check that names list contains help name
