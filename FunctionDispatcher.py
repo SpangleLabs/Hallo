@@ -314,7 +314,7 @@ class FunctionDispatcher(object):
         moduleList = set()
         moduleListElement = doc.getElementsByTagName("module_list")[0]
         for moduleXml in moduleListElement.getElementsByTagName("module"):
-            moduleNameElement = moduleXml.getElementsByTagName("name")
+            moduleNameElement = moduleXml.getElementsByTagName("name")[0]
             moduleName = moduleNameElement.firstChild.data
             moduleList.add(moduleName)
         #Create new FunctionDispatcher
