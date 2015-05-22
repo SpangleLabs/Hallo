@@ -49,6 +49,9 @@ class Logger:
             return None
         logFunction = self.mEventDict[event]
         logLine = logFunction(fullLine,serverObject,userObject,channelObject)
+        #If logLine is null, do nothing.
+        if(logLine is None):
+            return None
         #Create file name
         fileName = self.getFileName(serverObject,userObject,channelObject)
         #Write the log line
