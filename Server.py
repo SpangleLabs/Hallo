@@ -455,9 +455,13 @@ class ServerIRC(Server):
     
     def parseLinePing(self,pingLine):
         'Parses a PING message from the server'
-        print(Commons.currentTimestamp() + "["+self.mName+"] PING")
+        #Get data
         pingNumber = pingLine.split()[1]
+        #Respond
         self.send("PONG "+pingNumber,None,"raw")
+        #Print and log
+        print(Commons.currentTimestamp() + "["+self.mName+"] PING")
+        self.mHallo.getLogger().log(Function.EVENT_PING,pingNumber,self,None,None)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
         functionDispatcher.dispatchPassive(self,Function.EVENT_PING,pingNumber,self,None,None)
@@ -1075,6 +1079,12 @@ class ServerIRC(Server):
         self.mNick = nick
         if(nick!=oldNick):
             self.send("NICK "+self.mNick,None,"raw")
+            halloUserObject = self.getUserByName(nick)
+            #Log in all channel Hallo is in.
+            for channel in self.mChannelList:
+                if(not channel.isInChannel()):
+                    continue
+                self.mHallo.getLogger().logFromSelf(Function.EVENT_CHNAME,oldNick,self,halloUserObject,channel)
     
     def getType(self):
         'Type getter'
