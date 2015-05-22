@@ -1,6 +1,7 @@
 import os
 from threading import Lock
 import datetime
+from Function import Function
 
 class Logger:
     '''
@@ -17,7 +18,27 @@ class Logger:
     
     def log(self,event,fullLine,serverObject=None,userObject=None,channelObject=None):
         'The function which actually writes the logs.'
+        #With certain events, check if destination has logging enabled.
+        #Check what type of event and pass to that to create line
+        #Create file name
+        #Write the log line
         pass
+    
+    def logSecond(self,fullLine,serverObject,userObject,channelObject):
+        return None
+    
+    def logMinute(self,fullLine,serverObject,userObject,channelObject):
+        pass
+    
+    def logHour(self,fullLine,serverObject,userObject,channelObject):
+        pass
+    
+    def logDay(self,fullLine,serverObject,userObject,channelObject):
+        pass
+    
+    def logMessage(self,fullLine,serverObject,userObject,channelObject):
+        pass
+        
     
     def getFileName(self,serverObject,userObject,channelObject):
         'Finds the file name of the file to write the log to.'
