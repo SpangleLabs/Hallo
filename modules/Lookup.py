@@ -391,12 +391,12 @@ class UrlDetect(Function):
     def siteAmazon(self,urlAddress,pageOpener,pageRequest):
         'Handling for amazon links'
         #I spent ages trying to figure out the amazon API, and I gave up.
-        #TODO
+        #TODO: write amazon link handler
         return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteE621(self,urlAddress,pageOpener,pageRequest):
         'Handling for e621 links'
-        #TODO
+        #TODO: write e621 link handler
         return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteEbay(self,urlAddress,pageOpener,pageRequest):
@@ -430,12 +430,12 @@ class UrlDetect(Function):
 
     def siteFList(self,urlAddress,pageOpener,pageRequest):
         'Handling for f-list links'
-        #TODO
+        #TODO: write f-list link handler
         return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteFuraffinity(self,urlAddress,pageOpener,pageRequest):
         'Handling for furaffinity links'
-        #TODO
+        #TODO: write furaffinity link handler
         return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteImdb(self,urlAddress,pageOpener,pageRequest):
@@ -521,12 +521,12 @@ class UrlDetect(Function):
     
     def sitePastebin(self,urlAddress,pageOpener,pageRequest):
         'Handling pastebin links'
-        #TODO
+        #TODO: write pastebin link handler
         return self.urlGeneric(urlAddress,pageOpener,pageRequest)
     
     def siteReddit(self,urlAddress,pageOpener,pageRequest):
         'Handling reddit links'
-        #TODO
+        #TODO: write reddit link handler
         return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteSpeedtest(self,urlAddress,pageOpener,pageRequest):
@@ -547,7 +547,7 @@ class UrlDetect(Function):
 
     def siteWikipedia(self,urlAddress,pageOpener,pageRequest):
         'Handling for wikipedia links'
-        #TODO
+        #TODO: write wikipedia link handler
         return self.urlGeneric(urlAddress,pageOpener,pageRequest)
 
     def siteYoutube(self,urlAddress,pageOpener,pageRequest):

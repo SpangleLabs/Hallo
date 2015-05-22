@@ -17,6 +17,7 @@ from PermissionMask import PermissionMask
 from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
 from Function import Function
+from inc.Logger import Logger
 
 class Hallo:
     mDefaultNick = "Hallo"
@@ -28,10 +29,12 @@ class Hallo:
     mFunctionDispatcher = None
     mUserGroupList = None
     mServerList = None
+    mLogger = None
 
     def __init__(self):
         self.mUserGroupList = {}
         self.mServerList = []
+        self.mLogger = Logger()
         #Create ServerFactory
         self.mServerFactory = ServerFactory(self)
         self.mPermissionMask = PermissionMask()
@@ -233,6 +236,10 @@ class Hallo:
         'Returns the FunctionDispatcher object'
         return self.mFunctionDispatcher
     
+    def getLogger(self):
+        'Returns the Logger object'
+        return self.mLogger
+    
     def manualServerConnect(self):
         #TODO: add ability to connect to non-IRC servers
         print("No servers have been loaded or connected to. Please connect to an IRC server.")
@@ -256,27 +263,5 @@ class Hallo:
         self.saveToXml()
         print("Config file saved.")
 
-
-#######################################################
-#######EVERYTHING BELOW HERE WILL NEED BREAKING INTO OTHER OBJECTS
-#######################################################
-
-
-    def base_addlog(self,msg,destination):
-        # log a message for future reference
-        if(not os.path.exists('logs/')):
-            os.makedirs('logs/')
-        if(not os.path.exists('logs/' + destination[0])):
-            os.makedirs('logs/' + destination[0])
-        if(not os.path.exists('logs/' + destination[0] + '/' + destination[1])):
-            os.makedirs('logs/' + destination[0] + '/' + destination[1])
-        # date is the file name
-        filename = str(time.gmtime()[0]).rjust(4,'0') + '-' + str(time.gmtime()[1]).rjust(2,'0') + '-' + str(time.gmtime()[2]).rjust(2,'0') + '.txt'
-        # open and write the message
-        log = open('logs/' + destination[0] + '/' + destination[1] + '/' + filename, 'a')
-        log.write(msg.encode('ascii','ignore').decode() + '\n')
-        log.close()
-
 if __name__ == '__main__':
     Hallo()
-#    ircbot().run(raw_input('network: '), raw_input('nick: '), [raw_input('channel: ')])
