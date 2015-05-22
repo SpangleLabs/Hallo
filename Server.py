@@ -305,15 +305,15 @@ class ServerIRC(Server):
     
     def disconnect(self):
         'Disconnect from the server'
+        quitMessage = "Will I dream?"
         #TODO: upgrade this when logging is upgraded
         for channel in self.mChannelList:
-            if(channel.isInChannel() and channel.getLogging()):
-                self.mHallo.base_addlog(Commons.currentTimestamp() + ' '+self.getNick()+' has quit.',[self.mName,channel.getName()])
+            self.mHallo.getLogger().log(Function.EVENT_QUIT,quitMessage,self,self.getUserByName(self.getNick()),channel)
             channel.setInChannel(False)
         for user in self.mUserList:
             user.setOnline(False)
         if(self.mOpen):
-            self.send('QUIT :Will I dream?',None,"raw")
+            self.send("QUIT :"+quitMessage,None,"raw")
             self.mSocket.close()
             self.mOpen = False
     
@@ -481,10 +481,9 @@ class ServerIRC(Server):
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + messageDestination.getName() + ' <' + messageSenderName + '> ' + messageText)
         #Log the message
         if(messagePrivateBool):
-            if(messageSender.getLogging()):
-                self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestination.getName()])
-        elif(messageChannel.getLogging()):
-            self.base_addlog(Commons.currentTimestamp() + ' <' + messageSenderName + '> ' + messageText, [self.mName,messageDestination.getName()])
+            self.mHallo.getLogger().log(Function.EVENT_MESSAGE,messageText,self,messageSender,None)
+        else:
+            self.mHallo.getLogger().log(Function.EVENT_MESSAGE,messageText,self,messageSender,messageChannel)
         #Get the prefix
         actingPrefix = self.getPrefix()
         if(messagePublicBool):
@@ -536,10 +535,9 @@ class ServerIRC(Server):
             logLine = Commons.currentTimestamp()
             logLine += ' <' + messageSenderName + ' (CTCP)> ' + messageText
         if(messagePrivateBool):
-            if(messageSender is None or messageSender.getLogging()):
-                self.base_addlog(logLine, [self.mName,messageDestinationName])
-        elif(messageChannel is None or messageChannel.getLogging()):
-            self.base_addlog(logLine, [self.mName,messageDestinationName])
+            self.mHallo.getLogger().log(Function.EVENT_CTCP,messageText,self,messageSender,None)
+        else:
+            self.mHallo.getLogger().log(Function.EVENT_CTCP,messageText,self,messageSender,messageChannel)
         #Reply to certain types of CTCP command
         if(messageCtcpCommand.lower()=='version'):
             self.send("\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01",messageSender,"notice")
@@ -568,9 +566,7 @@ class ServerIRC(Server):
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + joinClient.getName() + ' joined ' + joinChannel.getName())
         #If channel does logging, log
-        #TODO: replace with newer logging
-        if(joinChannel.getLogging()):
-            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + joinClient.getName() + ' joined ' + joinChannel.getName(),[self.mName,joinChannel.getName()])
+        self.mHallo.getLogger().log(Function.EVENT_JOIN,None,self,joinClient,joinChannel)
         #TODO: Apply automatic flags as required
         #If hallo has joined a channel, get the user list and apply automatic flags as required
         if(joinClient.getName().lower() == self.getNick().lower()):
@@ -597,8 +593,7 @@ class ServerIRC(Server):
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + partClient.getName() + ' left ' + partChannel.getName() + ' (' + partMessage + ')')
         #If channel does logging, log the PART data
         #TODO: replace with newer logging
-        if(partChannel.getLogging()):
-            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + partClient.getName() + ' left ' + partChannel.getName() + ' (' + partMessage + ')',[self.mName,partChannel.getName()])
+        self.mHallo.getLogger().log(Function.EVENT_LEAVE,partMessage,self,partClient,partChannel)
         #Remove user from channel's user list
         partChannel.removeUser(partClient)
         #Try to work out if the user is still on the server
@@ -624,8 +619,7 @@ class ServerIRC(Server):
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + quitClient.getName() + ' quit: ' + quitMessage)
         #Log to all channels on server
         for channel in self.mChannelList:
-            if(quitClient.isInChannel() and quitClient.getLogging()):
-                self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + quitClient.getName() + ' quit: ' + quitMessage,[self.mName,channel.getName()])
+            self.mHallo.getLogger().log(Function.EVENT_QUIT,quitMessage,self,quitClient,channel)
         #Remove user from user list on all channels
         for channel in self.mChannelList:
             channel.removeUser(quitClient)
@@ -654,21 +648,20 @@ class ServerIRC(Server):
         #Get client and channel objects
         modeChannel = self.getChannelByName(modeChannelName)
         modeClient = self.getUserByName(modeClientName)
-        #Print to console
-        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + modeClient.getName() + ' set ' + modeMode + ' ' + modeArgs + ' on ' + modeChannel.getName())
-        #Logging, if enabled
-        if(modeChannel.getLogging()):
-            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + modeClient.getName() + ' set ' + modeMode + ' ' + modeArgs + ' on ' + modeChannel.getName(),[self.mName,modeChannel.getName()])
         #If a channel password has been set, store it
         if(modeMode=='-k'):
             modeChannel.setPassword(None)
         elif(modeMode=='+k'):
             modeChannel.setPassword(modeArgs)
-        #Pass to passive FunctionDispatcher
-        functionDispatcher = self.mHallo.getFunctionDispatcher()
+        #Print to console
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + modeClient.getName() + ' set ' + modeMode + ' ' + modeArgs + ' on ' + modeChannel.getName())
+        #Logging, if enabled
         modeFull = modeMode
         if(modeArgs != ''):
             modeFull = modeMode+' '+modeArgs
+        self.mHallo.getLogger().log(Function.EVENT_MODE,modeFull,self,modeClient,modeChannel)
+        #Pass to passive FunctionDispatcher
+        functionDispatcher = self.mHallo.getFunctionDispatcher()
         functionDispatcher.dispatchPassive(self,Function.EVENT_MODE,modeFull,self,modeClient,modeChannel)
     
     def parseLineNotice(self,noticeLine):
@@ -685,8 +678,7 @@ class ServerIRC(Server):
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + noticeChannel.getName() + ' Notice from ' + noticeClient.getName() + ': ' + noticeMessage)
         #Logging, if enabled
-        if(noticeChannel.getLogging()):
-            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + noticeChannel.getName() + ' notice from ' + noticeClient.getName() + ': ' + noticeMessage,[self.mName,noticeChannel.getName()])
+        self.mHallo.getLogger().log(Function.EVENT_NOTICE,noticeMessage,self,noticeClient,noticeChannel)
         #Checking if user is registered
         if(noticeClient.getName()==self.mNickservNick and self.mCheckUserIdentityUser is not None and self.mNickservIdentCommand is not None):
             #check if notice message contains command and user name
@@ -712,18 +704,17 @@ class ServerIRC(Server):
             nickNewNick = nickLine.split()[2]
         #Get user object
         nickClient = self.getUserByName(nickClientName)
-        #Print to console
-        print(Commons.currentTimestamp() + ' [' + self.mName + '] Nick change: ' + nickClient.getName() + ' -> ' + nickNewNick)
-        #Log, if logging
-        for channel in self.mChannelList:
-            if(channel.isInChannel() and channel.getLogging() and channel.isUserInChannel(nickClient)):
-                self.mHallo.base_addlog(Commons.currentTimestamp() + ' Nick change: ' + nickClient.getName() + ' -> ' + nickNewNick,[self.mName,channel.getName()])
         #If it was the bots nick that just changed, update that.
         if(nickClient.getName() == self.getNick()):
             self.mNick = nickNewNick
         #TODO: Check whether this verifies anything that means automatic flags need to be applied
         #Update name for user object
         nickClient.setName(nickNewNick)
+        #Print to console
+        print(Commons.currentTimestamp() + ' [' + self.mName + '] Nick change: ' + nickClient.getName() + ' -> ' + nickNewNick)
+        #Log, if logging
+        for channel in self.mChannelList:
+            self.mHallo.getLogger().log(Function.EVENT_CHNAME,nickClientName,self,nickClient,channel)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
         functionDispatcher.dispatchPassive(self,Function.EVENT_CHNAME,nickClientName,self,nickClient,None)
@@ -740,8 +731,7 @@ class ServerIRC(Server):
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName())
         #Logging, if applicable
-        if(inviteChannel.getLogging()):
-            self.mHallo.base_addlog(Commons.currentTimestamp() + ' invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName(),[self.mName,'@SERVER'])
+        self.mHallo.getLogger().log(Function.EVENT_INVITE,None,self,inviteClient,inviteChannel)
         #Check if they are an op, then join the channel.
         if(inviteClient.rightsCheck("invite_channel",inviteChannel)):
             self.joinChannel(inviteChannel)
@@ -761,8 +751,7 @@ class ServerIRC(Server):
         #Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + kickClient.getName() + ' was kicked from ' + kickChannel.getName() + ': ' + kickMessage)
         #Log, if applicable
-        if(kickChannel.getLogging()):
-            self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + kickClient.getName() + ' was kicked from ' + kickChannel.getName() + ': ' + kickMessage,[self.mName,kickChannel.getName()])
+        self.mHallo.getLogger().log(Function.EVENT_KICK,kickMessage,self,kickClient,kickChannel)
         #Remove kicked user from userlist
         kickChannel.removeUser(kickClient)
         #If it was the bot who was kicked, set "in channel" status to False
