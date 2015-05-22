@@ -55,6 +55,26 @@ class Logger:
         self.addLine(fileName,logLine)
         return None
     
+    def logFromSelf(self,event,fullLine,serverObject=None,userObject=None,channelObject=None):
+        'Writes a log line for a message from hallo.'
+        #If channel is set, check logging
+        if(channelObject is not None and not channelObject.getLogging()):
+            return None
+        #If channel not set, but user is set, check their logging settings.
+        if(channelObject is None and userObject is not None and not userObject.getLogging()):
+            return None
+        #Check what type of event and pass to that to create line
+        if(event not in self.mEventDict):
+            return None
+        logFunction = self.mEventDict[event]
+        halloUserObject = serverObject.getUserByName(serverObject.getNick())
+        logLine = logFunction(fullLine,serverObject,halloUserObject,channelObject)
+        #Create file name
+        fileName = self.getFileName(serverObject,userObject,channelObject)
+        #Write the log line
+        self.addLine(fileName,logLine)
+        return None
+    
     def logSecond(self,fullLine,serverObject,userObject,channelObject):
         return None
     
