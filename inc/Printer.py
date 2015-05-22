@@ -34,6 +34,11 @@ class Printer:
     
     def output(self,event,fullLine,serverObject=None,userObject=None,channelObject=None):
         'The function which actually prints the messages.'
+        #If channel or server are set to all, set to None for getting output
+        if(serverObject==Commons.ALL_SERVERS):
+            serverObject = None
+        if(channelObject==Commons.ALL_CHANNELS):
+            channelObject = None
         #Check what type of event and pass to that to create line
         if(event not in self.mEventDict):
             return None
