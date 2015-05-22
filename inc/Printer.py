@@ -9,7 +9,6 @@ class Printer:
     It exists in order to provie a single entry point to all printing to screen.
     '''
     mHallo = None
-    mLock = None
     mEventDict = None
 
     def __init__(self,hallo):
@@ -17,7 +16,6 @@ class Printer:
         Constructor
         '''
         self.mHallo = hallo
-        self.mLock = Lock()
         self.mEventDict = {}
         self.mEventDict[Function.EVENT_SECOND] = self.printSecond
         self.mEventDict[Function.EVENT_MINUTE] = self.printMinute
