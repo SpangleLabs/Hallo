@@ -17,10 +17,11 @@ class FunctionDispatcher(object):
     mPersistentFunctions = None   #Dictionary of persistent function objects. functionClass->functionObject
     mEventFunctions = None        #Dictionary with events as keys and sets of function classes (which may want to act on those events) as arguments
 
-    def __init__(self,moduleList):
+    def __init__(self,moduleList,hallo):
         '''
         Constructor
         '''
+        self.mHallo = hallo
         self.mModuleList = set()
         self.mFunctionDict = {}
         self.mFunctionNames = {}
@@ -311,7 +312,7 @@ class FunctionDispatcher(object):
         return doc.toxml()
     
     @staticmethod
-    def fromXml(xmlString):
+    def fromXml(xmlString,hallo):
         'Loads a new FunctionDispatcher from XML'
         doc = minidom.parseString(xmlString)
         #Create module list from XML
@@ -322,7 +323,7 @@ class FunctionDispatcher(object):
             moduleName = moduleNameElement.firstChild.data
             moduleList.add(moduleName)
         #Create new FunctionDispatcher
-        newFunctionDispatcher = FunctionDispatcher(moduleList)
+        newFunctionDispatcher = FunctionDispatcher(moduleList,hallo)
         return newFunctionDispatcher
     
     

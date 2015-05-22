@@ -1,10 +1,9 @@
 #socket connects to the server
 #time gets time for time stamps and does sleep
-#os makes directories for logs, and gets the process ID
 #sys is used to kill itself
 #Thread is used for multi threading
 #re is used for regex, for swear detect
-import time, os
+import time
 from threading import Thread
 #from megahal import *
 import re
@@ -46,7 +45,7 @@ class Hallo:
         self.mOpen = True
         #TODO: manual FunctionDispatcher construction, user input
         if(self.mFunctionDispatcher is None):
-            self.mFunctionDispatcher = FunctionDispatcher(set("ChannelControl","Convert","HalloControl","Lookup","Math","PermissionControl","Random","ServerControl"))
+            self.mFunctionDispatcher = FunctionDispatcher(set("ChannelControl","Convert","HalloControl","Lookup","Math","PermissionControl","Random","ServerControl"),self)
         #If no servers, ask for a new server
         if(len(self.mServerList)==0):
             if(sum([server.getAutoConnect() for server in self.mServerList])==0):
@@ -84,7 +83,7 @@ class Hallo:
             self.mDefaultNick = doc.getElementsByTagName("default_nick")[0].firstChild.data
             self.mDefaultPrefix = doc.getElementsByTagName("default_prefix")[0].firstChild.data
             self.mDefaultFullName = doc.getElementsByTagName("default_full_name")[0].firstChild.data
-            self.mFunctionDispatcher = FunctionDispatcher.fromXml(doc.getElementsByTagName("function_dispatcher")[0].toxml())
+            self.mFunctionDispatcher = FunctionDispatcher.fromXml(doc.getElementsByTagName("function_dispatcher")[0].toxml(),self)
             serverListXml = doc.getElementsByTagName("server_list")[0]
             for serverXml in serverListXml.getElementsByTagName("server"):
                 serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
