@@ -23,6 +23,8 @@ class Function:
     EVENT_NOTICE = "notice"        #Event constant signifying a notice was received. (IRC only?)
     EVENT_MODE = "mode_change"     #Event constant signifying a channel mode change. (IRC only?)
     EVENT_CTCP = "message_ctcp"    #Event constant signifying a CTCP message received (IRC only)
+    EVENT_NUMERIC = "numeric"      #Event constant signifying a numeric message from a server (IRC only)
+    EVENT_RAW = "raw"              #Event constant signifying raw data received from server which doesn't fit the above
     
 
     def __init__(self, params):
