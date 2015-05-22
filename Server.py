@@ -306,7 +306,7 @@ class ServerIRC(Server):
     def disconnect(self):
         'Disconnect from the server'
         quitMessage = "Will I dream?"
-        #TODO: upgrade this when logging is upgraded
+        #Logging
         for channel in self.mChannelList:
             self.mHallo.getLogger().log(Function.EVENT_QUIT,quitMessage,self,self.getUserByName(self.getNick()),channel)
             channel.setInChannel(False)
@@ -592,7 +592,6 @@ class ServerIRC(Server):
         #Print message to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] ' + partClient.getName() + ' left ' + partChannel.getName() + ' (' + partMessage + ')')
         #If channel does logging, log the PART data
-        #TODO: replace with newer logging
         self.mHallo.getLogger().log(Function.EVENT_LEAVE,partMessage,self,partClient,partChannel)
         #Remove user from channel's user list
         partChannel.removeUser(partClient)
