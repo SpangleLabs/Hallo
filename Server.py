@@ -743,7 +743,6 @@ class ServerIRC(Server):
         if(inviteChannel.getLogging()):
             self.mHallo.base_addlog(Commons.currentTimestamp() + ' invite to ' + inviteChannel.getName() + ' from ' + inviteClient.getName(),[self.mName,'@SERVER'])
         #Check if they are an op, then join the channel.
-        #TODO: change this logic, when channel object exists
         if(inviteClient.rightsCheck("invite_channel",inviteChannel)):
             self.joinChannel(inviteChannel)
         #Pass to passive FunctionDispatcher
