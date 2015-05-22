@@ -16,14 +16,11 @@ import re
 from xml.dom import minidom
 from datetime import datetime
 
-from inc.commons import Commons
 from Server import Server, ServerFactory
 from PermissionMask import PermissionMask
 from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
 from Function import Function
-
-endl = Commons.mEndLine
 
 class Hallo:
     mDefaultNick = "Hallo"
