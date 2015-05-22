@@ -18,6 +18,7 @@ from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
 from Function import Function
 from inc.Logger import Logger
+from inc.Printer import Printer
 
 class Hallo:
     mDefaultNick = "Hallo"
@@ -30,11 +31,13 @@ class Hallo:
     mUserGroupList = None
     mServerList = None
     mLogger = None
+    mPrinter = None
 
     def __init__(self):
         self.mUserGroupList = {}
         self.mServerList = []
         self.mLogger = Logger()
+        self.mPrinter = Printer()
         #Create ServerFactory
         self.mServerFactory = ServerFactory(self)
         self.mPermissionMask = PermissionMask()
@@ -239,6 +242,10 @@ class Hallo:
     def getLogger(self):
         'Returns the Logger object'
         return self.mLogger
+    
+    def getPrinter(self):
+        'Returns the Printer object'
+        return self.mPrinter
     
     def manualServerConnect(self):
         #TODO: add ability to connect to non-IRC servers
