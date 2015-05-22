@@ -9,35 +9,93 @@ class Logger:
     It exists in order to provie a single entry point to all logging.
     '''
     mLock = None
+    mEventDict = None
 
     def __init__(self, params):
         '''
         Constructor
         '''
         self.mLock = Lock()
+        self.mEventDict = {}
+        self.mEventDict[Function.EVENT_SECOND] = self.logSecond
+        self.mEventDict[Function.EVENT_MINUTE] = self.logMinute
+        self.mEventDict[Function.EVENT_HOUR] = self.logHour
+        self.mEventDict[Function.EVENT_DAY] = self.logDay
+        self.mEventDict[Function.EVENT_PING] = self.logPing
+        self.mEventDict[Function.EVENT_MESSAGE] = self.logMessage
+        self.mEventDict[Function.EVENT_JOIN] = self.logJoin
+        self.mEventDict[Function.EVENT_LEAVE] = self.logLeave
+        self.mEventDict[Function.EVENT_QUIT] = self.logQuit
+        self.mEventDict[Function.EVENT_CHNAME] = self.logNameChange
+        self.mEventDict[Function.EVENT_KICK] = self.logKick
+        self.mEventDict[Function.EVENT_INVITE] = self.logInvite
+        self.mEventDict[Function.EVENT_NOTICE] = self.logNotice
+        self.mEventDict[Function.EVENT_MODE] = self.logMode
+        self.mEventDict[Function.EVENT_CTCP] = self.logCtcp
     
     def log(self,event,fullLine,serverObject=None,userObject=None,channelObject=None):
         'The function which actually writes the logs.'
-        #With certain events, check if destination has logging enabled.
+        #If channel is set, check logging
+        if(channelObject is not None and not channelObject.getLogging()):
+            return None
+        #If channel not set, but user is set, check their logging settings.
+        if(channelObject is None and userObject is not None and not userObject.getLogging()):
+            return None
         #Check what type of event and pass to that to create line
+        if(event not in self.mEventDict):
+            return None
+        logFunction = self.mEventDict[event]
+        logLine = logFunction(fullLine,serverObject,userObject,channelObject)
         #Create file name
+        fileName = self.getFileName(serverObject,userObject,channelObject)
         #Write the log line
-        pass
+        self.addLine(fileName,logLine)
+        return None
     
     def logSecond(self,fullLine,serverObject,userObject,channelObject):
         return None
     
     def logMinute(self,fullLine,serverObject,userObject,channelObject):
-        pass
+        return None
     
     def logHour(self,fullLine,serverObject,userObject,channelObject):
-        pass
+        return None
     
     def logDay(self,fullLine,serverObject,userObject,channelObject):
-        pass
+        return None
+    
+    def logPing(self,fullLine,serverObject,userObject,channelObject):
+        return None
     
     def logMessage(self,fullLine,serverObject,userObject,channelObject):
-        pass
+        return None
+    
+    def logJoin(self,fullLine,serverObject,userObject,channelObject):
+        return None
+    
+    def logLeave(self,fullLine,serverObject,userObject,channelObject):
+        return None
+    
+    def logQuit(self,fullLine,serverObject,userObject,channelObject):
+        return None
+    
+    def logNameChange(self,fullLine,serverObject,userObject,channelObject):
+        return None
+    
+    def logKick(self,fullLine,serverObject,userObject,channelObject):
+        return None
+    
+    def logInvite(self,fullLine,serverObject,userObject,channelObject):
+        return None
+    
+    def logNotice(self,fullLine,serverObject,userObject,channelObject):
+        return None
+    
+    def logModeChange(self,fullLine,serverObject,userObject,channelObject):
+        return None
+    
+    def logCtcp(self,fullLine,serverObject,userObject,channelObject):
+        return None
         
     
     def getFileName(self,serverObject,userObject,channelObject):
