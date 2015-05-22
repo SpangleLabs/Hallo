@@ -36,8 +36,8 @@ class Hallo:
     def __init__(self):
         self.mUserGroupList = {}
         self.mServerList = []
-        self.mLogger = Logger()
-        self.mPrinter = Printer()
+        self.mLogger = Logger(self)
+        self.mPrinter = Printer(self)
         #Create ServerFactory
         self.mServerFactory = ServerFactory(self)
         self.mPermissionMask = PermissionMask()
