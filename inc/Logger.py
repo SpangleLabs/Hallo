@@ -2,6 +2,7 @@ import os
 from threading import Lock
 import datetime
 from Function import Function
+from inc.commons import Commons
 
 class Logger:
     '''
@@ -77,7 +78,9 @@ class Logger:
         return None
     
     def logQuit(self,fullLine,serverObject,userObject,channelObject):
-        return None
+        output = Commons.currentTimestamp() + " "
+        output += userObject.getNick() + " has quit."
+        return output
     
     def logNameChange(self,fullLine,serverObject,userObject,channelObject):
         return None
