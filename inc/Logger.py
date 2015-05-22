@@ -9,13 +9,15 @@ class Logger:
     Logging class. This is created and stored by the Hallo object.
     It exists in order to provie a single entry point to all logging.
     '''
+    mHallo = None
     mLock = None
     mEventDict = None
 
-    def __init__(self, params):
+    def __init__(self,hallo):
         '''
         Constructor
         '''
+        self.mHallo = hallo
         self.mLock = Lock()
         self.mEventDict = {}
         self.mEventDict[Function.EVENT_SECOND] = self.logSecond
