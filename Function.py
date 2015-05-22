@@ -74,7 +74,7 @@ class Function:
     
     def getNames(self):
         'Returns the list of names for directly addressing the function'
-        self.mNames = set()
-        return self.mNames.add(self.mHelpName)
+        self.mNames.add(self.mHelpName)
+        return self.mNames
     
     
