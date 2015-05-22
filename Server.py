@@ -480,7 +480,7 @@ class ServerIRC(Server):
         #Parse out where the message went to (e.g. channel or private message to Hallo)
         messageDestinationName = messageLine.split()[2].lower()
         #Test for CTCP message, hand to CTCP parser if so.
-        messageCtcpBool = messageText.split(':')[2][0] == '\x01'
+        messageCtcpBool = messageText[0] == '\x01'
         if(messageCtcpBool):
             self.parseLineCtcp(messageLine)
             return
