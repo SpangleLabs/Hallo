@@ -466,7 +466,7 @@ class ServerIRC(Server):
         self.mHallo.getLogger().logFromSelf(Function.EVENT_PING,pingNumber,self,None,None)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_PING,pingNumber,self,None,None)
+        functionDispatcher.dispatchPassive(Function.EVENT_PING,pingNumber,self,None,None)
         
     def parseLineMessage(self,messageLine):
         'Parses a PRIVMSG message from the server'
@@ -554,7 +554,7 @@ class ServerIRC(Server):
             self.send('\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01',messageSender,"notice")
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_CTCP,messageText,self,messageSender,messageChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_CTCP,messageText,self,messageSender,messageChannel)
 
         
     def parseLineJoin(self,joinLine):
@@ -580,7 +580,7 @@ class ServerIRC(Server):
             joinChannel.addUser(joinClient)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_JOIN,None,self,joinClient,joinChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_JOIN,None,self,joinClient,joinChannel)
         
     def parseLinePart(self,partLine):
         'Parses a PART message from the server'
@@ -606,7 +606,7 @@ class ServerIRC(Server):
             partClient.setOnline(False)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_LEAVE,partMessage,self,partClient,partChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_LEAVE,partMessage,self,partClient,partChannel)
     
     def parseLineQuit(self,quitLine):
         'Parses a QUIT message from the server'
@@ -632,7 +632,7 @@ class ServerIRC(Server):
                 user.setOnline(False)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_QUIT,quitMessage,self,quitClient,None)
+        functionDispatcher.dispatchPassive(Function.EVENT_QUIT,quitMessage,self,quitClient,None)
         
     def parseLineMode(self,modeLine):
         'Parses a MODE message from the server'
@@ -660,7 +660,7 @@ class ServerIRC(Server):
         self.mHallo.getLogger().log(Function.EVENT_MODE,modeFull,self,modeClient,modeChannel)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_MODE,modeFull,self,modeClient,modeChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_MODE,modeFull,self,modeClient,modeChannel)
     
     def parseLineNotice(self,noticeLine):
         'Parses a NOTICE message from the server'
@@ -689,7 +689,7 @@ class ServerIRC(Server):
                     self.mCheckUserIdentityResult = False
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_NOTICE,noticeMessage,self,noticeClient,noticeChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_NOTICE,noticeMessage,self,noticeClient,noticeChannel)
         
     def parseLineNick(self,nickLine):
         'Parses a NICK message from the server'
@@ -713,7 +713,7 @@ class ServerIRC(Server):
             self.mHallo.getLogger().log(Function.EVENT_CHNAME,nickClientName,self,nickClient,channel)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_CHNAME,nickClientName,self,nickClient,None)
+        functionDispatcher.dispatchPassive(Function.EVENT_CHNAME,nickClientName,self,nickClient,None)
         
     def parseLineInvite(self,inviteLine):
         'Parses an INVITE message from the server'
@@ -732,7 +732,7 @@ class ServerIRC(Server):
             self.joinChannel(inviteChannel)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_INVITE,None,self,inviteClient,inviteChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_INVITE,None,self,inviteClient,inviteChannel)
         
     def parseLineKick(self,kickLine):
         'Parses a KICK message from the server'
@@ -753,7 +753,7 @@ class ServerIRC(Server):
             kickChannel.setInChannel(False)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_KICK,kickMessage,self,kickClient,kickChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_KICK,kickMessage,self,kickClient,kickChannel)
 
     def parseLineNumeric(self,numericLine):
         'Parses a numeric message from the server'
