@@ -289,6 +289,8 @@ class ServerIRC(Server):
         while(True):
             nextWelcomeLine = self.readLineFromSocket()
             self.mWelcomeMessage += nextWelcomeLine+"\n"
+            if(nextWelcomeLine.split()[0] == "PING"):
+                self.parseLinePing
             if("376" in nextWelcomeLine or "endofmessage" in nextWelcomeLine.replace(' ','').lower()):
                 break
         #Identify with nickserv
