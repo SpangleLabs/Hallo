@@ -33,7 +33,7 @@ class Logger:
         self.mEventDict[Function.EVENT_KICK] = self.logKick
         self.mEventDict[Function.EVENT_INVITE] = self.logInvite
         self.mEventDict[Function.EVENT_NOTICE] = self.logNotice
-        self.mEventDict[Function.EVENT_MODE] = self.logMode
+        self.mEventDict[Function.EVENT_MODE] = self.logModeChange
         self.mEventDict[Function.EVENT_CTCP] = self.logCtcp
     
     def log(self,event,fullLine,serverObject=None,userObject=None,channelObject=None):

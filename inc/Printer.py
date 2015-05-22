@@ -29,7 +29,7 @@ class Printer:
         self.mEventDict[Function.EVENT_KICK] = self.printKick
         self.mEventDict[Function.EVENT_INVITE] = self.printInvite
         self.mEventDict[Function.EVENT_NOTICE] = self.printNotice
-        self.mEventDict[Function.EVENT_MODE] = self.printMode
+        self.mEventDict[Function.EVENT_MODE] = self.printModeChange
         self.mEventDict[Function.EVENT_CTCP] = self.printCtcp
     
     def output(self,event,fullLine,serverObject=None,userObject=None,channelObject=None):
