@@ -12,7 +12,7 @@ class Roll(Function):
     Function to roll dice or pick random numbers in a given range
     '''
     mHelpName = "roll"                          #Name for use in help listing
-    mNames = set(["roll","dice","random"])        #Names which can be used to address the function
+    mNames = set(["roll","dice","random","random number"])        #Names which can be used to address the function
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Roll X-Y returns a random number between X and Y. Format: \"roll <min>-<max>\" or \"roll <num>d<sides>\""
 
