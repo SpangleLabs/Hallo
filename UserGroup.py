@@ -72,7 +72,7 @@ class UserGroup:
     @staticmethod
     def fromXml(xmlString,hallo):
         'Loads a new UserGroup object from XML'
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         newName = doc.getElementsByTagName("name")[0].firstChild.data
         newUserGroup = UserGroup(newName,hallo)
         if(len(doc.getElementsByTagName("permission_mask"))!=0):

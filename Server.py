@@ -27,7 +27,7 @@ class ServerFactory:
         self.mHallo = hallo
     
     def newServerFromXml(self,xmlString):
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         serverType = doc.getElementsByTagName("server_type")[0].firstChild.data
         if(serverType==Server.TYPE_IRC):
             return ServerIRC.fromXml(xmlString,self.mHallo)
@@ -925,7 +925,7 @@ class ServerIRC(Server):
         '''
         Constructor to build a new server object from xml
         '''
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         newServer = ServerIRC(hallo)
         newServer.mName = doc.getElementsByTagName("server_name")[0].firstChild.data
         newServer.mAutoConnect = Commons.stringFromFile(doc.getElementsByTagName("auto_connect")[0].firstChild.data)

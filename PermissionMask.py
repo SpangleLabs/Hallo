@@ -67,7 +67,7 @@ class PermissionMask(object):
     @staticmethod
     def fromXml(xmlString):
         'Loads a new Destination object from XML'
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         newMask = PermissionMask()
         #Load rights
         rightsListXml = doc.getElementsByTagName("right_list")

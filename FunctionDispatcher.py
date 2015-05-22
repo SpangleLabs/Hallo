@@ -309,7 +309,7 @@ class FunctionDispatcher(object):
     @staticmethod
     def fromXml(xmlString):
         'Loads a new FunctionDispatcher from XML'
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         #Create module list from XML
         moduleList = set()
         moduleListElement = doc.getElementsByTagName("module_list")[0]

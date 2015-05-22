@@ -283,7 +283,7 @@ class ReplyMessage:
     def fromXml(xmlString):
         'Loads a new ReplyMessage object from XML'
         #Load document
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         #Get prompt and create ReplyMessage object
         newPrompt = doc.getElementsByTagName("prompt")[0].firstChild.data
         newReplyMessage = ReplyMessage(newPrompt)

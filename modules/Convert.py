@@ -187,7 +187,7 @@ class ConvertType:
     def fromXml(repo,xmlString):
         'Loads a new ConvertType object from XML'
         #Load document
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         #Get name and create ConvertType object
         newName = doc.getElementsByTagName("name")[0].firstChild.data
         newType = ConvertPrefixGroup(repo,newName)
@@ -402,7 +402,7 @@ class ConvertUnit:
     def fromXml(convertType,xmlString):
         'Loads a new ConvertUnit object from XML.'
         #Load document
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         #Get names, value and create object
         newNameList = []
         for nameXml in doc.getElementsByTagName("name"):
@@ -546,7 +546,7 @@ class ConvertPrefixGroup:
     def fromXml(repo,xmlString):
         'Loads a new ConvertUnit object from XML.'
         #Load document
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         #Get name and create object
         newName = doc.getElementsByTagName("name")[0].firstChild.data
         newPrefixGroup = ConvertPrefixGroup(repo,newName)
@@ -621,7 +621,7 @@ class ConvertPrefix:
     @staticmethod
     def fromXml(prefixGroup,xmlString):
         'Loads a new ConvertUnit object from XML.'
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         newName = doc.getElementsByTagName("name")[0].firstChild.data
         newAbbreviation = doc.getElementsByTagName("abbr")[0].firstChild.data
         newValue = float(doc.getElementsByTagName("value")[0].firstChild.data)

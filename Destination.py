@@ -261,7 +261,7 @@ class Channel(Destination):
     @staticmethod
     def fromXml(xmlString,server):
         'Loads a new Channel object from XML'
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         newName = doc.getElementsByTagName("channel_name")[0].firstChild.data
         newChannel = Channel(newName,server)
         newChannel.mLogging = Commons.stringFromFile(doc.getElementsByTagName("logging")[0].firstChild.data)
@@ -419,7 +419,7 @@ class User(Destination):
     @staticmethod
     def fromXml(xmlString,server):
         'Loads a new User object from XML'
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         newName = doc.getElementsByTagName("user_name")[0].firstChild.data
         newUser = User(newName,server)
         newUser.mLogging = Commons.stringFromFile(doc.getElementsByTagName("logging")[0].firstChild.data)
