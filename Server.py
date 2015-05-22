@@ -107,7 +107,7 @@ class Server(object):
     def getNick(self):
         'Nick getter'
         if(self.mNick==None):
-            return self.mHallo.getNick()
+            return self.mHallo.getDefaultNick()
         return self.mNick
     
     def setNick(self,nick):
