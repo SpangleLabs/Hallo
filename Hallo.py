@@ -18,6 +18,7 @@ from FunctionDispatcher import FunctionDispatcher
 from Function import Function
 from inc.Logger import Logger
 from inc.Printer import Printer
+from inc.commons import Commons
 
 class Hallo:
     mDefaultNick = "Hallo"
