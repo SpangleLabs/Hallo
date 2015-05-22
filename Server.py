@@ -421,7 +421,7 @@ class ServerIRC(Server):
         elif(newLine.split()[0] == "PING"):
             self.parseLinePing(newLine)
             self.parseLineRaw(newLine,"ping")
-        elif(newLine.split()[0] == "PRIVMSG"):
+        elif(newLine.split()[1] == "PRIVMSG"):
             self.parseLineMessage(newLine)
             self.parseLineRaw(newLine,"message")
         elif(newLine.split()[1] == "JOIN"):
