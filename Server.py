@@ -5,9 +5,6 @@ import socket
 import time
 import re
 
-#TODO: I would rather deprecate these
-import ircbot_chk
-
 from Destination import Channel,User
 from PermissionMask import PermissionMask
 from Function import Function
@@ -593,30 +590,12 @@ class ServerIRC(Server):
         #TODO: replace with newer logging
         if(joinChannel.getLogging()):
             self.mHallo.base_addlog(Commons.currentTimestamp() + ' ' + joinClient.getName() + ' joined ' + joinChannel.getName(),[self.mName,joinChannel.getName()])
-        #Apply automatic flags as required
-        if('auto_list' in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]):
-            for entry in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]['auto_list']:
-                if(joinClient.getName().lower()==entry['user']):
-                    for _ in range(7):
-                        #TODO: Need a new way to check if users are registered
-                        #TODO: http://stackoverflow.com/questions/1682920/determine-if-a-user-is-idented-on-irc
-                        if(ircbot_chk.ircbot_chk.chk_userregistered(self.mHallo,self.mName,joinClient.getName())):
-                            self.send('MODE ' + joinChannel.getName() + ' ' + entry['flag'] + ' ' + joinClient.getName(),None,"raw")
-                            break
-                        time.sleep(5)
+        #TODO: Apply automatic flags as required
         #If hallo has joined a channel, get the user list and apply automatic flags as required
         if(joinClient.getName().lower() == self.getNick().lower()):
             joinChannel.setInChannel(True)
             self.checkChannelUserList(joinChannel)
-            if('auto_list' in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]):
-                for entry in self.mHallo.conf['server'][self.mName]['channel'][joinChannel.getName()]['auto_list']:
-                    if(entry['user'] in joinChannel.getUserList()):
-                        for _ in range(7):
-                            #TODO: Replace this with a new way to check users are registered
-                            if(ircbot_chk.ircbot_chk.chk_userregistered(self,self.mName,entry['user'])):
-                                self.send('MODE ' + joinChannel.getName() + ' ' + entry['flag'] + ' ' + entry['user'],None,"raw")
-                                break
-                            time.sleep(5)
+            #TODO: Apply automatic flags as required
         else:
             #If it was not hallo joining a channel, add nick to user list
             joinChannel.addUser(joinClient)
@@ -761,16 +740,7 @@ class ServerIRC(Server):
         #If it was the bots nick that just changed, update that.
         if(nickClient.getName() == self.getNick()):
             self.mNick = nickNewNick
-        #Check whether this verifies anything that means automatic flags need to be applied
-        for channel in self.mHallo.conf['server'][self.mName]['channel']:
-            if('auto_list' in self.mHallo.conf['server'][self.mName]['channel'][channel]):
-                for entry in self.mHallo.conf['server'][self.mName]['channel'][channel]['auto_list']:
-                    if(nickNewNick == entry['user']):
-                        for _ in range(7):
-                            if(ircbot_chk.ircbot_chk.chk_userregistered(self.mHallo,self.mName,nickNewNick)):
-                                self.send('MODE ' + channel + ' ' + entry['flag'] + ' ' + nickNewNick,None,"raw")
-                                break
-                            time.sleep(5)
+        #TODO: Check whether this verifies anything that means automatic flags need to be applied
         #Update name for user object
         nickClient.setName(nickNewNick)
         #Pass to passive FunctionDispatcher
