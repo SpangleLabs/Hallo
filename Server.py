@@ -934,7 +934,7 @@ class ServerIRC(Server):
         if(len(doc.getElementsByTagName("full_name"))!=0):
             newServer.mFullName = doc.getElementsByTagName("full_name")[0].firstChild.data
         newServer.mServerAddress = doc.getElementsByTagName("server_address")[0].firstChild.data
-        newServer.mServerPort = doc.getElementsByTagName("server_port")[0].firstChild.data
+        newServer.mServerPort = int(doc.getElementsByTagName("server_port")[0].firstChild.data)
         if(len(doc.getElementsByTagName("nickserv"))==0):
             newServer.mNickservNick = None
             newServer.mNickservPass = None
@@ -1021,7 +1021,7 @@ class ServerIRC(Server):
         root.appendChild(serverAddressElement)
         #create server port element
         serverPortElement = doc.createElement("server_port")
-        serverPortElement.appendChild(doc.createTextNode(self.mServerPort))
+        serverPortElement.appendChild(doc.createTextNode(str(self.mServerPort)))
         root.appendChild(serverPortElement)
         #Create nickserv element
         if(self.mNickservNick is not None):
