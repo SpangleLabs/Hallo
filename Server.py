@@ -462,6 +462,7 @@ class ServerIRC(Server):
         #Print and log
         print(Commons.currentTimestamp() + "["+self.mName+"] PING")
         self.mHallo.getLogger().log(Function.EVENT_PING,pingNumber,self,None,None)
+        self.mHallo.getLogger().logFromSelf(Function.EVENT_PING,pingNumber,self,None,None)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
         functionDispatcher.dispatchPassive(self,Function.EVENT_PING,pingNumber,self,None,None)
