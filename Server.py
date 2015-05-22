@@ -167,8 +167,7 @@ class Server(object):
     
     def addChannel(self,channelObject):
         'Adds a channel to the channel list'
-        if(self.getChannelByName(channelObject.getName()) is None):
-            self.mChannelList.append(channelObject)
+        self.mChannelList.append(channelObject)
 
     def joinChannel(self,channelObject):
         'Joins a specified channel'
@@ -190,8 +189,7 @@ class Server(object):
     
     def addUser(self,userObject):
         'Adds a user to the user list'
-        if(self.getUserByName(userObject.getName()) is None):
-            self.mUserList.append(userObject)
+        self.mUserList.append(userObject)
         
     def rightsCheck(self,rightName):
         'Checks the value of the right with the specified name. Returns boolean'
