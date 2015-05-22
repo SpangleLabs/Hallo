@@ -304,7 +304,7 @@ class ServerIRC(Server):
         #Join relevant channels
         for channel in self.mChannelList:
             if(channel.isAutoJoin()):
-                self.joinchannel(channel)
+                self.joinChannel(channel)
     
     def disconnect(self):
         'Disconnect from the server'
