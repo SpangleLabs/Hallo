@@ -91,7 +91,7 @@ class Hallo:
                 self.addServer(serverObject)
             userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
             for userGroupXml in userGroupListXml.getElementsByTagName("user_group"):
-                userGroupObject = UserGroup.fromXml(userGroupXml.toxml())
+                userGroupObject = UserGroup.fromXml(userGroupXml.toxml(),self)
                 self.addUserGroup(userGroupObject)
             if(len(doc.getElementsByTagName("permission_mask"))!=0):
                 self.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
