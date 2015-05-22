@@ -116,7 +116,8 @@ class EightBall(Function):
             for eight in ['eight','8']:
                 for space in [' ','-','']:
                     self.mNames.add(magic+eight+space+"ball")
-        return self.mNames.add(self.mHelpName)
+        self.mNames.add(self.mHelpName)
+        return self.mNames
 
 class ChosenOne(Function):
     '''
@@ -180,7 +181,8 @@ class Foof(Function):
     def getNames(self):
         'Returns the list of names for directly addressing the function'
         self.mNames = set(['f'+'o'*x+'f' for x in range(2,20)])
-        return self.mNames.add(self.mHelpName)
+        self.mNames.add(self.mHelpName)
+        return self.mNames
     
     def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
