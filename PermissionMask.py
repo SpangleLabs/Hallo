@@ -1,11 +1,15 @@
 
 from xml.dom import minidom
+from inc.commons import Commons
 
 class PermissionMask(object):
     '''
     Permission mask object, stores which rights are enabled or disabled by level
     '''
-    mRightsMap = {}
+    mRightsMap = None
+    
+    def __init__(self):
+        self.mRightsMap = {}
     
     def getRight(self,right):
         'Gets the value of the specified right in the rights map'
@@ -52,7 +56,7 @@ class PermissionMask(object):
             rightElement.appendChild(nameElement)
             #Add right value
             valueElement = doc.createElement("value")
-            valueElement.appendChild(doc.createTextNode(self.mRightsMap[mapRight]))
+            valueElement.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.mRightsMap[mapRight]]))
             rightElement.appendChild(valueElement)
             #Add right element to list
             rightListElement.appendChild(rightElement)
@@ -69,7 +73,7 @@ class PermissionMask(object):
         rightsListXml = doc.getElementsByTagName("right_list")
         for rightXml in rightsListXml.getElementsByTagName("right"):
             rightName = rightXml.getElementsByTagName("name")[0].firstChild.data
-            rightValue = rightXml.getElementsByTagName("value")[0].firstChild.data
+            rightValue = Commons.stringFromFile(rightXml.getElementsByTagName("value")[0].firstChild.data)
             newMask.setRight(rightName,rightValue)
         return newMask
 

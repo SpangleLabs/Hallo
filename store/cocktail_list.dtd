@@ -1,0 +1,6 @@
+<!ELEMENT cocktail_list (cocktail*)>
+<!ELEMENT cocktail (name,instructions,ingredient+)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT instructions (#PCDATA)>
+<!ELEMENT ingredient (amount,name)>
+<!ELEMENT amount (#PCDATA)>
