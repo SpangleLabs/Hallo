@@ -40,7 +40,7 @@ class Hallo:
         self.mOpen = True
         #TODO: manual FunctionDispatcher construction, user input
         if(self.mFunctionDispatcher is None):
-            self.mFunctionDispatcher = FunctionDispatcher(set("Random","ServerControl"))
+            self.mFunctionDispatcher = FunctionDispatcher(set("ChannelControl","Convert","HalloControl","Lookup","Math","PermissionControl","Random","ServerControl"))
         #If no servers, ask for a new server
         if(len(self.mServerList)==0):
             if(sum([server.getAutoConnect() for server in self.mServerList])==0):
