@@ -352,8 +352,13 @@ class ServerIRC(Server):
             msgTypeName = "NOTICE"
         else:
             msgTypeName = "PRIVMSG"
-        #Get channel or user name
+        #Get channel or user name and data
         destinationName = destinationObject.getName()
+        channelObject = None
+        userObject = destinationObject
+        if(destinationObject.getType()=="channel"):
+            channelObject = destinationObject
+            userObject = None
         #Find out if destination wants caps lock
         if(destinationObject.isUpperCase()):
             #Find any URLs, convert line to uppercase, then convert URLs back to original
@@ -364,11 +369,15 @@ class ServerIRC(Server):
         #Get max line length
         maxLineLength = maxMsgLength-len(msgTypeName+' '+destinationName+' '+endl)
         #Split and send
-        #TODO: log
         for dataLine in data.split("\n"):
             dataLineSplit = Commons.chunkStringDot(dataLine,maxLineLength)
             for dataLineLine in dataLineSplit:
                 self.sendRaw(msgTypeName+' '+destinationName+' '+dataLineLine)
+                #Log sent data, if it's not message or notice
+                if(msgType=="message"):
+                    self.mHallo.getLogger().logFromSelf(Function.EVENT_MESSAGE,dataLineLine,self,userObject,channelObject)
+                elif(msgType=="notice"):
+                    self.mHallo.getLogger().logFromSelf(Function.EVENT_NOTICE,dataLineLine,self,userObject,channelObject)
 
     def sendRaw(self,data):
         'Sends raw data to the server'
