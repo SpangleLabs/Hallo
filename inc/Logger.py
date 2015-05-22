@@ -115,7 +115,7 @@ class Logger:
     
     def logQuit(self,fullLine,serverObject,userObject,channelObject):
         output = Commons.currentTimestamp() + " "
-        output += userObject.getNick() + " has quit."
+        output += userObject.getName() + " has quit."
         if(fullLine.strip()!=""):
             output += " (" + fullLine + ")"
         return output

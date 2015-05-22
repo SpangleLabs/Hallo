@@ -109,7 +109,7 @@ class Printer:
     def printQuit(self,fullLine,serverObject,userObject,channelObject):
         output = Commons.currentTimestamp() + " "
         output += "[" + serverObject.getName() + "] "
-        output += userObject.getNick() + " has quit."
+        output += userObject.getName() + " has quit."
         if(fullLine.strip()!=""):
             output += " (" + fullLine + ")"
         return output
