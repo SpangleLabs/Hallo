@@ -69,7 +69,7 @@ class Printer:
     
     def printDay(self,fullLine,serverObject,userObject,channelObject):
         output = Commons.currentTimestamp() + " "
-        output = "Day changed: "+datetime.datetime.now().strftime("%Y-%m-%d")
+        output += "Day changed: "+datetime.datetime.now().strftime("%Y-%m-%d")
         return output
     
     def printPing(self,fullLine,serverObject,userObject,channelObject):
