@@ -553,7 +553,7 @@ class HighScores(Function):
         pass
     
     @staticmethod
-    def isPersistent(self):
+    def isPersistent():
         'Returns boolean representing whether this function is supposed to be persistent or not'
         return True
     
@@ -868,7 +868,7 @@ class HigherOrLower(Function):
         pass
     
     @staticmethod
-    def isPersistent(self):
+    def isPersistent():
         'Returns boolean representing whether this function is supposed to be persistent or not'
         return True
     
@@ -1086,7 +1086,7 @@ class Blackjack(Function):
         pass
     
     @staticmethod
-    def isPersistent(self):
+    def isPersistent():
         'Returns boolean representing whether this function is supposed to be persistent or not'
         return True
     
@@ -1409,7 +1409,7 @@ class DDR(Function):
         pass
     
     @staticmethod
-    def isPersistent(self):
+    def isPersistent():
         'Returns boolean representing whether this function is supposed to be persistent or not'
         return True
     

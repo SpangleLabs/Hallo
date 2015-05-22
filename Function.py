@@ -39,7 +39,7 @@ class Function:
         raise NotImplementedError
 
     @staticmethod
-    def isPersistent(self):
+    def isPersistent():
         'Returns boolean representing whether this function is supposed to be persistent or not'
         return False
     
