@@ -81,7 +81,7 @@ class Hallo:
         try:
             doc = minidom.parse("config/config.xml")
             self.mDefaultNick = doc.getElementsByTagName("default_nick")[0].firstChild.data
-            self.mDefaultPrefix = doc.getElementsByTagName("default_prefix")[0].firstChild.data
+            self.mDefaultPrefix = Commons.stringFromFile(doc.getElementsByTagName("default_prefix")[0].firstChild.data)
             self.mDefaultFullName = doc.getElementsByTagName("default_full_name")[0].firstChild.data
             self.mFunctionDispatcher = FunctionDispatcher.fromXml(doc.getElementsByTagName("function_dispatcher")[0].toxml(),self)
             serverListXml = doc.getElementsByTagName("server_list")[0]
