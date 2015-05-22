@@ -534,7 +534,6 @@ class UrlDetect(Function):
         if(urlAddress[-4:]=='.png'):
             urlNumber = urlAddress[32:-4]
             urlAddress = 'http://www.speedtest.net/my-result/' + urlNumber
-            print("New url: " + urlAddress)
             pageRequest = urllib.request.Request(urlAddress)
             pageRequest.add_header('User-Agent','Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
             pageOpener = urllib.request.build_opener()
