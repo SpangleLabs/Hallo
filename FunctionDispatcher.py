@@ -167,7 +167,9 @@ class FunctionDispatcher(object):
         #Unload module, if it was loaded.
         self.unloadModule(moduleObject)
         #Loop through module, searching for Function subclasses.
-        for functionClass in inspect.getmembers(moduleObject,inspect.isclass):
+        for functionTuple in inspect.getmembers(moduleObject,inspect.isclass):
+            #Get class from tuple
+            functionClass = functionTuple[1]
             #Check it's a valid function object
             if(not self.checkFunctionClass(functionClass)):
                 continue
