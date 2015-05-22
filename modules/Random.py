@@ -111,6 +111,7 @@ class EightBall(Function):
     
     def getNames(self):
         'Returns the list of names for directly addressing the function'
+        self.mNames = set(["eightball"])
         for magic in ['magic ','magic','']:
             for eight in ['eight','8']:
                 for space in [' ','-','']:
