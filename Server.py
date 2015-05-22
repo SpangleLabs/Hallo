@@ -193,10 +193,11 @@ class Server(object):
         
     def rightsCheck(self,rightName):
         'Checks the value of the right with the specified name. Returns boolean'
-        rightValue = self.mPermissionMask.getRight(rightName)
-        #If PermissionMask contains that right, return it.
-        if(rightValue in [True,False]):
-            return rightValue
+        if(self.mPermissionMask is not None):
+            rightValue = self.mPermissionMask.getRight(rightName)
+            #If PermissionMask contains that right, return it.
+            if(rightValue in [True,False]):
+                return rightValue
         #Fallback to the parent Hallo's decision.
         return self.mHallo.rightsCheck(rightName)
     
