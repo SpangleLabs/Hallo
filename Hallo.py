@@ -96,7 +96,7 @@ class Hallo:
             if(len(doc.getElementsByTagName("permission_mask"))!=0):
                 self.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
             return
-        except (FileNotFoundError, IOError):
+        except (OSError, IOError):
             print("Error loading config")
             self.manualServerConnect()
 
