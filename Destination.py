@@ -353,10 +353,11 @@ class User(Destination):
 
     def rightsCheck(self,rightName,channelObject=None):
         'Checks the value of the right with the specified name. Returns boolean'
-        rightValue = self.mPermissionMask.getRight(rightName)
-        #If PermissionMask contains that right, return it.
-        if(rightValue in [True,False]):
-            return rightValue
+        if(self.mPermissionMask is not None):
+            rightValue = self.mPermissionMask.getRight(rightName)
+            #If PermissionMask contains that right, return it.
+            if(rightValue in [True,False]):
+                return rightValue
         #Check UserGroup rights, if any apply
         if(len(self.mUserGroupList)!=0):
             return any([userGroup.rightsCheck(rightName,self,channelObject) for userGroup in self.mUserGroupList.values()])
