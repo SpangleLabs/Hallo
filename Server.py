@@ -510,7 +510,10 @@ class ServerIRC(Server):
             actingPrefix = self.getNick()
         #Figure out if the message is a command, Send to FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        if(messagePrivateBool or messageText.startswith(actingPrefix)):
+        if(messagePrivateBool):
+            functionDispatcher.dispatch(messageText,messageSender,messageDestination)
+        elif(messageText.startswith(actingPrefix)):
+            messageText = messageText[len(actingPrefix):]
             functionDispatcher.dispatch(messageText,messageSender,messageDestination)
         else:
             #Pass to passive function checker
