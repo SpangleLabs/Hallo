@@ -504,16 +504,16 @@ class ServerIRC(Server):
             self.mHallo.getPrinter().output(Function.EVENT_MESSAGE,messageText,self,messageSender,messageChannel)
             self.mHallo.getLogger().log(Function.EVENT_MESSAGE,messageText,self,messageSender,messageChannel)
         #Get the prefix
-        actingPrefix = self.getPrefix()
+        actingPrefix = self.getPrefix().lower()
         if(messagePublicBool):
-            actingPrefix = messageChannel.getPrefix()
+            actingPrefix = messageChannel.getPrefix().lower()
         if(actingPrefix is False):
-            actingPrefix = self.getNick()
+            actingPrefix = self.getNick().lower()
         #Figure out if the message is a command, Send to FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
         if(messagePrivateBool):
             functionDispatcher.dispatch(messageText,messageSender,messageDestination)
-        elif(messageText.startswith(actingPrefix)):
+        elif(messageText.lower().startswith(actingPrefix)):
             messageText = messageText[len(actingPrefix):]
             functionDispatcher.dispatch(messageText,messageSender,messageDestination)
         else:
