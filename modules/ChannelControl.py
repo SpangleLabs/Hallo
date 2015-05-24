@@ -540,7 +540,7 @@ class ChannelCaps(Function):
             destinationObject.setUpperCase(not destinationObject.isUpperCase())
             return "Caps lock toggled."
         #If line has 1 argument, 
-        lineSplit = lineClean.strip()
+        lineSplit = lineClean.split()
         if(len(lineSplit)==1):
             #Check if a boolean was specified
             inputBool = Commons.stringToBool(lineSplit[0])
