@@ -527,6 +527,9 @@ class ServerIRC(Server):
             elif(messageText.lower().startswith(actingPrefix)):
                 messageText = messageText[len(actingPrefix):]
                 functionDispatcher.dispatch(messageText,messageSender,messageDestination,[functionDispatcher.FLAG_HIDE_ERRORS])
+            else:
+                #Pass to passive function checker
+                functionDispatcher.dispatchPassive(Function.EVENT_MESSAGE,messageText,self,messageSender,messageChannel)
         elif(messageText.lower().startswith(actingPrefix)):
                 messageText = messageText[len(actingPrefix):]
                 functionDispatcher.dispatch(messageText,messageSender,messageDestination)
