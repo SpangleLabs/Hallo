@@ -200,7 +200,7 @@ class ConvertType:
         newType.setBaseUnit(baseUnitObject)
         #Loop through unit elements, creating and adding objects.
         for unitXml in doc.getElementsByTagName("unit"):
-            unitObject = ConvertUnit.fromXml(self,unitXml.toxml())
+            unitObject = ConvertUnit.fromXml(newType,unitXml.toxml())
             newType.addUnit(unitObject)
         #Return created PrefixGroup
         return newType
@@ -552,7 +552,7 @@ class ConvertPrefixGroup:
         newPrefixGroup = ConvertPrefixGroup(repo,newName)
         #Loop through prefix elements, creating and adding objects.
         for prefixXml in doc.getElementsByTagName("prefix"):
-            prefixObject = ConvertPrefix.fromXml(self,prefixXml.toxml())
+            prefixObject = ConvertPrefix.fromXml(newPrefixGroup,prefixXml.toxml())
             newPrefixGroup.addPrefix(prefixObject)
         #Return created PrefixGroup
         return newPrefixGroup
