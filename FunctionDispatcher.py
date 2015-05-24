@@ -16,6 +16,8 @@ class FunctionDispatcher(object):
     mFunctionNames = None         #Dictionary of names -> functionClasses
     mPersistentFunctions = None   #Dictionary of persistent function objects. functionClass->functionObject
     mEventFunctions = None        #Dictionary with events as keys and sets of function classes (which may want to act on those events) as arguments
+    #Flags, can be passed as a list to functinodispatcher, and will change how it operates.
+    FLAG_HIDE_ERRORS = "hide_errors"    #Hide all errors that result from running the function.
 
     def __init__(self,moduleList,hallo):
         '''
