@@ -708,12 +708,12 @@ class ConvertMeasure:
         prefixGroup = self.mUnit.getPrefixGroup()
         #If there is no prefix group, output raw.
         if(prefixGroup is None):
-            return decimalFormat.format(self.mAmount) + " " + self.mUnit.getName()
+            return decimalFormat.format(self.mAmount) + " " + self.mUnit.getNameList()[0]
         #Ask the prefix group for the most appropriate prefix for the value.
         appropriatePrefix = prefixGroup.getAppropriatePrefix(self.mAmount)
         outputAmount = self.mAmount / appropriatePrefix.getMultiplier()
         #Output string
-        return decimalFormat.format(outputAmount) + " " + appropriatePrefix.getPrefix() + self.mUnit.getName()
+        return decimalFormat.format(outputAmount) + " " + appropriatePrefix.getPrefix() + self.mUnit.getNameList()[0]
     
     def __str__(self):
         return self.toString()
@@ -725,7 +725,7 @@ class ConvertMeasure:
         #Calculate the output amount
         outputAmount = self.mAmount / prefix.getMultiplier()
         #Output string
-        return decimalFormat.format(outputAmount) + " " + prefix.getName() + self.mUnit.getName()
+        return decimalFormat.format(outputAmount) + " " + prefix.getName() + self.mUnit.getNameList()[0]
     
     @staticmethod
     def buildListFromUserInput(repo,userInput):
@@ -1499,7 +1499,7 @@ class ConvertRemoveUnit(Function):
         if(inputUnit == inputUnit.getType().getBaseUnit()):
             return "You cannot remove the base unit for a unit type."
         #Remove unit
-        inputUnitName = inputUnit.getNames()[0]
+        inputUnitName = inputUnit.getNameList()[0]
         inputUnit.getType().removeUnit(inputUnit)
         #Done
         return "Removed unit \""+ inputUnitName +"\" from conversion repository."
@@ -1769,7 +1769,7 @@ class ConvertUnitRemoveName(Function):
         #Save repo
         repo.saveToXml()
         #Output
-        return "Removed name \""+inputName+"\" from \""+userUnit.getNamelist()[0]+"\" unit."
+        return "Removed name \""+inputName+"\" from \""+userUnit.getNameList()[0]+"\" unit."
 
     
     def findParameter(self,paramName,line):
