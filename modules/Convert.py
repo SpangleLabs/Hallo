@@ -713,7 +713,7 @@ class ConvertMeasure:
         appropriatePrefix = prefixGroup.getAppropriatePrefix(self.mAmount)
         outputAmount = self.mAmount / appropriatePrefix.getMultiplier()
         #Output string
-        return decimalFormat.format(outputAmount) + " " + appropriatePrefix.getName() + self.mUnit.getName()
+        return decimalFormat.format(outputAmount) + " " + appropriatePrefix.getPrefix() + self.mUnit.getName()
     
     def __str__(self):
         return self.toString()
