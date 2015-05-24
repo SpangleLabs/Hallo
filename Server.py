@@ -341,6 +341,7 @@ class ServerIRC(Server):
             except ServerException:
                 print("Server disconnected. Reconnecting.")
                 self.mOpen = False
+                time.sleep(10)
                 self.connect()
             #Parse line
             Thread(target=self.parseLine, args=(nextLine,)).start()
