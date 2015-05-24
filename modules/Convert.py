@@ -723,9 +723,14 @@ class ConvertMeasure:
         decimalPlaces = self.mUnit.getType().getDecimals()
         decimalFormat = "{:"+str(decimalPlaces)+"f}"
         #Calculate the output amount
-        outputAmount = self.mAmount / prefix.getMultiplier()
+        prefixMultiplier = 1
+        prefixName = ""
+        if(prefix is not None):
+            prefixName = prefix.getPrefix()
+            prefixMultiplier = prefix.getMultiplier()
+        outputAmount = self.mAmount / prefixMultiplier
         #Output string
-        return decimalFormat.format(outputAmount) + " " + prefix.getName() + self.mUnit.getNameList()[0]
+        return decimalFormat.format(outputAmount) + " " + prefixName + self.mUnit.getNameList()[0]
     
     @staticmethod
     def buildListFromUserInput(repo,userInput):
