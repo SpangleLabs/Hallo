@@ -507,15 +507,21 @@ class ServerIRC(Server):
         actingPrefix = self.getPrefix()
         if(messagePublicBool):
             actingPrefix = messageChannel.getPrefix()
-        if(actingPrefix is False):
-            actingPrefix = self.getNick().lower()
         #Figure out if the message is a command, Send to FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
         if(messagePrivateBool):
             functionDispatcher.dispatch(messageText,messageSender,messageDestination)
+        elif(actingPrefix is False):
+            actingPrefix = self.getNick().lower()
+            if(messageText.lower().startswith(actingPrefix+":") or messageText.lower().startswith(actingPrefix+",")):
+                messageText = messageText[len(actingPrefix+1):]
+                functionDispatcher.dispatch(messageText,messageSender,messageDestination)
+            elif(messageText.lower().startswith(actingPrefix)):
+                messageText = messageText[len(actingPrefix):]
+                functionDispatcher.dispatch(messageText,messageSender,messageDestination,[functionDispatcher.FLAG_HIDE_ERRORS])
         elif(messageText.lower().startswith(actingPrefix)):
-            messageText = messageText[len(actingPrefix):]
-            functionDispatcher.dispatch(messageText,messageSender,messageDestination)
+                messageText = messageText[len(actingPrefix):]
+                functionDispatcher.dispatch(messageText,messageSender,messageDestination)
         else:
             #Pass to passive function checker
             functionDispatcher.dispatchPassive(Function.EVENT_MESSAGE,messageText,self,messageSender,messageChannel)
