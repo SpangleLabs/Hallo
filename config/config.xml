@@ -50,6 +50,9 @@
 			<name>ServerControl</name>
 		</module>
 		<module>
+			<name>Silly</name>
+		</module>
+		<module>
 			<name>SillyEtd</name>
 		</module>
 	</module_list>
