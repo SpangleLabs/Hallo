@@ -182,6 +182,7 @@ class FunctionDispatcher(object):
                 self.loadFunction(functionClass)
             except NotImplementedError:
                 self.unloadFunction(functionClass)
+        return True
             
     def unloadModule(self,moduleObject):
         'Unloads a module, unloading all the functions it contains'
