@@ -748,7 +748,10 @@ class ConvertMeasure:
             prefixObject = unitObject.getPrefixFromUserInput(userInput)
             if(prefixObject is False):
                 continue
-            newAmount = preliminaryAmountValue * prefixObject.getMultiplier()
+            prefixMultiplier = 1
+            if(prefixObject is not None):
+                prefixMultiplier = prefixObject.getMultiplier()
+            newAmount = preliminaryAmountValue * prefixMultiplier
             newMeasure = ConvertMeasure(newAmount,unitObject)
             newMeasureList.append(newMeasure)
         #If list is still empty, throw an exception.
