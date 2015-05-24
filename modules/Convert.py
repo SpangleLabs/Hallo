@@ -785,7 +785,7 @@ class Convert(Function):
         #See if the input needs splitting.
         if(splitRegex.search(line) is None):
             try:
-                fromMeasureList = ConvertMeasure.buildListFromUserInput()
+                fromMeasureList = ConvertMeasure.buildListFromUserInput(repo,line)
                 return self.convertOneUnit(fromMeasureList,passive)
             except Exception as e:
                 if(passive):
