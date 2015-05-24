@@ -696,10 +696,10 @@ class ConvertMeasure:
         baseUnit = self.mUnit.getType().getBaseUnit()
         newUnit = baseUnit
         unitValue = self.mUnit.getValue()
-        newAmount = self.mAmount * unitValue
+        newAmount = self.mAmount / unitValue
         offset = self.mUnit.getOffset()
         if(offset is not None):
-            newAmount = newAmount + offset
+            newAmount = newAmount - offset
         newMeasure = ConvertMeasure(newAmount,newUnit)
         return newMeasure
     
