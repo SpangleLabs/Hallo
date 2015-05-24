@@ -148,6 +148,7 @@ class InSpace(Function):
         spaceNames = ", ".join(person['name'] for person in spaceDict['people'])
         outputString = "There are " + spaceNumber + " people in space right now. "
         outputString += "Their names are: " + spaceNames + "."
+        return outputString
 
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
