@@ -573,7 +573,7 @@ class Calculate(Function):
         ##multiplication processing2
         while calc.count('x') != 0:
             preCalc = self.beforeInfix(calc,'x')
-            postCalc = self.afterInfix(self,calc,'x')
+            postCalc = self.afterInfix(calc,'x')
             calc = calc.replace(str(preCalc) + 'x' + str(postCalc),str(float(preCalc) * float(postCalc)))
             del preCalc, postCalc
         ##addition processing

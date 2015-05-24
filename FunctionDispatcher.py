@@ -93,7 +93,7 @@ class FunctionDispatcher(object):
             functionObject = self.getFunctionObject(functionClass)
             #Try running the function, if it fails, return an error message
             try:
-                response = functionObject.passiveRun(self,event,fullLine,serverObject,userObject,channelObject)
+                response = functionObject.passiveRun(event,fullLine,serverObject,userObject,channelObject)
                 if(response is not None):
                     if(destinationObject is not None and serverObject is not None):
                         serverObject.send(response,destinationObject)
