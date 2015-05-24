@@ -190,7 +190,7 @@ class ConvertType:
         doc = minidom.parseString(xmlString)
         #Get name and create ConvertType object
         newName = doc.getElementsByTagName("name")[0].firstChild.data
-        newType = ConvertPrefixGroup(repo,newName)
+        newType = ConvertType(repo,newName)
         #Get number of decimals
         newDecimals = int(doc.getElementsByTagName("decimals")[0].firstChild.data)
         newType.setDecimals(newDecimals)
@@ -202,7 +202,7 @@ class ConvertType:
         for unitXml in doc.getElementsByTagName("unit"):
             unitObject = ConvertUnit.fromXml(newType,unitXml.toxml())
             newType.addUnit(unitObject)
-        #Return created PrefixGroup
+        #Return created Type
         return newType
     
     def toXml(self):
