@@ -382,7 +382,7 @@ class UrlDetect(Function):
         titleSearch = re.search('<title[^>]*>([^<]*)</title>',pageCode,re.I)
         if(titleSearch is None):
             return None
-        titleText = titleSearch.group(2)
+        titleText = titleSearch.group(1)
         htmlParser = html.parser.HTMLParser()
         titleClean = htmlParser.unescape(titleText).replace("\n","").strip()
         if(titleClean!=""):
