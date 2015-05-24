@@ -705,7 +705,7 @@ class ConvertMeasure:
     def toString(self):
         'Converts the measure to a string for output.'
         decimalPlaces = self.mUnit.getType().getDecimals()
-        decimalFormat = "{:"+str(decimalPlaces)+"f}"
+        decimalFormat = "{:."+str(decimalPlaces)+"f}"
         prefixGroup = self.mUnit.getPrefixGroup()
         #If there is no prefix group, output raw.
         if(prefixGroup is None):
