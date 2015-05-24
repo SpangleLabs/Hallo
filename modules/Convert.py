@@ -515,10 +515,10 @@ class ConvertPrefixGroup:
     def getPrefixByName(self,name):
         'Gets the prefix with the specified name'
         for prefixObject in self.mPrefixList:
-            if(prefixObject.getName() == name):
+            if(prefixObject.getPrefix() == name):
                 return prefixObject
         for prefixObject in self.mPrefixList:
-            if(prefixObject.getName().lower() == name.lower()):
+            if(prefixObject.getPrefix().lower() == name.lower()):
                 return prefixObject
         return None
     
@@ -1189,14 +1189,14 @@ class ConvertViewRepo(Function):
     def outputPrefixGroupAsString(self,prefixGroupObject):
         'Outputs a Conversion PrefixGroup object as a string'
         outputString = "Prefix group: (" + prefixGroupObject.getName() + ")\n"
-        outputString += "Prefix list: " + ", ".join([prefixObject.getName() for prefixObject in prefixGroupObject.getPrefixList()])
+        outputString += "Prefix list: " + ", ".join([prefixObject.getPrefix() for prefixObject in prefixGroupObject.getPrefixList()])
         return outputString
     
     def outputPrefixAsString(self,prefixObject):
         'Outputs a Conversion prefix object as a string'
         outputString = "Prefix: (" + prefixObject.getPrefix() + ")\n"
         outputString += "Abbreviation: " + prefixObject.getAbbreviation() + "\n"
-        outputString += "Multiplier: " + str(prefixObject.getName())
+        outputString += "Multiplier: " + str(prefixObject.getPrefix())
         return outputString
     
 class ConvertSet(Function):
