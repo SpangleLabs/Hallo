@@ -98,12 +98,12 @@ class FunctionDispatcher(object):
                     if(destinationObject is not None and serverObject is not None):
                         serverObject.send(response,destinationObject)
                     print(response)
-                return
+                continue
             except Exception as e:
                 print("Passive Function: "+str(functionClass.__module__)+" "+str(functionClass.__name__))
                 print("Function event: "+str(event))
                 print("Function error: "+str(e))
-                return
+                continue
     
     def getFunctionByName(self,functionName):
         'Find a functionClass by a name specified by a user. Not functionClass.__name__'
