@@ -201,6 +201,8 @@ class ConvertType:
         newType.setBaseUnit(baseUnitObject)
         #Loop through unit elements, creating and adding objects.
         for unitXml in doc.getElementsByTagName("unit"):
+            if(unitXml==baseUnitXml):
+                continue
             unitObject = ConvertUnit.fromXml(newType,unitXml.toxml())
             newType.addUnit(unitObject)
         #Return created Type
