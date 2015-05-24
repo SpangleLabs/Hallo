@@ -189,7 +189,8 @@ class FunctionDispatcher(object):
         #If module isn't in mFunctionDict, cancel
         if(moduleObject not in self.mFunctionDict):
             return
-        for functionClass in self.mFunctionDict[moduleObject]:
+        functionList = list(self.mFunctionDict[moduleObject])
+        for functionClass in functionList:
             self.unloadFunction(functionClass)
         del self.mFunctionDict[moduleObject]
             
