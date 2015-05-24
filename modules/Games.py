@@ -1469,6 +1469,7 @@ class DDR(Function):
         if(currentGame is not None):
             return "There's already a game going in this channel."
         #Find out the game difficulty
+        gameDifficulty = DDRGame.DIFFICULTY_EASY
         if("easy" in lineClean):
             gameDifficulty = DDRGame.DIFFICULTY_EASY
         elif("med" in lineClean):
