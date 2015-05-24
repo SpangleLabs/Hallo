@@ -3,7 +3,7 @@ from Function import Function
 from threading import Thread
 import re
 from inc.commons import Commons
-from Server import ServerIRC
+from Server import Server,ServerIRC
 
 class JoinChannel(Function):
     '''
