@@ -847,11 +847,11 @@ class HigherOrLower(Function):
     Function to play Higher or Lower
     '''
     #Name for use in help listing
-    mHelpName = "card"
+    mHelpName = "higher or lower"
     #Names which can be used to address the function
-    mNames = set(["card","random card","randomcard"])
+    mNames = set(["higher or lower","higherorlower"])
     #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Picks a random card from a deck. Format: random_card"
+    mHelpDocs = "Plays a game of higher or lower."
     
     mGameList = None
     mStartCommands = ["start"]
