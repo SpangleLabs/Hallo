@@ -216,9 +216,9 @@ class ReplyMessage:
         if(self.mPrompt.match(inputLine)):
             #Pick a response
             response = random.choice(self.mResponseList)
-            response.replace("{USER}",userObject.getName())
-            response.replace("{CHANNEL}",destinationObject.getName())
-            response.replace("{SERVER}",userObject.getServer().getName())
+            response = response.replace("{USER}",userObject.getName())
+            response = response.replace("{CHANNEL}",destinationObject.getName())
+            response = response.replace("{SERVER}",userObject.getServer().getName())
             return response
         return None
     
