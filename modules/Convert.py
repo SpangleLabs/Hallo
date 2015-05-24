@@ -1030,8 +1030,8 @@ class UpdateCurrencies(Function):
             totalVolume = 0
             totalTrade = 0
             for market in currencyDict[currencyRef]:
-                marketVolume = currencyDict[currencyRef][market]['volume']
-                marketLast = currencyDict[currencyRef][market]['last']
+                marketVolume = float(currencyDict[currencyRef][market]['volume'])
+                marketLast = float(currencyDict[currencyRef][market]['last'])
                 totalVolume += marketVolume
                 totalTrade += marketLast * marketVolume
             #Calculate currency value, compared to referenced currency, from total market average
