@@ -711,9 +711,14 @@ class ConvertMeasure:
             return decimalFormat.format(self.mAmount) + " " + self.mUnit.getNameList()[0]
         #Ask the prefix group for the most appropriate prefix for the value.
         appropriatePrefix = prefixGroup.getAppropriatePrefix(self.mAmount)
-        outputAmount = self.mAmount / appropriatePrefix.getMultiplier()
+        prefixMultiplier = 1
+        prefixName = ""
+        if(appropriatePrefix is not None):
+            prefixName = appropriatePrefix.getPrefix()
+            prefixMultiplier = appropriatePrefix.getMultiplier()
+        outputAmount = self.mAmount / prefixMultiplier
         #Output string
-        return decimalFormat.format(outputAmount) + " " + appropriatePrefix.getPrefix() + self.mUnit.getNameList()[0]
+        return decimalFormat.format(outputAmount) + " " + prefixName + self.mUnit.getNameList()[0]
     
     def __str__(self):
         return self.toString()
