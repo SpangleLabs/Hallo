@@ -120,7 +120,7 @@
 			</user>
 		</user_list>
 		<server_address>irc.shadowworld.net</server_address>
-		<server_port>6669</server_port>
+		<server_port>6660</server_port>
 		<nickserv>
 			<nick>nickserv</nick>
 			<password>lightside</password>
