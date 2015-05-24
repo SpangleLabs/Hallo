@@ -991,7 +991,7 @@ class UpdateCurrencies(Function):
         xmlString = Commons.loadUrlString(url)
         #Parse data
         doc = minidom.parseString(xmlString)
-        ratesElement = doc.getElementsByTagName("Rates")
+        ratesElement = doc.getElementsByTagName("Rates")[0]
         for rateElement in ratesElement.getElementsByTagName("Rate"):
             #Get data from element
             symbolData = rateElement.getElementsByTagName("Symbol")[0].firstChild.data
