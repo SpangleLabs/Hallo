@@ -522,7 +522,7 @@ class ServerIRC(Server):
         elif(actingPrefix is False):
             actingPrefix = self.getNick().lower()
             if(messageText.lower().startswith(actingPrefix+":") or messageText.lower().startswith(actingPrefix+",")):
-                messageText = messageText[len(actingPrefix+1):]
+                messageText = messageText[len(actingPrefix)+1:]
                 functionDispatcher.dispatch(messageText,messageSender,messageDestination)
             elif(messageText.lower().startswith(actingPrefix)):
                 messageText = messageText[len(actingPrefix):]
