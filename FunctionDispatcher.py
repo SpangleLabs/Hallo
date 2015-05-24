@@ -35,7 +35,7 @@ class FunctionDispatcher(object):
         for moduleName in self.mModuleList:
             self.reloadModule(moduleName)
     
-    def dispatch(self,functionMessage,userObject,destinationObject):
+    def dispatch(self,functionMessage,userObject,destinationObject,flagList=[]):
         'Sends the function call out to whichever function, if one is found'
         #Get server object
         serverObject = destinationObject.getServer()
@@ -48,8 +48,9 @@ class FunctionDispatcher(object):
                 break
         #If function isn't found, output a not found message
         if(functionClassTest is None):
-            serverObject.send("This is not a recognised function.",destinationObject)
-            print("This is not a recognised function.")
+            if(self.FLAG_HIDE_ERRORS not in flagList):
+                serverObject.send("This is not a recognised function.",destinationObject)
+                print("This is not a recognised function.")
             return
         functionClass = functionClassTest
         functionArgs = functionArgsTest
