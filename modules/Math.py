@@ -414,6 +414,7 @@ class Calculate(Function):
             answer = self.processCalculation(calc)
         except Exception as e:
             answer = str(e)
+        return answer
     
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
