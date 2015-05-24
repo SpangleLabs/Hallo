@@ -312,12 +312,16 @@ class ServerIRC(Server):
         quitMessage = "Will I dream?"
         #Logging
         for channel in self.mChannelList:
-            self.mHallo.getLogger().log(Function.EVENT_QUIT,quitMessage,self,self.getUserByName(self.getNick()),channel)
-            channel.setInChannel(False)
+            if(channel.isInChannel()):
+                self.mHallo.getLogger().log(Function.EVENT_QUIT,quitMessage,self,self.getUserByName(self.getNick()),channel)
+                channel.setInChannel(False)
         for user in self.mUserList:
             user.setOnline(False)
         if(self.mOpen):
-            self.send("QUIT :"+quitMessage,None,"raw")
+            try:
+                self.send("QUIT :"+quitMessage,None,"raw")
+            except:
+                pass
             self.mSocket.close()
             self.mOpen = False
     
