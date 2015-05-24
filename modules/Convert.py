@@ -677,10 +677,9 @@ class ConvertMeasure:
         #Check units are the same type
         if(self.mUnit.getType() != unit.getType()):
             raise Exception("These are not the same unit type.")
-        #get base unit
-        baseUnit = self.mUnit.getType().getBaseUnit()
-        newAmount = self.mAmount * baseUnit.getValue()
-        baseOffset = baseUnit.getOffset()
+        #Convert to base unit
+        newAmount = self.mAmount * self.mUnit.getValue()
+        baseOffset = self.mUnit.getOffset()
         if(baseOffset is not None):
             newAmount = newAmount + baseOffset
         #Convert from base unit to new unit
@@ -696,10 +695,10 @@ class ConvertMeasure:
         baseUnit = self.mUnit.getType().getBaseUnit()
         newUnit = baseUnit
         unitValue = self.mUnit.getValue()
-        newAmount = self.mAmount / unitValue
+        newAmount = self.mAmount * unitValue
         offset = self.mUnit.getOffset()
         if(offset is not None):
-            newAmount = newAmount - offset
+            newAmount = newAmount + offset
         newMeasure = ConvertMeasure(newAmount,newUnit)
         return newMeasure
     
