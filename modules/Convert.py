@@ -192,8 +192,9 @@ class ConvertType:
         newName = doc.getElementsByTagName("name")[0].firstChild.data
         newType = ConvertType(repo,newName)
         #Get number of decimals
-        newDecimals = int(doc.getElementsByTagName("decimals")[0].firstChild.data)
-        newType.setDecimals(newDecimals)
+        if(len(doc.getElementsByTagName("decimals"))>0):
+            newDecimals = int(doc.getElementsByTagName("decimals")[0].firstChild.data)
+            newType.setDecimals(newDecimals)
         #Get base unit
         baseUnitXml = doc.getElementsByTagName("base_unit")[0].getElementsByTagName("unit")[0]
         baseUnitObject = ConvertUnit.fromXml(newType,baseUnitXml.toxml())
