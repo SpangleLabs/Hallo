@@ -343,8 +343,11 @@ class ServerIRC(Server):
                 self.mOpen = False
                 time.sleep(10)
                 self.connect()
-            #Parse line
-            Thread(target=self.parseLine, args=(nextLine,)).start()
+            if(nextLine is None):
+                self.mOpen = False
+            else:
+                #Parse line
+                Thread(target=self.parseLine, args=(nextLine,)).start()
     
     def send(self,data,destinationObject=None,msgType="message"):
         'Sends a message to the server, or a specific channel in the server'
