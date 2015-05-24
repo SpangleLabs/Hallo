@@ -124,23 +124,23 @@ class Hallo:
         defaultFullNameElement.appendChild(doc.createTextNode(self.mDefaultFullName))
         root.appendChild(defaultFullNameElement)
         #Create function dispatcher
-        functionDispatcherElement = minidom.parse(self.mFunctionDispatcher.toXml()).firstChild
+        functionDispatcherElement = minidom.parseString(self.mFunctionDispatcher.toXml()).firstChild
         root.appendChild(functionDispatcherElement)
         #create server list
         serverListElement = doc.createElement("server_list")
         for serverItem in self.mServerList:
-            serverElement = minidom.parse(serverItem.toXml()).firstChild
+            serverElement = minidom.parseString(serverItem.toXml()).firstChild
             serverListElement.appendChild(serverElement)
         root.appendChild(serverListElement)
         #create user_group list
         userGroupListElement = doc.createElement("user_group_list")
         for userGroupName in self.mUserGroupList:
-            userGroupElement = minidom.parse(self.mUserGroupList[userGroupName].toXml()).firstChild
+            userGroupElement = minidom.parseString(self.mUserGroupList[userGroupName].toXml()).firstChild
             userGroupListElement.appendChild(userGroupElement)
         root.appendChild(userGroupListElement)
         #Create permission_mask element, if it's not empty.
         if(not self.mPermissionMask.isEmpty()):
-            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            permissionMaskElement = minidom.parseString(self.mPermissionMask.toXml()).firstChild
             root.appendChild(permissionMaskElement)
         #save XML
         doc.writexml(open("config/config.xml","w"),addindent="\t",newl="\r\n")

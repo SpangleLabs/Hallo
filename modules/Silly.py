@@ -354,7 +354,7 @@ class ReplyMessageList:
         root = doc.getElementsByTagName("reply_list")[0]
         #Add reply message objects
         for replyMessage in self.mReplyMessageList:
-            replyElement = minidom.parse(replyMessage.toXml()).firstChild
+            replyElement = minidom.parseString(replyMessage.toXml()).firstChild
             root.appendChild(replyElement)
         #save XML
         doc.writexml(open("store/reply_list.xml","w"),addindent="\t",newl="\n")

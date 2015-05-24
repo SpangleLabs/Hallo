@@ -101,11 +101,11 @@ class ConvertRepo:
         root = doc.getElementsByTagName("convert")[0]
         #Add prefix groups
         for prefixGroupObject in self.mPrefixGroupList:
-            prefixGroupElement = minidom.parse(prefixGroupObject.toXml()).firstChild
+            prefixGroupElement = minidom.parseString(prefixGroupObject.toXml()).firstChild
             root.appendChild(prefixGroupElement)
         #Add types
         for typeObject in self.mTypeList:
-            typeElement = minidom.parse(typeObject.toXml()).firstChild
+            typeElement = minidom.parseString(typeObject.toXml()).firstChild
             root.appendChild(typeElement)
         #save XML
         doc.writexml(open("store/convert.xml","w"),addindent="\t",newl="\n")
@@ -225,12 +225,12 @@ class ConvertType:
         root.appendChild(nameElement)
         #Add base unit element
         baseUnitElement = doc.createElement("base_unit")
-        baseUnitUnitElement = minidom.parse(self.mBaseUnit.toXml()).firstChild
+        baseUnitUnitElement = minidom.parseString(self.mBaseUnit.toXml()).firstChild
         baseUnitElement.appendChild(baseUnitUnitElement)
         root.appendChild(baseUnitElement)
         #Add units
         for unitObject in self.mUnitList:
-            unitElement = minidom.parse(unitObject.toXml()).firstChild
+            unitElement = minidom.parseString(unitObject.toXml()).firstChild
             root.appendChild(unitElement)
         #Output XML
         return doc.toxml()
@@ -573,7 +573,7 @@ class ConvertPrefixGroup:
         root.appendChild(nameElement)
         #Add prefixes
         for prefixObject in self.mPrefixList:
-            prefixElement = minidom.parse(prefixObject.toXml()).firstChild
+            prefixElement = minidom.parseString(prefixObject.toXml()).firstChild
             root.appendChild(prefixElement)
         #Output XML
         return doc.toxml()
