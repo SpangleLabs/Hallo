@@ -695,9 +695,9 @@ class ConvertMeasure:
         'Creates a new measure, equal in value, but with the base unit of the unit type.'
         baseUnit = self.mUnit.getType().getBaseUnit()
         newUnit = baseUnit
-        unitValue = baseUnit.getValue()
+        unitValue = self.mUnit.getValue()
         newAmount = self.mAmount * unitValue
-        offset = baseUnit.getOffset()
+        offset = self.mUnit.getOffset()
         if(offset is not None):
             newAmount = newAmount + offset
         newMeasure = ConvertMeasure(newAmount,newUnit)
