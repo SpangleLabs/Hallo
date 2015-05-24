@@ -500,6 +500,7 @@ class Calculate(Function):
             if(self.afterInfix(calc,'pi') != ''):
                 tempAnswer = str(tempAnswer) + '*'
             calc = calc.replace('pi',str(tempAnswer))
+            del tempAnswer
         while calc.count('e') != 0:
             tempAnswer = math.e
             if(self.beforeInfix(calc,'e') != ''):
@@ -507,7 +508,7 @@ class Calculate(Function):
             if(self.afterInfix(calc,'e') != ''):
                 tempAnswer = str(tempAnswer) + '*'
             calc = calc.replace('e',str(tempAnswer))
-        del tempAnswer
+            del tempAnswer
         ##bracket processing
         while calc.count('(') != 0:
             tempCalc = calc[calc.find('(')+1:]
@@ -530,10 +531,11 @@ class Calculate(Function):
                     if self.afterInfix(calc,runningCalc) != '':
                         tempAnswer = str(tempAnswer) + '*'
                     calc = calc.replace(runningCalc,str(tempAnswer))
+                    del tempAnswer
                     break
                 runningCalc = runningCalc + nextChar
+            del tempCalc, bracket, runningCalc, nextChar
         calc = calc.replace(')','')
-        del tempCalc, bracket, runningCalc, nextChar, tempAnswer
         ##powers processing
         while calc.count('^') != 0:
             preCalc = self.beforeInfix(calc,'^')
