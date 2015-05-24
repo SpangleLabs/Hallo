@@ -427,7 +427,7 @@ class Calculate(Function):
             return None
         if(Commons.checkNumbers(fullLine)):
             return None
-        if(not any([char in fullLine for char in list(range(10))+["e","pi"]])):
+        if(not any([char in fullLine for char in [str(x) for x in range(10)]+["e","pi"]])):
             return None
         #Clean up the line and feed to the calculator.
         calc = fullLine.replace(' ','').lower()
