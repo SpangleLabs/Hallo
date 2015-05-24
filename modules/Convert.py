@@ -858,7 +858,7 @@ class Convert(Function):
         return outputString
 
     def getPassiveEvents(self):
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
     
     def passiveRun(self,event,fullLine,serverObject,userObject,channelObject):
         return self.convertParse(fullLine,True)
@@ -898,7 +898,7 @@ class UpdateCurrencies(Function):
         return "\n".join(outputLines)
 
     def getPassiveEvents(self):
-        return set(Function.EVENT_HOUR)
+        return set([Function.EVENT_HOUR])
     
     def passiveRun(self,event,fullLine,serverObject,userObject,channelObject):
         #Load convert repo.

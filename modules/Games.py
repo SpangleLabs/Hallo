@@ -884,7 +884,7 @@ class HigherOrLower(Function):
 
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
 
     #Interesting functions from here
     def run(self,line,userObject,destinationObject=None):
@@ -1102,7 +1102,7 @@ class Blackjack(Function):
 
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
 
     #Interesting functions from here
     def run(self,line,userObject,destinationObject=None):
@@ -1425,7 +1425,7 @@ class DDR(Function):
 
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
 
     #Interesting functions from here
     def run(self,line,userObject,destinationObject=None):

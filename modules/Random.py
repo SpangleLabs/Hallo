@@ -198,7 +198,7 @@ class Foof(Function):
     
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
 
 class ThoughtForTheDay(Function):
     '''
