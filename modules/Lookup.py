@@ -599,10 +599,10 @@ class UrlDetect(Function):
                     byteOffset += size
                     byte = imageData[byteOffset]
                     byteOffset += 1
-                    while ord(byte) == 0xff:
+                    while byte == 0xff:
                         byte = imageData[byteOffset]
                         byteOffset += 1
-                    ftype = ord(byte)
+                    ftype = byte
                     size = struct.unpack('>H', imageData[byteOffset:byteOffset+2])[0] - 2
                     byteOffset += 2
                 # We are at a SOFn block
