@@ -363,7 +363,7 @@ class SimplifyFraction(Function):
         denominatorFactorsNew = eulerObject.listMinus(denominatorFactors,eulerObject.listIntersection(denominatorFactors,numeratorFactors))
         numeratorNew = eulerObject.listProduct(numeratorFactorsNew)
         denominatorNew = eulerObject.listProduct(denominatorFactorsNew)
-        return numerator + "/" + denominator + " = " + str(numeratorNew) + "/" + str(denominatorNew) + "."
+        return str(numerator) + "/" + str(denominator) + " = " + str(numeratorNew) + "/" + str(denominatorNew) + "."
     
 class Calculate(Function):
     '''
