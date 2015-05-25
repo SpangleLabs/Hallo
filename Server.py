@@ -351,7 +351,7 @@ class ServerIRC(Server):
     
     def send(self,data,destinationObject=None,msgType="message"):
         'Sends a message to the server, or a specific channel in the server'
-        maxMsgLength = 512  #Maximum length of a message sent to the server
+        maxMsgLength = 462  #Maximum length of a message sent to the server
         if(msgType not in ["message","notice","raw"]):
             msgType = "message"
         #If it's raw data, just send it.
@@ -379,7 +379,7 @@ class ServerIRC(Server):
             for url in urls:
                 data = data.replace(url.upper(),url)
         #Get max line length
-        maxLineLength = maxMsgLength-len(msgTypeName+' '+destinationName+' '+endl)
+        maxLineLength = maxMsgLength-len(msgTypeName+' '+destinationName+' :'+endl)
         #Split and send
         for dataLine in data.split("\n"):
             dataLineSplit = Commons.chunkStringDot(dataLine,maxLineLength)
