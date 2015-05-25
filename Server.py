@@ -384,7 +384,7 @@ class ServerIRC(Server):
         for dataLine in data.split("\n"):
             dataLineSplit = Commons.chunkStringDot(dataLine,maxLineLength)
             for dataLineLine in dataLineSplit:
-                self.sendRaw(msgTypeName+' '+destinationName+' '+dataLineLine)
+                self.sendRaw(msgTypeName+' '+destinationName+' :'+dataLineLine)
                 #Log sent data, if it's not message or notice
                 if(msgType=="message"):
                     self.mHallo.getLogger().logFromSelf(Function.EVENT_MESSAGE,dataLineLine,self,userObject,channelObject)
