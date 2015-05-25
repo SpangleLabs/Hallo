@@ -30,7 +30,7 @@ class RandomPokemon(Function):
             pokemonDict['name'] = pokemonXml.getElementsByTagName("name")[0].firstChild.data
             pokemonList.append(pokemonDict)
         randomPokemon = random.choice(pokemonList)
-        return "I choose you, " + randomPokemon['Name'] + "!"
+        return "I choose you, " + randomPokemon['name'] + "!"
 
 class PickATeam(Function):
     '''
@@ -60,7 +60,7 @@ class PickATeam(Function):
             pokemonDict['name'] = pokemonXml.getElementsByTagName("name")[0].firstChild.data
             pokemonList.append(pokemonDict)
         randomPokemonTeam = random.sample(pokemonList,6)
-        return "Your team is: " + ", ".join([pokemon['Name'] for pokemon in randomPokemonTeam[:5]]) + " and " + randomPokemonTeam[5]['Name'] + "."
+        return "Your team is: " + ", ".join([pokemon['name'] for pokemon in randomPokemonTeam[:5]]) + " and " + randomPokemonTeam[5]['name'] + "."
 
 class FullyEvolvedTeam(Function):
     '''
@@ -92,7 +92,7 @@ class FullyEvolvedTeam(Function):
             if(evolutionChoices==0):
                 pokemonList.append(pokemonDict)
         randomPokemonTeam = random.sample(pokemonList,6)
-        return "Your team is: " + ", ".join([pokemon['Name'] for pokemon in randomPokemonTeam[:5]]) + " and " + randomPokemonTeam[5]['Name'] + "."
+        return "Your team is: " + ", ".join([pokemon['name'] for pokemon in randomPokemonTeam[:5]]) + " and " + randomPokemonTeam[5]['name'] + "."
 
 class Pokedex(Function):
     '''
