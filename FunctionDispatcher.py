@@ -66,7 +66,6 @@ class FunctionDispatcher(object):
             response = functionObject.run(functionArgs,userObject,destinationObject)
             if(response is not None):
                 serverObject.send(response,destinationObject)
-                print(response)
             return
         except Exception as e:
             serverObject.send("Function failed with error message: "+str(e),destinationObject)
@@ -97,7 +96,6 @@ class FunctionDispatcher(object):
                 if(response is not None):
                     if(destinationObject is not None and serverObject is not None):
                         serverObject.send(response,destinationObject)
-                    print(response)
                 continue
             except Exception as e:
                 print("Passive Function: "+str(functionClass.__module__)+" "+str(functionClass.__name__))

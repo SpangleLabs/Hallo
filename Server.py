@@ -387,8 +387,10 @@ class ServerIRC(Server):
                 self.sendRaw(msgTypeName+' '+destinationName+' :'+dataLineLine)
                 #Log sent data, if it's not message or notice
                 if(msgType=="message"):
+                    self.mHallo.getPrinter().outputFromSelf(Function.EVENT_MESSAGE,dataLineLine,self,userObject,channelObject)
                     self.mHallo.getLogger().logFromSelf(Function.EVENT_MESSAGE,dataLineLine,self,userObject,channelObject)
                 elif(msgType=="notice"):
+                    self.mHallo.getPrinter().outputFromSelf(Function.EVENT_NOTICE,dataLineLine,self,userObject,channelObject)
                     self.mHallo.getLogger().logFromSelf(Function.EVENT_NOTICE,dataLineLine,self,userObject,channelObject)
 
     def sendRaw(self,data):
