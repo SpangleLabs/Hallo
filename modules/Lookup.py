@@ -565,7 +565,7 @@ class UrlDetect(Function):
         #Get video data from API response.
         videoTitle = apiDict['items'][0]['snippet']['title']
         videoDuration = apiDict['items'][0]['contentDetails']['duration'][2:].lower()
-        videoViews = apiDict['items'][0]['contentDetails']['views']
+        videoViews = apiDict['items'][0]['statistics']['viewCount']
         #Create output
         output = "Youtube video> Title: " + videoTitle + " | "
         output += "Length: " + videoDuration + " | "
