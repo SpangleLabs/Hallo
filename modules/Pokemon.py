@@ -112,7 +112,7 @@ class Pokedex(Function):
         pass
 
     def run(self,line,userObject,destinationObject=None):
-        lineClean = line.split().lower()
+        lineClean = line.lower().split()
         #Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")
         pokemonListXml = doc.getElementsByTagName("pokemon_list")[0]
