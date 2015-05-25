@@ -318,7 +318,7 @@ class HighestCommonFactor(Function):
         numberTwoFactors = primeFactorsObject.findPrimeFactors(numberTwo)
         commonFactors = eulerObject.listIntersection(numberOneFactors,numberTwoFactors)
         HCF = eulerObject.listProduct(commonFactors)
-        return "The highest common factor of " + numberOne + " and " + numberTwo + " is " + str(HCF) + "."
+        return "The highest common factor of " + str(numberOne) + " and " + str(numberTwo) + " is " + str(HCF) + "."
     
 class SimplifyFraction(Function):
     '''
