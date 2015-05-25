@@ -213,7 +213,7 @@ class ReplyMessage:
     
     def checkResponse(self,inputLine,userObject,destinationObject):
         'Checks if this reply message will respond, and which response to use.'
-        if(self.mPrompt.match(inputLine)):
+        if(self.mPrompt.search(inputLine)):
             #Pick a response
             response = random.choice(self.mResponseList)
             response = response.replace("{USER}",userObject.getName())
