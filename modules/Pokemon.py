@@ -119,7 +119,7 @@ class Pokedex(Function):
         #Loop through pokemon, searching for the specified pokemon
         selectedPokemonXml = None
         for pokemonXml in pokemonListXml.getElementsByTagName("pony_episode"):
-            pokemonName = pokemonXml.getElementsByTagName("name")[0].firstChild.data
+            pokemonName = pokemonXml.getElementsByTagName("name")[0].firstChild.data.lower()
             pokemonNumber = pokemonXml.getElementsByTagName("dex_number")[0].firstChild.data
             if(lineClean == pokemonName or lineClean == pokemonNumber):
                 selectedPokemonXml = pokemonXml
