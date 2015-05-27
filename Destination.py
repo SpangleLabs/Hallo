@@ -189,10 +189,11 @@ class Channel(Destination):
 
     def rightsCheck(self,rightName):
         'Checks the value of the right with the specified name. Returns boolean'
-        rightValue = self.mPermissionMask.getRight(rightName)
-        #If PermissionMask contains that right, return it.
-        if(rightValue in [True,False]):
-            return rightValue
+        if(self.mPermissionMask is not None):
+            rightValue = self.mPermissionMask.getRight(rightName)
+            #If PermissionMask contains that right, return it.
+            if(rightValue in [True,False]):
+                return rightValue
         #Fallback to the parent Server's decision.
         return self.mServer.rightsCheck(rightName)
     
@@ -253,7 +254,7 @@ class Channel(Destination):
         root.appendChild(autoJoinElement)
         #create permission_mask element
         if(not self.mPermissionMask.isEmpty()):
-            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            permissionMaskElement = minidom.parseString(self.mPermissionMask.toXml()).firstChild
             root.appendChild(permissionMaskElement)
         #output XML string
         return doc.toxml()
@@ -261,7 +262,7 @@ class Channel(Destination):
     @staticmethod
     def fromXml(xmlString,server):
         'Loads a new Channel object from XML'
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         newName = doc.getElementsByTagName("channel_name")[0].firstChild.data
         newChannel = Channel(newName,server)
         newChannel.mLogging = Commons.stringFromFile(doc.getElementsByTagName("logging")[0].firstChild.data)
@@ -353,10 +354,11 @@ class User(Destination):
 
     def rightsCheck(self,rightName,channelObject=None):
         'Checks the value of the right with the specified name. Returns boolean'
-        rightValue = self.mPermissionMask.getRight(rightName)
-        #If PermissionMask contains that right, return it.
-        if(rightValue in [True,False]):
-            return rightValue
+        if(self.mPermissionMask is not None):
+            rightValue = self.mPermissionMask.getRight(rightName)
+            #If PermissionMask contains that right, return it.
+            if(rightValue in [True,False]):
+                return rightValue
         #Check UserGroup rights, if any apply
         if(len(self.mUserGroupList)!=0):
             return any([userGroup.rightsCheck(rightName,self,channelObject) for userGroup in self.mUserGroupList.values()])
@@ -411,7 +413,7 @@ class User(Destination):
         root.appendChild(userGroupListElement)
         #create permission_mask element
         if(not self.mPermissionMask.isEmpty()):
-            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            permissionMaskElement = minidom.parseString(self.mPermissionMask.toXml()).firstChild
             root.appendChild(permissionMaskElement)
         #output XML string
         return doc.toxml()
@@ -419,7 +421,7 @@ class User(Destination):
     @staticmethod
     def fromXml(xmlString,server):
         'Loads a new User object from XML'
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         newName = doc.getElementsByTagName("user_name")[0].firstChild.data
         newUser = User(newName,server)
         newUser.mLogging = Commons.stringFromFile(doc.getElementsByTagName("logging")[0].firstChild.data)

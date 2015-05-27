@@ -16,11 +16,14 @@ class FunctionDispatcher(object):
     mFunctionNames = None         #Dictionary of names -> functionClasses
     mPersistentFunctions = None   #Dictionary of persistent function objects. functionClass->functionObject
     mEventFunctions = None        #Dictionary with events as keys and sets of function classes (which may want to act on those events) as arguments
+    #Flags, can be passed as a list to functinodispatcher, and will change how it operates.
+    FLAG_HIDE_ERRORS = "hide_errors"    #Hide all errors that result from running the function.
 
-    def __init__(self,moduleList):
+    def __init__(self,moduleList,hallo):
         '''
         Constructor
         '''
+        self.mHallo = hallo
         self.mModuleList = set()
         self.mFunctionDict = {}
         self.mFunctionNames = {}
@@ -32,7 +35,7 @@ class FunctionDispatcher(object):
         for moduleName in self.mModuleList:
             self.reloadModule(moduleName)
     
-    def dispatch(self,functionMessage,userObject,destinationObject):
+    def dispatch(self,functionMessage,userObject,destinationObject,flagList=[]):
         'Sends the function call out to whichever function, if one is found'
         #Get server object
         serverObject = destinationObject.getServer()
@@ -45,8 +48,9 @@ class FunctionDispatcher(object):
                 break
         #If function isn't found, output a not found message
         if(functionClassTest is None):
-            serverObject.send("This is not a recognised function.",destinationObject)
-            print("This is not a recognised function.")
+            if(self.FLAG_HIDE_ERRORS not in flagList):
+                serverObject.send("This is not a recognised function.",destinationObject)
+                print("This is not a recognised function.")
             return
         functionClass = functionClassTest
         functionArgs = functionArgsTest
@@ -62,7 +66,6 @@ class FunctionDispatcher(object):
             response = functionObject.run(functionArgs,userObject,destinationObject)
             if(response is not None):
                 serverObject.send(response,destinationObject)
-                print(response)
             return
         except Exception as e:
             serverObject.send("Function failed with error message: "+str(e),destinationObject)
@@ -89,17 +92,16 @@ class FunctionDispatcher(object):
             functionObject = self.getFunctionObject(functionClass)
             #Try running the function, if it fails, return an error message
             try:
-                response = functionObject.passiveRun(self,event,fullLine,serverObject,userObject,channelObject)
+                response = functionObject.passiveRun(event,fullLine,serverObject,userObject,channelObject)
                 if(response is not None):
                     if(destinationObject is not None and serverObject is not None):
                         serverObject.send(response,destinationObject)
-                    print(response)
-                return
+                continue
             except Exception as e:
                 print("Passive Function: "+str(functionClass.__module__)+" "+str(functionClass.__name__))
                 print("Function event: "+str(event))
                 print("Function error: "+str(e))
-                return
+                continue
     
     def getFunctionByName(self,functionName):
         'Find a functionClass by a name specified by a user. Not functionClass.__name__'
@@ -167,7 +169,9 @@ class FunctionDispatcher(object):
         #Unload module, if it was loaded.
         self.unloadModule(moduleObject)
         #Loop through module, searching for Function subclasses.
-        for functionClass in inspect.getmembers(moduleObject,inspect.isclass):
+        for functionTuple in inspect.getmembers(moduleObject,inspect.isclass):
+            #Get class from tuple
+            functionClass = functionTuple[1]
             #Check it's a valid function object
             if(not self.checkFunctionClass(functionClass)):
                 continue
@@ -176,13 +180,15 @@ class FunctionDispatcher(object):
                 self.loadFunction(functionClass)
             except NotImplementedError:
                 self.unloadFunction(functionClass)
+        return True
             
     def unloadModule(self,moduleObject):
         'Unloads a module, unloading all the functions it contains'
         #If module isn't in mFunctionDict, cancel
         if(moduleObject not in self.mFunctionDict):
             return
-        for functionClass in self.mFunctionDict[moduleObject]:
+        functionList = list(self.mFunctionDict[moduleObject])
+        for functionClass in functionList:
             self.unloadFunction(functionClass)
         del self.mFunctionDict[moduleObject]
             
@@ -209,6 +215,8 @@ class FunctionDispatcher(object):
         #Check that names list is not empty
         try:
             namesList = functionObject.getNames()
+            if(namesList is None):
+                return False
             if(len(namesList)==0):
                 return False
             #Check that names list contains help name
@@ -307,18 +315,18 @@ class FunctionDispatcher(object):
         return doc.toxml()
     
     @staticmethod
-    def fromXml(xmlString):
+    def fromXml(xmlString,hallo):
         'Loads a new FunctionDispatcher from XML'
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         #Create module list from XML
         moduleList = set()
         moduleListElement = doc.getElementsByTagName("module_list")[0]
         for moduleXml in moduleListElement.getElementsByTagName("module"):
-            moduleNameElement = moduleXml.getElementsByTagName("name")
+            moduleNameElement = moduleXml.getElementsByTagName("name")[0]
             moduleName = moduleNameElement.firstChild.data
             moduleList.add(moduleName)
         #Create new FunctionDispatcher
-        newFunctionDispatcher = FunctionDispatcher(moduleList)
+        newFunctionDispatcher = FunctionDispatcher(moduleList,hallo)
         return newFunctionDispatcher
     
     

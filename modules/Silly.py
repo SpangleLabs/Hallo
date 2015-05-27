@@ -213,12 +213,12 @@ class ReplyMessage:
     
     def checkResponse(self,inputLine,userObject,destinationObject):
         'Checks if this reply message will respond, and which response to use.'
-        if(self.mPrompt.match(inputLine)):
+        if(self.mPrompt.search(inputLine)):
             #Pick a response
             response = random.choice(self.mResponseList)
-            response.replace("{USER}",userObject.getName())
-            response.replace("{CHANNEL}",destinationObject.getName())
-            response.replace("{SERVER}",userObject.getServer().getName())
+            response = response.replace("{USER}",userObject.getName())
+            response = response.replace("{CHANNEL}",destinationObject.getName())
+            response = response.replace("{SERVER}",userObject.getServer().getName())
             return response
         return None
     
@@ -283,7 +283,7 @@ class ReplyMessage:
     def fromXml(xmlString):
         'Loads a new ReplyMessage object from XML'
         #Load document
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         #Get prompt and create ReplyMessage object
         newPrompt = doc.getElementsByTagName("prompt")[0].firstChild.data
         newReplyMessage = ReplyMessage(newPrompt)
@@ -354,7 +354,7 @@ class ReplyMessageList:
         root = doc.getElementsByTagName("reply_list")[0]
         #Add reply message objects
         for replyMessage in self.mReplyMessageList:
-            replyElement = minidom.parse(replyMessage.toXml()).firstChild
+            replyElement = minidom.parseString(replyMessage.toXml()).firstChild
             root.appendChild(replyElement)
         #save XML
         doc.writexml(open("store/reply_list.xml","w"),addindent="\t",newl="\n")
@@ -382,7 +382,7 @@ class Reply(Function):
     
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
 
     def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'

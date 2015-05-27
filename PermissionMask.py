@@ -67,10 +67,10 @@ class PermissionMask(object):
     @staticmethod
     def fromXml(xmlString):
         'Loads a new Destination object from XML'
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         newMask = PermissionMask()
         #Load rights
-        rightsListXml = doc.getElementsByTagName("right_list")
+        rightsListXml = doc.getElementsByTagName("right_list")[0]
         for rightXml in rightsListXml.getElementsByTagName("right"):
             rightName = rightXml.getElementsByTagName("name")[0].firstChild.data
             rightValue = Commons.stringFromFile(rightXml.getElementsByTagName("value")[0].firstChild.data)

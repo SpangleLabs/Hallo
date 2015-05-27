@@ -553,7 +553,7 @@ class HighScores(Function):
         pass
     
     @staticmethod
-    def isPersistent(self):
+    def isPersistent():
         'Returns boolean representing whether this function is supposed to be persistent or not'
         return True
     
@@ -847,11 +847,11 @@ class HigherOrLower(Function):
     Function to play Higher or Lower
     '''
     #Name for use in help listing
-    mHelpName = "card"
+    mHelpName = "higher or lower"
     #Names which can be used to address the function
-    mNames = set(["card","random card","randomcard"])
+    mNames = set(["higher or lower","higherorlower"])
     #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Picks a random card from a deck. Format: random_card"
+    mHelpDocs = "Plays a game of higher or lower."
     
     mGameList = None
     mStartCommands = ["start"]
@@ -868,7 +868,7 @@ class HigherOrLower(Function):
         pass
     
     @staticmethod
-    def isPersistent(self):
+    def isPersistent():
         'Returns boolean representing whether this function is supposed to be persistent or not'
         return True
     
@@ -884,7 +884,7 @@ class HigherOrLower(Function):
 
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
 
     #Interesting functions from here
     def run(self,line,userObject,destinationObject=None):
@@ -1086,7 +1086,7 @@ class Blackjack(Function):
         pass
     
     @staticmethod
-    def isPersistent(self):
+    def isPersistent():
         'Returns boolean representing whether this function is supposed to be persistent or not'
         return True
     
@@ -1102,7 +1102,7 @@ class Blackjack(Function):
 
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
 
     #Interesting functions from here
     def run(self,line,userObject,destinationObject=None):
@@ -1409,7 +1409,7 @@ class DDR(Function):
         pass
     
     @staticmethod
-    def isPersistent(self):
+    def isPersistent():
         'Returns boolean representing whether this function is supposed to be persistent or not'
         return True
     
@@ -1425,7 +1425,7 @@ class DDR(Function):
 
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
 
     #Interesting functions from here
     def run(self,line,userObject,destinationObject=None):
@@ -1469,6 +1469,7 @@ class DDR(Function):
         if(currentGame is not None):
             return "There's already a game going in this channel."
         #Find out the game difficulty
+        gameDifficulty = DDRGame.DIFFICULTY_EASY
         if("easy" in lineClean):
             gameDifficulty = DDRGame.DIFFICULTY_EASY
         elif("med" in lineClean):

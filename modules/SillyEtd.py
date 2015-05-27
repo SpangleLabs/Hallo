@@ -49,7 +49,7 @@ class SilenceTheRabble(Function):
         #TODO: check if not opped?
         #if(not opped):
         #    return 'I cannot handle it, master!'
-        if(not userObject.endswith('000242')):
+        if(not userObject.getName().endswith('000242')):
             return "You are not my master."
         serverObject = userObject.getServer()
         if(serverObject.getType()==Server.TYPE_IRC):
@@ -88,7 +88,7 @@ class PokeTheAsshole(Function):
 
     def run(self,line,userObject,destinationObject=None):
         #TODO: check if not opped?
-        if(not userObject.endswith('000242')):
+        if(not userObject.getName().endswith('000242')):
             return "You are not my master."
         serverObject = userObject.getServer()
         if(serverObject.getType()==Server.TYPE_IRC):

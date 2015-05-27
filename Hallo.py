@@ -1,10 +1,9 @@
 #socket connects to the server
 #time gets time for time stamps and does sleep
-#os makes directories for logs, and gets the process ID
 #sys is used to kill itself
 #Thread is used for multi threading
 #re is used for regex, for swear detect
-import time, os
+import time
 from threading import Thread
 #from megahal import *
 import re
@@ -19,6 +18,7 @@ from FunctionDispatcher import FunctionDispatcher
 from Function import Function
 from inc.Logger import Logger
 from inc.Printer import Printer
+from inc.commons import Commons
 
 class Hallo:
     mDefaultNick = "Hallo"
@@ -36,8 +36,8 @@ class Hallo:
     def __init__(self):
         self.mUserGroupList = {}
         self.mServerList = []
-        self.mLogger = Logger()
-        self.mPrinter = Printer()
+        self.mLogger = Logger(self)
+        self.mPrinter = Printer(self)
         #Create ServerFactory
         self.mServerFactory = ServerFactory(self)
         self.mPermissionMask = PermissionMask()
@@ -46,7 +46,7 @@ class Hallo:
         self.mOpen = True
         #TODO: manual FunctionDispatcher construction, user input
         if(self.mFunctionDispatcher is None):
-            self.mFunctionDispatcher = FunctionDispatcher(set("ChannelControl","Convert","HalloControl","Lookup","Math","PermissionControl","Random","ServerControl"))
+            self.mFunctionDispatcher = FunctionDispatcher(set("ChannelControl","Convert","HalloControl","Lookup","Math","PermissionControl","Random","ServerControl"),self)
         #If no servers, ask for a new server
         if(len(self.mServerList)==0):
             if(sum([server.getAutoConnect() for server in self.mServerList])==0):
@@ -82,21 +82,21 @@ class Hallo:
         try:
             doc = minidom.parse("config/config.xml")
             self.mDefaultNick = doc.getElementsByTagName("default_nick")[0].firstChild.data
-            self.mDefaultPrefix = doc.getElementsByTagName("default_prefix")[0].firstChild.data
+            self.mDefaultPrefix = Commons.stringFromFile(doc.getElementsByTagName("default_prefix")[0].firstChild.data)
             self.mDefaultFullName = doc.getElementsByTagName("default_full_name")[0].firstChild.data
-            self.mFunctionDispatcher = FunctionDispatcher.fromXml(doc.getElementsByTagName("function_dispatcher")[0].toxml())
+            self.mFunctionDispatcher = FunctionDispatcher.fromXml(doc.getElementsByTagName("function_dispatcher")[0].toxml(),self)
             serverListXml = doc.getElementsByTagName("server_list")[0]
             for serverXml in serverListXml.getElementsByTagName("server"):
                 serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
                 self.addServer(serverObject)
             userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
             for userGroupXml in userGroupListXml.getElementsByTagName("user_group"):
-                userGroupObject = UserGroup.fromXml(userGroupXml.toxml())
+                userGroupObject = UserGroup.fromXml(userGroupXml.toxml(),self)
                 self.addUserGroup(userGroupObject)
             if(len(doc.getElementsByTagName("permission_mask"))!=0):
                 self.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
             return
-        except (FileNotFoundError, IOError):
+        except (OSError, IOError):
             print("Error loading config")
             self.manualServerConnect()
 
@@ -124,23 +124,23 @@ class Hallo:
         defaultFullNameElement.appendChild(doc.createTextNode(self.mDefaultFullName))
         root.appendChild(defaultFullNameElement)
         #Create function dispatcher
-        functionDispatcherElement = minidom.parse(self.mFunctionDispatcher.toXml()).firstChild
+        functionDispatcherElement = minidom.parseString(self.mFunctionDispatcher.toXml()).firstChild
         root.appendChild(functionDispatcherElement)
         #create server list
         serverListElement = doc.createElement("server_list")
         for serverItem in self.mServerList:
-            serverElement = minidom.parse(serverItem.toXml()).firstChild
+            serverElement = minidom.parseString(serverItem.toXml()).firstChild
             serverListElement.appendChild(serverElement)
         root.appendChild(serverListElement)
         #create user_group list
         userGroupListElement = doc.createElement("user_group_list")
         for userGroupName in self.mUserGroupList:
-            userGroupElement = minidom.parse(self.mUserGroupList[userGroupName].toXml()).firstChild
+            userGroupElement = minidom.parseString(self.mUserGroupList[userGroupName].toXml()).firstChild
             userGroupListElement.appendChild(userGroupElement)
         root.appendChild(userGroupListElement)
         #Create permission_mask element, if it's not empty.
         if(not self.mPermissionMask.isEmpty()):
-            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            permissionMaskElement = minidom.parseString(self.mPermissionMask.toXml()).firstChild
             root.appendChild(permissionMaskElement)
         #save XML
         doc.writexml(open("config/config.xml","w"),addindent="\t",newl="\r\n")
@@ -162,7 +162,7 @@ class Hallo:
         
     def addServer(self,server):
         #adds a new server to the server list
-        self.mServerList += server
+        self.mServerList.append(server)
         
     def getServerByName(self,serverName):
         for server in self.mServerList:

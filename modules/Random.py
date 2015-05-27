@@ -12,7 +12,7 @@ class Roll(Function):
     Function to roll dice or pick random numbers in a given range
     '''
     mHelpName = "roll"                          #Name for use in help listing
-    mNames = set(["roll","dice","random"])        #Names which can be used to address the function
+    mNames = set(["roll","dice","random","random number"])        #Names which can be used to address the function
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Roll X-Y returns a random number between X and Y. Format: \"roll <min>-<max>\" or \"roll <num>d<sides>\""
 
@@ -111,11 +111,13 @@ class EightBall(Function):
     
     def getNames(self):
         'Returns the list of names for directly addressing the function'
+        self.mNames = set(["eightball"])
         for magic in ['magic ','magic','']:
             for eight in ['eight','8']:
                 for space in [' ','-','']:
                     self.mNames.add(magic+eight+space+"ball")
-        return self.mNames.add(self.mHelpName)
+        self.mNames.add(self.mHelpName)
+        return self.mNames
 
 class ChosenOne(Function):
     '''
@@ -179,7 +181,8 @@ class Foof(Function):
     def getNames(self):
         'Returns the list of names for directly addressing the function'
         self.mNames = set(['f'+'o'*x+'f' for x in range(2,20)])
-        return self.mNames.add(self.mHelpName)
+        self.mNames.add(self.mHelpName)
+        return self.mNames
     
     def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
@@ -195,7 +198,7 @@ class Foof(Function):
     
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
 
 class ThoughtForTheDay(Function):
     '''

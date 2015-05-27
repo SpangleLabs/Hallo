@@ -27,7 +27,7 @@ class ServerFactory:
         self.mHallo = hallo
     
     def newServerFromXml(self,xmlString):
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         serverType = doc.getElementsByTagName("server_type")[0].firstChild.data
         if(serverType==Server.TYPE_IRC):
             return ServerIRC.fromXml(xmlString,self.mHallo)
@@ -107,7 +107,7 @@ class Server(object):
     def getNick(self):
         'Nick getter'
         if(self.mNick==None):
-            return self.mHallo.getNick()
+            return self.mHallo.getDefaultNick()
         return self.mNick
     
     def setNick(self,nick):
@@ -167,8 +167,7 @@ class Server(object):
     
     def addChannel(self,channelObject):
         'Adds a channel to the channel list'
-        if(self.getChannelByName(channelObject.getName()) is None):
-            self.mChannelList.append(channelObject)
+        self.mChannelList.append(channelObject)
 
     def joinChannel(self,channelObject):
         'Joins a specified channel'
@@ -190,15 +189,15 @@ class Server(object):
     
     def addUser(self,userObject):
         'Adds a user to the user list'
-        if(self.getUserByName(userObject.getName()) is None):
-            self.mUserList.append(userObject)
+        self.mUserList.append(userObject)
         
     def rightsCheck(self,rightName):
         'Checks the value of the right with the specified name. Returns boolean'
-        rightValue = self.mPermissionMask.getRight(rightName)
-        #If PermissionMask contains that right, return it.
-        if(rightValue in [True,False]):
-            return rightValue
+        if(self.mPermissionMask is not None):
+            rightValue = self.mPermissionMask.getRight(rightName)
+            #If PermissionMask contains that right, return it.
+            if(rightValue in [True,False]):
+                return rightValue
         #Fallback to the parent Hallo's decision.
         return self.mHallo.rightsCheck(rightName)
     
@@ -282,7 +281,10 @@ class ServerIRC(Server):
         #Wait for the first message back from the server.
         print(Commons.currentTimestamp() + " waiting for first message from server: " + self.mName)
         firstLine = self.readLineFromSocket()
-        self.mWelcomeMessage += firstLine+"\n"
+        #If first line is null, that means connection was closed.
+        if(firstLine is None):
+            raise ServerException
+        self.mWelcomeMessage = firstLine+"\n"
         #Send nick and full name to server
         print(Commons.currentTimestamp() + " sending nick and user info to server: " + self.mName)
         self.send('NICK ' + self.getNick(),None,"raw")
@@ -291,6 +293,8 @@ class ServerIRC(Server):
         while(True):
             nextWelcomeLine = self.readLineFromSocket()
             self.mWelcomeMessage += nextWelcomeLine+"\n"
+            if(nextWelcomeLine.split()[0] == "PING"):
+                self.parseLinePing(nextWelcomeLine)
             if("376" in nextWelcomeLine or "endofmessage" in nextWelcomeLine.replace(' ','').lower()):
                 break
         #Identify with nickserv
@@ -301,19 +305,23 @@ class ServerIRC(Server):
         #Join relevant channels
         for channel in self.mChannelList:
             if(channel.isAutoJoin()):
-                self.joinchannel(channel)
+                self.joinChannel(channel)
     
     def disconnect(self):
         'Disconnect from the server'
         quitMessage = "Will I dream?"
         #Logging
         for channel in self.mChannelList:
-            self.mHallo.getLogger().log(Function.EVENT_QUIT,quitMessage,self,self.getUserByName(self.getNick()),channel)
-            channel.setInChannel(False)
+            if(channel.isInChannel()):
+                self.mHallo.getLogger().log(Function.EVENT_QUIT,quitMessage,self,self.getUserByName(self.getNick()),channel)
+                channel.setInChannel(False)
         for user in self.mUserList:
             user.setOnline(False)
         if(self.mOpen):
-            self.send("QUIT :"+quitMessage,None,"raw")
+            try:
+                self.send("QUIT :"+quitMessage,None,"raw")
+            except:
+                pass
             self.mSocket.close()
             self.mOpen = False
     
@@ -333,13 +341,17 @@ class ServerIRC(Server):
             except ServerException:
                 print("Server disconnected. Reconnecting.")
                 self.mOpen = False
+                time.sleep(10)
                 self.connect()
-            #Parse line
-            Thread(target=self.parseLine, args=(nextLine)).start()
+            if(nextLine is None):
+                self.mOpen = False
+            else:
+                #Parse line
+                Thread(target=self.parseLine, args=(nextLine,)).start()
     
     def send(self,data,destinationObject=None,msgType="message"):
         'Sends a message to the server, or a specific channel in the server'
-        maxMsgLength = 512  #Maximum length of a message sent to the server
+        maxMsgLength = 462  #Maximum length of a message sent to the server
         if(msgType not in ["message","notice","raw"]):
             msgType = "message"
         #If it's raw data, just send it.
@@ -362,21 +374,23 @@ class ServerIRC(Server):
         #Find out if destination wants caps lock
         if(destinationObject.isUpperCase()):
             #Find any URLs, convert line to uppercase, then convert URLs back to original
-            urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',dataLine)
-            dataLine = dataLine.upper()
+            urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',data)
+            data = data.upper()
             for url in urls:
-                dataLine = dataLine.replace(url.upper(),url)
+                data = data.replace(url.upper(),url)
         #Get max line length
-        maxLineLength = maxMsgLength-len(msgTypeName+' '+destinationName+' '+endl)
+        maxLineLength = maxMsgLength-len(msgTypeName+' '+destinationName+' :'+endl)
         #Split and send
         for dataLine in data.split("\n"):
             dataLineSplit = Commons.chunkStringDot(dataLine,maxLineLength)
             for dataLineLine in dataLineSplit:
-                self.sendRaw(msgTypeName+' '+destinationName+' '+dataLineLine)
+                self.sendRaw(msgTypeName+' '+destinationName+' :'+dataLineLine)
                 #Log sent data, if it's not message or notice
                 if(msgType=="message"):
+                    self.mHallo.getPrinter().outputFromSelf(Function.EVENT_MESSAGE,dataLineLine,self,userObject,channelObject)
                     self.mHallo.getLogger().logFromSelf(Function.EVENT_MESSAGE,dataLineLine,self,userObject,channelObject)
                 elif(msgType=="notice"):
+                    self.mHallo.getPrinter().outputFromSelf(Function.EVENT_NOTICE,dataLineLine,self,userObject,channelObject)
                     self.mHallo.getLogger().logFromSelf(Function.EVENT_NOTICE,dataLineLine,self,userObject,channelObject)
 
     def sendRaw(self,data):
@@ -418,7 +432,7 @@ class ServerIRC(Server):
         elif(newLine.split()[0] == "PING"):
             self.parseLinePing(newLine)
             self.parseLineRaw(newLine,"ping")
-        elif(newLine.split()[0] == "PRIVMSG"):
+        elif(newLine.split()[1] == "PRIVMSG"):
             self.parseLineMessage(newLine)
             self.parseLineRaw(newLine,"message")
         elif(newLine.split()[1] == "JOIN"):
@@ -466,7 +480,7 @@ class ServerIRC(Server):
         self.mHallo.getLogger().logFromSelf(Function.EVENT_PING,pingNumber,self,None,None)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_PING,pingNumber,self,None,None)
+        functionDispatcher.dispatchPassive(Function.EVENT_PING,pingNumber,self,None,None)
         
     def parseLineMessage(self,messageLine):
         'Parses a PRIVMSG message from the server'
@@ -477,7 +491,7 @@ class ServerIRC(Server):
         #Parse out where the message went to (e.g. channel or private message to Hallo)
         messageDestinationName = messageLine.split()[2].lower()
         #Test for CTCP message, hand to CTCP parser if so.
-        messageCtcpBool = messageText.split(':')[2][0] == '\x01'
+        messageCtcpBool = messageText[0] == '\x01'
         if(messageCtcpBool):
             self.parseLineCtcp(messageLine)
             return
@@ -503,12 +517,24 @@ class ServerIRC(Server):
         actingPrefix = self.getPrefix()
         if(messagePublicBool):
             actingPrefix = messageChannel.getPrefix()
-        if(actingPrefix is False):
-            actingPrefix = self.getNick()
         #Figure out if the message is a command, Send to FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        if(messagePrivateBool or messageText.startswith(actingPrefix)):
+        if(messagePrivateBool):
             functionDispatcher.dispatch(messageText,messageSender,messageDestination)
+        elif(actingPrefix is False):
+            actingPrefix = self.getNick().lower()
+            if(messageText.lower().startswith(actingPrefix+":") or messageText.lower().startswith(actingPrefix+",")):
+                messageText = messageText[len(actingPrefix)+1:]
+                functionDispatcher.dispatch(messageText,messageSender,messageDestination)
+            elif(messageText.lower().startswith(actingPrefix)):
+                messageText = messageText[len(actingPrefix):]
+                functionDispatcher.dispatch(messageText,messageSender,messageDestination,[functionDispatcher.FLAG_HIDE_ERRORS])
+            else:
+                #Pass to passive function checker
+                functionDispatcher.dispatchPassive(Function.EVENT_MESSAGE,messageText,self,messageSender,messageChannel)
+        elif(messageText.lower().startswith(actingPrefix)):
+                messageText = messageText[len(actingPrefix):]
+                functionDispatcher.dispatch(messageText,messageSender,messageDestination)
         else:
             #Pass to passive function checker
             functionDispatcher.dispatchPassive(Function.EVENT_MESSAGE,messageText,self,messageSender,messageChannel)
@@ -554,7 +580,7 @@ class ServerIRC(Server):
             self.send('\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01',messageSender,"notice")
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_CTCP,messageText,self,messageSender,messageChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_CTCP,messageText,self,messageSender,messageChannel)
 
         
     def parseLineJoin(self,joinLine):
@@ -580,7 +606,7 @@ class ServerIRC(Server):
             joinChannel.addUser(joinClient)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_JOIN,None,self,joinClient,joinChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_JOIN,None,self,joinClient,joinChannel)
         
     def parseLinePart(self,partLine):
         'Parses a PART message from the server'
@@ -606,7 +632,7 @@ class ServerIRC(Server):
             partClient.setOnline(False)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_LEAVE,partMessage,self,partClient,partChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_LEAVE,partMessage,self,partClient,partChannel)
     
     def parseLineQuit(self,quitLine):
         'Parses a QUIT message from the server'
@@ -632,7 +658,7 @@ class ServerIRC(Server):
                 user.setOnline(False)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_QUIT,quitMessage,self,quitClient,None)
+        functionDispatcher.dispatchPassive(Function.EVENT_QUIT,quitMessage,self,quitClient,None)
         
     def parseLineMode(self,modeLine):
         'Parses a MODE message from the server'
@@ -660,7 +686,7 @@ class ServerIRC(Server):
         self.mHallo.getLogger().log(Function.EVENT_MODE,modeFull,self,modeClient,modeChannel)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_MODE,modeFull,self,modeClient,modeChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_MODE,modeFull,self,modeClient,modeChannel)
     
     def parseLineNotice(self,noticeLine):
         'Parses a NOTICE message from the server'
@@ -689,7 +715,7 @@ class ServerIRC(Server):
                     self.mCheckUserIdentityResult = False
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_NOTICE,noticeMessage,self,noticeClient,noticeChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_NOTICE,noticeMessage,self,noticeClient,noticeChannel)
         
     def parseLineNick(self,nickLine):
         'Parses a NICK message from the server'
@@ -713,7 +739,7 @@ class ServerIRC(Server):
             self.mHallo.getLogger().log(Function.EVENT_CHNAME,nickClientName,self,nickClient,channel)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_CHNAME,nickClientName,self,nickClient,None)
+        functionDispatcher.dispatchPassive(Function.EVENT_CHNAME,nickClientName,self,nickClient,None)
         
     def parseLineInvite(self,inviteLine):
         'Parses an INVITE message from the server'
@@ -732,7 +758,7 @@ class ServerIRC(Server):
             self.joinChannel(inviteChannel)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_INVITE,None,self,inviteClient,inviteChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_INVITE,None,self,inviteClient,inviteChannel)
         
     def parseLineKick(self,kickLine):
         'Parses a KICK message from the server'
@@ -753,7 +779,7 @@ class ServerIRC(Server):
             kickChannel.setInChannel(False)
         #Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(self,Function.EVENT_KICK,kickMessage,self,kickClient,kickChannel)
+        functionDispatcher.dispatchPassive(Function.EVENT_KICK,kickMessage,self,kickClient,kickChannel)
 
     def parseLineNumeric(self,numericLine):
         'Parses a numeric message from the server'
@@ -925,7 +951,7 @@ class ServerIRC(Server):
         '''
         Constructor to build a new server object from xml
         '''
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         newServer = ServerIRC(hallo)
         newServer.mName = doc.getElementsByTagName("server_name")[0].firstChild.data
         newServer.mAutoConnect = Commons.stringFromFile(doc.getElementsByTagName("auto_connect")[0].firstChild.data)
@@ -936,7 +962,7 @@ class ServerIRC(Server):
         if(len(doc.getElementsByTagName("full_name"))!=0):
             newServer.mFullName = doc.getElementsByTagName("full_name")[0].firstChild.data
         newServer.mServerAddress = doc.getElementsByTagName("server_address")[0].firstChild.data
-        newServer.mServerPort = doc.getElementsByTagName("server_port")[0].firstChild.data
+        newServer.mServerPort = int(doc.getElementsByTagName("server_port")[0].firstChild.data)
         if(len(doc.getElementsByTagName("nickserv"))==0):
             newServer.mNickservNick = None
             newServer.mNickservPass = None
@@ -992,14 +1018,14 @@ class ServerIRC(Server):
         channelListElement = doc.createElement("channel_list")
         for channelItem in self.mChannelList:
             if(channelItem.isPersistent()):
-                channelElement = minidom.parse(channelItem.toXml()).firstChild
+                channelElement = minidom.parseString(channelItem.toXml()).firstChild
                 channelListElement.appendChild(channelElement)
         root.appendChild(channelListElement)
         #create user list
         userListElement = doc.createElement("user_list")
         for userItem in self.mUserList:
             if(userItem.isPersistent()):
-                userElement = minidom.parse(userItem.toXml()).firstChild
+                userElement = minidom.parseString(userItem.toXml()).firstChild
                 userListElement.appendChild(userElement)
         root.appendChild(userListElement)
         #create nick element
@@ -1023,7 +1049,7 @@ class ServerIRC(Server):
         root.appendChild(serverAddressElement)
         #create server port element
         serverPortElement = doc.createElement("server_port")
-        serverPortElement.appendChild(doc.createTextNode(self.mServerPort))
+        serverPortElement.appendChild(doc.createTextNode(str(self.mServerPort)))
         root.appendChild(serverPortElement)
         #Create nickserv element
         if(self.mNickservNick is not None):

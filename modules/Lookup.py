@@ -148,10 +148,11 @@ class InSpace(Function):
         spaceNames = ", ".join(person['name'] for person in spaceDict['people'])
         outputString = "There are " + spaceNumber + " people in space right now. "
         outputString += "Their names are: " + spaceNames + "."
+        return outputString
 
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
     
     def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
@@ -300,7 +301,7 @@ class UrlDetect(Function):
 
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
 
     def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
@@ -381,7 +382,7 @@ class UrlDetect(Function):
         titleSearch = re.search('<title[^>]*>([^<]*)</title>',pageCode,re.I)
         if(titleSearch is None):
             return None
-        titleText = titleSearch.group(2)
+        titleText = titleSearch.group(1)
         htmlParser = html.parser.HTMLParser()
         titleClean = htmlParser.unescape(titleText).replace("\n","").strip()
         if(titleClean!=""):
@@ -564,7 +565,7 @@ class UrlDetect(Function):
         #Get video data from API response.
         videoTitle = apiDict['items'][0]['snippet']['title']
         videoDuration = apiDict['items'][0]['contentDetails']['duration'][2:].lower()
-        videoViews = apiDict['items'][0]['contentDetails']['views']
+        videoViews = apiDict['items'][0]['statistics']['viewCount']
         #Create output
         output = "Youtube video> Title: " + videoTitle + " | "
         output += "Length: " + videoDuration + " | "
@@ -598,10 +599,10 @@ class UrlDetect(Function):
                     byteOffset += size
                     byte = imageData[byteOffset]
                     byteOffset += 1
-                    while ord(byte) == 0xff:
+                    while byte == 0xff:
                         byte = imageData[byteOffset]
                         byteOffset += 1
-                    ftype = ord(byte)
+                    ftype = byte
                     size = struct.unpack('>H', imageData[byteOffset:byteOffset+2])[0] - 2
                     byteOffset += 2
                 # We are at a SOFn block

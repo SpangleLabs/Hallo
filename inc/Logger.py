@@ -33,7 +33,7 @@ class Logger:
         self.mEventDict[Function.EVENT_KICK] = self.logKick
         self.mEventDict[Function.EVENT_INVITE] = self.logInvite
         self.mEventDict[Function.EVENT_NOTICE] = self.logNotice
-        self.mEventDict[Function.EVENT_MODE] = self.logMode
+        self.mEventDict[Function.EVENT_MODE] = self.logModeChange
         self.mEventDict[Function.EVENT_CTCP] = self.logCtcp
     
     def log(self,event,fullLine,serverObject=None,userObject=None,channelObject=None):
@@ -49,6 +49,9 @@ class Logger:
             return None
         logFunction = self.mEventDict[event]
         logLine = logFunction(fullLine,serverObject,userObject,channelObject)
+        #If logLine is null, do nothing.
+        if(logLine is None):
+            return None
         #Create file name
         fileName = self.getFileName(serverObject,userObject,channelObject)
         #Write the log line
@@ -69,6 +72,9 @@ class Logger:
         logFunction = self.mEventDict[event]
         halloUserObject = serverObject.getUserByName(serverObject.getNick())
         logLine = logFunction(fullLine,serverObject,halloUserObject,channelObject)
+        #If logLine is null, do nothing.
+        if(logLine is None):
+            return None
         #Create file name
         fileName = self.getFileName(serverObject,userObject,channelObject)
         #Write the log line
@@ -109,7 +115,7 @@ class Logger:
     
     def logQuit(self,fullLine,serverObject,userObject,channelObject):
         output = Commons.currentTimestamp() + " "
-        output += userObject.getNick() + " has quit."
+        output += userObject.getName() + " has quit."
         if(fullLine.strip()!=""):
             output += " (" + fullLine + ")"
         return output

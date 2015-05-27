@@ -30,7 +30,7 @@ class RandomPokemon(Function):
             pokemonDict['name'] = pokemonXml.getElementsByTagName("name")[0].firstChild.data
             pokemonList.append(pokemonDict)
         randomPokemon = random.choice(pokemonList)
-        return "I choose you, " + randomPokemon['Name'] + "!"
+        return "I choose you, " + randomPokemon['name'] + "!"
 
 class PickATeam(Function):
     '''
@@ -60,7 +60,7 @@ class PickATeam(Function):
             pokemonDict['name'] = pokemonXml.getElementsByTagName("name")[0].firstChild.data
             pokemonList.append(pokemonDict)
         randomPokemonTeam = random.sample(pokemonList,6)
-        return "Your team is: " + ", ".join([pokemon['Name'] for pokemon in randomPokemonTeam[:5]]) + " and " + randomPokemonTeam[5]['Name'] + "."
+        return "Your team is: " + ", ".join([pokemon['name'] for pokemon in randomPokemonTeam[:5]]) + " and " + randomPokemonTeam[5]['name'] + "."
 
 class FullyEvolvedTeam(Function):
     '''
@@ -92,7 +92,7 @@ class FullyEvolvedTeam(Function):
             if(evolutionChoices==0):
                 pokemonList.append(pokemonDict)
         randomPokemonTeam = random.sample(pokemonList,6)
-        return "Your team is: " + ", ".join([pokemon['Name'] for pokemon in randomPokemonTeam[:5]]) + " and " + randomPokemonTeam[5]['Name'] + "."
+        return "Your team is: " + ", ".join([pokemon['name'] for pokemon in randomPokemonTeam[:5]]) + " and " + randomPokemonTeam[5]['name'] + "."
 
 class Pokedex(Function):
     '''
@@ -112,14 +112,14 @@ class Pokedex(Function):
         pass
 
     def run(self,line,userObject,destinationObject=None):
-        lineClean = line.split().lower()
+        lineClean = line.lower().split()
         #Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")
         pokemonListXml = doc.getElementsByTagName("pokemon_list")[0]
         #Loop through pokemon, searching for the specified pokemon
         selectedPokemonXml = None
         for pokemonXml in pokemonListXml.getElementsByTagName("pony_episode"):
-            pokemonName = pokemonXml.getElementsByTagName("name")[0].firstChild.data
+            pokemonName = pokemonXml.getElementsByTagName("name")[0].firstChild.data.lower()
             pokemonNumber = pokemonXml.getElementsByTagName("dex_number")[0].firstChild.data
             if(lineClean == pokemonName or lineClean == pokemonNumber):
                 selectedPokemonXml = pokemonXml

@@ -57,7 +57,7 @@ class RandomPorn(Function):
         pass
 
     def run(self,line,userObject,destinationObject=None):
-        lineClean = line.replace(' ','%20')
+        lineClean = line.strip().replace(' ','%20')
         functionDispatcher = userObject.getServer().getHallo().getFunctionDispatcher()
         e621Class = functionDispatcher.getFunctionByName("e621")
         e621Object = functionDispatcher.getFunctionObject(e621Class)

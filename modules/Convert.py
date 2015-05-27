@@ -101,11 +101,11 @@ class ConvertRepo:
         root = doc.getElementsByTagName("convert")[0]
         #Add prefix groups
         for prefixGroupObject in self.mPrefixGroupList:
-            prefixGroupElement = minidom.parse(prefixGroupObject.toXml()).firstChild
+            prefixGroupElement = minidom.parseString(prefixGroupObject.toXml()).firstChild
             root.appendChild(prefixGroupElement)
         #Add types
         for typeObject in self.mTypeList:
-            typeElement = minidom.parse(typeObject.toXml()).firstChild
+            typeElement = minidom.parseString(typeObject.toXml()).firstChild
             root.appendChild(typeElement)
         #save XML
         doc.writexml(open("store/convert.xml","w"),addindent="\t",newl="\n")
@@ -187,22 +187,25 @@ class ConvertType:
     def fromXml(repo,xmlString):
         'Loads a new ConvertType object from XML'
         #Load document
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         #Get name and create ConvertType object
         newName = doc.getElementsByTagName("name")[0].firstChild.data
-        newType = ConvertPrefixGroup(repo,newName)
+        newType = ConvertType(repo,newName)
         #Get number of decimals
-        newDecimals = int(doc.getElementsByTagName("decimals")[0].firstChild.data)
-        newType.setDecimals(newDecimals)
+        if(len(doc.getElementsByTagName("decimals"))>0):
+            newDecimals = int(doc.getElementsByTagName("decimals")[0].firstChild.data)
+            newType.setDecimals(newDecimals)
         #Get base unit
         baseUnitXml = doc.getElementsByTagName("base_unit")[0].getElementsByTagName("unit")[0]
         baseUnitObject = ConvertUnit.fromXml(newType,baseUnitXml.toxml())
         newType.setBaseUnit(baseUnitObject)
         #Loop through unit elements, creating and adding objects.
         for unitXml in doc.getElementsByTagName("unit"):
-            unitObject = ConvertUnit.fromXml(self,unitXml.toxml())
+            if(unitXml==baseUnitXml):
+                continue
+            unitObject = ConvertUnit.fromXml(newType,unitXml.toxml())
             newType.addUnit(unitObject)
-        #Return created PrefixGroup
+        #Return created Type
         return newType
     
     def toXml(self):
@@ -222,12 +225,12 @@ class ConvertType:
         root.appendChild(nameElement)
         #Add base unit element
         baseUnitElement = doc.createElement("base_unit")
-        baseUnitUnitElement = minidom.parse(self.mBaseUnit.toXml()).firstChild
+        baseUnitUnitElement = minidom.parseString(self.mBaseUnit.toXml()).firstChild
         baseUnitElement.appendChild(baseUnitUnitElement)
         root.appendChild(baseUnitElement)
         #Add units
         for unitObject in self.mUnitList:
-            unitElement = minidom.parse(unitObject.toXml()).firstChild
+            unitElement = minidom.parseString(unitObject.toXml()).firstChild
             root.appendChild(unitElement)
         #Output XML
         return doc.toxml()
@@ -402,7 +405,7 @@ class ConvertUnit:
     def fromXml(convertType,xmlString):
         'Loads a new ConvertUnit object from XML.'
         #Load document
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         #Get names, value and create object
         newNameList = []
         for nameXml in doc.getElementsByTagName("name"):
@@ -512,10 +515,10 @@ class ConvertPrefixGroup:
     def getPrefixByName(self,name):
         'Gets the prefix with the specified name'
         for prefixObject in self.mPrefixList:
-            if(prefixObject.getName() == name):
+            if(prefixObject.getPrefix() == name):
                 return prefixObject
         for prefixObject in self.mPrefixList:
-            if(prefixObject.getName().lower() == name.lower()):
+            if(prefixObject.getPrefix().lower() == name.lower()):
                 return prefixObject
         return None
     
@@ -546,13 +549,13 @@ class ConvertPrefixGroup:
     def fromXml(repo,xmlString):
         'Loads a new ConvertUnit object from XML.'
         #Load document
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         #Get name and create object
         newName = doc.getElementsByTagName("name")[0].firstChild.data
         newPrefixGroup = ConvertPrefixGroup(repo,newName)
         #Loop through prefix elements, creating and adding objects.
         for prefixXml in doc.getElementsByTagName("prefix"):
-            prefixObject = ConvertPrefix.fromXml(self,prefixXml.toxml())
+            prefixObject = ConvertPrefix.fromXml(newPrefixGroup,prefixXml.toxml())
             newPrefixGroup.addPrefix(prefixObject)
         #Return created PrefixGroup
         return newPrefixGroup
@@ -570,7 +573,7 @@ class ConvertPrefixGroup:
         root.appendChild(nameElement)
         #Add prefixes
         for prefixObject in self.mPrefixList:
-            prefixElement = minidom.parse(prefixObject.toXml()).firstChild
+            prefixElement = minidom.parseString(prefixObject.toXml()).firstChild
             root.appendChild(prefixElement)
         #Output XML
         return doc.toxml()
@@ -621,7 +624,7 @@ class ConvertPrefix:
     @staticmethod
     def fromXml(prefixGroup,xmlString):
         'Loads a new ConvertUnit object from XML.'
-        doc = minidom.parse(xmlString)
+        doc = minidom.parseString(xmlString)
         newName = doc.getElementsByTagName("name")[0].firstChild.data
         newAbbreviation = doc.getElementsByTagName("abbr")[0].firstChild.data
         newValue = float(doc.getElementsByTagName("value")[0].firstChild.data)
@@ -674,10 +677,9 @@ class ConvertMeasure:
         #Check units are the same type
         if(self.mUnit.getType() != unit.getType()):
             raise Exception("These are not the same unit type.")
-        #get base unit
-        baseUnit = self.mUnit.getType().getBaseUnit()
-        newAmount = self.mAmount * baseUnit.getValue()
-        baseOffset = baseUnit.getOffset()
+        #Convert to base unit
+        newAmount = self.mAmount * self.mUnit.getValue()
+        baseOffset = self.mUnit.getOffset()
         if(baseOffset is not None):
             newAmount = newAmount + baseOffset
         #Convert from base unit to new unit
@@ -692,9 +694,9 @@ class ConvertMeasure:
         'Creates a new measure, equal in value, but with the base unit of the unit type.'
         baseUnit = self.mUnit.getType().getBaseUnit()
         newUnit = baseUnit
-        unitValue = baseUnit.getValue()
+        unitValue = self.mUnit.getValue()
         newAmount = self.mAmount * unitValue
-        offset = baseUnit.getOffset()
+        offset = self.mUnit.getOffset()
         if(offset is not None):
             newAmount = newAmount + offset
         newMeasure = ConvertMeasure(newAmount,newUnit)
@@ -703,16 +705,21 @@ class ConvertMeasure:
     def toString(self):
         'Converts the measure to a string for output.'
         decimalPlaces = self.mUnit.getType().getDecimals()
-        decimalFormat = "{:"+str(decimalPlaces)+"f}"
+        decimalFormat = "{:."+str(decimalPlaces)+"f}"
         prefixGroup = self.mUnit.getPrefixGroup()
         #If there is no prefix group, output raw.
         if(prefixGroup is None):
-            return decimalFormat.format(self.mAmount) + " " + self.mUnit.getName()
+            return decimalFormat.format(self.mAmount) + " " + self.mUnit.getNameList()[0]
         #Ask the prefix group for the most appropriate prefix for the value.
         appropriatePrefix = prefixGroup.getAppropriatePrefix(self.mAmount)
-        outputAmount = self.mAmount / appropriatePrefix.getMultiplier()
+        prefixMultiplier = 1
+        prefixName = ""
+        if(appropriatePrefix is not None):
+            prefixName = appropriatePrefix.getPrefix()
+            prefixMultiplier = appropriatePrefix.getMultiplier()
+        outputAmount = self.mAmount / prefixMultiplier
         #Output string
-        return decimalFormat.format(outputAmount) + " " + appropriatePrefix.getName() + self.mUnit.getName()
+        return decimalFormat.format(outputAmount) + " " + prefixName + self.mUnit.getNameList()[0]
     
     def __str__(self):
         return self.toString()
@@ -722,9 +729,14 @@ class ConvertMeasure:
         decimalPlaces = self.mUnit.getType().getDecimals()
         decimalFormat = "{:"+str(decimalPlaces)+"f}"
         #Calculate the output amount
-        outputAmount = self.mAmount / prefix.getMultiplier()
+        prefixMultiplier = 1
+        prefixName = ""
+        if(prefix is not None):
+            prefixName = prefix.getPrefix()
+            prefixMultiplier = prefix.getMultiplier()
+        outputAmount = self.mAmount / prefixMultiplier
         #Output string
-        return decimalFormat.format(outputAmount) + " " + prefix.getName() + self.mUnit.getName()
+        return decimalFormat.format(outputAmount) + " " + prefixName + self.mUnit.getNameList()[0]
     
     @staticmethod
     def buildListFromUserInput(repo,userInput):
@@ -747,7 +759,10 @@ class ConvertMeasure:
             prefixObject = unitObject.getPrefixFromUserInput(userInput)
             if(prefixObject is False):
                 continue
-            newAmount = preliminaryAmountValue * prefixObject.getMultiplier()
+            prefixMultiplier = 1
+            if(prefixObject is not None):
+                prefixMultiplier = prefixObject.getMultiplier()
+            newAmount = preliminaryAmountValue * prefixMultiplier
             newMeasure = ConvertMeasure(newAmount,unitObject)
             newMeasureList.append(newMeasure)
         #If list is still empty, throw an exception.
@@ -784,7 +799,7 @@ class Convert(Function):
         #See if the input needs splitting.
         if(splitRegex.search(line) is None):
             try:
-                fromMeasureList = ConvertMeasure.buildListFromUserInput()
+                fromMeasureList = ConvertMeasure.buildListFromUserInput(repo,line)
                 return self.convertOneUnit(fromMeasureList,passive)
             except Exception as e:
                 if(passive):
@@ -858,7 +873,7 @@ class Convert(Function):
         return outputString
 
     def getPassiveEvents(self):
-        return Function.EVENT_MESSAGE
+        return set([Function.EVENT_MESSAGE])
     
     def passiveRun(self,event,fullLine,serverObject,userObject,channelObject):
         return self.convertParse(fullLine,True)
@@ -898,7 +913,7 @@ class UpdateCurrencies(Function):
         return "\n".join(outputLines)
 
     def getPassiveEvents(self):
-        return Function.EVENT_HOUR
+        return set([Function.EVENT_HOUR])
     
     def passiveRun(self,event,fullLine,serverObject,userObject,channelObject):
         #Load convert repo.
@@ -976,7 +991,7 @@ class UpdateCurrencies(Function):
         xmlString = Commons.loadUrlString(url)
         #Parse data
         doc = minidom.parseString(xmlString)
-        ratesElement = doc.getElementsByTagName("Rates")
+        ratesElement = doc.getElementsByTagName("Rates")[0]
         for rateElement in ratesElement.getElementsByTagName("Rate"):
             #Get data from element
             symbolData = rateElement.getElementsByTagName("Symbol")[0].firstChild.data
@@ -1015,8 +1030,8 @@ class UpdateCurrencies(Function):
             totalVolume = 0
             totalTrade = 0
             for market in currencyDict[currencyRef]:
-                marketVolume = currencyDict[currencyRef][market]['volume']
-                marketLast = currencyDict[currencyRef][market]['last']
+                marketVolume = float(currencyDict[currencyRef][market]['volume'])
+                marketLast = float(currencyDict[currencyRef][market]['last'])
                 totalVolume += marketVolume
                 totalTrade += marketLast * marketVolume
             #Calculate currency value, compared to referenced currency, from total market average
@@ -1174,14 +1189,14 @@ class ConvertViewRepo(Function):
     def outputPrefixGroupAsString(self,prefixGroupObject):
         'Outputs a Conversion PrefixGroup object as a string'
         outputString = "Prefix group: (" + prefixGroupObject.getName() + ")\n"
-        outputString += "Prefix list: " + ", ".join([prefixObject.getName() for prefixObject in prefixGroupObject.getPrefixList()])
+        outputString += "Prefix list: " + ", ".join([prefixObject.getPrefix() for prefixObject in prefixGroupObject.getPrefixList()])
         return outputString
     
     def outputPrefixAsString(self,prefixObject):
         'Outputs a Conversion prefix object as a string'
         outputString = "Prefix: (" + prefixObject.getPrefix() + ")\n"
         outputString += "Abbreviation: " + prefixObject.getAbbreviation() + "\n"
-        outputString += "Multiplier: " + str(prefixObject.getName())
+        outputString += "Multiplier: " + str(prefixObject.getPrefix())
         return outputString
     
 class ConvertSet(Function):
@@ -1495,7 +1510,7 @@ class ConvertRemoveUnit(Function):
         if(inputUnit == inputUnit.getType().getBaseUnit()):
             return "You cannot remove the base unit for a unit type."
         #Remove unit
-        inputUnitName = inputUnit.getNames()[0]
+        inputUnitName = inputUnit.getNameList()[0]
         inputUnit.getType().removeUnit(inputUnit)
         #Done
         return "Removed unit \""+ inputUnitName +"\" from conversion repository."
@@ -1765,7 +1780,7 @@ class ConvertUnitRemoveName(Function):
         #Save repo
         repo.saveToXml()
         #Output
-        return "Removed name \""+inputName+"\" from \""+userUnit.getNamelist()[0]+"\" unit."
+        return "Removed name \""+inputName+"\" from \""+userUnit.getNameList()[0]+"\" unit."
 
     
     def findParameter(self,paramName,line):

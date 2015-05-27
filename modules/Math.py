@@ -318,7 +318,7 @@ class HighestCommonFactor(Function):
         numberTwoFactors = primeFactorsObject.findPrimeFactors(numberTwo)
         commonFactors = eulerObject.listIntersection(numberOneFactors,numberTwoFactors)
         HCF = eulerObject.listProduct(commonFactors)
-        return "The highest common factor of " + numberOne + " and " + numberTwo + " is " + str(HCF) + "."
+        return "The highest common factor of " + str(numberOne) + " and " + str(numberTwo) + " is " + str(HCF) + "."
     
 class SimplifyFraction(Function):
     '''
@@ -363,7 +363,7 @@ class SimplifyFraction(Function):
         denominatorFactorsNew = eulerObject.listMinus(denominatorFactors,eulerObject.listIntersection(denominatorFactors,numeratorFactors))
         numeratorNew = eulerObject.listProduct(numeratorFactorsNew)
         denominatorNew = eulerObject.listProduct(denominatorFactorsNew)
-        return numerator + "/" + denominator + " = " + str(numeratorNew) + "/" + str(denominatorNew) + "."
+        return str(numerator) + "/" + str(denominator) + " = " + str(numeratorNew) + "/" + str(denominatorNew) + "."
     
 class Calculate(Function):
     '''
@@ -414,10 +414,11 @@ class Calculate(Function):
             answer = self.processCalculation(calc)
         except Exception as e:
             answer = str(e)
+        return answer
     
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
-        return set(Function.EVENT_MESSAGE)
+        return set([Function.EVENT_MESSAGE])
 
     def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
@@ -426,7 +427,7 @@ class Calculate(Function):
             return None
         if(Commons.checkNumbers(fullLine)):
             return None
-        if(not any([char in fullLine for char in list(range(10))+["e","pi"]])):
+        if(not any([char in fullLine for char in [str(x) for x in range(10)]+["e","pi"]])):
             return None
         #Clean up the line and feed to the calculator.
         calc = fullLine.replace(' ','').lower()
@@ -499,6 +500,7 @@ class Calculate(Function):
             if(self.afterInfix(calc,'pi') != ''):
                 tempAnswer = str(tempAnswer) + '*'
             calc = calc.replace('pi',str(tempAnswer))
+            del tempAnswer
         while calc.count('e') != 0:
             tempAnswer = math.e
             if(self.beforeInfix(calc,'e') != ''):
@@ -506,7 +508,7 @@ class Calculate(Function):
             if(self.afterInfix(calc,'e') != ''):
                 tempAnswer = str(tempAnswer) + '*'
             calc = calc.replace('e',str(tempAnswer))
-        del tempAnswer
+            del tempAnswer
         ##bracket processing
         while calc.count('(') != 0:
             tempCalc = calc[calc.find('(')+1:]
@@ -529,10 +531,11 @@ class Calculate(Function):
                     if self.afterInfix(calc,runningCalc) != '':
                         tempAnswer = str(tempAnswer) + '*'
                     calc = calc.replace(runningCalc,str(tempAnswer))
+                    del tempAnswer
                     break
                 runningCalc = runningCalc + nextChar
+            del tempCalc, bracket, runningCalc, nextChar
         calc = calc.replace(')','')
-        del tempCalc, bracket, runningCalc, nextChar, tempAnswer
         ##powers processing
         while calc.count('^') != 0:
             preCalc = self.beforeInfix(calc,'^')
@@ -570,7 +573,7 @@ class Calculate(Function):
         ##multiplication processing2
         while calc.count('x') != 0:
             preCalc = self.beforeInfix(calc,'x')
-            postCalc = self.afterInfix(self,calc,'x')
+            postCalc = self.afterInfix(calc,'x')
             calc = calc.replace(str(preCalc) + 'x' + str(postCalc),str(float(preCalc) * float(postCalc)))
             del preCalc, postCalc
         ##addition processing

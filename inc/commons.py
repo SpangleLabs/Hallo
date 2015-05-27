@@ -31,7 +31,7 @@ class Commons(object):
         else:
             listOfStrings = [string[:length-3]+'...']
             restOfString = string[length-3:]
-            while(restOfString>length-3):
+            while(len(restOfString)>length-3):
                 listOfStrings += ['...'+restOfString[:length-6]+'...']
                 restOfString = restOfString[length-6:]
             listOfStrings += ['...'+restOfString]

@@ -50,6 +50,9 @@
 			<name>ServerControl</name>
 		</module>
 		<module>
+			<name>Silly</name>
+		</module>
+		<module>
 			<name>SillyEtd</name>
 		</module>
 	</module_list>
@@ -116,8 +119,8 @@
 				</user_group_membership>
 			</user>
 		</user_list>
-		<server_address>irc.shadowworld.net</server_address>
-		<server_port>6669</server_port>
+		<server_address>moroso.IL.US.ShadowWorld.Net</server_address>
+		<server_port>6660</server_port>
 		<nickserv>
 			<nick>nickserv</nick>
 			<password>lightside</password>

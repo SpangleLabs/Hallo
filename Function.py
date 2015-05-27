@@ -39,7 +39,7 @@ class Function:
         raise NotImplementedError
 
     @staticmethod
-    def isPersistent(self):
+    def isPersistent():
         'Returns boolean representing whether this function is supposed to be persistent or not'
         return False
     
@@ -74,6 +74,7 @@ class Function:
     
     def getNames(self):
         'Returns the list of names for directly addressing the function'
-        return self.mNames.add(self.mHelpName)
+        self.mNames.add(self.mHelpName)
+        return self.mNames
     
     
