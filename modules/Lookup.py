@@ -481,7 +481,10 @@ class UrlDetect(Function):
         imgurId = urlAddress.split('/')[-1].split('.')[0]
         apiUrl = 'https://api.imgur.com/3/image/' + imgurId
         #Load API response (in json) using Client-ID.
-        apiDict = Commons.loadUrlJson(apiUrl,[['Authorization','Client-ID 3afbdcb1353b72f']])
+        apiKey = self.mHalloObject.getApiKey("imgur")
+        if(apiKey is None):
+            return None
+        apiDict = Commons.loadUrlJson(apiUrl,[['Authorization',apiKey]])
         #Get title, width, height, size, and view count from API data
         imageTitle = str(apiDict['data']['title'])
         imageWidth = str(apiDict['data']['width'])
@@ -502,7 +505,10 @@ class UrlDetect(Function):
         imgurId = urlAddress.split('/')[-1].split('#')[0]
         apiUrl = 'https://api.imgur.com/3/album/' + imgurId
         #Load API response (in json) using Client-ID.
-        apiDict = Commons.loadUrlJson(apiUrl,[['Authorization','Client-ID 3afbdcb1353b72f']])
+        apiKey = self.mHalloObject.getApiKey("imgur")
+        if(apiKey is None):
+            return None
+        apiDict = Commons.loadUrlJson(apiUrl,[['Authorization',apiKey]])
         #Get album title and view count from API data
         albumTitle = apiDict['data']['title']
         albumViews = apiDict['data']['views']
