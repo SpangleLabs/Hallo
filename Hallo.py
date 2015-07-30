@@ -32,12 +32,14 @@ class Hallo:
     mServerList = None
     mLogger = None
     mPrinter = None
+    mApiKeys = None
 
     def __init__(self):
         self.mUserGroupList = {}
         self.mServerList = []
         self.mLogger = Logger(self)
         self.mPrinter = Printer(self)
+        self.mApiKeys = {}
         #Create ServerFactory
         self.mServerFactory = ServerFactory(self)
         self.mPermissionMask = PermissionMask()
@@ -95,6 +97,11 @@ class Hallo:
                 self.addUserGroup(userGroupObject)
             if(len(doc.getElementsByTagName("permission_mask"))!=0):
                 self.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
+            apiKeyListXml = doc.getElementsByTagName("api_key_list")[0]
+            for apiKeyXml in apiKeyListXml.getElementsByTagName("api_key"):
+                apiKeyName = apiKeyXml.getElementByTagName("name")[0].firstChild.data
+                apiKeyKey = apiKeyXml.getElementByTagName("key")[0].firstChild.data
+                self.addApiKey(apiKeyName,apiKeyKey)
             return
         except (OSError, IOError):
             print("Error loading config")
@@ -142,6 +149,18 @@ class Hallo:
         if(not self.mPermissionMask.isEmpty()):
             permissionMaskElement = minidom.parseString(self.mPermissionMask.toXml()).firstChild
             root.appendChild(permissionMaskElement)
+        #Save api key list
+        apiKeyListElement = doc.createElement("api_key_list")
+        for apiKeyName in self.mApiKeys:
+            apiKeyElement = doc.createElement("api_key")
+            apiKeyNameElement = doc.createElement("name")
+            apiKeyNameElement.appendChild(doc.createTextNode(apiKeyName))
+            apiKeyElement.appendChild(apiKeyNameElement)
+            apiKeyKeyElement = doc.createElement("key")
+            apiKeyKeyElement.appendChild(doc.createTextNode(self.mApiKeys[apiKeyName]))
+            apiKeyElement.appendChild(apiKeyKeyElement)
+            apiKeyListElement.appendChild(apiKeyElement)
+        root.appendChild(apiKeyListElement)
         #save XML
         doc.writexml(open("config/config.xml","w"),addindent="\t",newl="\r\n")
     
@@ -246,6 +265,16 @@ class Hallo:
     def getPrinter(self):
         'Returns the Printer object'
         return self.mPrinter
+    
+    def addApiKey(self,name,key):
+        'Adds an api key to the list, or overwrites one.'
+        self.mApiKeys[name] = key
+        
+    def getApiKey(self,name):
+        'Returns a specified api key.'
+        if(name in self.mApiKeys):
+            return self.mApiKeys[name]
+        return None
     
     def manualServerConnect(self):
         #TODO: add ability to connect to non-IRC servers

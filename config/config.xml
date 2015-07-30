@@ -581,4 +581,18 @@
 		</right>
 	</right_list>
 </permission_mask>
+<api_key_list>
+	<api_key>
+		<name>ebay</name>
+		<key>JoshuaCo-cc2e-4309-b962-df71218f4407</key>
+	</api_key>
+	<api_key>
+		<name>imgur</name>
+		<key>Client-ID 3afbdcb1353b72f</key>
+	</api_key>
+	<api_key>
+		<name>youtube</name>
+		<key>AIzaSyDdpbzJ2mMTb2mKDBHADnXf4C18Lwc45A4</key>
+	</api_key>
+</api_key_list>
 </config>
