@@ -465,6 +465,8 @@ class Calculate(Function):
         for subPreCalc in [preCalc[x:] for x in range(len(preCalc))]:
             try:
                 float(subPreCalc)
+                if(subPreCalc[0]=="+"):
+                    subPreCalc = subPreCalc[1:]
                 return subPreCalc
             except:
                 pass
