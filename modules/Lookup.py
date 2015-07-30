@@ -291,6 +291,8 @@ class UrlDetect(Function):
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "URL detection."
     
+    mHalloObject = None
+    
     def __init__(self):
         '''
         Constructor
@@ -306,6 +308,8 @@ class UrlDetect(Function):
 
     def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
+        #Get hallo object for stuff to use
+        self.mHalloObject = serverObject.getHallo()
         #Search for a link
         urlRegex = re.compile(r'\b((https?://|www.)[-A-Z0-9+&?%@#/=~_|$:,.]*[A-Z0-9+\&@#/%=~_|$])',re.I)
         urlSearch = urlRegex.search(fullLine)
@@ -405,7 +409,9 @@ class UrlDetect(Function):
         'Handling for ebay links'
         #Get the ebay item id
         itemId = urlAddress.split("/")[-1]
-        apiKey = "JoshuaCo-cc2e-4309-b962-df71218f4407"
+        apiKey = self.mHalloObject.getApiKey("ebay")
+        if(apiKey is None):
+            return None
         #Get API response
         apiUrl = "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid="+apiKey+"&siteid=0&version=515&ItemID="+itemId+"&IncludeSelector=Details"
         apiDict = Commons.loadUrlJson(apiUrl)
