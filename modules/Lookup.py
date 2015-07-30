@@ -145,7 +145,7 @@ class InSpace(Function):
     def run(self,line,userObject,destinationObject=None):
         spaceDict = Commons.loadUrlJson("http://www.howmanypeopleareinspacerightnow.com/space.json")
         spaceNumber = str(spaceDict['number'])
-        spaceNames = ", ".join(person['name'] for person in spaceDict['people'])
+        spaceNames = ", ".join(person['name'].strip() for person in spaceDict['people'])
         outputString = "There are " + spaceNumber + " people in space right now. "
         outputString += "Their names are: " + spaceNames + "."
         return outputString
