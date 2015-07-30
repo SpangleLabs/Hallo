@@ -571,7 +571,9 @@ class UrlDetect(Function):
         else:
             videoId = urlAddress.split("/")[-1].split("=")[1].split("&")[0]
         #Find API url
-        apiKey = "AIzaSyDdpbzJ2mMTb2mKDBHADnXf4C18Lwc45A4"
+        apiKey = self.mHalloObject.getApiKey("youtube")
+        if(apiKey is None):
+            return None
         apiUrl = "https://www.googleapis.com/youtube/v3/videos?id="+videoId+"&part=snippet,contentDetails,statistics&key="+apiKey
         #Load API response (in json).
         apiDict = Commons.loadUrlJson(apiUrl)
