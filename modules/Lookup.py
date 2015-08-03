@@ -145,7 +145,7 @@ class InSpace(Function):
     def run(self,line,userObject,destinationObject=None):
         spaceDict = Commons.loadUrlJson("http://www.howmanypeopleareinspacerightnow.com/space.json")
         spaceNumber = str(spaceDict['number'])
-        spaceNames = ", ".join(person['name'] for person in spaceDict['people'])
+        spaceNames = ", ".join(person['name'].strip() for person in spaceDict['people'])
         outputString = "There are " + spaceNumber + " people in space right now. "
         outputString += "Their names are: " + spaceNames + "."
         return outputString
@@ -253,6 +253,7 @@ class Translate(Function):
             langFrom = langChange.split('->')[0]
             langTo = langChange.split('->')[1]
         transSafe = urllib.parse.quote(transString.strip(),'')
+        #This uses google's secret translate API, it's not meant to be used by robots, and often it won't work
         url = "http://translate.google.com/translate_a/t?client=t&text="+transSafe+"&hl=en&sl="+langFrom+"&tl="+langTo+"&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1"
         transDict = Commons.loadUrlJson(url,[],True)
         translationString = " ".join([x[0] for x in transDict[0]])
@@ -290,6 +291,8 @@ class UrlDetect(Function):
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "URL detection."
     
+    mHalloObject = None
+    
     def __init__(self):
         '''
         Constructor
@@ -305,6 +308,8 @@ class UrlDetect(Function):
 
     def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
+        #Get hallo object for stuff to use
+        self.mHalloObject = serverObject.getHallo()
         #Search for a link
         urlRegex = re.compile(r'\b((https?://|www.)[-A-Z0-9+&?%@#/=~_|$:,.]*[A-Z0-9+\&@#/%=~_|$])',re.I)
         urlSearch = urlRegex.search(fullLine)
@@ -404,7 +409,9 @@ class UrlDetect(Function):
         'Handling for ebay links'
         #Get the ebay item id
         itemId = urlAddress.split("/")[-1]
-        apiKey = "JoshuaCo-cc2e-4309-b962-df71218f4407"
+        apiKey = self.mHalloObject.getApiKey("ebay")
+        if(apiKey is None):
+            return None
         #Get API response
         apiUrl = "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid="+apiKey+"&siteid=0&version=515&ItemID="+itemId+"&IncludeSelector=Details"
         apiDict = Commons.loadUrlJson(apiUrl)
@@ -474,7 +481,10 @@ class UrlDetect(Function):
         imgurId = urlAddress.split('/')[-1].split('.')[0]
         apiUrl = 'https://api.imgur.com/3/image/' + imgurId
         #Load API response (in json) using Client-ID.
-        apiDict = Commons.loadUrlJson(apiUrl,[['Authorization','Client-ID 3afbdcb1353b72f']])
+        apiKey = self.mHalloObject.getApiKey("imgur")
+        if(apiKey is None):
+            return None
+        apiDict = Commons.loadUrlJson(apiUrl,[['Authorization',apiKey]])
         #Get title, width, height, size, and view count from API data
         imageTitle = str(apiDict['data']['title'])
         imageWidth = str(apiDict['data']['width'])
@@ -495,7 +505,10 @@ class UrlDetect(Function):
         imgurId = urlAddress.split('/')[-1].split('#')[0]
         apiUrl = 'https://api.imgur.com/3/album/' + imgurId
         #Load API response (in json) using Client-ID.
-        apiDict = Commons.loadUrlJson(apiUrl,[['Authorization','Client-ID 3afbdcb1353b72f']])
+        apiKey = self.mHalloObject.getApiKey("imgur")
+        if(apiKey is None):
+            return None
+        apiDict = Commons.loadUrlJson(apiUrl,[['Authorization',apiKey]])
         #Get album title and view count from API data
         albumTitle = apiDict['data']['title']
         albumViews = apiDict['data']['views']
@@ -558,7 +571,9 @@ class UrlDetect(Function):
         else:
             videoId = urlAddress.split("/")[-1].split("=")[1].split("&")[0]
         #Find API url
-        apiKey = "AIzaSyDdpbzJ2mMTb2mKDBHADnXf4C18Lwc45A4"
+        apiKey = self.mHalloObject.getApiKey("youtube")
+        if(apiKey is None):
+            return None
         apiUrl = "https://www.googleapis.com/youtube/v3/videos?id="+videoId+"&part=snippet,contentDetails,statistics&key="+apiKey
         #Load API response (in json).
         apiDict = Commons.loadUrlJson(apiUrl)

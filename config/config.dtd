@@ -1,4 +1,4 @@
-<!ELEMENT config (default_nick,default_prefix,default_full_name,function_dispatcher,server_list,user_group_list,permission_mask?)>
+<!ELEMENT config (default_nick,default_prefix,default_full_name,function_dispatcher,server_list,user_group_list,permission_mask?,api_key_list)>
 <!ELEMENT default_nick (#PCDATA)>
 <!ELEMENT default_prefix (#PCDATA)>
 <!ELEMENT default_full_name (#PCDATA)>
@@ -39,3 +39,6 @@
 <!ELEMENT right (name,value)>
 <!ELEMENT name (#PCDATA)>
 <!ELEMENT value (#PCDATA)>
+<!ELEMENT api_key_list (api_key*)>
+<!ELEMENT api_key (name,key)>
+<!ELEMENT key (#PCDATA)>
