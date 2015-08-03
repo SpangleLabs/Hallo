@@ -99,8 +99,8 @@ class Hallo:
                 self.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
             apiKeyListXml = doc.getElementsByTagName("api_key_list")[0]
             for apiKeyXml in apiKeyListXml.getElementsByTagName("api_key"):
-                apiKeyName = apiKeyXml.getElementByTagName("name")[0].firstChild.data
-                apiKeyKey = apiKeyXml.getElementByTagName("key")[0].firstChild.data
+                apiKeyName = apiKeyXml.getElementsByTagName("name")[0].firstChild.data
+                apiKeyKey = apiKeyXml.getElementsByTagName("key")[0].firstChild.data
                 self.addApiKey(apiKeyName,apiKeyKey)
             return
         except (OSError, IOError):
