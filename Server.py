@@ -294,6 +294,8 @@ class ServerIRC(Server):
         #Wait for MOTD to end
         while(True):
             nextWelcomeLine = self.readLineFromSocket()
+            if(nextWelcomeLine is None):
+                raise ServerException
             self.mWelcomeMessage += nextWelcomeLine+"\n"
             if(nextWelcomeLine.split()[0] == "PING"):
                 self.parseLinePing(nextWelcomeLine)
