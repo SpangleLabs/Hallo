@@ -672,6 +672,10 @@ class ConvertMeasure:
         'Returns the amount of the measure.'
         return self.mAmount
     
+    def isEqual(self,otherMeasure):
+        'Returns boolean, whether this Measure is equal to another.'
+        return (self.getUnit() == otherMeasure.getUnit()) and (self.getAmount() == otherMeasure.getAmount())
+    
     def convertTo(self,unit):
         'Creates a new measure, equal in value but with a different unit.'
         #Check units are the same type
