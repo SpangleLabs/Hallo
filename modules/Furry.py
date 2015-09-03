@@ -65,11 +65,25 @@ class RandomPorn(Function):
         pass
 
     def run(self,line,userObject,destinationObject=None):
-        lineClean = line.strip().replace(' ','%20')
+        lineUnclean = line.strip()+" -rating:s"
         functionDispatcher = userObject.getServer().getHallo().getFunctionDispatcher()
         e621Class = functionDispatcher.getFunctionByName("e621")
         e621Object = functionDispatcher.getFunctionObject(e621Class)
-        return e621Object.run(lineClean+"%20-rating:s",userObject,destinationObject)
+        searchResult = e621Object.run(lineUnclean,userObject,destinationObject)
+        if(searchResult == None):
+            return "No results."
+        else:
+            link = "http://e621.net/post/show/"+str(searchResult['id'])
+            if(searchResult['rating']=='e'):
+                rating = "(Explicit)"
+            elif(searchResult['rating']=="q"):
+                rating = "(Questionable)"
+            elif(searchResult['rating']=="s"):
+                rating = "(Safe)"
+            else:
+                rating = "(Unknown)"
+            lineResponse = line.strip()
+            return "e621 search for \""+lineResponse+"\" returned: "+link+" "+rating
 
 class Butts(Function):
     '''
