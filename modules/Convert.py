@@ -672,6 +672,10 @@ class ConvertMeasure:
         'Returns the amount of the measure.'
         return self.mAmount
     
+    def isEqual(self,otherMeasure):
+        'Returns boolean, whether this Measure is equal to another.'
+        return (self.getUnit() == otherMeasure.getUnit()) and (self.getAmount() == otherMeasure.getAmount())
+    
     def convertTo(self,unit):
         'Creates a new measure, equal in value but with a different unit.'
         #Check units are the same type
@@ -833,6 +837,8 @@ class Convert(Function):
         outputLines = []
         for fromMeasure in fromMeasureList:
             toMeasure = fromMeasure.convertToBase()
+            if(fromMeasure.isEqual(toMeasure)):
+                continue
             outputLines.append(self.outputLine(fromMeasure,toMeasure))
         if(len(outputLines)==0):
             if(passive):
