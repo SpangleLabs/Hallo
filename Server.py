@@ -155,6 +155,7 @@ class Server(object):
         
     def getChannelByName(self,channelName):
         'Returns a Channel object with the specified channel name.'
+        channelName = channelName.lower()
         for channel in self.mChannelList:
             if(channel.getName()==channelName):
                 return channel
@@ -179,6 +180,7 @@ class Server(object):
 
     def getUserByName(self,userName):
         'Returns a User object with the specified user name.'
+        userName = userName.lower()
         for user in self.mUserList:
             if(user.getName()==userName):
                 return user
