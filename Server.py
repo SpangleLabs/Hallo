@@ -668,7 +668,9 @@ class ServerIRC(Server):
         'Parses a MODE message from the server'
         #Parsing out MODE data
         modeChannelName = modeLine.split()[2].lower()
-        modeClientName = modeLine.split('!')[0][1:]
+        modeClientName = modeLine.split()[0][1:]
+        if("!" in modeClientName):
+            modeClientName = modeClientName.split("!")[0]
         modeMode = modeLine.split()[3]
         if(len(modeLine.split())>=4):
             modeArgs = ' '.join(modeLine.split()[4:])
