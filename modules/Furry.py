@@ -106,7 +106,20 @@ class Butts(Function):
         functionDispatcher = userObject.getServer().getHallo().getFunctionDispatcher()
         e621Class = functionDispatcher.getFunctionByName("e621")
         e621Object = functionDispatcher.getFunctionObject(e621Class)
-        return e621Object.run("butt",userObject,destinationObject)
+        searchResult = e621Object.run("butt",userObject,destinationObject)
+        if(searchResult == None):
+            return "No results."
+        else:
+            link = "http://e621.net/post/show/"+str(searchResult['id'])
+            if(searchResult['rating']=='e'):
+                rating = "(Explicit)"
+            elif(searchResult['rating']=="q"):
+                rating = "(Questionable)"
+            elif(searchResult['rating']=="s"):
+                rating = "(Safe)"
+            else:
+                rating = "(Unknown)"
+            return "e621 search for \"butt\" returned: "+link+" "+rating
 
 class Fursona(Function):
     '''
