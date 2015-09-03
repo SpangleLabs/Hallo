@@ -69,7 +69,7 @@ class RandomPorn(Function):
         functionDispatcher = userObject.getServer().getHallo().getFunctionDispatcher()
         e621Class = functionDispatcher.getFunctionByName("e621")
         e621Object = functionDispatcher.getFunctionObject(e621Class)
-        searchResult = e621Object.getRandomLinkResult(lineUnclean,userObject,destinationObject)
+        searchResult = e621Object.getRandomLinkResult(lineUnclean)
         if(searchResult == None):
             return "No results."
         else:
@@ -106,7 +106,7 @@ class Butts(Function):
         functionDispatcher = userObject.getServer().getHallo().getFunctionDispatcher()
         e621Class = functionDispatcher.getFunctionByName("e621")
         e621Object = functionDispatcher.getFunctionObject(e621Class)
-        searchResult = e621Object.getRandomLinkResult("butt",userObject,destinationObject)
+        searchResult = e621Object.getRandomLinkResult("butt")
         if(searchResult == None):
             return "No results."
         else:
