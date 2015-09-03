@@ -512,6 +512,8 @@ class Calculate(Function):
             calc = calc.replace('e',str(tempAnswer))
             del tempAnswer
         ##bracket processing
+        if(calc.count(")-")!=0):
+            calc = calc.replace(")-",")+-")
         while calc.count('(') != 0:
             tempCalc = calc[calc.find('(')+1:]
             bracket = 1;
