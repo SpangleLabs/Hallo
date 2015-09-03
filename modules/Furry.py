@@ -92,7 +92,7 @@ class Butts(Function):
     #Name for use in help listing
     mHelpName = "butts"
     #Names which can be used to address the function
-    mNames = set(["random butt","butts"])
+    mNames = set(["random butt","butts","butts!","butts."])
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Returns a random image from e621 for the search \"butt\". Format: butts"
     
