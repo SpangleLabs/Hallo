@@ -1007,7 +1007,7 @@ class UpdateCurrencies(Function):
             askData = float(rateElement.getElementsByTagName("Ask")[0].firstChild.data)
             #Get currency code and value from data
             currencyCode = symbolData[3:]
-            currencyValue = 1/(0.5*bidData*askData)
+            currencyValue = 1/(0.5*(bidData+askData))
             #Get currency unit
             currencyUnit = currencyType.getUnitByName(currencyCode)
             #If unrecognised code, skip
