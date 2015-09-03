@@ -837,6 +837,8 @@ class Convert(Function):
         outputLines = []
         for fromMeasure in fromMeasureList:
             toMeasure = fromMeasure.convertToBase()
+            if(fromMeasure.isEqual(toMeasure)):
+                continue
             outputLines.append(self.outputLine(fromMeasure,toMeasure))
         if(len(outputLines)==0):
             if(passive):
