@@ -1007,7 +1007,7 @@ class UpdateCurrencies(Function):
             askData = float(rateElement.getElementsByTagName("Ask")[0].firstChild.data)
             #Get currency code and value from data
             currencyCode = symbolData[3:]
-            currencyValue = 1/(0.5*bidData*askData)
+            currencyValue = 1/(0.5*(bidData+askData))
             #Get currency unit
             currencyUnit = currencyType.getUnitByName(currencyCode)
             #If unrecognised code, skip
@@ -1812,7 +1812,7 @@ class ConvertUnitSetPrefixGroup(Function):
     #Name for use in help listing
     mHelpName = "convert unit remove name"
     #Names which can be used to address the Function
-    mNames = set(["convert unit remove name","convert unit delete name","convert unit remove abbreviation","convert unit delete abbreviation","convert unit remove abbr","convert unit delete abbr","convert remove unit name","convert delete unit name","convert remove unit abbreviation","convert delete unit abbreviation","convert remove unit abbr","convert delete unit abbr"])
+    mNames = set(["convert set prefix group","convert prefix group"])
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Removes a name or abbreviation from a unit, unless it's the last name."
     
