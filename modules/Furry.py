@@ -20,24 +20,32 @@ class E621(Function):
         pass
 
     def run(self,line,userObject,destinationObject=None):
-        lineClean = line.replace(' ','%20')
-        url = 'https://e621.net/post/index.json?tags=order:random%20score:%3E0%20'+lineClean+'%20&limit=1'
-        returnList = Commons.loadUrlJson(url)
-        if(len(returnList)==0):
+        searchResult = self.getRandomLinkResult(line)
+        if(searchResult == None):
             return "No results."
         else:
-            result = returnList[0]
-            link = "http://e621.net/post/show/"+str(result['id'])
-            if(result['rating']=='e'):
+            link = "http://e621.net/post/show/"+str(searchResult['id'])
+            if(searchResult['rating']=='e'):
                 rating = "(Explicit)"
-            elif(result['rating']=="q"):
+            elif(searchResult['rating']=="q"):
                 rating = "(Questionable)"
-            elif(result['rating']=="s"):
+            elif(searchResult['rating']=="s"):
                 rating = "(Safe)"
             else:
                 rating = "(Unknown)"
-            lineResponse = line.replace("-rating:s","")
+            lineResponse = line.strip()
             return "e621 search for \""+lineResponse+"\" returned: "+link+" "+rating
+    
+    def getRandomLinkResult(self,search):
+        'Gets a random link from the e621 api.'
+        lineClean = search.replace(' ','%20')
+        url = 'https://e621.net/post/index.json?tags=order:random%20score:%3E0%20'+lineClean+'%20&limit=1'
+        returnList = Commons.loadUrlJson(url)
+        if(len(returnList)==0):
+            return None
+        else:
+            result = returnList[0]
+            return result
 
 class RandomPorn(Function):
     '''
