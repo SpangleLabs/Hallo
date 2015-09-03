@@ -155,6 +155,7 @@ class Server(object):
         
     def getChannelByName(self,channelName):
         'Returns a Channel object with the specified channel name.'
+        channelName = channelName.lower()
         for channel in self.mChannelList:
             if(channel.getName()==channelName):
                 return channel
@@ -179,6 +180,7 @@ class Server(object):
 
     def getUserByName(self,userName):
         'Returns a User object with the specified user name.'
+        userName = userName.lower()
         for user in self.mUserList:
             if(user.getName()==userName):
                 return user
@@ -292,6 +294,8 @@ class ServerIRC(Server):
         #Wait for MOTD to end
         while(True):
             nextWelcomeLine = self.readLineFromSocket()
+            if(nextWelcomeLine is None):
+                raise ServerException
             self.mWelcomeMessage += nextWelcomeLine+"\n"
             if(nextWelcomeLine.split()[0] == "PING"):
                 self.parseLinePing(nextWelcomeLine)
@@ -664,8 +668,12 @@ class ServerIRC(Server):
         'Parses a MODE message from the server'
         #Parsing out MODE data
         modeChannelName = modeLine.split()[2].lower()
-        modeClientName = modeLine.split('!')[0][1:]
+        modeClientName = modeLine.split()[0][1:]
+        if("!" in modeClientName):
+            modeClientName = modeClientName.split("!")[0]
         modeMode = modeLine.split()[3]
+        if(modeMode[0] == ":"):
+            modeMode = modeMode[1:]
         if(len(modeLine.split())>=4):
             modeArgs = ' '.join(modeLine.split()[4:])
         else:
