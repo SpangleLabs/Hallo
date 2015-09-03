@@ -672,6 +672,8 @@ class ServerIRC(Server):
         if("!" in modeClientName):
             modeClientName = modeClientName.split("!")[0]
         modeMode = modeLine.split()[3]
+        if(modeMode[0] == ":"):
+            modeMode = modeMode[1:]
         if(len(modeLine.split())>=4):
             modeArgs = ' '.join(modeLine.split()[4:])
         else:
