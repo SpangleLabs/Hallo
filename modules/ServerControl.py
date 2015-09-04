@@ -72,9 +72,17 @@ class LeaveChannel(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
-        serverObject = userObject.getServer()
+        #Check for server name in input line
+        serverName = self.findParameter("server",line)
+        if(serverName is None):
+            serverObject = userObject.getServer()
+        else:
+            serverObject = userObject.getServer().getHallo().getServerByName(serverName)
+            line = line.replace("server="+serverName,"").strip()
+        #Find channel object
         channelName = line.split()[0].lower()
         channelObject = serverObject.getChannelByName(channelName)
+        #Leave channel, provided hallo is in channel.
         if(not channelObject.isInChannel()):
             return "I'm not in that channel."
         serverObject.leaveChannel(channelObject)
