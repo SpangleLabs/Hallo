@@ -30,12 +30,16 @@ class JoinChannel(Function):
         else:
             serverObject = userObject.getServer().getHallo().getServerByName(serverName)
             line = line.replace("server="+serverName,"").strip()
+        #Get channel name
         channelName = line.split()[0].lower()
+        #Check for channel password
         channelPassword = None
         if(channelName!=line):
             channelPassword = line[len(channelName):]
+        #Get channel object, set password
         channelObject = serverObject.getChannelByName(channelName)
         channelObject.setPassword(channelPassword)
+        #Join channel if not already in channel.
         if(channelObject.isInChannel()):
             return "I'm already in that channel."
         serverObject.joinChannel(channelObject)
