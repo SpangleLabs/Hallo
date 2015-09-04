@@ -35,6 +35,15 @@ class JoinChannel(Function):
         serverObject.joinChannel(channelObject)
         return "Joined "+channelName+"."
 
+    def findParameter(self,paramName,line):
+        'Finds a parameter value in a line, if the format parameter=value exists in the line'
+        paramValue = None
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramSearch = paramRegex.search(line)
+        if(paramSearch is not None):
+            paramValue = paramSearch.group(2)
+        return paramValue
+
 class LeaveChannel(Function):
     '''
     Leaves a channel on a specified server
