@@ -14,7 +14,7 @@ class JoinChannel(Function):
     #Names which can be used to address the function
     mNames = set(["join channel","join","channel"])
     #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Join a channel.  Use \"join <channel>\"."
+    mHelpDocs = "Join a channel. Password as optional argument. Server can be specified with \"server=<servername>\". Format: \"join <channel> <password?>\"."
     
     def __init__(self):
         '''
