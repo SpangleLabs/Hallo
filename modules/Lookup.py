@@ -214,6 +214,7 @@ class Wiki(Function):
             newScan = re.sub('{{[^{^}]*}}','',oldScan) #Keep stripping templates until they're gone
         plainText = newScan.replace('\'\'','')
         plainText = re.sub(r'<ref[^<]*</ref>','',plainText) #Strip out references
+        plainText = re.sub(r'\[\[File:[^\]]+]]','',plainText) #Strip out images
         plainText = re.sub(r'\[\[([^]]*)]]',r'\1',plainText)
         plainText = re.sub(r'\[\[[^]^|]*\|([^]]*)]]',r'\1',plainText)
         plainText = re.sub(r'<!--[^>]*-->','',plainText) #Strip out comments
