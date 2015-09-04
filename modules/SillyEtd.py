@@ -1,5 +1,7 @@
 from Function import Function
 import random
+import datetime
+import math
 
 class FinnBot(Function):
     '''
@@ -106,4 +108,38 @@ class PokeTheAsshole(Function):
             serverObject.send("MODE "+destinationObject.getName()+" +v Dolphin",None,"raw")
             serverObject.send("MODE "+destinationObject.getName()+" -v Dolphin",None,"raw")
         return 'Dolphin: You awake yet?'
+
+class Trump(Function):
+    '''
+    Announces the years that Donald Trump will win the US elections.
+    '''
+    #Name for use in help listing
+    mHelpName = "finnbot"
+    #Names which can be used to address the function
+    mNames = set(["finnbot","random finnishism"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns the election years that Donald Trump will win US election. Format: \"trump <number of terms>\""
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        lineClean = line.strip()
+        try:
+            numTerms = int(lineClean)
+        except ValueError:
+            numTerms = 4
+        if(numTerms > 10):
+            numTerms = 10
+        currentYear = datetime.date.today().year
+        firstYear = math.ceil(currentYear/4)*4
+        outputTerms = []
+        for term in range(numTerms):
+            electionYear = firstYear + (4*term)
+            outputTerms.append("Trump "+str(electionYear)+"!")
+        output = " ".join(outputTerms)  + " IMPERATOR TRUMP!"
+        return output
 
