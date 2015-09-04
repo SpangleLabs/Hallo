@@ -582,7 +582,10 @@ class Calculate(Function):
         calc = calc.replace('e+','e')
         for tempAnswer in calc.split('+'):
             if tempAnswer != '':
-                answer = answer + float(tempAnswer)
+                try:
+                    answer = answer + float(tempAnswer)
+                except ValueError:
+                    answer = answer
         answer = '{0:.10f}'.format(answer)
         if('.' in answer):
             while(answer[-1]=='0'):
