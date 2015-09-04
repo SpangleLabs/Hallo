@@ -494,6 +494,8 @@ class Calculate(Function):
         return [runningCalc,tempAnswer]
 
     def processCalculation(self, calc):
+        #Swapping "x" for "*"
+        calc = calc.replace("x","*")
         ##constant evaluation
         while calc.count('pi')!=0:
             tempAnswer = math.pi
