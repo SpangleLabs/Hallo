@@ -114,7 +114,7 @@ class Trump(Function):
     Announces the years that Donald Trump will win the US elections.
     '''
     #Name for use in help listing
-    mHelpName = "finnbot"
+    mHelpName = "trump"
     #Names which can be used to address the function
     mNames = set(["trump","donald trump"])
     #Help documentation, if it's just a single line, can be set here
