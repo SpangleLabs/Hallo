@@ -208,16 +208,16 @@ class Wiki(Function):
         pageCode = list(articleDict['query']['pages'])[0]
         articleText = articleDict['query']['pages'][pageCode]['revisions'][0]['*']
         oldScan = articleText
-        newScan = re.sub('{{[^{^}]*}}','',oldScan)
+        newScan = re.sub('{{[^{^}]*}}','',oldScan) #Strip templates
         while(newScan!=oldScan):
             oldScan = newScan
-            newScan = re.sub('{{[^{^}]*}}','',oldScan)
+            newScan = re.sub('{{[^{^}]*}}','',oldScan) #Keep stripping templates until they're gone
         plainText = newScan.replace('\'\'','')
-        plainText = re.sub(r'<ref[^<]*</ref>','',plainText)
+        plainText = re.sub(r'<ref[^<]*</ref>','',plainText) #Strip out references
         plainText = re.sub(r'\[\[([^]]*)]]',r'\1',plainText)
         plainText = re.sub(r'\[\[[^]^|]*\|([^]]*)]]',r'\1',plainText)
-        plainText = re.sub(r'<!--[^>]*-->','',plainText)
-        plainText = re.sub(r'<ref[^>]*/>','',plainText)
+        plainText = re.sub(r'<!--[^>]*-->','',plainText) #Strip out comments
+        plainText = re.sub(r'<ref[^>]*/>','',plainText) #Strip out remaining references
         firstParagraph = plainText.strip().split('\n')[0]
         return firstParagraph
     
