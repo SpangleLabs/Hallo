@@ -494,6 +494,8 @@ class Calculate(Function):
         return [runningCalc,tempAnswer]
 
     def processCalculation(self, calc):
+        #Swapping "x" for "*"
+        calc = calc.replace("x","*")
         ##constant evaluation
         while calc.count('pi')!=0:
             tempAnswer = math.pi
@@ -574,19 +576,16 @@ class Calculate(Function):
             postCalc = self.afterInfix(calc,'*')
             calc = calc.replace(str(preCalc) + '*' + str(postCalc),str(float(preCalc) * float(postCalc)))
             del preCalc, postCalc
-        ##multiplication processing2
-        while calc.count('x') != 0:
-            preCalc = self.beforeInfix(calc,'x')
-            postCalc = self.afterInfix(calc,'x')
-            calc = calc.replace(str(preCalc) + 'x' + str(postCalc),str(float(preCalc) * float(postCalc)))
-            del preCalc, postCalc
         ##addition processing
         calc = calc.replace('-','+-')
         answer = 0
         calc = calc.replace('e+','e')
         for tempAnswer in calc.split('+'):
             if tempAnswer != '':
-                answer = answer + float(tempAnswer)
+                try:
+                    answer = answer + float(tempAnswer)
+                except ValueError:
+                    answer = answer
         answer = '{0:.10f}'.format(answer)
         if('.' in answer):
             while(answer[-1]=='0'):
