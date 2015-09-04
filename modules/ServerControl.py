@@ -63,7 +63,7 @@ class LeaveChannel(Function):
     #Names which can be used to address the function
     mNames = set(["leave channel","leave","part"])
     #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Leave a channel.  Use \"leave <channel>\"."
+    mHelpDocs = "Leave a channel. Server can be specified with \"server=<servername>\". Format: \"leave <channel>\"."
     
     def __init__(self):
         '''
