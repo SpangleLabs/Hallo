@@ -214,6 +214,11 @@ class Wiki(Function):
             newScan = re.sub('{{[^{^}]*}}','',oldScan) #Keep stripping templates until they're gone
         plainText = newScan.replace('\'\'','')
         plainText = re.sub(r'<ref[^<]*</ref>','',plainText) #Strip out references
+        oldScan = plainText
+        newScan = re.sub(r'(\[\[File:[^\][]+)\[\[[^\]]+]]',r'\1',oldScan) #Repeatedly strip links from image descriptions
+        while(newScan!=oldScan):
+            oldScan = newScan
+            newScan = re.sub(r'(\[\[File:[^\][]+)\[\[[^\]]+]]',r'\1',oldScan)
         plainText = re.sub(r'\[\[File:[^\]]+]]','',plainText) #Strip out images
         plainText = re.sub(r'\[\[[^\]^|]*\|([^\]]*)]]',r'\1',plainText) #Strip out links with specified names
         plainText = re.sub(r'\[\[([^\]]*)]]',r'\1',plainText) #Strip out links
