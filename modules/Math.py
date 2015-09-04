@@ -576,12 +576,6 @@ class Calculate(Function):
             postCalc = self.afterInfix(calc,'*')
             calc = calc.replace(str(preCalc) + '*' + str(postCalc),str(float(preCalc) * float(postCalc)))
             del preCalc, postCalc
-        ##multiplication processing2
-        while calc.count('x') != 0:
-            preCalc = self.beforeInfix(calc,'x')
-            postCalc = self.afterInfix(calc,'x')
-            calc = calc.replace(str(preCalc) + 'x' + str(postCalc),str(float(preCalc) * float(postCalc)))
-            del preCalc, postCalc
         ##addition processing
         calc = calc.replace('-','+-')
         answer = 0
