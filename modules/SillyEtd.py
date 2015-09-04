@@ -116,7 +116,7 @@ class Trump(Function):
     #Name for use in help listing
     mHelpName = "finnbot"
     #Names which can be used to address the function
-    mNames = set(["finnbot","random finnishism"])
+    mNames = set(["trump","donald trump"])
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Returns the election years that Donald Trump will win US election. Format: \"trump <number of terms>\""
     
