@@ -23,7 +23,13 @@ class JoinChannel(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
-        serverObject = userObject.getServer()
+        #Check for server name in input line
+        serverName = self.findParameter("server",line)
+        if(serverName is None):
+            serverObject = userObject.getServer()
+        else:
+            serverObject = userObject.getServer().getHallo().getServerByName(serverName)
+            line = line.replace("server="+serverName,"").strip()
         channelName = line.split()[0].lower()
         channelPassword = None
         if(channelName!=line):
