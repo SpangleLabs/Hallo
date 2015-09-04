@@ -30,6 +30,8 @@ class JoinChannel(Function):
         else:
             serverObject = userObject.getServer().getHallo().getServerByName(serverName)
             line = line.replace("server="+serverName,"").strip()
+        if(serverObject is None):
+            return "Invalid server specified."
         #Get channel name
         channelName = line.split()[0].lower()
         #Check for channel password
@@ -79,6 +81,8 @@ class LeaveChannel(Function):
         else:
             serverObject = userObject.getServer().getHallo().getServerByName(serverName)
             line = line.replace("server="+serverName,"").strip()
+        if(serverObject is None):
+            return "Invalid server specified."
         #Find channel object
         channelName = line.split()[0].lower()
         channelObject = serverObject.getChannelByName(channelName)
