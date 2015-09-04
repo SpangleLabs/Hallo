@@ -219,6 +219,7 @@ class Wiki(Function):
         while(newScan!=oldScan):
             oldScan = newScan
             newScan = re.sub(r'(\[\[File:[^\][]+)\[\[[^\]]+]]',r'\1',oldScan)
+        plainText = newScan
         plainText = re.sub(r'\[\[File:[^\]]+]]','',plainText) #Strip out images
         plainText = re.sub(r'\[\[[^\]^|]*\|([^\]]*)]]',r'\1',plainText) #Strip out links with specified names
         plainText = re.sub(r'\[\[([^\]]*)]]',r'\1',plainText) #Strip out links
