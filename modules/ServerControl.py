@@ -302,33 +302,69 @@ class Say(Function):
     
     def run(self,line,userObject,destinationObject=None):
         'Say a message into a channel or server/channel pair (in the format "{server,channel}"). Format: say <channel> <message>'
+        #Setting up variables
         halloObject = userObject.getServer().getHallo()
-        destinationString = line.split()[0]
-        message = line[len(destinationString):].strip()
-        #Setting up variable
-        destinationServerString,destinationChannelString = None,None
-        #Looping possible server-channel separators, seeing if any are in use.
-        destinationSeparators = ["->",">",",",".","/",":"]
-        for destinationSeparator in destinationSeparators:
-            if(destinationString.count(destinationSeparator)!=0):
-                destinationServerString = destinationString.split(destinationSeparator)[0]
-                destinationChannelString = destinationString.split(destinationSeparator)[1]
-                break
-        #If no separator, use current server and input as channel
-        if(destinationServerString is None):
-            destinationServerString = userObject.getServer().getName()
-            destinationChannelString = destinationString
-        #Try to find server object
-        destinationServerObject = halloObject.getServerByName(destinationServerString)
-        if(destinationServerObject is None):
-            return "Invalid server name."
-        #Try to find channel object
-        channelObject = destinationServerObject.getChannelByName(destinationChannelString)
-        if(channelObject.isInChannel() is False):
-            return "I am not in that channel."
-        #Send the message
-        destinationServerObject.send(message,channelObject)
+        #See if server and channel are specified as parameters
+        serverName = self.findParameter("server",line)
+        if(serverName is not None):
+            line = line.replace("server="+serverName,"").strip()
+        channelName = self.findParameter("channel",line)
+        if(channelName is not None):
+            line = line.replace("channel="+channelName,"").strip()
+        #If channelName is not found as a parameter, see if server/channel is given as a first argument pair.
+        if(channelName is None):
+            destinationPair = line.split()[0]
+            line = line[len(destinationPair):].strip()
+            destinationSeparators = ["->",">",",",".","/",":"]
+            for destinationSeparator in destinationSeparators:
+                if(destinationPair.count(destinationSeparator)!=0):
+                    serverName = destinationPair.split(destinationSeparator)[0]
+                    channelName = destinationPair.split(destinationSeparator)[1]
+                    break
+            if(channelName is None):
+                channelName = destinationPair
+        #Get serverObj list from serverName
+        serverObjs = []
+        if(serverName is None):
+            serverObjs = [userObject.getServer()]
+        else:
+            #Create a regex query from their input
+            serverRegex = re.escape(serverName).replace("\*",".*")
+            serverList = halloObject.getServerList()
+            for serverObj in serverList:
+                if(not serverObj.isConnected()):
+                    continue
+                if(re.match(serverRegex,serverObj.getName(),re.IGNORECASE)):
+                    serverObjs.append(serverObj)
+        #If server is not recognised or found, respond with an error
+        if(len(serverObjs) == 0):
+            return "Unrecognised server."
+        #Get channelObj list from serverObj and channelName
+        channelObjs = []
+        for serverObj in serverObjs:
+            channelRegex = re.escape(channelName).replace("\*",".*")
+            channelList = serverObj.getChannelList()
+            for channelObj in channelList:
+                if(not channelObj.isInChannel()):
+                    continue
+                if(re.match(channelRegex,channelObj.getName(),re.IGNORECASE)):
+                    channelObjs.append(channelObj)
+        #If no channels were found that match, respond with an error
+        if(len(channelObjs) == 0):
+            return "Unrecognised channel."
+        #Send message to all matching channels
+        for channelObj in channelObjs:
+            channelObj.send(line)
         return "Message sent."
+
+    def findParameter(self,paramName,line):
+        'Finds a parameter value in a line, if the format parameter=value exists in the line'
+        paramValue = None
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramSearch = paramRegex.search(line)
+        if(paramSearch is not None):
+            paramValue = paramSearch.group(2)
+        return paramValue
 
 class EditServer(Function):
     '''

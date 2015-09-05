@@ -89,6 +89,11 @@ class Destination:
     
     def getPermissionMask(self):
         return self.mPermissionMask
+    
+    def send(self,line,msgType="message"):
+        'Sends a message to a destination.'
+        serverObj = self.getServer()
+        serverObj.send(line,self,msgType)
         
     def toXml(self):
         'Returns the Destination object XML'
