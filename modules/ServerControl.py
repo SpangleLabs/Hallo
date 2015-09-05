@@ -307,10 +307,10 @@ class Say(Function):
         #See if server and channel are specified as parameters
         serverName = self.findParameter("server",line)
         if(serverName is not None):
-            line = line.replace("server="+serverName,"")
+            line = line.replace("server="+serverName,"").strip()
         channelName = self.findParameter("channel",line)
         if(channelName is not None):
-            line = line.replace("channel="+channelName,"")
+            line = line.replace("channel="+channelName,"").strip()
         #If channelName is not found as a parameter, see if server/channel is given as a first argument pair.
         if(channelName is None):
             destinationPair = line.split()[0]
