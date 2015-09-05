@@ -323,25 +323,38 @@ class Say(Function):
                     break
             if(channelName is None):
                 channelName = destinationPair
-        #Get serverObj from serverName
-        serverObj = None
+        #Get serverObj list from serverName
+        serverObjs = []
         if(serverName is None):
-            serverObj = userObject.getServer()
+            serverObjs = [userObject.getServer()]
         else:
-            serverObj = halloObject.getServerByName(serverName)
+            #Create a regex query from their input
+            serverRegex = re.escape(serverName).replace("\*",".*")
+            serverList = halloObject.getServerList()
+            for serverObj in serverList:
+                if(not serverObj.isConnected()):
+                    continue
+                if(re.match(serverRegex,serverObj.getName(),re.IGNORECASE)):
+                    serverObjs.append(serverObj)
         #If server is not recognised or found, respond with an error
-        if(serverObj is None):
+        if(len(serverObjs) == 0):
             return "Unrecognised server."
-        if(not serverObj.isConnected()):
-            return "I'm not connected to that server."
-        #Get channelObj from serverObj and channelName
-        channelObj = serverObj.getChannelByName(channelName)
-        if(channelObj is None):
+        #Get channelObj list from serverObj and channelName
+        channelObjs = []
+        for serverObj in serverObjs:
+            channelRegex = re.escape(channelName).replace("\*",".*")
+            channelList = serverObj.getChannelList()
+            for channelObj in channelList:
+                if(not channelObj.isInChannel()):
+                    continue
+                if(re.match(channelRegex,channelObj.getName(),re.IGNORECASE)):
+                    channelObjs.append(channelObj)
+        #If no channels were found that match, respond with an error
+        if(len(channelObjs) == 0):
             return "Unrecognised channel."
-        if(not channelObj.isInChannel()):
-            return "I'm not in that channel."
-        #Send message
-        serverObj.send(line,channelObj)
+        #Send message to all matching channels
+        for channelObj in channelObjs:
+            channelObj.send(line)
         return "Message sent."
 
     def findParameter(self,paramName,line):
