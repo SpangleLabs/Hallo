@@ -14,7 +14,7 @@ class JoinChannel(Function):
     #Names which can be used to address the function
     mNames = set(["join channel","join","channel"])
     #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Join a channel.  Use \"join <channel>\"."
+    mHelpDocs = "Join a channel. Password as optional argument. Server can be specified with \"server=<servername>\". Format: \"join <channel> <password?>\"."
     
     def __init__(self):
         '''
@@ -23,17 +23,38 @@ class JoinChannel(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
-        serverObject = userObject.getServer()
+        #Check for server name in input line
+        serverName = self.findParameter("server",line)
+        if(serverName is None):
+            serverObject = userObject.getServer()
+        else:
+            serverObject = userObject.getServer().getHallo().getServerByName(serverName)
+            line = line.replace("server="+serverName,"").strip()
+        if(serverObject is None):
+            return "Invalid server specified."
+        #Get channel name
         channelName = line.split()[0].lower()
+        #Check for channel password
         channelPassword = None
         if(channelName!=line):
             channelPassword = line[len(channelName):]
+        #Get channel object, set password
         channelObject = serverObject.getChannelByName(channelName)
         channelObject.setPassword(channelPassword)
+        #Join channel if not already in channel.
         if(channelObject.isInChannel()):
             return "I'm already in that channel."
         serverObject.joinChannel(channelObject)
         return "Joined "+channelName+"."
+
+    def findParameter(self,paramName,line):
+        'Finds a parameter value in a line, if the format parameter=value exists in the line'
+        paramValue = None
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramSearch = paramRegex.search(line)
+        if(paramSearch is not None):
+            paramValue = paramSearch.group(2)
+        return paramValue
 
 class LeaveChannel(Function):
     '''
@@ -44,7 +65,7 @@ class LeaveChannel(Function):
     #Names which can be used to address the function
     mNames = set(["leave channel","leave","part"])
     #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Leave a channel.  Use \"leave <channel>\"."
+    mHelpDocs = "Leave a channel. Server can be specified with \"server=<servername>\". Format: \"leave <channel>\"."
     
     def __init__(self):
         '''
@@ -53,13 +74,32 @@ class LeaveChannel(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
-        serverObject = userObject.getServer()
+        #Check for server name in input line
+        serverName = self.findParameter("server",line)
+        if(serverName is None):
+            serverObject = userObject.getServer()
+        else:
+            serverObject = userObject.getServer().getHallo().getServerByName(serverName)
+            line = line.replace("server="+serverName,"").strip()
+        if(serverObject is None):
+            return "Invalid server specified."
+        #Find channel object
         channelName = line.split()[0].lower()
         channelObject = serverObject.getChannelByName(channelName)
+        #Leave channel, provided hallo is in channel.
         if(not channelObject.isInChannel()):
             return "I'm not in that channel."
         serverObject.leaveChannel(channelObject)
         return "Left "+channelName+"."
+
+    def findParameter(self,paramName,line):
+        'Finds a parameter value in a line, if the format parameter=value exists in the line'
+        paramValue = None
+        paramRegex = re.compile("(^|\s)"+paramName+"=([^\s]+)(\s|$)",re.IGNORECASE)
+        paramSearch = paramRegex.search(line)
+        if(paramSearch is not None):
+            paramValue = paramSearch.group(2)
+        return paramValue
 
 class Shutdown(Function):
     '''

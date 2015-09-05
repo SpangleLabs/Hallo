@@ -422,6 +422,8 @@ class ServerIRC(Server):
             return
         #Set channel to not AutoJoin, for the future
         channelObject.setAutoJoin(False)
+        #Set not in channel
+        channelObject.setInChannel(False)
         #Send PART command
         self.send('PART ' + channelObject.getName(),None,"raw")
                 
