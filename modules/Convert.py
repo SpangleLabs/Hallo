@@ -73,7 +73,10 @@ class ConvertRepo:
     @staticmethod
     def loadFromXml():
         'Loads Convert Repo from XML.'
-        doc = minidom.parse("store/convert.xml")
+        try:
+            doc = minidom.parse("store/convert.xml")
+        except FileNotFoundError:
+            doc = minidom.parse("store/convert-default.xml")
         #Create new object
         newRepo = ConvertRepo()
         #Loop through prefix groups
