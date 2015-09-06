@@ -558,15 +558,15 @@
 				<name>eurogold</name>
 				<abbr>eur</abbr>
 				<value>1.0</value>
-				<last_update>1441309607.951262</last_update>
+				<last_update>0</last_update>
 			</unit>
 		</base_unit>
 		<unit>
 			<name>real</name>
 			<name>brazilian real</name>
 			<abbr>brl</abbr>
-			<value>0.23434570678665168</value>
-			<last_update>1441309608.003225</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>nuevos soles</name>
@@ -574,57 +574,57 @@
 			<name>peruvian nuevos soles</name>
 			<name>peruvian nuevo sol</name>
 			<abbr>pen</abbr>
-			<value>0.2803374141116247</value>
-			<last_update>1441309607.963542</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>moldovan leu</name>
 			<abbr>mdl</abbr>
-			<value>0.046470884828882585</value>
-			<last_update>1441309607.959373</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>saudi riyal</name>
 			<abbr>sar</abbr>
-			<value>0.23937016921077264</value>
-			<last_update>1441309607.966281</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>namibian dollar</name>
 			<abbr>nad</abbr>
-			<value>0.06611683903326603</value>
-			<last_update>1441309607.961642</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>cfp franc</name>
 			<abbr>xpf</abbr>
-			<value>0.008380000157544002</value>
-			<last_update>1441309607.971758</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>bahraini dinar</name>
 			<abbr>bhd</abbr>
-			<value>2.3873185637891523</value>
-			<last_update>1441309607.946446</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>lebanese pound</name>
 			<abbr>lbp</abbr>
-			<value>0.0005954484799456703</value>
-			<last_update>1441309607.957913</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>west african cfa franc</name>
 			<abbr>xof</abbr>
-			<value>0.0015244901723741038</value>
-			<last_update>1441309607.971516</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>kuna</name>
 			<name>croatian kuna</name>
 			<abbr>hrk</abbr>
-			<value>0.13230138254944762</value>
-			<last_update>1441309608.00199</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>shekels</name>
@@ -634,35 +634,35 @@
 			<name>israeli new shekels</name>
 			<name>israeli new shekel</name>
 			<abbr>ils</abbr>
-			<value>0.225458808675655</value>
-			<last_update>1441309608.004646</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>naira</name>
 			<name>nigerian naira</name>
 			<abbr>ngn</abbr>
-			<value>0.0045192069912493695</value>
-			<last_update>1441309607.96191</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>syrian pound</name>
 			<abbr>syp</abbr>
-			<value>0.004757069540507517</value>
-			<last_update>1441309607.967448</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>guarani</name>
 			<name>paraguayan guarani</name>
 			<abbr>pyg</abbr>
-			<value>0.00016757127000495984</value>
-			<last_update>1441309607.964805</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>swedish krona</name>
 			<name>swedish crown</name>
 			<abbr>sek</abbr>
-			<value>0.10686038316927594</value>
-			<last_update>1441309608.325338</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>peercoins</name>
@@ -670,65 +670,65 @@
 			<name>ppcoins</name>
 			<name>ppcoin</name>
 			<abbr>ppc</abbr>
-			<value>0.29647464692564773</value>
-			<last_update>1441309609.151431</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>qatari riyal</name>
 			<abbr>qar</abbr>
-			<value>0.24660425934876745</value>
-			<last_update>1441309607.965064</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>dominican peso</name>
 			<abbr>dop</abbr>
-			<value>0.019966607845039955</value>
-			<last_update>1441309607.950457</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>colombian peso</name>
 			<abbr>cop</abbr>
-			<value>0.0002883110847080945</value>
-			<last_update>1441309607.949344</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>danish krone</name>
 			<abbr>dkk</abbr>
-			<value>0.13402130938819273</value>
-			<last_update>1441309607.999523</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>rupiah</name>
 			<name>indonesian rupiah</name>
 			<abbr>idr</abbr>
-			<value>6.269183702128513e-05</value>
-			<last_update>1441309608.004395</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>balboa</name>
 			<name>panamanian balboa</name>
 			<name>pab</name>
-			<value>0.8976418947425113</value>
-			<last_update>1441309607.9633</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>mauritian rupee</name>
 			<abbr>mur</abbr>
-			<value>0.025607486399863974</value>
-			<last_update>1441309607.960332</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>east caribbean dollar</name>
 			<abbr>xcd</abbr>
-			<value>0.3324589662520903</value>
-			<last_update>1441309607.971235</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>uae dirham</name>
 			<name>united arab emirates dirham</name>
 			<abbr>aed</abbr>
-			<value>0.24442168606967485</value>
-			<last_update>1441309607.943855</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>marks</name>
@@ -738,42 +738,42 @@
 			<name>bosnia and herzegovina convertible marks</name>
 			<name>bosnia and herzegovina convertible mark</name>
 			<abbr>bam</abbr>
-			<value>0.5112918811962185</value>
-			<last_update>1441309607.945215</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>kenyan shilling</name>
 			<abbr>kes</abbr>
-			<value>0.008577265768381059</value>
-			<last_update>1441309607.956413</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>kip</name>
 			<name>lao kip</name>
 			<abbr>lak</abbr>
-			<value>0.00010989834767702389</value>
-			<last_update>1441309607.957642</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>dogecoins</name>
 			<name>doge</name>
 			<name>dogecoin</name>
 			<abbr>xdg</abbr>
-			<value>0.00011056685154658727</value>
-			<last_update>1441309609.151721</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>kroon</name>
 			<name>estonian kroon</name>
 			<abbr>eek</abbr>
-			<value>0.06391148514952731</value>
-			<last_update>1441309607.950735</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>fiji dollar</name>
 			<abbr>fjd</abbr>
-			<value>0.40929927963326784</value>
-			<last_update>1441309607.951532</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>florins</name>
@@ -781,109 +781,109 @@
 			<name>aruban florins</name>
 			<name>aruban florin</name>
 			<abbr>awg</abbr>
-			<value>0.501474334543558</value>
-			<last_update>1441309607.944772</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>dalasi</name>
 			<name>gambian dalasi</name>
 			<abbr>gmd</abbr>
-			<value>0.02269751834413433</value>
-			<last_update>1441309607.952439</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>hong kong dollar</name>
 			<abbr>hkd</abbr>
-			<value>0.11490818835750236</value>
-			<last_update>1441309608.00413</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>dong</name>
 			<name>vietnamese dong</name>
 			<abbr>vnd</abbr>
-			<value>4.001164718243424e-05</value>
-			<last_update>1441309607.970583</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>ringgit</name>
 			<name>malaysian ringgit</name>
 			<abbr>myr</abbr>
-			<value>0.2100266733875202</value>
-			<last_update>1441309608.005902</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>icelandic krona</name>
 			<abbr>isk</abbr>
-			<value>0.0069036934760096655</value>
-			<last_update>1441309607.955182</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>riel</name>
 			<name>cambodian riel</name>
 			<abbr>khr</abbr>
-			<value>0.00021860000268965446</value>
-			<last_update>1441309607.956703</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>boliviano</name>
 			<name>bolivian boliviano</name>
 			<abbr>bob</abbr>
-			<value>0.12858081497092144</value>
-			<last_update>1441309607.947185</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>denar</name>
 			<name>macedonian denar</name>
 			<abbr>mkd</abbr>
-			<value>0.016221813180190767</value>
-			<last_update>1441309607.959971</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>hryvnia</name>
 			<name>ukrainian hryvnia</name>
 			<abbr>uah</abbr>
-			<value>0.0404069137845762</value>
-			<last_update>1441309607.96898</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>mexican peso</name>
 			<abbr>mxn</abbr>
-			<value>0.052684540775200336</value>
-			<last_update>1441309608.005618</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>koruna</name>
 			<name>czech koruna</name>
 			<abbr>czk</abbr>
-			<value>0.037006883280290136</value>
-			<last_update>1441309607.999262</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>lats</name>
 			<name>latvian lats</name>
 			<abbr>lvl</abbr>
-			<value>1.4228799089356858</value>
-			<last_update>1441309607.958812</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>sri lankan rupee</name>
 			<abbr>lkr</abbr>
-			<value>0.006668802017072534</value>
-			<last_update>1441309607.95821</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>malagasy ariary</name>
 			<abbr>mga</abbr>
-			<value>0.00031250585948486536</value>
-			<last_update>1441309607.959676</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>bolivar</name>
 			<name>venezuelan bolivar</name>
 			<name>venezuelan bolivar fuerte</name>
 			<abbr>vef</abbr>
-			<value>0.14248241410803872</value>
-			<last_update>1441309607.970288</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>pound sterling</name>
@@ -899,78 +899,78 @@
 			<name>queen golds</name>
 			<name>queen gold</name>
 			<abbr>gbp</abbr>
-			<value>1.3708301061707917</value>
-			<last_update>1441309608.32391</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>jordanian dinar</name>
 			<abbr>jod</abbr>
-			<value>1.2660631765525099</value>
-			<last_update>1441309607.955796</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>barbados dollar</name>
 			<abbr>bbd</abbr>
-			<value>0.4488189329778687</value>
-			<last_update>1441309607.945558</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>ghanaian cedi</name>
 			<abbr>ghs</abbr>
-			<value>0.23769342302298496</value>
-			<last_update>1441309607.952148</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>ruble</name>
 			<name>russian ruble</name>
 			<abbr>rub</abbr>
-			<value>0.013238264940043898</value>
-			<last_update>1441309608.002314</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>chinese yuan</name>
 			<name>rmb</name>
 			<name>yuan</name>
 			<abbr>cny</abbr>
-			<value>0.14011489421325488</value>
-			<last_update>1441309608.003853</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>franc</name>
 			<name>swiss franc</name>
 			<abbr>chf</abbr>
-			<value>0.9231990694153379</value>
-			<last_update>1441309608.323332</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>ugangan shilling</name>
 			<abbr>ugx</abbr>
-			<value>0.0002444188824116229</value>
-			<last_update>1441309607.96935</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>uruguayan peso</name>
 			<abbr>uyu</abbr>
-			<value>0.03141428690354086</value>
-			<last_update>1441309607.969981</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>seychelles rupee</name>
 			<abbr>scr</abbr>
-			<value>0.06885174566715964</value>
-			<last_update>1441309607.966598</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>new zealand dollar</name>
 			<abbr>nzd</abbr>
-			<value>0.5746135723725795</value>
-			<last_update>1441309608.324949</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>cypriot pound</name>
 			<abbr>cyp</abbr>
-			<value>1.7086131187315257</value>
-			<last_update>1441309607.949644</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>dollars</name>
@@ -981,53 +981,53 @@
 			<name>usagolds</name>
 			<name>gringogolds</name>
 			<abbr>usd</abbr>
-			<value>0.8984080209868113</value>
-			<last_update>1441309608.323039</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>moroccan dirham</name>
 			<abbr>mad</abbr>
-			<value>0.09204746703780205</value>
-			<last_update>1441309607.959119</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>rupee</name>
 			<name>indian rupee</name>
 			<abbr>inr</abbr>
-			<value>0.013443805564928874</value>
-			<last_update>1441309608.004957</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>rand</name>
 			<name>south african rand</name>
 			<abbr>zar</abbr>
-			<value>0.06540949615065116</value>
-			<last_update>1441309608.007546</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>argentine peso</name>
 			<abbr>ars</abbr>
-			<value>0.09648607368255502</value>
-			<last_update>1441309607.944161</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>tunisian dinar</name>
 			<abbr>tnd</abbr>
-			<value>0.4570467467412567</value>
-			<last_update>1441309607.968045</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>new taiwan dollar</name>
 			<abbr>twd</abbr>
-			<value>0.027689739788439312</value>
-			<last_update>1441309607.968687</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>lev</name>
 			<name>bulgarian lev</name>
 			<abbr>bgn</abbr>
-			<value>0.5112997238981491</value>
-			<last_update>1441309607.998972</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>minimum wage for an hour</name>
@@ -1038,195 +1038,196 @@
 			<name>hour of minimum wage</name>
 			<name>min wage for an hour</name>
 			<name>hours of min wage</name>
-			<value>10.378688</value>
+			<value>8.85</value>
+                        <last_update>1441545767</last_update>
 		</unit>
 		<unit>
 			<name>pakistani rupee</name>
 			<abbr>pkr</abbr>
-			<value>0.00863184855180024</value>
-			<last_update>1441309607.964192</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>norwegian krone</name>
 			<abbr>nok</abbr>
-			<value>0.10863342411466477</value>
-			<last_update>1441309608.325598</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>bitcoins</name>
 			<name>bitcoin</name>
 			<abbr>btc</abbr>
-			<value>204.8423668935316</value>
-			<last_update>1441309609.152004</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>kuwaiti dinar</name>
 			<abbr>kwd</abbr>
-			<value>2.9726516052318672</value>
-			<last_update>1441309607.957382</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>nepalese rupee</name>
 			<abbr>npr</abbr>
-			<value>0.008493495893182398</value>
-			<last_update>1441309607.962527</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>central african franc</name>
 			<name>central african cfa franc</name>
 			<name>cfa franc</name>
 			<abbr>xaf</abbr>
-			<value>0.0015244901723741038</value>
-			<last_update>1441309607.970932</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>bahamian dollar</name>
 			<abbr>bsd</abbr>
-			<value>0.8976418947425113</value>
-			<last_update>1441309607.947796</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>australian dollar</name>
 			<name>aus dollar</name>
 			<abbr>aud</abbr>
-			<value>0.6299411005071026</value>
-			<last_update>1441309608.324202</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>canadian dollar</name>
 			<abbr>cad</abbr>
-			<value>0.6811037968131154</value>
-			<last_update>1441309608.324486</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>omani rial</name>
 			<abbr>omr</abbr>
-			<value>2.334594014100948</value>
-			<last_update>1441309607.963138</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>jamaican dollar</name>
 			<abbr>jmd</abbr>
-			<value>0.0076466536408470774</value>
-			<last_update>1441309607.955503</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>hungarian forint</name>
 			<abbr>huf</abbr>
-			<value>0.003182686187141948</value>
-			<last_update>1441309608.00015</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>quetzal</name>
 			<name>guatemalan quetzal</name>
 			<abbr>gtq</abbr>
-			<value>0.11661630785772345</value>
-			<last_update>1441309607.952778</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>baht</name>
 			<name>thai baht</name>
 			<abbr>thb</abbr>
-			<value>0.024816974810770567</value>
-			<last_update>1441309608.007234</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>bermudian dollar</name>
 			<abbr>bmd</abbr>
-			<value>0.8976418947425113</value>
-			<last_update>1441309607.946771</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>egyptian pound</name>
 			<abbr>egp</abbr>
-			<value>0.11499817727889013</value>
-			<last_update>1441309607.951048</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>lira</name>
 			<name>turkish lira</name>
 			<abbr>try</abbr>
-			<value>0.30220473464157765</value>
-			<last_update>1441309608.325931</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>romanian leu</name>
 			<abbr>ron</abbr>
-			<value>0.2257081593499605</value>
-			<last_update>1441309608.00083</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>won</name>
 			<name>south korean won</name>
 			<abbr>krw</abbr>
-			<value>0.0007473673983393497</value>
-			<last_update>1441309608.005313</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>litecoins</name>
 			<name>litecoin</name>
 			<abbr>ltc</abbr>
-			<value>2.3368760556294244</value>
-			<last_update>1441309609.151103</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>zloty</name>
 			<name>polish zloty</name>
 			<abbr>pln</abbr>
-			<value>0.23623907394283017</value>
-			<last_update>1441309608.000492</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>litas</name>
 			<name>lithuanian litas</name>
 			<abbr>ltl</abbr>
-			<value>0.2896200185356812</value>
-			<last_update>1441309607.958535</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>singapore dollar</name>
 			<abbr>sgd</abbr>
-			<value>0.6288912647003333</value>
-			<last_update>1441309608.006901</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>rufiyaa</name>
 			<name>maldivian rufiyaa</name>
 			<abbr>mvr</abbr>
-			<value>0.05844101577498338</value>
-			<last_update>1441309607.960707</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>taka</name>
 			<name>bangladeshi taka</name>
 			<abbr>bdt</abbr>
-			<value>0.011549048462348138</value>
-			<last_update>1441309607.945894</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>yen</name>
 			<name>japanese yen</name>
 			<abbr>jpy</abbr>
-			<value>0.007492404574862233</value>
-			<last_update>1441309608.323655</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>philippine peso</name>
 			<abbr>php</abbr>
-			<value>0.019018999980981</value>
-			<last_update>1441309608.006558</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>serbian dinar</name>
 			<abbr>rsd</abbr>
-			<value>0.008306668926080615</value>
-			<last_update>1441309607.965742</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 		<unit>
 			<name>chilean peso</name>
 			<abbr>clp</abbr>
-			<value>0.0013074160416313692</value>
-			<last_update>1441309607.948731</last_update>
+			<value>1</value>
+			<last_update>0</last_update>
 		</unit>
 	</type>
 	<type>

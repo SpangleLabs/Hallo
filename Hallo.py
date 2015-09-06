@@ -83,29 +83,29 @@ class Hallo:
     def loadFromXml(self):
         try:
             doc = minidom.parse("config/config.xml")
-            self.mDefaultNick = doc.getElementsByTagName("default_nick")[0].firstChild.data
-            self.mDefaultPrefix = Commons.stringFromFile(doc.getElementsByTagName("default_prefix")[0].firstChild.data)
-            self.mDefaultFullName = doc.getElementsByTagName("default_full_name")[0].firstChild.data
-            self.mFunctionDispatcher = FunctionDispatcher.fromXml(doc.getElementsByTagName("function_dispatcher")[0].toxml(),self)
-            serverListXml = doc.getElementsByTagName("server_list")[0]
-            for serverXml in serverListXml.getElementsByTagName("server"):
-                serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
-                self.addServer(serverObject)
-            userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
-            for userGroupXml in userGroupListXml.getElementsByTagName("user_group"):
-                userGroupObject = UserGroup.fromXml(userGroupXml.toxml(),self)
-                self.addUserGroup(userGroupObject)
-            if(len(doc.getElementsByTagName("permission_mask"))!=0):
-                self.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
-            apiKeyListXml = doc.getElementsByTagName("api_key_list")[0]
-            for apiKeyXml in apiKeyListXml.getElementsByTagName("api_key"):
-                apiKeyName = apiKeyXml.getElementsByTagName("name")[0].firstChild.data
-                apiKeyKey = apiKeyXml.getElementsByTagName("key")[0].firstChild.data
-                self.addApiKey(apiKeyName,apiKeyKey)
-            return
         except (OSError, IOError):
-            print("Error loading config")
-            self.manualServerConnect()
+            print("No current config, loading from default.")
+            doc = minidom.parse("config/config-default.xml")
+        self.mDefaultNick = doc.getElementsByTagName("default_nick")[0].firstChild.data
+        self.mDefaultPrefix = Commons.stringFromFile(doc.getElementsByTagName("default_prefix")[0].firstChild.data)
+        self.mDefaultFullName = doc.getElementsByTagName("default_full_name")[0].firstChild.data
+        self.mFunctionDispatcher = FunctionDispatcher.fromXml(doc.getElementsByTagName("function_dispatcher")[0].toxml(),self)
+        serverListXml = doc.getElementsByTagName("server_list")[0]
+        for serverXml in serverListXml.getElementsByTagName("server"):
+            serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
+            self.addServer(serverObject)
+        userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
+        for userGroupXml in userGroupListXml.getElementsByTagName("user_group"):
+            userGroupObject = UserGroup.fromXml(userGroupXml.toxml(),self)
+            self.addUserGroup(userGroupObject)
+        if(len(doc.getElementsByTagName("permission_mask"))!=0):
+            self.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
+        apiKeyListXml = doc.getElementsByTagName("api_key_list")[0]
+        for apiKeyXml in apiKeyListXml.getElementsByTagName("api_key"):
+            apiKeyName = apiKeyXml.getElementsByTagName("name")[0].firstChild.data
+            apiKeyKey = apiKeyXml.getElementsByTagName("key")[0].firstChild.data
+            self.addApiKey(apiKeyName,apiKeyKey)
+        return
 
     def saveToXml(self):
         #Create document, with DTD
