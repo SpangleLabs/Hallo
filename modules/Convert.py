@@ -75,7 +75,7 @@ class ConvertRepo:
         'Loads Convert Repo from XML.'
         try:
             doc = minidom.parse("store/convert.xml")
-        except FileNotFoundError:
+        except (OSError,IOError):
             doc = minidom.parse("store/convert-default.xml")
         #Create new object
         newRepo = ConvertRepo()
