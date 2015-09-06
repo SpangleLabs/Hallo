@@ -63,5 +63,20 @@ class Protein(Function):
             strand += ["..."]
         return "-".join(strand)
 
+    def getPassiveEvents(self):
+        'Returns a list of events which this function may want to respond to in a passive way'
+        return set([Function.EVENT_MESSAGE])
 
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+        'Replies to an event not directly addressed to the bot.'
+        cleanFullLine = fullLine.lower()
+        if(len(cleanFullLine)>3):
+            return None
+        validChars = list("ACGUT")
+        checkMessage = cleanFullLine
+        for validChar in validChars:
+            checkMessage = checkMessage.replace(validChar,"")
+        if(checkMessage==""):
+            return self.run(cleanFullLine,userObject,channelObject)
+        return None
 
