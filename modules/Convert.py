@@ -1813,7 +1813,7 @@ class ConvertUnitSetPrefixGroup(Function):
     Sets the prefix group for a unit.
     '''
     #Name for use in help listing
-    mHelpName = "convert unit remove name"
+    mHelpName = "convert set prefix group"
     #Names which can be used to address the Function
     mNames = set(["convert set prefix group","convert prefix group"])
     #Help documentation, if it's just a single line, can be set here
