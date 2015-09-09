@@ -330,8 +330,12 @@ class ServerIRC(Server):
             self.mOpen = False
     
     def reconnect(self):
-        #TODO: IMPORTANT
-        raise NotImplementedError
+        '''
+        Reconnect to a given server. Basically just disconnect and reconnect.
+        '''
+        self.disconnect()
+        self.mSocket = None
+        self.connect()
     
     def run(self):
         '''
