@@ -205,7 +205,7 @@ class Commons(object):
     @staticmethod
     def getRandomChoice(choiceList):
         #Replacement for random.choice, using random.org API
-        randInt = Commons.getRandomInt(0,len(choiceList)-1)
+        randInt = Commons.getRandomInt(0,len(choiceList)-1)[0]
         return choiceList[randInt]
 
 
