@@ -1,6 +1,5 @@
 from Function import Function
 from inc.commons import Commons
-import random
 from xml.dom import minidom
 import difflib
 import re
@@ -285,7 +284,7 @@ class Weather(Function):
 
     def run(self,line,userObject,destinationObject=None):
         weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
-        return random.choice(weather)
+        return Commons.getRandomChoice(weather)
         
 class UrlDetect(Function):
     '''
