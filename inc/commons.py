@@ -3,6 +3,7 @@ import datetime
 import urllib.request
 import re
 import json
+import random
 
 class Commons(object):
     '''
@@ -185,4 +186,26 @@ class Commons(object):
                 return True
             return False
         return None
-            
+    
+    @staticmethod
+    def getRandomInt(minInt,maxInt,count=1):
+        'Returns a list of random integers in a given range'
+        #Try and get random numbers from random.org
+        randomOrgUrl = "https://www.random.org/integers/?num="+str(count)+"&format=plain&min="+str(minInt)+"&max="+str(maxInt)+"&col=1&base=10"
+        userAgentHeaders = [["User-Agent","Hallo IRCBot hallo@dr-spangle.com"]]
+        apiResponse = Commons.loadUrlString(randomOrgUrl,userAgentHeaders)
+        if("Error:" not in apiResponse):
+            return [int(x) for x in apiResponse.split("\n") if x != ""]
+        #Otherwise, use random module
+        outputList = []
+        for _ in range(count):
+            outputList.append(random.randint(minInt,maxInt))
+        return outputList
+
+    @staticmethod
+    def getRandomChoice(choiceList):
+        #Replacement for random.choice, using random.org API
+        randInt = Commons.getRandomInt(0,len(choiceList)-1)[0]
+        return choiceList[randInt]
+
+

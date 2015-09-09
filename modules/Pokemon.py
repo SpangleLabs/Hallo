@@ -1,6 +1,6 @@
 from Function import Function
+from inc.commons import Commons
 from xml.dom import minidom
-import random
 
 class RandomPokemon(Function):
     '''
@@ -29,7 +29,7 @@ class RandomPokemon(Function):
             pokemonDict = {}
             pokemonDict['name'] = pokemonXml.getElementsByTagName("name")[0].firstChild.data
             pokemonList.append(pokemonDict)
-        randomPokemon = random.choice(pokemonList)
+        randomPokemon = Commons.getRandomChoice(pokemonList)
         return "I choose you, " + randomPokemon['name'] + "!"
 
 class PickATeam(Function):
@@ -59,7 +59,7 @@ class PickATeam(Function):
             pokemonDict = {}
             pokemonDict['name'] = pokemonXml.getElementsByTagName("name")[0].firstChild.data
             pokemonList.append(pokemonDict)
-        randomPokemonTeam = random.sample(pokemonList,6)
+        randomPokemonTeam = [Commons.getRandomChoice(pokemonList) for _ in range(6)]
         return "Your team is: " + ", ".join([pokemon['name'] for pokemon in randomPokemonTeam[:5]]) + " and " + randomPokemonTeam[5]['name'] + "."
 
 class FullyEvolvedTeam(Function):
@@ -91,7 +91,7 @@ class FullyEvolvedTeam(Function):
             evolutionChoices = len(pokemonXml.getElementsByTagName("evolve_to"))
             if(evolutionChoices==0):
                 pokemonList.append(pokemonDict)
-        randomPokemonTeam = random.sample(pokemonList,6)
+        randomPokemonTeam = [Commons.getRandomChoice(pokemonList,6) for _ in range(6)]
         return "Your team is: " + ", ".join([pokemon['name'] for pokemon in randomPokemonTeam[:5]]) + " and " + randomPokemonTeam[5]['name'] + "."
 
 class Pokedex(Function):
@@ -129,7 +129,7 @@ class Pokedex(Function):
             return "No available pokedex data."
         #Select a random pokedex entry
         pokedexEntryListXml = selectedPokemonXml.getElementsByTagName("dex_entry_list")
-        pokedexEntryXml = random.choice(pokedexEntryListXml.getElementsByTagName("dex_entry"))
+        pokedexEntryXml = Commons.getRandomChoice(pokedexEntryListXml.getElementsByTagName("dex_entry"))
         pokedexEntryText = pokedexEntryXml.firstChild.data
         return pokedexEntryText
         

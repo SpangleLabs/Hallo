@@ -1,5 +1,5 @@
 from Function import Function
-import random
+from inc.commons import Commons
 import time
 import re
 from xml.dom import minidom
@@ -84,10 +84,10 @@ class ArcticTerns(Function):
     def run(self,line,userObject,destinationObject=None):
         lineClean = line.strip().lower()
         if(lineClean in ['nap','napping','plush']):
-            number = random.randint(0,1)
+            number = Commons.getRandomInt(0,1)
             link = 'http://dr-spangle.com/AT/N0' + str(number) + '.JPG'
             return 'Plush arctic terns! ' + link
-        number = random.randint(0,61)
+        number = Commons.getRandomInt(0,61)
         link = 'http://dr-spangle.com/AT/' + str(number).zfill(2) + '.JPG'
         return 'Arctic terns!! ' + link
 
@@ -215,7 +215,7 @@ class ReplyMessage:
         'Checks if this reply message will respond, and which response to use.'
         if(self.mPrompt.search(inputLine)):
             #Pick a response
-            response = random.choice(self.mResponseList)
+            response = Commons.getRandomChoice(self.mResponseList)
             response = response.replace("{USER}",userObject.getName())
             response = response.replace("{CHANNEL}",destinationObject.getName())
             response = response.replace("{SERVER}",userObject.getServer().getName())

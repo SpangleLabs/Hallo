@@ -1,5 +1,4 @@
 import re
-import random
 import time
 
 from xml.dom import minidom
@@ -45,10 +44,10 @@ class Roll(Function):
         if(numSides==0 or numSides>1000000):
             return "Invalid number of sides."
         if(numDice==1):
-            rand = random.randint(1,numSides)
+            rand = Commons.getRandomInt(1,numSides)[0]
             return "I roll "+str(rand)+"!!!"
         else:
-            diceRolls = [random.randint(1,numSides) for _ in range(numDice)]
+            diceRolls = Commons.getRandomInt(1,numSides,numDice)
             outputString = "I roll "
             outputString += ", ".join([str(x) for x in diceRolls])
             outputString += ". The total is " + str(sum(diceRolls)) + "."
@@ -56,7 +55,7 @@ class Roll(Function):
     
     def runRangeFormat(self,rangeMin,rangeMax):
         'Generates a random number between rangeMin and rangeMax'
-        rand = random.randint(rangeMin,rangeMax)
+        rand = Commons.getRandomInt(rangeMin,rangeMax)[0]
         return "I roll "+str(rand)+"!!!"
 
 class Choose(Function):
@@ -80,7 +79,7 @@ class Choose(Function):
         if(numchoices==1):
             return 'Please present me with more than 1 thing to choose from!'
         else:
-            rand = random.randint(0,numchoices-1)
+            rand = Commons.getRandomInt(0,numchoices-1)[0]
             choice = choices[rand]
             return 'I choose "' + choice + '".'
 
@@ -106,7 +105,7 @@ class EightBall(Function):
         responses += ['As I see it yes','Most likely','Outlook good','Yes','Signs point to yes']
         responses += ['Reply hazy try again','Ask again later','Better not tell you now','Cannot predict now','Concentrate and ask again']
         responses += ["Don't count on it",'My reply is no','My sources say no','Outlook not so good','Very doubtful']
-        rand = random.randint(0,len(responses)-1)
+        rand = Commons.getRandomInt(0,len(responses)-1)[0]
         return responses[rand] + "."
     
     def getNames(self):
@@ -144,7 +143,7 @@ class ChosenOne(Function):
         userSet = channelObject.getUserList()
         #Get list of users' names
         namesList = [userObject.getName() for userObject in userSet]
-        rand = random.randint(0,len(namesList)-1)
+        rand = Commons.getRandomInt(0,len(namesList)-1)[0]
         return 'It should be obvious by now that ' + namesList[rand] + ' is the chosen one.'
 
 class Foof(Function):
@@ -164,13 +163,13 @@ class Foof(Function):
     
     def run(self,line,userObject,destinationObject=None):
         'FOOOOOOOOOF. Format: foof'
-        rand = random.randint(0,2)
-        if(rand==0):
+        rand = Commons.getRandomInt(0,60)
+        if(rand<=20):
             return 'doof'
-        elif(rand==1):
+        elif(rand<=40):
             return 'doooooof'
         else:
-            if(random.randint(0,20)==15):
+            if(rand==40+15):
                 serverObject = userObject.getServer()
                 serverObject.send('powering up...',destinationObject);
                 time.sleep(5);
@@ -219,7 +218,7 @@ class ThoughtForTheDay(Function):
     def run(self,line,userObject,destinationObject=None):
         'WH40K Thought for the day. Format: thought_for_the_day'
         thoughtList = Commons.readFiletoList('store/WH40K_ToTD2.txt')
-        rand = random.randint(0,len(thoughtList)-1)
+        rand = Commons.getRandomInt(0,len(thoughtList)-1)[0]
         if(thoughtList[rand][-1] not in ['.','!','?']):
             thoughtList[rand] = thoughtList[rand] + "."
         return '"' + thoughtList[rand] + '"'
@@ -243,8 +242,10 @@ class Ouija(Function):
     
     def run(self,line,userObject,destinationObject=None):
         wordList = Commons.readFiletoList('store/ouija_wordlist.txt')
+        randList = Commons.getRandomInt(0,len(wordList)-1,4)
+        numWords = (randList[0]%3)+1
         outputString = "I'm getting a message from the other side..."
-        outputString += " ".join([wordList[random.randint(0,len(wordList)-1)] for _ in range(random.randint(1,3))])
+        outputString += " ".join([wordList[randList[x+2]] for x in range(numWords)])
         outputString += "."
         return outputString
 
@@ -274,5 +275,5 @@ class Scriptures(Function):
             self.mScriptureList.append(scriptureXml.firstChild.data)
     
     def run(self,line,userObject,destinationObject=None):
-        rand = random.randint(0,len(self.mScriptureList)-1)
+        rand = Commons.getRandomInt(0,len(self.mScriptureList)-1)[0]
         return self.mScriptureList[rand]
