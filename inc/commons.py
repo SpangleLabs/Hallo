@@ -202,5 +202,10 @@ class Commons(object):
             outputList.append(random.randint(minInt,maxInt))
         return outputList
 
+    @staticmethod
+    def getRandomChoice(choiceList):
+        #Replacement for random.choice, using random.org API
+        randInt = Commons.getRandomInt(0,len(choiceList)-1)
+        return choiceList[randInt]
 
 
