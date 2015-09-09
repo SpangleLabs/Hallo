@@ -243,8 +243,10 @@ class Ouija(Function):
     
     def run(self,line,userObject,destinationObject=None):
         wordList = Commons.readFiletoList('store/ouija_wordlist.txt')
+        randList = Commons.getRandomInt(0,len(wordList)-1,4)
+        numWords = (randList[0]%3)+1
         outputString = "I'm getting a message from the other side..."
-        outputString += " ".join([wordList[random.randint(0,len(wordList)-1)] for _ in range(random.randint(1,3))])
+        outputString += " ".join([wordList[randList[x+2]] for x in range(numWords)])
         outputString += "."
         return outputString
 
