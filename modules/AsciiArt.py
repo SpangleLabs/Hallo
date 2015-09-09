@@ -1,5 +1,5 @@
 from Function import Function
-import random
+from inc.commons import Commons
 
 class Longcat(Function):
     '''
@@ -125,7 +125,7 @@ class Dragon(Function):
   jgs     //\   ) ,  /       '%%%%(%%'
     ,  _.'/  `\<-- \<
      `^^^`     ^^   ^^'''
-        rand = random.randint(0,100)
+        rand = Commons.getRandomInt(0,100)[0]
         if(rand==15):
             dragon = dragonDeer
         elif(rand%2==0):
