@@ -56,7 +56,7 @@ class Roll(Function):
     
     def runRangeFormat(self,rangeMin,rangeMax):
         'Generates a random number between rangeMin and rangeMax'
-        rand = Commons.getRandomInt(rangeMin,rangeMax)
+        rand = Commons.getRandomInt(rangeMin,rangeMax)[0]
         return "I roll "+str(rand)+"!!!"
 
 class Choose(Function):
