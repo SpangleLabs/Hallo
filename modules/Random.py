@@ -80,7 +80,7 @@ class Choose(Function):
         if(numchoices==1):
             return 'Please present me with more than 1 thing to choose from!'
         else:
-            rand = random.randint(0,numchoices-1)
+            rand = Commons.getRandomInt(0,numchoices-1)[0]
             choice = choices[rand]
             return 'I choose "' + choice + '".'
 
