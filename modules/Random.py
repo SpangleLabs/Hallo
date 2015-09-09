@@ -106,7 +106,7 @@ class EightBall(Function):
         responses += ['As I see it yes','Most likely','Outlook good','Yes','Signs point to yes']
         responses += ['Reply hazy try again','Ask again later','Better not tell you now','Cannot predict now','Concentrate and ask again']
         responses += ["Don't count on it",'My reply is no','My sources say no','Outlook not so good','Very doubtful']
-        rand = random.randint(0,len(responses)-1)
+        rand = Commons.getRandomInt(0,len(responses)-1)[0]
         return responses[rand] + "."
     
     def getNames(self):
