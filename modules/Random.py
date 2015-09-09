@@ -276,5 +276,5 @@ class Scriptures(Function):
             self.mScriptureList.append(scriptureXml.firstChild.data)
     
     def run(self,line,userObject,destinationObject=None):
-        rand = random.randint(0,len(self.mScriptureList)-1)
+        rand = Commons.getRandomInt(0,len(self.mScriptureList)-1)[0]
         return self.mScriptureList[rand]
