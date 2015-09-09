@@ -45,10 +45,10 @@ class Roll(Function):
         if(numSides==0 or numSides>1000000):
             return "Invalid number of sides."
         if(numDice==1):
-            rand = random.randint(1,numSides)
+            rand = Commons.getRandomInt(1,numSides)[0]
             return "I roll "+str(rand)+"!!!"
         else:
-            diceRolls = [random.randint(1,numSides) for _ in range(numDice)]
+            diceRolls = Commons.getRandomInt(1,numSides,numDice)
             outputString = "I roll "
             outputString += ", ".join([str(x) for x in diceRolls])
             outputString += ". The total is " + str(sum(diceRolls)) + "."
@@ -56,7 +56,7 @@ class Roll(Function):
     
     def runRangeFormat(self,rangeMin,rangeMax):
         'Generates a random number between rangeMin and rangeMax'
-        rand = random.randint(rangeMin,rangeMax)
+        rand = Commons.getRandomInt(rangeMin,rangeMax)
         return "I roll "+str(rand)+"!!!"
 
 class Choose(Function):
