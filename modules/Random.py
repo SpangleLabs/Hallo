@@ -1,5 +1,4 @@
 import re
-import random
 import time
 
 from xml.dom import minidom
