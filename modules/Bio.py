@@ -69,8 +69,8 @@ class Protein(Function):
 
     def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
-        cleanFullLine = fullLine.lower()
-        if(len(cleanFullLine)>3):
+        cleanFullLine = fullLine.strip().upper()
+        if(len(cleanFullLine)<3):
             return None
         validChars = list("ACGUT")
         checkMessage = cleanFullLine
