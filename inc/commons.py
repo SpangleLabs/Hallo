@@ -195,7 +195,7 @@ class Commons(object):
         userAgentHeaders = [["User-Agent","Hallo IRCBot hallo@dr-spangle.com"]]
         apiResponse = Commons.loadUrlString(randomOrgUrl,userAgentHeaders)
         if("Error:" not in apiResponse):
-            return apiResponse.split("\n")
+            return [int(x) for x in apiResponse.split("\n")]
         #Otherwise, use random module
         outputList = []
         for _ in range(count):
