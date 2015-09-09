@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #socket connects to the server
 #time gets time for time stamps and does sleep
 #sys is used to kill itself
