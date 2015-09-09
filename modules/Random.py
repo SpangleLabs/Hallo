@@ -219,7 +219,7 @@ class ThoughtForTheDay(Function):
     def run(self,line,userObject,destinationObject=None):
         'WH40K Thought for the day. Format: thought_for_the_day'
         thoughtList = Commons.readFiletoList('store/WH40K_ToTD2.txt')
-        rand = random.randint(0,len(thoughtList)-1)
+        rand = Commons.getRandomInt(0,len(thoughtList)-1)[0]
         if(thoughtList[rand][-1] not in ['.','!','?']):
             thoughtList[rand] = thoughtList[rand] + "."
         return '"' + thoughtList[rand] + '"'
