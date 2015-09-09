@@ -164,13 +164,13 @@ class Foof(Function):
     
     def run(self,line,userObject,destinationObject=None):
         'FOOOOOOOOOF. Format: foof'
-        rand = random.randint(0,2)
-        if(rand==0):
+        rand = Commons.getRandomInt(0,60)
+        if(rand<=20):
             return 'doof'
-        elif(rand==1):
+        elif(rand<=40):
             return 'doooooof'
         else:
-            if(random.randint(0,20)==15):
+            if(rand==40+15):
                 serverObject = userObject.getServer()
                 serverObject.send('powering up...',destinationObject);
                 time.sleep(5);
