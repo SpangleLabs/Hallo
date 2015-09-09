@@ -144,7 +144,7 @@ class ChosenOne(Function):
         userSet = channelObject.getUserList()
         #Get list of users' names
         namesList = [userObject.getName() for userObject in userSet]
-        rand = random.randint(0,len(namesList)-1)
+        rand = Commons.getRandomInt(0,len(namesList)-1)[0]
         return 'It should be obvious by now that ' + namesList[rand] + ' is the chosen one.'
 
 class Foof(Function):
