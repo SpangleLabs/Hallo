@@ -276,6 +276,18 @@ class WeatherLocationRepo:
     
     def addEntry(self,newEntry):
         self.mListLocations.append(newEntry)
+    
+    def getEntryByUserObject(self,userObject):
+        'Returns an entry matching the given userObject, or None.'
+        userName = userObject.getName()
+        serverName = userObject.getServer().getName()
+        for locationEntry in self.mListLocations:
+            if(locationEntry.getName() != userName):
+                continue
+            if(locationEntry.getServer() != serverName):
+                continue
+            return locationEntry
+        return None
 
     @staticmethod
     def loadFromXml():
@@ -329,6 +341,14 @@ class WeatherLocationEntry:
     def __init__(self,serverName,userName):
         self.mServer = serverName
         self.mUser = userName
+    
+    def getServer(self):
+        'Returns server name'
+        return self.mServer
+
+    def getUser(self):
+        'Returns user name'
+        return self.mUser
     
     def setCountryCode(self,newCountryCode):
         'Sets the country code of the location entry'
@@ -484,7 +504,7 @@ class CurrentWeather(Function):
     #Name for use in help listing
     mHelpName = "current weather"
     #Names which can be used to address the function
-    mNames = set(["current weather","weather current"])
+    mNames = set(["current weather","weather current","current weather in"])
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Returns the current weather in your location (if known) or in provided location."
     
@@ -495,6 +515,9 @@ class CurrentWeather(Function):
         pass
 
     def run(self,line,userObject,destinationObject=None):
+        lineClean = line.strip().lower()
+        if(lineClean == ""):
+            
         weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
         return Commons.getRandomChoice(weather)
     
