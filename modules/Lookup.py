@@ -264,6 +264,26 @@ class Translate(Function):
         transDict = Commons.loadUrlJson(url,[],True)
         translationString = " ".join([x[0] for x in transDict[0]])
         return "Translation: "+translationString
+
+class WeatherLocation(Function):
+    '''
+    Sets the location of user for Weather functions.
+    '''
+    #Name for use in help listing
+    mHelpName = "weather location"
+    #Names which can be used to address the function
+    mNames = set(["weather location","weather location set","set weather location","weather set location"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Sets a user's location for weather-related functions"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        return "Not yet Implemented"
     
 class Weather(Function):
     '''
