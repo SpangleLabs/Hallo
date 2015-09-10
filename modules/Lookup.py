@@ -282,7 +282,7 @@ class WeatherLocationRepo:
         userName = userObject.getName()
         serverName = userObject.getServer().getName()
         for locationEntry in self.mListLocations:
-            if(locationEntry.getName() != userName):
+            if(locationEntry.getUser() != userName):
                 continue
             if(locationEntry.getServer() != serverName):
                 continue
