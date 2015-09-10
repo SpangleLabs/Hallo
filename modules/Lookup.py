@@ -282,13 +282,23 @@ class WeatherLocationRepo:
         'Loads user locations from XML'
         newRepo = WeatherLocationRepo()
         try:
-            doc = minidom.parse("store/weather_locations.xml")
+            doc = minidom.parse("store/weather_location_list.xml")
         except (IOError,OSError):
             return newRepo
         for weatherLocationXml in doc.getElementsByTagName("weather_location"):
             weatherLocation = WeatherLocationEntry.fromXml(weatherLocationXml.toxml())
             newRepo.addEntry(weatherLocation)
         return newRepo
+    
+    def saveToXml(self):
+        'Saves user locations to XML'
+        #Create document with DTD
+        docimp = minidom.DOMImplementation()
+        doctype = docimp.createDocumentType(
+            qualifiedName='weather_location_list',
+            publicId='',
+            systemId='weather_location_list.dtd'
+        )
 
 class WeatherLocationEntry:
     '''
@@ -344,23 +354,22 @@ class WeatherLocationEntry:
         if(len(doc.getElementsByTagName("country_code"))>0):
             newCountryCode = doc.getElementsByTagName("country_code")[0].firstChild.data
             newEntry.setCountryCode(newCountryCode)
-        #Get type
-        newType = doc.getElementsByTagName("type")[0].firstChild.data
-        #Get whatever relevant elements
-        if(newType == WeatherLocationEntry.TYPE_CITY):
-            newCity = doc.getElementsByTagName("city")[0].firstChild.data
+        #Check if entry is a city name
+        if(len(doc.getElementsByTagName("city_name"))>0):
+            newCity = doc.getElementsByTagName("city_name")[0].firstChild.data
             newEntry.setCity(newCity)
-        elif(newType == WeatherLocationEntry.TYPE_COORDS):
+        #Check if entry is coordinates
+        if(len(doc.getElementsByTagName("coords"))>0):
             newLat = doc.getElementsByTagName("latitude")[0].firstChild.data
             newLong = doc.getElementsByTagName("longitude")[0].firstChild.data
             newEntry.setCoords(newLat,newLong)
-        elif(newType == WeatherLocationEntry.TYPE_ZIP):
+        #Check if entry is zip code
+        if(len(doc.getElementsByTagName("zip_code"))>0):
             newZip = doc.getElementsByTagName("zip_code")[0].firstChild.data
             newEntry.setZipCode(newZip)
+        #Return entry
         return newEntry
-            
-            
-        
+
 
 class WeatherLocation(Function):
     '''
