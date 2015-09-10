@@ -539,6 +539,8 @@ class CurrentWeather(Function):
         if(lineClean == ""):
             locationRepo = WeatherLocationRepo.loadFromXml()
             locationEntry = locationRepo.getEntryByUserObject(userObject)
+            if(locationEntry is None):
+                return "No location stored for this user. Please specify a location or store one with the \"weather location\" function."
         else:
             userName = userObject.getName()
             serverName = userObject.getServer().getName()
