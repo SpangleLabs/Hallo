@@ -291,6 +291,21 @@ class WeatherLocationRepo:
         return newRepo
 
 class WeatherLocationEntry:
+    '''
+    Helper class that stores weather location data for a given user
+    '''
+    mServer = None
+    mUser = None
+    mCountryCode = None
+    mType = None
+    mCityName = None
+    mZipCode = None
+    mLatitude = None
+    mLongitude = None
+    
+    TYPE_CITY = "city"
+    TYPE_COORDS = "coords"
+    TYPE_ZIP = "zip"
 
     def __init__(self):
         pass
