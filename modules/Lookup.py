@@ -476,6 +476,27 @@ class WeatherLocation(Function):
         weatherRepo.addEntry(newEntry)
         weatherRepo.saveToXml()
         return "Set location for "+userName+" as city: "+newCity
+
+class CurrentWeather(Function):
+    '''
+    Returns the current weather in your location, or asks for your location.
+    '''
+    #Name for use in help listing
+    mHelpName = "current weather"
+    #Names which can be used to address the function
+    mNames = set(["current weather","weather current"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns the current weather in your location (if known) or in provided location."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
+        return Commons.getRandomChoice(weather)
     
 class Weather(Function):
     '''
