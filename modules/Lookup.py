@@ -604,14 +604,22 @@ class Weather(Function):
 
     def run(self,line,userObject,destinationObject=None):
         lineClean = line.strip().lower()
+        regexFluff = re.compile(r'\b[io]n\b')
+        #Clear input fluff
+        lineClean = regexFluff.sub("",lineClean).strip()
         #Hunt for the days offset
         daysOffset = 0
-        regexFluff = re.compile(r'\b[io]n\b')
         regexNow = re.compile(r'(now|current(ly)?|today)')
         regexTomorrow = re.compile(r'(to|the\s+)morrow')
         regexWeekday = re.compile(r'\b(this\s+|next\s+|)(mo(n(day)?)?|tu(e(s(day)?)?)?|we(d(nesday)?)?|th(u(r(sday)?)?)?|fr(i(day)?)?|sa(t(urday)?)?|su(n(day)?)?)\b')
         regexDays = re.compile(r'(([0-9]+)\s*d(ays?)?)')
         regexWeeks = re.compile(r'(([0-9]+)\s*w(eeks?)?)')
+        if(regexNow.match(lineClean)):
+            daysOffset = 0
+            lineClean = regexNow.sub("",lineClean).strip()
+        elif(regexTomorrow.match(lineClean)):
+            daysOffset = 1
+            lineclean = regexTomorrow.sub("",lineClean).strip()
         weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
         return Commons.getRandomChoice(weather)
         
