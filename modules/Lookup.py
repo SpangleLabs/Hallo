@@ -393,8 +393,8 @@ class WeatherLocationEntry:
         #Check if coordinates are given
         coordMatch = re.match(r'^(\-?\d+(\.\d+)?)[ ,]*(\-?\d+(\.\d+)?)$',inputLine)
         if(coordMatch):
-            newLat = coordMatch.group(0)
-            newLong = coordMatch.group(1)
+            newLat = coordMatch.group(1)
+            newLong = coordMatch.group(2)
             self.setCoords(newLat,newLong)
             return "Set location for "+self.mUser+" as coords: "+newLat+", "+newLong
         #Otherwise, assume it's a city
