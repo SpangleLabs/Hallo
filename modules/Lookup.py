@@ -438,7 +438,44 @@ class WeatherLocation(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
-        return "Not yet Implemented"
+        lineClean = line.strip().lower()
+        #Load up Weather locations repo
+        weatherRepo = WeatherLocationRepo.loadFromXml()
+        userName = userObject.getName()
+        serverObj = userObject.getServer()
+        serverName = serverObj.getName()
+        #Check that an argument is provided
+        if(len(lineClean.split())==0):
+            return "Please specify a city, coordinates or zip code"
+        #Check if first argument is a specified user for given server
+        firstArg = lineClean.split()[0]
+        testUser = serverObj.getUserByName(firstArg)
+        if(testUser.isOnline()):
+            userName = testUser.getName()
+            lineClean = lineClean[len(firstArg):].strip()
+        #Create entry
+        newEntry = WeatherLocationEntry(serverName,userName)
+        #Check if zip code is given
+        if(re.match(r'^\d{5}(?:[-\s]\d{4})?$',lineClean)):
+            newEntry.setZipCode(lineClean)
+            weatherRepo.addEntry(newEntry)
+            weatherRepo.saveToXml()
+            return "Set location for "+userName+" as zip code: "+lineClean
+        #Check if coordinates are given
+        if(re.match(r'^(\-?\d+(\.\d+)?)[ ,]*(\-?\d+(\.\d+)?)$',lineClean)):
+            coords = lineClean.split(" ,")
+            newLat = coords[0]
+            newLong = coords[1]
+            newEntry.setCoords(newLat,newLong)
+            weatherRepo.addEntry(newEntry)
+            weatherRepo.saveToXml()
+            return "Set location for "+userName+" as coords: "+newLat+", "+newLong
+        #Otherwise, assume it's a city
+        newCity = lineClean
+        newEntry.setCity(newCity)
+        weatherRepo.addEntry(newEntry)
+        weatherRepo.saveToXml()
+        return "Set location for "+userName+" as city: "+newCity
     
 class Weather(Function):
     '''
