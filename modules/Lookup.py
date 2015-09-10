@@ -619,7 +619,21 @@ class Weather(Function):
             lineClean = regexNow.sub("",lineClean).strip()
         elif(regexTomorrow.match(lineClean)):
             daysOffset = 1
-            lineclean = regexTomorrow.sub("",lineClean).strip()
+            lineClean = regexTomorrow.sub("",lineClean).strip()
+        elif(regexWeekday.match(lineClean)):
+            raise NotImplementedError
+        elif(regexDays.match(lineClean)):
+            match = regexDays.match(lineClean)
+            daysOffset = int(match.group(2))
+            lineClean = regexDays.sub("",lineClean).strip()
+        elif(regexWeeks.match(lineClean)):
+            match = regexWeeks.match(lineClean)
+            daysOffset = 7*int(match.group(2))
+            lineClean = regexWeeks.sub("",lineClean).strip()
+        #Figure out if a user or city was specified
+        #Get API response
+        #Check that days is within bounds for API response
+        #Format and return output
         weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
         return Commons.getRandomChoice(weather)
         
