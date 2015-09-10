@@ -299,6 +299,15 @@ class WeatherLocationRepo:
             publicId='',
             systemId='weather_location_list.dtd'
         )
+        doc = docimp.createDocument(None,'weather_location_list',doctype)
+        #Get root element
+        root = doc.getElementsByTagName("weather_location_list")[0]
+        #Add entries
+        for entryObject in self.mListLocations:
+            entryElement = minidom.parseString(entryObject.toXml()).firstChild
+            root.appendChild(entryElement)
+        #Save XML
+        doc.writexml(open("store/weather_location_list.xml","w"),addindent="\t",newl="\n")
 
 class WeatherLocationEntry:
     '''
@@ -370,6 +379,8 @@ class WeatherLocationEntry:
         #Return entry
         return newEntry
 
+    def toXml(self):
+        pass
 
 class WeatherLocation(Function):
     '''
