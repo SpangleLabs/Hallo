@@ -286,7 +286,7 @@ class WeatherLocationRepo:
         except (IOError,OSError):
             return newRepo
         for weatherLocationXml in doc.getElementsByTagName("weather_location"):
-            weatherLocation = WeatherLocationEntry.loadFromXml(weatherLocationXml.toxml())
+            weatherLocation = WeatherLocationEntry.fromXml(weatherLocationXml.toxml())
             newRepo.addEntry(weatherLocation)
         return newRepo
 
@@ -307,12 +307,60 @@ class WeatherLocationEntry:
     TYPE_COORDS = "coords"
     TYPE_ZIP = "zip"
 
-    def __init__(self):
-        pass
+    def __init__(self,serverName,userName):
+        self.mServer = serverName
+        self.mUser = userName
+    
+    def setCountryCode(self,newCountryCode):
+        'Sets the country code of the location entry'
+        self.mCountryCode = newCountryCode
+    
+    def setCity(self,newCity):
+        'Sets the city of the location entry'
+        self.mType = self.TYPE_CITY
+        self.mCityName = newCity
+    
+    def setCoords(self,latitude,longitude):
+        'Sets the coordinates of the location entry'
+        self.mType = self.TYPE_COORDS
+        self.mLatitude = latitude
+        self.mLongitude = longitude
+        
+    def setZipCode(self,newZip):
+        'Sets the zip code of the location entry'
+        self.mType = self.TYPE_ZIP
+        self.mZipCode = newZip
+    
     
     @staticmethod
-    def loadFromXml(entryXml):
-        pass
+    def fromXml(xmlString):
+        #Load document
+        doc = minidom.parseString(xmlString)
+        #Get server and username and create entry
+        newServer = doc.getElementsByTagName("server")[0].firstChild.data
+        newUser = doc.getElementsByTagName("user")[0].firstChild.data
+        newEntry = WeatherLocationEntry(newServer,newUser)
+        #Get country code, if applicable
+        if(len(doc.getElementsByTagName("country_code"))>0):
+            newCountryCode = doc.getElementsByTagName("country_code")[0].firstChild.data
+            newEntry.setCountryCode(newCountryCode)
+        #Get type
+        newType = doc.getElementsByTagName("type")[0].firstChild.data
+        #Get whatever relevant elements
+        if(newType == WeatherLocationEntry.TYPE_CITY):
+            newCity = doc.getElementsByTagName("city")[0].firstChild.data
+            newEntry.setCity(newCity)
+        elif(newType == WeatherLocationEntry.TYPE_COORDS):
+            newLat = doc.getElementsByTagName("latitude")[0].firstChild.data
+            newLong = doc.getElementsByTagName("longitude")[0].firstChild.data
+            newEntry.setCoords(newLat,newLong)
+        elif(newType == WeatherLocationEntry.TYPE_ZIP):
+            newZip = doc.getElementsByTagName("zip_code")[0].firstChild.data
+            newEntry.setZipCode(newZip)
+        return newEntry
+            
+            
+        
 
 class WeatherLocation(Function):
     '''
