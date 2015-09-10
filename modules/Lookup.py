@@ -275,12 +275,17 @@ class WeatherLocationRepo:
         self.mListLocations = []
     
     def addEntry(self,newEntry):
-        self.mListLocations.append(newEntry)
+        userName = newEntry.getUser()
+        serverName = newEntry.getServer()
+        testEntry = self.getEntryByUserNameAndServerName(userName,serverName)
+        if(testEntry is None):
+            self.mListLocations.append(newEntry)
+        else:
+            newList = [x if x != testEntry else newEntry for x in self.mListLocations]
+            self.mListLocations = newList
     
-    def getEntryByUserObject(self,userObject):
-        'Returns an entry matching the given userObject, or None.'
-        userName = userObject.getName()
-        serverName = userObject.getServer().getName()
+    def getEntryByUserNameAndServerName(self,userName,serverName):
+        'Returns an entry matching the given user name and server name, or None.'
         for locationEntry in self.mListLocations:
             if(locationEntry.getUser() != userName):
                 continue
@@ -288,6 +293,12 @@ class WeatherLocationRepo:
                 continue
             return locationEntry
         return None
+        
+    def getEntryByUserObject(self,userObject):
+        'Returns an entry matching the given userObject, or None.'
+        userName = userObject.getName()
+        serverName = userObject.getServer().getName()
+        return self.getEntryByUserNameAndServerName(userName,serverName)
 
     @staticmethod
     def loadFromXml():
