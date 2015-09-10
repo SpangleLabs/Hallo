@@ -506,9 +506,10 @@ class WeatherLocation(Function):
         #Check if first argument is a specified user for given server
         firstArg = lineClean.split()[0]
         testUser = serverObj.getUserByName(firstArg)
-        if(testUser.isOnline()):
-            userName = testUser.getName()
-            lineClean = lineClean[len(firstArg):].strip()
+        if(destinationObject is not None and destinationObject.isChannel()):
+            if(destinationObject.isUserInChannel(testUser)):
+                userName = testUser.getName()
+                lineClean = lineClean[len(firstArg):].strip()
         #Create entry
         newEntry = WeatherLocationEntry(serverName,userName)
         #Set Entry location by input
