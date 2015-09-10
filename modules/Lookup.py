@@ -265,6 +265,40 @@ class Translate(Function):
         translationString = " ".join([x[0] for x in transDict[0]])
         return "Translation: "+translationString
 
+class WeatherLocationRepo:
+    '''
+    Helper class to hold user's locations for weather-related functions.
+    '''
+    mListLocations = None
+    
+    def __init__(self):
+        self.mListLocations = []
+    
+    def addEntry(self,newEntry):
+        self.mListLocations.append(newEntry)
+
+    @staticmethod
+    def loadFromXml():
+        'Loads user locations from XML'
+        newRepo = WeatherLocationRepo()
+        try:
+            doc = minidom.parse("store/weather_locations.xml")
+        except (IOError,OSError):
+            return newRepo
+        for weatherLocationXml in doc.getElementsByTagName("weather_location"):
+            weatherLocation = WeatherLocationEntry.loadFromXml(weatherLocationXml.toxml())
+            newRepo.addEntry(weatherLocation)
+        return newRepo
+
+class WeatherLocationEntry:
+
+    def __init__(self):
+        pass
+    
+    @staticmethod
+    def loadFromXml(entryXml):
+        pass
+
 class WeatherLocation(Function):
     '''
     Sets the location of user for Weather functions.
