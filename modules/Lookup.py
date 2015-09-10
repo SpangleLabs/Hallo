@@ -391,10 +391,10 @@ class WeatherLocationEntry:
             self.setZipCode(inputLine)
             return "Set location for "+self.mUser+" as zip code: "+inputLine
         #Check if coordinates are given
-        if(re.match(r'^(\-?\d+(\.\d+)?)[ ,]*(\-?\d+(\.\d+)?)$',inputLine)):
-            coords = inputLine.split(" ,")
-            newLat = coords[0]
-            newLong = coords[1]
+        coordMatch = re.match(r'^(\-?\d+(\.\d+)?)[ ,]*(\-?\d+(\.\d+)?)$',inputLine)
+        if(coordMatch):
+            newLat = coordMatch.group(0)
+            newLong = coordMatch.group(1)
             self.setCoords(newLat,newLong)
             return "Set location for "+self.mUser+" as coords: "+newLat+", "+newLong
         #Otherwise, assume it's a city
