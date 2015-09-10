@@ -554,10 +554,18 @@ class CurrentWeather(Function):
             if(locationEntry is None):
                 return "No location stored for this user. Please specify a location or store one with the \"weather location\" function."
         else:
-            userName = userObject.getName()
-            serverName = userObject.getServer().getName()
-            locationEntry = WeatherLocationEntry(userName,serverName)
-            locationEntry.setFromInput(lineClean)
+            #Check if a user was specified
+            testUser = userObject.getServer().getUserByName(lineClean)
+            if(destinationObject is not None and destinationObject.isChannel() and destinationObject.isUserInChannel(testUser)):
+                locationRepo = WeatherLocationRepo.loadFromXml()
+                locationEntry = locationRepo.getEntryByUserObject(testUser)
+                if(locationEntry is None):
+                    return "No location stored for this user. Please specify a location or store one with the \"weather location\" function."
+            else:
+                userName = userObject.getName()
+                serverName = userObject.getServer().getName()
+                locationEntry = WeatherLocationEntry(userName,serverName)
+                locationEntry.setFromInput(lineClean)
         apiKey = userObject.getServer().getHallo().getApiKey("openweathermap")
         if(apiKey is None):
             return "No API key loaded for openweathermap."
