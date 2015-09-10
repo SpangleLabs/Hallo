@@ -380,7 +380,45 @@ class WeatherLocationEntry:
         return newEntry
 
     def toXml(self):
-        pass
+        'Writes out Entry as XML'
+        #Create document
+        doc = minidom.Document()
+        #Create root element
+        root = doc.createElement("weather_location")
+        doc.appendChild(root)
+        #Add server element
+        serverElement = doc.createElement("server")
+        serverElement.appendChild(doc.createTextNode(self.mServer))
+        root.appendChild(serverElement)
+        #Add user element
+        userElement = doc.createElement("user")
+        userElement.appendChild(doc.createTextNode(self.mUser))
+        root.appendChild(userElement)
+        #Add country code, if set
+        if(self.mCountryCode is not None):
+            countryCodeElement = doc.createElement("country_code")
+            countryCodeElement.appendChild(doc.createTextNode(self.mCountryCode))
+            root.appendChild(countryCodeElement)
+        #Depending on type, add relevant elements
+        if(self.mType == self.TYPE_CITY):
+            cityElement = doc.createElement("city_name")
+            cityElement.appendChild(doc.createTextNode(self.mCityName))
+            root.appendChild(cityElement)
+        elif(self.mType == self.TYPE_COORDS):
+            coordsElement = doc.createElement("coords")
+            latElement = doc.createElement("latitude")
+            latElement.appendChild(doc.createTextNode(self.mLatitude))
+            coordsElement.appendChild(latElement)
+            longElement = doc.createElement("longitude")
+            longElement.appendChild(doc.createTextNode(self.mLongitude))
+            coordsElement.appendChild(longElement)
+            root.appendChild(coordsElement)
+        elif(self.mType == self.TYPE_ZIP):
+            zipElement = doc.createElement("zip_code")
+            zipElement.appendChild(doc.createTextNode(self.mZipCode))
+            root.appendChild(zipElement)
+        #Output XML
+        return doc.toxml()
 
 class WeatherLocation(Function):
     '''
