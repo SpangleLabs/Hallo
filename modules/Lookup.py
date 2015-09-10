@@ -592,7 +592,7 @@ class Weather(Function):
     #Name for use in help listing
     mHelpName = "weather"
     #Names which can be used to address the function
-    mNames = set(["weather","random weather"])
+    mNames = set(["weather","weather in"])
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Random weather"
     
