@@ -807,6 +807,10 @@ class ServerIRC(Server):
             #Parse out data
             usersOnline = ':'.join(numericLine.split(':')[2:])
             usersOnlineList = usersOnline.split()
+            #Mark them all as online
+            for userName in usersOnlineList:
+                userObj = self.getUserByName(userName)
+                userObj.setOnline(True)
             #Check if users are being checked
             if(all([usersOnlineList in self.mCheckUsersOnlineCheckList])):
                     self.mCheckUsersOnlineOnlineList = usersOnlineList
@@ -817,6 +821,12 @@ class ServerIRC(Server):
             channelUserList = ':'.join(numericLine.split(':')[2:])
             #Get channel object
             channelObject = self.getChannelByName(channelName)
+            #Set all users online and in channel
+            channelObject.setUserList(set())
+            for userName in channelUserList:
+                userObj = self.getUserByName(userName)
+                userObj.setOnline(True)
+                channelObject.addUser(userObj)
             #Check channel is being checked
             if(channelObject == self.mCheckChannelUserListChannel):
                 #Set user list
