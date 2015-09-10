@@ -552,8 +552,8 @@ class CurrentWeather(Function):
         url = "http://api.openweathermap.org/data/2.5/weather"+locationEntry.createQueryParams()+"&APPID="+apiKey
         response = Commons.loadUrlJson(url)
         cityName = response['name']
-        weatherMain = response['weather']['main']
-        weatherDesc = response['weather']['description']
+        weatherMain = response['weather'][0]['main']
+        weatherDesc = response['weather'][0]['description']
         weatherTemp = response['main']['temp']-273.15
         weatherHumidity = response['main']['humidity']
         weatherWindSpeed = response['wind']['speed']
