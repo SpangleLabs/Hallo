@@ -1,0 +1,10 @@
+<!ELEMENT weather_location_list (weather_location*)>
+<!ELEMENT weather_location (server,user,country_code?,(city_name|coords|zip_code))>
+<!ELEMENT server (#PCDATA)>
+<!ELEMENT user (#PCDATA)>
+<!ELEMENT country_code (#PCDATA)>
+<!ELEMENT city_name (#PCDATA)>
+<!ELEMENT coords (latitude,longitude)>
+<!ELEMENT zip_code (#PCDATA)>
+<!ELEMENT latitude (#PCDATA)>
+<!ELEMENT longitude (#PCDATA)>
