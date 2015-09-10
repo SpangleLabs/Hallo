@@ -350,6 +350,10 @@ class WeatherLocationEntry:
         'Returns user name'
         return self.mUser
     
+    def getType(self):
+        'Returns type'
+        return self.mType
+    
     def setCountryCode(self,newCountryCode):
         'Sets the country code of the location entry'
         self.mCountryCode = newCountryCode
@@ -370,6 +374,38 @@ class WeatherLocationEntry:
         self.mType = self.TYPE_ZIP
         self.mZipCode = newZip
     
+    def setFromInput(self,inputLine):
+        #Check if zip code is given
+        if(re.match(r'^\d{5}(?:[-\s]\d{4})?$',inputLine)):
+            self.setZipCode(inputLine)
+            return "Set location for "+self.mUser+" as zip code: "+inputLine
+        #Check if coordinates are given
+        if(re.match(r'^(\-?\d+(\.\d+)?)[ ,]*(\-?\d+(\.\d+)?)$',inputLine)):
+            coords = inputLine.split(" ,")
+            newLat = coords[0]
+            newLong = coords[1]
+            self.setCoords(newLat,newLong)
+            return "Set location for "+self.mUser+" as coords: "+newLat+", "+newLong
+        #Otherwise, assume it's a city
+        newCity = inputLine
+        self.setCity(newCity)
+        return "Set location for "+self.mUser+" as city: "+newCity
+    
+    def createQueryParams(self):
+        'Creates query parameters for API call.'
+        if(self.getType() == self.TYPE_CITY):
+            query = "?q="+self.mCityName.replace(" ","+")
+            if(self.mCountryCode is not None):
+                query += ","+self.mCountryCode
+            return query
+        if(self.getType() == self.TYPE_COORDS):
+            query = "?lat="+self.mLatitude+"&lon="+self.mLongitude
+            return query
+        if(self.getType() == self.TYPE_ZIP):
+            query = "?zip="+self.mZipCode
+            if(self.mCountryCode is not None):
+                query += ","+self.mCountryCode
+            return query
     
     @staticmethod
     def fromXml(xmlString):
@@ -475,27 +511,11 @@ class WeatherLocation(Function):
             lineClean = lineClean[len(firstArg):].strip()
         #Create entry
         newEntry = WeatherLocationEntry(serverName,userName)
-        #Check if zip code is given
-        if(re.match(r'^\d{5}(?:[-\s]\d{4})?$',lineClean)):
-            newEntry.setZipCode(lineClean)
-            weatherRepo.addEntry(newEntry)
-            weatherRepo.saveToXml()
-            return "Set location for "+userName+" as zip code: "+lineClean
-        #Check if coordinates are given
-        if(re.match(r'^(\-?\d+(\.\d+)?)[ ,]*(\-?\d+(\.\d+)?)$',lineClean)):
-            coords = lineClean.split(" ,")
-            newLat = coords[0]
-            newLong = coords[1]
-            newEntry.setCoords(newLat,newLong)
-            weatherRepo.addEntry(newEntry)
-            weatherRepo.saveToXml()
-            return "Set location for "+userName+" as coords: "+newLat+", "+newLong
-        #Otherwise, assume it's a city
-        newCity = lineClean
-        newEntry.setCity(newCity)
+        #Set Entry location by input
+        output = newEntry.setFromInput(lineClean)
         weatherRepo.addEntry(newEntry)
         weatherRepo.saveToXml()
-        return "Set location for "+userName+" as city: "+newCity
+        return output
 
 class CurrentWeather(Function):
     '''
@@ -517,9 +537,29 @@ class CurrentWeather(Function):
     def run(self,line,userObject,destinationObject=None):
         lineClean = line.strip().lower()
         if(lineClean == ""):
-            
-        weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
-        return Commons.getRandomChoice(weather)
+            locationRepo = WeatherLocationRepo.loadFromXml()
+            locationEntry = locationRepo.getEntryByUserObject(userObject)
+        else:
+            userName = userObject.getName()
+            serverName = userObject.getServer().getName()
+            locationEntry = WeatherLocationEntry(userName,serverName)
+            locationEntry.setFromInput(lineClean)
+        apiKey = userObject.getServer().getHallo().getApiKey("openweathermap")
+        if(apiKey is None):
+            return "No API key loaded for openweathermap."
+        url = "http://api.openweathermap.org/data/2.5/weather"+locationEntry.createQueryParams()+"&APPID="+apiKey
+        response = Commons.loadUrlJson(url)
+        cityName = response['name']
+        weatherMain = response['weather']['main']
+        weatherDesc = response['weather']['description']
+        weatherTemp = response['main']['temp']-273.15
+        weatherHumidity = response['main']['humidity']
+        weatherWindSpeed = response['wind']['speed']
+        output = "Current weather in "+cityName+" is "+weatherMain+" ("+weatherDesc+"). "
+        output += "Temp: "+str(weatherTemp)+"C "
+        output += "Humidity: "+str(weatherHumidity)+"% "
+        output += "Wind speed: "+str(weatherWindSpeed)+"m/s"
+        return output
     
 class Weather(Function):
     '''
