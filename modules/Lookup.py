@@ -558,8 +558,8 @@ class CurrentWeather(Function):
         weatherHumidity = response['main']['humidity']
         weatherWindSpeed = response['wind']['speed']
         output = "Current weather in "+cityName+" is "+weatherMain+" ("+weatherDesc+"). "
-        output += "Temp: "+str(weatherTemp)+"C "
-        output += "Humidity: "+str(weatherHumidity)+"% "
+        output += "Temp: "+"{0:.2f}".format(weatherTemp)+"C, "
+        output += "Humidity: "+str(weatherHumidity)+"%, "
         output += "Wind speed: "+str(weatherWindSpeed)+"m/s"
         return output
     
