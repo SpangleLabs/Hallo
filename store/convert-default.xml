@@ -1519,21 +1519,22 @@
 		<base_unit>
 			<unit>
 				<name>kelvin</name>
+				<abbr>k</abbr>
 				<valid_prefix_group>si</valid_prefix_group>
 				<value>1.0</value>
 			</unit>
 		</base_unit>
 		<unit>
 			<name>celcius</name>
+			<abbr>c</abbr>
 			<value>1.0</value>
 			<offset>273.15</offset>
-			<last_update>1432591200.239964</last_update>
 		</unit>
 		<unit>
 			<name>farenheit</name>
+			<abbr>f</abbr>
 			<value>0.5555555555555556</value>
 			<offset>255.372</offset>
-			<last_update>1432591200.240171</last_update>
 		</unit>
 		<unit>
 			<name>rankine</name>
