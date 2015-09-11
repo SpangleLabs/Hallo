@@ -1525,7 +1525,7 @@
 			</unit>
 		</base_unit>
 		<unit>
-			<name>celcius</name>
+			<name>celsius</name>
 			<abbr>c</abbr>
 			<value>1.0</value>
 			<offset>273.15</offset>
