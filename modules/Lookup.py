@@ -572,7 +572,7 @@ class CurrentWeather(Function):
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/weather"+locationEntry.createQueryParams()+"&APPID="+apiKey
         response = Commons.loadUrlJson(url)
-        if(response['cod'] != 200):
+        if(str(response['cod']) != "200"):
             return "Location not recognised."
         cityName = response['name']
         weatherMain = response['weather'][0]['main']
@@ -660,7 +660,7 @@ class Weather(Function):
         url = "http://api.openweathermap.org/data/2.5/forecast/daily"+locationEntry.createQueryParams()+"&cnt=16&APPID="+apiKey
         response = Commons.loadUrlJson(url)
         #Check API responded well
-        if(response['cod'] != 200):
+        if(str(response['cod']) != "200"):
             return "Location not recognised."
         #Check that days is within bounds for API response
         daysAvailable = len(response['list'])
