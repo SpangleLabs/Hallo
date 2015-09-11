@@ -8,6 +8,7 @@ import struct       #UrlDetect image size
 import imghdr       #UrlDetect image size
 import math
 import html.parser
+import datetime
 
 class UrbanDictionary(Function):
     '''
@@ -621,7 +622,11 @@ class Weather(Function):
             daysOffset = 1
             lineClean = regexTomorrow.sub("",lineClean).strip()
         elif(regexWeekday.match(lineClean)):
-            raise NotImplementedError
+            match = regexWeekday.match(lineClean)
+            currentWeekday = datetime.date.today().weekday()
+            specifiedWeekday = self.weekdayToNumber(match.group(2))
+            daysOffset = (specifiedWeekday-currentWeekday)%7
+            lineClean = regexWeekday.sub("",lineClean).strip()
         elif(regexDays.match(lineClean)):
             match = regexDays.match(lineClean)
             daysOffset = int(match.group(2))
