@@ -636,7 +636,23 @@ class Weather(Function):
         #Format and return output
         weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
         return Commons.getRandomChoice(weather)
-        
+
+    def weekdayToNumber(self,weekday):
+        'Converts weekday text to integer. Monday = 0'
+        weekdayClean = weekday.lower().strip()
+        weekdayRegexList = [re.compile(r'mo(n(day)?)?'),
+                            re.compile(r'tu(e(s(day)?)?)?'),
+                            re.compile(r'we(d(nesday)?)?'),
+                            re.compile(r'th(u(r(sday)?)?)?'),
+                            re.compile(r'fr(i(day)?)?'),
+                            re.compile(r'sa(t(urday)?)?'),
+                            re.compile(r'su(n(day)?)?')]
+        for weekdayInt in range(len(weekdayRegexList)):
+            weekdayRegex = weekdayRegexList[weekdayInt]
+            if(weekdayRegex.match(weekdayClean)):
+                return weekdayInt
+        return None
+
 class UrlDetect(Function):
     '''
     URL detection and title printing.
