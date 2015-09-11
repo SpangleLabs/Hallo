@@ -615,24 +615,24 @@ class Weather(Function):
         regexWeekday = re.compile(r'\b(this\s+|next\s+|)(mo(n(day)?)?|tu(e(s(day)?)?)?|we(d(nesday)?)?|th(u(r(sday)?)?)?|fr(i(day)?)?|sa(t(urday)?)?|su(n(day)?)?)\b')
         regexDays = re.compile(r'(([0-9]+)\s*d(ays?)?)')
         regexWeeks = re.compile(r'(([0-9]+)\s*w(eeks?)?)')
-        if(regexNow.match(lineClean)):
+        if(regexNow.search(lineClean)):
             daysOffset = 0
             lineClean = regexNow.sub("",lineClean).strip()
-        elif(regexTomorrow.match(lineClean)):
+        elif(regexTomorrow.search(lineClean)):
             daysOffset = 1
             lineClean = regexTomorrow.sub("",lineClean).strip()
-        elif(regexWeekday.match(lineClean)):
-            match = regexWeekday.match(lineClean)
+        elif(regexWeekday.search(lineClean)):
+            match = regexWeekday.search(lineClean)
             currentWeekday = datetime.date.today().weekday()
             specifiedWeekday = self.weekdayToNumber(match.group(2))
             daysOffset = (specifiedWeekday-currentWeekday)%7
             lineClean = regexWeekday.sub("",lineClean).strip()
-        elif(regexDays.match(lineClean)):
-            match = regexDays.match(lineClean)
+        elif(regexDays.search(lineClean)):
+            match = regexDays.search(lineClean)
             daysOffset = int(match.group(2))
             lineClean = regexDays.sub("",lineClean).strip()
-        elif(regexWeeks.match(lineClean)):
-            match = regexWeeks.match(lineClean)
+        elif(regexWeeks.search(lineClean)):
+            match = regexWeeks.search(lineClean)
             daysOffset = 7*int(match.group(2))
             lineClean = regexWeeks.sub("",lineClean).strip()
         #Figure out if a user or city was specified
