@@ -1526,6 +1526,7 @@
 		</base_unit>
 		<unit>
 			<name>celsius</name>
+			<name>centigrade</name>
 			<abbr>c</abbr>
 			<value>1.0</value>
 			<offset>273.15</offset>
