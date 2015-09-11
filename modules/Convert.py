@@ -434,6 +434,8 @@ class ConvertUnit:
         if(len(doc.getElementsByTagName("last_update"))!=0):
             newLastUpdated = float(doc.getElementsByTagName("last_update")[0].firstChild.data)
             newUnit.setLastUpdated(newLastUpdated)
+        else:
+            newUnit.setLastUpdated(None)
         #Return created ConvertUnit
         return newUnit
     
