@@ -667,7 +667,7 @@ class Weather(Function):
         if(daysOffset>daysAvailable):
             return "I cannot predict the weather that far in the future. I can't predict much further than 2 weeks."
         #Format and return output
-        cityName = response['name']
+        cityName = response['city']['name']
         if(daysOffset == 0):
             todayMain = response['list'][0]['weather'][0]['main']
             todayDesc = response['list'][0]['weather'][0]['description']
