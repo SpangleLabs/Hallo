@@ -605,7 +605,7 @@ class Weather(Function):
 
     def run(self,line,userObject,destinationObject=None):
         lineClean = line.strip().lower()
-        regexFluff = re.compile(r'\b[io]n\b')
+        regexFluff = re.compile(r'\b(for|[io]n)\b')
         #Clear input fluff
         lineClean = regexFluff.sub("",lineClean).strip()
         #Hunt for the days offset
