@@ -671,17 +671,17 @@ class Weather(Function):
         if(daysOffset == 0):
             todayMain = response['list'][0]['weather'][0]['main']
             todayDesc = response['list'][0]['weather'][0]['description']
-            todayTemp = response['list'][0]['temp']['day']
+            todayTemp = response['list'][0]['temp']['day']-273.15
             todayHumi = response['list'][0]['humidity']
             todaySpee = response['list'][0]['speed']
             tomorMain = response['list'][1]['weather'][0]['main']
             tomorDesc = response['list'][1]['weather'][0]['description']
-            tomorTemp = response['list'][1]['temp']['day']
+            tomorTemp = response['list'][1]['temp']['day']-273.15
             tomorHumi = response['list'][1]['humidity']
             tomorSpee = response['list'][1]['speed']
             dayafMain = response['list'][2]['weather'][0]['main']
             dayafDesc = response['list'][2]['weather'][0]['description']
-            dayafTemp = response['list'][2]['temp']['day']
+            dayafTemp = response['list'][2]['temp']['day']-273.15
             dayafHumi = response['list'][2]['humidity']
             dayafSpee = response['list'][2]['speed']
             output = "Weather in "+cityName+" today will be "+todayMain+" ("+todayDesc+") "
