@@ -636,11 +636,78 @@ class Weather(Function):
             daysOffset = 7*int(match.group(2))
             lineClean = regexWeeks.sub("",lineClean).strip()
         #Figure out if a user or city was specified
+        if(lineClean == ""):
+            weatherRepo = WeatherLocationRepo.loadFromXml()
+            locationEntry = weatherRepo.getEntryByUserObject(userObject)
+            if(locationEntry == None):
+                return "No location stored for this user. Please specify a location or store one with the \"weather location\" function."
+        else:
+            testUser = userObject.getServer().getUserByName(lineClean)
+            if(destinationObject is not None and destinationObject.isChannel() and destinationObject.isUserInChannel(testUser)):
+                weatherRepo = WeatherLocationRepo.loadFromXml()
+                locationEntry = weatherRepo.getEntryByUserObject(testUser)
+                if(locationEntry == None):
+                    return "No location stored for this user. Please specify a location or store one with the \"weather location\" function."
+            else:
+                userName = userObject.getName()
+                serverName = userObject.getServer().getName()
+                locationEntry = WeatherLocationEntry(userName,serverName)
+                locationEntry.setFromInput(lineClean)
         #Get API response
+        apiKey = userObject.getServer().getHallo().getApiKey("openweathermap")
+        url = "http://api.openweathermap.org/data/2.5/forecast/daily"+locationEntry.createQueryParams()+"&cnt=16&APPID="+apiKey
+        response = Commons.loadUrlJson(url)
+        #Check API responded well
+        if(response['cod'] != 200):
+            return "Location not recognised."
         #Check that days is within bounds for API response
+        daysAvailable = len(response['list'])
+        if(daysOffset>daysAvailable):
+            return "I cannot predict the weather that far in the future. I can't predict much further than 2 weeks."
         #Format and return output
-        weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
-        return Commons.getRandomChoice(weather)
+        cityName = response['name']
+        if(daysOffset == 0):
+            todayMain = response['list'][0]['weather'][0]['main']
+            todayDesc = response['list'][0]['weather'][0]['description']
+            todayTemp = response['list'][0]['temp']['day']
+            todayHumi = response['list'][0]['humidity']
+            todaySpee = response['list'][0]['speed']
+            tomorMain = response['list'][1]['weather'][0]['main']
+            tomorDesc = response['list'][1]['weather'][0]['description']
+            tomorTemp = response['list'][1]['temp']['day']
+            tomorHumi = response['list'][1]['humidity']
+            tomorSpee = response['list'][1]['speed']
+            dayafMain = response['list'][2]['weather'][0]['main']
+            dayafDesc = response['list'][2]['weather'][0]['description']
+            dayafTemp = response['list'][2]['temp']['day']
+            dayafHumi = response['list'][2]['humidity']
+            dayafSpee = response['list'][2]['speed']
+            output = "Weather in "+cityName+" today will be "+todayMain+" ("+todayDesc+") "
+            output += "Temp: "+"{0:.2f}".format(todayTemp)+"C, "
+            output += "Humidity: "+str(todayHumi)+"%, "
+            output += "Wind speed: "+str(todaySpee)+"m/s. "
+            #Add tomorrow output
+            output += "Tomorrow: "+tomorMain+" ("+tomorDesc+") "
+            output += "{0:.2f}".format(tomorTemp)+"C "
+            output += str(tomorHumi)+"% "
+            output += str(tomorSpee)+"m/s. "
+            #Day after output
+            output += "Day after: "+dayafMain+" ("+dayafDesc+") "
+            output += "{0:.2f}".format(dayafTemp)+"C "
+            output += str(dayafHumi)+"% "
+            output += str(dayafSpee)+"m/s."
+            return output
+        responseWeather = response['list'][daysOffset]
+        weatherMain = responseWeather['weather'][0]['main']
+        weatherDesc = responseWeather['weather'][0]['description']
+        weatherTemp = responseWeather['temp']['day']-273.15
+        weatherHumidity = responseWeather['humidity']
+        weatherWindSpeed = responseWeather['speed']
+        output = "Weather in "+cityName+" "+self.numberDays(daysOffset)+" will be "+weatherMain+" ("+weatherDesc+"). "
+        output += "Temp: "+"{0:.2f}".format(weatherTemp)+"C, "
+        output += "Humidity: "+str(weatherHumidity)+"%, "
+        output += "Wind speed: "+str(weatherWindSpeed)+"m/s"
+        return output
 
     def weekdayToNumber(self,weekday):
         'Converts weekday text to integer. Monday = 0'
@@ -657,6 +724,13 @@ class Weather(Function):
             if(weekdayRegex.match(weekdayClean)):
                 return weekdayInt
         return None
+    
+    def numberDays(self,daysOffset):
+        if(daysOffset == 0):
+            return "today"
+        if(daysOffset == 1):
+            return "tomorrow"
+        return "in "+str(daysOffset)+" days"
 
 class UrlDetect(Function):
     '''
