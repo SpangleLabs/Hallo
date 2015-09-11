@@ -655,6 +655,8 @@ class Weather(Function):
                 locationEntry.setFromInput(lineClean)
         #Get API response
         apiKey = userObject.getServer().getHallo().getApiKey("openweathermap")
+        if(apiKey is None):
+            return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/forecast/daily"+locationEntry.createQueryParams()+"&cnt=16&APPID="+apiKey
         response = Commons.loadUrlJson(url)
         #Check API responded well
