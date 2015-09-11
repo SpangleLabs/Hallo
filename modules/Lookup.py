@@ -8,6 +8,7 @@ import struct       #UrlDetect image size
 import imghdr       #UrlDetect image size
 import math
 import html.parser
+import datetime
 
 class UrbanDictionary(Function):
     '''
@@ -264,6 +265,326 @@ class Translate(Function):
         transDict = Commons.loadUrlJson(url,[],True)
         translationString = " ".join([x[0] for x in transDict[0]])
         return "Translation: "+translationString
+
+class WeatherLocationRepo:
+    '''
+    Helper class to hold user's locations for weather-related functions.
+    '''
+    mListLocations = None
+    
+    def __init__(self):
+        self.mListLocations = []
+    
+    def addEntry(self,newEntry):
+        userName = newEntry.getUser()
+        serverName = newEntry.getServer()
+        testEntry = self.getEntryByUserNameAndServerName(userName,serverName)
+        if(testEntry is None):
+            self.mListLocations.append(newEntry)
+        else:
+            newList = [x if x != testEntry else newEntry for x in self.mListLocations]
+            self.mListLocations = newList
+    
+    def getEntryByUserNameAndServerName(self,userName,serverName):
+        'Returns an entry matching the given user name and server name, or None.'
+        for locationEntry in self.mListLocations:
+            if(locationEntry.getUser() != userName):
+                continue
+            if(locationEntry.getServer() != serverName):
+                continue
+            return locationEntry
+        return None
+        
+    def getEntryByUserObject(self,userObject):
+        'Returns an entry matching the given userObject, or None.'
+        userName = userObject.getName()
+        serverName = userObject.getServer().getName()
+        return self.getEntryByUserNameAndServerName(userName,serverName)
+
+    @staticmethod
+    def loadFromXml():
+        'Loads user locations from XML'
+        newRepo = WeatherLocationRepo()
+        try:
+            doc = minidom.parse("store/weather_location_list.xml")
+        except (IOError,OSError):
+            return newRepo
+        for weatherLocationXml in doc.getElementsByTagName("weather_location"):
+            weatherLocation = WeatherLocationEntry.fromXml(weatherLocationXml.toxml())
+            newRepo.addEntry(weatherLocation)
+        return newRepo
+    
+    def saveToXml(self):
+        'Saves user locations to XML'
+        #Create document with DTD
+        docimp = minidom.DOMImplementation()
+        doctype = docimp.createDocumentType(
+            qualifiedName='weather_location_list',
+            publicId='',
+            systemId='weather_location_list.dtd'
+        )
+        doc = docimp.createDocument(None,'weather_location_list',doctype)
+        #Get root element
+        root = doc.getElementsByTagName("weather_location_list")[0]
+        #Add entries
+        for entryObject in self.mListLocations:
+            entryElement = minidom.parseString(entryObject.toXml()).firstChild
+            root.appendChild(entryElement)
+        #Save XML
+        doc.writexml(open("store/weather_location_list.xml","w"),addindent="\t",newl="\n")
+
+class WeatherLocationEntry:
+    '''
+    Helper class that stores weather location data for a given user
+    '''
+    mServer = None
+    mUser = None
+    mCountryCode = None
+    mType = None
+    mCityName = None
+    mZipCode = None
+    mLatitude = None
+    mLongitude = None
+    
+    TYPE_CITY = "city"
+    TYPE_COORDS = "coords"
+    TYPE_ZIP = "zip"
+
+    def __init__(self,serverName,userName):
+        self.mServer = serverName
+        self.mUser = userName
+    
+    def getServer(self):
+        'Returns server name'
+        return self.mServer
+
+    def getUser(self):
+        'Returns user name'
+        return self.mUser
+    
+    def getType(self):
+        'Returns type'
+        return self.mType
+    
+    def setCountryCode(self,newCountryCode):
+        'Sets the country code of the location entry'
+        self.mCountryCode = newCountryCode
+    
+    def setCity(self,newCity):
+        'Sets the city of the location entry'
+        self.mType = self.TYPE_CITY
+        self.mCityName = newCity
+    
+    def setCoords(self,latitude,longitude):
+        'Sets the coordinates of the location entry'
+        self.mType = self.TYPE_COORDS
+        self.mLatitude = latitude
+        self.mLongitude = longitude
+        
+    def setZipCode(self,newZip):
+        'Sets the zip code of the location entry'
+        self.mType = self.TYPE_ZIP
+        self.mZipCode = newZip
+    
+    def setFromInput(self,inputLine):
+        #Check if zip code is given
+        if(re.match(r'^\d{5}(?:[-\s]\d{4})?$',inputLine)):
+            self.setZipCode(inputLine)
+            return "Set location for "+self.mUser+" as zip code: "+inputLine
+        #Check if coordinates are given
+        coordMatch = re.match(r'^(\-?\d+(\.\d+)?)[ ,]*(\-?\d+(\.\d+)?)$',inputLine)
+        if(coordMatch):
+            newLat = coordMatch.group(1)
+            newLong = coordMatch.group(3)
+            self.setCoords(newLat,newLong)
+            return "Set location for "+self.mUser+" as coords: "+newLat+", "+newLong
+        #Otherwise, assume it's a city
+        newCity = inputLine
+        self.setCity(newCity)
+        return "Set location for "+self.mUser+" as city: "+newCity
+    
+    def createQueryParams(self):
+        'Creates query parameters for API call.'
+        if(self.getType() == self.TYPE_CITY):
+            query = "?q="+self.mCityName.replace(" ","+")
+            if(self.mCountryCode is not None):
+                query += ","+self.mCountryCode
+            return query
+        if(self.getType() == self.TYPE_COORDS):
+            query = "?lat="+self.mLatitude+"&lon="+self.mLongitude
+            return query
+        if(self.getType() == self.TYPE_ZIP):
+            query = "?zip="+self.mZipCode
+            if(self.mCountryCode is not None):
+                query += ","+self.mCountryCode
+            return query
+    
+    @staticmethod
+    def fromXml(xmlString):
+        #Load document
+        doc = minidom.parseString(xmlString)
+        #Get server and username and create entry
+        newServer = doc.getElementsByTagName("server")[0].firstChild.data
+        newUser = doc.getElementsByTagName("user")[0].firstChild.data
+        newEntry = WeatherLocationEntry(newServer,newUser)
+        #Get country code, if applicable
+        if(len(doc.getElementsByTagName("country_code"))>0):
+            newCountryCode = doc.getElementsByTagName("country_code")[0].firstChild.data
+            newEntry.setCountryCode(newCountryCode)
+        #Check if entry is a city name
+        if(len(doc.getElementsByTagName("city_name"))>0):
+            newCity = doc.getElementsByTagName("city_name")[0].firstChild.data
+            newEntry.setCity(newCity)
+        #Check if entry is coordinates
+        if(len(doc.getElementsByTagName("coords"))>0):
+            newLat = doc.getElementsByTagName("latitude")[0].firstChild.data
+            newLong = doc.getElementsByTagName("longitude")[0].firstChild.data
+            newEntry.setCoords(newLat,newLong)
+        #Check if entry is zip code
+        if(len(doc.getElementsByTagName("zip_code"))>0):
+            newZip = doc.getElementsByTagName("zip_code")[0].firstChild.data
+            newEntry.setZipCode(newZip)
+        #Return entry
+        return newEntry
+
+    def toXml(self):
+        'Writes out Entry as XML'
+        #Create document
+        doc = minidom.Document()
+        #Create root element
+        root = doc.createElement("weather_location")
+        doc.appendChild(root)
+        #Add server element
+        serverElement = doc.createElement("server")
+        serverElement.appendChild(doc.createTextNode(self.mServer))
+        root.appendChild(serverElement)
+        #Add user element
+        userElement = doc.createElement("user")
+        userElement.appendChild(doc.createTextNode(self.mUser))
+        root.appendChild(userElement)
+        #Add country code, if set
+        if(self.mCountryCode is not None):
+            countryCodeElement = doc.createElement("country_code")
+            countryCodeElement.appendChild(doc.createTextNode(self.mCountryCode))
+            root.appendChild(countryCodeElement)
+        #Depending on type, add relevant elements
+        if(self.mType == self.TYPE_CITY):
+            cityElement = doc.createElement("city_name")
+            cityElement.appendChild(doc.createTextNode(self.mCityName))
+            root.appendChild(cityElement)
+        elif(self.mType == self.TYPE_COORDS):
+            coordsElement = doc.createElement("coords")
+            latElement = doc.createElement("latitude")
+            latElement.appendChild(doc.createTextNode(self.mLatitude))
+            coordsElement.appendChild(latElement)
+            longElement = doc.createElement("longitude")
+            longElement.appendChild(doc.createTextNode(self.mLongitude))
+            coordsElement.appendChild(longElement)
+            root.appendChild(coordsElement)
+        elif(self.mType == self.TYPE_ZIP):
+            zipElement = doc.createElement("zip_code")
+            zipElement.appendChild(doc.createTextNode(self.mZipCode))
+            root.appendChild(zipElement)
+        #Output XML
+        return doc.toxml()
+
+class WeatherLocation(Function):
+    '''
+    Sets the location of user for Weather functions.
+    '''
+    #Name for use in help listing
+    mHelpName = "weather location"
+    #Names which can be used to address the function
+    mNames = set(["weather location","weather location set","set weather location","weather set location"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Sets a user's location for weather-related functions"
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+    
+    def run(self,line,userObject,destinationObject=None):
+        lineClean = line.strip().lower()
+        #Load up Weather locations repo
+        weatherRepo = WeatherLocationRepo.loadFromXml()
+        userName = userObject.getName()
+        serverObj = userObject.getServer()
+        serverName = serverObj.getName()
+        #Check that an argument is provided
+        if(len(lineClean.split())==0):
+            return "Please specify a city, coordinates or zip code"
+        #Check if first argument is a specified user for given server
+        firstArg = lineClean.split()[0]
+        testUser = serverObj.getUserByName(firstArg)
+        if(destinationObject is not None and destinationObject.isChannel()):
+            if(destinationObject.isUserInChannel(testUser)):
+                userName = testUser.getName()
+                lineClean = lineClean[len(firstArg):].strip()
+        #Create entry
+        newEntry = WeatherLocationEntry(serverName,userName)
+        #Set Entry location by input
+        output = newEntry.setFromInput(lineClean)
+        weatherRepo.addEntry(newEntry)
+        weatherRepo.saveToXml()
+        return output
+
+class CurrentWeather(Function):
+    '''
+    Returns the current weather in your location, or asks for your location.
+    '''
+    #Name for use in help listing
+    mHelpName = "current weather"
+    #Names which can be used to address the function
+    mNames = set(["current weather","weather current","current weather in"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns the current weather in your location (if known) or in provided location."
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        lineClean = line.strip().lower()
+        if(lineClean == ""):
+            locationRepo = WeatherLocationRepo.loadFromXml()
+            locationEntry = locationRepo.getEntryByUserObject(userObject)
+            if(locationEntry is None):
+                return "No location stored for this user. Please specify a location or store one with the \"weather location\" function."
+        else:
+            #Check if a user was specified
+            testUser = userObject.getServer().getUserByName(lineClean)
+            if(destinationObject is not None and destinationObject.isChannel() and destinationObject.isUserInChannel(testUser)):
+                locationRepo = WeatherLocationRepo.loadFromXml()
+                locationEntry = locationRepo.getEntryByUserObject(testUser)
+                if(locationEntry is None):
+                    return "No location stored for this user. Please specify a location or store one with the \"weather location\" function."
+            else:
+                userName = userObject.getName()
+                serverName = userObject.getServer().getName()
+                locationEntry = WeatherLocationEntry(userName,serverName)
+                locationEntry.setFromInput(lineClean)
+        apiKey = userObject.getServer().getHallo().getApiKey("openweathermap")
+        if(apiKey is None):
+            return "No API key loaded for openweathermap."
+        url = "http://api.openweathermap.org/data/2.5/weather"+locationEntry.createQueryParams()+"&APPID="+apiKey
+        response = Commons.loadUrlJson(url)
+        if(str(response['cod']) != "200"):
+            return "Location not recognised."
+        cityName = response['name']
+        weatherMain = response['weather'][0]['main']
+        weatherDesc = response['weather'][0]['description']
+        weatherTemp = response['main']['temp']-273.15
+        weatherHumidity = response['main']['humidity']
+        weatherWindSpeed = response['wind']['speed']
+        output = "Current weather in "+cityName+" is "+weatherMain+" ("+weatherDesc+"). "
+        output += "Temp: "+"{0:.2f}".format(weatherTemp)+"C, "
+        output += "Humidity: "+str(weatherHumidity)+"%, "
+        output += "Wind speed: "+str(weatherWindSpeed)+"m/s"
+        return output
     
 class Weather(Function):
     '''
@@ -272,7 +593,7 @@ class Weather(Function):
     #Name for use in help listing
     mHelpName = "weather"
     #Names which can be used to address the function
-    mNames = set(["weather","random weather"])
+    mNames = set(["weather","weather in"])
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Random weather"
     
@@ -283,9 +604,136 @@ class Weather(Function):
         pass
 
     def run(self,line,userObject,destinationObject=None):
-        weather = ['Rain.'] * 10 + ['Heavy rain.'] * 3 + ['Cloudy.'] * 20 + ['Windy.'] * 5 + ['Sunny.']
-        return Commons.getRandomChoice(weather)
-        
+        lineClean = line.strip().lower()
+        regexFluff = re.compile(r'\b(for|[io]n)\b')
+        #Clear input fluff
+        lineClean = regexFluff.sub("",lineClean).strip()
+        #Hunt for the days offset
+        daysOffset = 0
+        regexNow = re.compile(r'(now|current(ly)?|today)')
+        regexTomorrow = re.compile(r'(to|the\s+)morrow')
+        regexWeekday = re.compile(r'\b(this\s+|next\s+|)(mo(n(day)?)?|tu(e(s(day)?)?)?|we(d(nesday)?)?|th(u(r(sday)?)?)?|fr(i(day)?)?|sa(t(urday)?)?|su(n(day)?)?)\b')
+        regexDays = re.compile(r'(([0-9]+)\s*d(ays?)?)')
+        regexWeeks = re.compile(r'(([0-9]+)\s*w(eeks?)?)')
+        if(regexNow.search(lineClean)):
+            daysOffset = 0
+            lineClean = regexNow.sub("",lineClean).strip()
+        elif(regexTomorrow.search(lineClean)):
+            daysOffset = 1
+            lineClean = regexTomorrow.sub("",lineClean).strip()
+        elif(regexWeekday.search(lineClean)):
+            match = regexWeekday.search(lineClean)
+            currentWeekday = datetime.date.today().weekday()
+            specifiedWeekday = self.weekdayToNumber(match.group(2))
+            daysOffset = (specifiedWeekday-currentWeekday)%7
+            lineClean = regexWeekday.sub("",lineClean).strip()
+        elif(regexDays.search(lineClean)):
+            match = regexDays.search(lineClean)
+            daysOffset = int(match.group(2))
+            lineClean = regexDays.sub("",lineClean).strip()
+        elif(regexWeeks.search(lineClean)):
+            match = regexWeeks.search(lineClean)
+            daysOffset = 7*int(match.group(2))
+            lineClean = regexWeeks.sub("",lineClean).strip()
+        #Figure out if a user or city was specified
+        if(lineClean == ""):
+            weatherRepo = WeatherLocationRepo.loadFromXml()
+            locationEntry = weatherRepo.getEntryByUserObject(userObject)
+            if(locationEntry == None):
+                return "No location stored for this user. Please specify a location or store one with the \"weather location\" function."
+        else:
+            testUser = userObject.getServer().getUserByName(lineClean)
+            if(destinationObject is not None and destinationObject.isChannel() and destinationObject.isUserInChannel(testUser)):
+                weatherRepo = WeatherLocationRepo.loadFromXml()
+                locationEntry = weatherRepo.getEntryByUserObject(testUser)
+                if(locationEntry == None):
+                    return "No location stored for this user. Please specify a location or store one with the \"weather location\" function."
+            else:
+                userName = userObject.getName()
+                serverName = userObject.getServer().getName()
+                locationEntry = WeatherLocationEntry(userName,serverName)
+                locationEntry.setFromInput(lineClean)
+        #Get API response
+        apiKey = userObject.getServer().getHallo().getApiKey("openweathermap")
+        if(apiKey is None):
+            return "No API key loaded for openweathermap."
+        url = "http://api.openweathermap.org/data/2.5/forecast/daily"+locationEntry.createQueryParams()+"&cnt=16&APPID="+apiKey
+        response = Commons.loadUrlJson(url)
+        #Check API responded well
+        if(str(response['cod']) != "200"):
+            return "Location not recognised."
+        #Check that days is within bounds for API response
+        daysAvailable = len(response['list'])
+        if(daysOffset>daysAvailable):
+            return "I cannot predict the weather that far in the future. I can't predict much further than 2 weeks."
+        #Format and return output
+        cityName = response['city']['name']
+        if(daysOffset == 0):
+            todayMain = response['list'][0]['weather'][0]['main']
+            todayDesc = response['list'][0]['weather'][0]['description']
+            todayTemp = response['list'][0]['temp']['day']-273.15
+            todayHumi = response['list'][0]['humidity']
+            todaySpee = response['list'][0]['speed']
+            tomorMain = response['list'][1]['weather'][0]['main']
+            tomorDesc = response['list'][1]['weather'][0]['description']
+            tomorTemp = response['list'][1]['temp']['day']-273.15
+            tomorHumi = response['list'][1]['humidity']
+            tomorSpee = response['list'][1]['speed']
+            dayafMain = response['list'][2]['weather'][0]['main']
+            dayafDesc = response['list'][2]['weather'][0]['description']
+            dayafTemp = response['list'][2]['temp']['day']-273.15
+            dayafHumi = response['list'][2]['humidity']
+            dayafSpee = response['list'][2]['speed']
+            output = "Weather in "+cityName+" today will be "+todayMain+" ("+todayDesc+") "
+            output += "Temp: "+"{0:.2f}".format(todayTemp)+"C, "
+            output += "Humidity: "+str(todayHumi)+"%, "
+            output += "Wind speed: "+str(todaySpee)+"m/s. "
+            #Add tomorrow output
+            output += "Tomorrow: "+tomorMain+" ("+tomorDesc+") "
+            output += "{0:.2f}".format(tomorTemp)+"C "
+            output += str(tomorHumi)+"% "
+            output += str(tomorSpee)+"m/s. "
+            #Day after output
+            output += "Day after: "+dayafMain+" ("+dayafDesc+") "
+            output += "{0:.2f}".format(dayafTemp)+"C "
+            output += str(dayafHumi)+"% "
+            output += str(dayafSpee)+"m/s."
+            return output
+        responseWeather = response['list'][daysOffset]
+        weatherMain = responseWeather['weather'][0]['main']
+        weatherDesc = responseWeather['weather'][0]['description']
+        weatherTemp = responseWeather['temp']['day']-273.15
+        weatherHumidity = responseWeather['humidity']
+        weatherWindSpeed = responseWeather['speed']
+        output = "Weather in "+cityName+" "+self.numberDays(daysOffset)+" will be "+weatherMain+" ("+weatherDesc+"). "
+        output += "Temp: "+"{0:.2f}".format(weatherTemp)+"C, "
+        output += "Humidity: "+str(weatherHumidity)+"%, "
+        output += "Wind speed: "+str(weatherWindSpeed)+"m/s"
+        return output
+
+    def weekdayToNumber(self,weekday):
+        'Converts weekday text to integer. Monday = 0'
+        weekdayClean = weekday.lower().strip()
+        weekdayRegexList = [re.compile(r'mo(n(day)?)?'),
+                            re.compile(r'tu(e(s(day)?)?)?'),
+                            re.compile(r'we(d(nesday)?)?'),
+                            re.compile(r'th(u(r(sday)?)?)?'),
+                            re.compile(r'fr(i(day)?)?'),
+                            re.compile(r'sa(t(urday)?)?'),
+                            re.compile(r'su(n(day)?)?')]
+        for weekdayInt in range(len(weekdayRegexList)):
+            weekdayRegex = weekdayRegexList[weekdayInt]
+            if(weekdayRegex.match(weekdayClean)):
+                return weekdayInt
+        return None
+    
+    def numberDays(self,daysOffset):
+        if(daysOffset == 0):
+            return "today"
+        if(daysOffset == 1):
+            return "tomorrow"
+        return "in "+str(daysOffset)+" days"
+
 class UrlDetect(Function):
     '''
     URL detection and title printing.
