@@ -145,3 +145,37 @@ class Trump(Function):
         output = " ".join(outputTerms)  + " IMPERATOR TRUMP!"
         return output
 
+class Corbyn(Function):
+    '''
+    Announces the years that Jeremy Corbyn will win the UK elections.
+    '''
+    #Name for use in help listing
+    mHelpName = "corbyn"
+    #Names which can be used to address the function
+    mNames = set(["corbyn","jeremy corbyn"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns the election years that Jeremy Corbyn will win UK election. Format: \"corbyn <number of terms>\""
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        lineClean = line.strip()
+        try:
+            numTerms = int(lineClean)
+        except ValueError:
+            numTerms = 4
+        if(numTerms > 10):
+            numTerms = 10
+        currentYear = datetime.date.today().year
+        firstYear = math.ceil(currentYear/5)*5
+        outputTerms = []
+        for term in range(numTerms):
+            electionYear = firstYear + (5*term)
+            outputTerms.append("Corbyn "+str(electionYear)+"!")
+        output = " ".join(outputTerms)  + " CHAIRMAN CORBYN!"
+        return output
+
