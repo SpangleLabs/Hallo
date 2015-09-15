@@ -1,9 +1,9 @@
 Hallo
 =====
 
-Hallo, an irc bot by spangle.
+Hallo, an irc bot.
 
-run Hallo.py to launch
+run Hallo.py using python3 to launch
 
 IRC specifications:
 Original spec: https://tools.ietf.org/html/rfc1459
