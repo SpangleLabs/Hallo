@@ -818,7 +818,7 @@ class ServerIRC(Server):
         elif(numericCode == "353"):
             #Parse out data
             channelName = numericLine.split(':')[1].split()[-1].lower()
-            channelUserList = ':'.join(numericLine.split(':')[2:])
+            channelUserList = ':'.join(numericLine.split(':')[2:]).split()
             #Get channel object
             channelObject = self.getChannelByName(channelName)
             #Set all users online and in channel
