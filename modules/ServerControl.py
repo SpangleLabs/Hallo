@@ -499,7 +499,7 @@ class ListUsers(Function):
         userList = channelObject.getUserList()
         #Output
         outputString = "Users in "+channelName+": "
-        outputString += ", ".join(userList)
+        outputString += ", ".join([user.getName() for user in userList])
         outputString += "."
         return outputString
     
