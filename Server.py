@@ -613,8 +613,6 @@ class ServerIRC(Server):
         #If hallo has joined a channel, get the user list and apply automatic flags as required
         if(joinClient.getName().lower() == self.getNick().lower()):
             joinChannel.setInChannel(True)
-            self.checkChannelUserList(joinChannel)
-            #TODO: Apply automatic flags as required
         else:
             #If it was not hallo joining a channel, add nick to user list
             joinChannel.addUser(joinClient)
