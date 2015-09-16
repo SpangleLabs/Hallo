@@ -826,6 +826,8 @@ class ServerIRC(Server):
             #Set all users online and in channel
             channelObject.setUserList(set())
             for userName in channelUserList:
+                while(userName[0] in ['~','&','@','%','+']):
+                    userName = userName[1:]
                 userObj = self.getUserByName(userName)
                 userObj.setOnline(True)
                 channelObject.addUser(userObj)
