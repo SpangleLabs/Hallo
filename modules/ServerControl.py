@@ -500,6 +500,13 @@ class ListUsers(Function):
             if(destinationObject is None or not destinationObject.isChannel()):
                 return "I don't recognise that channel name."
             channelName = destinationObject.getName()
+        #If they've specified all channels, display the server list.
+        if(channelName in ["*","all"]):
+            outputString = "Users on "+serverObject.getName()+": "
+            userList = serverObject.getUserList()
+            outputString += ", ".join([user.getName() for user in userList if user.isOnline()])
+            outputString += "."
+            return outputString
         #Get channel object
         channelObject = serverObject.getChannelByName(channelName)
         #Get user list
