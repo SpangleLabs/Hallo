@@ -477,6 +477,7 @@ class ListUsers(Function):
         pass
     
     def run(self,line,userObject,destinationObject=None):
+        lineClean = line.strip().lower()
         #Useful object
         halloObject = userObject.getServer().getHallo()
         #See if a server was specified.
@@ -488,14 +489,17 @@ class ListUsers(Function):
             serverObject = halloObject.getServerByName(serverName)
             if(serverObject is None):
                 return "I don't recognise that server name."
-        #Remove server name from line and trim
-        if(serverName is not None):
-            line = line.replace("server="+serverName,"").strip()
+            #Remove server name from line and trim
+            lineClean = lineClean.replace("server="+serverName,"").strip()
         #See if channel was specified with equals syntax
-        channelName = self.findParameter("channel",line) or self.findParameter("chan",line)
+        channelName = self.findParameter("channel",lineClean) or self.findParameter("chan",lineClean)
         #If not specified with equals syntax, check if just said.
         if(channelName is None):
-            channelName = line
+            channelName = lineClean
+        if(channelName == ""):
+            if(destinationObject is None or not destinationObject.isChannel()):
+                return "I don't recognise that channel name."
+            channelName = destinationObject
         #Get channel object
         channelObject = serverObject.getChannelByName(channelName)
         #Get user list
