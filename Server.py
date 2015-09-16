@@ -830,7 +830,7 @@ class ServerIRC(Server):
             #Check channel is being checked
             if(channelObject == self.mCheckChannelUserListChannel):
                 #Set user list
-                self.mCheckChannelUserListUserList = channelUserList.split()
+                self.mCheckChannelUserListUserList = channelUserList
 
     def parseLineUnhandled(self,unhandledLine):
         'Parses an unhandled message from the server'
