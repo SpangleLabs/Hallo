@@ -189,6 +189,10 @@ class Server(object):
         self.addUser(newUser)
         return newUser
     
+    def getUserList(self):
+        'Returns the full list of users on this server.'
+        return self.mUserList
+    
     def addUser(self,userObject):
         'Adds a user to the user list'
         self.mUserList.append(userObject)
