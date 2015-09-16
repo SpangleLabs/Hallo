@@ -482,9 +482,12 @@ class ListUsers(Function):
         #See if a server was specified.
         serverName = self.findParameter("server",line)
         #Get server object. If invalid, use current
-        serverObject = halloObject.getServerByName(serverName)
-        if(serverObject is None):
+        if(serverName is None):
             serverObject = userObject.getServer()
+        else:
+            serverObject = halloObject.getServerByName(serverName)
+            if(serverObject is None):
+                return "I don't recognise that server name."
         #Remove server name from line and trim
         if(serverName is not None):
             line = line.replace("server="+serverName,"").strip()
