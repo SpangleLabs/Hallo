@@ -499,7 +499,7 @@ class ListUsers(Function):
         if(channelName == ""):
             if(destinationObject is None or not destinationObject.isChannel()):
                 return "I don't recognise that channel name."
-            channelName = destinationObject
+            channelName = destinationObject.getName()
         #Get channel object
         channelObject = serverObject.getChannelByName(channelName)
         #Get user list
