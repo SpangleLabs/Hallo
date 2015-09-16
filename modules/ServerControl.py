@@ -537,7 +537,7 @@ class ListChannels(Function):
         lineClean = line.strip().lower()
         halloObject = userObject.getServer().getHallo()
         #If they ask for all channels, give them all channels.
-        if(lineClean==self.HALLO_NAMES):
+        if(lineClean in self.HALLO_NAMES):
             outputString = "On all servers, I am on these channels: "
             serverList = halloObject.getServerList()
             channelTitleList = []
