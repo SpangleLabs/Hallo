@@ -92,17 +92,17 @@ class Hallo:
         self.mDefaultNick = root.findtext("default_nick")
         self.mDefaultPrefix = Commons.stringFromFile(root.findtext("default_prefix"))
         self.mDefaultFullName = root.findtext("default_full_name")
-        self.mFunctionDispatcher = FunctionDispatcher.fromXml(ElementTree.dump(root.find("function_dispatcher")),self)
+        self.mFunctionDispatcher = FunctionDispatcher.fromXml(ElementTree.tostring(root.find("function_dispatcher")),self)
         serverListXml = root.find("server_list")
         for serverXml in serverListXml.findall("server"):
-            serverObject = self.mServerFactory.newServerFromXml(ElementTree.dump(serverXml))
+            serverObject = self.mServerFactory.newServerFromXml(ElementTree.tostring(serverXml))
             self.addServer(serverObject)
         userGroupListXml = root.find("user_group_list")
         for userGroupXml in userGroupListXml.findall("user_group"):
-            userGroupObject = UserGroup.fromXml(ElementTree.dump(userGroupXml),self)
+            userGroupObject = UserGroup.fromXml(ElementTree.tostring(userGroupXml),self)
             self.addUserGroup(userGroupObject)
         if(root.find("permission_mask") is not None):
-            self.mPermissionMask = PermissionMask.fromXml(ElementTree.dump(root.find("permission_mask")))
+            self.mPermissionMask = PermissionMask.fromXml(ElementTree.tostring(root.find("permission_mask")))
         apiKeyListXml = root.find("api_key_list")
         for apiKeyXml in apiKeyListXml.findall("api_key"):
             apiKeyName = apiKeyXml.findtext("name")
