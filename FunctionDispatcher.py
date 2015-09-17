@@ -130,7 +130,7 @@ class FunctionDispatcher(object):
             functionObject = functionClass()
         return functionObject
         
-    def checkFunctionPermissions(self,functionClass,serverObject,userObject=None,channelObject=None):
+    def checkFunctionPermissions(self,functionClass,serverObject,userObject,channelObject):
         'Checks if a function can be called. Returns boolean, True if allowed'
         #Get function name
         functionName = functionClass.__name__
