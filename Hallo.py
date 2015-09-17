@@ -10,6 +10,7 @@ from threading import Thread
 import re
 
 from xml.dom import minidom
+from xml.etree import ElementTree
 from datetime import datetime
 
 from Server import Server, ServerFactory
@@ -83,28 +84,29 @@ class Hallo:
 
     def loadFromXml(self):
         try:
-            doc = minidom.parse("config/config.xml")
+            doc = ElementTree.parse("config/config.xml")
         except (OSError, IOError):
             print("No current config, loading from default.")
-            doc = minidom.parse("config/config-default.xml")
-        self.mDefaultNick = doc.getElementsByTagName("default_nick")[0].firstChild.data
-        self.mDefaultPrefix = Commons.stringFromFile(doc.getElementsByTagName("default_prefix")[0].firstChild.data)
-        self.mDefaultFullName = doc.getElementsByTagName("default_full_name")[0].firstChild.data
-        self.mFunctionDispatcher = FunctionDispatcher.fromXml(doc.getElementsByTagName("function_dispatcher")[0].toxml(),self)
-        serverListXml = doc.getElementsByTagName("server_list")[0]
-        for serverXml in serverListXml.getElementsByTagName("server"):
-            serverObject = self.mServerFactory.newServerFromXml(serverXml.toxml())
+            doc = ElementTree.parse("config/config-default.xml")
+        root = doc.getroot()
+        self.mDefaultNick = root.findtext("default_nick")
+        self.mDefaultPrefix = Commons.stringFromFile(root.findtext("default_prefix"))
+        self.mDefaultFullName = root.findtext("default_full_name")
+        self.mFunctionDispatcher = FunctionDispatcher.fromXml(ElementTree.dump(root.find("function_dispatcher")),self)
+        serverListXml = root.find("server_list")
+        for serverXml in serverListXml.findall("server"):
+            serverObject = self.mServerFactory.newServerFromXml(ElementTree.dump(serverXml))
             self.addServer(serverObject)
-        userGroupListXml = doc.getElementsByTagName("user_group_list")[0]
-        for userGroupXml in userGroupListXml.getElementsByTagName("user_group"):
-            userGroupObject = UserGroup.fromXml(userGroupXml.toxml(),self)
+        userGroupListXml = root.find("user_group_list")
+        for userGroupXml in userGroupListXml.findall("user_group"):
+            userGroupObject = UserGroup.fromXml(ElementTree.dump(userGroupXml),self)
             self.addUserGroup(userGroupObject)
-        if(len(doc.getElementsByTagName("permission_mask"))!=0):
-            self.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
-        apiKeyListXml = doc.getElementsByTagName("api_key_list")[0]
-        for apiKeyXml in apiKeyListXml.getElementsByTagName("api_key"):
-            apiKeyName = apiKeyXml.getElementsByTagName("name")[0].firstChild.data
-            apiKeyKey = apiKeyXml.getElementsByTagName("key")[0].firstChild.data
+        if(root.find("permission_mask") is not None):
+            self.mPermissionMask = PermissionMask.fromXml(ElementTree.dump(root.find("permission_mask")))
+        apiKeyListXml = root.find("api_key_list")
+        for apiKeyXml in apiKeyListXml.findall("api_key"):
+            apiKeyName = apiKeyXml.findtext("name")
+            apiKeyKey = apiKeyXml.findtext("key")
             self.addApiKey(apiKeyName,apiKeyKey)
         return
 
