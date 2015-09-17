@@ -189,6 +189,10 @@ class Server(object):
         self.addUser(newUser)
         return newUser
     
+    def getUserList(self):
+        'Returns the full list of users on this server.'
+        return self.mUserList
+    
     def addUser(self,userObject):
         'Adds a user to the user list'
         self.mUserList.append(userObject)
@@ -609,8 +613,6 @@ class ServerIRC(Server):
         #If hallo has joined a channel, get the user list and apply automatic flags as required
         if(joinClient.getName().lower() == self.getNick().lower()):
             joinChannel.setInChannel(True)
-            self.checkChannelUserList(joinChannel)
-            #TODO: Apply automatic flags as required
         else:
             #If it was not hallo joining a channel, add nick to user list
             joinChannel.addUser(joinClient)
@@ -818,19 +820,21 @@ class ServerIRC(Server):
         elif(numericCode == "353"):
             #Parse out data
             channelName = numericLine.split(':')[1].split()[-1].lower()
-            channelUserList = ':'.join(numericLine.split(':')[2:])
+            channelUserList = ':'.join(numericLine.split(':')[2:]).split()
             #Get channel object
             channelObject = self.getChannelByName(channelName)
             #Set all users online and in channel
             channelObject.setUserList(set())
             for userName in channelUserList:
+                while(userName[0] in ['~','&','@','%','+']):
+                    userName = userName[1:]
                 userObj = self.getUserByName(userName)
                 userObj.setOnline(True)
                 channelObject.addUser(userObj)
             #Check channel is being checked
             if(channelObject == self.mCheckChannelUserListChannel):
                 #Set user list
-                self.mCheckChannelUserListUserList = channelUserList.split()
+                self.mCheckChannelUserListUserList = channelUserList
 
     def parseLineUnhandled(self,unhandledLine):
         'Parses an unhandled message from the server'

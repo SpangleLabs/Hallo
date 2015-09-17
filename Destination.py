@@ -66,10 +66,6 @@ class Destination:
     def updateActivity(self):
         'Updates LastActive timestamp'
         self.mLastActive = time.time()
-        if(self.mType=="channel"):
-            self.mInChannel = True
-        if(self.mType=="user"):
-            self.mOnline = True
         
     def getLastActive(self):
         'Returns when the destination was last active'
