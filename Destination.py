@@ -364,7 +364,7 @@ class User(Destination):
         if(len(self.mUserGroupList)!=0):
             return any([userGroup.rightsCheck(rightName,self,channelObject) for userGroup in self.mUserGroupList.values()])
         #Fall back to channel, if defined
-        if(channelObject is not None and channelObject != self):
+        if(channelObject is not None and channelObject.isChannel()):
             return channelObject.rightsCheck(rightName)
         #Fall back to the parent Server's decision.
         return self.mServer.rightsCheck(rightName)

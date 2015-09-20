@@ -130,24 +130,19 @@ class FunctionDispatcher(object):
             functionObject = functionClass()
         return functionObject
         
-    def checkFunctionPermissions(self,functionClass,serverObject,userObject=None,channelObject=None):
+    def checkFunctionPermissions(self,functionClass,serverObject,userObject,channelObject):
         'Checks if a function can be called. Returns boolean, True if allowed'
         #Get function name
         functionName = functionClass.__name__
         rightName = "function_"+functionName
         #Check rights
         if(userObject is not None):
-            if(userObject.rightsCheck(rightName,channelObject) is False):
-                return False
-        elif(channelObject is not None):
-            if(channelObject.rightsCheck(rightName) is False):
-                return False
-        elif(serverObject is not None):
-            if(serverObject.rightsCheck(rightName) is False):
-                return False
-        if(self.mHallo.rightsCheck(rightName) is False):
-            return False
-        return True
+            return userObject.rightsCheck(rightName,channelObject)
+        if(channelObject is not None):
+            return channelObject.rightsCheck(rightName)
+        if(serverObject is not None):
+            return serverObject.rightsCheck(rightName)
+        return self.mHallo.rightsCheck(rightName)
     
     def reloadModule(self,moduleName):
         'Reloads a function module, or loads it if it is not already loaded. Returns True on success, False on failure'

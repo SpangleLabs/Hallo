@@ -12,7 +12,7 @@ class UserGroup:
     mHallo = None           #Hallo instance that owns this UserGroup
     mUserList = None        #Dynamic userlist of this group
 
-    def __init__(self,hallo,name):
+    def __init__(self,name,hallo):
         '''
         Constructor
         '''
