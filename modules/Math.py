@@ -550,13 +550,13 @@ class Calculate(Function):
         while calc.count('^') != 0:
             preCalc = self.beforeInfix(calc,'^')
             postCalc = self.afterInfix(calc,'^')
-            calc = calc.replace(str(preCalc) + '^' + str(postCalc),str(float(preCalc) ** float(postCalc)))
+            calc = calc.replace(str(preCalc) + '^' + str(postCalc),str(float(preCalc) ** float(postCalc)),1)
             del preCalc, postCalc
         ##powers processing 2
         while calc.count('**') != 0:
             preCalc = self.beforeInfix(calc,'**')
             postCalc = self.afterInfix(calc,'**')
-            calc = calc.replace(str(preCalc) + '**' + str(postCalc),str(float(preCalc) ** float(postCalc)))
+            calc = calc.replace(str(preCalc) + '**' + str(postCalc),str(float(preCalc) ** float(postCalc)),1)
             del preCalc, postCalc
         ##modulo processing
         while calc.count('%') != 0:
@@ -564,7 +564,7 @@ class Calculate(Function):
             postCalc = self.afterInfix(calc,'%')
             if float(postCalc) == 0:
                 return 'error, no division by zero, sorry.'
-            calc = calc.replace(str(preCalc) + '%' + str(postCalc),str(float(preCalc) % float(postCalc)))
+            calc = calc.replace(str(preCalc) + '%' + str(postCalc),str(float(preCalc) % float(postCalc)),1)
             del preCalc, postCalc
         ##multiplication processing
         while calc.count('/') != 0:
@@ -572,13 +572,13 @@ class Calculate(Function):
             postCalc = self.afterInfix(calc,'/')
             if float(postCalc) == 0:
                 return 'error, no division by zero, sorry.'
-            calc = calc.replace(str(preCalc) + '/' + str(postCalc),str(float(preCalc) / float(postCalc)))
+            calc = calc.replace(str(preCalc) + '/' + str(postCalc),str(float(preCalc) / float(postCalc)),1)
             del preCalc, postCalc
         ##multiplication processing
         while calc.count('*') != 0:
             preCalc = self.beforeInfix(calc,'*')
             postCalc = self.afterInfix(calc,'*')
-            calc = calc.replace(str(preCalc) + '*' + str(postCalc),str(float(preCalc) * float(postCalc)))
+            calc = calc.replace(str(preCalc) + '*' + str(postCalc),str(float(preCalc) * float(postCalc)),1)
             del preCalc, postCalc
         ##addition processing
         calc = calc.replace('-','+-')
