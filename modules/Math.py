@@ -537,7 +537,7 @@ class Calculate(Function):
                         runningCalc = beforeRunningCalc + runningCalc
                         tempAnswer = beforeRunningCalc + '*' + str(tempAnswer)
                     afterRunningCalc = self.afterInfix(calc,runningCalc)
-                    if afterRunningCalc != '':
+                    if afterRunningCalc != '' and afterRunningCalc[0] != '+':
                         runningCalc = runningCalc + afterRunningCalc
                         tempAnswer = str(tempAnswer) + '*' + afterRunningCalc
                     calc = calc.replace(runningCalc,str(tempAnswer))
