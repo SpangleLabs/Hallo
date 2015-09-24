@@ -532,10 +532,14 @@ class Calculate(Function):
                     trigcheck = self.processTrigonometry(calc,runningCalc)
                     tempAnswer = trigcheck[1]
                     runningCalc = trigcheck[0]
-                    if self.beforeInfix(calc,runningCalc) != '':
-                        tempAnswer = '*' + str(tempAnswer)
-                    if self.afterInfix(calc,runningCalc) != '':
-                        tempAnswer = str(tempAnswer) + '*'
+                    beforeRunningCalc = self.beforeInfix(calc,runningCalc)
+                    if beforeRunningCalc != '':
+                        runningCalc = beforeRunningCalc + runningCalc
+                        tempAnswer = beforeRunningCalc + '*' + str(tempAnswer)
+                    afterRunningCalc = self.afterInfix(calc,runningCalc)
+                    if afterRunningCalc != '':
+                        runningCalc = runningCalc + afterRunningCalc
+                        tempAnswer = str(tempAnswer) + '*' + afterRunningCalc
                     calc = calc.replace(runningCalc,str(tempAnswer))
                     del tempAnswer
                     break
