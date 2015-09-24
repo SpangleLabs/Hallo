@@ -532,10 +532,14 @@ class Calculate(Function):
                     trigcheck = self.processTrigonometry(calc,runningCalc)
                     tempAnswer = trigcheck[1]
                     runningCalc = trigcheck[0]
-                    if self.beforeInfix(calc,runningCalc) != '':
-                        tempAnswer = '*' + str(tempAnswer)
-                    if self.afterInfix(calc,runningCalc) != '':
-                        tempAnswer = str(tempAnswer) + '*'
+                    beforeRunningCalc = self.beforeInfix(calc,runningCalc)
+                    if beforeRunningCalc != '':
+                        runningCalc = beforeRunningCalc + runningCalc
+                        tempAnswer = beforeRunningCalc + '*' + str(tempAnswer)
+                    afterRunningCalc = self.afterInfix(calc,runningCalc)
+                    if afterRunningCalc != '' and afterRunningCalc[0] != '+':
+                        runningCalc = runningCalc + afterRunningCalc
+                        tempAnswer = str(tempAnswer) + '*' + afterRunningCalc
                     calc = calc.replace(runningCalc,str(tempAnswer))
                     del tempAnswer
                     break
@@ -546,13 +550,13 @@ class Calculate(Function):
         while calc.count('^') != 0:
             preCalc = self.beforeInfix(calc,'^')
             postCalc = self.afterInfix(calc,'^')
-            calc = calc.replace(str(preCalc) + '^' + str(postCalc),str(float(preCalc) ** float(postCalc)))
+            calc = calc.replace(str(preCalc) + '^' + str(postCalc),str(float(preCalc) ** float(postCalc)),1)
             del preCalc, postCalc
         ##powers processing 2
         while calc.count('**') != 0:
             preCalc = self.beforeInfix(calc,'**')
             postCalc = self.afterInfix(calc,'**')
-            calc = calc.replace(str(preCalc) + '**' + str(postCalc),str(float(preCalc) ** float(postCalc)))
+            calc = calc.replace(str(preCalc) + '**' + str(postCalc),str(float(preCalc) ** float(postCalc)),1)
             del preCalc, postCalc
         ##modulo processing
         while calc.count('%') != 0:
@@ -560,7 +564,7 @@ class Calculate(Function):
             postCalc = self.afterInfix(calc,'%')
             if float(postCalc) == 0:
                 return 'error, no division by zero, sorry.'
-            calc = calc.replace(str(preCalc) + '%' + str(postCalc),str(float(preCalc) % float(postCalc)))
+            calc = calc.replace(str(preCalc) + '%' + str(postCalc),str(float(preCalc) % float(postCalc)),1)
             del preCalc, postCalc
         ##multiplication processing
         while calc.count('/') != 0:
@@ -568,13 +572,13 @@ class Calculate(Function):
             postCalc = self.afterInfix(calc,'/')
             if float(postCalc) == 0:
                 return 'error, no division by zero, sorry.'
-            calc = calc.replace(str(preCalc) + '/' + str(postCalc),str(float(preCalc) / float(postCalc)))
+            calc = calc.replace(str(preCalc) + '/' + str(postCalc),str(float(preCalc) / float(postCalc)),1)
             del preCalc, postCalc
         ##multiplication processing
         while calc.count('*') != 0:
             preCalc = self.beforeInfix(calc,'*')
             postCalc = self.afterInfix(calc,'*')
-            calc = calc.replace(str(preCalc) + '*' + str(postCalc),str(float(preCalc) * float(postCalc)))
+            calc = calc.replace(str(preCalc) + '*' + str(postCalc),str(float(preCalc) * float(postCalc)),1)
             del preCalc, postCalc
         ##addition processing
         calc = calc.replace('-','+-')
