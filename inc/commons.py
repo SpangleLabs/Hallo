@@ -191,6 +191,8 @@ class Commons(object):
     def getRandomInt(minInt,maxInt,count=1):
         'Returns a list of random integers in a given range'
         #Try and get random numbers from random.org
+        if(minInt == maxInt):
+            return [minInt]
         randomOrgUrl = "https://www.random.org/integers/?num="+str(count)+"&format=plain&min="+str(minInt)+"&max="+str(maxInt)+"&col=1&base=10"
         userAgentHeaders = [["User-Agent","Hallo IRCBot hallo@dr-spangle.com"]]
         apiResponse = Commons.loadUrlString(randomOrgUrl,userAgentHeaders)
