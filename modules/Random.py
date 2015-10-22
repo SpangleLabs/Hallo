@@ -311,9 +311,9 @@ class NightValeWeather(Function):
         'Replies to an event not directly addressed to the bot.'
         fullLineClean = fullLine.lower().strip()
         #Get hallo's current name
-        halloName = serverObject.getNick()
+        halloName = serverObject.getNick().lower()
         if(channelObject is not None):
-            halloName = channelObject.getNick()
+            halloName = channelObject.getNick().lower()
         #Check if message matches specified patterns
         if(halloName+" with the weather" in fullLineClean):
             #get destination object
