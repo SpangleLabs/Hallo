@@ -337,7 +337,7 @@ class NightValeWeather(Function):
             return []
         #Find API url
         apiFields = "nextPageToken,items(snippet/title,snippet/resourceId/videoId)"
-        apiUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playListId="+playlistId+"&fields="+urllib.parse.urlencode(apiFields)+"&key="+apiKey
+        apiUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playListId="+playlistId+"&fields="+urllib.parse.quote(apiFields)+"&key="+apiKey
         if(pageToken is not None):
             apiUrl += "&pageToken="+pageToken
         #Load API response (in json).
