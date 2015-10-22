@@ -1,5 +1,6 @@
 import re
 import time
+import urllib.parse
 
 from xml.dom import minidom
 
@@ -277,3 +278,78 @@ class Scriptures(Function):
     def run(self,line,userObject,destinationObject=None):
         rand = Commons.getRandomInt(0,len(self.mScriptureList)-1)[0]
         return self.mScriptureList[rand]
+
+class NightValeWeather(Function):
+    '''
+    Returns the current weather, in the style of "welcome to night vale"
+    '''
+    #Name for use in help listing
+    mHelpName = "nightvale weather"
+    #Names which can be used to address the function
+    mNames = set(["night vale weather","nightvale weather","nightvale"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns the current weather in the style of the podcast 'Welcome to Night Vale' Format: nightvale weather"
+    
+    mHalloObject = None
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+    
+    def run(self,line,userObject,destinationObject=None):
+        #Get hallo object
+        self.mHalloObject = userObject.getServer().getHallo()
+        #Get playlist data from youtube api
+        playlistData = self.getYoutubePlaylist("PL5bFd9WyHshXpZK-VPpH8UPXx6wCOIaQW")
+        #Select a video from the playlist
+        randVideo = Commons.getRandomChoice(playlistData)
+        #Return video information
+        return "And now, the weather: http://youtu.be/"+randVideo['video_id']+" "+randVideo['title']
+    
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+        'Replies to an event not directly addressed to the bot.'
+        fullLineClean = fullLine.lower().strip()
+        #Get hallo's current name
+        halloName = serverObject.getNick().lower()
+        #Check if message matches specified patterns
+        if(halloName+" with the weather" in fullLineClean):
+            #get destination object
+            destinationObject = channelObject
+            if(destinationObject is None):
+                destinationObject = userObject
+            #Return response
+            out = self.run(fullLine,userObject,destinationObject)
+            return out
+    
+    def getPassiveEvents(self):
+        'Returns a list of events which this function may want to respond to in a passive way'
+        return set([Function.EVENT_MESSAGE])
+    
+    def getYoutubePlaylist(self,playlistId,pageToken=None):
+        'Returns a list of video information for a youtube playlist.'
+        listVideos = []
+        #Get API key
+        apiKey = self.mHalloObject.getApiKey("youtube")
+        if(apiKey is None):
+            return []
+        #Find API url
+        apiFields = "nextPageToken,items(snippet/title,snippet/resourceId/videoId)"
+        apiUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId="+playlistId+"&fields="+urllib.parse.quote(apiFields)+"&key="+apiKey
+        if(pageToken is not None):
+            apiUrl += "&pageToken="+pageToken
+        #Load API response (in json).
+        apiDict = Commons.loadUrlJson(apiUrl)
+        for apiItem in apiDict['items']:
+            newVideo = {}
+            newVideo['title'] = apiItem['snippet']['title']
+            newVideo['video_id'] = apiItem['snippet']['resourceId']['videoId']
+            listVideos.append(newVideo)
+        #Check if there's another page to add
+        if("nextPageToken" in apiDict):
+            listVideos.extend(self.getYoutubePlaylist(playlistId,apiDict['nextPageToken']))
+        #Return list
+        return listVideos
+        
+        
+    
