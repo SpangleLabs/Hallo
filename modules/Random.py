@@ -289,7 +289,7 @@ class NightValeWeather(Function):
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Returns the current weather in the style of the podcast 'Welcome to Night Vale' Format: nightvale weather"
     
-    mScriptureList = []
+    mHalloObject = None
     
     def __init__(self):
         '''
@@ -297,7 +297,14 @@ class NightValeWeather(Function):
         '''
     
     def run(self,line,userObject,destinationObject=None):
-        return "Not yet implemented"
+        #Get hallo object
+        self.mHalloObject = userObject.getServer().getHallo()
+        #Get playlist data from youtube api
+        playlistData = self.getYoutubePlaylist("PL5bFd9WyHshXpZK-VPpH8UPXx6wCOIaQW")
+        #Select a video from the playlist
+        randVideo = Commons.getRandomChoice(playlistData)
+        #Return video information
+        return "And now, the weather: http://youtu.be/"+randVideo['video_id']+" "+randVideo['title']
     
     def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
@@ -307,7 +314,7 @@ class NightValeWeather(Function):
         if(channelObject is not None):
             halloName = channelObject.getNick()
         #Check if message matches specified patterns
-        if("and now to "+halloName+" with the weather" in fullLineClean):
+        if(halloName+" with the weather" in fullLineClean):
             #get destination object
             destinationObject = channelObject
             if(destinationObject is None):
@@ -320,4 +327,30 @@ class NightValeWeather(Function):
         'Returns a list of events which this function may want to respond to in a passive way'
         return set([Function.EVENT_MESSAGE])
     
+    def getYoutubePlaylist(self,playlistId,pageToken=None):
+        'Returns a list of video information for a youtube playlist.'
+        listVideos = []
+        #Get API key
+        apiKey = self.mHalloObject.getApiKey("youtube")
+        if(apiKey is None):
+            return []
+        #Find API url
+        apiFields = "nextPageToken,items(snippet/title,snippet/resourceId/videoId)"
+        apiUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playListId="+playlistId+"&fields="+apiFields+"&key="+apiKey
+        if(pageToken is not None):
+            apiUrl += "&pageToken="+pageToken
+        #Load API response (in json).
+        apiDict = Commons.loadUrlJson(apiUrl)
+        for apiItem in apiDict['items']:
+            newVideo = {}
+            newVideo['title'] = apiItem['snippet']['title']
+            newVideo['video_id'] = apiItem['snippet']['resourceId']['videoId']
+            listVideos.append(newVideo)
+        #Check if there's another page to add
+        if("nextPageToken" in apiDict):
+            listVideos.extend(self.getYoutubePlaylist(playlistId,apiDict['nextPageToken']))
+        #Return list
+        return listVideos
+        
+        
     
