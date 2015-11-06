@@ -34,7 +34,7 @@ class Operator(Function):
         #If 1 argument, see if it's a channel or a user.
         if(len(lineSplit)==1):
             #If message was sent in privmsg, it's referring to a channel
-            if(destinationObject is not None and destinationObject != userObject):
+            if(destinationObject is not None and destinationObject == userObject):
                 channel = serverObject.getChannelByName(line)
                 if(channel is None or not channel.isInChannel()):
                     return "I'm not in that channel."
