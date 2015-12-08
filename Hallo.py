@@ -297,7 +297,7 @@ class Hallo:
         if (serverAddr == ''):
             serverAddr = 'irc.freenode.net:6667'
         serverUrl = serverAddr.split(':')[0]
-        serverPort = serverAddr.split(':')[1]
+        serverPort = int(serverAddr.split(':')[1])
         serverMatch = re.match(r'([a-z\d\.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})', serverUrl, re.I)
         serverName = serverMatch.group(2)
         # Create the server object
