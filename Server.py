@@ -232,7 +232,7 @@ class ServerIRC(Server):
     mNickservPass = None        #Password to identify with nickserv
     mNickservNick = "nickserv"  #Nickserv's nick, None if nickserv does not exist
     mNickservIdentCommand = "STATUS"    #Command to send to nickserv to check if a user is identified
-    mNickservIdentResponse = "\b3\b"    #Regex to search for to validate identity in response to IdentCommand
+    mNickservIdentResponse = "\\b3\\b"    #Regex to search for to validate identity in response to IdentCommand
     #IRC specific dynamic variables
     mSocket = None              #Socket to communicate to the server
     mWelcomeMessage = ""        #Server's welcome message when connecting. MOTD and all.
