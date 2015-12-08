@@ -130,7 +130,10 @@ class Hallo:
         # Create default_prefix element
         if self.mDefaultPrefix is not None:
             defaultPrefixElement = doc.createElement("default_prefix")
-            defaultPrefixElement.appendChild(doc.createTextNode(self.mDefaultPrefix))
+            if self.mDefaultPrefix is False:
+                defaultPrefixElement.appendChild(doc.createTextNode("0"))
+            else:
+                defaultPrefixElement.appendChild(doc.createTextNode(self.mDefaultPrefix))
             root.appendChild(defaultPrefixElement)
         # Create default_full_name element
         defaultFullNameElement = doc.createElement("default_full_name")
