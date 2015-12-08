@@ -282,11 +282,11 @@ class Hallo:
     def manualServerConnect(self):
         #TODO: add ability to connect to non-IRC servers
         print("No servers have been loaded or connected to. Please connect to an IRC server.")
-        godNick = input("What nickname is the bot operator using? [deer-spangle]")
+        godNick = input("What nickname is the bot operator using? [deer-spangle] ")
         godNick = godNick.replace(' ','')
         if(godNick==''):
             godNick = 'deer-spangle'
-        serverAddr = input("What server should the bot connect to? [irc.freenode.net:6667]")
+        serverAddr = input("What server should the bot connect to? [irc.freenode.net:6667] ")
         serverAddr = serverAddr.replace(' ','')
         if(serverAddr==''):
             serverAddr = 'irc.freenode.net:6667'
