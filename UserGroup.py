@@ -64,7 +64,7 @@ class UserGroup:
         root.appendChild(nameElement)
         #create permission_mask element
         if(not self.mPermissionMask.isEmpty()):
-            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+            permissionMaskElement = minidom.parseString(self.mPermissionMask.toXml()).firstChild
             root.appendChild(permissionMaskElement)
         #output XML string
         return doc.toxml()
