@@ -1,19 +1,13 @@
 #!/usr/bin/env python3
-#socket connects to the server
-#time gets time for time stamps and does sleep
-#sys is used to kill itself
-#Thread is used for multi threading
-#re is used for regex, for swear detect
 import time
 from threading import Thread
-#from megahal import *
 import re
 
 from xml.dom import minidom
 from xml.etree import ElementTree
 from datetime import datetime
 
-from Server import Server, ServerFactory
+from Server import ServerIRC, ServerFactory
 from PermissionMask import PermissionMask
 from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
@@ -295,7 +289,7 @@ class Hallo:
         serverMatch = re.match(r'([a-z\d\.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})',serverUrl,re.I)
         serverName = serverMatch.group(2)
         #Create the server object
-        newServer = Server(self,serverName,serverUrl,serverPort)
+        newServer = ServerIRC(self,serverName,serverUrl,serverPort)
         #Add new server to server list
         self.addServer(newServer)
         #Save XML
