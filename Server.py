@@ -331,6 +331,7 @@ class ServerIRC(Server):
             except:
                 pass
             self.mSocket.close()
+            self.mSocket = None
             self.mOpen = False
     
     def reconnect(self):
@@ -338,7 +339,6 @@ class ServerIRC(Server):
         Reconnect to a given server. Basically just disconnect and reconnect.
         '''
         self.disconnect()
-        self.mSocket = None
         self.connect()
     
     def run(self):
@@ -348,13 +348,13 @@ class ServerIRC(Server):
         if(not self.mOpen):
             self.connect()
         while(self.mOpen):
+            nextLine = None
             try:
                 nextLine = self.readLineFromSocket()
             except ServerException:
                 print("Server disconnected. Reconnecting.")
-                self.mOpen = False
                 time.sleep(10)
-                self.connect()
+                self.reconnect()
             if(nextLine is None):
                 self.mOpen = False
             else:
@@ -797,33 +797,36 @@ class ServerIRC(Server):
         functionDispatcher = self.mHallo.getFunctionDispatcher()
         functionDispatcher.dispatchPassive(Function.EVENT_KICK,kickMessage,self,kickClient,kickChannel)
 
-    def parseLineNumeric(self,numericLine):
-        'Parses a numeric message from the server'
-        #Parse out numeric line data
+    def parseLineNumeric(self, numericLine, motdEnded = True):
+        '''Parses a numeric message from the server'''
+        # Parse out numeric line data
         numericCode = numericLine.split()[1]
-        #Print to console
+        # Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] Numeric server info: ' + numericLine)
-        #TODO: add logging?
-        #Check for ISON response, telling you which users are online
+        # TODO: add logging?
+        # Only process further numeric codes if motd has ended
+        if not motdEnded:
+            return
+        # Check for ISON response, telling you which users are online
         if(numericCode == "303"):
-            #Parse out data
+            # Parse out data
             usersOnline = ':'.join(numericLine.split(':')[2:])
             usersOnlineList = usersOnline.split()
-            #Mark them all as online
+            # Mark them all as online
             for userName in usersOnlineList:
                 userObj = self.getUserByName(userName)
                 userObj.setOnline(True)
-            #Check if users are being checked
+            # Check if users are being checked
             if(all([usersOnlineList in self.mCheckUsersOnlineCheckList])):
                     self.mCheckUsersOnlineOnlineList = usersOnlineList
-        #Check for NAMES request reply, telling you who is in a channel.
+        # Check for NAMES request reply, telling you who is in a channel.
         elif(numericCode == "353"):
-            #Parse out data
+            # Parse out data
             channelName = numericLine.split(':')[1].split()[-1].lower()
             channelUserList = ':'.join(numericLine.split(':')[2:]).split()
-            #Get channel object
+            # Get channel object
             channelObject = self.getChannelByName(channelName)
-            #Set all users online and in channel
+            # Set all users online and in channel
             channelObject.setUserList(set())
             for userName in channelUserList:
                 while(userName[0] in ['~','&','@','%','+']):
@@ -831,9 +834,9 @@ class ServerIRC(Server):
                 userObj = self.getUserByName(userName)
                 userObj.setOnline(True)
                 channelObject.addUser(userObj)
-            #Check channel is being checked
+            # Check channel is being checked
             if(channelObject == self.mCheckChannelUserListChannel):
-                #Set user list
+                # Set user list
                 self.mCheckChannelUserListUserList = channelUserList
 
     def parseLineUnhandled(self,unhandledLine):
@@ -852,6 +855,8 @@ class ServerIRC(Server):
                 nextByte = self.mSocket.recv(1)
             except:
                 #Raise an exception, to reconnect.
+                raise ServerException
+            if nextByte is None or len(nextByte) != 1:
                 raise ServerException
             nextLine = nextLine + nextByte
             if(nextLine.endswith(endl.encode())):
