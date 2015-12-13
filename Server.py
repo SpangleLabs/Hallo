@@ -274,43 +274,45 @@ class ServerIRC(Server):
                 continue
     
     def rawConnect(self):
-        #Begin pulling data from a given server
+        # Begin pulling data from a given server
         self.mOpen = True
-        #Create new socket
+        # Create new socket
         self.mSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            #Connect to socket
+            # Connect to socket
             self.mSocket.connect((self.mServerAddress,self.mServerPort))
         except Exception as e:
             print("CONNECTION ERROR: " + str(e))
             self.mOpen = False
-        #Wait for the first message back from the server.
+        # Wait for the first message back from the server.
         print(Commons.currentTimestamp() + " waiting for first message from server: " + self.mName)
         firstLine = self.readLineFromSocket()
-        #If first line is null, that means connection was closed.
+        # If first line is null, that means connection was closed.
         if(firstLine is None):
             raise ServerException
         self.mWelcomeMessage = firstLine+"\n"
-        #Send nick and full name to server
+        # Send nick and full name to server
         print(Commons.currentTimestamp() + " sending nick and user info to server: " + self.mName)
         self.send('NICK ' + self.getNick(),None,"raw")
         self.send('USER ' + self.getFullName(),None,"raw")
-        #Wait for MOTD to end
+        # Wait for MOTD to end
         while(True):
             nextWelcomeLine = self.readLineFromSocket()
             if(nextWelcomeLine is None):
                 raise ServerException
             self.mWelcomeMessage += nextWelcomeLine+"\n"
-            if(nextWelcomeLine.split()[0] == "PING"):
-                self.parseLinePing(nextWelcomeLine)
             if("376" in nextWelcomeLine or "endofmessage" in nextWelcomeLine.replace(' ','').lower()):
                 break
-        #Identify with nickserv
+            if(nextWelcomeLine.split()[0] == "PING"):
+                self.parseLinePing(nextWelcomeLine)
+            if len(nextWelcomeLine.split()[1])==3 and nextWelcomeLine.split()[1].isdigit():
+                self.parseLineNumeric(nextWelcomeLine,False)
+        # Identify with nickserv
         if self.mNickservPass:
             self.send('IDENTIFY ' + self.mNickservPass,self.getUserByName("nickserv"))
-        #Join channels
+        # Join channels
         print(Commons.currentTimestamp() + " joining channels on " + self.mName + ", identifying.")
-        #Join relevant channels
+        # Join relevant channels
         for channel in self.mChannelList:
             if(channel.isAutoJoin()):
                 self.joinChannel(channel)
