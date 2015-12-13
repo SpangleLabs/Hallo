@@ -308,6 +308,43 @@ class CatGif(Function):
         catUrl = doc.getElementsByTagName("url")[0].firstChild.data
         return catUrl
 
+class RandomQuote(Function):
+    '''
+    Returns a random quote
+    '''
+    # Name for use in help listing
+    mHelpName = "random quote"
+    # Names which can be used to address the function
+    mNames = set(["random quote","randomquote","quote"])
+    # Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns a quote. Format: random quote"
+
+    mScriptureList = []
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        apiKey = userObject.getServer().getHallo().getApiKey("mashape")
+        if(apiKey is None):
+            return "No API key loaded for mashape."
+        url = "https://andruxnet-random-famous-quotes.p.mashape.com/"
+        # Construct headers
+        headers = []
+        headers.append(["X-Mashape-Key", apiKey])
+        headers.append(["Content-Type", "application/x-www-form-urlencoded"])
+        headers.append(["Accept", "application/json"])
+        # Get api response
+        jsonDict = Commons.loadUrlJson(url, headers)
+        # Construct response
+        quote = jsonDict['quote']
+        author = jsonDict['author']
+        output = '"' + quote + '" - ' + author
+        return output
+
 class NightValeWeather(Function):
     '''
     Returns the current weather, in the style of "welcome to night vale"
