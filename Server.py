@@ -804,6 +804,19 @@ class ServerIRC(Server):
         # Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] Numeric server info: ' + numericLine)
         # TODO: add logging?
+        # Check for a 433 "ERR_NICKNAMEINUSE"
+        if(numericCode == "433"):
+            nickNumber = ([self.mNick[x:] for x in range(len(self.mNick))if Commons.isFloatString(self.mNick[x:])]+[None])[0]
+            if nickNumber is None:
+                nickNumber = 0
+                nickWord = self.mNick
+            else:
+                nickWord = self.mNick[:-len(nickNumber)]
+                nickNumber = float(nickNumber)
+            newNick = nickWord+str(nickNumber+1)
+            self.mNick = newNick
+            self.send("NICK" + self.getNick(),None,"raw")
+            return
         # Only process further numeric codes if motd has ended
         if not motdEnded:
             return
