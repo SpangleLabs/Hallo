@@ -274,43 +274,45 @@ class ServerIRC(Server):
                 continue
     
     def rawConnect(self):
-        #Begin pulling data from a given server
+        # Begin pulling data from a given server
         self.mOpen = True
-        #Create new socket
+        # Create new socket
         self.mSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            #Connect to socket
+            # Connect to socket
             self.mSocket.connect((self.mServerAddress,self.mServerPort))
         except Exception as e:
             print("CONNECTION ERROR: " + str(e))
             self.mOpen = False
-        #Wait for the first message back from the server.
+        # Wait for the first message back from the server.
         print(Commons.currentTimestamp() + " waiting for first message from server: " + self.mName)
         firstLine = self.readLineFromSocket()
-        #If first line is null, that means connection was closed.
+        # If first line is null, that means connection was closed.
         if(firstLine is None):
             raise ServerException
         self.mWelcomeMessage = firstLine+"\n"
-        #Send nick and full name to server
+        # Send nick and full name to server
         print(Commons.currentTimestamp() + " sending nick and user info to server: " + self.mName)
         self.send('NICK ' + self.getNick(),None,"raw")
         self.send('USER ' + self.getFullName(),None,"raw")
-        #Wait for MOTD to end
+        # Wait for MOTD to end
         while(True):
             nextWelcomeLine = self.readLineFromSocket()
             if(nextWelcomeLine is None):
                 raise ServerException
             self.mWelcomeMessage += nextWelcomeLine+"\n"
-            if(nextWelcomeLine.split()[0] == "PING"):
-                self.parseLinePing(nextWelcomeLine)
             if("376" in nextWelcomeLine or "endofmessage" in nextWelcomeLine.replace(' ','').lower()):
                 break
-        #Identify with nickserv
+            if(nextWelcomeLine.split()[0] == "PING"):
+                self.parseLinePing(nextWelcomeLine)
+            if len(nextWelcomeLine.split()[1])==3 and nextWelcomeLine.split()[1].isdigit():
+                self.parseLineNumeric(nextWelcomeLine,False)
+        # Identify with nickserv
         if self.mNickservPass:
             self.send('IDENTIFY ' + self.mNickservPass,self.getUserByName("nickserv"))
-        #Join channels
+        # Join channels
         print(Commons.currentTimestamp() + " joining channels on " + self.mName + ", identifying.")
-        #Join relevant channels
+        # Join relevant channels
         for channel in self.mChannelList:
             if(channel.isAutoJoin()):
                 self.joinChannel(channel)
@@ -331,6 +333,7 @@ class ServerIRC(Server):
             except:
                 pass
             self.mSocket.close()
+            self.mSocket = None
             self.mOpen = False
     
     def reconnect(self):
@@ -338,7 +341,6 @@ class ServerIRC(Server):
         Reconnect to a given server. Basically just disconnect and reconnect.
         '''
         self.disconnect()
-        self.mSocket = None
         self.connect()
     
     def run(self):
@@ -348,13 +350,13 @@ class ServerIRC(Server):
         if(not self.mOpen):
             self.connect()
         while(self.mOpen):
+            nextLine = None
             try:
                 nextLine = self.readLineFromSocket()
             except ServerException:
                 print("Server disconnected. Reconnecting.")
-                self.mOpen = False
                 time.sleep(10)
-                self.connect()
+                self.reconnect()
             if(nextLine is None):
                 self.mOpen = False
             else:
@@ -797,33 +799,49 @@ class ServerIRC(Server):
         functionDispatcher = self.mHallo.getFunctionDispatcher()
         functionDispatcher.dispatchPassive(Function.EVENT_KICK,kickMessage,self,kickClient,kickChannel)
 
-    def parseLineNumeric(self,numericLine):
-        'Parses a numeric message from the server'
-        #Parse out numeric line data
+    def parseLineNumeric(self, numericLine, motdEnded = True):
+        '''Parses a numeric message from the server'''
+        # Parse out numeric line data
         numericCode = numericLine.split()[1]
-        #Print to console
+        # Print to console
         print(Commons.currentTimestamp() + ' [' + self.mName + '] Numeric server info: ' + numericLine)
-        #TODO: add logging?
-        #Check for ISON response, telling you which users are online
+        # TODO: add logging?
+        # Check for a 433 "ERR_NICKNAMEINUSE"
+        if(numericCode == "433"):
+            nickNumber = ([self.mNick[x:] for x in range(len(self.mNick))if Commons.isFloatString(self.mNick[x:])]+[None])[0]
+            if nickNumber is None:
+                nickNumber = 0
+                nickWord = self.mNick
+            else:
+                nickWord = self.mNick[:-len(nickNumber)]
+                nickNumber = float(nickNumber)
+            newNick = nickWord+str(nickNumber+1)
+            self.mNick = newNick
+            self.send("NICK" + self.getNick(),None,"raw")
+            return
+        # Only process further numeric codes if motd has ended
+        if not motdEnded:
+            return
+        # Check for ISON response, telling you which users are online
         if(numericCode == "303"):
-            #Parse out data
+            # Parse out data
             usersOnline = ':'.join(numericLine.split(':')[2:])
             usersOnlineList = usersOnline.split()
-            #Mark them all as online
+            # Mark them all as online
             for userName in usersOnlineList:
                 userObj = self.getUserByName(userName)
                 userObj.setOnline(True)
-            #Check if users are being checked
+            # Check if users are being checked
             if(all([usersOnlineList in self.mCheckUsersOnlineCheckList])):
                     self.mCheckUsersOnlineOnlineList = usersOnlineList
-        #Check for NAMES request reply, telling you who is in a channel.
+        # Check for NAMES request reply, telling you who is in a channel.
         elif(numericCode == "353"):
-            #Parse out data
+            # Parse out data
             channelName = numericLine.split(':')[1].split()[-1].lower()
             channelUserList = ':'.join(numericLine.split(':')[2:]).split()
-            #Get channel object
+            # Get channel object
             channelObject = self.getChannelByName(channelName)
-            #Set all users online and in channel
+            # Set all users online and in channel
             channelObject.setUserList(set())
             for userName in channelUserList:
                 while(userName[0] in ['~','&','@','%','+']):
@@ -831,9 +849,9 @@ class ServerIRC(Server):
                 userObj = self.getUserByName(userName)
                 userObj.setOnline(True)
                 channelObject.addUser(userObj)
-            #Check channel is being checked
+            # Check channel is being checked
             if(channelObject == self.mCheckChannelUserListChannel):
-                #Set user list
+                # Set user list
                 self.mCheckChannelUserListUserList = channelUserList
 
     def parseLineUnhandled(self,unhandledLine):
@@ -852,6 +870,8 @@ class ServerIRC(Server):
                 nextByte = self.mSocket.recv(1)
             except:
                 #Raise an exception, to reconnect.
+                raise ServerException
+            if nextByte is None or len(nextByte) != 1:
                 raise ServerException
             nextLine = nextLine + nextByte
             if(nextLine.endswith(endl.encode())):
