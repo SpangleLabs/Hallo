@@ -279,6 +279,35 @@ class Scriptures(Function):
         rand = Commons.getRandomInt(0,len(self.mScriptureList)-1)[0]
         return self.mScriptureList[rand]
 
+class CatGif(Function):
+    '''
+    Returns a random cat gif
+    '''
+    #Name for use in help listing
+    mHelpName = "catgif"
+    #Names which can be used to address the function
+    mNames = set(["catgif","cat gif","random cat","random cat gif","random catgif","cat.gif"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns a random cat gif Format: cat gif"
+
+    mScriptureList = []
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        apiKey = userObject.getServer().getHallo().getApiKey("thecatapi")
+        if(apiKey is None):
+            return "No API key loaded for cat api."
+        url = "http://thecatapi.com/api/images/get?format=xml&api_key="+apiKey+"&type=gif"
+        xmlString = Commons.loadUrlString(url)
+        doc = minidom.parseString(xmlString)
+        catUrl = doc.getElementsByTagName("url")[0].firstChild.data
+        return catUrl
+
 class NightValeWeather(Function):
     '''
     Returns the current weather, in the style of "welcome to night vale"
