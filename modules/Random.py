@@ -437,6 +437,7 @@ class RandomPerson(Function):
         pass
 
     def run(self,line,userObject,destinationObject=None):
+        inputClean = line.strip().lower()
         url = "http://api.randomuser.me/0.6/?nat=gb&format=json"
         # Get api response
         jsonDict = Commons.loadUrlJson(url)
@@ -456,6 +457,10 @@ class RandomPerson(Function):
         nationalInsurance = userDict['NINO']
         pronoun = "he" if userDict['gender'] == "male" else "she"
         pronounPossessive = "his" if userDict['gender'] == "male" else "her"
+        if inputClean not in ["more","full","verbose","all"]:
+            output = "I have generated this person: Say hello to " + name + ". "
+            output += pronoun.title() + " was born at " + dateOfBirth + "."
+            return output
         output = "I have generated this person: Say hello to " + name + ". "
         output += pronoun.title() + " was born at " + dateOfBirth + " and lives at " + address + ". "
         output += pronoun.title() + " uses the email " + email + ", the username \"" + username + "\" and usually uses the password \"" + password + "\". "
