@@ -447,7 +447,7 @@ class RandomPerson(Function):
         address = userDict['location']['street'].title() + ", "
         address += userDict['location']['city'].title() + ", "
         address += userDict['location']['state'].title() + ", "
-        address += userDict['location']['zip']
+        address += userDict['location']['postcode']
         username = userDict['username']
         password = userDict['password']
         dateOfBirth = Commons.formatUnixTime(userDict['dob'])
