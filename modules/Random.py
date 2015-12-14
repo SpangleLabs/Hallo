@@ -426,7 +426,7 @@ class RandomPerson(Function):
     # Names which can be used to address the function
     mNames = set(["random person","randomperson","generate person","generate user"])
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Generates and returns a random person's details. Format: random person"
+    mHelpDocs = "Generates and returns a random person's details. Specify \"full\" for more details. Format: random person"
 
     mScriptureList = []
 
