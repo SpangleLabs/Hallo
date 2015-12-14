@@ -447,7 +447,6 @@ class RandomPerson(Function):
         email = userDict['email']
         address = userDict['location']['street'].title() + ", "
         address += userDict['location']['city'].title() + ", "
-        address += userDict['location']['state'].title() + ", "
         address += userDict['location']['postcode']
         username = userDict['username']
         password = userDict['password']
