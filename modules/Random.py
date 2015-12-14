@@ -126,7 +126,7 @@ class ChosenOne(Function):
     #Name for use in help listing
     mHelpName = "chosen one"
     #Names which can be used to address the function
-    mNames = set(["chosen one","chosenone","random user","random person"])
+    mNames = set(["chosen one","chosenone","random user"])
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Specifies who the chosen one is. Format: chosen one"
     
@@ -424,7 +424,7 @@ class RandomPerson(Function):
     # Name for use in help listing
     mHelpName = "random person"
     # Names which can be used to address the function
-    mNames = set(["random user","randomuser","random person","randomperson","generate person","generate user"])
+    mNames = set(["random person","randomperson","generate person","generate user"])
     # Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Generates and returns a random person's details. Format: random person"
 
