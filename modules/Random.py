@@ -416,6 +416,53 @@ class NightValeWeather(Function):
             listVideos.extend(self.getYoutubePlaylist(playlistId,apiDict['nextPageToken']))
         #Return list
         return listVideos
+
+class RandomPerson(Function):
+    '''
+    Returns a random quote
+    '''
+    # Name for use in help listing
+    mHelpName = "random person"
+    # Names which can be used to address the function
+    mNames = set(["random user","randomuser","random person","randomperson","generate person","generate user"])
+    # Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Generates and returns a random person's details. Format: random person"
+
+    mScriptureList = []
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        url = "http://api.randomuser.me/0.6/?nat=gb&format=json"
+        # Get api response
+        jsonDict = Commons.loadUrlJson(url)
+        userDict = jsonDict['results'][0]['user']
+        # Construct response
+        name = (userDict['name']['title'] + " " + userDict['name']['first'] + " " + userDict['name']['last']).title()
+        email = userDict['email']
+        address = userDict['location']['street'].title() + ", "
+        address += userDict['location']['city'].title() + ", "
+        address += userDict['location']['state'].title() + ", "
+        address += userDict['location']['zip']
+        username = userDict['username']
+        password = userDict['password']
+        dateOfBirth = Commons.formatUnixTime(userDict['dob'])
+        phoneHome = userDict['phone']
+        phoneMob = userDict['cell']
+        nationalInsurance = userDict['NINO']
+        pronoun = "he" if userDict['gender'] == "male" else "she"
+        pronounPossessive = "his" if userDict['gender'] == "male" else "her"
+        output = "I have generated this person: Say hello to " + name + ". "
+        output += pronoun.title() + " was born at " + dateOfBirth + " and lives at " + address + ". "
+        output += pronoun.title() + " uses the email " + email + ", the username \"" + username + "\" and usually uses the password \"" + password + "\". "
+        output += pronounPossessive.title() + " home number is " + phoneHome + " but "
+        output += pronounPossessive + " mobile number is " + phoneMob + ". "
+        output += pronounPossessive + " national insurance number is " + nationalInsurance + "."
+        return output
         
         
     
