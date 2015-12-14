@@ -126,7 +126,7 @@ class ChosenOne(Function):
     #Name for use in help listing
     mHelpName = "chosen one"
     #Names which can be used to address the function
-    mNames = set(["chosen one","chosenone","random user","random person"])
+    mNames = set(["chosen one","chosenone","random user"])
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Specifies who the chosen one is. Format: chosen one"
     
@@ -279,6 +279,72 @@ class Scriptures(Function):
         rand = Commons.getRandomInt(0,len(self.mScriptureList)-1)[0]
         return self.mScriptureList[rand]
 
+class CatGif(Function):
+    '''
+    Returns a random cat gif
+    '''
+    #Name for use in help listing
+    mHelpName = "catgif"
+    #Names which can be used to address the function
+    mNames = set(["catgif","cat gif","random cat","random cat gif","random catgif","cat.gif"])
+    #Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns a random cat gif Format: cat gif"
+
+    mScriptureList = []
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        apiKey = userObject.getServer().getHallo().getApiKey("thecatapi")
+        if(apiKey is None):
+            return "No API key loaded for cat api."
+        url = "http://thecatapi.com/api/images/get?format=xml&api_key="+apiKey+"&type=gif"
+        xmlString = Commons.loadUrlString(url)
+        doc = minidom.parseString(xmlString)
+        catUrl = doc.getElementsByTagName("url")[0].firstChild.data
+        return catUrl
+
+class RandomQuote(Function):
+    '''
+    Returns a random quote
+    '''
+    # Name for use in help listing
+    mHelpName = "random quote"
+    # Names which can be used to address the function
+    mNames = set(["random quote","randomquote","quote"])
+    # Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns a quote. Format: random quote"
+
+    mScriptureList = []
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        apiKey = userObject.getServer().getHallo().getApiKey("mashape")
+        if(apiKey is None):
+            return "No API key loaded for mashape."
+        url = "https://andruxnet-random-famous-quotes.p.mashape.com/"
+        # Construct headers
+        headers = []
+        headers.append(["X-Mashape-Key", apiKey])
+        headers.append(["Content-Type", "application/x-www-form-urlencoded"])
+        headers.append(["Accept", "application/json"])
+        # Get api response
+        jsonDict = Commons.loadUrlJson(url, headers)
+        # Construct response
+        quote = jsonDict['quote']
+        author = jsonDict['author']
+        output = '"' + quote + '" - ' + author
+        return output
+
 class NightValeWeather(Function):
     '''
     Returns the current weather, in the style of "welcome to night vale"
@@ -350,6 +416,57 @@ class NightValeWeather(Function):
             listVideos.extend(self.getYoutubePlaylist(playlistId,apiDict['nextPageToken']))
         #Return list
         return listVideos
+
+class RandomPerson(Function):
+    '''
+    Returns a random quote
+    '''
+    # Name for use in help listing
+    mHelpName = "random person"
+    # Names which can be used to address the function
+    mNames = set(["random person","randomperson","generate person","generate user"])
+    # Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Generates and returns a random person's details. Specify \"full\" for more details. Format: random person"
+
+    mScriptureList = []
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        inputClean = line.strip().lower()
+        url = "http://api.randomuser.me/0.6/?nat=gb&format=json"
+        # Get api response
+        jsonDict = Commons.loadUrlJson(url)
+        userDict = jsonDict['results'][0]['user']
+        # Construct response
+        name = (userDict['name']['title'] + " " + userDict['name']['first'] + " " + userDict['name']['last']).title()
+        email = userDict['email']
+        address = userDict['location']['street'].title() + ", "
+        address += userDict['location']['city'].title() + ", "
+        address += userDict['location']['postcode']
+        username = userDict['username']
+        password = userDict['password']
+        dateOfBirth = Commons.formatUnixTime(int(userDict['dob']))
+        phoneHome = userDict['phone']
+        phoneMob = userDict['cell']
+        nationalInsurance = userDict['NINO']
+        pronoun = "he" if userDict['gender'] == "male" else "she"
+        pronounPossessive = "his" if userDict['gender'] == "male" else "her"
+        if inputClean not in ["more","full","verbose","all"]:
+            output = "I have generated this person: Say hello to " + name + ". "
+            output += pronoun.title() + " was born at " + dateOfBirth + "."
+            return output
+        output = "I have generated this person: Say hello to " + name + ". "
+        output += pronoun.title() + " was born at " + dateOfBirth + " and lives at " + address + ". "
+        output += pronoun.title() + " uses the email " + email + ", the username \"" + username + "\" and usually uses the password \"" + password + "\". "
+        output += pronounPossessive.title() + " home number is " + phoneHome + " but "
+        output += pronounPossessive + " mobile number is " + phoneMob + ". "
+        output += pronounPossessive + " national insurance number is " + nationalInsurance + "."
+        return output
         
         
     
