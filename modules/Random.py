@@ -519,7 +519,7 @@ class RandomColour(Function):
     def run(self,line,userObject,destinationObject=None):
         rgbList = Commons.getRandomInt(0,256,3)
         hexCode = (hex(rgbList[0])[2:]+hex(rgbList[1])[2:]+hex(rgbList[2])[2:]).upper()
-        url = "http://www.perbang.dk/rgb/"+hexCode+"\""
+        url = "http://www.perbang.dk/rgb/"+hexCode+"/"
         urlData = Commons.loadUrlString(url)
         colourMatch = re.search('<meta name="Description" content="([A-Za-z ]+)#',urlData,re.M)
         if colourMatch is None or colourMatch.group(1) is None:
