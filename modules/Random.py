@@ -467,6 +467,35 @@ class RandomPerson(Function):
         output += pronounPossessive + " mobile number is " + phoneMob + ". "
         output += pronounPossessive + " national insurance number is " + nationalInsurance + "."
         return output
-        
+
+class NightValeProverb(Function):
+    '''
+    Returns a random night vale proverb
+    '''
+    # Name for use in help listing
+    mHelpName = "nightvale proverb"
+    # Names which can be used to address the function
+    mNames = set(["nightvale proverb","night vale proverb","random proverb","proverb"])
+    # Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns a random proverb from Welcome to Night Vale. Format: nightvale proverb"
+
+    mProverbList = []
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        self.loadFromXml()
+
+    def loadFromXml(self):
+        doc = minidom.parse("store/proverbs.xml")
+        proverbListXml = doc.getElementsByTagName("proverbs")[0]
+        for proverbXml in proverbListXml.getElementsByTagName("proverb"):
+            self.mProverbList.append(proverbXml.firstChild.data)
+
+    def run(self,line,userObject,destinationObject=None):
+        rand = Commons.getRandomInt(0,len(self.mProverbList)-1)[0]
+        return self.mProverbList[rand]
+
         
     
