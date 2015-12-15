@@ -1,3 +1,4 @@
+from xml.etree import ElementTree
 
 
 class RssFeedList:
@@ -6,7 +7,7 @@ class RssFeedList:
     """
     mFeedList = []
 
-    def addFeed(self,newFeed):
+    def addFeed(self, newFeed):
         """
         Adds a new RSS feed to the list.
         :param newFeed: RssFeed
