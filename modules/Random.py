@@ -521,7 +521,7 @@ class RandomColour(Function):
         hexCode = (hex(rgbList[0])[2:]+hex(rgbList[1])[2:]+hex(rgbList[2])[2:]).upper()
         url = "http://www.perbang.dk/rgb/"+hexCode+"\""
         urlData = Commons.loadUrlString(url)
-        colourMatch = re.match('<meta name="Description" content="([A-Za-z ]+)#',urlData,re.M)
+        colourMatch = re.search('<meta name="Description" content="([A-Za-z ]+)#',urlData,re.M)
         if colourMatch is None or colourMatch.group(1) is None:
             output = "Randomly chosen colour is: #" + hexCode + " or rgb(" + str(rgbList[0]) + "," + str(rgbList[1]) + "," + str(rgbList[2]) + ") " + url
         else:
