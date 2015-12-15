@@ -1,5 +1,5 @@
 
-# TODO: RssFeedList class
+
 class RssFeedList:
     """
     Holds the lists of feeds, for loading and unloading.
@@ -26,6 +26,7 @@ class RssFeedList:
         Saves the whole feed list to XML file
         :return:
         """
+        # TODO
         pass
 
     @staticmethod
@@ -72,6 +73,7 @@ class RssFeed:
         Saves this RssFeed
         :return: string
         """
+        # TODO
         pass
 
     @staticmethod
@@ -81,6 +83,7 @@ class RssFeed:
         :param xmlString: string
         :return: RssFeed
         """
+        # TODO
         return RssFeed()
 
 # TODO: FeedCheck Function class
