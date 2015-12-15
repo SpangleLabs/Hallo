@@ -6,7 +6,7 @@ class RssFeedList:
     """
     mFeedList = []
 
-    def addList(self,newList):
+    def addFeed(self,newFeed):
         """
         Adds a new RSS feed to the list.
         :param newFeed: RssFeed
@@ -34,7 +34,17 @@ class RssFeedList:
         Constructs a new RssFeedList from the XML file
         :return: RssFeedList
         """
-        pass
+        newFeedList = RssFeedList()
+        # Try loading xml file, otherwise return blank list
+        try:
+            doc = ElementTree.parse("store/rss_feeds.xml")
+        except (OSError, IOError):
+            return newFeedList
+        # Loop feeds in xml file adding them to list
+        for rssFeedXml in doc.getElementsByTagName("rss_feed"):
+            newFeed = RssFeed.fromXmlString(ElementTree.toString(rssFeedXml))
+            newFeedList.addFeed(newFeed)
+        return newFeedList
 
 
 class RssFeed:
@@ -71,7 +81,7 @@ class RssFeed:
         :param xmlString: string
         :return: RssFeed
         """
-        pass
+        return RssFeed()
 
 # TODO: FeedCheck Function class
 # TODO: FeedAdd Function class
