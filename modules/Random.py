@@ -497,5 +497,34 @@ class NightValeProverb(Function):
         rand = Commons.getRandomInt(0,len(self.mProverbList)-1)[0]
         return self.mProverbList[rand]
 
-        
-    
+class RandomColour(Function):
+    '''
+    Returns a random colour, hex code and name
+    '''
+    # Name for use in help listing
+    mHelpName = "random colour"
+    # Names which can be used to address the function
+    mNames = set(["random colour","random color","colour","color"])
+    # Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Returns a random proverb from Welcome to Night Vale. Format: nightvale proverb"
+
+    mProverbList = []
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject=None):
+        rgbList = Commons.getRandomInt(0,256,3)
+        hexCode = (hex(rgbList[0])[2:]+hex(rgbList[1])[2:]+hex(rgbList[2])[2:]).upper()
+        url = "http://www.perbang.dk/rgb/"+hexCode+"/"
+        urlData = Commons.loadUrlString(url)
+        colourMatch = re.search('<meta name="Description" content="([A-Za-z ]+)#',urlData,re.M)
+        if colourMatch is None or colourMatch.group(1) is None:
+            output = "Randomly chosen colour is: #" + hexCode + " or rgb(" + str(rgbList[0]) + "," + str(rgbList[1]) + "," + str(rgbList[2]) + ") " + url
+        else:
+            colourName = colourMatch.group(1)
+            output = "Randomly chosen colour is: " + colourName + " #" + hexCode + " or rgb(" + str(rgbList[0]) + "," + str(rgbList[1]) + "," + str(rgbList[2]) + ") " + url
+        return output
