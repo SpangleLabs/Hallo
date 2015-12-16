@@ -27,8 +27,14 @@ class RssFeedList:
         Saves the whole feed list to XML file
         :return:
         """
-        # TODO
-        pass
+        # Create root element
+        rootElement = ElementTree.Element("rss_feeds")
+        # Add all feed elements
+        for rssFeed in self.mFeedList:
+            newFeedElement = rssFeed.toXmlString()
+            rootElement.append(newFeedElement)
+        # Write xml to file
+        ElementTree.ElementTree(rootElement).write("store/rss_feeds.xml")
 
     @staticmethod
     def fromXml():
