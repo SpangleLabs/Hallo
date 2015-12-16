@@ -290,8 +290,6 @@ class CatGif(Function):
     #Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Returns a random cat gif Format: cat gif"
 
-    mScriptureList = []
-
     def __init__(self):
         '''
         Constructor
