@@ -49,7 +49,8 @@ class RssFeedList:
         except (OSError, IOError):
             return newFeedList
         # Loop feeds in xml file adding them to list
-        for rssFeedXml in doc.getElementsByTagName("rss_feed"):
+        root = doc.getroot()
+        for rssFeedXml in root.findall("rss_feed"):
             newFeed = RssFeed.fromXmlString(ElementTree.toString(rssFeedXml))
             newFeedList.addFeed(newFeed)
         return newFeedList
@@ -120,8 +121,32 @@ class RssFeed:
         :param xmlString: string
         :return: RssFeed
         """
-        # TODO
-        return RssFeed()
+        # Create blank feed
+        newFeed = RssFeed()
+        # Load xml
+        feedXml = ElementTree.fromstring(xmlString)
+        # Load title, url, server
+        newFeed.mTitle = feedXml.find("title").text
+        newFeed.mUrl = feedXml.find("url").text
+        newFeed.mServerName = feedXml.find("server").text
+        # Load channel or user
+        if feedXml.find("channel") is not None:
+            newFeed.mChannelName = feedXml.find("channel").text
+        else:
+            if feedXml.find("user") is not None:
+                newFeed.mUserName = feedXml.find("user").text
+            else:
+                raise Exception("Channel or user must be defined")
+        # Load last item
+        if feedXml.find("last_item") is not None:
+            newFeed.mLastItem = feedXml.find("last_item").text
+        # Load last check
+        if feedXml.find("last_check") is not None:
+            newFeed.mLastCheck = feedXml.find("last_check").text
+        # Load update frequency
+        newFeed.mUpdateFrequency = feedXml.find("update_frequency").text
+        # Return new feed
+        return newFeed
 
 # TODO: FeedCheck Function class
 # TODO: FeedAdd Function class
