@@ -1,6 +1,7 @@
 from xml.etree import ElementTree
 from datetime import datetime
 from inc.commons import Commons
+import hashlib
 
 class RssFeedList:
     """
@@ -74,8 +75,20 @@ class RssFeed:
         """
         Checks the feed for any updates
         """
-        # TODO
-        pass
+        rssData = Commons.loadUrlString(self.mUrl)
+        rssXml = ElementTree.fromstring(rssData)
+        rssElement = rssXml.getroot()
+        channelElement = rssElement.find("channel")
+        newItems = []
+        # Loop elements, seeing when any match the last item's hash
+        for itemElement in channelElement.findall("item"):
+            itemXml = ElementTree.tostring(itemElement)
+            itemHash = hashlib.md5(itemXml.encode("utf-8")).hexdigest()
+            newItems.append(itemElement)
+            if itemHash == self.mLastItemHash:
+                break
+        # Output true if there are new items, false otherwise
+        return len(newItems) > 0
 
     def toXmlString(self):
         """
