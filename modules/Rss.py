@@ -51,7 +51,7 @@ class RssFeedList:
         # Loop feeds in xml file adding them to list
         root = doc.getroot()
         for rssFeedXml in root.findall("rss_feed"):
-            newFeed = RssFeed.fromXmlString(ElementTree.toString(rssFeedXml))
+            newFeed = RssFeed.fromXmlString(ElementTree.tostring(rssFeedXml))
             newFeedList.addFeed(newFeed)
         return newFeedList
 
