@@ -1,5 +1,5 @@
 from xml.etree import ElementTree
-
+from datetime import datetime
 
 class RssFeedList:
     """
@@ -107,7 +107,7 @@ class RssFeed:
         # Create last check element
         if self.mLastCheck is not None:
             lastCheck = ElementTree.SubElement(root, "last_check")
-            lastCheck.text = self.mLastCheck
+            lastCheck.text = self.mLastCheck.isoformat()
         # Create update frequency element
         updateFrequency = ElementTree.SubElement(root, "update_frequency")
         updateFrequency.text = self.mUpdateFrequency
@@ -142,7 +142,7 @@ class RssFeed:
             newFeed.mLastItem = feedXml.find("last_item").text
         # Load last check
         if feedXml.find("last_check") is not None:
-            newFeed.mLastCheck = feedXml.find("last_check").text
+            newFeed.mLastCheck = datetime.strptime(feedXml.find("last_check").text, "%Y-%m-%dT%H:%M:%S")
         # Load update frequency
         newFeed.mUpdateFrequency = feedXml.find("update_frequency").text
         # Return new feed
