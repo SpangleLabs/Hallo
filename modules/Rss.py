@@ -84,32 +84,32 @@ class RssFeed:
         # Create root element
         root = ElementTree.Element("rss_feed")
         # Create title element
-        title = ElementTree.SubElement(root,"title")
+        title = ElementTree.SubElement(root, "title")
         title.text = self.mTitle
         # Create url element
-        url = ElementTree.SubElement(root,"url")
+        url = ElementTree.SubElement(root, "url")
         url.text = self.mUrl
         # Create server name element
-        server = ElementTree.SubElement(root,"server")
+        server = ElementTree.SubElement(root, "server")
         server.text = self.mServerName
         # Create channel name element, if applicable
         if self.mChannelName is not None:
-            channel = ElementTree.SubElement(root,"channel")
+            channel = ElementTree.SubElement(root, "channel")
             channel.text = self.mChannelName
         # Create user name element, if applicable
         if self.mUserName is not None:
-            user = ElementTree.SubElement(root,"user")
+            user = ElementTree.SubElement(root, "user")
             user.text = self.mUserName
         # Create last item element
         if self.mLastItem is not None:
-            lastItem = ElementTree.SubElement(root,"last_item")
+            lastItem = ElementTree.SubElement(root, "last_item")
             lastItem.text = self.mLastItem
         # Create last check element
         if self.mLastCheck is not None:
-            lastCheck = ElementTree.SubElement(root,"last_check")
+            lastCheck = ElementTree.SubElement(root, "last_check")
             lastCheck.text = self.mLastCheck
         # Create update frequency element
-        updateFrequency = ElementTree.SubElement(root,"update_frequency")
+        updateFrequency = ElementTree.SubElement(root, "update_frequency")
         updateFrequency.text = self.mUpdateFrequency
         # Return xml string
         return ElementTree.tostring(root)
@@ -147,6 +147,7 @@ class RssFeed:
         newFeed.mUpdateFrequency = feedXml.find("update_frequency").text
         # Return new feed
         return newFeed
+
 
 # TODO: FeedCheck Function class
 # TODO: FeedAdd Function class
