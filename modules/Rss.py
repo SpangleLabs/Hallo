@@ -66,7 +66,7 @@ class RssFeed:
     mServerName = None
     mChannelName = None
     mUserName = None
-    mLastItem = None
+    mLastItemHash = None
     mLastCheck = None
     mUpdateFrequency = None
 
@@ -102,9 +102,9 @@ class RssFeed:
             user = ElementTree.SubElement(root, "user")
             user.text = self.mUserName
         # Create last item element
-        if self.mLastItem is not None:
+        if self.mLastItemHash is not None:
             lastItem = ElementTree.SubElement(root, "last_item")
-            lastItem.text = self.mLastItem
+            lastItem.text = self.mLastItemHash
         # Create last check element
         if self.mLastCheck is not None:
             lastCheck = ElementTree.SubElement(root, "last_check")
@@ -140,7 +140,7 @@ class RssFeed:
                 raise Exception("Channel or user must be defined")
         # Load last item
         if feedXml.find("last_item") is not None:
-            newFeed.mLastItem = feedXml.find("last_item").text
+            newFeed.mLastItemHash = feedXml.find("last_item").text
         # Load last check
         if feedXml.find("last_check") is not None:
             newFeed.mLastCheck = datetime.strptime(feedXml.find("last_check").text, "%Y-%m-%dT%H:%M:%S")
