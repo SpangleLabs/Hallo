@@ -1,5 +1,6 @@
 from xml.etree import ElementTree
 from datetime import datetime
+from inc.commons import Commons
 
 class RssFeedList:
     """
@@ -110,7 +111,7 @@ class RssFeed:
             lastCheck.text = self.mLastCheck.isoformat()
         # Create update frequency element
         updateFrequency = ElementTree.SubElement(root, "update_frequency")
-        updateFrequency.text = self.mUpdateFrequency
+        updateFrequency.text = Commons.formatTimeDelta(self.mUpdateFrequency)
         # Return xml string
         return ElementTree.tostring(root)
 
@@ -144,7 +145,7 @@ class RssFeed:
         if feedXml.find("last_check") is not None:
             newFeed.mLastCheck = datetime.strptime(feedXml.find("last_check").text, "%Y-%m-%dT%H:%M:%S")
         # Load update frequency
-        newFeed.mUpdateFrequency = feedXml.find("update_frequency").text
+        newFeed.mUpdateFrequency = Commons.loadTimeDelta(feedXml.find("update_frequency").text)
         # Return new feed
         return newFeed
 
