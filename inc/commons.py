@@ -4,6 +4,7 @@ import urllib.request
 import re
 import json
 import random
+from datetime import timedelta
 
 class Commons(object):
     '''
@@ -210,4 +211,28 @@ class Commons(object):
         randInt = Commons.getRandomInt(0,len(choiceList)-1)[0]
         return choiceList[randInt]
 
+    @staticmethod
+    def loadTimeDelta(deltaString):
+        """
+        Loads a timedelta object from an ISO8601 period string
+        :param deltaString: string
+        :return: timedelta
+        """
+        if deltaString[0] != "P" or deltaString[-1] != "S":
+            raise Exception("Invalid ISO-8601 period string")
+        cleanString = deltaString[1:-1]
+        splitString = cleanString.split("T")
+        if len(splitString) != 2:
+            raise Exception("Invalid ISO-8601 period string")
+        newDelta = timedelta(int(splitString[0]), int(splitString[1]))
+        return newDelta
 
+    @staticmethod
+    def formatTimeDelta(delta):
+        """
+        Exports a timedelta into an ISO806 format string
+        :param delta: timedelta
+        :return: string
+        """
+        output = "P" + str(timedelta.days) + "T" + str(timedelta.seconds) + "S"
+        return output
