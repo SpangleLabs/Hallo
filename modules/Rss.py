@@ -90,6 +90,13 @@ class RssFeed:
         # Output true if there are new items, false otherwise
         return len(newItems) > 0
 
+    def needsCheck(self):
+        """
+        Returns whether an rssfeed check is overdue.
+        :return: bool
+        """
+        pass
+
     def toXmlString(self):
         """
         Saves this RssFeed
