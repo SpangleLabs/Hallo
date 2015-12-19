@@ -95,7 +95,11 @@ class RssFeed:
         Returns whether an rssfeed check is overdue.
         :return: bool
         """
-        pass
+        if self.mLastCheck is None:
+            return True
+        if datetime.now() > self.mLastCheck + self.mUpdateFrequency:
+            return True
+        return False
 
     def toXmlString(self):
         """
