@@ -4,6 +4,7 @@ from inc.commons import Commons
 import hashlib
 from Function import Function
 
+
 class RssFeedList:
     """
     Holds the lists of feeds, for loading and unloading.
@@ -63,7 +64,7 @@ class RssFeed:
     """
     Class representing an rss feed in config.
     """
-    mTitle = None
+    mTitle = ""
     mUrl = None
     mServerName = None
     mChannelName = None
@@ -88,8 +89,38 @@ class RssFeed:
             newItems.append(itemElement)
             if itemHash == self.mLastItemHash:
                 break
-        # Output true if there are new items, false otherwise
-        return len(newItems) > 0
+        # Return new items
+        return newItems
+
+    def outputItem(self, rssItem, hallo, server=None, destination=None):
+        """
+        Outputs an item to a given server and destination, or the feed default.
+        :param rssItem: string
+        :param hallo: Hallo
+        :param server: Server
+        :param destination: Destination
+        """
+        # Get server
+        if server is None:
+            server = hallo.getServerByName(self.mServerName)
+            if server is None:
+                return "Invalid server."
+        # Get destination
+        if destination is None:
+            if self.mChannelName is not None:
+                destination = server.getChannelByName(self.mChannelName)
+            if self.mUserName is not None:
+                destination = server.getUserByName(self.mUserName)
+            if destination is None:
+                return "Invalid destination."
+        # Load item xml
+        itemXml = ElementTree.fromstring(rssItem)
+        itemTitle = itemXml.find("title")
+        itemLink = itemXml.find("link")
+        # Construct output
+        output = "Update on \"" + self.mTitle + "\" RSS feed. \"" + itemTitle + "\" " + itemLink
+        destination.send(output)
+        return output
 
     def needsCheck(self):
         """
@@ -188,6 +219,8 @@ class FeedCheck(Function):
 
     mRssFeedList = None
 
+    NAMES_ALL = ["*", "all"]
+
     def __init__(self):
         """
         Constructor
@@ -213,8 +246,18 @@ class FeedCheck(Function):
         return {Function.EVENT_MINUTE}
 
     def run(self, line, userObject, destinationObject=None):
+        # Handy variables
+        server = userObject.getServer()
+        hallo = server.getHallo()
         # Clean up input
+        cleanInput = line.strip().lower()
         # Check whether input is asking to update all feeds
+        if cleanInput in self.NAMES_ALL:
+            for rssFeed in self.mRssFeedList.getFeedList():
+                newItems = rssFeed.checkFeed()
+                for rssItem in newItems:
+                    rssFeed.outputItem(rssItem, hallo)
+                    rssFeed.outputItem(rssItem, hallo, server, destinationObject)
         # Otherwise see if a feed title matches the specified one
         raise NotImplementedError
 
