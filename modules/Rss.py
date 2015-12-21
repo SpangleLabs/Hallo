@@ -220,7 +220,7 @@ class FeedCheck(Function):
 
     def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
         'Replies to an event not directly addressed to the bot.'
-        # Check all feeds, see which need checking and which have been updated.
+        # TODO: Check all feeds, see which need checking and which have been updated.
         pass
 
 # TODO: FeedAdd Function class
