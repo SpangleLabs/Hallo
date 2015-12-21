@@ -219,7 +219,8 @@ class FeedCheck(Function):
         raise NotImplementedError
 
     def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
-        """Replies to an event not directly addressed to the bot.
+        """
+        Replies to an event not directly addressed to the bot.
         :param event: string
         :param fullLine: string
         :param serverObject: Server
