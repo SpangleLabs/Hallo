@@ -2,6 +2,7 @@ from xml.etree import ElementTree
 from datetime import datetime
 from inc.commons import Commons
 import hashlib
+from Function import Function
 
 class RssFeedList:
     """
@@ -174,7 +175,54 @@ class RssFeed:
         return newFeed
 
 
-# TODO: FeedCheck Function class
+class FeedCheck(Function):
+    '''
+    Checks a specified feed for updates and returns them.
+    '''
+    # Name for use in help listing
+    mHelpName = "rss check"
+    # Names which can be used to address the function
+    mNames = set(["rss check","check rss","check rss feed","rss feed check","check feed","feed check"])
+    # Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Checks a specified feed for updates and returns them. Format: rss check <feed name>"
+
+    mRssFeedList = None
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        self.mRssFeedList = RssFeedList.fromXml()
+
+    @staticmethod
+    def isPersistent():
+        'Returns boolean representing whether this function is supposed to be persistent or not'
+        return True
+
+    @staticmethod
+    def loadFunction():
+        'Loads the function, persistent functions only.'
+        return FeedCheck()
+
+    def saveFunction(self):
+        'Saves the function, persistent functions only.'
+        self.mRssFeedList.toXml()
+
+    def getPassiveEvents(self):
+        'Returns a list of events which this function may want to respond to in a passive way'
+        return {Function.EVENT_MINUTE}
+
+    def run(self,line,userObject,destinationObject=None):
+        # Clean up input
+        # Check whether input is asking to update all feeds
+        # Otherwise see if a feed title matches the specified one
+        raise NotImplementedError
+
+    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
+        'Replies to an event not directly addressed to the bot.'
+        # Check all feeds, see which need checking and which have been updated.
+        pass
+
 # TODO: FeedAdd Function class
 # TODO: FeedUpdate Function class
 # TODO: FeedRemove Function class
