@@ -127,7 +127,7 @@ class RssFeed:
             if destination is None:
                 return "Invalid destination."
         # Construct output
-        output = self.formatItem(self, rssItem)
+        output = self.formatItem(rssItem)
         destination.send(output)
         return output
 
