@@ -276,11 +276,14 @@ class FeedCheck(Function):
         cleanInput = line.strip().lower()
         # Check whether input is asking to update all feeds
         if cleanInput in self.NAMES_ALL:
+            outputLines = []
             for rssFeed in self.mRssFeedList.getFeedList():
                 newItems = rssFeed.checkFeed()
                 for rssItem in newItems:
-                    rssFeed.outputItem(rssItem, hallo)
-                    rssFeed.outputItem(rssItem, hallo, server, destinationObject)
+                    outputLines.append(rssFeed.outputItem(rssItem, hallo))
+            if(len(outputLines) == 0):
+                return "There were no feed updates."
+            return "The following feed updates were found:\n" + "\n".join(outputLines)
         # Otherwise see if a feed title matches the specified one
         matchingFeeds = self.mRssFeedList.getFeedsByTitle(cleanInput)
         if len(matchingFeeds) == 0:
