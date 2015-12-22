@@ -26,6 +26,19 @@ class RssFeedList:
         """
         return self.mFeedList
 
+    def getFeedsByTitle(self, title):
+        """
+        Returns a list of feeds matching a specified title
+        :param title: string
+        :return: list<RssFeed>
+        """
+        titleClean = title.lower().strip()
+        matchingFeeds = []
+        for rssFeed in self.mFeedList:
+            if titleClean == rssFeed.mTitle.lower().strip():
+                matchingFeeds.append(rssFeed)
+        return matchingFeeds
+
     def toXml(self):
         """
         Saves the whole feed list to XML file
