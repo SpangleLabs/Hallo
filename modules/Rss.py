@@ -135,6 +135,20 @@ class RssFeed:
         destination.send(output)
         return output
 
+    def formatItem(self, rssItem):
+        """
+        Formats an rss feed item for output.
+        :param rssItem: string
+        :return: string
+        """
+        # Load item xml
+        itemXml = ElementTree.fromstring(rssItem)
+        itemTitle = itemXml.find("title")
+        itemLink = itemXml.find("link")
+        # Construct output
+        output = "Update on \"" + self.mTitle + "\" RSS feed. \"" + itemTitle + "\" " + itemLink
+        return output
+
     def needsCheck(self):
         """
         Returns whether an rssfeed check is overdue.
@@ -272,6 +286,9 @@ class FeedCheck(Function):
                     rssFeed.outputItem(rssItem, hallo)
                     rssFeed.outputItem(rssItem, hallo, server, destinationObject)
         # Otherwise see if a feed title matches the specified one
+        matchingFeeds = self.mRssFeedList.getFeedsByTitle(cleanInput)
+        if len(matchingFeeds) == 0:
+            return "No Rss Feeds match that name. If you're adding a new feed, use \"rss add\" with your link."
         raise NotImplementedError
 
     def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
