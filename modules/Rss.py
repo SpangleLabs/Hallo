@@ -126,12 +126,8 @@ class RssFeed:
                 destination = server.getUserByName(self.mUserName)
             if destination is None:
                 return "Invalid destination."
-        # Load item xml
-        itemXml = ElementTree.fromstring(rssItem)
-        itemTitle = itemXml.find("title")
-        itemLink = itemXml.find("link")
         # Construct output
-        output = "Update on \"" + self.mTitle + "\" RSS feed. \"" + itemTitle + "\" " + itemLink
+        output = self.formatItem(self, rssItem)
         destination.send(output)
         return output
 
