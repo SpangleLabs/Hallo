@@ -291,8 +291,18 @@ class FeedCheck(Function):
         matchingFeeds = self.mRssFeedList.getFeedsByTitle(cleanInput)
         if len(matchingFeeds) == 0:
             return "No Rss Feeds match that name. If you're adding a new feed, use \"rss add\" with your link."
-
-        raise NotImplementedError
+        outputLines = []
+        # Loop through matching rss feeds, getting updates
+        for rssFeed in matchingFeeds:
+            newItems = rssFeed.checkFeed()
+            for rssItem in newItems:
+                outputLines.append(rssFeed.outputItem(rssItem, hallo))
+        # Remove duplicate entries from outputLines
+        outputLines = list(set(outputLines))
+        # Output response to user
+        if(len(outputLines) == 0):
+            return "There were no updates for \"" + line + "\" RSS feed."
+        return "The following feed updates were found:\n" + "\n".join(outputLines)
 
     def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
         """
