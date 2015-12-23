@@ -266,7 +266,7 @@ class FeedCheck(Function):
 
     def getPassiveEvents(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MINUTE}
+        return {Function.EVENT_PING}
 
     def run(self, line, userObject, destinationObject=None):
         # Handy variables
@@ -313,8 +313,16 @@ class FeedCheck(Function):
         :param userObject: User
         :param channelObject: Channel
         """
-        # TODO: Check all feeds, see which need checking and which have been updated.
-        pass
+        hallo = serverObject.getHallo()
+        # Check through all feeds to see which need updates
+        for rssFeed in self.mRssFeedList:
+            # Only check those which have been too long since last check
+            if rssFeed.needsCheck():
+                # Get new items
+                newItems = rssFeed.checkFeed()
+                # Output all new items
+                for rssItem in newItems:
+                    rssFeed.outputItem(rssItem, hallo)
 
 # TODO: FeedAdd Function class
 # TODO: FeedUpdate Function class
