@@ -315,7 +315,7 @@ class FeedCheck(Function):
         """
         hallo = serverObject.getHallo()
         # Check through all feeds to see which need updates
-        for rssFeed in self.mRssFeedList:
+        for rssFeed in self.mRssFeedList.getFeedList():
             # Only check those which have been too long since last check
             if rssFeed.needsCheck():
                 # Get new items
