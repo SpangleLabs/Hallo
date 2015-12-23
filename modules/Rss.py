@@ -284,7 +284,7 @@ class FeedCheck(Function):
             # Remove duplicate entries from outputLines
             outputLines = list(set(outputLines))
             # Output response to user
-            if(len(outputLines) == 0):
+            if len(outputLines) == 0:
                 return "There were no feed updates."
             return "The following feed updates were found:\n" + "\n".join(outputLines)
         # Otherwise see if a feed title matches the specified one
@@ -300,7 +300,7 @@ class FeedCheck(Function):
         # Remove duplicate entries from outputLines
         outputLines = list(set(outputLines))
         # Output response to user
-        if(len(outputLines) == 0):
+        if len(outputLines) == 0:
             return "There were no updates for \"" + line + "\" RSS feed."
         return "The following feed updates were found:\n" + "\n".join(outputLines)
 
