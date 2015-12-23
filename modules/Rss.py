@@ -325,5 +325,5 @@ class FeedCheck(Function):
                     rssFeed.outputItem(rssItem, hallo)
 
 # TODO: FeedAdd Function class
-# TODO: FeedUpdate Function class
 # TODO: FeedRemove Function class
+# TODO: FeedList Function class
