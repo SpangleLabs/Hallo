@@ -357,6 +357,24 @@ class FeedAdd(Function):
         url = inputList[0]
         # Find server name and channel name
         serverName = server.getName()
+        channelName = None
+        if len(inputList) > 2:
+            testServer = hallo.getServerByName(inputLine[1])
+            if testServer is None:
+                return "Invalid server name."
+            serverName = testServer.getName()
+            testChannel = testServer.getChannelByName(inputList[2])
+            if testChannel is None:
+                return "Invalid channel name."
+            channelName = testChannel.getName()
+        if len(inputList) == 2:
+            testChannel = server.getChannelByName(inputList[1])
+            if testChannel is None:
+                return "Invalid channel name."
+            channelName = testChannel.getName()
+        if channelName is None and destinationObject is not None and destinationObject.isChannel():
+            channelName = destinationObject.getName()
+        userName = userObject.getName()
 
 
 # TODO: FeedRemove Function class
