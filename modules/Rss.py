@@ -372,6 +372,7 @@ class FeedAdd(Function):
             if testChannel is None:
                 return "Invalid channel name."
             channelName = testChannel.getName()
+        # If no server and channel is specified, use current channel or user
         if channelName is None and destinationObject is not None and destinationObject.isChannel():
             channelName = destinationObject.getName()
         userName = userObject.getName()
