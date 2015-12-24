@@ -325,7 +325,6 @@ class FeedCheck(Function):
                     rssFeed.outputItem(rssItem, hallo)
 
 
-# TODO: FeedAdd Function class
 class FeedAdd(Function):
     """
     Adds a new RSS feed from a link, allowing specification of server and channel.
@@ -391,8 +390,15 @@ class FeedAdd(Function):
         except Exception as e:
             return "This RSS feed does not appear to be valid. It failed with error: " + str(e)
         # Get RssFeedList
+        functionDispatcher = hallo.getFunctionDispatcher()
+        feedCheckFunction = functionDispatcher.getFunctionByName("rss check")
+        rssFeedList = feedCheckFunction.mRssFeedList
         # Add RssFeedList
+        rssFeedList.addFeed(newFeed)
+        rssFeedList.toXml()
         # Send response to user
+        return "Added \"" + newFeed.mTitle + "\" RSS feed. Updates will be sent to " + channelName + "."
+
 
 # TODO: FeedRemove Function class
 # TODO: FeedList Function class
