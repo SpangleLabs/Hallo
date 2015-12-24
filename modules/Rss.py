@@ -377,7 +377,19 @@ class FeedAdd(Function):
             channelName = destinationObject.getName()
         userName = userObject.getName()
         # Create RssFeed object
+        newFeed = RssFeed()
+        newFeed.mUrl = url
+        newFeed.mServerName = serverName
+        if channelName is None:
+            newFeed.mUserName = userName
+        else:
+            newFeed.mChannelName = channelName
+        newFeed.mUpdateFrequency = Commons.loadTimeDelta("PT30M")
         # Test new RssFeed
+        try:
+            newFeed.checkFeed()
+        except Exception as e:
+            return "This RSS feed does not appear to be valid. It failed with error: " + str(e)
         # Get RssFeedList
         # Add RssFeedList
         # Send response to user
