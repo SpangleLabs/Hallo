@@ -376,7 +376,11 @@ class FeedAdd(Function):
         if channelName is None and destinationObject is not None and destinationObject.isChannel():
             channelName = destinationObject.getName()
         userName = userObject.getName()
-
+        # Create RssFeed object
+        # Test new RssFeed
+        # Get RssFeedList
+        # Add RssFeedList
+        # Send response to user
 
 # TODO: FeedRemove Function class
 # TODO: FeedList Function class
