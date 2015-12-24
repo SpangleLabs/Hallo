@@ -324,6 +324,40 @@ class FeedCheck(Function):
                 for rssItem in newItems:
                     rssFeed.outputItem(rssItem, hallo)
 
+
 # TODO: FeedAdd Function class
+class FeedAdd(Function):
+    """
+    Adds a new RSS feed from a link, allowing specification of server and channel.
+    """
+    # Name for use in help listing
+    mHelpName = "rss add"
+    # Names which can be used to address the function
+    mNames = {"rss add", "add rss", "add rss feed", "rss feed add", "add feed", "feed add"}
+    # Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Adds a new RSS feed to be tracked in the current or specified channel. Format: rss all <feed url>"
+
+    mRssFeedList = None
+
+    NAMES_ALL = ["*", "all"]
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        pass
+
+    def run(self, line, userObject, destinationObject=None):
+        # Handy variables
+        server = userObject.getServer()
+        hallo = server.getHallo()
+        # Clean up input
+        cleanInput = line.strip()
+        inputList = cleanInput.split()
+        url = inputList[0]
+        # Find server name and channel name
+        serverName = server.getName()
+
+
 # TODO: FeedRemove Function class
 # TODO: FeedList Function class
