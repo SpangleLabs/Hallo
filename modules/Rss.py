@@ -15,9 +15,15 @@ class RssFeedList:
         """
         Adds a new RSS feed to the list.
         :param newFeed: RssFeed
-        :return:
         """
         self.mFeedList.append(newFeed)
+
+    def removeFeed(self, removeFeed):
+        """
+        Removes an RSS feed from the list.
+        :param removeFeed: RssFeed
+        """
+        self.mFeedList.remove(removeFeed)
 
     def getFeedList(self):
         """
@@ -422,7 +428,15 @@ class FeedRemove(Function):
         # Handy variables
         server = userObject.getServer()
         hallo = server.getHallo()
+        functionDispatcher = hallo.getFunctionDispatcher()
+        feedCheckFunction = functionDispatcher.getFunctionByName("rss check")
+        rssFeedList = feedCheckFunction.mRssFeedList
         # Clean up input
         cleanInput = line.strip()
+        # Find any feeds with specified title
+        testFeeds = rssFeedList.getFeedByTitle(cleanInput)
+        if len(testFeeds) == 1:
+            rssFeedList.remove(testFeeds[0])
+            return "Removed \"" + trstFeeds[0].mTitle + "\" RSS feed. Updates will no longer be sent to " + next(testFeeds[0].mChannelName, testFeeds[0].mUserName) + "."
 
 # TODO: FeedList Function class
