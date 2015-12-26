@@ -338,8 +338,6 @@ class FeedAdd(Function):
 
     mRssFeedList = None
 
-    NAMES_ALL = ["*", "all"]
-
     def __init__(self):
         """
         Constructor
@@ -401,4 +399,30 @@ class FeedAdd(Function):
 
 
 # TODO: FeedRemove Function class
+class FeedRemove(Function):
+    """
+    Remove an RSS feed and no longer receive updates from it.
+    """
+    # Name for use in help listing
+    mHelpName = "rss remove"
+    # Names which can be used to address the function
+    mNames = {"rss remove","rss delete", "remove rss", "delete rss", "remove rss feed", "delete rss feed", "rss feed remove", "rss feed delete", "remove feed", "delete feed", "feed remove", "feed delete"}
+    # Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Removes a specified RSS feed from the current or specified channel. Format: rss remove <server?> <channel?> <feed title>"
+
+    mRssFeedList = None
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        pass
+
+    def run(self, line, userObject, destinationObject=None):
+        # Handy variables
+        server = userObject.getServer()
+        hallo = server.getHallo()
+        # Clean up input
+        cleanInput = line.strip()
+
 # TODO: FeedList Function class
