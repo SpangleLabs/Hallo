@@ -95,6 +95,7 @@ class RssFeed:
         rssElement = rssXml.getroot()
         channelElement = rssElement.find("channel")
         newItems = []
+        # TODO: update title
         # Loop elements, seeing when any match the last item's hash
         for itemElement in channelElement.findall("item"):
             itemXml = ElementTree.tostring(itemElement)
@@ -102,6 +103,7 @@ class RssFeed:
             newItems.append(itemElement)
             if itemHash == self.mLastItemHash:
                 break
+        # TODO: update last item hash
         # Return new items
         return newItems
 
@@ -324,6 +326,66 @@ class FeedCheck(Function):
                 for rssItem in newItems:
                     rssFeed.outputItem(rssItem, hallo)
 
-# TODO: FeedAdd Function class
+
+class FeedAdd(Function):
+    """
+    Checks a specified feed for updates and returns them.
+    """
+    # Name for use in help listing
+    mHelpName = "rss add"
+    # Names which can be used to address the function
+    mNames = {"rss add", "add rss", "add rss feed", "rss feed add", "add feed", "feed add"}
+    # Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Adds a new feed to be checked for updates which will be posted to the current location. Format: rss add <feed name> <update period?>"
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    def run(self,line,userObject,destinationObject):
+        # Get input
+        feedUrl = line.split()[0]
+        feedPeriod = "PT3600S"
+        if(len(line.split()) > 0):
+            feedPeriod = line.split()[1]
+        # Get current RSS feed list
+        functionDispatcher = userObject.getServer().getHallo().getFunctionDispatcher()
+        feedCheckClass = functionDispatcher.getFunctionByName("rss check")
+        feedCheckObject = functionDispatcher.getFunctionObject(feedCheckClass)
+        feedList = feedCheckObject.mRssFeedList
+        # Check link works
+        try:
+            Commons.loadUrlString(feedUrl,[])
+        except:
+            return "Could not load link."
+        # Check period is valid
+        try:
+            feedDelta = Commons.loadTimeDelta(feedPeriod)
+        except:
+            return "Invalid time period."
+        # Create new rss feed
+        rssFeed = RssFeed()
+        rssFeed.mServerName = userObject.getServer().getName()
+        rssFeed.mUrl = feedUrl
+        rssFeed.mUpdateFrequency = feedDelta
+        if(destinationObject == userObject):
+            rssFeed.mChannelName = destinationObject.getName()
+        else:
+            rssFeed.mUserName = userObject.getName()
+        # Update feed
+        try:
+            rssFeed.checkFeed()
+        except:
+            return "RSS feed could not be parsed."
+        # Add new rss feed to list
+        feedList.addFeed(rssFeed)
+        # Save list
+        feedList.toXml()
+        # Return output
+        return "I have added new RSS feed titled \"" + rssFeed.mTitle + "\""
+
+
 # TODO: FeedRemove Function class
 # TODO: FeedList Function class
