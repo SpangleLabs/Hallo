@@ -95,28 +95,35 @@ class RssFeed:
     def checkFeed(self):
         """
         Checks the feed for any updates
+        :return: list of ElementTree XML elements
         """
         rssData = Commons.loadUrlString(self.mUrl)
         rssXml = ElementTree.fromstring(rssData)
         rssElement = rssXml.getroot()
         channelElement = rssElement.find("channel")
         newItems = []
-        # TODO: update title
+        # Update title
+        titleElement = channelElement.find("title")
+        self.mTitle = titleElement.text
         # Loop elements, seeing when any match the last item's hash
+        firstHash = null
         for itemElement in channelElement.findall("item"):
             itemXml = ElementTree.tostring(itemElement)
             itemHash = hashlib.md5(itemXml.encode("utf-8")).hexdigest()
-            newItems.append(itemElement)
+            if firstHash == null:
+                firstHash = itemHash
             if itemHash == self.mLastItemHash:
                 break
-        # TODO: update last item hash
+            newItems.append(itemElement)
+        # Update last item hash
+        self.mLastItemHash = firstHash
         # Return new items
         return newItems
 
     def outputItem(self, rssItem, hallo, server=None, destination=None):
         """
         Outputs an item to a given server and destination, or the feed default.
-        :param rssItem: string
+        :param rssItem: ElementTree.Element rss item xml element which wants outputting
         :param hallo: Hallo
         :param server: Server
         :param destination: Destination
@@ -142,13 +149,12 @@ class RssFeed:
     def formatItem(self, rssItem):
         """
         Formats an rss feed item for output.
-        :param rssItem: string
+        :param rssItem: ElementTree.Element rss item xml element to format
         :return: string
         """
         # Load item xml
-        itemXml = ElementTree.fromstring(rssItem)
-        itemTitle = itemXml.find("title")
-        itemLink = itemXml.find("link")
+        itemTitle = rssItem.find("title").text
+        itemLink = rssItem.find("link").text
         # Construct output
         output = "Update on \"" + self.mTitle + "\" RSS feed. \"" + itemTitle + "\" " + itemLink
         return output
@@ -403,7 +409,7 @@ class FeedRemove(Function):
     # Names which can be used to address the function
     mNames = {"rss remove","rss delete", "remove rss", "delete rss", "remove rss feed", "delete rss feed", "rss feed remove", "rss feed delete", "remove feed", "delete feed", "feed remove", "feed delete"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Removes a specified RSS feed from the current or specified channel. Format: rss remove <server?> <channel?> <feed title>"
+    mHelpDocs = "Removes a specified RSS feed from the current or specified channel. Format: rss remove <feed title or url>"
 
     mRssFeedList = None
 
@@ -427,5 +433,8 @@ class FeedRemove(Function):
         if len(testFeeds) == 1:
             rssFeedList.remove(testFeeds[0])
             return "Removed \"" + trstFeeds[0].mTitle + "\" RSS feed. Updates will no longer be sent to " + next(testFeeds[0].mChannelName, testFeeds[0].mUserName) + "."
+        if len(testFeeds) > 1:
+            return "There is more than 1 rss feed in this channel by that name. Try specifying by URL."
+        # Otherwise, zero results, so try hunting by url
 
-# TODO: FeedList Function class
+# TODO: FeedList Function class (needs to have titles and URLs)
