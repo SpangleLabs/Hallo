@@ -15,9 +15,15 @@ class RssFeedList:
         """
         Adds a new RSS feed to the list.
         :param newFeed: RssFeed
-        :return:
         """
         self.mFeedList.append(newFeed)
+
+    def removeFeed(self, removeFeed):
+        """
+        Removes an RSS feed from the list.
+        :param removeFeed: RssFeed
+        """
+        self.mFeedList.remove(removeFeed)
 
     def getFeedList(self):
         """
@@ -329,7 +335,7 @@ class FeedCheck(Function):
 
 class FeedAdd(Function):
     """
-    Checks a specified feed for updates and returns them.
+    Adds a new RSS feed from a link, allowing specification of server and channel.
     """
     # Name for use in help listing
     mHelpName = "rss add"
@@ -388,4 +394,38 @@ class FeedAdd(Function):
 
 
 # TODO: FeedRemove Function class
+class FeedRemove(Function):
+    """
+    Remove an RSS feed and no longer receive updates from it.
+    """
+    # Name for use in help listing
+    mHelpName = "rss remove"
+    # Names which can be used to address the function
+    mNames = {"rss remove","rss delete", "remove rss", "delete rss", "remove rss feed", "delete rss feed", "rss feed remove", "rss feed delete", "remove feed", "delete feed", "feed remove", "feed delete"}
+    # Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Removes a specified RSS feed from the current or specified channel. Format: rss remove <server?> <channel?> <feed title>"
+
+    mRssFeedList = None
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        pass
+
+    def run(self, line, userObject, destinationObject=None):
+        # Handy variables
+        server = userObject.getServer()
+        hallo = server.getHallo()
+        functionDispatcher = hallo.getFunctionDispatcher()
+        feedCheckFunction = functionDispatcher.getFunctionByName("rss check")
+        rssFeedList = feedCheckFunction.mRssFeedList
+        # Clean up input
+        cleanInput = line.strip()
+        # Find any feeds with specified title
+        testFeeds = rssFeedList.getFeedByTitle(cleanInput)
+        if len(testFeeds) == 1:
+            rssFeedList.remove(testFeeds[0])
+            return "Removed \"" + trstFeeds[0].mTitle + "\" RSS feed. Updates will no longer be sent to " + next(testFeeds[0].mChannelName, testFeeds[0].mUserName) + "."
+
 # TODO: FeedList Function class
