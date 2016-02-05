@@ -32,7 +32,7 @@ class RssFeedList:
         """
         return self.mFeedList
 
-    def getFeedsByTitle(self, title):
+    def getFeedsByTitle(self, title, server, destination):
         """
         Returns a list of feeds matching a specified title
         :param title: string
@@ -41,7 +41,32 @@ class RssFeedList:
         titleClean = title.lower().strip()
         matchingFeeds = []
         for rssFeed in self.mFeedList:
+            if server.getName() != rssFeed.mServerName.lower():
+                continue
+            if destination.isChannel() and destination.getName() != rssFeed.mChannelName:
+                continue
+            if destination.isUser() and destination.getName() != rssFeed.mUserName:
+                continue
             if titleClean == rssFeed.mTitle.lower().strip():
+                matchingFeeds.append(rssFeed)
+        return matchingFeeds
+
+    def getFeedsByURL(self, url, server, destination):
+        """
+        Returns a list of feeds matching a specified title
+        :param url: string, URL of RSS feed to search for
+        :return: list<RssFeed> List of RSS feeds matching specified URL
+        """
+        urlClean = url.strip()
+        matchingFeeds = []
+        for rssFeed in self.mFeedList:
+            if server.getName() != rssFeed.mServerName.lower():
+                continue
+            if destination.isChannel() and destination.getName() != rssFeed.mChannelName:
+                continue
+            if destination.isUser() and destination.getName() != rssFeed.mUserName:
+                continue
+            if urlClean == rssFeed.mUrl.strip():
                 matchingFeeds.append(rssFeed)
         return matchingFeeds
 
@@ -106,11 +131,11 @@ class RssFeed:
         titleElement = channelElement.find("title")
         self.mTitle = titleElement.text
         # Loop elements, seeing when any match the last item's hash
-        firstHash = null
+        firstHash = None
         for itemElement in channelElement.findall("item"):
             itemXml = ElementTree.tostring(itemElement)
             itemHash = hashlib.md5(itemXml.encode("utf-8")).hexdigest()
-            if firstHash == null:
+            if firstHash is None:
                 firstHash = itemHash
             if itemHash == self.mLastItemHash:
                 break
@@ -351,12 +376,12 @@ class FeedAdd(Function):
     mHelpDocs = "Adds a new feed to be checked for updates which will be posted to the current location. Format: rss add <feed name> <update period?>"
 
     def __init__(self):
-        '''
+        """
         Constructor
-        '''
+        """
         pass
 
-    def run(self,line,userObject,destinationObject):
+    def run(self, line, userObject, destinationObject):
         # Get input
         feedUrl = line.split()[0]
         feedPeriod = "PT3600S"
@@ -369,7 +394,7 @@ class FeedAdd(Function):
         feedList = feedCheckObject.mRssFeedList
         # Check link works
         try:
-            Commons.loadUrlString(feedUrl,[])
+            Commons.loadUrlString(feedUrl, [])
         except:
             return "Could not load link."
         # Check period is valid
@@ -382,7 +407,7 @@ class FeedAdd(Function):
         rssFeed.mServerName = userObject.getServer().getName()
         rssFeed.mUrl = feedUrl
         rssFeed.mUpdateFrequency = feedDelta
-        if(destinationObject == userObject):
+        if destinationObject == userObject:
             rssFeed.mChannelName = destinationObject.getName()
         else:
             rssFeed.mUserName = userObject.getName()
@@ -399,7 +424,6 @@ class FeedAdd(Function):
         return "I have added new RSS feed titled \"" + rssFeed.mTitle + "\""
 
 
-# TODO: FeedRemove Function class
 class FeedRemove(Function):
     """
     Remove an RSS feed and no longer receive updates from it.
@@ -429,12 +453,19 @@ class FeedRemove(Function):
         # Clean up input
         cleanInput = line.strip()
         # Find any feeds with specified title
-        testFeeds = rssFeedList.getFeedByTitle(cleanInput)
+        testFeeds = rssFeedList.getFeedsByTitle(cleanInput.lower(), server, destinationObject)
         if len(testFeeds) == 1:
             rssFeedList.remove(testFeeds[0])
-            return "Removed \"" + trstFeeds[0].mTitle + "\" RSS feed. Updates will no longer be sent to " + next(testFeeds[0].mChannelName, testFeeds[0].mUserName) + "."
+            return "Removed \"" + testFeeds[0].mTitle + "\" RSS feed. Updates will no longer be sent to " \
+                   + next(testFeeds[0].mChannelName, testFeeds[0].mUserName) + "."
         if len(testFeeds) > 1:
             return "There is more than 1 rss feed in this channel by that name. Try specifying by URL."
         # Otherwise, zero results, so try hunting by url
+        testFeeds = rssFeedList.getFeedsByURL(cleanInput, server, destinationObject)
+        if len(testFeeds) == 0:
+            return "There are no RSS feeds in this channel matching that name or URL."
+        for testFeed in testFeeds:
+            rssFeedList.remove(testFeed)
+        return "Removed subscriptions to RSS feed."
 
 # TODO: FeedList Function class (needs to have titles and URLs)
