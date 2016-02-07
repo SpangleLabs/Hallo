@@ -1,0 +1,9 @@
+<!ELEMENT rss_feeds (rss_feed*)>
+<!ELEMENT rss_feed (url,server,channel|user,last_item?,last_check?,update_frequency)>
+<!ELEMENT url (#PCDATA)>
+<!ELEMENT server (#PCDATA)>
+<!ELEMENT channel (#PCDATA)>
+<!ELEMENT user (#PCDATA)>
+<!ELEMENT last_item (#PCDATA)>
+<!ELEMENT last_check (#PCDATA)>
+<!ELEMENT update_frequency (#PCDATA)>
