@@ -38,11 +38,11 @@ class Function:
     @staticmethod
     def loadFunction():
         'Loads the function, persistent functions only.'
-        raise NotImplementedError
+        return Function()
     
     def saveFunction(self):
         'Saves the function, persistent functions only.'
-        raise NotImplementedError
+        return None
     
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
