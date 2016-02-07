@@ -1,8 +1,11 @@
+from xml.etree.ElementTree import ParseError
 from xml.etree import ElementTree
 from datetime import datetime
 from inc.commons import Commons
 import hashlib
 from Function import Function
+import urllib.error
+from inc.commons import ISO8601ParseError
 
 
 class RssFeedList:
@@ -35,7 +38,9 @@ class RssFeedList:
     def getFeedsByTitle(self, title, server, destination):
         """
         Returns a list of feeds matching a specified title
-        :param title: string
+        :param title: Title of the RssFeed being searched for
+        :param server: Server that the RssFeed is posting to
+        :param destination: Channel or User which RssFeed is posting to
         :return: list<RssFeed>
         """
         titleClean = title.lower().strip()
@@ -54,7 +59,9 @@ class RssFeedList:
     def getFeedsByURL(self, url, server, destination):
         """
         Returns a list of feeds matching a specified title
-        :param url: string, URL of RSS feed to search for
+        :param url: URL of RSS feed to search for
+        :param server: Server that the RssFeed is posting to
+        :param destination: Channel or User which RssFeed is posting to
         :return: list<RssFeed> List of RSS feeds matching specified URL
         """
         urlClean = url.strip()
@@ -327,7 +334,7 @@ class FeedCheck(Function):
                 return "There were no feed updates."
             return "The following feed updates were found:\n" + "\n".join(outputLines)
         # Otherwise see if a feed title matches the specified one
-        matchingFeeds = self.mRssFeedList.getFeedsByTitle(cleanInput)
+        matchingFeeds = self.mRssFeedList.getFeedsByTitle(cleanInput, server, destinationObject)
         if len(matchingFeeds) == 0:
             return "No Rss Feeds match that name. If you're adding a new feed, use \"rss add\" with your link."
         outputLines = []
@@ -373,7 +380,8 @@ class FeedAdd(Function):
     # Names which can be used to address the function
     mNames = {"rss add", "add rss", "add rss feed", "rss feed add", "add feed", "feed add"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Adds a new feed to be checked for updates which will be posted to the current location. Format: rss add <feed name> <update period?>"
+    mHelpDocs = "Adds a new feed to be checked for updates which will be posted to the current location." \
+                " Format: rss add <feed name> <update period?>"
 
     def __init__(self):
         """
@@ -385,7 +393,7 @@ class FeedAdd(Function):
         # Get input
         feedUrl = line.split()[0]
         feedPeriod = "PT3600S"
-        if(len(line.split()) > 0):
+        if len(line.split()) > 0:
             feedPeriod = line.split()[1]
         # Get current RSS feed list
         functionDispatcher = userObject.getServer().getHallo().getFunctionDispatcher()
@@ -395,12 +403,12 @@ class FeedAdd(Function):
         # Check link works
         try:
             Commons.loadUrlString(feedUrl, [])
-        except:
+        except urllib.error.URLError:
             return "Could not load link."
         # Check period is valid
         try:
             feedDelta = Commons.loadTimeDelta(feedPeriod)
-        except:
+        except ISO8601ParseError:
             return "Invalid time period."
         # Create new rss feed
         rssFeed = RssFeed()
@@ -414,7 +422,7 @@ class FeedAdd(Function):
         # Update feed
         try:
             rssFeed.checkFeed()
-        except:
+        except ParseError:
             return "RSS feed could not be parsed."
         # Add new rss feed to list
         feedList.addFeed(rssFeed)
@@ -431,9 +439,11 @@ class FeedRemove(Function):
     # Name for use in help listing
     mHelpName = "rss remove"
     # Names which can be used to address the function
-    mNames = {"rss remove","rss delete", "remove rss", "delete rss", "remove rss feed", "delete rss feed", "rss feed remove", "rss feed delete", "remove feed", "delete feed", "feed remove", "feed delete"}
+    mNames = {"rss remove", "rss delete", "remove rss", "delete rss", "remove rss feed", "delete rss feed",
+              "rss feed remove", "rss feed delete", "remove feed", "delete feed", "feed remove", "feed delete"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Removes a specified RSS feed from the current or specified channel. Format: rss remove <feed title or url>"
+    mHelpDocs = "Removes a specified RSS feed from the current or specified channel. " \
+                " Format: rss remove <feed title or url>"
 
     mRssFeedList = None
 

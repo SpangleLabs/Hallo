@@ -6,6 +6,12 @@ import json
 import random
 from datetime import timedelta
 
+class ISO8601ParseError(SyntaxError):
+    """
+    ISO-8601 parsing error
+    """
+    pass
+
 class Commons(object):
     '''
     Class of commons methods, useful anywhere, but all static.
@@ -219,11 +225,11 @@ class Commons(object):
         :return: timedelta
         """
         if deltaString[0] != "P" or deltaString[-1] != "S":
-            raise Exception("Invalid ISO-8601 period string")
+            raise ISO8601ParseError("Invalid ISO-8601 period string")
         cleanString = deltaString[1:-1]
         splitString = cleanString.split("T")
         if len(splitString) != 2:
-            raise Exception("Invalid ISO-8601 period string")
+            raise ISO8601ParseError("Invalid ISO-8601 period string")
         newDelta = timedelta(int(splitString[0]), int(splitString[1]))
         return newDelta
 
