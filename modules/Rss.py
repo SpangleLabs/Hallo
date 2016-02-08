@@ -35,6 +35,24 @@ class RssFeedList:
         """
         return self.mFeedList
 
+    def getFeedsByDestination(self, server, destination):
+        """
+        Returns a list of feeds matching a specified destination.
+        :param server: Server that the RssFeed is posting to
+        :param destination: Channel or User which RssFeed is posting to
+        :return: list<RssFeed> list of RssFeeds matching destination
+        """
+        matchingFeeds = []
+        for rssFeed in self.mFeedList:
+            if server.getName() != rssFeed.mServerName.lower():
+                continue
+            if destination.isChannel() and destination.getName() != rssFeed.mChannelName:
+                continue
+            if destination.isUser() and destination.getName() != rssFeed.mUserName:
+                continue
+            matchingFeeds.append(rssFeed)
+        return matchingFeeds
+
     def getFeedsByTitle(self, title, server, destination):
         """
         Returns a list of feeds matching a specified title
@@ -45,13 +63,7 @@ class RssFeedList:
         """
         titleClean = title.lower().strip()
         matchingFeeds = []
-        for rssFeed in self.mFeedList:
-            if server.getName() != rssFeed.mServerName.lower():
-                continue
-            if destination.isChannel() and destination.getName() != rssFeed.mChannelName:
-                continue
-            if destination.isUser() and destination.getName() != rssFeed.mUserName:
-                continue
+        for rssFeed in self.getFeedsByDestination(server, destination):
             if titleClean == rssFeed.mTitle.lower().strip():
                 matchingFeeds.append(rssFeed)
         return matchingFeeds
@@ -66,13 +78,7 @@ class RssFeedList:
         """
         urlClean = url.strip()
         matchingFeeds = []
-        for rssFeed in self.mFeedList:
-            if server.getName() != rssFeed.mServerName.lower():
-                continue
-            if destination.isChannel() and destination.getName() != rssFeed.mChannelName:
-                continue
-            if destination.isUser() and destination.getName() != rssFeed.mUserName:
-                continue
+        for rssFeed in self.getFeedsByDestination(server, destination):
             if urlClean == rssFeed.mUrl.strip():
                 matchingFeeds.append(rssFeed)
         return matchingFeeds
@@ -445,8 +451,6 @@ class FeedRemove(Function):
     mHelpDocs = "Removes a specified RSS feed from the current or specified channel. " \
                 " Format: rss remove <feed title or url>"
 
-    mRssFeedList = None
-
     def __init__(self):
         """
         Constructor
@@ -478,4 +482,37 @@ class FeedRemove(Function):
             rssFeedList.remove(testFeed)
         return "Removed subscriptions to RSS feed."
 
-# TODO: FeedList Function class (needs to have titles and URLs)
+
+class FeedList(Function):
+    """
+    Remove an RSS feed and no longer receive updates from it.
+    """
+    # Name for use in help listing
+    mHelpName = "rss list"
+    # Names which can be used to address the function
+    mNames = {"rss list", "list rss", "list rss feed", "list rss feeds", "rss feed list", "rss feeds list",
+              "list feed", "list feeds", "feed list", "feeds list"}
+    # Help documentation, if it's just a single line, can be set here
+    mHelpDocs = "Lists RSS feeds for the current channel. Format: rss list"
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        pass
+
+    def run(self, line, userObject, destinationObject=None):
+        # Handy variables
+        server = userObject.getServer()
+        hallo = server.getHallo()
+        functionDispatcher = hallo.getFunctionDispatcher()
+        feedCheckFunction = functionDispatcher.getFunctionByName("rss check")
+        rssFeedList = feedCheckFunction.mRssFeedList
+        # Find list of feeds for current channel.
+        destFeeds = rssFeedList.getFeedsByDestination(server, destinationObject)
+        if len(destinationObject) == 0:
+            return "There are no RSS feeds posting to this destination."
+        outputLines = ["RSS feeds posting to this channel:"]
+        for rssFeed in destFeeds:
+            outputLines.append("\""+rssFeed.mTitle+"\" url: "+rssFeed.mUrl)
+        return "".join(outputLines)
