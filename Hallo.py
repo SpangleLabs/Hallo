@@ -68,17 +68,19 @@ class Hallo:
         self.coreLoopTimeEvents()
 
     def coreLoopTimeEvents(self):
-        '''Runs a loop to keep hallo running, while calling time events with the FunctionDispatcher passive dispatcher'''
+        """
+        Runs a loop to keep hallo running, while calling time events with the FunctionDispatcher passive dispatcher
+        """
         lastDateTime = datetime.now()
-        while (self.mOpen):
+        while self.mOpen:
             nowDateTime = datetime.now()
-            if (nowDateTime.second != lastDateTime.second):
+            if nowDateTime.second != lastDateTime.second:
                 self.mFunctionDispatcher.dispatchPassive(Function.EVENT_SECOND, None, None, None, None)
-            if (nowDateTime.minute != lastDateTime.minute):
+            if nowDateTime.minute != lastDateTime.minute:
                 self.mFunctionDispatcher.dispatchPassive(Function.EVENT_MINUTE, None, None, None, None)
-            if (nowDateTime.hour != lastDateTime.hour):
+            if nowDateTime.hour != lastDateTime.hour:
                 self.mFunctionDispatcher.dispatchPassive(Function.EVENT_HOUR, None, None, None, None)
-            if (nowDateTime.day != lastDateTime.day):
+            if nowDateTime.day != lastDateTime.day:
                 self.mFunctionDispatcher.dispatchPassive(Function.EVENT_DAY, None, None, None, None)
             lastDateTime = nowDateTime
             time.sleep(0.1)
@@ -103,7 +105,7 @@ class Hallo:
         for serverXml in serverListXml.findall("server"):
             serverObject = self.mServerFactory.newServerFromXml(ElementTree.tostring(serverXml))
             self.addServer(serverObject)
-        if (root.find("permission_mask") is not None):
+        if root.find("permission_mask") is not None:
             self.mPermissionMask = PermissionMask.fromXml(ElementTree.tostring(root.find("permission_mask")))
         apiKeyListXml = root.find("api_key_list")
         for apiKeyXml in apiKeyListXml.findall("api_key"):
@@ -155,7 +157,7 @@ class Hallo:
             userGroupListElement.appendChild(userGroupElement)
         root.appendChild(userGroupListElement)
         # Create permission_mask element, if it's not empty.
-        if (not self.mPermissionMask.isEmpty()):
+        if not self.mPermissionMask.isEmpty():
             permissionMaskElement = minidom.parseString(self.mPermissionMask.toXml()).firstChild
             root.appendChild(permissionMaskElement)
         # Save api key list
@@ -174,32 +176,50 @@ class Hallo:
         doc.writexml(open("config/config.xml", "w"), addindent="\t", newl="\r\n")
 
     def addUserGroup(self, userGroup):
-        'Adds a new UserGroup to the UserGroup list'
+        """
+        Adds a new UserGroup to the UserGroup list
+        :param userGroup: UserGroup to add to the hallo object's list of user groups
+        """
         userGroupName = userGroup.getName()
         self.mUserGroupList[userGroupName] = userGroup
 
     def getUserGroupByName(self, userGroupName):
-        'Returns the UserGroup with the specified name'
-        if (userGroupName in self.mUserGroupList):
+        """
+        Returns the UserGroup with the specified name
+        :param userGroupName: Name of user group to search for
+        :return: User Group matching specified name, or None
+        """
+        if userGroupName in self.mUserGroupList:
             return self.mUserGroupList[userGroupName]
         return None
 
     def removeUserGroupByName(self, userGroupName):
-        'Removes a user group specified by name'
+        """
+        Removes a user group specified by name
+        :param userGroupName: Name of the user group to remove from list
+        """
         del self.mUserGroupList[userGroupName]
 
     def addServer(self, server):
-        # adds a new server to the server list
+        """
+        Adds a new server to the server list
+        :param server: Server to add to Hallo's list of servers
+        """
         self.mServerList.append(server)
 
     def getServerByName(self, serverName):
+        """
+        Returns a server matching the given name
+        :param serverName: name of the server to search for
+        :return: Server matching specified name of None
+        """
         for server in self.mServerList:
-            if (server.getName().lower() == serverName.lower()):
+            if server.getName().lower() == serverName.lower():
                 return server
         return None
 
     def getServerList(self):
-        'Returns the server list for hallo'
+        """Returns the server list for hallo"""
         return self.mServerList
 
     def removeServer(self, server):
@@ -207,11 +227,11 @@ class Hallo:
 
     def removeServerByName(self, serverName):
         for server in self.mServerList:
-            if (server.getName() == serverName):
+            if server.getName() == serverName:
                 self.mServerList.remove(server)
 
     def close(self):
-        '''Shuts down the entire program'''
+        """Shuts down the entire program"""
         for server in self.mServerList:
             server.disconnect()
         self.mFunctionDispatcher.close()
@@ -219,16 +239,20 @@ class Hallo:
         self.mOpen = False
 
     def rightsCheck(self, rightName):
-        '''Checks the value of the right with the specified name. Returns boolean'''
+        """
+        Checks the value of the right with the specified name. Returns boolean
+        :param rightName: name of the user right to search for
+        :return: Boolean, whether or not the specified right is given
+        """
         rightValue = self.mPermissionMask.getRight(rightName)
         # If PermissionMask contains that right, return it.
-        if (rightValue in [True, False]):
+        if rightValue in [True, False]:
             return rightValue
         # If it's a function right, go to default_function right
-        if (rightName.startswith("function_")):
+        if rightName.startswith("function_"):
             return self.rightsCheck("default_function")
         # If default_function is not defined, define and return it as True
-        if (rightName == "default_function"):
+        if rightName == "default_function":
             self.mPermissionMask.setRight("default_function", True)
             return True
         else:
@@ -237,64 +261,81 @@ class Hallo:
             return False
 
     def getDefaultNick(self):
-        '''Default nick getter'''
+        """Default nick getter"""
         return self.mDefaultNick
 
     def setDefaultNick(self, defaultNick):
-        '''Default nick setter'''
+        """
+        Default nick setter
+        :param defaultNick: The new default nick to use on all new servers
+        """
         self.mDefaultNick = defaultNick
 
     def getDefaultPrefix(self):
-        '''Default prefix getter'''
+        """Default prefix getter"""
         return self.mDefaultPrefix
 
     def setDefaultPrefix(self, defaultPrefix):
-        '''Default prefix setter'''
+        """
+        Default prefix setter
+        :param defaultPrefix: Default prefix to use for commands addressed to the bot
+        """
         self.mDefaultPrefix = defaultPrefix
 
     def getDefaultFullName(self):
-        '''Default full name getter'''
+        """Default full name getter"""
         return self.mDefaultFullName
 
     def setDefaultFullName(self, defaultFullName):
-        '''Default full name setter'''
+        """
+        Default full name setter
+        :param defaultFullName: Default full name to use on all new server connections
+        """
         self.mDefaultFullName = defaultFullName
 
     def getPermissionMask(self):
         return self.mPermissionMask
 
     def getFunctionDispatcher(self):
-        '''Returns the FunctionDispatcher object'''
+        """Returns the FunctionDispatcher object"""
         return self.mFunctionDispatcher
 
     def getLogger(self):
-        '''Returns the Logger object'''
+        """Returns the Logger object"""
         return self.mLogger
 
     def getPrinter(self):
-        '''Returns the Printer object'''
+        """Returns the Printer object"""
         return self.mPrinter
 
     def addApiKey(self, name, key):
-        '''Adds an api key to the list, or overwrites one.'''
+        """
+        Adds an api key to the list, or overwrites one.
+        :param name: Name of the API to add
+        :param key: The actual API key to use
+        """
         self.mApiKeys[name] = key
 
     def getApiKey(self, name):
-        '''Returns a specified api key.'''
-        if (name in self.mApiKeys):
+        """
+        Returns a specified api key.
+        :param name: Name of the API key to retrieve
+        """
+        if name in self.mApiKeys:
             return self.mApiKeys[name]
         return None
 
     def manualServerConnect(self):
         # TODO: add ability to connect to non-IRC servers
         print("No servers have been loaded or connected to. Please connect to an IRC server.")
-        godNick = input("What nickname is the bot operator using? [deer-spangle] ")
-        godNick = godNick.replace(' ', '')
-        if (godNick == ''):
-            godNick = 'deer-spangle'
+        # godNick = input("What nickname is the bot operator using? [deer-spangle] ")
+        # godNick = godNick.replace(' ', '')
+        # if godNick == '':
+        #     godNick = 'deer-spangle'
+        # TODO: do something with godNick
         serverAddr = input("What server should the bot connect to? [irc.freenode.net:6667] ")
         serverAddr = serverAddr.replace(' ', '')
-        if (serverAddr == ''):
+        if serverAddr == '':
             serverAddr = 'irc.freenode.net:6667'
         serverUrl = serverAddr.split(':')[0]
         serverPort = int(serverAddr.split(':')[1])
