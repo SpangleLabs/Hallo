@@ -1,79 +1,87 @@
-
 from xml.dom import minidom
 from inc.commons import Commons
 
+
 class PermissionMask(object):
-    '''
+    """
     Permission mask object, stores which rights are enabled or disabled by level
-    '''
+    """
     mRightsMap = None
-    
+
     def __init__(self):
         self.mRightsMap = {}
-    
-    def getRight(self,right):
-        'Gets the value of the specified right in the rights map'
-        if(right in self.mRightsMap):
+
+    def getRight(self, right):
+        """
+        Gets the value of the specified right in the rights map
+        :param right: Name of the right to be searching for
+        """
+        if right in self.mRightsMap:
             return self.mRightsMap[right]
         return None
-    
-    def setRight(self,right,value):
-        'Sets the value of the specified right in the rights map'
-        if(value == None and right in self.mRightsMap):
+
+    def setRight(self, right, value):
+        """Sets the value of the specified right in the rights map
+        :param right: Name of the right to set
+        :param value: Value to set the right to
+        """
+        if value is None and right in self.mRightsMap:
             del self.mRightsMap[right]
         try:
             value = value.lower()
         except AttributeError:
             pass
-        if(value=='true' or value=='1' or value==1):
+        if value == 'true' or value == '1' or value == 1:
             value = True
-        if(value=='false' or value=='0' or value==0):
+        if value == 'false' or value == '0' or value == 0:
             value = False
-        if(value in [True,False]):
+        if value in [True, False]:
             self.mRightsMap[right] = value
-    
+
     def isEmpty(self):
-        'Returns a boolean representing whether the PermissionMask is "empty" or has no rights set.'
-        return len(self.mRightsMap)==0
+        """Returns a boolean representing whether the PermissionMask is "empty" or has no rights set."""
+        return len(self.mRightsMap) == 0
 
     def toXml(self):
-        'Returns the FunctionMask object XML'
-        #create document
+        """Returns the FunctionMask object XML"""
+        # create document
         doc = minidom.Document()
-        #create root element
+        # create root element
         root = doc.createElement("permission_mask")
         doc.appendChild(root)
-        #Add rights list element
+        # Add rights list element
         rightListElement = doc.createElement("right_list")
-        #create rights elements
+        # create rights elements
         for mapRight in self.mRightsMap:
-            if(self.mRightsMap[mapRight]==None):
+            if self.mRightsMap[mapRight] is None:
                 continue
             rightElement = doc.createElement("right")
-            #Add right name
+            # Add right name
             nameElement = doc.createElement("name")
             nameElement.appendChild(doc.createTextNode(mapRight))
             rightElement.appendChild(nameElement)
-            #Add right value
+            # Add right value
             valueElement = doc.createElement("value")
             valueElement.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.mRightsMap[mapRight]]))
             rightElement.appendChild(valueElement)
-            #Add right element to list
+            # Add right element to list
             rightListElement.appendChild(rightElement)
         root.appendChild(rightListElement)
-        #output XML string
+        # output XML string
         return doc.toxml()
-    
+
     @staticmethod
     def fromXml(xmlString):
-        'Loads a new Destination object from XML'
+        """
+        Loads a new Destination object from XML
+        :param xmlString: XML string to parse to create new PermissionMask
+        """
         doc = minidom.parseString(xmlString)
         newMask = PermissionMask()
-        #Load rights
+        # Load rights
         rightsListXml = doc.getElementsByTagName("right_list")[0]
         for rightXml in rightsListXml.getElementsByTagName("right"):
             rightName = rightXml.getElementsByTagName("name")[0].firstChild.data
             rightValue = Commons.stringFromFile(rightXml.getElementsByTagName("value")[0].firstChild.data)
-            newMask.setRight(rightName,rightValue)
+            newMask.setRight(rightName, rightValue)
         return newMask
-
