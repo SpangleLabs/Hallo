@@ -5,7 +5,7 @@ class Function:
     Generic function object. All functions inherit from this.
     '''
     mHelpName = None    #Name for use in help listing
-    mNames = None       #Set of names which can be used to address the function
+    mNames = set()       #Set of names which can be used to address the function
     mHelpDocs = None    #Help documentation, if it's just a single line, can be set here
     #Static constants
     EVENT_SECOND = "time_second"   #Event which happens every second
@@ -26,14 +26,6 @@ class Function:
     EVENT_NUMERIC = "numeric"      #Event constant signifying a numeric message from a server (IRC only)
     EVENT_RAW = "raw"              #Event constant signifying raw data received from server which doesn't fit the above
     
-
-    def __init__(self, params):
-        '''
-        Constructor for the function
-        '''
-        self.mNames = set()
-        raise NotImplementedError
-    
     def run(self,line,userObject,destinationObject):
         'Runs the function when it is called directly'
         raise NotImplementedError
@@ -46,11 +38,11 @@ class Function:
     @staticmethod
     def loadFunction():
         'Loads the function, persistent functions only.'
-        raise NotImplementedError
+        return Function()
     
     def saveFunction(self):
         'Saves the function, persistent functions only.'
-        raise NotImplementedError
+        return None
     
     def getPassiveEvents(self):
         'Returns a list of events which this function may want to respond to in a passive way'
