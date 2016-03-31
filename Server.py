@@ -423,14 +423,19 @@ class ServerIRC(Server):
         """
         Sends a message to the server, or a specific channel in the server
         :param data: Line of data to send to server
+        @type data: str
+
         :param destinationObject: Destination to send data to
+        @type destinationObject: Destination or None
+
         :param msgType: Type of message which is being sent
+        @type msgType: str
         """
         maxMsgLength = 462  # Maximum length of a message sent to the server
         if msgType not in ["message", "notice", "raw"]:
             msgType = "message"
         # If it's raw data, just send it.
-        if msgType == "raw" or destinationObject is None:
+        if destinationObject is None or msgType == "raw":
             for dataLine in data.split("\n"):
                 self.sendRaw(dataLine)
             return
@@ -449,7 +454,7 @@ class ServerIRC(Server):
         # Find out if destination wants caps lock
         if destinationObject.isUpperCase():
             # Find any URLs, convert line to uppercase, then convert URLs back to original
-            urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', data)
+            urls = re.findall("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", data)
             data = data.upper()
             for url in urls:
                 data = data.replace(url.upper(), url)
@@ -480,7 +485,9 @@ class ServerIRC(Server):
             self.mSocket.send((data + endl).encode("utf-8"))
 
     def joinChannel(self, channelObject):
-        """Joins a specified channel"""
+        """Joins a specified channel
+        :param channelObject: Channel to join
+        """
         # If channel isn't in channel list, add it
         if channelObject not in self.mChannelList:
             self.addChannel(channelObject)
@@ -597,21 +604,20 @@ class ServerIRC(Server):
         messageSender = self.getUserByName(messageSenderName)
         messageSender.updateActivity()
         messageDestination = messageSender
+        # Get the prefix
+        actingPrefix = self.getPrefix()
         if messagePublicBool:
             messageChannel = self.getChannelByName(messageDestinationName)
             messageChannel.updateActivity()
             messageDestination = messageChannel
-        # Print and Log the message
-        if messagePrivateBool:
-            self.mHallo.getPrinter().output(Function.EVENT_MESSAGE, messageText, self, messageSender, None)
-            self.mHallo.getLogger().log(Function.EVENT_MESSAGE, messageText, self, messageSender, None)
-        else:
+            # Print and Log the public message
             self.mHallo.getPrinter().output(Function.EVENT_MESSAGE, messageText, self, messageSender, messageChannel)
             self.mHallo.getLogger().log(Function.EVENT_MESSAGE, messageText, self, messageSender, messageChannel)
-        # Get the prefix
-        actingPrefix = self.getPrefix()
-        if messagePublicBool:
             actingPrefix = messageChannel.getPrefix()
+        else:
+            # Print and Log the private message
+            self.mHallo.getPrinter().output(Function.EVENT_MESSAGE, messageText, self, messageSender, None)
+            self.mHallo.getLogger().log(Function.EVENT_MESSAGE, messageText, self, messageSender, None)
         # Figure out if the message is a command, Send to FunctionDispatcher
         functionDispatcher = self.mHallo.getFunctionDispatcher()
         if messagePrivateBool:
@@ -681,7 +687,7 @@ class ServerIRC(Server):
                          " mostly roll numbers and choose things," \
                          " occasionally giving my input on who is the best pony." \
                          " dr-spangle built me, if you have any questions he tends to be better at replying than I."
-            self.send("\x01"+hallo_info+"\x01", messageSender, "notice")
+            self.send("\x01" + hallo_info + "\x01", messageSender, "notice")
         elif messageCtcpCommand.lower() == 'clientinfo':
             self.send('\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01', messageSender,
                       "notice")
@@ -843,7 +849,9 @@ class ServerIRC(Server):
         functionDispatcher.dispatchPassive(Function.EVENT_NOTICE, noticeMessage, self, noticeClient, noticeChannel)
 
     def parseLineNick(self, nickLine):
-        """Parses a NICK message from the server"""
+        """Parses a NICK message from the server
+        :param nickLine: Line from server specifying nick change
+        """
         # Parse out NICK change data
         nickClientName = nickLine.split('!')[0][1:]
         if nickLine.count(':') > 1:
@@ -867,7 +875,9 @@ class ServerIRC(Server):
         functionDispatcher.dispatchPassive(Function.EVENT_CHNAME, nickClientName, self, nickClient, None)
 
     def parseLineInvite(self, inviteLine):
-        """Parses an INVITE message from the server"""
+        """Parses an INVITE message from the server
+        :param inviteLine: Line from the server specifying invite event
+        """
         # Parse out INVITE data
         inviteClientName = inviteLine.split('!')[0][1:]
         inviteChannelName = ':'.join(inviteLine.split(':')[2:])
@@ -886,7 +896,9 @@ class ServerIRC(Server):
         functionDispatcher.dispatchPassive(Function.EVENT_INVITE, None, self, inviteClient, inviteChannel)
 
     def parseLineKick(self, kickLine):
-        """Parses a KICK message from the server"""
+        """Parses a KICK message from the server
+        :param kickLine: Line from the server specifying kick event
+        """
         # Parse out KICK data
         kickChannelName = kickLine.split()[2]
         kickClientName = kickLine.split()[3]
@@ -979,6 +991,7 @@ class ServerIRC(Server):
         :param rawLine: str Raw line from the server
         :param lineType: str Event or type of the line
         """
+        pass
 
     def readLineFromSocket(self):
         """Private method to read a line from the IRC socket."""
@@ -996,7 +1009,9 @@ class ServerIRC(Server):
                 return self.decodeLine(nextLine[:-len(endl)])
 
     def decodeLine(self, rawBytes):
-        """Decodes a line of bytes, trying a couple character sets"""
+        """Decodes a line of bytes, trying a couple character sets
+        :param rawBytes: Array bytes to be decoded to string.
+        """
         try:
             outputLine = rawBytes.decode('utf-8')
         except UnicodeDecodeError:
@@ -1248,7 +1263,9 @@ class ServerIRC(Server):
         return self.mNickservIdentCommand
 
     def setNickservIdentityCommand(self, nickservIdentityCommand):
-        """mNickservIdentityCommand setter"""
+        """mNickservIdentityCommand setter
+        :param nickservIdentityCommand: Command to identify to nickserv service on this server
+        """
         self.mNickservIdentCommand = nickservIdentityCommand
 
     def getNickservIdentityResponse(self):
@@ -1258,6 +1275,7 @@ class ServerIRC(Server):
     def setNickservIdentityResponse(self, nickservIdentityResponse):
         """
         mNickservIdentityResponse setter
+        :param nickservIdentityResponse: Regex to search for to validate identity in response to identify command
         """
         self.mNickservIdentResponse = nickservIdentityResponse
 
