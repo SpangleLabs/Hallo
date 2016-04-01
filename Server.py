@@ -833,8 +833,8 @@ class ServerIRC(Server):
         self.mHallo.getLogger().log(Function.EVENT_NOTICE, noticeMessage, self, noticeClient, noticeChannel)
         # Checking if user is registered
         if noticeClient.getName() == self.mNickservNick and \
-                        self.mCheckUserIdentityUser is not None and \
-                        self.mNickservIdentCommand is not None:
+                self.mCheckUserIdentityUser is not None and \
+                self.mNickservIdentCommand is not None:
             # check if notice message contains command and user name
             if self.mCheckUserIdentityUser in noticeMessage and self.mNickservIdentCommand in noticeMessage:
                 # Make regex query of identity response
