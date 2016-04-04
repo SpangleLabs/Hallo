@@ -35,9 +35,9 @@ class PonyEpisode(Function):
             episodeList.append(episodeDict)
         #If song, get episode from song list, otherwise get one from episode list
         if(line.strip().lower()!="song"):
-            episode = Commons.getRandomChoice(episodeList)
+            episode = Commons.getRandomChoice(episodeList)[0]
         else:
-            episode = Commons.getRandomChoice(songList)
+            episode = Commons.getRandomChoice(songList)[0]
         #Return output
         return "You should choose: " + episode['full_code'] + " - " + episode['name'] + "."
     
@@ -64,7 +64,7 @@ class BestPony(Function):
         ponyListXml = doc.getElementsByTagName("ponies")[0]
         #Use the weighted list of categories to pick a category for the pony
         weightedCategories = ["mane6", "mane6", "mane6", "mane6", "mane6", "princess", "princess", "princess", "princess", "cmc", "cmc", "cmc", "ponyville", "ponyville", "villain", "villain", "wonderbolt", "wonderbolt", "canterlot", "cloudsdale", "foal", "hearthswarming", "notapony", "other", "pet"]
-        randomCategory = Commons.getRandomChoice(weightedCategories)
+        randomCategory = Commons.getRandomChoice(weightedCategories)[0]
         ponyList = []
         #Loop through ponies, adding to pony list.
         for ponyEpisodeXml in ponyListXml.getElementsByTagName("pony"):
@@ -77,10 +77,10 @@ class BestPony(Function):
         #Select the two halves of the message to display
         messageHalf1 = ["Obviously {X} is best pony because ", "Well, everyone knows that {X} is bestpony, I mean ", "The best pony is certainly {X}, ", "There's no debate, {X} is bestpony, ", "Bestpony? You must be talking about {X}, "]
         messageHalf2 = ["{Y}'s just such a distinctive character.", "{Y} really just stands out.", "{Y} really makes the show worth watching for me.", "{Y} stands up for what's best for everypony.", "I can really identify with that character.", "I just love the colourscheme I suppose.", "I mean, why not?"]
-        randomHalf1 = Commons.getRandomChoice(messageHalf1)
-        randomHalf2 = Commons.getRandomChoice(messageHalf2)
+        randomHalf1 = Commons.getRandomChoice(messageHalf1)[0]
+        randomHalf2 = Commons.getRandomChoice(messageHalf2)[0]
         #Select a random pony, or, if it's eli, select Pinkie Pie
-        chosenPony = Commons.getRandomChoice(ponyList)
+        chosenPony = Commons.getRandomChoice(ponyList)[0]
         if(userObject.getName().endswith("000242")):
             chosenPony = {}
             chosenPony['name'] = "Pinkie Pie"
@@ -145,13 +145,13 @@ class Cupcake(Function):
         validChannels = [chan for chan in intersectionList if chan.isInChannel()]
         #If length of valid channel list is nonzero, pick a channel and send.
         if(len(validChannels)!=0):
-            chosenChannel = Commons.getRandomChoice(validChannels)
+            chosenChannel = Commons.getRandomChoice(validChannels)[0]
             serverObject.send(outputMessage,chosenChannel,"message")
             return "Cupcake sent."
         #If no valid intersection channels, see if there are any valid recipient channels
         validChannels = [chan for chan in recipientChannelList if chan.isInChannel()]
         if(len(validChannels)!=0):
-            chosenChannel = Commons.getRandomChoice(validChannels)
+            chosenChannel = Commons.getRandomChoice(validChannels)[0]
             serverObject.send(outputMessage,chosenChannel,"message")
             return "Cupcake sent."
         #Otherwise, use privmsg

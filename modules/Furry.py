@@ -361,6 +361,6 @@ class Fursona(Function):
                         "it robs banks and its partner in crime is the next fursona you generate.",
                         "its facial features are constantly shifting.", "it works as a librarian in hell.",
                         "it wears a fedora."]
-        result = "Your new fursona is: " + Commons.getRandomChoice(adjective) + " " + Commons.getRandomChoice(
-            animal) + " " + Commons.getRandomChoice(description1) + " " + Commons.getRandomChoice(description2)
+        result = "Your new fursona is: " + Commons.getRandomChoice(adjective)[0] + " " + Commons.getRandomChoice(
+            animal)[0] + " " + Commons.getRandomChoice(description1)[0] + " " + Commons.getRandomChoice(description2)[0]
         return result

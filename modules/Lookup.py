@@ -61,7 +61,7 @@ class RandomCocktail(Function):
         # Load XML
         doc = minidom.parse("store/cocktail_list.xml")
         cocktailListXml = doc.getElementsByTagName("cocktail_list")[0]
-        randomCocktailXml = Commons.getRandomChoice(cocktailListXml.getElementsByTagName("cocktail"))
+        randomCocktailXml = Commons.getRandomChoice(cocktailListXml.getElementsByTagName("cocktail"))[0]
         randomCocktailName = randomCocktailXml.getElementsByTagName("name")[0].firstChild.data
         randomCocktailInstructions = randomCocktailXml.getElementsByTagName("instructions")[0].firstChild.data
         outputString = "Randomly selected cocktail is: " + randomCocktailName + ". The ingredients are: "

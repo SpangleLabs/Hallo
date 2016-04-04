@@ -367,7 +367,7 @@ class NightValeWeather(Function):
         #Get playlist data from youtube api
         playlistData = self.getYoutubePlaylist("PL5bFd9WyHshXpZK-VPpH8UPXx6wCOIaQW")
         #Select a video from the playlist
-        randVideo = Commons.getRandomChoice(playlistData)
+        randVideo = Commons.getRandomChoice(playlistData)[0]
         #Return video information
         return "And now, the weather: http://youtu.be/"+randVideo['video_id']+" "+randVideo['title']
     

@@ -215,7 +215,7 @@ class ReplyMessage:
         'Checks if this reply message will respond, and which response to use.'
         if(self.mPrompt.search(inputLine)):
             #Pick a response
-            response = Commons.getRandomChoice(self.mResponseList)
+            response = Commons.getRandomChoice(self.mResponseList)[0]
             response = response.replace("{USER}",userObject.getName())
             response = response.replace("{CHANNEL}",destinationObject.getName())
             response = response.replace("{SERVER}",userObject.getServer().getName())

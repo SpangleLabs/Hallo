@@ -266,10 +266,13 @@ class Commons(object):
         return outputList
 
     @staticmethod
-    def getRandomChoice(choiceList):
+    def getRandomChoice(choiceList, count=1):
         # Replacement for random.choice, using random.org API
-        randInt = Commons.getRandomInt(0, len(choiceList) - 1)[0]
-        return choiceList[randInt]
+        randInt = Commons.getRandomInt(0, len(choiceList) - 1, count)
+        outputList = []
+        for x in range(count):
+            outputList.append(choiceList[randInt[x]])
+        return outputList
 
     @staticmethod
     def loadTimeDelta(deltaString):
