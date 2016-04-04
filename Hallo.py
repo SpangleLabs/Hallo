@@ -16,34 +16,34 @@ from inc.commons import Commons
 
 
 class Hallo:
-    mDefaultNick = "Hallo"
-    mDefaultPrefix = False
-    mDefaultFullName = "HalloBot HalloHost HalloServer :an irc bot by spangle"
-    mOpen = False
-    mServerFactory = None
-    mPermissionMask = None
-    mFunctionDispatcher = None
-    mUserGroupList = None
-    mServerList = None
-    mLogger = None
-    mPrinter = None
-    mApiKeys = None
+    default_nick = "Hallo"
+    default_prefix = False
+    default_full_name = "HalloBot HalloHost HalloServer :an irc bot by spangle"
+    open = False
+    server_factory = None
+    permission_mask = None
+    function_dispatcher = None
+    user_list_list = None
+    server_list = None
+    logger = None
+    printer = None
+    api_key_list = None
 
     def __init__(self):
-        self.mUserGroupList = {}
-        self.mServerList = []
-        self.mLogger = Logger(self)
-        self.mPrinter = Printer(self)
-        self.mApiKeys = {}
+        self.user_list_list = {}
+        self.server_list = []
+        self.logger = Logger(self)
+        self.printer = Printer(self)
+        self.api_key_list = {}
         # Create ServerFactory
-        self.mServerFactory = ServerFactory(self)
-        self.mPermissionMask = PermissionMask()
+        self.server_factory = ServerFactory(self)
+        self.permission_mask = PermissionMask()
         # Load config
         self.load_from_xml()
-        self.mOpen = True
+        self.open = True
         # TODO: manual FunctionDispatcher construction, user input
-        if self.mFunctionDispatcher is None:
-            self.mFunctionDispatcher = FunctionDispatcher(
+        if self.function_dispatcher is None:
+            self.function_dispatcher = FunctionDispatcher(
                 {"ChannelControl",
                  "Convert",
                  "HalloControl",
@@ -54,12 +54,12 @@ class Hallo:
                  "ServerControl"},
                 self)
         # If no servers, ask for a new server
-        if len(self.mServerList) == 0:
-            if sum([server.getAutoConnect() for server in self.mServerList]) == 0:
+        if len(self.server_list) == 0:
+            if sum([server.getAutoConnect() for server in self.server_list]) == 0:
                 self.manual_server_connect()
         # Connect to auto-connect servers
         print('connecting to servers')
-        for server in self.mServerList:
+        for server in self.server_list:
             if server.getAutoConnect():
                 Thread(target=server.run).start()
         time.sleep(2)
@@ -72,16 +72,16 @@ class Hallo:
         Runs a loop to keep hallo running, while calling time events with the FunctionDispatcher passive dispatcher
         """
         last_date_time = datetime.now()
-        while self.mOpen:
+        while self.open:
             now_date_time = datetime.now()
             if now_date_time.second != last_date_time.second:
-                self.mFunctionDispatcher.dispatchPassive(Function.EVENT_SECOND, None, None, None, None)
+                self.function_dispatcher.dispatchPassive(Function.EVENT_SECOND, None, None, None, None)
             if now_date_time.minute != last_date_time.minute:
-                self.mFunctionDispatcher.dispatchPassive(Function.EVENT_MINUTE, None, None, None, None)
+                self.function_dispatcher.dispatchPassive(Function.EVENT_MINUTE, None, None, None, None)
             if now_date_time.hour != last_date_time.hour:
-                self.mFunctionDispatcher.dispatchPassive(Function.EVENT_HOUR, None, None, None, None)
+                self.function_dispatcher.dispatchPassive(Function.EVENT_HOUR, None, None, None, None)
             if now_date_time.day != last_date_time.day:
-                self.mFunctionDispatcher.dispatchPassive(Function.EVENT_DAY, None, None, None, None)
+                self.function_dispatcher.dispatchPassive(Function.EVENT_DAY, None, None, None, None)
             last_date_time = now_date_time
             time.sleep(0.1)
 
@@ -92,10 +92,10 @@ class Hallo:
             print("No current config, loading from default.")
             doc = ElementTree.parse("config/config-default.xml")
         root = doc.getroot()
-        self.mDefaultNick = root.findtext("default_nick")
-        self.mDefaultPrefix = Commons.stringFromFile(root.findtext("default_prefix"))
-        self.mDefaultFullName = root.findtext("default_full_name")
-        self.mFunctionDispatcher = FunctionDispatcher.fromXml(ElementTree.tostring(root.find("function_dispatcher")),
+        self.default_nick = root.findtext("default_nick")
+        self.default_prefix = Commons.stringFromFile(root.findtext("default_prefix"))
+        self.default_full_name = root.findtext("default_full_name")
+        self.function_dispatcher = FunctionDispatcher.fromXml(ElementTree.tostring(root.find("function_dispatcher")),
                                                               self)
         user_group_list_xml = root.find("user_group_list")
         for user_group_xml in user_group_list_xml.findall("user_group"):
@@ -103,10 +103,10 @@ class Hallo:
             self.add_user_group(user_group_obj)
         server_list_xml = root.find("server_list")
         for server_xml in server_list_xml.findall("server"):
-            server_obj = self.mServerFactory.newServerFromXml(ElementTree.tostring(server_xml))
+            server_obj = self.server_factory.newServerFromXml(ElementTree.tostring(server_xml))
             self.add_server(server_obj)
         if root.find("permission_mask") is not None:
-            self.mPermissionMask = PermissionMask.fromXml(ElementTree.tostring(root.find("permission_mask")))
+            self.permission_mask = PermissionMask.fromXml(ElementTree.tostring(root.find("permission_mask")))
         api_key_list_xml = root.find("api_key_list")
         for api_key_xml in api_key_list_xml.findall("api_key"):
             api_key_name = api_key_xml.findtext("name")
@@ -127,48 +127,48 @@ class Hallo:
         root = doc.getElementsByTagName("config")[0]
         # Create default_nick element
         default_nick_elem = doc.createElement("default_nick")
-        default_nick_elem.appendChild(doc.createTextNode(self.mDefaultNick))
+        default_nick_elem.appendChild(doc.createTextNode(self.default_nick))
         root.appendChild(default_nick_elem)
         # Create default_prefix element
-        if self.mDefaultPrefix is not None:
+        if self.default_prefix is not None:
             default_prefix_elem = doc.createElement("default_prefix")
-            if self.mDefaultPrefix is False:
+            if self.default_prefix is False:
                 default_prefix_elem.appendChild(doc.createTextNode("0"))
             else:
-                default_prefix_elem.appendChild(doc.createTextNode(self.mDefaultPrefix))
+                default_prefix_elem.appendChild(doc.createTextNode(self.default_prefix))
             root.appendChild(default_prefix_elem)
         # Create default_full_name element
         default_full_name_elem = doc.createElement("default_full_name")
-        default_full_name_elem.appendChild(doc.createTextNode(self.mDefaultFullName))
+        default_full_name_elem.appendChild(doc.createTextNode(self.default_full_name))
         root.appendChild(default_full_name_elem)
         # Create function dispatcher
-        function_dispatcher_elem = minidom.parseString(self.mFunctionDispatcher.toXml()).firstChild
+        function_dispatcher_elem = minidom.parseString(self.function_dispatcher.toXml()).firstChild
         root.appendChild(function_dispatcher_elem)
         # Create server list
         server_list_elem = doc.createElement("server_list")
-        for server_elem in self.mServerList:
+        for server_elem in self.server_list:
             server_xml = minidom.parseString(server_elem.toXml()).firstChild
             server_list_elem.appendChild(server_xml)
         root.appendChild(server_list_elem)
         # Create user_group list
         user_group_list_elem = doc.createElement("user_group_list")
-        for user_group_name in self.mUserGroupList:
-            user_group_elem = minidom.parseString(self.mUserGroupList[user_group_name].toXml()).firstChild
+        for user_group_name in self.user_list_list:
+            user_group_elem = minidom.parseString(self.user_list_list[user_group_name].toXml()).firstChild
             user_group_list_elem.appendChild(user_group_elem)
         root.appendChild(user_group_list_elem)
         # Create permission_mask element, if it's not empty.
-        if not self.mPermissionMask.isEmpty():
-            permission_mask_elem = minidom.parseString(self.mPermissionMask.toXml()).firstChild
+        if not self.permission_mask.isEmpty():
+            permission_mask_elem = minidom.parseString(self.permission_mask.toXml()).firstChild
             root.appendChild(permission_mask_elem)
         # Save api key list
         api_key_list_elem = doc.createElement("api_key_list")
-        for api_key_name in self.mApiKeys:
+        for api_key_name in self.api_key_list:
             api_key_elem = doc.createElement("api_key")
             api_key_name_elem = doc.createElement("name")
             api_key_name_elem.appendChild(doc.createTextNode(api_key_name))
             api_key_elem.appendChild(api_key_name_elem)
             api_key_key_elem = doc.createElement("key")
-            api_key_key_elem.appendChild(doc.createTextNode(self.mApiKeys[api_key_name]))
+            api_key_key_elem.appendChild(doc.createTextNode(self.api_key_list[api_key_name]))
             api_key_elem.appendChild(api_key_key_elem)
             api_key_list_elem.appendChild(api_key_elem)
         root.appendChild(api_key_list_elem)
@@ -181,7 +181,7 @@ class Hallo:
         :param user_group: UserGroup to add to the hallo object's list of user groups
         """
         user_group_name = user_group.getName()
-        self.mUserGroupList[user_group_name] = user_group
+        self.user_list_list[user_group_name] = user_group
 
     def get_user_group_by_name(self, user_group_name):
         """
@@ -189,8 +189,8 @@ class Hallo:
         :param user_group_name: Name of user group to search for
         :return: User Group matching specified name, or None
         """
-        if user_group_name in self.mUserGroupList:
-            return self.mUserGroupList[user_group_name]
+        if user_group_name in self.user_list_list:
+            return self.user_list_list[user_group_name]
         return None
 
     def remove_user_group_by_name(self, user_group_name):
@@ -198,14 +198,14 @@ class Hallo:
         Removes a user group specified by name
         :param user_group_name: Name of the user group to remove from list
         """
-        del self.mUserGroupList[user_group_name]
+        del self.user_list_list[user_group_name]
 
     def add_server(self, server):
         """
         Adds a new server to the server list
         :param server: Server to add to Hallo's list of servers
         """
-        self.mServerList.append(server)
+        self.server_list.append(server)
 
     def get_server_by_name(self, server_name):
         """
@@ -213,30 +213,30 @@ class Hallo:
         :param server_name: name of the server to search for
         :return: Server matching specified name of None
         """
-        for server in self.mServerList:
+        for server in self.server_list:
             if server.getName().lower() == server_name.lower():
                 return server
         return None
 
     def get_server_list(self):
         """Returns the server list for hallo"""
-        return self.mServerList
+        return self.server_list
 
     def remove_server(self, server):
-        self.mServerList.remove(server)
+        self.server_list.remove(server)
 
     def remove_server_by_name(self, server_name):
-        for server in self.mServerList:
+        for server in self.server_list:
             if server.getName() == server_name:
-                self.mServerList.remove(server)
+                self.server_list.remove(server)
 
     def close(self):
         """Shuts down the entire program"""
-        for server in self.mServerList:
+        for server in self.server_list:
             server.disconnect()
-        self.mFunctionDispatcher.close()
+        self.function_dispatcher.close()
         self.save_to_xml()
-        self.mOpen = False
+        self.open = False
 
     def rights_check(self, right_name):
         """
@@ -244,7 +244,7 @@ class Hallo:
         :param right_name: name of the user right to search for
         :return: Boolean, whether or not the specified right is given
         """
-        right_value = self.mPermissionMask.getRight(right_name)
+        right_value = self.permission_mask.getRight(right_name)
         # If PermissionMask contains that right, return it.
         if right_value in [True, False]:
             return right_value
@@ -253,60 +253,60 @@ class Hallo:
             return self.rights_check("default_function")
         # If default_function is not defined, define and return it as True
         if right_name == "default_function":
-            self.mPermissionMask.setRight("default_function", True)
+            self.permission_mask.setRight("default_function", True)
             return True
         else:
             # Else, define and return False
-            self.mPermissionMask.setRight(right_name, False)
+            self.permission_mask.setRight(right_name, False)
             return False
 
     def get_default_nick(self):
         """Default nick getter"""
-        return self.mDefaultNick
+        return self.default_nick
 
     def set_default_nick(self, default_nick):
         """
         Default nick setter
         :param default_nick: The new default nick to use on all new servers
         """
-        self.mDefaultNick = default_nick
+        self.default_nick = default_nick
 
     def get_default_prefix(self):
         """Default prefix getter"""
-        return self.mDefaultPrefix
+        return self.default_prefix
 
     def set_default_prefix(self, default_prefix):
         """
         Default prefix setter
         :param default_prefix: Default prefix to use for commands addressed to the bot
         """
-        self.mDefaultPrefix = default_prefix
+        self.default_prefix = default_prefix
 
     def get_default_full_name(self):
         """Default full name getter"""
-        return self.mDefaultFullName
+        return self.default_full_name
 
     def set_default_full_name(self, default_full_name):
         """
         Default full name setter
         :param default_full_name: Default full name to use on all new server connections
         """
-        self.mDefaultFullName = default_full_name
+        self.default_full_name = default_full_name
 
     def get_permission_mask(self):
-        return self.mPermissionMask
+        return self.permission_mask
 
     def get_function_dispatcher(self):
         """Returns the FunctionDispatcher object"""
-        return self.mFunctionDispatcher
+        return self.function_dispatcher
 
     def get_logger(self):
         """Returns the Logger object"""
-        return self.mLogger
+        return self.logger
 
     def get_printer(self):
         """Returns the Printer object"""
-        return self.mPrinter
+        return self.printer
 
     def add_api_key(self, name, key):
         """
@@ -314,15 +314,15 @@ class Hallo:
         :param name: Name of the API to add
         :param key: The actual API key to use
         """
-        self.mApiKeys[name] = key
+        self.api_key_list[name] = key
 
     def get_api_key(self, name):
         """
         Returns a specified api key.
         :param name: Name of the API key to retrieve
         """
-        if name in self.mApiKeys:
-            return self.mApiKeys[name]
+        if name in self.api_key_list:
+            return self.api_key_list[name]
         return None
 
     def manual_server_connect(self):
