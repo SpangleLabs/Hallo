@@ -1,5 +1,4 @@
 import importlib
-import imp
 import sys
 import inspect
 from xml.dom import minidom
@@ -189,7 +188,7 @@ class FunctionDispatcher(object):
         # Check if module has already been imported
         if fullModuleName in sys.modules:
             moduleObject = sys.modules[fullModuleName]
-            imp.reload(moduleObject)
+            importlib.reload(moduleObject)
         else:
             # Try and load new module, return False if it doesn't exist
             try:
