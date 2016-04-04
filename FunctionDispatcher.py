@@ -10,111 +10,111 @@ class FunctionDispatcher(object):
     """
     FunctionDispatcher is a class to manage functions and to send function requests to the relevant function.
     """
-    mHallo = None  # Hallo object which owns this
-    mModuleList = None  # List of available module names, then function names, then various variables
-    mFunctionDict = None  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
-    mFunctionNames = None  # Dictionary of names -> functionClasses
-    mPersistentFunctions = None  # Dictionary of persistent function objects. functionClass->functionObject
-    mEventFunctions = None  # Dictionary with events as keys and sets of function classes
+    hallo = None  # Hallo object which owns this
+    module_list = None  # List of available module names, then function names, then various variables
+    function_dict = None  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
+    function_names = None  # Dictionary of names -> functionClasses
+    persistent_functions = None  # Dictionary of persistent function objects. functionClass->functionObject
+    event_functions = None  # Dictionary with events as keys and sets of function classes
     # (which may want to act on those events) as values
 
     # Flags, can be passed as a list to function dispatcher, and will change how it operates.
     FLAG_HIDE_ERRORS = "hide_errors"  # Hide all errors that result from running the function.
 
-    def __init__(self, moduleList, hallo):
+    def __init__(self, module_list, hallo):
         """
         Constructor
         """
-        self.mHallo = hallo
-        self.mModuleList = set()
-        self.mFunctionDict = {}
-        self.mFunctionNames = {}
-        self.mPersistentFunctions = {}
-        self.mEventFunctions = {}
+        self.hallo = hallo
+        self.module_list = set()
+        self.function_dict = {}
+        self.function_names = {}
+        self.persistent_functions = {}
+        self.event_functions = {}
         # Copy moduleList to self.mModuleList
-        self.mModuleList = moduleList
+        self.module_list = module_list
         # Load all functions
-        for moduleName in self.mModuleList:
-            self.reloadModule(moduleName)
+        for moduleName in self.module_list:
+            self.reload_module(moduleName)
 
-    def dispatch(self, functionMessage, userObject, destinationObject, flagList=None):
+    def dispatch(self, function_message, user_obj, destination_obj, flag_list=None):
         """
         Sends the function call out to whichever function, if one is found
-        :param functionMessage: Message (function name and arguments) which are to be dispatched
-        :param userObject: User who triggered function dispatch
-        :param destinationObject: Destination which triggered function dispatch
-        :param flagList: List of flags to apply to function call
+        :param function_message: Message (function name and arguments) which are to be dispatched
+        :param user_obj: User who triggered function dispatch
+        :param destination_obj: Destination which triggered function dispatch
+        :param flag_list: List of flags to apply to function call
         """
-        if flagList is None:
-            flagList = []
+        if flag_list is None:
+            flag_list = []
         # Get server object
-        serverObject = destinationObject.getServer()
+        server_obj = destination_obj.getServer()
         # Find the function name. Try joining each amount of words in the message until you find a valid function name
-        functionMessageSplit = functionMessage.split()
-        functionClassTest = None
-        functionArgsTest = ""
-        for functionNameTest in [' '.join(functionMessageSplit[:x + 1]) for x in
-                                 range(len(functionMessageSplit))[::-1]]:
-            functionClassTest = self.getFunctionByName(functionNameTest)
-            functionArgsTest = ' '.join(functionMessageSplit)[len(functionNameTest):].strip()
-            if functionClassTest is not None:
+        function_message_split = function_message.split()
+        function_class_test = None
+        function_args_test = ""
+        for functionNameTest in [' '.join(function_message_split[:x + 1]) for x in
+                                 range(len(function_message_split))[::-1]]:
+            function_class_test = self.get_function_by_name(functionNameTest)
+            function_args_test = ' '.join(function_message_split)[len(functionNameTest):].strip()
+            if function_class_test is not None:
                 break
         # If function isn't found, output a not found message
-        if functionClassTest is None:
-            if self.FLAG_HIDE_ERRORS not in flagList:
-                serverObject.send("This is not a recognised function.", destinationObject)
+        if function_class_test is None:
+            if self.FLAG_HIDE_ERRORS not in flag_list:
+                server_obj.send("This is not a recognised function.", destination_obj)
                 print("This is not a recognised function.")
             return
-        functionClass = functionClassTest
-        functionArgs = functionArgsTest
+        function_class = function_class_test
+        function_args = function_args_test
         # Check function rights and permissions
-        if not self.checkFunctionPermissions(functionClass, serverObject, userObject, destinationObject):
-            serverObject.send("You do not have permission to use this function.", destinationObject)
+        if not self.check_function_permissions(function_class, server_obj, user_obj, destination_obj):
+            server_obj.send("You do not have permission to use this function.", destination_obj)
             print("You do not have permission to use this function.")
             return
         # If persistent, get the object, otherwise make one
-        functionObject = self.getFunctionObject(functionClass)
+        function_obj = self.get_function_object(function_class)
         # Try running the function, if it fails, return an error message
         try:
-            response = functionObject.run(functionArgs, userObject, destinationObject)
+            response = function_obj.run(function_args, user_obj, destination_obj)
             if response is not None:
-                serverObject.send(response, destinationObject)
+                server_obj.send(response, destination_obj)
             return
         except Exception as e:
-            serverObject.send("Function failed with error message: " + str(e), destinationObject)
-            print("Function: " + str(functionClass.__module__) + " " + str(functionClass.__name__))
+            server_obj.send("Function failed with error message: " + str(e), destination_obj)
+            print("Function: " + str(function_class.__module__) + " " + str(function_class.__name__))
             print("Function error: " + str(e))
             return
 
-    def dispatchPassive(self, event, fullLine, serverObject=None, userObject=None, channelObject=None):
+    def dispatch_passive(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
         """Dispatches a event call to passive functions, if any apply
         :param event: Event which is triggering passive functions
-        :param fullLine: User input line accompanying event
-        :param serverObject: Server on which the event was triggered, or None if not a server based event
-        :param userObject: User which triggered the event, or None if not a user based event
-        :param channelObject: Channel on which the event was triggered, or None if not a channel based event
+        :param full_line: User input line accompanying event
+        :param server_obj: Server on which the event was triggered, or None if not a server based event
+        :param user_obj: User which triggered the event, or None if not a user based event
+        :param channel_obj: Channel on which the event was triggered, or None if not a channel based event
         """
         # If this event is not used, skip this
-        if event not in self.mEventFunctions or len(self.mEventFunctions[event]) == 0:
+        if event not in self.event_functions or len(self.event_functions[event]) == 0:
             return
         # Get destination object
-        destinationObject = channelObject
-        if destinationObject is None:
-            destinationObject = userObject
+        destination_obj = channel_obj
+        if destination_obj is None:
+            destination_obj = user_obj
         # Get list of functions that want things
-        functionList = self.mEventFunctions[event]
-        for functionClass in functionList:
+        function_list = self.event_functions[event]
+        for functionClass in function_list:
             # Check function rights and permissions
-            if not self.checkFunctionPermissions(functionClass, serverObject, userObject, channelObject):
+            if not self.check_function_permissions(functionClass, server_obj, user_obj, channel_obj):
                 continue
             # If persistent, get the object, otherwise make one
-            functionObject = self.getFunctionObject(functionClass)
+            function_obj = self.get_function_object(functionClass)
             # Try running the function, if it fails, return an error message
             try:
-                response = functionObject.passiveRun(event, fullLine, serverObject, userObject, channelObject)
+                response = function_obj.passiveRun(event, full_line, server_obj, user_obj, channel_obj)
                 if response is not None:
-                    if destinationObject is not None and serverObject is not None:
-                        serverObject.send(response, destinationObject)
+                    if destination_obj is not None and server_obj is not None:
+                        server_obj.send(response, destination_obj)
                 continue
             except Exception as e:
                 print("Passive Function: " + str(functionClass.__module__) + " " + str(functionClass.__name__))
@@ -122,223 +122,223 @@ class FunctionDispatcher(object):
                 print("Function error: " + str(e))
                 continue
 
-    def getFunctionByName(self, functionName):
+    def get_function_by_name(self, function_name):
         """
         Find a functionClass by a name specified by a user. Not functionClass.__name__
-        :param functionName: Name of the function to search for
+        :param function_name: Name of the function to search for
         """
         # Convert name to lower case
-        functionName = functionName.lower()
-        if functionName in self.mFunctionNames:
-            return self.mFunctionNames[functionName]
+        function_name = function_name.lower()
+        if function_name in self.function_names:
+            return self.function_names[function_name]
         # Check without underscores. People might still use underscores to separate words in a function name
-        functionName = functionName.replace('_', ' ')
-        if functionName in self.mFunctionNames:
-            return self.mFunctionNames[functionName]
+        function_name = function_name.replace('_', ' ')
+        if function_name in self.function_names:
+            return self.function_names[function_name]
         return None
 
-    def getFunctionClassList(self):
+    def get_function_class_list(self):
         """Returns a simple flat list of all function classes."""
-        functionClassList = []
-        for moduleObject in self.mFunctionDict:
-            functionClassList += list(self.mFunctionDict[moduleObject])
-        return functionClassList
+        function_class_list = []
+        for moduleObject in self.function_dict:
+            function_class_list += list(self.function_dict[moduleObject])
+        return function_class_list
 
-    def getFunctionObject(self, functionClass):
+    def get_function_object(self, function_class):
         """
         If persistent, gets an object from dictionary. Otherwise creates a new object.
-        :param functionClass: Class of function to retrieve or create function object for
+        :param function_class: Class of function to retrieve or create function object for
         """
-        if functionClass.isPersistent():
-            functionObject = self.mPersistentFunctions[functionClass]
+        if function_class.isPersistent():
+            function_obj = self.persistent_functions[function_class]
         else:
-            functionObject = functionClass()
-        return functionObject
+            function_obj = function_class()
+        return function_obj
 
-    def checkFunctionPermissions(self, functionClass, serverObject, userObject, channelObject):
+    def check_function_permissions(self, function_class, server_obj, user_obj, channel_obj):
         """Checks if a function can be called. Returns boolean, True if allowed
-        :param functionClass: Class of function to check permissions for
-        :param serverObject: Server on which to check function permissions
-        :param userObject: User which has requested the function
-        :param channelObject: Channel on which the function was requested
+        :param function_class: Class of function to check permissions for
+        :param server_obj: Server on which to check function permissions
+        :param user_obj: User which has requested the function
+        :param channel_obj: Channel on which the function was requested
         """
         # Get function name
-        functionName = functionClass.__name__
-        rightName = "function_" + functionName
+        function_name = function_class.__name__
+        right_name = "function_" + function_name
         # Check rights
-        if userObject is not None:
-            return userObject.rights_check(rightName, channelObject)
-        if channelObject is not None:
-            return channelObject.rights_check(rightName)
-        if serverObject is not None:
-            return serverObject.rights_check(rightName)
-        return self.mHallo.rights_check(rightName)
+        if user_obj is not None:
+            return user_obj.rights_check(right_name, channel_obj)
+        if channel_obj is not None:
+            return channel_obj.rights_check(right_name)
+        if server_obj is not None:
+            return server_obj.rights_check(right_name)
+        return self.hallo.rights_check(right_name)
 
-    def reloadModule(self, moduleName):
+    def reload_module(self, module_name):
         """
         Reloads a function module, or loads it if it is not already loaded. Returns True on success, False on failure
-        :param moduleName: Name of the module to reload
+        :param module_name: Name of the module to reload
         """
         # Check it's an allowed module
-        if moduleName not in self.mModuleList:
+        if module_name not in self.module_list:
             return False
         # Create full name
         # TODO: allow bypass for reloading of core classes: Hallo, Server, Destination, etc
-        fullModuleName = "modules." + moduleName
+        full_module_name = "modules." + module_name
         # Check if module has already been imported
-        if fullModuleName in sys.modules:
-            moduleObject = sys.modules[fullModuleName]
-            importlib.reload(moduleObject)
+        if full_module_name in sys.modules:
+            module_obj = sys.modules[full_module_name]
+            importlib.reload(module_obj)
         else:
             # Try and load new module, return False if it doesn't exist
             try:
-                moduleObject = importlib.import_module(fullModuleName)
+                module_obj = importlib.import_module(full_module_name)
             except ImportError:
                 return False
         # Unload module, if it was loaded.
-        self.unloadModule(moduleObject)
+        self.unload_module(module_obj)
         # Loop through module, searching for Function subclasses.
-        for functionTuple in inspect.getmembers(moduleObject, inspect.isclass):
+        for functionTuple in inspect.getmembers(module_obj, inspect.isclass):
             # Get class from tuple
-            functionClass = functionTuple[1]
+            function_class = functionTuple[1]
             # Check it's a valid function object
-            if not self.checkFunctionClass(functionClass):
+            if not self.check_function_class(function_class):
                 continue
             # Try and load function, if it fails, try and unload it.
             try:
-                self.loadFunction(functionClass)
+                self.load_function(function_class)
             except NotImplementedError:
-                self.unloadFunction(functionClass)
+                self.unload_function(function_class)
         return True
 
-    def unloadModule(self, moduleObject):
+    def unload_module(self, module_obj):
         """
         Unloads a module, unloading all the functions it contains
-        :param moduleObject: Module to unload
+        :param module_obj: Module to unload
         """
         # If module isn't in mFunctionDict, cancel
-        if moduleObject not in self.mFunctionDict:
+        if module_obj not in self.function_dict:
             return
-        functionList = list(self.mFunctionDict[moduleObject])
-        for functionClass in functionList:
-            self.unloadFunction(functionClass)
-        del self.mFunctionDict[moduleObject]
+        function_list = list(self.function_dict[module_obj])
+        for functionClass in function_list:
+            self.unload_function(functionClass)
+        del self.function_dict[module_obj]
 
     @staticmethod
-    def checkFunctionClass(functionClass):
+    def check_function_class(function_class):
         """
         Checks a potential class to see if it is a valid Function subclass class
-        :param functionClass: Class of the function to check for ability to load
+        :param function_class: Class of the function to check for ability to load
         """
         # Make sure it's not the Function class
-        if functionClass == Function:
+        if function_class == Function:
             return False
         # Make sure it is a subclass of Function
-        if not issubclass(functionClass, Function):
+        if not issubclass(function_class, Function):
             return False
         # Create function object
-        functionObject = functionClass()
+        function_obj = function_class()
         # Check that help name is defined
         try:
-            helpName = functionObject.getHelpName()
+            help_name = function_obj.getHelpName()
         except NotImplementedError:
             return False
         # Check that help docs are defined
         try:
-            functionObject.getHelpDocs()
+            function_obj.getHelpDocs()
         except NotImplementedError:
             return False
         # Check that names list is not empty
         try:
-            namesList = functionObject.getNames()
-            if namesList is None:
+            names_list = function_obj.getNames()
+            if names_list is None:
                 return False
-            if len(namesList) == 0:
+            if len(names_list) == 0:
                 return False
             # Check that names list contains help name
-            if helpName not in namesList:
+            if help_name not in names_list:
                 return False
         except NotImplementedError:
             return False
         # If it passed all those tests, it's valid, probably
         return True
 
-    def loadFunction(self, functionClass):
+    def load_function(self, function_class):
         """
         Loads a function class into all the relevant dictionaries
-        :param functionClass: Class of the function to load into dispatcher
+        :param function_class: Class of the function to load into dispatcher
         """
         # Get module of function
-        moduleName = functionClass.__module__
-        moduleObject = sys.modules[moduleName]
+        module_name = function_class.__module__
+        module_obj = sys.modules[module_name]
         # If function is persistent, load it up and add to mPersistentFunctions
-        if functionClass.isPersistent():
-            functionObject = functionClass.loadFunction()
-            self.mPersistentFunctions[functionClass] = functionObject
+        if function_class.isPersistent():
+            function_obj = function_class.loadFunction()
+            self.persistent_functions[function_class] = function_obj
         else:
-            functionObject = functionClass()
+            function_obj = function_class()
         # Get names list and events list
-        namesList = functionObject.getNames()
-        eventsList = functionObject.getPassiveEvents()
+        names_list = function_obj.getNames()
+        events_list = function_obj.getPassiveEvents()
         # Add names list and events list to mFunctionDict
-        if moduleObject not in self.mFunctionDict:
-            self.mFunctionDict[moduleObject] = {}
-        self.mFunctionDict[moduleObject][functionClass] = {}
-        self.mFunctionDict[moduleObject][functionClass]['names'] = namesList
-        self.mFunctionDict[moduleObject][functionClass]['events'] = eventsList
+        if module_obj not in self.function_dict:
+            self.function_dict[module_obj] = {}
+        self.function_dict[module_obj][function_class] = {}
+        self.function_dict[module_obj][function_class]['names'] = names_list
+        self.function_dict[module_obj][function_class]['events'] = events_list
         # Add function to mFunctionNames
-        for functionName in namesList:
-            self.mFunctionNames[functionName] = functionClass
+        for functionName in names_list:
+            self.function_names[functionName] = function_class
         # Add function to mEventFunctions
-        for functionEvent in eventsList:
-            if functionEvent not in self.mEventFunctions:
-                self.mEventFunctions[functionEvent] = set()
-            self.mEventFunctions[functionEvent].add(functionClass)
+        for functionEvent in events_list:
+            if functionEvent not in self.event_functions:
+                self.event_functions[functionEvent] = set()
+            self.event_functions[functionEvent].add(function_class)
 
-    def unloadFunction(self, functionClass):
+    def unload_function(self, function_class):
         """
         Unloads a function class from all the relevant dictionaries
-        :param functionClass: Class of the function which is being unloaded
+        :param function_class: Class of the function which is being unloaded
         """
         # Get module of function
-        moduleName = functionClass.__module__
-        moduleObject = sys.modules[moduleName]
+        module_name = function_class.__module__
+        module_obj = sys.modules[module_name]
         # Check that function is loaded
-        if moduleObject not in self.mFunctionDict:
+        if module_obj not in self.function_dict:
             return
-        if functionClass not in self.mFunctionDict[moduleObject]:
+        if function_class not in self.function_dict[module_obj]:
             return
         # Get list of function names and list of events functions respond to
-        namesList = self.mFunctionDict[moduleObject][functionClass]['names']
-        eventsList = self.mFunctionDict[moduleObject][functionClass]['events']
+        names_list = self.function_dict[module_obj][function_class]['names']
+        events_list = self.function_dict[module_obj][function_class]['events']
         # Remove names from mFunctionNames
-        for functionName in namesList:
-            del self.mFunctionNames[functionName]
+        for functionName in names_list:
+            del self.function_names[functionName]
         # Remove events from mEventFunctions
-        for functionEvent in eventsList:
-            if functionEvent not in self.mEventFunctions:
+        for functionEvent in events_list:
+            if functionEvent not in self.event_functions:
                 continue
-            if functionClass not in self.mEventFunctions[functionEvent]:
+            if function_class not in self.event_functions[functionEvent]:
                 continue
-            self.mEventFunctions[functionEvent].remove(functionClass)
+            self.event_functions[functionEvent].remove(function_class)
         # If persistent, save object and remove from mPersistentFunctions
-        if functionClass.isPersistent():
-            functionObject = self.mPersistentFunctions[functionClass]
+        if function_class.isPersistent():
+            function_obj = self.persistent_functions[function_class]
             try:
-                functionObject.saveFunction()
+                function_obj.saveFunction()
             except Exception as e:
-                print("Failed to save "+functionClass.__name__)
+                print("Failed to save " + function_class.__name__)
                 print(str(e))
-            del self.mPersistentFunctions[functionClass]
+            del self.persistent_functions[function_class]
         # Remove from mFunctionDict
-        del self.mFunctionDict[moduleObject][functionClass]
+        del self.function_dict[module_obj][function_class]
 
     def close(self):
         """Shut down FunctionDispatcher, save all functions, etc"""
-        for moduleObject in self.mFunctionDict:
-            self.unloadModule(moduleObject)
+        for moduleObject in self.function_dict:
+            self.unload_module(moduleObject)
 
-    def toXml(self):
+    def to_xml(self):
         """Output the FunctionDispatcher in XML"""
         # create document
         doc = minidom.Document()
@@ -346,31 +346,31 @@ class FunctionDispatcher(object):
         root = doc.createElement("function_dispatcher")
         doc.appendChild(root)
         # create name element
-        moduleListElement = doc.createElement("module_list")
-        for moduleName in self.mModuleList:
-            moduleElement = doc.createElement("module")
-            moduleNameElement = doc.createElement("name")
-            moduleNameElement.appendChild(doc.createTextNode(moduleName))
-            moduleElement.appendChild(moduleNameElement)
-            moduleListElement.appendChild(moduleElement)
-        root.appendChild(moduleListElement)
+        module_list_elem = doc.createElement("module_list")
+        for module_name in self.module_list:
+            module_elem = doc.createElement("module")
+            module_name_elem = doc.createElement("name")
+            module_name_elem.appendChild(doc.createTextNode(module_name))
+            module_elem.appendChild(module_name_elem)
+            module_list_elem.appendChild(module_elem)
+        root.appendChild(module_list_elem)
         # output XML string
         return doc.toxml()
 
     @staticmethod
-    def fromXml(xmlString, hallo):
+    def from_xml(xml_string, hallo):
         """Loads a new FunctionDispatcher from XML
-        :param xmlString: XML string which can be parsed to build function dispatcher
+        :param xml_string: XML string which can be parsed to build function dispatcher
         :param hallo: Hallo object which owns this FunctionDispatcher
         """
-        doc = minidom.parseString(xmlString)
+        doc = minidom.parseString(xml_string)
         # Create module list from XML
-        moduleList = set()
-        moduleListElement = doc.getElementsByTagName("module_list")[0]
-        for moduleXml in moduleListElement.getElementsByTagName("module"):
-            moduleNameElement = moduleXml.getElementsByTagName("name")[0]
-            moduleName = moduleNameElement.firstChild.data
-            moduleList.add(moduleName)
+        module_list = set()
+        module_list_elem = doc.getElementsByTagName("module_list")[0]
+        for module_elem in module_list_elem.getElementsByTagName("module"):
+            module_name_elem = module_elem.getElementsByTagName("name")[0]
+            module_name = module_name_elem.firstChild.data
+            module_list.add(module_name)
         # Create new FunctionDispatcher
-        newFunctionDispatcher = FunctionDispatcher(moduleList, hallo)
-        return newFunctionDispatcher
+        new_function_dispatcher = FunctionDispatcher(module_list, hallo)
+        return new_function_dispatcher

@@ -316,10 +316,10 @@ class HighestCommonFactor(Function):
         # Getting functionDispatcher and required function objects
         halloObject = userObject.getServer().getHallo()
         functionDispatcher = halloObject.get_function_dispatcher()
-        primeFactorsClass = functionDispatcher.getFunctionByName("prime factors")
-        eulerClass = functionDispatcher.getFunctionByName("euler")
-        primeFactorsObject = functionDispatcher.getFunctionObject(primeFactorsClass)
-        eulerObject = functionDispatcher.getFunctionObject(eulerClass)
+        primeFactorsClass = functionDispatcher.get_function_by_name("prime factors")
+        eulerClass = functionDispatcher.get_function_by_name("euler")
+        primeFactorsObject = functionDispatcher.get_function_object(primeFactorsClass)
+        eulerObject = functionDispatcher.get_function_object(eulerClass)
         # Preflight checks
         if len(line.split()) != 2:
             return "You must provide two arguments."
@@ -360,10 +360,10 @@ class SimplifyFraction(Function):
         # Getting functionDispatcher and required function objects
         halloObject = userObject.getServer().getHallo()
         functionDispatcher = halloObject.get_function_dispatcher()
-        primeFactorsClass = functionDispatcher.getFunctionByName("prime factors")
-        eulerClass = functionDispatcher.getFunctionByName("euler")
-        primeFactorsObject = functionDispatcher.getFunctionObject(primeFactorsClass)
-        eulerObject = functionDispatcher.getFunctionObject(eulerClass)
+        primeFactorsClass = functionDispatcher.get_function_by_name("prime factors")
+        eulerClass = functionDispatcher.get_function_by_name("euler")
+        primeFactorsObject = functionDispatcher.get_function_object(primeFactorsClass)
+        eulerObject = functionDispatcher.get_function_object(eulerClass)
         # preflight checks
         if line.count("/") != 1:
             return "Please give input in the form: <numerator>/<denominator>"

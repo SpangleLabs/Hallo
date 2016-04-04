@@ -451,8 +451,8 @@ class Euler(Function):
     def euler17(self):
         # Get Number function
         functionDispatcher = self.mHalloObject.get_function_dispatcher()
-        functionClass = functionDispatcher.getFunctionByName("number")
-        functionObject = functionDispatcher.getFunctionObject(functionClass)
+        functionClass = functionDispatcher.get_function_by_name("number")
+        functionObject = functionDispatcher.get_function_object(functionClass)
         # Do processing
         total = 0
         for x in range(1, 1001):
@@ -585,8 +585,8 @@ class Euler(Function):
     def euler26(self):
         # Get PrimeFactors function
         functionDispatcher = self.mHalloObject.get_function_dispatcher()
-        functionClass = functionDispatcher.getFunctionByName("prime factors")
-        functionObject = functionDispatcher.getFunctionObject(functionClass)
+        functionClass = functionDispatcher.get_function_by_name("prime factors")
+        functionObject = functionDispatcher.get_function_object(functionClass)
         # Do processing
         maxnines = 0
         maxd = 0
@@ -654,8 +654,8 @@ class Euler(Function):
     def euler29(self):
         # Get PrimeFactors function
         functionDispatcher = self.mHalloObject.get_function_dispatcher()
-        functionClass = functionDispatcher.getFunctionByName("prime factors")
-        functionObject = functionDispatcher.getFunctionObject(functionClass)
+        functionClass = functionDispatcher.get_function_by_name("prime factors")
+        functionObject = functionDispatcher.get_function_object(functionClass)
         # Do processing
         answers = []
         for a in range(2, 101):
@@ -688,8 +688,8 @@ class Euler(Function):
     def euler31(self):
         # Get ChangeOptions function
         functionDispatcher = self.mHalloObject.get_function_dispatcher()
-        functionClass = functionDispatcher.getFunctionByName("change options")
-        functionObject = functionDispatcher.getFunctionObject(functionClass)
+        functionClass = functionDispatcher.get_function_by_name("change options")
+        functionObject = functionDispatcher.get_function_object(functionClass)
         # Do processing
         coins = [200, 100, 50, 20, 10, 5, 2, 1]
         options = functionObject.changeOptions(coins, 0, 200)
@@ -745,8 +745,8 @@ class Euler(Function):
     def euler33(self):
         # Get PrimeFactors function
         functionDispatcher = self.mHalloObject.get_function_dispatcher()
-        functionClass = functionDispatcher.getFunctionByName("prime factors")
-        functionObject = functionDispatcher.getFunctionObject(functionClass)
+        functionClass = functionDispatcher.get_function_by_name("prime factors")
+        functionObject = functionDispatcher.get_function_object(functionClass)
         # Do processing
         epsilon = 0.0000001
         totalNumeratorFactors = []
@@ -987,8 +987,8 @@ class Euler(Function):
     def euler47(self):
         # Get PrimeFactors function
         functionDispatcher = self.mHalloObject.get_function_dispatcher()
-        functionClass = functionDispatcher.getFunctionByName("prime factors")
-        functionObject = functionDispatcher.getFunctionObject(functionClass)
+        functionClass = functionDispatcher.get_function_by_name("prime factors")
+        functionObject = functionDispatcher.get_function_object(functionClass)
         # Solve
         num = 1
         streak = 4

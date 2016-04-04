@@ -403,8 +403,8 @@ class FeedAdd(Function):
             feedPeriod = line.split()[1]
         # Get current RSS feed list
         functionDispatcher = userObject.getServer().getHallo().get_function_dispatcher()
-        feedCheckClass = functionDispatcher.getFunctionByName("rss check")
-        feedCheckObject = functionDispatcher.getFunctionObject(feedCheckClass)
+        feedCheckClass = functionDispatcher.get_function_by_name("rss check")
+        feedCheckObject = functionDispatcher.get_function_object(feedCheckClass)
         feedList = feedCheckObject.mRssFeedList
         # Check link works
         try:
@@ -462,7 +462,7 @@ class FeedRemove(Function):
         server = userObject.getServer()
         hallo = server.getHallo()
         functionDispatcher = hallo.get_function_dispatcher()
-        feedCheckFunction = functionDispatcher.getFunctionByName("rss check")
+        feedCheckFunction = functionDispatcher.get_function_by_name("rss check")
         rssFeedList = feedCheckFunction.mRssFeedList
         # Clean up input
         cleanInput = line.strip()
@@ -506,7 +506,7 @@ class FeedList(Function):
         server = userObject.getServer()
         hallo = server.getHallo()
         functionDispatcher = hallo.get_function_dispatcher()
-        feedCheckFunction = functionDispatcher.getFunctionByName("rss check")
+        feedCheckFunction = functionDispatcher.get_function_by_name("rss check")
         rssFeedList = feedCheckFunction.mRssFeedList
         # Find list of feeds for current channel.
         destFeeds = rssFeedList.getFeedsByDestination(server, destinationObject)

@@ -736,8 +736,8 @@ class HigherOrLowerGame(Game):
         self.mDeck = Deck()
         self.mDeck.shuffle()
         functionDispatcher = userObject.getServer().getHallo().get_function_dispatcher()
-        highScoresClass = functionDispatcher.getFunctionByName("highscores")
-        self.mHighScoresObject = functionDispatcher.getFunctionObject(highScoresClass)
+        highScoresClass = functionDispatcher.get_function_by_name("highscores")
+        self.mHighScoresObject = functionDispatcher.get_function_object(highScoresClass)
 
     def getNextCard(self):
         """Gets a new card from the deck and adds to the list"""
@@ -1251,8 +1251,8 @@ class DDRGame(Game):
         self.mStartTime = time.time()
         self.mLastTime = time.time()
         functionDispatcher = userObject.getServer().getHallo().get_function_dispatcher()
-        highScoresClass = functionDispatcher.getFunctionByName("highscores")
-        self.mHighScoresObject = functionDispatcher.getFunctionObject(highScoresClass)
+        highScoresClass = functionDispatcher.get_function_by_name("highscores")
+        self.mHighScoresObject = functionDispatcher.get_function_object(highScoresClass)
 
     def startGame(self):
         """Launches the new thread to play the game."""

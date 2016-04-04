@@ -75,13 +75,13 @@ class Hallo:
         while self.open:
             now_date_time = datetime.now()
             if now_date_time.second != last_date_time.second:
-                self.function_dispatcher.dispatchPassive(Function.EVENT_SECOND, None, None, None, None)
+                self.function_dispatcher.dispatch_passive(Function.EVENT_SECOND, None, None, None, None)
             if now_date_time.minute != last_date_time.minute:
-                self.function_dispatcher.dispatchPassive(Function.EVENT_MINUTE, None, None, None, None)
+                self.function_dispatcher.dispatch_passive(Function.EVENT_MINUTE, None, None, None, None)
             if now_date_time.hour != last_date_time.hour:
-                self.function_dispatcher.dispatchPassive(Function.EVENT_HOUR, None, None, None, None)
+                self.function_dispatcher.dispatch_passive(Function.EVENT_HOUR, None, None, None, None)
             if now_date_time.day != last_date_time.day:
-                self.function_dispatcher.dispatchPassive(Function.EVENT_DAY, None, None, None, None)
+                self.function_dispatcher.dispatch_passive(Function.EVENT_DAY, None, None, None, None)
             last_date_time = now_date_time
             time.sleep(0.1)
 
@@ -95,8 +95,8 @@ class Hallo:
         self.default_nick = root.findtext("default_nick")
         self.default_prefix = Commons.stringFromFile(root.findtext("default_prefix"))
         self.default_full_name = root.findtext("default_full_name")
-        self.function_dispatcher = FunctionDispatcher.fromXml(ElementTree.tostring(root.find("function_dispatcher")),
-                                                              self)
+        self.function_dispatcher = FunctionDispatcher.from_xml(ElementTree.tostring(root.find("function_dispatcher")),
+                                                               self)
         user_group_list_xml = root.find("user_group_list")
         for user_group_xml in user_group_list_xml.findall("user_group"):
             user_group_obj = UserGroup.fromXml(ElementTree.tostring(user_group_xml), self)
@@ -142,7 +142,7 @@ class Hallo:
         default_full_name_elem.appendChild(doc.createTextNode(self.default_full_name))
         root.appendChild(default_full_name_elem)
         # Create function dispatcher
-        function_dispatcher_elem = minidom.parseString(self.function_dispatcher.toXml()).firstChild
+        function_dispatcher_elem = minidom.parseString(self.function_dispatcher.to_xml()).firstChild
         root.appendChild(function_dispatcher_elem)
         # Create server list
         server_list_elem = doc.createElement("server_list")

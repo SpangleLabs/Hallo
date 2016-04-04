@@ -579,7 +579,7 @@ class ServerIRC(Server):
         self.mHallo.get_logger().logFromSelf(Function.EVENT_PING, pingNumber, self, None, None)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_PING, pingNumber, self, None, None)
+        functionDispatcher.dispatch_passive(Function.EVENT_PING, pingNumber, self, None, None)
 
     def parseLineMessage(self, messageLine):
         """
@@ -633,14 +633,14 @@ class ServerIRC(Server):
                                             [functionDispatcher.FLAG_HIDE_ERRORS])
             else:
                 # Pass to passive function checker
-                functionDispatcher.dispatchPassive(Function.EVENT_MESSAGE, messageText, self, messageSender,
-                                                   messageChannel)
+                functionDispatcher.dispatch_passive(Function.EVENT_MESSAGE, messageText, self, messageSender,
+                                                    messageChannel)
         elif messageText.lower().startswith(actingPrefix):
             messageText = messageText[len(actingPrefix):]
             functionDispatcher.dispatch(messageText, messageSender, messageDestination)
         else:
             # Pass to passive function checker
-            functionDispatcher.dispatchPassive(Function.EVENT_MESSAGE, messageText, self, messageSender, messageChannel)
+            functionDispatcher.dispatch_passive(Function.EVENT_MESSAGE, messageText, self, messageSender, messageChannel)
 
     def parseLineCtcp(self, ctcpLine):
         """
@@ -693,7 +693,7 @@ class ServerIRC(Server):
                       "notice")
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_CTCP, messageText, self, messageSender, messageChannel)
+        functionDispatcher.dispatch_passive(Function.EVENT_CTCP, messageText, self, messageSender, messageChannel)
 
     def parseLineJoin(self, joinLine):
         """
@@ -719,7 +719,7 @@ class ServerIRC(Server):
             joinChannel.addUser(joinClient)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_JOIN, None, self, joinClient, joinChannel)
+        functionDispatcher.dispatch_passive(Function.EVENT_JOIN, None, self, joinClient, joinChannel)
 
     def parseLinePart(self, partLine):
         """
@@ -748,7 +748,7 @@ class ServerIRC(Server):
             partClient.setOnline(False)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_LEAVE, partMessage, self, partClient, partChannel)
+        functionDispatcher.dispatch_passive(Function.EVENT_LEAVE, partMessage, self, partClient, partChannel)
 
     def parseLineQuit(self, quitLine):
         """
@@ -777,7 +777,7 @@ class ServerIRC(Server):
                 user.setOnline(False)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_QUIT, quitMessage, self, quitClient, None)
+        functionDispatcher.dispatch_passive(Function.EVENT_QUIT, quitMessage, self, quitClient, None)
 
     def parseLineMode(self, modeLine):
         """
@@ -812,7 +812,7 @@ class ServerIRC(Server):
         self.mHallo.get_logger().log(Function.EVENT_MODE, modeFull, self, modeClient, modeChannel)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_MODE, modeFull, self, modeClient, modeChannel)
+        functionDispatcher.dispatch_passive(Function.EVENT_MODE, modeFull, self, modeClient, modeChannel)
 
     def parseLineNotice(self, noticeLine: str):
         """
@@ -846,7 +846,7 @@ class ServerIRC(Server):
                     self.mCheckUserIdentityResult = False
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_NOTICE, noticeMessage, self, noticeClient, noticeChannel)
+        functionDispatcher.dispatch_passive(Function.EVENT_NOTICE, noticeMessage, self, noticeClient, noticeChannel)
 
     def parseLineNick(self, nickLine):
         """Parses a NICK message from the server
@@ -872,7 +872,7 @@ class ServerIRC(Server):
             self.mHallo.get_logger().log(Function.EVENT_CHNAME, nickClientName, self, nickClient, channel)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_CHNAME, nickClientName, self, nickClient, None)
+        functionDispatcher.dispatch_passive(Function.EVENT_CHNAME, nickClientName, self, nickClient, None)
 
     def parseLineInvite(self, inviteLine):
         """Parses an INVITE message from the server
@@ -893,7 +893,7 @@ class ServerIRC(Server):
             self.joinChannel(inviteChannel)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_INVITE, None, self, inviteClient, inviteChannel)
+        functionDispatcher.dispatch_passive(Function.EVENT_INVITE, None, self, inviteClient, inviteChannel)
 
     def parseLineKick(self, kickLine):
         """Parses a KICK message from the server
@@ -916,7 +916,7 @@ class ServerIRC(Server):
             kickChannel.setInChannel(False)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_KICK, kickMessage, self, kickClient, kickChannel)
+        functionDispatcher.dispatch_passive(Function.EVENT_KICK, kickMessage, self, kickClient, kickChannel)
 
     def parseLineNumeric(self, numericLine, motdEnded=True):
         """
