@@ -310,7 +310,7 @@ class CatGif(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        apiKey = userObject.getServer().getHallo().getApiKey("thecatapi")
+        apiKey = userObject.getServer().getHallo().get_api_key("thecatapi")
         if apiKey is None:
             return "No API key loaded for cat api."
         url = "http://thecatapi.com/api/images/get?format=xml&api_key=" + apiKey + "&type=gif"
@@ -340,7 +340,7 @@ class RandomQuote(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        apiKey = userObject.getServer().getHallo().getApiKey("mashape")
+        apiKey = userObject.getServer().getHallo().get_api_key("mashape")
         if apiKey is None:
             return "No API key loaded for mashape."
         url = "https://andruxnet-random-famous-quotes.p.mashape.com/"
@@ -409,7 +409,7 @@ class NightValeWeather(Function):
         """Returns a list of video information for a youtube playlist."""
         listVideos = []
         # Get API key
-        apiKey = self.mHalloObject.getApiKey("youtube")
+        apiKey = self.mHalloObject.get_api_key("youtube")
         if apiKey is None:
             return []
         # Find API url

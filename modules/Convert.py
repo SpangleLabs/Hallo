@@ -1334,7 +1334,7 @@ class ConvertSet(Function):
             varUnit.setOffset(newOffset)
             # Save repo
             repo = varUnit.getType().getRepo()
-            repo.saveToXml()
+            repo.save_to_xml()
             # Output message
             return "Set new offset for " + varName + ": 0 " + varName + " = " + str(newOffset) + " " + baseName + "."
         # Get new value
@@ -1342,7 +1342,7 @@ class ConvertSet(Function):
         varUnit.setValue(newValue)
         # Save repo
         repo = varUnit.getType().getRepo()
-        repo.saveToXml()
+        repo.save_to_xml()
         # Output message
         return "Set new value for " + varName + ": Δ 1 " + varName + " = Δ " + str(newValue) + " " + baseName + "."
 
@@ -1385,7 +1385,7 @@ class ConvertSet(Function):
             newUnit.setOffset(newOffset)
             # Save repo
             repo = refUnit.getType().getRepo()
-            repo.saveToXml()
+            repo.save_to_xml()
             # Output message
             return "Created new unit " + inputName + " with offset: 0 " + inputName + " = " + str(
                 newOffset) + " " + baseName + "."
@@ -1394,7 +1394,7 @@ class ConvertSet(Function):
         newUnit.setValue(newValue)
         # Save repo
         repo = refUnit.getType().getRepo()
-        repo.saveToXml()
+        repo.save_to_xml()
         # Output message
         return "Created new unit " + inputName + " with value: 1 " + inputName + " = " + str(
             newValue) + " " + baseName + "."

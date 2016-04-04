@@ -168,12 +168,12 @@ class FunctionDispatcher(object):
         rightName = "function_" + functionName
         # Check rights
         if userObject is not None:
-            return userObject.rightsCheck(rightName, channelObject)
+            return userObject.rights_check(rightName, channelObject)
         if channelObject is not None:
-            return channelObject.rightsCheck(rightName)
+            return channelObject.rights_check(rightName)
         if serverObject is not None:
-            return serverObject.rightsCheck(rightName)
-        return self.mHallo.rightsCheck(rightName)
+            return serverObject.rights_check(rightName)
+        return self.mHallo.rights_check(rightName)
 
     def reloadModule(self, moduleName):
         """

@@ -67,7 +67,7 @@ class Permissions(Function):
                 locationOther = locationInput[0]
             else:
                 raise Exception("No server name found.")
-            serverObject = userObject.getServer().getHallo().getServerByName(serverName)
+            serverObject = userObject.getServer().getHallo().get_server_by_name(serverName)
             if serverObject is None:
                 raise Exception("No server exists by that name.")
             # Check if they have specified a channel
@@ -75,64 +75,64 @@ class Permissions(Function):
                 # Get channel by that name
                 channelName = locationOther.split("=")[1]
                 channelObject = userObject.getServer().getChannelByName(channelName)
-                permissionMask = channelObject.getPermissionMask()
+                permissionMask = channelObject.get_permission_mask()
                 return permissionMask
             # Check if they've specified a user
             if any([locationOther.startswith(userStr + "=") for userStr in self.USER_NAMES]):
                 # Get the user by that name
                 userName = locationOther.split("=")[1]
                 userObject.getServer().getUserByName(userName)
-                permissionMask = userObject.getPermissionMask()
+                permissionMask = userObject.get_permission_mask()
                 return permissionMask
             raise Exception("Input not understood. You specified a server but not channel or user?")
         # # All following have length locationInput ==1.
         # Check if they want to set generic hallo permissions
         if locationInput[0] in self.HALLO_NAMES:
-            permissionMask = userObject.getServer().getHallo().getPermissionMask()
+            permissionMask = userObject.getServer().getHallo().get_permission_mask()
             return permissionMask
         # Check if they have asked for current server
         if locationInput[0] in self.SERVER_NAMES:
-            permissionMask = userObject.getServer().getPermissionMask()
+            permissionMask = userObject.getServer().get_permission_mask()
             return permissionMask
         # Check if they have specified a server
         if any([locationInput[0].startswith(serverStr + "=") for serverStr in self.SERVER_NAMES]):
             serverName = locationInput[0].split("=")[1]
-            serverObject = userObject.getServer().getHallo().getServerByName(serverName)
+            serverObject = userObject.getServer().getHallo().get_server_by_name(serverName)
             if serverObject is None:
                 raise Exception("No server exists by that name.")
-            permissionMask = serverObject.getPermissionMask()
+            permissionMask = serverObject.get_permission_mask()
             return permissionMask
         # Check if they've asked for current channel
         if locationInput[0] in self.CHANNEL_NAMES:
             # Check if this is a channel, and not privmsg.
             if destinationObject is None or destinationObject == userObject:
                 raise Exception("You can't set generic channel permissions in a privmsg.")
-            permissionMask = destinationObject.getPermissionMask()
+            permissionMask = destinationObject.get_permission_mask()
             return permissionMask
         # Check if they have specified a channel
         if any([locationInput[0].startswith(channelStr + "=") for channelStr in self.CHANNEL_NAMES]):
             # Get channel by that name
             channelName = locationInput[0].split("=")[1]
             channelObject = userObject.getServer().getChannelByName(channelName)
-            permissionMask = channelObject.getPermissionMask()
+            permissionMask = channelObject.get_permission_mask()
             return permissionMask
         # Check if they've specified a user group?
         if any([locationInput[0].startswith(userGroupStr + "=") for userGroupStr in self.USER_GROUP_NAMES]):
             # See if you can find a UserGroup with that name
             userGroupName = locationInput[0].split("=")[1]
             halloObject = userObject.getServer().getHallo()
-            userGroupObject = halloObject.getUserGroupByName(userGroupName)
+            userGroupObject = halloObject.get_user_group_by_name(userGroupName)
             if userGroupObject is None:
                 raise Exception("No user group exists by that name.")
             # get permission mask and output
-            permissionMask = userGroupObject.getPermissionMask()
+            permissionMask = userGroupObject.get_permission_mask()
             return permissionMask
         # Check if they've specified a user
         if any([locationInput[0].startswith(userStr + "=") for userStr in self.USER_NAMES]):
             # Get the user by that name
             userName = locationInput[0].split("=")[1]
             userObject.getServer().getUserByName(userName)
-            permissionMask = userObject.getPermissionMask()
+            permissionMask = userObject.get_permission_mask()
             return permissionMask
         # Check if their current channel has any user by the name of whatever else they might have said?
         if destinationObject is None or destinationObject == userObject:
@@ -141,7 +141,7 @@ class Permissions(Function):
             if len(userListMatching) == 0:
                 raise Exception("I do not understand your input. I cannot find that Permission Mask.")
             userObject = userListMatching[0]
-            permissionMask = userObject.getPermissionMask()
+            permissionMask = userObject.get_permission_mask()
             return permissionMask
         # My normal approaches failed. Generic error message
         return None

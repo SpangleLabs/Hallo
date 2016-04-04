@@ -21,7 +21,7 @@ class ConfigSave(Function):
 
     def run(self, line, userObject, destinationObject=None):
         halloObject = userObject.getServer().getHallo()
-        halloObject.saveToXml()
+        halloObject.save_to_xml()
 
 
 class ModuleReload(Function):
@@ -43,7 +43,7 @@ class ModuleReload(Function):
 
     def run(self, line, userObject, destinationObject=None):
         halloObject = userObject.getServer().getHallo()
-        functionDispatcher = halloObject.getFunctionDispatcher()
+        functionDispatcher = halloObject.get_function_dispatcher()
         reloadResult = functionDispatcher.reloadModule(line)
         if reloadResult:
             return "Module reloaded."
@@ -107,7 +107,7 @@ class Help(Function):
         """Returns a list of all functions."""
         # Get required objects
         serverObject = userObject.getServer()
-        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionDispatcher = self.mHalloObject.get_function_dispatcher()
         # Get list of function classes
         functionClassList = functionDispatcher.getFunctionClassList()
         # Construct list of available function names
@@ -127,7 +127,7 @@ class Help(Function):
     def getHelpOnFunction(self, functionName):
         """Returns help documentation on a specified function."""
         # Get required objects
-        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionDispatcher = self.mHalloObject.get_function_dispatcher()
         functionClass = functionDispatcher.getFunctionByName(functionName)
         # If function isn't defined, return an error.
         if functionClass is None:

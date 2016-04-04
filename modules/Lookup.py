@@ -586,7 +586,7 @@ class CurrentWeather(Function):
                 serverName = userObject.getServer().getName()
                 locationEntry = WeatherLocationEntry(userName, serverName)
                 locationEntry.setFromInput(lineClean)
-        apiKey = userObject.getServer().getHallo().getApiKey("openweathermap")
+        apiKey = userObject.getServer().getHallo().get_api_key("openweathermap")
         if apiKey is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/weather" + locationEntry.createQueryParams() + "&APPID=" + apiKey
@@ -679,7 +679,7 @@ class Weather(Function):
                 locationEntry = WeatherLocationEntry(userName, serverName)
                 locationEntry.setFromInput(lineClean)
         # Get API response
-        apiKey = userObject.getServer().getHallo().getApiKey("openweathermap")
+        apiKey = userObject.getServer().getHallo().get_api_key("openweathermap")
         if apiKey is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/forecast/daily" + locationEntry.createQueryParams() + \
@@ -890,7 +890,7 @@ class UrlDetect(Function):
         """Handling for ebay links"""
         # Get the ebay item id
         itemId = urlAddress.split("/")[-1]
-        apiKey = self.mHalloObject.getApiKey("ebay")
+        apiKey = self.mHalloObject.get_api_key("ebay")
         if apiKey is None:
             return None
         # Get API response
@@ -963,7 +963,7 @@ class UrlDetect(Function):
         imgurId = urlAddress.split('/')[-1].split('.')[0]
         apiUrl = 'https://api.imgur.com/3/image/' + imgurId
         # Load API response (in json) using Client-ID.
-        apiKey = self.mHalloObject.getApiKey("imgur")
+        apiKey = self.mHalloObject.get_api_key("imgur")
         if apiKey is None:
             return None
         apiDict = Commons.loadUrlJson(apiUrl, [['Authorization', apiKey]])
@@ -987,7 +987,7 @@ class UrlDetect(Function):
         imgurId = urlAddress.split('/')[-1].split('#')[0]
         apiUrl = 'https://api.imgur.com/3/album/' + imgurId
         # Load API response (in json) using Client-ID.
-        apiKey = self.mHalloObject.getApiKey("imgur")
+        apiKey = self.mHalloObject.get_api_key("imgur")
         if apiKey is None:
             return None
         apiDict = Commons.loadUrlJson(apiUrl, [['Authorization', apiKey]])
@@ -1053,7 +1053,7 @@ class UrlDetect(Function):
         else:
             videoId = urlAddress.split("/")[-1].split("=")[1].split("&")[0]
         # Find API url
-        apiKey = self.mHalloObject.getApiKey("youtube")
+        apiKey = self.mHalloObject.get_api_key("youtube")
         if apiKey is None:
             return None
         apiUrl = "https://www.googleapis.com/youtube/v3/videos?id=" + videoId + \

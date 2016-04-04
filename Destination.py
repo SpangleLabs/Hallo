@@ -242,7 +242,7 @@ class Channel(Destination):
             if rightValue in [True, False]:
                 return rightValue
         # Fallback to the parent Server's decision.
-        return self.mServer.rightsCheck(rightName)
+        return self.mServer.rights_check(rightName)
 
     def isPersistent(self):
         """Defines whether Channel is persistent. That is to say, whether it needs saving, or can be generated anew."""
@@ -443,12 +443,12 @@ class User(Destination):
         # Check UserGroup rights, if any apply
         if len(self.mUserGroupList) != 0:
             return any(
-                [userGroup.rightsCheck(rightName, self, channelObject) for userGroup in self.mUserGroupList.values()])
+                [userGroup.rights_check(rightName, self, channelObject) for userGroup in self.mUserGroupList.values()])
         # Fall back to channel, if defined
         if channelObject is not None and channelObject.isChannel():
-            return channelObject.rightsCheck(rightName)
+            return channelObject.rights_check(rightName)
         # Fall back to the parent Server's decision.
-        return self.mServer.rightsCheck(rightName)
+        return self.mServer.rights_check(rightName)
 
     def isPersistent(self):
         """Defines whether User is persistent. That is to say, whether it needs saving, or can be generated anew."""
@@ -516,7 +516,7 @@ class User(Destination):
         userGroupListXml = doc.getElementsByTagName("user_group_membership")[0]
         for userGroupXml in userGroupListXml.getElementsByTagName("user_group_name"):
             userGroupName = userGroupXml.firstChild.data
-            userGroup = server.getHallo().getUserGroupByName(userGroupName)
+            userGroup = server.getHallo().get_user_group_by_name(userGroupName)
             if userGroup is not None:
                 newUser.addUserGroup(userGroup)
         # Add PermissionMask, if one exists

@@ -450,7 +450,7 @@ class Euler(Function):
 
     def euler17(self):
         # Get Number function
-        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionDispatcher = self.mHalloObject.get_function_dispatcher()
         functionClass = functionDispatcher.getFunctionByName("number")
         functionObject = functionDispatcher.getFunctionObject(functionClass)
         # Do processing
@@ -584,7 +584,7 @@ class Euler(Function):
 
     def euler26(self):
         # Get PrimeFactors function
-        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionDispatcher = self.mHalloObject.get_function_dispatcher()
         functionClass = functionDispatcher.getFunctionByName("prime factors")
         functionObject = functionDispatcher.getFunctionObject(functionClass)
         # Do processing
@@ -653,7 +653,7 @@ class Euler(Function):
 
     def euler29(self):
         # Get PrimeFactors function
-        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionDispatcher = self.mHalloObject.get_function_dispatcher()
         functionClass = functionDispatcher.getFunctionByName("prime factors")
         functionObject = functionDispatcher.getFunctionObject(functionClass)
         # Do processing
@@ -687,7 +687,7 @@ class Euler(Function):
 
     def euler31(self):
         # Get ChangeOptions function
-        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionDispatcher = self.mHalloObject.get_function_dispatcher()
         functionClass = functionDispatcher.getFunctionByName("change options")
         functionObject = functionDispatcher.getFunctionObject(functionClass)
         # Do processing
@@ -744,7 +744,7 @@ class Euler(Function):
 
     def euler33(self):
         # Get PrimeFactors function
-        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionDispatcher = self.mHalloObject.get_function_dispatcher()
         functionClass = functionDispatcher.getFunctionByName("prime factors")
         functionObject = functionDispatcher.getFunctionObject(functionClass)
         # Do processing
@@ -986,7 +986,7 @@ class Euler(Function):
 
     def euler47(self):
         # Get PrimeFactors function
-        functionDispatcher = self.mHalloObject.getFunctionDispatcher()
+        functionDispatcher = self.mHalloObject.get_function_dispatcher()
         functionClass = functionDispatcher.getFunctionByName("prime factors")
         functionObject = functionDispatcher.getFunctionObject(functionClass)
         # Solve

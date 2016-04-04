@@ -735,7 +735,7 @@ class HigherOrLowerGame(Game):
         self.mLastTime = time.time()
         self.mDeck = Deck()
         self.mDeck.shuffle()
-        functionDispatcher = userObject.getServer().getHallo().getFunctionDispatcher()
+        functionDispatcher = userObject.getServer().getHallo().get_function_dispatcher()
         highScoresClass = functionDispatcher.getFunctionByName("highscores")
         self.mHighScoresObject = functionDispatcher.getFunctionObject(highScoresClass)
 
@@ -1250,7 +1250,7 @@ class DDRGame(Game):
         self.mChannel = channelObject
         self.mStartTime = time.time()
         self.mLastTime = time.time()
-        functionDispatcher = userObject.getServer().getHallo().getFunctionDispatcher()
+        functionDispatcher = userObject.getServer().getHallo().get_function_dispatcher()
         highScoresClass = functionDispatcher.getFunctionByName("highscores")
         self.mHighScoresObject = functionDispatcher.getFunctionObject(highScoresClass)
 

@@ -29,7 +29,7 @@ class JoinChannel(Function):
         if serverName is None:
             serverObject = userObject.getServer()
         else:
-            serverObject = userObject.getServer().getHallo().getServerByName(serverName)
+            serverObject = userObject.getServer().getHallo().get_server_by_name(serverName)
             line = line.replace("server=" + serverName, "").strip()
         if serverObject is None:
             return "Invalid server specified."
@@ -81,7 +81,7 @@ class LeaveChannel(Function):
         if serverName is None:
             serverObject = userObject.getServer()
         else:
-            serverObject = userObject.getServer().getHallo().getServerByName(serverName)
+            serverObject = userObject.getServer().getHallo().get_server_by_name(serverName)
             line = line.replace("server=" + serverName, "").strip()
         if serverObject is None:
             return "Invalid server specified."
@@ -149,7 +149,7 @@ class Disconnect(Function):
         serverObject = userObject.getServer()
         halloObject = serverObject.getHallo()
         if line.strip() != "":
-            serverObject = halloObject.getServerByName(line)
+            serverObject = halloObject.get_server_by_name(line)
         if serverObject is None:
             return "Invalid server."
         serverObject.setAutoConnect(False)
@@ -179,7 +179,7 @@ class Connect(Function):
         currentServer = userObject.getServer()
         halloObject = currentServer.getHallo()
         # Try and see if it's a server we already know
-        existingServer = halloObject.getServerByName(line)
+        existingServer = halloObject.get_server_by_name(line)
         if existingServer is not None:
             return self.connectToKnownServer(existingServer)
         # Try to find what protocol is specififed, or use whatever protocol the user is using.
@@ -283,7 +283,7 @@ class Connect(Function):
         newServerObject.setNickservIdentityResponse(nickservIdentityResponse)
         newServerObject.setNickservPass(nickservPassword)
         # Add the new object to Hallo's list
-        halloObject.addServer(newServerObject)
+        halloObject.add_server(newServerObject)
         # Connect to the new server object.
         Thread(target=newServerObject.run).start()
         return "Connected to new IRC server: " + newServerObject.getName() + "."
@@ -340,7 +340,7 @@ class Say(Function):
         else:
             # Create a regex query from their input
             serverRegex = re.escape(serverName).replace("\*", ".*")
-            serverList = halloObject.getServerList()
+            serverList = halloObject.get_server_list()
             for serverObj in serverList:
                 if not serverObj.isConnected():
                     continue
@@ -402,7 +402,7 @@ class EditServer(Function):
         lineSplit = line.split()
         serverName = lineSplit[0]
         # See is a server by this name is known
-        serverObject = halloObject.getServerByName(serverName)
+        serverObject = halloObject.get_server_by_name(serverName)
         if serverObject is None:
             return "This is not a recognised server name. Please specify server name, " \
                    "then whichever variables and values you wish to set. In variable=value pairs."
@@ -503,7 +503,7 @@ class ListUsers(Function):
         if serverName is None:
             serverObject = userObject.getServer()
         else:
-            serverObject = halloObject.getServerByName(serverName)
+            serverObject = halloObject.get_server_by_name(serverName)
             if serverObject is None:
                 return "I don't recognise that server name."
             # Remove server name from line and trim
@@ -575,7 +575,7 @@ class ListChannels(Function):
         # If they ask for all channels, give them all channels.
         if lineClean in self.HALLO_NAMES:
             outputString = "On all servers, I am on these channels: "
-            serverList = halloObject.getServerList()
+            serverList = halloObject.get_server_list()
             channelTitleList = []
             for serverObject in serverList:
                 serverName = serverObject.getName()
@@ -594,7 +594,7 @@ class ListChannels(Function):
         # If a server is specified, get that server's channel list
         if self.findAnyParameter(self.SERVER_NAMES, lineClean):
             serverName = lineClean.split("=")[1]
-            serverObject = halloObject.getServerByName(serverName)
+            serverObject = halloObject.get_server_by_name(serverName)
             if serverObject is None:
                 return "I don't recognise that server name."
             inChannelNameList = self.getInChannelNamesList(serverObject)
@@ -602,7 +602,7 @@ class ListChannels(Function):
             outputString += ', '.join(inChannelNameList) + "."
             return outputString
         # Check if whatever input they gave is a server
-        serverObject = halloObject.getServerByName(lineClean)
+        serverObject = halloObject.get_server_by_name(lineClean)
         if serverObject is None:
             # Otherwise, return an error
             outputString = "I don't understand your input, please specify a server, or hallo, " \

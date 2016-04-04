@@ -168,7 +168,7 @@ class RssFeed:
         """
         # Get server
         if server is None:
-            server = hallo.getServerByName(self.mServerName)
+            server = hallo.get_server_by_name(self.mServerName)
             if server is None:
                 return "Invalid server."
         # Get destination
@@ -402,7 +402,7 @@ class FeedAdd(Function):
         if len(line.split()) > 0:
             feedPeriod = line.split()[1]
         # Get current RSS feed list
-        functionDispatcher = userObject.getServer().getHallo().getFunctionDispatcher()
+        functionDispatcher = userObject.getServer().getHallo().get_function_dispatcher()
         feedCheckClass = functionDispatcher.getFunctionByName("rss check")
         feedCheckObject = functionDispatcher.getFunctionObject(feedCheckClass)
         feedList = feedCheckObject.mRssFeedList
@@ -461,7 +461,7 @@ class FeedRemove(Function):
         # Handy variables
         server = userObject.getServer()
         hallo = server.getHallo()
-        functionDispatcher = hallo.getFunctionDispatcher()
+        functionDispatcher = hallo.get_function_dispatcher()
         feedCheckFunction = functionDispatcher.getFunctionByName("rss check")
         rssFeedList = feedCheckFunction.mRssFeedList
         # Clean up input
@@ -505,7 +505,7 @@ class FeedList(Function):
         # Handy variables
         server = userObject.getServer()
         hallo = server.getHallo()
-        functionDispatcher = hallo.getFunctionDispatcher()
+        functionDispatcher = hallo.get_function_dispatcher()
         feedCheckFunction = functionDispatcher.getFunctionByName("rss check")
         rssFeedList = feedCheckFunction.mRssFeedList
         # Find list of feeds for current channel.
