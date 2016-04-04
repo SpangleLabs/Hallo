@@ -247,7 +247,7 @@ class Server(metaclass=ABCMeta):
         :type rightName: Name of the right to check default server value for
         """
         if self.mPermissionMask is not None:
-            rightValue = self.mPermissionMask.getRight(rightName)
+            rightValue = self.mPermissionMask.get_right(rightName)
             # If PermissionMask contains that right, return it.
             if rightValue in [True, False]:
                 return rightValue
@@ -1160,14 +1160,14 @@ class ServerIRC(Server):
         channelListElement = doc.createElement("channel_list")
         for channelItem in self.mChannelList:
             if channelItem.isPersistent():
-                channelElement = minidom.parseString(channelItem.toXml()).firstChild
+                channelElement = minidom.parseString(channelItem.to_xml()).firstChild
                 channelListElement.appendChild(channelElement)
         root.appendChild(channelListElement)
         # create user list
         userListElement = doc.createElement("user_list")
         for userItem in self.mUserList:
             if userItem.isPersistent():
-                userElement = minidom.parseString(userItem.toXml()).firstChild
+                userElement = minidom.parseString(userItem.to_xml()).firstChild
                 userListElement.appendChild(userElement)
         root.appendChild(userListElement)
         # create nick element
@@ -1217,8 +1217,8 @@ class ServerIRC(Server):
             # Add nickserv element to document
             root.appendChild(nickservElement)
         # create permission_mask element
-        if not self.mPermissionMask.isEmpty():
-            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
+        if not self.mPermissionMask.is_empty():
+            permissionMaskElement = minidom.parse(self.mPermissionMask.to_xml()).firstChild
             root.appendChild(permissionMaskElement)
         # output XML string
         return doc.toxml()
@@ -1340,5 +1340,5 @@ class ServerIRC(Server):
             userObject = User.fromXml(userXml.toxml(), newServer)
             newServer.addUser(userObject)
         if len(doc.getElementsByTagName("permission_mask")) != 0:
-            newServer.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
+            newServer.mPermissionMask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newServer

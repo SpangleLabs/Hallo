@@ -237,7 +237,7 @@ class Channel(Destination):
         :param rightName: Name of the user right to check
         """
         if self.mPermissionMask is not None:
-            rightValue = self.mPermissionMask.getRight(rightName)
+            rightValue = self.mPermissionMask.get_right(rightName)
             # If PermissionMask contains that right, return it.
             if rightValue in [True, False]:
                 return rightValue
@@ -259,7 +259,7 @@ class Channel(Destination):
         if self.mUseCapsLock is True:
             return True
         # If channel has specific permissions set, save it
-        if not self.mPermissionMask.isEmpty():
+        if not self.mPermissionMask.is_empty():
             return True
         # If channel has passive functions disabled, save it
         if self.mPassiveEnabled is False:
@@ -300,8 +300,8 @@ class Channel(Destination):
         autoJoinElement.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.mAutoJoin]))
         root.appendChild(autoJoinElement)
         # create permission_mask element
-        if not self.mPermissionMask.isEmpty():
-            permissionMaskElement = minidom.parseString(self.mPermissionMask.toXml()).firstChild
+        if not self.mPermissionMask.is_empty():
+            permissionMaskElement = minidom.parseString(self.mPermissionMask.to_xml()).firstChild
             root.appendChild(permissionMaskElement)
         # output XML string
         return doc.toxml()
@@ -324,7 +324,7 @@ class Channel(Destination):
             doc.getElementsByTagName("passive_enabled")[0].firstChild.data)
         newChannel.mAutoJoin = Commons.stringFromFile(doc.getElementsByTagName("auto_join")[0].firstChild.data)
         if len(doc.getElementsByTagName("permission_mask")) != 0:
-            newChannel.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
+            newChannel.mPermissionMask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newChannel
 
 
@@ -436,7 +436,7 @@ class User(Destination):
         :param channelObject: Channel in which the right is being checked
         """
         if self.mPermissionMask is not None:
-            rightValue = self.mPermissionMask.getRight(rightName)
+            rightValue = self.mPermissionMask.get_right(rightName)
             # If PermissionMask contains that right, return it.
             if rightValue in [True, False]:
                 return rightValue
@@ -462,7 +462,7 @@ class User(Destination):
         if self.mUseCapsLock is True:
             return True
         # If user has specific permissions set, save it
-        if not self.mPermissionMask.isEmpty():
+        if not self.mPermissionMask.is_empty():
             return True
         # Otherwise it can be generated anew to be identical.
         return False
@@ -494,8 +494,8 @@ class User(Destination):
             userGroupListElement.appendChild(userGroupElement)
         root.appendChild(userGroupListElement)
         # create permission_mask element
-        if not self.mPermissionMask.isEmpty():
-            permissionMaskElement = minidom.parseString(self.mPermissionMask.toXml()).firstChild
+        if not self.mPermissionMask.is_empty():
+            permissionMaskElement = minidom.parseString(self.mPermissionMask.to_xml()).firstChild
             root.appendChild(permissionMaskElement)
         # output XML string
         return doc.toxml()
@@ -521,5 +521,5 @@ class User(Destination):
                 newUser.addUserGroup(userGroup)
         # Add PermissionMask, if one exists
         if len(doc.getElementsByTagName("permission_mask")) != 0:
-            newUser.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
+            newUser.mPermissionMask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return newUser

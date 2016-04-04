@@ -27,7 +27,7 @@ class UserGroup:
         :param userObject: User which is having rights checked
         :param channelObject: Channel in which rights are being checked, None for private messages
         """
-        rightValue = self.mPermissionMask.getRight(rightName)
+        rightValue = self.mPermissionMask.get_right(rightName)
         # PermissionMask contains that right, return it.
         if rightValue in [True, False]:
             return rightValue
@@ -67,8 +67,8 @@ class UserGroup:
         nameElement.appendChild(doc.createTextNode(self.mName))
         root.appendChild(nameElement)
         # create permission_mask element
-        if not self.mPermissionMask.isEmpty():
-            permissionMaskElement = minidom.parseString(self.mPermissionMask.toXml()).firstChild
+        if not self.mPermissionMask.is_empty():
+            permissionMaskElement = minidom.parseString(self.mPermissionMask.to_xml()).firstChild
             root.appendChild(permissionMaskElement)
         # output XML string
         return doc.toxml()
@@ -84,6 +84,6 @@ class UserGroup:
         newName = doc.getElementsByTagName("name")[0].firstChild.data
         newUserGroup = UserGroup(newName, hallo)
         if len(doc.getElementsByTagName("permission_mask")) != 0:
-            newUserGroup.mPermissionMask = PermissionMask.fromXml(
+            newUserGroup.mPermissionMask = PermissionMask.from_xml(
                 doc.getElementsByTagName("permission_mask")[0].toxml())
         return newUserGroup

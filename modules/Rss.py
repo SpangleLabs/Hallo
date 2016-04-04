@@ -433,7 +433,7 @@ class FeedAdd(Function):
         # Add new rss feed to list
         feedList.addFeed(rssFeed)
         # Save list
-        feedList.toXml()
+        feedList.to_xml()
         # Return output
         return "I have added new RSS feed titled \"" + rssFeed.mTitle + "\""
 

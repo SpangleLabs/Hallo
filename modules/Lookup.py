@@ -341,7 +341,7 @@ class WeatherLocationRepo:
         root = doc.getElementsByTagName("weather_location_list")[0]
         # Add entries
         for entryObject in self.mListLocations:
-            entryElement = minidom.parseString(entryObject.toXml()).firstChild
+            entryElement = minidom.parseString(entryObject.to_xml()).firstChild
             root.appendChild(entryElement)
         # Save XML
         doc.writexml(open("store/weather_location_list.xml", "w"), addindent="\t", newl="\n")

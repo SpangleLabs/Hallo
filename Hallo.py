@@ -106,7 +106,7 @@ class Hallo:
             server_obj = self.server_factory.newServerFromXml(ElementTree.tostring(server_xml))
             self.add_server(server_obj)
         if root.find("permission_mask") is not None:
-            self.permission_mask = PermissionMask.fromXml(ElementTree.tostring(root.find("permission_mask")))
+            self.permission_mask = PermissionMask.from_xml(ElementTree.tostring(root.find("permission_mask")))
         api_key_list_xml = root.find("api_key_list")
         for api_key_xml in api_key_list_xml.findall("api_key"):
             api_key_name = api_key_xml.findtext("name")
@@ -147,18 +147,18 @@ class Hallo:
         # Create server list
         server_list_elem = doc.createElement("server_list")
         for server_elem in self.server_list:
-            server_xml = minidom.parseString(server_elem.toXml()).firstChild
+            server_xml = minidom.parseString(server_elem.to_xml()).firstChild
             server_list_elem.appendChild(server_xml)
         root.appendChild(server_list_elem)
         # Create user_group list
         user_group_list_elem = doc.createElement("user_group_list")
         for user_group_name in self.user_list_list:
-            user_group_elem = minidom.parseString(self.user_list_list[user_group_name].toXml()).firstChild
+            user_group_elem = minidom.parseString(self.user_list_list[user_group_name].to_xml()).firstChild
             user_group_list_elem.appendChild(user_group_elem)
         root.appendChild(user_group_list_elem)
         # Create permission_mask element, if it's not empty.
-        if not self.permission_mask.isEmpty():
-            permission_mask_elem = minidom.parseString(self.permission_mask.toXml()).firstChild
+        if not self.permission_mask.is_empty():
+            permission_mask_elem = minidom.parseString(self.permission_mask.to_xml()).firstChild
             root.appendChild(permission_mask_elem)
         # Save api key list
         api_key_list_elem = doc.createElement("api_key_list")
@@ -244,7 +244,7 @@ class Hallo:
         :param right_name: name of the user right to search for
         :return: Boolean, whether or not the specified right is given
         """
-        right_value = self.permission_mask.getRight(right_name)
+        right_value = self.permission_mask.get_right(right_name)
         # If PermissionMask contains that right, return it.
         if right_value in [True, False]:
             return right_value
@@ -253,11 +253,11 @@ class Hallo:
             return self.rights_check("default_function")
         # If default_function is not defined, define and return it as True
         if right_name == "default_function":
-            self.permission_mask.setRight("default_function", True)
+            self.permission_mask.set_right("default_function", True)
             return True
         else:
             # Else, define and return False
-            self.permission_mask.setRight(right_name, False)
+            self.permission_mask.set_right(right_name, False)
             return False
 
     def get_default_nick(self):
