@@ -9,7 +9,7 @@ class Longcat(Function):
     # Name for use in help listing
     mHelpName = "longcat"
     # Names which can be used to address the function
-    mNames = {["longcat", "ascii longcat"]}
+    mNames = {"longcat", "ascii longcat"}
     # Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Make a longcat! Format: longcat <length>"
     
@@ -54,7 +54,7 @@ class Deer(Function):
     # Name for use in help listing
     mHelpName = "deer"
     # Names which can be used to address the function
-    mNames = {["deer", "ascii deer"]}
+    mNames = {"deer", "ascii deer"}
     # Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Ascii art deer. Format: deer"
     
@@ -100,7 +100,7 @@ class Dragon(Function):
     # Name for use in help listing
     mHelpName = "dragon"
     # Names which can be used to address the function
-    mNames = {["dragon", "ascii dragon"]}
+    mNames = {"dragon", "ascii dragon"}
     # Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Prints ascii dragon. Format: dragon"
     
@@ -157,7 +157,7 @@ class Train(Function):
     # Name for use in help listing
     mHelpName = "train"
     # Names which can be used to address the function
-    mNames = {["train", "ascii train"]}
+    mNames = {"train", "ascii train"}
     # Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Prints ascii train. Format: train"
     

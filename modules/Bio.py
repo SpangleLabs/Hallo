@@ -8,7 +8,7 @@ class Protein(Function):
     # Name for use in help listing
     mHelpName = "protein"
     # Names which can be used to address the Function
-    mNames = {["protein", "prot", "amino acid"]}
+    mNames = {"protein", "prot", "amino acid"}
     # Help documentation, if it's just a single line, can be set here
     mHelpDocs = "Convert a set of nucleobases to a string of amino acids"
 
