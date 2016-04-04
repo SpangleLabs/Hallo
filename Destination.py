@@ -392,7 +392,7 @@ class User(Destination):
         Adds a User to a UserGroup
         :param newUserGroup: User group to add the user to
         """
-        newUserGroupName = newUserGroup.getName()
+        newUserGroupName = newUserGroup.get_name()
         self.mUserGroupList[newUserGroupName] = newUserGroup
 
     def getUserGroupByName(self, userGroupName):

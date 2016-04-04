@@ -99,7 +99,7 @@ class Hallo:
                                                                self)
         user_group_list_xml = root.find("user_group_list")
         for user_group_xml in user_group_list_xml.findall("user_group"):
-            user_group_obj = UserGroup.fromXml(ElementTree.tostring(user_group_xml), self)
+            user_group_obj = UserGroup.from_xml(ElementTree.tostring(user_group_xml), self)
             self.add_user_group(user_group_obj)
         server_list_xml = root.find("server_list")
         for server_xml in server_list_xml.findall("server"):
@@ -180,7 +180,7 @@ class Hallo:
         Adds a new UserGroup to the UserGroup list
         :param user_group: UserGroup to add to the hallo object's list of user groups
         """
-        user_group_name = user_group.getName()
+        user_group_name = user_group.get_name()
         self.user_list_list[user_group_name] = user_group
 
     def get_user_group_by_name(self, user_group_name):
