@@ -7,55 +7,72 @@ class UserGroup:
     """
     UserGroup object, mostly exists for a speedy way to apply a PermissionsMask to a large amount of users at once
     """
-    mName = None  # Name of the UserGroup
-    mPermissionMask = None  # PermissionMask for the UserGroup
-    mHallo = None  # Hallo instance that owns this UserGroup
-    mUserList = None  # Dynamic userlist of this group
+    name = None  # Name of the UserGroup
+    permission_mask = None  # PermissionMask for the UserGroup
+    hallo = None  # Hallo instance that owns this UserGroup
+    user_list = None  # Dynamic userlist of this group
 
     def __init__(self, name, hallo):
         """
         Constructor
+        :param name: Name of the user group
+        :type name: str
+        :param hallo: Hallo object which owns the user group
+        :type hallo: Hallo.Hallo
         """
-        self.mUserList = set()
-        self.mHallo = hallo
-        self.mName = name
-        self.mPermissionMask = PermissionMask()
+        self.user_list = set()
+        self.hallo = hallo
+        self.name = name
+        self.permission_mask = PermissionMask()
 
-    def rightsCheck(self, rightName, userObject, channelObject=None):
+    def rights_check(self, right_name, user_obj, channel_obj=None):
         """Checks the value of the right with the specified name. Returns boolean
-        :param rightName: Name of the right to check
-        :param userObject: User which is having rights checked
-        :param channelObject: Channel in which rights are being checked, None for private messages
+        :param right_name: Name of the right to check
+        :type right_name: str
+        :param user_obj: User which is having rights checked
+        :type user_obj: Destination.User
+        :param channel_obj: Channel in which rights are being checked, None for private messages
+        :type channel_obj: Destination.Channel
         """
-        rightValue = self.mPermissionMask.getRight(rightName)
+        right_value = self.permission_mask.get_right(right_name)
         # PermissionMask contains that right, return it.
-        if rightValue in [True, False]:
-            return rightValue
+        if right_value in [True, False]:
+            return right_value
         # Fall back to channel, if defined
-        if channelObject is not None:
-            return channelObject.rightsCheck(rightName)
+        if channel_obj is not None:
+            return channel_obj.rights_check(right_name)
         # Fall back to the parent Server's decision.
-        return userObject.getServer().rightsCheck(rightName)
+        return user_obj.get_server().rights_check(right_name)
 
-    def getName(self):
-        return self.mName
+    def get_name(self):
+        return self.name
 
-    def getPermissionMask(self):
-        return self.mPermissionMask
+    def get_permission_mask(self):
+        return self.permission_mask
 
-    def setPermissionMask(self, newPermissionMask):
-        self.mPermissionMask = newPermissionMask
+    def set_permission_mask(self, new_permission_mask):
+        """
+        Sets the permission mask of the user group
+        :param new_permission_mask: Permission mask to set for user group
+        :type new_permission_mask: PermissionMask.PermissionMask
+        """
+        self.permission_mask = new_permission_mask
 
-    def getHallo(self):
-        return self.mHallo
+    def get_hallo(self):
+        return self.hallo
 
-    def addUser(self, newUser):
-        self.mUserList.add(newUser)
+    def add_user(self, new_user):
+        """
+        Adds a new user to this group
+        :param new_user: User to add to group
+        :type new_user: Destination.User
+        """
+        self.user_list.add(new_user)
 
-    def removeUser(self, removeUser):
-        self.mUserList.remove(removeUser)
+    def remove_user(self, remove_user):
+        self.user_list.remove(remove_user)
 
-    def toXml(self):
+    def to_xml(self):
         """Returns the UserGroup object XML"""
         # create document
         doc = minidom.Document()
@@ -63,27 +80,29 @@ class UserGroup:
         root = doc.createElement("user_group")
         doc.appendChild(root)
         # create name element
-        nameElement = doc.createElement("name")
-        nameElement.appendChild(doc.createTextNode(self.mName))
-        root.appendChild(nameElement)
+        name_elem = doc.createElement("name")
+        name_elem.appendChild(doc.createTextNode(self.name))
+        root.appendChild(name_elem)
         # create permission_mask element
-        if not self.mPermissionMask.isEmpty():
-            permissionMaskElement = minidom.parseString(self.mPermissionMask.toXml()).firstChild
-            root.appendChild(permissionMaskElement)
+        if not self.permission_mask.is_empty():
+            permission_mask_elem = minidom.parseString(self.permission_mask.to_xml()).firstChild
+            root.appendChild(permission_mask_elem)
         # output XML string
         return doc.toxml()
 
     @staticmethod
-    def fromXml(xmlString, hallo):
+    def from_xml(xml_string, hallo):
         """
         Loads a new UserGroup object from XML
-        :param xmlString: String containing XML to parse for usergroup
+        :param xml_string: String containing XML to parse for usergroup
+        :type xml_string: str
         :param hallo: Hallo object to add user group to
+        :type hallo: Hallo.Hallo
         """
-        doc = minidom.parseString(xmlString)
-        newName = doc.getElementsByTagName("name")[0].firstChild.data
-        newUserGroup = UserGroup(newName, hallo)
+        doc = minidom.parseString(xml_string)
+        new_name = doc.getElementsByTagName("name")[0].firstChild.data
+        new_user_group = UserGroup(new_name, hallo)
         if len(doc.getElementsByTagName("permission_mask")) != 0:
-            newUserGroup.mPermissionMask = PermissionMask.fromXml(
+            new_user_group.permission_mask = PermissionMask.from_xml(
                 doc.getElementsByTagName("permission_mask")[0].toxml())
-        return newUserGroup
+        return new_user_group

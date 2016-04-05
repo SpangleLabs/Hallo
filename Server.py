@@ -10,7 +10,7 @@ from Destination import Channel, User
 from PermissionMask import PermissionMask
 from Function import Function
 
-endl = Commons.mEndLine
+endl = Commons.END_LINE
 
 
 class ServerException(Exception):
@@ -22,20 +22,25 @@ class ServerFactory:
     Server factory, makes servers.
     Basically looks at xml, finds server type, and passes to appropriate Server object constructor
     """
-    mHallo = None  # Parent Hallo object
 
     def __init__(self, hallo):
         """
         Constructs the Server Factory, stores Hallo object.
-        :type hallo: Hallo object which owns this server factory
+        :param hallo: Hallo object which owns this server factory
+        :type hallo: Hallo.Hallo
         """
-        self.mHallo = hallo
+        self.hallo = hallo
 
-    def newServerFromXml(self, xmlString):
-        doc = minidom.parseString(xmlString)
-        serverType = doc.getElementsByTagName("server_type")[0].firstChild.data
-        if serverType == Server.TYPE_IRC:
-            return ServerIRC.fromXml(xmlString, self.mHallo)
+    def new_server_from_xml(self, xml_string):
+        """
+        Identifies type of server and constructs from xml
+        :param xml_string: XML string to create server from
+        :type xml_string: str
+        """
+        doc = minidom.parseString(xml_string)
+        server_type = doc.getElementsByTagName("server_type")[0].firstChild.data
+        if server_type == Server.TYPE_IRC:
+            return ServerIRC.from_xml(xml_string, self.hallo)
         else:
             return None
 
@@ -44,32 +49,30 @@ class Server(metaclass=ABCMeta):
     """
     Generic server object. An interface for ServerIRC or ServerSkype or whatever objects.
     """
-    mHallo = None  # The hallo object that created this server
-    # Persistent/saved class variables
-    mName = None  # Server name
-    mAutoConnect = True  # Whether to automatically connect to this server when hallo starts
-    mChannelList = None  # List of channels on this server (which may or may not be currently active)
-    mUserList = None  # Users on this server (not all of which are online)
-    mNick = None  # Nickname to use on this server
-    mPrefix = None  # Prefix to use with functions on this server
-    mFullName = None  # Full name to use on this server
-    mPermissionMask = None  # PermissionMask for the server
-    # Dynamic/unsaved class variables
-    mOpen = False  # Whether or not to keep reading from server
-
     # Constants
     TYPE_IRC = "irc"
+    MSG_MSG = "message"
+    MSG_NOTICE = "notice"
+    MSG_RAW = "raw"
 
     def __init__(self, hallo):
         """
         Constructor for server object
-        :type hallo: Hallo Instance of hallo that contains this server object
+        :param hallo: Hallo Instance of hallo that contains this server object
+        :type hallo: Hallo.Hallo
         """
-        self.mChannelList = []
-        self.mUserList = []
-        self.mHallo = hallo
-        self.mPermissionMask = PermissionMask()
-        raise NotImplementedError
+        self.hallo = hallo  # The hallo object that created this server
+        # Persistent/saved class variables
+        self.name = None  # Server name
+        self.auto_connect = True  # Whether to automatically connect to this server when hallo starts
+        self.channel_list = []  # List of channels on this server (which may or may not be currently active)
+        self.user_list = []  # Users on this server (not all of which are online)
+        self.nick = None  # Nickname to use on this server
+        self.prefix = None  # Prefix to use with functions on this server
+        self.full_name = None  # Full name to use on this server
+        self.permission_mask = PermissionMask()  # PermissionMask for the server
+        # Dynamic/unsaved class variables
+        self.open = False  # Whether or not to keep reading from server
 
     def connect(self):
         raise NotImplementedError
@@ -86,311 +89,317 @@ class Server(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    def send(self, data, destinationObject=None, msgType="message"):
+    def send(self, data, destination_obj=None, msg_type=MSG_MSG):
         """
         Sends a message to the server, or a specific channel in the server
         :param data: Line of data to send to server
-        :param destinationObject: Destination to send data to
-        :param msgType: Type of message which is being sent
+        :type data: str
+        :param destination_obj: Destination to send data to
+        :type destination_obj: Destination.Destination
+        :param msg_type: Type of message which is being sent
+        :type msg_type: str
         """
         raise NotImplementedError
 
     @staticmethod
-    def fromXml(xmlString, hallo):
+    def from_xml(xml_string, hallo):
         """
         Constructor to build a new server object from xml
-        :param xmlString: XML string representation of the server
+        :param xml_string: XML string representation of the server
+        :type xml_string: str
         :param hallo: Hallo object which is connected to this server
+        :type hallo: Hallo.Hallo
         """
         raise NotImplementedError
 
-    def toXml(self):
+    def to_xml(self):
         """
         Returns an XML representation of the server object
         """
         raise NotImplementedError
 
-    def getHallo(self):
+    def get_hallo(self):
         """Returns the Hallo instance that created this Server"""
-        return self.mHallo
+        return self.hallo
 
-    def getName(self):
+    def get_name(self):
         """Name getter"""
-        return self.mName
+        return self.name
 
-    def getNick(self):
+    def get_nick(self):
         """Nick getter"""
-        if self.mNick is None:
-            return self.mHallo.getDefaultNick()
-        return self.mNick
+        if self.nick is None:
+            return self.hallo.get_default_nick()
+        return self.nick
 
-    def setNick(self, nick):
+    def set_nick(self, nick):
         """
         Nick setter
         :param nick: New nick for hallo to use on this server
+        :type nick: str
         """
-        self.mNick = nick
+        self.nick = nick
 
-    def getPrefix(self):
+    def get_prefix(self):
         """Prefix getter"""
-        if self.mPrefix is None:
-            return self.mHallo.getDefaultPrefix()
-        return self.mPrefix
+        if self.prefix is None:
+            return self.hallo.get_default_prefix()
+        return self.prefix
 
-    def setPrefix(self, prefix):
+    def set_prefix(self, prefix):
         """
         Prefix setter
         :param prefix: Prefix for hallo to use for function calls on this server
+        :type prefix: str | bool | None
         """
-        self.mPrefix = prefix
+        self.prefix = prefix
 
-    def getFullName(self):
+    def get_full_name(self):
         """Full name getter"""
-        if self.mFullName is None:
-            return self.mHallo.getDefaultFullName()
-        return self.mFullName
+        if self.full_name is None:
+            return self.hallo.get_default_full_name()
+        return self.full_name
 
-    def setFullName(self, fullName):
+    def set_full_name(self, full_name):
         """
         Full name setter
-        :param fullName: Full name for Hallo to use on this server
+        :param full_name: Full name for Hallo to use on this server
+        :type full_name: str
         """
-        self.mFullName = fullName
+        self.full_name = full_name
 
-    def getAutoConnect(self):
+    def get_auto_connect(self):
         """AutoConnect getter"""
-        return self.mAutoConnect
+        return self.auto_connect
 
-    def setAutoConnect(self, autoConnect):
+    def set_auto_connect(self, auto_connect):
         """
         AutoConnect setter
-        :param autoConnect: Whether or not to autoconnect to the server
+        :param auto_connect: Whether or not to autoconnect to the server
+        :type auto_connect: bool
         """
-        self.mAutoConnect = autoConnect
+        self.auto_connect = auto_connect
 
-    def getType(self):
+    def get_type(self):
         """Type getter"""
         raise NotImplementedError
 
-    def getPermissionMask(self):
-        return self.mPermissionMask
+    def get_permission_mask(self):
+        return self.permission_mask
 
-    def isConnected(self):
+    def is_connected(self):
         """Returns boolean representing whether the server is connected or not."""
-        return self.mOpen
+        return self.open
 
-    def getChannelByName(self, channelName):
+    def get_channel_by_name(self, channel_name):
         """
         Returns a Channel object with the specified channel name.
-        :param channelName: Name of the channel which is being searched for
+        :param channel_name: Name of the channel which is being searched for
+        :type channel_name: str
         """
-        channelName = channelName.lower()
-        for channel in self.mChannelList:
-            if channel.getName() == channelName:
+        channel_name = channel_name.lower()
+        for channel in self.channel_list:
+            if channel.get_name() == channel_name:
                 return channel
-        newChannel = Channel(channelName, self)
-        self.addChannel(newChannel)
-        return newChannel
+        new_channel = Channel(channel_name, self)
+        self.add_channel(new_channel)
+        return new_channel
 
-    def getChannelList(self):
-        return self.mChannelList
+    def get_channel_list(self):
+        return self.channel_list
 
-    def addChannel(self, channelObject):
+    def add_channel(self, channel_obj):
         """
         Adds a channel to the channel list
-        :param channelObject: Adds a channel to the list, without joining it
+        :param channel_obj: Adds a channel to the list, without joining it
+        :type channel_obj: Destination.Channel
         """
-        self.mChannelList.append(channelObject)
+        self.channel_list.append(channel_obj)
 
-    def joinChannel(self, channelObject):
+    def join_channel(self, channel_obj):
         """
         Joins a specified channel
-        :param channelObject: Channel to join
+        :param channel_obj: Channel to join
+        :type channel_obj: Destination.Channel
         """
         raise NotImplementedError
 
-    def leaveChannel(self, channelObject):
+    def leave_channel(self, channel_obj):
         """
         Leaves a specified channel
-        :param channelObject: Channel for hallo to leave
+        :param channel_obj: Channel for hallo to leave
+        :type channel_obj: Destination.Channel
         """
         raise NotImplementedError
 
-    def getUserByName(self, userName):
+    def get_user_by_name(self, user_name):
         """
         Returns a User object with the specified user name.
-        :param userName: Name of user which is being searched for
+        :param user_name: Name of user which is being searched for
+        :type user_name: str
         """
-        userName = userName.lower()
-        for user in self.mUserList:
-            if user.getName() == userName:
+        user_name = user_name.lower()
+        for user in self.user_list:
+            if user.get_name() == user_name:
                 return user
         # No user by that name exists, so create one.
-        newUser = User(userName, self)
-        self.addUser(newUser)
-        return newUser
+        new_user = User(user_name, self)
+        self.add_user(new_user)
+        return new_user
 
-    def getUserList(self):
+    def get_user_list(self):
         """Returns the full list of users on this server."""
-        return self.mUserList
+        return self.user_list
 
-    def addUser(self, userObject):
+    def add_user(self, user_obj):
         """
         Adds a user to the user list
-        :param userObject: User to add to user list
+        :param user_obj: User to add to user list
+        :type user_obj: Destination.User
         """
-        self.mUserList.append(userObject)
+        self.user_list.append(user_obj)
 
-    def rightsCheck(self, rightName):
+    def rights_check(self, right_name):
         """
         Checks the value of the right with the specified name. Returns boolean
-        :type rightName: Name of the right to check default server value for
+        :param right_name: Name of the right to check default server value for
+        :type right_name: str
         """
-        if self.mPermissionMask is not None:
-            rightValue = self.mPermissionMask.getRight(rightName)
+        if self.permission_mask is not None:
+            right_value = self.permission_mask.get_right(right_name)
             # If PermissionMask contains that right, return it.
-            if rightValue in [True, False]:
-                return rightValue
+            if right_value in [True, False]:
+                return right_value
         # Fallback to the parent Hallo's decision.
-        return self.mHallo.rightsCheck(rightName)
+        return self.hallo.rights_check(right_name)
 
-    def checkUserIdentity(self, userObject):
+    def check_user_identity(self, user_obj):
         """
         Check if a user is identified and verified
-        :param userObject: User to check identity of
+        :param user_obj: User to check identity of
+        :type user_obj: Destination.User
         """
         raise NotImplementedError
 
 
 class ServerIRC(Server):
-    mHallo = None  # The hallo object that created this server
-    # Persistent/saved class variables
-    mName = None  # Server name
-    mAutoConnect = True  # Whether to automatically connect to this server when hallo starts
-    mChannelList = None  # list of channels on this server (which may or may not be currently active)
-    mUserList = None  # Users on this server (not all of which are online)
-    mConnection = None  # Connection for the server, socket or whatnot
-    mNick = None  # Nickname to use on this server
-    mPrefix = None  # Prefix to use with functions on this server
-    mFullName = None  # Full name to use on this server
-    mPermissionMask = None  # PermissionMask for the server
-    # Dynamic/unsaved class variables
-    mOpen = False  # Whether or not to keep reading from server
-    # IRC specific variables
-    mServerAddress = None  # Address to connect to server
-    mServerPort = None  # Port to connect to server
-    mNickservPass = None  # Password to identify with nickserv
-    mNickservNick = "nickserv"  # Nickserv's nick, None if nickserv does not exist
-    mNickservIdentCommand = "STATUS"  # Command to send to nickserv to check if a user is identified
-    mNickservIdentResponse = "\\b3\\b"  # Regex to search for to validate identity in response to IdentCommand
-    # IRC specific dynamic variables
-    mSocket = None  # Socket to communicate to the server
-    mWelcomeMessage = ""  # Server's welcome message when connecting. MOTD and all.
-    mCheckChannelUserListLock = None  # Thread lock for checking a channel's user list
-    mCheckChannelUserListChannel = None  # Channel to check user list of
-    mCheckChannelUserListUserList = None  # User name list of checked channel
-    mCheckUsersOnlineLock = None  # Thread lock for checking which users are online
-    mCheckUsersOnlineCheckList = None  # List of users' names to check
-    mCheckUsersOnlineOnlineList = None  # List of users' names who are online
-    mCheckUserIdentityLock = None  # Thread lock for checking if a user is identified with nickserv
-    mCheckUserIdentityUser = None  # User name which is being checked
-    mCheckUserIdentityResult = None  # Boolean, whether or not the user is identified
+    MAX_MSG_LENGTH = 462
 
-    def __init__(self, hallo, serverName=None, serverUrl=None, serverPort=6667):
+    def __init__(self, hallo, server_name=None, server_url=None, server_port=6667):
         """
         Constructor for server object
         :param hallo: Hallo instance which owns this server
-        :type serverName: Name of the IRC server
-        :type serverUrl: URL of the IRC server
-        :type serverPort: port of the IRC server
+        :type hallo: Hallo.Hallo
+        :param server_name: Name of the IRC server
+        :type server_name: str
+        :param server_url: URL of the IRC server
+        :type server_url: str
+        :param server_port: port of the IRC server
+        :type server_port: int
         """
         super().__init__(hallo)
-        self.mChannelList = []
-        self.mUserList = []
-        self.mHallo = hallo
-        self.mPermissionMask = PermissionMask()
-        self.mCheckChannelUserListLock = Lock()
-        self.mCheckUsersOnlineLock = Lock()
-        self.mCheckUserIdentityLock = Lock()
-        if serverName is not None:
-            self.mName = serverName
-        if serverUrl is not None:
-            self.mServerAddress = serverUrl
-            self.mServerPort = serverPort
+        # IRC specific variables
+        self.server_address = None  # Address to connect to server
+        self.server_port = None  # Port to connect to server
+        self.nickserv_pass = None  # Password to identify with nickserv
+        self.nickserv_nick = "nickserv"  # Nickserv's nick, None if nickserv does not exist
+        self.nickserv_ident_command = "STATUS"  # Command to send to nickserv to check if a user is identified
+        self.nickserv_ident_response = "\\b3\\b"  # Regex to search for to validate identity in response to IdentCommand
+        # IRC specific dynamic variables
+        self._socket = None  # Socket to communicate to the server
+        self._welcome_message = ""  # Server's welcome message when connecting. MOTD and all.
+        self._check_channeluserlist_lock = Lock()  # Thread lock for checking a channel's user list
+        self._check_channeluserlist_channel = None  # Channel to check user list of
+        self._check_channeluserlist_user_list = None  # User name list of checked channel
+        self._check_usersonline_lock = Lock()  # Thread lock for checking which users are online
+        self._check_usersonline_check_list = None  # List of users' names to check
+        self._check_usersonline_online_list = None  # List of users' names who are online
+        self._check_useridentity_lock = Lock()  # Thread lock for checking if a user is identified with nickserv
+        self._check_useridentity_user = None  # User name which is being checked
+        self._check_useridentity_result = None  # Boolean, whether or not the user is identified
+        if server_name is not None:
+            self.name = server_name
+        if server_url is not None:
+            self.server_address = server_url
+            self.server_port = server_port
 
     def connect(self):
         while True:
             try:
-                self.rawConnect()
+                self.raw_connect()
                 break
             except ServerException:
                 print("Failed to connect. Waiting 3 seconds before reconnect.")
                 time.sleep(3)
                 continue
 
-    def rawConnect(self):
+    def raw_connect(self):
         # Begin pulling data from a given server
-        self.mOpen = True
+        self.open = True
         # Create new socket
-        self.mSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             # Connect to socket
-            self.mSocket.connect((self.mServerAddress, self.mServerPort))
+            self._socket.connect((self.server_address, self.server_port))
         except Exception as e:
             print("CONNECTION ERROR: " + str(e))
-            self.mOpen = False
+            self.open = False
         # Wait for the first message back from the server.
-        print(Commons.currentTimestamp() + " waiting for first message from server: " + self.mName)
-        firstLine = self.readLineFromSocket()
+        print(Commons.current_timestamp() + " waiting for first message from server: " + self.name)
+        first_line = self.read_line_from_socket()
         # If first line is null, that means connection was closed.
-        if firstLine is None:
+        if first_line is None:
             raise ServerException
-        self.mWelcomeMessage = firstLine + "\n"
+        self._welcome_message = first_line + "\n"
         # Send nick and full name to server
-        print(Commons.currentTimestamp() + " sending nick and user info to server: " + self.mName)
-        self.send('NICK ' + self.getNick(), None, "raw")
-        self.send('USER ' + self.getFullName(), None, "raw")
+        print(Commons.current_timestamp() + " sending nick and user info to server: " + self.name)
+        self.send('NICK ' + self.get_nick(), None, "raw")
+        self.send('USER ' + self.get_full_name(), None, "raw")
         # Wait for MOTD to end
         while True:
-            nextWelcomeLine = self.readLineFromSocket()
-            if nextWelcomeLine is None:
+            next_welcome_line = self.read_line_from_socket()
+            if next_welcome_line is None:
                 raise ServerException
-            self.mWelcomeMessage += nextWelcomeLine + "\n"
-            if "376" in nextWelcomeLine or "endofmessage" in nextWelcomeLine.replace(' ', '').lower():
+            self._welcome_message += next_welcome_line + "\n"
+            if "376" in next_welcome_line or "endofmessage" in next_welcome_line.replace(' ', '').lower():
                 break
-            if nextWelcomeLine.split()[0] == "PING":
-                self.parseLinePing(nextWelcomeLine)
-            if len(nextWelcomeLine.split()[1]) == 3 and nextWelcomeLine.split()[1].isdigit():
-                self.parseLineNumeric(nextWelcomeLine, False)
+            if next_welcome_line.split()[0] == "PING":
+                self.parse_line_ping(next_welcome_line)
+            if len(next_welcome_line.split()[1]) == 3 and next_welcome_line.split()[1].isdigit():
+                self.parse_line_numeric(next_welcome_line, False)
         # Identify with nickserv
-        if self.mNickservPass:
-            self.send('IDENTIFY ' + self.mNickservPass, self.getUserByName("nickserv"))
+        if self.nickserv_pass:
+            self.send('IDENTIFY ' + self.nickserv_pass, self.get_user_by_name("nickserv"))
         # Join channels
-        print(Commons.currentTimestamp() + " joining channels on " + self.mName + ", identifying.")
+        print(Commons.current_timestamp() + " joining channels on " + self.name + ", identifying.")
         # Join relevant channels
-        for channel in self.mChannelList:
-            if channel.isAutoJoin():
-                self.joinChannel(channel)
+        for channel in self.channel_list:
+            if channel.is_auto_join():
+                self.join_channel(channel)
 
     def disconnect(self):
         """Disconnect from the server"""
-        quitMessage = "Will I dream?"
+        quit_message = "Will I dream?"
         # Logging
-        for channel in self.mChannelList:
-            if channel.isInChannel():
-                self.mHallo.getLogger().log(Function.EVENT_QUIT, quitMessage, self, self.getUserByName(self.getNick()),
+        for channel in self.channel_list:
+            if channel.is_in_channel():
+                self.hallo.get_logger().log(Function.EVENT_QUIT,
+                                            quit_message,
+                                            self,
+                                            self.get_user_by_name(self.get_nick()),
                                             channel)
-                channel.setInChannel(False)
-        for user in self.mUserList:
-            user.setOnline(False)
-        if self.mOpen:
+                channel.set_in_channel(False)
+        for user in self.user_list:
+            user.set_online(False)
+        if self.open:
             try:
-                self.send("QUIT :" + quitMessage, None, "raw")
-            except:
+                self.send("QUIT :" + quit_message, None, "raw")
+            except Exception as e:
+                print("Failed to send quit message. "+str(e))
                 pass
-            self.mSocket.close()
-            self.mSocket = None
-            self.mOpen = False
+            self._socket.close()
+            self._socket = None
+            self.open = False
 
     def reconnect(self):
         """
@@ -403,739 +412,774 @@ class ServerIRC(Server):
         """
         Method to read from stream and process. Will call an internal parsing method or whatnot
         """
-        if not self.mOpen:
+        if not self.open:
             self.connect()
-        while self.mOpen:
-            nextLine = None
+        while self.open:
+            next_line = None
             try:
-                nextLine = self.readLineFromSocket()
+                next_line = self.read_line_from_socket()
             except ServerException:
                 print("Server disconnected. Reconnecting.")
                 time.sleep(10)
                 self.reconnect()
-            if nextLine is None:
-                self.mOpen = False
+            if next_line is None:
+                self.open = False
             else:
                 # Parse line
-                Thread(target=self.parseLine, args=(nextLine,)).start()
+                Thread(target=self.parse_line, args=(next_line,)).start()
 
-    def send(self, data, destinationObject=None, msgType="message"):
+    def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
         """
         Sends a message to the server, or a specific channel in the server
         :param data: Line of data to send to server
-        @type data: str
-
-        :param destinationObject: Destination to send data to
-        @type destinationObject: Destination or None
-
-        :param msgType: Type of message which is being sent
-        @type msgType: str
+        :type data: str
+        :param destination_obj: Destination to send data to
+        :type destination_obj: Destination.Destination or None
+        :param msg_type: Type of message which is being sent
+        :type msg_type: str
         """
-        maxMsgLength = 462  # Maximum length of a message sent to the server
-        if msgType not in ["message", "notice", "raw"]:
-            msgType = "message"
+        if msg_type not in [self.MSG_MSG, self.MSG_NOTICE, self.MSG_RAW]:
+            msg_type = "message"
         # If it's raw data, just send it.
-        if destinationObject is None or msgType == "raw":
-            for dataLine in data.split("\n"):
-                self.sendRaw(dataLine)
+        if destination_obj is None or msg_type == self.MSG_RAW:
+            for data_line in data.split("\n"):
+                self.send_raw(data_line)
             return
         # Get message type
-        if msgType == "notice":
-            msgTypeName = "NOTICE"
+        if msg_type == self.MSG_NOTICE:
+            msg_type_name = "NOTICE"
         else:
-            msgTypeName = "PRIVMSG"
+            msg_type_name = "PRIVMSG"
         # Get channel or user name and data
-        destinationName = destinationObject.getName()
-        channelObject = None
-        userObject = destinationObject
-        if destinationObject.getType() == "channel":
-            channelObject = destinationObject
-            userObject = None
+        destination_name = destination_obj.get_name()
+        channel_obj = None
+        user_obj = destination_obj
+        if destination_obj.is_channel():
+            channel_obj = destination_obj
+            user_obj = None
         # Find out if destination wants caps lock
-        if destinationObject.isUpperCase():
+        if destination_obj.is_upper_case():
             # Find any URLs, convert line to uppercase, then convert URLs back to original
             urls = re.findall("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", data)
             data = data.upper()
             for url in urls:
                 data = data.replace(url.upper(), url)
         # Get max line length
-        maxLineLength = maxMsgLength - len(msgTypeName + ' ' + destinationName + ' :' + endl)
+        max_line_length = self.MAX_MSG_LENGTH - len(msg_type_name + ' ' + destination_name + ' :' + endl)
         # Split and send
-        for dataLine in data.split("\n"):
-            dataLineSplit = Commons.chunkStringDot(dataLine, maxLineLength)
-            for dataLineLine in dataLineSplit:
-                self.sendRaw(msgTypeName + ' ' + destinationName + ' :' + dataLineLine)
+        for data_line in data.split("\n"):
+            data_line_split = Commons.chunk_string_dot(data_line, max_line_length)
+            for date_line_line in data_line_split:
+                self.send_raw(msg_type_name + ' ' + destination_name + ' :' + date_line_line)
                 # Log sent data, if it's not message or notice
-                if msgType == "message":
-                    self.mHallo.getPrinter().outputFromSelf(Function.EVENT_MESSAGE, dataLineLine, self, userObject,
-                                                            channelObject)
-                    self.mHallo.getLogger().logFromSelf(Function.EVENT_MESSAGE, dataLineLine, self, userObject,
-                                                        channelObject)
-                elif msgType == "notice":
-                    self.mHallo.getPrinter().outputFromSelf(Function.EVENT_NOTICE, dataLineLine, self, userObject,
-                                                            channelObject)
-                    self.mHallo.getLogger().logFromSelf(Function.EVENT_NOTICE, dataLineLine, self, userObject,
-                                                        channelObject)
+                if msg_type == "message":
+                    self.hallo.get_printer().output_from_self(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
+                                                              channel_obj)
+                    self.hallo.get_logger().log_from_self(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
+                                                          channel_obj)
+                elif msg_type == "notice":
+                    self.hallo.get_printer().output_from_self(Function.EVENT_NOTICE, date_line_line, self, user_obj,
+                                                              channel_obj)
+                    self.hallo.get_logger().log_from_self(Function.EVENT_NOTICE, date_line_line, self, user_obj,
+                                                          channel_obj)
 
-    def sendRaw(self, data):
+    def send_raw(self, data):
         """Sends raw data to the server
         :param data: Data to send to server
+        :type data: str
         """
-        if self.mOpen:
-            self.mSocket.send((data + endl).encode("utf-8"))
+        if self.open:
+            self._socket.send((data + endl).encode("utf-8"))
 
-    def joinChannel(self, channelObject):
+    def join_channel(self, channel_obj):
         """Joins a specified channel
-        :param channelObject: Channel to join
+        :param channel_obj: Channel to join
+        :type channel_obj: Destination.Channel
         """
         # If channel isn't in channel list, add it
-        if channelObject not in self.mChannelList:
-            self.addChannel(channelObject)
+        if channel_obj not in self.channel_list:
+            self.add_channel(channel_obj)
         # Set channel to AutoJoin, for the future
-        channelObject.setAutoJoin(True)
+        channel_obj.set_auto_join(True)
         # Send JOIN command
-        if channelObject.getPassword() is None:
-            self.send('JOIN ' + channelObject.getName(), None, "raw")
+        if channel_obj.get_password() is None:
+            self.send('JOIN ' + channel_obj.get_name(), None, "raw")
         else:
-            self.send('JOIN ' + channelObject.getName() + ' ' + channelObject.getPassword(), None, "raw")
+            self.send('JOIN ' + channel_obj.get_name() + ' ' + channel_obj.get_password(), None, "raw")
 
-    def leaveChannel(self, channelObject):
+    def leave_channel(self, channel_obj):
         """
         Leaves a specified channel
-        :param channelObject: Channel to leave
+        :param channel_obj: Channel to leave
+        :type channel_obj: Destination.Channel
         """
         # If channel isn't in channel list, do nothing
-        if channelObject not in self.mChannelList:
+        if channel_obj not in self.channel_list:
             return
         # Set channel to not AutoJoin, for the future
-        channelObject.setAutoJoin(False)
+        channel_obj.set_auto_join(False)
         # Set not in channel
-        channelObject.setInChannel(False)
+        channel_obj.set_in_channel(False)
         # Send PART command
-        self.send('PART ' + channelObject.getName(), None, "raw")
+        self.send('PART ' + channel_obj.get_name(), None, "raw")
 
-    def parseLine(self, newLine):
+    def parse_line(self, new_line):
         """
         Parses a line from the IRC server
-        :param newLine: New line of data from the server to parse
+        :param new_line: New line of data from the server to parse
+        :type new_line; str
         """
         # Cleaning up carriage returns
-        newLine = newLine.replace("\r", "")
+        new_line = new_line.replace("\r", "")
         # TODO: add stuff about time last ping was seen, for reconnection checking
-        if len(newLine) < 5 or (newLine[0] != ":" and newLine[0:4] != "PING"):
-            self.parseLineUnhandled(newLine)
-            self.parseLineRaw(newLine, "unhandled")
-        elif newLine.split()[0] == "PING":
-            self.parseLinePing(newLine)
-            self.parseLineRaw(newLine, "ping")
-        elif newLine.split()[1] == "PRIVMSG":
-            self.parseLineMessage(newLine)
-            self.parseLineRaw(newLine, "message")
-        elif newLine.split()[1] == "JOIN":
-            self.parseLineJoin(newLine)
-            self.parseLineRaw(newLine, "join")
-        elif newLine.split()[1] == "PART":
-            self.parseLinePart(newLine)
-            self.parseLineRaw(newLine, "part")
-        elif newLine.split()[1] == "QUIT":
-            self.parseLineQuit(newLine)
-            self.parseLineRaw(newLine, "quit")
-        elif newLine.split()[1] == "MODE":
-            self.parseLineMode(newLine)
-            self.parseLineRaw(newLine, "mode")
-        elif newLine.split()[1] == "NOTICE":
-            self.parseLineNotice(newLine)
-            self.parseLineRaw(newLine, "notice")
-        elif newLine.split()[1] == "NICK":
-            self.parseLineNick(newLine)
-            self.parseLineRaw(newLine, "nick")
-        elif newLine.split()[1] == "INVITE":
-            self.parseLineInvite(newLine)
-            self.parseLineRaw(newLine, "invite")
-        elif newLine.split()[1] == "KICK":
-            self.parseLineKick(newLine)
-            self.parseLineRaw(newLine, "kick")
-        elif len(newLine.split()[1]) == 3 and newLine.split()[1].isdigit():
-            self.parseLineNumeric(newLine)
-            self.parseLineRaw(newLine, "numeric")
+        if len(new_line) < 5 or (new_line[0] != ":" and new_line[0:4] != "PING"):
+            self.parse_line_unhandled(new_line)
+            self.parse_line_raw(new_line, "unhandled")
+        elif new_line.split()[0] == "PING":
+            self.parse_line_ping(new_line)
+            self.parse_line_raw(new_line, "ping")
+        elif new_line.split()[1] == "PRIVMSG":
+            self.parse_line_message(new_line)
+            self.parse_line_raw(new_line, "message")
+        elif new_line.split()[1] == "JOIN":
+            self.parse_line_join(new_line)
+            self.parse_line_raw(new_line, "join")
+        elif new_line.split()[1] == "PART":
+            self.parse_line_part(new_line)
+            self.parse_line_raw(new_line, "part")
+        elif new_line.split()[1] == "QUIT":
+            self.parse_line_quit(new_line)
+            self.parse_line_raw(new_line, "quit")
+        elif new_line.split()[1] == "MODE":
+            self.parse_line_mode(new_line)
+            self.parse_line_raw(new_line, "mode")
+        elif new_line.split()[1] == "NOTICE":
+            self.parse_line_notice(new_line)
+            self.parse_line_raw(new_line, "notice")
+        elif new_line.split()[1] == "NICK":
+            self.parse_line_nick(new_line)
+            self.parse_line_raw(new_line, "nick")
+        elif new_line.split()[1] == "INVITE":
+            self.parse_line_invite(new_line)
+            self.parse_line_raw(new_line, "invite")
+        elif new_line.split()[1] == "KICK":
+            self.parse_line_kick(new_line)
+            self.parse_line_raw(new_line, "kick")
+        elif len(new_line.split()[1]) == 3 and new_line.split()[1].isdigit():
+            self.parse_line_numeric(new_line)
+            self.parse_line_raw(new_line, "numeric")
         else:
-            self.parseLineUnhandled(newLine)
-            self.parseLineRaw(newLine, "unhandled")
+            self.parse_line_unhandled(new_line)
+            self.parse_line_raw(new_line, "unhandled")
         return
 
-    def parseLinePing(self, pingLine):
+    def parse_line_ping(self, ping_line):
         """
         Parses a PING message from the server
-        :param pingLine: str Raw line to be parsed into ping event from the server
+        :param ping_line: Raw line to be parsed into ping event from the server
+        :type ping_line: str
         """
         # Get data
-        pingNumber = pingLine.split()[1]
+        ping_number = ping_line.split()[1]
         # Respond
-        self.send("PONG " + pingNumber, None, "raw")
+        self.send("PONG " + ping_number, None, "raw")
         # Print and log
-        self.mHallo.getPrinter().output(Function.EVENT_PING, pingNumber, self, None, None)
-        self.mHallo.getPrinter().outputFromSelf(Function.EVENT_PING, pingNumber, self, None, None)
-        self.mHallo.getLogger().log(Function.EVENT_PING, pingNumber, self, None, None)
-        self.mHallo.getLogger().logFromSelf(Function.EVENT_PING, pingNumber, self, None, None)
+        self.hallo.get_printer().output(Function.EVENT_PING, ping_number, self, None, None)
+        self.hallo.get_printer().output_from_self(Function.EVENT_PING, ping_number, self, None, None)
+        self.hallo.get_logger().log(Function.EVENT_PING, ping_number, self, None, None)
+        self.hallo.get_logger().log_from_self(Function.EVENT_PING, ping_number, self, None, None)
         # Pass to passive FunctionDispatcher
-        functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_PING, pingNumber, self, None, None)
+        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher.dispatch_passive(Function.EVENT_PING, ping_number, self, None, None)
 
-    def parseLineMessage(self, messageLine):
+    def parse_line_message(self, message_line):
         """
         Parses a PRIVMSG message from the server
-        :param messageLine: str full privmsg line to parse from server
+        :param message_line: full privmsg line to parse from server
+        :type message_line: str
         """
         # Parse out the message text
-        messageText = ':'.join(messageLine.split(':')[2:])
+        message_text = ':'.join(message_line.split(':')[2:])
         # Parse out the message sender
-        messageSenderName = messageLine.split('!')[0].replace(':', '')
+        message_sender_name = message_line.split('!')[0].replace(':', '')
         # Parse out where the message went to (e.g. channel or private message to Hallo)
-        messageDestinationName = messageLine.split()[2].lower()
+        message_destination_name = message_line.split()[2].lower()
         # Test for CTCP message, hand to CTCP parser if so.
-        messageCtcpBool = messageText[0] == '\x01'
-        if messageCtcpBool:
-            self.parseLineCtcp(messageLine)
+        message_ctcp_bool = message_text[0] == '\x01'
+        if message_ctcp_bool:
+            self.parse_line_ctcp(message_line)
             return
         # Test for private message or public message.
-        messagePrivateBool = messageDestinationName.lower() == self.getNick().lower()
-        messagePublicBool = not messagePrivateBool
+        message_private_bool = message_destination_name.lower() == self.get_nick().lower()
         # Get relevant objects.
-        messageSender = self.getUserByName(messageSenderName)
-        messageSender.updateActivity()
-        messageDestination = messageSender
-        # Get the prefix
-        actingPrefix = self.getPrefix()
-        if messagePublicBool:
-            messageChannel = self.getChannelByName(messageDestinationName)
-            messageChannel.updateActivity()
-            messageDestination = messageChannel
-            # Print and Log the public message
-            self.mHallo.getPrinter().output(Function.EVENT_MESSAGE, messageText, self, messageSender, messageChannel)
-            self.mHallo.getLogger().log(Function.EVENT_MESSAGE, messageText, self, messageSender, messageChannel)
-            actingPrefix = messageChannel.getPrefix()
-        else:
+        message_sender = self.get_user_by_name(message_sender_name)
+        message_sender.update_activity()
+        message_destination = message_sender
+        # Get function dispatcher ready
+        function_dispatcher = self.hallo.get_function_dispatcher()
+        if message_private_bool:
             # Print and Log the private message
-            self.mHallo.getPrinter().output(Function.EVENT_MESSAGE, messageText, self, messageSender, None)
-            self.mHallo.getLogger().log(Function.EVENT_MESSAGE, messageText, self, messageSender, None)
-        # Figure out if the message is a command, Send to FunctionDispatcher
-        functionDispatcher = self.mHallo.getFunctionDispatcher()
-        if messagePrivateBool:
-            functionDispatcher.dispatch(messageText, messageSender, messageDestination)
-        elif actingPrefix is False:
-            actingPrefix = self.getNick().lower()
-            if messageText.lower().startswith(actingPrefix + ":") or messageText.lower().startswith(actingPrefix + ","):
-                messageText = messageText[len(actingPrefix) + 1:]
-                functionDispatcher.dispatch(messageText, messageSender, messageDestination)
-            elif messageText.lower().startswith(actingPrefix):
-                messageText = messageText[len(actingPrefix):]
-                functionDispatcher.dispatch(messageText, messageSender, messageDestination,
-                                            [functionDispatcher.FLAG_HIDE_ERRORS])
+            self.hallo.get_printer().output(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
+            self.hallo.get_logger().log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
+            function_dispatcher.dispatch(message_text, message_sender, message_destination)
+        else:
+            message_channel = self.get_channel_by_name(message_destination_name)
+            # Print and Log the public message
+            self.hallo.get_printer().output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
+            self.hallo.get_logger().log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
+            # Update channel activity
+            message_channel.update_activity()
+            # Get acting command prefix
+            acting_prefix = message_channel.get_prefix()
+            # Figure out if the message is a command, Send to FunctionDispatcher
+            if acting_prefix is False:
+                acting_prefix = self.get_nick().lower()
+                # Check if directly addressed
+                if any(message_text.lower().startswith(acting_prefix+x) for x in [":", ","]):
+                    message_text = message_text[len(acting_prefix) + 1:]
+                    function_dispatcher.dispatch(message_text,
+                                                 message_sender,
+                                                 message_channel)
+                elif message_text.lower().startswith(acting_prefix):
+                    message_text = message_text[len(acting_prefix):]
+                    function_dispatcher.dispatch(message_text,
+                                                 message_sender,
+                                                 message_channel,
+                                                 [function_dispatcher.FLAG_HIDE_ERRORS])
+                else:
+                    # Pass to passive function checker
+                    function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
+                                                         message_text,
+                                                         self,
+                                                         message_sender,
+                                                         message_channel)
+            elif message_text.lower().startswith(acting_prefix):
+                message_text = message_text[len(acting_prefix):]
+                function_dispatcher.dispatch(message_text,
+                                             message_sender,
+                                             message_channel)
             else:
                 # Pass to passive function checker
-                functionDispatcher.dispatchPassive(Function.EVENT_MESSAGE, messageText, self, messageSender,
-                                                   messageChannel)
-        elif messageText.lower().startswith(actingPrefix):
-            messageText = messageText[len(actingPrefix):]
-            functionDispatcher.dispatch(messageText, messageSender, messageDestination)
-        else:
-            # Pass to passive function checker
-            functionDispatcher.dispatchPassive(Function.EVENT_MESSAGE, messageText, self, messageSender, messageChannel)
+                function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
+                                                     message_text,
+                                                     self,
+                                                     message_sender,
+                                                     message_channel)
 
-    def parseLineCtcp(self, ctcpLine):
+    def parse_line_ctcp(self, ctcp_line):
         """
         Parses a CTCP message from the server
-        :param ctcpLine: line of CTCP data to parse from the server
+        :param ctcp_line: line of CTCP data to parse from the server
+        :type ctcp_line: str
         """
         # Parse out the ctcp message text
-        messageText = ':'.join(ctcpLine.split(':')[2:])[1:-1]
+        message_text = ':'.join(ctcp_line.split(':')[2:])[1:-1]
         # Parse out the message sender
-        messageSenderName = ctcpLine.split('!')[0].replace(':', '')
+        message_sender_name = ctcp_line.split('!')[0].replace(':', '')
         # Parse out where the message went to (e.g. channel or private message to Hallo)
-        messageDestinationName = ctcpLine.split()[2].lower()
+        message_destination_name = ctcp_line.split()[2].lower()
         # Parse out the CTCP command and arguments
-        messageCtcpCommand = messageText.split()[0]
-        messageCtcpArguments = ' '.join(messageText.split()[1:])
+        message_ctcp_command = message_text.split()[0]
+        message_ctcp_arguments = ' '.join(message_text.split()[1:])
         # Test for private message or public message
-        messagePrivateBool = messageDestinationName.lower() == self.getNick().lower()
-        messagePublicBool = not messagePrivateBool
+        message_private_bool = message_destination_name.lower() == self.get_nick().lower()
+        message_public_bool = not message_private_bool
         # Get relevant objects.
-        messageChannel = None
-        if messagePublicBool:
-            messageChannel = self.getChannelByName(messageDestinationName)
-            messageChannel.updateActivity()
-        messageSender = self.getUserByName(messageSenderName)
-        messageSender.updateActivity()
+        message_channel = None
+        if message_public_bool:
+            message_channel = self.get_channel_by_name(message_destination_name)
+            message_channel.update_activity()
+        message_sender = self.get_user_by_name(message_sender_name)
+        message_sender.update_activity()
         # Print and log the message
-        if messagePrivateBool:
-            self.mHallo.getPrinter().output(Function.EVENT_CTCP, messageText, self, messageSender, None)
-            self.mHallo.getLogger().log(Function.EVENT_CTCP, messageText, self, messageSender, None)
+        if message_private_bool:
+            self.hallo.get_printer().output(Function.EVENT_CTCP, message_text, self, message_sender, None)
+            self.hallo.get_logger().log(Function.EVENT_CTCP, message_text, self, message_sender, None)
         else:
-            self.mHallo.getPrinter().output(Function.EVENT_CTCP, messageText, self, messageSender, messageChannel)
-            self.mHallo.getLogger().log(Function.EVENT_CTCP, messageText, self, messageSender, messageChannel)
+            self.hallo.get_printer().output(Function.EVENT_CTCP, message_text, self, message_sender, message_channel)
+            self.hallo.get_logger().log(Function.EVENT_CTCP, message_text, self, message_sender, message_channel)
         # Reply to certain types of CTCP command
-        if messageCtcpCommand.lower() == 'version':
-            self.send("\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01", messageSender, "notice")
-        elif messageCtcpCommand.lower() == 'time':
+        if message_ctcp_command.lower() == 'version':
+            self.send("\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01", message_sender, "notice")
+        elif message_ctcp_command.lower() == 'time':
             self.send("\x01TIME Fribsday 15 Nov 2024 " + str(time.gmtime()[3] + 100).rjust(2, '0') + ":" + str(
                 time.gmtime()[4] + 20).rjust(2, '0') + ":" + str(time.gmtime()[5]).rjust(2, '0') + "GMT\x01",
-                      messageSender, "notice")
-        elif messageCtcpCommand.lower() == 'ping':
-            self.send('\x01PING ' + messageCtcpArguments + '\x01', messageSender, "notice")
-        elif messageCtcpCommand.lower() == 'userinfo':
+                      message_sender, "notice")
+        elif message_ctcp_command.lower() == 'ping':
+            self.send('\x01PING ' + message_ctcp_arguments + '\x01', message_sender, "notice")
+        elif message_ctcp_command.lower() == 'userinfo':
             hallo_info = "Hello, I'm hallo, I'm a robot who does a few different things," \
                          " mostly roll numbers and choose things," \
                          " occasionally giving my input on who is the best pony." \
                          " dr-spangle built me, if you have any questions he tends to be better at replying than I."
-            self.send("\x01" + hallo_info + "\x01", messageSender, "notice")
-        elif messageCtcpCommand.lower() == 'clientinfo':
-            self.send('\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01', messageSender,
+            self.send("\x01" + hallo_info + "\x01", message_sender, "notice")
+        elif message_ctcp_command.lower() == 'clientinfo':
+            self.send('\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01', message_sender,
                       "notice")
         # Pass to passive FunctionDispatcher
-        functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_CTCP, messageText, self, messageSender, messageChannel)
+        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher.dispatch_passive(Function.EVENT_CTCP, message_text, self, message_sender, message_channel)
 
-    def parseLineJoin(self, joinLine):
+    def parse_line_join(self, join_line):
         """
         Parses a JOIN message from the server
-        :param joinLine: str Raw line from server for the JOIN event
+        :param join_line: Raw line from server for the JOIN event
+        :type join_line: str
         """
         # Parse out the channel and client from the JOIN data
-        joinChannelName = ':'.join(joinLine.split(':')[2:]).lower()
-        joinClientName = joinLine.split('!')[0][1:]
+        join_channel_name = ':'.join(join_line.split(':')[2:]).lower()
+        join_client_mname = join_line.split('!')[0][1:]
         # Get relevant objects
-        joinChannel = self.getChannelByName(joinChannelName)
-        joinClient = self.getUserByName(joinClientName)
-        joinClient.updateActivity()
+        join_channel = self.get_channel_by_name(join_channel_name)
+        join_client = self.get_user_by_name(join_client_mname)
+        join_client.update_activity()
         # Print and log
-        self.mHallo.getPrinter().output(Function.EVENT_JOIN, None, self, joinClient, joinChannel)
-        self.mHallo.getLogger().log(Function.EVENT_JOIN, None, self, joinClient, joinChannel)
+        self.hallo.get_printer().output(Function.EVENT_JOIN, None, self, join_client, join_channel)
+        self.hallo.get_logger().log(Function.EVENT_JOIN, None, self, join_client, join_channel)
         # TODO: Apply automatic flags as required
         # If hallo has joined a channel, get the user list and apply automatic flags as required
-        if joinClient.getName().lower() == self.getNick().lower():
-            joinChannel.setInChannel(True)
+        if join_client.get_name().lower() == self.get_nick().lower():
+            join_channel.set_in_channel(True)
         else:
             # If it was not hallo joining a channel, add nick to user list
-            joinChannel.addUser(joinClient)
+            join_channel.add_user(join_client)
         # Pass to passive FunctionDispatcher
-        functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_JOIN, None, self, joinClient, joinChannel)
+        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher.dispatch_passive(Function.EVENT_JOIN, None, self, join_client, join_channel)
 
-    def parseLinePart(self, partLine):
+    def parse_line_part(self, part_line):
         """
         Parses a PART message from the server
-        :param partLine: str Raw line from the server to parse for part event
+        :param part_line: Raw line from the server to parse for part event
+        :type part_line: str
         """
         # Parse out channel, client and message from PART data
-        partChannelName = partLine.split()[2]
-        partClientName = partLine.split('!')[0][1:]
-        partMessage = ':'.join(partLine.split(':')[2:])
+        part_channel_name = part_line.split()[2]
+        part_client_name = part_line.split('!')[0][1:]
+        part_message = ':'.join(part_line.split(':')[2:])
         # Get channel and user object
-        partChannel = self.getChannelByName(partChannelName)
-        partClient = self.getUserByName(partClientName)
+        part_channel = self.get_channel_by_name(part_channel_name)
+        part_client = self.get_user_by_name(part_client_name)
         # Print and log
-        self.mHallo.getPrinter().output(Function.EVENT_LEAVE, partMessage, self, partClient, partChannel)
-        self.mHallo.getLogger().log(Function.EVENT_LEAVE, partMessage, self, partClient, partChannel)
+        self.hallo.get_printer().output(Function.EVENT_LEAVE, part_message, self, part_client, part_channel)
+        self.hallo.get_logger().log(Function.EVENT_LEAVE, part_message, self, part_client, part_channel)
         # Remove user from channel's user list
-        partChannel.removeUser(partClient)
+        part_channel.remove_user(part_client)
         # Try to work out if the user is still on the server
         # TODO: this needs to be nicer
-        userStillOnServer = False
-        for channel_server in self.mChannelList:
-            if partClient in channel_server.getUserList():
-                userStillOnServer = True
-        if not userStillOnServer:
-            partClient.setOnline(False)
+        user_still_on_server = False
+        for channel_server in self.channel_list:
+            if part_client in channel_server.get_user_list():
+                user_still_on_server = True
+        if not user_still_on_server:
+            part_client.set_online(False)
         # Pass to passive FunctionDispatcher
-        functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_LEAVE, partMessage, self, partClient, partChannel)
+        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher.dispatch_passive(Function.EVENT_LEAVE, part_message, self, part_client, part_channel)
 
-    def parseLineQuit(self, quitLine):
+    def parse_line_quit(self, quit_line):
         """
         Parses a QUIT message from the server
-        :param quitLine: str Raw line from server to parse for quit event
+        :param quit_line: Raw line from server to parse for quit event
+        :type quit_line: str
         """
         # Parse client and message
-        quitClientName = quitLine.split('!')[0][1:]
-        quitMessage = ':'.join(quitLine.split(':')[2:])
+        quit_client_name = quit_line.split('!')[0][1:]
+        quit_message = ':'.join(quit_line.split(':')[2:])
         # Get client object
-        quitClient = self.getUserByName(quitClientName)
+        quit_client = self.get_user_by_name(quit_client_name)
         # Print and Log to all channels on server
-        self.mHallo.getPrinter().output(Function.EVENT_QUIT, quitMessage, self, quitClient, Commons.ALL_CHANNELS)
-        for channel in self.mChannelList:
-            self.mHallo.getLogger().log(Function.EVENT_QUIT, quitMessage, self, quitClient, channel)
+        self.hallo.get_printer().output(Function.EVENT_QUIT, quit_message, self, quit_client, Commons.ALL_CHANNELS)
+        for channel in self.channel_list:
+            self.hallo.get_logger().log(Function.EVENT_QUIT, quit_message, self, quit_client, channel)
         # Remove user from user list on all channels
-        for channel in self.mChannelList:
-            channel.removeUser(quitClient)
+        for channel in self.channel_list:
+            channel.remove_user(quit_client)
         # Remove auth stuff from user
-        quitClient.setOnline(False)
+        quit_client.set_online(False)
         # If it was hallo which quit, set all channels to out of channel and all users to offline
-        if quitClient.getName().lower() == self.getNick().lower():
-            for channel in self.mChannelList:
-                channel.setInChannel(False)
-            for user in self.mUserList:
-                user.setOnline(False)
+        if quit_client.get_name().lower() == self.get_nick().lower():
+            for channel in self.channel_list:
+                channel.set_in_channel(False)
+            for user in self.user_list:
+                user.set_online(False)
         # Pass to passive FunctionDispatcher
-        functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_QUIT, quitMessage, self, quitClient, None)
+        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher.dispatch_passive(Function.EVENT_QUIT, quit_message, self, quit_client, None)
 
-    def parseLineMode(self, modeLine):
+    def parse_line_mode(self, mode_line):
         """
         Parses a MODE message from the server
-        :param modeLine: str Raw line of mode event to be parsed.
+        :param mode_line: Raw line of mode event to be parsed.
+        :type mode_line: str
         """
         # Parsing out MODE data
-        modeChannelName = modeLine.split()[2].lower()
-        modeClientName = modeLine.split()[0][1:]
-        if "!" in modeClientName:
-            modeClientName = modeClientName.split("!")[0]
-        modeMode = modeLine.split()[3]
-        if modeMode[0] == ":":
-            modeMode = modeMode[1:]
-        if len(modeLine.split()) >= 4:
-            modeArgs = ' '.join(modeLine.split()[4:])
+        mode_channel_name = mode_line.split()[2].lower()
+        mode_client_name = mode_line.split()[0][1:]
+        if "!" in mode_client_name:
+            mode_client_name = mode_client_name.split("!")[0]
+        mode_mode = mode_line.split()[3]
+        if mode_mode[0] == ":":
+            mode_mode = mode_mode[1:]
+        if len(mode_line.split()) >= 4:
+            mode_args = ' '.join(mode_line.split()[4:])
         else:
-            modeArgs = ''
+            mode_args = ''
         # Get client and channel objects
-        modeChannel = self.getChannelByName(modeChannelName)
-        modeClient = self.getUserByName(modeClientName)
+        mode_channel = self.get_channel_by_name(mode_channel_name)
+        mode_client = self.get_user_by_name(mode_client_name)
         # If a channel password has been set, store it
-        if modeMode == '-k':
-            modeChannel.setPassword(None)
-        elif modeMode == '+k':
-            modeChannel.setPassword(modeArgs)
+        if mode_mode == '-k':
+            mode_channel.set_password(None)
+        elif mode_mode == '+k':
+            mode_channel.set_password(mode_args)
         # Printing and logging
-        modeFull = modeMode
-        if modeArgs != '':
-            modeFull = modeMode + ' ' + modeArgs
-        self.mHallo.getPrinter().output(Function.EVENT_MODE, modeFull, self, modeClient, modeChannel)
-        self.mHallo.getLogger().log(Function.EVENT_MODE, modeFull, self, modeClient, modeChannel)
+        mode_full = mode_mode
+        if mode_args != '':
+            mode_full = mode_mode + ' ' + mode_args
+        self.hallo.get_printer().output(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
+        self.hallo.get_logger().log(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
         # Pass to passive FunctionDispatcher
-        functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_MODE, modeFull, self, modeClient, modeChannel)
+        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher.dispatch_passive(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
 
-    def parseLineNotice(self, noticeLine: str):
+    def parse_line_notice(self, notice_line):
         """
         Parses a NOTICE message from the server
-        :param noticeLine: str Raw line of the NOTICE event from the server
+        :param notice_line: Raw line of the NOTICE event from the server
+        :type notice_line: str
         """
         # Parsing out NOTICE data
-        noticeChannelName = noticeLine.split()[2]
-        noticeClientName = noticeLine.split('!')[0][1:]
-        noticeMessage = ':'.join(noticeLine.split(':')[2:])
+        notice_channel_name = notice_line.split()[2]
+        notice_client_name = notice_line.split('!')[0][1:]
+        notice_message = ':'.join(notice_line.split(':')[2:])
         # Get client and channel objects
-        noticeChannel = self.getChannelByName(noticeChannelName)
-        noticeChannel.updateActivity()
-        noticeClient = self.getUserByName(noticeClientName)
-        noticeClient.updateActivity()
+        notice_channel = self.get_channel_by_name(notice_channel_name)
+        notice_channel.update_activity()
+        notice_client = self.get_user_by_name(notice_client_name)
+        notice_client.update_activity()
         # Print to console, log to file
-        self.mHallo.getPrinter().output(Function.EVENT_NOTICE, noticeMessage, self, noticeClient, noticeChannel)
-        self.mHallo.getLogger().log(Function.EVENT_NOTICE, noticeMessage, self, noticeClient, noticeChannel)
+        self.hallo.get_printer().output(Function.EVENT_NOTICE, notice_message, self, notice_client, notice_channel)
+        self.hallo.get_logger().log(Function.EVENT_NOTICE, notice_message, self, notice_client, notice_channel)
         # Checking if user is registered
-        if noticeClient.getName() == self.mNickservNick and \
-                self.mCheckUserIdentityUser is not None and \
-                self.mNickservIdentCommand is not None:
+        if notice_client.get_name() == self.nickserv_nick and \
+                self._check_useridentity_user is not None and \
+                self.nickserv_ident_command is not None:
             # check if notice message contains command and user name
-            if self.mCheckUserIdentityUser in noticeMessage and self.mNickservIdentCommand in noticeMessage:
+            if self._check_useridentity_user in notice_message and self.nickserv_ident_command in notice_message:
                 # Make regex query of identity response
-                regexIdentResponse = re.compile(self.mNickservIdentResponse, re.IGNORECASE)
+                regex_ident_response = re.compile(self.nickserv_ident_response, re.IGNORECASE)
                 # check if response is in notice message
-                if regexIdentResponse.search(noticeMessage) is not None:
-                    self.mCheckUserIdentityResult = True
+                if regex_ident_response.search(notice_message) is not None:
+                    self._check_useridentity_result = True
                 else:
-                    self.mCheckUserIdentityResult = False
+                    self._check_useridentity_result = False
         # Pass to passive FunctionDispatcher
-        functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_NOTICE, noticeMessage, self, noticeClient, noticeChannel)
+        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher.dispatch_passive(Function.EVENT_NOTICE, notice_message, self, notice_client, notice_channel)
 
-    def parseLineNick(self, nickLine):
+    def parse_line_nick(self, nick_line):
         """Parses a NICK message from the server
-        :param nickLine: Line from server specifying nick change
+        :param nick_line: Line from server specifying nick change
+        :type nick_line: str
         """
         # Parse out NICK change data
-        nickClientName = nickLine.split('!')[0][1:]
-        if nickLine.count(':') > 1:
-            nickNewNick = nickLine.split(':')[2]
+        nick_client_name = nick_line.split('!')[0][1:]
+        if nick_line.count(':') > 1:
+            nick_new_nick = nick_line.split(':')[2]
         else:
-            nickNewNick = nickLine.split()[2]
+            nick_new_nick = nick_line.split()[2]
         # Get user object
-        nickClient = self.getUserByName(nickClientName)
+        nick_client = self.get_user_by_name(nick_client_name)
         # If it was the bots nick that just changed, update that.
-        if nickClient.getName() == self.getNick():
-            self.mNick = nickNewNick
+        if nick_client.get_name() == self.get_nick():
+            self.nick = nick_new_nick
         # TODO: Check whether this verifies anything that means automatic flags need to be applied
         # Update name for user object
-        nickClient.setName(nickNewNick)
+        nick_client.set_name(nick_new_nick)
         # Printing and logging
-        self.mHallo.getPrinter().output(Function.EVENT_CHNAME, nickClientName, self, nickClient, Commons.ALL_CHANNELS)
-        for channel in self.mChannelList:
-            self.mHallo.getLogger().log(Function.EVENT_CHNAME, nickClientName, self, nickClient, channel)
+        self.hallo.get_printer().output(Function.EVENT_CHNAME, nick_client_name, self, nick_client, Commons.ALL_CHANNELS)
+        for channel in self.channel_list:
+            self.hallo.get_logger().log(Function.EVENT_CHNAME, nick_client_name, self, nick_client, channel)
         # Pass to passive FunctionDispatcher
-        functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_CHNAME, nickClientName, self, nickClient, None)
+        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher.dispatch_passive(Function.EVENT_CHNAME, nick_client_name, self, nick_client, None)
 
-    def parseLineInvite(self, inviteLine):
-        """Parses an INVITE message from the server
-        :param inviteLine: Line from the server specifying invite event
+    def parse_line_invite(self, invite_line):
+        """
+        Parses an INVITE message from the server
+        :param invite_line: Line from the server specifying invite event
+        :type invite_line: str
         """
         # Parse out INVITE data
-        inviteClientName = inviteLine.split('!')[0][1:]
-        inviteChannelName = ':'.join(inviteLine.split(':')[2:])
+        invite_client_name = invite_line.split('!')[0][1:]
+        invite_channel_name = ':'.join(invite_line.split(':')[2:])
         # Get destination objects
-        inviteClient = self.getUserByName(inviteClientName)
-        inviteClient.updateActivity()
-        inviteChannel = self.getChannelByName(inviteChannelName)
+        invite_client = self.get_user_by_name(invite_client_name)
+        invite_client.update_activity()
+        invite_channel = self.get_channel_by_name(invite_channel_name)
         # Printing and logging
-        self.mHallo.getPrinter().output(Function.EVENT_INVITE, None, self, inviteClient, inviteChannel)
-        self.mHallo.getLogger().log(Function.EVENT_INVITE, None, self, inviteClient, inviteChannel)
+        self.hallo.get_printer().output(Function.EVENT_INVITE, None, self, invite_client, invite_channel)
+        self.hallo.get_logger().log(Function.EVENT_INVITE, None, self, invite_client, invite_channel)
         # Check if they are an op, then join the channel.
-        if inviteClient.rightsCheck("invite_channel", inviteChannel):
-            self.joinChannel(inviteChannel)
+        if invite_client.rights_check("invite_channel", invite_channel):
+            self.join_channel(invite_channel)
         # Pass to passive FunctionDispatcher
-        functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_INVITE, None, self, inviteClient, inviteChannel)
+        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher.dispatch_passive(Function.EVENT_INVITE, None, self, invite_client, invite_channel)
 
-    def parseLineKick(self, kickLine):
-        """Parses a KICK message from the server
-        :param kickLine: Line from the server specifying kick event
+    def parse_line_kick(self, kick_line):
+        """
+        Parses a KICK message from the server
+        :param kick_line: Line from the server specifying kick event
+        :type kick_line: str
         """
         # Parse out KICK data
-        kickChannelName = kickLine.split()[2]
-        kickClientName = kickLine.split()[3]
-        kickMessage = ':'.join(kickLine.split(':')[4:])
+        kick_channel_name = kick_line.split()[2]
+        kick_client_name = kick_line.split()[3]
+        kick_message = ':'.join(kick_line.split(':')[4:])
         # GetObjects
-        kickChannel = self.getChannelByName(kickChannelName)
-        kickClient = self.getUserByName(kickClientName)
+        kick_channel = self.get_channel_by_name(kick_channel_name)
+        kick_client = self.get_user_by_name(kick_client_name)
         # Log, if applicable
-        self.mHallo.getPrinter().output(Function.EVENT_KICK, kickMessage, self, kickClient, kickChannel)
-        self.mHallo.getLogger().log(Function.EVENT_KICK, kickMessage, self, kickClient, kickChannel)
+        self.hallo.get_printer().output(Function.EVENT_KICK, kick_message, self, kick_client, kick_channel)
+        self.hallo.get_logger().log(Function.EVENT_KICK, kick_message, self, kick_client, kick_channel)
         # Remove kicked user from user list
-        kickChannel.removeUser(kickClient)
+        kick_channel.remove_user(kick_client)
         # If it was the bot who was kicked, set "in channel" status to False
-        if kickClient.getName() == self.getNick():
-            kickChannel.setInChannel(False)
+        if kick_client.get_name() == self.get_nick():
+            kick_channel.set_in_channel(False)
         # Pass to passive FunctionDispatcher
-        functionDispatcher = self.mHallo.getFunctionDispatcher()
-        functionDispatcher.dispatchPassive(Function.EVENT_KICK, kickMessage, self, kickClient, kickChannel)
+        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher.dispatch_passive(Function.EVENT_KICK, kick_message, self, kick_client, kick_channel)
 
-    def parseLineNumeric(self, numericLine, motdEnded=True):
+    def parse_line_numeric(self, numeric_line, motd_ended=True):
         """
         Parses a numeric message from the server
-        :type numericLine: str Numeric type line from server.
-        :type motdEnded: bool Whether MOTD has ended.
+        :param numeric_line: Numeric type line from server.
+        :type numeric_line: str
+        :param motd_ended: Whether MOTD has ended.
+        :type motd_ended: bool
         """
         # Parse out numeric line data
-        numericCode = numericLine.split()[1]
+        numeric_code = numeric_line.split()[1]
         # Print to console
-        print(Commons.currentTimestamp() + ' [' + self.mName + '] Numeric server info: ' + numericLine)
+        print(Commons.current_timestamp() + ' [' + self.name + '] Numeric server info: ' + numeric_line)
         # TODO: add logging?
         # Check for a 433 "ERR_NICKNAMEINUSE"
-        if numericCode == "433":
-            nickNumber = \
-                ([self.mNick[x:] for x in range(len(self.mNick)) if Commons.isFloatString(self.mNick[x:])] + [None])[0]
-            if nickNumber is None:
-                nickNumber = 0
-                nickWord = self.mNick
+        if numeric_code == "433":
+            nick_number = \
+                ([self.nick[x:] for x in range(len(self.nick)) if Commons.is_float_string(self.nick[x:])] + [None])[0]
+            if nick_number is None:
+                nick_number = 0
+                nick_word = self.nick
             else:
-                nickWord = self.mNick[:-len(nickNumber)]
-                nickNumber = float(nickNumber)
-            newNick = nickWord + str(nickNumber + 1)
-            self.mNick = newNick
-            self.send("NICK" + self.getNick(), None, "raw")
+                nick_word = self.nick[:-len(nick_number)]
+                nick_number = float(nick_number)
+            new_nick = nick_word + str(nick_number + 1)
+            self.nick = new_nick
+            self.send("NICK" + self.get_nick(), None, "raw")
             return
         # Only process further numeric codes if motd has ended
-        if not motdEnded:
+        if not motd_ended:
             return
         # Check for ISON response, telling you which users are online
-        if numericCode == "303":
+        if numeric_code == "303":
             # Parse out data
-            usersOnline = ':'.join(numericLine.split(':')[2:])
-            usersOnlineList = usersOnline.split()
+            users_online = ':'.join(numeric_line.split(':')[2:])
+            users_online_list = users_online.split()
             # Mark them all as online
-            for userName in usersOnlineList:
-                userObj = self.getUserByName(userName)
-                userObj.setOnline(True)
+            for user_name in users_online_list:
+                user_obj = self.get_user_by_name(user_name)
+                user_obj.set_online(True)
             # Check if users are being checked
-            if all([usersOnlineList in self.mCheckUsersOnlineCheckList]):
-                self.mCheckUsersOnlineOnlineList = usersOnlineList
+            if all([users_online_list in self._check_usersonline_check_list]):
+                self._check_usersonline_online_list = users_online_list
         # Check for NAMES request reply, telling you who is in a channel.
-        elif numericCode == "353":
+        elif numeric_code == "353":
             # Parse out data
-            channelName = numericLine.split(':')[1].split()[-1].lower()
-            channelUserList = ':'.join(numericLine.split(':')[2:]).split()
+            channel_name = numeric_line.split(':')[1].split()[-1].lower()
+            channel_user_list = ':'.join(numeric_line.split(':')[2:]).split()
             # Get channel object
-            channelObject = self.getChannelByName(channelName)
+            channel_obj = self.get_channel_by_name(channel_name)
             # Set all users online and in channel
-            channelObject.setUserList(set())
-            for userName in channelUserList:
-                while userName[0] in ['~', '&', '@', '%', '+']:
-                    userName = userName[1:]
-                userObj = self.getUserByName(userName)
-                userObj.setOnline(True)
-                channelObject.addUser(userObj)
+            channel_obj.set_user_list(set())
+            for user_name in channel_user_list:
+                while user_name[0] in ['~', '&', '@', '%', '+']:
+                    user_name = user_name[1:]
+                user_obj = self.get_user_by_name(user_name)
+                user_obj.set_online(True)
+                channel_obj.add_user(user_obj)
             # Check channel is being checked
-            if channelObject == self.mCheckChannelUserListChannel:
+            if channel_obj == self._check_channeluserlist_channel:
                 # Set user list
-                self.mCheckChannelUserListUserList = channelUserList
+                self._check_channeluserlist_user_list = channel_user_list
 
-    def parseLineUnhandled(self, unhandledLine):
+    def parse_line_unhandled(self, unhandled_line):
         """
         Parses an unhandled message from the server
-        :param unhandledLine: str Otherwise unhandled line from the server
+        :param unhandled_line: Otherwise unhandled line from the server
+        :type unhandled_line: str
         """
         # Print it to console
-        print(Commons.currentTimestamp() + ' [' + self.mName + '] Unhandled data: ' + unhandledLine)
+        print(Commons.current_timestamp() + ' [' + self.name + '] Unhandled data: ' + unhandled_line)
 
-    def parseLineRaw(self, rawLine, lineType):
+    def parse_line_raw(self, raw_line, line_type):
         """Handed all raw data, along with the type of message
-        :param rawLine: str Raw line from the server
-        :param lineType: str Event or type of the line
+        :param raw_line: Raw line from the server
+        :type raw_line: str
+        :param line_type: Event or type of the line
+        :type line_type: str
         """
         pass
 
-    def readLineFromSocket(self):
+    def read_line_from_socket(self):
         """Private method to read a line from the IRC socket."""
-        nextLine = b""
-        while self.mOpen:
+        next_line = b""
+        while self.open:
             try:
-                nextByte = self.mSocket.recv(1)
+                next_byte = self._socket.recv(1)
             except:
                 # Raise an exception, to reconnect.
                 raise ServerException
-            if nextByte is None or len(nextByte) != 1:
+            if next_byte is None or len(next_byte) != 1:
                 raise ServerException
-            nextLine = nextLine + nextByte
-            if nextLine.endswith(endl.encode()):
-                return self.decodeLine(nextLine[:-len(endl)])
+            next_line += next_byte
+            if next_line.endswith(endl.encode()):
+                return self.decode_line(next_line[:-len(endl)])
 
-    def decodeLine(self, rawBytes):
-        """Decodes a line of bytes, trying a couple character sets
-        :param rawBytes: Array bytes to be decoded to string.
+    def decode_line(self, raw_bytes):
+        """
+        Decodes a line of bytes, trying a couple character sets
+        :param raw_bytes: Array bytes to be decoded to string.
+        :type raw_bytes: bytearray
         """
         try:
-            outputLine = rawBytes.decode('utf-8')
+            output_line = raw_bytes.decode('utf-8')
         except UnicodeDecodeError:
             try:
-                outputLine = rawBytes.decode('iso-8859-1')
+                output_line = raw_bytes.decode('iso-8859-1')
             except UnicodeDecodeError:
-                outputLine = rawBytes.decode('cp1252')
-        return outputLine
+                output_line = raw_bytes.decode('cp1252')
+        return output_line
 
-    def checkChannelUserList(self, channelObject):
+    def check_channel_user_list(self, channel_obj):
         """
         Checks and updates the user list of a specified channel
-        :param channelObject: Channel to check user list of
+        :param channel_obj: Channel to check user list of
+        :type channel_obj: Destination.Channel
         """
         # get lock
-        self.mCheckChannelUserListLock.acquire()
-        self.mCheckChannelUserListChannel = channelObject
-        self.mCheckChannelUserListUserList = None
+        self._check_channeluserlist_lock.acquire()
+        self._check_channeluserlist_channel = channel_obj
+        self._check_channeluserlist_user_list = None
         # send request
-        self.send("NAMES " + channelObject.getName(), None, "raw")
+        self.send("NAMES " + channel_obj.get_name(), None, Server.MSG_RAW)
         # loop for 5 seconds
         for _ in range(10):
             # if reply is here
-            if self.mCheckChannelUserListUserList is not None:
+            if self._check_channeluserlist_user_list is not None:
                 # use response
-                userObjectList = set()
-                for userName in self.mCheckChannelUserListUserList:
+                user_object_list = set()
+                for user_name in self._check_channeluserlist_user_list:
                     # Strip flags from user name
-                    while userName[0] in ['~', '&', '@', '%', '+']:
-                        userName = userName[1:]
-                    userObject = self.getUserByName(userName)
-                    userObject.setOnline(True)
-                    userObjectList.add(userObject)
-                channelObject.setUserList(userObjectList)
+                    while user_name[0] in ['~', '&', '@', '%', '+']:
+                        user_name = user_name[1:]
+                    user_obj = self.get_user_by_name(user_name)
+                    user_obj.set_online(True)
+                    user_object_list.add(user_obj)
+                channel_obj.set_user_list(user_object_list)
                 # release lock
-                self.mCheckChannelUserListChannel = None
-                self.mCheckChannelUserListUserList = None
-                self.mCheckChannelUserListLock.release()
+                self._check_channeluserlist_channel = None
+                self._check_channeluserlist_user_list = None
+                self._check_channeluserlist_lock.release()
                 # return
                 return
             # sleep 0.5seconds
             time.sleep(0.5)
         # release lock
-        self.mCheckChannelUserListChannel = None
-        self.mCheckChannelUserListUserList = None
-        self.mCheckChannelUserListLock.release()
+        self._check_channeluserlist_channel = None
+        self._check_channeluserlist_user_list = None
+        self._check_channeluserlist_lock.release()
         # return
         return
 
-    def checkUsersOnline(self, checkUserList):
+    def check_users_online(self, check_user_list):
         """
         Checks a list of users to see which are online, returns a list of online users
-        :param checkUserList: List of names of users to check online status of
+        :param check_user_list: List of names of users to check online status of
+        :type check_user_list: list
         """
         # get lock
-        self.mCheckChannelUserListLock.aquire()
-        self.mCheckUsersOnlineCheckList = checkUserList
-        self.mCheckUsersOnlineOnlineList = None
+        self._check_channeluserlist_lock.aquire()
+        self._check_usersonline_check_list = check_user_list
+        self._check_usersonline_online_list = None
         # send request
-        self.send("ISON " + " ".join(checkUserList), None, "raw")
+        self.send("ISON " + " ".join(check_user_list), None, Server.MSG_RAW)
         # loop for 5 seconds
         for _ in range(10):
             # if reply is here
-            if self.mCheckUsersOnlineOnlineList is not None:
+            if self._check_usersonline_online_list is not None:
                 # use response
-                for userName in self.mCheckUsersOnlineCheckList:
-                    userObject = self.getUserByName(userName)
-                    if userName in self.mCheckUsersOnlineOnlineList:
-                        userObject.setOnline(True)
+                for user_name in self._check_usersonline_check_list:
+                    user_obj = self.get_user_by_name(user_name)
+                    if user_name in self._check_usersonline_online_list:
+                        user_obj.set_online(True)
                     else:
-                        userObject.setOnline(False)
+                        user_obj.set_online(False)
                 # release lock
-                response = self.mCheckUsersOnlineOnlineList
-                self.mCheckUsersOnlineCheckList = None
-                self.mCheckUsersOnlineOnlineList = None
-                self.mCheckUsersOnlineLock.release()
+                response = self._check_usersonline_online_list
+                self._check_usersonline_check_list = None
+                self._check_usersonline_online_list = None
+                self._check_usersonline_lock.release()
                 # return response
                 return response
             # sleep 0.5 seconds
             time.sleep(0.5)
         # release lock
-        self.mCheckUsersOnlineCheckList = None
-        self.mCheckUsersOnlineOnlineList = None
-        self.mCheckUsersOnlineLock.release()
+        self._check_usersonline_check_list = None
+        self._check_usersonline_online_list = None
+        self._check_usersonline_lock.release()
         # return empty list
         return []
 
-    def checkUserIdentity(self, userObject):
+    def check_user_identity(self, user_obj):
         """
         Check if a user is identified and verified
-        :param userObject: User to check identity and verification for
+        :param user_obj: User to check identity and verification for
         """
-        if self.mNickservNick is None or self.mNickservIdentCommand is None:
+        if self.nickserv_nick is None or self.nickserv_ident_command is None:
             return False
         # get nickserv object
-        nickservObject = self.getUserByName(self.mNickservNick)
+        nickserv_obj = self.get_user_by_name(self.nickserv_nick)
         # get check user lock
-        self.mCheckUserIdentityLock.aquire()
-        self.mCheckUserIdentityUser = userObject.getName()
-        self.mCheckUserIdentityResult = None
+        self._check_useridentity_lock.aquire()
+        self._check_useridentity_user = user_obj.get_name()
+        self._check_useridentity_result = None
         # send whatever request
-        self.send(self.mNickservIdentCommand + " " + userObject.getName(), nickservObject, "message")
+        self.send(self.nickserv_ident_command + " " + user_obj.get_name(), nickserv_obj, Server.MSG_MSG)
         # loop for 5 seconds
         for _ in range(10):
             # if response
-            if self.mCheckUserIdentityResult is not None:
+            if self._check_useridentity_result is not None:
                 # use response
-                response = self.mCheckUserIdentityResult
+                response = self._check_useridentity_result
                 # release lock
-                self.mCheckUserIdentityUser = None
-                self.mCheckUserIdentityResult = None
-                self.mCheckUserIdentityLock.release()
+                self._check_useridentity_user = None
+                self._check_useridentity_result = None
+                self._check_useridentity_lock.release()
                 # return
                 return response
             # sleep 0.5
             time.sleep(0.5)
         # release lock
-        self.mCheckUserIdentityUser = None
-        self.mCheckUserIdentityResult = None
-        self.mCheckUserIdentityLock.release()
+        self._check_useridentity_user = None
+        self._check_useridentity_result = None
+        self._check_useridentity_lock.release()
         # return false
         return False
 
-    def toXml(self):
+    def to_xml(self):
         """
         Returns an XML representation of the server object
         """
@@ -1145,200 +1189,205 @@ class ServerIRC(Server):
         root = doc.createElement("server")
         doc.appendChild(root)
         # create type element
-        typeElement = doc.createElement("server_type")
-        typeElement.appendChild(doc.createTextNode(self.getType()))
-        root.appendChild(typeElement)
+        type_elem = doc.createElement("server_type")
+        type_elem.appendChild(doc.createTextNode(self.get_type()))
+        root.appendChild(type_elem)
         # create name element
-        nameElement = doc.createElement("server_name")
-        nameElement.appendChild(doc.createTextNode(self.mName))
-        root.appendChild(nameElement)
+        name_elem = doc.createElement("server_name")
+        name_elem.appendChild(doc.createTextNode(self.name))
+        root.appendChild(name_elem)
         # create auto connect element
-        autoConnectElement = doc.createElement("auto_connect")
-        autoConnectElement.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.mAutoConnect]))
-        root.appendChild(autoConnectElement)
+        auto_connect_elem = doc.createElement("auto_connect")
+        auto_connect_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.auto_connect]))
+        root.appendChild(auto_connect_elem)
         # create channel list
-        channelListElement = doc.createElement("channel_list")
-        for channelItem in self.mChannelList:
-            if channelItem.isPersistent():
-                channelElement = minidom.parseString(channelItem.toXml()).firstChild
-                channelListElement.appendChild(channelElement)
-        root.appendChild(channelListElement)
+        channel_list_elem = doc.createElement("channel_list")
+        for channelItem in self.channel_list:
+            if channelItem.is_persistent():
+                channel_elem = minidom.parseString(channelItem.to_xml()).firstChild
+                channel_list_elem.appendChild(channel_elem)
+        root.appendChild(channel_list_elem)
         # create user list
-        userListElement = doc.createElement("user_list")
-        for userItem in self.mUserList:
-            if userItem.isPersistent():
-                userElement = minidom.parseString(userItem.toXml()).firstChild
-                userListElement.appendChild(userElement)
-        root.appendChild(userListElement)
+        user_list_elem = doc.createElement("user_list")
+        for userItem in self.user_list:
+            if userItem.is_persistent():
+                user_elem = minidom.parseString(userItem.to_xml()).firstChild
+                user_list_elem.appendChild(user_elem)
+        root.appendChild(user_list_elem)
         # create nick element
-        if self.mNick is not None:
-            nickElement = doc.createElement("server_nick")
-            nickElement.appendChild(doc.createTextNode(self.mNick))
-            root.appendChild(nickElement)
+        if self.nick is not None:
+            nick_elem = doc.createElement("server_nick")
+            nick_elem.appendChild(doc.createTextNode(self.nick))
+            root.appendChild(nick_elem)
         # create prefix element
-        if self.mPrefix is not None:
-            prefixElement = doc.createElement("server_prefix")
-            prefixElement.appendChild(doc.createTextNode(self.mPrefix))
-            root.appendChild(prefixElement)
+        if self.prefix is not None:
+            prefix_elem = doc.createElement("server_prefix")
+            prefix_elem.appendChild(doc.createTextNode(self.prefix))
+            root.appendChild(prefix_elem)
         # create full name element
-        if self.mFullName is not None:
-            fullNameElement = doc.createElement("full_name")
-            fullNameElement.appendChild(doc.createTextNode(self.mFullName))
-            root.appendChild(fullNameElement)
+        if self.full_name is not None:
+            full_name_elem = doc.createElement("full_name")
+            full_name_elem.appendChild(doc.createTextNode(self.full_name))
+            root.appendChild(full_name_elem)
         # create server address element
-        serverAddressElement = doc.createElement("server_address")
-        serverAddressElement.appendChild(doc.createTextNode(self.mServerAddress))
-        root.appendChild(serverAddressElement)
+        server_url_elem = doc.createElement("server_address")
+        server_url_elem.appendChild(doc.createTextNode(self.server_address))
+        root.appendChild(server_url_elem)
         # create server port element
-        serverPortElement = doc.createElement("server_port")
-        serverPortElement.appendChild(doc.createTextNode(str(self.mServerPort)))
-        root.appendChild(serverPortElement)
+        server_port_elem = doc.createElement("server_port")
+        server_port_elem.appendChild(doc.createTextNode(str(self.server_port)))
+        root.appendChild(server_port_elem)
         # Create nickserv element
-        if self.mNickservNick is not None:
-            nickservElement = doc.createElement("nickserv")
+        if self.nickserv_nick is not None:
+            nickserv_elem = doc.createElement("nickserv")
             # Nickserv nick element
-            nickservNickElement = doc.createElement("nick")
-            nickservNickElement.appendChild(doc.createTextNode(self.mNickservNick))
-            nickservElement.appendChild(nickservNickElement)
+            nickserv_nick_elem = doc.createElement("nick")
+            nickserv_nick_elem.appendChild(doc.createTextNode(self.nickserv_nick))
+            nickserv_elem.appendChild(nickserv_nick_elem)
             # Nickserv password element
-            if self.mNickservPass is not None:
-                nickservPassElement = doc.createElement("password")
-                nickservPassElement.appendChild(doc.createTextNode(self.mNickservPass))
-                nickservElement.appendChild(nickservPassElement)
+            if self.nickserv_pass is not None:
+                nickserv_pass_elem = doc.createElement("password")
+                nickserv_pass_elem.appendChild(doc.createTextNode(self.nickserv_pass))
+                nickserv_elem.appendChild(nickserv_pass_elem)
             # Nickserv identity check command element
-            if self.mNickservIdentCommand is not None:
-                nickservIdentCommandElement = doc.createElement("identity_command")
-                nickservIdentCommandElement.appendChild(doc.createTextNode(self.mNickservIdentCommand))
-                nickservElement.appendChild(nickservIdentCommandElement)
+            if self.nickserv_ident_command is not None:
+                nickserv_ident_command_elem = doc.createElement("identity_command")
+                nickserv_ident_command_elem.appendChild(doc.createTextNode(self.nickserv_ident_command))
+                nickserv_elem.appendChild(nickserv_ident_command_elem)
                 # Nickserv identity check response element
-                nickservIdentResponseElement = doc.createElement("identity_response")
-                nickservIdentResponseElement.appendChild(doc.createTextNode(self.mNickservIdentResponse))
-                nickservElement.appendChild(nickservIdentResponseElement)
+                nickserv_ident_response_elem = doc.createElement("identity_response")
+                nickserv_ident_response_elem.appendChild(doc.createTextNode(self.nickserv_ident_response))
+                nickserv_elem.appendChild(nickserv_ident_response_elem)
             # Add nickserv element to document
-            root.appendChild(nickservElement)
+            root.appendChild(nickserv_elem)
         # create permission_mask element
-        if not self.mPermissionMask.isEmpty():
-            permissionMaskElement = minidom.parse(self.mPermissionMask.toXml()).firstChild
-            root.appendChild(permissionMaskElement)
+        if not self.permission_mask.is_empty():
+            permission_mask_elem = minidom.parse(self.permission_mask.to_xml()).firstChild
+            root.appendChild(permission_mask_elem)
         # output XML string
         return doc.toxml()
 
-    def setNick(self, nick):
+    def set_nick(self, nick):
         """
         Nick setter
         :param nick: New nickname to use on the server
         """
-        oldNick = self.getNick()
-        self.mNick = nick
-        if nick != oldNick:
-            self.send("NICK " + self.mNick, None, "raw")
-            halloUserObject = self.getUserByName(nick)
+        old_nick = self.get_nick()
+        self.nick = nick
+        if nick != old_nick:
+            self.send("NICK " + self.nick, None, "raw")
+            hallo_user_obj = self.get_user_by_name(nick)
             # Log in all channel Hallo is in.
-            for channel in self.mChannelList:
-                if not channel.isInChannel():
+            for channel in self.channel_list:
+                if not channel.is_in_channel():
                     continue
-                self.mHallo.getLogger().logFromSelf(Function.EVENT_CHNAME, oldNick, self, halloUserObject, channel)
+                self.hallo.get_logger().log_from_self(Function.EVENT_CHNAME, old_nick, self, hallo_user_obj, channel)
 
-    def getType(self):
+    def get_type(self):
         """Type getter"""
         return Server.TYPE_IRC
 
-    def getServerPort(self):
-        """mServerPort getter"""
-        return self.mServerPort
+    def get_server_port(self):
+        """server_port getter"""
+        return self.server_port
 
-    def getNickservNick(self):
-        """mNickservNick getter"""
-        return self.mNickservNick
+    def get_nickserv_nick(self):
+        """nickserv_nick getter"""
+        return self.nickserv_nick
 
-    def setNickservNick(self, nickservNick):
+    def set_nickserv_nick(self, nickserv_nick):
         """
-        mNickservNick setter
-        :param nickservNick: Nickname of the nickserv service on this server
+        nickserv_nick setter
+        :param nickserv_nick: Nickname of the nickserv service on this server
+        :type nickserv_nick: str | None
         """
-        self.mNickservNick = nickservNick
+        self.nickserv_nick = nickserv_nick
 
-    def getNickservIdentityCommand(self):
-        """mNickservIdentityCommand getter"""
-        return self.mNickservIdentCommand
+    def get_nickserv_ident_command(self):
+        """nickserv_ident_command getter"""
+        return self.nickserv_ident_command
 
-    def setNickservIdentityCommand(self, nickservIdentityCommand):
-        """mNickservIdentityCommand setter
-        :param nickservIdentityCommand: Command to identify to nickserv service on this server
+    def set_nickserv_ident_command(self, nickserv_ident_command):
         """
-        self.mNickservIdentCommand = nickservIdentityCommand
-
-    def getNickservIdentityResponse(self):
-        """mNickservIdentityResponse getter"""
-        return self.mNickservIdentResponse
-
-    def setNickservIdentityResponse(self, nickservIdentityResponse):
+        nickserv_ident_command setter
+        :param nickserv_ident_command: Command to identify to nickserv service on this server
+        :type nickserv_ident_command: str
         """
-        mNickservIdentityResponse setter
-        :param nickservIdentityResponse: Regex to search for to validate identity in response to identify command
-        """
-        self.mNickservIdentResponse = nickservIdentityResponse
+        self.nickserv_ident_command = nickserv_ident_command
 
-    def getNickservPass(self):
-        """mNickservPass getter"""
-        return self.mNickservPass
+    def get_nickserv_ident_response(self):
+        """nickserv_ident_response getter"""
+        return self.nickserv_ident_response
 
-    def setNickservPass(self, nickservPass):
+    def set_nickserv_ident_response(self, nickserv_ident_response):
         """
-        mNickservPass setter
-        :param nickservPass: Nickserv password for hallo to identify
+        nickserv_ident_response setter
+        :param nickserv_ident_response: Regex to search for to validate identity in response to identify command
+        :type nickserv_ident_response: str
         """
-        self.mNickservPass = nickservPass
-        if self.mNickservPass is not None:
-            self.send('IDENTIFY ' + self.mNickservPass, self.getUserByName("nickserv"))
+        self.nickserv_ident_response = nickserv_ident_response
+
+    def get_nickserv_pass(self):
+        """nickserv_pass getter"""
+        return self.nickserv_pass
+
+    def set_nickserv_pass(self, nickserv_pass):
+        """
+        nickserv_pass setter
+        :param nickserv_pass: Nickserv password for hallo to identify
+        :type nickserv_pass: str | None
+        """
+        self.nickserv_pass = nickserv_pass
+        if self.nickserv_pass is not None:
+            self.send('IDENTIFY ' + self.nickserv_pass, self.get_user_by_name("nickserv"))
 
     @staticmethod
-    def fromXml(xmlString, hallo):
+    def from_xml(xml_string, hallo):
         """
         Constructor to build a new server object from xml
-        :param xmlString: XML string representation of IRC server configuration
+        :param xml_string: XML string representation of IRC server configuration
         :param hallo: Hallo object which is connected to this server
         """
-        doc = minidom.parseString(xmlString)
-        newServer = ServerIRC(hallo)
-        newServer.mName = doc.getElementsByTagName("server_name")[0].firstChild.data
-        newServer.mAutoConnect = Commons.stringFromFile(doc.getElementsByTagName("auto_connect")[0].firstChild.data)
+        doc = minidom.parseString(xml_string)
+        new_server = ServerIRC(hallo)
+        new_server.name = doc.getElementsByTagName("server_name")[0].firstChild.data
+        new_server.auto_connect = Commons.string_from_file(doc.getElementsByTagName("auto_connect")[0].firstChild.data)
         if len(doc.getElementsByTagName("server_nick")) != 0:
-            newServer.mNick = doc.getElementsByTagName("server_nick")[0].firstChild.data
+            new_server.nick = doc.getElementsByTagName("server_nick")[0].firstChild.data
         if len(doc.getElementsByTagName("server_prefix")) != 0:
-            newServer.mPrefix = doc.getElementsByTagName("server_prefix")[0].firstChild.data
+            new_server.prefix = doc.getElementsByTagName("server_prefix")[0].firstChild.data
         if len(doc.getElementsByTagName("full_name")) != 0:
-            newServer.mFullName = doc.getElementsByTagName("full_name")[0].firstChild.data
-        newServer.mServerAddress = doc.getElementsByTagName("server_address")[0].firstChild.data
-        newServer.mServerPort = int(doc.getElementsByTagName("server_port")[0].firstChild.data)
+            new_server.full_name = doc.getElementsByTagName("full_name")[0].firstChild.data
+        new_server.server_address = doc.getElementsByTagName("server_address")[0].firstChild.data
+        new_server.server_port = int(doc.getElementsByTagName("server_port")[0].firstChild.data)
         if len(doc.getElementsByTagName("nickserv")) == 0:
-            newServer.mNickservNick = None
-            newServer.mNickservPass = None
-            newServer.mNickservIdentCommand = None
-            newServer.mNickservIdentResponse = None
+            new_server.nickserv_nick = None
+            new_server.nickserv_pass = None
+            new_server.nickserv_ident_command = None
+            new_server.nickserv_ident_response = None
         else:
-            nickservElement = doc.getElementsByTagName("nickserv")[0]
-            newServer.mNickservNick = nickservElement.getElementsByTagName("nick")[0].firstChild.data
-            if len(nickservElement.getElementsByTagName("identity_command")) == 0:
-                newServer.mNickservIdentCommand = None
-                newServer.mNickservIdentResponse = None
+            nickserv_elem = doc.getElementsByTagName("nickserv")[0]
+            new_server.nickserv_nick = nickserv_elem.getElementsByTagName("nick")[0].firstChild.data
+            if len(nickserv_elem.getElementsByTagName("identity_command")) == 0:
+                new_server.nickserv_ident_command = None
+                new_server.nickserv_ident_response = None
             else:
-                newServer.mNickservIdentCommand = nickservElement.getElementsByTagName("identity_command")[
+                new_server.nickserv_ident_command = nickserv_elem.getElementsByTagName("identity_command")[
                     0].firstChild.data
-                newServer.mNickservIdentResponse = nickservElement.getElementsByTagName("identity_response")[
+                new_server.nickserv_ident_response = nickserv_elem.getElementsByTagName("identity_response")[
                     0].firstChild.data
-            if len(nickservElement.getElementsByTagName("password")) != 0:
-                newServer.mNickservPass = nickservElement.getElementsByTagName("password")[0].firstChild.data
+            if len(nickserv_elem.getElementsByTagName("password")) != 0:
+                new_server.nickserv_pass = nickserv_elem.getElementsByTagName("password")[0].firstChild.data
         # Load channels
-        channelListXml = doc.getElementsByTagName("channel_list")[0]
-        for channelXml in channelListXml.getElementsByTagName("channel"):
-            channelObject = Channel.fromXml(channelXml.toxml(), newServer)
-            newServer.addChannel(channelObject)
+        channel_list_elem = doc.getElementsByTagName("channel_list")[0]
+        for channel_elem in channel_list_elem.getElementsByTagName("channel"):
+            channel_obj = Channel.from_xml(channel_elem.toxml(), new_server)
+            new_server.add_channel(channel_obj)
         # Load users
-        userListXml = doc.getElementsByTagName("user_list")[0]
-        for userXml in userListXml.getElementsByTagName("user"):
-            userObject = User.fromXml(userXml.toxml(), newServer)
-            newServer.addUser(userObject)
+        user_list_elem = doc.getElementsByTagName("user_list")[0]
+        for user_elem in user_list_elem.getElementsByTagName("user"):
+            user_obj = User.from_xml(user_elem.toxml(), new_server)
+            new_server.add_user(user_obj)
         if len(doc.getElementsByTagName("permission_mask")) != 0:
-            newServer.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
-        return newServer
+            new_server.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
+        return new_server
