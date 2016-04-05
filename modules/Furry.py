@@ -6,45 +6,45 @@ class E621(Function):
     """
     Returns a random image from e621
     """
-    # Name for use in help listing
-    help_name = "e621"
-    # Names which can be used to address the function
-    names = {"e621"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Returns a random e621 result using the search you specify. Format: e621 <tags>"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "e621"
+        # Names which can be used to address the function
+        self.names = {"e621"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Returns a random e621 result using the search you specify. Format: e621 <tags>"
 
     def run(self, line, user_obj, destination_obj=None):
-        searchResult = self.getRandomLinkResult(line)
-        if searchResult is None:
+        search_result = self.get_random_link_result(line)
+        if search_result is None:
             return "No results."
         else:
-            link = "http://e621.net/post/show/" + str(searchResult['id'])
-            if searchResult['rating'] == 'e':
+            link = "http://e621.net/post/show/" + str(search_result['id'])
+            if search_result['rating'] == 'e':
                 rating = "(Explicit)"
-            elif searchResult['rating'] == "q":
+            elif search_result['rating'] == "q":
                 rating = "(Questionable)"
-            elif searchResult['rating'] == "s":
+            elif search_result['rating'] == "s":
                 rating = "(Safe)"
             else:
                 rating = "(Unknown)"
-            lineResponse = line.strip()
-            return "e621 search for \"" + lineResponse + "\" returned: " + link + " " + rating
+            line_response = line.strip()
+            return "e621 search for \"" + line_response + "\" returned: " + link + " " + rating
 
-    def getRandomLinkResult(self, search):
+    def get_random_link_result(self, search):
         """Gets a random link from the e621 api."""
-        lineClean = search.replace(' ', '%20')
-        url = 'https://e621.net/post/index.json?tags=order:random%20score:%3E0%20' + lineClean + '%20&limit=1'
-        returnList = Commons.load_url_json(url)
-        if len(returnList) == 0:
+        line_clean = search.replace(' ', '%20')
+        url = 'https://e621.net/post/index.json?tags=order:random%20score:%3E0%20' + line_clean + '%20&limit=1'
+        return_list = Commons.load_url_json(url)
+        if len(return_list) == 0:
             return None
         else:
-            result = returnList[0]
+            result = return_list[0]
             return result
 
 
@@ -52,72 +52,73 @@ class RandomPorn(Function):
     """
     Returns a random explicit image from e621
     """
-    # Name for use in help listing
-    help_name = "random porn"
-    # Names which can be used to address the function
-    names = {"random porn", "randomporn"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Returns a random explicit e621 result using the search you specify. Format: random porn <tags>"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "random porn"
+        # Names which can be used to address the function
+        self.names = {"random porn", "randomporn"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Returns a random explicit e621 result using the search you specify. " \
+                         "Format: random porn <tags>"
 
     def run(self, line, user_obj, destination_obj=None):
-        lineUnclean = line.strip() + " -rating:s"
-        functionDispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
-        e621Class = functionDispatcher.get_function_by_name("e621")
-        e621Object = functionDispatcher.get_function_object(e621Class)
-        searchResult = e621Object.getRandomLinkResult(lineUnclean)
-        if searchResult is None:
+        line_unclean = line.strip() + " -rating:s"
+        function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
+        e621_class = function_dispatcher.get_function_by_name("e621")
+        e621_obj = function_dispatcher.get_function_object(e621_class)
+        search_result = e621_obj.get_random_link_result(line_unclean)
+        if search_result is None:
             return "No results."
         else:
-            link = "http://e621.net/post/show/" + str(searchResult['id'])
-            if searchResult['rating'] == 'e':
+            link = "http://e621.net/post/show/" + str(search_result['id'])
+            if search_result['rating'] == 'e':
                 rating = "(Explicit)"
-            elif searchResult['rating'] == "q":
+            elif search_result['rating'] == "q":
                 rating = "(Questionable)"
-            elif searchResult['rating'] == "s":
+            elif search_result['rating'] == "s":
                 rating = "(Safe)"
             else:
                 rating = "(Unknown)"
-            lineResponse = line.strip()
-            return "e621 search for \"" + lineResponse + "\" returned: " + link + " " + rating
+            line_response = line.strip()
+            return "e621 search for \"" + line_response + "\" returned: " + link + " " + rating
 
 
 class Butts(Function):
     """
     Returns a random butt from e621
     """
-    # Name for use in help listing
-    help_name = "butts"
-    # Names which can be used to address the function
-    names = {"random butt", "butts", "butts!", "butts."}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Returns a random image from e621 for the search \"butt\". Format: butts"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "butts"
+        # Names which can be used to address the function
+        self.names = {"random butt", "butts", "butts!", "butts."}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Returns a random image from e621 for the search \"butt\". Format: butts"
 
     def run(self, line, user_obj, destination_obj=None):
-        functionDispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
-        e621Class = functionDispatcher.get_function_by_name("e621")
-        e621Object = functionDispatcher.get_function_object(e621Class)
-        searchResult = e621Object.getRandomLinkResult("butt")
-        if searchResult is None:
+        function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
+        e621_class = function_dispatcher.get_function_by_name("e621")
+        e621_obj = function_dispatcher.get_function_object(e621_class)
+        search_result = e621_obj.get_random_link_result("butt")
+        if search_result is None:
             return "No results."
         else:
-            link = "http://e621.net/post/show/" + str(searchResult['id'])
-            if searchResult['rating'] == 'e':
+            link = "http://e621.net/post/show/" + str(search_result['id'])
+            if search_result['rating'] == 'e':
                 rating = "(Explicit)"
-            elif searchResult['rating'] == "q":
+            elif search_result['rating'] == "q":
                 rating = "(Questionable)"
-            elif searchResult['rating'] == "s":
+            elif search_result['rating'] == "s":
                 rating = "(Safe)"
             else:
                 rating = "(Unknown)"
@@ -128,18 +129,18 @@ class Fursona(Function):
     """
     Generates a random fursona
     """
-    # Name for use in help listing
-    help_name = "fursona"
-    # Names which can be used to address the function
-    names = {"fursona", "sona", "random fursona", "random sona"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Generates your new fursona. Format: fursona"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "fursona"
+        # Names which can be used to address the function
+        self.names = {"fursona", "sona", "random fursona", "random sona"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Generates your new fursona. Format: fursona"
 
     def run(self, line, user_obj, destination_obj=None):
         adjective = ["eldritch", "neon green", "angelic", "ghostly", "scene", "emo", "hipster", "alien", "sweaty",
