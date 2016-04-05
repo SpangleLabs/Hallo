@@ -353,8 +353,8 @@ class ServerIRC(Server):
         self._welcome_message = first_line + "\n"
         # Send nick and full name to server
         print(Commons.current_timestamp() + " sending nick and user info to server: " + self.name)
-        self.send('NICK ' + self.get_nick(), None, "raw")
-        self.send('USER ' + self.get_full_name(), None, "raw")
+        self.send('NICK ' + self.get_nick(), None, self.MSG_RAW)
+        self.send('USER ' + self.get_full_name(), None, self.MSG_RAW)
         # Wait for MOTD to end
         while True:
             next_welcome_line = self.read_line_from_socket()
@@ -393,7 +393,7 @@ class ServerIRC(Server):
             user.set_online(False)
         if self.open:
             try:
-                self.send("QUIT :" + quit_message, None, "raw")
+                self.send("QUIT :" + quit_message, None, self.MSG_RAW)
             except Exception as e:
                 print("Failed to send quit message. "+str(e))
                 pass
@@ -439,7 +439,7 @@ class ServerIRC(Server):
         :type msg_type: str
         """
         if msg_type not in [self.MSG_MSG, self.MSG_NOTICE, self.MSG_RAW]:
-            msg_type = "message"
+            msg_type = self.MSG_MSG
         # If it's raw data, just send it.
         if destination_obj is None or msg_type == self.MSG_RAW:
             for data_line in data.split("\n"):
@@ -472,12 +472,12 @@ class ServerIRC(Server):
             for date_line_line in data_line_split:
                 self.send_raw(msg_type_name + ' ' + destination_name + ' :' + date_line_line)
                 # Log sent data, if it's not message or notice
-                if msg_type == "message":
+                if msg_type == self.MSG_MSG:
                     self.hallo.get_printer().output_from_self(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
                                                               channel_obj)
                     self.hallo.get_logger().log_from_self(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
                                                           channel_obj)
-                elif msg_type == "notice":
+                elif msg_type == self.MSG_NOTICE:
                     self.hallo.get_printer().output_from_self(Function.EVENT_NOTICE, date_line_line, self, user_obj,
                                                               channel_obj)
                     self.hallo.get_logger().log_from_self(Function.EVENT_NOTICE, date_line_line, self, user_obj,
@@ -503,9 +503,9 @@ class ServerIRC(Server):
         channel_obj.set_auto_join(True)
         # Send JOIN command
         if channel_obj.get_password() is None:
-            self.send('JOIN ' + channel_obj.get_name(), None, "raw")
+            self.send('JOIN ' + channel_obj.get_name(), None, self.MSG_RAW)
         else:
-            self.send('JOIN ' + channel_obj.get_name() + ' ' + channel_obj.get_password(), None, "raw")
+            self.send('JOIN ' + channel_obj.get_name() + ' ' + channel_obj.get_password(), None, self.MSG_RAW)
 
     def leave_channel(self, channel_obj):
         """
@@ -521,7 +521,7 @@ class ServerIRC(Server):
         # Set not in channel
         channel_obj.set_in_channel(False)
         # Send PART command
-        self.send('PART ' + channel_obj.get_name(), None, "raw")
+        self.send('PART ' + channel_obj.get_name(), None, self.MSG_RAW)
 
     def parse_line(self, new_line):
         """
@@ -582,7 +582,7 @@ class ServerIRC(Server):
         # Get data
         ping_number = ping_line.split()[1]
         # Respond
-        self.send("PONG " + ping_number, None, "raw")
+        self.send("PONG " + ping_number, None, self.MSG_RAW)
         # Print and log
         self.hallo.get_printer().output(Function.EVENT_PING, ping_number, self, None, None)
         self.hallo.get_printer().output_from_self(Function.EVENT_PING, ping_number, self, None, None)
@@ -700,22 +700,22 @@ class ServerIRC(Server):
             self.hallo.get_logger().log(Function.EVENT_CTCP, message_text, self, message_sender, message_channel)
         # Reply to certain types of CTCP command
         if message_ctcp_command.lower() == 'version':
-            self.send("\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01", message_sender, "notice")
+            self.send("\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01", message_sender, self.MSG_NOTICE)
         elif message_ctcp_command.lower() == 'time':
             self.send("\x01TIME Fribsday 15 Nov 2024 " + str(time.gmtime()[3] + 100).rjust(2, '0') + ":" + str(
                 time.gmtime()[4] + 20).rjust(2, '0') + ":" + str(time.gmtime()[5]).rjust(2, '0') + "GMT\x01",
-                      message_sender, "notice")
+                      message_sender, self.MSG_NOTICE)
         elif message_ctcp_command.lower() == 'ping':
-            self.send('\x01PING ' + message_ctcp_arguments + '\x01', message_sender, "notice")
+            self.send('\x01PING ' + message_ctcp_arguments + '\x01', message_sender, self.MSG_NOTICE)
         elif message_ctcp_command.lower() == 'userinfo':
             hallo_info = "Hello, I'm hallo, I'm a robot who does a few different things," \
                          " mostly roll numbers and choose things," \
                          " occasionally giving my input on who is the best pony." \
                          " dr-spangle built me, if you have any questions he tends to be better at replying than I."
-            self.send("\x01" + hallo_info + "\x01", message_sender, "notice")
+            self.send("\x01" + hallo_info + "\x01", message_sender, self.MSG_NOTICE)
         elif message_ctcp_command.lower() == 'clientinfo':
             self.send('\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01', message_sender,
-                      "notice")
+                      self.MSG_NOTICE)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.get_function_dispatcher()
         function_dispatcher.dispatch_passive(Function.EVENT_CTCP, message_text, self, message_sender, message_channel)
@@ -980,7 +980,7 @@ class ServerIRC(Server):
                 nick_number = float(nick_number)
             new_nick = nick_word + str(nick_number + 1)
             self.nick = new_nick
-            self.send("NICK" + self.get_nick(), None, "raw")
+            self.send("NICK" + self.get_nick(), None, self.MSG_RAW)
             return
         # Only process further numeric codes if motd has ended
         if not motd_ended:
@@ -1277,7 +1277,7 @@ class ServerIRC(Server):
         old_nick = self.get_nick()
         self.nick = nick
         if nick != old_nick:
-            self.send("NICK " + self.nick, None, "raw")
+            self.send("NICK " + self.nick, None, self.MSG_RAW)
             hallo_user_obj = self.get_user_by_name(nick)
             # Log in all channel Hallo is in.
             for channel in self.channel_list:

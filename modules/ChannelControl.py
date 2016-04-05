@@ -31,7 +31,7 @@ class Operator(Function):
         # If 0 arguments, op user who called command.
         line_split = line.split()
         if len(line_split) == 0:
-            server_obj.send("MODE " + destination_obj.get_name() + " +o " + user_obj.get_name(), None, "raw")
+            server_obj.send("MODE " + destination_obj.get_name() + " +o " + user_obj.get_name(), None, Server.MSG_RAW)
             return "Op status given."
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
@@ -41,7 +41,7 @@ class Operator(Function):
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
-                server_obj.send("MODE " + channel.get_name() + " +o " + user_obj.get_name(), None, "raw")
+                server_obj.send("MODE " + channel.get_name() + " +o " + user_obj.get_name(), None, Server.MSG_RAW)
                 return "Op status given."
             # If it starts with '#', check it's a channel hallo is in.
             if line.startswith("#"):
@@ -49,14 +49,14 @@ class Operator(Function):
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
-                server_obj.send("MODE " + channel.get_name() + " +o " + user_obj.get_name(), None, "raw")
+                server_obj.send("MODE " + channel.get_name() + " +o " + user_obj.get_name(), None, Server.MSG_RAW)
                 return "Op status given."
             # Check if it's a user in current channel
             target_user = server_obj.get_user_by_name(line)
             if target_user is None or not destination_obj.is_user_in_channel(target_user):
                 return "That user is not in this channel."
             # TODO: check if hallo has op in this channel.
-            server_obj.send("MODE " + destination_obj.get_name() + " +o " + target_user.get_name(), None, "raw")
+            server_obj.send("MODE " + destination_obj.get_name() + " +o " + target_user.get_name(), None, Server.MSG_RAW)
             return "Op status given."
         # If 2 arguments, determine which is channel and which is user.
         if line_split[0].startswith("#"):
@@ -75,7 +75,7 @@ class Operator(Function):
         if not target_channel.is_user_in_channel(target_user):
             return "That user is not in that channel."
         # TODO: check if hallo has op in this channel.
-        server_obj.send("MODE " + target_channel.get_name() + " +o " + target_user.get_name(), None, "raw")
+        server_obj.send("MODE " + target_channel.get_name() + " +o " + target_user.get_name(), None, Server.MSG_RAW)
         return "Op status given."
 
 
@@ -108,7 +108,7 @@ class DeOperator(Function):
         # If 0 arguments, op user who called command.
         line_split = line.split()
         if len(line_split) == 0:
-            server_obj.send("MODE " + destination_obj.get_name() + " -o " + user_obj.get_name(), None, "raw")
+            server_obj.send("MODE " + destination_obj.get_name() + " -o " + user_obj.get_name(), None, Server.MSG_RAW)
             return "Op status taken."
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
@@ -118,7 +118,7 @@ class DeOperator(Function):
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
-                server_obj.send("MODE " + channel.get_name() + " -o " + user_obj.get_name(), None, "raw")
+                server_obj.send("MODE " + channel.get_name() + " -o " + user_obj.get_name(), None, Server.MSG_RAW)
                 return "Op status taken."
             # If it starts with '#', check it's a channel hallo is in.
             if line.startswith("#"):
@@ -126,14 +126,14 @@ class DeOperator(Function):
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
-                server_obj.send("MODE " + channel.get_name() + " -o " + user_obj.get_name(), None, "raw")
+                server_obj.send("MODE " + channel.get_name() + " -o " + user_obj.get_name(), None, Server.MSG_RAW)
                 return "Op status taken."
             # Check if it's a user in current channel
             target_user = server_obj.get_user_by_name(line)
             if target_user is None or not destination_obj.is_user_in_channel(target_user):
                 return "That user is not in this channel."
             # TODO: check if hallo has op in this channel.
-            server_obj.send("MODE " + destination_obj.get_name() + " -o " + target_user.get_name(), None, "raw")
+            server_obj.send("MODE " + destination_obj.get_name() + " -o " + target_user.get_name(), None, Server.MSG_RAW)
             return "Op status taken."
         # If 2 arguments, determine which is channel and which is user.
         if line_split[0].startswith("#"):
@@ -152,7 +152,7 @@ class DeOperator(Function):
         if not target_channel.is_user_in_channel(target_user):
             return "That user is not in that channel."
         # TODO: check if hallo has op in this channel.
-        server_obj.send("MODE " + target_channel.get_name() + " -o " + target_user.get_name(), None, "raw")
+        server_obj.send("MODE " + target_channel.get_name() + " -o " + target_user.get_name(), None, Server.MSG_RAW)
         return "Op status taken."
 
 
@@ -184,7 +184,7 @@ class Voice(Function):
         # If 0 arguments, op user who called command.
         line_split = line.split()
         if len(line_split) == 0:
-            server_obj.send("MODE " + destination_obj.get_name() + " +v " + user_obj.get_name(), None, "raw")
+            server_obj.send("MODE " + destination_obj.get_name() + " +v " + user_obj.get_name(), None, Server.MSG_RAW)
             return "Voice status given."
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
@@ -194,7 +194,7 @@ class Voice(Function):
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
-                server_obj.send("MODE " + channel.get_name() + " +v " + user_obj.get_name(), None, "raw")
+                server_obj.send("MODE " + channel.get_name() + " +v " + user_obj.get_name(), None, Server.MSG_RAW)
                 return "Voice status given."
             # If it starts with '#', check it's a channel hallo is in.
             if line.startswith("#"):
@@ -202,14 +202,14 @@ class Voice(Function):
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
-                server_obj.send("MODE " + channel.get_name() + " +v " + user_obj.get_name(), None, "raw")
+                server_obj.send("MODE " + channel.get_name() + " +v " + user_obj.get_name(), None, Server.MSG_RAW)
                 return "Voice status given."
             # Check if it's a user in current channel
             target_user = server_obj.get_user_by_name(line)
             if target_user is None or not destination_obj.is_user_in_channel(target_user):
                 return "That user is not in this channel."
             # TODO: check if hallo has op in this channel.
-            server_obj.send("MODE " + destination_obj.get_name() + " +v " + target_user.get_name(), None, "raw")
+            server_obj.send("MODE " + destination_obj.get_name() + " +v " + target_user.get_name(), None, Server.MSG_RAW)
             return "Voice status given."
         # If 2 arguments, determine which is channel and which is user.
         if line_split[0].startswith("#"):
@@ -228,7 +228,7 @@ class Voice(Function):
         if not target_channel.is_user_in_channel(target_user):
             return "That user is not in that channel."
         # TODO: check if hallo has op in this channel.
-        server_obj.send("MODE " + target_channel.get_name() + " +o " + target_user.get_name(), None, "raw")
+        server_obj.send("MODE " + target_channel.get_name() + " +o " + target_user.get_name(), None, Server.MSG_RAW)
         return "Voice status given."
 
 
@@ -260,7 +260,7 @@ class DeVoice(Function):
         # If 0 arguments, op user who called command.
         line_split = line.split()
         if len(line_split) == 0:
-            server_obj.send("MODE " + destination_obj.get_name() + " -o " + user_obj.get_name(), None, "raw")
+            server_obj.send("MODE " + destination_obj.get_name() + " -o " + user_obj.get_name(), None, Server.MSG_RAW)
             return "Voice status given."
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
@@ -270,7 +270,7 @@ class DeVoice(Function):
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
-                server_obj.send("MODE " + channel.get_name() + " -v " + user_obj.get_name(), None, "raw")
+                server_obj.send("MODE " + channel.get_name() + " -v " + user_obj.get_name(), None, Server.MSG_RAW)
                 return "Voice status taken."
             # If it starts with '#', check it's a channel hallo is in.
             if line.startswith("#"):
@@ -278,14 +278,14 @@ class DeVoice(Function):
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
-                server_obj.send("MODE " + channel.get_name() + " -v " + user_obj.get_name(), None, "raw")
+                server_obj.send("MODE " + channel.get_name() + " -v " + user_obj.get_name(), None, Server.MSG_RAW)
                 return "Voice status taken."
             # Check if it's a user in current channel
             target_user = server_obj.get_user_by_name(line)
             if target_user is None or not destination_obj.is_user_in_channel(target_user):
                 return "That user is not in this channel."
             # TODO: check if hallo has op in this channel.
-            server_obj.send("MODE " + destination_obj.get_name() + " -v " + target_user.get_name(), None, "raw")
+            server_obj.send("MODE " + destination_obj.get_name() + " -v " + target_user.get_name(), None, Server.MSG_RAW)
             return "Voice status taken."
         # If 2 arguments, determine which is channel and which is user.
         if line_split[0].startswith("#"):
@@ -304,7 +304,7 @@ class DeVoice(Function):
         if not target_channel.is_user_in_channel(target_user):
             return "That user is not in that channel."
         # TODO: check if hallo has op in this channel.
-        server_obj.send("MODE " + target_channel.get_name() + " -v " + target_user.get_name(), None, "raw")
+        server_obj.send("MODE " + target_channel.get_name() + " -v " + target_user.get_name(), None, Server.MSG_RAW)
         return "Voice status taken."
 
 
@@ -341,7 +341,7 @@ class Invite(Function):
                 target_channel = server_obj.get_channel_by_name(line)
                 if target_channel is None or not target_channel.is_in_channel():
                     return "I'm not in that channel."
-                server_obj.send("INVITE " + user_obj.get_name() + " " + target_channel.get_name(), None, "raw")
+                server_obj.send("INVITE " + user_obj.get_name() + " " + target_channel.get_name(), None, Server.MSG_RAW)
                 return "Invited " + user_obj.get_name() + " to " + target_channel.get_name() + "."
             if destination_obj is None or destination_obj == user_obj:
                 return "You can't invite a user to privmsg."
@@ -367,7 +367,7 @@ class Invite(Function):
         if target_channel.is_user_in_channel(target_user):
             return "That user is already in that channel."
         # TODO: check if hallo has op in this channel.
-        server_obj.send("INVITE " + target_user.get_name() + " " + target_channel.get_name(), None, "raw")
+        server_obj.send("INVITE " + target_user.get_name() + " " + target_channel.get_name(), None, Server.MSG_RAW)
         return "Invited " + target_user.get_name() + " to " + target_channel.get_name() + "."
 
 
@@ -397,13 +397,13 @@ class Mute(Function):
             target_channel = destination_obj
             if target_channel is None or target_channel == user_obj:
                 return "You can't set mute on a privmsg."
-            server_obj.send("MODE " + target_channel.get_name() + " +m", None, "raw")
+            server_obj.send("MODE " + target_channel.get_name() + " +m", None, Server.MSG_RAW)
             return "Set mute."
         # Get channel from user input
         target_channel = server_obj.get_channel_by_name(line.strip())
         if target_channel is None or not target_channel.is_in_channel():
             return "I'm not in that channel."
-        server_obj.send("MODE " + target_channel.get_name() + " +m", None, "raw")
+        server_obj.send("MODE " + target_channel.get_name() + " +m", None, Server.MSG_RAW)
         return "Set mute in " + target_channel.get_name() + "."
 
 
@@ -433,13 +433,13 @@ class UnMute(Function):
             target_channel = destination_obj
             if target_channel is None or target_channel == user_obj:
                 return "You can't set mute on a privmsg."
-            server_obj.send("MODE " + target_channel.get_name() + " -m", None, "raw")
+            server_obj.send("MODE " + target_channel.get_name() + " -m", None, Server.MSG_RAW)
             return "Unset mute."
         # Get channel from user input
         target_channel = server_obj.get_channel_by_name(line.strip())
         if target_channel is None or not target_channel.is_in_channel():
             return "I'm not in that channel."
-        server_obj.send("MODE " + target_channel.get_name() + " -m", None, "raw")
+        server_obj.send("MODE " + target_channel.get_name() + " -m", None, Server.MSG_RAW)
         return "Unset mute in " + target_channel.get_name() + "."
 
 

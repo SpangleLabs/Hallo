@@ -88,9 +88,9 @@ class SilenceTheRabble(Function):
                 continue
             if user_obj.get_name().lower() == server_obj.get_nick().lower():
                 continue
-            server_obj.send("MODE " + destination_obj.get_name() + " -o " + user_obj.get_name(), None, "raw")
-            server_obj.send("MODE " + destination_obj.get_name() + " -v " + user_obj.get_name(), None, "raw")
-        server_obj.send("MODE " + destination_obj.get_name() + " +m", None, "raw")
+            server_obj.send("MODE " + destination_obj.get_name() + " -o " + user_obj.get_name(), None, Server.MSG_RAW)
+            server_obj.send("MODE " + destination_obj.get_name() + " -v " + user_obj.get_name(), None, Server.MSG_RAW)
+        server_obj.send("MODE " + destination_obj.get_name() + " +m", None, Server.MSG_RAW)
         return "I have done your bidding, master."
 
 
@@ -128,8 +128,8 @@ class PokeTheAsshole(Function):
         else:
             number = 5
         for _ in range(number):
-            server_obj.send("MODE " + destination_obj.get_name() + " +v Dolphin", None, "raw")
-            server_obj.send("MODE " + destination_obj.get_name() + " -v Dolphin", None, "raw")
+            server_obj.send("MODE " + destination_obj.get_name() + " +v Dolphin", None, Server.MSG_RAW)
+            server_obj.send("MODE " + destination_obj.get_name() + " -v Dolphin", None, Server.MSG_RAW)
         return 'Dolphin: You awake yet?'
 
 

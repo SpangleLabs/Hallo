@@ -1,5 +1,7 @@
 from Function import Function
 from xml.dom import minidom
+
+from Server import Server
 from inc.commons import Commons
 
 
@@ -159,14 +161,14 @@ class Cupcake(Function):
         # If length of valid channel list is nonzero, pick a channel and send.
         if len(valid_channels) != 0:
             chosen_channel = Commons.get_random_choice(valid_channels)[0]
-            server_obj.send(output_message, chosen_channel, "message")
+            server_obj.send(output_message, chosen_channel, Server.MSG_MSG)
             return "Cupcake sent."
         # If no valid intersection channels, see if there are any valid recipient channels
         valid_channels = [chan for chan in recipient_channel_list if chan.is_in_channel()]
         if len(valid_channels) != 0:
             chosen_channel = Commons.get_random_choice(valid_channels)[0]
-            server_obj.send(output_message, chosen_channel, "message")
+            server_obj.send(output_message, chosen_channel, Server.MSG_MSG)
             return "Cupcake sent."
         # Otherwise, use privmsg
-        server_obj.send(output_message, recipient_user_obj, "message")
+        server_obj.send(output_message, recipient_user_obj, Server.MSG_MSG)
         return "Cupcake sent."

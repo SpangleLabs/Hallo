@@ -4,6 +4,7 @@ from xml.dom import minidom
 from PermissionMask import PermissionMask
 from inc.commons import Commons
 from abc import ABCMeta
+from Server import Server
 
 
 class Destination(metaclass=ABCMeta):
@@ -98,7 +99,7 @@ class Destination(metaclass=ABCMeta):
     def get_permission_mask(self):
         return self.permission_mask
 
-    def send(self, line, msg_type="message"):
+    def send(self, line, msg_type=Server.MSG_MSG):
         """
         Sends a message to a destination.
         :param line: Line of text to send to destination

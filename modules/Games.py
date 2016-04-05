@@ -1,6 +1,8 @@
 from Function import Function
 import random
 import time
+
+from Server import Server
 from inc.commons import Commons
 from xml.dom import minidom
 from threading import Thread
@@ -1247,13 +1249,13 @@ class DDRGame(Game):
         directions = [self.DIRECTION_LEFT, self.DIRECTION_RIGHT, self.DIRECTION_UP, self.DIRECTION_DOWN]
         # Send first message and wait for new players to join
         output_string = "Starting new game of DDR in 5 seconds, say 'join' to join."
-        server_obj.send(output_string, self.channel, "message")
+        server_obj.send(output_string, self.channel, Server.MSG_MSG)
         time.sleep(5)
         # Output how many players joined and begin
         self.can_join = False
         output_string = str(len(self.players)) + " players joined: " + ", ".join(
             [player.get_name() for player in self.players]) + ". Starting game."
-        server_obj.send(output_string, self.channel, "message")
+        server_obj.send(output_string, self.channel, Server.MSG_MSG)
         # Do the various turns of the game
         for _ in range(self.num_turns):
             if self.is_game_over():
@@ -1262,27 +1264,27 @@ class DDRGame(Game):
             self.last_move = direction
             self.players_moved = set()
             self.update_time()
-            server_obj.send(direction, self.channel, "message")
+            server_obj.send(direction, self.channel, Server.MSG_MSG)
             time.sleep(random.uniform(time_min, time_max))
         # end game
         # Set game over
         self.game_over = True
         output_string = "Game has finished!"
-        server_obj.send(output_string, self.channel, "message")
+        server_obj.send(output_string, self.channel, Server.MSG_MSG)
         # See who wins
         winner_player = self.find_winner()
         output_string = "Winner is: " + winner_player.get_name()
-        server_obj.send(output_string, self.channel, "message")
+        server_obj.send(output_string, self.channel, Server.MSG_MSG)
         # Output player ratings
         for player in self.players:
             output_string = self.player_rating(player)
-            server_obj.send(output_string, self.channel, "message")
+            server_obj.send(output_string, self.channel, Server.MSG_MSG)
         # Check if they have a highscore
         if self.check_high_score(winner_player):
             self.update_high_score(winner_player)
             server_obj.send(winner_player.get_name() + " has set a new DDR highscore with " + str(
                 self.player_dict[winner_player]['hits']) + " hits and " + str(
-                self.player_dict[winner_player]['lag']) + " lag!", self.channel, "message")
+                self.player_dict[winner_player]['lag']) + " lag!", self.channel, Server.MSG_MSG)
             # Game ended
 
     def find_winner(self):
