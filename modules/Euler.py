@@ -1123,9 +1123,9 @@ class Euler(Function):
         total_wins = 0
         for poker_game in list_poker_games:
             deck = Deck()
-            hand_one = Hand.fromTwoLetterCodeList(deck, poker_game.split()[:5])
-            hand_two = Hand.fromTwoLetterCodeList(deck, poker_game.split()[5:])
-            if hand_one.pokerBeats(hand_two):
+            hand_one = Hand.from_two_letter_code_list(deck, poker_game.split()[:5])
+            hand_two = Hand.from_two_letter_code_list(deck, poker_game.split()[5:])
+            if hand_one.poker_beats(hand_two):
                 total_wins += 1
         return total_wins
 
