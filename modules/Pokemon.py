@@ -7,131 +7,131 @@ class RandomPokemon(Function):
     """
     Random pokemon function
     """
-    # Name for use in help listing
-    help_name = "i choose you"
-    # Names which can be used to address the function
-    names = {"i choose you", "ichooseyou", "random pokemon", "pokemon"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Picks a random pokemon from generation I to generation V. Format: i choose you"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "i choose you"
+        # Names which can be used to address the function
+        self.names = {"i choose you", "ichooseyou", "random pokemon", "pokemon"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Picks a random pokemon from generation I to generation V. Format: i choose you"
 
     def run(self, line, user_obj, destination_obj=None):
         # Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")
-        pokemonListXml = doc.getElementsByTagName("pokemon_list")[0]
-        pokemonList = []
-        # Loop through pokemon, adding to pokemonList
-        for pokemonXml in pokemonListXml.getElementsByTagName("pokemon"):
-            pokemonDict = {'name': pokemonXml.getElementsByTagName("name")[0].firstChild.data}
-            pokemonList.append(pokemonDict)
-        randomPokemon = Commons.get_random_choice(pokemonList)[0]
-        return "I choose you, " + randomPokemon['name'] + "!"
+        pokemon_list_elem = doc.getElementsByTagName("pokemon_list")[0]
+        pokemon_list = []
+        # Loop through pokemon, adding to pokemon_list
+        for pokemon_elem in pokemon_list_elem.getElementsByTagName("pokemon"):
+            pokemon_dict = {'name': pokemon_elem.getElementsByTagName("name")[0].firstChild.data}
+            pokemon_list.append(pokemon_dict)
+        random_pokemon = Commons.get_random_choice(pokemon_list)[0]
+        return "I choose you, " + random_pokemon['name'] + "!"
 
 
 class PickATeam(Function):
     """
     Function to select a random pokemon team
     """
-    # Name for use in help listing
-    help_name = "pick a team"
-    # Names which can be used to address the function
-    names = {"pick a team", "pickateam"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Generates a team of pokemon for you."
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "pick a team"
+        # Names which can be used to address the function
+        self.names = {"pick a team", "pickateam"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Generates a team of pokemon for you."
 
     def run(self, line, user_obj, destination_obj=None):
         # Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")
-        pokemonListXml = doc.getElementsByTagName("pokemon_list")[0]
-        pokemonList = []
-        # Loop through pokemon, adding to pokemonList
-        for pokemonXml in pokemonListXml.getElementsByTagName("pokemon"):
-            pokemonDict = {'name': pokemonXml.getElementsByTagName("name")[0].firstChild.data}
-            pokemonList.append(pokemonDict)
-        randomPokemonTeam = Commons.get_random_choice(pokemonList, 6)
-        return "Your team is: " + ", ".join([pokemon['name'] for pokemon in randomPokemonTeam[:5]]) + " and " + \
-               randomPokemonTeam[5]['name'] + "."
+        pokemon_list_elem = doc.getElementsByTagName("pokemon_list")[0]
+        pokemon_list = []
+        # Loop through pokemon, adding to pokemon_list
+        for pokemon_elem in pokemon_list_elem.getElementsByTagName("pokemon"):
+            pokemon_dict = {'name': pokemon_elem.getElementsByTagName("name")[0].firstChild.data}
+            pokemon_list.append(pokemon_dict)
+        random_pokemon_team = Commons.get_random_choice(pokemon_list, 6)
+        return "Your team is: " + ", ".join([pokemon['name'] for pokemon in random_pokemon_team[:5]]) + " and " + \
+               random_pokemon_team[5]['name'] + "."
 
 
 class FullyEvolvedTeam(Function):
     """
     Function to select a random fully evolved pokemon team
     """
-    # Name for use in help listing
-    help_name = "fully evolved team"
-    # Names which can be used to address the function
-    names = {"pick a fully evolved team", "fully evolved team", "fullyevolvedteam"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Pick a fully evolved pokemon team."
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "fully evolved team"
+        # Names which can be used to address the function
+        self.names = {"pick a fully evolved team", "fully evolved team", "fullyevolvedteam"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Pick a fully evolved pokemon team."
 
     def run(self, line, user_obj, destination_obj=None):
         # Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")
-        pokemonListXml = doc.getElementsByTagName("pokemon_list")[0]
-        pokemonList = []
-        # Loop through pokemon, adding to pokemonList if they cannot evolve.
-        for pokemonXml in pokemonListXml.getElementsByTagName("pokemon"):
-            pokemonDict = {'name': pokemonXml.getElementsByTagName("name")[0].firstChild.data}
-            evolutionChoices = len(pokemonXml.getElementsByTagName("evolve_to"))
-            if evolutionChoices == 0:
-                pokemonList.append(pokemonDict)
-        randomPokemonTeam = Commons.get_random_choice(pokemonList, 6)
-        return "Your team is: " + ", ".join([pokemon['name'] for pokemon in randomPokemonTeam[:5]]) + " and " + \
-               randomPokemonTeam[5]['name'] + "."
+        pokemon_list_elem = doc.getElementsByTagName("pokemon_list")[0]
+        pokemon_list = []
+        # Loop through pokemon, adding to pokemon_list if they cannot evolve.
+        for pokemon_elem in pokemon_list_elem.getElementsByTagName("pokemon"):
+            pokemon_dict = {'name': pokemon_elem.getElementsByTagName("name")[0].firstChild.data}
+            evolution_choices = len(pokemon_elem.getElementsByTagName("evolve_to"))
+            if evolution_choices == 0:
+                pokemon_list.append(pokemon_dict)
+        random_pokemon_team = Commons.get_random_choice(pokemon_list, 6)
+        return "Your team is: " + ", ".join([pokemon['name'] for pokemon in random_pokemon_team[:5]]) + " and " + \
+               random_pokemon_team[5]['name'] + "."
 
 
 class Pokedex(Function):
     """
     Function to return pokedex entries
     """
-    # Name for use in help listing
-    help_name = "pokedex"
-    # Names which can be used to address the function
-    names = {"pokedex", "dex"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Returns a random pokedex entry for a given pokemon."
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "pokedex"
+        # Names which can be used to address the function
+        self.names = {"pokedex", "dex"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Returns a random pokedex entry for a given pokemon."
 
     def run(self, line, user_obj, destination_obj=None):
-        lineClean = line.lower().split()
+        line_clean = line.lower().split()
         # Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")
-        pokemonListXml = doc.getElementsByTagName("pokemon_list")[0]
+        pokemon_list_elem = doc.getElementsByTagName("pokemon_list")[0]
         # Loop through pokemon, searching for the specified pokemon
-        selectedPokemonXml = None
-        for pokemonXml in pokemonListXml.getElementsByTagName("pony_episode"):
-            pokemonName = pokemonXml.getElementsByTagName("name")[0].firstChild.data.lower()
-            pokemonNumber = pokemonXml.getElementsByTagName("dex_number")[0].firstChild.data
-            if lineClean == pokemonName or lineClean == pokemonNumber:
-                selectedPokemonXml = pokemonXml
+        selected_pokemon_elem = None
+        for pokemon_elem in pokemon_list_elem.getElementsByTagName("pony_episode"):
+            pokemon_name = pokemon_elem.getElementsByTagName("name")[0].firstChild.data.lower()
+            pokemon_number = pokemon_elem.getElementsByTagName("dex_number")[0].firstChild.data
+            if line_clean == pokemon_name or line_clean == pokemon_number:
+                selected_pokemon_elem = pokemon_elem
                 break
         # If pokemon couldn't be found, return a message to the user
-        if selectedPokemonXml is None:
+        if selected_pokemon_elem is None:
             return "No available pokedex data."
         # Select a random pokedex entry
-        pokedexEntryListXml = selectedPokemonXml.getElementsByTagName("dex_entry_list")
-        pokedexEntryXml = Commons.get_random_choice(pokedexEntryListXml.getElementsByTagName("dex_entry"))[0]
-        pokedexEntryText = pokedexEntryXml.firstChild.data
-        return pokedexEntryText
+        pokedex_entry_list_elem = selected_pokemon_elem.getElementsByTagName("dex_entry_list")
+        pokedex_entry_elem = Commons.get_random_choice(pokedex_entry_list_elem.getElementsByTagName("dex_entry"))[0]
+        pokedex_entry_text = pokedex_entry_elem.firstChild.data
+        return pokedex_entry_text
