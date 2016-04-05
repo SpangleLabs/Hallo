@@ -9,303 +9,281 @@ class JoinChannel(Function):
     """
     Joins a channel on a specified server
     """
-    # Name for use in help listing
-    help_name = "join"
-    # Names which can be used to address the function
-    names = {"join channel", "join", "channel"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Join a channel. Password as optional argument. Server can be specified with \"server=<servername>\"." \
-                " Format: \"join <channel> <password?>\"."
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "join"
+        # Names which can be used to address the function
+        self.names = {"join channel", "join", "channel"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Join a channel. Password as optional argument. " \
+                         "Server can be specified with \"server=<server_name>\"." \
+                         " Format: \"join <channel> <password?>\"."
 
     def run(self, line, user_obj, destination_obj=None):
         # Check for server name in input line
-        serverName = self.findParameter("server", line)
-        if serverName is None:
-            serverObject = user_obj.get_server()
+        server_name = self.find_parameter("server", line)
+        if server_name is None:
+            server_obj = user_obj.get_server()
         else:
-            serverObject = user_obj.get_server().get_hallo().get_server_by_name(serverName)
-            line = line.replace("server=" + serverName, "").strip()
-        if serverObject is None:
+            server_obj = user_obj.get_server().get_hallo().get_server_by_name(server_name)
+            line = line.replace("server=" + server_name, "").strip()
+        if server_obj is None:
             return "Invalid server specified."
         # Get channel name
-        channelName = line.split()[0].lower()
+        channel_name = line.split()[0].lower()
         # Check for channel password
-        channelPassword = None
-        if channelName != line:
-            channelPassword = line[len(channelName):]
+        channel_password = None
+        if channel_name != line:
+            channel_password = line[len(channel_name):]
         # Get channel object, set password
-        channelObject = serverObject.get_channel_by_name(channelName)
-        channelObject.set_password(channelPassword)
+        channel_obj = server_obj.get_channel_by_name(channel_name)
+        channel_obj.set_password(channel_password)
         # Join channel if not already in channel.
-        if channelObject.is_in_channel():
+        if channel_obj.is_in_channel():
             return "I'm already in that channel."
-        serverObject.join_channel(channelObject)
-        return "Joined " + channelName + "."
+        server_obj.join_channel(channel_obj)
+        return "Joined " + channel_name + "."
 
-    def findParameter(self, paramName, line):
+    def find_parameter(self, param_name, line):
         """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        paramValue = None
-        paramRegex = re.compile("(^|\s)" + paramName + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        paramSearch = paramRegex.search(line)
-        if paramSearch is not None:
-            paramValue = paramSearch.group(2)
-        return paramValue
+        param_value = None
+        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_search = param_regex.search(line)
+        if param_search is not None:
+            param_value = param_search.group(2)
+        return param_value
 
 
 class LeaveChannel(Function):
     """
     Leaves a channel on a specified server
     """
-    # Name for use in help listing
-    help_name = "leave"
-    # Names which can be used to address the function
-    names = {"leave channel", "leave", "part"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Leave a channel. Server can be specified with \"server=<servername>\". Format: \"leave <channel>\"."
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "leave"
+        # Names which can be used to address the function
+        self.names = {"leave channel", "leave", "part"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Leave a channel. Server can be specified with \"server=<server_name>\". " \
+                         "Format: \"leave <channel>\"."
 
     def run(self, line, user_obj, destination_obj=None):
         # Check for server name in input line
-        serverName = self.findParameter("server", line)
-        if serverName is None:
-            serverObject = user_obj.get_server()
+        server_name = self.find_parameter("server", line)
+        if server_name is None:
+            server_obj = user_obj.get_server()
         else:
-            serverObject = user_obj.get_server().get_hallo().get_server_by_name(serverName)
-            line = line.replace("server=" + serverName, "").strip()
-        if serverObject is None:
+            server_obj = user_obj.get_server().get_hallo().get_server_by_name(server_name)
+            line = line.replace("server=" + server_name, "").strip()
+        if server_obj is None:
             return "Invalid server specified."
         # Find channel object
-        channelName = line.split()[0].lower()
-        channelObject = serverObject.get_channel_by_name(channelName)
+        channel_name = line.split()[0].lower()
+        channel_obj = server_obj.get_channel_by_name(channel_name)
         # Leave channel, provided hallo is in channel.
-        if not channelObject.is_in_channel():
+        if not channel_obj.is_in_channel():
             return "I'm not in that channel."
-        serverObject.leave_channel(channelObject)
-        return "Left " + channelName + "."
+        server_obj.leave_channel(channel_obj)
+        return "Left " + channel_name + "."
 
-    def findParameter(self, paramName, line):
+    def find_parameter(self, param_name, line):
         """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        paramValue = None
-        paramRegex = re.compile("(^|\s)" + paramName + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        paramSearch = paramRegex.search(line)
-        if paramSearch is not None:
-            paramValue = paramSearch.group(2)
-        return paramValue
-
-
-class Shutdown(Function):
-    """
-    Shuts down hallo entirely.
-    """
-    # Name for use in help listing
-    help_name = "shutdown"
-    # Names which can be used to address the Function
-    names = {"shutdown"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Shuts down hallo entirely."
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        pass
-
-    def run(self, line, user_obj, destination_obj=None):
-        serverObject = user_obj.get_server()
-        halloObject = serverObject.get_hallo()
-        halloObject.close()
-        return "Shutting down."
+        param_value = None
+        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_search = param_regex.search(line)
+        if param_search is not None:
+            param_value = param_search.group(2)
+        return param_value
 
 
 class Disconnect(Function):
     """
     Disconnects from a Server
     """
-    # Name for use in help listing
-    help_name = "disconnect"
-    # Names which can be used to address the Function
-    names = {"disconnect", "quit"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Disconnects from a server."
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "disconnect"
+        # Names which can be used to address the Function
+        self.names = {"disconnect", "quit"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Disconnects from a server."
 
     def run(self, line, user_obj, destination_obj=None):
-        serverObject = user_obj.get_server()
-        halloObject = serverObject.get_hallo()
+        server_obj = user_obj.get_server()
+        hallo_obj = server_obj.get_hallo()
         if line.strip() != "":
-            serverObject = halloObject.get_server_by_name(line)
-        if serverObject is None:
+            server_obj = hallo_obj.get_server_by_name(line)
+        if server_obj is None:
             return "Invalid server."
-        serverObject.set_auto_connect(False)
-        serverObject.disconnect()
-        return "Disconnected from server: " + serverObject.get_name() + "."
+        server_obj.set_auto_connect(False)
+        server_obj.disconnect()
+        return "Disconnected from server: " + server_obj.get_name() + "."
 
 
 class Connect(Function):
     """
     Connects to a Server
     """
-    # Name for use in help listing
-    help_name = "connect"
-    # Names which can be used to address the Function
-    names = {"connect", "new server"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Connects to an existing or a new server."
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "connect"
+        # Names which can be used to address the Function
+        self.names = {"connect", "new server"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Connects to an existing or a new server."
 
     def run(self, line, user_obj, destination_obj=None):
         """Runs the function"""
-        currentServer = user_obj.get_server()
-        halloObject = currentServer.get_hallo()
+        current_server = user_obj.get_server()
+        hallo_obj = current_server.get_hallo()
         # Try and see if it's a server we already know
-        existingServer = halloObject.get_server_by_name(line)
-        if existingServer is not None:
-            return self.connectToKnownServer(existingServer)
+        existing_server = hallo_obj.get_server_by_name(line)
+        if existing_server is not None:
+            return self.connect_to_known_server(existing_server)
         # Try to find what protocol is specififed, or use whatever protocol the user is using.
-        lineSplit = line.split()
-        validProtocols = [Server.TYPE_IRC]
-        serverProtocol = None
-        if any([prot in [arg.lower() for arg in lineSplit] for prot in validProtocols]):
-            for protocol in validProtocols:
-                if protocol in [arg.lower() for arg in lineSplit]:
-                    serverProtocol = protocol
-                    protocolRegex = re.compile("\s" + protocol + "\s", re.IGNORECASE)
-                    line = protocolRegex.sub(" ", line)
+        line_split = line.split()
+        valid_protocols = [Server.TYPE_IRC]
+        server_protocol = None
+        if any([prot in [arg.lower() for arg in line_split] for prot in valid_protocols]):
+            for protocol in valid_protocols:
+                if protocol in [arg.lower() for arg in line_split]:
+                    server_protocol = protocol
+                    protocol_regex = re.compile("\s" + protocol + "\s", re.IGNORECASE)
+                    line = protocol_regex.sub(" ", line)
                     break
         else:
-            serverProtocol = currentServer.get_type()
+            server_protocol = current_server.get_type()
         # Go through protocols branching to whatever function to handle that protocol
-        if serverProtocol == Server.TYPE_IRC:
-            return self.connectToNewServerIrc(line, user_obj, destination_obj)
+        if server_protocol == Server.TYPE_IRC:
+            return self.connect_to_new_server_irc(line, user_obj, destination_obj)
         # Add in ELIF statements here, to make user Connect Function support other protocols
         else:
             return "Unrecognised server protocol"
 
-    def connectToKnownServer(self, serverObject):
+    def connect_to_known_server(self, server_obj):
         """Connects to a known server."""
-        serverObject.set_auto_connect(True)
-        if serverObject.is_connected():
+        server_obj.set_auto_connect(True)
+        if server_obj.is_connected():
             return "Already connected to that server"
-        Thread(target=serverObject.run).start()
-        return "Connected to server: " + serverObject.get_name() + "."
+        Thread(target=server_obj.run).start()
+        return "Connected to server: " + server_obj.get_name() + "."
 
-    def findParameter(self, paramName, line):
+    def find_parameter(self, param_name, line):
         """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        paramValue = None
-        paramRegex = re.compile("(^|\s)" + paramName + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        paramSearch = paramRegex.search(line)
-        if paramSearch is not None:
-            paramValue = paramSearch.group(2)
-        return paramValue
+        param_value = None
+        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_search = param_regex.search(line)
+        if param_search is not None:
+            param_value = param_search.group(2)
+        return param_value
 
-    def connectToNewServerIrc(self, line, userObject, destinationObject):
+    def connect_to_new_server_irc(self, line, user_obj, destination_obj):
         """Processes arguments in order to connect to a new IRC server"""
         # Get some handy objects
-        currentServer = userObject.get_server()
-        halloObject = currentServer.get_hallo()
+        current_server = user_obj.get_server()
+        hallo_obj = current_server.get_hallo()
         # Set all variables to none as default
-        serverAddress, serverPort = None, None
-        serverName = None
+        server_address, server_port = None, None
+        server_name = None
         # Find the URL, if specified
-        urlRegex = re.compile("(^|\s)(irc://)?(([a-z.]+\.[a-z]+)(:([0-9]+))?)(\s|$)", re.IGNORECASE)
-        urlSearch = urlRegex.search(line)
-        if urlSearch is not None:
-            line = line.replace(urlSearch.group(0), " ")
-            serverAddress = urlSearch.group(4).lower()
-            serverPort = int(urlSearch.group(6))
-        # Find the serverAddress, if specified with equals notation
-        serverAddress = self.findParameter("server_address", line) or serverAddress
-        # Find the serverPort, if specified with equals notation
-        serverPortParam = self.findParameter("server_port", line)
-        if serverPortParam is not None:
+        url_regex = re.compile("(^|\s)(irc://)?(([a-z.]+\.[a-z]+)(:([0-9]+))?)(\s|$)", re.IGNORECASE)
+        url_search = url_regex.search(line)
+        if url_search is not None:
+            line = line.replace(url_search.group(0), " ")
+            server_address = url_search.group(4).lower()
+            server_port = int(url_search.group(6))
+        # Find the server_address, if specified with equals notation
+        server_address = self.find_parameter("server_address", line) or server_address
+        # Find the server_port, if specified with equals notation
+        server_port_param = self.find_parameter("server_port", line)
+        if server_port_param is not None:
             try:
-                serverPort = int(serverPortParam)
+                server_port = int(server_port_param)
             except ValueError:
                 return "Invalid port number."
-        # Check serverAddress and serverPort are set
-        if serverAddress is None:
+        # Check server_address and server_port are set
+        if server_address is None:
             return "No server address specified."
-        if serverPort is None:
-            serverPort = currentServer.get_server_port()
+        if server_port is None:
+            server_port = current_server.get_server_port()
         # Get server name
-        serverName = self.findParameter("name", line) or serverName
-        serverName = self.findParameter("server_name", line) or serverName
-        # if server name is null, get it from serverAddress
-        if serverName is None:
-            serverName = Commons.get_domain_name(serverAddress)
+        server_name = self.find_parameter("name", line) or server_name
+        server_name = self.find_parameter("server_name", line) or server_name
+        # if server name is null, get it from server_address
+        if server_name is None:
+            server_name = Commons.get_domain_name(server_address)
         # Get other parameters, if set.
-        autoConnect = Commons.string_to_bool(self.findParameter("auto_connect", line)) or True
-        serverNick = self.findParameter("server_nick", line) or self.findParameter("nick", line)
-        serverPrefix = self.findParameter("server_prefix", line) or self.findParameter("prefix", line)
-        fullName = self.findParameter("full_name", line)
-        nickservNick = "nickserv"
-        nickservIdentityCommand = "status"
-        nickservIdentityResponse = "^status [^ ]+ 3$"
-        nickservPassword = None
-        if currentServer.get_type() == Server.TYPE_IRC:
-            nickservNick = currentServer.get_nickserv_nick()
-            nickservIdentityCommand = currentServer.get_nickserv_ident_command()
-            nickservIdentityResponse = currentServer.get_nickserv_ident_response()
-            nickservPassword = currentServer.getNickservPassword()
-        nickservNick = self.findParameter("nickserv_nick", line) or nickservNick
-        nickservIdentityCommand = self.findParameter("nickserv_identity_command", line) or nickservIdentityCommand
-        nickservIdentityResponse = self.findParameter("nickserv_identity_response", line) or nickservIdentityResponse
-        nickservPassword = self.findParameter("nickserv_password", line) or nickservPassword
+        auto_connect = Commons.string_to_bool(self.find_parameter("auto_connect", line)) or True
+        server_nick = self.find_parameter("server_nick", line) or self.find_parameter("nick", line)
+        server_prefix = self.find_parameter("server_prefix", line) or self.find_parameter("prefix", line)
+        full_name = self.find_parameter("full_name", line)
+        nickserv_nick = "nickserv"
+        nickserv_identity_command = "status"
+        nickserv_identity_resp = "^status [^ ]+ 3$"
+        nickserv_password = None
+        if current_server.get_type() == Server.TYPE_IRC:
+            nickserv_nick = current_server.get_nickserv_nick()
+            nickserv_identity_command = current_server.get_nickserv_ident_command()
+            nickserv_identity_resp = current_server.get_nickserv_ident_response()
+            nickserv_password = current_server.getNickservPassword()
+        nickserv_nick = self.find_parameter("nickserv_nick", line) or nickserv_nick
+        nickserv_identity_command = self.find_parameter("nickserv_identity_command", line) or nickserv_identity_command
+        nickserv_identity_resp = self.find_parameter("nickserv_identity_resp", line) or nickserv_identity_resp
+        nickserv_password = self.find_parameter("nickserv_password", line) or nickserv_password
         # Create this serverIRC object
-        newServerObject = ServerIRC(halloObject, serverName, serverAddress, serverPort)
-        newServerObject.set_auto_connect(autoConnect)
-        newServerObject.set_nick(serverNick)
-        newServerObject.set_prefix(serverPrefix)
-        newServerObject.set_full_name(fullName)
-        newServerObject.set_nickserv_nick(nickservNick)
-        newServerObject.set_nickserv_ident_command(nickservIdentityCommand)
-        newServerObject.set_nickserv_ident_response(nickservIdentityResponse)
-        newServerObject.set_nickserv_pass(nickservPassword)
+        new_server_obj = ServerIRC(hallo_obj, server_name, server_address, server_port)
+        new_server_obj.set_auto_connect(auto_connect)
+        new_server_obj.set_nick(server_nick)
+        new_server_obj.set_prefix(server_prefix)
+        new_server_obj.set_full_name(full_name)
+        new_server_obj.set_nickserv_nick(nickserv_nick)
+        new_server_obj.set_nickserv_ident_command(nickserv_identity_command)
+        new_server_obj.set_nickserv_ident_response(nickserv_identity_resp)
+        new_server_obj.set_nickserv_pass(nickserv_password)
         # Add the new object to Hallo's list
-        halloObject.add_server(newServerObject)
+        hallo_obj.add_server(new_server_obj)
         # Connect to the new server object.
-        Thread(target=newServerObject.run).start()
-        return "Connected to new IRC server: " + newServerObject.get_name() + "."
+        Thread(target=new_server_obj.run).start()
+        return "Connected to new IRC server: " + new_server_obj.get_name() + "."
 
 
 class Say(Function):
     """
     Function to enable speaking through hallo
     """
-    # Name for use in help listing
-    help_name = "say"
-    # Names which can be used to address the Function
-    names = {"say", "message", "msg"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Say a message into a channel or server/channel pair (in the format \"{server,channel}\"). " \
-                "Format: say <channel> <message>"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "say"
+        # Names which can be used to address the Function
+        self.names = {"say", "message", "msg"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Say a message into a channel or server/channel pair (in the format \"{server,channel}\"). " \
+                         "Format: say <channel> <message>"
 
     def run(self, line, user_obj, destination_obj=None):
         """
@@ -313,248 +291,243 @@ class Say(Function):
         Format: say <channel> <message>
         """
         # Setting up variables
-        halloObject = user_obj.get_server().get_hallo()
+        hallo_obj = user_obj.get_server().get_hallo()
         # See if server and channel are specified as parameters
-        serverName = self.findParameter("server", line)
-        if serverName is not None:
-            line = line.replace("server=" + serverName, "").strip()
-        channelName = self.findParameter("channel", line)
-        if channelName is not None:
-            line = line.replace("channel=" + channelName, "").strip()
-        # If channelName is not found as a parameter, see if server/channel is given as a first argument pair.
-        if channelName is None:
-            destinationPair = line.split()[0]
-            line = line[len(destinationPair):].strip()
-            destinationSeparators = ["->", ">", ",", ".", "/", ":"]
-            for destinationSeparator in destinationSeparators:
-                if destinationPair.count(destinationSeparator) != 0:
-                    serverName = destinationPair.split(destinationSeparator)[0]
-                    channelName = destinationPair.split(destinationSeparator)[1]
+        server_name = self.find_parameter("server", line)
+        if server_name is not None:
+            line = line.replace("server=" + server_name, "").strip()
+        channel_name = self.find_parameter("channel", line)
+        if channel_name is not None:
+            line = line.replace("channel=" + channel_name, "").strip()
+        # If channel_name is not found as a parameter, see if server/channel is given as a first argument pair.
+        if channel_name is None:
+            destination_pair = line.split()[0]
+            line = line[len(destination_pair):].strip()
+            destination_separators = ["->", ">", ",", ".", "/", ":"]
+            for destinationSeparator in destination_separators:
+                if destination_pair.count(destinationSeparator) != 0:
+                    server_name = destination_pair.split(destinationSeparator)[0]
+                    channel_name = destination_pair.split(destinationSeparator)[1]
                     break
-            if channelName is None:
-                channelName = destinationPair
-        # Get serverObj list from serverName
-        serverObjs = []
-        if serverName is None:
-            serverObjs = [user_obj.get_server()]
+            if channel_name is None:
+                channel_name = destination_pair
+        # Get server_obj list from server_name
+        server_objs = []
+        if server_name is None:
+            server_objs = [user_obj.get_server()]
         else:
             # Create a regex query from their input
-            serverRegex = re.escape(serverName).replace("\*", ".*")
-            serverList = halloObject.get_server_list()
-            for serverObj in serverList:
-                if not serverObj.is_connected():
+            server_regex = re.escape(server_name).replace("\*", ".*")
+            server_list = hallo_obj.get_server_list()
+            for server_obj in server_list:
+                if not server_obj.is_connected():
                     continue
-                if re.match(serverRegex, serverObj.get_name(), re.IGNORECASE):
-                    serverObjs.append(serverObj)
+                if re.match(server_regex, server_obj.get_name(), re.IGNORECASE):
+                    server_objs.append(server_obj)
         # If server is not recognised or found, respond with an error
-        if len(serverObjs) == 0:
+        if len(server_objs) == 0:
             return "Unrecognised server."
-        # Get channelObj list from serverObj and channelName
-        channelObjs = []
-        for serverObj in serverObjs:
-            channelRegex = re.escape(channelName).replace("\*", ".*")
-            channelList = serverObj.get_channel_list()
-            for channelObj in channelList:
+        # Get channelObj list from server_obj and channel_name
+        channel_objs = []
+        for server_obj in server_objs:
+            channel_regex = re.escape(channel_name).replace("\*", ".*")
+            channel_list = server_obj.get_channel_list()
+            for channelObj in channel_list:
                 if not channelObj.is_in_channel():
                     continue
-                if re.match(channelRegex, channelObj.get_name(), re.IGNORECASE):
-                    channelObjs.append(channelObj)
+                if re.match(channel_regex, channelObj.get_name(), re.IGNORECASE):
+                    channel_objs.append(channelObj)
         # If no channels were found that match, respond with an error
-        if len(channelObjs) == 0:
+        if len(channel_objs) == 0:
             return "Unrecognised channel."
         # Send message to all matching channels
-        for channelObj in channelObjs:
+        for channelObj in channel_objs:
             channelObj.send(line)
         return "Message sent."
 
-    def findParameter(self, paramName, line):
+    def find_parameter(self, param_name, line):
         """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        paramValue = None
-        paramRegex = re.compile("(^|\s)" + paramName + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        paramSearch = paramRegex.search(line)
-        if paramSearch is not None:
-            paramValue = paramSearch.group(2)
-        return paramValue
+        param_value = None
+        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_search = param_regex.search(line)
+        if param_search is not None:
+            param_value = param_search.group(2)
+        return param_value
 
 
 class EditServer(Function):
     """
     Edits a Server
     """
-    # Name for use in help listing
-    help_name = "edit server"
-    # Names which can be used to address the Function
-    names = {"edit server", "server edit"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Edits a server's configuration."
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "edit server"
+        # Names which can be used to address the Function
+        self.names = {"edit server", "server edit"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Edits a server's configuration."
 
     def run(self, line, user_obj, destination_obj=None):
         """Runs the function"""
-        currentServer = user_obj.get_server()
-        halloObject = currentServer.get_hallo()
+        current_server = user_obj.get_server()
+        hallo_obj = current_server.get_hallo()
         # Split line, to find server name
-        lineSplit = line.split()
-        serverName = lineSplit[0]
+        line_split = line.split()
+        server_name = line_split[0]
         # See is a server by this name is known
-        serverObject = halloObject.get_server_by_name(serverName)
-        if serverObject is None:
+        server_obj = hallo_obj.get_server_by_name(server_name)
+        if server_obj is None:
             return "This is not a recognised server name. Please specify server name, " \
                    "then whichever variables and values you wish to set. In variable=value pairs."
         # Get protocol and go through protocols branching to whatever function to handle modifying servers of it.
-        serverProtocol = serverObject.get_type()
-        if serverProtocol == Server.TYPE_IRC:
-            return self.editServerIrc(line, serverObject, user_obj, destination_obj)
+        server_protocol = server_obj.get_type()
+        if server_protocol == Server.TYPE_IRC:
+            return self.edit_server_irc(line, server_obj, user_obj, destination_obj)
         # Add in ELIF statements here, to make user Connect Function support other protocols
         else:
             return "Unrecognised server protocol"
 
-    def findParameter(self, paramName, line):
+    def find_parameter(self, param_name, line):
         """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        paramValue = None
-        paramRegex = re.compile("(^|\s)" + paramName + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        paramSearch = paramRegex.search(line)
-        if paramSearch is not None:
-            paramValue = paramSearch.group(2)
-        return paramValue
+        param_value = None
+        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_search = param_regex.search(line)
+        if param_search is not None:
+            param_value = param_search.group(2)
+        return param_value
 
-    def editServerIrc(self, line, serverObject, userObject, destinationObject):
+    def edit_server_irc(self, line, server_obj, user_obj, destination_obj):
         """Processes arguments in order to edit an IRC server"""
         # Set all variables to none as default
-        serverAddress, serverPort = None, None
+        server_address, server_port = None, None
         # Find the URL, if specified
-        urlRegex = re.compile("(^|\s)(irc://)?(([a-z.]+\.[a-z]+)(:([0-9]+))?)(\s|$)", re.IGNORECASE)
-        urlSearch = urlRegex.search(line)
-        if urlSearch is not None:
-            line = line.replace(urlSearch.group(0), " ")
-            serverAddress = urlSearch.group(4).lower()
-            serverPort = int(urlSearch.group(6))
-        # Find the serverAddress, if specified with equals notation
-        serverAddress = self.findParameter("server_address", line) or serverAddress
-        # Find the serverPort, if specified with equals notation
-        serverPortParam = self.findParameter("server_port", line)
-        if serverPortParam is not None:
+        url_regex = re.compile("(^|\s)(irc://)?(([a-z.]+\.[a-z]+)(:([0-9]+))?)(\s|$)", re.IGNORECASE)
+        url_search = url_regex.search(line)
+        if url_search is not None:
+            line = line.replace(url_search.group(0), " ")
+            server_address = url_search.group(4).lower()
+            server_port = int(url_search.group(6))
+        # Find the server_address, if specified with equals notation
+        server_address = self.find_parameter("server_address", line) or server_address
+        # Find the server_port, if specified with equals notation
+        server_port_param = self.find_parameter("server_port", line)
+        if server_port_param is not None:
             try:
-                serverPort = int(serverPortParam)
+                server_port = int(server_port_param)
             except ValueError:
                 return "Invalid port number."
-        # If serverAddress or serverPort are set, edit those and reconnect.
-        if serverAddress is not None:
-            serverObject.setServerAddress(serverAddress)
-        if serverPort is not None:
-            serverObject.setServerPort(serverPort)
+        # If server_address or server_port are set, edit those and reconnect.
+        if server_address is not None:
+            server_obj.setServerAddress(server_address)
+        if server_port is not None:
+            server_obj.setServerPort(server_port)
         # Get other parameters, if set. defaulting to whatever server defaults.
-        autoConnect = Commons.string_to_bool(self.findParameter("auto_connect", line)) or serverObject.get_auto_connect()
-        serverNick = self.findParameter("server_nick", line) or self.findParameter("nick",
-                                                                                   line) or serverObject.get_nick()
-        serverPrefix = self.findParameter("server_prefix", line) or self.findParameter("prefix",
-                                                                                       line) or serverObject.get_prefix()
-        fullName = self.findParameter("full_name", line) or serverObject.get_full_name()
-        nickservNick = self.findParameter("nickserv_nick", line) or serverObject.get_nickserv_nick()
-        nickservIdentityCommand = self.findParameter("nickserv_identity_command",
-                                                     line) or serverObject.get_nickserv_ident_command()
-        nickservIdentityResponse = self.findParameter("nickserv_identity_response",
-                                                      line) or serverObject.get_nickserv_ident_response()
-        nickservPassword = self.findParameter("nickserv_password", line) or serverObject.get_nickserv_pass()
+        auto_connect = Commons.string_to_bool(self.find_parameter("auto_connect",
+                                                                  line)) or server_obj.get_auto_connect()
+        server_nick = self.find_parameter("server_nick", line) or self.find_parameter("nick",
+                                                                                      line) or server_obj.get_nick()
+        server_prefix = self.find_parameter("server_prefix",
+                                            line) or self.find_parameter("prefix",
+                                                                         line) or server_obj.get_prefix()
+        full_name = self.find_parameter("full_name", line) or server_obj.get_full_name()
+        nickserv_nick = self.find_parameter("nickserv_nick", line) or server_obj.get_nickserv_nick()
+        nickserv_identity_command = self.find_parameter("nickserv_identity_command",
+                                                        line) or server_obj.get_nickserv_ident_command()
+        nickserv_identity_response = self.find_parameter("nickserv_identity_response",
+                                                         line) or server_obj.get_nickserv_ident_response()
+        nickserv_password = self.find_parameter("nickserv_password", line) or server_obj.get_nickserv_pass()
         # Set all the new variables
-        serverObject.set_auto_connect(autoConnect)
-        serverObject.set_nick(serverNick)
-        serverObject.set_prefix(serverPrefix)
-        serverObject.set_full_name(fullName)
-        serverObject.set_nickserv_nick(nickservNick)
-        serverObject.set_nickserv_ident_command(nickservIdentityCommand)
-        serverObject.set_nickserv_ident_response(nickservIdentityResponse)
-        serverObject.get_nickserv_pass(nickservPassword)
+        server_obj.set_auto_connect(auto_connect)
+        server_obj.set_nick(server_nick)
+        server_obj.set_prefix(server_prefix)
+        server_obj.set_full_name(full_name)
+        server_obj.set_nickserv_nick(nickserv_nick)
+        server_obj.set_nickserv_ident_command(nickserv_identity_command)
+        server_obj.set_nickserv_ident_response(nickserv_identity_response)
+        server_obj.get_nickserv_pass(nickserv_password)
         # If server address or server port was changed, reconnect.
-        if serverPort is not None or serverAddress is not None:
-            serverObject.reconnect()
-        return "Modified the IRC server: " + serverObject.get_name() + "."
+        if server_port is not None or server_address is not None:
+            server_obj.reconnect()
+        return "Modified the IRC server: " + server_obj.get_name() + "."
 
 
 class ListUsers(Function):
     """
     Lists users in a specified channel.
     """
-    # Name for use in help listing
-    help_name = "list users"
-    # Names which can be used to address the Function
-    names = {"list users", "nick list", "nicklist", "list channel"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Returns a user list for a given channel."
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "list users"
+        # Names which can be used to address the Function
+        self.names = {"list users", "nick list", "nicklist", "list channel"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Returns a user list for a given channel."
 
     def run(self, line, user_obj, destination_obj=None):
-        lineClean = line.strip().lower()
+        line_clean = line.strip().lower()
         # Useful object
-        halloObject = user_obj.get_server().get_hallo()
+        hallo_obj = user_obj.get_server().get_hallo()
         # See if a server was specified.
-        serverName = self.findParameter("server", line)
+        server_name = self.find_parameter("server", line)
         # Get server object. If invalid, use current
-        if serverName is None:
-            serverObject = user_obj.get_server()
+        if server_name is None:
+            server_obj = user_obj.get_server()
         else:
-            serverObject = halloObject.get_server_by_name(serverName)
-            if serverObject is None:
+            server_obj = hallo_obj.get_server_by_name(server_name)
+            if server_obj is None:
                 return "I don't recognise that server name."
             # Remove server name from line and trim
-            lineClean = lineClean.replace("server=" + serverName, "").strip()
+            line_clean = line_clean.replace("server=" + server_name, "").strip()
         # See if channel was specified with equals syntax
-        channelName = self.findParameter("channel", lineClean) or self.findParameter("chan", lineClean)
+        channel_name = self.find_parameter("channel", line_clean) or self.find_parameter("chan", line_clean)
         # If not specified with equals syntax, check if just said.
-        if channelName is None:
-            channelName = lineClean
-        if channelName == "":
+        if channel_name is None:
+            channel_name = line_clean
+        if channel_name == "":
             if destination_obj is None or not destination_obj.is_channel():
                 return "I don't recognise that channel name."
-            channelName = destination_obj.get_name()
+            channel_name = destination_obj.get_name()
         # If they've specified all channels, display the server list.
-        if channelName in ["*", "all"]:
-            outputString = "Users on " + serverObject.get_name() + ": "
-            userList = serverObject.get_user_list()
-            outputString += ", ".join([user.get_name() for user in userList if user.is_online()])
-            outputString += "."
-            return outputString
+        if channel_name in ["*", "all"]:
+            output_string = "Users on " + server_obj.get_name() + ": "
+            user_list = server_obj.get_user_list()
+            output_string += ", ".join([user.get_name() for user in user_list if user.is_online()])
+            output_string += "."
+            return output_string
         # Get channel object
-        channelObject = serverObject.get_channel_by_name(channelName)
+        channel_obj = server_obj.get_channel_by_name(channel_name)
         # Get user list
-        userList = channelObject.get_user_list()
+        user_list = channel_obj.get_user_list()
         # Output
-        outputString = "Users in " + channelName + ": "
-        outputString += ", ".join([user.get_name() for user in userList])
-        outputString += "."
-        return outputString
+        output_string = "Users in " + channel_name + ": "
+        output_string += ", ".join([user.get_name() for user in user_list])
+        output_string += "."
+        return output_string
 
-    def findParameter(self, paramName, line):
+    def find_parameter(self, param_name, line):
         """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        paramValue = None
-        paramRegex = re.compile("(^|\s)" + paramName + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        paramSearch = paramRegex.search(line)
-        if paramSearch is not None:
-            paramValue = paramSearch.group(2)
-        return paramValue
+        param_value = None
+        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_search = param_regex.search(line)
+        if param_search is not None:
+            param_value = param_search.group(2)
+        return param_value
 
 
 class ListChannels(Function):
     """
     Lists channels in a specified server, or for all of hallo.
     """
-    # Name for use in help listing
-    help_name = "list channels"
-    # Names which can be used to address the Function
-    names = {"list channels", "channel list", "chanlist", "channels"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Hallo will tell you which channels he is in. Format: \"list channels\" " \
-                "for channels on current server, \"list channels all\" for all channels on all servers."
 
     HALLO_NAMES = ["hallo", "core", "all", "*", "default"]
     SERVER_NAMES = ["server", "serv", "s"]
@@ -563,74 +536,81 @@ class ListChannels(Function):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "list channels"
+        # Names which can be used to address the Function
+        self.names = {"list channels", "channel list", "chanlist", "channels"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Hallo will tell you which channels he is in. Format: \"list channels\" " \
+                         "for channels on current server, \"list channels all\" for all channels on all servers."
 
     def run(self, line, user_obj, destination_obj=None):
         """
         Hallo will tell you which channels he is in, ops only.
         Format: "channels" for channels on current server, "channels all" for all channels on all servers.
         """
-        lineClean = line.strip().lower()
-        halloObject = user_obj.get_server().get_hallo()
+        line_clean = line.strip().lower()
+        hallo_obj = user_obj.get_server().get_hallo()
         # If they ask for all channels, give them all channels.
-        if lineClean in self.HALLO_NAMES:
-            outputString = "On all servers, I am on these channels: "
-            serverList = halloObject.get_server_list()
-            channelTitleList = []
-            for serverObject in serverList:
-                serverName = serverObject.get_name()
-                inChannelNameList = self.getInChannelNamesList(serverObject)
-                channelTitleList += [serverName + "-" + channelName for channelName in inChannelNameList]
-            outputString += ', '.join(channelTitleList)
-            outputString += "."
-            return outputString
+        if line_clean in self.HALLO_NAMES:
+            output_string = "On all servers, I am on these channels: "
+            server_list = hallo_obj.get_server_list()
+            channel_title_list = []
+            for server_obj in server_list:
+                server_name = server_obj.get_name()
+                in_channel_name_list = self.get_in_channel_names_list(server_obj)
+                channel_title_list += [server_name + "-" + channel_name for channel_name in in_channel_name_list]
+            output_string += ', '.join(channel_title_list)
+            output_string += "."
+            return output_string
         # If nothing specified, or "server", then output current server channel list
-        if lineClean == "" or lineClean in self.SERVER_NAMES:
-            serverObject = user_obj.get_server()
-            inChannelNameList = self.getInChannelNamesList(serverObject)
-            outputString = "On this server, I'm in these channels: "
-            outputString += ', '.join(inChannelNameList) + "."
-            return outputString
+        if line_clean == "" or line_clean in self.SERVER_NAMES:
+            server_obj = user_obj.get_server()
+            in_channel_name_list = self.get_in_channel_names_list(server_obj)
+            output_string = "On this server, I'm in these channels: "
+            output_string += ', '.join(in_channel_name_list) + "."
+            return output_string
         # If a server is specified, get that server's channel list
-        if self.findAnyParameter(self.SERVER_NAMES, lineClean):
-            serverName = lineClean.split("=")[1]
-            serverObject = halloObject.get_server_by_name(serverName)
-            if serverObject is None:
+        if self.find_any_parameter(self.SERVER_NAMES, line_clean):
+            server_name = line_clean.split("=")[1]
+            server_obj = hallo_obj.get_server_by_name(server_name)
+            if server_obj is None:
                 return "I don't recognise that server name."
-            inChannelNameList = self.getInChannelNamesList(serverObject)
-            outputString = "On " + serverObject.get_name() + " server, I'm in these channels: "
-            outputString += ', '.join(inChannelNameList) + "."
-            return outputString
+            in_channel_name_list = self.get_in_channel_names_list(server_obj)
+            output_string = "On " + server_obj.get_name() + " server, I'm in these channels: "
+            output_string += ', '.join(in_channel_name_list) + "."
+            return output_string
         # Check if whatever input they gave is a server
-        serverObject = halloObject.get_server_by_name(lineClean)
-        if serverObject is None:
+        server_obj = hallo_obj.get_server_by_name(line_clean)
+        if server_obj is None:
             # Otherwise, return an error
-            outputString = "I don't understand your input, please specify a server, or hallo, " \
+            output_string = "I don't understand your input, please specify a server, or hallo, " \
                            "or no input to get the current server's list"
-            return outputString
-        inChannelNameList = self.getInChannelNamesList(serverObject)
-        outputString = "On " + serverObject.get_name() + " server, I'm in these channels: "
-        outputString += ', '.join(inChannelNameList) + "."
-        return outputString
+            return output_string
+        in_channel_name_list = self.get_in_channel_names_list(server_obj)
+        output_string = "On " + server_obj.get_name() + " server, I'm in these channels: "
+        output_string += ', '.join(in_channel_name_list) + "."
+        return output_string
 
-    def findParameter(self, paramName, line):
+    def find_parameter(self, param_name, line):
         """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        paramValue = None
-        paramRegex = re.compile("(^|\s)" + paramName + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        paramSearch = paramRegex.search(line)
-        if paramSearch is not None:
-            paramValue = paramSearch.group(2)
-        return paramValue
+        param_value = None
+        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_search = param_regex.search(line)
+        if param_search is not None:
+            param_value = param_search.group(2)
+        return param_value
 
-    def findAnyParameter(self, paramList, line):
+    def find_any_parameter(self, param_list, line):
         """Finds one of any parameter in a line."""
-        for paramName in paramList:
-            if self.findParameter(paramName, line) is not None:
+        for param_name in param_list:
+            if self.find_parameter(param_name, line) is not None:
                 return True
         return False
 
-    def getInChannelNamesList(self, serverObject):
-        channelList = serverObject.get_channel_list()
-        inChannelList = [channel for channel in channelList if channel.is_in_channel()]
-        inChannelNamesList = [channel.get_name() for channel in inChannelList]
-        return inChannelNamesList
+    def get_in_channel_names_list(self, server_obj):
+        channel_list = server_obj.get_channel_list()
+        in_channel_list = [channel for channel in channel_list if channel.is_in_channel()]
+        in_channel_names_list = [channel.get_name() for channel in in_channel_list]
+        return in_channel_names_list

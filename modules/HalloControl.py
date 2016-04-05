@@ -138,3 +138,27 @@ class Help(Function):
             return help_message
         except NotImplementedError:
             return "No documentation exists for that function"
+
+
+class Shutdown(Function):
+    """
+    Shuts down hallo entirely.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "shutdown"
+        # Names which can be used to address the Function
+        self.names = {"shutdown"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Shuts down hallo entirely."
+
+    def run(self, line, user_obj, destination_obj=None):
+        server_obj = user_obj.get_server()
+        hallo_obj = server_obj.get_hallo()
+        hallo_obj.close()
+        return "Shutting down."
