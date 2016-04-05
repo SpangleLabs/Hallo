@@ -475,13 +475,13 @@ class ServerIRC(Server):
                 if msg_type == "message":
                     self.hallo.get_printer().outputFromSelf(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
                                                             channel_obj)
-                    self.hallo.get_logger().logFromSelf(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
-                                                        channel_obj)
+                    self.hallo.get_logger().log_from_self(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
+                                                          channel_obj)
                 elif msg_type == "notice":
                     self.hallo.get_printer().outputFromSelf(Function.EVENT_NOTICE, date_line_line, self, user_obj,
                                                             channel_obj)
-                    self.hallo.get_logger().logFromSelf(Function.EVENT_NOTICE, date_line_line, self, user_obj,
-                                                        channel_obj)
+                    self.hallo.get_logger().log_from_self(Function.EVENT_NOTICE, date_line_line, self, user_obj,
+                                                          channel_obj)
 
     def send_raw(self, data):
         """Sends raw data to the server
@@ -587,7 +587,7 @@ class ServerIRC(Server):
         self.hallo.get_printer().output(Function.EVENT_PING, ping_number, self, None, None)
         self.hallo.get_printer().outputFromSelf(Function.EVENT_PING, ping_number, self, None, None)
         self.hallo.get_logger().log(Function.EVENT_PING, ping_number, self, None, None)
-        self.hallo.get_logger().logFromSelf(Function.EVENT_PING, ping_number, self, None, None)
+        self.hallo.get_logger().log_from_self(Function.EVENT_PING, ping_number, self, None, None)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.get_function_dispatcher()
         function_dispatcher.dispatch_passive(Function.EVENT_PING, ping_number, self, None, None)
@@ -1281,7 +1281,7 @@ class ServerIRC(Server):
             for channel in self.channel_list:
                 if not channel.is_in_channel():
                     continue
-                self.hallo.get_logger().logFromSelf(Function.EVENT_CHNAME, old_nick, self, hallo_user_obj, channel)
+                self.hallo.get_logger().log_from_self(Function.EVENT_CHNAME, old_nick, self, hallo_user_obj, channel)
 
     def get_type(self):
         """Type getter"""

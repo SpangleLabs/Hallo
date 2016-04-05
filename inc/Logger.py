@@ -10,195 +10,191 @@ class Logger:
     Logging class. This is created and stored by the Hallo object.
     It exists in order to provide a single entry point to all logging.
     """
-    mHallo = None
-    mLock = None
-    mEventDict = None
 
     def __init__(self, hallo):
         """
         Constructor
         """
-        self.mHallo = hallo
-        self.mLock = Lock()
-        self.mEventDict = {}
-        self.mEventDict[Function.EVENT_SECOND] = self.logSecond
-        self.mEventDict[Function.EVENT_MINUTE] = self.logMinute
-        self.mEventDict[Function.EVENT_HOUR] = self.logHour
-        self.mEventDict[Function.EVENT_DAY] = self.logDay
-        self.mEventDict[Function.EVENT_PING] = self.logPing
-        self.mEventDict[Function.EVENT_MESSAGE] = self.logMessage
-        self.mEventDict[Function.EVENT_JOIN] = self.logJoin
-        self.mEventDict[Function.EVENT_LEAVE] = self.logLeave
-        self.mEventDict[Function.EVENT_QUIT] = self.logQuit
-        self.mEventDict[Function.EVENT_CHNAME] = self.logNameChange
-        self.mEventDict[Function.EVENT_KICK] = self.logKick
-        self.mEventDict[Function.EVENT_INVITE] = self.logInvite
-        self.mEventDict[Function.EVENT_NOTICE] = self.logNotice
-        self.mEventDict[Function.EVENT_MODE] = self.logModeChange
-        self.mEventDict[Function.EVENT_CTCP] = self.logCtcp
+        self.hallo = hallo
+        self.lock = Lock()
+        self.event_dict = {Function.EVENT_SECOND: self.log_second,
+                           Function.EVENT_MINUTE: self.log_minute,
+                           Function.EVENT_HOUR: self.log_hour,
+                           Function.EVENT_DAY: self.log_day,
+                           Function.EVENT_PING: self.log_ping,
+                           Function.EVENT_MESSAGE: self.log_message,
+                           Function.EVENT_JOIN: self.log_join,
+                           Function.EVENT_LEAVE: self.log_leave,
+                           Function.EVENT_QUIT: self.log_quit,
+                           Function.EVENT_CHNAME: self.log_name_change,
+                           Function.EVENT_KICK: self.log_kick,
+                           Function.EVENT_INVITE: self.log_invite,
+                           Function.EVENT_NOTICE: self.log_notice,
+                           Function.EVENT_MODE: self.log_mode_change,
+                           Function.EVENT_CTCP: self.log_ctcp}
 
-    def log(self, event, fullLine, serverObject=None, userObject=None, channelObject=None):
+    def log(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
         """The function which actually writes the logs."""
         # If channel is set, check logging
-        if channelObject is not None and not channelObject.get_logging():
+        if channel_obj is not None and not channel_obj.get_logging():
             return None
         # If channel not set, but user is set, check their logging settings.
-        if channelObject is None and userObject is not None and not userObject.get_logging():
+        if channel_obj is None and user_obj is not None and not user_obj.get_logging():
             return None
         # Check what type of event and pass to that to create line
-        if event not in self.mEventDict:
+        if event not in self.event_dict:
             return None
-        logFunction = self.mEventDict[event]
-        logLine = logFunction(fullLine, serverObject, userObject, channelObject)
-        # If logLine is null, do nothing.
-        if logLine is None:
+        log_function = self.event_dict[event]
+        log_line = log_function(full_line, server_obj, user_obj, channel_obj)
+        # If log_line is null, do nothing.
+        if log_line is None:
             return None
         # Create file name
-        fileName = self.getFileName(serverObject, userObject, channelObject)
+        file_name = self.get_file_name(server_obj, user_obj, channel_obj)
         # Write the log line
-        self.addLine(fileName, logLine)
+        self.add_line(file_name, log_line)
         return None
     
-    def logFromSelf(self, event, fullLine, serverObject=None, userObject=None, channelObject=None):
+    def log_from_self(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
         """Writes a log line for a message from hallo."""
         # If channel is set, check logging
-        if channelObject is not None and not channelObject.get_logging():
+        if channel_obj is not None and not channel_obj.get_logging():
             return None
         # If channel not set, but user is set, check their logging settings.
-        if channelObject is None and userObject is not None and not userObject.get_logging():
+        if channel_obj is None and user_obj is not None and not user_obj.get_logging():
             return None
         # Check what type of event and pass to that to create line
-        if event not in self.mEventDict:
+        if event not in self.event_dict:
             return None
-        logFunction = self.mEventDict[event]
-        halloUserObject = serverObject.get_user_by_name(serverObject.get_nick())
-        logLine = logFunction(fullLine, serverObject, halloUserObject, channelObject)
-        # If logLine is null, do nothing.
-        if logLine is None:
+        log_function = self.event_dict[event]
+        hallo_user_obj = server_obj.get_user_by_name(server_obj.get_nick())
+        log_line = log_function(full_line, server_obj, hallo_user_obj, channel_obj)
+        # If log_line is null, do nothing.
+        if log_line is None:
             return None
         # Create file name
-        fileName = self.getFileName(serverObject, userObject, channelObject)
+        file_name = self.get_file_name(server_obj, user_obj, channel_obj)
         # Write the log line
-        self.addLine(fileName, logLine)
+        self.add_line(file_name, log_line)
         return None
     
-    def logSecond(self, fullLine, serverObject, userObject, channelObject):
+    def log_second(self, full_line, server_obj, user_obj, channel_obj):
         return None
     
-    def logMinute(self, fullLine, serverObject, userObject, channelObject):
+    def log_minute(self, full_line, server_obj, user_obj, channel_obj):
         return None
     
-    def logHour(self, fullLine, serverObject, userObject, channelObject):
+    def log_hour(self, full_line, server_obj, user_obj, channel_obj):
         return None
     
-    def logDay(self, fullLine, serverObject, userObject, channelObject):
+    def log_day(self, full_line, server_obj, user_obj, channel_obj):
         return None
     
-    def logPing(self, fullLine, serverObject, userObject, channelObject):
+    def log_ping(self, full_line, server_obj, user_obj, channel_obj):
         return None
     
-    def logMessage(self, fullLine, serverObject, userObject, channelObject):
+    def log_message(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += '<' + userObject.get_name() + '> ' + fullLine
+        output += '<' + user_obj.get_name() + '> ' + full_line
         return output
     
-    def logJoin(self, fullLine, serverObject, userObject, channelObject):
+    def log_join(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += userObject.get_name() + " joined " + channelObject.get_name()
+        output += user_obj.get_name() + " joined " + channel_obj.get_name()
         return output
     
-    def logLeave(self, fullLine, serverObject, userObject, channelObject):
+    def log_leave(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += userObject.get_name() + " left " + channelObject.get_name()
-        if fullLine.strip() != "":
-            output += " (" + fullLine + ")"
+        output += user_obj.get_name() + " left " + channel_obj.get_name()
+        if full_line.strip() != "":
+            output += " (" + full_line + ")"
         return output
     
-    def logQuit(self, fullLine, serverObject, userObject, channelObject):
+    def log_quit(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += userObject.get_name() + " has quit."
-        if fullLine.strip() != "":
-            output += " (" + fullLine + ")"
+        output += user_obj.get_name() + " has quit."
+        if full_line.strip() != "":
+            output += " (" + full_line + ")"
         return output
     
-    def logNameChange(self, fullLine, serverObject, userObject, channelObject):
+    def log_name_change(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += "Nick change: " + fullLine + " -> " + userObject.get_name()
+        output += "Nick change: " + full_line + " -> " + user_obj.get_name()
         return output
     
-    def logKick(self, fullLine, serverObject, userObject, channelObject):
+    def log_kick(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += userObject.get_name() + " was kicked from " + channelObject.get_name()
-        if fullLine.strip() != "":
-            output += " (" + fullLine + ")"
+        output += user_obj.get_name() + " was kicked from " + channel_obj.get_name()
+        if full_line.strip() != "":
+            output += " (" + full_line + ")"
         return output
     
-    def logInvite(self, fullLine, serverObject, userObject, channelObject):
+    def log_invite(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += "Invite to " + channelObject.get_name() + ' from ' + userObject.get_name()
+        output += "Invite to " + channel_obj.get_name() + ' from ' + user_obj.get_name()
         return output
     
-    def logNotice(self, fullLine, serverObject, userObject, channelObject):
+    def log_notice(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += "Notice from " + userObject.get_name() + ": " + fullLine
+        output += "Notice from " + user_obj.get_name() + ": " + full_line
         return output
     
-    def logModeChange(self, fullLine, serverObject, userObject, channelObject):
+    def log_mode_change(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += userObject.get_name() + ' set ' + fullLine + ' on ' + channelObject.get_name()
+        output += user_obj.get_name() + ' set ' + full_line + ' on ' + channel_obj.get_name()
         return output
     
-    def logCtcp(self, fullLine, serverObject, userObject, channelObject):
-        ctcpCommand = fullLine.split()[0]
-        ctcpArguments = ' '.join(fullLine.split()[1:])
-        if ctcpCommand.lower() == "action":
+    def log_ctcp(self, full_line, server_obj, user_obj, channel_obj):
+        ctcp_command = full_line.split()[0]
+        ctcp_arguments = ' '.join(full_line.split()[1:])
+        if ctcp_command.lower() == "action":
             output = Commons.current_timestamp() + " "
-            output += "**" + userObject.get_name() + ' ' + ctcpArguments + '**'
+            output += "**" + user_obj.get_name() + ' ' + ctcp_arguments + '**'
             return output
         output = Commons.current_timestamp() + " "
-        output += "<" + userObject.get_name() + ' (CTCP)> ' + fullLine
+        output += "<" + user_obj.get_name() + ' (CTCP)> ' + full_line
         return output
     
-    def getFileName(self, serverObject, userObject, channelObject):
+    def get_file_name(self, server_obj, user_obj, channel_obj):
         """Finds the file name of the file to write the log to."""
-        fileName = "logs/"
-        fileDate = datetime.datetime.now().strftime("%Y-%m-%d")
-        fileExt = ".txt"
+        file_name = "logs/"
+        file_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        file_ext = ".txt"
         # If no server specified
-        if serverObject is None:
-            fileName += "@/"
-            fileName += fileDate+fileExt
-            return fileName
+        if server_obj is None:
+            file_name += "@/"
+            file_name += file_date+file_ext
+            return file_name
         # Otherwise, go into server directory
-        fileName += serverObject.get_name() + "/"
+        file_name += server_obj.get_name() + "/"
         # Check if channel object is specified
-        if channelObject is None:
-            if userObject is None:
+        if channel_obj is None:
+            if user_obj is None:
                 # No channel or user
-                fileName += "@/"
-                fileName += fileDate+fileExt
-                return fileName
+                file_name += "@/"
+                file_name += file_date+file_ext
+                return file_name
             # No channel, but there is a user
-            fileName += userObject.get_name() + "/"
-            fileName += fileDate+fileExt
-            return fileName
+            file_name += user_obj.get_name() + "/"
+            file_name += file_date+file_ext
+            return file_name
         # Channel object is set
-        fileName += channelObject.get_name() + "/"
-        fileName += fileDate+fileExt
-        return fileName
+        file_name += channel_obj.get_name() + "/"
+        file_name += file_date+file_ext
+        return file_name
 
-    def addLine(self, fileName, line):
+    def add_line(self, file_name, line):
         """Adds a new line to a specified file."""
         # Acquire thread lock
-        with self.mLock:
+        with self.lock:
             # Create directories if they don't exist.
-            fileNameSplit = fileName.split("/")
-            for fileDir in ["/".join(fileNameSplit[:x]) for x in range(1, len(fileNameSplit))]:
+            file_name_split = file_name.split("/")
+            for fileDir in ["/".join(file_name_split[:x]) for x in range(1, len(file_name_split))]:
                 try:
                     os.mkdir(fileDir)
-                except:
+                except OSError:
                     pass
             # Open file and write log
-            logFile = open(fileName, "a")
-            logFile.write(line+"\n")
-            logFile.close()
+            log_file = open(file_name, "a")
+            log_file.write(line+"\n")
+            log_file.close()
