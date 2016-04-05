@@ -13,108 +13,126 @@ class ConvertRepo:
     """
     Configuration repository. Stores list of ConvertTypes, ConvertPrefixGroups, etc
     """
-    mTypeList = None
-    mPrefixGroupList = None
 
     def __init__(self):
         """
         Constructor
         """
-        self.mTypeList = []
-        self.mPrefixGroupList = []
+        self.type_list = []
+        self.prefix_group_list = []
         # Nothing needs doing
         pass
 
-    def getTypeList(self):
+    def get_type_list(self):
         """Returns the full list of ConvertType objects"""
-        return self.mTypeList
+        return self.type_list
 
-    def addType(self, newType):
-        """Adds a new ConvertType object to the type list"""
-        self.mTypeList.append(newType)
+    def add_type(self, new_type):
+        """
+        Adds a new ConvertType object to the type list
+        :param new_type: Conversion type to add to repo
+        :type new_type: ConvertType
+        """
+        self.type_list.append(new_type)
 
-    def removeType(self, delType):
-        """Removes a ConvertType object from the type list"""
-        if delType in self.mTypeList:
-            self.mTypeList.remove(delType)
+    def remove_type(self, del_type):
+        """
+        Removes a ConvertType object from the type list
+        :param del_type: Conversion type to remove from repo
+        :type del_type: ConvertType
+        """
+        if del_type in self.type_list:
+            self.type_list.remove(del_type)
 
-    def getTypeByName(self, name):
-        """Gets a ConvertType object with the matching name."""
-        for typeObject in self.mTypeList:
-            if typeObject.getName() == name:
-                return typeObject
-        for typeObject in self.mTypeList:
-            if typeObject.getName().lower() == name.lower():
-                return typeObject
+    def get_type_by_name(self, name):
+        """
+        Gets a ConvertType object with the matching name.
+        :param name: Name of the conversion type
+        :type name: str
+        """
+        for type_obj in self.type_list:
+            if type_obj.get_name() == name:
+                return type_obj
+        for type_obj in self.type_list:
+            if type_obj.get_name().lower() == name.lower():
+                return type_obj
         return None
 
-    def getFullUnitList(self):
+    def get_full_unit_list(self):
         """Returns the full list of ConvertUnit objects, in every ConvertType object."""
-        convertUnitList = []
-        for typeObject in self.mTypeList:
-            convertUnitList += typeObject.getUnitList()
-        return convertUnitList
+        convert_unit_list = []
+        for type_obj in self.type_list:
+            convert_unit_list += type_obj.get_unit_list()
+        return convert_unit_list
 
-    def getPrefixGroupList(self):
+    def get_prefix_group_list(self):
         """Returns the full list of ConvertPrefixGroup objects"""
-        return self.mPrefixGroupList
+        return self.prefix_group_list
 
-    def addPrefixGroup(self, prefixGroup):
-        """Adds a new ConvertPrefixGroup object to the prefix group list"""
-        self.mPrefixGroupList.append(prefixGroup)
+    def add_prefix_group(self, prefix_group):
+        """
+        Adds a new ConvertPrefixGroup object to the prefix group list.
+        :param prefix_group: Prefix group to add to repo
+        :type prefix_group: ConvertPrefixGroup
+        """
+        self.prefix_group_list.append(prefix_group)
 
-    def removePrefixGroup(self, prefixGroup):
-        """Removes a ConvertPrefixGroup object from the prefix group list"""
-        if prefixGroup in self.mPrefixGroupList:
-            self.mPrefixGroupList.remove(prefixGroup)
+    def remove_prefix_group(self, prefix_group):
+        """
+        Removes a ConvertPrefixGroup object from the prefix group list
+        :param prefix_group: Prefix group to remove from repo
+        :type prefix_group: ConvertPrefixGroup
+        """
+        if prefix_group in self.prefix_group_list:
+            self.prefix_group_list.remove(prefix_group)
 
-    def getPrefixGroupByName(self, name):
+    def get_prefix_group_by_name(self, name):
         """Gets a ConvertPrefixGroup object with the matching name."""
-        for prefixGroupObject in self.mPrefixGroupList:
-            if prefixGroupObject.getName().lower() == name.lower():
+        for prefixGroupObject in self.prefix_group_list:
+            if prefixGroupObject.get_name().lower() == name.lower():
                 return prefixGroupObject
         return None
 
     @staticmethod
-    def loadFromXml():
+    def load_from_xml():
         """Loads Convert Repo from XML."""
         try:
             doc = minidom.parse("store/convert.xml")
         except (OSError, IOError):
             doc = minidom.parse("store/convert-default.xml")
         # Create new object
-        newRepo = ConvertRepo()
+        new_repo = ConvertRepo()
         # Loop through prefix groups
-        for prefixGroupXml in doc.getElementsByTagName("prefix_group"):
-            prefixGroupObject = ConvertPrefixGroup.fromXml(newRepo, prefixGroupXml.toxml())
-            newRepo.addPrefixGroup(prefixGroupObject)
+        for prefix_group_elem in doc.getElementsByTagName("prefix_group"):
+            prefix_group_obj = ConvertPrefixGroup.from_xml(new_repo, prefix_group_elem.toxml())
+            new_repo.add_prefix_group(prefix_group_obj)
         # Loop through types
-        for typeXml in doc.getElementsByTagName("type"):
-            typeObject = ConvertType.fromXml(newRepo, typeXml.toxml())
-            newRepo.addType(typeObject)
+        for type_elem in doc.getElementsByTagName("type"):
+            type_obj = ConvertType.from_xml(new_repo, type_elem.toxml())
+            new_repo.add_type(type_obj)
         # Return new repo object
-        return newRepo
+        return new_repo
 
-    def saveToXml(self):
+    def save_to_xml(self):
         """Saves Convert Repo to XML."""
         # Create document, with DTD
-        docimp = minidom.DOMImplementation()
-        doctype = docimp.createDocumentType(
+        doc_imp = minidom.DOMImplementation()
+        doc_type = doc_imp.createDocumentType(
             qualifiedName='convert',
             publicId='',
             systemId='convert.dtd',
         )
-        doc = docimp.createDocument(None, 'convert', doctype)
+        doc = doc_imp.createDocument(None, 'convert', doc_type)
         # get root element
         root = doc.getElementsByTagName("convert")[0]
         # Add prefix groups
-        for prefixGroupObject in self.mPrefixGroupList:
-            prefixGroupElement = minidom.parseString(prefixGroupObject.to_xml()).firstChild
-            root.appendChild(prefixGroupElement)
+        for prefix_group_obj in self.prefix_group_list:
+            prefix_group_elem = minidom.parseString(prefix_group_obj.to_xml()).firstChild
+            root.appendChild(prefix_group_elem)
         # Add types
-        for typeObject in self.mTypeList:
-            typeElement = minidom.parseString(typeObject.to_xml()).firstChild
-            root.appendChild(typeElement)
+        for type_obj in self.type_list:
+            type_elem = minidom.parseString(type_obj.to_xml()).firstChild
+            root.appendChild(type_elem)
         # save XML
         doc.writexml(open("store/convert.xml", "w"), addindent="\t", newl="\n")
 
@@ -123,101 +141,112 @@ class ConvertType:
     """
     Conversion unit type object.
     """
-    mRepo = None
-    mName = None
-    mDecimals = 2
-    mBaseUnit = None
-    mUnitList = None
 
     def __init__(self, repo, name):
-        self.mUnitList = []
-        self.mRepo = repo
-        self.mName = name
+        """
+        :param repo: Repository this type belongs to
+        :type repo: ConvertRepo
+        :param name: Name of conversion type
+        :type name: str
+        """
+        self.unit_list = []  # Contains all units of this type except base_unit
+        self.repo = repo
+        self.name = name
+        self.decimals = 2
+        self.base_unit = None
 
-    def getRepo(self):
+    def get_repo(self):
         """Returns the ConvertRepo which owns this ConvertType object"""
-        return self.mRepo
+        return self.repo
 
-    def getName(self):
+    def get_name(self):
         """Returns the name of the ConvertType object"""
-        return self.mName
+        return self.name
 
-    def setName(self, name):
-        """Change the name of the ConvertType object"""
-        self.mName = name
+    def set_name(self, name):
+        """
+        Change the name of the ConvertType object
+        :param name: new name
+        :type name: str
+        """
+        self.name = name
 
-    def getDecimals(self):
+    def get_decimals(self):
         """Returns the number of decimals of the ConvertType object"""
-        return self.mDecimals
+        return self.decimals
 
-    def setDecimals(self, decimals):
+    def set_decimals(self, decimals):
         """Change the number of decimals of the ConvertType object"""
-        self.mDecimals = decimals
+        self.decimals = decimals
 
-    def getBaseUnit(self):
+    def get_base_unit(self):
         """Returns the base unit object of the ConvertType object"""
-        return self.mBaseUnit
+        return self.base_unit
 
-    def setBaseUnit(self, baseUnit):
-        """Change the base unit object of the ConvertType object"""
-        self.mBaseUnit = baseUnit
+    def set_base_unit(self, base_unit):
+        """
+        Change the base unit object of the ConvertType object
+        :param base_unit: new base unit
+        :type base_unit: ConvertUnit
+        """
+        self.base_unit = base_unit
 
-    def getUnitList(self):
+    def get_unit_list(self):
         """Returns the full list of ConvertUnit objects"""
-        return [self.mBaseUnit] + self.mUnitList
+        return [self.base_unit] + self.unit_list
 
-    def addUnit(self, unit):
+    def add_unit(self, unit):
         """Adds a new ConvertUnit object to unit list"""
-        self.mUnitList.append(unit)
+        self.unit_list.append(unit)
 
-    def removeUnit(self, unit):
+    def remove_unit(self, unit):
         """Removes a ConvertUnit object to unit list"""
-        if unit in self.mUnitList:
-            self.mUnitList.remove(unit)
+        if unit in self.unit_list:
+            self.unit_list.remove(unit)
 
-    def getUnitByName(self, name):
+    def get_unit_by_name(self, name):
         """Get a unit by a specified name or abbreviation"""
-        fullUnitList = [self.mBaseUnit] + self.mUnitList
-        for unitObject in fullUnitList:
-            if name in unitObject.getNameList():
+        full_unit_list = [self.base_unit] + self.unit_list
+        for unitObject in full_unit_list:
+            if name in unitObject.get_name_list():
                 return unitObject
-        for unitObject in fullUnitList:
-            if name.lower() in [unitName.lower() for unitName in unitObject.getNameList()]:
+        for unitObject in full_unit_list:
+            if name.lower() in [unitName.lower() for unitName in unitObject.get_name_list()]:
                 return unitObject
-        for unitObject in fullUnitList:
-            if name in unitObject.getAbbreviationList():
+        for unitObject in full_unit_list:
+            if name in unitObject.get_abbr_list():
                 return unitObject
-        for unitObject in fullUnitList:
-            if name.lower() in [unitName.lower() for unitName in unitObject.getAbbreviationList()]:
+        for unitObject in full_unit_list:
+            if name.lower() in [unitName.lower() for unitName in unitObject.get_abbr_list()]:
                 return unitObject
         return None
 
     @staticmethod
-    def fromXml(repo, xmlString):
+    def from_xml(repo, xml_string):
         """Loads a new ConvertType object from XML"""
         # Load document
-        doc = minidom.parseString(xmlString)
+        doc = minidom.parseString(xml_string)
         # Get name and create ConvertType object
-        newName = doc.getElementsByTagName("name")[0].firstChild.data
-        newType = ConvertType(repo, newName)
+        new_name = doc.getElementsByTagName("name")[0].firstChild.data
+        new_type = ConvertType(repo, new_name)
         # Get number of decimals
         if len(doc.getElementsByTagName("decimals")) > 0:
-            newDecimals = int(doc.getElementsByTagName("decimals")[0].firstChild.data)
-            newType.setDecimals(newDecimals)
+            new_decimals = int(doc.getElementsByTagName("decimals")[0].firstChild.data)
+            new_type.set_decimals(new_decimals)
         # Get base unit
-        baseUnitXml = doc.getElementsByTagName("base_unit")[0].getElementsByTagName("unit")[0]
-        baseUnitObject = ConvertUnit.fromXml(newType, baseUnitXml.toxml())
-        newType.setBaseUnit(baseUnitObject)
+        base_unit_elem = doc.getElementsByTagName("base_unit")[0].getElementsByTagName("unit")[0]
+        base_unit_obj = ConvertUnit.from_xml(new_type, base_unit_elem.toxml())
+        new_type.set_base_unit(base_unit_obj)
         # Loop through unit elements, creating and adding objects.
-        for unitXml in doc.getElementsByTagName("unit"):
-            if unitXml == baseUnitXml:
+        for unit_elem in doc.getElementsByTagName("unit"):
+            if unit_elem == base_unit_elem:
                 continue
-            unitObject = ConvertUnit.fromXml(newType, unitXml.toxml())
-            newType.addUnit(unitObject)
+            unit_obj = ConvertUnit.from_xml(new_type, unit_elem.toxml())
+            new_type.add_unit(unit_obj)
         # Return created Type
-        return newType
+        return new_type
 
-    def toXml(self):
+    def to_xml(self):
         """Writes ConvertType object as XML"""
         # create document
         doc = minidom.Document()
@@ -225,22 +254,22 @@ class ConvertType:
         root = doc.createElement("type")
         doc.appendChild(root)
         # Add name element
-        nameElement = doc.createElement("name")
-        nameElement.appendChild(doc.createTextNode(self.mName))
-        root.appendChild(nameElement)
+        name_elem = doc.createElement("name")
+        name_elem.appendChild(doc.createTextNode(self.name))
+        root.appendChild(name_elem)
         # Add decimals element
-        nameElement = doc.createElement("decimals")
-        nameElement.appendChild(doc.createTextNode(str(self.mDecimals)))
-        root.appendChild(nameElement)
+        decimals_elem = doc.createElement("decimals")
+        decimals_elem.appendChild(doc.createTextNode(str(self.decimals)))
+        root.appendChild(decimals_elem)
         # Add base unit element
-        baseUnitElement = doc.createElement("base_unit")
-        baseUnitUnitElement = minidom.parseString(self.mBaseUnit.to_xml()).firstChild
-        baseUnitElement.appendChild(baseUnitUnitElement)
-        root.appendChild(baseUnitElement)
+        base_unit_elem = doc.createElement("base_unit")
+        base_unit_unit_elem = minidom.parseString(self.base_unit.to_xml()).firstChild
+        base_unit_elem.appendChild(base_unit_unit_elem)
+        root.appendChild(base_unit_elem)
         # Add units
-        for unitObject in self.mUnitList:
-            unitElement = minidom.parseString(unitObject.to_xml()).firstChild
-            root.appendChild(unitElement)
+        for unit_obj in self.unit_list:
+            unit_elem = minidom.parseString(unit_obj.to_xml()).firstChild
+            root.appendChild(unit_elem)
         # Output XML
         return doc.toxml()
 
@@ -249,209 +278,214 @@ class ConvertUnit:
     """
     Conversion unit object.
     """
-    mType = None
-    mNameList = None
-    mAbbreviationList = None
-    mValidPrefixGroup = None
-    mValue = None
-    mOffset = 0
-    mLastUpdated = None
 
-    def __init__(self, convertType, names, value):
-        self.mNameList = []
-        self.mAbbreviationList = []
-        self.mType = convertType
-        self.mNameList = names
-        self.mValue = value
+    def __init__(self, convert_type, names, value):
+        """
+        :param convert_type: Type this unit belongs to
+        :type convert_type: ConvertType
+        :param names: List of names for unit
+        :type names: list
+        :param value: Value of unit against base unit for type
+        :type value: float
+        """
+        self.abbr_list = []
+        self.type = convert_type
+        self.name_list = names
+        self.value = value
+        self.offset = 0
+        self.last_updated = None
+        self.valid_prefix_group = None
 
-    def getType(self):
+    def get_type(self):
         """Returns the ConvertType which "owns" this ConvertUnit."""
-        return self.mType
+        return self.type
 
-    def getNameList(self):
+    def get_name_list(self):
         """Returns the full list of names for a unit."""
-        return self.mNameList
+        return self.name_list
 
-    def addName(self, name):
+    def add_name(self, name):
         """Adds a name to the list of names for a unit."""
-        self.mNameList.append(name)
+        self.name_list.append(name)
 
-    def removeName(self, name):
+    def remove_name(self, name):
         """Removes a name from the list of names for a unit."""
-        if name in self.mNameList:
-            self.mNameList.remove(name)
+        if name in self.name_list:
+            self.name_list.remove(name)
 
-    def getAbbreviationList(self):
+    def get_abbr_list(self):
         """Returns the full list of abbreviations for a unit."""
-        return self.mAbbreviationList
+        return self.abbr_list
 
-    def addAbbreviation(self, abbreviation):
+    def add_addr(self, abbreviation):
         """Adds an abbreviation to the list of abbreviations for a unit."""
-        self.mAbbreviationList.append(abbreviation)
+        self.abbr_list.append(abbreviation)
 
-    def removeAbbreviation(self, abbreviation):
+    def remove_abbr(self, abbreviation):
         """Removes an abbreviation from the list of abbreviations for a unit."""
-        if abbreviation in self.mAbbreviationList:
-            self.mAbbreviationList.remove(abbreviation)
+        if abbreviation in self.abbr_list:
+            self.abbr_list.remove(abbreviation)
 
-    def getPrefixGroup(self):
+    def get_prefix_group(self):
         """Returns the value of the unit."""
-        return self.mValidPrefixGroup
+        return self.valid_prefix_group
 
-    def setPrefixGroup(self, prefixGroup):
+    def set_prefix_group(self, prefix_group):
         """Changes the value of the unit."""
-        self.mValidPrefixGroup = prefixGroup
+        self.valid_prefix_group = prefix_group
 
-    def getValue(self):
+    def get_value(self):
         """Returns the value of the unit."""
-        return self.mValue
+        return self.value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Changes the value of the unit."""
-        self.mLastUpdated = time.time()
-        self.mValue = value
+        self.last_updated = time.time()
+        self.value = value
 
-    def getOffset(self):
+    def get_offset(self):
         """Returns the offset of the unit."""
-        return self.mOffset
+        return self.offset
 
-    def setOffset(self, offset):
+    def set_offset(self, offset):
         """Changes the offset of the unit."""
-        self.mLastUpdated = time.time()
-        self.mOffset = offset
+        self.last_updated = time.time()
+        self.offset = offset
 
-    def getLastUpdated(self):
+    def get_last_updated(self):
         """Returns the last updated time of the unit."""
-        return self.mLastUpdated
+        return self.last_updated
 
-    def setLastUpdated(self, updateTime):
+    def set_last_updated(self, update_time):
         """Changes the last updated time of the unit."""
-        self.mLastUpdated = updateTime
+        self.last_updated = update_time
 
-    def hasName(self, inputName):
+    def has_name(self, input_name):
         """Checks if a specified name is a valid name or abbreviation for this unit."""
-        if inputName.lower() in [name.lower() for name in self.mNameList]:
+        if input_name.lower() in [name.lower() for name in self.name_list]:
             return True
-        if inputName.lower() in [abbr.lower() for abbr in self.mAbbreviationList]:
+        if input_name.lower() in [abbr.lower() for abbr in self.abbr_list]:
             return True
         return False
 
-    def getPrefixFromUserInput(self, userInput):
+    def get_prefix_from_user_input(self, user_input):
         """
         Returns the prefix matching the user inputted unit name.
         None if no prefix.
         False if the input does not match this unit at all.
+        :param user_input: The user input
+        :type user_input: str
         """
-        for name in self.mNameList:
+        for name in self.name_list:
             # If {X} is in the name, it means prefix goes in the middle.
             if "{X}" in name:
-                nameStart = name.split("{X}")[0].lower()
-                nameEnd = name.split("{X}")[1].lower()
+                name_start = name.split("{X}")[0].lower()
+                name_end = name.split("{X}")[1].lower()
                 # Ensure that userinput starts with first half and ends with second half.
-                if not userInput.lower().startswith(nameStart) or not userInput.lower().endswith(nameEnd):
+                if not user_input.lower().startswith(name_start) or not user_input.lower().endswith(name_end):
                     continue
-                userPrefix = userInput[len(nameStart):len(userInput) - len(nameEnd)]
+                user_prefix = user_input[len(name_start):len(user_input) - len(name_end)]
                 # If user prefix is blank, return None
-                if userPrefix == "":
+                if user_prefix == "":
                     return None
                 # If no prefix group is valid, accept blank string, reject anything else.
-                if self.mValidPrefixGroup is None:
+                if self.valid_prefix_group is None:
                     continue
                 # Get the prefix in the group whose name matches the user input
-                prefixObject = self.mValidPrefixGroup.getPrefixByName(userPrefix)
-                if prefixObject is None:
+                prefix_obj = self.valid_prefix_group.get_prefix_by_name(user_prefix)
+                if prefix_obj is None:
                     continue
-                return prefixObject
+                return prefix_obj
             # So, {X} isn't in the name, so it's a standard name.
-            if not userInput.lower().endswith(name.lower()):
+            if not user_input.lower().endswith(name.lower()):
                 continue
             # Find out what the user said was the prefix
-            userPrefix = userInput[:len(userInput) - len(name)]
-            if userPrefix == "":
+            user_prefix = user_input[:len(user_input) - len(name)]
+            if user_prefix == "":
                 return None
             # If no prefix group is valid and user didn't input a blank string, reject
-            if self.mValidPrefixGroup is None:
+            if self.valid_prefix_group is None:
                 continue
             # Get group's prefix that matches name
-            prefixObject = self.mValidPrefixGroup.getPrefixByName(userPrefix)
-            if prefixObject is None:
+            prefix_obj = self.valid_prefix_group.get_prefix_by_name(user_prefix)
+            if prefix_obj is None:
                 continue
-            return prefixObject
+            return prefix_obj
         # Do the same as above, but with abbreviations
-        for abbreviation in self.mAbbreviationList:
+        for abbreviation in self.abbr_list:
             # If {X} is in the abbreviation, it means prefix goes in the middle.
             if "{X}" in abbreviation:
-                abbreviationStart = abbreviation.split("{X}")[0].lower()
-                abbreviationEnd = abbreviation.split("{X}")[1].lower()
+                abbreviation_start = abbreviation.split("{X}")[0].lower()
+                abbreviation_end = abbreviation.split("{X}")[1].lower()
                 # Ensure that userinput starts with first half and ends with second half.
-                if (not userInput.lower().startswith(abbreviationStart) or not userInput.lower().endswith(
-                        abbreviationEnd)):
+                if (not user_input.lower().startswith(abbreviation_start) or not user_input.lower().endswith(
+                        abbreviation_end)):
                     continue
-                userPrefix = userInput[len(abbreviationStart):len(userInput) - len(abbreviationEnd)]
+                user_prefix = user_input[len(abbreviation_start):len(user_input) - len(abbreviation_end)]
                 # If user prefix is blank, return None
-                if userPrefix == "":
+                if user_prefix == "":
                     return None
                 # If no prefix group is valid, accept blank string, reject anything else.
-                if self.mValidPrefixGroup is None:
+                if self.valid_prefix_group is None:
                     continue
                 # Get the prefix in the group whose abbreviation matches the user input
-                prefixObject = self.mValidPrefixGroup.getPrefixByAbbreviation(userPrefix)
-                if prefixObject is None:
+                prefix_obj = self.valid_prefix_group.get_prefix_by_abbr(user_prefix)
+                if prefix_obj is None:
                     continue
-                return prefixObject
+                return prefix_obj
             # So, {X} isn't in the abbreviation, so it's a standard abbreviation.
-            if not userInput.lower().endswith(abbreviation.lower()):
+            if not user_input.lower().endswith(abbreviation.lower()):
                 continue
             # Find out what the user said was the prefix
-            userPrefix = userInput[:len(userInput) - len(abbreviation)]
-            if userPrefix == "":
+            user_prefix = user_input[:len(user_input) - len(abbreviation)]
+            if user_prefix == "":
                 return None
             # If no prefix group is valid and user didn't input a blank string, reject
-            if self.mValidPrefixGroup is None:
+            if self.valid_prefix_group is None:
                 continue
             # Get group's prefix that matches abbreviation
-            prefixObject = self.mValidPrefixGroup.getPrefixByAbbreviation(userPrefix)
-            if prefixObject is None:
+            prefix_obj = self.valid_prefix_group.get_prefix_by_abbr(user_prefix)
+            if prefix_obj is None:
                 continue
-            return prefixObject
+            return prefix_obj
         return False
 
     @staticmethod
-    def fromXml(convertType, xmlString):
+    def from_xml(convert_type, xml_string):
         """Loads a new ConvertUnit object from XML."""
         # Load document
-        doc = minidom.parseString(xmlString)
+        doc = minidom.parseString(xml_string)
         # Get names, value and create object
-        newNameList = []
-        for nameXml in doc.getElementsByTagName("name"):
-            newName = nameXml.firstChild.data
-            newNameList.append(newName)
-        newValue = float(doc.getElementsByTagName("value")[0].firstChild.data)
-        newUnit = ConvertUnit(convertType, newNameList, newValue)
+        new_name_list = []
+        for name_elem in doc.getElementsByTagName("name"):
+            new_name = name_elem.firstChild.data
+            new_name_list.append(new_name)
+        new_value = float(doc.getElementsByTagName("value")[0].firstChild.data)
+        new_unit = ConvertUnit(convert_type, new_name_list, new_value)
         # Loop through abbreviation elements, adding them.
-        for abbrXml in doc.getElementsByTagName("abbr"):
-            newAbbr = abbrXml.firstChild.data
-            newUnit.addAbbreviation(newAbbr)
+        for abbr_elem in doc.getElementsByTagName("abbr"):
+            new_abbr = abbr_elem.firstChild.data
+            new_unit.add_addr(new_abbr)
         # Add prefix group
         if len(doc.getElementsByTagName("valid_prefix_group")) != 0:
-            convertRepo = convertType.getRepo()
-            validPrefixGroupName = doc.getElementsByTagName("valid_prefix_group")[0].firstChild.data
-            validPrefixGroup = convertRepo.getPrefixGroupByName(validPrefixGroupName)
-            newUnit.setPrefixGroup(validPrefixGroup)
+            convert_repo = convert_type.get_repo()
+            value_prefix_group_name = doc.getElementsByTagName("valid_prefix_group")[0].firstChild.data
+            valid_prefix_group = convert_repo.get_prefix_group_by_name(value_prefix_group_name)
+            new_unit.set_prefix_group(valid_prefix_group)
         # Get offset
         if len(doc.getElementsByTagName("offset")) != 0:
-            newOffset = float(doc.getElementsByTagName("offset")[0].firstChild.data)
-            newUnit.setOffset(newOffset)
+            new_offset = float(doc.getElementsByTagName("offset")[0].firstChild.data)
+            new_unit.set_offset(new_offset)
         # Get update time
         if len(doc.getElementsByTagName("last_update")) != 0:
-            newLastUpdated = float(doc.getElementsByTagName("last_update")[0].firstChild.data)
-            newUnit.setLastUpdated(newLastUpdated)
+            new_last_updated = float(doc.getElementsByTagName("last_update")[0].firstChild.data)
+            new_unit.set_last_updated(new_last_updated)
         else:
-            newUnit.setLastUpdated(None)
+            new_unit.set_last_updated(None)
         # Return created ConvertUnit
-        return newUnit
+        return new_unit
 
-    def toXml(self):
+    def to_xml(self):
         """Outputs a ConvertUnit object as XML."""
         # create document
         doc = minidom.Document()
@@ -459,35 +493,35 @@ class ConvertUnit:
         root = doc.createElement("unit")
         doc.appendChild(root)
         # Add name elements
-        for nameStr in self.mNameList:
-            nameElement = doc.createElement("name")
-            nameElement.appendChild(doc.createTextNode(nameStr))
-            root.appendChild(nameElement)
+        for name_str in self.name_list:
+            name_elem = doc.createElement("name")
+            name_elem.appendChild(doc.createTextNode(name_str))
+            root.appendChild(name_elem)
         # Add abbreviations
-        for abbrStr in self.mAbbreviationList:
-            abbrElement = doc.createElement("abbr")
-            abbrElement.appendChild(doc.createTextNode(abbrStr))
-            root.appendChild(abbrElement)
+        for abbr_str in self.abbr_list:
+            abbr_elem = doc.createElement("abbr")
+            abbr_elem.appendChild(doc.createTextNode(abbr_str))
+            root.appendChild(abbr_elem)
         # Add prefix group
-        if self.mValidPrefixGroup is not None:
-            validPrefixGroupName = self.mValidPrefixGroup.getName()
-            validPrefixGroupElement = doc.createElement("valid_prefix_group")
-            validPrefixGroupElement.appendChild(doc.createTextNode(validPrefixGroupName))
-            root.appendChild(validPrefixGroupElement)
+        if self.valid_prefix_group is not None:
+            valid_prefix_group_name = self.valid_prefix_group.get_name()
+            valid_prefix_group_elem = doc.createElement("valid_prefix_group")
+            valid_prefix_group_elem.appendChild(doc.createTextNode(valid_prefix_group_name))
+            root.appendChild(valid_prefix_group_elem)
         # Add value element
-        valueElement = doc.createElement("value")
-        valueElement.appendChild(doc.createTextNode(str(self.mValue)))
-        root.appendChild(valueElement)
+        value_elem = doc.createElement("value")
+        value_elem.appendChild(doc.createTextNode(str(self.value)))
+        root.appendChild(value_elem)
         # Add offset
-        if self.mOffset != 0:
-            offsetElement = doc.createElement("offset")
-            offsetElement.appendChild(doc.createTextNode(str(self.mOffset)))
-            root.appendChild(offsetElement)
+        if self.offset != 0:
+            offset_elem = doc.createElement("offset")
+            offset_elem.appendChild(doc.createTextNode(str(self.offset)))
+            root.appendChild(offset_elem)
         # Add update time
-        if self.mLastUpdated is not None:
-            lastUpdateElement = doc.createElement("last_update")
-            lastUpdateElement.appendChild(doc.createTextNode(str(self.mLastUpdated)))
-            root.appendChild(lastUpdateElement)
+        if self.last_updated is not None:
+            last_update_elem = doc.createElement("last_update")
+            last_update_elem.appendChild(doc.createTextNode(str(self.last_updated)))
+            root.appendChild(last_update_elem)
         # Output XML
         return doc.toxml()
 
@@ -496,89 +530,86 @@ class ConvertPrefixGroup:
     """
     Group of Conversion Prefixes.
     """
-    mRepo = None
-    mName = None
-    mPrefixList = None
 
     def __init__(self, repo, name):
-        self.mPrefixList = []
-        self.mRepo = repo
-        self.mName = name
+        self.prefix_list = []
+        self.repo = repo
+        self.name = name
 
-    def getRepo(self):
+    def get_repo(self):
         """Returns the ConvertRepo owning this prefix group"""
-        return self.mRepo
+        return self.repo
 
-    def getName(self):
+    def get_name(self):
         """Returns the prefix group name"""
-        return self.mName
+        return self.name
 
-    def setName(self, name):
+    def set_name(self, name):
         """Sets the prefix group name"""
-        self.mName = name
+        self.name = name
 
-    def getPrefixList(self):
+    def get_prefix_list(self):
         """Returns the full list of prefixes in the group"""
-        return self.mPrefixList
+        return self.prefix_list
 
-    def addPrefix(self, prefix):
+    def add_prefix(self, prefix):
         """Adds a new prefix to the prefix list"""
-        self.mPrefixList.append(prefix)
+        self.prefix_list.append(prefix)
 
-    def removePrefix(self, prefix):
+    def remove_prefix(self, prefix):
         """Removes a prefix from the prefix list"""
-        if prefix in self.mPrefixList:
-            self.mPrefixList.remove(prefix)
+        if prefix in self.prefix_list:
+            self.prefix_list.remove(prefix)
 
-    def getPrefixByName(self, name):
+    def get_prefix_by_name(self, name):
         """Gets the prefix with the specified name"""
-        for prefixObject in self.mPrefixList:
+        for prefixObject in self.prefix_list:
             if prefixObject.get_prefix() == name:
                 return prefixObject
-        for prefixObject in self.mPrefixList:
+        for prefixObject in self.prefix_list:
             if prefixObject.get_prefix().lower() == name.lower():
                 return prefixObject
         return None
 
-    def getPrefixByAbbreviation(self, abbreviation):
+    def get_prefix_by_abbr(self, abbreviation):
         """Gets the prefix with the specified abbreviation"""
-        for prefixObject in self.mPrefixList:
-            if prefixObject.getAbbreviation() == abbreviation:
+        for prefixObject in self.prefix_list:
+            if prefixObject.get_abbreviation() == abbreviation:
                 return prefixObject
-        for prefixObject in self.mPrefixList:
-            if prefixObject.getAbbreviation().lower() == abbreviation.lower():
+        for prefixObject in self.prefix_list:
+            if prefixObject.get_abbreviation().lower() == abbreviation.lower():
                 return prefixObject
         return None
 
-    def getAppropriatePrefix(self, value):
-        multiplierBiggerThanOne = True
-        for prefixObject in self.mPrefixList:
-            multiplier = prefixObject.getMultiplier()
-            if multiplierBiggerThanOne and multiplier < 1:
-                multiplierBiggerThanOne = False
+    def get_appropriate_prefix(self, value):
+        multiplier_bigger_than_one = True
+        for prefixObject in self.prefix_list:
+            multiplier = prefixObject.get_multiplier()
+            if multiplier_bigger_than_one and multiplier < 1:
+                multiplier_bigger_than_one = False
                 if value > 1:
                     return None
-            afterPrefix = value / prefixObject.getMultiplier()
-            if afterPrefix > 1:
+            after_prefix = value / prefixObject.get_multiplier()
+            if after_prefix > 1:
                 return prefixObject
         return None
 
     @staticmethod
-    def fromXml(repo, xmlString):
+    def from_xml(repo, xml_string):
         """Loads a new ConvertUnit object from XML."""
         # Load document
-        doc = minidom.parseString(xmlString)
+        doc = minidom.parseString(xml_string)
         # Get name and create object
-        newName = doc.getElementsByTagName("name")[0].firstChild.data
-        newPrefixGroup = ConvertPrefixGroup(repo, newName)
+        new_name = doc.getElementsByTagName("name")[0].firstChild.data
+        new_prefix_group = ConvertPrefixGroup(repo, new_name)
         # Loop through prefix elements, creating and adding objects.
-        for prefixXml in doc.getElementsByTagName("prefix"):
-            prefixObject = ConvertPrefix.fromXml(newPrefixGroup, prefixXml.toxml())
-            newPrefixGroup.addPrefix(prefixObject)
+        for prefix_elem in doc.getElementsByTagName("prefix"):
+            prefix_obj = ConvertPrefix.from_xml(new_prefix_group, prefix_elem.toxml())
+            new_prefix_group.add_prefix(prefix_obj)
         # Return created PrefixGroup
-        return newPrefixGroup
+        return new_prefix_group
 
-    def toXml(self):
+    def to_xml(self):
         """Outputs a ConvertUnit object as XML."""
         # create document
         doc = minidom.Document()
@@ -586,13 +617,13 @@ class ConvertPrefixGroup:
         root = doc.createElement("prefix_group")
         doc.appendChild(root)
         # Add name element
-        nameElement = doc.createElement("name")
-        nameElement.appendChild(doc.createTextNode(self.mName))
-        root.appendChild(nameElement)
+        name_elem = doc.createElement("name")
+        name_elem.appendChild(doc.createTextNode(self.name))
+        root.appendChild(name_elem)
         # Add prefixes
-        for prefixObject in self.mPrefixList:
-            prefixElement = minidom.parseString(prefixObject.to_xml()).firstChild
-            root.appendChild(prefixElement)
+        for prefix_obj in self.prefix_list:
+            prefix_elem = minidom.parseString(prefix_obj.to_xml()).firstChild
+            root.appendChild(prefix_elem)
         # Output XML
         return doc.toxml()
 
@@ -601,56 +632,58 @@ class ConvertPrefix:
     """
     Conversion prefix.
     """
-    mPrefixGroup = None
-    mPrefix = None
-    mAbbreviation = None
-    mMultiplier = None
 
-    def __init__(self, prefixGroup, prefix, abbreviation, multiplier):
-        self.mPrefixGroup = prefixGroup
-        self.mPrefix = prefix
-        self.mAbbreviation = abbreviation
-        self.mMultiplier = multiplier
+    def __init__(self, prefix_group, prefix, abbreviation, multiplier):
+        """
+        :type prefix_group: ConvertPrefixGroup
+        :type prefix: str
+        :type abbreviation: str
+        :type multiplier: float
+        """
+        self.prefix_group = prefix_group
+        self.prefix = prefix
+        self.abbreviation = abbreviation
+        self.multiplier = multiplier
 
-    def getPrefixGroup(self):
+    def get_prefix_group(self):
         """Returns the prefix group of the prefix"""
-        return self.mPrefixGroup
+        return self.prefix_group
 
-    def getPrefix(self):
+    def get_prefix(self):
         """Returns the name of the prefix"""
-        return self.mPrefix
+        return self.prefix
 
-    def setPrefix(self, name):
+    def set_prefix(self, name):
         """Sets the name of the prefix"""
-        self.mPrefix = name
+        self.prefix = name
 
-    def getAbbreviation(self):
+    def get_abbreviation(self):
         """Returns the abbreviation for the prefix"""
-        return self.mAbbreviation
+        return self.abbreviation
 
-    def setAbbreviation(self, abbreviation):
+    def set_abbreviation(self, abbreviation):
         """Sets the abbreviation for the prefix"""
-        self.mAbbreviation = abbreviation
+        self.abbreviation = abbreviation
 
-    def getMultiplier(self):
+    def get_multiplier(self):
         """Returns the multiplier the prefix has"""
-        return self.mMultiplier
+        return self.multiplier
 
-    def setMultiplier(self, multiplier):
+    def set_multiplier(self, multiplier):
         """Sets the multiplier the prefix has"""
-        self.mMultiplier = multiplier
+        self.multiplier = multiplier
 
     @staticmethod
-    def fromXml(prefixGroup, xmlString):
+    def from_xml(prefix_group, xml_string):
         """Loads a new ConvertUnit object from XML."""
-        doc = minidom.parseString(xmlString)
-        newName = doc.getElementsByTagName("name")[0].firstChild.data
-        newAbbreviation = doc.getElementsByTagName("abbr")[0].firstChild.data
-        newValue = float(doc.getElementsByTagName("value")[0].firstChild.data)
-        newPrefix = ConvertPrefix(prefixGroup, newName, newAbbreviation, newValue)
-        return newPrefix
+        doc = minidom.parseString(xml_string)
+        new_name = doc.getElementsByTagName("name")[0].firstChild.data
+        new_abbreviation = doc.getElementsByTagName("abbr")[0].firstChild.data
+        new_value = float(doc.getElementsByTagName("value")[0].firstChild.data)
+        new_prefix = ConvertPrefix(prefix_group, new_name, new_abbreviation, new_value)
+        return new_prefix
 
-    def toXml(self):
+    def to_xml(self):
         """Outputs a ConvertUnit object as XML."""
         # create document
         doc = minidom.Document()
@@ -658,17 +691,17 @@ class ConvertPrefix:
         root = doc.createElement("prefix")
         doc.appendChild(root)
         # Add name
-        nameElement = doc.createElement("name")
-        nameElement.appendChild(doc.createTextNode(self.mPrefix))
-        root.appendChild(nameElement)
+        name_elem = doc.createElement("name")
+        name_elem.appendChild(doc.createTextNode(self.prefix))
+        root.appendChild(name_elem)
         # Add abbreviation
-        abbrElement = doc.createElement("abbr")
-        abbrElement.appendChild(doc.createTextNode(self.mAbbreviation))
-        root.appendChild(abbrElement)
+        abbr_elem = doc.createElement("abbr")
+        abbr_elem.appendChild(doc.createTextNode(self.abbreviation))
+        root.appendChild(abbr_elem)
         # Add multiplier
-        valueElement = doc.createElement("value")
-        valueElement.appendChild(doc.createTextNode(str(self.mMultiplier)))
-        root.appendChild(valueElement)
+        value_elem = doc.createElement("value")
+        value_elem.appendChild(doc.createTextNode(str(self.multiplier)))
+        root.appendChild(value_elem)
         # Return XML
         return doc.toxml()
 
@@ -677,123 +710,128 @@ class ConvertMeasure:
     """
     Convert measure object. An amount with a unit.
     """
-    mAmount = None
-    mUnit = None
 
     def __init__(self, amount, unit):
-        self.mAmount = amount
-        self.mUnit = unit
+        """
+        :type amount: float
+        :type unit: ConvertUnit
+        """
+        self.amount = amount
+        self.unit = unit
 
-    def getUnit(self):
+    def get_unit(self):
         """Returns the unit of the measure."""
-        return self.mUnit
+        return self.unit
 
-    def getAmount(self):
+    def get_amount(self):
         """Returns the amount of the measure."""
-        return self.mAmount
+        return self.amount
 
-    def isEqual(self, otherMeasure):
+    def is_equal(self, other_measure):
         """Returns boolean, whether this Measure is equal to another."""
-        return (self.getUnit() == otherMeasure.getUnit()) and (self.getAmount() == otherMeasure.getAmount())
+        return (self.get_unit() == other_measure.get_unit()) and (self.get_amount() == other_measure.get_amount())
 
-    def convertTo(self, unit):
-        """Creates a new measure, equal in value but with a different unit."""
+    def convert_to(self, unit):
+        """
+        Creates a new measure, equal in value but with a different unit.
+        :param unit: The conversion unit to convert to
+        :type unit: ConvertUnit
+        """
         # Check units are the same type
-        if self.mUnit.get_type() != unit.get_type():
+        if self.unit.get_type() != unit.get_type():
             raise Exception("These are not the same unit type.")
         # Convert to base unit
-        newAmount = self.mAmount * self.mUnit.getValue()
-        baseOffset = self.mUnit.getOffset()
-        if baseOffset is not None:
-            newAmount = newAmount + baseOffset
+        new_amount = self.amount * self.unit.get_value()
+        base_offset = self.unit.get_offset()
+        if base_offset is not None:
+            new_amount += base_offset
         # Convert from base unit to new unit
-        unitOffset = unit.getOffset()
-        if baseOffset is not None:
-            newAmount = newAmount - unitOffset
-        newAmount = newAmount / unit.getValue()
-        newMeasure = ConvertMeasure(newAmount, unit)
-        return newMeasure
+        unit_offset = unit.get_offset()
+        if base_offset is not None:
+            new_amount -= unit_offset
+        new_amount /= unit.get_value()
+        new_measure = ConvertMeasure(new_amount, unit)
+        return new_measure
 
-    def convertToBase(self):
+    def convert_to_base(self):
         """Creates a new measure, equal in value, but with the base unit of the unit type."""
-        baseUnit = self.mUnit.get_type().getBaseUnit()
-        newUnit = baseUnit
-        unitValue = self.mUnit.getValue()
-        newAmount = self.mAmount * unitValue
-        offset = self.mUnit.getOffset()
+        base_unit = self.unit.get_type().get_base_unit()
+        unit_value = self.unit.get_value()
+        new_amount = self.amount * unit_value
+        offset = self.unit.get_offset()
         if offset is not None:
-            newAmount = newAmount + offset
-        newMeasure = ConvertMeasure(newAmount, newUnit)
-        return newMeasure
+            new_amount += offset
+        new_measure = ConvertMeasure(new_amount, base_unit)
+        return new_measure
 
-    def toString(self):
+    def to_string(self):
         """Converts the measure to a string for output."""
-        decimalPlaces = self.mUnit.get_type().getDecimals()
-        decimalFormat = "{:." + str(decimalPlaces) + "f}"
-        prefixGroup = self.mUnit.getPrefixGroup()
+        decimal_places = self.unit.get_type().get_decimals()
+        decimal_format = "{:." + str(decimal_places) + "f}"
+        prefix_group = self.unit.get_prefix_group()
         # If there is no prefix group, output raw.
-        if prefixGroup is None:
-            return decimalFormat.format(self.mAmount) + " " + self.mUnit.getNameList()[0]
+        if prefix_group is None:
+            return decimal_format.format(self.amount) + " " + self.unit.get_name_list()[0]
         # Ask the prefix group for the most appropriate prefix for the value.
-        appropriatePrefix = prefixGroup.getAppropriatePrefix(self.mAmount)
-        prefixMultiplier = 1
-        prefixName = ""
-        if appropriatePrefix is not None:
-            prefixName = appropriatePrefix.get_prefix()
-            prefixMultiplier = appropriatePrefix.getMultiplier()
-        outputAmount = self.mAmount / prefixMultiplier
+        appropriate_prefix = prefix_group.get_appropriate_prefix(self.amount)
+        prefix_multiplier = 1
+        prefix_name = ""
+        if appropriate_prefix is not None:
+            prefix_name = appropriate_prefix.get_prefix()
+            prefix_multiplier = appropriate_prefix.get_multiplier()
+        output_amount = self.amount / prefix_multiplier
         # Output string
-        return decimalFormat.format(outputAmount) + " " + prefixName + self.mUnit.getNameList()[0]
+        return decimal_format.format(output_amount) + " " + prefix_name + self.unit.get_name_list()[0]
 
     def __str__(self):
-        return self.toString()
+        return self.to_string()
 
-    def toStringWithPrefix(self, prefix):
+    def to_string_with_prefix(self, prefix):
         """Converts the measure to a string with the specified prefix."""
-        decimalPlaces = self.mUnit.get_type().getDecimals()
-        decimalFormat = "{:" + str(decimalPlaces) + "f}"
+        decimal_places = self.unit.get_type().get_decimals()
+        decimal_format = "{:" + str(decimal_places) + "f}"
         # Calculate the output amount
-        prefixMultiplier = 1
-        prefixName = ""
+        prefix_multiplier = 1
+        prefix_name = ""
         if prefix is not None:
-            prefixName = prefix.get_prefix()
-            prefixMultiplier = prefix.getMultiplier()
-        outputAmount = self.mAmount / prefixMultiplier
+            prefix_name = prefix.get_prefix()
+            prefix_multiplier = prefix.get_multiplier()
+        output_amount = self.amount / prefix_multiplier
         # Output string
-        return decimalFormat.format(outputAmount) + " " + prefixName + self.mUnit.getNameList()[0]
+        return decimal_format.format(output_amount) + " " + prefix_name + self.unit.get_name_list()[0]
 
     @staticmethod
-    def buildListFromUserInput(repo, userInput):
+    def build_list_from_user_input(repo, user_input):
         """Creates a new measure from a user inputted line"""
-        userInputClean = userInput.strip()
+        user_input_clean = user_input.strip()
         # Search through the line for digits, pull them amount as a preliminary amount and strip the rest of the line.
         # TODO: add calculation?
-        preliminaryAmountString = Commons.get_digits_from_start_or_end(userInputClean)
-        if preliminaryAmountString is None:
+        preliminary_amount_string = Commons.get_digits_from_start_or_end(user_input_clean)
+        if preliminary_amount_string is None:
             raise ConvertException("Cannot find amount.")
-        preliminaryAmountValue = float(preliminaryAmountString)
+        preliminary_amount_value = float(preliminary_amount_string)
         # Remove amountString from userInput
-        if userInput.startswith(preliminaryAmountString):
-            userInput = userInput[len(preliminaryAmountString):]
+        if user_input.startswith(preliminary_amount_string):
+            user_input = user_input[len(preliminary_amount_string):]
         else:
-            userInput = userInput[:-len(preliminaryAmountString)]
+            user_input = user_input[:-len(preliminary_amount_string)]
         # Loop all units, see which might match userInput with prefixes. Building a list of valid measures for input.
-        newMeasureList = []
-        for unitObject in repo.getFullUnitList():
-            prefixObject = unitObject.getPrefixFromUserInput(userInput)
-            if prefixObject is False:
+        new_measure_list = []
+        for unit_obj in repo.get_full_unit_list():
+            prefix_obj = unit_obj.get_prefix_from_user_input(user_input)
+            if prefix_obj is False:
                 continue
-            prefixMultiplier = 1
-            if prefixObject is not None:
-                prefixMultiplier = prefixObject.getMultiplier()
-            newAmount = preliminaryAmountValue * prefixMultiplier
-            newMeasure = ConvertMeasure(newAmount, unitObject)
-            newMeasureList.append(newMeasure)
+            prefix_multiplier = 1
+            if prefix_obj is not None:
+                prefix_multiplier = prefix_obj.get_multiplier()
+            new_amount = preliminary_amount_value * prefix_multiplier
+            new_measure = ConvertMeasure(new_amount, unit_obj)
+            new_measure_list.append(new_measure)
         # If list is still empty, throw an exception.
-        if len(newMeasureList) == 0:
+        if len(new_measure_list) == 0:
             raise ConvertException("Unrecognised unit.")
         # Return list of matching measures.
-        return newMeasureList
+        return new_measure_list
 
 
 class Convert(Function):
@@ -820,11 +858,11 @@ class Convert(Function):
         # Create regex to find the place to split a user string.
         splitRegex = re.compile(' into | to |->| in ', re.IGNORECASE)
         # Load ConvertRepo
-        repo = ConvertRepo.loadFromXml()
+        repo = ConvertRepo.load_from_xml()
         # See if the input needs splitting.
         if splitRegex.search(line) is None:
             try:
-                fromMeasureList = ConvertMeasure.buildListFromUserInput(repo, line)
+                fromMeasureList = ConvertMeasure.build_list_from_user_input(repo, line)
                 return self.convertOneUnit(fromMeasureList, passive)
             except Exception as e:
                 if passive:
@@ -841,12 +879,12 @@ class Convert(Function):
                    "convert <value> <old unit> to <new unit>"
         # Try loading the first part as a measure
         try:
-            fromMeasureList = ConvertMeasure.buildListFromUserInput(repo, lineSplit[0])
+            fromMeasureList = ConvertMeasure.build_list_from_user_input(repo, lineSplit[0])
             return self.convertTwoUnit(fromMeasureList, lineSplit[1], passive)
         except ConvertException:
             # Try loading the second part as a measure
             try:
-                fromMeasureList = ConvertMeasure.buildListFromUserInput(repo, lineSplit[1])
+                fromMeasureList = ConvertMeasure.build_list_from_user_input(repo, lineSplit[1])
                 return self.convertTwoUnit(fromMeasureList, lineSplit[0], passive)
             except ConvertException as e:
                 # If both fail, send an error message
@@ -859,8 +897,8 @@ class Convert(Function):
         """Converts a single given measure into whatever base unit of the type the measure is."""
         outputLines = []
         for fromMeasure in fromMeasureList:
-            toMeasure = fromMeasure.convertToBase()
-            if fromMeasure.isEqual(toMeasure):
+            toMeasure = fromMeasure.convert_to_base()
+            if fromMeasure.is_equal(toMeasure):
                 continue
             outputLines.append(self.outputLine(fromMeasure, toMeasure))
         if len(outputLines) == 0:
@@ -874,11 +912,11 @@ class Convert(Function):
         """Converts a single given measure into whatever unit is specified."""
         outputLines = []
         for fromMeasure in fromMeasureList:
-            for toUnitObject in fromMeasure.getUnit().get_type().getUnitList():
-                prefixObject = toUnitObject.getPrefixFromUserInput(userInputTo)
+            for toUnitObject in fromMeasure.get_unit().get_type().get_unit_list():
+                prefixObject = toUnitObject.get_prefix_from_user_input(userInputTo)
                 if prefixObject is False:
                     continue
-                toMeasure = fromMeasure.convertTo(toUnitObject)
+                toMeasure = fromMeasure.convert_to(toUnitObject)
                 outputLines.append(self.outputLineWithToPrefix(fromMeasure, toMeasure, prefixObject))
         if len(outputLines) == 0:
             if passive:
@@ -889,8 +927,8 @@ class Convert(Function):
 
     def outputLine(self, fromMeasure, toMeasure):
         """Creates a line to output for the equality of a fromMeasure and toMeasure."""
-        lastUpdate = toMeasure.getUnit().getLastUpdated() or fromMeasure.getUnit().getLastUpdated()
-        outputString = fromMeasure.toString() + " = " + toMeasure.toString() + "."
+        lastUpdate = toMeasure.get_unit().get_last_updated() or fromMeasure.get_unit().get_last_updated()
+        outputString = fromMeasure.to_string() + " = " + toMeasure.to_string() + "."
         if lastUpdate is not None:
             outputString += " (Last updated: " + Commons.format_unix_time(lastUpdate) + ")"
         return outputString
@@ -900,8 +938,8 @@ class Convert(Function):
         Creates a line to output for the equality of a fromMeasure and toMeasure,
         with a specified prefix for the toMeasure.
         """
-        lastUpdate = toMeasure.getUnit().getLastUpdated() or fromMeasure.getUnit().getLastUpdated()
-        outputString = fromMeasure.toString() + " = " + toMeasure.toStringWithPrefix(toPrefix) + "."
+        lastUpdate = toMeasure.get_unit().get_last_updated() or fromMeasure.get_unit().get_last_updated()
+        outputString = fromMeasure.to_string() + " = " + toMeasure.to_string_with_prefix(toPrefix) + "."
         if lastUpdate is not None:
             outputString += " (Last updated: " + Commons.format_unix_time(lastUpdate) + ")"
         return outputString
@@ -934,7 +972,7 @@ class UpdateCurrencies(Function):
     def run(self, line, user_obj, destination_obj=None):
         outputLines = []
         # Load convert repo.
-        repo = ConvertRepo.loadFromXml()
+        repo = ConvertRepo.load_from_xml()
         # Update with Money Converter
         outputLines.append(self.updateFromMoneyConverterData(repo) or "Updated currency data from The Money Converter.")
         # Update with the European Bank
@@ -944,7 +982,7 @@ class UpdateCurrencies(Function):
         # Update with Preev
         outputLines.append(self.updateFromPreevData(repo) or "Updated currency data from Preev.")
         # Save repo
-        repo.saveToXml()
+        repo.save_to_xml()
         # Return output
         return "\n".join(outputLines)
 
@@ -953,7 +991,7 @@ class UpdateCurrencies(Function):
 
     def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         # Load convert repo.
-        repo = ConvertRepo.loadFromXml()
+        repo = ConvertRepo.load_from_xml()
         # Update with Money Converter
         self.updateFromMoneyConverterData(repo)
         # Update with the European Bank
@@ -963,13 +1001,13 @@ class UpdateCurrencies(Function):
         # Update with Preev
         self.updateFromPreevData(repo)
         # Save repo
-        repo.saveToXml()
+        repo.save_to_xml()
         return None
 
     def updateFromMoneyConverterData(self, repo):
         """Updates the value of conversion currency units using The Money Convertor data."""
         # Get currency ConvertType
-        currencyType = repo.getTypeByName("currency")
+        currencyType = repo.get_type_by_name("currency")
         # Pull xml data from monet converter website
         url = 'http://themoneyconverter.com/rss-feed/EUR/rss.xml'
         xmlString = Commons.load_url_string(url)
@@ -987,17 +1025,17 @@ class UpdateCurrencies(Function):
             currencyValue = 1 / float(
                 Commons.get_digits_from_start_or_end(itemDescription.split("=")[1].strip().replace(",", "")))
             # Get currency unit, set currency value.
-            currencyUnit = currencyType.getUnitByName(currencyCode)
+            currencyUnit = currencyType.get_unit_by_name(currencyCode)
             # If unrecognised currency, continue
             if currencyUnit is None:
                 continue
             # Set value
-            currencyUnit.setValue(currencyValue)
+            currencyUnit.set_value(currencyValue)
 
     def updateFromEuropeanBankData(self, repo):
         """Updates the value of conversion currency units using The European Bank data."""
         # Get currency ConvertType
-        currencyType = repo.getTypeByName("currency")
+        currencyType = repo.get_type_by_name("currency")
         # Pull xml data from european bank website
         url = 'http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml'
         xmlString = Commons.load_url_string(url)
@@ -1012,17 +1050,17 @@ class UpdateCurrencies(Function):
             # Get value from rate attribute and get reciprocal.
             currencyValue = 1 / float(cubeThreeElement.getAttributeNode("rate").nodeValue)
             # Get currency unit
-            currencyUnit = currencyType.getUnitByName(currencyCode)
+            currencyUnit = currencyType.get_unit_by_name(currencyCode)
             # If unrecognised currency, SKIP
             if currencyUnit is None:
                 continue
             # Set Value
-            currencyUnit.setValue(currencyValue)
+            currencyUnit.set_value(currencyValue)
 
     def updateFromForexData(self, repo):
         """Updates the value of conversion currency units using Forex data."""
         # Get currency ConvertType
-        currencyType = repo.getTypeByName("currency")
+        currencyType = repo.get_type_by_name("currency")
         # Pull xml data from forex website
         url = 'http://rates.fxcm.com/RatesXML3'
         xmlString = Commons.load_url_string(url)
@@ -1040,17 +1078,17 @@ class UpdateCurrencies(Function):
             currencyCode = symbolData[3:]
             currencyValue = 1 / (0.5 * (bidData + askData))
             # Get currency unit
-            currencyUnit = currencyType.getUnitByName(currencyCode)
+            currencyUnit = currencyType.get_unit_by_name(currencyCode)
             # If unrecognised code, skip
             if currencyUnit is None:
                 continue
             # Set Value
-            currencyUnit.setValue(currencyValue)
+            currencyUnit.set_value(currencyValue)
 
     def updateFromPreevData(self, repo):
         """Updates the value of conversion cryptocurrencies using Preev data."""
         # Get currency ConvertType
-        currencyType = repo.getTypeByName("currency")
+        currencyType = repo.get_type_by_name("currency")
         # Pull json data from preev website, combine into 1 dict
         jsonDict = {'ltc': Commons.load_url_json(
                 "http://preev.com/pulse/units:ltc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
@@ -1081,16 +1119,16 @@ class UpdateCurrencies(Function):
             # Calculate currency value, compared to referenced currency, from total market average
             currencyValueRef = totalTrade / totalVolume
             # Get the ConvertUnit object for the currency reference
-            currencyRefObject = currencyType.getUnitByName(currencyRef)
+            currencyRefObject = currencyType.get_unit_by_name(currencyRef)
             if currencyRefObject is None:
                 continue
             # Work out the value compared to base unit by multiplying value of each
-            currencyValue = currencyValueRef * currencyRefObject.getValue()
+            currencyValue = currencyValueRef * currencyRefObject.get_value()
             # Get the currency unit and update the value
-            currencyUnit = currencyType.getUnitByName(currencyCode)
+            currencyUnit = currencyType.get_unit_by_name(currencyCode)
             if currencyUnit is None:
                 continue
-            currencyUnit.setValue(currencyValue)
+            currencyUnit.set_value(currencyValue)
 
 
 class ConvertViewRepo(Function):
@@ -1117,12 +1155,12 @@ class ConvertViewRepo(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load repo
-        repo = ConvertRepo.loadFromXml()
+        repo = ConvertRepo.load_from_xml()
         # Check if type is specified
         if self.findAnyParameter(self.NAMES_TYPE, line):
             # Get type name and object
             typeName = self.findAnyParameter(self.NAMES_TYPE, line)
-            typeObject = repo.getTypeByName(typeName)
+            typeObject = repo.get_type_by_name(typeName)
             if typeObject is None:
                 return "Unrecognised type."
             # Check if unit & type are specified
@@ -1139,7 +1177,7 @@ class ConvertViewRepo(Function):
         if self.findAnyParameter(self.NAMES_PREFIXGROUP, line):
             # Check if prefix & group are specified
             prefixGroupName = self.findAnyParameter(self.NAMES_PREFIXGROUP, line)
-            prefixGroupObject = repo.getPrefixGroupByName(prefixGroupName)
+            prefixGroupObject = repo.get_prefix_group_by_name(prefixGroupName)
             if prefixGroupObject is None:
                 return "Unrecognised prefix group."
             # Check if prefix group & prefix are specified
@@ -1158,8 +1196,8 @@ class ConvertViewRepo(Function):
             unitName = self.findAnyParameter(self.NAMES_UNIT, line)
             outputLines = []
             # Loop through types, getting units for each type
-            for typeObject in repo.getTypeList():
-                unitObject = typeObject.getUnitByName(unitName)
+            for typeObject in repo.get_type_list():
+                unitObject = typeObject.get_unit_by_name(unitName)
                 # If unit exists by that name, add the string format to output list
                 if unitObject is not None:
                     outputLines.append(self.outputUnitAsString(unitObject))
@@ -1171,8 +1209,8 @@ class ConvertViewRepo(Function):
             prefixName = self.findAnyParameter(self.NAMES_PREFIX, line)
             outputLines = []
             # Loop through groups, getting prefixes for each group
-            for prefixGroupObject in repo.getPrefixGroupList():
-                prefixObject = prefixGroupObject.getPrefixByName(prefixName)
+            for prefixGroupObject in repo.get_prefix_group_list():
+                prefixObject = prefixGroupObject.get_prefix_by_name(prefixName)
                 # If prefix exists by that name, add the string format to output list
                 if prefixObject is not None:
                     outputLines.append(self.outputPrefixAsString(prefixObject))
@@ -1201,49 +1239,49 @@ class ConvertViewRepo(Function):
     def outputRepoAsString(self, repo):
         """Outputs a Conversion Repository as a string"""
         outputString = "Conversion Repo:\n"
-        outputString += "Unit types: " + ", ".join([typeObject.getName() for typeObject in repo.getTypeList()]) + "\n"
-        outputString += "Prefix groups: " + ", ".join([typeObject.getName() for typeObject in repo.getTypeList()])
+        outputString += "Unit types: " + ", ".join([typeObject.get_name() for typeObject in repo.get_type_list()]) + "\n"
+        outputString += "Prefix groups: " + ", ".join([typeObject.get_name() for typeObject in repo.get_type_list()])
         return outputString
 
     def outputTypeAsString(self, typeObject):
         """Outputs a Conversion Type object as a string"""
-        outputString = "Conversion Type: (" + typeObject.getName() + ")\n"
-        outputString += "Decimals: " + str(typeObject.getDecimals()) + "\n"
-        outputString += "Base unit: " + typeObject.getBaseUnit().getNameList()[0] + "\n"
+        outputString = "Conversion Type: (" + typeObject.get_name() + ")\n"
+        outputString += "Decimals: " + str(typeObject.get_decimals()) + "\n"
+        outputString += "Base unit: " + typeObject.get_base_unit().get_name_list()[0] + "\n"
         outputString += "Other units: "
-        unitNameList = [unitObject.get_names()[0] for unitObject in typeObject.getUnitList() if
-                        unitObject != typeObject.getBaseUnit()]
+        unitNameList = [unitObject.get_names()[0] for unitObject in typeObject.get_unit_list() if
+                        unitObject != typeObject.get_base_unit()]
         outputString += ", ".join(unitNameList)
         return outputString
 
     def outputUnitAsString(self, unitObject):
         """Outputs a Conversion Unit object as a string"""
-        outputLines = ["Conversion Unit: (" + unitObject.getNameList()[0] + ")",
-                       "Type: " + unitObject.get_type().getName(), "Name list: " + ", ".join(unitObject.getNameList()),
-                       "Abbreviation list: " + ", ".join(unitObject.getAbbreviationList()),
-                       "Value: 1 " + unitObject.getNameList()[0] + " = " + str(unitObject.getValue()) + " " +
-                       unitObject.get_type().getBaseUnit().getNameList()[0],
-                       "Offset: 0 " + unitObject.getNameList()[0] + " = " + str(unitObject.getOffset()) + " " +
-                       unitObject.get_type().getBaseUnit().getNameList()[0]]
-        lastUpdate = unitObject.getLastUpdated()
+        outputLines = ["Conversion Unit: (" + unitObject.get_name_list()[0] + ")",
+                       "Type: " + unitObject.get_type().get_name(), "Name list: " + ", ".join(unitObject.get_name_list()),
+                       "Abbreviation list: " + ", ".join(unitObject.get_abbr_list()),
+                       "Value: 1 " + unitObject.get_name_list()[0] + " = " + str(unitObject.get_value()) + " " +
+                       unitObject.get_type().get_base_unit().get_name_list()[0],
+                       "Offset: 0 " + unitObject.get_name_list()[0] + " = " + str(unitObject.get_offset()) + " " +
+                       unitObject.get_type().get_base_unit().get_name_list()[0]]
+        lastUpdate = unitObject.get_last_updated()
         if lastUpdate is not None:
             outputLines.append("Last updated: " + Commons.format_unix_time(lastUpdate))
-        prefixGroupName = unitObject.getValidPrefixGroup().getName()
+        prefixGroupName = unitObject.getValidPrefixGroup().get_name()
         if prefixGroupName is not None:
             outputLines.append("Prefix group: " + prefixGroupName)
         return "\n".join(outputLines)
 
     def outputPrefixGroupAsString(self, prefixGroupObject):
         """Outputs a Conversion PrefixGroup object as a string"""
-        outputString = "Prefix group: (" + prefixGroupObject.getName() + ")\n"
+        outputString = "Prefix group: (" + prefixGroupObject.get_name() + ")\n"
         outputString += "Prefix list: " + ", ".join(
-            [prefixObject.get_prefix() for prefixObject in prefixGroupObject.getPrefixList()])
+            [prefixObject.get_prefix() for prefixObject in prefixGroupObject.get_prefix_list()])
         return outputString
 
     def outputPrefixAsString(self, prefixObject):
         """Outputs a Conversion prefix object as a string"""
         outputString = "Prefix: (" + prefixObject.get_prefix() + ")\n"
-        outputString += "Abbreviation: " + prefixObject.getAbbreviation() + "\n"
+        outputString += "Abbreviation: " + prefixObject.get_abbreviation() + "\n"
         outputString += "Multiplier: " + str(prefixObject.get_prefix())
         return outputString
 
@@ -1268,7 +1306,7 @@ class ConvertSet(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load Conversion Repo
-        repo = ConvertRepo.loadFromXml()
+        repo = ConvertRepo.load_from_xml()
         # Create regex to find the place to split a user string.
         splitRegex = re.compile(' into | to |->| in ', re.IGNORECASE)
         # Split input
@@ -1279,18 +1317,18 @@ class ConvertSet(Function):
                    "convert <value> <old unit> to <new unit>"
         # Try loading the second part (reference measure) as a measure
         try:
-            refMeasureList = ConvertMeasure.buildListFromUserInput(repo, lineSplit[1])
+            refMeasureList = ConvertMeasure.build_list_from_user_input(repo, lineSplit[1])
         except ConvertException:
             try:
-                refMeasureList = ConvertMeasure.buildListFromUserInput(repo, "1" + lineSplit[1])
+                refMeasureList = ConvertMeasure.build_list_from_user_input(repo, "1" + lineSplit[1])
             except ConvertException:
                 return "I don't understand the second half of your input."
         # Try loading the first part as a measure
         try:
-            varMeasureList = ConvertMeasure.buildListFromUserInput(repo, lineSplit[0])
+            varMeasureList = ConvertMeasure.build_list_from_user_input(repo, lineSplit[0])
         except ConvertException:
             try:
-                varMeasureList = ConvertMeasure.buildListFromUserInput(repo, "1" + lineSplit[0])
+                varMeasureList = ConvertMeasure.build_list_from_user_input(repo, "1" + lineSplit[0])
             except ConvertException:
                 # Add a unit.
                 return self.addUnit(lineSplit[0], refMeasureList)
@@ -1300,9 +1338,9 @@ class ConvertSet(Function):
         # Find list of pairs of measures, sharing a type
         measurePairList = []
         for varMeasure in varMeasureList:
-            varMeasureType = varMeasure.getUnit().get_type()
+            varMeasureType = varMeasure.get_unit().get_type()
             for refMeasure in refMeasureList:
-                refMeasureType = refMeasure.getUnit().get_type()
+                refMeasureType = refMeasure.get_unit().get_type()
                 if varMeasureType == refMeasureType:
                     measurePair = {'var': varMeasure, 'ref': refMeasure}
                     measurePairList.append(measurePair)
@@ -1314,34 +1352,34 @@ class ConvertSet(Function):
         # Get the correct varMeasure and refMeasure and all associated required variables
         varMeasure = measurePairList[0]['var']
         refMeasure = measurePairList[0]['ref']
-        varAmount = varMeasure.getAmount()
-        refAmount = refMeasure.getAmount()
-        varUnit = varMeasure.getUnit()
-        varName = varUnit.getNameList()[0]
-        baseName = varUnit.get_type().getBaseUnit().getNameList()[0]
-        refUnit = refMeasure.getUnit()
-        varValue = varUnit.getValue()
-        refValue = refUnit.getValue()
-        varOffset = varUnit.getOffset()
-        refOffset = refUnit.getOffset()
+        varAmount = varMeasure.get_amount()
+        refAmount = refMeasure.get_amount()
+        varUnit = varMeasure.get_unit()
+        varName = varUnit.get_name_list()[0]
+        baseName = varUnit.get_type().get_base_unit().get_name_list()[0]
+        refUnit = refMeasure.get_unit()
+        varValue = varUnit.get_value()
+        refValue = refUnit.get_value()
+        varOffset = varUnit.get_offset()
+        refOffset = refUnit.get_offset()
         # If varUnit is the base unit, it cannot be set.
-        if varUnit == varUnit.get_type().getBaseUnit():
+        if varUnit == varUnit.get_type().get_base_unit():
             return "You cannot change values of the base unit."
         # If either given amount are zero, set the offset of varUnit.
         if varAmount == 0 or refAmount == 0:
             # Calculate the new offset
             newOffset = (refAmount - (varAmount * varValue)) * refValue + refOffset
-            varUnit.setOffset(newOffset)
+            varUnit.set_offset(newOffset)
             # Save repo
-            repo = varUnit.get_type().getRepo()
+            repo = varUnit.get_type().get_repo()
             repo.save_to_xml()
             # Output message
             return "Set new offset for " + varName + ": 0 " + varName + " = " + str(newOffset) + " " + baseName + "."
         # Get new value
         newValue = (refAmount - ((varOffset - refOffset) / refValue)) / varAmount
-        varUnit.setValue(newValue)
+        varUnit.set_value(newValue)
         # Save repo
-        repo = varUnit.get_type().getRepo()
+        repo = varUnit.get_type().get_repo()
         repo.save_to_xml()
         # Output message
         return "Set new value for " + varName + ": Δ 1 " + varName + " = Δ " + str(newValue) + " " + baseName + "."
@@ -1354,13 +1392,13 @@ class ConvertSet(Function):
             return "It is ambiguous which unit you are referring to."
         # Get unit type
         refMeasure = refMeasureList[0]
-        refAmount = refMeasure.getAmount()
-        refUnit = refMeasure.getUnit()
+        refAmount = refMeasure.get_amount()
+        refUnit = refMeasure.get_unit()
         refType = refUnit.get_type()
-        refValue = refUnit.getValue()
-        refOffset = refUnit.getOffset()
-        baseUnit = refType.getBaseUnit()
-        baseName = baseUnit.getNameList()[0]
+        refValue = refUnit.get_value()
+        refOffset = refUnit.get_offset()
+        baseUnit = refType.get_base_unit()
+        baseName = baseUnit.get_name_list()[0]
         # Get amount & unit name
         inputAmountString = Commons.get_digits_from_start_or_end(userInput)
         if inputAmountString is None:
@@ -1372,28 +1410,28 @@ class ConvertSet(Function):
         else:
             inputName = userInput[:-len(inputAmountString)]
         # Check name isn't already in use.
-        if refType.getUnitByName(inputName) is not None:
+        if refType.get_unit_by_name(inputName) is not None:
             return "There's already a unit of that type by that name."
         # Add unit
         newUnit = ConvertUnit(refType, [inputName], 1)
-        refType.addUnit(newUnit)
+        refType.add_unit(newUnit)
         # Update offset or value, based on what the user inputed.
         # If either given amount are zero, set the offset of varUnit.
         if inputAmountFloat == 0 or refAmount == 0:
             # Calculate the new offset
             newOffset = (refAmount - (inputAmountFloat * 1)) * refValue + refOffset
-            newUnit.setOffset(newOffset)
+            newUnit.set_offset(newOffset)
             # Save repo
-            repo = refUnit.get_type().getRepo()
+            repo = refUnit.get_type().get_repo()
             repo.save_to_xml()
             # Output message
             return "Created new unit " + inputName + " with offset: 0 " + inputName + " = " + str(
                 newOffset) + " " + baseName + "."
         # Get new value
         newValue = (refAmount - ((0 - refOffset) / refValue)) / inputAmountFloat
-        newUnit.setValue(newValue)
+        newUnit.set_value(newValue)
         # Save repo
-        repo = refUnit.get_type().getRepo()
+        repo = refUnit.get_type().get_repo()
         repo.save_to_xml()
         # Output message
         return "Created new unit " + inputName + " with value: 1 " + inputName + " = " + str(
@@ -1422,7 +1460,7 @@ class ConvertAddType(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load repo, clean line
-        repo = ConvertRepo.loadFromXml()
+        repo = ConvertRepo.load_from_xml()
         lineClean = line.strip()
         # Check if base unit is defined
         unitName = None
@@ -1441,7 +1479,7 @@ class ConvertAddType(Function):
         inputName = paramRegex.sub("\1\4", lineClean).strip()
         inputName = multispaceRegex.sub(" ", inputName)
         # Check that type name doesn't already exist.
-        existingType = repo.getTypeByName(inputName)
+        existingType = repo.get_type_by_name(inputName)
         if existingType is not None:
             return "A type by this name already exists."
         # Check base unit name was defined.
@@ -1450,12 +1488,12 @@ class ConvertAddType(Function):
         # Create new type, Create new unit, set unit as base unit, set decimals
         newType = ConvertType(repo, inputName)
         newBaseUnit = ConvertUnit(newType, [unitName], 1)
-        newType.setBaseUnit(newBaseUnit)
+        newType.set_base_unit(newBaseUnit)
         if decimals is not None:
-            newType.setDecimals(decimals)
+            newType.set_decimals(decimals)
         # add type to repo, save
-        repo.addType(newType)
-        repo.saveToXml()
+        repo.add_type(newType)
+        repo.save_to_xml()
         # Output message
         outputString = "Created new type \"" + inputName + "\" with base unit \"" + unitName + "\""
         if decimals is not None:
@@ -1499,7 +1537,7 @@ class ConvertSetTypeDecimals(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load convert repo
-        repo = ConvertRepo.loadFromXml()
+        repo = ConvertRepo.load_from_xml()
         # Get decimals from input
         inputDecimals = Commons.get_digits_from_start_or_end(line)
         # If decimals is null, return error
@@ -1513,14 +1551,14 @@ class ConvertSetTypeDecimals(Function):
         # Convert decimals to integer
         decimals = int(float(inputDecimals))
         # Get selected type
-        inputType = repo.getTypeByName(inputName)
+        inputType = repo.get_type_by_name(inputName)
         # If type does not exist, return error
         if inputType is None:
             return "This is not a recognised conversion type."
         # Set decimals
         inputType.setDecimals(decimals)
         # Save repo
-        repo.saveToXml()
+        repo.save_to_xml()
         # Output message
         return "Set the number of decimal places to display for \"" + inputType.getName() + "\" type units at " + str(
             decimals) + " places."
@@ -1547,7 +1585,7 @@ class ConvertRemoveUnit(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load convert repo
-        repo = ConvertRepo.loadFromXml()
+        repo = ConvertRepo.load_from_xml()
         # Check if a type is specified
         typeName = None
         if self.findAnyParameter(self.NAMES_TYPE, line):
@@ -1557,7 +1595,7 @@ class ConvertRemoveUnit(Function):
         inputName = paramRegex.sub("\1\4", line).strip()
         # Find unit
         if typeName is not None:
-            typeObject = repo.getTypeByName(typeName)
+            typeObject = repo.get_type_by_name(typeName)
             if typeObject is None:
                 return "This conversion type is not recognised."
             inputUnit = typeObject.getUnitByName(inputName)
@@ -1565,8 +1603,8 @@ class ConvertRemoveUnit(Function):
                 return "This unit name is not recognised for that unit type."
         else:
             inputUnitList = []
-            for typeObject in repo.getTypeList():
-                inputUnit = typeObject.getUnitByName(inputName)
+            for typeObject in repo.get_type_list():
+                inputUnit = typeObject.get_unit_by_name(inputName)
                 if inputUnit is not None:
                     inputUnitList.append(inputUnit)
             # Check if results are 0
@@ -1577,11 +1615,11 @@ class ConvertRemoveUnit(Function):
                 return ""
             inputUnit = inputUnitList[0]
         # Ensure it is not a base unit for its type
-        if inputUnit == inputUnit.get_type().getBaseUnit():
+        if inputUnit == inputUnit.get_type().get_base_unit():
             return "You cannot remove the base unit for a unit type."
         # Remove unit
-        inputUnitName = inputUnit.getNameList()[0]
-        inputUnit.get_type().removeUnit(inputUnit)
+        inputUnitName = inputUnit.get_name_list()[0]
+        inputUnit.get_type().remove_unit(inputUnit)
         # Done
         return "Removed unit \"" + inputUnitName + "\" from conversion repository."
 
@@ -1624,7 +1662,7 @@ class ConvertUnitAddName(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load repository
-        repo = ConvertRepo.loadFromXml()
+        repo = ConvertRepo.load_from_xml()
         # Check for type=
         typeName = None
         if self.findAnyParameter(self.NAMES_TYPE, line):
@@ -1638,9 +1676,9 @@ class ConvertUnitAddName(Function):
         inputName = paramRegex.sub("\1\4", line).strip()
         # Get unit list
         if typeName is None:
-            unitList = repo.getFullUnitList()
+            unitList = repo.get_full_unit_list()
         else:
-            typeObject = repo.getTypeByName(typeName)
+            typeObject = repo.get_type_by_name(typeName)
             if typeObject is None:
                 return "Unrecognised type."
             unitList = typeObject.getUnitList()
@@ -1653,7 +1691,7 @@ class ConvertUnitAddName(Function):
             inputUnitName = ""
             for inputUnitName in [' '.join(lineSplit[:x + 1]) for x in range(len(lineSplit))]:
                 for unitObject in unitList:
-                    if unitObject.hasName(inputUnitName):
+                    if unitObject.has_name(inputUnitName):
                         inputUnitList.append(unitObject)
                         foundName = True
                 if foundName:
@@ -1662,7 +1700,7 @@ class ConvertUnitAddName(Function):
         else:
             inputUnitList = []
             for unitObject in unitList:
-                if unitObject.hasName(unitName):
+                if unitObject.has_name(unitName):
                     inputUnitList.append(unitObject)
             newUnitName = inputName
         # If 0 units found, throw error
@@ -1673,11 +1711,11 @@ class ConvertUnitAddName(Function):
             return "Unit name is too ambiguous, please specify with unit= and type= ."
         unitObject = inputUnitList[0]
         # Add the new name
-        unitObject.addName(newUnitName)
+        unitObject.add_name(newUnitName)
         # Save repo
-        repo.saveToXml()
+        repo.save_to_xml()
         # Output message
-        return "Added \"" + newUnitName + "\" as a new name for the \"" + unitObject.getNameList()[0] + "\" unit."
+        return "Added \"" + newUnitName + "\" as a new name for the \"" + unitObject.get_name_list()[0] + "\" unit."
 
     def findParameter(self, paramName, line):
         """Finds a parameter value in a line, if the format parameter=value exists in the line"""
@@ -1718,7 +1756,7 @@ class ConvertUnitAddAbbreviation(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load repository
-        repo = ConvertRepo.loadFromXml()
+        repo = ConvertRepo.load_from_xml()
         # Check for type=
         typeName = None
         if self.findAnyParameter(self.NAMES_TYPE, line):
@@ -1732,9 +1770,9 @@ class ConvertUnitAddAbbreviation(Function):
         inputAbbr = paramRegex.sub("\1\4", line).strip()
         # Get unit list
         if typeName is None:
-            unitList = repo.getFullUnitList()
+            unitList = repo.get_full_unit_list()
         else:
-            typeObject = repo.getTypeByName(typeName)
+            typeObject = repo.get_type_by_name(typeName)
             if typeObject is None:
                 return "Unrecognised type."
             unitList = typeObject.getUnitList()
@@ -1747,7 +1785,7 @@ class ConvertUnitAddAbbreviation(Function):
             inputUnitName = ""
             for inputUnitName in [' '.join(lineSplit[:x + 1]) for x in range(len(lineSplit))]:
                 for unitObject in unitList:
-                    if unitObject.hasName(inputUnitName):
+                    if unitObject.has_name(inputUnitName):
                         inputUnitList.append(unitObject)
                         foundAbbr = True
                 if foundAbbr:
@@ -1756,7 +1794,7 @@ class ConvertUnitAddAbbreviation(Function):
         else:
             inputUnitList = []
             for unitObject in unitList:
-                if unitObject.hasName(unitName):
+                if unitObject.has_name(unitName):
                     inputUnitList.append(unitObject)
             newUnitAbbr = inputAbbr
         # If 0 units found, throw error
@@ -1767,11 +1805,11 @@ class ConvertUnitAddAbbreviation(Function):
             return "Unit name is too ambiguous, please specify with unit= and type= ."
         unitObject = inputUnitList[0]
         # Add the new name
-        unitObject.addAbbreviation(newUnitAbbr)
+        unitObject.add_addr(newUnitAbbr)
         # Save repo
-        repo.saveToXml()
+        repo.save_to_xml()
         # Output message
-        return "Added \"" + newUnitAbbr + "\" as a new abbreviation for the \"" + unitObject.getNameList()[
+        return "Added \"" + newUnitAbbr + "\" as a new abbreviation for the \"" + unitObject.get_name_list()[
             0] + "\" unit."
 
     def findParameter(self, paramName, line):
@@ -1816,7 +1854,7 @@ class ConvertUnitRemoveName(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load repo, clean line
-        repo = ConvertRepo.loadFromXml()
+        repo = ConvertRepo.load_from_xml()
         lineClean = line.strip()
         # Check if unit is defined
         unitName = None
@@ -1826,22 +1864,22 @@ class ConvertUnitRemoveName(Function):
         typeName = None
         if self.findAnyParameter(self.NAMES_TYPE, lineClean):
             typeName = self.findAnyParameter(self.NAMES_TYPE, lineClean)
-            if repo.getTypeByName(typeName) is None:
+            if repo.get_type_by_name(typeName) is None:
                 return "Invalid type specified."
         # Clean unit and type setting from the line to just get the name to remove
         paramRegex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         inputName = paramRegex.sub("\1\4", lineClean).strip()
         # Check if description is sufficient to narrow it to 1 and only 1 unit
         userUnitOptions = []
-        for unitObject in repo.getFullUnitList():
+        for unitObject in repo.get_full_unit_list():
             # If type is defined and not the same as current unit, skip it
-            if typeName is not None and typeName != unitObject.get_type().getName():
+            if typeName is not None and typeName != unitObject.get_type().get_name():
                 continue
             # if unit name is defined and not a valid name for the unit, skip it.
-            if unitName is not None and not unitObject.hasName(unitName):
+            if unitName is not None and not unitObject.has_name(unitName):
                 continue
             # If inputName is not a valid name for the unit, skip it.
-            if not unitObject.hasName(inputName):
+            if not unitObject.has_name(inputName):
                 continue
             # Otherwise it's the one, add it to the list
             userUnitOptions.append(unitObject)
@@ -1852,14 +1890,14 @@ class ConvertUnitRemoveName(Function):
             return "It is ambiguous which unit you refer to."
         # Check this unit has other names.
         userUnit = userUnitOptions[0]
-        if len(userUnit.getNameList()) == 1:
+        if len(userUnit.get_name_list()) == 1:
             return "This unit only has 1 name, you cannot remove its last name."
         # Remove name
-        userUnit.removeName(inputName)
+        userUnit.remove_name(inputName)
         # Save repo
-        repo.saveToXml()
+        repo.save_to_xml()
         # Output
-        return "Removed name \"" + inputName + "\" from \"" + userUnit.getNameList()[0] + "\" unit."
+        return "Removed name \"" + inputName + "\" from \"" + userUnit.get_name_list()[0] + "\" unit."
 
     def findParameter(self, paramName, line):
         """Finds a parameter value in a line, if the format parameter=value exists in the line"""
@@ -1901,7 +1939,7 @@ class ConvertUnitSetPrefixGroup(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load repository
-        repo = ConvertRepo.loadFromXml()
+        repo = ConvertRepo.load_from_xml()
         # Check for type=
         typeName = None
         if self.findAnyParameter(self.NAMES_TYPE, line):
@@ -1920,11 +1958,11 @@ class ConvertUnitSetPrefixGroup(Function):
         # Get prefix group
         if prefixGroupName is None:
             lineSplit = inputName.split()
-            if repo.getPrefixGroupByName(lineSplit[0]) is not None:
-                prefixGroup = repo.getPrefixGroupByName(lineSplit[0])
+            if repo.get_prefix_group_by_name(lineSplit[0]) is not None:
+                prefixGroup = repo.get_prefix_group_by_name(lineSplit[0])
                 inputName = ' '.join(lineSplit[1:])
-            elif repo.getPrefixGroupByName(lineSplit[-1]) is not None:
-                prefixGroup = repo.getPrefixGroupByName(lineSplit[-1])
+            elif repo.get_prefix_group_by_name(lineSplit[-1]) is not None:
+                prefixGroup = repo.get_prefix_group_by_name(lineSplit[-1])
                 inputName = ' '.join(lineSplit[:-1])
             elif lineSplit[0].lower() == "none":
                 prefixGroup = None
@@ -1935,14 +1973,14 @@ class ConvertUnitSetPrefixGroup(Function):
             else:
                 return "Prefix group not recognised."
         else:
-            prefixGroup = repo.getPrefixGroupByName(prefixGroupName)
+            prefixGroup = repo.get_prefix_group_by_name(prefixGroupName)
             if prefixGroup is None and prefixGroupName.lower() != "none":
                 return "Prefix group not recognised."
         # Get unit list
         if typeName is None:
-            unitList = repo.getFullUnitList()
+            unitList = repo.get_full_unit_list()
         else:
-            typeObject = repo.getTypeByName(typeName)
+            typeObject = repo.get_type_by_name(typeName)
             if typeObject is None:
                 return "Unrecognised type."
             unitList = typeObject.getUnitList()
@@ -1950,12 +1988,12 @@ class ConvertUnitSetPrefixGroup(Function):
         if unitName is None:
             inputUnitList = []
             for unitObject in unitList:
-                if unitObject.hasName(inputName):
+                if unitObject.has_name(inputName):
                     inputUnitList.append(unitObject)
         else:
             inputUnitList = []
             for unitObject in unitList:
-                if unitObject.hasName(unitName):
+                if unitObject.has_name(unitName):
                     inputUnitList.append(unitObject)
         # If 0 units found, throw error
         if len(inputUnitList) == 0:
@@ -1965,15 +2003,15 @@ class ConvertUnitSetPrefixGroup(Function):
             return "Unit name is too ambiguous, please specify with unit= and type= ."
         unitObject = inputUnitList[0]
         # Set the prefix group
-        unitObject.setPrefixGroup(prefixGroup)
+        unitObject.set_prefix_group(prefixGroup)
         # Save repo
-        repo.saveToXml()
+        repo.save_to_xml()
         # Output message
         if prefixGroup is None:
             prefixGroupName = "none"
         else:
             prefixGroupName = prefixGroup.getName()
-        return "Set \"" + prefixGroupName + "\" as the prefix group for the \"" + unitObject.getNameList()[
+        return "Set \"" + prefixGroupName + "\" as the prefix group for the \"" + unitObject.get_name_list()[
             0] + "\" unit."
 
     def findParameter(self, paramName, line):
