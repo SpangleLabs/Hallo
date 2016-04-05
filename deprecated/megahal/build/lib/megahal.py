@@ -392,7 +392,7 @@ class Brain(object):
 
     def close(self):
         if not self.closed:
-            print 'Closing database'
+            print('Closing database')
             self.db.close()
             self.closed = True
 
@@ -457,7 +457,7 @@ class MegaHAL(object):
             except EOFError:
                 break
             if phrase:
-                print self.get_reply(phrase)
+                print(self.get_reply(phrase))
 
     def sync(self):
         """Flush any changes to disk"""

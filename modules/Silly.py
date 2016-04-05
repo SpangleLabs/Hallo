@@ -4,407 +4,393 @@ import time
 import re
 from xml.dom import minidom
 
-class Is(Function):
-    '''
-    A fun function which makes hallo respond to any message starting "hallo is..."
-    '''
-    #Name for use in help listing
-    mHelpName = "is"
-    #Names which can be used to address the function
-    mNames = set(["is"])
-    #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Placeholder. Format: is"
-    
-    def __init__(self):
-        '''
-        Constructor
-        '''
-        pass
 
-    def run(self,line,userObject,destinationObject=None):
+class Is(Function):
+    """
+    A fun function which makes hallo respond to any message starting "hallo is..."
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "is"
+        # Names which can be used to address the function
+        self.names = {"is"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Placeholder. Format: is"
+
+    def run(self, line, user_obj, destination_obj=None):
         return "I am?"
 
-class Blank(Function):
-    '''
-    Blank function which makes hallo respond to all messages of the format "hallo"
-    '''
-    #Name for use in help listing
-    mHelpName = ""
-    #Names which can be used to address the function
-    mNames = set([""])
-    #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "I wonder if this works. Format: "
-    
-    def __init__(self):
-        '''
-        Constructor
-        '''
-        pass
 
-    def run(self,line,userObject,destinationObject=None):
+class Blank(Function):
+    """
+    Blank function which makes hallo respond to all messages of the format "hallo"
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = ""
+        # Names which can be used to address the function
+        self.names = {""}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "I wonder if this works. Format: "
+
+    def run(self, line, user_obj, destination_obj=None):
         return "Yes?"
 
-class Alarm(Function):
-    '''
-    Alarm function, responds with a wooo wooo alarm.
-    '''
-    #Name for use in help listing
-    mHelpName = "alarm"
-    #Names which can be used to address the function
-    mNames = set(["alarm"])
-    #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Alarm. Format: alarm <subject>"
-    
-    def __init__(self):
-        '''
-        Constructor
-        '''
-        pass
 
-    def run(self,line,userObject,destinationObject=None):
+class Alarm(Function):
+    """
+    Alarm function, responds with a wooo wooo alarm.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "alarm"
+        # Names which can be used to address the function
+        self.names = {"alarm"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Alarm. Format: alarm <subject>"
+
+    def run(self, line, user_obj, destination_obj=None):
         return 'woo woooooo woooooo ' + line + ' wooo wooo!'
 
-class ArcticTerns(Function):
-    '''
-    Posts a link to a random image of an arctic tern.
-    '''
-    #Name for use in help listing
-    mHelpName = "arctic tern"
-    #Names which can be used to address the function
-    mNames = set(["arctic tern","arctic terns","mods asleep","arctictern","arcticterns","mods"])
-    #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Alarm. Format: alarm <subject>"
-    
-    def __init__(self):
-        '''
-        Constructor
-        '''
-        pass
 
-    def run(self,line,userObject,destinationObject=None):
-        lineClean = line.strip().lower()
-        if(lineClean in ['nap','napping','plush']):
-            number = Commons.getRandomInt(0,1)
+class ArcticTerns(Function):
+    """
+    Posts a link to a random image of an arctic tern.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "arctic tern"
+        # Names which can be used to address the function
+        self.names = {"arctic tern", "arctic terns", "mods asleep", "arctictern", "arcticterns", "mods"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Alarm. Format: alarm <subject>"
+
+    def run(self, line, user_obj, destination_obj=None):
+        line_clean = line.strip().lower()
+        if line_clean in ['nap', 'napping', 'plush']:
+            number = Commons.get_random_int(0, 1)
             link = 'http://dr-spangle.com/AT/N0' + str(number) + '.JPG'
             return 'Plush arctic terns! ' + link
-        number = Commons.getRandomInt(0,61)
+        number = Commons.get_random_int(0, 61)
         link = 'http://dr-spangle.com/AT/' + str(number).zfill(2) + '.JPG'
         return 'Arctic terns!! ' + link
 
-class SlowClap(Function):
-    '''
-    Makes hallo do a slow clap in the current or specified channel.
-    '''
-    #Name for use in help listing
-    mHelpName = "slowclap"
-    #Names which can be used to address the function
-    mNames = set(["slowclap","slow clap"])
-    #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Slowclap. Format: slowclap"
-    
-    def __init__(self):
-        '''
-        Constructor
-        '''
-        pass
 
-    def run(self,line,userObject,destinationObject=None):
-        lineClean = line.strip().lower()
-        serverObject = userObject.getServer()
-        if(lineClean==""):
-            if(destinationObject is not None):
-                serverObject.send("*clap*",destinationObject)
+class SlowClap(Function):
+    """
+    Makes hallo do a slow clap in the current or specified channel.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        help_name = "slowclap"
+        # Names which can be used to address the function
+        names = {"slowclap", "slow clap"}
+        # Help documentation, if it's just a single line, can be set here
+        help_docs = "Slowclap. Format: slowclap"
+
+    def run(self, line, user_obj, destination_obj=None):
+        line_clean = line.strip().lower()
+        server_obj = user_obj.get_server()
+        if line_clean == "":
+            if destination_obj is not None:
+                server_obj.send("*clap*", destination_obj)
                 time.sleep(0.5)
-                serverObject.send("*clap*",destinationObject)
+                server_obj.send("*clap*", destination_obj)
                 time.sleep(2)
                 return '*clap.*'
             else:
                 return "You want me to slowclap yourself?"
-        channelObject = serverObject.getChannelByName(lineClean)
-        if(not channelObject.isInChannel()):
+        channel_obj = server_obj.get_channel_by_name(line_clean)
+        if not channel_obj.is_in_channel():
             return "I'm not in that channel."
-        serverObject.send("*clap*",channelObject)
+        server_obj.send("*clap*", channel_obj)
         time.sleep(0.5)
-        serverObject.send("*clap*",channelObject)
+        server_obj.send("*clap*", channel_obj)
         time.sleep(2)
-        serverObject.send("*clap.*",channelObject)
+        server_obj.send("*clap.*", channel_obj)
         return "done. :)"
 
-class Boop(Function):
-    '''
-    Boops people. Probably on the nose.
-    '''
-    #Name for use in help listing
-    mHelpName = "boop"
-    #Names which can be used to address the function
-    mNames = set(["boop","noseboop","nose boop"])
-    #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Boops people. Format: boop <name>"
-    
-    def __init__(self):
-        '''
-        Constructor
-        '''
-        pass
 
-    def run(self,line,userObject,destinationObject=None):
-        'Boops people. Format: boop <name>'
-        lineClean = line.strip().lower()
-        if(lineClean==''):
-            return "This function boops people, as such you need to specify a person for me to boop, in the form 'Hallo boop <name>' but without the <> brackets."
-        #Get useful objects
-        serverObject = userObject.getServer()
-        #Split arguments, see how many there are.
-        lineSplit = lineClean.split()
-        #If one argument, check that the user is in the current channel.
-        if(len(lineSplit)==1):
-            destUserObject = serverObject.getUserByName(lineClean)
-            if(destUserObject is None or not destUserObject.isOnline()):
+class Boop(Function):
+    """
+    Boops people. Probably on the nose.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "boop"
+        # Names which can be used to address the function
+        self.names = {"boop", "noseboop", "nose boop"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Boops people. Format: boop <name>"
+
+    def run(self, line, user_obj, destination_obj=None):
+        """Boops people. Format: boop <name>"""
+        line_clean = line.strip().lower()
+        if line_clean == '':
+            return "This function boops people, as such you need to specify a person for me to boop, " \
+                   "in the form 'Hallo boop <name>' but without the <> brackets."
+        # Get useful objects
+        server_obj = user_obj.get_server()
+        # Split arguments, see how many there are.
+        line_split = line_clean.split()
+        # If one argument, check that the user is in the current channel.
+        if len(line_split) == 1:
+            dest_user_obj = server_obj.get_user_by_name(line_clean)
+            if dest_user_obj is None or not dest_user_obj.is_online():
                 return "No one by that name is online."
-            serverObject.send("\x01ACTION boops "+destUserObject.getName()+".\x01",destinationObject)
+            server_obj.send("\x01ACTION boops " + dest_user_obj.get_name() + ".\x01", destination_obj)
             return "Done."
-        #If two arguments, see if one is a channel and the other a user.
-        channelTest1 = serverObject.getChannelByName(lineSplit[0])
-        if(channelTest1.isInChannel()):
-            destChannel = channelTest1
-            destUser = serverObject.getUserByName(lineSplit[1])
+        # If two arguments, see if one is a channel and the other a user.
+        channel_test_1 = server_obj.get_channel_by_name(line_split[0])
+        if channel_test_1.is_in_channel():
+            dest_channel = channel_test_1
+            dest_user = server_obj.get_user_by_name(line_split[1])
         else:
-            channelTest2 = serverObject.getChannelByName(lineSplit[1])
-            if(channelTest2.isInChannel()):
-                destChannel = channelTest2
-                destUser = serverObject.getUserByName(lineSplit[0])
+            channel_test_2 = server_obj.get_channel_by_name(line_split[1])
+            if channel_test_2.is_in_channel():
+                dest_channel = channel_test_2
+                dest_user = server_obj.get_user_by_name(line_split[0])
             else:
                 return "I'm not in any channel by that name."
-        #If user by that name is not online, return a message saying that.
-        if(not destUser.isOnline()):
+        # If user by that name is not online, return a message saying that.
+        if not dest_user.is_online():
             return "No user by that name is online."
-        #Send boop, then return done.
-        serverObject.send("\x01ACTION boops "+destUser.getName()+".\x01",destChannel)
+        # Send boop, then return done.
+        server_obj.send("\x01ACTION boops " + dest_user.get_name() + ".\x01", dest_channel)
         return "Done."
 
+
 class ReplyMessage:
-    '''
+    """
     Helper class for a reply message object.
-    '''
-    mPrompt = None
-    mResponseList = None
-    mBlacklist = None
-    mWhitelist = None
-    
-    def __init__(self,prompt):
-        self.mPrompt = re.compile(prompt,re.IGNORECASE)
-        self.mResponseList = []
-        self.mBlacklist = {}
-        self.mWhitelist = {}
-    
-    def checkDestination(self,destinationObject):
-        'Checks if a given destination should be responded to.'
-        serverName = destinationObject.getServer().getName().lower()
-        channelName = destinationObject.getName().lower()
-        #If a whitelist is set, check that
-        if(len(self.mWhitelist) != 0):
-            if(serverName in self.mWhitelist and channelName in self.mWhitelist[serverName]):
+    """
+
+    def __init__(self, prompt):
+        self.prompt = re.compile(prompt, re.IGNORECASE)
+        self.response_list = []
+        self.blacklist = {}
+        self.whitelist = {}
+
+    def check_destination(self, destination_obj):
+        """Checks if a given destination should be responded to."""
+        server_name = destination_obj.get_server().get_name().lower()
+        channel_name = destination_obj.get_name().lower()
+        # If a whitelist is set, check that
+        if len(self.whitelist) != 0:
+            if server_name in self.whitelist and channel_name in self.whitelist[server_name]:
                 return True
             return False
-        #Otherwise check blacklist
-        if(serverName in self.mBlacklist and channelName in self.mBlacklist[serverName]):
+        # Otherwise check blacklist
+        if server_name in self.blacklist and channel_name in self.blacklist[server_name]:
             return False
         return True
-    
-    def checkResponse(self,inputLine,userObject,destinationObject):
-        'Checks if this reply message will respond, and which response to use.'
-        if(self.mPrompt.search(inputLine)):
-            #Pick a response
-            response = Commons.getRandomChoice(self.mResponseList)
-            response = response.replace("{USER}",userObject.getName())
-            response = response.replace("{CHANNEL}",destinationObject.getName())
-            response = response.replace("{SERVER}",userObject.getServer().getName())
+
+    def check_response(self, input_line, user_obj, destination_obj):
+        """Checks if this reply message will respond, and which response to use."""
+        if self.prompt.search(input_line):
+            # Pick a response
+            response = Commons.get_random_choice(self.response_list)[0]
+            response = response.replace("{USER}", user_obj.get_name())
+            response = response.replace("{CHANNEL}", destination_obj.get_name())
+            response = response.replace("{SERVER}", user_obj.get_server().get_name())
             return response
         return None
-    
-    def addResponse(self,response):
-        'Adds a new response to the list.'
-        self.mResponseList.append(response)
-    
-    def addBlacklist(self,serverName,channelName):
-        'Adds a new server/channel pair to blacklist.'
-        if(serverName not in self.mBlacklist):
-            self.mBlacklist[serverName] = set()
-        self.mBlacklist[serverName].add(channelName)
-    
-    def addWhitelist(self,serverName,channelName):
-        'Adds a new server/channel pair to whitelist.'
-        if(serverName not in self.mWhitelist):
-            self.mWhitelist[serverName] = set()
-        self.mWhitelist[serverName].add(channelName)
-    
-    def toXml(self):
-        'Writes ReplyMessage object as XML'
-        #Create document
+
+    def add_response(self, response):
+        """Adds a new response to the list."""
+        self.response_list.append(response)
+
+    def add_blacklist(self, server_name, channel_name):
+        """Adds a new server/channel pair to blacklist."""
+        if server_name not in self.blacklist:
+            self.blacklist[server_name] = set()
+        self.blacklist[server_name].add(channel_name)
+
+    def add_whitelist(self, server_name, channel_name):
+        """Adds a new server/channel pair to whitelist."""
+        if server_name not in self.whitelist:
+            self.whitelist[server_name] = set()
+        self.whitelist[server_name].add(channel_name)
+
+    def to_xml(self):
+        """Writes ReplyMessage object as XML"""
+        # Create document
         doc = minidom.Document()
-        #Create root element
+        # Create root element
         root = doc.createElement("reply")
         doc.appendChild(root)
-        #Add prompt element
-        promptElement = doc.createElement("prompt")
-        promptElement.appendChild(doc.createTextNode(self.mPrompt.pattern))
-        root.appendChild(promptElement)
-        #Add all response elements
-        for response in self.mResponseList:
-            responseElement = doc.createElement("response")
-            responseElement.appendChild(doc.createTextNode(response))
-            root.appendChild(responseElement)
-        #Add blacklist elements
-        for serverName in self.mBlacklist:
-            for channelName in self.mBlacklist[serverName]:
-                blacklistElement = doc.createElement("blacklist")
-                serverElement = doc.createElement("server")
-                serverElement.appendChild(doc.createTextNode(serverName))
-                blacklistElement.appendChild(serverElement)
-                channelElement = doc.createElement("channel")
-                channelElement.appendChild(doc.createTextNode(channelName))
-                blacklistElement.appendChild(channelElement)
-                root.appendChild(blacklistElement)
-        #Add whitelist elements
-        for serverName in self.mWhitelist:
-            for channelName in self.mWhitelist[serverName]:
-                whitelistElement = doc.createElement("whitelist")
-                serverElement = doc.createElement("server")
-                serverElement.appendChild(doc.createTextNode(serverName))
-                whitelistElement.appendChild(serverElement)
-                channelElement = doc.createElement("channel")
-                channelElement.appendChild(doc.createTextNode(channelName))
-                whitelistElement.appendChild(channelElement)
-                root.appendChild(whitelistElement)
-        #Output XML
+        # Add prompt element
+        prompt_elem = doc.createElement("prompt")
+        prompt_elem.appendChild(doc.createTextNode(self.prompt.pattern))
+        root.appendChild(prompt_elem)
+        # Add all response elements
+        for response in self.response_list:
+            response_elem = doc.createElement("response")
+            response_elem.appendChild(doc.createTextNode(response))
+            root.appendChild(response_elem)
+        # Add blacklist elements
+        for server_name in self.blacklist:
+            for channel_name in self.blacklist[server_name]:
+                blacklist_elem = doc.createElement("blacklist")
+                server_elem = doc.createElement("server")
+                server_elem.appendChild(doc.createTextNode(server_name))
+                blacklist_elem.appendChild(server_elem)
+                channel_elem = doc.createElement("channel")
+                channel_elem.appendChild(doc.createTextNode(channel_name))
+                blacklist_elem.appendChild(channel_elem)
+                root.appendChild(blacklist_elem)
+        # Add whitelist elements
+        for server_name in self.whitelist:
+            for channel_name in self.whitelist[server_name]:
+                whitelist_elem = doc.createElement("whitelist")
+                server_elem = doc.createElement("server")
+                server_elem.appendChild(doc.createTextNode(server_name))
+                whitelist_elem.appendChild(server_elem)
+                channel_elem = doc.createElement("channel")
+                channel_elem.appendChild(doc.createTextNode(channel_name))
+                whitelist_elem.appendChild(channel_elem)
+                root.appendChild(whitelist_elem)
+        # Output XML
         return doc.toxml()
-    
+
     @staticmethod
-    def fromXml(xmlString):
-        'Loads a new ReplyMessage object from XML'
-        #Load document
-        doc = minidom.parseString(xmlString)
-        #Get prompt and create ReplyMessage object
-        newPrompt = doc.getElementsByTagName("prompt")[0].firstChild.data
-        newReplyMessage = ReplyMessage(newPrompt)
-        #Get responses
-        for responseXml in doc.getElementsByTagName("response"):
-            newResponse = responseXml.firstChild.data
-            newReplyMessage.addResponse(newResponse)
-        #Get blacklists
-        blacklistXmlList = doc.getElementsByTagName("blacklist")
-        for blacklistXml in blacklistXmlList:
-            newServer = blacklistXml.getElementsByTagName("server")[0].firstChild.data
-            newChannel = blacklistXml.getElementsByTagName("channel")[0].firstChild.data
-            newReplyMessage.addBlacklist(newServer,newChannel)
-        #Get whitelists
-        whitelistXmlList = doc.getElementsByTagName("whitelist")
-        for whitelistXml in whitelistXmlList:
-            newServer = whitelistXml.getElementsByTagName("server")[0].firstChild.data
-            newChannel = whitelistXml.getElementsByTagName("channel")[0].firstChild.data
-            newReplyMessage.addWhitelist(newServer,newChannel)
-        #Returned the newly built ReplyMessage
-        return newReplyMessage
+    def from_xml(xml_string):
+        """Loads a new ReplyMessage object from XML"""
+        # Load document
+        doc = minidom.parseString(xml_string)
+        # Get prompt and create ReplyMessage object
+        new_prompt = doc.getElementsByTagName("prompt")[0].firstChild.data
+        new_reply_message = ReplyMessage(new_prompt)
+        # Get responses
+        for response_elem in doc.getElementsByTagName("response"):
+            response_obj = response_elem.firstChild.data
+            new_reply_message.add_response(response_obj)
+        # Get blacklists
+        blacklist_elem_list = doc.getElementsByTagName("blacklist")
+        for blacklist_elem in blacklist_elem_list:
+            new_server = blacklist_elem.getElementsByTagName("server")[0].firstChild.data
+            new_channel = blacklist_elem.getElementsByTagName("channel")[0].firstChild.data
+            new_reply_message.add_blacklist(new_server, new_channel)
+        # Get whitelists
+        whitelist_elem_list = doc.getElementsByTagName("whitelist")
+        for whitelist_elem in whitelist_elem_list:
+            new_server = whitelist_elem.getElementsByTagName("server")[0].firstChild.data
+            new_channel = whitelist_elem.getElementsByTagName("channel")[0].firstChild.data
+            new_reply_message.add_whitelist(new_server, new_channel)
+        # Returned the newly built ReplyMessage
+        return new_reply_message
+
 
 class ReplyMessageList:
-    '''
+    """
     Stores and handles the list of ReplyMessage objects.
-    '''
-    mReplyMessageList = None
-    
+    """
+
     def __init__(self):
-        self.mReplyMessageList = set()
-        
-    def addReplyMessage(self,replyMessage):
-        self.mReplyMessageList.add(replyMessage)
-        
-    def getResponse(self,fullLine,userObject,channelObject):
-        'Check ReplyMessage objects to see which response to give. Or NULL if none apply.'
+        self.reply_message_list = set()
+
+    def add_reply_message(self, reply_message):
+        self.reply_message_list.add(reply_message)
+
+    def get_response(self, full_line, user_obj, channel_obj):
+        """Check ReplyMessage objects to see which response to give. Or NULL if none apply."""
         response = None
-        for replyMessage in self.mReplyMessageList:
-            if(not replyMessage.checkDestination(channelObject)):
+        for replyMessage in self.reply_message_list:
+            if not replyMessage.check_destination(channel_obj):
                 continue
-            response = response or replyMessage.checkResponse(fullLine,userObject,channelObject)
+            response = response or replyMessage.check_response(full_line, user_obj, channel_obj)
         return response
-    
+
     @staticmethod
-    def loadFromXml():
-        'Loads ReplyMessageList from XML.'
+    def load_from_xml():
+        """Loads ReplyMessageList from XML."""
         doc = minidom.parse("store/reply_list.xml")
-        #Create new object
-        newReplyMessageList = ReplyMessageList()
-        #Loop through reply messages
-        for replyXml in doc.getElementsByTagName("reply"):
-            replyMessage = ReplyMessage.fromXml(replyXml.toxml())
-            newReplyMessageList.addReplyMessage(replyMessage)
-        #Return new repo object
-        return newReplyMessageList
-    
-    def saveToXml(self):
-        'Saves ReplyMessageList to XML.'
-        #Create document, with DTD
-        docimp = minidom.DOMImplementation()
-        doctype = docimp.createDocumentType(
+        # Create new object
+        new_reply_message_list = ReplyMessageList()
+        # Loop through reply messages
+        for reply_elem in doc.getElementsByTagName("reply"):
+            reply_message = ReplyMessage.from_xml(reply_elem.toxml())
+            new_reply_message_list.add_reply_message(reply_message)
+        # Return new repo object
+        return new_reply_message_list
+
+    def save_to_xml(self):
+        """Saves ReplyMessageList to XML."""
+        # Create document, with DTD
+        doc_imp = minidom.DOMImplementation()
+        doc_type = doc_imp.createDocumentType(
             qualifiedName='reply_list',
-            publicId='', 
+            publicId='',
             systemId='reply_list.dtd',
         )
-        doc = docimp.createDocument(None,'reply_list',doctype)
-        #get root element
+        doc = doc_imp.createDocument(None, 'reply_list', doc_type)
+        # get root element
         root = doc.getElementsByTagName("reply_list")[0]
-        #Add reply message objects
-        for replyMessage in self.mReplyMessageList:
-            replyElement = minidom.parseString(replyMessage.toXml()).firstChild
-            root.appendChild(replyElement)
-        #save XML
-        doc.writexml(open("store/reply_list.xml","w"),addindent="\t",newl="\n")
+        # Add reply message objects
+        for reply_obj in self.reply_message_list:
+            reply_elem = minidom.parseString(reply_obj.to_xml()).firstChild
+            root.appendChild(reply_elem)
+        # save XML
+        doc.writexml(open("store/reply_list.xml", "w"), addindent="\t", newl="\n")
+
 
 class Reply(Function):
-    '''
+    """
     Function to make hallo reply to detected phrases with a specified response
-    '''
-    #Name for use in help listing
-    mHelpName = "reply"
-    #Names which can be used to address the function
-    mNames = set(["reply"])
-    #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Make hallo reply to a detected phrase with a specified response."
-    
-    def __init__(self):
-        '''
-        Constructor
-        '''
-        pass
+    """
 
-    def run(self,line,userObject,destinationObject=None):
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "reply"
+        # Names which can be used to address the function
+        self.names = {"reply"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Make hallo reply to a detected phrase with a specified response."
+
+    def run(self, line, user_obj, destination_obj=None):
         return "Not yet handled."
         pass
-    
-    def getPassiveEvents(self):
-        'Returns a list of events which this function may want to respond to in a passive way'
-        return set([Function.EVENT_MESSAGE])
 
-    def passiveRun(self,event,fullLine,serverObject,userObject=None,channelObject=None):
-        'Replies to an event not directly addressed to the bot.'
-        replyMessageList = ReplyMessageList.loadFromXml()
-        response = replyMessageList.getResponse(fullLine,userObject,channelObject)
+    def get_passive_events(self):
+        """Returns a list of events which this function may want to respond to in a passive way"""
+        return {Function.EVENT_MESSAGE}
+
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+        """Replies to an event not directly addressed to the bot."""
+        reply_message_list = ReplyMessageList.load_from_xml()
+        response = reply_message_list.get_response(full_line, user_obj, channel_obj)
         return response
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

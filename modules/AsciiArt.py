@@ -1,57 +1,71 @@
 from Function import Function
 from inc.commons import Commons
 
-class Longcat(Function):
-    '''
-    Draws a classic longcat
-    '''
-    #Name for use in help listing
-    mHelpName = "longcat"
-    #Names which can be used to address the function
-    mNames = set(["longcat","ascii longcat"])
-    #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Make a longcat! Format: longcat <length>"
-    
-    def __init__(self):
-        '''
-        Constructor
-        '''
-        pass
 
-    def run(self,line,userObject,destinationObject=None):
-        'Make a longcat! Format: longcat <length>'
+class Longcat(Function):
+    """
+    Draws a classic longcat
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "longcat"
+        # Names which can be used to address the function
+        self.names = {"longcat", "ascii longcat"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Make a longcat! Format: longcat <length>"
+
+    def run(self, line, user_obj, destination_obj=None):
+        """Make a longcat! Format: longcat <length>"""
         try:
-            longcatSegments = int(line)
-        except:
-            longcatSegments = 5
-        longcatHead = '    /\___/\ \n   /       \ \n  |  #    # |\n  \     @   |\n   \   _|_ /\n   /       \______\n  / _______ ___   \ \n  |_____   \   \__/\n   |    \__/\n'
-        longcatSegment = '   |       |\n'
-        longcatTail = '   /        \ \n  /   ____   \ \n  |  /    \  |\n  | |      | |\n  /  |      |  \ \n  \__/      \__/'
-        longcat = longcatHead + longcatSegment * longcatSegments + longcatTail
-        longcat += '\n Longcat is L' + 'o' * longcatSegments + 'ng!'
+            segments = int(line)
+        except ValueError:
+            segments = 5
+        long_cat_head = r'''    /\___/\
+   /       \
+  |  #    # |
+  \     @   |
+   \   _|_ /
+   /       \______
+  / _______ ___   \
+  |_____   \   \__/
+  |    \__/
+'''
+        long_cat_segment = '   |       |\n'
+        long_cat_tail = r'''   /        \
+  /   ____   \
+  |  /    \  |
+  | |      | |
+ /  |      |  \ 
+ \__/      \__/'''
+        longcat = long_cat_head + long_cat_segment * segments + long_cat_tail
+        longcat += '\n Longcat is L' + 'o' * segments + 'ng!'
         return longcat
 
 
-
 class Deer(Function):
-    '''
+    """
     Draws an ascii deer
-    '''
-    #Name for use in help listing
-    mHelpName = "deer"
-    #Names which can be used to address the function
-    mNames = set(["deer","ascii deer"])
-    #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Ascii art deer. Format: deer"
+    """
     
     def __init__(self):
-        '''
+        """
         Constructor
-        '''
-        pass
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "deer"
+        # Names which can be used to address the function
+        self.names = {"deer", "ascii deer"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Ascii art deer. Format: deer"
 
-    def run(self,line,userObject,destinationObject=None):
-        'ascii art deer. Format: deer'
+    def run(self, line, user_obj, destination_obj=None):
+        """ascii art deer. Format: deer"""
         deer = r'''   /|       |\
 `__\\       //__'
    ||      ||
@@ -78,26 +92,27 @@ class Deer(Function):
           /_//_/           /_/   /_/'''
         return deer
 
+
 class Dragon(Function):
-    '''
+    """
     Draws an ascii dragon
-    '''
-    #Name for use in help listing
-    mHelpName = "dragon"
-    #Names which can be used to address the function
-    mNames = set(["dragon","ascii dragon"])
-    #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Prints ascii dragon. Format: dragon"
+    """
     
     def __init__(self):
-        '''
+        """
         Constructor
-        '''
-        pass
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "dragon"
+        # Names which can be used to address the function
+        self.names = {"dragon", "ascii dragon"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Prints ascii dragon. Format: dragon"
 
-    def run(self,line,userObject,destinationObject=None):
-        'Prints ascii dragon. Format: dragon'
-        dragonDeer = r'''hmm.. nah. have another deer.
+    def run(self, line, user_obj, destination_obj=None):
+        """Prints ascii dragon. Format: dragon"""
+        dragon_deer = r'''hmm.. nah. have another deer.
        ""\/ \/""
          "\__/"
           (oo)
@@ -106,7 +121,7 @@ class Dragon(Function):
   |.____..  /
   \\      /A\
   |A      |//'''
-        dragonOne = r'''                     _ _
+        dragon_one = r'''                     _ _
               _     //` `\
           _,-"\%   // /``\`\
      ~^~ >__^  |% // /  } `\`\
@@ -117,7 +132,7 @@ class Dragon(Function):
           /_`\ \      `\ \." `-..-'`
          ``` /_/`"-=-'`/_/
     jgs     ```       ```'''
-        dragonTwo = r'''           ____ __
+        dragon_two = r'''           ____ __
           { --.\  |          .)%%%)%%
            '-._\\ | (\___   %)%%(%%(%%%
                `\\|{/ ^ _)-%(%%%%)%%;%%%
@@ -125,34 +140,35 @@ class Dragon(Function):
   jgs     //\   ) ,  /       '%%%%(%%'
     ,  _.'/  `\<-- \<
      `^^^`     ^^   ^^'''
-        rand = Commons.getRandomInt(0,100)[0]
-        if(rand==15):
-            dragon = dragonDeer
-        elif(rand%2==0):
-            dragon = dragonOne
+        rand = Commons.get_random_int(0, 100)[0]
+        if rand == 15:
+            dragon = dragon_deer
+        elif rand % 2 == 0:
+            dragon = dragon_one
         else:
-            dragon = dragonTwo
+            dragon = dragon_two
         return dragon
 
+
 class Train(Function):
-    '''
+    """
     Draws an ascii train
-    '''
-    #Name for use in help listing
-    mHelpName = "train"
-    #Names which can be used to address the function
-    mNames = set(["train","ascii train"])
-    #Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Prints ascii train. Format: train"
+    """
     
     def __init__(self):
-        '''
+        """
         Constructor
-        '''
-        pass
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "train"
+        # Names which can be used to address the function
+        self.names = {"train", "ascii train"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Prints ascii train. Format: train"
 
-    def run(self,line,userObject,destinationObject=None):
-        'Prints ascii train. Format: train'
+    def run(self, line, user_obj, destination_obj=None):
+        """Prints ascii train. Format: train"""
         train = r'''chugga chugga, chugga chugga, woo woo!
             ____.-==-, _______  _______  _______  _______  _..._
            {"""""LILI|[" " "'"]['""'"""][''"""'']["" """"][LI LI]
