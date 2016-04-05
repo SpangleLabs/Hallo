@@ -473,13 +473,13 @@ class ServerIRC(Server):
                 self.send_raw(msg_type_name + ' ' + destination_name + ' :' + date_line_line)
                 # Log sent data, if it's not message or notice
                 if msg_type == "message":
-                    self.hallo.get_printer().outputFromSelf(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
-                                                            channel_obj)
+                    self.hallo.get_printer().output_from_self(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
+                                                              channel_obj)
                     self.hallo.get_logger().log_from_self(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
                                                           channel_obj)
                 elif msg_type == "notice":
-                    self.hallo.get_printer().outputFromSelf(Function.EVENT_NOTICE, date_line_line, self, user_obj,
-                                                            channel_obj)
+                    self.hallo.get_printer().output_from_self(Function.EVENT_NOTICE, date_line_line, self, user_obj,
+                                                              channel_obj)
                     self.hallo.get_logger().log_from_self(Function.EVENT_NOTICE, date_line_line, self, user_obj,
                                                           channel_obj)
 
@@ -585,7 +585,7 @@ class ServerIRC(Server):
         self.send("PONG " + ping_number, None, "raw")
         # Print and log
         self.hallo.get_printer().output(Function.EVENT_PING, ping_number, self, None, None)
-        self.hallo.get_printer().outputFromSelf(Function.EVENT_PING, ping_number, self, None, None)
+        self.hallo.get_printer().output_from_self(Function.EVENT_PING, ping_number, self, None, None)
         self.hallo.get_logger().log(Function.EVENT_PING, ping_number, self, None, None)
         self.hallo.get_logger().log_from_self(Function.EVENT_PING, ping_number, self, None, None)
         # Pass to passive FunctionDispatcher
