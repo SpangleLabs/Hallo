@@ -20,7 +20,7 @@ class ConfigSave(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        halloObject = userObject.getServer().getHallo()
+        halloObject = userObject.get_server().getHallo()
         halloObject.save_to_xml()
 
 
@@ -42,7 +42,7 @@ class ModuleReload(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        halloObject = userObject.getServer().getHallo()
+        halloObject = userObject.get_server().getHallo()
         functionDispatcher = halloObject.get_function_dispatcher()
         reloadResult = functionDispatcher.reload_module(line)
         if reloadResult:
@@ -96,7 +96,7 @@ class Help(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        self.mHalloObject = userObject.getServer().getHallo()
+        self.mHalloObject = userObject.get_server().getHallo()
         if line.strip() == "":
             return self.listAllFunctions(userObject, destinationObject)
         else:
@@ -106,7 +106,7 @@ class Help(Function):
     def listAllFunctions(self, userObject, destinationObject):
         """Returns a list of all functions."""
         # Get required objects
-        serverObject = userObject.getServer()
+        serverObject = userObject.get_server()
         functionDispatcher = self.mHalloObject.get_function_dispatcher()
         # Get list of function classes
         functionClassList = functionDispatcher.get_function_class_list()

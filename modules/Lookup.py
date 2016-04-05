@@ -310,8 +310,8 @@ class WeatherLocationRepo:
 
     def getEntryByUserObject(self, userObject):
         """Returns an entry matching the given userObject, or None."""
-        userName = userObject.getName()
-        serverName = userObject.getServer().getName()
+        userName = userObject.get_name()
+        serverName = userObject.get_server().get_name()
         return self.getEntryByUserNameAndServerName(userName, serverName)
 
     @staticmethod
@@ -524,8 +524,8 @@ class WeatherLocation(Function):
         lineClean = line.strip().lower()
         # Load up Weather locations repo
         weatherRepo = WeatherLocationRepo.loadFromXml()
-        userName = userObject.getName()
-        serverObj = userObject.getServer()
+        userName = userObject.get_name()
+        serverObj = userObject.get_server()
         serverName = serverObj.getName()
         # Check that an argument is provided
         if len(lineClean.split()) == 0:
@@ -533,9 +533,9 @@ class WeatherLocation(Function):
         # Check if first argument is a specified user for given server
         firstArg = lineClean.split()[0]
         testUser = serverObj.getUserByName(firstArg)
-        if destinationObject is not None and destinationObject.isChannel():
-            if destinationObject.isUserInChannel(testUser):
-                userName = testUser.getName()
+        if destinationObject is not None and destinationObject.is_channel():
+            if destinationObject.is_user_in_channel(testUser):
+                userName = testUser.get_name()
                 lineClean = lineClean[len(firstArg):].strip()
         # Create entry
         newEntry = WeatherLocationEntry(serverName, userName)
@@ -573,8 +573,8 @@ class CurrentWeather(Function):
                        "the \"weather location\" function."
         else:
             # Check if a user was specified
-            testUser = userObject.getServer().getUserByName(lineClean)
-            if (destinationObject is not None and destinationObject.isChannel() and destinationObject.isUserInChannel(
+            testUser = userObject.get_server().getUserByName(lineClean)
+            if (destinationObject is not None and destinationObject.is_channel() and destinationObject.is_user_in_channel(
                     testUser)):
                 locationRepo = WeatherLocationRepo.loadFromXml()
                 locationEntry = locationRepo.getEntryByUserObject(testUser)
@@ -582,11 +582,11 @@ class CurrentWeather(Function):
                     return "No location stored for this user. Please specify a location or store one with " \
                            "the \"weather location\" function."
             else:
-                userName = userObject.getName()
-                serverName = userObject.getServer().getName()
+                userName = userObject.get_name()
+                serverName = userObject.get_server().getName()
                 locationEntry = WeatherLocationEntry(userName, serverName)
                 locationEntry.setFromInput(lineClean)
-        apiKey = userObject.getServer().getHallo().get_api_key("openweathermap")
+        apiKey = userObject.get_server().getHallo().get_api_key("openweathermap")
         if apiKey is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/weather" + locationEntry.createQueryParams() + "&APPID=" + apiKey
@@ -665,8 +665,8 @@ class Weather(Function):
                 return "No location stored for this user. Please specify a location or store one with " \
                        "the \"weather location\" function."
         else:
-            testUser = userObject.getServer().getUserByName(lineClean)
-            if (destinationObject is not None and destinationObject.isChannel() and destinationObject.isUserInChannel(
+            testUser = userObject.get_server().getUserByName(lineClean)
+            if (destinationObject is not None and destinationObject.is_channel() and destinationObject.is_user_in_channel(
                     testUser)):
                 weatherRepo = WeatherLocationRepo.loadFromXml()
                 locationEntry = weatherRepo.getEntryByUserObject(testUser)
@@ -674,12 +674,12 @@ class Weather(Function):
                     return "No location stored for this user. Please specify a location or store one with " \
                            "the \"weather location\" function."
             else:
-                userName = userObject.getName()
-                serverName = userObject.getServer().getName()
+                userName = userObject.get_name()
+                serverName = userObject.get_server().getName()
                 locationEntry = WeatherLocationEntry(userName, serverName)
                 locationEntry.setFromInput(lineClean)
         # Get API response
-        apiKey = userObject.getServer().getHallo().get_api_key("openweathermap")
+        apiKey = userObject.get_server().getHallo().get_api_key("openweathermap")
         if apiKey is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/forecast/daily" + locationEntry.createQueryParams() + \

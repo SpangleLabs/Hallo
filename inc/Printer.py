@@ -90,19 +90,19 @@ class Printer:
         output = Commons.currentTimestamp() + " "
         output += "[" + serverObject.getName() + "] "
         output += destinationObject.getName() + " "
-        output += "<" + userObject.getName() + "> " + fullLine
+        output += "<" + userObject.get_name() + "> " + fullLine
         return output
     
     def printJoin(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
         output += "[" + serverObject.getName() + "] "
-        output += userObject.getName() + " joined " + channelObject.getName()
+        output += userObject.get_name() + " joined " + channelObject.get_name()
         return output
     
     def printLeave(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
         output += "[" + serverObject.getName() + "] "
-        output += userObject.getName() + " left " + channelObject.getName()
+        output += userObject.get_name() + " left " + channelObject.get_name()
         if fullLine.strip() != "":
             output += " (" + fullLine + ")"
         return output
@@ -110,7 +110,7 @@ class Printer:
     def printQuit(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
         output += "[" + serverObject.getName() + "] "
-        output += userObject.getName() + " has quit."
+        output += userObject.get_name() + " has quit."
         if fullLine.strip() != "":
             output += " (" + fullLine + ")"
         return output
@@ -118,13 +118,13 @@ class Printer:
     def printNameChange(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
         output += "[" + serverObject.getName() + "] "
-        output += "Nick change: " + fullLine + " -> " + userObject.getName()
+        output += "Nick change: " + fullLine + " -> " + userObject.get_name()
         return output
     
     def printKick(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
         output += "[" + serverObject.getName() + "] "
-        output += userObject.getName() + " was kicked from " + channelObject.getName()
+        output += userObject.get_name() + " was kicked from " + channelObject.get_name()
         if fullLine.strip() != "":
             output += " (" + fullLine + ")"
         return output
@@ -132,19 +132,19 @@ class Printer:
     def printInvite(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
         output += "[" + serverObject.getName() + "] "
-        output += "Invite to " + channelObject.getName() + ' from ' + userObject.getName()
+        output += "Invite to " + channelObject.get_name() + ' from ' + userObject.get_name()
         return output
     
     def printNotice(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
         output += "[" + serverObject.getName() + "] "
-        output += "Notice from " + userObject.getName() + ": " + fullLine
+        output += "Notice from " + userObject.get_name() + ": " + fullLine
         return output
     
     def printModeChange(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
         output += "[" + serverObject.getName() + "] "
-        output += userObject.getName() + ' set ' + fullLine + ' on ' + channelObject.getName()
+        output += userObject.get_name() + ' set ' + fullLine + ' on ' + channelObject.get_name()
         return output
     
     def printCtcp(self, fullLine, serverObject, userObject, channelObject):
@@ -159,10 +159,10 @@ class Printer:
             output = Commons.currentTimestamp() + " "
             output += "[" + serverObject.getName() + "] "
             output += destinationObject.getName() + " "
-            output += "**" + userObject.getName() + " " + ctcpArguments + "**"
+            output += "**" + userObject.get_name() + " " + ctcpArguments + "**"
             return output
         output = Commons.currentTimestamp() + " "
         output += "[" + serverObject.getName() + "] "
         output += destinationObject.getName() + " "
-        output += "<" + userObject.getName() + " (CTCP)> " + fullLine
+        output += "<" + userObject.get_name() + " (CTCP)> " + fullLine
         return output

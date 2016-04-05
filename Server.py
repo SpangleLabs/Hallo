@@ -186,7 +186,7 @@ class Server(metaclass=ABCMeta):
         """
         channelName = channelName.lower()
         for channel in self.mChannelList:
-            if channel.getName() == channelName:
+            if channel.get_name() == channelName:
                 return channel
         newChannel = Channel(channelName, self)
         self.addChannel(newChannel)
@@ -223,7 +223,7 @@ class Server(metaclass=ABCMeta):
         """
         userName = userName.lower()
         for user in self.mUserList:
-            if user.getName() == userName:
+            if user.get_name() == userName:
                 return user
         # No user by that name exists, so create one.
         newUser = User(userName, self)
@@ -369,7 +369,7 @@ class ServerIRC(Server):
         print(Commons.currentTimestamp() + " joining channels on " + self.mName + ", identifying.")
         # Join relevant channels
         for channel in self.mChannelList:
-            if channel.isAutoJoin():
+            if channel.is_auto_join():
                 self.joinChannel(channel)
 
     def disconnect(self):
@@ -377,12 +377,12 @@ class ServerIRC(Server):
         quitMessage = "Will I dream?"
         # Logging
         for channel in self.mChannelList:
-            if channel.isInChannel():
+            if channel.is_in_channel():
                 self.mHallo.get_logger().log(Function.EVENT_QUIT, quitMessage, self, self.getUserByName(self.getNick()),
                                              channel)
-                channel.setInChannel(False)
+                channel.set_in_channel(False)
         for user in self.mUserList:
-            user.setOnline(False)
+            user.set_online(False)
         if self.mOpen:
             try:
                 self.send("QUIT :" + quitMessage, None, "raw")
@@ -492,12 +492,12 @@ class ServerIRC(Server):
         if channelObject not in self.mChannelList:
             self.addChannel(channelObject)
         # Set channel to AutoJoin, for the future
-        channelObject.setAutoJoin(True)
+        channelObject.set_auto_join(True)
         # Send JOIN command
-        if channelObject.getPassword() is None:
-            self.send('JOIN ' + channelObject.getName(), None, "raw")
+        if channelObject.get_password() is None:
+            self.send('JOIN ' + channelObject.get_name(), None, "raw")
         else:
-            self.send('JOIN ' + channelObject.getName() + ' ' + channelObject.getPassword(), None, "raw")
+            self.send('JOIN ' + channelObject.get_name() + ' ' + channelObject.get_password(), None, "raw")
 
     def leaveChannel(self, channelObject):
         """
@@ -508,11 +508,11 @@ class ServerIRC(Server):
         if channelObject not in self.mChannelList:
             return
         # Set channel to not AutoJoin, for the future
-        channelObject.setAutoJoin(False)
+        channelObject.set_auto_join(False)
         # Set not in channel
-        channelObject.setInChannel(False)
+        channelObject.set_in_channel(False)
         # Send PART command
-        self.send('PART ' + channelObject.getName(), None, "raw")
+        self.send('PART ' + channelObject.get_name(), None, "raw")
 
     def parseLine(self, newLine):
         """
@@ -602,18 +602,18 @@ class ServerIRC(Server):
         messagePublicBool = not messagePrivateBool
         # Get relevant objects.
         messageSender = self.getUserByName(messageSenderName)
-        messageSender.updateActivity()
+        messageSender.update_activity()
         messageDestination = messageSender
         # Get the prefix
         actingPrefix = self.getPrefix()
         if messagePublicBool:
             messageChannel = self.getChannelByName(messageDestinationName)
-            messageChannel.updateActivity()
+            messageChannel.update_activity()
             messageDestination = messageChannel
             # Print and Log the public message
             self.mHallo.get_printer().output(Function.EVENT_MESSAGE, messageText, self, messageSender, messageChannel)
             self.mHallo.get_logger().log(Function.EVENT_MESSAGE, messageText, self, messageSender, messageChannel)
-            actingPrefix = messageChannel.getPrefix()
+            actingPrefix = messageChannel.get_prefix()
         else:
             # Print and Log the private message
             self.mHallo.get_printer().output(Function.EVENT_MESSAGE, messageText, self, messageSender, None)
@@ -663,9 +663,9 @@ class ServerIRC(Server):
         messageChannel = None
         if messagePublicBool:
             messageChannel = self.getChannelByName(messageDestinationName)
-            messageChannel.updateActivity()
+            messageChannel.update_activity()
         messageSender = self.getUserByName(messageSenderName)
-        messageSender.updateActivity()
+        messageSender.update_activity()
         # Print and log the message
         if messagePrivateBool:
             self.mHallo.get_printer().output(Function.EVENT_CTCP, messageText, self, messageSender, None)
@@ -706,17 +706,17 @@ class ServerIRC(Server):
         # Get relevant objects
         joinChannel = self.getChannelByName(joinChannelName)
         joinClient = self.getUserByName(joinClientName)
-        joinClient.updateActivity()
+        joinClient.update_activity()
         # Print and log
         self.mHallo.get_printer().output(Function.EVENT_JOIN, None, self, joinClient, joinChannel)
         self.mHallo.get_logger().log(Function.EVENT_JOIN, None, self, joinClient, joinChannel)
         # TODO: Apply automatic flags as required
         # If hallo has joined a channel, get the user list and apply automatic flags as required
-        if joinClient.getName().lower() == self.getNick().lower():
-            joinChannel.setInChannel(True)
+        if joinClient.get_name().lower() == self.getNick().lower():
+            joinChannel.set_in_channel(True)
         else:
             # If it was not hallo joining a channel, add nick to user list
-            joinChannel.addUser(joinClient)
+            joinChannel.add_user(joinClient)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
         functionDispatcher.dispatch_passive(Function.EVENT_JOIN, None, self, joinClient, joinChannel)
@@ -737,15 +737,15 @@ class ServerIRC(Server):
         self.mHallo.get_printer().output(Function.EVENT_LEAVE, partMessage, self, partClient, partChannel)
         self.mHallo.get_logger().log(Function.EVENT_LEAVE, partMessage, self, partClient, partChannel)
         # Remove user from channel's user list
-        partChannel.removeUser(partClient)
+        partChannel.remove_user(partClient)
         # Try to work out if the user is still on the server
         # TODO: this needs to be nicer
         userStillOnServer = False
         for channel_server in self.mChannelList:
-            if partClient in channel_server.getUserList():
+            if partClient in channel_server.get_user_list():
                 userStillOnServer = True
         if not userStillOnServer:
-            partClient.setOnline(False)
+            partClient.set_online(False)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
         functionDispatcher.dispatch_passive(Function.EVENT_LEAVE, partMessage, self, partClient, partChannel)
@@ -766,15 +766,15 @@ class ServerIRC(Server):
             self.mHallo.get_logger().log(Function.EVENT_QUIT, quitMessage, self, quitClient, channel)
         # Remove user from user list on all channels
         for channel in self.mChannelList:
-            channel.removeUser(quitClient)
+            channel.remove_user(quitClient)
         # Remove auth stuff from user
-        quitClient.setOnline(False)
+        quitClient.set_online(False)
         # If it was hallo which quit, set all channels to out of channel and all users to offline
-        if quitClient.getName().lower() == self.getNick().lower():
+        if quitClient.get_name().lower() == self.getNick().lower():
             for channel in self.mChannelList:
-                channel.setInChannel(False)
+                channel.set_in_channel(False)
             for user in self.mUserList:
-                user.setOnline(False)
+                user.set_online(False)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
         functionDispatcher.dispatch_passive(Function.EVENT_QUIT, quitMessage, self, quitClient, None)
@@ -801,9 +801,9 @@ class ServerIRC(Server):
         modeClient = self.getUserByName(modeClientName)
         # If a channel password has been set, store it
         if modeMode == '-k':
-            modeChannel.setPassword(None)
+            modeChannel.set_password(None)
         elif modeMode == '+k':
-            modeChannel.setPassword(modeArgs)
+            modeChannel.set_password(modeArgs)
         # Printing and logging
         modeFull = modeMode
         if modeArgs != '':
@@ -825,14 +825,14 @@ class ServerIRC(Server):
         noticeMessage = ':'.join(noticeLine.split(':')[2:])
         # Get client and channel objects
         noticeChannel = self.getChannelByName(noticeChannelName)
-        noticeChannel.updateActivity()
+        noticeChannel.update_activity()
         noticeClient = self.getUserByName(noticeClientName)
-        noticeClient.updateActivity()
+        noticeClient.update_activity()
         # Print to console, log to file
         self.mHallo.get_printer().output(Function.EVENT_NOTICE, noticeMessage, self, noticeClient, noticeChannel)
         self.mHallo.get_logger().log(Function.EVENT_NOTICE, noticeMessage, self, noticeClient, noticeChannel)
         # Checking if user is registered
-        if noticeClient.getName() == self.mNickservNick and \
+        if noticeClient.get_name() == self.mNickservNick and \
                 self.mCheckUserIdentityUser is not None and \
                 self.mNickservIdentCommand is not None:
             # check if notice message contains command and user name
@@ -861,11 +861,11 @@ class ServerIRC(Server):
         # Get user object
         nickClient = self.getUserByName(nickClientName)
         # If it was the bots nick that just changed, update that.
-        if nickClient.getName() == self.getNick():
+        if nickClient.get_name() == self.getNick():
             self.mNick = nickNewNick
         # TODO: Check whether this verifies anything that means automatic flags need to be applied
         # Update name for user object
-        nickClient.setName(nickNewNick)
+        nickClient.set_name(nickNewNick)
         # Printing and logging
         self.mHallo.get_printer().output(Function.EVENT_CHNAME, nickClientName, self, nickClient, Commons.ALL_CHANNELS)
         for channel in self.mChannelList:
@@ -883,13 +883,13 @@ class ServerIRC(Server):
         inviteChannelName = ':'.join(inviteLine.split(':')[2:])
         # Get destination objects
         inviteClient = self.getUserByName(inviteClientName)
-        inviteClient.updateActivity()
+        inviteClient.update_activity()
         inviteChannel = self.getChannelByName(inviteChannelName)
         # Printing and logging
         self.mHallo.get_printer().output(Function.EVENT_INVITE, None, self, inviteClient, inviteChannel)
         self.mHallo.get_logger().log(Function.EVENT_INVITE, None, self, inviteClient, inviteChannel)
         # Check if they are an op, then join the channel.
-        if inviteClient.rightsCheck("invite_channel", inviteChannel):
+        if inviteClient.rights_check("invite_channel", inviteChannel):
             self.joinChannel(inviteChannel)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
@@ -910,10 +910,10 @@ class ServerIRC(Server):
         self.mHallo.get_printer().output(Function.EVENT_KICK, kickMessage, self, kickClient, kickChannel)
         self.mHallo.get_logger().log(Function.EVENT_KICK, kickMessage, self, kickClient, kickChannel)
         # Remove kicked user from user list
-        kickChannel.removeUser(kickClient)
+        kickChannel.remove_user(kickClient)
         # If it was the bot who was kicked, set "in channel" status to False
-        if kickClient.getName() == self.getNick():
-            kickChannel.setInChannel(False)
+        if kickClient.get_name() == self.getNick():
+            kickChannel.set_in_channel(False)
         # Pass to passive FunctionDispatcher
         functionDispatcher = self.mHallo.get_function_dispatcher()
         functionDispatcher.dispatch_passive(Function.EVENT_KICK, kickMessage, self, kickClient, kickChannel)
@@ -954,7 +954,7 @@ class ServerIRC(Server):
             # Mark them all as online
             for userName in usersOnlineList:
                 userObj = self.getUserByName(userName)
-                userObj.setOnline(True)
+                userObj.set_online(True)
             # Check if users are being checked
             if all([usersOnlineList in self.mCheckUsersOnlineCheckList]):
                 self.mCheckUsersOnlineOnlineList = usersOnlineList
@@ -966,13 +966,13 @@ class ServerIRC(Server):
             # Get channel object
             channelObject = self.getChannelByName(channelName)
             # Set all users online and in channel
-            channelObject.setUserList(set())
+            channelObject.set_user_list(set())
             for userName in channelUserList:
                 while userName[0] in ['~', '&', '@', '%', '+']:
                     userName = userName[1:]
                 userObj = self.getUserByName(userName)
-                userObj.setOnline(True)
-                channelObject.addUser(userObj)
+                userObj.set_online(True)
+                channelObject.add_user(userObj)
             # Check channel is being checked
             if channelObject == self.mCheckChannelUserListChannel:
                 # Set user list
@@ -1031,7 +1031,7 @@ class ServerIRC(Server):
         self.mCheckChannelUserListChannel = channelObject
         self.mCheckChannelUserListUserList = None
         # send request
-        self.send("NAMES " + channelObject.getName(), None, "raw")
+        self.send("NAMES " + channelObject.get_name(), None, "raw")
         # loop for 5 seconds
         for _ in range(10):
             # if reply is here
@@ -1043,9 +1043,9 @@ class ServerIRC(Server):
                     while userName[0] in ['~', '&', '@', '%', '+']:
                         userName = userName[1:]
                     userObject = self.getUserByName(userName)
-                    userObject.setOnline(True)
+                    userObject.set_online(True)
                     userObjectList.add(userObject)
-                channelObject.setUserList(userObjectList)
+                channelObject.set_user_list(userObjectList)
                 # release lock
                 self.mCheckChannelUserListChannel = None
                 self.mCheckChannelUserListUserList = None
@@ -1080,9 +1080,9 @@ class ServerIRC(Server):
                 for userName in self.mCheckUsersOnlineCheckList:
                     userObject = self.getUserByName(userName)
                     if userName in self.mCheckUsersOnlineOnlineList:
-                        userObject.setOnline(True)
+                        userObject.set_online(True)
                     else:
-                        userObject.setOnline(False)
+                        userObject.set_online(False)
                 # release lock
                 response = self.mCheckUsersOnlineOnlineList
                 self.mCheckUsersOnlineCheckList = None
@@ -1110,10 +1110,10 @@ class ServerIRC(Server):
         nickservObject = self.getUserByName(self.mNickservNick)
         # get check user lock
         self.mCheckUserIdentityLock.aquire()
-        self.mCheckUserIdentityUser = userObject.getName()
+        self.mCheckUserIdentityUser = userObject.get_name()
         self.mCheckUserIdentityResult = None
         # send whatever request
-        self.send(self.mNickservIdentCommand + " " + userObject.getName(), nickservObject, "message")
+        self.send(self.mNickservIdentCommand + " " + userObject.get_name(), nickservObject, "message")
         # loop for 5 seconds
         for _ in range(10):
             # if response
@@ -1159,14 +1159,14 @@ class ServerIRC(Server):
         # create channel list
         channelListElement = doc.createElement("channel_list")
         for channelItem in self.mChannelList:
-            if channelItem.isPersistent():
+            if channelItem.is_persistent():
                 channelElement = minidom.parseString(channelItem.to_xml()).firstChild
                 channelListElement.appendChild(channelElement)
         root.appendChild(channelListElement)
         # create user list
         userListElement = doc.createElement("user_list")
         for userItem in self.mUserList:
-            if userItem.isPersistent():
+            if userItem.is_persistent():
                 userElement = minidom.parseString(userItem.to_xml()).firstChild
                 userListElement.appendChild(userElement)
         root.appendChild(userListElement)
@@ -1235,7 +1235,7 @@ class ServerIRC(Server):
             halloUserObject = self.getUserByName(nick)
             # Log in all channel Hallo is in.
             for channel in self.mChannelList:
-                if not channel.isInChannel():
+                if not channel.is_in_channel():
                     continue
                 self.mHallo.get_logger().logFromSelf(Function.EVENT_CHNAME, oldNick, self, halloUserObject, channel)
 
@@ -1332,12 +1332,12 @@ class ServerIRC(Server):
         # Load channels
         channelListXml = doc.getElementsByTagName("channel_list")[0]
         for channelXml in channelListXml.getElementsByTagName("channel"):
-            channelObject = Channel.fromXml(channelXml.toxml(), newServer)
+            channelObject = Channel.from_xml(channelXml.toxml(), newServer)
             newServer.addChannel(channelObject)
         # Load users
         userListXml = doc.getElementsByTagName("user_list")[0]
         for userXml in userListXml.getElementsByTagName("user"):
-            userObject = User.fromXml(userXml.toxml(), newServer)
+            userObject = User.from_xml(userXml.toxml(), newServer)
             newServer.addUser(userObject)
         if len(doc.getElementsByTagName("permission_mask")) != 0:
             newServer.mPermissionMask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())

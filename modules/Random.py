@@ -4,6 +4,7 @@ import urllib.parse
 
 from xml.dom import minidom
 
+from Destination import Destination
 from Function import Function
 from inc.commons import Commons
 
@@ -146,12 +147,12 @@ class ChosenOne(Function):
 
     def run(self, line, userObject, channelObject=None):
         # If this command is run in privmsg, it won't work
-        if channelObject is None or channelObject.getType() != "channel":
+        if channelObject is None or channelObject.is_user():
             return "This function can only be used in a channel"
         # Get the user list
-        userSet = channelObject.getUserList()
+        userSet = channelObject.get_user_list()
         # Get list of users' names
-        namesList = [userObject.getName() for userObject in userSet]
+        namesList = [userObject.get_name() for userObject in userSet]
         rand = Commons.getRandomInt(0, len(namesList) - 1)[0]
         return 'It should be obvious by now that ' + namesList[rand] + ' is the chosen one.'
 
@@ -180,7 +181,7 @@ class Foof(Function):
             return 'doooooof'
         else:
             if rand == 40 + 15:
-                serverObject = userObject.getServer()
+                serverObject = userObject.get_server()
                 serverObject.send('powering up...', destinationObject)
                 time.sleep(5)
                 return 'd' * 100 + 'o' * 1000 + 'f' * 200 + '!' * 50
@@ -310,7 +311,7 @@ class CatGif(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        apiKey = userObject.getServer().getHallo().get_api_key("thecatapi")
+        apiKey = userObject.get_server().getHallo().get_api_key("thecatapi")
         if apiKey is None:
             return "No API key loaded for cat api."
         url = "http://thecatapi.com/api/images/get?format=xml&api_key=" + apiKey + "&type=gif"
@@ -340,7 +341,7 @@ class RandomQuote(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        apiKey = userObject.getServer().getHallo().get_api_key("mashape")
+        apiKey = userObject.get_server().getHallo().get_api_key("mashape")
         if apiKey is None:
             return "No API key loaded for mashape."
         url = "https://andruxnet-random-famous-quotes.p.mashape.com/"
@@ -378,7 +379,7 @@ class NightValeWeather(Function):
 
     def run(self, line, userObject, destinationObject=None):
         # Get hallo object
-        self.mHalloObject = userObject.getServer().getHallo()
+        self.mHalloObject = userObject.get_server().getHallo()
         # Get playlist data from youtube api
         playlistData = self.getYoutubePlaylist("PL5bFd9WyHshXpZK-VPpH8UPXx6wCOIaQW")
         # Select a video from the playlist

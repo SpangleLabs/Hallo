@@ -67,7 +67,7 @@ class RandomPorn(Function):
 
     def run(self, line, userObject, destinationObject=None):
         lineUnclean = line.strip() + " -rating:s"
-        functionDispatcher = userObject.getServer().getHallo().get_function_dispatcher()
+        functionDispatcher = userObject.get_server().getHallo().get_function_dispatcher()
         e621Class = functionDispatcher.get_function_by_name("e621")
         e621Object = functionDispatcher.get_function_object(e621Class)
         searchResult = e621Object.getRandomLinkResult(lineUnclean)
@@ -105,7 +105,7 @@ class Butts(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        functionDispatcher = userObject.getServer().getHallo().get_function_dispatcher()
+        functionDispatcher = userObject.get_server().getHallo().get_function_dispatcher()
         e621Class = functionDispatcher.get_function_by_name("e621")
         e621Object = functionDispatcher.get_function_object(e621Class)
         searchResult = e621Object.getRandomLinkResult("butt")

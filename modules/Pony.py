@@ -92,7 +92,7 @@ class BestPony(Function):
         randomHalf2 = Commons.getRandomChoice(messageHalf2)[0]
         # Select a random pony, or, if it's eli, select Pinkie Pie
         chosenPony = Commons.getRandomChoice(ponyList)[0]
-        if userObject.getName().endswith("000242"):
+        if userObject.get_name().endswith("000242"):
             chosenPony = {'name': "Pinkie Pie", 'pronoun': "she", 'categories': ["mane6"]}
         # Assemble and output the message
         outputMessage = randomHalf1.replace("{X}", chosenPony['name']) + randomHalf2.replace("{Y}",
@@ -132,36 +132,36 @@ class Cupcake(Function):
         if line.strip() == '':
             return "You must specify a recipient for the cupcake."
         # Get some required objects
-        serverObject = userObject.getServer()
+        serverObject = userObject.get_server()
         recipientUserName = line.split()[0]
         recipientUserObject = serverObject.getUserByName(recipientUserName)
         # If user isn't online, I can't send a cupcake
-        if not recipientUserObject.isOnline():
+        if not recipientUserObject.is_online():
             return "No one called " + recipientUserName + " is online."
         # Generate the output message, adding cupcake type if required
         if recipientUserName == line.strip():
-            outputMessage = "\x01ACTION gives " + recipientUserName + " a cupcake, from " + userObject.getName() + \
+            outputMessage = "\x01ACTION gives " + recipientUserName + " a cupcake, from " + userObject.get_name() + \
                             ".\x01"
         else:
             cupcakeType = line[len(recipientUserName):].strip()
             outputMessage = "\x01ACTION gives " + recipientUserName + " a " + cupcakeType + " cupcake, from " + \
-                            userObject.getName() + ".\x01"
+                            userObject.get_name() + ".\x01"
         # Get both users channel lists, and then the intersection
-        userChannelList = userObject.getChannelList()
-        recipientChannelList = recipientUserObject.getChannelList()
+        userChannelList = userObject.get_channel_list()
+        recipientChannelList = recipientUserObject.get_channel_list()
         intersectionList = userChannelList.intersection(recipientChannelList)
         # If current channel is in the intersection, send there.
         if destinationObject in intersectionList:
             return outputMessage
         # Get list of channels that hallo is in inside that intersection
-        validChannels = [chan for chan in intersectionList if chan.isInChannel()]
+        validChannels = [chan for chan in intersectionList if chan.is_in_channel()]
         # If length of valid channel list is nonzero, pick a channel and send.
         if len(validChannels) != 0:
             chosenChannel = Commons.getRandomChoice(validChannels)[0]
             serverObject.send(outputMessage, chosenChannel, "message")
             return "Cupcake sent."
         # If no valid intersection channels, see if there are any valid recipient channels
-        validChannels = [chan for chan in recipientChannelList if chan.isInChannel()]
+        validChannels = [chan for chan in recipientChannelList if chan.is_in_channel()]
         if len(validChannels) != 0:
             chosenChannel = Commons.getRandomChoice(validChannels)[0]
             serverObject.send(outputMessage, chosenChannel, "message")

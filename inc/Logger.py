@@ -40,10 +40,10 @@ class Logger:
     def log(self, event, fullLine, serverObject=None, userObject=None, channelObject=None):
         """The function which actually writes the logs."""
         # If channel is set, check logging
-        if channelObject is not None and not channelObject.getLogging():
+        if channelObject is not None and not channelObject.get_logging():
             return None
         # If channel not set, but user is set, check their logging settings.
-        if channelObject is None and userObject is not None and not userObject.getLogging():
+        if channelObject is None and userObject is not None and not userObject.get_logging():
             return None
         # Check what type of event and pass to that to create line
         if event not in self.mEventDict:
@@ -62,10 +62,10 @@ class Logger:
     def logFromSelf(self, event, fullLine, serverObject=None, userObject=None, channelObject=None):
         """Writes a log line for a message from hallo."""
         # If channel is set, check logging
-        if channelObject is not None and not channelObject.getLogging():
+        if channelObject is not None and not channelObject.get_logging():
             return None
         # If channel not set, but user is set, check their logging settings.
-        if channelObject is None and userObject is not None and not userObject.getLogging():
+        if channelObject is None and userObject is not None and not userObject.get_logging():
             return None
         # Check what type of event and pass to that to create line
         if event not in self.mEventDict:
@@ -99,53 +99,53 @@ class Logger:
     
     def logMessage(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
-        output += '<' + userObject.getName() + '> ' + fullLine
+        output += '<' + userObject.get_name() + '> ' + fullLine
         return output
     
     def logJoin(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
-        output += userObject.getName() + " joined " + channelObject.getName()
+        output += userObject.get_name() + " joined " + channelObject.get_name()
         return output
     
     def logLeave(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
-        output += userObject.getName() + " left " + channelObject.getName()
+        output += userObject.get_name() + " left " + channelObject.get_name()
         if fullLine.strip() != "":
             output += " (" + fullLine + ")"
         return output
     
     def logQuit(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
-        output += userObject.getName() + " has quit."
+        output += userObject.get_name() + " has quit."
         if fullLine.strip() != "":
             output += " (" + fullLine + ")"
         return output
     
     def logNameChange(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
-        output += "Nick change: " + fullLine + " -> " + userObject.getName()
+        output += "Nick change: " + fullLine + " -> " + userObject.get_name()
         return output
     
     def logKick(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
-        output += userObject.getName() + " was kicked from " + channelObject.getName()
+        output += userObject.get_name() + " was kicked from " + channelObject.get_name()
         if fullLine.strip() != "":
             output += " (" + fullLine + ")"
         return output
     
     def logInvite(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
-        output += "Invite to " + channelObject.getName() + ' from ' + userObject.getName()
+        output += "Invite to " + channelObject.get_name() + ' from ' + userObject.get_name()
         return output
     
     def logNotice(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
-        output += "Notice from " + userObject.getName() + ": " + fullLine
+        output += "Notice from " + userObject.get_name() + ": " + fullLine
         return output
     
     def logModeChange(self, fullLine, serverObject, userObject, channelObject):
         output = Commons.currentTimestamp() + " "
-        output += userObject.getName() + ' set ' + fullLine + ' on ' + channelObject.getName()
+        output += userObject.get_name() + ' set ' + fullLine + ' on ' + channelObject.get_name()
         return output
     
     def logCtcp(self, fullLine, serverObject, userObject, channelObject):
@@ -153,10 +153,10 @@ class Logger:
         ctcpArguments = ' '.join(fullLine.split()[1:])
         if ctcpCommand.lower() == "action":
             output = Commons.currentTimestamp() + " "
-            output += "**" + userObject.getName() + ' ' + ctcpArguments + '**'
+            output += "**" + userObject.get_name() + ' ' + ctcpArguments + '**'
             return output
         output = Commons.currentTimestamp() + " "
-        output += "<" + userObject.getName() + ' (CTCP)> ' + fullLine
+        output += "<" + userObject.get_name() + ' (CTCP)> ' + fullLine
         return output
     
     def getFileName(self, serverObject, userObject, channelObject):
@@ -179,11 +179,11 @@ class Logger:
                 fileName += fileDate+fileExt
                 return fileName
             # No channel, but there is a user
-            fileName += userObject.getName()+"/"
+            fileName += userObject.get_name() + "/"
             fileName += fileDate+fileExt
             return fileName
         # Channel object is set
-        fileName += channelObject.getName()+"/"
+        fileName += channelObject.get_name() + "/"
         fileName += fileDate+fileExt
         return fileName
 

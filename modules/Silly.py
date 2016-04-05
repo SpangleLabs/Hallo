@@ -115,7 +115,7 @@ class SlowClap(Function):
 
     def run(self, line, userObject, destinationObject=None):
         lineClean = line.strip().lower()
-        serverObject = userObject.getServer()
+        serverObject = userObject.get_server()
         if lineClean == "":
             if destinationObject is not None:
                 serverObject.send("*clap*", destinationObject)
@@ -126,7 +126,7 @@ class SlowClap(Function):
             else:
                 return "You want me to slowclap yourself?"
         channelObject = serverObject.getChannelByName(lineClean)
-        if not channelObject.isInChannel():
+        if not channelObject.is_in_channel():
             return "I'm not in that channel."
         serverObject.send("*clap*", channelObject)
         time.sleep(0.5)
@@ -160,33 +160,33 @@ class Boop(Function):
             return "This function boops people, as such you need to specify a person for me to boop, " \
                    "in the form 'Hallo boop <name>' but without the <> brackets."
         # Get useful objects
-        serverObject = userObject.getServer()
+        serverObject = userObject.get_server()
         # Split arguments, see how many there are.
         lineSplit = lineClean.split()
         # If one argument, check that the user is in the current channel.
         if len(lineSplit) == 1:
             destUserObject = serverObject.getUserByName(lineClean)
-            if destUserObject is None or not destUserObject.isOnline():
+            if destUserObject is None or not destUserObject.is_online():
                 return "No one by that name is online."
-            serverObject.send("\x01ACTION boops " + destUserObject.getName() + ".\x01", destinationObject)
+            serverObject.send("\x01ACTION boops " + destUserObject.get_name() + ".\x01", destinationObject)
             return "Done."
         # If two arguments, see if one is a channel and the other a user.
         channelTest1 = serverObject.getChannelByName(lineSplit[0])
-        if channelTest1.isInChannel():
+        if channelTest1.is_in_channel():
             destChannel = channelTest1
             destUser = serverObject.getUserByName(lineSplit[1])
         else:
             channelTest2 = serverObject.getChannelByName(lineSplit[1])
-            if channelTest2.isInChannel():
+            if channelTest2.is_in_channel():
                 destChannel = channelTest2
                 destUser = serverObject.getUserByName(lineSplit[0])
             else:
                 return "I'm not in any channel by that name."
         # If user by that name is not online, return a message saying that.
-        if not destUser.isOnline():
+        if not destUser.is_online():
             return "No user by that name is online."
         # Send boop, then return done.
-        serverObject.send("\x01ACTION boops " + destUser.getName() + ".\x01", destChannel)
+        serverObject.send("\x01ACTION boops " + destUser.get_name() + ".\x01", destChannel)
         return "Done."
 
 
@@ -207,8 +207,8 @@ class ReplyMessage:
 
     def checkDestination(self, destinationObject):
         """Checks if a given destination should be responded to."""
-        serverName = destinationObject.getServer().getName().lower()
-        channelName = destinationObject.getName().lower()
+        serverName = destinationObject.get_server().getName().lower()
+        channelName = destinationObject.get_name().lower()
         # If a whitelist is set, check that
         if len(self.mWhitelist) != 0:
             if serverName in self.mWhitelist and channelName in self.mWhitelist[serverName]:
@@ -224,9 +224,9 @@ class ReplyMessage:
         if self.mPrompt.search(inputLine):
             # Pick a response
             response = Commons.getRandomChoice(self.mResponseList)[0]
-            response = response.replace("{USER}", userObject.getName())
-            response = response.replace("{CHANNEL}", destinationObject.getName())
-            response = response.replace("{SERVER}", userObject.getServer().getName())
+            response = response.replace("{USER}", userObject.get_name())
+            response = response.replace("{CHANNEL}", destinationObject.get_name())
+            response = response.replace("{SERVER}", userObject.get_server().getName())
             return response
         return None
 

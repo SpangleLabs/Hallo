@@ -735,7 +735,7 @@ class HigherOrLowerGame(Game):
         self.mLastTime = time.time()
         self.mDeck = Deck()
         self.mDeck.shuffle()
-        functionDispatcher = userObject.getServer().getHallo().get_function_dispatcher()
+        functionDispatcher = userObject.get_server().getHallo().get_function_dispatcher()
         highScoresClass = functionDispatcher.get_function_by_name("highscores")
         self.mHighScoresObject = functionDispatcher.get_function_object(highScoresClass)
 
@@ -777,7 +777,7 @@ class HigherOrLowerGame(Game):
         currentScore = self.mTurns
         if self.mLost:
             currentScore = self.mTurns - 1
-        userName = list(self.mPlayers)[0].getName()
+        userName = list(self.mPlayers)[0].get_name()
         score = str(currentScore) + " cards"
         gameData = {'cards': currentScore}
         self.mHighScoresObject.addHighScore(self.HIGH_SCORE_NAME, score, userName, gameData)
@@ -1250,7 +1250,7 @@ class DDRGame(Game):
         self.mChannel = channelObject
         self.mStartTime = time.time()
         self.mLastTime = time.time()
-        functionDispatcher = userObject.getServer().getHallo().get_function_dispatcher()
+        functionDispatcher = userObject.get_server().getHallo().get_function_dispatcher()
         highScoresClass = functionDispatcher.get_function_by_name("highscores")
         self.mHighScoresObject = functionDispatcher.get_function_object(highScoresClass)
 
@@ -1260,7 +1260,7 @@ class DDRGame(Game):
 
     def run(self):
         """Launched into a new thread, this function actually plays the DDR game."""
-        serverObject = self.mChannel.getServer()
+        serverObject = self.mChannel.get_server()
         if self.mDifficulty == self.DIFFICULTY_HARD:
             self.mNumTurns = 20
             timeMin = 1
@@ -1281,7 +1281,7 @@ class DDRGame(Game):
         # Output how many players joined and begin
         self.mCanJoin = False
         outputString = str(len(self.mPlayers)) + " players joined: " + ", ".join(
-            [player.getName() for player in self.mPlayers]) + ". Starting game."
+            [player.get_name() for player in self.mPlayers]) + ". Starting game."
         serverObject.send(outputString, self.mChannel, "message")
         # Do the various turns of the game
         for _ in range(self.mNumTurns):
@@ -1372,7 +1372,7 @@ class DDRGame(Game):
         winnerLag = self.mPlayerDict[winnerPlayer]['lag']
         winnerScore = str(winnerHits) + " hits, " + "{0:.3f}".format(winnerLag) + "s lag"
         gameData = {'hits': winnerHits, 'lag': winnerLag}
-        self.mHighScoresObject.addHighScore(self.HIGH_SCORE_NAME, winnerScore, winnerPlayer.getName(), gameData)
+        self.mHighScoresObject.addHighScore(self.HIGH_SCORE_NAME, winnerScore, winnerPlayer.get_name(), gameData)
         return True
 
     def canJoin(self):
@@ -1387,7 +1387,7 @@ class DDRGame(Game):
         if self.canJoin():
             self.mPlayers.add(userObject)
             self.mPlayerDict[userObject] = {'hits': 0, 'lag': 0}
-            return userObject.getName() + " has joined."
+            return userObject.get_name() + " has joined."
         else:
             return "This game cannot be joined now."
 
@@ -1412,7 +1412,7 @@ class DDRGame(Game):
             self.mGameOver = True
             return "All players quit. game over."
         else:
-            return userObject.getName() + " has quit the game."
+            return userObject.get_name() + " has quit the game."
 
 
 class DDR(Function):
