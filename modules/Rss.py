@@ -303,26 +303,26 @@ class FeedCheck(Function):
         self.mRssFeedList = RssFeedList.fromXml()
 
     @staticmethod
-    def isPersistent():
+    def is_persistent():
         """Returns boolean representing whether this function is supposed to be persistent or not"""
         return True
 
     @staticmethod
-    def loadFunction():
+    def load_function():
         """Loads the function, persistent functions only."""
         return FeedCheck()
 
-    def saveFunction(self):
+    def save_function(self):
         """Saves the function, persistent functions only."""
         self.mRssFeedList.toXml()
 
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_PING}
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Handy variables
-        server = userObject.get_server()
+        server = user_obj.get_server()
         hallo = server.get_hallo()
         # Clean up input
         cleanInput = line.strip().lower()
@@ -340,7 +340,7 @@ class FeedCheck(Function):
                 return "There were no feed updates."
             return "The following feed updates were found:\n" + "\n".join(outputLines)
         # Otherwise see if a feed title matches the specified one
-        matchingFeeds = self.mRssFeedList.getFeedsByTitle(cleanInput, server, destinationObject)
+        matchingFeeds = self.mRssFeedList.getFeedsByTitle(cleanInput, server, destination_obj)
         if len(matchingFeeds) == 0:
             return "No Rss Feeds match that name. If you're adding a new feed, use \"rss add\" with your link."
         outputLines = []
@@ -356,16 +356,16 @@ class FeedCheck(Function):
             return "There were no updates for \"" + line + "\" RSS feed."
         return "The following feed updates were found:\n" + "\n".join(outputLines)
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """
         Replies to an event not directly addressed to the bot.
         :param event: string
-        :param fullLine: string
-        :param serverObject: Server
-        :param userObject: User
-        :param channelObject: Channel
+        :param full_line: string
+        :param server_obj: Server
+        :param user_obj: User
+        :param channel_obj: Channel
         """
-        hallo = serverObject.get_hallo()
+        hallo = server_obj.get_hallo()
         # Check through all feeds to see which need updates
         for rssFeed in self.mRssFeedList.getFeedList():
             # Only check those which have been too long since last check
@@ -395,14 +395,14 @@ class FeedAdd(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject):
+    def run(self, line, user_obj, destination_obj):
         # Get input
         feedUrl = line.split()[0]
         feedPeriod = "PT3600S"
         if len(line.split()) > 0:
             feedPeriod = line.split()[1]
         # Get current RSS feed list
-        functionDispatcher = userObject.get_server().get_hallo().get_function_dispatcher()
+        functionDispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
         feedCheckClass = functionDispatcher.get_function_by_name("rss check")
         feedCheckObject = functionDispatcher.get_function_object(feedCheckClass)
         feedList = feedCheckObject.mRssFeedList
@@ -418,13 +418,13 @@ class FeedAdd(Function):
             return "Invalid time period."
         # Create new rss feed
         rssFeed = RssFeed()
-        rssFeed.mServerName = userObject.get_server().get_name()
+        rssFeed.mServerName = user_obj.get_server().get_name()
         rssFeed.mUrl = feedUrl
         rssFeed.mUpdateFrequency = feedDelta
-        if destinationObject == userObject:
-            rssFeed.mChannelName = destinationObject.get_name()
+        if destination_obj == user_obj:
+            rssFeed.mChannelName = destination_obj.get_name()
         else:
-            rssFeed.mUserName = userObject.get_name()
+            rssFeed.mUserName = user_obj.get_name()
         # Update feed
         try:
             rssFeed.checkFeed()
@@ -457,9 +457,9 @@ class FeedRemove(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Handy variables
-        server = userObject.get_server()
+        server = user_obj.get_server()
         hallo = server.get_hallo()
         functionDispatcher = hallo.get_function_dispatcher()
         feedCheckFunction = functionDispatcher.get_function_by_name("rss check")
@@ -467,7 +467,7 @@ class FeedRemove(Function):
         # Clean up input
         cleanInput = line.strip()
         # Find any feeds with specified title
-        testFeeds = rssFeedList.getFeedsByTitle(cleanInput.lower(), server, destinationObject)
+        testFeeds = rssFeedList.getFeedsByTitle(cleanInput.lower(), server, destination_obj)
         if len(testFeeds) == 1:
             rssFeedList.remove(testFeeds[0])
             return "Removed \"" + testFeeds[0].mTitle + "\" RSS feed. Updates will no longer be sent to " \
@@ -475,7 +475,7 @@ class FeedRemove(Function):
         if len(testFeeds) > 1:
             return "There is more than 1 rss feed in this channel by that name. Try specifying by URL."
         # Otherwise, zero results, so try hunting by url
-        testFeeds = rssFeedList.getFeedsByURL(cleanInput, server, destinationObject)
+        testFeeds = rssFeedList.getFeedsByURL(cleanInput, server, destination_obj)
         if len(testFeeds) == 0:
             return "There are no RSS feeds in this channel matching that name or URL."
         for testFeed in testFeeds:
@@ -501,16 +501,16 @@ class FeedList(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Handy variables
-        server = userObject.get_server()
+        server = user_obj.get_server()
         hallo = server.get_hallo()
         functionDispatcher = hallo.get_function_dispatcher()
         feedCheckFunction = functionDispatcher.get_function_by_name("rss check")
         rssFeedList = feedCheckFunction.mRssFeedList
         # Find list of feeds for current channel.
-        destFeeds = rssFeedList.getFeedsByDestination(server, destinationObject)
-        if len(destinationObject) == 0:
+        destFeeds = rssFeedList.getFeedsByDestination(server, destination_obj)
+        if len(destination_obj) == 0:
             return "There are no RSS feeds posting to this destination."
         outputLines = ["RSS feeds posting to this channel:"]
         for rssFeed in destFeeds:

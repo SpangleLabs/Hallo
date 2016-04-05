@@ -1,12 +1,10 @@
+from abc import ABCMeta
 
 
-class Function:
+class Function(metaclass=ABCMeta):
     """
     Generic function object. All functions inherit from this.
     """
-    mHelpName = None    # Name for use in help listing
-    mNames = set()      # Set of names which can be used to address the function
-    mHelpDocs = None    # Help documentation, if it's just a single line, can be set here
     # Static constants
     EVENT_SECOND = "time_second"   # Event which happens every second
     EVENT_MINUTE = "time_minute"   # Event which happens every minute
@@ -25,50 +23,63 @@ class Function:
     EVENT_CTCP = "message_ctcp"    # Event constant signifying a CTCP message received (IRC only)
     EVENT_NUMERIC = "numeric"      # Event constant signifying a numeric message from a server (IRC only)
     EVENT_RAW = "raw"              # Event constant signifying raw data received from server which doesn't fit the above
+
+    def __init__(self):
+        self.mHelpName = None  # Name for use in help listing
+        self.mNames = set()  # Set of names which can be used to address the function
+        self.mHelpDocs = None  # Help documentation, if it's just a single line, can be set here
     
-    def run(self, line, userObject, destinationObject):
+    def run(self, line, user_obj, destination_obj):
         """Runs the function when it is called directly
         :param line: User supplied arguments for this function call
-        :param userObject: User who called the function
-        :param destinationObject: Destination the function was called from, equal to user if private message
+        :type line: str
+        :param user_obj: User who called the function
+        :type user_obj: Destination.User
+        :param destination_obj: Destination the function was called from, equal to user if private message
+        :type destination_obj: Destination.Destination
         """
         raise NotImplementedError
 
     @staticmethod
-    def isPersistent():
+    def is_persistent():
         """Returns boolean representing whether this function is supposed to be persistent or not"""
         return False
     
     @staticmethod
-    def loadFunction():
+    def load_function():
         """Loads the function, persistent functions only."""
         return Function()
     
-    def saveFunction(self):
+    def save_function(self):
         """Saves the function, persistent functions only."""
         return None
     
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return set()
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot.
         :param event: Event which has called the function
-        :param fullLine: Full user input line which came with the event
-        :param serverObject: Server object which fired the event, or none if server independent
-        :param userObject: User which triggered the event, or none if not user triggered
-        :param channelObject: Channel the event was triggered on, or none if not triggered on channel
+        :type event: str
+        :param full_line: Full user input line which came with the event
+        :type full_line: str
+        :param server_obj: Server object which fired the event, or none if server independent
+        :type server_obj: Server.Server | None
+        :param user_obj: User which triggered the event, or none if not user triggered
+        :type user_obj: Destination.User | None
+        :param channel_obj: Channel the event was triggered on, or none if not triggered on channel
+        :type channel_obj: Destination.Channel | None
         """
         pass
         
-    def getHelpName(self):
+    def get_help_name(self):
         """Returns the name to be printed for help documentation"""
         if self.mHelpName is None:
             raise NotImplementedError
         return self.mHelpName
     
-    def getHelpDocs(self):
+    def get_help_docs(self):
         """
         Returns the help documentation, specific to given arguments, if supplied
         """
@@ -76,7 +87,7 @@ class Function:
             raise NotImplementedError
         return self.mHelpDocs
     
-    def getNames(self):
+    def get_names(self):
         """Returns the list of names for directly addressing the function"""
         self.mNames.add(self.mHelpName)
         return self.mNames

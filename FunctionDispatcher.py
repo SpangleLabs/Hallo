@@ -111,7 +111,7 @@ class FunctionDispatcher(object):
             function_obj = self.get_function_object(functionClass)
             # Try running the function, if it fails, return an error message
             try:
-                response = function_obj.passiveRun(event, full_line, server_obj, user_obj, channel_obj)
+                response = function_obj.passive_run(event, full_line, server_obj, user_obj, channel_obj)
                 if response is not None:
                     if destination_obj is not None and server_obj is not None:
                         server_obj.send(response, destination_obj)
@@ -149,7 +149,7 @@ class FunctionDispatcher(object):
         If persistent, gets an object from dictionary. Otherwise creates a new object.
         :param function_class: Class of function to retrieve or create function object for
         """
-        if function_class.isPersistent():
+        if function_class.is_persistent():
             function_obj = self.persistent_functions[function_class]
         else:
             function_obj = function_class()
@@ -240,17 +240,17 @@ class FunctionDispatcher(object):
         function_obj = function_class()
         # Check that help name is defined
         try:
-            help_name = function_obj.getHelpName()
+            help_name = function_obj.get_help_name()
         except NotImplementedError:
             return False
         # Check that help docs are defined
         try:
-            function_obj.getHelpDocs()
+            function_obj.get_help_docs()
         except NotImplementedError:
             return False
         # Check that names list is not empty
         try:
-            names_list = function_obj.getNames()
+            names_list = function_obj.get_names()
             if names_list is None:
                 return False
             if len(names_list) == 0:
@@ -272,14 +272,14 @@ class FunctionDispatcher(object):
         module_name = function_class.__module__
         module_obj = sys.modules[module_name]
         # If function is persistent, load it up and add to mPersistentFunctions
-        if function_class.isPersistent():
-            function_obj = function_class.loadFunction()
+        if function_class.is_persistent():
+            function_obj = function_class.load_function()
             self.persistent_functions[function_class] = function_obj
         else:
             function_obj = function_class()
         # Get names list and events list
-        names_list = function_obj.getNames()
-        events_list = function_obj.getPassiveEvents()
+        names_list = function_obj.get_names()
+        events_list = function_obj.get_passive_events()
         # Add names list and events list to mFunctionDict
         if module_obj not in self.function_dict:
             self.function_dict[module_obj] = {}
@@ -322,10 +322,10 @@ class FunctionDispatcher(object):
                 continue
             self.event_functions[functionEvent].remove(function_class)
         # If persistent, save object and remove from mPersistentFunctions
-        if function_class.isPersistent():
+        if function_class.is_persistent():
             function_obj = self.persistent_functions[function_class]
             try:
-                function_obj.saveFunction()
+                function_obj.save_function()
             except Exception as e:
                 print("Failed to save " + function_class.__name__)
                 print(str(e))

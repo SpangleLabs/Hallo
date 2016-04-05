@@ -19,7 +19,7 @@ class Longcat(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """Make a longcat! Format: longcat <length>"""
         try:
             longcatSegments = int(line)
@@ -64,7 +64,7 @@ class Deer(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """ascii art deer. Format: deer"""
         deer = r'''   /|       |\
 `__\\       //__'
@@ -110,7 +110,7 @@ class Dragon(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """Prints ascii dragon. Format: dragon"""
         dragonDeer = r'''hmm.. nah. have another deer.
        ""\/ \/""
@@ -167,7 +167,7 @@ class Train(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """Prints ascii train. Format: train"""
         train = r'''chugga chugga, chugga chugga, woo woo!
             ____.-==-, _______  _______  _______  _______  _..._

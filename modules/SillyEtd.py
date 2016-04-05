@@ -23,7 +23,7 @@ class FinnBot(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """Simulates a typical finn in conversation. Format: finnbot"""
         ariQuotes = ["|:", "After hearing you say that, I don't think we can ever be friends",
                      "Brb, cutting down a forest", "Can't answer, I'm shaving and it'll take all day",
@@ -69,28 +69,28 @@ class SilenceTheRabble(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # TODO: check if not opped?
         # if(not opped):
         #    return 'I cannot handle it, master!'
-        if not userObject.get_name().endswith('000242'):
+        if not user_obj.get_name().endswith('000242'):
             return "You are not my master."
-        serverObject = userObject.get_server()
+        serverObject = user_obj.get_server()
         if serverObject.get_type() == Server.TYPE_IRC:
             return "This function is only available on IRC servers."
-        if destinationObject is None or destinationObject == userObject:
+        if destination_obj is None or destination_obj == user_obj:
             return "This function can only be used in ETD."
-        if destinationObject.get_name().lower() != "#ecco-the-dolphin":
+        if destination_obj.get_name().lower() != "#ecco-the-dolphin":
             return "This function can only be used in ETD."
-        userList = destinationObject.get_user_list()
-        for userObject in userList:
-            if userObject.get_name().endswith("000242"):
+        userList = destination_obj.get_user_list()
+        for user_obj in userList:
+            if user_obj.get_name().endswith("000242"):
                 continue
-            if userObject.get_name().lower() == serverObject.get_nick().lower():
+            if user_obj.get_name().lower() == serverObject.get_nick().lower():
                 continue
-            serverObject.send("MODE " + destinationObject.get_name() + " -o " + userObject.get_name(), None, "raw")
-            serverObject.send("MODE " + destinationObject.get_name() + " -v " + userObject.get_name(), None, "raw")
-        serverObject.send("MODE " + destinationObject.get_name() + " +m", None, "raw")
+            serverObject.send("MODE " + destination_obj.get_name() + " -o " + user_obj.get_name(), None, "raw")
+            serverObject.send("MODE " + destination_obj.get_name() + " -v " + user_obj.get_name(), None, "raw")
+        serverObject.send("MODE " + destination_obj.get_name() + " +m", None, "raw")
         return "I have done your bidding, master."
 
 
@@ -111,16 +111,16 @@ class PokeTheAsshole(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # TODO: check if not opped?
-        if not userObject.get_name().endswith('000242'):
+        if not user_obj.get_name().endswith('000242'):
             return "You are not my master."
-        serverObject = userObject.get_server()
+        serverObject = user_obj.get_server()
         if serverObject.get_type() == Server.TYPE_IRC:
             return "This function is only available on IRC servers."
-        if destinationObject is None or destinationObject == userObject:
+        if destination_obj is None or destination_obj == user_obj:
             return "This function can only be used in ETD."
-        if destinationObject.get_name().lower() != "#ecco-the-dolphin":
+        if destination_obj.get_name().lower() != "#ecco-the-dolphin":
             return "This function can only be used in ETD."
         # Take input, or assume input is 5
         if line.strip().isdigit():
@@ -128,8 +128,8 @@ class PokeTheAsshole(Function):
         else:
             number = 5
         for _ in range(number):
-            serverObject.send("MODE " + destinationObject.get_name() + " +v Dolphin", None, "raw")
-            serverObject.send("MODE " + destinationObject.get_name() + " -v Dolphin", None, "raw")
+            serverObject.send("MODE " + destination_obj.get_name() + " +v Dolphin", None, "raw")
+            serverObject.send("MODE " + destination_obj.get_name() + " -v Dolphin", None, "raw")
         return 'Dolphin: You awake yet?'
 
 
@@ -150,7 +150,7 @@ class Trump(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip()
         try:
             numTerms = int(lineClean)
@@ -186,7 +186,7 @@ class Corbyn(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip()
         try:
             numTerms = int(lineClean)

@@ -20,7 +20,7 @@ class Hailstone(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """Returns the hailstone sequence for a given number. Format: hailstone <number>"""
         lineClean = line.strip().lower()
         if not lineClean.isdigit():
@@ -61,7 +61,7 @@ class NumberWord(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         if line.count(' ') == 0:
             number = line
             lang = "american"
@@ -182,7 +182,7 @@ class PrimeFactors(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip().lower()
         if lineClean.isdigit():
             number = int(lineClean)
@@ -231,7 +231,7 @@ class ChangeOptions(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """
         Returns the number of ways to give change for a given amount (in pence, using british coins.)
         Format: change_options <number>
@@ -286,7 +286,7 @@ class Average(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         numberList = line.split()
         try:
             numberSum = sum(float(x) for x in numberList)
@@ -312,9 +312,9 @@ class HighestCommonFactor(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Getting functionDispatcher and required function objects
-        halloObject = userObject.get_server().get_hallo()
+        halloObject = user_obj.get_server().get_hallo()
         functionDispatcher = halloObject.get_function_dispatcher()
         primeFactorsClass = functionDispatcher.get_function_by_name("prime factors")
         eulerClass = functionDispatcher.get_function_by_name("euler")
@@ -356,9 +356,9 @@ class SimplifyFraction(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Getting functionDispatcher and required function objects
-        halloObject = userObject.get_server().get_hallo()
+        halloObject = user_obj.get_server().get_hallo()
         functionDispatcher = halloObject.get_function_dispatcher()
         primeFactorsClass = functionDispatcher.get_function_by_name("prime factors")
         eulerClass = functionDispatcher.get_function_by_name("euler")
@@ -405,7 +405,7 @@ class Calculate(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         calc = line
         # check for equals signs, and split at them if so.
         if calc.count('=') >= 1:
@@ -439,21 +439,21 @@ class Calculate(Function):
             answer = str(e)
         return answer
 
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         # Check if fullLine is a calculation, and is not just numbers, and contains numbers.
-        if not Commons.check_calculation(fullLine):
+        if not Commons.check_calculation(full_line):
             return None
-        if Commons.check_numbers(fullLine):
+        if Commons.check_numbers(full_line):
             return None
-        if not any([char in fullLine for char in [str(x) for x in range(10)] + ["e", "pi"]]):
+        if not any([char in full_line for char in [str(x) for x in range(10)] + ["e", "pi"]]):
             return None
         # Clean up the line and feed to the calculator.
-        calc = fullLine.replace(' ', '').lower()
+        calc = full_line.replace(' ', '').lower()
         try:
             self.preflightChecks(calc)
             answer = self.processCalculation(calc)

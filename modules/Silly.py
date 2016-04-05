@@ -22,7 +22,7 @@ class Is(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         return "I am?"
 
 
@@ -43,7 +43,7 @@ class Blank(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         return "Yes?"
 
 
@@ -64,7 +64,7 @@ class Alarm(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         return 'woo woooooo woooooo ' + line + ' wooo wooo!'
 
 
@@ -85,7 +85,7 @@ class ArcticTerns(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip().lower()
         if lineClean in ['nap', 'napping', 'plush']:
             number = Commons.get_random_int(0, 1)
@@ -113,14 +113,14 @@ class SlowClap(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip().lower()
-        serverObject = userObject.get_server()
+        serverObject = user_obj.get_server()
         if lineClean == "":
-            if destinationObject is not None:
-                serverObject.send("*clap*", destinationObject)
+            if destination_obj is not None:
+                serverObject.send("*clap*", destination_obj)
                 time.sleep(0.5)
-                serverObject.send("*clap*", destinationObject)
+                serverObject.send("*clap*", destination_obj)
                 time.sleep(2)
                 return '*clap.*'
             else:
@@ -153,14 +153,14 @@ class Boop(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """Boops people. Format: boop <name>"""
         lineClean = line.strip().lower()
         if lineClean == '':
             return "This function boops people, as such you need to specify a person for me to boop, " \
                    "in the form 'Hallo boop <name>' but without the <> brackets."
         # Get useful objects
-        serverObject = userObject.get_server()
+        serverObject = user_obj.get_server()
         # Split arguments, see how many there are.
         lineSplit = lineClean.split()
         # If one argument, check that the user is in the current channel.
@@ -168,7 +168,7 @@ class Boop(Function):
             destUserObject = serverObject.get_user_by_name(lineClean)
             if destUserObject is None or not destUserObject.is_online():
                 return "No one by that name is online."
-            serverObject.send("\x01ACTION boops " + destUserObject.get_name() + ".\x01", destinationObject)
+            serverObject.send("\x01ACTION boops " + destUserObject.get_name() + ".\x01", destination_obj)
             return "Done."
         # If two arguments, see if one is a channel and the other a user.
         channelTest1 = serverObject.get_channel_by_name(lineSplit[0])
@@ -386,16 +386,16 @@ class Reply(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         return "Not yet handled."
         pass
 
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         replyMessageList = ReplyMessageList.loadFromXml()
-        response = replyMessageList.getResponse(fullLine, userObject, channelObject)
+        response = replyMessageList.getResponse(full_line, user_obj, channel_obj)
         return response

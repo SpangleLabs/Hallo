@@ -23,13 +23,13 @@ class JoinChannel(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Check for server name in input line
         serverName = self.findParameter("server", line)
         if serverName is None:
-            serverObject = userObject.get_server()
+            serverObject = user_obj.get_server()
         else:
-            serverObject = userObject.get_server().get_hallo().get_server_by_name(serverName)
+            serverObject = user_obj.get_server().get_hallo().get_server_by_name(serverName)
             line = line.replace("server=" + serverName, "").strip()
         if serverObject is None:
             return "Invalid server specified."
@@ -75,13 +75,13 @@ class LeaveChannel(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Check for server name in input line
         serverName = self.findParameter("server", line)
         if serverName is None:
-            serverObject = userObject.get_server()
+            serverObject = user_obj.get_server()
         else:
-            serverObject = userObject.get_server().get_hallo().get_server_by_name(serverName)
+            serverObject = user_obj.get_server().get_hallo().get_server_by_name(serverName)
             line = line.replace("server=" + serverName, "").strip()
         if serverObject is None:
             return "Invalid server specified."
@@ -121,8 +121,8 @@ class Shutdown(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
-        serverObject = userObject.get_server()
+    def run(self, line, user_obj, destination_obj=None):
+        serverObject = user_obj.get_server()
         halloObject = serverObject.get_hallo()
         halloObject.close()
         return "Shutting down."
@@ -145,8 +145,8 @@ class Disconnect(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
-        serverObject = userObject.get_server()
+    def run(self, line, user_obj, destination_obj=None):
+        serverObject = user_obj.get_server()
         halloObject = serverObject.get_hallo()
         if line.strip() != "":
             serverObject = halloObject.get_server_by_name(line)
@@ -174,9 +174,9 @@ class Connect(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """Runs the function"""
-        currentServer = userObject.get_server()
+        currentServer = user_obj.get_server()
         halloObject = currentServer.get_hallo()
         # Try and see if it's a server we already know
         existingServer = halloObject.get_server_by_name(line)
@@ -197,7 +197,7 @@ class Connect(Function):
             serverProtocol = currentServer.get_type()
         # Go through protocols branching to whatever function to handle that protocol
         if serverProtocol == Server.TYPE_IRC:
-            return self.connectToNewServerIrc(line, userObject, destinationObject)
+            return self.connectToNewServerIrc(line, user_obj, destination_obj)
         # Add in ELIF statements here, to make user Connect Function support other protocols
         else:
             return "Unrecognised server protocol"
@@ -307,13 +307,13 @@ class Say(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """
         Say a message into a channel or server/channel pair (in the format "{server,channel}").
         Format: say <channel> <message>
         """
         # Setting up variables
-        halloObject = userObject.get_server().get_hallo()
+        halloObject = user_obj.get_server().get_hallo()
         # See if server and channel are specified as parameters
         serverName = self.findParameter("server", line)
         if serverName is not None:
@@ -336,7 +336,7 @@ class Say(Function):
         # Get serverObj list from serverName
         serverObjs = []
         if serverName is None:
-            serverObjs = [userObject.get_server()]
+            serverObjs = [user_obj.get_server()]
         else:
             # Create a regex query from their input
             serverRegex = re.escape(serverName).replace("\*", ".*")
@@ -394,9 +394,9 @@ class EditServer(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """Runs the function"""
-        currentServer = userObject.get_server()
+        currentServer = user_obj.get_server()
         halloObject = currentServer.get_hallo()
         # Split line, to find server name
         lineSplit = line.split()
@@ -409,7 +409,7 @@ class EditServer(Function):
         # Get protocol and go through protocols branching to whatever function to handle modifying servers of it.
         serverProtocol = serverObject.get_type()
         if serverProtocol == Server.TYPE_IRC:
-            return self.editServerIrc(line, serverObject, userObject, destinationObject)
+            return self.editServerIrc(line, serverObject, user_obj, destination_obj)
         # Add in ELIF statements here, to make user Connect Function support other protocols
         else:
             return "Unrecognised server protocol"
@@ -493,15 +493,15 @@ class ListUsers(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip().lower()
         # Useful object
-        halloObject = userObject.get_server().get_hallo()
+        halloObject = user_obj.get_server().get_hallo()
         # See if a server was specified.
         serverName = self.findParameter("server", line)
         # Get server object. If invalid, use current
         if serverName is None:
-            serverObject = userObject.get_server()
+            serverObject = user_obj.get_server()
         else:
             serverObject = halloObject.get_server_by_name(serverName)
             if serverObject is None:
@@ -514,9 +514,9 @@ class ListUsers(Function):
         if channelName is None:
             channelName = lineClean
         if channelName == "":
-            if destinationObject is None or not destinationObject.is_channel():
+            if destination_obj is None or not destination_obj.is_channel():
                 return "I don't recognise that channel name."
-            channelName = destinationObject.get_name()
+            channelName = destination_obj.get_name()
         # If they've specified all channels, display the server list.
         if channelName in ["*", "all"]:
             outputString = "Users on " + serverObject.get_name() + ": "
@@ -565,13 +565,13 @@ class ListChannels(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """
         Hallo will tell you which channels he is in, ops only.
         Format: "channels" for channels on current server, "channels all" for all channels on all servers.
         """
         lineClean = line.strip().lower()
-        halloObject = userObject.get_server().get_hallo()
+        halloObject = user_obj.get_server().get_hallo()
         # If they ask for all channels, give them all channels.
         if lineClean in self.HALLO_NAMES:
             outputString = "On all servers, I am on these channels: "
@@ -586,7 +586,7 @@ class ListChannels(Function):
             return outputString
         # If nothing specified, or "server", then output current server channel list
         if lineClean == "" or lineClean in self.SERVER_NAMES:
-            serverObject = userObject.get_server()
+            serverObject = user_obj.get_server()
             inChannelNameList = self.getInChannelNamesList(serverObject)
             outputString = "On this server, I'm in these channels: "
             outputString += ', '.join(inChannelNameList) + "."

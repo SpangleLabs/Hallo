@@ -21,7 +21,7 @@ class Protein(Function):
         """
         pass
     
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         codonTable = {'Ala': ['GCU', 'GCC', 'GCA', 'GCG'],
                       'Arg': ['CGU', 'CGC', 'CGA', 'CGG', 'AGA', 'AGG'],
                       'Asn': ['AAU', 'AAC'],
@@ -65,13 +65,13 @@ class Protein(Function):
             strand += ["..."]
         return "-".join(strand)
 
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
-        cleanFullLine = fullLine.strip().upper()
+        cleanFullLine = full_line.strip().upper()
         if len(cleanFullLine) < 3:
             return None
         validChars = list("ACGUT")
@@ -79,5 +79,5 @@ class Protein(Function):
         for validChar in validChars:
             checkMessage = checkMessage.replace(validChar, "")
         if checkMessage == "":
-            return self.run(cleanFullLine, userObject, channelObject)
+            return self.run(cleanFullLine, user_obj, channel_obj)
         return None

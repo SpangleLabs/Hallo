@@ -24,9 +24,9 @@ class Euler(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Some functions might need this.
-        self.mHalloObject = userObject.get_server().get_hallo()
+        self.mHalloObject = user_obj.get_server().get_hallo()
         lineClean = line.strip().lower()
         if lineClean == "list":
             return self.listAll()

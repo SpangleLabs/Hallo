@@ -19,7 +19,7 @@ class E621(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         searchResult = self.getRandomLinkResult(line)
         if searchResult is None:
             return "No results."
@@ -65,9 +65,9 @@ class RandomPorn(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineUnclean = line.strip() + " -rating:s"
-        functionDispatcher = userObject.get_server().get_hallo().get_function_dispatcher()
+        functionDispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
         e621Class = functionDispatcher.get_function_by_name("e621")
         e621Object = functionDispatcher.get_function_object(e621Class)
         searchResult = e621Object.getRandomLinkResult(lineUnclean)
@@ -104,8 +104,8 @@ class Butts(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
-        functionDispatcher = userObject.get_server().get_hallo().get_function_dispatcher()
+    def run(self, line, user_obj, destination_obj=None):
+        functionDispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
         e621Class = functionDispatcher.get_function_by_name("e621")
         e621Object = functionDispatcher.get_function_object(e621Class)
         searchResult = e621Object.getRandomLinkResult("butt")
@@ -141,7 +141,7 @@ class Fursona(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         adjective = ["eldritch", "neon green", "angelic", "ghostly", "scene", "emo", "hipster", "alien", "sweaty",
                      "OBSCENELY BRIGHT YELLOW", "spotted", "hairy", "glowing", "pastel pink", "glittering blue",
                      "golden", "shimmering red", "robotic", "black", "goth", "elegant", "white", "divine", "striped",

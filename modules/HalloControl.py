@@ -19,8 +19,8 @@ class ConfigSave(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
-        halloObject = userObject.get_server().get_hallo()
+    def run(self, line, user_obj, destination_obj=None):
+        halloObject = user_obj.get_server().get_hallo()
         halloObject.save_to_xml()
 
 
@@ -41,8 +41,8 @@ class ModuleReload(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
-        halloObject = userObject.get_server().get_hallo()
+    def run(self, line, user_obj, destination_obj=None):
+        halloObject = user_obj.get_server().get_hallo()
         functionDispatcher = halloObject.get_function_dispatcher()
         reloadResult = functionDispatcher.reload_module(line)
         if reloadResult:
@@ -68,7 +68,7 @@ class ActiveThreads(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """
         Returns current number of active threads.. should probably be gods only, but it is not. Format: active_thread
         """
@@ -95,10 +95,10 @@ class Help(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
-        self.mHalloObject = userObject.get_server().get_hallo()
+    def run(self, line, user_obj, destination_obj=None):
+        self.mHalloObject = user_obj.get_server().get_hallo()
         if line.strip() == "":
-            return self.listAllFunctions(userObject, destinationObject)
+            return self.listAllFunctions(user_obj, destination_obj)
         else:
             functionName = line.strip().lower()
             return self.getHelpOnFunction(functionName)
@@ -114,7 +114,7 @@ class Help(Function):
         outputList = []
         for functionClass in functionClassList:
             functionObject = functionDispatcher.get_function_object(functionClass)
-            functionHelpName = functionObject.getHelpName()
+            functionHelpName = functionObject.get_help_name()
             # Check permissions allow user to use this function
             if (
                     functionDispatcher.check_function_permissions(functionClass, serverObject, userObject,
@@ -136,7 +136,7 @@ class Help(Function):
         functionObject = functionDispatcher.get_function_object(functionClass)
         # Try and output help message, throwing an error if the function hasn't defined it
         try:
-            helpMessage = "Documentation for \"" + functionObject.getHelpName() + "\": " + functionObject.getHelpDocs()
+            helpMessage = "Documentation for \"" + functionObject.get_help_name() + "\": " + functionObject.get_help_docs()
             return helpMessage
         except NotImplementedError:
             return "No documentation exists for that function"

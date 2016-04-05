@@ -25,7 +25,7 @@ class Roll(Function):
         """
         pass
 
-    def run(self, line, userObject, channelObject=None):
+    def run(self, line, user_obj, channelObject=None):
         """Runs the function"""
         # Check which format the input is in.
         diceFormatRegex = re.compile("^[0-9]+d[0-9]+$", re.IGNORECASE)
@@ -79,7 +79,7 @@ class Choose(Function):
         """
         pass
 
-    def run(self, line, userObject, channelObject=None):
+    def run(self, line, user_obj, channelObject=None):
         choices = re.compile(', | or ', re.IGNORECASE).split(line)
         numchoices = len(choices)
         if numchoices == 1:
@@ -107,7 +107,7 @@ class EightBall(Function):
         """
         pass
 
-    def run(self, line, userObject, channelObject=None):
+    def run(self, line, user_obj, channelObject=None):
         responses = ['It is certain', 'It is decidedly so', 'Without a doubt', 'Yes definitely', 'You may rely on it']
         responses += ['As I see it yes', 'Most likely', 'Outlook good', 'Yes', 'Signs point to yes']
         responses += ['Reply hazy try again', 'Ask again later', 'Better not tell you now', 'Cannot predict now',
@@ -117,7 +117,7 @@ class EightBall(Function):
         rand = Commons.get_random_int(0, len(responses) - 1)[0]
         return responses[rand] + "."
 
-    def getNames(self):
+    def get_names(self):
         """Returns the list of names for directly addressing the function"""
         self.mNames = {"eightball"}
         for magic in ['magic ', 'magic', '']:
@@ -145,7 +145,7 @@ class ChosenOne(Function):
         """
         pass
 
-    def run(self, line, userObject, channelObject=None):
+    def run(self, line, user_obj, channelObject=None):
         # If this command is run in privmsg, it won't work
         if channelObject is None or channelObject.is_user():
             return "This function can only be used in a channel"
@@ -172,7 +172,7 @@ class Foof(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """FOOOOOOOOOF. Format: foof"""
         rand = Commons.get_random_int(0, 60)
         if rand <= 20:
@@ -181,32 +181,32 @@ class Foof(Function):
             return 'doooooof'
         else:
             if rand == 40 + 15:
-                serverObject = userObject.get_server()
-                serverObject.send('powering up...', destinationObject)
+                serverObject = user_obj.get_server()
+                serverObject.send('powering up...', destination_obj)
                 time.sleep(5)
                 return 'd' * 100 + 'o' * 1000 + 'f' * 200 + '!' * 50
             else:
                 return 'ddddoooooooooooooooooooooffffffffff.'
 
-    def getNames(self):
+    def get_names(self):
         """Returns the list of names for directly addressing the function"""
         self.mNames = set(['f' + 'o' * x + 'f' for x in range(2, 20)])
         self.mNames.add(self.mHelpName)
         return self.mNames
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         # Check if message matches any variation of foof
-        if re.search(r'foo[o]*f[!]*', fullLine, re.I):
+        if re.search(r'foo[o]*f[!]*', full_line, re.I):
             # get destination object
-            destinationObject = channelObject
+            destinationObject = channel_obj
             if destinationObject is None:
-                destinationObject = userObject
+                destinationObject = user_obj
             # Return response
-            out = self.run(fullLine, userObject, destinationObject)
+            out = self.run(full_line, user_obj, destinationObject)
             return out
 
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
@@ -227,7 +227,7 @@ class ThoughtForTheDay(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """WH40K Thought for the day. Format: thought_for_the_day"""
         thoughtList = Commons.read_file_to_list('store/WH40K_ToTD2.txt')
         rand = Commons.get_random_int(0, len(thoughtList) - 1)[0]
@@ -253,7 +253,7 @@ class Ouija(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         wordList = Commons.read_file_to_list('store/ouija_wordlist.txt')
         randList = Commons.get_random_int(0, len(wordList) - 1, 4)
         numWords = (randList[0] % 3) + 1
@@ -288,7 +288,7 @@ class Scriptures(Function):
         for scriptureXml in scriptureListXml.getElementsByTagName("scripture"):
             self.mScriptureList.append(scriptureXml.firstChild.data)
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         rand = Commons.get_random_int(0, len(self.mScriptureList) - 1)[0]
         return self.mScriptureList[rand]
 
@@ -310,8 +310,8 @@ class CatGif(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
-        apiKey = userObject.get_server().get_hallo().get_api_key("thecatapi")
+    def run(self, line, user_obj, destination_obj=None):
+        apiKey = user_obj.get_server().get_hallo().get_api_key("thecatapi")
         if apiKey is None:
             return "No API key loaded for cat api."
         url = "http://thecatapi.com/api/images/get?format=xml&api_key=" + apiKey + "&type=gif"
@@ -340,8 +340,8 @@ class RandomQuote(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
-        apiKey = userObject.get_server().get_hallo().get_api_key("mashape")
+    def run(self, line, user_obj, destination_obj=None):
+        apiKey = user_obj.get_server().get_hallo().get_api_key("mashape")
         if apiKey is None:
             return "No API key loaded for mashape."
         url = "https://andruxnet-random-famous-quotes.p.mashape.com/"
@@ -377,9 +377,9 @@ class NightValeWeather(Function):
         Constructor
         """
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Get hallo object
-        self.mHalloObject = userObject.get_server().get_hallo()
+        self.mHalloObject = user_obj.get_server().get_hallo()
         # Get playlist data from youtube api
         playlistData = self.getYoutubePlaylist("PL5bFd9WyHshXpZK-VPpH8UPXx6wCOIaQW")
         # Select a video from the playlist
@@ -387,22 +387,22 @@ class NightValeWeather(Function):
         # Return video information
         return "And now, the weather: http://youtu.be/" + randVideo['video_id'] + " " + randVideo['title']
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
-        fullLineClean = fullLine.lower().strip()
+        fullLineClean = full_line.lower().strip()
         # Get hallo's current name
-        halloName = serverObject.get_nick().lower()
+        halloName = server_obj.get_nick().lower()
         # Check if message matches specified patterns
         if halloName + " with the weather" in fullLineClean:
             # get destination object
-            destinationObject = channelObject
+            destinationObject = channel_obj
             if destinationObject is None:
-                destinationObject = userObject
+                destinationObject = user_obj
             # Return response
-            out = self.run(fullLine, userObject, destinationObject)
+            out = self.run(full_line, user_obj, destinationObject)
             return out
 
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
@@ -451,7 +451,7 @@ class RandomPerson(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         inputClean = line.strip().lower()
         url = "http://api.randomuser.me/0.6/?nat=gb&format=json"
         # Get api response
@@ -510,7 +510,7 @@ class NightValeProverb(Function):
         for proverbXml in proverbListXml.getElementsByTagName("proverb"):
             self.mProverbList.append(proverbXml.firstChild.data)
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         rand = Commons.get_random_int(0, len(self.mProverbList) - 1)[0]
         return self.mProverbList[rand]
 
@@ -534,7 +534,7 @@ class RandomColour(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         rgbList = Commons.get_random_int(0, 256, 3)
         hexCode = (hex(rgbList[0])[2:] + hex(rgbList[1])[2:] + hex(rgbList[2])[2:]).upper()
         url = "http://www.perbang.dk/rgb/" + hexCode + "/"

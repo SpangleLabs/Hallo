@@ -29,7 +29,7 @@ class UrbanDictionary(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         urlLine = line.replace(' ', '+').lower()
         url = 'http://api.urbandictionary.com/v0/define?term=' + urlLine
         urbandict = Commons.load_url_json(url)
@@ -57,7 +57,7 @@ class RandomCocktail(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Load XML
         doc = minidom.parse("store/cocktail_list.xml")
         cocktailListXml = doc.getElementsByTagName("cocktail_list")[0]
@@ -93,7 +93,7 @@ class Cocktail(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>"""
         doc = minidom.parse("store/cocktail_list.xml")
         cocktailListXml = doc.getElementsByTagName("cocktail_list")[0]
@@ -148,7 +148,7 @@ class InSpace(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         spaceDict = Commons.load_url_json("http://www.howmanypeopleareinspacerightnow.com/space.json")
         spaceNumber = str(spaceDict['number'])
         spaceNames = ", ".join(person['name'].strip() for person in spaceDict['people'])
@@ -156,15 +156,15 @@ class InSpace(Function):
         outputString += "Their names are: " + spaceNames + "."
         return outputString
 
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
-        cleanFullLine = fullLine.lower()
+        cleanFullLine = full_line.lower()
         if "in space" in cleanFullLine and ("who" in cleanFullLine or "how many" in cleanFullLine):
-            return self.run(cleanFullLine, userObject, channelObject)
+            return self.run(cleanFullLine, user_obj, channel_obj)
 
 
 class TimestampToDate(Function):
@@ -184,7 +184,7 @@ class TimestampToDate(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         try:
             line = int(line)
         except ValueError:
@@ -209,7 +209,7 @@ class Wiki(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip().replace(" ", "_")
         url = 'http://en.wikipedia.org/w/api.php?format=json&action=query&titles=' + lineClean + \
               '&prop=revisions&rvprop=content&redirects=True'
@@ -256,7 +256,7 @@ class Translate(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         if len(line.split()) <= 1:
             langChange = ''
             transString = line
@@ -520,12 +520,12 @@ class WeatherLocation(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip().lower()
         # Load up Weather locations repo
         weatherRepo = WeatherLocationRepo.loadFromXml()
-        userName = userObject.get_name()
-        serverObj = userObject.get_server()
+        userName = user_obj.get_name()
+        serverObj = user_obj.get_server()
         serverName = serverObj.get_name()
         # Check that an argument is provided
         if len(lineClean.split()) == 0:
@@ -533,8 +533,8 @@ class WeatherLocation(Function):
         # Check if first argument is a specified user for given server
         firstArg = lineClean.split()[0]
         testUser = serverObj.get_user_by_name(firstArg)
-        if destinationObject is not None and destinationObject.is_channel():
-            if destinationObject.is_user_in_channel(testUser):
+        if destination_obj is not None and destination_obj.is_channel():
+            if destination_obj.is_user_in_channel(testUser):
                 userName = testUser.get_name()
                 lineClean = lineClean[len(firstArg):].strip()
         # Create entry
@@ -563,18 +563,18 @@ class CurrentWeather(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip().lower()
         if lineClean == "":
             locationRepo = WeatherLocationRepo.loadFromXml()
-            locationEntry = locationRepo.getEntryByUserObject(userObject)
+            locationEntry = locationRepo.getEntryByUserObject(user_obj)
             if locationEntry is None:
                 return "No location stored for this user. Please specify a location or store one with " \
                        "the \"weather location\" function."
         else:
             # Check if a user was specified
-            testUser = userObject.get_server().get_user_by_name(lineClean)
-            if (destinationObject is not None and destinationObject.is_channel() and destinationObject.is_user_in_channel(
+            testUser = user_obj.get_server().get_user_by_name(lineClean)
+            if (destination_obj is not None and destination_obj.is_channel() and destination_obj.is_user_in_channel(
                     testUser)):
                 locationRepo = WeatherLocationRepo.loadFromXml()
                 locationEntry = locationRepo.getEntryByUserObject(testUser)
@@ -582,11 +582,11 @@ class CurrentWeather(Function):
                     return "No location stored for this user. Please specify a location or store one with " \
                            "the \"weather location\" function."
             else:
-                userName = userObject.get_name()
-                serverName = userObject.get_server().get_name()
+                userName = user_obj.get_name()
+                serverName = user_obj.get_server().get_name()
                 locationEntry = WeatherLocationEntry(userName, serverName)
                 locationEntry.setFromInput(lineClean)
-        apiKey = userObject.get_server().get_hallo().get_api_key("openweathermap")
+        apiKey = user_obj.get_server().get_hallo().get_api_key("openweathermap")
         if apiKey is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/weather" + locationEntry.createQueryParams() + "&APPID=" + apiKey
@@ -623,7 +623,7 @@ class Weather(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip().lower()
         regexFluff = re.compile(r'\b(for|[io]n)\b')
         # Clear input fluff
@@ -660,13 +660,13 @@ class Weather(Function):
         # Figure out if a user or city was specified
         if lineClean == "":
             weatherRepo = WeatherLocationRepo.loadFromXml()
-            locationEntry = weatherRepo.getEntryByUserObject(userObject)
+            locationEntry = weatherRepo.getEntryByUserObject(user_obj)
             if locationEntry is None:
                 return "No location stored for this user. Please specify a location or store one with " \
                        "the \"weather location\" function."
         else:
-            testUser = userObject.get_server().get_user_by_name(lineClean)
-            if (destinationObject is not None and destinationObject.is_channel() and destinationObject.is_user_in_channel(
+            testUser = user_obj.get_server().get_user_by_name(lineClean)
+            if (destination_obj is not None and destination_obj.is_channel() and destination_obj.is_user_in_channel(
                     testUser)):
                 weatherRepo = WeatherLocationRepo.loadFromXml()
                 locationEntry = weatherRepo.getEntryByUserObject(testUser)
@@ -674,12 +674,12 @@ class Weather(Function):
                     return "No location stored for this user. Please specify a location or store one with " \
                            "the \"weather location\" function."
             else:
-                userName = userObject.get_name()
-                serverName = userObject.get_server().get_name()
+                userName = user_obj.get_name()
+                serverName = user_obj.get_server().get_name()
                 locationEntry = WeatherLocationEntry(userName, serverName)
                 locationEntry.setFromInput(lineClean)
         # Get API response
-        apiKey = userObject.get_server().get_hallo().get_api_key("openweathermap")
+        apiKey = user_obj.get_server().get_hallo().get_api_key("openweathermap")
         if apiKey is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/forecast/daily" + locationEntry.createQueryParams() + \
@@ -781,20 +781,20 @@ class UrlDetect(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         return "This function does not take input."
 
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         # Get hallo object for stuff to use
-        self.mHalloObject = serverObject.get_hallo()
+        self.mHalloObject = server_obj.get_hallo()
         # Search for a link
         urlRegex = re.compile(r'\b((https?://|www.)[-A-Z0-9+&?%@#/=~_|$:,.]*[A-Z0-9+&@#/%=~_|$])', re.I)
-        urlSearch = urlRegex.search(fullLine)
+        urlSearch = urlRegex.search(full_line)
         if not urlSearch:
             return None
         # Get link address

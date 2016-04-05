@@ -538,7 +538,7 @@ class RandomCard(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         newDeck = Deck()
         newDeck.shuffle()
         randomCard = newDeck.getNextCard()
@@ -565,12 +565,12 @@ class HighScores(Function):
         pass
 
     @staticmethod
-    def isPersistent():
+    def is_persistent():
         """Returns boolean representing whether this function is supposed to be persistent or not"""
         return True
 
     @staticmethod
-    def loadFunction():
+    def load_function():
         """Loads the function, persistent functions only."""
         try:
             highScoreDict = {}
@@ -605,7 +605,7 @@ class HighScores(Function):
         except (FileNotFoundError, IOError):
             return HighScores()
 
-    def saveFunction(self):
+    def save_function(self):
         """Saves the function, persistent functions only."""
         # Create document, with DTD
         docimp = minidom.DOMImplementation()
@@ -653,7 +653,7 @@ class HighScores(Function):
         # save XML
         doc.writexml(open("store/high_score_list.xml", "w"), addindent="\t", newl="\r\n")
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         outputLines = ["High scores:"]
         for gameName in self.mHighScores:
             score = self.mHighScores[gameName]['score']
@@ -892,35 +892,35 @@ class HigherOrLower(Function):
         pass
 
     @staticmethod
-    def isPersistent():
+    def is_persistent():
         """Returns boolean representing whether this function is supposed to be persistent or not"""
         return True
 
     @staticmethod
-    def loadFunction():
+    def load_function():
         """Loads the function, persistent functions only."""
         return HigherOrLower()
 
-    def saveFunction(self):
+    def save_function(self):
         """Saves the function, persistent functions only."""
         # TODO: save all games to XML perhaps?
         pass
 
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
     # Interesting functions from here
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip().lower()
         if lineClean in [""] + self.mStartCommands:
-            return self.newGame(userObject, destinationObject)
+            return self.newGame(user_obj, destination_obj)
         elif any(cmd in lineClean for cmd in self.mEndCommands):
-            return self.quitGame(userObject, destinationObject)
+            return self.quitGame(user_obj, destination_obj)
         elif any(cmd in lineClean for cmd in self.mHighCommands):
-            return self.guessHigher(userObject, destinationObject)
+            return self.guessHigher(user_obj, destination_obj)
         elif any(cmd in lineClean for cmd in self.mLowCommands):
-            return self.guessLower(userObject, destinationObject)
+            return self.guessLower(user_obj, destination_obj)
         outputString = "I don't understand this input."
         outputString += ' Syntax: "higher_or_lower start" to start a game, '
         outputString += '"higher_or_lower higher" to guess the next card will be higher, '
@@ -928,15 +928,15 @@ class HigherOrLower(Function):
         outputString += '"higher_or_lower end" to quit the game.'
         return outputString
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
-        cleanFullLine = fullLine.strip().lower()
+        cleanFullLine = full_line.strip().lower()
         if any(cmd in cleanFullLine for cmd in self.mEndCommands):
-            return self.quitGame(userObject, channelObject, True)
+            return self.quitGame(user_obj, channel_obj, True)
         elif any(cmd in cleanFullLine for cmd in self.mHighCommands):
-            return self.guessHigher(userObject, channelObject, True)
+            return self.guessHigher(user_obj, channel_obj, True)
         elif any(cmd in cleanFullLine for cmd in self.mLowCommands):
-            return self.guessLower(userObject, channelObject, True)
+            return self.guessLower(user_obj, channel_obj, True)
         pass
 
     def findGame(self, userObject):
@@ -1115,50 +1115,50 @@ class Blackjack(Function):
         pass
 
     @staticmethod
-    def isPersistent():
+    def is_persistent():
         """Returns boolean representing whether this function is supposed to be persistent or not"""
         return True
 
     @staticmethod
-    def loadFunction():
+    def load_function():
         """Loads the function, persistent functions only."""
         return Blackjack()
 
-    def saveFunction(self):
+    def save_function(self):
         """Saves the function, persistent functions only."""
         # TODO: save all games to XML perhaps?
         pass
 
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
     # Interesting functions from here
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip().lower()
         if lineClean in [""] + self.mStartCommands:
-            return self.newGame(userObject, destinationObject)
+            return self.newGame(user_obj, destination_obj)
         elif any(cmd in lineClean for cmd in self.mEndCommands):
-            return self.quitGame(userObject, destinationObject)
+            return self.quitGame(user_obj, destination_obj)
         elif any(cmd in lineClean for cmd in self.mHitCommands):
-            return self.hit(userObject, destinationObject)
+            return self.hit(user_obj, destination_obj)
         elif any(cmd in lineClean for cmd in self.mStickCommands):
-            return self.stick(userObject, destinationObject)
+            return self.stick(user_obj, destination_obj)
         outputString = "I don't understand this input."
         outputString += ' Syntax: "blackjack start" to start a game, '
         outputString += '"blackjack hit" to hit, "blackjack stick" to stick, '
         outputString += 'and "blackjack end" to quit the game.'
         return outputString
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
-        cleanFullLine = fullLine.strip().lower()
+        cleanFullLine = full_line.strip().lower()
         if any(cmd in cleanFullLine for cmd in self.mEndCommands):
-            return self.quitGame(userObject, channelObject, True)
+            return self.quitGame(user_obj, channel_obj, True)
         elif any(cmd in cleanFullLine for cmd in self.mHitCommands):
-            return self.hit(userObject, channelObject, True)
+            return self.hit(user_obj, channel_obj, True)
         elif any(cmd in cleanFullLine for cmd in self.mStickCommands):
-            return self.stick(userObject, channelObject, True)
+            return self.stick(user_obj, channel_obj, True)
         pass
 
     def findGame(self, userObject):
@@ -1442,47 +1442,47 @@ class DDR(Function):
         pass
 
     @staticmethod
-    def isPersistent():
+    def is_persistent():
         """Returns boolean representing whether this function is supposed to be persistent or not"""
         return True
 
     @staticmethod
-    def loadFunction():
+    def load_function():
         """Loads the function, persistent functions only."""
         return DDR()
 
-    def saveFunction(self):
+    def save_function(self):
         """Saves the function, persistent functions only."""
         # TODO: save all games to XML perhaps?
         pass
 
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
     # Interesting functions from here
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.strip().lower()
         if lineClean in [""] + self.mStartCommands:
-            return self.newGame(lineClean, userObject, destinationObject)
+            return self.newGame(lineClean, user_obj, destination_obj)
         elif any(cmd in lineClean for cmd in self.mJoinCommands):
-            return self.joinGame(lineClean, userObject, destinationObject)
+            return self.joinGame(lineClean, user_obj, destination_obj)
         elif any(cmd in lineClean for cmd in self.mEndCommands):
-            return self.quitGame(lineClean, userObject, destinationObject)
+            return self.quitGame(lineClean, user_obj, destination_obj)
         elif any(cmd in lineClean for cmd in self.mMoveCommands):
-            return self.makeMove(lineClean, userObject, destinationObject)
+            return self.makeMove(lineClean, user_obj, destination_obj)
         outputString = "Invalid difficulty mode. Please specify easy, medium or hard."
         return outputString
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
-        cleanFullLine = fullLine.strip().lower()
+        cleanFullLine = full_line.strip().lower()
         if any(cmd in cleanFullLine for cmd in self.mJoinCommands):
-            return self.joinGame(cleanFullLine, userObject, channelObject, True)
+            return self.joinGame(cleanFullLine, user_obj, channel_obj, True)
         elif any(cmd in cleanFullLine for cmd in self.mEndCommands):
-            return self.quitGame(cleanFullLine, userObject, channelObject, True)
+            return self.quitGame(cleanFullLine, user_obj, channel_obj, True)
         elif any(cmd in cleanFullLine for cmd in self.mMoveCommands):
-            return self.makeMove(cleanFullLine, userObject, channelObject, True)
+            return self.makeMove(cleanFullLine, user_obj, channel_obj, True)
         pass
 
     def findGame(self, destinationObject):

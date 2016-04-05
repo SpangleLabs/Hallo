@@ -20,7 +20,7 @@ class RandomPokemon(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")
         pokemonListXml = doc.getElementsByTagName("pokemon_list")[0]
@@ -50,7 +50,7 @@ class PickATeam(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")
         pokemonListXml = doc.getElementsByTagName("pokemon_list")[0]
@@ -81,7 +81,7 @@ class FullyEvolvedTeam(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")
         pokemonListXml = doc.getElementsByTagName("pokemon_list")[0]
@@ -114,7 +114,7 @@ class Pokedex(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         lineClean = line.lower().split()
         # Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")

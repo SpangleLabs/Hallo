@@ -22,7 +22,7 @@ class PonyEpisode(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Load XML
         doc = minidom.parse("store/pony/pony_episodes.xml")
         ponyEpisodesListXml = doc.getElementsByTagName("pony_episodes")[0]
@@ -61,7 +61,7 @@ class BestPony(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         # Load XML
         doc = minidom.parse("store/pony/ponies.xml")
         ponyListXml = doc.getElementsByTagName("ponies")[0]
@@ -92,22 +92,22 @@ class BestPony(Function):
         randomHalf2 = Commons.get_random_choice(messageHalf2)[0]
         # Select a random pony, or, if it's eli, select Pinkie Pie
         chosenPony = Commons.get_random_choice(ponyList)[0]
-        if userObject.get_name().endswith("000242"):
+        if user_obj.get_name().endswith("000242"):
             chosenPony = {'name': "Pinkie Pie", 'pronoun': "she", 'categories': ["mane6"]}
         # Assemble and output the message
         outputMessage = randomHalf1.replace("{X}", chosenPony['name']) + randomHalf2.replace("{Y}",
                                                                                              chosenPony['pronoun'])
         return outputMessage
 
-    def getPassiveEvents(self):
+    def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
-    def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
+    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
-        cleanFullLine = fullLine.lower()
+        cleanFullLine = full_line.lower()
         if "who" in cleanFullLine and ("best pony" in cleanFullLine or "bestpony" in cleanFullLine):
-            return self.run(cleanFullLine, userObject, channelObject)
+            return self.run(cleanFullLine, user_obj, channel_obj)
 
 
 class Cupcake(Function):
@@ -127,12 +127,12 @@ class Cupcake(Function):
         """
         pass
 
-    def run(self, line, userObject, destinationObject=None):
+    def run(self, line, user_obj, destination_obj=None):
         """Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>"""
         if line.strip() == '':
             return "You must specify a recipient for the cupcake."
         # Get some required objects
-        serverObject = userObject.get_server()
+        serverObject = user_obj.get_server()
         recipientUserName = line.split()[0]
         recipientUserObject = serverObject.get_user_by_name(recipientUserName)
         # If user isn't online, I can't send a cupcake
@@ -140,18 +140,18 @@ class Cupcake(Function):
             return "No one called " + recipientUserName + " is online."
         # Generate the output message, adding cupcake type if required
         if recipientUserName == line.strip():
-            outputMessage = "\x01ACTION gives " + recipientUserName + " a cupcake, from " + userObject.get_name() + \
+            outputMessage = "\x01ACTION gives " + recipientUserName + " a cupcake, from " + user_obj.get_name() + \
                             ".\x01"
         else:
             cupcakeType = line[len(recipientUserName):].strip()
             outputMessage = "\x01ACTION gives " + recipientUserName + " a " + cupcakeType + " cupcake, from " + \
-                            userObject.get_name() + ".\x01"
+                            user_obj.get_name() + ".\x01"
         # Get both users channel lists, and then the intersection
-        userChannelList = userObject.get_channel_list()
+        userChannelList = user_obj.get_channel_list()
         recipientChannelList = recipientUserObject.get_channel_list()
         intersectionList = userChannelList.intersection(recipientChannelList)
         # If current channel is in the intersection, send there.
-        if destinationObject in intersectionList:
+        if destination_obj in intersectionList:
             return outputMessage
         # Get list of channels that hallo is in inside that intersection
         validChannels = [chan for chan in intersectionList if chan.is_in_channel()]
