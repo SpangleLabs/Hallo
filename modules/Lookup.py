@@ -10,31 +10,32 @@ import imghdr  # UrlDetect image size
 import math
 import datetime
 import html
+import html.parser
 
 
 class UrbanDictionary(Function):
     """
     Urban Dictionary lookup function.
     """
-    # Name for use in help listing
-    help_name = "urban dictionary"
-    # Names which can be used to address the function
-    names = {"urban dictionary", "urban", "urbandictionary", "ud"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Gives the top urban dictionary definition for a word. Format: urban dictionary <word>"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "urban dictionary"
+        # Names which can be used to address the function
+        self.names = {"urban dictionary", "urban", "urbandictionary", "ud"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Gives the top urban dictionary definition for a word. Format: urban dictionary <word>"
 
     def run(self, line, user_obj, destination_obj=None):
-        urlLine = line.replace(' ', '+').lower()
-        url = 'http://api.urbandictionary.com/v0/define?term=' + urlLine
-        urbandict = Commons.load_url_json(url)
-        if len(urbandict['list']) > 0:
-            definition = urbandict['list'][0]['definition'].replace("\r", '').replace("\n", '')
+        url_line = line.replace(' ', '+').lower()
+        url = 'http://api.urbandictionary.com/v0/define?term=' + url_line
+        urban_dict = Commons.load_url_json(url)
+        if len(urban_dict['list']) > 0:
+            definition = urban_dict['list'][0]['definition'].replace("\r", '').replace("\n", '')
             return definition
         else:
             return "Sorry, I cannot find a definition for " + line + "."
@@ -44,117 +45,118 @@ class RandomCocktail(Function):
     """
     Selects and outputs a random cocktail from store/cocktail_list.xml
     """
-    # Name for use in help listing
-    help_name = "random cocktail"
-    # Names which can be used to address the function
-    names = {"random cocktail", "randomcocktail"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Delivers ingredients and recipes for a random cocktail. Format: random cocktail"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "random cocktail"
+        # Names which can be used to address the function
+        self.names = {"random cocktail", "randomcocktail"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Delivers ingredients and recipes for a random cocktail. Format: random cocktail"
 
     def run(self, line, user_obj, destination_obj=None):
         # Load XML
         doc = minidom.parse("store/cocktail_list.xml")
-        cocktailListXml = doc.getElementsByTagName("cocktail_list")[0]
-        randomCocktailXml = Commons.get_random_choice(cocktailListXml.getElementsByTagName("cocktail"))[0]
-        randomCocktailName = randomCocktailXml.getElementsByTagName("name")[0].firstChild.data
-        randomCocktailInstructions = randomCocktailXml.getElementsByTagName("instructions")[0].firstChild.data
-        outputString = "Randomly selected cocktail is: " + randomCocktailName + ". The ingredients are: "
-        ingredientList = []
-        for ingredientXml in randomCocktailXml.getElementsByTagName("ingredients"):
-            ingredientAmount = ingredientXml.getElementsByTagName("amount")[0].firstChild.data
-            ingredientName = ingredientXml.getElementsByTagName("name")[0].firstChild.data
-            ingredientList.append(ingredientAmount + ingredientName)
-        outputString += ", ".join(ingredientList) + ". The recipe is: " + randomCocktailInstructions
-        if outputString[-1] != '.':
-            outputString += "."
-        return outputString
+        cocktail_list_elem = doc.getElementsByTagName("cocktail_list")[0]
+        random_cocktail_elem = Commons.get_random_choice(cocktail_list_elem.getElementsByTagName("cocktail"))[0]
+        random_cocktail_name = random_cocktail_elem.getElementsByTagName("name")[0].firstChild.data
+        random_cocktail_instructions = random_cocktail_elem.getElementsByTagName("instructions")[0].firstChild.data
+        output_string = "Randomly selected cocktail is: " + random_cocktail_name + ". The ingredients are: "
+        ingredient_list = []
+        for ingredient_elem in random_cocktail_elem.getElementsByTagName("ingredients"):
+            ingredient_amount = ingredient_elem.getElementsByTagName("amount")[0].firstChild.data
+            ingredient_name = ingredient_elem.getElementsByTagName("name")[0].firstChild.data
+            ingredient_list.append(ingredient_amount + ingredient_name)
+        output_string += ", ".join(ingredient_list) + ". The recipe is: " + random_cocktail_instructions
+        if output_string[-1] != '.':
+            output_string += "."
+        return output_string
 
 
 class Cocktail(Function):
     """
     Cocktail lookup function.
     """
-    # Name for use in help listing
-    help_name = "cocktail"
-    # Names which can be used to address the function
-    names = {"cocktail"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "cocktail"
+        # Names which can be used to address the function
+        self.names = {"cocktail"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Returns ingredients and instructions for a given cocktail (or closest guess). " \
+                         "Format: cocktail <name>"
 
     def run(self, line, user_obj, destination_obj=None):
         """Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>"""
         doc = minidom.parse("store/cocktail_list.xml")
-        cocktailListXml = doc.getElementsByTagName("cocktail_list")[0]
-        cocktailNames = []
+        cocktail_list_elem = doc.getElementsByTagName("cocktail_list")[0]
+        cocktail_names = []
         # Loop through cocktails, adding names to list
-        cocktailXml = None
-        for cocktailXml in cocktailListXml.getElementsByTagName("cocktail"):
-            cocktailName = cocktailXml.getElementsByTagName("name")[0].firstChild.data
-            cocktailNames.append(cocktailName)
+        cocktail_elem = None
+        for cocktail_elem in cocktail_list_elem.getElementsByTagName("cocktail"):
+            cocktail_name = cocktail_elem.getElementsByTagName("name")[0].firstChild.data
+            cocktail_names.append(cocktail_name)
         # Find the closest matching names
-        closestMatches = difflib.get_close_matches(line.lower(), cocktailNames)
+        closest_matches = difflib.get_close_matches(line.lower(), cocktail_names)
         # If there are no close matches, return error
-        if len(closestMatches) == 0 or closestMatches[0] == '':
+        if len(closest_matches) == 0 or closest_matches[0] == '':
             return "I haven't got anything close to that name."
         # Get closest match XML
-        closestMatchName = closestMatches[0]
-        for cocktailXml in cocktailListXml.getElementsByTagName("cocktail"):
-            cocktailName = cocktailXml.getElementsByTagName("name")[0].firstChild.data
-            if cocktailName.lower() == closestMatchName.lower():
+        closest_match_name = closest_matches[0]
+        for cocktail_elem in cocktail_list_elem.getElementsByTagName("cocktail"):
+            cocktail_name = cocktail_elem.getElementsByTagName("name")[0].firstChild.data
+            if cocktail_name.lower() == closest_match_name.lower():
                 break
         # Get instructions
-        cocktailInstructions = cocktailXml.getElementsByTagName("instructions")[0].firstChild.data
+        cocktail_instructions = cocktail_elem.getElementsByTagName("instructions")[0].firstChild.data
         # Get list of ingredients
-        ingredientList = []
-        for ingredientXml in cocktailXml.getElementsByTagName("ingredients"):
-            ingredientAmount = ingredientXml.getElementsByTagName("amount")[0].firstChild.data
-            ingredientName = ingredientXml.getElementsByTagName("name")[0].firstChild.data
-            ingredientList.append(ingredientAmount + ingredientName)
+        ingredient_list = []
+        for ingredient_elem in cocktail_elem.getElementsByTagName("ingredients"):
+            ingredient_amount = ingredient_elem.getElementsByTagName("amount")[0].firstChild.data
+            ingredient_name = ingredient_elem.getElementsByTagName("name")[0].firstChild.data
+            ingredient_list.append(ingredient_amount + ingredient_name)
         # Construct output
-        outputString = "Closest I have is " + closestMatchName + "."
-        outputString += "The ingredients are: " + ", ".join(ingredientList) + "."
-        outputString += "The recipe is: " + cocktailInstructions
-        if outputString[-1] != ".":
-            outputString += "."
-        return outputString
+        output_string = "Closest I have is " + closest_match_name + "."
+        output_string += "The ingredients are: " + ", ".join(ingredient_list) + "."
+        output_string += "The recipe is: " + cocktail_instructions
+        if output_string[-1] != ".":
+            output_string += "."
+        return output_string
 
 
 class InSpace(Function):
     """
     Looks up the current amount and names of people in space
     """
-    # Name for use in help listing
-    help_name = "in space"
-    # Names which can be used to address the function
-    names = {"in space", "inspace", "space"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Returns the number of people in space right now, and their names. Format: in space"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "in space"
+        # Names which can be used to address the function
+        self.names = {"in space", "inspace", "space"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Returns the number of people in space right now, and their names. Format: in space"
 
     def run(self, line, user_obj, destination_obj=None):
-        spaceDict = Commons.load_url_json("http://www.howmanypeopleareinspacerightnow.com/space.json")
-        spaceNumber = str(spaceDict['number'])
-        spaceNames = ", ".join(person['name'].strip() for person in spaceDict['people'])
-        outputString = "There are " + spaceNumber + " people in space right now. "
-        outputString += "Their names are: " + spaceNames + "."
-        return outputString
+        space_dict = Commons.load_url_json("http://www.howmanypeopleareinspacerightnow.com/space.json")
+        space_number = str(space_dict['number'])
+        space_names = ", ".join(person['name'].strip() for person in space_dict['people'])
+        output_string = "There are " + space_number + " people in space right now. "
+        output_string += "Their names are: " + space_names + "."
+        return output_string
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
@@ -162,27 +164,27 @@ class InSpace(Function):
 
     def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
-        cleanFullLine = full_line.lower()
-        if "in space" in cleanFullLine and ("who" in cleanFullLine or "how many" in cleanFullLine):
-            return self.run(cleanFullLine, user_obj, channel_obj)
+        clean_line = full_line.lower()
+        if "in space" in clean_line and ("who" in clean_line or "how many" in clean_line):
+            return self.run(clean_line, user_obj, channel_obj)
 
 
 class TimestampToDate(Function):
     """
     Converts an unix timestamp to a date
     """
-    # Name for use in help listing
-    help_name = "date"
-    # Names which can be used to address the function
-    names = {"timestamp to date", "unix timestamp", "unix", "unix timestamp to date"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Returns the date from a given unix timestamp. Format: date <timestamp>"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "date"
+        # Names which can be used to address the function
+        self.names = {"timestamp to date", "unix timestamp", "unix", "unix timestamp to date"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Returns the date from a given unix timestamp. Format: date <timestamp>"
 
     def run(self, line, user_obj, destination_obj=None):
         try:
@@ -196,153 +198,152 @@ class Wiki(Function):
     """
     Lookup wiki article and return the first paragraph or so.
     """
-    # Name for use in help listing
-    help_name = "wiki"
-    # Names which can be used to address the function
-    names = {"wiki", "wikipedia"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Reads the first paragraph from a wikipedia article"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "wiki"
+        # Names which can be used to address the function
+        self.names = {"wiki", "wikipedia"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Reads the first paragraph from a wikipedia article"
 
     def run(self, line, user_obj, destination_obj=None):
-        lineClean = line.strip().replace(" ", "_")
-        url = 'http://en.wikipedia.org/w/api.php?format=json&action=query&titles=' + lineClean + \
+        line_clean = line.strip().replace(" ", "_")
+        url = 'http://en.wikipedia.org/w/api.php?format=json&action=query&titles=' + line_clean + \
               '&prop=revisions&rvprop=content&redirects=True'
-        articleDict = Commons.load_url_json(url)
-        pageCode = list(articleDict['query']['pages'])[0]
-        articleText = articleDict['query']['pages'][pageCode]['revisions'][0]['*']
-        oldScan = articleText
-        newScan = re.sub('{{[^{^}]*}}', '', oldScan)  # Strip templates
-        while newScan != oldScan:
-            oldScan = newScan
-            newScan = re.sub('{{[^{^}]*}}', '', oldScan)  # Keep stripping templates until they're gone
-        plainText = newScan.replace('\'\'', '')
-        plainText = re.sub(r'<ref[^<]*</ref>', '', plainText)  # Strip out references
-        oldScan = plainText
-        newScan = re.sub(r'(\[\[File:[^\][]+)\[\[[^\]]+]]', r'\1',
-                         oldScan)  # Repeatedly strip links from image descriptions
-        while newScan != oldScan:
-            oldScan = newScan
-            newScan = re.sub(r'(\[\[File:[^\][]+)\[\[[^\]]+]]', r'\1', oldScan)
-        plainText = newScan
-        plainText = re.sub(r'\[\[File:[^\]]+]]', '', plainText)  # Strip out images
-        plainText = re.sub(r'\[\[[^\]^|]*\|([^\]]*)]]', r'\1', plainText)  # Strip out links with specified names
-        plainText = re.sub(r'\[\[([^\]]*)]]', r'\1', plainText)  # Strip out links
-        plainText = re.sub(r'<!--[^>]*-->', '', plainText)  # Strip out comments
-        plainText = re.sub(r'<ref[^>]*/>', '', plainText)  # Strip out remaining references
-        firstParagraph = plainText.strip().split('\n')[0]
-        return firstParagraph
+        article_dict = Commons.load_url_json(url)
+        page_code = list(article_dict['query']['pages'])[0]
+        article_text = article_dict['query']['pages'][page_code]['revisions'][0]['*']
+        old_scan = article_text
+        new_scan = re.sub('{{[^{^}]*}}', '', old_scan)  # Strip templates
+        while new_scan != old_scan:
+            old_scan = new_scan
+            new_scan = re.sub('{{[^{^}]*}}', '', old_scan)  # Keep stripping templates until they're gone
+        plain_text = new_scan.replace('\'\'', '')
+        plain_text = re.sub(r'<ref[^<]*</ref>', '', plain_text)  # Strip out references
+        old_scan = plain_text
+        new_scan = re.sub(r'(\[\[File:[^\][]+)\[\[[^\]]+]]', r'\1',
+                          old_scan)  # Repeatedly strip links from image descriptions
+        while new_scan != old_scan:
+            old_scan = new_scan
+            new_scan = re.sub(r'(\[\[File:[^\][]+)\[\[[^\]]+]]', r'\1', old_scan)
+        plain_text = new_scan
+        plain_text = re.sub(r'\[\[File:[^\]]+]]', '', plain_text)  # Strip out images
+        plain_text = re.sub(r'\[\[[^\]^|]*\|([^\]]*)]]', r'\1', plain_text)  # Strip out links with specified names
+        plain_text = re.sub(r'\[\[([^\]]*)]]', r'\1', plain_text)  # Strip out links
+        plain_text = re.sub(r'<!--[^>]*-->', '', plain_text)  # Strip out comments
+        plain_text = re.sub(r'<ref[^>]*/>', '', plain_text)  # Strip out remaining references
+        first_paragraph = plain_text.strip().split('\n')[0]
+        return first_paragraph
 
 
 class Translate(Function):
     """
     Uses google translate to translate a phrase to english, or to any specified language
     """
-    # Name for use in help listing
-    help_name = "translate"
-    # Names which can be used to address the function
-    names = {"translate"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Translates a given block of text. Format: translate <from>-><to> <text>"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "translate"
+        # Names which can be used to address the function
+        self.names = {"translate"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Translates a given block of text. Format: translate <from>-><to> <text>"
 
     def run(self, line, user_obj, destination_obj=None):
         if len(line.split()) <= 1:
-            langChange = ''
-            transString = line
+            lang_change = ''
+            trans_string = line
         else:
-            langChange = line.split()[0]
-            transString = ' '.join(line.split()[1:])
-        if '->' not in langChange:
-            langFrom = "auto"
-            langTo = "en"
-            transString = langChange + ' ' + transString
+            lang_change = line.split()[0]
+            trans_string = ' '.join(line.split()[1:])
+        if '->' not in lang_change:
+            lang_from = "auto"
+            lang_to = "en"
+            trans_string = lang_change + ' ' + trans_string
         else:
-            langFrom = langChange.split('->')[0]
-            langTo = langChange.split('->')[1]
-        transSafe = urllib.parse.quote(transString.strip(), '')
+            lang_from = lang_change.split('->')[0]
+            lang_to = lang_change.split('->')[1]
+        trans_safe = urllib.parse.quote(trans_string.strip(), '')
         # This uses google's secret translate API, it's not meant to be used by robots, and often it won't work
-        url = "http://translate.google.com/translate_a/t?client=t&text=" + transSafe + "&hl=en&sl=" + langFrom + \
-              "&tl=" + langTo + "&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1"
-        transDict = Commons.load_url_json(url, [], True)
-        translationString = " ".join([x[0] for x in transDict[0]])
-        return "Translation: " + translationString
+        url = "http://translate.google.com/translate_a/t?client=t&text=" + trans_safe + "&hl=en&sl=" + lang_from + \
+              "&tl=" + lang_to + "&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1"
+        trans_dict = Commons.load_url_json(url, [], True)
+        translation_string = " ".join([x[0] for x in trans_dict[0]])
+        return "Translation: " + translation_string
 
 
 class WeatherLocationRepo:
     """
     Helper class to hold user's locations for weather-related functions.
     """
-    mListLocations = None
 
     def __init__(self):
-        self.mListLocations = []
+        self.list_locations = []
 
-    def addEntry(self, newEntry):
-        userName = newEntry.getUser()
-        serverName = newEntry.getServer()
-        testEntry = self.getEntryByUserNameAndServerName(userName, serverName)
-        if testEntry is None:
-            self.mListLocations.append(newEntry)
+    def add_entry(self, new_entry):
+        user_name = new_entry.get_user()
+        server_name = new_entry.get_server()
+        test_entry = self.get_entry_by_user_name_and_server_name(user_name, server_name)
+        if test_entry is None:
+            self.list_locations.append(new_entry)
         else:
-            newList = [x if x != testEntry else newEntry for x in self.mListLocations]
-            self.mListLocations = newList
+            new_list = [x if x != test_entry else new_entry for x in self.list_locations]
+            self.list_locations = new_list
 
-    def getEntryByUserNameAndServerName(self, userName, serverName):
+    def get_entry_by_user_name_and_server_name(self, user_name, server_name):
         """Returns an entry matching the given user name and server name, or None."""
-        for locationEntry in self.mListLocations:
-            if locationEntry.getUser() != userName:
+        for locationEntry in self.list_locations:
+            if locationEntry.get_user() != user_name:
                 continue
-            if locationEntry.getServer() != serverName:
+            if locationEntry.get_server() != server_name:
                 continue
             return locationEntry
         return None
 
-    def getEntryByUserObject(self, userObject):
+    def get_entry_by_user_obj(self, user_obj):
         """Returns an entry matching the given userObject, or None."""
-        userName = userObject.get_name()
-        serverName = userObject.get_server().get_name()
-        return self.getEntryByUserNameAndServerName(userName, serverName)
+        user_name = user_obj.get_name()
+        server_name = user_obj.get_server().get_name()
+        return self.get_entry_by_user_name_and_server_name(user_name, server_name)
 
     @staticmethod
-    def loadFromXml():
+    def load_from_xml():
         """Loads user locations from XML"""
-        newRepo = WeatherLocationRepo()
+        new_repo = WeatherLocationRepo()
         try:
             doc = minidom.parse("store/weather_location_list.xml")
         except (IOError, OSError):
-            return newRepo
-        for weatherLocationXml in doc.getElementsByTagName("weather_location"):
-            weatherLocation = WeatherLocationEntry.fromXml(weatherLocationXml.toxml())
-            newRepo.addEntry(weatherLocation)
-        return newRepo
+            return new_repo
+        for weather_location_elem in doc.getElementsByTagName("weather_location"):
+            weather_location = WeatherLocationEntry.from_xml(weather_location_elem.toxml())
+            new_repo.add_entry(weather_location)
+        return new_repo
 
-    def saveToXml(self):
+    def save_to_xml(self):
         """Saves user locations to XML"""
         # Create document with DTD
-        docimp = minidom.DOMImplementation()
-        doctype = docimp.createDocumentType(
+        doc_imp = minidom.DOMImplementation()
+        doc_type = doc_imp.createDocumentType(
             qualifiedName='weather_location_list',
             publicId='',
             systemId='weather_location_list.dtd'
         )
-        doc = docimp.createDocument(None, 'weather_location_list', doctype)
+        doc = doc_imp.createDocument(None, 'weather_location_list', doc_type)
         # Get root element
         root = doc.getElementsByTagName("weather_location_list")[0]
         # Add entries
-        for entryObject in self.mListLocations:
-            entryElement = minidom.parseString(entryObject.to_xml()).firstChild
-            root.appendChild(entryElement)
+        for entry_obj in self.list_locations:
+            entry_elem = minidom.parseString(entry_obj.to_xml()).firstChild
+            root.appendChild(entry_elem)
         # Save XML
         doc.writexml(open("store/weather_location_list.xml", "w"), addindent="\t", newl="\n")
 
@@ -351,117 +352,115 @@ class WeatherLocationEntry:
     """
     Helper class that stores weather location data for a given user
     """
-    mServer = None
-    mUser = None
-    mCountryCode = None
-    mType = None
-    mCityName = None
-    mZipCode = None
-    mLatitude = None
-    mLongitude = None
 
     TYPE_CITY = "city"
     TYPE_COORDS = "coords"
     TYPE_ZIP = "zip"
 
-    def __init__(self, serverName, userName):
-        self.mServer = serverName
-        self.mUser = userName
+    def __init__(self, server_name, user_name):
+        self.server_name = server_name
+        self.user_name = user_name
+        self.country_code = None
+        self.type = None
+        self.city_name = None
+        self.zip_code = None
+        self.latitude = None
+        self.longitude = None
 
-    def getServer(self):
+    def get_server(self):
         """Returns server name"""
-        return self.mServer
+        return self.server_name
 
-    def getUser(self):
+    def get_user(self):
         """Returns user name"""
-        return self.mUser
+        return self.user_name
 
-    def getType(self):
+    def get_type(self):
         """Returns type"""
-        return self.mType
+        return self.type
 
-    def setCountryCode(self, newCountryCode):
+    def set_country_code(self, new_country_code):
         """Sets the country code of the location entry"""
-        self.mCountryCode = newCountryCode
+        self.country_code = new_country_code
 
-    def setCity(self, newCity):
+    def set_city(self, new_city):
         """Sets the city of the location entry"""
-        self.mType = self.TYPE_CITY
-        self.mCityName = newCity
+        self.type = self.TYPE_CITY
+        self.city_name = new_city
 
-    def setCoords(self, latitude, longitude):
+    def set_coords(self, latitude, longitude):
         """Sets the coordinates of the location entry"""
-        self.mType = self.TYPE_COORDS
-        self.mLatitude = latitude
-        self.mLongitude = longitude
+        self.type = self.TYPE_COORDS
+        self.latitude = latitude
+        self.longitude = longitude
 
-    def setZipCode(self, newZip):
+    def set_zip_code(self, new_zip):
         """Sets the zip code of the location entry"""
-        self.mType = self.TYPE_ZIP
-        self.mZipCode = newZip
+        self.type = self.TYPE_ZIP
+        self.zip_code = new_zip
 
-    def setFromInput(self, inputLine):
+    def set_from_input(self, input_line):
         # Check if zip code is given
-        if re.match(r'^\d{5}(?:[-\s]\d{4})?$', inputLine):
-            self.setZipCode(inputLine)
-            return "Set location for " + self.mUser + " as zip code: " + inputLine
+        if re.match(r'^\d{5}(?:[-\s]\d{4})?$', input_line):
+            self.set_zip_code(input_line)
+            return "Set location for " + self.user_name + " as zip code: " + input_line
         # Check if coordinates are given
-        coordMatch = re.match(r'^(\-?\d+(\.\d+)?)[ ,]*(\-?\d+(\.\d+)?)$', inputLine)
-        if coordMatch:
-            newLat = coordMatch.group(1)
-            newLong = coordMatch.group(3)
-            self.setCoords(newLat, newLong)
-            return "Set location for " + self.mUser + " as coords: " + newLat + ", " + newLong
+        coord_match = re.match(r'^(\-?\d+(\.\d+)?)[ ,]*(\-?\d+(\.\d+)?)$', input_line)
+        if coord_match:
+            new_lat = coord_match.group(1)
+            new_long = coord_match.group(3)
+            self.set_coords(new_lat, new_long)
+            return "Set location for " + self.user_name + " as coords: " + new_lat + ", " + new_long
         # Otherwise, assume it's a city
-        newCity = inputLine
-        self.setCity(newCity)
-        return "Set location for " + self.mUser + " as city: " + newCity
+        new_city = input_line
+        self.set_city(new_city)
+        return "Set location for " + self.user_name + " as city: " + new_city
 
-    def createQueryParams(self):
+    def create_query_params(self):
         """Creates query parameters for API call."""
-        if self.getType() == self.TYPE_CITY:
-            query = "?q=" + self.mCityName.replace(" ", "+")
-            if self.mCountryCode is not None:
-                query += "," + self.mCountryCode
+        if self.get_type() == self.TYPE_CITY:
+            query = "?q=" + self.city_name.replace(" ", "+")
+            if self.country_code is not None:
+                query += "," + self.country_code
             return query
-        if self.getType() == self.TYPE_COORDS:
-            query = "?lat=" + self.mLatitude + "&lon=" + self.mLongitude
+        if self.get_type() == self.TYPE_COORDS:
+            query = "?lat=" + self.latitude + "&lon=" + self.longitude
             return query
-        if self.getType() == self.TYPE_ZIP:
-            query = "?zip=" + self.mZipCode
-            if self.mCountryCode is not None:
-                query += "," + self.mCountryCode
+        if self.get_type() == self.TYPE_ZIP:
+            query = "?zip=" + self.zip_code
+            if self.country_code is not None:
+                query += "," + self.country_code
             return query
 
     @staticmethod
-    def fromXml(xmlString):
+    def from_xml(xml_string):
         # Load document
-        doc = minidom.parseString(xmlString)
+        doc = minidom.parseString(xml_string)
         # Get server and username and create entry
-        newServer = doc.getElementsByTagName("server")[0].firstChild.data
-        newUser = doc.getElementsByTagName("user")[0].firstChild.data
-        newEntry = WeatherLocationEntry(newServer, newUser)
+        new_server = doc.getElementsByTagName("server")[0].firstChild.data
+        new_user = doc.getElementsByTagName("user")[0].firstChild.data
+        new_entry = WeatherLocationEntry(new_server, new_user)
         # Get country code, if applicable
         if len(doc.getElementsByTagName("country_code")) > 0:
-            newCountryCode = doc.getElementsByTagName("country_code")[0].firstChild.data
-            newEntry.setCountryCode(newCountryCode)
+            new_country_code = doc.getElementsByTagName("country_code")[0].firstChild.data
+            new_entry.set_country_code(new_country_code)
         # Check if entry is a city name
         if len(doc.getElementsByTagName("city_name")) > 0:
-            newCity = doc.getElementsByTagName("city_name")[0].firstChild.data
-            newEntry.setCity(newCity)
+            new_city = doc.getElementsByTagName("city_name")[0].firstChild.data
+            new_entry.set_city(new_city)
         # Check if entry is coordinates
         if len(doc.getElementsByTagName("coords")) > 0:
-            newLat = doc.getElementsByTagName("latitude")[0].firstChild.data
-            newLong = doc.getElementsByTagName("longitude")[0].firstChild.data
-            newEntry.setCoords(newLat, newLong)
+            new_lat = doc.getElementsByTagName("latitude")[0].firstChild.data
+            new_long = doc.getElementsByTagName("longitude")[0].firstChild.data
+            new_entry.set_coords(new_lat, new_long)
         # Check if entry is zip code
         if len(doc.getElementsByTagName("zip_code")) > 0:
-            newZip = doc.getElementsByTagName("zip_code")[0].firstChild.data
-            newEntry.setZipCode(newZip)
+            new_zip = doc.getElementsByTagName("zip_code")[0].firstChild.data
+            new_entry.set_zip_code(new_zip)
         # Return entry
-        return newEntry
+        return new_entry
 
-    def toXml(self):
+    def to_xml(self):
         """Writes out Entry as XML"""
         # Create document
         doc = minidom.Document()
@@ -469,36 +468,36 @@ class WeatherLocationEntry:
         root = doc.createElement("weather_location")
         doc.appendChild(root)
         # Add server element
-        serverElement = doc.createElement("server")
-        serverElement.appendChild(doc.createTextNode(self.mServer))
-        root.appendChild(serverElement)
+        server_elem = doc.createElement("server")
+        server_elem.appendChild(doc.createTextNode(self.server_name))
+        root.appendChild(server_elem)
         # Add user element
-        userElement = doc.createElement("user")
-        userElement.appendChild(doc.createTextNode(self.mUser))
-        root.appendChild(userElement)
+        user_elem = doc.createElement("user")
+        user_elem.appendChild(doc.createTextNode(self.user_name))
+        root.appendChild(user_elem)
         # Add country code, if set
-        if self.mCountryCode is not None:
-            countryCodeElement = doc.createElement("country_code")
-            countryCodeElement.appendChild(doc.createTextNode(self.mCountryCode))
-            root.appendChild(countryCodeElement)
+        if self.country_code is not None:
+            country_code_elem = doc.createElement("country_code")
+            country_code_elem.appendChild(doc.createTextNode(self.country_code))
+            root.appendChild(country_code_elem)
         # Depending on type, add relevant elements
-        if self.mType == self.TYPE_CITY:
-            cityElement = doc.createElement("city_name")
-            cityElement.appendChild(doc.createTextNode(self.mCityName))
-            root.appendChild(cityElement)
-        elif self.mType == self.TYPE_COORDS:
-            coordsElement = doc.createElement("coords")
-            latElement = doc.createElement("latitude")
-            latElement.appendChild(doc.createTextNode(self.mLatitude))
-            coordsElement.appendChild(latElement)
-            longElement = doc.createElement("longitude")
-            longElement.appendChild(doc.createTextNode(self.mLongitude))
-            coordsElement.appendChild(longElement)
-            root.appendChild(coordsElement)
-        elif self.mType == self.TYPE_ZIP:
-            zipElement = doc.createElement("zip_code")
-            zipElement.appendChild(doc.createTextNode(self.mZipCode))
-            root.appendChild(zipElement)
+        if self.type == self.TYPE_CITY:
+            city_elem = doc.createElement("city_name")
+            city_elem.appendChild(doc.createTextNode(self.city_name))
+            root.appendChild(city_elem)
+        elif self.type == self.TYPE_COORDS:
+            coords_elem = doc.createElement("coords")
+            lat_elem = doc.createElement("latitude")
+            lat_elem.appendChild(doc.createTextNode(self.latitude))
+            coords_elem.appendChild(lat_elem)
+            long_elem = doc.createElement("longitude")
+            long_elem.appendChild(doc.createTextNode(self.longitude))
+            coords_elem.appendChild(long_elem)
+            root.appendChild(coords_elem)
+        elif self.type == self.TYPE_ZIP:
+            zip_elem = doc.createElement("zip_code")
+            zip_elem.appendChild(doc.createTextNode(self.zip_code))
+            root.appendChild(zip_elem)
         # Output XML
         return doc.toxml()
 
@@ -507,42 +506,42 @@ class WeatherLocation(Function):
     """
     Sets the location of user for Weather functions.
     """
-    # Name for use in help listing
-    help_name = "weather location"
-    # Names which can be used to address the function
-    names = {"weather location", "weather location set", "set weather location", "weather set location"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Sets a user's location for weather-related functions"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "weather location"
+        # Names which can be used to address the function
+        self.names = {"weather location", "weather location set", "set weather location", "weather set location"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Sets a user's location for weather-related functions"
 
     def run(self, line, user_obj, destination_obj=None):
-        lineClean = line.strip().lower()
+        line_clean = line.strip().lower()
         # Load up Weather locations repo
-        weatherRepo = WeatherLocationRepo.loadFromXml()
-        userName = user_obj.get_name()
-        serverObj = user_obj.get_server()
-        serverName = serverObj.get_name()
+        weather_repo = WeatherLocationRepo.load_from_xml()
+        user_name = user_obj.get_name()
+        server_obj = user_obj.get_server()
+        server_name = server_obj.get_name()
         # Check that an argument is provided
-        if len(lineClean.split()) == 0:
+        if len(line_clean.split()) == 0:
             return "Please specify a city, coordinates or zip code"
         # Check if first argument is a specified user for given server
-        firstArg = lineClean.split()[0]
-        testUser = serverObj.get_user_by_name(firstArg)
+        first_arg = line_clean.split()[0]
+        test_user = server_obj.get_user_by_name(first_arg)
         if destination_obj is not None and destination_obj.is_channel():
-            if destination_obj.is_user_in_channel(testUser):
-                userName = testUser.get_name()
-                lineClean = lineClean[len(firstArg):].strip()
+            if destination_obj.is_user_in_channel(test_user):
+                user_name = test_user.get_name()
+                line_clean = line_clean[len(first_arg):].strip()
         # Create entry
-        newEntry = WeatherLocationEntry(serverName, userName)
+        new_entry = WeatherLocationEntry(server_name, user_name)
         # Set Entry location by input
-        output = newEntry.setFromInput(lineClean)
-        weatherRepo.addEntry(newEntry)
-        weatherRepo.saveToXml()
+        output = new_entry.set_from_input(line_clean)
+        weather_repo.add_entry(new_entry)
+        weather_repo.save_to_xml()
         return output
 
 
@@ -550,59 +549,60 @@ class CurrentWeather(Function):
     """
     Returns the current weather in your location, or asks for your location.
     """
-    # Name for use in help listing
-    help_name = "current weather"
-    # Names which can be used to address the function
-    names = {"current weather", "weather current", "current weather in"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Returns the current weather in your location (if known) or in provided location."
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "current weather"
+        # Names which can be used to address the function
+        self.names = {"current weather", "weather current", "current weather in"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Returns the current weather in your location (if known) or in provided location."
 
     def run(self, line, user_obj, destination_obj=None):
-        lineClean = line.strip().lower()
-        if lineClean == "":
-            locationRepo = WeatherLocationRepo.loadFromXml()
-            locationEntry = locationRepo.getEntryByUserObject(user_obj)
-            if locationEntry is None:
+        line_clean = line.strip().lower()
+        if line_clean == "":
+            location_repo = WeatherLocationRepo.load_from_xml()
+            location_entry = location_repo.get_entry_by_user_obj(user_obj)
+            if location_entry is None:
                 return "No location stored for this user. Please specify a location or store one with " \
                        "the \"weather location\" function."
         else:
             # Check if a user was specified
-            testUser = user_obj.get_server().get_user_by_name(lineClean)
+            test_user = user_obj.get_server().get_user_by_name(line_clean)
             if (destination_obj is not None and destination_obj.is_channel() and destination_obj.is_user_in_channel(
-                    testUser)):
-                locationRepo = WeatherLocationRepo.loadFromXml()
-                locationEntry = locationRepo.getEntryByUserObject(testUser)
-                if locationEntry is None:
+                    test_user)):
+                location_repo = WeatherLocationRepo.load_from_xml()
+                location_entry = location_repo.get_entry_by_user_obj(test_user)
+                if location_entry is None:
                     return "No location stored for this user. Please specify a location or store one with " \
                            "the \"weather location\" function."
             else:
-                userName = user_obj.get_name()
-                serverName = user_obj.get_server().get_name()
-                locationEntry = WeatherLocationEntry(userName, serverName)
-                locationEntry.setFromInput(lineClean)
-        apiKey = user_obj.get_server().get_hallo().get_api_key("openweathermap")
-        if apiKey is None:
+                user_name = user_obj.get_name()
+                server_name = user_obj.get_server().get_name()
+                location_entry = WeatherLocationEntry(user_name, server_name)
+                location_entry.set_from_input(line_clean)
+        api_key = user_obj.get_server().get_hallo().get_api_key("openweathermap")
+        if api_key is None:
             return "No API key loaded for openweathermap."
-        url = "http://api.openweathermap.org/data/2.5/weather" + locationEntry.createQueryParams() + "&APPID=" + apiKey
+        url = "http://api.openweathermap.org/data/2.5/weather" + location_entry.create_query_params() + \
+              "&APPID=" + api_key
         response = Commons.load_url_json(url)
         if str(response['cod']) != "200":
             return "Location not recognised."
-        cityName = response['name']
-        weatherMain = response['weather'][0]['main']
-        weatherDesc = response['weather'][0]['description']
-        weatherTemp = response['main']['temp'] - 273.15
-        weatherHumidity = response['main']['humidity']
-        weatherWindSpeed = response['wind']['speed']
-        output = "Current weather in " + cityName + " is " + weatherMain + " (" + weatherDesc + "). "
-        output += "Temp: " + "{0:.2f}".format(weatherTemp) + "C, "
-        output += "Humidity: " + str(weatherHumidity) + "%, "
-        output += "Wind speed: " + str(weatherWindSpeed) + "m/s"
+        city_name = response['name']
+        weather_main = response['weather'][0]['main']
+        weather_desc = response['weather'][0]['description']
+        weather_temp = response['main']['temp'] - 273.15
+        weather_humidity = response['main']['humidity']
+        weather_wind_speed = response['wind']['speed']
+        output = "Current weather in " + city_name + " is " + weather_main + " (" + weather_desc + "). "
+        output += "Temp: " + "{0:.2f}".format(weather_temp) + "C, "
+        output += "Humidity: " + str(weather_humidity) + "%, "
+        output += "Wind speed: " + str(weather_wind_speed) + "m/s"
         return output
 
 
@@ -610,176 +610,175 @@ class Weather(Function):
     """
     Currently returns a random weather phrase. In future perhaps nightvale weather?
     """
-    # Name for use in help listing
-    help_name = "weather"
-    # Names which can be used to address the function
-    names = {"weather", "weather in"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Random weather"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "weather"
+        # Names which can be used to address the function
+        self.names = {"weather", "weather in"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Random weather"
 
     def run(self, line, user_obj, destination_obj=None):
-        lineClean = line.strip().lower()
-        regexFluff = re.compile(r'\b(for|[io]n)\b')
+        line_clean = line.strip().lower()
+        regex_fluff = re.compile(r'\b(for|[io]n)\b')
         # Clear input fluff
-        lineClean = regexFluff.sub("", lineClean).strip()
+        line_clean = regex_fluff.sub("", line_clean).strip()
         # Hunt for the days offset
-        daysOffset = 0
-        regexNow = re.compile(r'(now|current(ly)?|today)')
-        regexTomorrow = re.compile(r'(to|the\s+)morrow')
-        regexWeekday = re.compile(
+        days_offset = 0
+        regex_now = re.compile(r'(now|current(ly)?|today)')
+        regex_tomorrow = re.compile(r'(to|the\s+)morrow')
+        regex_weekday = re.compile(
             r'\b(this\s+|next\s+|)(mo(n(day)?)?|tu(e(s(day)?)?)?|we(d(nesday)?)?|th(u(r(sday)?)?)?|' +
             r'fr(i(day)?)?|sa(t(urday)?)?|su(n(day)?)?)\b')
-        regexDays = re.compile(r'(([0-9]+)\s*d(ays?)?)')
-        regexWeeks = re.compile(r'(([0-9]+)\s*w(eeks?)?)')
-        if regexNow.search(lineClean):
-            daysOffset = 0
-            lineClean = regexNow.sub("", lineClean).strip()
-        elif regexTomorrow.search(lineClean):
-            daysOffset = 1
-            lineClean = regexTomorrow.sub("", lineClean).strip()
-        elif regexWeekday.search(lineClean):
-            match = regexWeekday.search(lineClean)
-            currentWeekday = datetime.date.today().weekday()
-            specifiedWeekday = self.weekdayToNumber(match.group(2))
-            daysOffset = (specifiedWeekday - currentWeekday) % 7
-            lineClean = regexWeekday.sub("", lineClean).strip()
-        elif regexDays.search(lineClean):
-            match = regexDays.search(lineClean)
-            daysOffset = int(match.group(2))
-            lineClean = regexDays.sub("", lineClean).strip()
-        elif regexWeeks.search(lineClean):
-            match = regexWeeks.search(lineClean)
-            daysOffset = 7 * int(match.group(2))
-            lineClean = regexWeeks.sub("", lineClean).strip()
+        regex_days = re.compile(r'(([0-9]+)\s*d(ays?)?)')
+        regex_weeks = re.compile(r'(([0-9]+)\s*w(eeks?)?)')
+        if regex_now.search(line_clean):
+            days_offset = 0
+            line_clean = regex_now.sub("", line_clean).strip()
+        elif regex_tomorrow.search(line_clean):
+            days_offset = 1
+            line_clean = regex_tomorrow.sub("", line_clean).strip()
+        elif regex_weekday.search(line_clean):
+            match = regex_weekday.search(line_clean)
+            current_weekday = datetime.date.today().weekday()
+            specified_weekday = self.weekday_to_number(match.group(2))
+            days_offset = (specified_weekday - current_weekday) % 7
+            line_clean = regex_weekday.sub("", line_clean).strip()
+        elif regex_days.search(line_clean):
+            match = regex_days.search(line_clean)
+            days_offset = int(match.group(2))
+            line_clean = regex_days.sub("", line_clean).strip()
+        elif regex_weeks.search(line_clean):
+            match = regex_weeks.search(line_clean)
+            days_offset = 7 * int(match.group(2))
+            line_clean = regex_weeks.sub("", line_clean).strip()
         # Figure out if a user or city was specified
-        if lineClean == "":
-            weatherRepo = WeatherLocationRepo.loadFromXml()
-            locationEntry = weatherRepo.getEntryByUserObject(user_obj)
-            if locationEntry is None:
+        if line_clean == "":
+            weather_repo = WeatherLocationRepo.load_from_xml()
+            location_entry = weather_repo.get_entry_by_user_obj(user_obj)
+            if location_entry is None:
                 return "No location stored for this user. Please specify a location or store one with " \
                        "the \"weather location\" function."
         else:
-            testUser = user_obj.get_server().get_user_by_name(lineClean)
+            test_user = user_obj.get_server().get_user_by_name(line_clean)
             if (destination_obj is not None and destination_obj.is_channel() and destination_obj.is_user_in_channel(
-                    testUser)):
-                weatherRepo = WeatherLocationRepo.loadFromXml()
-                locationEntry = weatherRepo.getEntryByUserObject(testUser)
-                if locationEntry is None:
+                    test_user)):
+                weather_repo = WeatherLocationRepo.load_from_xml()
+                location_entry = weather_repo.get_entry_by_user_obj(test_user)
+                if location_entry is None:
                     return "No location stored for this user. Please specify a location or store one with " \
                            "the \"weather location\" function."
             else:
-                userName = user_obj.get_name()
-                serverName = user_obj.get_server().get_name()
-                locationEntry = WeatherLocationEntry(userName, serverName)
-                locationEntry.setFromInput(lineClean)
+                user_name = user_obj.get_name()
+                server_name = user_obj.get_server().get_name()
+                location_entry = WeatherLocationEntry(user_name, server_name)
+                location_entry.set_from_input(line_clean)
         # Get API response
-        apiKey = user_obj.get_server().get_hallo().get_api_key("openweathermap")
-        if apiKey is None:
+        api_key = user_obj.get_server().get_hallo().get_api_key("openweathermap")
+        if api_key is None:
             return "No API key loaded for openweathermap."
-        url = "http://api.openweathermap.org/data/2.5/forecast/daily" + locationEntry.createQueryParams() + \
-              "&cnt=16&APPID=" + apiKey
+        url = "http://api.openweathermap.org/data/2.5/forecast/daily" + location_entry.create_query_params() + \
+              "&cnt=16&APPID=" + api_key
         response = Commons.load_url_json(url)
         # Check API responded well
         if str(response['cod']) != "200":
             return "Location not recognised."
         # Check that days is within bounds for API response
-        daysAvailable = len(response['list'])
-        if daysOffset > daysAvailable:
+        days_available = len(response['list'])
+        if days_offset > days_available:
             return "I cannot predict the weather that far in the future. I can't predict much further than 2 weeks."
         # Format and return output
-        cityName = response['city']['name']
-        if daysOffset == 0:
-            todayMain = response['list'][0]['weather'][0]['main']
-            todayDesc = response['list'][0]['weather'][0]['description']
-            todayTemp = response['list'][0]['temp']['day'] - 273.15
-            todayHumi = response['list'][0]['humidity']
-            todaySpee = response['list'][0]['speed']
-            tomorMain = response['list'][1]['weather'][0]['main']
-            tomorDesc = response['list'][1]['weather'][0]['description']
-            tomorTemp = response['list'][1]['temp']['day'] - 273.15
-            tomorHumi = response['list'][1]['humidity']
-            tomorSpee = response['list'][1]['speed']
-            dayafMain = response['list'][2]['weather'][0]['main']
-            dayafDesc = response['list'][2]['weather'][0]['description']
-            dayafTemp = response['list'][2]['temp']['day'] - 273.15
-            dayafHumi = response['list'][2]['humidity']
-            dayafSpee = response['list'][2]['speed']
-            output = "Weather in " + cityName + " today will be " + todayMain + " (" + todayDesc + ") "
-            output += "Temp: " + "{0:.2f}".format(todayTemp) + "C, "
-            output += "Humidity: " + str(todayHumi) + "%, "
-            output += "Wind speed: " + str(todaySpee) + "m/s. "
+        city_name = response['city']['name']
+        if days_offset == 0:
+            today_main = response['list'][0]['weather'][0]['main']
+            today_desc = response['list'][0]['weather'][0]['description']
+            today_temp = response['list'][0]['temp']['day'] - 273.15
+            today_humi = response['list'][0]['humidity']
+            today_spee = response['list'][0]['speed']
+            tomor_main = response['list'][1]['weather'][0]['main']
+            tomor_desc = response['list'][1]['weather'][0]['description']
+            tomor_temp = response['list'][1]['temp']['day'] - 273.15
+            tomor_humi = response['list'][1]['humidity']
+            tomor_spee = response['list'][1]['speed']
+            dayaf_main = response['list'][2]['weather'][0]['main']
+            dayaf_desc = response['list'][2]['weather'][0]['description']
+            dayaf_temp = response['list'][2]['temp']['day'] - 273.15
+            dayaf_humi = response['list'][2]['humidity']
+            dayaf_spee = response['list'][2]['speed']
+            output = "Weather in " + city_name + " today will be " + today_main + " (" + today_desc + ") "
+            output += "Temp: " + "{0:.2f}".format(today_temp) + "C, "
+            output += "Humidity: " + str(today_humi) + "%, "
+            output += "Wind speed: " + str(today_spee) + "m/s. "
             # Add tomorrow output
-            output += "Tomorrow: " + tomorMain + " (" + tomorDesc + ") "
-            output += "{0:.2f}".format(tomorTemp) + "C "
-            output += str(tomorHumi) + "% "
-            output += str(tomorSpee) + "m/s. "
+            output += "Tomorrow: " + tomor_main + " (" + tomor_desc + ") "
+            output += "{0:.2f}".format(tomor_temp) + "C "
+            output += str(tomor_humi) + "% "
+            output += str(tomor_spee) + "m/s. "
             # Day after output
-            output += "Day after: " + dayafMain + " (" + dayafDesc + ") "
-            output += "{0:.2f}".format(dayafTemp) + "C "
-            output += str(dayafHumi) + "% "
-            output += str(dayafSpee) + "m/s."
+            output += "Day after: " + dayaf_main + " (" + dayaf_desc + ") "
+            output += "{0:.2f}".format(dayaf_temp) + "C "
+            output += str(dayaf_humi) + "% "
+            output += str(dayaf_spee) + "m/s."
             return output
-        responseWeather = response['list'][daysOffset]
-        weatherMain = responseWeather['weather'][0]['main']
-        weatherDesc = responseWeather['weather'][0]['description']
-        weatherTemp = responseWeather['temp']['day'] - 273.15
-        weatherHumidity = responseWeather['humidity']
-        weatherWindSpeed = responseWeather['speed']
-        output = "Weather in " + cityName + " " + self.numberDays(
-            daysOffset) + " will be " + weatherMain + " (" + weatherDesc + "). "
-        output += "Temp: " + "{0:.2f}".format(weatherTemp) + "C, "
-        output += "Humidity: " + str(weatherHumidity) + "%, "
-        output += "Wind speed: " + str(weatherWindSpeed) + "m/s"
+        response_weather = response['list'][days_offset]
+        weather_main = response_weather['weather'][0]['main']
+        weather_desc = response_weather['weather'][0]['description']
+        weather_temp = response_weather['temp']['day'] - 273.15
+        weather_humidity = response_weather['humidity']
+        weather_wind_speed = response_weather['speed']
+        output = "Weather in " + city_name + " " + self.number_days(
+            days_offset) + " will be " + weather_main + " (" + weather_desc + "). "
+        output += "Temp: " + "{0:.2f}".format(weather_temp) + "C, "
+        output += "Humidity: " + str(weather_humidity) + "%, "
+        output += "Wind speed: " + str(weather_wind_speed) + "m/s"
         return output
 
-    def weekdayToNumber(self, weekday):
+    def weekday_to_number(self, weekday):
         """Converts weekday text to integer. Monday = 0"""
-        weekdayClean = weekday.lower().strip()
-        weekdayRegexList = [re.compile(r'mo(n(day)?)?'),
-                            re.compile(r'tu(e(s(day)?)?)?'),
-                            re.compile(r'we(d(nesday)?)?'),
-                            re.compile(r'th(u(r(sday)?)?)?'),
-                            re.compile(r'fr(i(day)?)?'),
-                            re.compile(r'sa(t(urday)?)?'),
-                            re.compile(r'su(n(day)?)?')]
-        for weekdayInt in range(len(weekdayRegexList)):
-            weekdayRegex = weekdayRegexList[weekdayInt]
-            if weekdayRegex.match(weekdayClean):
-                return weekdayInt
+        weekday_clean = weekday.lower().strip()
+        weekday_regex_list = [re.compile(r'mo(n(day)?)?'),
+                              re.compile(r'tu(e(s(day)?)?)?'),
+                              re.compile(r'we(d(nesday)?)?'),
+                              re.compile(r'th(u(r(sday)?)?)?'),
+                              re.compile(r'fr(i(day)?)?'),
+                              re.compile(r'sa(t(urday)?)?'),
+                              re.compile(r'su(n(day)?)?')]
+        for weekday_int in range(len(weekday_regex_list)):
+            weekday_regex = weekday_regex_list[weekday_int]
+            if weekday_regex.match(weekday_clean):
+                return weekday_int
         return None
 
-    def numberDays(self, daysOffset):
-        if daysOffset == 0:
+    def number_days(self, days_offset):
+        if days_offset == 0:
             return "today"
-        if daysOffset == 1:
+        if days_offset == 1:
             return "tomorrow"
-        return "in " + str(daysOffset) + " days"
+        return "in " + str(days_offset) + " days"
 
 
 class UrlDetect(Function):
     """
     URL detection and title printing.
     """
-    # Name for use in help listing
-    help_name = "urldetect"
-    # Names which can be used to address the function
-    names = {"urldetect"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "URL detection."
-
-    mHalloObject = None
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "urldetect"
+        # Names which can be used to address the function
+        self.names = {"urldetect"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "URL detection."
+        self.hallo_obj = None
 
     def run(self, line, user_obj, destination_obj=None):
         return "This function does not take input."
@@ -791,332 +790,349 @@ class UrlDetect(Function):
     def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         # Get hallo object for stuff to use
-        self.mHalloObject = server_obj.get_hallo()
+        self.hallo_obj = server_obj.get_hallo()
         # Search for a link
-        urlRegex = re.compile(r'\b((https?://|www.)[-A-Z0-9+&?%@#/=~_|$:,.]*[A-Z0-9+&@#/%=~_|$])', re.I)
-        urlSearch = urlRegex.search(full_line)
-        if not urlSearch:
+        url_regex = re.compile(r'\b((https?://|www.)[-A-Z0-9+&?%@#/=~_|$:,.]*[A-Z0-9+&@#/%=~_|$])', re.I)
+        url_search = url_regex.search(full_line)
+        if not url_search:
             return None
         # Get link address
-        urlAddress = urlSearch.group(1)
+        url_address = url_search.group(1)
         # Add protocol if missing
-        if "://" not in urlAddress:
-            urlAddress = "http://" + urlAddress
+        if "://" not in url_address:
+            url_address = "http://" + url_address
         # Ignore local links.
-        if '127.0.0.1' in urlAddress or '192.168.' in urlAddress or '10.' in urlAddress or '172.' in urlAddress:
+        if '127.0.0.1' in url_address or '192.168.' in url_address or '10.' in url_address or '172.' in url_address:
             return None
         # Get page info
-        pageRequest = urllib.request.Request(urlAddress)
-        pageRequest.add_header('User-Agent', 'Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-        pageOpener = urllib.request.build_opener()
-        pageInfo = str(pageOpener.open(pageRequest).info())
-        if "Content-Type:" in pageInfo:
-            pageType = pageInfo.split()[pageInfo.split().index('Content-Type:') + 1]
+        page_request = urllib.request.Request(url_address)
+        page_request.add_header('User-Agent', 'Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+        page_opener = urllib.request.build_opener()
+        page_info = str(page_opener.open(page_request).info())
+        if "Content-Type:" in page_info:
+            page_type = page_info.split()[page_info.split().index('Content-Type:') + 1]
         else:
-            pageType = ''
+            page_type = ''
         # Get the website name
-        urlSite = Commons.get_domain_name(urlAddress).lower()
+        url_site = Commons.get_domain_name(url_address).lower()
         # Get response if link is an image
-        if "image" in pageType:
-            return self.urlImage(urlAddress, pageOpener, pageRequest, pageType)
+        if "image" in page_type:
+            return self.url_image(url_address, page_opener, page_request, page_type)
         # Get a response depending on the website
-        if urlSite == "amazon":
-            return self.siteAmazon(urlAddress, pageOpener, pageRequest)
-        if urlSite == "e621":
-            return self.siteE621(urlAddress, pageOpener, pageRequest)
-        if urlSite == "ebay":
-            return self.siteEbay(urlAddress, pageOpener, pageRequest)
-        if urlSite == "f-list":
-            return self.siteFList(urlAddress, pageOpener, pageRequest)
-        if urlSite == "furaffinity" or urlSite == "facdn":
-            return self.siteFuraffinity(urlAddress, pageOpener, pageRequest)
-        if urlSite == "imdb":
-            return self.siteImdb(urlAddress, pageOpener, pageRequest)
-        if urlSite == "imgur":
-            return self.siteImgur(urlAddress, pageOpener, pageRequest)
-        if urlSite == "speedtest":
-            return self.siteSpeedtest(urlAddress, pageOpener, pageRequest)
-        if urlSite == "reddit" or urlSite == "redd":
-            return self.siteReddit(urlAddress, pageOpener, pageRequest)
-        if urlSite == "wikipedia":
-            return self.siteWikipedia(urlAddress, pageOpener, pageRequest)
-        if urlSite == "youtube" or urlSite == "youtu":
-            return self.siteYoutube(urlAddress, pageOpener, pageRequest)
+        if url_site == "amazon":
+            return self.site_amazon(url_address, page_opener, page_request)
+        if url_site == "e621":
+            return self.site_e621(url_address, page_opener, page_request)
+        if url_site == "ebay":
+            return self.site_ebay(url_address, page_opener, page_request)
+        if url_site == "f-list":
+            return self.site_flist(url_address, page_opener, page_request)
+        if url_site == "furaffinity" or url_site == "facdn":
+            return self.site_furaffinity(url_address, page_opener, page_request)
+        if url_site == "imdb":
+            return self.site_imdb(url_address, page_opener, page_request)
+        if url_site == "imgur":
+            return self.site_imgur(url_address, page_opener, page_request)
+        if url_site == "speedtest":
+            return self.site_speedtest(url_address, page_opener, page_request)
+        if url_site == "reddit" or url_site == "redd":
+            return self.site_reddit(url_address, page_opener, page_request)
+        if url_site == "wikipedia":
+            return self.site_wikipedia(url_address, page_opener, page_request)
+        if url_site == "youtube" or url_site == "youtu":
+            return self.site_youtube(url_address, page_opener, page_request)
         # If other url, return generic URL response
-        return self.urlGeneric(urlAddress, pageOpener, pageRequest)
+        return self.url_generic(url_address, page_opener, page_request)
 
-    def urlImage(self, urlAddress, pageOpener, pageRequest, pageType):
+    def url_image(self, url_address, page_opener, page_request, page_type):
         """Handling direct image links"""
         # Get the website name
-        urlSite = Commons.get_domain_name(urlAddress).lower()
+        url_site = Commons.get_domain_name(url_address).lower()
         # If website name is speedtest or imgur, hand over to those handlers
-        if urlSite == "speedtest":
-            return self.siteSpeedtest(urlAddress, pageOpener, pageType)
-        if urlSite == "imgur":
-            return self.siteImgur(urlAddress, pageOpener, pageType)
+        if url_site == "speedtest":
+            return self.site_speedtest(url_address, page_opener, page_type)
+        if url_site == "imgur":
+            return self.site_imgur(url_address, page_opener, page_type)
         # Image handling
-        imageData = pageOpener.open(pageRequest).read()
-        imageWidth, imageHeight = self.getImageSize(imageData)
-        imageSize = len(imageData)
-        imageSizeStr = self.fileSizeToString(imageSize)
-        return "Image: " + pageType + " (" + str(imageWidth) + "px by " + str(imageHeight) + "px) " + imageSizeStr + "."
+        image_data = page_opener.open(page_request).read()
+        image_width, image_height = self.get_image_size(image_data)
+        image_size = len(image_data)
+        image_size_str = self.file_size_to_string(image_size)
+        return "Image: " + page_type + " (" + str(image_width) + "px by " + str(image_height) + "px) " + \
+               image_size_str + "."
 
-    def urlGeneric(self, urlAddress, pageOpener, pageRequest):
+    def url_generic(self, url_address, page_opener, page_request):
         """Handling for generic links not caught by any other url handling function."""
-        pageCode = pageOpener.open(pageRequest).read(4096).decode('utf-8', 'ignore')
-        if pageCode.count('</title>') == 0:
+        page_code = page_opener.open(page_request).read(4096).decode('utf-8', 'ignore')
+        if page_code.count('</title>') == 0:
             return None
-        titleSearch = re.search('<title[^>]*>([^<]*)</title>', pageCode, re.I)
-        if titleSearch is None:
+        title_search = re.search('<title[^>]*>([^<]*)</title>', page_code, re.I)
+        if title_search is None:
             return None
-        titleText = titleSearch.group(1)
-        titleClean = html.unescape(titleText).replace("\n", "").strip()
-        if titleClean != "":
-            return "URL title: " + titleClean.replace("\n", "")
+        title_text = title_search.group(1)
+        title_clean = self.html_unescape(title_text).replace("\n", "").strip()
+        if title_clean != "":
+            return "URL title: " + title_clean.replace("\n", "")
         return None
 
-    def siteAmazon(self, urlAddress, pageOpener, pageRequest):
+    def html_unescape(self, html_str):
+        """
+        :param html_str: HTML string to parse
+        :type html_str: str
+        :return: str
+        """
+        try:
+            # noinspection PyUnresolvedReferences
+            return html.unescape(html_str)
+        except AttributeError:
+            html_parser = html.parser.HTMLParser()
+            return html_parser.unescape(html_str)
+
+    def site_amazon(self, url_address, page_opener, page_request):
         """Handling for amazon links"""
         # I spent ages trying to figure out the amazon API, and I gave up.
         # TODO: write amazon link handler
-        return self.urlGeneric(urlAddress, pageOpener, pageRequest)
+        return self.url_generic(url_address, page_opener, page_request)
 
-    def siteE621(self, urlAddress, pageOpener, pageRequest):
+    def site_e621(self, url_address, page_opener, page_request):
         """Handling for e621 links"""
         # TODO: write e621 link handler
-        return self.urlGeneric(urlAddress, pageOpener, pageRequest)
+        return self.url_generic(url_address, page_opener, page_request)
 
-    def siteEbay(self, urlAddress, pageOpener, pageRequest):
+    def site_ebay(self, url_address, page_opener, page_request):
         """Handling for ebay links"""
         # Get the ebay item id
-        itemId = urlAddress.split("/")[-1]
-        apiKey = self.mHalloObject.get_api_key("ebay")
-        if apiKey is None:
+        item_id = url_address.split("/")[-1]
+        api_key = self.hallo_obj.get_api_key("ebay")
+        if api_key is None:
             return None
         # Get API response
-        apiUrl = "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid=" + apiKey + \
-                 "&siteid=0&version=515&ItemID=" + itemId + "&IncludeSelector=Details"
-        apiDict = Commons.load_url_json(apiUrl)
+        api_url = "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid=" + api_key + \
+                  "&siteid=0&version=515&ItemID=" + item_id + "&IncludeSelector=Details"
+        api_dict = Commons.load_url_json(api_url)
         # Get item data from api response
-        itemTitle = apiDict["Item"]["Title"]
-        itemPrice = str(apiDict["Item"]["CurrentPrice"]["Value"]) + " " + apiDict["Item"]["CurrentPrice"]["CurrencyID"]
-        itemEndTime = apiDict["Item"]["EndTime"][:19].replace("T", " ")
+        item_title = api_dict["Item"]["Title"]
+        item_price = "" + str(api_dict["Item"]["CurrentPrice"]["Value"]) + " " + \
+                     api_dict["Item"]["CurrentPrice"]["CurrencyID"]
+        item_end_time = api_dict["Item"]["EndTime"][:19].replace("T", " ")
         # Start building output
-        output = "eBay> Title: " + itemTitle + " | "
-        output += "Price: " + itemPrice + " | "
+        output = "eBay> Title: " + item_title + " | "
+        output += "Price: " + item_price + " | "
         # Check listing type
-        if apiDict["Item"]["ListingType"] == "Chinese":
+        if api_dict["Item"]["ListingType"] == "Chinese":
             # Listing type: bidding
-            itemBidCount = str(apiDict["Item"]["BidCount"])
-            if itemBidCount == "1":
-                output += "Auction, " + str(itemBidCount) + " bid"
+            item_bid_count = str(api_dict["Item"]["BidCount"])
+            if item_bid_count == "1":
+                output += "Auction, " + str(item_bid_count) + " bid"
             else:
-                output += "Auction, " + str(itemBidCount) + " bids"
-        elif apiDict["Item"]["ListingType"] == "FixedPriceItem":
+                output += "Auction, " + str(item_bid_count) + " bids"
+        elif api_dict["Item"]["ListingType"] == "FixedPriceItem":
             # Listing type: buy it now
             output += "Buy it now | "
-        output += "Ends: " + itemEndTime
+        output += "Ends: " + item_end_time
         return output
 
-    def siteFList(self, urlAddress, pageOpener, pageRequest):
+    def site_flist(self, url_address, page_opener, page_request):
         """Handling for f-list links"""
         # TODO: write f-list link handler
-        return self.urlGeneric(urlAddress, pageOpener, pageRequest)
+        return self.url_generic(url_address, page_opener, page_request)
 
-    def siteFuraffinity(self, urlAddress, pageOpener, pageRequest):
+    def site_furaffinity(self, url_address, page_opener, page_request):
         """Handling for furaffinity links"""
         # TODO: write furaffinity link handler
-        return self.urlGeneric(urlAddress, pageOpener, pageRequest)
+        return self.url_generic(url_address, page_opener, page_request)
 
-    def siteImdb(self, urlAddress, pageOpener, pageRequest):
+    def site_imdb(self, url_address, page_opener, page_request):
         """Handling for imdb links"""
         # If URL isn't to an imdb title, just do normal url handling.
-        if 'imdb.com/title' not in urlAddress:
-            return self.urlGeneric(urlAddress, pageOpener, pageRequest)
+        if 'imdb.com/title' not in url_address:
+            return self.url_generic(url_address, page_opener, page_request)
         # Get the imdb movie ID
-        movieIdSearch = re.search('title/(tt[0-9]*)', urlAddress)
-        if movieIdSearch is None:
-            return self.urlGeneric(urlAddress, pageOpener, pageRequest)
-        movieId = movieIdSearch.group(1)
+        movie_id_search = re.search('title/(tt[0-9]*)', url_address)
+        if movie_id_search is None:
+            return self.url_generic(url_address, page_opener, page_request)
+        movie_id = movie_id_search.group(1)
         # Download API response
-        apiUrl = 'http://www.omdbapi.com/?i=' + movieId
-        apiDict = Commons.load_url_json(apiUrl)
+        api_url = 'http://www.omdbapi.com/?i=' + movie_id
+        api_dict = Commons.load_url_json(api_url)
         # Get movie information from API response
-        movieTitle = apiDict['Title']
-        movieYear = apiDict['Year']
-        movieGenre = apiDict['Genre']
-        movieRating = apiDict['imdbRating']
-        movieVotes = apiDict['imdbVotes']
+        movie_title = api_dict['Title']
+        movie_year = api_dict['Year']
+        movie_genre = api_dict['Genre']
+        movie_rating = api_dict['imdbRating']
+        movie_votes = api_dict['imdbVotes']
         # Construct output
-        output = "IMDB> Title: " + movieTitle + " (" + movieYear + ") | "
-        output += "Rating " + movieRating + "/10, " + movieVotes + " votes. | "
-        output += "Genres: " + movieGenre + "."
+        output = "IMDB> Title: " + movie_title + " (" + movie_year + ") | "
+        output += "Rating " + movie_rating + "/10, " + movie_votes + " votes. | "
+        output += "Genres: " + movie_genre + "."
         return output
 
-    def siteImgur(self, urlAddress, pageOpener, pageRequest):
+    def site_imgur(self, url_address, page_opener, page_request):
         """Handling imgur links"""
         # Hand off imgur album links to a different handler function.
-        if "/a/" in urlAddress:
-            return self.siteImgurAlbum(urlAddress, pageOpener, pageRequest)
+        if "/a/" in url_address:
+            return self.site_imgur_album(url_address, page_opener, page_request)
         # Handle individual imgur image links
         # Example imgur links: http://i.imgur.com/2XBqIIT.jpg http://imgur.com/2XBqIIT
-        imgurId = urlAddress.split('/')[-1].split('.')[0]
-        apiUrl = 'https://api.imgur.com/3/image/' + imgurId
+        imgur_id = url_address.split('/')[-1].split('.')[0]
+        api_url = 'https://api.imgur.com/3/image/' + imgur_id
         # Load API response (in json) using Client-ID.
-        apiKey = self.mHalloObject.get_api_key("imgur")
-        if apiKey is None:
+        api_key = self.hallo_obj.get_api_key("imgur")
+        if api_key is None:
             return None
-        apiDict = Commons.load_url_json(apiUrl, [['Authorization', apiKey]])
+        api_dict = Commons.load_url_json(api_url, [['Authorization', api_key]])
         # Get title, width, height, size, and view count from API data
-        imageTitle = str(apiDict['data']['title'])
-        imageWidth = str(apiDict['data']['width'])
-        imageHeight = str(apiDict['data']['height'])
-        imageSize = int(apiDict['data']['size'])
-        imageSizeString = self.fileSizeToString(imageSize)
-        imageViews = apiDict['data']['views']
+        image_title = str(api_dict['data']['title'])
+        image_width = str(api_dict['data']['width'])
+        image_height = str(api_dict['data']['height'])
+        image_size = int(api_dict['data']['size'])
+        image_size_string = self.file_size_to_string(image_size)
+        image_views = api_dict['data']['views']
         # Create output and return
-        output = "Imgur> Title: " + imageTitle + " | "
-        output += "Size: " + imageWidth + "x" + imageHeight + " | "
-        output += "Filesize: " + imageSizeString + " | "
-        output += "Views: " + "{:,}".format(imageViews) + "."
+        output = "Imgur> Title: " + image_title + " | "
+        output += "Size: " + image_width + "x" + image_height + " | "
+        output += "Filesize: " + image_size_string + " | "
+        output += "Views: " + "{:,}".format(image_views) + "."
         return output
 
-    def siteImgurAlbum(self, urlAddress, pageOpener, pageRequest):
+    def site_imgur_album(self, url_address, page_opener, page_request):
         """Handling imgur albums"""
         # http://imgur.com/a/qJctj#0 example imgur album
-        imgurId = urlAddress.split('/')[-1].split('#')[0]
-        apiUrl = 'https://api.imgur.com/3/album/' + imgurId
+        imgur_id = url_address.split('/')[-1].split('#')[0]
+        api_url = 'https://api.imgur.com/3/album/' + imgur_id
         # Load API response (in json) using Client-ID.
-        apiKey = self.mHalloObject.get_api_key("imgur")
-        if apiKey is None:
+        api_key = self.hallo_obj.get_api_key("imgur")
+        if api_key is None:
             return None
-        apiDict = Commons.load_url_json(apiUrl, [['Authorization', apiKey]])
+        api_dict = Commons.load_url_json(api_url, [['Authorization', api_key]])
         # Get album title and view count from API data
-        albumTitle = apiDict['data']['title']
-        albumViews = apiDict['data']['views']
+        album_title = api_dict['data']['title']
+        album_views = api_dict['data']['views']
         # Start on output
         output = "Imgur album> "
-        output += "Album title: " + albumTitle + " | "
-        output += "Gallery views: " + "{:,}".format(albumViews) + " | "
-        if 'section' in apiDict['data']:
-            albumSection = apiDict['data']['section']
-            output += "Section: " + albumSection + " | "
-        albumCount = apiDict['data']['images_count']
+        output += "Album title: " + album_title + " | "
+        output += "Gallery views: " + "{:,}".format(album_views) + " | "
+        if 'section' in api_dict['data']:
+            album_section = api_dict['data']['section']
+            output += "Section: " + album_section + " | "
+        album_count = api_dict['data']['images_count']
         # If an image was specified, show some information about that specific image
-        if "#" in urlAddress:
-            imageNumber = int(urlAddress.split('#')[-1])
-            imageWidth = apiDict['data']['images'][imageNumber]['width']
-            imageHeight = apiDict['data']['images'][imageNumber]['height']
-            imageSize = int(apiDict['data']['images'][imageNumber]['size'])
-            imageSizeString = self.fileSizeToString(imageSize)
-            output += "Image " + str(imageNumber + 1) + " of " + str(albumCount) + " | "
-            output += "Current image: " + str(imageWidth) + "x" + str(imageHeight) + ", " + imageSizeString + "."
+        if "#" in url_address:
+            image_number = int(url_address.split('#')[-1])
+            image_width = api_dict['data']['images'][image_number]['width']
+            image_height = api_dict['data']['images'][image_number]['height']
+            image_size = int(api_dict['data']['images'][image_number]['size'])
+            image_size_string = self.file_size_to_string(image_size)
+            output += "Image " + str(image_number + 1) + " of " + str(album_count) + " | "
+            output += "Current image: " + str(image_width) + "x" + str(image_height) + ", " + image_size_string + "."
             return output
-        output += str(albumCount) + "images."
+        output += str(album_count) + "images."
         return output
 
-    def sitePastebin(self, urlAddress, pageOpener, pageRequest):
+    def site_pastebin(self, url_address, page_opener, page_request):
         """Handling pastebin links"""
         # TODO: write pastebin link handler
-        return self.urlGeneric(urlAddress, pageOpener, pageRequest)
+        return self.url_generic(url_address, page_opener, page_request)
 
-    def siteReddit(self, urlAddress, pageOpener, pageRequest):
+    def site_reddit(self, url_address, page_opener, page_request):
         """Handling reddit links"""
         # TODO: write reddit link handler
-        return self.urlGeneric(urlAddress, pageOpener, pageRequest)
+        return self.url_generic(url_address, page_opener, page_request)
 
-    def siteSpeedtest(self, urlAddress, pageOpener, pageRequest):
+    def site_speedtest(self, url_address, page_opener, page_request):
         """Handling speedtest links"""
-        if urlAddress[-4:] == '.png':
-            urlNumber = urlAddress[32:-4]
-            urlAddress = 'http://www.speedtest.net/my-result/' + urlNumber
-            pageRequest = urllib.request.Request(urlAddress)
-            pageRequest.add_header('User-Agent', 'Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
-            pageOpener = urllib.request.build_opener()
-        pageCode = pageOpener.open(pageRequest).read().decode('utf-8')
-        pageCode = re.sub(r'\s+', '', pageCode)
-        download = re.search('<h3>Download</h3><p>([0-9\.]*)', pageCode).group(1)
-        upload = re.search('<h3>Upload</h3><p>([0-9\.]*)', pageCode).group(1)
-        ping = re.search('<h3>Ping</h3><p>([0-9]*)', pageCode).group(1)
+        if url_address[-4:] == '.png':
+            url_number = url_address[32:-4]
+            url_address = 'http://www.speedtest.net/my-result/' + url_number
+            page_request = urllib.request.Request(url_address)
+            page_request.add_header('User-Agent', 'Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+            page_opener = urllib.request.build_opener()
+        page_code = page_opener.open(page_request).read().decode('utf-8')
+        page_code = re.sub(r'\s+', '', page_code)
+        download = re.search('<h3>Download</h3><p>([0-9\.]*)', page_code).group(1)
+        upload = re.search('<h3>Upload</h3><p>([0-9\.]*)', page_code).group(1)
+        ping = re.search('<h3>Ping</h3><p>([0-9]*)', page_code).group(1)
         return "Speedtest> Download: " + download + "Mb/s | Upload: " + upload + "Mb/s | Ping: " + ping + "ms"
 
-    def siteWikipedia(self, urlAddress, pageOpener, pageRequest):
+    def site_wikipedia(self, url_address, page_opener, page_request):
         """Handling for wikipedia links"""
         # TODO: write wikipedia link handler
-        return self.urlGeneric(urlAddress, pageOpener, pageRequest)
+        return self.url_generic(url_address, page_opener, page_request)
 
-    def siteYoutube(self, urlAddress, pageOpener, pageRequest):
+    def site_youtube(self, url_address, page_opener, page_request):
         """Handling for youtube links"""
         # Find video id
-        if "youtu.be" in urlAddress:
-            videoId = urlAddress.split("/")[-1].split("?")[0]
+        if "youtu.be" in url_address:
+            video_id = url_address.split("/")[-1].split("?")[0]
         else:
-            videoId = urlAddress.split("/")[-1].split("=")[1].split("&")[0]
+            video_id = url_address.split("/")[-1].split("=")[1].split("&")[0]
         # Find API url
-        apiKey = self.mHalloObject.get_api_key("youtube")
-        if apiKey is None:
+        api_key = self.hallo_obj.get_api_key("youtube")
+        if api_key is None:
             return None
-        apiUrl = "https://www.googleapis.com/youtube/v3/videos?id=" + videoId + \
-                 "&part=snippet,contentDetails,statistics&key=" + apiKey
+        api_url = "https://www.googleapis.com/youtube/v3/videos?id=" + video_id + \
+                  "&part=snippet,contentDetails,statistics&key=" + api_key
         # Load API response (in json).
-        apiDict = Commons.load_url_json(apiUrl)
+        api_dict = Commons.load_url_json(api_url)
         # Get video data from API response.
-        videoTitle = apiDict['items'][0]['snippet']['title']
-        videoDuration = apiDict['items'][0]['contentDetails']['duration'][2:].lower()
-        videoViews = apiDict['items'][0]['statistics']['viewCount']
+        video_title = api_dict['items'][0]['snippet']['title']
+        video_duration = api_dict['items'][0]['contentDetails']['duration'][2:].lower()
+        video_views = api_dict['items'][0]['statistics']['viewCount']
         # Create output
-        output = "Youtube video> Title: " + videoTitle + " | "
-        output += "Length: " + videoDuration + " | "
-        output += "Views: " + videoViews + "."
+        output = "Youtube video> Title: " + video_title + " | "
+        output += "Length: " + video_duration + " | "
+        output += "Views: " + video_views + "."
         return output
 
-    def getImageSize(self, imageData):
-        """Determine the image type of fhandle and return its size.
-        from draco"""
+    def get_image_size(self, image_data):
+        """
+        Determine the image type of fhandle and return its size.
+        from draco
+        """
         # This function is from here:
         # http://stackoverflow.com/questions/8032642/how-to-obtain-image-size-using-standard-python-class-without-using-external-lib
-        imageHead = imageData[:24]
-        if len(imageHead) != 24:
+        image_head = image_data[:24]
+        if len(image_head) != 24:
             return
-        if imghdr.what(None, imageData) == 'png':
-            check = struct.unpack('>i', imageHead[4:8])[0]
+        if imghdr.what(None, image_data) == 'png':
+            check = struct.unpack('>i', image_head[4:8])[0]
             if check != 0x0d0a1a0a:
                 return
-            width, height = struct.unpack('>ii', imageHead[16:24])
-        elif imghdr.what(None, imageData) == 'gif':
-            width, height = struct.unpack('<HH', imageHead[6:10])
-        elif imghdr.what(None, imageData) == 'jpeg':
+            width, height = struct.unpack('>ii', image_head[16:24])
+        elif imghdr.what(None, image_data) == 'gif':
+            width, height = struct.unpack('<HH', image_head[6:10])
+        elif imghdr.what(None, image_data) == 'jpeg':
             # try:
-                byteOffset = 0
+                byte_offset = 0
                 size = 2
                 ftype = 0
                 while not 0xc0 <= ftype <= 0xcf:
-                    byteOffset += size
-                    byte = imageData[byteOffset]
-                    byteOffset += 1
+                    byte_offset += size
+                    byte = image_data[byte_offset]
+                    byte_offset += 1
                     while byte == 0xff:
-                        byte = imageData[byteOffset]
-                        byteOffset += 1
+                        byte = image_data[byte_offset]
+                        byte_offset += 1
                     ftype = byte
-                    size = struct.unpack('>H', imageData[byteOffset:byteOffset + 2])[0] - 2
-                    byteOffset += 2
+                    size = struct.unpack('>H', image_data[byte_offset:byte_offset + 2])[0] - 2
+                    byte_offset += 2
                 # We are at a SOFn block
-                byteOffset += 1  # Skip `precision' byte.
-                height, width = struct.unpack('>HH', imageData[byteOffset:byteOffset + 4])
-                byteOffset += 4
+                byte_offset += 1  # Skip `precision' byte.
+                height, width = struct.unpack('>HH', image_data[byte_offset:byte_offset + 4])
+                byte_offset += 4
             # except Exception:  # IGNORE:W0703
                 # return
         else:
             return
         return width, height
 
-    def fileSizeToString(self, size):
+    def file_size_to_string(self, size):
         if size < 2048:
-            sizeString = str(size) + "Bytes"
+            size_string = str(size) + "Bytes"
         elif size < (2048 * 1024):
-            sizeString = str(math.floor(float(size) / 10.24) / 100) + "KiB"
+            size_string = str(math.floor(float(size) / 10.24) / 100) + "KiB"
         elif size < (2048 * 1024 * 1024):
-            sizeString = str(math.floor(float(size) / (1024 * 10.24)) / 100) + "MiB"
+            size_string = str(math.floor(float(size) / (1024 * 10.24)) / 100) + "MiB"
         else:
-            sizeString = str(math.floor(float(size) / (1024 * 1024 * 10.24)) / 100) + "GiB"
-        return sizeString
+            size_string = str(math.floor(float(size) / (1024 * 1024 * 10.24)) / 100) + "GiB"
+        return size_string
