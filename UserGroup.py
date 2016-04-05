@@ -18,7 +18,7 @@ class UserGroup:
         :param name: Name of the user group
         :type name: str
         :param hallo: Hallo object which owns the user group
-        :type hallo: Hallo
+        :type hallo: Hallo.Hallo
         """
         self.user_list = set()
         self.hallo = hallo
@@ -30,9 +30,9 @@ class UserGroup:
         :param right_name: Name of the right to check
         :type right_name: str
         :param user_obj: User which is having rights checked
-        :type user_obj: User
+        :type user_obj: Destination.User
         :param channel_obj: Channel in which rights are being checked, None for private messages
-        :type channel_obj: Channel
+        :type channel_obj: Destination.Channel
         """
         right_value = self.permission_mask.get_right(right_name)
         # PermissionMask contains that right, return it.
@@ -54,7 +54,7 @@ class UserGroup:
         """
         Sets the permission mask of the user group
         :param new_permission_mask: Permission mask to set for user group
-        :type new_permission_mask: PermissionMask
+        :type new_permission_mask: PermissionMask.PermissionMask
         """
         self.permission_mask = new_permission_mask
 
@@ -65,7 +65,7 @@ class UserGroup:
         """
         Adds a new user to this group
         :param new_user: User to add to group
-        :type new_user: User
+        :type new_user: Destination.User
         """
         self.user_list.add(new_user)
 
@@ -97,7 +97,7 @@ class UserGroup:
         :param xml_string: String containing XML to parse for usergroup
         :type xml_string: str
         :param hallo: Hallo object to add user group to
-        :type hallo: Hallo
+        :type hallo: Hallo.Hallo
         """
         doc = minidom.parseString(xml_string)
         new_name = doc.getElementsByTagName("name")[0].firstChild.data
