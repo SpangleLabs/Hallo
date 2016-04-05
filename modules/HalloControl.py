@@ -6,46 +6,46 @@ class ConfigSave(Function):
     """
     Save the current config to xml.
     """
-    # Name for use in help listing
-    help_name = "config save"
-    # Names which can be used to address the function
-    names = {"config save", "configsave", "save config"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Save the config and pickle it."
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "config save"
+        # Names which can be used to address the function
+        self.names = {"config save", "configsave", "save config"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Save the config and pickle it."
 
     def run(self, line, user_obj, destination_obj=None):
-        halloObject = user_obj.get_server().get_hallo()
-        halloObject.save_to_xml()
+        hallo_obj = user_obj.get_server().get_hallo()
+        hallo_obj.save_to_xml()
 
 
 class ModuleReload(Function):
     """
     Reloads a specific function module.
     """
-    # Name for use in help listing
-    help_name = "module reload"
-    # Names which can be used to address the function
-    names = {"module reload", "modulereload", "reload module"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Reloads a specified module."
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "module reload"
+        # Names which can be used to address the function
+        self.names = {"module reload", "modulereload", "reload module"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Reloads a specified module."
 
     def run(self, line, user_obj, destination_obj=None):
-        halloObject = user_obj.get_server().get_hallo()
-        functionDispatcher = halloObject.get_function_dispatcher()
-        reloadResult = functionDispatcher.reload_module(line)
-        if reloadResult:
+        hallo_obj = user_obj.get_server().get_hallo()
+        function_dispatcher = hallo_obj.get_function_dispatcher()
+        reload_result = function_dispatcher.reload_module(line)
+        if reload_result:
             return "Module reloaded."
         else:
             return "Failed to reload module."
@@ -55,18 +55,18 @@ class ActiveThreads(Function):
     """
     Checks the current number of running hallo threads.
     """
-    # Name for use in help listing
-    help_name = "active threads"
-    # Names which can be used to address the function
-    names = {"active threads", "activethreads", "threads"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Returns current number of active threads. Format: active thread"
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "active threads"
+        # Names which can be used to address the function
+        self.names = {"active threads", "activethreads", "threads"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Returns current number of active threads. Format: active thread"
 
     def run(self, line, user_obj, destination_obj=None):
         """
@@ -79,64 +79,62 @@ class Help(Function):
     """
     Allows users to request help on using Hallo
     """
-    # Name for use in help listing
-    help_name = "help"
-    # Names which can be used to address the Function
-    names = {"help", "readme", "info", "read me"}
-    # Help documentation, if it's just a single line, can be set here
-    help_docs = "Gives information about commands.  Use \"help\" for a list of commands, " \
-                "or \"help <command>\" for help on a specific command."
-
-    mHalloObject = None  # Hallo object containing everything.
 
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "help"
+        # Names which can be used to address the Function
+        self.names = {"help", "readme", "info", "read me"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Gives information about commands.  Use \"help\" for a list of commands, " \
+                         "or \"help <command>\" for help on a specific command."
+        self.hallo_obj = None  # Hallo object containing everything.
 
     def run(self, line, user_obj, destination_obj=None):
-        self.mHalloObject = user_obj.get_server().get_hallo()
+        self.hallo_obj = user_obj.get_server().get_hallo()
         if line.strip() == "":
-            return self.listAllFunctions(user_obj, destination_obj)
+            return self.list_all_functions(user_obj, destination_obj)
         else:
-            functionName = line.strip().lower()
-            return self.getHelpOnFunction(functionName)
+            function_name = line.strip().lower()
+            return self.get_help_on_function(function_name)
 
-    def listAllFunctions(self, userObject, destinationObject):
+    def list_all_functions(self, user_obj, destination_obj):
         """Returns a list of all functions."""
         # Get required objects
-        serverObject = userObject.get_server()
-        functionDispatcher = self.mHalloObject.get_function_dispatcher()
+        server_obj = user_obj.get_server()
+        function_dispatcher = self.hallo_obj.get_function_dispatcher()
         # Get list of function classes
-        functionClassList = functionDispatcher.get_function_class_list()
+        function_class_list = function_dispatcher.get_function_class_list()
         # Construct list of available function names
-        outputList = []
-        for functionClass in functionClassList:
-            functionObject = functionDispatcher.get_function_object(functionClass)
-            functionHelpName = functionObject.get_help_name()
+        output_list = []
+        for function_class in function_class_list:
+            function_obj = function_dispatcher.get_function_object(function_class)
+            function_help_name = function_obj.get_help_name()
             # Check permissions allow user to use this function
-            if (
-                    functionDispatcher.check_function_permissions(functionClass, serverObject, userObject,
-                                                                  destinationObject)):
-                outputList.append(functionHelpName)
+            if (function_dispatcher.check_function_permissions(function_class, server_obj, user_obj,
+                                                               destination_obj)):
+                output_list.append(function_help_name)
         # Construct the output string
-        outputString = "List of available functions: " + ", ".join(outputList)
-        return outputString
+        output_string = "List of available functions: " + ", ".join(output_list)
+        return output_string
 
-    def getHelpOnFunction(self, functionName):
+    def get_help_on_function(self, function_name):
         """Returns help documentation on a specified function."""
         # Get required objects
-        functionDispatcher = self.mHalloObject.get_function_dispatcher()
-        functionClass = functionDispatcher.get_function_by_name(functionName)
+        function_dispatcher = self.hallo_obj.get_function_dispatcher()
+        function_class = function_dispatcher.get_function_by_name(function_name)
         # If function isn't defined, return an error.
-        if functionClass is None:
+        if function_class is None:
             return "No function by that name exists"
         # Get the current object (new one if non-persistent)
-        functionObject = functionDispatcher.get_function_object(functionClass)
+        function_obj = function_dispatcher.get_function_object(function_class)
         # Try and output help message, throwing an error if the function hasn't defined it
         try:
-            helpMessage = "Documentation for \"" + functionObject.get_help_name() + "\": " + functionObject.get_help_docs()
-            return helpMessage
+            help_message = "Documentation for \"" + function_obj.get_help_name() + "\": " + function_obj.get_help_docs()
+            return help_message
         except NotImplementedError:
             return "No documentation exists for that function"
