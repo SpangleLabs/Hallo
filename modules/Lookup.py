@@ -17,11 +17,11 @@ class UrbanDictionary(Function):
     Urban Dictionary lookup function.
     """
     # Name for use in help listing
-    mHelpName = "urban dictionary"
+    help_name = "urban dictionary"
     # Names which can be used to address the function
-    mNames = {"urban dictionary", "urban", "urbandictionary", "ud"}
+    names = {"urban dictionary", "urban", "urbandictionary", "ud"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Gives the top urban dictionary definition for a word. Format: urban dictionary <word>"
+    help_docs = "Gives the top urban dictionary definition for a word. Format: urban dictionary <word>"
 
     def __init__(self):
         """
@@ -45,11 +45,11 @@ class RandomCocktail(Function):
     Selects and outputs a random cocktail from store/cocktail_list.xml
     """
     # Name for use in help listing
-    mHelpName = "random cocktail"
+    help_name = "random cocktail"
     # Names which can be used to address the function
-    mNames = {"random cocktail", "randomcocktail"}
+    names = {"random cocktail", "randomcocktail"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Delivers ingredients and recipes for a random cocktail. Format: random cocktail"
+    help_docs = "Delivers ingredients and recipes for a random cocktail. Format: random cocktail"
 
     def __init__(self):
         """
@@ -81,11 +81,11 @@ class Cocktail(Function):
     Cocktail lookup function.
     """
     # Name for use in help listing
-    mHelpName = "cocktail"
+    help_name = "cocktail"
     # Names which can be used to address the function
-    mNames = {"cocktail"}
+    names = {"cocktail"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>"
+    help_docs = "Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>"
 
     def __init__(self):
         """
@@ -136,11 +136,11 @@ class InSpace(Function):
     Looks up the current amount and names of people in space
     """
     # Name for use in help listing
-    mHelpName = "in space"
+    help_name = "in space"
     # Names which can be used to address the function
-    mNames = {"in space", "inspace", "space"}
+    names = {"in space", "inspace", "space"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns the number of people in space right now, and their names. Format: in space"
+    help_docs = "Returns the number of people in space right now, and their names. Format: in space"
 
     def __init__(self):
         """
@@ -172,11 +172,11 @@ class TimestampToDate(Function):
     Converts an unix timestamp to a date
     """
     # Name for use in help listing
-    mHelpName = "date"
+    help_name = "date"
     # Names which can be used to address the function
-    mNames = {"timestamp to date", "unix timestamp", "unix", "unix timestamp to date"}
+    names = {"timestamp to date", "unix timestamp", "unix", "unix timestamp to date"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns the date from a given unix timestamp. Format: date <timestamp>"
+    help_docs = "Returns the date from a given unix timestamp. Format: date <timestamp>"
 
     def __init__(self):
         """
@@ -197,11 +197,11 @@ class Wiki(Function):
     Lookup wiki article and return the first paragraph or so.
     """
     # Name for use in help listing
-    mHelpName = "wiki"
+    help_name = "wiki"
     # Names which can be used to address the function
-    mNames = {"wiki", "wikipedia"}
+    names = {"wiki", "wikipedia"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Reads the first paragraph from a wikipedia article"
+    help_docs = "Reads the first paragraph from a wikipedia article"
 
     def __init__(self):
         """
@@ -244,11 +244,11 @@ class Translate(Function):
     Uses google translate to translate a phrase to english, or to any specified language
     """
     # Name for use in help listing
-    mHelpName = "translate"
+    help_name = "translate"
     # Names which can be used to address the function
-    mNames = {"translate"}
+    names = {"translate"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Translates a given block of text. Format: translate <from>-><to> <text>"
+    help_docs = "Translates a given block of text. Format: translate <from>-><to> <text>"
 
     def __init__(self):
         """
@@ -508,11 +508,11 @@ class WeatherLocation(Function):
     Sets the location of user for Weather functions.
     """
     # Name for use in help listing
-    mHelpName = "weather location"
+    help_name = "weather location"
     # Names which can be used to address the function
-    mNames = {"weather location", "weather location set", "set weather location", "weather set location"}
+    names = {"weather location", "weather location set", "set weather location", "weather set location"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Sets a user's location for weather-related functions"
+    help_docs = "Sets a user's location for weather-related functions"
 
     def __init__(self):
         """
@@ -551,11 +551,11 @@ class CurrentWeather(Function):
     Returns the current weather in your location, or asks for your location.
     """
     # Name for use in help listing
-    mHelpName = "current weather"
+    help_name = "current weather"
     # Names which can be used to address the function
-    mNames = {"current weather", "weather current", "current weather in"}
+    names = {"current weather", "weather current", "current weather in"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns the current weather in your location (if known) or in provided location."
+    help_docs = "Returns the current weather in your location (if known) or in provided location."
 
     def __init__(self):
         """
@@ -611,11 +611,11 @@ class Weather(Function):
     Currently returns a random weather phrase. In future perhaps nightvale weather?
     """
     # Name for use in help listing
-    mHelpName = "weather"
+    help_name = "weather"
     # Names which can be used to address the function
-    mNames = {"weather", "weather in"}
+    names = {"weather", "weather in"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Random weather"
+    help_docs = "Random weather"
 
     def __init__(self):
         """
@@ -767,11 +767,11 @@ class UrlDetect(Function):
     URL detection and title printing.
     """
     # Name for use in help listing
-    mHelpName = "urldetect"
+    help_name = "urldetect"
     # Names which can be used to address the function
-    mNames = {"urldetect"}
+    names = {"urldetect"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "URL detection."
+    help_docs = "URL detection."
 
     mHalloObject = None
 

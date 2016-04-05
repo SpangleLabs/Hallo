@@ -9,11 +9,11 @@ class Euler(Function):
     euler project functions
     """
     # Name for use in help listing
-    mHelpName = "euler"
+    help_name = "euler"
     # Names which can be used to address the Function
-    mNames = {"euler", "euler project", "project euler"}
+    names = {"euler", "euler project", "project euler"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Project Euler functions. Format: \"euler list\" to list project euler solutions. " \
+    help_docs = "Project Euler functions. Format: \"euler list\" to list project euler solutions. " \
                 "\"euler <number>\" for the solution to project euler problem of the given number."
 
     mHalloObject = None

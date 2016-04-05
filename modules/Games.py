@@ -526,11 +526,11 @@ class RandomCard(Function):
     Returns a random card from a fresh deck.
     """
     # Name for use in help listing
-    mHelpName = "card"
+    help_name = "card"
     # Names which can be used to address the function
-    mNames = {"card", "random card", "randomcard"}
+    names = {"card", "random card", "randomcard"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Picks a random card from a deck. Format: random_card"
+    help_docs = "Picks a random card from a deck. Format: random_card"
 
     def __init__(self):
         """
@@ -550,11 +550,11 @@ class HighScores(Function):
     High scores function, also stores all high scores.
     """
     # Name for use in help listing
-    mHelpName = "highscores"
+    help_name = "highscores"
     # Names which can be used to address the function
-    mNames = {"highscores", "high scores", "highscore", "high score", "hiscore", "hiscores"}
+    names = {"highscores", "high scores", "highscore", "high score", "hiscore", "hiscores"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "View the highscores for all games. Format: highscores"
+    help_docs = "View the highscores for all games. Format: highscores"
 
     mHighScores = {}
 
@@ -871,11 +871,11 @@ class HigherOrLower(Function):
     Function to play Higher or Lower
     """
     # Name for use in help listing
-    mHelpName = "higher or lower"
+    help_name = "higher or lower"
     # Names which can be used to address the function
-    mNames = {"higher or lower", "higherorlower"}
+    names = {"higher or lower", "higherorlower"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Plays a game of higher or lower."
+    help_docs = "Plays a game of higher or lower."
 
     mGameList = None
     mStartCommands = ["start"]
@@ -1094,11 +1094,11 @@ class Blackjack(Function):
     Function to play Blackjack
     """
     # Name for use in help listing
-    mHelpName = "blackjack"
+    help_name = "blackjack"
     # Names which can be used to address the function
-    mNames = {"blackjack", "twentyone", "twenty one", "twenty-one", "21"}
+    names = {"blackjack", "twentyone", "twenty one", "twenty-one", "21"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Picks a random card from a deck. Format: random_card"
+    help_docs = "Picks a random card from a deck. Format: random_card"
 
     mGameList = None
     mStartCommands = ["start"]
@@ -1420,11 +1420,11 @@ class DDR(Function):
     Function to play IRC DDR (Dance Dance Revolution)
     """
     # Name for use in help listing
-    mHelpName = "ddr"
+    help_name = "ddr"
     # Names which can be used to address the function
-    mNames = {"ddr", "dance dance revolution", "dansu dansu", "dancing stage"}
+    names = {"ddr", "dance dance revolution", "dansu dansu", "dancing stage"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Plays dance dance revolution. Hallo says directions and users must respond to them correctly and " \
+    help_docs = "Plays dance dance revolution. Hallo says directions and users must respond to them correctly and " \
                 "in the fastest time they can"
 
     mGameList = None

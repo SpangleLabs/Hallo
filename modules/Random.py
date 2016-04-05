@@ -13,10 +13,10 @@ class Roll(Function):
     """
     Function to roll dice or pick random numbers in a given range
     """
-    mHelpName = "roll"  # Name for use in help listing
-    mNames = {"roll", "dice", "random", "random number"}  # Names which can be used to address the function
+    help_name = "roll"  # Name for use in help listing
+    names = {"roll", "dice", "random", "random number"}  # Names which can be used to address the function
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Roll X-Y returns a random number between X and Y. " \
+    help_docs = "Roll X-Y returns a random number between X and Y. " \
                 "Format: \"roll <min>-<max>\" or \"roll <num>d<sides>\""
 
     def __init__(self):
@@ -67,10 +67,10 @@ class Choose(Function):
     """
     Function to pick one of multiple given options
     """
-    mHelpName = "choose"  # Name for use in help listing
-    mNames = {"choose", "pick"}  # Names which can be used to address the function
+    help_name = "choose"  # Name for use in help listing
+    names = {"choose", "pick"}  # Names which can be used to address the function
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Choose X, Y or Z or ... Returns one of the options separated by \"or\" or a comma. " \
+    help_docs = "Choose X, Y or Z or ... Returns one of the options separated by \"or\" or a comma. " \
                 "Format: choose <first_option>, <second_option> ... <n-1th option> or <nth option>"
 
     def __init__(self):
@@ -95,11 +95,11 @@ class EightBall(Function):
     Magic 8 ball. Format: eightball
     """
     # Name for use in help listing
-    mHelpName = "eightball"
+    help_name = "eightball"
     # Names which can be used to address the function
-    mNames = {"eightball"}
+    names = {"eightball"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Magic 8 ball. Format: eightball"
+    help_docs = "Magic 8 ball. Format: eightball"
 
     def __init__(self):
         """
@@ -119,13 +119,13 @@ class EightBall(Function):
 
     def get_names(self):
         """Returns the list of names for directly addressing the function"""
-        self.mNames = {"eightball"}
+        self.names = {"eightball"}
         for magic in ['magic ', 'magic', '']:
             for eight in ['eight', '8']:
                 for space in [' ', '-', '']:
-                    self.mNames.add(magic + eight + space + "ball")
-        self.mNames.add(self.mHelpName)
-        return self.mNames
+                    self.names.add(magic + eight + space + "ball")
+        self.names.add(self.help_name)
+        return self.names
 
 
 class ChosenOne(Function):
@@ -133,11 +133,11 @@ class ChosenOne(Function):
     Selects a random user from a channel
     """
     # Name for use in help listing
-    mHelpName = "chosen one"
+    help_name = "chosen one"
     # Names which can be used to address the function
-    mNames = {"chosen one", "chosenone", "random user"}
+    names = {"chosen one", "chosenone", "random user"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Specifies who the chosen one is. Format: chosen one"
+    help_docs = "Specifies who the chosen one is. Format: chosen one"
 
     def __init__(self):
         """
@@ -161,10 +161,10 @@ class Foof(Function):
     """
     FOOOOOOOOOF DOOOOOOOOOOF
     """
-    mHelpName = "foof"  # Name for use in help listing
-    mNames = {"foof", "fooof", "foooof"}  # Names which can be used to address the function
+    help_name = "foof"  # Name for use in help listing
+    names = {"foof", "fooof", "foooof"}  # Names which can be used to address the function
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "FOOOOOOOOOF. Format: foof"
+    help_docs = "FOOOOOOOOOF. Format: foof"
 
     def __init__(self):
         """
@@ -190,9 +190,9 @@ class Foof(Function):
 
     def get_names(self):
         """Returns the list of names for directly addressing the function"""
-        self.mNames = set(['f' + 'o' * x + 'f' for x in range(2, 20)])
-        self.mNames.add(self.mHelpName)
-        return self.mNames
+        self.names = set(['f' + 'o' * x + 'f' for x in range(2, 20)])
+        self.names.add(self.help_name)
+        return self.names
 
     def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
@@ -215,11 +215,11 @@ class ThoughtForTheDay(Function):
     """
     WH40K Thought for the day.
     """
-    mHelpName = "thought for the day"  # Name for use in help listing
+    help_name = "thought for the day"  # Name for use in help listing
     # Names which can be used to address the function
-    mNames = {"thought for the day", "thoughtfortheday", "thought of the day", "40k quote", "wh40k quote", "quote 40k"}
+    names = {"thought for the day", "thoughtfortheday", "thought of the day", "40k quote", "wh40k quote", "quote 40k"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "WH40K Thought for the day. Format: thought_for_the_day"
+    help_docs = "WH40K Thought for the day. Format: thought_for_the_day"
 
     def __init__(self):
         """
@@ -241,11 +241,11 @@ class Ouija(Function):
     Ouija board function. "Ouija board" is copyright Hasbro.
     """
     # Name for use in help listing
-    mHelpName = "ouija"
+    help_name = "ouija"
     # Names which can be used to address the function
-    mNames = {"ouija", "ouija board", "random words", "message from the other side"}
+    names = {"ouija", "ouija board", "random words", "message from the other side"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Ouija board function. Format: ouija <message>"
+    help_docs = "Ouija board function. Format: ouija <message>"
 
     def __init__(self):
         """
@@ -268,11 +268,11 @@ class Scriptures(Function):
     Amarr scriptures
     """
     # Name for use in help listing
-    mHelpName = "scriptures"
+    help_name = "scriptures"
     # Names which can be used to address the function
-    mNames = {"scriptures", "amarr scriptures", "amarr"}
+    names = {"scriptures", "amarr scriptures", "amarr"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Recites a passage from the Amarr scriptures. Format: scriptures"
+    help_docs = "Recites a passage from the Amarr scriptures. Format: scriptures"
 
     mScriptureList = []
 
@@ -298,11 +298,11 @@ class CatGif(Function):
     Returns a random cat gif
     """
     # Name for use in help listing
-    mHelpName = "catgif"
+    help_name = "catgif"
     # Names which can be used to address the function
-    mNames = {"catgif", "cat gif", "random cat", "random cat gif", "random catgif", "cat.gif"}
+    names = {"catgif", "cat gif", "random cat", "random cat gif", "random catgif", "cat.gif"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns a random cat gif Format: cat gif"
+    help_docs = "Returns a random cat gif Format: cat gif"
 
     def __init__(self):
         """
@@ -326,11 +326,11 @@ class RandomQuote(Function):
     Returns a random quote
     """
     # Name for use in help listing
-    mHelpName = "random quote"
+    help_name = "random quote"
     # Names which can be used to address the function
-    mNames = {"random quote", "randomquote", "quote"}
+    names = {"random quote", "randomquote", "quote"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns a quote. Format: random quote"
+    help_docs = "Returns a quote. Format: random quote"
 
     mScriptureList = []
 
@@ -363,11 +363,11 @@ class NightValeWeather(Function):
     Returns the current weather, in the style of "welcome to night vale"
     """
     # Name for use in help listing
-    mHelpName = "nightvale weather"
+    help_name = "nightvale weather"
     # Names which can be used to address the function
-    mNames = {"night vale weather", "nightvale weather", "nightvale"}
+    names = {"night vale weather", "nightvale weather", "nightvale"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns the current weather in the style of the podcast 'Welcome to Night Vale' " \
+    help_docs = "Returns the current weather in the style of the podcast 'Welcome to Night Vale' " \
                 "Format: nightvale weather"
 
     mHalloObject = None
@@ -436,11 +436,11 @@ class RandomPerson(Function):
     Returns a randomly generated person
     """
     # Name for use in help listing
-    mHelpName = "random person"
+    help_name = "random person"
     # Names which can be used to address the function
-    mNames = {"random person", "randomperson", "generate person", "generate user"}
+    names = {"random person", "randomperson", "generate person", "generate user"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Generates and returns a random person's details. Specify \"full\" for more details. " \
+    help_docs = "Generates and returns a random person's details. Specify \"full\" for more details. " \
                 "Format: random person"
 
     mScriptureList = []
@@ -490,11 +490,11 @@ class NightValeProverb(Function):
     Returns a random night vale proverb
     """
     # Name for use in help listing
-    mHelpName = "nightvale proverb"
+    help_name = "nightvale proverb"
     # Names which can be used to address the function
-    mNames = {"nightvale proverb", "night vale proverb", "random proverb", "proverb"}
+    names = {"nightvale proverb", "night vale proverb", "random proverb", "proverb"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns a random proverb from Welcome to Night Vale. Format: nightvale proverb"
+    help_docs = "Returns a random proverb from Welcome to Night Vale. Format: nightvale proverb"
 
     mProverbList = []
 
@@ -520,11 +520,11 @@ class RandomColour(Function):
     Returns a random colour, hex code and name
     """
     # Name for use in help listing
-    mHelpName = "random colour"
+    help_name = "random colour"
     # Names which can be used to address the function
-    mNames = {"random colour", "random color", "colour", "color"}
+    names = {"random colour", "random color", "colour", "color"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns a random proverb from Welcome to Night Vale. Format: nightvale proverb"
+    help_docs = "Returns a random proverb from Welcome to Night Vale. Format: nightvale proverb"
 
     mProverbList = []
 

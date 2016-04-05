@@ -286,11 +286,11 @@ class FeedCheck(Function):
     Checks a specified feed for updates and returns them.
     """
     # Name for use in help listing
-    mHelpName = "rss check"
+    help_name = "rss check"
     # Names which can be used to address the function
-    mNames = {"rss check", "check rss", "check rss feed", "rss feed check", "check feed", "feed check"}
+    names = {"rss check", "check rss", "check rss feed", "rss feed check", "check feed", "feed check"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Checks a specified feed for updates and returns them. Format: rss check <feed name>"
+    help_docs = "Checks a specified feed for updates and returns them. Format: rss check <feed name>"
 
     mRssFeedList = None
 
@@ -382,11 +382,11 @@ class FeedAdd(Function):
     Adds a new RSS feed from a link, allowing specification of server and channel.
     """
     # Name for use in help listing
-    mHelpName = "rss add"
+    help_name = "rss add"
     # Names which can be used to address the function
-    mNames = {"rss add", "add rss", "add rss feed", "rss feed add", "add feed", "feed add"}
+    names = {"rss add", "add rss", "add rss feed", "rss feed add", "add feed", "feed add"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Adds a new feed to be checked for updates which will be posted to the current location." \
+    help_docs = "Adds a new feed to be checked for updates which will be posted to the current location." \
                 " Format: rss add <feed name> <update period?>"
 
     def __init__(self):
@@ -443,12 +443,12 @@ class FeedRemove(Function):
     Remove an RSS feed and no longer receive updates from it.
     """
     # Name for use in help listing
-    mHelpName = "rss remove"
+    help_name = "rss remove"
     # Names which can be used to address the function
-    mNames = {"rss remove", "rss delete", "remove rss", "delete rss", "remove rss feed", "delete rss feed",
+    names = {"rss remove", "rss delete", "remove rss", "delete rss", "remove rss feed", "delete rss feed",
               "rss feed remove", "rss feed delete", "remove feed", "delete feed", "feed remove", "feed delete"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Removes a specified RSS feed from the current or specified channel. " \
+    help_docs = "Removes a specified RSS feed from the current or specified channel. " \
                 " Format: rss remove <feed title or url>"
 
     def __init__(self):
@@ -488,12 +488,12 @@ class FeedList(Function):
     Remove an RSS feed and no longer receive updates from it.
     """
     # Name for use in help listing
-    mHelpName = "rss list"
+    help_name = "rss list"
     # Names which can be used to address the function
-    mNames = {"rss list", "list rss", "list rss feed", "list rss feeds", "rss feed list", "rss feeds list",
+    names = {"rss list", "list rss", "list rss feed", "list rss feeds", "rss feed list", "rss feeds list",
               "list feed", "list feeds", "feed list", "feeds list"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Lists RSS feeds for the current channel. Format: rss list"
+    help_docs = "Lists RSS feeds for the current channel. Format: rss list"
 
     def __init__(self):
         """

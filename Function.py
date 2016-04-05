@@ -25,9 +25,9 @@ class Function(metaclass=ABCMeta):
     EVENT_RAW = "raw"              # Event constant signifying raw data received from server which doesn't fit the above
 
     def __init__(self):
-        self.mHelpName = None  # Name for use in help listing
-        self.mNames = set()  # Set of names which can be used to address the function
-        self.mHelpDocs = None  # Help documentation, if it's just a single line, can be set here
+        self.help_name = None  # Name for use in help listing
+        self.names = set()  # Set of names which can be used to address the function
+        self.help_docs = None  # Help documentation, if it's just a single line, can be set here
     
     def run(self, line, user_obj, destination_obj):
         """Runs the function when it is called directly
@@ -75,19 +75,19 @@ class Function(metaclass=ABCMeta):
         
     def get_help_name(self):
         """Returns the name to be printed for help documentation"""
-        if self.mHelpName is None:
+        if self.help_name is None:
             raise NotImplementedError
-        return self.mHelpName
+        return self.help_name
     
     def get_help_docs(self):
         """
         Returns the help documentation, specific to given arguments, if supplied
         """
-        if self.mHelpDocs is None:
+        if self.help_docs is None:
             raise NotImplementedError
-        return self.mHelpDocs
+        return self.help_docs
     
     def get_names(self):
         """Returns the list of names for directly addressing the function"""
-        self.mNames.add(self.mHelpName)
-        return self.mNames
+        self.names.add(self.help_name)
+        return self.names

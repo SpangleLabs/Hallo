@@ -6,11 +6,11 @@ class Protein(Function):
     Takes, as input, a list of nucleotide bases, and outputs amino acid strings
     """
     # Name for use in help listing
-    mHelpName = "protein"
+    help_name = "protein"
     # Names which can be used to address the Function
-    mNames = {"protein", "prot", "amino acid"}
+    names = {"protein", "prot", "amino acid"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Convert a set of nucleobases to a string of amino acids"
+    help_docs = "Convert a set of nucleobases to a string of amino acids"
 
     START = 'START'
     STOP = 'STOP'

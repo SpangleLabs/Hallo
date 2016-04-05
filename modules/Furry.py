@@ -7,11 +7,11 @@ class E621(Function):
     Returns a random image from e621
     """
     # Name for use in help listing
-    mHelpName = "e621"
+    help_name = "e621"
     # Names which can be used to address the function
-    mNames = {"e621"}
+    names = {"e621"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns a random e621 result using the search you specify. Format: e621 <tags>"
+    help_docs = "Returns a random e621 result using the search you specify. Format: e621 <tags>"
 
     def __init__(self):
         """
@@ -53,11 +53,11 @@ class RandomPorn(Function):
     Returns a random explicit image from e621
     """
     # Name for use in help listing
-    mHelpName = "random porn"
+    help_name = "random porn"
     # Names which can be used to address the function
-    mNames = {"random porn", "randomporn"}
+    names = {"random porn", "randomporn"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns a random explicit e621 result using the search you specify. Format: random porn <tags>"
+    help_docs = "Returns a random explicit e621 result using the search you specify. Format: random porn <tags>"
 
     def __init__(self):
         """
@@ -92,11 +92,11 @@ class Butts(Function):
     Returns a random butt from e621
     """
     # Name for use in help listing
-    mHelpName = "butts"
+    help_name = "butts"
     # Names which can be used to address the function
-    mNames = {"random butt", "butts", "butts!", "butts."}
+    names = {"random butt", "butts", "butts!", "butts."}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns a random image from e621 for the search \"butt\". Format: butts"
+    help_docs = "Returns a random image from e621 for the search \"butt\". Format: butts"
 
     def __init__(self):
         """
@@ -129,11 +129,11 @@ class Fursona(Function):
     Generates a random fursona
     """
     # Name for use in help listing
-    mHelpName = "fursona"
+    help_name = "fursona"
     # Names which can be used to address the function
-    mNames = {"fursona", "sona", "random fursona", "random sona"}
+    names = {"fursona", "sona", "random fursona", "random sona"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Generates your new fursona. Format: fursona"
+    help_docs = "Generates your new fursona. Format: fursona"
 
     def __init__(self):
         """

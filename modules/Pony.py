@@ -8,12 +8,12 @@ class PonyEpisode(Function):
     Random pony episode function.
     """
     # Name for use in help listing
-    mHelpName = "pony episode"
+    help_name = "pony episode"
     # Names which can be used to address the function
-    mNames = {"pony episode", "ponyep", "pony ep", "mlp episode", "episode pony", "random pony episode",
+    names = {"pony episode", "ponyep", "pony ep", "mlp episode", "episode pony", "random pony episode",
               "random mlp episode"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Chooses a pony episode to watch at random. Format: \"pony_ep\" to pick a random pony episode, " \
+    help_docs = "Chooses a pony episode to watch at random. Format: \"pony_ep\" to pick a random pony episode, " \
                 "\"pony_ep song\" to pick a random pony episode which includes a song."
 
     def __init__(self):
@@ -49,11 +49,11 @@ class BestPony(Function):
     Selects a pony from MLP and declares it bestpony.
     """
     # Name for use in help listing
-    mHelpName = "bestpony"
+    help_name = "bestpony"
     # Names which can be used to address the function
-    mNames = {"bestpony", "best pony", "random pony", "pony", "bestpone", "best pone", "pone"}
+    names = {"bestpony", "best pony", "random pony", "pony", "bestpone", "best pone", "pone"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Who is bestpony? Format: bestpony"
+    help_docs = "Who is bestpony? Format: bestpony"
 
     def __init__(self):
         """
@@ -115,11 +115,11 @@ class Cupcake(Function):
     Gives out cupcakes
     """
     # Name for use in help listing
-    mHelpName = "cupcake"
+    help_name = "cupcake"
     # Names which can be used to address the function
-    mNames = {"cupcake", "give cupcake", "give cupcake to"}
+    names = {"cupcake", "give cupcake", "give cupcake to"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>"
+    help_docs = "Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>"
 
     def __init__(self):
         """

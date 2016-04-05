@@ -801,11 +801,11 @@ class Convert(Function):
     Function to convert units from one to another
     """
     # Name for use in help listing
-    mHelpName = "convert"
+    help_name = "convert"
     # Names which can be used to address the Function
-    mNames = {"convert", "conversion"}
+    names = {"convert", "conversion"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "converts values from one unit to another. Format: convert <value> <old unit> to <new unit>"
+    help_docs = "converts values from one unit to another. Format: convert <value> <old unit> to <new unit>"
 
     def __init__(self):
         """
@@ -918,11 +918,11 @@ class UpdateCurrencies(Function):
     Updates all currencies in the ConvertRepo
     """
     # Name for use in help listing
-    mHelpName = "update currencies"
+    help_name = "update currencies"
     # Names which can be used to address the Function
-    mNames = {"update currencies", "convert update currencies"}
+    names = {"update currencies", "convert update currencies"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Update currency conversion figures, using data from the money converter, " \
+    help_docs = "Update currency conversion figures, using data from the money converter, " \
                 "the European central bank, forex and preev."
 
     def __init__(self):
@@ -1098,11 +1098,11 @@ class ConvertViewRepo(Function):
     Lists types, units, names, whatever.
     """
     # Name for use in help listing
-    mHelpName = "convert view repo"
+    help_name = "convert view repo"
     # Names which can be used to address the Function
-    mNames = {"convert view repo", "convert view", "convert list"}
+    names = {"convert view repo", "convert view", "convert list"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns information about the conversion repository."
+    help_docs = "Returns information about the conversion repository."
 
     NAMES_TYPE = ["type", "t"]
     NAMES_UNIT = ["unit", "u"]
@@ -1254,11 +1254,11 @@ class ConvertSet(Function):
     Will create a new unit if no unit is found.
     """
     # Name for use in help listing
-    mHelpName = "convert set"
+    help_name = "convert set"
     # Names which can be used to address the Function
-    mNames = {"convert set"}
+    names = {"convert set"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Sets the value of a unit, Format: <amount> <unit_set> = <amount>? <unit_reference>."
+    help_docs = "Sets the value of a unit, Format: <amount> <unit_set> = <amount>? <unit_reference>."
 
     def __init__(self):
         """
@@ -1405,11 +1405,11 @@ class ConvertAddType(Function):
     Adds a new conversion type.
     """
     # Name for use in help listing
-    mHelpName = "convert add type"
+    help_name = "convert add type"
     # Names which can be used to address the Function
-    mNames = {"convert add type"}
+    names = {"convert add type"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Adds a new conversion unit type and base unit."
+    help_docs = "Adds a new conversion unit type and base unit."
 
     NAMES_BASEUNIT = ["baseunit", "base_unit", "base-unit", "unit", "u", "b", "bu"]
     NAMES_DECIMALS = ["decimals", "decimal", "decimalplaces", "dp", "d"]
@@ -1485,11 +1485,11 @@ class ConvertSetTypeDecimals(Function):
     Sets the number of decimal places to show for a unit type.
     """
     # Name for use in help listing
-    mHelpName = "convert set type decimals"
+    help_name = "convert set type decimals"
     # Names which can be used to address the Function
-    mNames = {"convert set type decimals", "convert set type decimal"}
+    names = {"convert set type decimals", "convert set type decimal"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Sets the number of decimal places to show for a unit type."
+    help_docs = "Sets the number of decimal places to show for a unit type."
 
     def __init__(self):
         """
@@ -1531,11 +1531,11 @@ class ConvertRemoveUnit(Function):
     Removes a specified unit from the conversion repo.
     """
     # Name for use in help listing
-    mHelpName = "convert remove unit"
+    help_name = "convert remove unit"
     # Names which can be used to address the Function
-    mNames = {"convert remove unit", "convert delete unit", "convert unit remove", "convert unit delete"}
+    names = {"convert remove unit", "convert delete unit", "convert unit remove", "convert unit delete"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Removes a specified unit from the conversion repository."
+    help_docs = "Removes a specified unit from the conversion repository."
 
     NAMES_TYPE = ["type", "t"]
 
@@ -1607,11 +1607,11 @@ class ConvertUnitAddName(Function):
     Adds a new name to a unit.
     """
     # Name for use in help listing
-    mHelpName = "convert unit add name"
+    help_name = "convert unit add name"
     # Names which can be used to address the Function
-    mNames = {"convert unit add name"}
+    names = {"convert unit add name"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Adds a new name to a unit."
+    help_docs = "Adds a new name to a unit."
 
     NAMES_UNIT = ["unit", "u"]
     NAMES_TYPE = ["type", "t"]
@@ -1701,11 +1701,11 @@ class ConvertUnitAddAbbreviation(Function):
     Adds a new abbreviation to a unit.
     """
     # Name for use in help listing
-    mHelpName = "convert unit add abbreviation"
+    help_name = "convert unit add abbreviation"
     # Names which can be used to address the Function
-    mNames = {"convert unit add abbreviation", "convert unit add abbr"}
+    names = {"convert unit add abbreviation", "convert unit add abbr"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Adds a new abbreviation to a unit."
+    help_docs = "Adds a new abbreviation to a unit."
 
     NAMES_UNIT = ["unit", "u"]
     NAMES_TYPE = ["type", "t"]
@@ -1796,14 +1796,14 @@ class ConvertUnitRemoveName(Function):
     Removes a name or abbreviation from a unit, unless it's the last name.
     """
     # Name for use in help listing
-    mHelpName = "convert unit remove name"
+    help_name = "convert unit remove name"
     # Names which can be used to address the Function
-    mNames = {"convert unit remove name", "convert unit delete name", "convert unit remove abbreviation",
+    names = {"convert unit remove name", "convert unit delete name", "convert unit remove abbreviation",
               "convert unit delete abbreviation", "convert unit remove abbr", "convert unit delete abbr",
               "convert remove unit name", "convert delete unit name", "convert remove unit abbreviation",
               "convert delete unit abbreviation", "convert remove unit abbr", "convert delete unit abbr"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Removes a name or abbreviation from a unit, unless it's the last name."
+    help_docs = "Removes a name or abbreviation from a unit, unless it's the last name."
 
     NAMES_UNIT = ["unit", "u"]
     NAMES_TYPE = ["type", "t"]
@@ -1883,11 +1883,11 @@ class ConvertUnitSetPrefixGroup(Function):
     Sets the prefix group for a unit.
     """
     # Name for use in help listing
-    mHelpName = "convert set prefix group"
+    help_name = "convert set prefix group"
     # Names which can be used to address the Function
-    mNames = {"convert set prefix group", "convert prefix group"}
+    names = {"convert set prefix group", "convert prefix group"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Removes a name or abbreviation from a unit, unless it's the last name."
+    help_docs = "Removes a name or abbreviation from a unit, unless it's the last name."
 
     NAMES_UNIT = ["unit", "u"]
     NAMES_TYPE = ["type", "t"]

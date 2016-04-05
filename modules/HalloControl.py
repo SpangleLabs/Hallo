@@ -7,11 +7,11 @@ class ConfigSave(Function):
     Save the current config to xml.
     """
     # Name for use in help listing
-    mHelpName = "config save"
+    help_name = "config save"
     # Names which can be used to address the function
-    mNames = {"config save", "configsave", "save config"}
+    names = {"config save", "configsave", "save config"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Save the config and pickle it."
+    help_docs = "Save the config and pickle it."
 
     def __init__(self):
         """
@@ -29,11 +29,11 @@ class ModuleReload(Function):
     Reloads a specific function module.
     """
     # Name for use in help listing
-    mHelpName = "module reload"
+    help_name = "module reload"
     # Names which can be used to address the function
-    mNames = {"module reload", "modulereload", "reload module"}
+    names = {"module reload", "modulereload", "reload module"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Reloads a specified module."
+    help_docs = "Reloads a specified module."
 
     def __init__(self):
         """
@@ -56,11 +56,11 @@ class ActiveThreads(Function):
     Checks the current number of running hallo threads.
     """
     # Name for use in help listing
-    mHelpName = "active threads"
+    help_name = "active threads"
     # Names which can be used to address the function
-    mNames = {"active threads", "activethreads", "threads"}
+    names = {"active threads", "activethreads", "threads"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns current number of active threads. Format: active thread"
+    help_docs = "Returns current number of active threads. Format: active thread"
 
     def __init__(self):
         """
@@ -80,11 +80,11 @@ class Help(Function):
     Allows users to request help on using Hallo
     """
     # Name for use in help listing
-    mHelpName = "help"
+    help_name = "help"
     # Names which can be used to address the Function
-    mNames = {"help", "readme", "info", "read me"}
+    names = {"help", "readme", "info", "read me"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Gives information about commands.  Use \"help\" for a list of commands, " \
+    help_docs = "Gives information about commands.  Use \"help\" for a list of commands, " \
                 "or \"help <command>\" for help on a specific command."
 
     mHalloObject = None  # Hallo object containing everything.

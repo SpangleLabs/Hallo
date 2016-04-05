@@ -8,11 +8,11 @@ class Hailstone(Function):
     Runs a collatz (or hailstone) function on a specified number, returning the sequence generated.
     """
     # Name for use in help listing
-    mHelpName = "hailstone"
+    help_name = "hailstone"
     # Names which can be used to address the Function
-    mNames = {"hailstone", "collatz", "collatz sequence"}
+    names = {"hailstone", "collatz", "collatz sequence"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "The hailstone function has to be given with a number (to generate the collatz sequence of.)"
+    help_docs = "The hailstone function has to be given with a number (to generate the collatz sequence of.)"
 
     def __init__(self):
         """
@@ -49,11 +49,11 @@ class NumberWord(Function):
     Converts a number to the textual representation of that number.
     """
     # Name for use in help listing
-    mHelpName = "number"
+    help_name = "number"
     # Names which can be used to address the Function
-    mNames = {"number", "number word", "numberword"}
+    names = {"number", "number word", "numberword"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns the textual representation of a given number. Format: number <number>"
+    help_docs = "Returns the textual representation of a given number. Format: number <number>"
 
     def __init__(self):
         """
@@ -170,11 +170,11 @@ class PrimeFactors(Function):
     Finds prime factors of a specified number
     """
     # Name for use in help listing
-    mHelpName = "prime factors"
+    help_name = "prime factors"
     # Names which can be used to address the Function
-    mNames = {"prime factors", "prime factor", "primefactors", "primefactor"}
+    names = {"prime factors", "prime factor", "primefactors", "primefactor"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns the prime factors of a given number. Format: prime factors <number>"
+    help_docs = "Returns the prime factors of a given number. Format: prime factors <number>"
 
     def __init__(self):
         """
@@ -218,11 +218,11 @@ class ChangeOptions(Function):
     Returns the number of options for change in UK currency for a certain value
     """
     # Name for use in help listing
-    mHelpName = "change options"
+    help_name = "change options"
     # Names which can be used to address the Function
-    mNames = {"change options", "changeoptions", "change", "change ways"}
+    names = {"change options", "changeoptions", "change", "change ways"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns the different ways to give change for a given amount (in pence, using british coins.) " \
+    help_docs = "Returns the different ways to give change for a given amount (in pence, using british coins.) " \
                 "Format: change_options <number>"
 
     def __init__(self):
@@ -274,11 +274,11 @@ class Average(Function):
     Finds the average of a given list of numbers.
     """
     # Name for use in help listing
-    mHelpName = "average"
+    help_name = "average"
     # Names which can be used to address the Function
-    mNames = {"average", "avg", "mean"}
+    names = {"average", "avg", "mean"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Finds the average of a list of numbers. Format: average <number1> <number2> ... <number n>"
+    help_docs = "Finds the average of a list of numbers. Format: average <number1> <number2> ... <number n>"
 
     def __init__(self):
         """
@@ -300,11 +300,11 @@ class HighestCommonFactor(Function):
     Finds the highest common factor of a pair of numbers.
     """
     # Name for use in help listing
-    mHelpName = "highest common factor"
+    help_name = "highest common factor"
     # Names which can be used to address the Function
-    mNames = {"highest common factor", "highestcommonfactor", "hcf"}
+    names = {"highest common factor", "highestcommonfactor", "hcf"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns the highest common factor of two numbers. Format: highest common factor <number1> <number2>"
+    help_docs = "Returns the highest common factor of two numbers. Format: highest common factor <number1> <number2>"
 
     def __init__(self):
         """
@@ -343,12 +343,12 @@ class SimplifyFraction(Function):
     Simplifies an inputted fraction
     """
     # Name for use in help listing
-    mHelpName = "simplify fraction"
+    help_name = "simplify fraction"
     # Names which can be used to address the Function
-    mNames = {"simplify fraction", "simplifyfraction", "fraction", "simple fraction", "base fraction",
+    names = {"simplify fraction", "simplifyfraction", "fraction", "simple fraction", "base fraction",
               "fraction simplify"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns a fraction in its simplest form. Format: simplify fraction <numerator>/<denominator>"
+    help_docs = "Returns a fraction in its simplest form. Format: simplify fraction <numerator>/<denominator>"
 
     def __init__(self):
         """
@@ -393,11 +393,11 @@ class Calculate(Function):
     Standard calculator function
     """
     # Name for use in help listing
-    mHelpName = "calc"
+    help_name = "calc"
     # Names which can be used to address the Function
-    mNames = {"calc", "calculate", "calculator"}
+    names = {"calc", "calculate", "calculator"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Calculate function, calculates the answer to mathematical expressions. Format: calc <calculation>"
+    help_docs = "Calculate function, calculates the answer to mathematical expressions. Format: calc <calculation>"
 
     def __init__(self):
         """

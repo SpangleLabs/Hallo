@@ -10,11 +10,11 @@ class Is(Function):
     A fun function which makes hallo respond to any message starting "hallo is..."
     """
     # Name for use in help listing
-    mHelpName = "is"
+    help_name = "is"
     # Names which can be used to address the function
-    mNames = {"is"}
+    names = {"is"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Placeholder. Format: is"
+    help_docs = "Placeholder. Format: is"
 
     def __init__(self):
         """
@@ -31,11 +31,11 @@ class Blank(Function):
     Blank function which makes hallo respond to all messages of the format "hallo"
     """
     # Name for use in help listing
-    mHelpName = ""
+    help_name = ""
     # Names which can be used to address the function
-    mNames = {""}
+    names = {""}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "I wonder if this works. Format: "
+    help_docs = "I wonder if this works. Format: "
 
     def __init__(self):
         """
@@ -52,11 +52,11 @@ class Alarm(Function):
     Alarm function, responds with a wooo wooo alarm.
     """
     # Name for use in help listing
-    mHelpName = "alarm"
+    help_name = "alarm"
     # Names which can be used to address the function
-    mNames = {"alarm"}
+    names = {"alarm"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Alarm. Format: alarm <subject>"
+    help_docs = "Alarm. Format: alarm <subject>"
 
     def __init__(self):
         """
@@ -73,11 +73,11 @@ class ArcticTerns(Function):
     Posts a link to a random image of an arctic tern.
     """
     # Name for use in help listing
-    mHelpName = "arctic tern"
+    help_name = "arctic tern"
     # Names which can be used to address the function
-    mNames = {"arctic tern", "arctic terns", "mods asleep", "arctictern", "arcticterns", "mods"}
+    names = {"arctic tern", "arctic terns", "mods asleep", "arctictern", "arcticterns", "mods"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Alarm. Format: alarm <subject>"
+    help_docs = "Alarm. Format: alarm <subject>"
 
     def __init__(self):
         """
@@ -101,11 +101,11 @@ class SlowClap(Function):
     Makes hallo do a slow clap in the current or specified channel.
     """
     # Name for use in help listing
-    mHelpName = "slowclap"
+    help_name = "slowclap"
     # Names which can be used to address the function
-    mNames = {"slowclap", "slow clap"}
+    names = {"slowclap", "slow clap"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Slowclap. Format: slowclap"
+    help_docs = "Slowclap. Format: slowclap"
 
     def __init__(self):
         """
@@ -141,11 +141,11 @@ class Boop(Function):
     Boops people. Probably on the nose.
     """
     # Name for use in help listing
-    mHelpName = "boop"
+    help_name = "boop"
     # Names which can be used to address the function
-    mNames = {"boop", "noseboop", "nose boop"}
+    names = {"boop", "noseboop", "nose boop"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Boops people. Format: boop <name>"
+    help_docs = "Boops people. Format: boop <name>"
 
     def __init__(self):
         """
@@ -374,11 +374,11 @@ class Reply(Function):
     Function to make hallo reply to detected phrases with a specified response
     """
     # Name for use in help listing
-    mHelpName = "reply"
+    help_name = "reply"
     # Names which can be used to address the function
-    mNames = {"reply"}
+    names = {"reply"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Make hallo reply to a detected phrase with a specified response."
+    help_docs = "Make hallo reply to a detected phrase with a specified response."
 
     def __init__(self):
         """

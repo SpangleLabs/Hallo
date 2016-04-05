@@ -10,11 +10,11 @@ class JoinChannel(Function):
     Joins a channel on a specified server
     """
     # Name for use in help listing
-    mHelpName = "join"
+    help_name = "join"
     # Names which can be used to address the function
-    mNames = {"join channel", "join", "channel"}
+    names = {"join channel", "join", "channel"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Join a channel. Password as optional argument. Server can be specified with \"server=<servername>\"." \
+    help_docs = "Join a channel. Password as optional argument. Server can be specified with \"server=<servername>\"." \
                 " Format: \"join <channel> <password?>\"."
 
     def __init__(self):
@@ -63,11 +63,11 @@ class LeaveChannel(Function):
     Leaves a channel on a specified server
     """
     # Name for use in help listing
-    mHelpName = "leave"
+    help_name = "leave"
     # Names which can be used to address the function
-    mNames = {"leave channel", "leave", "part"}
+    names = {"leave channel", "leave", "part"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Leave a channel. Server can be specified with \"server=<servername>\". Format: \"leave <channel>\"."
+    help_docs = "Leave a channel. Server can be specified with \"server=<servername>\". Format: \"leave <channel>\"."
 
     def __init__(self):
         """
@@ -109,11 +109,11 @@ class Shutdown(Function):
     Shuts down hallo entirely.
     """
     # Name for use in help listing
-    mHelpName = "shutdown"
+    help_name = "shutdown"
     # Names which can be used to address the Function
-    mNames = {"shutdown"}
+    names = {"shutdown"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Shuts down hallo entirely."
+    help_docs = "Shuts down hallo entirely."
 
     def __init__(self):
         """
@@ -133,11 +133,11 @@ class Disconnect(Function):
     Disconnects from a Server
     """
     # Name for use in help listing
-    mHelpName = "disconnect"
+    help_name = "disconnect"
     # Names which can be used to address the Function
-    mNames = {"disconnect", "quit"}
+    names = {"disconnect", "quit"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Disconnects from a server."
+    help_docs = "Disconnects from a server."
 
     def __init__(self):
         """
@@ -162,11 +162,11 @@ class Connect(Function):
     Connects to a Server
     """
     # Name for use in help listing
-    mHelpName = "connect"
+    help_name = "connect"
     # Names which can be used to address the Function
-    mNames = {"connect", "new server"}
+    names = {"connect", "new server"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Connects to an existing or a new server."
+    help_docs = "Connects to an existing or a new server."
 
     def __init__(self):
         """
@@ -294,11 +294,11 @@ class Say(Function):
     Function to enable speaking through hallo
     """
     # Name for use in help listing
-    mHelpName = "say"
+    help_name = "say"
     # Names which can be used to address the Function
-    mNames = {"say", "message", "msg"}
+    names = {"say", "message", "msg"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Say a message into a channel or server/channel pair (in the format \"{server,channel}\"). " \
+    help_docs = "Say a message into a channel or server/channel pair (in the format \"{server,channel}\"). " \
                 "Format: say <channel> <message>"
 
     def __init__(self):
@@ -382,11 +382,11 @@ class EditServer(Function):
     Edits a Server
     """
     # Name for use in help listing
-    mHelpName = "edit server"
+    help_name = "edit server"
     # Names which can be used to address the Function
-    mNames = {"edit server", "server edit"}
+    names = {"edit server", "server edit"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Edits a server's configuration."
+    help_docs = "Edits a server's configuration."
 
     def __init__(self):
         """
@@ -481,11 +481,11 @@ class ListUsers(Function):
     Lists users in a specified channel.
     """
     # Name for use in help listing
-    mHelpName = "list users"
+    help_name = "list users"
     # Names which can be used to address the Function
-    mNames = {"list users", "nick list", "nicklist", "list channel"}
+    names = {"list users", "nick list", "nicklist", "list channel"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns a user list for a given channel."
+    help_docs = "Returns a user list for a given channel."
 
     def __init__(self):
         """
@@ -549,11 +549,11 @@ class ListChannels(Function):
     Lists channels in a specified server, or for all of hallo.
     """
     # Name for use in help listing
-    mHelpName = "list channels"
+    help_name = "list channels"
     # Names which can be used to address the Function
-    mNames = {"list channels", "channel list", "chanlist", "channels"}
+    names = {"list channels", "channel list", "chanlist", "channels"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Hallo will tell you which channels he is in. Format: \"list channels\" " \
+    help_docs = "Hallo will tell you which channels he is in. Format: \"list channels\" " \
                 "for channels on current server, \"list channels all\" for all channels on all servers."
 
     HALLO_NAMES = ["hallo", "core", "all", "*", "default"]

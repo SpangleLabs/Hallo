@@ -11,11 +11,11 @@ class FinnBot(Function):
     Spouts random finnishisms reminiscent of ari
     """
     # Name for use in help listing
-    mHelpName = "finnbot"
+    help_name = "finnbot"
     # Names which can be used to address the function
-    mNames = {"finnbot", "random finnishism", "aribot"}
+    names = {"finnbot", "random finnishism", "aribot"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Simulates a typical finn in conversation. Format: finnbot"
+    help_docs = "Simulates a typical finn in conversation. Format: finnbot"
 
     def __init__(self):
         """
@@ -57,11 +57,11 @@ class SilenceTheRabble(Function):
     Deops everyone except 000242 and hallo, then mutes everyone
     """
     # Name for use in help listing
-    mHelpName = "silence the rabble"
+    help_name = "silence the rabble"
     # Names which can be used to address the function
-    mNames = {"silence the rabble", "silencetherabble"}
+    names = {"silence the rabble", "silencetherabble"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "ETD only. De-ops all but D000242 and self. Sets mute. Format: silence the rabble"
+    help_docs = "ETD only. De-ops all but D000242 and self. Sets mute. Format: silence the rabble"
 
     def __init__(self):
         """
@@ -99,11 +99,11 @@ class PokeTheAsshole(Function):
     Pokes dolphin a bunch, to see if he is awake.
     """
     # Name for use in help listing
-    mHelpName = "poke the asshole"
+    help_name = "poke the asshole"
     # Names which can be used to address the function
-    mNames = {"poke the asshole", "poketheasshole"}
+    names = {"poke the asshole", "poketheasshole"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "ETD only. Voices and unvoices Dolphin repeatedly. Format: poke the asshole"
+    help_docs = "ETD only. Voices and unvoices Dolphin repeatedly. Format: poke the asshole"
 
     def __init__(self):
         """
@@ -138,11 +138,11 @@ class Trump(Function):
     Announces the years that Donald Trump will win the US elections.
     """
     # Name for use in help listing
-    mHelpName = "trump"
+    help_name = "trump"
     # Names which can be used to address the function
-    mNames = {"trump", "donald trump"}
+    names = {"trump", "donald trump"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns the election years that Donald Trump will win US election. Format: \"trump <number of terms>\""
+    help_docs = "Returns the election years that Donald Trump will win US election. Format: \"trump <number of terms>\""
 
     def __init__(self):
         """
@@ -173,11 +173,11 @@ class Corbyn(Function):
     Announces the years that Jeremy Corbyn will win the UK elections.
     """
     # Name for use in help listing
-    mHelpName = "corbyn"
+    help_name = "corbyn"
     # Names which can be used to address the function
-    mNames = {"corbyn", "jeremy corbyn"}
+    names = {"corbyn", "jeremy corbyn"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns the election years that Jeremy Corbyn will win UK election." \
+    help_docs = "Returns the election years that Jeremy Corbyn will win UK election." \
                 "Format: \"corbyn <number of terms>\""
 
     def __init__(self):

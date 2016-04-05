@@ -8,11 +8,11 @@ class Operator(Function):
     Gives a user on an irc server "operator" status.
     """
     # Name for use in help listing
-    mHelpName = "op"
+    help_name = "op"
     # Names which can be used to address the function
-    mNames = {"op", "operator", "give op", "gib op", "get op", "give operator", "gib operator", "get operator"}
+    names = {"op", "operator", "give op", "gib op", "get op", "give operator", "gib operator", "get operator"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Op member in given channel, or current channel if no channel given. Or command user if no member " \
+    help_docs = "Op member in given channel, or current channel if no channel given. Or command user if no member " \
                 "given. Format: op <name> <channel>"
 
     def __init__(self):
@@ -84,12 +84,12 @@ class DeOperator(Function):
     Removes a user on an irc server's "operator" status.
     """
     # Name for use in help listing
-    mHelpName = "deop"
+    help_name = "deop"
     # Names which can be used to address the function
-    mNames = {"deop", "deoperator", "unoperator", "take op", "del op", "delete op", "remove op", "take operator",
+    names = {"deop", "deoperator", "unoperator", "take op", "del op", "delete op", "remove op", "take operator",
               "del operator", "delete op", "remove operator"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Deop member in given channel, or current channel if no channel given. Or command user if no member " \
+    help_docs = "Deop member in given channel, or current channel if no channel given. Or command user if no member " \
                 "given. Format: deop <name> <channel>"
 
     def __init__(self):
@@ -161,11 +161,11 @@ class Voice(Function):
     Gives a user on an irc server "voice" status.
     """
     # Name for use in help listing
-    mHelpName = "voice"
+    help_name = "voice"
     # Names which can be used to address the function
-    mNames = {"voice", "give voice", "gib voice", "get voice"}
+    names = {"voice", "give voice", "gib voice", "get voice"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Voice member in given channel, or current channel if no channel given, or command user if no member " \
+    help_docs = "Voice member in given channel, or current channel if no channel given, or command user if no member " \
                 "given. Format: voice <name> <channel>"
 
     def __init__(self):
@@ -237,11 +237,11 @@ class DeVoice(Function):
     Removes a user on an irc server's "voice" status.
     """
     # Name for use in help listing
-    mHelpName = "devoice"
+    help_name = "devoice"
     # Names which can be used to address the function
-    mNames = {"devoice", "unvoice", "take voice", "del voice", "delete voice", "remove voice"}
+    names = {"devoice", "unvoice", "take voice", "del voice", "delete voice", "remove voice"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "UnVoice member in given channel, or current channel if no channel given, or command user if no " \
+    help_docs = "UnVoice member in given channel, or current channel if no channel given, or command user if no " \
                 "member given. Format: devoice <name> <channel>"
 
     def __init__(self):
@@ -313,11 +313,11 @@ class Invite(Function):
     IRC only, invites users to a given channel.
     """
     # Name for use in help listing
-    mHelpName = "invite"
+    help_name = "invite"
     # Names which can be used to address the function
-    mNames = {"invite"}
+    names = {"invite"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Invite someone to a channel"
+    help_docs = "Invite someone to a channel"
 
     def __init__(self):
         """
@@ -376,11 +376,11 @@ class Mute(Function):
     Mutes the current or a selected channel. IRC only.
     """
     # Name for use in help listing
-    mHelpName = "mute"
+    help_name = "mute"
     # Names which can be used to address the function
-    mNames = {"mute"}
+    names = {"mute"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Mutes a given channel or current channel. Format: mute <channel>"
+    help_docs = "Mutes a given channel or current channel. Format: mute <channel>"
 
     def __init__(self):
         """
@@ -412,11 +412,11 @@ class UnMute(Function):
     Mutes the current or a selected channel. IRC only.
     """
     # Name for use in help listing
-    mHelpName = "unmute"
+    help_name = "unmute"
     # Names which can be used to address the function
-    mNames = {"unmute", "un mute"}
+    names = {"unmute", "un mute"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Unmutes a given channel or current channel if none is given. Format: unmute <channel>"
+    help_docs = "Unmutes a given channel or current channel if none is given. Format: unmute <channel>"
 
     def __init__(self):
         """
@@ -448,11 +448,11 @@ class Kick(Function):
     Kicks a specified user from a specified channel. IRC Only.
     """
     # Name for use in help listing
-    mHelpName = "kick"
+    help_name = "kick"
     # Names which can be used to address the function
-    mNames = {"kick"}
+    names = {"kick"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Kick given user in given channel, or current channel if no channel given."
+    help_docs = "Kick given user in given channel, or current channel if no channel given."
 
     def __init__(self):
         """
@@ -535,11 +535,11 @@ class ChannelCaps(Function):
     Set caps lock for a channel.
     """
     # Name for use in help listing
-    mHelpName = "caps lock"
+    help_name = "caps lock"
     # Names which can be used to address the function
-    mNames = {"caps lock", "channel caps", "channel caps lock", "chan caps", "chan caps lock", "channelcapslock"}
+    names = {"caps lock", "channel caps", "channel caps lock", "chan caps", "chan caps lock", "channelcapslock"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Sets caps lock for channel on or off."
+    help_docs = "Sets caps lock for channel on or off."
 
     def __init__(self):
         """
@@ -591,11 +591,11 @@ class ChannelLogging(Function):
     Set logging for a channel.
     """
     # Name for use in help listing
-    mHelpName = "logging"
+    help_name = "logging"
     # Names which can be used to address the function
-    mNames = {"logging", "channel logging", "channel log", "chan logging", "chan log"}
+    names = {"logging", "channel logging", "channel log", "chan logging", "chan log"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Sets or toggles logging for channel."
+    help_docs = "Sets or toggles logging for channel."
 
     def __init__(self):
         """
@@ -647,11 +647,11 @@ class ChannelPassiveFunctions(Function):
     Set whether passive functions are enabled in a channel.
     """
     # Name for use in help listing
-    mHelpName = "passive"
+    help_name = "passive"
     # Names which can be used to address the function
-    mNames = {"passive"}
+    names = {"passive"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Sets or toggles logging for channel."
+    help_docs = "Sets or toggles logging for channel."
 
     def __init__(self):
         """
@@ -661,11 +661,11 @@ class ChannelPassiveFunctions(Function):
 
     def get_names(self):
         """Returns the list of names for directly addressing the function"""
-        self.mNames = {"passive"}
+        self.names = {"passive"}
         for chan in ["chan ", "channel "]:
             for passive in ["passive", "passive func", "passive function", "passive functions"]:
-                self.mNames.add(chan + passive)
-        return self.mNames
+                self.names.add(chan + passive)
+        return self.names
 
     def run(self, line, user_obj, destination_obj=None):
         # Get server object
@@ -714,11 +714,11 @@ class ChannelPassword(Function):
     Set password for a channel.
     """
     # Name for use in help listing
-    mHelpName = "channel password"
+    help_name = "channel password"
     # Names which can be used to address the function
-    mNames = {"channel password", "chan password", "channel pass", "chan pass"}
+    names = {"channel password", "chan password", "channel pass", "chan pass"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Sets or disables channel password."
+    help_docs = "Sets or disables channel password."
 
     def __init__(self):
         """

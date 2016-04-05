@@ -6,18 +6,18 @@ class Longcat(Function):
     """
     Draws a classic longcat
     """
-    # Name for use in help listing
-    mHelpName = "longcat"
-    # Names which can be used to address the function
-    mNames = {"longcat", "ascii longcat"}
-    # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Make a longcat! Format: longcat <length>"
-    
+
     def __init__(self):
         """
         Constructor
         """
-        pass
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "longcat"
+        # Names which can be used to address the function
+        self.names = {"longcat", "ascii longcat"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Make a longcat! Format: longcat <length>"
 
     def run(self, line, user_obj, destination_obj=None):
         """Make a longcat! Format: longcat <length>"""
@@ -52,11 +52,11 @@ class Deer(Function):
     Draws an ascii deer
     """
     # Name for use in help listing
-    mHelpName = "deer"
+    help_name = "deer"
     # Names which can be used to address the function
-    mNames = {"deer", "ascii deer"}
+    names = {"deer", "ascii deer"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Ascii art deer. Format: deer"
+    help_docs = "Ascii art deer. Format: deer"
     
     def __init__(self):
         """
@@ -98,11 +98,11 @@ class Dragon(Function):
     Draws an ascii dragon
     """
     # Name for use in help listing
-    mHelpName = "dragon"
+    help_name = "dragon"
     # Names which can be used to address the function
-    mNames = {"dragon", "ascii dragon"}
+    names = {"dragon", "ascii dragon"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Prints ascii dragon. Format: dragon"
+    help_docs = "Prints ascii dragon. Format: dragon"
     
     def __init__(self):
         """
@@ -155,11 +155,11 @@ class Train(Function):
     Draws an ascii train
     """
     # Name for use in help listing
-    mHelpName = "train"
+    help_name = "train"
     # Names which can be used to address the function
-    mNames = {"train", "ascii train"}
+    names = {"train", "ascii train"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Prints ascii train. Format: train"
+    help_docs = "Prints ascii train. Format: train"
     
     def __init__(self):
         """

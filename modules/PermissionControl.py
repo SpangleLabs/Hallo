@@ -7,11 +7,11 @@ class Permissions(Function):
     Change permissions for a specified PermissionMask
     """
     # Name for use in help listing
-    mHelpName = "permissions"
+    help_name = "permissions"
     # Names which can be used to address the function
-    mNames = {"permissions", "permissionmask", "permission mask"}
+    names = {"permissions", "permissionmask", "permission mask"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Changes the permissions of a specified permission map." \
+    help_docs = "Changes the permissions of a specified permission map." \
                 " Format: permissions <location> <permission> <on/off>"
 
     HALLO_NAMES = ["hallo", "core", "all", "*", "default"]

@@ -8,11 +8,11 @@ class RandomPokemon(Function):
     Random pokemon function
     """
     # Name for use in help listing
-    mHelpName = "i choose you"
+    help_name = "i choose you"
     # Names which can be used to address the function
-    mNames = {"i choose you", "ichooseyou", "random pokemon", "pokemon"}
+    names = {"i choose you", "ichooseyou", "random pokemon", "pokemon"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Picks a random pokemon from generation I to generation V. Format: i choose you"
+    help_docs = "Picks a random pokemon from generation I to generation V. Format: i choose you"
 
     def __init__(self):
         """
@@ -38,11 +38,11 @@ class PickATeam(Function):
     Function to select a random pokemon team
     """
     # Name for use in help listing
-    mHelpName = "pick a team"
+    help_name = "pick a team"
     # Names which can be used to address the function
-    mNames = {"pick a team", "pickateam"}
+    names = {"pick a team", "pickateam"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Generates a team of pokemon for you."
+    help_docs = "Generates a team of pokemon for you."
 
     def __init__(self):
         """
@@ -69,11 +69,11 @@ class FullyEvolvedTeam(Function):
     Function to select a random fully evolved pokemon team
     """
     # Name for use in help listing
-    mHelpName = "fully evolved team"
+    help_name = "fully evolved team"
     # Names which can be used to address the function
-    mNames = {"pick a fully evolved team", "fully evolved team", "fullyevolvedteam"}
+    names = {"pick a fully evolved team", "fully evolved team", "fullyevolvedteam"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Pick a fully evolved pokemon team."
+    help_docs = "Pick a fully evolved pokemon team."
 
     def __init__(self):
         """
@@ -102,11 +102,11 @@ class Pokedex(Function):
     Function to return pokedex entries
     """
     # Name for use in help listing
-    mHelpName = "pokedex"
+    help_name = "pokedex"
     # Names which can be used to address the function
-    mNames = {"pokedex", "dex"}
+    names = {"pokedex", "dex"}
     # Help documentation, if it's just a single line, can be set here
-    mHelpDocs = "Returns a random pokedex entry for a given pokemon."
+    help_docs = "Returns a random pokedex entry for a given pokemon."
 
     def __init__(self):
         """
