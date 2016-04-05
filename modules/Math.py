@@ -333,8 +333,8 @@ class HighestCommonFactor(Function):
         # Get prime factors of each, get intersection, then product of that.
         numberOneFactors = primeFactorsObject.findPrimeFactors(numberOne)
         numberTwoFactors = primeFactorsObject.findPrimeFactors(numberTwo)
-        commonFactors = eulerObject.listIntersection(numberOneFactors, numberTwoFactors)
-        HCF = eulerObject.listProduct(commonFactors)
+        commonFactors = eulerObject.list_intersection(numberOneFactors, numberTwoFactors)
+        HCF = eulerObject.list_product(commonFactors)
         return "The highest common factor of " + str(numberOne) + " and " + str(numberTwo) + " is " + str(HCF) + "."
 
 
@@ -378,13 +378,13 @@ class SimplifyFraction(Function):
         # Sort all this and get the value
         numeratorFactors = primeFactorsObject.findPrimeFactors(numerator)
         denominatorFactors = primeFactorsObject.findPrimeFactors(denominator)
-        numeratorFactorsNew = eulerObject.listMinus(numeratorFactors,
-                                                    eulerObject.listIntersection(denominatorFactors, numeratorFactors))
-        denominatorFactorsNew = eulerObject.listMinus(denominatorFactors,
-                                                      eulerObject.listIntersection(denominatorFactors,
-                                                                                   numeratorFactors))
-        numeratorNew = eulerObject.listProduct(numeratorFactorsNew)
-        denominatorNew = eulerObject.listProduct(denominatorFactorsNew)
+        numeratorFactorsNew = eulerObject.list_minus(numeratorFactors,
+                                                     eulerObject.list_intersection(denominatorFactors, numeratorFactors))
+        denominatorFactorsNew = eulerObject.list_minus(denominatorFactors,
+                                                       eulerObject.list_intersection(denominatorFactors,
+                                                                                     numeratorFactors))
+        numeratorNew = eulerObject.list_product(numeratorFactorsNew)
+        denominatorNew = eulerObject.list_product(denominatorFactorsNew)
         return str(numerator) + "/" + str(denominator) + " = " + str(numeratorNew) + "/" + str(denominatorNew) + "."
 
 
