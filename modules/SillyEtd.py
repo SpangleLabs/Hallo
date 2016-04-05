@@ -46,7 +46,7 @@ class FinnBot(Function):
                      "I have found a new favourite thing to hate"]
         # TODO: add swear filters again sometime
         # ariswearquotes = ["FUCK. FINNISH. PEOPLE!!!", "FUCK MANNERHEIM", "YOU'RE A PERSON OF SHIT"]
-        quote = Commons.getRandomChoice(ariQuotes)[0]
+        quote = Commons.get_random_choice(ariQuotes)[0]
         if quote[-1] not in ['.', '?', '!']:
             quote += '.'
         return quote

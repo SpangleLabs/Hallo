@@ -333,13 +333,13 @@ class Channel(Destination):
         doc = minidom.parseString(xml_string)
         new_name = doc.getElementsByTagName("channel_name")[0].firstChild.data
         channel = Channel(new_name, server)
-        channel.logging = Commons.stringFromFile(doc.getElementsByTagName("logging")[0].firstChild.data)
-        channel.use_caps_lock = Commons.stringFromFile(doc.getElementsByTagName("caps_lock")[0].firstChild.data)
+        channel.logging = Commons.string_from_file(doc.getElementsByTagName("logging")[0].firstChild.data)
+        channel.use_caps_lock = Commons.string_from_file(doc.getElementsByTagName("caps_lock")[0].firstChild.data)
         if len(doc.getElementsByTagName("password")) != 0:
             channel.password = doc.getElementsByTagName("password")[0].firstChild.data
-        channel.passive_enabled = Commons.stringFromFile(
+        channel.passive_enabled = Commons.string_from_file(
             doc.getElementsByTagName("passive_enabled")[0].firstChild.data)
-        channel.auto_join = Commons.stringFromFile(doc.getElementsByTagName("auto_join")[0].firstChild.data)
+        channel.auto_join = Commons.string_from_file(doc.getElementsByTagName("auto_join")[0].firstChild.data)
         if len(doc.getElementsByTagName("permission_mask")) != 0:
             channel.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return channel
@@ -542,8 +542,8 @@ class User(Destination):
         doc = minidom.parseString(xml_string)
         new_name = doc.getElementsByTagName("user_name")[0].firstChild.data
         new_user = User(new_name, server)
-        new_user.logging = Commons.stringFromFile(doc.getElementsByTagName("logging")[0].firstChild.data)
-        new_user.use_caps_lock = Commons.stringFromFile(doc.getElementsByTagName("caps_lock")[0].firstChild.data)
+        new_user.logging = Commons.string_from_file(doc.getElementsByTagName("logging")[0].firstChild.data)
+        new_user.use_caps_lock = Commons.string_from_file(doc.getElementsByTagName("caps_lock")[0].firstChild.data)
         # Load UserGroups from XML
         user_group_list_elem = doc.getElementsByTagName("user_group_membership")[0]
         for user_group_elem in user_group_list_elem.getElementsByTagName("user_group_name"):

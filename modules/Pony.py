@@ -32,14 +32,14 @@ class PonyEpisode(Function):
         for ponyEpisodeXml in ponyEpisodesListXml.getElementsByTagName("pony_episode"):
             episodeDict = {'name': ponyEpisodeXml.getElementsByTagName("name")[0].firstChild.data,
                            'full_code': ponyEpisodeXml.getElementsByTagName("full_code")[0].firstChild.data}
-            if Commons.stringToBool(ponyEpisodeXml.getElementsByTagName("song")[0].firstChild.data):
+            if Commons.string_to_bool(ponyEpisodeXml.getElementsByTagName("song")[0].firstChild.data):
                 songList.append(episodeDict)
             episodeList.append(episodeDict)
         # If song, get episode from song list, otherwise get one from episode list
         if line.strip().lower() != "song":
-            episode = Commons.getRandomChoice(episodeList)[0]
+            episode = Commons.get_random_choice(episodeList)[0]
         else:
-            episode = Commons.getRandomChoice(songList)[0]
+            episode = Commons.get_random_choice(songList)[0]
         # Return output
         return "You should choose: " + episode['full_code'] + " - " + episode['name'] + "."
 
@@ -70,7 +70,7 @@ class BestPony(Function):
                               "princess", "cmc", "cmc", "cmc", "ponyville", "ponyville", "villain", "villain",
                               "wonderbolt", "wonderbolt", "canterlot", "cloudsdale", "foal", "hearthswarming",
                               "notapony", "other", "pet"]
-        randomCategory = Commons.getRandomChoice(weightedCategories)[0]
+        randomCategory = Commons.get_random_choice(weightedCategories)[0]
         ponyList = []
         # Loop through ponies, adding to pony list.
         for ponyEpisodeXml in ponyListXml.getElementsByTagName("pony"):
@@ -88,10 +88,10 @@ class BestPony(Function):
                         "{Y} really makes the show worth watching for me.",
                         "{Y} stands up for what's best for everypony.", "I can really identify with that character.",
                         "I just love the colourscheme I suppose.", "I mean, why not?"]
-        randomHalf1 = Commons.getRandomChoice(messageHalf1)[0]
-        randomHalf2 = Commons.getRandomChoice(messageHalf2)[0]
+        randomHalf1 = Commons.get_random_choice(messageHalf1)[0]
+        randomHalf2 = Commons.get_random_choice(messageHalf2)[0]
         # Select a random pony, or, if it's eli, select Pinkie Pie
-        chosenPony = Commons.getRandomChoice(ponyList)[0]
+        chosenPony = Commons.get_random_choice(ponyList)[0]
         if userObject.get_name().endswith("000242"):
             chosenPony = {'name': "Pinkie Pie", 'pronoun': "she", 'categories': ["mane6"]}
         # Assemble and output the message
@@ -157,13 +157,13 @@ class Cupcake(Function):
         validChannels = [chan for chan in intersectionList if chan.is_in_channel()]
         # If length of valid channel list is nonzero, pick a channel and send.
         if len(validChannels) != 0:
-            chosenChannel = Commons.getRandomChoice(validChannels)[0]
+            chosenChannel = Commons.get_random_choice(validChannels)[0]
             serverObject.send(outputMessage, chosenChannel, "message")
             return "Cupcake sent."
         # If no valid intersection channels, see if there are any valid recipient channels
         validChannels = [chan for chan in recipientChannelList if chan.is_in_channel()]
         if len(validChannels) != 0:
-            chosenChannel = Commons.getRandomChoice(validChannels)[0]
+            chosenChannel = Commons.get_random_choice(validChannels)[0]
             serverObject.send(outputMessage, chosenChannel, "message")
             return "Cupcake sent."
         # Otherwise, use privmsg

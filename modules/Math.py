@@ -74,7 +74,7 @@ class NumberWord(Function):
         else:
             number = line.split()[0]
             lang = "american"
-        if Commons.checkNumbers(number):
+        if Commons.check_numbers(number):
             number = number
             # TODO: implement this, once calc is transferred
         #        elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,number)):
@@ -446,9 +446,9 @@ class Calculate(Function):
     def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
         """Replies to an event not directly addressed to the bot."""
         # Check if fullLine is a calculation, and is not just numbers, and contains numbers.
-        if not Commons.checkCalculation(fullLine):
+        if not Commons.check_calculation(fullLine):
             return None
-        if Commons.checkNumbers(fullLine):
+        if Commons.check_numbers(fullLine):
             return None
         if not any([char in fullLine for char in [str(x) for x in range(10)] + ["e", "pi"]]):
             return None
@@ -500,7 +500,7 @@ class Calculate(Function):
         # strip spaces
         calcClean = calc.replace(' ', '').lower()
         # make sure only legit characters are allowed
-        if not Commons.checkCalculation(calcClean):
+        if not Commons.check_calculation(calcClean):
             raise Exception('Error, Invalid characters in expression')
         # make sure open brackets don't out-number close
         if calc.count('(') > calc.count(')'):

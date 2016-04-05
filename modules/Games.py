@@ -422,7 +422,7 @@ class Hand:
         if fourOfAKind:
             if not otherFourOfAKind:
                 return True
-            return Commons.listGreater(fourOfAKind, otherFourOfAKind)
+            return Commons.list_greater(fourOfAKind, otherFourOfAKind)
         if otherFourOfAKind:
             return False
         # Check if either hand is a full house
@@ -431,7 +431,7 @@ class Hand:
         if fullHouse:
             if not otherFullHouse:
                 return True
-            return Commons.listGreater(fullHouse, otherFullHouse)
+            return Commons.list_greater(fullHouse, otherFullHouse)
         if otherFullHouse:
             return False
         # Check if either hand is a flush
@@ -440,7 +440,7 @@ class Hand:
         if flush:
             if not otherFlush:
                 return True
-            return Commons.listGreater(flush, otherFlush)
+            return Commons.list_greater(flush, otherFlush)
         if otherFlush:
             return False
         # Check if either hand is a straight
@@ -449,7 +449,7 @@ class Hand:
         if straight:
             if not otherStraight:
                 return True
-            return Commons.listGreater(straight, otherStraight)
+            return Commons.list_greater(straight, otherStraight)
         if otherStraight:
             return False
         # Check if either hand is 3 of a kind
@@ -458,7 +458,7 @@ class Hand:
         if threeOfAKind:
             if not otherThreeOfAKind:
                 return True
-            return Commons.listGreater(threeOfAKind, otherThreeOfAKind)
+            return Commons.list_greater(threeOfAKind, otherThreeOfAKind)
         if otherThreeOfAKind:
             return False
         # Check if either hand is 2 pairs
@@ -467,7 +467,7 @@ class Hand:
         if twoPairs:
             if not otherTwoPairs:
                 return True
-            return Commons.listGreater(twoPairs, otherTwoPairs)
+            return Commons.list_greater(twoPairs, otherTwoPairs)
         if otherTwoPairs:
             return False
         # Check if either hand is 1 paid
@@ -476,13 +476,13 @@ class Hand:
         if onePair:
             if not otherOnePair:
                 return True
-            return Commons.listGreater(onePair, otherOnePair)
+            return Commons.list_greater(onePair, otherOnePair)
         if otherOnePair:
             return False
         # Compare by high card
         highCard = self.pokerHighCard()
         otherHighCard = otherHand.pokerHighCard()
-        return Commons.listGreater(highCard, otherHighCard)
+        return Commons.list_greater(highCard, otherHighCard)
 
     def __str__(self):
         return self.toString()
@@ -804,7 +804,7 @@ class HigherOrLowerGame(Game):
             if isHighScore:
                 previousScore = self.mHighScoresObject.getHighScore(self.HIGH_SCORE_NAME)
                 previousScoreText = "(previous highscore was: " + previousScore['score'] + ", set by " + previousScore[
-                    'player'] + " " + Commons.formatUnixTime(previousScore['date']) + ".)"
+                    'player'] + " " + Commons.format_unix_time(previousScore['date']) + ".)"
                 self.updateHighScore()
             # Output message
             outputString = "Your " + Commons.ordinal(
@@ -837,7 +837,7 @@ class HigherOrLowerGame(Game):
             if isHighScore:
                 previousScore = self.mHighScoresObject.getHighScore(self.HIGH_SCORE_NAME)
                 previousScoreText = "(previous highscore was: " + previousScore['score'] + ", set by " + previousScore[
-                    'player'] + " " + Commons.formatUnixTime(previousScore['date']) + ".)"
+                    'player'] + " " + Commons.format_unix_time(previousScore['date']) + ".)"
                 self.updateHighScore()
             # Output message
             outputString = "Your " + Commons.ordinal(
@@ -856,7 +856,7 @@ class HigherOrLowerGame(Game):
         if isHighScore:
             previousScore = self.mHighScoresObject.getHighScore(self.HIGH_SCORE_NAME)
             previousScoreText = "(previous highscore was: " + previousScore['score'] + ", set by " + previousScore[
-                'player'] + " " + Commons.formatUnixTime(previousScore['date']) + ".)"
+                'player'] + " " + Commons.format_unix_time(previousScore['date']) + ".)"
             self.updateHighScore()
         # Create output
         if isHighScore:

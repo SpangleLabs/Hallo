@@ -71,12 +71,12 @@ class Printer:
         return None
     
     def printDay(self, fullLine, serverObject, userObject, channelObject):
-        output = Commons.currentTimestamp() + " "
+        output = Commons.current_timestamp() + " "
         output += "Day changed: "+datetime.datetime.now().strftime("%Y-%m-%d")
         return output
     
     def printPing(self, fullLine, serverObject, userObject, channelObject):
-        output = Commons.currentTimestamp() + " "
+        output = Commons.current_timestamp() + " "
         if userObject is None:
             output += "["+serverObject.get_name() + "] PING"
         else:
@@ -87,20 +87,20 @@ class Printer:
         destinationObject = channelObject
         if channelObject is None:
             destinationObject = userObject
-        output = Commons.currentTimestamp() + " "
+        output = Commons.current_timestamp() + " "
         output += "[" + serverObject.get_name() + "] "
         output += destinationObject.getName() + " "
         output += "<" + userObject.get_name() + "> " + fullLine
         return output
     
     def printJoin(self, fullLine, serverObject, userObject, channelObject):
-        output = Commons.currentTimestamp() + " "
+        output = Commons.current_timestamp() + " "
         output += "[" + serverObject.get_name() + "] "
         output += userObject.get_name() + " joined " + channelObject.get_name()
         return output
     
     def printLeave(self, fullLine, serverObject, userObject, channelObject):
-        output = Commons.currentTimestamp() + " "
+        output = Commons.current_timestamp() + " "
         output += "[" + serverObject.get_name() + "] "
         output += userObject.get_name() + " left " + channelObject.get_name()
         if fullLine.strip() != "":
@@ -108,7 +108,7 @@ class Printer:
         return output
     
     def printQuit(self, fullLine, serverObject, userObject, channelObject):
-        output = Commons.currentTimestamp() + " "
+        output = Commons.current_timestamp() + " "
         output += "[" + serverObject.get_name() + "] "
         output += userObject.get_name() + " has quit."
         if fullLine.strip() != "":
@@ -116,13 +116,13 @@ class Printer:
         return output
     
     def printNameChange(self, fullLine, serverObject, userObject, channelObject):
-        output = Commons.currentTimestamp() + " "
+        output = Commons.current_timestamp() + " "
         output += "[" + serverObject.get_name() + "] "
         output += "Nick change: " + fullLine + " -> " + userObject.get_name()
         return output
     
     def printKick(self, fullLine, serverObject, userObject, channelObject):
-        output = Commons.currentTimestamp() + " "
+        output = Commons.current_timestamp() + " "
         output += "[" + serverObject.get_name() + "] "
         output += userObject.get_name() + " was kicked from " + channelObject.get_name()
         if fullLine.strip() != "":
@@ -130,19 +130,19 @@ class Printer:
         return output
     
     def printInvite(self, fullLine, serverObject, userObject, channelObject):
-        output = Commons.currentTimestamp() + " "
+        output = Commons.current_timestamp() + " "
         output += "[" + serverObject.get_name() + "] "
         output += "Invite to " + channelObject.get_name() + ' from ' + userObject.get_name()
         return output
     
     def printNotice(self, fullLine, serverObject, userObject, channelObject):
-        output = Commons.currentTimestamp() + " "
+        output = Commons.current_timestamp() + " "
         output += "[" + serverObject.get_name() + "] "
         output += "Notice from " + userObject.get_name() + ": " + fullLine
         return output
     
     def printModeChange(self, fullLine, serverObject, userObject, channelObject):
-        output = Commons.currentTimestamp() + " "
+        output = Commons.current_timestamp() + " "
         output += "[" + serverObject.get_name() + "] "
         output += userObject.get_name() + ' set ' + fullLine + ' on ' + channelObject.get_name()
         return output
@@ -156,12 +156,12 @@ class Printer:
             destinationObject = userObject
         # Print CTCP actions differently to other CTCP commands
         if ctcpCommand.lower() == "action":
-            output = Commons.currentTimestamp() + " "
+            output = Commons.current_timestamp() + " "
             output += "[" + serverObject.get_name() + "] "
             output += destinationObject.getName() + " "
             output += "**" + userObject.get_name() + " " + ctcpArguments + "**"
             return output
-        output = Commons.currentTimestamp() + " "
+        output = Commons.current_timestamp() + " "
         output += "[" + serverObject.get_name() + "] "
         output += destinationObject.getName() + " "
         output += "<" + userObject.get_name() + " (CTCP)> " + fullLine

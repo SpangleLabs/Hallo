@@ -559,7 +559,7 @@ class ChannelCaps(Function):
         lineSplit = lineClean.split()
         if len(lineSplit) == 1:
             # Check if a boolean was specified
-            inputBool = Commons.stringToBool(lineSplit[0])
+            inputBool = Commons.string_to_bool(lineSplit[0])
             if inputBool is not None:
                 destinationObject.set_upper_case(inputBool)
                 return "Caps lock set " + {False: 'off', True: 'on'}[inputBool] + "."
@@ -572,10 +572,10 @@ class ChannelCaps(Function):
             return "I don't understand your input, please specify a channel and whether to turn caps lock on or off."
         # Otherwise line has 2 or more arguments.
         # Check if first argument is boolean
-        inputBool = Commons.stringToBool(lineSplit[0])
+        inputBool = Commons.string_to_bool(lineSplit[0])
         targetChannelName = lineSplit[1]
         if inputBool is None:
-            inputBool = Commons.stringToBool(lineSplit[1])
+            inputBool = Commons.string_to_bool(lineSplit[1])
             targetChannelName = lineSplit[0]
         if inputBool is None:
             return "I don't understand your input, please specify a channel and whether to turn caps lock on or off."
@@ -615,7 +615,7 @@ class ChannelLogging(Function):
         lineSplit = lineClean.strip()
         if len(lineSplit) == 1:
             # Check if a boolean was specified
-            inputBool = Commons.stringToBool(lineSplit[0])
+            inputBool = Commons.string_to_bool(lineSplit[0])
             if inputBool is not None:
                 destinationObject.set_logging(inputBool)
                 return "Logging set " + {False: 'off', True: 'on'}[inputBool] + "."
@@ -628,10 +628,10 @@ class ChannelLogging(Function):
             return "I don't understand your input, please specify a channel and whether to turn logging on or off."
         # Otherwise line has 2 or more arguments.
         # Check if first argument is boolean
-        inputBool = Commons.stringToBool(lineSplit[0])
+        inputBool = Commons.string_to_bool(lineSplit[0])
         targetChannelName = lineSplit[1]
         if inputBool is None:
-            inputBool = Commons.stringToBool(lineSplit[1])
+            inputBool = Commons.string_to_bool(lineSplit[1])
             targetChannelName = lineSplit[0]
         if inputBool is None:
             return "I don't understand your input, please specify a channel and whether to turn logging on or off."
@@ -679,7 +679,7 @@ class ChannelPassiveFunctions(Function):
         lineSplit = lineClean.strip()
         if len(lineSplit) == 1:
             # Check if a boolean was specified
-            inputBool = Commons.stringToBool(lineSplit[0])
+            inputBool = Commons.string_to_bool(lineSplit[0])
             if inputBool is not None:
                 destinationObject.set_passive_enabled(inputBool)
                 return "Passive functions set " + {False: 'disabled', True: 'enabled'}[inputBool] + "."
@@ -693,10 +693,10 @@ class ChannelPassiveFunctions(Function):
                    "or off."
         # Otherwise line has 2 or more arguments.
         # Check if first argument is boolean
-        inputBool = Commons.stringToBool(lineSplit[0])
+        inputBool = Commons.string_to_bool(lineSplit[0])
         targetChannelName = lineSplit[1]
         if inputBool is None:
-            inputBool = Commons.stringToBool(lineSplit[1])
+            inputBool = Commons.string_to_bool(lineSplit[1])
             targetChannelName = lineSplit[0]
         if inputBool is None:
             return "I don't understand your input, please specify a channel and whether to turn passive functions on " \
@@ -738,7 +738,7 @@ class ChannelPassword(Function):
         lineSplit = lineClean.strip()
         if len(lineSplit) == 1:
             # Check if null was specified
-            inputNull = Commons.isStringNull(lineSplit[0])
+            inputNull = Commons.is_string_null(lineSplit[0])
             if inputNull:
                 destinationObject.set_password(None)
                 return "Channel password disabled."
@@ -747,7 +747,7 @@ class ChannelPassword(Function):
                 return "Channel password set."
         # Otherwise line has 2 or more arguments.
         # Assume first is channel, and second is password.
-        inputNull = Commons.isStringNull(lineSplit[1])
+        inputNull = Commons.is_string_null(lineSplit[1])
         targetChannelName = lineSplit[0]
         targetChannel = serverObject.get_channel_by_name(targetChannelName)
         if inputNull:

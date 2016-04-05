@@ -29,7 +29,7 @@ class RandomPokemon(Function):
         for pokemonXml in pokemonListXml.getElementsByTagName("pokemon"):
             pokemonDict = {'name': pokemonXml.getElementsByTagName("name")[0].firstChild.data}
             pokemonList.append(pokemonDict)
-        randomPokemon = Commons.getRandomChoice(pokemonList)[0]
+        randomPokemon = Commons.get_random_choice(pokemonList)[0]
         return "I choose you, " + randomPokemon['name'] + "!"
 
 
@@ -59,7 +59,7 @@ class PickATeam(Function):
         for pokemonXml in pokemonListXml.getElementsByTagName("pokemon"):
             pokemonDict = {'name': pokemonXml.getElementsByTagName("name")[0].firstChild.data}
             pokemonList.append(pokemonDict)
-        randomPokemonTeam = Commons.getRandomChoice(pokemonList, 6)
+        randomPokemonTeam = Commons.get_random_choice(pokemonList, 6)
         return "Your team is: " + ", ".join([pokemon['name'] for pokemon in randomPokemonTeam[:5]]) + " and " + \
                randomPokemonTeam[5]['name'] + "."
 
@@ -92,7 +92,7 @@ class FullyEvolvedTeam(Function):
             evolutionChoices = len(pokemonXml.getElementsByTagName("evolve_to"))
             if evolutionChoices == 0:
                 pokemonList.append(pokemonDict)
-        randomPokemonTeam = Commons.getRandomChoice(pokemonList, 6)
+        randomPokemonTeam = Commons.get_random_choice(pokemonList, 6)
         return "Your team is: " + ", ".join([pokemon['name'] for pokemon in randomPokemonTeam[:5]]) + " and " + \
                randomPokemonTeam[5]['name'] + "."
 
@@ -132,6 +132,6 @@ class Pokedex(Function):
             return "No available pokedex data."
         # Select a random pokedex entry
         pokedexEntryListXml = selectedPokemonXml.getElementsByTagName("dex_entry_list")
-        pokedexEntryXml = Commons.getRandomChoice(pokedexEntryListXml.getElementsByTagName("dex_entry"))[0]
+        pokedexEntryXml = Commons.get_random_choice(pokedexEntryListXml.getElementsByTagName("dex_entry"))[0]
         pokedexEntryText = pokedexEntryXml.firstChild.data
         return pokedexEntryText

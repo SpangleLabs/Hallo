@@ -82,6 +82,6 @@ class PermissionMask(object):
         rights_list_elem = doc.getElementsByTagName("right_list")[0]
         for right_elem in rights_list_elem.getElementsByTagName("right"):
             right_name = right_elem.getElementsByTagName("name")[0].firstChild.data
-            right_value = Commons.stringFromFile(right_elem.getElementsByTagName("value")[0].firstChild.data)
+            right_value = Commons.string_from_file(right_elem.getElementsByTagName("value")[0].firstChild.data)
             new_mask.set_right(right_name, right_value)
         return new_mask

@@ -32,7 +32,7 @@ class UrbanDictionary(Function):
     def run(self, line, userObject, destinationObject=None):
         urlLine = line.replace(' ', '+').lower()
         url = 'http://api.urbandictionary.com/v0/define?term=' + urlLine
-        urbandict = Commons.loadUrlJson(url)
+        urbandict = Commons.load_url_json(url)
         if len(urbandict['list']) > 0:
             definition = urbandict['list'][0]['definition'].replace("\r", '').replace("\n", '')
             return definition
@@ -61,7 +61,7 @@ class RandomCocktail(Function):
         # Load XML
         doc = minidom.parse("store/cocktail_list.xml")
         cocktailListXml = doc.getElementsByTagName("cocktail_list")[0]
-        randomCocktailXml = Commons.getRandomChoice(cocktailListXml.getElementsByTagName("cocktail"))[0]
+        randomCocktailXml = Commons.get_random_choice(cocktailListXml.getElementsByTagName("cocktail"))[0]
         randomCocktailName = randomCocktailXml.getElementsByTagName("name")[0].firstChild.data
         randomCocktailInstructions = randomCocktailXml.getElementsByTagName("instructions")[0].firstChild.data
         outputString = "Randomly selected cocktail is: " + randomCocktailName + ". The ingredients are: "
@@ -149,7 +149,7 @@ class InSpace(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        spaceDict = Commons.loadUrlJson("http://www.howmanypeopleareinspacerightnow.com/space.json")
+        spaceDict = Commons.load_url_json("http://www.howmanypeopleareinspacerightnow.com/space.json")
         spaceNumber = str(spaceDict['number'])
         spaceNames = ", ".join(person['name'].strip() for person in spaceDict['people'])
         outputString = "There are " + spaceNumber + " people in space right now. "
@@ -189,7 +189,7 @@ class TimestampToDate(Function):
             line = int(line)
         except ValueError:
             return "Invalid timestamp"
-        return Commons.formatUnixTime(line) + "."
+        return Commons.format_unix_time(line) + "."
 
 
 class Wiki(Function):
@@ -213,7 +213,7 @@ class Wiki(Function):
         lineClean = line.strip().replace(" ", "_")
         url = 'http://en.wikipedia.org/w/api.php?format=json&action=query&titles=' + lineClean + \
               '&prop=revisions&rvprop=content&redirects=True'
-        articleDict = Commons.loadUrlJson(url)
+        articleDict = Commons.load_url_json(url)
         pageCode = list(articleDict['query']['pages'])[0]
         articleText = articleDict['query']['pages'][pageCode]['revisions'][0]['*']
         oldScan = articleText
@@ -274,7 +274,7 @@ class Translate(Function):
         # This uses google's secret translate API, it's not meant to be used by robots, and often it won't work
         url = "http://translate.google.com/translate_a/t?client=t&text=" + transSafe + "&hl=en&sl=" + langFrom + \
               "&tl=" + langTo + "&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1"
-        transDict = Commons.loadUrlJson(url, [], True)
+        transDict = Commons.load_url_json(url, [], True)
         translationString = " ".join([x[0] for x in transDict[0]])
         return "Translation: " + translationString
 
@@ -590,7 +590,7 @@ class CurrentWeather(Function):
         if apiKey is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/weather" + locationEntry.createQueryParams() + "&APPID=" + apiKey
-        response = Commons.loadUrlJson(url)
+        response = Commons.load_url_json(url)
         if str(response['cod']) != "200":
             return "Location not recognised."
         cityName = response['name']
@@ -684,7 +684,7 @@ class Weather(Function):
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/forecast/daily" + locationEntry.createQueryParams() + \
               "&cnt=16&APPID=" + apiKey
-        response = Commons.loadUrlJson(url)
+        response = Commons.load_url_json(url)
         # Check API responded well
         if str(response['cod']) != "200":
             return "Location not recognised."
@@ -815,7 +815,7 @@ class UrlDetect(Function):
         else:
             pageType = ''
         # Get the website name
-        urlSite = Commons.getDomainName(urlAddress).lower()
+        urlSite = Commons.get_domain_name(urlAddress).lower()
         # Get response if link is an image
         if "image" in pageType:
             return self.urlImage(urlAddress, pageOpener, pageRequest, pageType)
@@ -848,7 +848,7 @@ class UrlDetect(Function):
     def urlImage(self, urlAddress, pageOpener, pageRequest, pageType):
         """Handling direct image links"""
         # Get the website name
-        urlSite = Commons.getDomainName(urlAddress).lower()
+        urlSite = Commons.get_domain_name(urlAddress).lower()
         # If website name is speedtest or imgur, hand over to those handlers
         if urlSite == "speedtest":
             return self.siteSpeedtest(urlAddress, pageOpener, pageType)
@@ -896,7 +896,7 @@ class UrlDetect(Function):
         # Get API response
         apiUrl = "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid=" + apiKey + \
                  "&siteid=0&version=515&ItemID=" + itemId + "&IncludeSelector=Details"
-        apiDict = Commons.loadUrlJson(apiUrl)
+        apiDict = Commons.load_url_json(apiUrl)
         # Get item data from api response
         itemTitle = apiDict["Item"]["Title"]
         itemPrice = str(apiDict["Item"]["CurrentPrice"]["Value"]) + " " + apiDict["Item"]["CurrentPrice"]["CurrencyID"]
@@ -940,7 +940,7 @@ class UrlDetect(Function):
         movieId = movieIdSearch.group(1)
         # Download API response
         apiUrl = 'http://www.omdbapi.com/?i=' + movieId
-        apiDict = Commons.loadUrlJson(apiUrl)
+        apiDict = Commons.load_url_json(apiUrl)
         # Get movie information from API response
         movieTitle = apiDict['Title']
         movieYear = apiDict['Year']
@@ -966,7 +966,7 @@ class UrlDetect(Function):
         apiKey = self.mHalloObject.get_api_key("imgur")
         if apiKey is None:
             return None
-        apiDict = Commons.loadUrlJson(apiUrl, [['Authorization', apiKey]])
+        apiDict = Commons.load_url_json(apiUrl, [['Authorization', apiKey]])
         # Get title, width, height, size, and view count from API data
         imageTitle = str(apiDict['data']['title'])
         imageWidth = str(apiDict['data']['width'])
@@ -990,7 +990,7 @@ class UrlDetect(Function):
         apiKey = self.mHalloObject.get_api_key("imgur")
         if apiKey is None:
             return None
-        apiDict = Commons.loadUrlJson(apiUrl, [['Authorization', apiKey]])
+        apiDict = Commons.load_url_json(apiUrl, [['Authorization', apiKey]])
         # Get album title and view count from API data
         albumTitle = apiDict['data']['title']
         albumViews = apiDict['data']['views']
@@ -1059,7 +1059,7 @@ class UrlDetect(Function):
         apiUrl = "https://www.googleapis.com/youtube/v3/videos?id=" + videoId + \
                  "&part=snippet,contentDetails,statistics&key=" + apiKey
         # Load API response (in json).
-        apiDict = Commons.loadUrlJson(apiUrl)
+        apiDict = Commons.load_url_json(apiUrl)
         # Get video data from API response.
         videoTitle = apiDict['items'][0]['snippet']['title']
         videoDuration = apiDict['items'][0]['contentDetails']['duration'][2:].lower()

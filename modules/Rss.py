@@ -135,7 +135,7 @@ class RssFeed:
         Checks the feed for any updates
         :return: list of ElementTree XML elements
         """
-        rssData = Commons.loadUrlString(self.mUrl)
+        rssData = Commons.load_url_string(self.mUrl)
         rssXml = ElementTree.fromstring(rssData)
         rssElement = rssXml.getroot()
         channelElement = rssElement.find("channel")
@@ -242,7 +242,7 @@ class RssFeed:
             lastCheck.text = self.mLastCheck.isoformat()
         # Create update frequency element
         updateFrequency = ElementTree.SubElement(root, "update_frequency")
-        updateFrequency.text = Commons.formatTimeDelta(self.mUpdateFrequency)
+        updateFrequency.text = Commons.format_time_delta(self.mUpdateFrequency)
         # Return xml string
         return ElementTree.tostring(root)
 
@@ -276,7 +276,7 @@ class RssFeed:
         if feedXml.find("last_check") is not None:
             newFeed.mLastCheck = datetime.strptime(feedXml.find("last_check").text, "%Y-%m-%dT%H:%M:%S")
         # Load update frequency
-        newFeed.mUpdateFrequency = Commons.loadTimeDelta(feedXml.find("update_frequency").text)
+        newFeed.mUpdateFrequency = Commons.load_time_delta(feedXml.find("update_frequency").text)
         # Return new feed
         return newFeed
 
@@ -408,12 +408,12 @@ class FeedAdd(Function):
         feedList = feedCheckObject.mRssFeedList
         # Check link works
         try:
-            Commons.loadUrlString(feedUrl, [])
+            Commons.load_url_string(feedUrl, [])
         except urllib.error.URLError:
             return "Could not load link."
         # Check period is valid
         try:
-            feedDelta = Commons.loadTimeDelta(feedPeriod)
+            feedDelta = Commons.load_time_delta(feedPeriod)
         except ISO8601ParseError:
             return "Invalid time period."
         # Create new rss feed

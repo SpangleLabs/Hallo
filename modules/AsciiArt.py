@@ -140,7 +140,7 @@ class Dragon(Function):
   jgs     //\   ) ,  /       '%%%%(%%'
     ,  _.'/  `\<-- \<
      `^^^`     ^^   ^^'''
-        rand = Commons.getRandomInt(0, 100)[0]
+        rand = Commons.get_random_int(0, 100)[0]
         if rand == 15:
             dragon = dragonDeer
         elif rand % 2 == 0:

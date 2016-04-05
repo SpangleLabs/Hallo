@@ -48,10 +48,10 @@ class Roll(Function):
         if numSides == 0 or numSides > 1000000:
             return "Invalid number of sides."
         if numDice == 1:
-            rand = Commons.getRandomInt(1, numSides)[0]
+            rand = Commons.get_random_int(1, numSides)[0]
             return "I roll " + str(rand) + "!!!"
         else:
-            diceRolls = Commons.getRandomInt(1, numSides, numDice)
+            diceRolls = Commons.get_random_int(1, numSides, numDice)
             outputString = "I roll "
             outputString += ", ".join([str(x) for x in diceRolls])
             outputString += ". The total is " + str(sum(diceRolls)) + "."
@@ -59,7 +59,7 @@ class Roll(Function):
 
     def runRangeFormat(self, rangeMin, rangeMax):
         """Generates a random number between rangeMin and rangeMax"""
-        rand = Commons.getRandomInt(rangeMin, rangeMax)[0]
+        rand = Commons.get_random_int(rangeMin, rangeMax)[0]
         return "I roll " + str(rand) + "!!!"
 
 
@@ -85,7 +85,7 @@ class Choose(Function):
         if numchoices == 1:
             return 'Please present me with more than 1 thing to choose from!'
         else:
-            rand = Commons.getRandomInt(0, numchoices - 1)[0]
+            rand = Commons.get_random_int(0, numchoices - 1)[0]
             choice = choices[rand]
             return 'I choose "' + choice + '".'
 
@@ -114,7 +114,7 @@ class EightBall(Function):
                       'Concentrate and ask again']
         responses += ["Don't count on it", 'My reply is no', 'My sources say no', 'Outlook not so good',
                       'Very doubtful']
-        rand = Commons.getRandomInt(0, len(responses) - 1)[0]
+        rand = Commons.get_random_int(0, len(responses) - 1)[0]
         return responses[rand] + "."
 
     def getNames(self):
@@ -153,7 +153,7 @@ class ChosenOne(Function):
         userSet = channelObject.get_user_list()
         # Get list of users' names
         namesList = [userObject.get_name() for userObject in userSet]
-        rand = Commons.getRandomInt(0, len(namesList) - 1)[0]
+        rand = Commons.get_random_int(0, len(namesList) - 1)[0]
         return 'It should be obvious by now that ' + namesList[rand] + ' is the chosen one.'
 
 
@@ -174,7 +174,7 @@ class Foof(Function):
 
     def run(self, line, userObject, destinationObject=None):
         """FOOOOOOOOOF. Format: foof"""
-        rand = Commons.getRandomInt(0, 60)
+        rand = Commons.get_random_int(0, 60)
         if rand <= 20:
             return 'doof'
         elif rand <= 40:
@@ -229,8 +229,8 @@ class ThoughtForTheDay(Function):
 
     def run(self, line, userObject, destinationObject=None):
         """WH40K Thought for the day. Format: thought_for_the_day"""
-        thoughtList = Commons.readFiletoList('store/WH40K_ToTD2.txt')
-        rand = Commons.getRandomInt(0, len(thoughtList) - 1)[0]
+        thoughtList = Commons.read_file_to_list('store/WH40K_ToTD2.txt')
+        rand = Commons.get_random_int(0, len(thoughtList) - 1)[0]
         if thoughtList[rand][-1] not in ['.', '!', '?']:
             thoughtList[rand] += "."
         return '"' + thoughtList[rand] + '"'
@@ -254,8 +254,8 @@ class Ouija(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        wordList = Commons.readFiletoList('store/ouija_wordlist.txt')
-        randList = Commons.getRandomInt(0, len(wordList) - 1, 4)
+        wordList = Commons.read_file_to_list('store/ouija_wordlist.txt')
+        randList = Commons.get_random_int(0, len(wordList) - 1, 4)
         numWords = (randList[0] % 3) + 1
         outputString = "I'm getting a message from the other side..."
         outputString += " ".join([wordList[randList[x + 2]] for x in range(numWords)])
@@ -289,7 +289,7 @@ class Scriptures(Function):
             self.mScriptureList.append(scriptureXml.firstChild.data)
 
     def run(self, line, userObject, destinationObject=None):
-        rand = Commons.getRandomInt(0, len(self.mScriptureList) - 1)[0]
+        rand = Commons.get_random_int(0, len(self.mScriptureList) - 1)[0]
         return self.mScriptureList[rand]
 
 
@@ -315,7 +315,7 @@ class CatGif(Function):
         if apiKey is None:
             return "No API key loaded for cat api."
         url = "http://thecatapi.com/api/images/get?format=xml&api_key=" + apiKey + "&type=gif"
-        xmlString = Commons.loadUrlString(url)
+        xmlString = Commons.load_url_string(url)
         doc = minidom.parseString(xmlString)
         catUrl = doc.getElementsByTagName("url")[0].firstChild.data
         return catUrl
@@ -350,7 +350,7 @@ class RandomQuote(Function):
                    ["Content-Type", "application/x-www-form-urlencoded"],
                    ["Accept", "application/json"]]
         # Get api response
-        jsonDict = Commons.loadUrlJson(url, headers)
+        jsonDict = Commons.load_url_json(url, headers)
         # Construct response
         quote = jsonDict['quote']
         author = jsonDict['author']
@@ -383,7 +383,7 @@ class NightValeWeather(Function):
         # Get playlist data from youtube api
         playlistData = self.getYoutubePlaylist("PL5bFd9WyHshXpZK-VPpH8UPXx6wCOIaQW")
         # Select a video from the playlist
-        randVideo = Commons.getRandomChoice(playlistData)[0]
+        randVideo = Commons.get_random_choice(playlistData)[0]
         # Return video information
         return "And now, the weather: http://youtu.be/" + randVideo['video_id'] + " " + randVideo['title']
 
@@ -420,7 +420,7 @@ class NightValeWeather(Function):
         if pageToken is not None:
             apiUrl += "&pageToken=" + pageToken
         # Load API response (in json).
-        apiDict = Commons.loadUrlJson(apiUrl)
+        apiDict = Commons.load_url_json(apiUrl)
         for apiItem in apiDict['items']:
             newVideo = {'title': apiItem['snippet']['title'], 'video_id': apiItem['snippet']['resourceId']['videoId']}
             listVideos.append(newVideo)
@@ -455,7 +455,7 @@ class RandomPerson(Function):
         inputClean = line.strip().lower()
         url = "http://api.randomuser.me/0.6/?nat=gb&format=json"
         # Get api response
-        jsonDict = Commons.loadUrlJson(url)
+        jsonDict = Commons.load_url_json(url)
         userDict = jsonDict['results'][0]['user']
         # Construct response
         name = (userDict['name']['title'] + " " + userDict['name']['first'] + " " + userDict['name']['last']).title()
@@ -465,7 +465,7 @@ class RandomPerson(Function):
         address += userDict['location']['postcode']
         username = userDict['username']
         password = userDict['password']
-        dateOfBirth = Commons.formatUnixTime(int(userDict['dob']))
+        dateOfBirth = Commons.format_unix_time(int(userDict['dob']))
         phoneHome = userDict['phone']
         phoneMob = userDict['cell']
         nationalInsurance = userDict['NINO']
@@ -511,7 +511,7 @@ class NightValeProverb(Function):
             self.mProverbList.append(proverbXml.firstChild.data)
 
     def run(self, line, userObject, destinationObject=None):
-        rand = Commons.getRandomInt(0, len(self.mProverbList) - 1)[0]
+        rand = Commons.get_random_int(0, len(self.mProverbList) - 1)[0]
         return self.mProverbList[rand]
 
 
@@ -535,10 +535,10 @@ class RandomColour(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        rgbList = Commons.getRandomInt(0, 256, 3)
+        rgbList = Commons.get_random_int(0, 256, 3)
         hexCode = (hex(rgbList[0])[2:] + hex(rgbList[1])[2:] + hex(rgbList[2])[2:]).upper()
         url = "http://www.perbang.dk/rgb/" + hexCode + "/"
-        urlData = Commons.loadUrlString(url)
+        urlData = Commons.load_url_string(url)
         colourMatch = re.search('<meta name="Description" content="([A-Za-z ]+)#', urlData, re.M)
         if colourMatch is None or colourMatch.group(1) is None:
             output = "Randomly chosen colour is: #" + hexCode + " or rgb(" + str(rgbList[0]) + "," + str(

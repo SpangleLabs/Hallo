@@ -253,9 +253,9 @@ class Connect(Function):
         serverName = self.findParameter("server_name", line) or serverName
         # if server name is null, get it from serverAddress
         if serverName is None:
-            serverName = Commons.getDomainName(serverAddress)
+            serverName = Commons.get_domain_name(serverAddress)
         # Get other parameters, if set.
-        autoConnect = Commons.stringToBool(self.findParameter("auto_connect", line)) or True
+        autoConnect = Commons.string_to_bool(self.findParameter("auto_connect", line)) or True
         serverNick = self.findParameter("server_nick", line) or self.findParameter("nick", line)
         serverPrefix = self.findParameter("server_prefix", line) or self.findParameter("prefix", line)
         fullName = self.findParameter("full_name", line)
@@ -449,7 +449,7 @@ class EditServer(Function):
         if serverPort is not None:
             serverObject.setServerPort(serverPort)
         # Get other parameters, if set. defaulting to whatever server defaults.
-        autoConnect = Commons.stringToBool(self.findParameter("auto_connect", line)) or serverObject.get_auto_connect()
+        autoConnect = Commons.string_to_bool(self.findParameter("auto_connect", line)) or serverObject.get_auto_connect()
         serverNick = self.findParameter("server_nick", line) or self.findParameter("nick",
                                                                                    line) or serverObject.get_nick()
         serverPrefix = self.findParameter("server_prefix", line) or self.findParameter("prefix",

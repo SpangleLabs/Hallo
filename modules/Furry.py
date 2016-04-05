@@ -40,7 +40,7 @@ class E621(Function):
         """Gets a random link from the e621 api."""
         lineClean = search.replace(' ', '%20')
         url = 'https://e621.net/post/index.json?tags=order:random%20score:%3E0%20' + lineClean + '%20&limit=1'
-        returnList = Commons.loadUrlJson(url)
+        returnList = Commons.load_url_json(url)
         if len(returnList) == 0:
             return None
         else:
@@ -361,6 +361,6 @@ class Fursona(Function):
                         "it robs banks and its partner in crime is the next fursona you generate.",
                         "its facial features are constantly shifting.", "it works as a librarian in hell.",
                         "it wears a fedora."]
-        result = "Your new fursona is: " + Commons.getRandomChoice(adjective)[0] + " " + Commons.getRandomChoice(
-            animal)[0] + " " + Commons.getRandomChoice(description1)[0] + " " + Commons.getRandomChoice(description2)[0]
+        result = "Your new fursona is: " + Commons.get_random_choice(adjective)[0] + " " + Commons.get_random_choice(
+            animal)[0] + " " + Commons.get_random_choice(description1)[0] + " " + Commons.get_random_choice(description2)[0]
         return result

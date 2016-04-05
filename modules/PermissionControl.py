@@ -44,7 +44,7 @@ class Permissions(Function):
             return "I can't find that permission mask. Specify which you wish to modify as user={username}, " \
                    "or similarly for usergroup, channel, server or hallo."
         # Turn boolInput into a boolean
-        boolBool = Commons.stringToBool(boolInput)
+        boolBool = Commons.string_to_bool(boolInput)
         # Check if boolean input is valid
         if boolBool is None:
             return "I don't understand your boolean value. Please use true or false."

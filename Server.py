@@ -10,7 +10,7 @@ from Destination import Channel, User
 from PermissionMask import PermissionMask
 from Function import Function
 
-endl = Commons.mEndLine
+endl = Commons.END_LINE
 
 
 class ServerException(Exception):
@@ -345,14 +345,14 @@ class ServerIRC(Server):
             print("CONNECTION ERROR: " + str(e))
             self.open = False
         # Wait for the first message back from the server.
-        print(Commons.currentTimestamp() + " waiting for first message from server: " + self.name)
+        print(Commons.current_timestamp() + " waiting for first message from server: " + self.name)
         first_line = self.read_line_from_socket()
         # If first line is null, that means connection was closed.
         if first_line is None:
             raise ServerException
         self._welcome_message = first_line + "\n"
         # Send nick and full name to server
-        print(Commons.currentTimestamp() + " sending nick and user info to server: " + self.name)
+        print(Commons.current_timestamp() + " sending nick and user info to server: " + self.name)
         self.send('NICK ' + self.get_nick(), None, "raw")
         self.send('USER ' + self.get_full_name(), None, "raw")
         # Wait for MOTD to end
@@ -371,7 +371,7 @@ class ServerIRC(Server):
         if self.nickserv_pass:
             self.send('IDENTIFY ' + self.nickserv_pass, self.get_user_by_name("nickserv"))
         # Join channels
-        print(Commons.currentTimestamp() + " joining channels on " + self.name + ", identifying.")
+        print(Commons.current_timestamp() + " joining channels on " + self.name + ", identifying.")
         # Join relevant channels
         for channel in self.channel_list:
             if channel.is_auto_join():
@@ -468,7 +468,7 @@ class ServerIRC(Server):
         max_line_length = self.MAX_MSG_LENGTH - len(msg_type_name + ' ' + destination_name + ' :' + endl)
         # Split and send
         for data_line in data.split("\n"):
-            data_line_split = Commons.chunkStringDot(data_line, max_line_length)
+            data_line_split = Commons.chunk_string_dot(data_line, max_line_length)
             for date_line_line in data_line_split:
                 self.send_raw(msg_type_name + ' ' + destination_name + ' :' + date_line_line)
                 # Log sent data, if it's not message or notice
@@ -964,12 +964,12 @@ class ServerIRC(Server):
         # Parse out numeric line data
         numeric_code = numeric_line.split()[1]
         # Print to console
-        print(Commons.currentTimestamp() + ' [' + self.name + '] Numeric server info: ' + numeric_line)
+        print(Commons.current_timestamp() + ' [' + self.name + '] Numeric server info: ' + numeric_line)
         # TODO: add logging?
         # Check for a 433 "ERR_NICKNAMEINUSE"
         if numeric_code == "433":
             nick_number = \
-                ([self.nick[x:] for x in range(len(self.nick)) if Commons.isFloatString(self.nick[x:])] + [None])[0]
+                ([self.nick[x:] for x in range(len(self.nick)) if Commons.is_float_string(self.nick[x:])] + [None])[0]
             if nick_number is None:
                 nick_number = 0
                 nick_word = self.nick
@@ -1022,7 +1022,7 @@ class ServerIRC(Server):
         :type unhandled_line: str
         """
         # Print it to console
-        print(Commons.currentTimestamp() + ' [' + self.name + '] Unhandled data: ' + unhandled_line)
+        print(Commons.current_timestamp() + ' [' + self.name + '] Unhandled data: ' + unhandled_line)
 
     def parse_line_raw(self, raw_line, line_type):
         """Handed all raw data, along with the type of message
@@ -1351,7 +1351,7 @@ class ServerIRC(Server):
         doc = minidom.parseString(xml_string)
         new_server = ServerIRC(hallo)
         new_server.name = doc.getElementsByTagName("server_name")[0].firstChild.data
-        new_server.auto_connect = Commons.stringFromFile(doc.getElementsByTagName("auto_connect")[0].firstChild.data)
+        new_server.auto_connect = Commons.string_from_file(doc.getElementsByTagName("auto_connect")[0].firstChild.data)
         if len(doc.getElementsByTagName("server_nick")) != 0:
             new_server.nick = doc.getElementsByTagName("server_nick")[0].firstChild.data
         if len(doc.getElementsByTagName("server_prefix")) != 0:

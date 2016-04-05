@@ -768,7 +768,7 @@ class ConvertMeasure:
         userInputClean = userInput.strip()
         # Search through the line for digits, pull them amount as a preliminary amount and strip the rest of the line.
         # TODO: add calculation?
-        preliminaryAmountString = Commons.getDigitsFromStartOrEnd(userInputClean)
+        preliminaryAmountString = Commons.get_digits_from_start_or_end(userInputClean)
         if preliminaryAmountString is None:
             raise ConvertException("Cannot find amount.")
         preliminaryAmountValue = float(preliminaryAmountString)
@@ -892,7 +892,7 @@ class Convert(Function):
         lastUpdate = toMeasure.getUnit().getLastUpdated() or fromMeasure.getUnit().getLastUpdated()
         outputString = fromMeasure.toString() + " = " + toMeasure.toString() + "."
         if lastUpdate is not None:
-            outputString += " (Last updated: " + Commons.formatUnixTime(lastUpdate) + ")"
+            outputString += " (Last updated: " + Commons.format_unix_time(lastUpdate) + ")"
         return outputString
 
     def outputLineWithToPrefix(self, fromMeasure, toMeasure, toPrefix):
@@ -903,7 +903,7 @@ class Convert(Function):
         lastUpdate = toMeasure.getUnit().getLastUpdated() or fromMeasure.getUnit().getLastUpdated()
         outputString = fromMeasure.toString() + " = " + toMeasure.toStringWithPrefix(toPrefix) + "."
         if lastUpdate is not None:
-            outputString += " (Last updated: " + Commons.formatUnixTime(lastUpdate) + ")"
+            outputString += " (Last updated: " + Commons.format_unix_time(lastUpdate) + ")"
         return outputString
 
     def getPassiveEvents(self):
@@ -972,7 +972,7 @@ class UpdateCurrencies(Function):
         currencyType = repo.getTypeByName("currency")
         # Pull xml data from monet converter website
         url = 'http://themoneyconverter.com/rss-feed/EUR/rss.xml'
-        xmlString = Commons.loadUrlString(url)
+        xmlString = Commons.load_url_string(url)
         # Parse data
         doc = minidom.parseString(xmlString)
         root = doc.getElementsByTagName("rss")[0]
@@ -985,7 +985,7 @@ class UpdateCurrencies(Function):
             # Load value from description and get the reciprocal
             itemDescription = itemElement.getElementsByTagName("description")[0].firstChild.data
             currencyValue = 1 / float(
-                Commons.getDigitsFromStartOrEnd(itemDescription.split("=")[1].strip().replace(",", "")))
+                Commons.get_digits_from_start_or_end(itemDescription.split("=")[1].strip().replace(",", "")))
             # Get currency unit, set currency value.
             currencyUnit = currencyType.getUnitByName(currencyCode)
             # If unrecognised currency, continue
@@ -1000,7 +1000,7 @@ class UpdateCurrencies(Function):
         currencyType = repo.getTypeByName("currency")
         # Pull xml data from european bank website
         url = 'http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml'
-        xmlString = Commons.loadUrlString(url)
+        xmlString = Commons.load_url_string(url)
         # Parse data
         doc = minidom.parseString(xmlString)
         root = doc.getElementsByTagName("gesmes:Envelope")[0]
@@ -1025,7 +1025,7 @@ class UpdateCurrencies(Function):
         currencyType = repo.getTypeByName("currency")
         # Pull xml data from forex website
         url = 'http://rates.fxcm.com/RatesXML3'
-        xmlString = Commons.loadUrlString(url)
+        xmlString = Commons.load_url_string(url)
         # Parse data
         doc = minidom.parseString(xmlString)
         ratesElement = doc.getElementsByTagName("Rates")[0]
@@ -1052,16 +1052,16 @@ class UpdateCurrencies(Function):
         # Get currency ConvertType
         currencyType = repo.getTypeByName("currency")
         # Pull json data from preev website, combine into 1 dict
-        jsonDict = {'ltc': Commons.loadUrlJson(
+        jsonDict = {'ltc': Commons.load_url_json(
                 "http://preev.com/pulse/units:ltc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
             ),
-            'ppc': Commons.loadUrlJson(
+            'ppc': Commons.load_url_json(
                 "http://preev.com/pulse/units:ppc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
             ),
-            'btc': Commons.loadUrlJson(
+            'btc': Commons.load_url_json(
                 "http://preev.com/pulse/units:btc+eur/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
             ),
-            'xdg': Commons.loadUrlJson(
+            'xdg': Commons.load_url_json(
                 "http://preev.com/pulse/units:xdg+btc/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
             )}
         # Loop through currency codes
@@ -1227,7 +1227,7 @@ class ConvertViewRepo(Function):
                        unitObject.get_type().getBaseUnit().getNameList()[0]]
         lastUpdate = unitObject.getLastUpdated()
         if lastUpdate is not None:
-            outputLines.append("Last updated: " + Commons.formatUnixTime(lastUpdate))
+            outputLines.append("Last updated: " + Commons.format_unix_time(lastUpdate))
         prefixGroupName = unitObject.getValidPrefixGroup().getName()
         if prefixGroupName is not None:
             outputLines.append("Prefix group: " + prefixGroupName)
@@ -1362,7 +1362,7 @@ class ConvertSet(Function):
         baseUnit = refType.getBaseUnit()
         baseName = baseUnit.getNameList()[0]
         # Get amount & unit name
-        inputAmountString = Commons.getDigitsFromStartOrEnd(userInput)
+        inputAmountString = Commons.get_digits_from_start_or_end(userInput)
         if inputAmountString is None:
             return "Please specify an amount when setting a new unit."
         inputAmountFloat = float(inputAmountString)
@@ -1501,7 +1501,7 @@ class ConvertSetTypeDecimals(Function):
         # Load convert repo
         repo = ConvertRepo.loadFromXml()
         # Get decimals from input
-        inputDecimals = Commons.getDigitsFromStartOrEnd(line)
+        inputDecimals = Commons.get_digits_from_start_or_end(line)
         # If decimals is null, return error
         if inputDecimals is None:
             return "Please specify a conversion type and a number of decimal places it should output."

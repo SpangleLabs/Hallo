@@ -88,10 +88,10 @@ class ArcticTerns(Function):
     def run(self, line, userObject, destinationObject=None):
         lineClean = line.strip().lower()
         if lineClean in ['nap', 'napping', 'plush']:
-            number = Commons.getRandomInt(0, 1)
+            number = Commons.get_random_int(0, 1)
             link = 'http://dr-spangle.com/AT/N0' + str(number) + '.JPG'
             return 'Plush arctic terns! ' + link
-        number = Commons.getRandomInt(0, 61)
+        number = Commons.get_random_int(0, 61)
         link = 'http://dr-spangle.com/AT/' + str(number).zfill(2) + '.JPG'
         return 'Arctic terns!! ' + link
 
@@ -223,7 +223,7 @@ class ReplyMessage:
         """Checks if this reply message will respond, and which response to use."""
         if self.mPrompt.search(inputLine):
             # Pick a response
-            response = Commons.getRandomChoice(self.mResponseList)[0]
+            response = Commons.get_random_choice(self.mResponseList)[0]
             response = response.replace("{USER}", userObject.get_name())
             response = response.replace("{CHANNEL}", destinationObject.get_name())
             response = response.replace("{SERVER}", userObject.get_server().get_name())

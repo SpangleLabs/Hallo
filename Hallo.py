@@ -93,7 +93,7 @@ class Hallo:
             doc = ElementTree.parse("config/config-default.xml")
         root = doc.getroot()
         self.default_nick = root.findtext("default_nick")
-        self.default_prefix = Commons.stringFromFile(root.findtext("default_prefix"))
+        self.default_prefix = Commons.string_from_file(root.findtext("default_prefix"))
         self.default_full_name = root.findtext("default_full_name")
         self.function_dispatcher = FunctionDispatcher.from_xml(ElementTree.tostring(root.find("function_dispatcher")),
                                                                self)
