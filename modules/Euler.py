@@ -459,7 +459,7 @@ class Euler(Function):
         # Do processing
         total = 0
         for x in range(1, 1001):
-            total += len(function_obj.numberWord(str(x)).replace(' ', '').replace('-', ''))
+            total += len(function_obj.number_word(str(x)).replace(' ', '').replace('-', ''))
         return total
 
     def euler18(self):
@@ -596,7 +596,7 @@ class Euler(Function):
         max_nines = 0
         max_d = 0
         for d in range(1, 1000):
-            factors = function_obj.findPrimeFactors(d)
+            factors = function_obj.find_prime_factors(d)
             factors = self.remove_list_items(factors, 2)
             factors = self.remove_list_items(factors, 5)
             product = 1
@@ -664,7 +664,7 @@ class Euler(Function):
         # Do processing
         answers = []
         for a in range(2, 101):
-            a_factors = function_obj.findPrimeFactors(a)
+            a_factors = function_obj.find_prime_factors(a)
             #            answer = a
             for b in range(2, 101):
                 #                answer = answer * a
@@ -697,7 +697,7 @@ class Euler(Function):
         function_obj = function_dispatcher.get_function_object(function_class)
         # Do processing
         coins = [200, 100, 50, 20, 10, 5, 2, 1]
-        options = function_obj.changeOptions(coins, 0, 200)
+        options = function_obj.change_options(coins, 0, 200)
         num_options = len(options)
         #        num_options = euler.fnn_euler_changecount(self,coins,0,200)
         return num_options
@@ -764,8 +764,8 @@ class Euler(Function):
                     else:
                         denominator_new = int(str(denominator).replace(str(numerator)[0], ''))
                     numerator_new = int(str(numerator)[1])
-                    numerator_factors_new = function_obj.findPrimeFactors(numerator_new)
-                    denominator_factors_new = function_obj.findPrimeFactors(denominator_new)
+                    numerator_factors_new = function_obj.find_prime_factors(numerator_new)
+                    denominator_factors_new = function_obj.find_prime_factors(denominator_new)
                     if denominator_new != 0:
                         if (numerator / denominator - numerator_new / denominator_new) ** 2 < epsilon:
                             print("found one." + str(numerator) + "/" + str(denominator))
@@ -777,8 +777,8 @@ class Euler(Function):
                     else:
                         denominator_new = int(str(denominator).replace(str(numerator)[1], ''))
                     numerator_new = int(str(numerator)[0])
-                    numerator_factors_new = function_obj.findPrimeFactors(numerator_new)
-                    denominator_factors_new = function_obj.findPrimeFactors(denominator_new)
+                    numerator_factors_new = function_obj.find_prime_factors(numerator_new)
+                    denominator_factors_new = function_obj.find_prime_factors(denominator_new)
                     if denominator_new != 0:
                         if (numerator / denominator - numerator_new / denominator_new) ** 2 < epsilon:
                             print("found one." + str(numerator) + "/" + str(denominator))
@@ -1002,7 +1002,7 @@ class Euler(Function):
         answer = 0
         while True:
             num += 1
-            len_prime_factors = len(set(function_obj.findPrimeFactors(num)))
+            len_prime_factors = len(set(function_obj.find_prime_factors(num)))
             if len_prime_factors != streak:
                 running_count = 0
                 continue
