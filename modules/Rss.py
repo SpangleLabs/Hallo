@@ -44,7 +44,7 @@ class RssFeedList:
         """
         matchingFeeds = []
         for rssFeed in self.mFeedList:
-            if server.getName() != rssFeed.mServerName.lower():
+            if server.get_name() != rssFeed.mServerName.lower():
                 continue
             if destination.is_channel() and destination.get_name() != rssFeed.mChannelName:
                 continue
@@ -174,9 +174,9 @@ class RssFeed:
         # Get destination
         if destination is None:
             if self.mChannelName is not None:
-                destination = server.getChannelByName(self.mChannelName)
+                destination = server.get_channel_by_name(self.mChannelName)
             if self.mUserName is not None:
-                destination = server.getUserByName(self.mUserName)
+                destination = server.get_user_by_name(self.mUserName)
             if destination is None:
                 return "Invalid destination."
         # Construct output
@@ -323,7 +323,7 @@ class FeedCheck(Function):
     def run(self, line, userObject, destinationObject=None):
         # Handy variables
         server = userObject.get_server()
-        hallo = server.getHallo()
+        hallo = server.get_hallo()
         # Clean up input
         cleanInput = line.strip().lower()
         # Check whether input is asking to update all feeds
@@ -365,7 +365,7 @@ class FeedCheck(Function):
         :param userObject: User
         :param channelObject: Channel
         """
-        hallo = serverObject.getHallo()
+        hallo = serverObject.get_hallo()
         # Check through all feeds to see which need updates
         for rssFeed in self.mRssFeedList.getFeedList():
             # Only check those which have been too long since last check
@@ -402,7 +402,7 @@ class FeedAdd(Function):
         if len(line.split()) > 0:
             feedPeriod = line.split()[1]
         # Get current RSS feed list
-        functionDispatcher = userObject.get_server().getHallo().get_function_dispatcher()
+        functionDispatcher = userObject.get_server().get_hallo().get_function_dispatcher()
         feedCheckClass = functionDispatcher.get_function_by_name("rss check")
         feedCheckObject = functionDispatcher.get_function_object(feedCheckClass)
         feedList = feedCheckObject.mRssFeedList
@@ -418,7 +418,7 @@ class FeedAdd(Function):
             return "Invalid time period."
         # Create new rss feed
         rssFeed = RssFeed()
-        rssFeed.mServerName = userObject.get_server().getName()
+        rssFeed.mServerName = userObject.get_server().get_name()
         rssFeed.mUrl = feedUrl
         rssFeed.mUpdateFrequency = feedDelta
         if destinationObject == userObject:
@@ -460,7 +460,7 @@ class FeedRemove(Function):
     def run(self, line, userObject, destinationObject=None):
         # Handy variables
         server = userObject.get_server()
-        hallo = server.getHallo()
+        hallo = server.get_hallo()
         functionDispatcher = hallo.get_function_dispatcher()
         feedCheckFunction = functionDispatcher.get_function_by_name("rss check")
         rssFeedList = feedCheckFunction.mRssFeedList
@@ -504,7 +504,7 @@ class FeedList(Function):
     def run(self, line, userObject, destinationObject=None):
         # Handy variables
         server = userObject.get_server()
-        hallo = server.getHallo()
+        hallo = server.get_hallo()
         functionDispatcher = hallo.get_function_dispatcher()
         feedCheckFunction = functionDispatcher.get_function_by_name("rss check")
         rssFeedList = feedCheckFunction.mRssFeedList

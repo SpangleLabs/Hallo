@@ -134,7 +134,7 @@ class Cupcake(Function):
         # Get some required objects
         serverObject = userObject.get_server()
         recipientUserName = line.split()[0]
-        recipientUserObject = serverObject.getUserByName(recipientUserName)
+        recipientUserObject = serverObject.get_user_by_name(recipientUserName)
         # If user isn't online, I can't send a cupcake
         if not recipientUserObject.is_online():
             return "No one called " + recipientUserName + " is online."

@@ -125,7 +125,7 @@ class SlowClap(Function):
                 return '*clap.*'
             else:
                 return "You want me to slowclap yourself?"
-        channelObject = serverObject.getChannelByName(lineClean)
+        channelObject = serverObject.get_channel_by_name(lineClean)
         if not channelObject.is_in_channel():
             return "I'm not in that channel."
         serverObject.send("*clap*", channelObject)
@@ -165,21 +165,21 @@ class Boop(Function):
         lineSplit = lineClean.split()
         # If one argument, check that the user is in the current channel.
         if len(lineSplit) == 1:
-            destUserObject = serverObject.getUserByName(lineClean)
+            destUserObject = serverObject.get_user_by_name(lineClean)
             if destUserObject is None or not destUserObject.is_online():
                 return "No one by that name is online."
             serverObject.send("\x01ACTION boops " + destUserObject.get_name() + ".\x01", destinationObject)
             return "Done."
         # If two arguments, see if one is a channel and the other a user.
-        channelTest1 = serverObject.getChannelByName(lineSplit[0])
+        channelTest1 = serverObject.get_channel_by_name(lineSplit[0])
         if channelTest1.is_in_channel():
             destChannel = channelTest1
-            destUser = serverObject.getUserByName(lineSplit[1])
+            destUser = serverObject.get_user_by_name(lineSplit[1])
         else:
-            channelTest2 = serverObject.getChannelByName(lineSplit[1])
+            channelTest2 = serverObject.get_channel_by_name(lineSplit[1])
             if channelTest2.is_in_channel():
                 destChannel = channelTest2
-                destUser = serverObject.getUserByName(lineSplit[0])
+                destUser = serverObject.get_user_by_name(lineSplit[0])
             else:
                 return "I'm not in any channel by that name."
         # If user by that name is not online, return a message saying that.
@@ -207,7 +207,7 @@ class ReplyMessage:
 
     def checkDestination(self, destinationObject):
         """Checks if a given destination should be responded to."""
-        serverName = destinationObject.get_server().getName().lower()
+        serverName = destinationObject.get_server().get_name().lower()
         channelName = destinationObject.get_name().lower()
         # If a whitelist is set, check that
         if len(self.mWhitelist) != 0:
@@ -226,7 +226,7 @@ class ReplyMessage:
             response = Commons.getRandomChoice(self.mResponseList)[0]
             response = response.replace("{USER}", userObject.get_name())
             response = response.replace("{CHANNEL}", destinationObject.get_name())
-            response = response.replace("{SERVER}", userObject.get_server().getName())
+            response = response.replace("{SERVER}", userObject.get_server().get_name())
             return response
         return None
 

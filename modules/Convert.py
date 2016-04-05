@@ -533,10 +533,10 @@ class ConvertPrefixGroup:
     def getPrefixByName(self, name):
         """Gets the prefix with the specified name"""
         for prefixObject in self.mPrefixList:
-            if prefixObject.getPrefix() == name:
+            if prefixObject.get_prefix() == name:
                 return prefixObject
         for prefixObject in self.mPrefixList:
-            if prefixObject.getPrefix().lower() == name.lower():
+            if prefixObject.get_prefix().lower() == name.lower():
                 return prefixObject
         return None
 
@@ -699,7 +699,7 @@ class ConvertMeasure:
     def convertTo(self, unit):
         """Creates a new measure, equal in value but with a different unit."""
         # Check units are the same type
-        if self.mUnit.getType() != unit.getType():
+        if self.mUnit.get_type() != unit.get_type():
             raise Exception("These are not the same unit type.")
         # Convert to base unit
         newAmount = self.mAmount * self.mUnit.getValue()
@@ -716,7 +716,7 @@ class ConvertMeasure:
 
     def convertToBase(self):
         """Creates a new measure, equal in value, but with the base unit of the unit type."""
-        baseUnit = self.mUnit.getType().getBaseUnit()
+        baseUnit = self.mUnit.get_type().getBaseUnit()
         newUnit = baseUnit
         unitValue = self.mUnit.getValue()
         newAmount = self.mAmount * unitValue
@@ -728,7 +728,7 @@ class ConvertMeasure:
 
     def toString(self):
         """Converts the measure to a string for output."""
-        decimalPlaces = self.mUnit.getType().getDecimals()
+        decimalPlaces = self.mUnit.get_type().getDecimals()
         decimalFormat = "{:." + str(decimalPlaces) + "f}"
         prefixGroup = self.mUnit.getPrefixGroup()
         # If there is no prefix group, output raw.
@@ -739,7 +739,7 @@ class ConvertMeasure:
         prefixMultiplier = 1
         prefixName = ""
         if appropriatePrefix is not None:
-            prefixName = appropriatePrefix.getPrefix()
+            prefixName = appropriatePrefix.get_prefix()
             prefixMultiplier = appropriatePrefix.getMultiplier()
         outputAmount = self.mAmount / prefixMultiplier
         # Output string
@@ -750,13 +750,13 @@ class ConvertMeasure:
 
     def toStringWithPrefix(self, prefix):
         """Converts the measure to a string with the specified prefix."""
-        decimalPlaces = self.mUnit.getType().getDecimals()
+        decimalPlaces = self.mUnit.get_type().getDecimals()
         decimalFormat = "{:" + str(decimalPlaces) + "f}"
         # Calculate the output amount
         prefixMultiplier = 1
         prefixName = ""
         if prefix is not None:
-            prefixName = prefix.getPrefix()
+            prefixName = prefix.get_prefix()
             prefixMultiplier = prefix.getMultiplier()
         outputAmount = self.mAmount / prefixMultiplier
         # Output string
@@ -874,7 +874,7 @@ class Convert(Function):
         """Converts a single given measure into whatever unit is specified."""
         outputLines = []
         for fromMeasure in fromMeasureList:
-            for toUnitObject in fromMeasure.getUnit().getType().getUnitList():
+            for toUnitObject in fromMeasure.getUnit().get_type().getUnitList():
                 prefixObject = toUnitObject.getPrefixFromUserInput(userInputTo)
                 if prefixObject is False:
                     continue
@@ -1219,12 +1219,12 @@ class ConvertViewRepo(Function):
     def outputUnitAsString(self, unitObject):
         """Outputs a Conversion Unit object as a string"""
         outputLines = ["Conversion Unit: (" + unitObject.getNameList()[0] + ")",
-                       "Type: " + unitObject.getType().getName(), "Name list: " + ", ".join(unitObject.getNameList()),
+                       "Type: " + unitObject.get_type().getName(), "Name list: " + ", ".join(unitObject.getNameList()),
                        "Abbreviation list: " + ", ".join(unitObject.getAbbreviationList()),
                        "Value: 1 " + unitObject.getNameList()[0] + " = " + str(unitObject.getValue()) + " " +
-                       unitObject.getType().getBaseUnit().getNameList()[0],
+                       unitObject.get_type().getBaseUnit().getNameList()[0],
                        "Offset: 0 " + unitObject.getNameList()[0] + " = " + str(unitObject.getOffset()) + " " +
-                       unitObject.getType().getBaseUnit().getNameList()[0]]
+                       unitObject.get_type().getBaseUnit().getNameList()[0]]
         lastUpdate = unitObject.getLastUpdated()
         if lastUpdate is not None:
             outputLines.append("Last updated: " + Commons.formatUnixTime(lastUpdate))
@@ -1237,14 +1237,14 @@ class ConvertViewRepo(Function):
         """Outputs a Conversion PrefixGroup object as a string"""
         outputString = "Prefix group: (" + prefixGroupObject.getName() + ")\n"
         outputString += "Prefix list: " + ", ".join(
-            [prefixObject.getPrefix() for prefixObject in prefixGroupObject.getPrefixList()])
+            [prefixObject.get_prefix() for prefixObject in prefixGroupObject.getPrefixList()])
         return outputString
 
     def outputPrefixAsString(self, prefixObject):
         """Outputs a Conversion prefix object as a string"""
-        outputString = "Prefix: (" + prefixObject.getPrefix() + ")\n"
+        outputString = "Prefix: (" + prefixObject.get_prefix() + ")\n"
         outputString += "Abbreviation: " + prefixObject.getAbbreviation() + "\n"
-        outputString += "Multiplier: " + str(prefixObject.getPrefix())
+        outputString += "Multiplier: " + str(prefixObject.get_prefix())
         return outputString
 
 
@@ -1300,9 +1300,9 @@ class ConvertSet(Function):
         # Find list of pairs of measures, sharing a type
         measurePairList = []
         for varMeasure in varMeasureList:
-            varMeasureType = varMeasure.getUnit().getType()
+            varMeasureType = varMeasure.getUnit().get_type()
             for refMeasure in refMeasureList:
-                refMeasureType = refMeasure.getUnit().getType()
+                refMeasureType = refMeasure.getUnit().get_type()
                 if varMeasureType == refMeasureType:
                     measurePair = {'var': varMeasure, 'ref': refMeasure}
                     measurePairList.append(measurePair)
@@ -1318,14 +1318,14 @@ class ConvertSet(Function):
         refAmount = refMeasure.getAmount()
         varUnit = varMeasure.getUnit()
         varName = varUnit.getNameList()[0]
-        baseName = varUnit.getType().getBaseUnit().getNameList()[0]
+        baseName = varUnit.get_type().getBaseUnit().getNameList()[0]
         refUnit = refMeasure.getUnit()
         varValue = varUnit.getValue()
         refValue = refUnit.getValue()
         varOffset = varUnit.getOffset()
         refOffset = refUnit.getOffset()
         # If varUnit is the base unit, it cannot be set.
-        if varUnit == varUnit.getType().getBaseUnit():
+        if varUnit == varUnit.get_type().getBaseUnit():
             return "You cannot change values of the base unit."
         # If either given amount are zero, set the offset of varUnit.
         if varAmount == 0 or refAmount == 0:
@@ -1333,7 +1333,7 @@ class ConvertSet(Function):
             newOffset = (refAmount - (varAmount * varValue)) * refValue + refOffset
             varUnit.setOffset(newOffset)
             # Save repo
-            repo = varUnit.getType().getRepo()
+            repo = varUnit.get_type().getRepo()
             repo.save_to_xml()
             # Output message
             return "Set new offset for " + varName + ": 0 " + varName + " = " + str(newOffset) + " " + baseName + "."
@@ -1341,7 +1341,7 @@ class ConvertSet(Function):
         newValue = (refAmount - ((varOffset - refOffset) / refValue)) / varAmount
         varUnit.setValue(newValue)
         # Save repo
-        repo = varUnit.getType().getRepo()
+        repo = varUnit.get_type().getRepo()
         repo.save_to_xml()
         # Output message
         return "Set new value for " + varName + ": Δ 1 " + varName + " = Δ " + str(newValue) + " " + baseName + "."
@@ -1356,7 +1356,7 @@ class ConvertSet(Function):
         refMeasure = refMeasureList[0]
         refAmount = refMeasure.getAmount()
         refUnit = refMeasure.getUnit()
-        refType = refUnit.getType()
+        refType = refUnit.get_type()
         refValue = refUnit.getValue()
         refOffset = refUnit.getOffset()
         baseUnit = refType.getBaseUnit()
@@ -1384,7 +1384,7 @@ class ConvertSet(Function):
             newOffset = (refAmount - (inputAmountFloat * 1)) * refValue + refOffset
             newUnit.setOffset(newOffset)
             # Save repo
-            repo = refUnit.getType().getRepo()
+            repo = refUnit.get_type().getRepo()
             repo.save_to_xml()
             # Output message
             return "Created new unit " + inputName + " with offset: 0 " + inputName + " = " + str(
@@ -1393,7 +1393,7 @@ class ConvertSet(Function):
         newValue = (refAmount - ((0 - refOffset) / refValue)) / inputAmountFloat
         newUnit.setValue(newValue)
         # Save repo
-        repo = refUnit.getType().getRepo()
+        repo = refUnit.get_type().getRepo()
         repo.save_to_xml()
         # Output message
         return "Created new unit " + inputName + " with value: 1 " + inputName + " = " + str(
@@ -1577,11 +1577,11 @@ class ConvertRemoveUnit(Function):
                 return ""
             inputUnit = inputUnitList[0]
         # Ensure it is not a base unit for its type
-        if inputUnit == inputUnit.getType().getBaseUnit():
+        if inputUnit == inputUnit.get_type().getBaseUnit():
             return "You cannot remove the base unit for a unit type."
         # Remove unit
         inputUnitName = inputUnit.getNameList()[0]
-        inputUnit.getType().removeUnit(inputUnit)
+        inputUnit.get_type().removeUnit(inputUnit)
         # Done
         return "Removed unit \"" + inputUnitName + "\" from conversion repository."
 
@@ -1835,7 +1835,7 @@ class ConvertUnitRemoveName(Function):
         userUnitOptions = []
         for unitObject in repo.getFullUnitList():
             # If type is defined and not the same as current unit, skip it
-            if typeName is not None and typeName != unitObject.getType().getName():
+            if typeName is not None and typeName != unitObject.get_type().getName():
                 continue
             # if unit name is defined and not a valid name for the unit, skip it.
             if unitName is not None and not unitObject.hasName(unitName):

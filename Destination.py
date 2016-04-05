@@ -146,14 +146,14 @@ class Channel(Destination):
         """
         Channel password setter
         :param password: Password of the channel
-        :type password: str
+        :type password: str | None
         """
         self.password = password
 
     def get_prefix(self):
         """Returns the channel prefix."""
         if self.prefix is None:
-            return self.server.getPrefix()
+            return self.server.get_prefix()
         return self.prefix
 
     def set_prefix(self, new_prefix):
@@ -380,7 +380,7 @@ class User(Destination):
 
     def check_identity(self):
         """Checks with the server whether this user is identified."""
-        identity_result = self.server.checkUserIdentity(self)
+        identity_result = self.server.check_user_identity(self)
         self.identified = identity_result
 
     def get_channel_list(self):
@@ -478,7 +478,7 @@ class User(Destination):
         if channel_obj is not None and channel_obj.is_channel():
             return channel_obj.rights_check(right_name)
         # Fall back to the parent Server's decision.
-        return self.server.rightsCheck(right_name)
+        return self.server.rights_check(right_name)
 
     def is_persistent(self):
         """Defines whether User is persistent. That is to say, whether it needs saving, or can be generated anew."""
@@ -548,7 +548,7 @@ class User(Destination):
         user_group_list_elem = doc.getElementsByTagName("user_group_membership")[0]
         for user_group_elem in user_group_list_elem.getElementsByTagName("user_group_name"):
             user_group_name = user_group_elem.firstChild.data
-            user_group = server.getHallo().get_user_group_by_name(user_group_name)
+            user_group = server.get_hallo().get_user_group_by_name(user_group_name)
             if user_group is not None:
                 new_user.add_user_group(user_group)
         # Add PermissionMask, if one exists

@@ -20,7 +20,7 @@ class ConfigSave(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        halloObject = userObject.get_server().getHallo()
+        halloObject = userObject.get_server().get_hallo()
         halloObject.save_to_xml()
 
 
@@ -42,7 +42,7 @@ class ModuleReload(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        halloObject = userObject.get_server().getHallo()
+        halloObject = userObject.get_server().get_hallo()
         functionDispatcher = halloObject.get_function_dispatcher()
         reloadResult = functionDispatcher.reload_module(line)
         if reloadResult:
@@ -96,7 +96,7 @@ class Help(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        self.mHalloObject = userObject.get_server().getHallo()
+        self.mHalloObject = userObject.get_server().get_hallo()
         if line.strip() == "":
             return self.listAllFunctions(userObject, destinationObject)
         else:

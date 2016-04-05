@@ -526,13 +526,13 @@ class WeatherLocation(Function):
         weatherRepo = WeatherLocationRepo.loadFromXml()
         userName = userObject.get_name()
         serverObj = userObject.get_server()
-        serverName = serverObj.getName()
+        serverName = serverObj.get_name()
         # Check that an argument is provided
         if len(lineClean.split()) == 0:
             return "Please specify a city, coordinates or zip code"
         # Check if first argument is a specified user for given server
         firstArg = lineClean.split()[0]
-        testUser = serverObj.getUserByName(firstArg)
+        testUser = serverObj.get_user_by_name(firstArg)
         if destinationObject is not None and destinationObject.is_channel():
             if destinationObject.is_user_in_channel(testUser):
                 userName = testUser.get_name()
@@ -573,7 +573,7 @@ class CurrentWeather(Function):
                        "the \"weather location\" function."
         else:
             # Check if a user was specified
-            testUser = userObject.get_server().getUserByName(lineClean)
+            testUser = userObject.get_server().get_user_by_name(lineClean)
             if (destinationObject is not None and destinationObject.is_channel() and destinationObject.is_user_in_channel(
                     testUser)):
                 locationRepo = WeatherLocationRepo.loadFromXml()
@@ -583,10 +583,10 @@ class CurrentWeather(Function):
                            "the \"weather location\" function."
             else:
                 userName = userObject.get_name()
-                serverName = userObject.get_server().getName()
+                serverName = userObject.get_server().get_name()
                 locationEntry = WeatherLocationEntry(userName, serverName)
                 locationEntry.setFromInput(lineClean)
-        apiKey = userObject.get_server().getHallo().get_api_key("openweathermap")
+        apiKey = userObject.get_server().get_hallo().get_api_key("openweathermap")
         if apiKey is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/weather" + locationEntry.createQueryParams() + "&APPID=" + apiKey
@@ -665,7 +665,7 @@ class Weather(Function):
                 return "No location stored for this user. Please specify a location or store one with " \
                        "the \"weather location\" function."
         else:
-            testUser = userObject.get_server().getUserByName(lineClean)
+            testUser = userObject.get_server().get_user_by_name(lineClean)
             if (destinationObject is not None and destinationObject.is_channel() and destinationObject.is_user_in_channel(
                     testUser)):
                 weatherRepo = WeatherLocationRepo.loadFromXml()
@@ -675,11 +675,11 @@ class Weather(Function):
                            "the \"weather location\" function."
             else:
                 userName = userObject.get_name()
-                serverName = userObject.get_server().getName()
+                serverName = userObject.get_server().get_name()
                 locationEntry = WeatherLocationEntry(userName, serverName)
                 locationEntry.setFromInput(lineClean)
         # Get API response
-        apiKey = userObject.get_server().getHallo().get_api_key("openweathermap")
+        apiKey = userObject.get_server().get_hallo().get_api_key("openweathermap")
         if apiKey is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/forecast/daily" + locationEntry.createQueryParams() + \
@@ -791,7 +791,7 @@ class UrlDetect(Function):
     def passiveRun(self, event, fullLine, serverObject, userObject=None, channelObject=None):
         """Replies to an event not directly addressed to the bot."""
         # Get hallo object for stuff to use
-        self.mHalloObject = serverObject.getHallo()
+        self.mHalloObject = serverObject.get_hallo()
         # Search for a link
         urlRegex = re.compile(r'\b((https?://|www.)[-A-Z0-9+&?%@#/=~_|$:,.]*[A-Z0-9+&@#/%=~_|$])', re.I)
         urlSearch = urlRegex.search(fullLine)

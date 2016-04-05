@@ -55,12 +55,12 @@ class Hallo:
                 self)
         # If no servers, ask for a new server
         if len(self.server_list) == 0:
-            if sum([server.getAutoConnect() for server in self.server_list]) == 0:
+            if sum([server.get_auto_connect() for server in self.server_list]) == 0:
                 self.manual_server_connect()
         # Connect to auto-connect servers
         print('connecting to servers')
         for server in self.server_list:
-            if server.getAutoConnect():
+            if server.get_auto_connect():
                 Thread(target=server.run).start()
         time.sleep(2)
         # Main loop, sticks around throughout the running of the bot
@@ -103,7 +103,7 @@ class Hallo:
             self.add_user_group(user_group_obj)
         server_list_xml = root.find("server_list")
         for server_xml in server_list_xml.findall("server"):
-            server_obj = self.server_factory.newServerFromXml(ElementTree.tostring(server_xml))
+            server_obj = self.server_factory.new_server_from_xml(ElementTree.tostring(server_xml))
             self.add_server(server_obj)
         if root.find("permission_mask") is not None:
             self.permission_mask = PermissionMask.from_xml(ElementTree.tostring(root.find("permission_mask")))
@@ -214,7 +214,7 @@ class Hallo:
         :return: Server matching specified name of None
         """
         for server in self.server_list:
-            if server.getName().lower() == server_name.lower():
+            if server.get_name().lower() == server_name.lower():
                 return server
         return None
 
@@ -227,7 +227,7 @@ class Hallo:
 
     def remove_server_by_name(self, server_name):
         for server in self.server_list:
-            if server.getName() == server_name:
+            if server.get_name() == server_name:
                 self.server_list.remove(server)
 
     def close(self):

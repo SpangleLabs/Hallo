@@ -314,7 +314,7 @@ class HighestCommonFactor(Function):
 
     def run(self, line, userObject, destinationObject=None):
         # Getting functionDispatcher and required function objects
-        halloObject = userObject.get_server().getHallo()
+        halloObject = userObject.get_server().get_hallo()
         functionDispatcher = halloObject.get_function_dispatcher()
         primeFactorsClass = functionDispatcher.get_function_by_name("prime factors")
         eulerClass = functionDispatcher.get_function_by_name("euler")
@@ -358,7 +358,7 @@ class SimplifyFraction(Function):
 
     def run(self, line, userObject, destinationObject=None):
         # Getting functionDispatcher and required function objects
-        halloObject = userObject.get_server().getHallo()
+        halloObject = userObject.get_server().get_hallo()
         functionDispatcher = halloObject.get_function_dispatcher()
         primeFactorsClass = functionDispatcher.get_function_by_name("prime factors")
         eulerClass = functionDispatcher.get_function_by_name("euler")

@@ -311,7 +311,7 @@ class CatGif(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        apiKey = userObject.get_server().getHallo().get_api_key("thecatapi")
+        apiKey = userObject.get_server().get_hallo().get_api_key("thecatapi")
         if apiKey is None:
             return "No API key loaded for cat api."
         url = "http://thecatapi.com/api/images/get?format=xml&api_key=" + apiKey + "&type=gif"
@@ -341,7 +341,7 @@ class RandomQuote(Function):
         pass
 
     def run(self, line, userObject, destinationObject=None):
-        apiKey = userObject.get_server().getHallo().get_api_key("mashape")
+        apiKey = userObject.get_server().get_hallo().get_api_key("mashape")
         if apiKey is None:
             return "No API key loaded for mashape."
         url = "https://andruxnet-random-famous-quotes.p.mashape.com/"
@@ -379,7 +379,7 @@ class NightValeWeather(Function):
 
     def run(self, line, userObject, destinationObject=None):
         # Get hallo object
-        self.mHalloObject = userObject.get_server().getHallo()
+        self.mHalloObject = userObject.get_server().get_hallo()
         # Get playlist data from youtube api
         playlistData = self.getYoutubePlaylist("PL5bFd9WyHshXpZK-VPpH8UPXx6wCOIaQW")
         # Select a video from the playlist
@@ -391,7 +391,7 @@ class NightValeWeather(Function):
         """Replies to an event not directly addressed to the bot."""
         fullLineClean = fullLine.lower().strip()
         # Get hallo's current name
-        halloName = serverObject.getNick().lower()
+        halloName = serverObject.get_nick().lower()
         # Check if message matches specified patterns
         if halloName + " with the weather" in fullLineClean:
             # get destination object

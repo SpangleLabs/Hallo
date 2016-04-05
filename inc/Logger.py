@@ -71,7 +71,7 @@ class Logger:
         if event not in self.mEventDict:
             return None
         logFunction = self.mEventDict[event]
-        halloUserObject = serverObject.getUserByName(serverObject.getNick())
+        halloUserObject = serverObject.get_user_by_name(serverObject.get_nick())
         logLine = logFunction(fullLine, serverObject, halloUserObject, channelObject)
         # If logLine is null, do nothing.
         if logLine is None:
@@ -170,7 +170,7 @@ class Logger:
             fileName += fileDate+fileExt
             return fileName
         # Otherwise, go into server directory
-        fileName += serverObject.getName()+"/"
+        fileName += serverObject.get_name() + "/"
         # Check if channel object is specified
         if channelObject is None:
             if userObject is None:

@@ -26,7 +26,7 @@ class Euler(Function):
 
     def run(self, line, userObject, destinationObject=None):
         # Some functions might need this.
-        self.mHalloObject = userObject.get_server().getHallo()
+        self.mHalloObject = userObject.get_server().get_hallo()
         lineClean = line.strip().lower()
         if lineClean == "list":
             return self.listAll()

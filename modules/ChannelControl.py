@@ -25,7 +25,7 @@ class Operator(Function):
         # Get server object
         serverObject = userObject.get_server()
         # If server isn't IRC type, we can't give op.
-        if serverObject.getType() != Server.TYPE_IRC:
+        if serverObject.get_type() != Server.TYPE_IRC:
             return "This function is only available for IRC servers."
         # TODO: check if hallo has op?
         # If 0 arguments, op user who called command.
@@ -37,7 +37,7 @@ class Operator(Function):
         if len(lineSplit) == 1:
             # If message was sent in privmsg, it's referring to a channel
             if destinationObject is not None and destinationObject == userObject:
-                channel = serverObject.getChannelByName(line)
+                channel = serverObject.get_channel_by_name(line)
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
@@ -45,14 +45,14 @@ class Operator(Function):
                 return "Op status given."
             # If it starts with '#', check it's a channel hallo is in.
             if line.startswith("#"):
-                channel = serverObject.getChannelByName(line)
+                channel = serverObject.get_channel_by_name(line)
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
                 serverObject.send("MODE " + channel.get_name() + " +o " + userObject.get_name(), None, "raw")
                 return "Op status given."
             # Check if it's a user in current channel
-            targetUser = serverObject.getUserByName(line)
+            targetUser = serverObject.get_user_by_name(line)
             if targetUser is None or not destinationObject.is_user_in_channel(targetUser):
                 return "That user is not in this channel."
             # TODO: check if hallo has op in this channel.
@@ -60,11 +60,11 @@ class Operator(Function):
             return "Op status given."
         # If 2 arguments, determine which is channel and which is user.
         if lineSplit[0].startswith("#"):
-            targetChannel = serverObject.getChannelByName(lineSplit[0])
-            targetUser = serverObject.getUserByName(lineSplit[1])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[0])
+            targetUser = serverObject.get_user_by_name(lineSplit[1])
         elif lineSplit[1].startswith("#"):
-            targetChannel = serverObject.getChannelByName(lineSplit[1])
-            targetUser = serverObject.getUserByName(lineSplit[0])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[1])
+            targetUser = serverObject.get_user_by_name(lineSplit[0])
         else:
             return "Unrecognised input. Please specify user and channel."
         # Do checks on target channel and user
@@ -102,7 +102,7 @@ class DeOperator(Function):
         # Get server object
         serverObject = userObject.get_server()
         # If server isn't IRC type, we can't give op.
-        if serverObject.getType() != Server.TYPE_IRC:
+        if serverObject.get_type() != Server.TYPE_IRC:
             return "This function is only available for IRC servers."
         # TODO: check if hallo has op?
         # If 0 arguments, op user who called command.
@@ -114,7 +114,7 @@ class DeOperator(Function):
         if len(lineSplit) == 1:
             # If message was sent in privmsg, it's referring to a channel
             if destinationObject is not None and destinationObject == userObject:
-                channel = serverObject.getChannelByName(line)
+                channel = serverObject.get_channel_by_name(line)
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
@@ -122,14 +122,14 @@ class DeOperator(Function):
                 return "Op status taken."
             # If it starts with '#', check it's a channel hallo is in.
             if line.startswith("#"):
-                channel = serverObject.getChannelByName(line)
+                channel = serverObject.get_channel_by_name(line)
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
                 serverObject.send("MODE " + channel.get_name() + " -o " + userObject.get_name(), None, "raw")
                 return "Op status taken."
             # Check if it's a user in current channel
-            targetUser = serverObject.getUserByName(line)
+            targetUser = serverObject.get_user_by_name(line)
             if targetUser is None or not destinationObject.is_user_in_channel(targetUser):
                 return "That user is not in this channel."
             # TODO: check if hallo has op in this channel.
@@ -137,11 +137,11 @@ class DeOperator(Function):
             return "Op status taken."
         # If 2 arguments, determine which is channel and which is user.
         if lineSplit[0].startswith("#"):
-            targetChannel = serverObject.getChannelByName(lineSplit[0])
-            targetUser = serverObject.getUserByName(lineSplit[1])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[0])
+            targetUser = serverObject.get_user_by_name(lineSplit[1])
         elif lineSplit[1].startswith("#"):
-            targetChannel = serverObject.getChannelByName(lineSplit[1])
-            targetUser = serverObject.getUserByName(lineSplit[0])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[1])
+            targetUser = serverObject.get_user_by_name(lineSplit[0])
         else:
             return "Unrecognised input. Please specify user and channel."
         # Do checks on target channel and user
@@ -178,7 +178,7 @@ class Voice(Function):
         # Get server object
         serverObject = userObject.get_server()
         # If server isn't IRC type, we can't give op.
-        if serverObject.getType() != Server.TYPE_IRC:
+        if serverObject.get_type() != Server.TYPE_IRC:
             return "This function is only available for IRC servers."
         # TODO: check if hallo has op?
         # If 0 arguments, op user who called command.
@@ -190,7 +190,7 @@ class Voice(Function):
         if len(lineSplit) == 1:
             # If message was sent in privmsg, it's referring to a channel
             if destinationObject is not None and destinationObject == userObject:
-                channel = serverObject.getChannelByName(line)
+                channel = serverObject.get_channel_by_name(line)
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
@@ -198,14 +198,14 @@ class Voice(Function):
                 return "Voice status given."
             # If it starts with '#', check it's a channel hallo is in.
             if line.startswith("#"):
-                channel = serverObject.getChannelByName(line)
+                channel = serverObject.get_channel_by_name(line)
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
                 serverObject.send("MODE " + channel.get_name() + " +v " + userObject.get_name(), None, "raw")
                 return "Voice status given."
             # Check if it's a user in current channel
-            targetUser = serverObject.getUserByName(line)
+            targetUser = serverObject.get_user_by_name(line)
             if targetUser is None or not destinationObject.is_user_in_channel(targetUser):
                 return "That user is not in this channel."
             # TODO: check if hallo has op in this channel.
@@ -213,11 +213,11 @@ class Voice(Function):
             return "Voice status given."
         # If 2 arguments, determine which is channel and which is user.
         if lineSplit[0].startswith("#"):
-            targetChannel = serverObject.getChannelByName(lineSplit[0])
-            targetUser = serverObject.getUserByName(lineSplit[1])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[0])
+            targetUser = serverObject.get_user_by_name(lineSplit[1])
         elif lineSplit[1].startswith("#"):
-            targetChannel = serverObject.getChannelByName(lineSplit[1])
-            targetUser = serverObject.getUserByName(lineSplit[0])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[1])
+            targetUser = serverObject.get_user_by_name(lineSplit[0])
         else:
             return "Unrecognised input. Please specify user and channel."
         # Do checks on target channel and user
@@ -254,7 +254,7 @@ class DeVoice(Function):
         # Get server object
         serverObject = userObject.get_server()
         # If server isn't IRC type, we can't give op.
-        if serverObject.getType() != Server.TYPE_IRC:
+        if serverObject.get_type() != Server.TYPE_IRC:
             return "This function is only available for IRC servers."
         # TODO: check if hallo has op?
         # If 0 arguments, op user who called command.
@@ -266,7 +266,7 @@ class DeVoice(Function):
         if len(lineSplit) == 1:
             # If message was sent in privmsg, it's referring to a channel
             if destinationObject is not None and destinationObject == userObject:
-                channel = serverObject.getChannelByName(line)
+                channel = serverObject.get_channel_by_name(line)
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
@@ -274,14 +274,14 @@ class DeVoice(Function):
                 return "Voice status taken."
             # If it starts with '#', check it's a channel hallo is in.
             if line.startswith("#"):
-                channel = serverObject.getChannelByName(line)
+                channel = serverObject.get_channel_by_name(line)
                 if channel is None or not channel.is_in_channel():
                     return "I'm not in that channel."
                 # TODO: check if hallo has op in that channel.
                 serverObject.send("MODE " + channel.get_name() + " -v " + userObject.get_name(), None, "raw")
                 return "Voice status taken."
             # Check if it's a user in current channel
-            targetUser = serverObject.getUserByName(line)
+            targetUser = serverObject.get_user_by_name(line)
             if targetUser is None or not destinationObject.is_user_in_channel(targetUser):
                 return "That user is not in this channel."
             # TODO: check if hallo has op in this channel.
@@ -289,11 +289,11 @@ class DeVoice(Function):
             return "Voice status taken."
         # If 2 arguments, determine which is channel and which is user.
         if lineSplit[0].startswith("#"):
-            targetChannel = serverObject.getChannelByName(lineSplit[0])
-            targetUser = serverObject.getUserByName(lineSplit[1])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[0])
+            targetUser = serverObject.get_user_by_name(lineSplit[1])
         elif lineSplit[1].startswith("#"):
-            targetChannel = serverObject.getChannelByName(lineSplit[1])
-            targetUser = serverObject.getUserByName(lineSplit[0])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[1])
+            targetUser = serverObject.get_user_by_name(lineSplit[0])
         else:
             return "Unrecognised input. Please specify user and channel."
         # Do checks on target channel and user
@@ -329,7 +329,7 @@ class Invite(Function):
         # Get server object
         serverObject = userObject.get_server()
         # If server isn't IRC type, we can't give op.
-        if serverObject.getType() != Server.TYPE_IRC:
+        if serverObject.get_type() != Server.TYPE_IRC:
             return "This function is only available for IRC servers."
         # TODO: check if hallo has op?
         lineSplit = line.split()
@@ -338,25 +338,25 @@ class Invite(Function):
         # If 1 argument, see if it's a channel or a user.
         if len(lineSplit) == 1:
             if line.startswith("#"):
-                targetChannel = serverObject.getChannelByName(line)
+                targetChannel = serverObject.get_channel_by_name(line)
                 if targetChannel is None or not targetChannel.is_in_channel():
                     return "I'm not in that channel."
                 serverObject.send("INVITE " + userObject.get_name() + " " + targetChannel.get_name(), None, "raw")
                 return "Invited " + userObject.get_name() + " to " + targetChannel.get_name() + "."
             if destinationObject is None or destinationObject == userObject:
                 return "You can't invite a user to privmsg."
-            targetUser = serverObject.getUserByName(line)
+            targetUser = serverObject.get_user_by_name(line)
             if targetUser is None or not targetUser.is_online():
                 return "That user is not online."
             serverObject.send("INVITE " + targetUser.get_name() + " " + destinationObject.get_name())
             return "Invited " + targetUser.get_name() + " to " + destinationObject.get_name() + "."
         # If 2 arguments, determine which is channel and which is user.
         if lineSplit[0].startswith("#"):
-            targetChannel = serverObject.getChannelByName(lineSplit[0])
-            targetUser = serverObject.getUserByName(lineSplit[1])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[0])
+            targetUser = serverObject.get_user_by_name(lineSplit[1])
         elif lineSplit[1].startswith("#"):
-            targetChannel = serverObject.getChannelByName(lineSplit[1])
-            targetUser = serverObject.getUserByName(lineSplit[0])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[1])
+            targetUser = serverObject.get_user_by_name(lineSplit[0])
         else:
             return "Unrecognised input. Please specify user and channel."
         # Do checks on target channel and user
@@ -400,7 +400,7 @@ class Mute(Function):
             serverObject.send("MODE " + targetChannel.get_name() + " +m", None, "raw")
             return "Set mute."
         # Get channel from user input
-        targetChannel = serverObject.getChannelByName(line.strip())
+        targetChannel = serverObject.get_channel_by_name(line.strip())
         if targetChannel is None or not targetChannel.is_in_channel():
             return "I'm not in that channel."
         serverObject.send("MODE " + targetChannel.get_name() + " +m", None, "raw")
@@ -436,7 +436,7 @@ class UnMute(Function):
             serverObject.send("MODE " + targetChannel.get_name() + " -m", None, "raw")
             return "Unset mute."
         # Get channel from user input
-        targetChannel = serverObject.getChannelByName(line.strip())
+        targetChannel = serverObject.get_channel_by_name(line.strip())
         if targetChannel is None or not targetChannel.is_in_channel():
             return "I'm not in that channel."
         serverObject.send("MODE " + targetChannel.get_name() + " -m", None, "raw")
@@ -464,7 +464,7 @@ class Kick(Function):
         # Get server object
         serverObject = userObject.get_server()
         # If server isn't IRC type, we can't give op.
-        if serverObject.getType() != Server.TYPE_IRC:
+        if serverObject.get_type() != Server.TYPE_IRC:
             return "This function is only available for IRC servers."
         # TODO: check if hallo has op?
         # Check input is not blank
@@ -473,7 +473,7 @@ class Kick(Function):
         # Check if 1 argument is given.
         lineSplit = line.split()
         if len(lineSplit) == 1:
-            targetUser = serverObject.getUserByName(line.strip())
+            targetUser = serverObject.get_user_by_name(line.strip())
             if destinationObject is None or destinationObject == userObject:
                 return "I can't kick someone from a privmsg. Please specify a channel."
             if targetUser is None or not targetUser.is_online() or not destinationObject.is_user_in_channel(targetUser):
@@ -482,8 +482,8 @@ class Kick(Function):
             return "Kicked " + targetUser.get_name() + " from " + destinationObject.get_name() + "."
         # Check if first argument is a channel
         if lineSplit[0].startswith("#"):
-            targetChannel = serverObject.getChannelByName(lineSplit[0])
-            targetUser = serverObject.getUserByName(lineSplit[1])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[0])
+            targetUser = serverObject.get_user_by_name(lineSplit[1])
             message = ""
             if len(lineSplit) > 2:
                 message = " ".join(lineSplit[2:])
@@ -498,8 +498,8 @@ class Kick(Function):
             return "Kicked " + targetUser.get_name() + " from " + targetChannel.get_name() + "."
         # Check if second argument is a channel.
         if lineSplit[1].startswith("#"):
-            targetChannel = serverObject.getChannelByName(lineSplit[1])
-            targetUser = serverObject.getUserByName(lineSplit[0])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[1])
+            targetUser = serverObject.get_user_by_name(lineSplit[0])
             message = ""
             if len(lineSplit) > 2:
                 message = " ".join(lineSplit[2:])
@@ -514,7 +514,7 @@ class Kick(Function):
             return "Kicked " + targetUser.get_name() + " from " + targetChannel.get_name() + "."
         # Otherwise, it is a user and a message.
         targetChannel = destinationObject
-        targetUser = serverObject.getUserByName(lineSplit[0])
+        targetUser = serverObject.get_user_by_name(lineSplit[0])
         message = ""
         if len(lineSplit) > 2:
             message = " ".join(lineSplit[2:])
@@ -564,7 +564,7 @@ class ChannelCaps(Function):
                 destinationObject.set_upper_case(inputBool)
                 return "Caps lock set " + {False: 'off', True: 'on'}[inputBool] + "."
             # Check if a channel was specified
-            targetChannel = serverObject.getChannelByName(lineSplit[0])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[0])
             if targetChannel.is_in_channel():
                 targetChannel.set_upper_case(not targetChannel.is_upper_case())
                 return "Caps lock togged in " + targetChannel.get_name() + "."
@@ -579,7 +579,7 @@ class ChannelCaps(Function):
             targetChannelName = lineSplit[0]
         if inputBool is None:
             return "I don't understand your input, please specify a channel and whether to turn caps lock on or off."
-        targetChannel = serverObject.getChannelByName(targetChannelName)
+        targetChannel = serverObject.get_channel_by_name(targetChannelName)
         if targetChannel is None or not targetChannel.is_in_channel():
             return "I'm not in that channel."
         destinationObject.set_upper_case(inputBool)
@@ -620,7 +620,7 @@ class ChannelLogging(Function):
                 destinationObject.set_logging(inputBool)
                 return "Logging set " + {False: 'off', True: 'on'}[inputBool] + "."
             # Check if a channel was specified
-            targetChannel = serverObject.getChannelByName(lineSplit[0])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[0])
             if targetChannel.is_in_channel():
                 targetChannel.set_logging(not targetChannel.get_logging())
                 return "Logging togged in " + targetChannel.get_name() + "."
@@ -635,7 +635,7 @@ class ChannelLogging(Function):
             targetChannelName = lineSplit[0]
         if inputBool is None:
             return "I don't understand your input, please specify a channel and whether to turn logging on or off."
-        targetChannel = serverObject.getChannelByName(targetChannelName)
+        targetChannel = serverObject.get_channel_by_name(targetChannelName)
         if targetChannel is None or not targetChannel.is_in_channel():
             return "I'm not in that channel."
         destinationObject.set_logging(inputBool)
@@ -684,7 +684,7 @@ class ChannelPassiveFunctions(Function):
                 destinationObject.set_passive_enabled(inputBool)
                 return "Passive functions set " + {False: 'disabled', True: 'enabled'}[inputBool] + "."
             # Check if a channel was specified
-            targetChannel = serverObject.getChannelByName(lineSplit[0])
+            targetChannel = serverObject.get_channel_by_name(lineSplit[0])
             if targetChannel.is_in_channel():
                 targetChannel.set_passive_enabled(not targetChannel.is_passive_enabled())
                 return "Passive functions togged in " + targetChannel.get_name() + "."
@@ -701,7 +701,7 @@ class ChannelPassiveFunctions(Function):
         if inputBool is None:
             return "I don't understand your input, please specify a channel and whether to turn passive functions on " \
                    "or off."
-        targetChannel = serverObject.getChannelByName(targetChannelName)
+        targetChannel = serverObject.get_channel_by_name(targetChannelName)
         if targetChannel is None or not targetChannel.is_in_channel():
             return "I'm not in that channel."
         destinationObject.set_passive_enabled(inputBool)
@@ -749,7 +749,7 @@ class ChannelPassword(Function):
         # Assume first is channel, and second is password.
         inputNull = Commons.isStringNull(lineSplit[1])
         targetChannelName = lineSplit[0]
-        targetChannel = serverObject.getChannelByName(targetChannelName)
+        targetChannel = serverObject.get_channel_by_name(targetChannelName)
         if inputNull:
             destinationObject.set_password(None)
             return "Channel password disabled for " + targetChannel.get_name() + "."

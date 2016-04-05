@@ -76,7 +76,7 @@ class SilenceTheRabble(Function):
         if not userObject.get_name().endswith('000242'):
             return "You are not my master."
         serverObject = userObject.get_server()
-        if serverObject.getType() == Server.TYPE_IRC:
+        if serverObject.get_type() == Server.TYPE_IRC:
             return "This function is only available on IRC servers."
         if destinationObject is None or destinationObject == userObject:
             return "This function can only be used in ETD."
@@ -86,7 +86,7 @@ class SilenceTheRabble(Function):
         for userObject in userList:
             if userObject.get_name().endswith("000242"):
                 continue
-            if userObject.get_name().lower() == serverObject.getNick().lower():
+            if userObject.get_name().lower() == serverObject.get_nick().lower():
                 continue
             serverObject.send("MODE " + destinationObject.get_name() + " -o " + userObject.get_name(), None, "raw")
             serverObject.send("MODE " + destinationObject.get_name() + " -v " + userObject.get_name(), None, "raw")
@@ -116,7 +116,7 @@ class PokeTheAsshole(Function):
         if not userObject.get_name().endswith('000242'):
             return "You are not my master."
         serverObject = userObject.get_server()
-        if serverObject.getType() == Server.TYPE_IRC:
+        if serverObject.get_type() == Server.TYPE_IRC:
             return "This function is only available on IRC servers."
         if destinationObject is None or destinationObject == userObject:
             return "This function can only be used in ETD."
