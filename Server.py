@@ -879,7 +879,8 @@ class ServerIRC(Server):
         function_dispatcher.dispatch_passive(Function.EVENT_NOTICE, notice_message, self, notice_client, notice_channel)
 
     def parse_line_nick(self, nick_line):
-        """Parses a NICK message from the server
+        """
+        Parses a NICK message from the server
         :param nick_line: Line from server specifying nick change
         :type nick_line: str
         """
@@ -898,7 +899,8 @@ class ServerIRC(Server):
         # Update name for user object
         nick_client.set_name(nick_new_nick)
         # Printing and logging
-        self.hallo.get_printer().output(Function.EVENT_CHNAME, nick_client_name, self, nick_client, Commons.ALL_CHANNELS)
+        self.hallo.get_printer().output(Function.EVENT_CHNAME, nick_client_name, self, nick_client,
+                                        Commons.ALL_CHANNELS)
         for channel in self.channel_list:
             self.hallo.get_logger().log(Function.EVENT_CHNAME, nick_client_name, self, nick_client, channel)
         # Pass to passive FunctionDispatcher

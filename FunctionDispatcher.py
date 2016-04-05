@@ -2,6 +2,7 @@ import importlib
 import sys
 import inspect
 from xml.dom import minidom
+import imp
 
 from Function import Function
 
@@ -188,7 +189,7 @@ class FunctionDispatcher(object):
         # Check if module has already been imported
         if full_module_name in sys.modules:
             module_obj = sys.modules[full_module_name]
-            importlib.reload(module_obj)
+            self._reload(module_obj)
         else:
             # Try and load new module, return False if it doesn't exist
             try:
@@ -210,6 +211,19 @@ class FunctionDispatcher(object):
             except NotImplementedError:
                 self.unload_function(function_class)
         return True
+
+    def _reload(self, module_obj):
+        """
+        Actually reloads the module
+        :param module_obj: Module to reload
+        :type module_obj: module
+        :return: None
+        """
+        try:
+            # noinspection PyUnresolvedReferences
+            importlib.reload(module_obj)
+        except AttributeError:
+            imp.reload(module_obj)
 
     def unload_module(self, module_obj):
         """
