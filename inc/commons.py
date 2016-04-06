@@ -252,6 +252,24 @@ class Commons(object):
         # [string[x:] for x in range(len(string)) if Commons.is_float_string(string[x:])] + [None])[0]
 
     @staticmethod
+    def get_calc_from_start_or_end(string):
+        """
+        Gets the longest calculation of digits from the start or end of a string, or None
+        :param string: String to find calculation from
+        :type string: str
+        :return: str | None
+        """
+        start_digits = [string[:x] for x in range(1, len(string) + 1) if Commons.check_calculation(string[:x])]
+        if len(start_digits) != 0:
+            return start_digits[-1]
+        end_digits = [string[x:] for x in range(len(string)) if Commons.check_calculation(string[x:])]
+        if len(end_digits) != 0:
+            return end_digits[0]
+        return None
+        # return ([string[:x] for x in range(1, len(string)+1) if Commons.is_float_string(string[:x])][::-1] +
+        # [string[x:] for x in range(len(string)) if Commons.is_float_string(string[x:])] + [None])[0]
+
+    @staticmethod
     def list_greater(list_one, list_two):
         """
         Checks whether listOne is "greater" than listTwo.

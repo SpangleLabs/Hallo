@@ -806,15 +806,15 @@ class ConvertMeasure:
         user_input_clean = user_input.strip()
         # Search through the line for digits, pull them amount as a preliminary amount and strip the rest of the line.
         # TODO: add calculation?
-        preliminary_amount_string = Commons.get_digits_from_start_or_end(user_input_clean)
-        if preliminary_amount_string is None:
+        preliminary_amount_str = Commons.get_digits_from_start_or_end(user_input_clean)
+        if preliminary_amount_str is None:
             raise ConvertException("Cannot find amount.")
-        preliminary_amount_value = float(preliminary_amount_string)
+        preliminary_amount_value = float(preliminary_amount_str)
         # Remove amountString from userInput
-        if user_input.startswith(preliminary_amount_string):
-            user_input = user_input[len(preliminary_amount_string):]
+        if user_input.startswith(preliminary_amount_str):
+            user_input = user_input[len(preliminary_amount_str):]
         else:
-            user_input = user_input[:-len(preliminary_amount_string)]
+            user_input = user_input[:-len(preliminary_amount_str)]
         # Loop all units, see which might match userInput with prefixes. Building a list of valid measures for input.
         new_measure_list = []
         for unit_obj in repo.get_full_unit_list():
@@ -1407,6 +1407,7 @@ class ConvertSet(Function):
         base_unit = ref_type.get_base_unit()
         base_name = base_unit.get_name_list()[0]
         # Get amount & unit name
+        # TODO: accept calculation
         input_amount_string = Commons.get_digits_from_start_or_end(user_input)
         if input_amount_string is None:
             return "Please specify an amount when setting a new unit."
