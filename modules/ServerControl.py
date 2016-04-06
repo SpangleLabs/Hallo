@@ -327,22 +327,22 @@ class Say(Function):
         # If server is not recognised or found, respond with an error
         if len(server_objs) == 0:
             return "Unrecognised server."
-        # Get channelObj list from server_obj and channel_name
+        # Get channel_obj list from server_obj and channel_name
         channel_objs = []
         for server_obj in server_objs:
             channel_regex = re.escape(channel_name).replace("\*", ".*")
             channel_list = server_obj.get_channel_list()
-            for channelObj in channel_list:
-                if not channelObj.is_in_channel():
+            for channel_obj in channel_list:
+                if not channel_obj.is_in_channel():
                     continue
-                if re.match(channel_regex, channelObj.get_name(), re.IGNORECASE):
-                    channel_objs.append(channelObj)
+                if re.match(channel_regex, channel_obj.get_name(), re.IGNORECASE):
+                    channel_objs.append(channel_obj)
         # If no channels were found that match, respond with an error
         if len(channel_objs) == 0:
             return "Unrecognised channel."
         # Send message to all matching channels
-        for channelObj in channel_objs:
-            channelObj.send(line)
+        for channel_obj in channel_objs:
+            channel_obj.server.send(line, channel_obj, Server.MSG_MSG)
         return "Message sent."
 
     def find_parameter(self, param_name, line):
