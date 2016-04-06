@@ -345,6 +345,10 @@ class Commons(object):
         split_string = clean_string.split("T")
         if len(split_string) != 2:
             raise ISO8601ParseError("Invalid ISO-8601 period string")
+        if split_string[0] == "":
+            split_string[0] = "0"
+        if split_string[1] == "":
+            split_string[1] = "0"
         new_delta = timedelta(int(split_string[0]), int(split_string[1]))
         return new_delta
 
