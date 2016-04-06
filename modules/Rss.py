@@ -49,14 +49,14 @@ class RssFeedList:
         :return: list<RssFeed> list of RssFeeds matching destination
         """
         matching_feeds = []
-        for rssFeed in self.feed_list:
-            if server.get_name() != rssFeed.mServerName.lower():
+        for rss_feed in self.feed_list:
+            if server.get_name() != rss_feed.server_name.lower():
                 continue
-            if destination.is_channel() and destination.get_name() != rssFeed.mChannelName:
+            if destination.is_channel() and destination.get_name() != rss_feed.channel_name:
                 continue
-            if destination.is_user() and destination.get_name() != rssFeed.mUserName:
+            if destination.is_user() and destination.get_name() != rss_feed.user_name:
                 continue
-            matching_feeds.append(rssFeed)
+            matching_feeds.append(rss_feed)
         return matching_feeds
 
     def get_feeds_by_title(self, title, server, destination):
@@ -73,7 +73,7 @@ class RssFeedList:
         title_clean = title.lower().strip()
         matching_feeds = []
         for rssFeed in self.get_feeds_by_destination(server, destination):
-            if title_clean == rssFeed.mTitle.lower().strip():
+            if title_clean == rssFeed.title.lower().strip():
                 matching_feeds.append(rssFeed)
         return matching_feeds
 
@@ -88,7 +88,7 @@ class RssFeedList:
         url_clean = url.strip()
         matching_feeds = []
         for rssFeed in self.get_feeds_by_destination(server, destination):
-            if url_clean == rssFeed.mUrl.strip():
+            if url_clean == rssFeed.url.strip():
                 matching_feeds.append(rssFeed)
         return matching_feeds
 
@@ -415,7 +415,7 @@ class FeedAdd(Function):
         function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
         feed_check_class = function_dispatcher.get_function_by_name("rss check")
         feed_check_obj = function_dispatcher.get_function_object(feed_check_class)
-        feed_list = feed_check_obj.mRssFeedList
+        feed_list = feed_check_obj.rss_feed_list
         # Check link works
         try:
             Commons.load_url_string(feed_url, [])
@@ -473,15 +473,15 @@ class FeedRemove(Function):
         hallo = server.get_hallo()
         function_dispatcher = hallo.get_function_dispatcher()
         feed_check_function = function_dispatcher.get_function_by_name("rss check")
-        rss_feed_list = feed_check_function.mRssFeedList
+        rss_feed_list = feed_check_function.rss_feed_list
         # Clean up input
         clean_input = line.strip()
         # Find any feeds with specified title
         test_feeds = rss_feed_list.get_feeds_by_title(clean_input.lower(), server, destination_obj)
         if len(test_feeds) == 1:
             rss_feed_list.remove(test_feeds[0])
-            return "Removed \"" + test_feeds[0].mTitle + "\" RSS feed. Updates will no longer be sent to " \
-                   + next(test_feeds[0].mChannelName, test_feeds[0].mUserName) + "."
+            return "Removed \"" + test_feeds[0].title + "\" RSS feed. Updates will no longer be sent to " \
+                   + next(test_feeds[0].channel_name, test_feeds[0].user_name) + "."
         if len(test_feeds) > 1:
             return "There is more than 1 rss feed in this channel by that name. Try specifying by URL."
         # Otherwise, zero results, so try hunting by url
@@ -517,12 +517,12 @@ class FeedList(Function):
         hallo = server.get_hallo()
         function_dispatcher = hallo.get_function_dispatcher()
         feed_check_function = function_dispatcher.get_function_by_name("rss check")
-        rss_feed_list = feed_check_function.mRssFeedList
+        rss_feed_list = feed_check_function.rss_feed_list
         # Find list of feeds for current channel.
         dest_feeds = rss_feed_list.get_feeds_by_destination(server, destination_obj)
         if len(destination_obj) == 0:
             return "There are no RSS feeds posting to this destination."
         output_lines = ["RSS feeds posting to this channel:"]
         for rss_feed in dest_feeds:
-            output_lines.append("\""+rss_feed.mTitle+"\" url: "+rss_feed.mUrl)
+            output_lines.append("\""+rss_feed.title + "\" url: " + rss_feed.url)
         return "".join(output_lines)
