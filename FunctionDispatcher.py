@@ -21,7 +21,7 @@ class FunctionDispatcher(object):
         Constructor
         """
         self.hallo = hallo  # Hallo object which owns this
-        self.module_list = set()  # List of available module names, then function names, then various variables
+        self.module_list = set()  # List of available module names
         self.function_dict = {}  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
         self.function_names = {}  # Dictionary of names -> functionClasses
         self.persistent_functions = {}  # Dictionary of persistent function objects. functionClass->functionObject
@@ -30,8 +30,8 @@ class FunctionDispatcher(object):
         # Copy moduleList to self.mModuleList
         self.module_list = module_list
         # Load all functions
-        for moduleName in self.module_list:
-            self.reload_module(moduleName)
+        for module_name in self.module_list:
+            self.reload_module(module_name)
 
     def dispatch(self, function_message, user_obj, destination_obj, flag_list=None):
         """
@@ -49,10 +49,10 @@ class FunctionDispatcher(object):
         function_message_split = function_message.split()
         function_class_test = None
         function_args_test = ""
-        for functionNameTest in [' '.join(function_message_split[:x + 1]) for x in
-                                 range(len(function_message_split))[::-1]]:
-            function_class_test = self.get_function_by_name(functionNameTest)
-            function_args_test = ' '.join(function_message_split)[len(functionNameTest):].strip()
+        for function_name_test in [' '.join(function_message_split[:x + 1]) for x in
+                                   range(len(function_message_split))[::-1]]:
+            function_class_test = self.get_function_by_name(function_name_test)
+            function_args_test = ' '.join(function_message_split)[len(function_name_test):].strip()
             if function_class_test is not None:
                 break
         # If function isn't found, output a not found message
@@ -99,12 +99,12 @@ class FunctionDispatcher(object):
             destination_obj = user_obj
         # Get list of functions that want things
         function_list = self.event_functions[event]
-        for functionClass in function_list:
+        for function_class in function_list:
             # Check function rights and permissions
-            if not self.check_function_permissions(functionClass, server_obj, user_obj, channel_obj):
+            if not self.check_function_permissions(function_class, server_obj, user_obj, channel_obj):
                 continue
             # If persistent, get the object, otherwise make one
-            function_obj = self.get_function_object(functionClass)
+            function_obj = self.get_function_object(function_class)
             # Try running the function, if it fails, return an error message
             try:
                 response = function_obj.passive_run(event, full_line, server_obj, user_obj, channel_obj)
@@ -113,7 +113,7 @@ class FunctionDispatcher(object):
                         server_obj.send(response, destination_obj)
                 continue
             except Exception as e:
-                print("Passive Function: " + str(functionClass.__module__) + " " + str(functionClass.__name__))
+                print("Passive Function: " + str(function_class.__module__) + " " + str(function_class.__name__))
                 print("Function event: " + str(event))
                 print("Function error: " + str(e))
                 continue
@@ -136,8 +136,8 @@ class FunctionDispatcher(object):
     def get_function_class_list(self):
         """Returns a simple flat list of all function classes."""
         function_class_list = []
-        for moduleObject in self.function_dict:
-            function_class_list += list(self.function_dict[moduleObject])
+        for module_object in self.function_dict:
+            function_class_list += list(self.function_dict[module_object])
         return function_class_list
 
     def get_function_object(self, function_class):
@@ -192,11 +192,11 @@ class FunctionDispatcher(object):
             except ImportError:
                 return False
         # Unload module, if it was loaded.
-        self.unload_module(module_obj)
+        self.unload_module_functions(module_obj)
         # Loop through module, searching for Function subclasses.
-        for functionTuple in inspect.getmembers(module_obj, inspect.isclass):
+        for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
             # Get class from tuple
-            function_class = functionTuple[1]
+            function_class = function_tuple[1]
             # Check it's a valid function object
             if not self.check_function_class(function_class):
                 continue
@@ -221,7 +221,7 @@ class FunctionDispatcher(object):
             # noinspection PyDeprecation
             imp.reload(module_obj)
 
-    def unload_module(self, module_obj):
+    def unload_module_functions(self, module_obj):
         """
         Unloads a module, unloading all the functions it contains
         :param module_obj: Module to unload
@@ -230,8 +230,8 @@ class FunctionDispatcher(object):
         if module_obj not in self.function_dict:
             return
         function_list = list(self.function_dict[module_obj])
-        for functionClass in function_list:
-            self.unload_function(functionClass)
+        for function_class in function_list:
+            self.unload_function(function_class)
         del self.function_dict[module_obj]
 
     @staticmethod
@@ -297,13 +297,16 @@ class FunctionDispatcher(object):
         self.function_dict[module_obj][function_class]['names'] = names_list
         self.function_dict[module_obj][function_class]['events'] = events_list
         # Add function to mFunctionNames
-        for functionName in names_list:
-            self.function_names[functionName] = function_class
+        for function_name in names_list:
+            if function_name in self.function_names:
+                # TODO better exception
+                raise NotImplementedError
+            self.function_names[function_name] = function_class
         # Add function to mEventFunctions
-        for functionEvent in events_list:
-            if functionEvent not in self.event_functions:
-                self.event_functions[functionEvent] = set()
-            self.event_functions[functionEvent].add(function_class)
+        for function_event in events_list:
+            if function_event not in self.event_functions:
+                self.event_functions[function_event] = set()
+            self.event_functions[function_event].add(function_class)
 
     def unload_function(self, function_class):
         """
@@ -322,15 +325,15 @@ class FunctionDispatcher(object):
         names_list = self.function_dict[module_obj][function_class]['names']
         events_list = self.function_dict[module_obj][function_class]['events']
         # Remove names from mFunctionNames
-        for functionName in names_list:
-            del self.function_names[functionName]
+        for function_name in names_list:
+            del self.function_names[function_name]
         # Remove events from mEventFunctions
-        for functionEvent in events_list:
-            if functionEvent not in self.event_functions:
+        for function_event in events_list:
+            if function_event not in self.event_functions:
                 continue
-            if function_class not in self.event_functions[functionEvent]:
+            if function_class not in self.event_functions[function_event]:
                 continue
-            self.event_functions[functionEvent].remove(function_class)
+            self.event_functions[function_event].remove(function_class)
         # If persistent, save object and remove from mPersistentFunctions
         if function_class.is_persistent():
             function_obj = self.persistent_functions[function_class]
@@ -345,8 +348,8 @@ class FunctionDispatcher(object):
 
     def close(self):
         """Shut down FunctionDispatcher, save all functions, etc"""
-        for moduleObject in self.function_dict:
-            self.unload_module(moduleObject)
+        for module_object in self.function_dict:
+            self.unload_module_functions(module_object)
 
     def to_xml(self):
         """Output the FunctionDispatcher in XML"""
