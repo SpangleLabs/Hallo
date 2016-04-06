@@ -16,20 +16,12 @@ from inc.commons import Commons
 
 
 class Hallo:
-    default_nick = "Hallo"
-    default_prefix = False
-    default_full_name = "HalloBot HalloHost HalloServer :an irc bot by spangle"
-    open = False
-    server_factory = None
-    permission_mask = None
-    function_dispatcher = None
-    user_list_list = None
-    server_list = None
-    logger = None
-    printer = None
-    api_key_list = None
 
     def __init__(self):
+        self.default_nick = "Hallo"
+        self.default_prefix = False
+        self.default_full_name = "HalloBot HalloHost HalloServer :an irc bot by spangle"
+        self.open = False
         self.user_list_list = {}
         self.server_list = []
         self.logger = Logger(self)
@@ -38,21 +30,12 @@ class Hallo:
         # Create ServerFactory
         self.server_factory = ServerFactory(self)
         self.permission_mask = PermissionMask()
-        # Load config
-        self.load_from_xml()
+        # TODO: manual FunctionDispatcher construction, user input?
+        self.function_dispatcher = FunctionDispatcher({"ChannelControl", "Convert", "HalloControl", "Lookup", "Math",
+                                                       "PermissionControl", "Random", "ServerControl"}, self)
+
+    def start(self):
         self.open = True
-        # TODO: manual FunctionDispatcher construction, user input
-        if self.function_dispatcher is None:
-            self.function_dispatcher = FunctionDispatcher(
-                {"ChannelControl",
-                 "Convert",
-                 "HalloControl",
-                 "Lookup",
-                 "Math",
-                 "PermissionControl",
-                 "Random",
-                 "ServerControl"},
-                self)
         # If no servers, ask for a new server
         if len(self.server_list) == 0:
             if sum([server.get_auto_connect() for server in self.server_list]) == 0:
@@ -85,34 +68,36 @@ class Hallo:
             last_date_time = now_date_time
             time.sleep(0.1)
 
-    def load_from_xml(self):
+    @staticmethod
+    def load_from_xml():
         try:
             doc = ElementTree.parse("config/config.xml")
         except (OSError, IOError):
             print("No current config, loading from default.")
             doc = ElementTree.parse("config/config-default.xml")
+        new_hallo = Hallo()
         root = doc.getroot()
-        self.default_nick = root.findtext("default_nick")
-        self.default_prefix = Commons.string_from_file(root.findtext("default_prefix"))
-        self.default_full_name = root.findtext("default_full_name")
-        self.function_dispatcher = FunctionDispatcher.from_xml(ElementTree.tostring(root.find("function_dispatcher")),
-                                                               self)
+        new_hallo.default_nick = root.findtext("default_nick")
+        new_hallo.default_prefix = Commons.string_from_file(root.findtext("default_prefix"))
+        new_hallo.default_full_name = root.findtext("default_full_name")
+        new_hallo.function_dispatcher = FunctionDispatcher.from_xml(
+            ElementTree.tostring(root.find("function_dispatcher")), new_hallo)
         user_group_list_xml = root.find("user_group_list")
         for user_group_xml in user_group_list_xml.findall("user_group"):
-            user_group_obj = UserGroup.from_xml(ElementTree.tostring(user_group_xml), self)
-            self.add_user_group(user_group_obj)
+            user_group_obj = UserGroup.from_xml(ElementTree.tostring(user_group_xml), new_hallo)
+            new_hallo.add_user_group(user_group_obj)
         server_list_xml = root.find("server_list")
         for server_xml in server_list_xml.findall("server"):
-            server_obj = self.server_factory.new_server_from_xml(ElementTree.tostring(server_xml))
-            self.add_server(server_obj)
+            server_obj = new_hallo.server_factory.new_server_from_xml(ElementTree.tostring(server_xml))
+            new_hallo.add_server(server_obj)
         if root.find("permission_mask") is not None:
-            self.permission_mask = PermissionMask.from_xml(ElementTree.tostring(root.find("permission_mask")))
+            new_hallo.permission_mask = PermissionMask.from_xml(ElementTree.tostring(root.find("permission_mask")))
         api_key_list_xml = root.find("api_key_list")
         for api_key_xml in api_key_list_xml.findall("api_key"):
             api_key_name = api_key_xml.findtext("name")
             api_key_key = api_key_xml.findtext("key")
-            self.add_api_key(api_key_name, api_key_key)
-        return
+            new_hallo.add_api_key(api_key_name, api_key_key)
+        return new_hallo
 
     def save_to_xml(self):
         # Create document, with DTD
@@ -352,4 +337,5 @@ class Hallo:
 
 
 if __name__ == '__main__':
-    Hallo()
+    hallo = Hallo.load_from_xml()
+    hallo.start()
