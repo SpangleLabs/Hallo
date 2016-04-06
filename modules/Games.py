@@ -651,7 +651,8 @@ class HighScores(Function):
             score = self.high_scores[game_name]['score']
             player = self.high_scores[game_name]['player']
             date = self.high_scores[game_name]['date']
-            output_lines.append(game_name + "> Score: " + score + ", Player: " + player + ", Date: " + date)
+            output_lines.append(game_name + "> Score: " + score + ", Player: " + player +
+                                ", Date: " + Commons.format_unix_time(date))
         return "\n".join(output_lines)
 
     def add_high_score(self, game_name, score, user_name, data=None):
