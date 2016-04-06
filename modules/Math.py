@@ -191,7 +191,7 @@ class PrimeFactors(Function):
             calc_func = function_dispatcher.get_function_by_name("calc")
             calc_obj = function_dispatcher.get_function_object(calc_func)
             number_str = calc_obj.process_calculation(line_clean)
-            if number_str.contains("."):
+            if "." in number_str:
                 return "This calculation does not result in an integer. The answer is: " + number_str
             number = int(number_str)
         else:
