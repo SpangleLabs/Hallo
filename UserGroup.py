@@ -1,96 +1,108 @@
-
 from xml.dom import minidom
 
 from PermissionMask import PermissionMask
 
-class UserGroup:
-    '''
-    UserGroup object, mostly exists for a speedy way to appply a PermissionsMask to a large amount of users at once
-    '''
-    mName = None            #Name of the UserGroup
-    mPermissionMask = None  #PermissionMask for the UserGroup
-    mHallo = None           #Hallo instance that owns this UserGroup
-    mUserList = None        #Dynamic userlist of this group
 
-    def __init__(self,name,hallo):
-        '''
+class UserGroup:
+    """
+    UserGroup object, mostly exists for a speedy way to apply a PermissionsMask to a large amount of users at once
+    """
+    name = None  # Name of the UserGroup
+    permission_mask = None  # PermissionMask for the UserGroup
+    hallo = None  # Hallo instance that owns this UserGroup
+    user_list = None  # Dynamic userlist of this group
+
+    def __init__(self, name, hallo):
+        """
         Constructor
-        '''
-        self.mUserList = set()
-        self.mHallo = hallo
-        self.mName = name
-        self.mPermissionMask = PermissionMask()
-    
-    def rightsCheck(self,rightName,userObject,channelObject=None):
-        'Checks the value of the right with the specified name. Returns boolean'
-        rightValue = self.mPermissionMask.getRight(rightName)
-        #If PermissionMask contains that right, return it.
-        if(rightValue in [True,False]):
-            return rightValue
-        #Fall back to channel, if defined
-        if(channelObject is not None):
-            return channelObject.rightsCheck(rightName)
-        #Fall back to the parent Server's decision.
-        return userObject.getServer().rightsCheck(rightName)
-    
-    def getName(self):
-        return self.mName
-    
-    def getPermissionMask(self):
-        return self.mPermissionMask
-    
-    def setPermissionMask(self,newPermissionMask):
-        self.mPermissionMask = newPermissionMask
-    
-    def getHallo(self):
-        return self.mHallo
-    
-    def addUser(self,newUser):
-        self.mUserList.add(newUser)
-    
-    def removeUser(self,removeUser):
-        self.mUserList.remove(removeUser)
-    
-    def toXml(self):
-        'Returns the UserGroup object XML'
-        #create document
+        :param name: Name of the user group
+        :type name: str
+        :param hallo: Hallo object which owns the user group
+        :type hallo: Hallo.Hallo
+        """
+        self.user_list = set()
+        self.hallo = hallo
+        self.name = name
+        self.permission_mask = PermissionMask()
+
+    def rights_check(self, right_name, user_obj, channel_obj=None):
+        """Checks the value of the right with the specified name. Returns boolean
+        :param right_name: Name of the right to check
+        :type right_name: str
+        :param user_obj: User which is having rights checked
+        :type user_obj: Destination.User
+        :param channel_obj: Channel in which rights are being checked, None for private messages
+        :type channel_obj: Destination.Channel
+        """
+        right_value = self.permission_mask.get_right(right_name)
+        # PermissionMask contains that right, return it.
+        if right_value in [True, False]:
+            return right_value
+        # Fall back to channel, if defined
+        if channel_obj is not None:
+            return channel_obj.rights_check(right_name)
+        # Fall back to the parent Server's decision.
+        return user_obj.get_server().rights_check(right_name)
+
+    def get_name(self):
+        return self.name
+
+    def get_permission_mask(self):
+        return self.permission_mask
+
+    def set_permission_mask(self, new_permission_mask):
+        """
+        Sets the permission mask of the user group
+        :param new_permission_mask: Permission mask to set for user group
+        :type new_permission_mask: PermissionMask.PermissionMask
+        """
+        self.permission_mask = new_permission_mask
+
+    def get_hallo(self):
+        return self.hallo
+
+    def add_user(self, new_user):
+        """
+        Adds a new user to this group
+        :param new_user: User to add to group
+        :type new_user: Destination.User
+        """
+        self.user_list.add(new_user)
+
+    def remove_user(self, remove_user):
+        self.user_list.remove(remove_user)
+
+    def to_xml(self):
+        """Returns the UserGroup object XML"""
+        # create document
         doc = minidom.Document()
-        #create root element
+        # create root element
         root = doc.createElement("user_group")
         doc.appendChild(root)
-        #create name element
-        nameElement = doc.createElement("name")
-        nameElement.appendChild(doc.createTextNode(self.mName))
-        root.appendChild(nameElement)
-        #create permission_mask element
-        if(not self.mPermissionMask.isEmpty()):
-            permissionMaskElement = minidom.parseString(self.mPermissionMask.toXml()).firstChild
-            root.appendChild(permissionMaskElement)
-        #output XML string
+        # create name element
+        name_elem = doc.createElement("name")
+        name_elem.appendChild(doc.createTextNode(self.name))
+        root.appendChild(name_elem)
+        # create permission_mask element
+        if not self.permission_mask.is_empty():
+            permission_mask_elem = minidom.parseString(self.permission_mask.to_xml()).firstChild
+            root.appendChild(permission_mask_elem)
+        # output XML string
         return doc.toxml()
-    
-    @staticmethod
-    def fromXml(xmlString,hallo):
-        'Loads a new UserGroup object from XML'
-        doc = minidom.parseString(xmlString)
-        newName = doc.getElementsByTagName("name")[0].firstChild.data
-        newUserGroup = UserGroup(newName,hallo)
-        if(len(doc.getElementsByTagName("permission_mask"))!=0):
-            newUserGroup.mPermissionMask = PermissionMask.fromXml(doc.getElementsByTagName("permission_mask")[0].toxml())
-        return newUserGroup
-    
-    
-    
-    
-#UserGroup
-#-User object stores a list of references to UserGroup objects it belongs to.
-#-Has a unique name
-#-Is defined at Hallo level
-#-stores list of users+servers, but doesn't write that in XML
-#-Has a permissionsMask
-#-.rightsCheck(rightName,channelObject,serverObject)
-#-UserGroups can belong to UserGroups, i.e. God can inherit from Op. They cannot belong to themselves
 
-#if a user is part of multiple groups, then
-#rightsCheck()
-#return any([group.rightsCheck for group in mUserGroups])
+    @staticmethod
+    def from_xml(xml_string, hallo):
+        """
+        Loads a new UserGroup object from XML
+        :param xml_string: String containing XML to parse for usergroup
+        :type xml_string: str
+        :param hallo: Hallo object to add user group to
+        :type hallo: Hallo.Hallo
+        """
+        doc = minidom.parseString(xml_string)
+        new_name = doc.getElementsByTagName("name")[0].firstChild.data
+        new_user_group = UserGroup(new_name, hallo)
+        if len(doc.getElementsByTagName("permission_mask")) != 0:
+            new_user_group.permission_mask = PermissionMask.from_xml(
+                doc.getElementsByTagName("permission_mask")[0].toxml())
+        return new_user_group
