@@ -245,7 +245,7 @@ class Connect(Function):
             nickserv_nick = current_server.get_nickserv_nick()
             nickserv_identity_command = current_server.get_nickserv_ident_command()
             nickserv_identity_resp = current_server.get_nickserv_ident_response()
-            nickserv_password = current_server.getNickservPassword()
+            nickserv_password = current_server.get_nickserv_pass()
         nickserv_nick = self.find_parameter("nickserv_nick", line) or nickserv_nick
         nickserv_identity_command = self.find_parameter("nickserv_identity_command", line) or nickserv_identity_command
         nickserv_identity_resp = self.find_parameter("nickserv_identity_resp", line) or nickserv_identity_resp
@@ -423,9 +423,9 @@ class EditServer(Function):
                 return "Invalid port number."
         # If server_address or server_port are set, edit those and reconnect.
         if server_address is not None:
-            server_obj.setServerAddress(server_address)
+            server_obj.server_address = server_address
         if server_port is not None:
-            server_obj.setServerPort(server_port)
+            server_obj.server_port = server_port
         # Get other parameters, if set. defaulting to whatever server defaults.
         auto_connect = Commons.string_to_bool(self.find_parameter("auto_connect",
                                                                   line)) or server_obj.get_auto_connect()

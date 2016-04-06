@@ -948,7 +948,7 @@ class HigherOrLower(Function):
                 return "You're not playing a game."
             else:
                 return None
-        output_string = current_game.quitGame()
+        output_string = current_game.quit_game()
         self.game_list.remove(current_game)
         return output_string
 
@@ -960,8 +960,8 @@ class HigherOrLower(Function):
                 return "You're not playing a game."
             else:
                 return None
-        output_string = current_game.guessHigher()
-        if current_game.isLost():
+        output_string = current_game.guess_higher()
+        if current_game.is_lost():
             self.game_list.remove(current_game)
         return output_string
 
@@ -973,8 +973,8 @@ class HigherOrLower(Function):
                 return "You're not playing a game."
             else:
                 return None
-        output_string = current_game.guessLower()
-        if current_game.isLost():
+        output_string = current_game.guess_lower()
+        if current_game.is_lost():
             self.game_list.remove(current_game)
         return output_string
 
@@ -1163,7 +1163,7 @@ class Blackjack(Function):
                 return "You're not playing a game."
             else:
                 return None
-        output_string = current_game.quitGame()
+        output_string = current_game.quit_game()
         self.game_list.remove(current_game)
         return output_string
 
@@ -1176,7 +1176,7 @@ class Blackjack(Function):
             else:
                 return None
         output_string = current_game.hit()
-        if current_game.isLost():
+        if current_game.is_lost():
             self.game_list.remove(current_game)
         return output_string
 
@@ -1496,7 +1496,7 @@ class DDR(Function):
                 return "There is no game happening in this channel."
             else:
                 return None
-        output_string = current_game.joinGame(user_obj)
+        output_string = current_game.join_game(user_obj)
         return output_string
 
     def quit_game(self, line_clean, user_obj, destination_obj, passive=False):
@@ -1507,8 +1507,8 @@ class DDR(Function):
                 return "There is no game happening in this channel."
             else:
                 return None
-        output_string = current_game.quitGame(user_obj)
-        if current_game.isGameOver():
+        output_string = current_game.quit_game(user_obj)
+        if current_game.is_game_over():
             self.game_list.remove(current_game)
         return output_string
 
@@ -1522,11 +1522,11 @@ class DDR(Function):
                 return None
         output_string = None
         if line_clean in ["<", "a"]:
-            output_string = current_game.makeMove(DDRGame.DIRECTION_LEFT, user_obj)
+            output_string = current_game.make_move(DDRGame.DIRECTION_LEFT, user_obj)
         if line_clean in [">", "d"]:
-            output_string = current_game.makeMove(DDRGame.DIRECTION_RIGHT, user_obj)
+            output_string = current_game.make_move(DDRGame.DIRECTION_RIGHT, user_obj)
         if line_clean in ["^", "w"]:
-            output_string = current_game.makeMove(DDRGame.DIRECTION_UP, user_obj)
+            output_string = current_game.make_move(DDRGame.DIRECTION_UP, user_obj)
         if line_clean in ["v", "s"]:
-            output_string = current_game.makeMove(DDRGame.DIRECTION_DOWN, user_obj)
+            output_string = current_game.make_move(DDRGame.DIRECTION_DOWN, user_obj)
         return output_string

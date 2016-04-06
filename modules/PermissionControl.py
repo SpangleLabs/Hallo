@@ -49,7 +49,7 @@ class Permissions(Function):
         if bool_bool is None:
             return "I don't understand your boolean value. Please use true or false."
         # Set the right
-        permission_mask.setRight(right_input, bool_bool)
+        permission_mask.set_right(right_input, bool_bool)
         pass
 
     def find_permission_mask(self, location_input, user_obj, destination_obj):
