@@ -964,7 +964,8 @@ class UpdateCurrencies(Function):
         # Name for use in help listing
         self.help_name = "update currencies"
         # Names which can be used to address the Function
-        self.names = {"update currencies", "convert update currencies"}
+        self.names = {"update currencies", "convert update currencies", "currency update", "update currency",
+                      "currencies update"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Update currency conversion figures, using data from the money converter, the European " \
                          "central bank, forex and preev."
@@ -973,9 +974,6 @@ class UpdateCurrencies(Function):
         output_lines = []
         # Load convert repo.
         repo = ConvertRepo.load_from_xml()
-        # Update with Money Converter
-        output_lines.append(self.update_from_money_converter_data(repo) or
-                            "Updated currency data from The Money Converter.")
         # Update with the European Bank
         output_lines.append(self.update_from_european_bank_data(repo) or
                             "Updated currency data from The European Bank.")
@@ -996,8 +994,6 @@ class UpdateCurrencies(Function):
     def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         # Load convert repo.
         repo = ConvertRepo.load_from_xml()
-        # Update with Money Converter
-        self.update_from_money_converter_data(repo)
         # Update with the European Bank
         self.update_from_european_bank_data(repo)
         # Update with Forex
@@ -1010,6 +1006,9 @@ class UpdateCurrencies(Function):
 
     def update_from_money_converter_data(self, repo):
         """Updates the value of conversion currency units using The Money Convertor data."""
+        # Disabling this API, as it seems to have removed actual exchange rates
+        if True:
+            return None
         # Get currency ConvertType
         currency_type = repo.get_type_by_name("currency")
         # Pull xml data from monet converter website
