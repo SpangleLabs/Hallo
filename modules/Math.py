@@ -76,11 +76,11 @@ class NumberWord(Function):
             lang = "american"
         if Commons.check_numbers(number):
             number = number
-            # TODO: implement this, once calc is transferred
-        #        elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,number)):
-        #            number = mod_calc.fn_calc(self,number,client,destination)
-        #            if(str(number)[-1]=='.'):
-        #                number = number[:-1]
+        elif Commons.check_calculation(number):
+            function_dispatcher = user_obj.server.hallo.function_dispatcher
+            calc_func = function_dispatcher.get_function_by_name("calc")
+            calc_obj = function_dispatcher.get_function_object(calc_func)
+            number = calc_obj.process_calculation(number)
         else:
             return "You must enter a valid number or calculation."
         return self.number_word(number, lang) + "."
@@ -186,12 +186,14 @@ class PrimeFactors(Function):
         line_clean = line.strip().lower()
         if line_clean.isdigit():
             number = int(line_clean)
-            # TODO: implement this, once calc is transferred
-        #        elif(ircbot_chk.ircbot_chk.chk_msg_calc(self,args)):
-        #            args = mod_calc.mod_calc.fn_calc(self,args,client,destination)
-        #            if(str(args)[-1]=='.'):
-        #                args = args[:-1]
-        #            args = int(args)
+        elif Commons.check_calculation(line_clean):
+            function_dispatcher = user_obj.server.hallo.function_dispatcher
+            calc_func = function_dispatcher.get_function_by_name("calc")
+            calc_obj = function_dispatcher.get_function_object(calc_func)
+            number_str = calc_obj.process_calculation(line_clean)
+            if number_str.contains("."):
+                return "This calculation does not result in an integer. The answer is: " + number_str
+            number = int(number_str)
         else:
             return "This is not a valid number or calculation."
         prime_factors = self.find_prime_factors(number)
