@@ -147,8 +147,7 @@ class RssFeed:
         :return: list of ElementTree XML elements
         """
         rss_data = Commons.load_url_string(self.url)
-        rss_xml = ElementTree.fromstring(rss_data)
-        rss_elem = rss_xml.getroot()
+        rss_elem = ElementTree.fromstring(rss_data)
         channel_elem = rss_elem.find("channel")
         new_items = []
         # Update title
