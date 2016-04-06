@@ -86,7 +86,7 @@ class Printer:
             destination_object = user_obj
         output = Commons.current_timestamp() + " "
         output += "[" + server_obj.get_name() + "] "
-        output += destination_object.getName() + " "
+        output += destination_object.get_name() + " "
         output += "<" + user_obj.get_name() + "> " + full_line
         return output
     
@@ -155,11 +155,11 @@ class Printer:
         if ctcp_command.lower() == "action":
             output = Commons.current_timestamp() + " "
             output += "[" + server_obj.get_name() + "] "
-            output += destination_obj.getName() + " "
+            output += destination_obj.get_name() + " "
             output += "**" + user_obj.get_name() + " " + ctcp_arguments + "**"
             return output
         output = Commons.current_timestamp() + " "
         output += "[" + server_obj.get_name() + "] "
-        output += destination_obj.getName() + " "
+        output += destination_obj.get_name() + " "
         output += "<" + user_obj.get_name() + " (CTCP)> " + full_line
         return output

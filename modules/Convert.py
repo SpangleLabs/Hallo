@@ -1567,7 +1567,7 @@ class ConvertSetTypeDecimals(Function):
         # Save repo
         repo.save_to_xml()
         # Output message
-        return "Set the number of decimal places to display for \"" + input_type.getName() + "\" type units at " + str(
+        return "Set the number of decimal places to display for \"" + input_type.get_name() + "\" type units at " + str(
             decimals) + " places."
 
 
@@ -2017,7 +2017,7 @@ class ConvertUnitSetPrefixGroup(Function):
         if prefix_group is None:
             prefix_group_name = "none"
         else:
-            prefix_group_name = prefix_group.getName()
+            prefix_group_name = prefix_group.get_name()
         return "Set \"" + prefix_group_name + "\" as the prefix group for the \"" + unit_obj.get_name_list()[
             0] + "\" unit."
 
