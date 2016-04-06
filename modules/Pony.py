@@ -78,7 +78,7 @@ class BestPony(Function):
         for pony_episode_elem in pony_list_elem.getElementsByTagName("pony"):
             pony_dict = {'name': pony_episode_elem.getElementsByTagName("name")[0].firstChild.data,
                          'pronoun': pony_episode_elem.getElementsByTagName("full_code")[0].firstChild.data,
-                         'categories': [categoryXml.firstChild.data for categoryXml in
+                         'categories': [category_elem.firstChild.data for category_elem in
                                         pony_episode_elem.getElementsByTagName("category")]}
             if random_category in pony_dict['categories']:
                 pony_list.append(pony_dict)

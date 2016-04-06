@@ -304,10 +304,10 @@ class Say(Function):
             destination_pair = line.split()[0]
             line = line[len(destination_pair):].strip()
             destination_separators = ["->", ">", ",", ".", "/", ":"]
-            for destinationSeparator in destination_separators:
-                if destination_pair.count(destinationSeparator) != 0:
-                    server_name = destination_pair.split(destinationSeparator)[0]
-                    channel_name = destination_pair.split(destinationSeparator)[1]
+            for destination_separator in destination_separators:
+                if destination_pair.count(destination_separator) != 0:
+                    server_name = destination_pair.split(destination_separator)[0]
+                    channel_name = destination_pair.split(destination_separator)[1]
                     break
             if channel_name is None:
                 channel_name = destination_pair

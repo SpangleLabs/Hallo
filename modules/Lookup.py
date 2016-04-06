@@ -301,12 +301,12 @@ class WeatherLocationRepo:
 
     def get_entry_by_user_name_and_server_name(self, user_name, server_name):
         """Returns an entry matching the given user name and server name, or None."""
-        for locationEntry in self.list_locations:
-            if locationEntry.get_user() != user_name:
+        for location_entry in self.list_locations:
+            if location_entry.get_user() != user_name:
                 continue
-            if locationEntry.get_server() != server_name:
+            if location_entry.get_server() != server_name:
                 continue
-            return locationEntry
+            return location_entry
         return None
 
     def get_entry_by_user_obj(self, user_obj):

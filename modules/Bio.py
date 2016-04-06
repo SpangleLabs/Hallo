@@ -76,8 +76,8 @@ class Protein(Function):
             return None
         valid_chars = list("ACGUT")
         check_message = clean_line
-        for validChar in valid_chars:
-            check_message = check_message.replace(validChar, "")
+        for valid_char in valid_chars:
+            check_message = check_message.replace(valid_char, "")
         if check_message == "":
             return self.run(clean_line, user_obj, channel_obj)
         return None

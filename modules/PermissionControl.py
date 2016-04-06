@@ -59,10 +59,10 @@ class Permissions(Function):
         # If they've specified a server & channel or server & user, parse here
         if len(location_input) == 2:
             # Find server object.
-            if any([location_input[0].startswith(serverStr + "=") for serverStr in self.SERVER_NAMES]):
+            if any([location_input[0].startswith(server_str + "=") for server_str in self.SERVER_NAMES]):
                 server_name = location_input[0].split("=")[1]
                 location_other = location_input[1]
-            elif any([location_input[1].startswith(serverStr + "=") for serverStr in self.SERVER_NAMES]):
+            elif any([location_input[1].startswith(server_str + "=") for server_str in self.SERVER_NAMES]):
                 server_name = location_input[1].split("=")[1]
                 location_other = location_input[0]
             else:
@@ -71,14 +71,14 @@ class Permissions(Function):
             if server_obj is None:
                 raise Exception("No server exists by that name.")
             # Check if they have specified a channel
-            if any([location_other.startswith(channelStr + "=") for channelStr in self.CHANNEL_NAMES]):
+            if any([location_other.startswith(channel_str + "=") for channel_str in self.CHANNEL_NAMES]):
                 # Get channel by that name
                 channel_name = location_other.split("=")[1]
                 channel_obj = user_obj.get_server().get_channel_by_name(channel_name)
                 permission_mask = channel_obj.get_permission_mask()
                 return permission_mask
             # Check if they've specified a user
-            if any([location_other.startswith(userStr + "=") for userStr in self.USER_NAMES]):
+            if any([location_other.startswith(user_str + "=") for user_str in self.USER_NAMES]):
                 # Get the user by that name
                 user_name = location_other.split("=")[1]
                 user_obj.get_server().get_user_by_name(user_name)
@@ -95,7 +95,7 @@ class Permissions(Function):
             permission_mask = user_obj.get_server().get_permission_mask()
             return permission_mask
         # Check if they have specified a server
-        if any([location_input[0].startswith(serverStr + "=") for serverStr in self.SERVER_NAMES]):
+        if any([location_input[0].startswith(server_str + "=") for server_str in self.SERVER_NAMES]):
             server_name = location_input[0].split("=")[1]
             server_obj = user_obj.get_server().get_hallo().get_server_by_name(server_name)
             if server_obj is None:
@@ -110,14 +110,14 @@ class Permissions(Function):
             permission_mask = destination_obj.get_permission_mask()
             return permission_mask
         # Check if they have specified a channel
-        if any([location_input[0].startswith(channelStr + "=") for channelStr in self.CHANNEL_NAMES]):
+        if any([location_input[0].startswith(channel_str + "=") for channel_str in self.CHANNEL_NAMES]):
             # Get channel by that name
             channel_name = location_input[0].split("=")[1]
             channel_obj = user_obj.get_server().get_channel_by_name(channel_name)
             permission_mask = channel_obj.get_permission_mask()
             return permission_mask
         # Check if they've specified a user group?
-        if any([location_input[0].startswith(userGroupStr + "=") for userGroupStr in self.USER_GROUP_NAMES]):
+        if any([location_input[0].startswith(user_group_str + "=") for user_group_str in self.USER_GROUP_NAMES]):
             # See if you can find a UserGroup with that name
             user_group_name = location_input[0].split("=")[1]
             hallo_obj = user_obj.get_server().get_hallo()
@@ -128,7 +128,7 @@ class Permissions(Function):
             permission_mask = user_group_obj.get_permission_mask()
             return permission_mask
         # Check if they've specified a user
-        if any([location_input[0].startswith(userStr + "=") for userStr in self.USER_NAMES]):
+        if any([location_input[0].startswith(user_str + "=") for user_str in self.USER_NAMES]):
             # Get the user by that name
             user_name = location_input[0].split("=")[1]
             user_obj.get_server().get_user_by_name(user_name)
@@ -137,7 +137,7 @@ class Permissions(Function):
         # Check if their current channel has any user by the name of whatever else they might have said?
         if destination_obj is None or destination_obj == user_obj:
             user_list = destination_obj.get_user_list()
-            user_list_matching = [userObject for userObject in user_list if userObject.get_name() == location_input[0]]
+            user_list_matching = [user_obj for user_obj in user_list if user_obj.get_name() == location_input[0]]
             if len(user_list_matching) == 0:
                 raise Exception("I do not understand your input. I cannot find that Permission Mask.")
             user_obj = user_list_matching[0]

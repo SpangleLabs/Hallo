@@ -519,9 +519,9 @@ class Calculate(Function):
         trig_dict = {'acos': math.acos, 'asin': math.asin, 'atan': math.atan, 'cos': math.cos, 'sin': math.sin,
                      'tan': math.tan, 'sqrt': math.sqrt, 'log': math.log, 'acosh': math.acosh, 'asinh': math.asinh,
                      'atanh': math.atanh, 'cosh': math.cosh, 'sinh': math.sinh, 'tanh': math.tanh, 'gamma': math.gamma}
-        for trigName in trig_dict:
-            if before[-len(trigName):] == trigName:
-                return [trigName + running_calc, trig_dict[trigName](float(temp_answer))]
+        for trig_name in trig_dict:
+            if before[-len(trig_name):] == trig_name:
+                return [trig_name + running_calc, trig_dict[trig_name](float(temp_answer))]
         return [running_calc, temp_answer]
 
     def process_calculation(self, calc):

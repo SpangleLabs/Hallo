@@ -34,7 +34,7 @@ class Euler(Function):
             return self.run_function(line_clean)
         else:
             count_solutions = len(
-                [funcName for funcName in dir(self) if funcName[:5] == 'euler' and funcName[5:].isdigit()])
+                [func_name for func_name in dir(self) if func_name[:5] == 'euler' and func_name[5:].isdigit()])
             output_string = "I'm learning to complete the project Euler programming problems."
             output_string += "I've not done many so far, I've only done " + str(count_solutions) + \
                              " of the 514 problems."
@@ -56,7 +56,7 @@ class Euler(Function):
 
     def run_function(self, number_string):
         function_name = "euler" + number_string
-        function_names = [funcName for funcName in dir(self) if funcName[:5] == 'euler' and funcName[5:].isdigit()]
+        function_names = [func_name for func_name in dir(self) if func_name[:5] == 'euler' and func_name[5:].isdigit()]
         if function_name not in function_names:
             return "I don't think I've solved that one yet."
         function_obj = getattr(self, function_name)
@@ -517,8 +517,8 @@ class Euler(Function):
                 other_number = factor_total - x
                 other_factors = self.find_factors(other_number)
                 other_factor_total = 0
-                for otherFactor in other_factors:
-                    other_factor_total = other_factor_total + otherFactor
+                for other_factor in other_factors:
+                    other_factor_total = other_factor_total + other_factor
                 if other_factor_total - other_number == x and other_number != x:
                     print("found a pair: " + str(x) + " and " + str(factor_total - x))
                     amicable.append(x)
@@ -552,8 +552,8 @@ class Euler(Function):
             factor_total = factor_total - x
             if factor_total > x:
                 abundant_numbers.append(x)
-                for otherNumber in abundant_numbers:
-                    ab_sum = otherNumber + x
+                for other_number in abundant_numbers:
+                    ab_sum = other_number + x
                     if ab_sum < 28150:
                         if sum_of_two[ab_sum] != 1:
                             sum_of_two[ab_sum] = 1
@@ -1059,14 +1059,14 @@ class Euler(Function):
             if not self.check_prime(x):
                 continue
             chain.append(x)
-            for tempChain in [chain[-x:] for x in range(longest_chain, len(chain))]:
-                if sum(tempChain) > 10 ** 6:
+            for temp_chain in [chain[-x:] for x in range(longest_chain, len(chain))]:
+                if sum(temp_chain) > 10 ** 6:
                     continue
-                if not self.check_prime(sum(tempChain)):
+                if not self.check_prime(sum(temp_chain)):
                     continue
-                if len(tempChain) > longest_chain:
-                    longest_chain = len(tempChain)
-                    longest_total = sum(tempChain)
+                if len(temp_chain) > longest_chain:
+                    longest_chain = len(temp_chain)
+                    longest_total = sum(temp_chain)
         return longest_total
 
     def euler51(self):
@@ -1177,8 +1177,8 @@ class Euler(Function):
         num = 1
         while True:
             gap += 2
-            for gapNum in range(1, 4):
-                if self.check_prime(num + (gapNum * gap)):
+            for gap_num in range(1, 4):
+                if self.check_prime(num + (gap_num * gap)):
                     num_diag_primes += 1
             num += 4 * gap
             total = gap * 2 + 1
@@ -1233,36 +1233,36 @@ class Euler(Function):
             if not self.check_prime(num):
                 continue
             big_dict[num] = {}
-            for numOne in big_dict:
-                if numOne == num:
+            for num_one in big_dict:
+                if num_one == num:
                     continue
-                check = self.check_concat_primes(num, numOne)
+                check = self.check_concat_primes(num, num_one)
                 if not check:
                     continue
-                big_dict[numOne][num] = {}
-                for numTwo in big_dict[numOne]:
-                    if numTwo == num:
+                big_dict[num_one][num] = {}
+                for num_two in big_dict[num_one]:
+                    if num_two == num:
                         continue
-                    check = self.check_concat_primes(num, numTwo)
+                    check = self.check_concat_primes(num, num_two)
                     if not check:
                         continue
-                    big_dict[numOne][numTwo][num] = {}
-                    for numThree in big_dict[numOne][numTwo]:
-                        if numThree == num:
+                    big_dict[num_one][num_two][num] = {}
+                    for num_three in big_dict[num_one][num_two]:
+                        if num_three == num:
                             continue
-                        check = self.check_concat_primes(num, numThree)
+                        check = self.check_concat_primes(num, num_three)
                         if not check:
                             continue
-                        print("Found fourlist" + str([numOne, numTwo, numThree, num]))
-                        big_dict[numOne][numTwo][numThree][num] = {}
-                        for numFour in big_dict[numOne][numTwo][numThree]:
-                            if numFour == num:
+                        print("Found fourlist" + str([num_one, num_two, num_three, num]))
+                        big_dict[num_one][num_two][num_three][num] = {}
+                        for num_four in big_dict[num_one][num_two][num_three]:
+                            if num_four == num:
                                 continue
-                            check = self.check_concat_primes(num, numFour)
+                            check = self.check_concat_primes(num, num_four)
                             if not check:
                                 continue
-                            return "sum(" + str([numOne, numTwo, numThree, numFour, num]) + ") = " + str(
-                                sum([numOne, numTwo, numThree, numFour, num]))
+                            return "sum(" + str([num_one, num_two, num_three, num_four, num]) + ") = " + str(
+                                sum([num_one, num_two, num_three, num_four, num]))
 
     def euler67(self):
         # this is the same as  problem 18, but bigger file.

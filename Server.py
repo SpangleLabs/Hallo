@@ -1204,16 +1204,16 @@ class ServerIRC(Server):
         root.appendChild(auto_connect_elem)
         # create channel list
         channel_list_elem = doc.createElement("channel_list")
-        for channelItem in self.channel_list:
-            if channelItem.is_persistent():
-                channel_elem = minidom.parseString(channelItem.to_xml()).firstChild
+        for channel_obj in self.channel_list:
+            if channel_obj.is_persistent():
+                channel_elem = minidom.parseString(channel_obj.to_xml()).firstChild
                 channel_list_elem.appendChild(channel_elem)
         root.appendChild(channel_list_elem)
         # create user list
         user_list_elem = doc.createElement("user_list")
-        for userItem in self.user_list:
-            if userItem.is_persistent():
-                user_elem = minidom.parseString(userItem.to_xml()).firstChild
+        for user_obj in self.user_list:
+            if user_obj.is_persistent():
+                user_elem = minidom.parseString(user_obj.to_xml()).firstChild
                 user_list_elem.appendChild(user_elem)
         root.appendChild(user_list_elem)
         # create nick element

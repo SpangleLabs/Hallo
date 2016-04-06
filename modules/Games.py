@@ -172,14 +172,14 @@ class Deck:
         self.card_list = []  # List of cards in the deck.
         self.all_cards = []  # All the cards which were originally in the deck.
         card_list = []
-        for cardSuit in [Card.SUIT_HEARTS, Card.SUIT_CLUBS, Card.SUIT_DIAMONDS, Card.SUIT_SPADES]:
+        for card_suit in [Card.SUIT_HEARTS, Card.SUIT_CLUBS, Card.SUIT_DIAMONDS, Card.SUIT_SPADES]:
             suit_list = []
-            for cardValue in [Card.CARD_ACE, Card.CARD_2, Card.CARD_3, Card.CARD_4, Card.CARD_5, Card.CARD_6,
+            for card_value in [Card.CARD_ACE, Card.CARD_2, Card.CARD_3, Card.CARD_4, Card.CARD_5, Card.CARD_6,
                               Card.CARD_7, Card.CARD_8, Card.CARD_9, Card.CARD_10, Card.CARD_JACK, Card.CARD_QUEEN,
                               Card.CARD_KING]:
-                new_card = Card(self, cardSuit, cardValue)
+                new_card = Card(self, card_suit, card_value)
                 suit_list.append(new_card)
-            if cardSuit in [Card.SUIT_DIAMONDS, Card.SUIT_SPADES]:
+            if card_suit in [Card.SUIT_DIAMONDS, Card.SUIT_SPADES]:
                 suit_list.reverse()
             card_list += suit_list
         self.card_list = card_list

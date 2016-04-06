@@ -325,10 +325,10 @@ class ReplyMessageList:
     def get_response(self, full_line, user_obj, channel_obj):
         """Check ReplyMessage objects to see which response to give. Or NULL if none apply."""
         response = None
-        for replyMessage in self.reply_message_list:
-            if not replyMessage.check_destination(channel_obj):
+        for reply_message in self.reply_message_list:
+            if not reply_message.check_destination(channel_obj):
                 continue
-            response = response or replyMessage.check_response(full_line, user_obj, channel_obj)
+            response = response or reply_message.check_response(full_line, user_obj, channel_obj)
         return response
 
     @staticmethod

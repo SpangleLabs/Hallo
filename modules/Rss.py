@@ -72,9 +72,9 @@ class RssFeedList:
         """
         title_clean = title.lower().strip()
         matching_feeds = []
-        for rssFeed in self.get_feeds_by_destination(server, destination):
-            if title_clean == rssFeed.title.lower().strip():
-                matching_feeds.append(rssFeed)
+        for rss_feed in self.get_feeds_by_destination(server, destination):
+            if title_clean == rss_feed.title.lower().strip():
+                matching_feeds.append(rss_feed)
         return matching_feeds
 
     def get_feeds_by_url(self, url, server, destination):
@@ -87,9 +87,9 @@ class RssFeedList:
         """
         url_clean = url.strip()
         matching_feeds = []
-        for rssFeed in self.get_feeds_by_destination(server, destination):
-            if url_clean == rssFeed.url.strip():
-                matching_feeds.append(rssFeed)
+        for rss_feed in self.get_feeds_by_destination(server, destination):
+            if url_clean == rss_feed.url.strip():
+                matching_feeds.append(rss_feed)
         return matching_feeds
 
     def to_xml(self):
@@ -338,10 +338,10 @@ class FeedCheck(Function):
         # Check whether input is asking to update all feeds
         if clean_input in self.NAMES_ALL:
             output_lines = []
-            for rssFeed in self.rss_feed_list.get_feed_list():
-                new_items = rssFeed.check_feed()
-                for rssItem in new_items:
-                    output_lines.append(rssFeed.output_item(rssItem, hallo))
+            for rss_feed in self.rss_feed_list.get_feed_list():
+                new_items = rss_feed.check_feed()
+                for rss_item in new_items:
+                    output_lines.append(rss_feed.output_item(rss_item, hallo))
             # Remove duplicate entries from output_lines
             output_lines = list(set(output_lines))
             # Output response to user
@@ -354,10 +354,10 @@ class FeedCheck(Function):
             return "No Rss Feeds match that name. If you're adding a new feed, use \"rss add\" with your link."
         output_lines = []
         # Loop through matching rss feeds, getting updates
-        for rssFeed in matching_feeds:
-            new_items = rssFeed.check_feed()
-            for rssItem in new_items:
-                output_lines.append(rssFeed.output_item(rssItem, hallo))
+        for rss_feed in matching_feeds:
+            new_items = rss_feed.check_feed()
+            for rss_item in new_items:
+                output_lines.append(rss_feed.output_item(rss_item, hallo))
         # Remove duplicate entries from output_lines
         output_lines = list(set(output_lines))
         # Output response to user
@@ -382,8 +382,8 @@ class FeedCheck(Function):
                 # Get new items
                 new_items = rss_feed.check_feed()
                 # Output all new items
-                for rssItem in new_items:
-                    rss_feed.output_item(rssItem, hallo)
+                for rss_item in new_items:
+                    rss_feed.output_item(rss_item, hallo)
 
 
 class FeedAdd(Function):
@@ -487,8 +487,8 @@ class FeedRemove(Function):
         test_feeds = rss_feed_list.get_feeds_by_url(clean_input, server, destination_obj)
         if len(test_feeds) == 0:
             return "There are no RSS feeds in this channel matching that name or URL."
-        for testFeed in test_feeds:
-            rss_feed_list.remove(testFeed)
+        for test_feed in test_feeds:
+            rss_feed_list.remove(test_feed)
         return "Removed subscriptions to RSS feed."
 
 

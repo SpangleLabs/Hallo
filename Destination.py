@@ -464,7 +464,8 @@ class User(Destination):
         # Check UserGroup rights, if any apply
         if len(self.user_group_list) != 0:
             return any(
-                [userGroup.rights_check(right_name, self, channel_obj) for userGroup in self.user_group_list.values()])
+                [user_group.rights_check(right_name, self, channel_obj) for user_group in self.user_group_list.values()]
+            )
         # Fall back to channel, if defined
         if channel_obj is not None and channel_obj.is_channel():
             return channel_obj.rights_check(right_name)

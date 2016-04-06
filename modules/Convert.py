@@ -88,9 +88,9 @@ class ConvertRepo:
 
     def get_prefix_group_by_name(self, name):
         """Gets a ConvertPrefixGroup object with the matching name."""
-        for prefixGroupObject in self.prefix_group_list:
-            if prefixGroupObject.get_name().lower() == name.lower():
-                return prefixGroupObject
+        for prefix_group_obj in self.prefix_group_list:
+            if prefix_group_obj.get_name().lower() == name.lower():
+                return prefix_group_obj
         return None
 
     @staticmethod
@@ -207,18 +207,18 @@ class ConvertType:
     def get_unit_by_name(self, name):
         """Get a unit by a specified name or abbreviation"""
         full_unit_list = [self.base_unit] + self.unit_list
-        for unitObject in full_unit_list:
-            if name in unitObject.get_name_list():
-                return unitObject
-        for unitObject in full_unit_list:
-            if name.lower() in [unitName.lower() for unitName in unitObject.get_name_list()]:
-                return unitObject
-        for unitObject in full_unit_list:
-            if name in unitObject.get_abbr_list():
-                return unitObject
-        for unitObject in full_unit_list:
-            if name.lower() in [unitName.lower() for unitName in unitObject.get_abbr_list()]:
-                return unitObject
+        for unit_obj in full_unit_list:
+            if name in unit_obj.get_name_list():
+                return unit_obj
+        for unit_obj in full_unit_list:
+            if name.lower() in [unit_name.lower() for unit_name in unit_obj.get_name_list()]:
+                return unit_obj
+        for unit_obj in full_unit_list:
+            if name in unit_obj.get_abbr_list():
+                return unit_obj
+        for unit_obj in full_unit_list:
+            if name.lower() in [unit_name.lower() for unit_name in unit_obj.get_abbr_list()]:
+                return unit_obj
         return None
 
     @staticmethod
@@ -563,35 +563,35 @@ class ConvertPrefixGroup:
 
     def get_prefix_by_name(self, name):
         """Gets the prefix with the specified name"""
-        for prefixObject in self.prefix_list:
-            if prefixObject.get_prefix() == name:
-                return prefixObject
-        for prefixObject in self.prefix_list:
-            if prefixObject.get_prefix().lower() == name.lower():
-                return prefixObject
+        for prefix_obj in self.prefix_list:
+            if prefix_obj.get_prefix() == name:
+                return prefix_obj
+        for prefix_obj in self.prefix_list:
+            if prefix_obj.get_prefix().lower() == name.lower():
+                return prefix_obj
         return None
 
     def get_prefix_by_abbr(self, abbreviation):
         """Gets the prefix with the specified abbreviation"""
-        for prefixObject in self.prefix_list:
-            if prefixObject.get_abbreviation() == abbreviation:
-                return prefixObject
-        for prefixObject in self.prefix_list:
-            if prefixObject.get_abbreviation().lower() == abbreviation.lower():
-                return prefixObject
+        for prefix_obj in self.prefix_list:
+            if prefix_obj.get_abbreviation() == abbreviation:
+                return prefix_obj
+        for prefix_obj in self.prefix_list:
+            if prefix_obj.get_abbreviation().lower() == abbreviation.lower():
+                return prefix_obj
         return None
 
     def get_appropriate_prefix(self, value):
         multiplier_bigger_than_one = True
-        for prefixObject in self.prefix_list:
-            multiplier = prefixObject.get_multiplier()
+        for prefix_obj in self.prefix_list:
+            multiplier = prefix_obj.get_multiplier()
             if multiplier_bigger_than_one and multiplier < 1:
                 multiplier_bigger_than_one = False
                 if value > 1:
                     return None
-            after_prefix = value / prefixObject.get_multiplier()
+            after_prefix = value / prefix_obj.get_multiplier()
             if after_prefix > 1:
-                return prefixObject
+                return prefix_obj
         return None
 
     @staticmethod
@@ -912,11 +912,11 @@ class Convert(Function):
         """Converts a single given measure into whatever unit is specified."""
         output_lines = []
         for from_measure in from_measure_list:
-            for toUnitObject in from_measure.get_unit().get_type().get_unit_list():
-                prefix_obj = toUnitObject.get_prefix_from_user_input(user_input_to)
+            for to_unit_obj in from_measure.get_unit().get_type().get_unit_list():
+                prefix_obj = to_unit_obj.get_prefix_from_user_input(user_input_to)
                 if prefix_obj is False:
                     continue
-                to_measure = from_measure.convert_to(toUnitObject)
+                to_measure = from_measure.convert_to(to_unit_obj)
                 output_lines.append(self.output_line_with_to_prefix(from_measure, to_measure, prefix_obj))
         if len(output_lines) == 0:
             if passive:
@@ -1261,9 +1261,9 @@ class ConvertViewRepo(Function):
         """Outputs a Conversion Repository as a string"""
         output_string = "Conversion Repo:\n"
         output_string += "Unit types: " + \
-                         ", ".join([typeObject.get_name() for typeObject in repo.get_type_list()]) + \
+                         ", ".join([type_obj.get_name() for type_obj in repo.get_type_list()]) + \
                          "\n"
-        output_string += "Prefix groups: " + ", ".join([typeObject.get_name() for typeObject in repo.get_type_list()])
+        output_string += "Prefix groups: " + ", ".join([type_obj.get_name() for type_obj in repo.get_type_list()])
         return output_string
 
     def output_type_as_string(self, type_obj):
@@ -1272,8 +1272,8 @@ class ConvertViewRepo(Function):
         output_string += "Decimals: " + str(type_obj.get_decimals()) + "\n"
         output_string += "Base unit: " + type_obj.get_base_unit().get_name_list()[0] + "\n"
         output_string += "Other units: "
-        unit_name_list = [unitObject.get_names()[0] for unitObject in type_obj.get_unit_list() if
-                          unitObject != type_obj.get_base_unit()]
+        unit_name_list = [unit_obj.get_names()[0] for unit_obj in type_obj.get_unit_list() if
+                          unit_obj != type_obj.get_base_unit()]
         output_string += ", ".join(unit_name_list)
         return output_string
 
@@ -1298,7 +1298,7 @@ class ConvertViewRepo(Function):
         """Outputs a Conversion PrefixGroup object as a string"""
         output_string = "Prefix group: (" + prefix_group_obj.get_name() + ")\n"
         output_string += "Prefix list: " + ", ".join(
-            [prefixObject.get_prefix() for prefixObject in prefix_group_obj.get_prefix_list()])
+            [prefix_obj.get_prefix() for prefix_obj in prefix_group_obj.get_prefix_list()])
         return output_string
 
     def output_prefix_as_string(self, prefix_obj):
@@ -1896,18 +1896,18 @@ class ConvertUnitRemoveName(Function):
         input_name = param_regex.sub("\1\4", line_clean).strip()
         # Check if description is sufficient to narrow it to 1 and only 1 unit
         user_unit_options = []
-        for unitObject in repo.get_full_unit_list():
+        for unit_obj in repo.get_full_unit_list():
             # If type is defined and not the same as current unit, skip it
-            if type_name is not None and type_name != unitObject.get_type().get_name():
+            if type_name is not None and type_name != unit_obj.get_type().get_name():
                 continue
             # if unit name is defined and not a valid name for the unit, skip it.
-            if unit_name is not None and not unitObject.has_name(unit_name):
+            if unit_name is not None and not unit_obj.has_name(unit_name):
                 continue
             # If input_name is not a valid name for the unit, skip it.
-            if not unitObject.has_name(input_name):
+            if not unit_obj.has_name(input_name):
                 continue
             # Otherwise it's the one, add it to the list
-            user_unit_options.append(unitObject)
+            user_unit_options.append(unit_obj)
         # Check if that narrowed it down correctly.
         if len(user_unit_options) == 0:
             return "There are no units matching that description."

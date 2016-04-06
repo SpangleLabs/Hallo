@@ -151,7 +151,7 @@ class ChosenOne(Function):
         # Get the user list
         user_set = channel_obj.get_user_list()
         # Get list of users' names
-        names_list = [userObject.get_name() for userObject in user_set]
+        names_list = [user_obj.get_name() for user_obj in user_set]
         rand = Commons.get_random_int(0, len(names_list) - 1)[0]
         return 'It should be obvious by now that ' + names_list[rand] + ' is the chosen one.'
 
@@ -421,8 +421,8 @@ class NightValeWeather(Function):
             api_url += "&pageToken=" + page_token
         # Load API response (in json).
         api_dict = Commons.load_url_json(api_url)
-        for apiItem in api_dict['items']:
-            new_video = {'title': apiItem['snippet']['title'], 'video_id': apiItem['snippet']['resourceId']['videoId']}
+        for api_item in api_dict['items']:
+            new_video = {'title': api_item['snippet']['title'], 'video_id': api_item['snippet']['resourceId']['videoId']}
             list_videos.append(new_video)
         # Check if there's another page to add
         if "nextPageToken" in api_dict:

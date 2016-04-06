@@ -72,9 +72,9 @@ class Commons(object):
         tld_list = [x.strip() for x in open("store/tld_list.txt", "rb").read().decode("utf-8").split("\n")]
         url_split = url.split(".")
         url_tld = None
-        for tldTest in ['.'.join(url_split[x:]) for x in range(len(url_split))]:
-            if tldTest in tld_list:
-                url_tld = tldTest
+        for tld_test in ['.'.join(url_split[x:]) for x in range(len(url_split))]:
+            if tld_test in tld_list:
+                url_tld = tld_test
                 break
         # If you didn't find the TLD, just return the longest bit.
         if url_tld is None:

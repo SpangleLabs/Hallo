@@ -189,9 +189,9 @@ class Logger:
         with self.lock:
             # Create directories if they don't exist.
             file_name_split = file_name.split("/")
-            for fileDir in ["/".join(file_name_split[:x]) for x in range(1, len(file_name_split))]:
+            for file_dir in ["/".join(file_name_split[:x]) for x in range(1, len(file_name_split))]:
                 try:
-                    os.mkdir(fileDir)
+                    os.mkdir(file_dir)
                 except OSError:
                     pass
             # Open file and write log
