@@ -4,7 +4,6 @@ from FunctionDispatcher import FunctionDispatcher
 from Hallo import Hallo
 from Server import Server
 import unittest
-import unittest.mock
 
 
 class ServerMock(Server):
@@ -33,7 +32,7 @@ class ServerMock(Server):
         pass
 
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
-        self.send_data.append((data,destination_obj,msg_type))
+        self.send_data.append((data, destination_obj, msg_type))
 
     def run(self):
         pass
