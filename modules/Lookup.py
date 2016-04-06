@@ -886,6 +886,7 @@ class UrlDetect(Function):
             return html.unescape(html_str)
         except AttributeError:
             html_parser = html.parser.HTMLParser()
+            # noinspection PyDeprecation
             return html_parser.unescape(html_str)
 
     def site_amazon(self, url_address, page_opener, page_request):

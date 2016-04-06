@@ -2,6 +2,7 @@ import importlib
 import sys
 import inspect
 from xml.dom import minidom
+# noinspection PyDeprecation
 import imp
 
 from Function import Function
@@ -223,6 +224,7 @@ class FunctionDispatcher(object):
             # noinspection PyUnresolvedReferences
             importlib.reload(module_obj)
         except AttributeError:
+            # noinspection PyDeprecation
             imp.reload(module_obj)
 
     def unload_module(self, module_obj):
