@@ -975,14 +975,23 @@ class UpdateCurrencies(Function):
         # Load convert repo.
         repo = ConvertRepo.load_from_xml()
         # Update with the European Bank
-        output_lines.append(self.update_from_european_bank_data(repo) or
-                            "Updated currency data from The European Bank.")
+        try:
+            output_lines.append(self.update_from_european_bank_data(repo) or
+                                "Updated currency data from The European Bank.")
+        except Exception as e:
+            output_lines.append("Failed to update european central bank data." + str(e))
         # Update with Forex
-        output_lines.append(self.update_from_forex_data(repo) or
-                            "Updated currency data from Forex.")
+        try:
+            output_lines.append(self.update_from_forex_data(repo) or
+                                "Updated currency data from Forex.")
+        except Exception as e:
+            output_lines.append("Failed to update Forex data. " + str(e))
         # Update with Preev
-        output_lines.append(self.update_from_preev_data(repo) or
-                            "Updated currency data from Preev.")
+        try:
+            output_lines.append(self.update_from_preev_data(repo) or
+                                "Updated currency data from Preev.")
+        except Exception as e:
+            output_lines.append("Failed to update Preev data. " + str(e))
         # Save repo
         repo.save_to_xml()
         # Return output
@@ -995,11 +1004,20 @@ class UpdateCurrencies(Function):
         # Load convert repo.
         repo = ConvertRepo.load_from_xml()
         # Update with the European Bank
-        self.update_from_european_bank_data(repo)
+        try:
+            self.update_from_european_bank_data(repo)
+        except Exception as e:
+            print("Failed to update european central bank data. " + str(e))
         # Update with Forex
-        self.update_from_forex_data(repo)
+        try:
+            self.update_from_forex_data(repo)
+        except Exception as e:
+            print("Failed to update forex data. " + str(e))
         # Update with Preev
-        self.update_from_preev_data(repo)
+        try:
+            self.update_from_preev_data(repo)
+        except Exception as e:
+            print("Failed to update preev data. " + str(e))
         # Save repo
         repo.save_to_xml()
         return None
