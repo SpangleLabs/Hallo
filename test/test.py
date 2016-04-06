@@ -82,3 +82,13 @@ class MathTest(unittest.TestCase):
         assert data[0][0] == "4"
         assert data[0][1] == self.test_user
         assert data[0][2] == Server.MSG_MSG
+
+    def test_calc_multiply(self):
+        self.server.get_send_data()
+        self.function_dispatcher.dispatch("calc 21*56", self.test_user, self.test_user)
+        data = self.server.get_send_data()
+        assert len(data) == 1
+        assert len(data[0]) == 3
+        assert data[0][0] == "1176"
+        assert data[0][1] == self.test_user
+        assert data[0][2] == Server.MSG_MSG
