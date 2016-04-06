@@ -12,13 +12,6 @@ class FunctionDispatcher(object):
     """
     FunctionDispatcher is a class to manage functions and to send function requests to the relevant function.
     """
-    hallo = None  # Hallo object which owns this
-    module_list = None  # List of available module names, then function names, then various variables
-    function_dict = None  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
-    function_names = None  # Dictionary of names -> functionClasses
-    persistent_functions = None  # Dictionary of persistent function objects. functionClass->functionObject
-    event_functions = None  # Dictionary with events as keys and sets of function classes
-    # (which may want to act on those events) as values
 
     # Flags, can be passed as a list to function dispatcher, and will change how it operates.
     FLAG_HIDE_ERRORS = "hide_errors"  # Hide all errors that result from running the function.
@@ -27,12 +20,13 @@ class FunctionDispatcher(object):
         """
         Constructor
         """
-        self.hallo = hallo
-        self.module_list = set()
-        self.function_dict = {}
-        self.function_names = {}
-        self.persistent_functions = {}
-        self.event_functions = {}
+        self.hallo = hallo  # Hallo object which owns this
+        self.module_list = set()  # List of available module names, then function names, then various variables
+        self.function_dict = {}  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
+        self.function_names = {}  # Dictionary of names -> functionClasses
+        self.persistent_functions = {}  # Dictionary of persistent function objects. functionClass->functionObject
+        self.event_functions = {}  # Dictionary with events as keys and sets of function classes
+        #  (which may want to act on those events) as values
         # Copy moduleList to self.mModuleList
         self.module_list = module_list
         # Load all functions
