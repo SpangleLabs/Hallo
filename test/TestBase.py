@@ -25,9 +25,11 @@ class TestBase(unittest.TestCase):
         # Wait until hallo is open
         count = 0
         while not self.hallo.open:
-            time.sleep(100)
+            time.sleep(0.1)
             count += 1
             assert count < 100, "Hallo took too long to start."
+            if count > 100:
+                break
         # Clear any data in the server
         self.server.get_send_data()
 

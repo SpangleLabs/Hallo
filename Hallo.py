@@ -45,7 +45,14 @@ class Hallo:
             if server.get_auto_connect():
                 Thread(target=server.run).start()
         self.open = True
-        time.sleep(2)
+        count = 0
+        while all(not server.open for server in self.server_list if server.get_auto_connect()):
+            time.sleep(0.1)
+            count += 1
+            if count > 600:
+                self.open = False
+                print("No servers managed to connect in 60 seconds.")
+                break
         # Main loop, sticks around throughout the running of the bot
         print('connected to all servers.')
         self.core_loop_time_events()

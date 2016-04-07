@@ -14,7 +14,7 @@ class ServerMock(Server):
         pass
 
     def connect(self):
-        pass
+        self.open = True
 
     def get_type(self):
         pass
@@ -30,7 +30,7 @@ class ServerMock(Server):
         self.send_data.append((data, destination_obj, msg_type))
 
     def run(self):
-        pass
+        self.connect()
 
     def reconnect(self):
         pass
