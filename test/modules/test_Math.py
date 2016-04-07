@@ -1,8 +1,10 @@
+import unittest
+
 from Server import Server
 from test.TestBase import TestBase
 
 
-class MathTest(TestBase):
+class MathTest(TestBase, unittest.TestCase):
 
     def test_calc_simple(self):
         self.function_dispatcher.dispatch("calc 2+2", self.test_user, self.test_user)

@@ -49,5 +49,5 @@ class ServerMock(Server):
         if dest_obj is not None:
             assert all(out_data[x][1] == dest_obj for x in range(len(out_data)))
         if msg_type is not None:
-            assert all(out_data[x][2] == msg_type for x in rangE(len(out_data)))
+            assert all(out_data[x][2] == msg_type for x in range(len(out_data)))
         return out_data
