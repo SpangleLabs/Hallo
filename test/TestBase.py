@@ -4,6 +4,7 @@ from FunctionDispatcher import FunctionDispatcher
 from Hallo import Hallo
 import unittest
 from test.ServerMock import ServerMock
+import time
 
 
 class TestBase(unittest.TestCase):
@@ -21,6 +22,13 @@ class TestBase(unittest.TestCase):
         self.hallo_thread = Thread(target=self.hallo.start,)
         self.hallo_thread.start()
         self.test_user = self.server.get_user_by_name("test")
+        # Wait until hallo is open
+        count = 0
+        while not self.hallo.open:
+            time.sleep(100)
+            count += 1
+            assert count < 100, "Hallo took too long to start."
+        # Clear any data in the server
         self.server.get_send_data()
 
     def tearDown(self):
