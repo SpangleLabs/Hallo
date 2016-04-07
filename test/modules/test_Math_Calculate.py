@@ -61,13 +61,25 @@ class CalculateTest(TestBase, unittest.TestCase):
         assert False, "not yet implemented"
 
     def test_pi(self):
-        assert False, "not yet implemented"
+        self.function_dispatcher.dispatch("calc pi", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "3.141" == data[0][0][:5], "pi != 3.141"
 
     def test_e(self):
-        assert False, "not yet implemented"
+        self.function_dispatcher.dispatch("calc e", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "2.718" == data[0][0][:5], "e != 2.718"
 
     def test_tan(self):
-        assert False, "not yet implemented"
+        self.function_dispatcher.dispatch("calc tan(0)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert 0 == float(data[0][0]), "tan(0) != 0"
+        self.function_dispatcher.dispatch("calc tan(pi)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert 0 == float(data[0][0]), "tan(pi) != 0"
+        self.function_dispatcher.dispatch("calc tan(pi/2)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert 10**6 < abs(float(data[0][0])), "abs(tan(pi/2)) < 1,000,000"
 
     def test_acos(self):
         self.function_dispatcher.dispatch("calc acos(1)", self.test_user, self.test_user)
@@ -75,19 +87,45 @@ class CalculateTest(TestBase, unittest.TestCase):
         assert 0 == float(data[0][0]), "acos(1) != 0"
         self.function_dispatcher.dispatch("calc acos(0)", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        assert  == float(data[0][0]), "acos(0) != pi/2"
+        assert "1.570" == data[0][0][:5], "acos(0) != pi/2"
         self.function_dispatcher.dispatch("calc acos(-1)", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        assert -1 == float(data[0][0]), "acos(-1) != pi"
+        assert "3.141" == data[0][0][:5], "acos(-1) != pi"
 
     def test_asin(self):
-        assert False, "not yet implemented"
+        self.function_dispatcher.dispatch("calc asin(0)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert 0 == float(data[0][0]), "sin(0) != 0"
+        self.function_dispatcher.dispatch("calc asin(pi/2)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert 1 == float(data[0][0]), "sin(pi/2) != 0"
+        self.function_dispatcher.dispatch("calc asin(pi)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert 0 == float(data[0][0]), "sin(pi) != 0"
 
     def test_atan(self):
         assert False, "not yet implemented"
 
     def test_sqrt(self):
-        assert False, "not yet implemented"
+        self.function_dispatcher.dispatch("calc sqrt(4)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert 2 == float(data[0][0]), "sqrt(4) != 2"
+        self.function_dispatcher.dispatch("calc sqrt(2)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "1.414" == data[0][0][:5], "sqrt(2) != 1.414"
+        self.function_dispatcher.dispatch("calc sqrt(1)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert 1 == float(data[0][0]), "sqrt(1) != 1"
+        self.function_dispatcher.dispatch("calc sqrt(2.25)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert 1.5 == float(data[0][0]), "sqrt(2.25) != 1.5"
+        self.function_dispatcher.dispatch("calc sqrt(-1)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "cannot sqrt negative values" in data[0][0], "negative root response did not say it cannot sqrt " \
+                                                            "negative numbers"
+        assert "no complex numbers" in data[0][0], "negative root response did not say it does not support complex " \
+                                                   "numbers"
+        assert data[0][0][:5].lower() == "error", "negative root response did not start with error"
 
     def test_power(self):
         assert False, "not yet implemented"
@@ -96,4 +134,9 @@ class CalculateTest(TestBase, unittest.TestCase):
         assert False, "not yet implemented"
 
     def test_gamma(self):
-        assert False, "not yet implemented"
+        self.function_dispatcher.dispatch("calc gamma(1)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert 1 == float(data[0][0]), "gamma(1) != 1"
+        self.function_dispatcher.dispatch("calc gamma(5)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert 24 == float(data[0][0]), "gamma(5) != 24"
