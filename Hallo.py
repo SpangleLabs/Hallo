@@ -35,7 +35,6 @@ class Hallo:
                                                        "PermissionControl", "Random", "ServerControl"}, self)
 
     def start(self):
-        self.open = True
         # If no servers, ask for a new server
         if len(self.server_list) == 0:
             if sum([server.get_auto_connect() for server in self.server_list]) == 0:
@@ -45,7 +44,15 @@ class Hallo:
         for server in self.server_list:
             if server.get_auto_connect():
                 Thread(target=server.run).start()
-        time.sleep(2)
+        self.open = True
+        count = 0
+        while all(not server.open for server in self.server_list if server.get_auto_connect()):
+            time.sleep(0.1)
+            count += 1
+            if count > 600:
+                self.open = False
+                print("No servers managed to connect in 60 seconds.")
+                break
         # Main loop, sticks around throughout the running of the bot
         print('connected to all servers.')
         self.core_loop_time_events()
