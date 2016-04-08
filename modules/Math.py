@@ -506,6 +506,7 @@ class Calculate(Function):
         calc_clean = calc.replace(' ', '').lower()
         # make sure only legit characters are allowed
         if not Commons.check_calculation(calc_clean):
+            # TODO use custom exception
             raise Exception('Error, Invalid characters in expression')
         # make sure open brackets don't out-number close
         if calc.count('(') > calc.count(')'):
