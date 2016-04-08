@@ -519,9 +519,15 @@ class Calculate(Function):
         trig_dict = {'acos': math.acos, 'asin': math.asin, 'atan': math.atan, 'cos': math.cos, 'sin': math.sin,
                      'tan': math.tan, 'sqrt': math.sqrt, 'log': math.log, 'acosh': math.acosh, 'asinh': math.asinh,
                      'atanh': math.atanh, 'cosh': math.cosh, 'sinh': math.sinh, 'tanh': math.tanh, 'gamma': math.gamma}
+        max_len = 0
+        max_name = ""
         for trig_name in trig_dict:
             if before[-len(trig_name):] == trig_name:
-                return [trig_name + running_calc, trig_dict[trig_name](float(temp_answer))]
+                if len(trig_name) > max_len:
+                    max_len = len(trig_name)
+                    max_name = trig_name
+        if max_len > 0:
+            return [max_name + running_calc, trig_dict[max_name](float(temp_answer))]
         return [running_calc, temp_answer]
 
     def process_calculation(self, calc):
