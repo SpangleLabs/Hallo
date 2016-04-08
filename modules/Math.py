@@ -514,6 +514,8 @@ class Calculate(Function):
         # Previously I thought it would be okay to skip this, but "(21/3))+2))*5" evaluates as 17, rather than 45
         if calc.count(')') > calc.count('('):
             raise Exception('Error, too many close brackets')
+        if len(calc) == 0:
+            raise Exception("Error, empty calculation or brackets")
         return True
 
     def process_trigonometry(self, calc, running_calc):
@@ -569,6 +571,8 @@ class Calculate(Function):
                 elif next_char == ')':
                     bracket -= 1
                 if bracket == 0:
+                    if len(running_calc) == 0:
+                        raise Exception("Error, empty calculation or brackets")
                     # tempans = mod_calc.fnn_calc_process(self,running_calc)
                     # running_calc = '('+running_calc+')'
                     trig_check = self.process_trigonometry(calc, running_calc)
