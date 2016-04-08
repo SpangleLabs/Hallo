@@ -510,6 +510,10 @@ class Calculate(Function):
         # make sure open brackets don't out-number close
         if calc.count('(') > calc.count(')'):
             raise Exception('Error, too many open brackets')
+        # Make sure close brackets don't out-number open.
+        # Previously I thought it would be okay to skip this, but "(21/3))+2))*5" evaluates as 17, rather than 45
+        if calc.count(')') > calc.count('('):
+            raise Exception('Error, too many close brackets')
         return True
 
     def process_trigonometry(self, calc, running_calc):
