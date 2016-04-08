@@ -506,10 +506,17 @@ class Calculate(Function):
         calc_clean = calc.replace(' ', '').lower()
         # make sure only legit characters are allowed
         if not Commons.check_calculation(calc_clean):
+            # TODO use custom exception
             raise Exception('Error, Invalid characters in expression')
         # make sure open brackets don't out-number close
         if calc.count('(') > calc.count(')'):
             raise Exception('Error, too many open brackets')
+        # Make sure close brackets don't out-number open.
+        # Previously I thought it would be okay to skip this, but "(21/3))+2))*5" evaluates as 17, rather than 45
+        if calc.count(')') > calc.count('('):
+            raise Exception('Error, too many close brackets')
+        if len(calc) == 0:
+            raise Exception("Error, empty calculation or brackets")
         return True
 
     def process_trigonometry(self, calc, running_calc):
@@ -519,9 +526,15 @@ class Calculate(Function):
         trig_dict = {'acos': math.acos, 'asin': math.asin, 'atan': math.atan, 'cos': math.cos, 'sin': math.sin,
                      'tan': math.tan, 'sqrt': math.sqrt, 'log': math.log, 'acosh': math.acosh, 'asinh': math.asinh,
                      'atanh': math.atanh, 'cosh': math.cosh, 'sinh': math.sinh, 'tanh': math.tanh, 'gamma': math.gamma}
+        max_len = 0
+        max_name = ""
         for trig_name in trig_dict:
             if before[-len(trig_name):] == trig_name:
-                return [trig_name + running_calc, trig_dict[trig_name](float(temp_answer))]
+                if len(trig_name) > max_len:
+                    max_len = len(trig_name)
+                    max_name = trig_name
+        if max_len > 0:
+            return [max_name + running_calc, trig_dict[max_name](float(temp_answer))]
         return [running_calc, temp_answer]
 
     def process_calculation(self, calc):
@@ -559,6 +572,8 @@ class Calculate(Function):
                 elif next_char == ')':
                     bracket -= 1
                 if bracket == 0:
+                    if len(running_calc) == 0:
+                        raise Exception("Error, empty calculation or brackets")
                     # tempans = mod_calc.fnn_calc_process(self,running_calc)
                     # running_calc = '('+running_calc+')'
                     trig_check = self.process_trigonometry(calc, running_calc)
