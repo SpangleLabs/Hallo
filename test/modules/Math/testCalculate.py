@@ -278,3 +278,6 @@ class CalculateTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch("calc gamma(0)", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
         assert "error" in data[0][0], "gamma(0) should fail"
+
+    def test_passive(self):
+        assert False, "Not yet implemented"
