@@ -144,12 +144,12 @@ class Trump(Function):
         """
         super().__init__()
         # Name for use in help listing
-        help_name = "trump"
+        self.help_name = "trump"
         # Names which can be used to address the function
-        names = {"trump", "donald trump"}
+        self.names = {"trump", "donald trump"}
         # Help documentation, if it's just a single line, can be set here
-        help_docs = "Returns the election years that Donald Trump will win US election. " \
-                    "Format: \"trump <number of terms>\""
+        self.help_docs = "Returns the election years that Donald Trump will win US election. " \
+                         "Format: \"trump <number of terms>\""
 
     def run(self, line, user_obj, destination_obj=None):
         line_clean = line.strip()
