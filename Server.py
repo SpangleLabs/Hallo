@@ -237,6 +237,7 @@ class Server(metaclass=ABCMeta):
         Returns a User object with the specified user name.
         :param user_name: Name of user which is being searched for
         :type user_name: str
+        :return: Destination.User
         """
         user_name = user_name.lower()
         for user in self.user_list:

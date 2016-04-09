@@ -154,15 +154,20 @@ class FunctionDispatcher(object):
     def check_function_permissions(self, function_class, server_obj, user_obj, channel_obj):
         """Checks if a function can be called. Returns boolean, True if allowed
         :param function_class: Class of function to check permissions for
+        :type function_class: str
         :param server_obj: Server on which to check function permissions
+        :type server_obj: Server.Server
         :param user_obj: User which has requested the function
+        :type user_obj: Destination.User
         :param channel_obj: Channel on which the function was requested
+        :type channel_obj: Destination.Channel
         """
         # Get function name
         function_name = function_class.__name__
         right_name = "function_" + function_name
         # Check rights
         if user_obj is not None:
+            print(user_obj)
             return user_obj.rights_check(right_name, channel_obj)
         if channel_obj is not None:
             return channel_obj.rights_check(right_name)
