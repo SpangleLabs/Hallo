@@ -293,7 +293,7 @@ class Average(Function):
         try:
             number_sum = sum(float(x) for x in number_list)
         except ValueError:
-            return "Please only input a list of numbers"
+            return "Error, Please only input a list of numbers"
         return "The average of " + ', '.join(number_list) + " is: " + str(number_sum / float(len(number_list))) + "."
 
 
