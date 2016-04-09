@@ -453,7 +453,7 @@ class Calculate(Function):
         # Check if fullLine is a calculation, and is not just numbers, and contains numbers.
         if not Commons.check_calculation(full_line):
             return None
-        if Commons.check_numbers(full_line):
+        if Commons.check_numbers(full_line.replace(".", "")):
             return None
         if not any([char in full_line for char in [str(x) for x in range(10)] + ["e", "pi"]]):
             return None
