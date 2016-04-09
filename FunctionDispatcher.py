@@ -167,7 +167,6 @@ class FunctionDispatcher(object):
         right_name = "function_" + function_name
         # Check rights
         if user_obj is not None:
-            print(user_obj)
             return user_obj.rights_check(right_name, channel_obj)
         if channel_obj is not None:
             return channel_obj.rights_check(right_name)
