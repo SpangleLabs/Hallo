@@ -1,5 +1,6 @@
 import unittest
 
+from Function import Function
 from Server import Server
 from test.TestBase import TestBase
 
@@ -280,4 +281,31 @@ class CalculateTest(TestBase, unittest.TestCase):
         assert "error" in data[0][0], "gamma(0) should fail"
 
     def test_passive(self):
-        assert False, "Not yet implemented"
+        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "25", self.server,
+                                                  self.test_user, self.test_chan)
+        data = self.server.get_send_data(0)
+        assert len(data) == 0, "No response should have happened."
+        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "23.47", self.server,
+                                                  self.test_user, self.test_chan)
+        data = self.server.get_send_data(0)
+        assert len(data) == 0, "No response should have happened."
+        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "2+2", self.server,
+                                                  self.test_user, self.test_chan)
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert data[0][0] == "4", "2+2 = 4, hallo should have responded"
+        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "pie", self.server,
+                                                  self.test_user, self.test_chan)
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert 8.539 == float(data[0][0][:5]), "Response should have been received."
+        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
+                                                  "cos(acos(sin(asin(tan(atan(acosh(cosh(sinh(asinh(tanh("
+                                                  "atanh(0))))))))))))",
+                                                  self.server,
+                                                  self.test_user,
+                                                  self.test_chan)
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert len(data) != 0, "Response should have been received."
+        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "acos(2)", self.server,
+                                                  self.test_user, self.test_chan)
+        data = self.server.get_send_data(0)
+        assert len(data) == 0, "No response should have been received"
