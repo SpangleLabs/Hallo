@@ -7,6 +7,7 @@ class Hailstone(Function):
     """
     Runs a collatz (or hailstone) function on a specified number, returning the sequence generated.
     """
+    LIMIT = 1000
 
     def __init__(self):
         """
@@ -24,13 +25,14 @@ class Hailstone(Function):
         """Returns the hailstone sequence for a given number. Format: hailstone <number>"""
         line_clean = line.strip().lower()
         if not line_clean.isdigit():
-            return "The hailstone function has to be given with a number (to generate the collatz sequence of.)"
-        else:
-            number = int(line_clean)
-            sequence = self.collatz_sequence([number])
-            output_string = "Hailstone (Collatz) sequence for " + str(number) + ": "
-            output_string += '->'.join(str(x) for x in sequence) + " (" + str(len(sequence)) + " steps.)"
-            return output_string
+            return "Error, the hailstone function has to be given with a number (to generate the collatz sequence of.)"
+        number = int(line_clean)
+        if number > Hailstone.LIMIT:
+            return "Error, this is above the limit for this function."
+        sequence = self.collatz_sequence([number])
+        output_string = "Hailstone (Collatz) sequence for " + str(number) + ": "
+        output_string += '->'.join(str(x) for x in sequence) + " (" + str(len(sequence)) + " steps.)"
+        return output_string
 
     def collatz_sequence(self, sequence):
         num = int(sequence[-1])
