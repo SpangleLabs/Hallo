@@ -374,7 +374,7 @@ class SimplifyFraction(Function):
         euler_obj = function_dispatcher.get_function_object(euler_class)
         # preflight checks
         if line.count("/") != 1:
-            return "Please give input in the form: <numerator>/<denominator>"
+            return "Error, Please give input in the form: <numerator>/<denominator>"
         # Get numerator and denominator
         numerator_string = line.split('/')[0]
         denominator_string = line.split('/')[1]
@@ -382,10 +382,13 @@ class SimplifyFraction(Function):
             numerator = int(numerator_string)
             denominator = int(denominator_string)
         except ValueError:
-            return "Numerator and denominator must be integers."
+            return "Error, Numerator and denominator must be integers."
+        negative = False
+        if (numerator < 0) != (denominator < 0):
+            negative = True
         # Sort all this and get the value
-        numerator_factors = prime_factors_obj.find_prime_factors(numerator)
-        denominator_factors = prime_factors_obj.find_prime_factors(denominator)
+        numerator_factors = prime_factors_obj.find_prime_factors(abs(numerator))
+        denominator_factors = prime_factors_obj.find_prime_factors(abs(denominator))
         numerator_factors_new = euler_obj.list_minus(numerator_factors,
                                                      euler_obj.list_intersection(denominator_factors,
                                                                                  numerator_factors))
@@ -394,7 +397,11 @@ class SimplifyFraction(Function):
                                                                                    numerator_factors))
         numerator_new = euler_obj.list_product(numerator_factors_new)
         denominator_new = euler_obj.list_product(denominator_factors_new)
-        return str(numerator) + "/" + str(denominator) + " = " + str(numerator_new) + "/" + str(denominator_new) + "."
+        numerator_out = str(numerator) + "/" + str(denominator)
+        denominator_out = "-"*negative + str(numerator_new) + "/" + str(denominator_new)
+        if denominator_new == 1:
+            denominator_out = str(numerator_new)
+        return numerator_out + " = " + denominator_out + "."
 
 
 class Calculate(Function):
