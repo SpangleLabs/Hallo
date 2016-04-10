@@ -84,7 +84,7 @@ class NumberWord(Function):
             calc_obj = function_dispatcher.get_function_object(calc_func)
             number = calc_obj.process_calculation(number)
         else:
-            return "You must enter a valid number or calculation."
+            return "Error, you must enter a valid number or calculation."
         return self.number_word(number, lang) + "."
 
     def number_word(self, number, lang="american"):
