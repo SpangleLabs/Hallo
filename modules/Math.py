@@ -242,9 +242,11 @@ class ChangeOptions(Function):
         try:
             number = int(line_clean)
         except ValueError:
-            return "That's not a valid number."
+            return "Error, That's not a valid integer."
+        if number <= 0:
+            return "Error, input must be a positive integer."
         if number > 20:
-            return "For reasons of output length, I can't return change options for more than 20 pence."
+            return "Error, for reasons of output length, I can't return change options for more than 20 pence."
         coins = [200, 100, 50, 20, 10, 5, 2, 1]
         options = self.change_options(coins, 0, number)
         output_string = 'Possible ways to give that change: '
