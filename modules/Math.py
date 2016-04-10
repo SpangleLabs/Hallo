@@ -180,7 +180,8 @@ class PrimeFactors(Function):
         # Name for use in help listing
         self.help_name = "prime factors"
         # Names which can be used to address the Function
-        self.names = {"prime factors", "prime factor", "primefactors", "primefactor"}
+        self.names = {"prime factors", "prime factor", "primefactors", "primefactor", "factors",
+                      "factorise", "factorize"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the prime factors of a given number. Format: prime factors <number>"
 
@@ -194,10 +195,10 @@ class PrimeFactors(Function):
             calc_obj = function_dispatcher.get_function_object(calc_func)
             number_str = calc_obj.process_calculation(line_clean)
             if "." in number_str:
-                return "This calculation does not result in an integer. The answer is: " + number_str
+                return "Error, this calculation does not result in an integer. The answer is: " + number_str
             number = int(number_str)
         else:
-            return "This is not a valid number or calculation."
+            return "Error, this is not a valid number or calculation."
         prime_factors = self.find_prime_factors(number)
         return "The prime factors of " + str(number) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
 
