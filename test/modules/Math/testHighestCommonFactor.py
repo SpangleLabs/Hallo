@@ -15,7 +15,6 @@ class HighestCommonFactorTest(TestBase, unittest.TestCase):
     def test_hcf_big(self):
         self.function_dispatcher.dispatch("hcf 295228 285349", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        print(data)
         assert "1" == data[0][0][-2:-1], "Highest common factor function not returning correctly."
         self.function_dispatcher.dispatch("hcf 295228 494644", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
