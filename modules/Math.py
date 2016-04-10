@@ -326,22 +326,22 @@ class HighestCommonFactor(Function):
         prime_factors_class = function_dispatcher.get_function_by_name("prime factors")
         euler_class = function_dispatcher.get_function_by_name("euler")
         prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)
-        eurler_obj = function_dispatcher.get_function_object(euler_class)
+        euler_obj = function_dispatcher.get_function_object(euler_class)
         # Preflight checks
         if len(line.split()) != 2:
-            return "You must provide two arguments."
+            return "Error, You must provide two arguments."
         input_one = line.split()[0]
         input_two = line.split()[1]
         try:
             number_one = int(input_one)
             number_two = int(input_two)
         except ValueError:
-            return "Both arguments must be integers."
+            return "Error, Both arguments must be integers."
         # Get prime factors of each, get intersection, then product of that.
         number_one_factors = prime_factors_obj.find_prime_factors(number_one)
         number_two_factors = prime_factors_obj.find_prime_factors(number_two)
-        common_factors = eurler_obj.list_intersection(number_one_factors, number_two_factors)
-        hcf = eurler_obj.list_product(common_factors)
+        common_factors = euler_obj.list_intersection(number_one_factors, number_two_factors)
+        hcf = euler_obj.list_product(common_factors)
         return "The highest common factor of " + str(number_one) + " and " + str(number_two) + " is " + str(hcf) + "."
 
 
