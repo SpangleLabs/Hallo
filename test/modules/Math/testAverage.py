@@ -4,7 +4,7 @@ from Server import Server
 from test.TestBase import TestBase
 
 
-class CalculateTest(TestBase, unittest.TestCase):
+class AverageTest(TestBase, unittest.TestCase):
 
     def test_avg_simple(self):
         self.function_dispatcher.dispatch("average 2 4", self.test_user, self.test_user)
