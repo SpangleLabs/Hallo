@@ -2,7 +2,7 @@ import time
 
 from xml.dom import minidom
 from PermissionMask import PermissionMask
-from inc.commons import Commons
+from inc.Commons import Commons
 from abc import ABCMeta
 
 

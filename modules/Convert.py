@@ -1,5 +1,5 @@
 from xml.dom import minidom
-from inc.commons import Commons
+from inc.Commons import Commons
 from Function import Function
 import re
 import time

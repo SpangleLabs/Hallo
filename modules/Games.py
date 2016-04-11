@@ -3,7 +3,7 @@ import random
 import time
 
 from Server import Server
-from inc.commons import Commons
+from inc.Commons import Commons
 from xml.dom import minidom
 from threading import Thread
 

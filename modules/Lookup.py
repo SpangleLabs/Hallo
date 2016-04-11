@@ -1,5 +1,5 @@
 from Function import Function
-from inc.commons import Commons
+from inc.Commons import Commons
 from xml.dom import minidom
 import difflib
 import re

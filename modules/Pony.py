@@ -2,7 +2,7 @@ from Function import Function
 from xml.dom import minidom
 
 from Server import Server
-from inc.commons import Commons
+from inc.Commons import Commons
 
 
 class PonyEpisode(Function):
