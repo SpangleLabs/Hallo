@@ -5,7 +5,7 @@ import urllib.parse
 from xml.dom import minidom
 
 from Function import Function
-from inc.commons import Commons
+from inc.Commons import Commons
 
 
 class Roll(Function):

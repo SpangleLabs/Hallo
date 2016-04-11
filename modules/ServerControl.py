@@ -1,7 +1,7 @@
 from Function import Function
 from threading import Thread
 import re
-from inc.commons import Commons
+from inc.Commons import Commons
 from Server import Server, ServerIRC
 
 
