@@ -51,15 +51,12 @@ class SimplifyFractionTest(TestBase, unittest.TestCase):
     def test_factors_negative(self):
         self.function_dispatcher.dispatch("fraction 24/-10", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        print(data)
         assert " -12/5." in data[0][0][-7:], "Simplify fraction not working for negative denominators."
         self.function_dispatcher.dispatch("fraction -24/10", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        print(data)
         assert " -12/5." in data[0][0][-7:], "Simplify fraction not working for negative numerators."
         self.function_dispatcher.dispatch("fraction 24/10", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        print(data)
         assert " 12/5." in data[0][0][-6:], "Simplify fraction not working for negative numerators & denominators."
 
     def test_factors_word(self):

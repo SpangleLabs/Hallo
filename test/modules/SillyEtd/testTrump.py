@@ -15,7 +15,6 @@ class TrumpTest(TestBase, unittest.TestCase):
     def test_trump_num(self):
         self.function_dispatcher.dispatch("trump 7", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        print(data[0][0])
         assert data[0][0].count("Trump") == 7, "Trump numerical input not working."
 
     def test_trump_max(self):

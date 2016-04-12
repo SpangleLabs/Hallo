@@ -22,7 +22,6 @@ class ChangeOptionsTest(TestBase, unittest.TestCase):
     def test_change_options_negative(self):
         self.function_dispatcher.dispatch("change options -5", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        print(data[0][0])
         assert "error" in data[0][0].lower(), "Change options should fail with negative input."
 
     def test_change_options_float(self):
