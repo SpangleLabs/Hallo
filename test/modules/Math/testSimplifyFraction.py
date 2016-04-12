@@ -16,7 +16,7 @@ class SimplifyFractionTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
         assert "32789/2." in data[0][0][-8:], "Simplify fraction fails for large fractions."
 
-    def text_fraction_multi_slash(self):
+    def test_fraction_multi_slash(self):
         self.function_dispatcher.dispatch("fraction 360679/22/2", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
         assert "error" in data[0][0].lower(), "Simplify fraction should return error when given more than 1 slash."
