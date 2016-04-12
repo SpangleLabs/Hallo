@@ -58,8 +58,8 @@ class FunctionDispatcher(object):
         # If function isn't found, output a not found message
         if function_class_test is None:
             if self.FLAG_HIDE_ERRORS not in flag_list:
-                server_obj.send("This is not a recognised function.", destination_obj)
-                print("This is not a recognised function.")
+                server_obj.send("Error, this is not a recognised function.", destination_obj)
+                print("Error, this is not a recognised function.")
             return
         function_class = function_class_test
         function_args = function_args_test
