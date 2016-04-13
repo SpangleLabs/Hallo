@@ -114,14 +114,14 @@ class PokeTheAsshole(Function):
     def run(self, line, user_obj, destination_obj=None):
         # TODO: check if not opped?
         if not user_obj.get_name().endswith('000242'):
-            return "You are not my master."
+            return "Error, You are not my master."
         server_obj = user_obj.get_server()
         if server_obj.get_type() == Server.TYPE_IRC:
-            return "This function is only available on IRC servers."
+            return "Error, This function is only available on IRC servers."
         if destination_obj is None or destination_obj == user_obj:
-            return "This function can only be used in ETD."
+            return "Error, This function can only be used in ETD."
         if destination_obj.get_name().lower() != "#ecco-the-dolphin":
-            return "This function can only be used in ETD."
+            return "Error, This function can only be used in ETD."
         # Take input, or assume input is 5
         if line.strip().isdigit():
             number = int(line.strip())
