@@ -55,6 +55,8 @@ class Server(metaclass=ABCMeta):
     MSG_NOTICE = "notice"
     MSG_RAW = "raw"
 
+    type = None
+
     def __init__(self, hallo):
         """
         Constructor for server object
@@ -182,7 +184,7 @@ class Server(metaclass=ABCMeta):
 
     def get_type(self):
         """Type getter"""
-        raise NotImplementedError
+        return self.type
 
     def get_permission_mask(self):
         return self.permission_mask
@@ -285,6 +287,7 @@ class Server(metaclass=ABCMeta):
 
 class ServerIRC(Server):
     MAX_MSG_LENGTH = 462
+    type = Server.TYPE_IRC
 
     def __init__(self, hallo, server_name=None, server_url=None, server_port=6667):
         """
@@ -1285,10 +1288,6 @@ class ServerIRC(Server):
                 if not channel.is_in_channel():
                     continue
                 self.hallo.get_logger().log_from_self(Function.EVENT_CHNAME, old_nick, self, hallo_user_obj, channel)
-
-    def get_type(self):
-        """Type getter"""
-        return Server.TYPE_IRC
 
     def get_server_port(self):
         """server_port getter"""
