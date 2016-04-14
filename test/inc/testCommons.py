@@ -92,3 +92,11 @@ class CommonsTest(unittest.TestCase):
         assert Commons.format_time_delta(delta4) == "P2T3600S"
         delta5 = timedelta(0, 0, 0, 0, 0, 0, 1)
         assert Commons.format_time_delta(delta5) == "P7T0S"
+
+    def test_format_unix_time(self):
+        unix1 = 0
+        assert Commons.format_unix_time(unix1) == "1970-01-01 00:00:00"
+        unix2 = 1000000000
+        assert Commons.format_unix_time(unix2) == "2001-09-09 01:46:40"
+        unix3 = 1234567890
+        assert Commons.format_unix_time(unix3) == "2009-02-13 23:31:30"
