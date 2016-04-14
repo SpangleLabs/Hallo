@@ -32,11 +32,11 @@ class Commons(object):
 
     @staticmethod
     def chunk_string(string, length):
-        return (string[0 + i:length + i] for i in range(0, len(string), length))
+        return [string[0 + i:length + i] for i in range(0, len(string), length)]
 
     @staticmethod
     def chunk_string_dot(string, length):
-        if len(string) < length:
+        if len(string) <= length:
             return [string]
         else:
             list_of_strings = [string[:length - 3] + '...']
