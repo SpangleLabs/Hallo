@@ -1,6 +1,8 @@
 import re
 import unittest
 
+from datetime import timedelta
+
 from inc.Commons import Commons
 
 
@@ -78,3 +80,15 @@ class CommonsTest(unittest.TestCase):
         assert len(stamp) == 10, "Timestamp is the wrong length"
         pattern = re.compile("^\[(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\]$")
         assert pattern.match(stamp), "Timestamp is not valid to defined format."
+
+    def test_format_time_delta(self):
+        delta1 = timedelta(5, 5)
+        assert Commons.format_time_delta(delta1) == "P5T5S"
+        delta2 = timedelta(0, 50)
+        assert Commons.format_time_delta(delta2) == "P0T50S"
+        delta3 = timedelta(3, 0, 0, 0, 1)
+        assert Commons.format_time_delta(delta3) == "P3T60S"
+        delta4 = timedelta(2, 0, 0, 0, 0, 1)
+        assert Commons.format_time_delta(delta4) == "P2T3600S"
+        delta5 = timedelta(0, 0, 0, 0, 0, 0, 1)
+        assert Commons.format_time_delta(delta5) == "P7T0S"
