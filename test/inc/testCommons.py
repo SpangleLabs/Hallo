@@ -100,3 +100,17 @@ class CommonsTest(unittest.TestCase):
         assert Commons.format_unix_time(unix2) == "2001-09-09 01:46:40"
         unix3 = 1234567890
         assert Commons.format_unix_time(unix3) == "2009-02-13 23:31:30"
+
+    def test_get_calc_from_start_or_end(self):
+        string1 = "$12*17"
+        assert Commons.get_calc_from_start_or_end(string1) == "12*17", "Failed to get calculation from end"
+        string2 = "cos(tan(12+t+15))"
+        assert Commons.get_calc_from_start_or_end(string2) == "cos(tan(12+", "Failed to get calculation from start"
+        string3 = "hello"
+        assert Commons.get_calc_from_start_or_end(string3) is None, "Did not return None when no calculation found"
+        string4 = "£13.50"
+        assert Commons.get_calc_from_start_or_end(string4) == "13.50", "Failed to get number from end"
+        string5 = "23f234"
+        assert Commons.get_calc_from_start_or_end(string5) == "23", "Function should prioritise calculation at start"
+        string6 = "tasty pie"
+        assert Commons.get_calc_from_start_or_end(string6) == " pie", "Bit weird, but this should work too"
