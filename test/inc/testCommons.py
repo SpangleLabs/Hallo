@@ -15,7 +15,7 @@ class CommonsTest(unittest.TestCase):
             assert not Commons.check_calculation(invalid_str), "Invalid string judged to be calculation, "+invalid_str
 
     def test_check_numbers(self):
-        valid = ["23", "2.123"]
+        valid = ["23", "2.123", " 97", "9 7"]
         invalid = ["127.0.0.1", "cos(12.2)", "tan(sin(atan(cosh(1))))", "pie", "1+2*3/4^5%6", "gamma(17)", "hello",
                    "1&2", "$13.50", "1::", "cos(tan(12+t+15))"]
         for valid_str in valid:
