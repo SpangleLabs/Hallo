@@ -1,8 +1,7 @@
+import re
 import unittest
 
-from Server import Server
 from inc.Commons import Commons
-from test.TestBase import TestBase
 
 
 class CommonsTest(unittest.TestCase):
@@ -73,3 +72,9 @@ class CommonsTest(unittest.TestCase):
         assert chunks6[1] == "..." + "a" * 94 + "...", "Second chunk created incorrectly"
         assert chunks6[2] == "..." + "a" * 94 + "...", "Third chunk created incorrectly"
         assert chunks6[3] == "..."+"a"*((97*3-2)-(94+94+97)), "Forth chunk created incorrectly"
+
+    def test_current_timestamp(self):
+        stamp = Commons.current_timestamp()
+        assert len(stamp) == 10, "Timestamp is the wrong length"
+        pattern = re.compile("^\[(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\]$")
+        assert pattern.match(stamp), "Timestamp is not valid to defined format."
