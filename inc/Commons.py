@@ -194,7 +194,7 @@ class Commons(object):
         :param message: String to check for pure number-ness
         :type message: str
         """
-        message = message.lower()
+        message = message.lower().replace(" ","")
         if message.count(".") > 1:
             return False
         if message.replace(".", "").isdigit():
