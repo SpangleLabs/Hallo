@@ -3,7 +3,7 @@ import unittest
 
 from datetime import timedelta
 
-from inc.Commons import Commons
+from inc.Commons import Commons, ISO8601ParseError
 
 
 class CommonsTest(unittest.TestCase):
@@ -229,3 +229,35 @@ class CommonsTest(unittest.TestCase):
         assert Commons.list_greater([1], [1]) is None
         assert Commons.list_greater([5, 2, 1], [5, 2, 1]) is None
         assert Commons.list_greater([1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9]) is None
+
+    def test_load_time_delta(self):
+        string1 = "20S"
+        try:
+            Commons.load_time_delta(string1)
+            assert False, "String 1 should have failed to parse."
+        except ISO8601ParseError:
+            pass
+        string2 = "P20"
+        try:
+            Commons.load_time_delta(string2)
+            assert False, "String 2 should have failed to parse."
+        except ISO8601ParseError:
+            pass
+        string3 = "P20S"
+        try:
+            Commons.load_time_delta(string3)
+            assert False, "String 3 should have failed to parse."
+        except ISO8601ParseError:
+            pass
+        string4 = "PTS"
+        delta4 = Commons.load_time_delta(string4)
+        assert delta4.seconds == 0, "delta4 seconds set incorrectly."
+        assert delta4.days == 0, "delta4 days set incorrectly."
+        string5 = "P1T1S"
+        delta5 = Commons.load_time_delta(string5)
+        assert delta5.seconds == 1, "delta5 seconds set incorrectly."
+        assert delta5.days == 1, "delta5 days set incorrectly."
+        string6 = "P10T3600S"
+        delta6 = Commons.load_time_delta(string6)
+        assert delta6.seconds == 3600, "delta6 seconds set incorrectly."
+        assert delta6.days == 10, "delta6 days set incorrectly."
