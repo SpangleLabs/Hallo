@@ -206,3 +206,26 @@ class CommonsTest(unittest.TestCase):
             assert Commons.is_string_null(valid_str), "Valid string judged to be not null, "+valid_str
         for invalid_str in invalid:
             assert not Commons.is_string_null(invalid_str), "Invalid string judged to be null, "+invalid_str
+
+    def test_list_greater(self):
+        try:
+            Commons.list_greater([1]*3, [1]*5)
+            assert False, "Function should throw an error if given 2 lists of unequal length."
+        except Exception as e:
+            print(e)
+            pass
+        assert Commons.list_greater([5, 2, 1], [4, 2, 1])
+        assert not Commons.list_greater([4, 2, 1], [5, 2, 1])
+        assert Commons.list_greater([5, 2, 1], [4, 7, 9])
+        assert not Commons.list_greater([4, 7, 9], [5, 2, 1])
+        assert Commons.list_greater([1, 0, 0], [0, 9, 9])
+        assert not Commons.list_greater([0, 9, 9], [1, 0, 0])
+        assert Commons.list_greater([5, 3, 6], [5, 2, 6])
+        assert not Commons.list_greater([5, 2, 6], [5, 3, 6])
+        assert Commons.list_greater([5, 3, 6], [5, 3, 5])
+        assert not Commons.list_greater([5, 3, 5], [5, 3, 6])
+        assert Commons.list_greater([1, 2, 3, 4, 5, 6, 7, 8, 10], [1, 2, 3, 4, 5, 6, 7, 8, 9])
+        assert not Commons.list_greater([1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 10])
+        assert Commons.list_greater([1], [1]) is None
+        assert Commons.list_greater([5, 2, 1], [5, 2, 1]) is None
+        assert Commons.list_greater([1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9]) is None
