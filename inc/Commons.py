@@ -32,11 +32,11 @@ class Commons(object):
 
     @staticmethod
     def chunk_string(string, length):
-        return (string[0 + i:length + i] for i in range(0, len(string), length))
+        return [string[0 + i:length + i] for i in range(0, len(string), length)]
 
     @staticmethod
     def chunk_string_dot(string, length):
-        if len(string) < length:
+        if len(string) <= length:
             return [string]
         else:
             list_of_strings = [string[:length - 3] + '...']
@@ -144,9 +144,9 @@ class Commons(object):
         """
         Returns a string, formatted datetime from a timestamp
         :param time_stamp: unix timestamp
-        :type time_stamp: int | str
+        :type time_stamp: int
         """
-        return str(datetime.datetime.utcfromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S'))
+        return datetime.datetime.utcfromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
 
     @staticmethod
     def load_url_string(url, headers=None):
@@ -194,7 +194,7 @@ class Commons(object):
         :param message: String to check for pure number-ness
         :type message: str
         """
-        message = message.lower()
+        message = message.lower().replace(" ","")
         if message.count(".") > 1:
             return False
         if message.replace(".", "").isdigit():

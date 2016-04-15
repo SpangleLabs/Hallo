@@ -309,6 +309,14 @@ class CalculateTest(TestBase, unittest.TestCase):
                                                   self.test_user, self.test_chan)
         data = self.server.get_send_data(0)
         assert len(data) == 0, "No response should have been received"
+        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, " 97", self.server,
+                                                  self.test_user, self.test_chan)
+        data = self.server.get_send_data(0)
+        assert len(data) == 0, "No response should have been received"
+        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "9 7", self.server,
+                                                  self.test_user, self.test_chan)
+        data = self.server.get_send_data(0)
+        assert len(data) == 0, "No response should have been received"
 
     def test_passive_ip_error(self):
         self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "127.0.0.1", self.server,
