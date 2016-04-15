@@ -163,6 +163,20 @@ class CommonsTest(unittest.TestCase):
         url5 = "http://domains.ninja"
         assert Commons.get_domain_name(url5) == "domains", "Failed to get domain from url5"
 
+    def test_get_random_choice(self):
+        for count in range(1, 3):
+            for max_int in range(2, 10):
+                for min_int in range(1, 5):
+                    if min_int > max_int:
+                        continue
+                    input_list = list(range(min_int, max_int))
+                    rand_list = Commons.get_random_choice(input_list, count)
+                    assert len(rand_list) == count, "Random choice list is the wrong length. " + str(rand_list) + \
+                                                    " not " + str(count) + " elements"
+                    for rand in rand_list:
+                        assert rand in input_list, "Random choice was not in the list. " + \
+                                                   str(rand) + " not in " + str(input_list)
+
     def test_get_random_int(self):
         for count in range(1, 3):
             for max_int in range(2, 10):
