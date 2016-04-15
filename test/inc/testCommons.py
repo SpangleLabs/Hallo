@@ -130,3 +130,35 @@ class CommonsTest(unittest.TestCase):
         assert Commons.get_digits_from_start_or_end(string6) is None, "Should not have got any digits from string"
         string7 = "2e7c"
         assert Commons.get_digits_from_start_or_end(string7) == "2e7", "Function should be able to get e notation"
+
+    def test_domain_name(self):
+        url1 = "https://github.com/joshcoales"
+        assert Commons.get_domain_name(url1) == "github", "Failed to get domain from url1"
+        url2 = "http://spangle.org.uk/things/stuff/hallo.html.com"
+        assert Commons.get_domain_name(url2) == "spangle", "Failed to get domain from url2"
+        url3 = "irc://irc.freenode.net:6666"
+        assert Commons.get_domain_name(url3) == "freenode", "Failed to get domain from url3"
+        url4 = "http://www.longurlmaker.com/go?id=143GetShortyShrtndspread%2Bout1tprotractedlongishYepItlofty1stretch" \
+               "100RedirxMyURL1Sitelutionsspread%2Bout56706Ne1kfar%2Breachingstretchenlarged8U76SimURL01URLvi00distan" \
+               "tr1towering46URLcutNe14m3q5stringy0elongatedremote7RubyURLRubyURL0300lasting52ny54blnk.inRedirx0t0aks" \
+               "tretchedst765330DigBigf14922f8014v03121qeURl.ied99FhURL1MyURLFhURL8sustainedlingeringrunning07bYATUC6" \
+               "8yU7618farawaystretchedxlfarawaySHurlcU760stretched01drangyccmstretchkrunningrremote52ganglingMyURL81" \
+               "outstretchedTraceURL5aenduring60Is.gd5stretch69660Miniliengangling112vYATUC01drawn%2Bout29extensive1U" \
+               "RLcutc03ShredURLfspread%2Boutoutstretched1EzURLTinyURLhigh0301URL7WapURL0u7Redirx5229NutshellURLdrawn" \
+               "%2Boutwcfy68rangy4longish4SitelutionsG8LFwdURLe1stretchNanoRef56running2StartURLspun%2BoutShortURL165" \
+               "MooURL4bTightURL00URLPieprolongedWapURLw0TightURL61runningdistantShorl8951hw2MooURLelongatek8lofty1Ti" \
+               "nyURLc1qMetamark920bgelongate19n103c1dTinyLinkcontinuedlnk.in96591DecentURL0afar%2Breaching81elongish" \
+               "504zremotec0l0e0adistants11high04DecentURL2stretchYATUCSnipURLstringys7b8deepTightURL1PiURLpa7elongat" \
+               "edix0101Shim0Is.gdfar%2BreachingB65f8ctoweringNutshellURLWapURL1v9runningRubyURLURl.ie0ganglingEasyUR" \
+               "L1ShortURL161stringy0h8extensivePiURL14prolongedEzURLt710distant1100rNanoRefh5311450ShrinkURLFwdURL1m" \
+               "stretched119ganglingURLCuttera11fFhURL1b6tallFwdURLdlengthy110spun%2Bout7lastingf49Fly29loftyf5jXil0s" \
+               "pread%2Bout4lengthyrangystretch8up0URL.co.uklingeringegURLHawk48zlengthyb3prolonged58loftyg18drawn%2B" \
+               "outURLCutterURLHawk01cShortlinkshigh4remote1StartURLprolongedURLHawk0z03Shortlinks54gURLvi18elongated" \
+               "EasyURL18elongated04WapURL1lofty51spread%2Bout1Redirx1A2N5411zfar%2Breachingf001prolonged01a4dstretch" \
+               "sustainedoutstretchedShortURL612TraceURLURLvi00lasting28ec1URLcutcstringy827klengthyk1141DigBig9fcSHu" \
+               "rl1Beam.toShorl0tstretchxURLCutterYepItnblasting080stretched1FhURL15rangy1x6600continuedShredURLblnk." \
+               "inelongated00413outstretched0090146stretched589z05stringyc8sdielongatelongish6kprolongedfar%2Breachin" \
+               "gf36ubaTinyURL1TinyLink341028017EasyURLd1runningfar%2Breaching06stretching1U76spun%2Bout1cstretch"
+        assert Commons.get_domain_name(url4) == "longurlmaker", "Failed to get domain from url4"
+        url5 = "http://domains.ninja"
+        assert Commons.get_domain_name(url5) == "domains", "Failed to get domain from url5"
