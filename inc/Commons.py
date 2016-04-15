@@ -194,7 +194,7 @@ class Commons(object):
         :param message: String to check for pure number-ness
         :type message: str
         """
-        message = message.lower().replace(" ","")
+        message = message.lower().replace(" ", "")
         if message.count(".") > 1:
             return False
         if message.replace(".", "").isdigit():
@@ -291,7 +291,8 @@ class Commons(object):
 
     @staticmethod
     def get_random_int(min_int, max_int, count=1):
-        """Returns a list of random integers in a given range
+        """
+        Returns a list of random integers in a given range
         :param min_int: Minimum integer to return
         :type min_int: int
         :param max_int: Maximum integer to return
@@ -300,15 +301,15 @@ class Commons(object):
         :type count: int
         :return: list
         """
-        # Try and get random numbers from random.org
+        # If there's no range, just return a list.
         if min_int == max_int:
-            return [min_int]
-        random_org_url = "https://www.random.org/integers/?num=" + str(count) + "&format=plain&min=" + \
-                         str(min_int) + "&max=" + str(max_int) + "&col=1&base=10"
-        user_agent_headers = [["User-Agent", "Hallo IRCBot hallo@dr-spangle.com"]]
-        api_response = Commons.load_url_string(random_org_url, user_agent_headers)
-        if "Error:" not in api_response:
-            return [int(x) for x in api_response.split("\n") if x != ""]
+            return [min_int] * count
+        # random_org_url = "https://www.random.org/integers/?num=" + str(count) + "&format=plain&min=" + \
+        #                  str(min_int) + "&max=" + str(max_int) + "&col=1&base=10"
+        # user_agent_headers = [["User-Agent", "Hallo IRCBot hallo@dr-spangle.com"]]
+        # api_response = Commons.load_url_string(random_org_url, user_agent_headers)
+        # if "Error:" not in api_response:
+        #     return [int(x) for x in api_response.split("\n") if x != ""]
         # Otherwise, use random module
         output_list = []
         for _ in range(count):
@@ -318,7 +319,7 @@ class Commons(object):
     @staticmethod
     def get_random_choice(choice_list, count=1):
         """
-        Replacement for random.choice, using random.org API
+        Replacement for random.choice
         :param choice_list: List of choices to choose from
         :type choice_list: list
         :param count: Number of choices to pick
