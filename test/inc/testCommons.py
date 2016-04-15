@@ -162,3 +162,16 @@ class CommonsTest(unittest.TestCase):
         assert Commons.get_domain_name(url4) == "longurlmaker", "Failed to get domain from url4"
         url5 = "http://domains.ninja"
         assert Commons.get_domain_name(url5) == "domains", "Failed to get domain from url5"
+
+    def test_get_random_int(self):
+        for count in range(1, 3):
+            for max_int in range(2, 10):
+                for min_int in range(1, 5):
+                    if min_int > max_int:
+                        continue
+                    rand_list = Commons.get_random_int(min_int, max_int, count)
+                    assert len(rand_list) == count, "Random integer list is the wrong length. " + str(rand_list) + \
+                                                    " not " + str(count) + " elements"
+                    for rand in rand_list:
+                        assert rand >= min_int, "Random integer was too small. " + str(rand) + " < " + str(min_int)
+                        assert rand <= max_int, "Random integer was too big. " + str(rand) + " > " + str(max_int)
