@@ -211,8 +211,7 @@ class CommonsTest(unittest.TestCase):
         try:
             Commons.list_greater([1]*3, [1]*5)
             assert False, "Function should throw an error if given 2 lists of unequal length."
-        except Exception as e:
-            print(e)
+        except ValueError:
             pass
         assert Commons.list_greater([5, 2, 1], [4, 2, 1])
         assert not Commons.list_greater([4, 2, 1], [5, 2, 1])

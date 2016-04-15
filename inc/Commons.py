@@ -280,7 +280,7 @@ class Commons(object):
         :type list_two: list
         """
         if len(list_one) != len(list_two):
-            return Exception("Lists must be the same length.")
+            return ValueError("Lists must be the same length.")
         for index in range(len(list_one)):
             if list_one[index] == list_two[index]:
                 continue
