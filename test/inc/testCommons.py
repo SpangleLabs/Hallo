@@ -169,7 +169,7 @@ class CommonsTest(unittest.TestCase):
                 for min_int in range(1, 5):
                     if min_int > max_int:
                         continue
-                    input_list = list(range(min_int, max_int))
+                    input_list = list(range(min_int, max_int+1))
                     rand_list = Commons.get_random_choice(input_list, count)
                     assert len(rand_list) == count, "Random choice list is the wrong length. " + str(rand_list) + \
                                                     " not " + str(count) + " elements"
@@ -189,3 +189,12 @@ class CommonsTest(unittest.TestCase):
                     for rand in rand_list:
                         assert rand >= min_int, "Random integer was too small. " + str(rand) + " < " + str(min_int)
                         assert rand <= max_int, "Random integer was too big. " + str(rand) + " > " + str(max_int)
+
+    def test_is_float_string(self):
+        valid = ["23", "2.123", " 97"]
+        invalid = ["127.0.0.1", "cos(12.2)", "tan(sin(atan(cosh(1))))", "pie", "1+2*3/4^5%6", "gamma(17)", "hello",
+                   "1&2", "$13.50", "1::", "cos(tan(12+t+15))", "9 7"]
+        for valid_str in valid:
+            assert Commons.is_float_string(valid_str), "Valid string judged to be not calculation, "+valid_str
+        for invalid_str in invalid:
+            assert not Commons.is_float_string(invalid_str), "Invalid string judged to be calculation, "+invalid_str
