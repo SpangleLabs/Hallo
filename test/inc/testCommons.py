@@ -195,6 +195,14 @@ class CommonsTest(unittest.TestCase):
         invalid = ["127.0.0.1", "cos(12.2)", "tan(sin(atan(cosh(1))))", "pie", "1+2*3/4^5%6", "gamma(17)", "hello",
                    "1&2", "$13.50", "1::", "cos(tan(12+t+15))", "9 7"]
         for valid_str in valid:
-            assert Commons.is_float_string(valid_str), "Valid string judged to be not calculation, "+valid_str
+            assert Commons.is_float_string(valid_str), "Valid string judged to be not float, "+valid_str
         for invalid_str in invalid:
-            assert not Commons.is_float_string(invalid_str), "Invalid string judged to be calculation, "+invalid_str
+            assert not Commons.is_float_string(invalid_str), "Invalid string judged to be float, "+invalid_str
+
+    def test_is_string_null(self):
+        valid = ['0', 'false', 'off', 'disabled', 'disable', '', 'nul', 'null', 'none', 'nil']
+        invalid = ["true", "enable", "hello", "example", "test"]
+        for valid_str in valid:
+            assert Commons.is_string_null(valid_str), "Valid string judged to be not null, "+valid_str
+        for invalid_str in invalid:
+            assert not Commons.is_string_null(invalid_str), "Invalid string judged to be null, "+invalid_str
