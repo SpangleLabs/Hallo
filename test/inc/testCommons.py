@@ -261,7 +261,7 @@ class CommonsTest(unittest.TestCase):
         assert delta6.seconds == 3600, "delta6 seconds set incorrectly."
         assert delta6.days == 10, "delta6 days set incorrectly."
 
-    def load_url_json(self):
+    def test_load_url_json(self):
         url1 = "https://httpbin.org/get"
         data1 = Commons.load_url_json(url1)
         assert "args" in data1, "Element missing from json dict response."
@@ -276,7 +276,7 @@ class CommonsTest(unittest.TestCase):
         assert "Test header" in data2["headers"], "Header missing from request."
         assert data2["headers"]["Test header"] == "Example data", "Header data missing from request."
 
-    def load_url_string(self):
+    def test_load_url_string(self):
         url1 = "https://httpbin.org/get"
         data1 = Commons.load_url_string(url1)
         data1split = data1.split("\n")
