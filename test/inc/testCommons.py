@@ -275,3 +275,17 @@ class CommonsTest(unittest.TestCase):
         assert "headers" in data2, "Element missing from json response dict."
         assert "Test header" in data2["headers"], "Header missing from request."
         assert data2["headers"]["Test header"] == "Example data", "Header data missing from request."
+
+    def load_url_string(self):
+        url1 = "https://httpbin.org/get"
+        data1 = Commons.load_url_string(url1)
+        data1split = data1.split("\n")
+        assert data1split[0] == "{", "First line incorrect."
+        assert data1split[1] == "  \"args\": {}, ", "String response incorrect."
+        url2 = "https://httpbin.org/headers"
+        headers2 = [["Test header", "Example data"]]
+        data2 = Commons.load_url_json(url2, headers2)
+        data2split = data2.split("\n")
+        assert data2split[0] == "{", "First line incorrect."
+        assert data2split[1] == "  \"headers\": {", "String response incorrect."
+        assert "\"Test header\": \"Example data\"," in data2, "Headers missing from request."
