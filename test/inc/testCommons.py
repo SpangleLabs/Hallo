@@ -260,3 +260,18 @@ class CommonsTest(unittest.TestCase):
         delta6 = Commons.load_time_delta(string6)
         assert delta6.seconds == 3600, "delta6 seconds set incorrectly."
         assert delta6.days == 10, "delta6 days set incorrectly."
+
+    def load_url_json(self):
+        url1 = "https://httpbin.org/get"
+        data1 = Commons.load_url_json(url1)
+        assert "args" in data1, "Element missing from json dict response."
+        assert "headers" in data1, "Element missing from json dict response."
+        assert "origin" in data1, "Element missing from json dict response."
+        assert "url" in data1, "Element missing from json dict response."
+        assert data1["url"] == url1, "JSON data incorrect."
+        url2 = "https://httpbin.org/headers"
+        headers2 = [["Test header", "Example data"]]
+        data2 = Commons.load_url_json(url2, headers2)
+        assert "headers" in data2, "Element missing from json response dict."
+        assert "Test header" in data2["headers"], "Header missing from request."
+        assert data2["headers"]["Test header"] == "Example data", "Header data missing from request."
