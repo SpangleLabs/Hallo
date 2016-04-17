@@ -288,7 +288,7 @@ class CommonsTest(unittest.TestCase):
         data2split = data2.split("\n")
         assert data2split[0] == "{", "First line incorrect."
         assert data2split[1] == "  \"headers\": {", "String response incorrect."
-        assert "\"User-Agent\": \"Example data\"," in data2, "Headers missing from request."
+        assert "\"User-Agent\": \"Example data\"" in data2, "Headers missing from request."
 
     def test_ordinal(self):
         assert Commons.ordinal(1) == "1st", "1st ordinal incorrect."
