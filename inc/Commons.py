@@ -91,9 +91,9 @@ class Commons(object):
         :type string: str
         """
         string = string.lower()
-        if string in [1, '1', 'true', 't', 'yes', 'y', 'on', 'enabled', 'enable']:
+        if string in ['1', 'true', 't', 'yes', 'y', 'on', 'enabled', 'enable']:
             return True
-        if string in [0, '0', 'false', 'f', 'no', 'n', 'off', 'disabled', 'disable']:
+        if string in ['0', 'false', 'f', 'no', 'n', 'off', 'disabled', 'disable']:
             return False
         return None
 

@@ -326,3 +326,14 @@ class CommonsTest(unittest.TestCase):
     def test_string_from_file(self):
         data = Commons.string_from_file("test/inc/test.txt")
         assert data == "test1\ntest2\ntest3\ntest4\ntest5"
+
+    def test_string_to_bool(self):
+        true_list = ['1', 'true', 't', 'yes', 'y', 'on', 'enabled', 'enable']
+        for true_str in true_list:
+            assert Commons.string_to_bool(true_str)
+        false_list = ['0', 'false', 'f', 'no', 'n', 'off', 'disabled', 'disable']
+        for false_str in false_list:
+            assert not Commons.string_to_bool(false_str)
+        invalid_list = ["hello", "test"]
+        for invalid_str in invalid_list:
+            assert Commons.string_to_bool(invalid_str) is None
