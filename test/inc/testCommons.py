@@ -313,3 +313,16 @@ class CommonsTest(unittest.TestCase):
         assert Commons.ordinal(104) == "104th", "104th ordinal incorrect."
         assert Commons.ordinal(111) == "111th", "111th ordinal incorrect."
         assert Commons.ordinal(121) == "121st", "121th ordinal incorrect."
+
+    def test_read_file_to_list(self):
+        data = Commons.read_file_to_list("test/inc/test.txt")
+        assert len(data) == 5
+        assert data[0] == "test1"
+        assert data[1] == "test2"
+        assert data[2] == "test3"
+        assert data[3] == "test4"
+        assert data[4] == "test5"
+
+    def test_string_from_file(self):
+        data = Commons.string_from_file("test/inc/test.txt")
+        assert data == "test1\ntest2\ntest3\ntest4\ntest5"
