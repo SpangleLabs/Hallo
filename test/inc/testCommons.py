@@ -324,8 +324,18 @@ class CommonsTest(unittest.TestCase):
         assert data[4] == "test5"
 
     def test_string_from_file(self):
-        data = Commons.string_from_file("test/inc/test.txt")
-        assert data == "test1\ntest2\ntest3\ntest4\ntest5"
+        true_list = ['1', 'true', 't', 'yes', 'y', 'on', 'enabled', 'enable']
+        for true_str in true_list:
+            assert Commons.string_from_file(true_str)
+        false_list = ['0', 'false', 'f', 'no', 'n', 'off', 'disabled', 'disable']
+        for false_str in false_list:
+            assert not Commons.string_from_file(false_str)
+        null_list = ['', 'nul', 'null', 'none', 'nil']
+        for null_str in null_list:
+            assert Commons.string_from_file(null_str) is None
+        invalid_list = ["hello", "example", "test"]
+        for invalid_str in invalid_list:
+            assert Commons.string_from_file(invalid_str) == invalid_str
 
     def test_string_to_bool(self):
         true_list = ['1', 'true', 't', 'yes', 'y', 'on', 'enabled', 'enable']
@@ -334,6 +344,6 @@ class CommonsTest(unittest.TestCase):
         false_list = ['0', 'false', 'f', 'no', 'n', 'off', 'disabled', 'disable']
         for false_str in false_list:
             assert not Commons.string_to_bool(false_str)
-        invalid_list = ["hello", "test"]
+        invalid_list = ["hello", "example", "test"]
         for invalid_str in invalid_list:
             assert Commons.string_to_bool(invalid_str) is None
