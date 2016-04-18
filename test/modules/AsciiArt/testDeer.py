@@ -9,4 +9,4 @@ class DeerTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch("deer", self.test_user, self.test_user)
         data = self.server.get_send_data()
         assert "error" not in data[0][0], "Deer output should not produce errors."
-        assert len(data) > 1, "Deer output should be multiple lines."
+        assert "\n" in data[0][0], "Deer output should be multiple lines."
