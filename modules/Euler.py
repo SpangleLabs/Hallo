@@ -35,9 +35,9 @@ class Euler(Function):
         else:
             count_solutions = len(
                 [func_name for func_name in dir(self) if func_name[:5] == 'euler' and func_name[5:].isdigit()])
-            output_string = "I'm learning to complete the project Euler programming problems."
+            output_string = "I'm learning to complete the project Euler programming problems. "
             output_string += "I've not done many so far, I've only done " + str(count_solutions) + \
-                             " of the 514 problems."
+                             " of the 514 problems. "
             output_string += "But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, "
             output_string += "say 'Hallo Euler {num}' for the answer to challenge number {num}."
             return output_string
