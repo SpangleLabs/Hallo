@@ -24,3 +24,14 @@ class EulerTest(TestBase, unittest.TestCase):
                                                                     "problem "+prob_num
         assert prob_ans in data[0][0].lower(), "Euler problem "+prob_num+" has incorrect answer. It should return " + \
                                                prob_ans+" but it returns: "+data[0][0]
+
+    def test_euler_2(self):
+        prob_num = "2"
+        prob_ans = "4613732"
+        self.function_dispatcher.dispatch("euler "+prob_num, self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "error" not in data[0][0].lower(), "Euler problem "+prob_num+" throws an error."
+        assert "Euler project problem "+prob_num+"?" in data[0][0], "Problem name is not in output for " \
+                                                                    "problem "+prob_num
+        assert prob_ans in data[0][0].lower(), "Euler problem "+prob_num+" has incorrect answer. It should return " + \
+                                               prob_ans+" but it returns: "+data[0][0]
