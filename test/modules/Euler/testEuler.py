@@ -22,5 +22,5 @@ class EulerTest(TestBase, unittest.TestCase):
         assert "error" not in data[0][0].lower(), "Euler problem "+prob_num+" throws an error."
         assert "Euler project problem "+prob_num+"?" in data[0][0], "Problem name is not in output for " \
                                                                     "problem "+prob_num
-        assert prob_ans in data[0][0].lower(), "Euler problem "+prob_num+" has incorrect answer. It should return "+\
+        assert prob_ans in data[0][0].lower(), "Euler problem "+prob_num+" has incorrect answer. It should return " + \
                                                prob_ans+" but it returns: "+data[0][0]
