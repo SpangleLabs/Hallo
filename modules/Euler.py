@@ -404,7 +404,7 @@ class Euler(Function):
         return triangle
 
     def euler13(self):
-        arr_numbers = open("store/euler/euler_13_numbers.txt", "r").read()[:-1]
+        arr_numbers = open("store/euler/euler_13_numbers.txt", "r").read()[:-1].split("\n")
         total = 0
         for number in arr_numbers:
             total += int(number)
@@ -464,7 +464,7 @@ class Euler(Function):
 
     def euler18(self):
         arr_triangle = open("store/euler/euler_18_triangle.txt", "r").read()[:-1].split("\n")
-        arr_triangle_val = []
+        arr_triangle_val = {}
         for x in range(len(arr_triangle)):
             arr_triangle_val[x] = arr_triangle[x].split()
         for row in range(len(arr_triangle_val) - 2, -1, -1):
