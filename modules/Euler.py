@@ -35,9 +35,9 @@ class Euler(Function):
         else:
             count_solutions = len(
                 [func_name for func_name in dir(self) if func_name[:5] == 'euler' and func_name[5:].isdigit()])
-            output_string = "I'm learning to complete the project Euler programming problems."
+            output_string = "I'm learning to complete the project Euler programming problems. "
             output_string += "I've not done many so far, I've only done " + str(count_solutions) + \
-                             " of the 514 problems."
+                             " of the 514 problems. "
             output_string += "But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, "
             output_string += "say 'Hallo Euler {num}' for the answer to challenge number {num}."
             return output_string
@@ -58,15 +58,15 @@ class Euler(Function):
         function_name = "euler" + number_string
         function_names = [func_name for func_name in dir(self) if func_name[:5] == 'euler' and func_name[5:].isdigit()]
         if function_name not in function_names:
-            return "I don't think I've solved that one yet."
+            return "Error, I don't think I've solved that one yet."
         function_obj = getattr(self, function_name)
         if not hasattr(function_obj, "__call__"):
-            return "That doesn't seem to work."
+            return "Error, That doesn't seem to work."
         try:
             output_string = "Euler project problem " + number_string + "? I think the answer is: " + str(
                 function_obj()) + "."
         except Exception as e:
-            output_string = "Hmm, seems that one doesn't work... darnit."
+            output_string = "Hmm, seems that one has an error... darnit."
             print("EULER ERROR: " + str(e))
         return output_string
 
