@@ -72,7 +72,7 @@ class Euler(Function):
 
     def check_prime(self, input_number):
         check_prime = input_number
-        if check_prime <= 0:
+        if check_prime <= 1:
             return False
         for j in range(2, int(math.floor(math.sqrt(check_prime))) + 1):
             if check_prime % j == 0:
@@ -1267,7 +1267,7 @@ class Euler(Function):
     def euler67(self):
         # this is the same as  problem 18, but bigger file.
         arr_triangle = open("store/euler/euler_67_triangle.txt", "r").read()[:-1].split("\n")
-        arr_triangle_val = []
+        arr_triangle_val = {}
         for x in range(len(arr_triangle)):
             arr_triangle_val[x] = arr_triangle[x].split()
         for row in range(len(arr_triangle_val) - 2, -1, -1):
