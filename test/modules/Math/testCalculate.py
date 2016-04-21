@@ -323,3 +323,13 @@ class CalculateTest(TestBase, unittest.TestCase):
                                                   self.test_user, self.test_chan)
         data = self.server.get_send_data(0)
         assert len(data) == 0, "No response should have happened."
+
+    def test_ee(self):
+        self.function_dispatcher.dispatch("calc ee", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert data[0][0] != "0", "Improper processing of constants."
+        assert data[0][0][:5] == "7.389", "Incorrect answer produced by e*e calculation."
+        self.function_dispatcher.dispatch("calc pipi", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert data[0][0] != "0", "Improper processing of constants."
+        assert data[0][0][:5] == "9.869", "Incorrect answer produced by pi*pi calculation."
