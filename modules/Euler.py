@@ -305,7 +305,9 @@ class Euler(Function):
         return prime
 
     def euler8(self):
-        string = open("store/euler/euler_8_string.txt", "r").read()[:-1]
+        string_file = open("store/euler/euler_8_string.txt", "r")
+        string = string_file.read()[:-1]
+        string_file.close()
         biggest_product = 0
         while len(string) >= 13:
             substring = string[0:13]
@@ -341,7 +343,9 @@ class Euler(Function):
         return prime_sum
 
     def euler11(self):
-        raw_box = open("store/euler/euler_11_grid.txt").read()[:-1]
+        raw_box_file = open("store/euler/euler_11_grid.txt", "r")
+        raw_box = raw_box_file.read()[:-1]
+        raw_box_file.close()
         arr_box = raw_box.split()
         biggest_product = 0
         answer_x = 0
@@ -404,7 +408,9 @@ class Euler(Function):
         return triangle
 
     def euler13(self):
-        arr_numbers = open("store/euler/euler_13_numbers.txt", "r").read()[:-1].split("\n")
+        arr_numbers_file = open("store/euler/euler_13_numbers.txt", "r")
+        arr_numbers = arr_numbers_file.read()[:-1].split("\n")
+        arr_numbers_file.close()
         total = 0
         for number in arr_numbers:
             total += int(number)
@@ -463,7 +469,9 @@ class Euler(Function):
         return total
 
     def euler18(self):
-        arr_triangle = open("store/euler/euler_18_triangle.txt", "r").read()[:-1].split("\n")
+        arr_triangle_file = open("store/euler/euler_18_triangle.txt", "r")
+        arr_triangle = arr_triangle_file.read()[:-1].split("\n")
+        arr_triangle_file.close()
         arr_triangle_val = {}
         for x in range(len(arr_triangle)):
             arr_triangle_val[x] = arr_triangle[x].split()
@@ -527,7 +535,9 @@ class Euler(Function):
         return total
 
     def euler22(self):
-        raw_names = open("store/euler/euler_22_names.txt", "r").read()[:-1]
+        raw_names_file = open("store/euler/euler_22_names.txt", "r")
+        raw_names = raw_names_file.read()[:-1]
+        raw_names_file.close()
         arr_names = sorted(raw_names.replace('"', '').split(','))
         total = 0
         name_name = 0
@@ -915,7 +925,9 @@ class Euler(Function):
         return max_pandigital_prime
 
     def euler42(self):
-        file_string = open("store/euler/euler_42_words.txt", "r").read()[:-1]
+        file_string_file = open("store/euler/euler_42_words.txt", "r")
+        file_string = file_string_file.read()[:-1]
+        file_string_file.close()
         words = [word.replace('"', '') for word in file_string.split(',')]
         longest_word = max(words, key=len)
         triangles = []
@@ -1119,7 +1131,9 @@ class Euler(Function):
         return num
 
     def euler54(self):
-        list_poker_games = open("store/euler/euler_54_poker.txt", "r").read().split("\n")
+        list_poker_games_file = open("store/euler/euler_54_poker.txt", "r")
+        list_poker_games = list_poker_games_file.read().split("\n")
+        list_poker_games_file.close()
         total_wins = 0
         for poker_game in list_poker_games:
             deck = Deck()
@@ -1189,7 +1203,9 @@ class Euler(Function):
 
     def euler59(self):
         # Get cipher data
-        raw = open("store/euler/euler_59_cipher.txt", "r").read()
+        raw_file = open("store/euler/euler_59_cipher.txt", "r")
+        raw = raw_file.read()
+        raw_file.close()
         raw_list = [int(x) for x in raw.split(",")]
         # Get 3 blank lists, to unzip the list into
         list_one = []
@@ -1266,7 +1282,9 @@ class Euler(Function):
 
     def euler67(self):
         # this is the same as  problem 18, but bigger file.
-        arr_triangle = open("store/euler/euler_67_triangle.txt", "r").read()[:-1].split("\n")
+        arr_triangle_file = open("store/euler/euler_67_triangle.txt", "r")
+        arr_triangle = arr_triangle_file.read()[:-1].split("\n")
+        arr_triangle_file.close()
         arr_triangle_val = {}
         for x in range(len(arr_triangle)):
             arr_triangle_val[x] = arr_triangle[x].split()
