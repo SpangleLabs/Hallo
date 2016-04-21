@@ -348,7 +348,7 @@ class CalculateTest(TestBase, unittest.TestCase):
         assert "3.141" in data[0][0], "Pi should be in response."
         assert "=3.141" in data[0][0], "Answer should be pi."
         assert "not right" not in data[0][0], "This calculation (pi=acos(-1)) is right."
-        self.function_dispatcher.dispatch("calc circle constant=pi")
+        self.function_dispatcher.dispatch("calc circle constant=pi", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
         assert "3.141" in data[0][0], "Pi should have been evaluated."
         assert "circle constant=3.141" in data[0][0], "Text should have been left unchanged."
