@@ -444,7 +444,9 @@ class Calculate(Function):
                     ans_parts.append(calc_part)
             answer = '='.join(ans_parts)
             # Check if all number results are equal.
-            if not number_answers or number_answers.count(number_answers[0]) == len(number_answers):
+            if not number_answers:
+                answer += "\nWait, there's no calculation there..."
+            if number_answers and number_answers.count(number_answers[0]) != len(number_answers):
                 answer += "\n" + "Wait, that's not right..."
             return answer
         # If there's no equals signs, collapse it all together
