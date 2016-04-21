@@ -333,3 +333,34 @@ class CalculateTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
         assert data[0][0] != "0", "Improper processing of constants."
         assert data[0][0][:5] == "9.869", "Incorrect answer produced by pi*pi calculation."
+
+    def test_equals(self):
+        self.function_dispatcher.dispatch("calc 2+2=4", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "4=4" in data[0][0], "Answer was not correctly found."
+        assert "not right" not in data[0][0], "This calculation (2+2=4) is right."
+        self.function_dispatcher.dispatch("calc 2+2=5", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "4=5" in data[0][0], "Answer was not correctly calculated."
+        assert "not right" in data[0][0], "This calculation (2+2=5) is not right."
+        self.function_dispatcher.dispatch("calc pi=acos(-1)", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "3.141" in data[0][0], "Pi should be in response."
+        assert "=3.141" in data[0][0], "Answer should be pi."
+        assert "not right" not in data[0][0], "This calculation (pi=acos(-1)) is right."
+        self.function_dispatcher.dispatch("calc circle constant=pi")
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "3.141" in data[0][0], "Pi should have been evaluated."
+        assert "circle constant=3.141" in data[0][0], "Text should have been left unchanged."
+        assert "not right" not in data[0][0], "Numbers are not incorrect here."
+        assert "no calculation" not in data[0][0], "There is a calculation here."
+        self.function_dispatcher.dispatch("calc hello=goodbye", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "hello=goodbye" in data[0][0], "Text should not be changed."
+        assert "no calculation" in data[0][0], "There is no calculation here."
+        assert "not right" not in data[0][0], "Should not say a user's non-calculation text is not right."
+        self.function_dispatcher.dispatch("calc x=2+2=y=5", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "x=4=y=5" in data[0][0], "Calculation should have been parsed and ran."
+        assert "no calculation" not in data[0][0], "There is a calculation here."
+        assert "not right" in data[0][0], "Not all numbers here are the same, they are not equal."
