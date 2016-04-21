@@ -550,6 +550,11 @@ class Calculate(Function):
         return [running_calc, temp_answer]
 
     def process_calculation(self, calc):
+        """
+        :param calc: Calculation to parse
+        :type calc: str
+        :return:
+        """
         # Swapping "x" for "*"
         calc = calc.replace("x", "*")
         # constant evaluation
@@ -559,7 +564,7 @@ class Calculate(Function):
                 temp_answer = '*' + str(temp_answer)
             if self.after_infix(calc, 'pi') != '':
                 temp_answer = str(temp_answer) + '*'
-            calc = calc.replace('pi', str(temp_answer))
+            calc = calc.replace('pi', str(temp_answer), 1)
             del temp_answer
         while calc.count('e') != 0:
             temp_answer = math.e
@@ -567,7 +572,7 @@ class Calculate(Function):
                 temp_answer = '*' + str(temp_answer)
             if self.after_infix(calc, 'e') != '':
                 temp_answer = str(temp_answer) + '*'
-            calc = calc.replace('e', str(temp_answer))
+            calc = calc.replace('e', str(temp_answer), 1)
             del temp_answer
         # bracket processing
         if calc.count(")-") != 0:
