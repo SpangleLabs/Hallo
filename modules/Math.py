@@ -444,7 +444,9 @@ class Calculate(Function):
                     ans_parts.append(calc_part)
             answer = '='.join(ans_parts)
             # Check if all number results are equal.
-            if not number_answers or number_answers.count(number_answers[0]) == len(number_answers):
+            if not number_answers:
+                answer += "\nWait, there's no calculation there..."
+            if number_answers and number_answers.count(number_answers[0]) != len(number_answers):
                 answer += "\n" + "Wait, that's not right..."
             return answer
         # If there's no equals signs, collapse it all together
@@ -550,6 +552,11 @@ class Calculate(Function):
         return [running_calc, temp_answer]
 
     def process_calculation(self, calc):
+        """
+        :param calc: Calculation to parse
+        :type calc: str
+        :return:
+        """
         # Swapping "x" for "*"
         calc = calc.replace("x", "*")
         # constant evaluation
@@ -559,7 +566,7 @@ class Calculate(Function):
                 temp_answer = '*' + str(temp_answer)
             if self.after_infix(calc, 'pi') != '':
                 temp_answer = str(temp_answer) + '*'
-            calc = calc.replace('pi', str(temp_answer))
+            calc = calc.replace('pi', str(temp_answer), 1)
             del temp_answer
         while calc.count('e') != 0:
             temp_answer = math.e
@@ -567,7 +574,7 @@ class Calculate(Function):
                 temp_answer = '*' + str(temp_answer)
             if self.after_infix(calc, 'e') != '':
                 temp_answer = str(temp_answer) + '*'
-            calc = calc.replace('e', str(temp_answer))
+            calc = calc.replace('e', str(temp_answer), 1)
             del temp_answer
         # bracket processing
         if calc.count(")-") != 0:
