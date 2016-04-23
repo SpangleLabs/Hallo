@@ -68,34 +68,6 @@ class Alarm(Function):
         return 'woo woooooo woooooo ' + line + ' wooo wooo!'
 
 
-class ArcticTerns(Function):
-    """
-    Posts a link to a random image of an arctic tern.
-    """
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        super().__init__()
-        # Name for use in help listing
-        self.help_name = "arctic tern"
-        # Names which can be used to address the function
-        self.names = {"arctic tern", "arctic terns", "mods asleep", "arctictern", "arcticterns", "mods"}
-        # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Alarm. Format: alarm <subject>"
-
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
-        if line_clean in ['nap', 'napping', 'plush']:
-            number = Commons.get_random_int(0, 1)
-            link = 'http://dr-spangle.com/AT/N0' + str(number) + '.JPG'
-            return 'Plush arctic terns! ' + link
-        number = Commons.get_random_int(0, 61)
-        link = 'http://dr-spangle.com/AT/' + str(number).zfill(2) + '.JPG'
-        return 'Arctic terns!! ' + link
-
-
 class SlowClap(Function):
     """
     Makes hallo do a slow clap in the current or specified channel.
