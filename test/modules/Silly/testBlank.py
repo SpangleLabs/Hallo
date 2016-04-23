@@ -4,7 +4,7 @@ from Server import Server
 from test.TestBase import TestBase
 
 
-class AlarmTest(TestBase, unittest.TestCase):
+class BlankTest(TestBase, unittest.TestCase):
 
     def test_blank_empty(self):
         self.function_dispatcher.dispatch("", self.test_user, self.test_user)
