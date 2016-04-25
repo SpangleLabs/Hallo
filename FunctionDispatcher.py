@@ -47,6 +47,8 @@ class FunctionDispatcher(object):
         server_obj = destination_obj.get_server()
         # Find the function name. Try joining each amount of words in the message until you find a valid function name
         function_message_split = function_message.split()
+        if not function_message_split:
+            function_message_split = [""]
         function_class_test = None
         function_args_test = ""
         for function_name_test in [' '.join(function_message_split[:x + 1]) for x in
