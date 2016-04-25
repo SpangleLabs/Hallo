@@ -129,7 +129,7 @@ class Boop(Function):
         """Boops people. Format: boop <name>"""
         line_clean = line.strip().lower()
         if line_clean == '':
-            return "This function boops people, as such you need to specify a person for me to boop, " \
+            return "Error, this function boops people, as such you need to specify a person for me to boop, " \
                    "in the form 'Hallo boop <name>' but without the <> brackets."
         # Get useful objects
         server_obj = user_obj.get_server()
@@ -139,7 +139,7 @@ class Boop(Function):
         if len(line_split) == 1:
             dest_user_obj = server_obj.get_user_by_name(line_clean)
             if dest_user_obj is None or not dest_user_obj.is_online():
-                return "No one by that name is online."
+                return "Error, No one by that name is online."
             server_obj.send("\x01ACTION boops " + dest_user_obj.get_name() + ".\x01", destination_obj)
             return "Done."
         # If two arguments, see if one is a channel and the other a user.
@@ -153,10 +153,10 @@ class Boop(Function):
                 dest_channel = channel_test_2
                 dest_user = server_obj.get_user_by_name(line_split[0])
             else:
-                return "I'm not in any channel by that name."
+                return "Error, I'm not in any channel by that name."
         # If user by that name is not online, return a message saying that.
         if not dest_user.is_online():
-            return "No user by that name is online."
+            return "Error, No user by that name is online."
         # Send boop, then return done.
         server_obj.send("\x01ACTION boops " + dest_user.get_name() + ".\x01", dest_channel)
         return "Done."
