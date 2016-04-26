@@ -132,7 +132,7 @@ class Boop(Function):
             return "Error, this function boops people, as such you need to specify a person for me to boop, " \
                    "in the form 'Hallo boop <name>' but without the <> brackets."
         # Get useful objects
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         # Split arguments, see how many there are.
         line_split = line_clean.split()
         # If one argument, check that the user is in the current channel.
@@ -140,16 +140,16 @@ class Boop(Function):
             dest_user_obj = server_obj.get_user_by_name(line_clean)
             if not dest_user_obj.online or dest_user_obj not in destination_obj.user_list:
                 return "Error, No one by that name is online or in channel."
-            server_obj.send("\x01ACTION boops " + dest_user_obj.get_name() + ".\x01", destination_obj)
+            server_obj.send("\x01ACTION boops " + dest_user_obj.name + ".\x01", destination_obj)
             return "Done."
         # If two arguments, see if one is a channel and the other a user.
         channel_test_1 = server_obj.get_channel_by_name(line_split[0])
-        if channel_test_1.is_in_channel():
+        if channel_test_1.in_channel:
             dest_channel = channel_test_1
             dest_user = server_obj.get_user_by_name(line_split[1])
         else:
             channel_test_2 = server_obj.get_channel_by_name(line_split[1])
-            if channel_test_2.is_in_channel():
+            if channel_test_2.in_channel:
                 dest_channel = channel_test_2
                 dest_user = server_obj.get_user_by_name(line_split[0])
             else:
@@ -158,7 +158,7 @@ class Boop(Function):
         if not dest_user.online or dest_user not in dest_channel.user_list:
             return "Error, No user by that name is online."
         # Send boop, then return done.
-        server_obj.send("\x01ACTION boops " + dest_user.get_name() + ".\x01", dest_channel)
+        server_obj.send("\x01ACTION boops " + dest_user.name + ".\x01", dest_channel)
         return "Done."
 
 
