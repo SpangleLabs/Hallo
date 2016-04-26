@@ -176,8 +176,8 @@ class ReplyMessage:
 
     def check_destination(self, destination_obj):
         """Checks if a given destination should be responded to."""
-        server_name = destination_obj.get_server().get_name().lower()
-        channel_name = destination_obj.get_name().lower()
+        server_name = destination_obj.server.name.lower()
+        channel_name = destination_obj.name.lower()
         # If a whitelist is set, check that
         if len(self.whitelist) != 0:
             if server_name in self.whitelist and channel_name in self.whitelist[server_name]:
@@ -193,9 +193,9 @@ class ReplyMessage:
         if self.prompt.search(input_line):
             # Pick a response
             response = Commons.get_random_choice(self.response_list)[0]
-            response = response.replace("{USER}", user_obj.get_name())
-            response = response.replace("{CHANNEL}", destination_obj.get_name())
-            response = response.replace("{SERVER}", user_obj.get_server().get_name())
+            response = response.replace("{USER}", user_obj.name)
+            response = response.replace("{CHANNEL}", destination_obj.name)
+            response = response.replace("{SERVER}", user_obj.server.name)
             return response
         return None
 
