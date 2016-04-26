@@ -1,3 +1,4 @@
+from Destination import Destination
 from Function import Function
 from inc.Commons import Commons
 import time
@@ -79,27 +80,27 @@ class SlowClap(Function):
         """
         super().__init__()
         # Name for use in help listing
-        help_name = "slowclap"
+        self.help_name = "slowclap"
         # Names which can be used to address the function
-        names = {"slowclap", "slow clap"}
+        self.names = {"slowclap", "slow clap"}
         # Help documentation, if it's just a single line, can be set here
-        help_docs = "Slowclap. Format: slowclap"
+        self.help_docs = "Slowclap. Format: slowclap"
 
     def run(self, line, user_obj, destination_obj=None):
         line_clean = line.strip().lower()
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         if line_clean == "":
-            if destination_obj is not None:
+            if destination_obj.type == Destination.TYPE_CHANNEL:
                 server_obj.send("*clap*", destination_obj)
                 time.sleep(0.5)
                 server_obj.send("*clap*", destination_obj)
                 time.sleep(2)
                 return '*clap.*'
             else:
-                return "You want me to slowclap yourself?"
+                return "Error, you want me to slowclap yourself?"
         channel_obj = server_obj.get_channel_by_name(line_clean)
-        if not channel_obj.is_in_channel():
-            return "I'm not in that channel."
+        if not channel_obj.in_channel:
+            return "Error, I'm not in that channel."
         server_obj.send("*clap*", channel_obj)
         time.sleep(0.5)
         server_obj.send("*clap*", channel_obj)
