@@ -2,6 +2,7 @@ import re
 import unittest
 
 from modules.Silly import ReplyMessage
+from test.ServerMock import ServerMock
 from test.TestBase import TestBase
 
 
@@ -93,4 +94,44 @@ class ReplyMessageTest(unittest.TestCase):
         pass
 
     def test_check_destination(self):
-        pass
+        serv_name1 = "test_serv1"
+        serv_name2 = "test_serv2"
+        serv_name3 = "test_serv3"
+        chan_name1 = "test_chan1"
+        chan_name2 = "test_chan2"
+        chan_name3 = "test_chan3"
+        chan_name4 = "test_chan4"
+        chan_name5 = "test_chan5"
+        # Set up test destinations
+        serv1 = ServerMock(None)
+        serv2 = ServerMock(None)
+        serv3 = ServerMock(None)
+        serv1.name = serv_name1
+        serv2.name = serv_name2
+        serv3.name = serv_name3
+        chan1 = serv1.get_channel_by_name(chan_name1)
+        chan2 = serv1.get_channel_by_name(chan_name2)
+        chan3 = serv2.get_channel_by_name(chan_name3)
+        chan4 = serv3.get_channel_by_name(chan_name4)
+        chan5 = serv3.get_channel_by_name(chan_name5)
+        # Check when no whitelist or blacklist
+        rm = ReplyMessage("test")
+        assert rm.check_destination(chan1), "check_destination() not working without list"
+        assert rm.check_destination(chan2), "check_destination() not working without list"
+        assert rm.check_destination(chan3), "check_destination() not working without list"
+        assert rm.check_destination(chan4), "check_destination() not working without list"
+        assert rm.check_destination(chan5), "check_destination() not working without list"
+        # Add a blacklist for a specific channel on a specific server
+        rm.add_blacklist(serv_name1, chan_name1)
+        assert not rm.check_destination(chan1), "check_destination() not working with blacklist"
+        assert rm.check_destination(chan2), "check_destination() not working with blacklist"
+        assert rm.check_destination(chan3), "check_destination() not working with blacklist"
+        assert rm.check_destination(chan4), "check_destination() not working with blacklist"
+        assert rm.check_destination(chan5), "check_destination() not working with blacklist"
+        # Add a whitelist for a specific channel on a specific server
+        rm.add_whitelist(serv_name3, chan_name5)
+        assert not rm.check_destination(chan1), "check_destination() not working with blacklist"
+        assert not rm.check_destination(chan2), "check_destination() not working with blacklist"
+        assert not rm.check_destination(chan3), "check_destination() not working with blacklist"
+        assert not rm.check_destination(chan4), "check_destination() not working with blacklist"
+        assert rm.check_destination(chan5), "check_destination() not working with blacklist"
