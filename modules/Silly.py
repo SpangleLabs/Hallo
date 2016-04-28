@@ -355,7 +355,7 @@ class Reply(Function):
         self.help_docs = "Make hallo reply to a detected phrase with a specified response."
 
     def run(self, line, user_obj, destination_obj=None):
-        return "Not yet handled."
+        return "Error, Not yet handled."
         pass
 
     def get_passive_events(self):
