@@ -1,6 +1,9 @@
 import re
 import unittest
+import urllib.request
 
+from Function import Function
+from Server import Server
 from modules.Silly import ReplyMessage, ReplyMessageList
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
@@ -8,8 +11,122 @@ from test.TestBase import TestBase
 
 class ReplyTest(TestBase, unittest.TestCase):
 
-    def test_reply(self):
-        pass
+    def test_run(self):
+        self.function_dispatcher.dispatch("reply", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "error" in data[0][0].lower()
+
+    def test_reply_passive(self):
+        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "beep",
+                                                  self.server, self.test_user, self.test_chan)
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "boop" == data[0][0].lower()
+
+    def test_reply_beep(self):
+        reply_func = self.function_dispatcher.get_function_by_name("reply")
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        # Check beep/boop works
+        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "beep",
+                                         self.server, self.test_user, self.test_chan)
+        assert response == "boop"
+        # Check that it doesn't respond if beep is in the message
+        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "it goes beep",
+                                         self.server, self.test_user, self.test_chan)
+        assert response is None
+
+    def test_reply_pew(self):
+        reply_func = self.function_dispatcher.get_function_by_name("reply")
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        # Check pewpew
+        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "pew",
+                                         self.server, self.test_user, self.test_chan)
+        assert response == "pew pew"
+        # Check blacklist
+        serv1 = ServerMock(None)
+        serv1.name = "canternet"
+        chan1 = serv1.get_channel_by_name("#ukofequestria")
+        user1 = serv1.get_user_by_name("test_user")
+        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "pew",
+                                         serv1, user1, chan1)
+        assert response is None
+
+    def test_reply_haskell(self):
+        reply_func = self.function_dispatcher.get_function_by_name("reply")
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        # Check haskell.jpg
+        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "haskell.jpg",
+                                         self.server, self.test_user, self.test_chan)
+        assert response is None
+        # Check on correct channel
+        serv1 = ServerMock(None)
+        serv1.name = "shadowworld"
+        chan1 = serv1.get_channel_by_name("#ecco-the-dolphin")
+        user1 = serv1.get_user_by_name("test_user")
+        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "haskell.jpg",
+                                         serv1, user1, chan1)
+        assert "http" in response.lower()
+        assert "haskell.jpg" in response.lower()
+        # Check image exists
+        page_request = urllib.request.Request(response)
+        page_opener = urllib.request.build_opener()
+        response_data = page_opener.open(page_request).read()
+        assert len(response) > 0, "haskell.jpg image does not exist."
+
+    def test_reply_podbay_doors(self):
+        reply_func = self.function_dispatcher.get_function_by_name("reply")
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        # Check pod bay doors
+        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "open the pod bay doors hallo.",
+                                         self.server, self.test_user, self.test_chan)
+        assert self.test_user.name in response
+        assert "i'm sorry" in response.lower()
+        assert "afraid i cannot do that" in response.lower()
+
+    def test_reply_irc_client(self):
+        reply_func = self.function_dispatcher.get_function_by_name("reply")
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        # Check irc client response
+        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "Which IRC client should I use?",
+                                         self.server, self.test_user, self.test_chan)
+        assert "irssi" in response
+        assert "hexchat" in response
+        assert "mibbit" in response
+
+    def test_reply_who_hallo(self):
+        reply_func = self.function_dispatcher.get_function_by_name("reply")
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        # Check what is hallo response
+        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "What is hallo?",
+                                         self.server, self.test_user, self.test_chan)
+        assert "built by dr-spangle" in response
+
+    def test_reply_mfw(self):
+        reply_func = self.function_dispatcher.get_function_by_name("reply")
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        # Check MFW produces response
+        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "MFW",
+                                         self.server, self.test_user, self.test_chan)
+        assert "http" in response
+        # Check multiple times
+        for _ in range(10):
+            response = reply_obj.passive_run(Function.EVENT_MESSAGE, "MFW",
+                                             self.server, self.test_user, self.test_chan)
+            assert "http" in response
+            response_url = "http" + response.split("http")[1]
+            page_request = urllib.request.Request(response_url)
+            page_opener = urllib.request.build_opener()
+            resp_data = page_opener.open(page_request).read()
+            assert len(resp_data) > 0
+            # Check upper case url
+            urls = re.findall("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+                              response_url)
+            data = response_url.upper()
+            for url in urls:
+                response_url = response_url.replace(url.upper(), url)
+            page_request = urllib.request.Request(response_url)
+            page_opener = urllib.request.build_opener()
+            resp_data_upper = page_opener.open(page_request).read()
+            assert len(resp_data_upper) > 0
 
 
 class ReplyMessageTest(unittest.TestCase):
