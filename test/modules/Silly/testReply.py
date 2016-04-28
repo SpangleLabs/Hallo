@@ -91,7 +91,37 @@ class ReplyMessageTest(unittest.TestCase):
         assert "test_chan3" in rm.blacklist["test_serv2"]
 
     def test_check_response(self):
-        pass
+        # Setup common testing objects
+        serv1 = ServerMock(None)
+        serv1.name = "test_serv1"
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        user1 = serv1.get_user_by_name("test_user1")
+        # Test basic response works
+        rm1 = ReplyMessage("test")
+        rm1.add_response("response")
+        assert rm1.check_response("just a test", user1, chan1) == "response"
+        # Test regex pattern match
+        rm2 = ReplyMessage("\\btest[0-9]+\\b")
+        rm2.add_response("response")
+        assert rm2.check_response("random testing", user1, chan1) is None
+        assert rm2.check_response("random test here", user1, chan1) is None
+        assert rm2.check_response("this is test3 I think", user1, chan1) == "response"
+        assert rm2.check_response("this is test4", user1, chan1) == "response"
+        # Test multi-response works
+        rm3 = ReplyMessage("test")
+        rm3.add_response("response1")
+        rm3.add_response("response2")
+        rm3.add_response("response3")
+        found_responses = set()
+        for _ in range(50):
+            response = rm3.check_response("another test", user1, chan1)
+            found_responses.add(response)
+            assert response in ["response1", "response2", "response3"]
+        assert len(found_responses) > 1
+        # Test replacements
+        rm4 = ReplyMessage("test")
+        rm4.add_response("response {USER} {CHANNEL} {SERVER}")
+        assert rm4.check_response("test", user1, chan1) == "response test_user1 test_chan1 test_serv1"
 
     def test_check_destination(self):
         serv_name1 = "test_serv1"
