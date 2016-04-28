@@ -463,11 +463,7 @@ class ServerIRC(Server):
             user_obj = None
         # Find out if destination wants caps lock
         if destination_obj.is_upper_case():
-            # Find any URLs, convert line to uppercase, then convert URLs back to original
-            urls = re.findall("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", data)
-            data = data.upper()
-            for url in urls:
-                data = data.replace(url.upper(), url)
+            data = Commons.upper(data)
         # Get max line length
         max_line_length = self.MAX_MSG_LENGTH - len(msg_type_name + ' ' + destination_name + ' :' + endl)
         # Split and send

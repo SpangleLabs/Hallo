@@ -4,6 +4,7 @@ import urllib.request
 
 from Function import Function
 from Server import Server
+from inc.Commons import Commons
 from modules.Silly import ReplyMessage, ReplyMessageList
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
@@ -118,12 +119,8 @@ class ReplyTest(TestBase, unittest.TestCase):
             resp_data = page_opener.open(page_request).read()
             assert len(resp_data) > 0
             # Check upper case url
-            urls = re.findall("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
-                              response_url)
-            data = response_url.upper()
-            for url in urls:
-                response_url = response_url.replace(url.upper(), url)
-            page_request = urllib.request.Request(response_url)
+            response_url_upper = Commons.upper(response_url)
+            page_request = urllib.request.Request(response_url_upper)
             page_opener = urllib.request.build_opener()
             resp_data_upper = page_opener.open(page_request).read()
             assert len(resp_data_upper) > 0

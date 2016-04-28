@@ -347,3 +347,7 @@ class CommonsTest(unittest.TestCase):
         invalid_list = ["hello", "example", "test"]
         for invalid_str in invalid_list:
             assert Commons.string_to_bool(invalid_str) is None
+
+    def test_upper(self):
+        assert Commons.upper("test words") == "TEST WORDS"
+        assert Commons.upper("test http://google.com url") == "TEST http://google.com URL"
