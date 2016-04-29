@@ -280,6 +280,41 @@ class ReplyMessageTest(unittest.TestCase):
         assert not rm.check_destination(chan4), "check_destination() not working with blacklist"
         assert rm.check_destination(chan5), "check_destination() not working with blacklist"
 
+    def test_xml(self):
+        rm1_regex = "\\btest[0-9]+\\b"
+        rm1_resp1 = "response1"
+        rm1_resp2 = "response2 {USER} {CHANNEL} {SERVER}"
+        rm1_resp3 = "<response>"
+        rm1_serv1 = "serv1"
+        rm1_serv2 = "serv2"
+        rm1_serv3 = "serv3"
+        rm1_chan1 = "chan1"
+        rm1_chan2 = "chan2"
+        rm1_chan3 = "chan3"
+        rm1 = ReplyMessage(rm1_regex)
+        rm1.add_response(rm1_resp1)
+        rm1.add_response(rm1_resp2)
+        rm1.add_response(rm1_resp3)
+        rm1.add_whitelist(rm1_serv1, rm1_chan1)
+        rm1.add_blacklist(rm1_serv2, rm1_chan2)
+        rm1.add_blacklist(rm1_serv3, rm1_chan3)
+        rm1_xml = rm1.to_xml()
+        rm1_obj = ReplyMessage.from_xml(rm1_xml)
+        assert rm1_obj.prompt.pattern == rm1.prompt.pattern
+        assert len(rm1_obj.response_list) == len(rm1.response_list)
+        for resp in rm1_obj.response_list:
+            assert resp in rm1.response_list
+        assert len(rm1_obj.whitelist) == len(rm1.whitelist)
+        for white_serv in rm1_obj.whitelist:
+            assert white_serv in rm1.whitelist
+            for white_chan in rm1_obj.whitelist[white_serv]:
+                assert white_chan in rm1.whitelist[white_serv]
+        assert len(rm1_obj.blacklist) == len(rm1.blacklist)
+        for black_serv in rm1_obj.blacklist:
+            assert black_serv in rm1.blacklist
+            for black_chan in rm1_obj.blacklist[black_serv]:
+                assert black_chan in rm1.whitelist[black_serv]
+
 
 class ReplyMessageListTest(unittest.TestCase):
 
