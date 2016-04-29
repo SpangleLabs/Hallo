@@ -180,7 +180,7 @@ class RssFeed:
         if server is None:
             server = hallo.get_server_by_name(self.server_name)
             if server is None:
-                return "Invalid server."
+                return "Error, invalid server."
         # Get destination
         if destination is None:
             if self.channel_name is not None:
@@ -188,10 +188,10 @@ class RssFeed:
             if self.user_name is not None:
                 destination = server.get_user_by_name(self.user_name)
             if destination is None:
-                return "Invalid destination."
+                return "Error, invalid destination."
         # Construct output
         output = self.format_item(rss_item)
-        destination.send(output)
+        server.send(output, destination)
         return output
 
     def format_item(self, rss_item):
