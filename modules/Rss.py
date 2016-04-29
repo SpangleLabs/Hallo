@@ -154,17 +154,17 @@ class RssFeed:
         title_elem = channel_elem.find("title")
         self.title = title_elem.text
         # Loop elements, seeing when any match the last item's hash
-        first_hash = None
+        latest_hash = None
         for item_elem in channel_elem.findall("item"):
             item_xml = ElementTree.tostring(item_elem)
             item_hash = hashlib.md5(item_xml.encode("utf-8")).hexdigest()
-            if first_hash is None:
-                first_hash = item_hash
+            if latest_hash is None:
+                latest_hash = item_hash
             if item_hash == self.last_item_hash:
                 break
             new_items.append(item_elem)
         # Update last item hash
-        self.last_item_hash = first_hash
+        self.last_item_hash = latest_hash
         # Return new items
         return new_items
 
