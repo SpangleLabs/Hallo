@@ -359,7 +359,7 @@ class FeedCheck(Function):
         for rss_feed in self.rss_feed_list.get_feed_list():
             new_items = rss_feed.check_feed()
             for rss_item in new_items:
-                output_lines.append(rss_feed.format_item(rss_item))
+                output_lines.append(rss_feed.output_item(rss_item))
         # Remove duplicate entries from output_lines
         output_lines = list(set(output_lines))
         # Output response to user
