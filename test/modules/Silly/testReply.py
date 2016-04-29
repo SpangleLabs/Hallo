@@ -313,7 +313,7 @@ class ReplyMessageTest(unittest.TestCase):
         for black_serv in rm1_obj.blacklist:
             assert black_serv in rm1.blacklist
             for black_chan in rm1_obj.blacklist[black_serv]:
-                assert black_chan in rm1.whitelist[black_serv]
+                assert black_chan in rm1.blacklist[black_serv]
 
 
 class ReplyMessageListTest(unittest.TestCase):
