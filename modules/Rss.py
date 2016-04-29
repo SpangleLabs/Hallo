@@ -332,22 +332,11 @@ class FeedCheck(Function):
     def run(self, line, user_obj, destination_obj=None):
         # Handy variables
         server = user_obj.get_server()
-        hallo = server.get_hallo()
         # Clean up input
         clean_input = line.strip().lower()
         # Check whether input is asking to update all feeds
         if clean_input in self.NAMES_ALL:
-            output_lines = []
-            for rss_feed in self.rss_feed_list.get_feed_list():
-                new_items = rss_feed.check_feed()
-                for rss_item in new_items:
-                    output_lines.append(rss_feed.output_item(rss_item, hallo))
-            # Remove duplicate entries from output_lines
-            output_lines = list(set(output_lines))
-            # Output response to user
-            if len(output_lines) == 0:
-                return "There were no feed updates."
-            return "The following feed updates were found:\n" + "\n".join(output_lines)
+            return self.run_all()
         # Otherwise see if a feed title matches the specified one
         matching_feeds = self.rss_feed_list.get_feeds_by_title(clean_input, server, destination_obj)
         if len(matching_feeds) == 0:
@@ -357,13 +346,27 @@ class FeedCheck(Function):
         for rss_feed in matching_feeds:
             new_items = rss_feed.check_feed()
             for rss_item in new_items:
-                output_lines.append(rss_feed.output_item(rss_item, hallo))
+                output_lines.append(rss_feed.format_item(rss_item))
         # Remove duplicate entries from output_lines
         output_lines = list(set(output_lines))
         # Output response to user
         if len(output_lines) == 0:
             return "There were no updates for \"" + line + "\" RSS feed."
         return "The following feed updates were found:\n" + "\n".join(output_lines)
+
+    def run_all(self):
+        output_lines = []
+        for rss_feed in self.rss_feed_list.get_feed_list():
+            new_items = rss_feed.check_feed()
+            for rss_item in new_items:
+                output_lines.append(rss_feed.format_item(rss_item))
+        # Remove duplicate entries from output_lines
+        output_lines = list(set(output_lines))
+        # Output response to user
+        if len(output_lines) == 0:
+            return "There were no feed updates."
+        return "The following feed updates were found and posted to their registered destinations:\n" + \
+               "\n".join(output_lines)
 
     def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
         """
