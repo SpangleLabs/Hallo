@@ -20,7 +20,24 @@ class TestRssFeed(unittest.TestCase):
             assert key in rf.__dict__, "Key is missing from RssFeed object: " + key
 
     def test_check_feed(self):
-        pass
+        # Check loading up an example feed
+        test_rss_url = "http://spangle.org.uk/hallo/test_rss.xml"
+        rf = RssFeed()
+        rf.url = test_rss_url
+        new_items = rf.check_feed()
+        assert rf.title == "Example rss feed"
+        assert len(new_items) == 3
+        for new_item in new_items:
+            format_item = rf.format_item(new_item)
+            assert "Item 1" in format_item or \
+                   "Item 2" in format_item or \
+                   "Item 3" in format_item, "Item name not in formatted item: " + format_item
+            assert "example.com/item1" in format_item or \
+                   "example.com/item2" in format_item or \
+                   "example.com/item3" in format_item, "Item link not in formatted item: " + format_item
+        # Check that calling twice returns no more items
+        next_items = rf.check_feed()
+        assert len(next_items) == 0, "More items should not have been found."
 
     def test_format_item(self):
         feed_title = "feed_title1"
@@ -200,7 +217,9 @@ class TestRssFeed(unittest.TestCase):
         assert "destination" in resp.lower()
 
     def test_to_xml(self):
+        assert False
         pass
 
     def test_from_xml(self):
+        assert False
         pass
