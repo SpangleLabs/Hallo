@@ -157,9 +157,7 @@ class RssFeed:
         latest_hash = None
         for item_elem in channel_elem.findall("item"):
             item_xml = ElementTree.tostring(item_elem)
-            print(item_xml)
             item_hash = hashlib.md5(item_xml).hexdigest()
-            print(item_hash)
             if latest_hash is None:
                 latest_hash = item_hash
             if item_hash == self.last_item_hash:
@@ -168,7 +166,6 @@ class RssFeed:
         # Update last item hash
         self.last_item_hash = latest_hash
         # Return new items
-        print(new_items)
         return new_items
 
     def output_item(self, rss_item, hallo, server=None, destination=None):
