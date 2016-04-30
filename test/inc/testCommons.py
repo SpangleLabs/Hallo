@@ -302,17 +302,17 @@ class CommonsTest(unittest.TestCase):
         assert Commons.ordinal(13) == "13th", "13th ordinal incorrect."
         assert Commons.ordinal(14) == "14th", "14th ordinal incorrect."
         assert Commons.ordinal(20) == "20th", "20th ordinal incorrect."
-        assert Commons.ordinal(21) == "21st", "21th ordinal incorrect."
-        assert Commons.ordinal(22) == "22nd", "22th ordinal incorrect."
-        assert Commons.ordinal(23) == "23rd", "23th ordinal incorrect."
+        assert Commons.ordinal(21) == "21st", "21st ordinal incorrect."
+        assert Commons.ordinal(22) == "22nd", "22nd ordinal incorrect."
+        assert Commons.ordinal(23) == "23rd", "23rd ordinal incorrect."
         assert Commons.ordinal(24) == "24th", "24th ordinal incorrect."
         assert Commons.ordinal(100) == "100th", "100th ordinal incorrect."
-        assert Commons.ordinal(101) == "101st", "101th ordinal incorrect."
-        assert Commons.ordinal(102) == "102nd", "102th ordinal incorrect."
-        assert Commons.ordinal(103) == "103rd", "103th ordinal incorrect."
+        assert Commons.ordinal(101) == "101st", "101st ordinal incorrect."
+        assert Commons.ordinal(102) == "102nd", "102nd ordinal incorrect."
+        assert Commons.ordinal(103) == "103rd", "103rd ordinal incorrect."
         assert Commons.ordinal(104) == "104th", "104th ordinal incorrect."
         assert Commons.ordinal(111) == "111th", "111th ordinal incorrect."
-        assert Commons.ordinal(121) == "121st", "121th ordinal incorrect."
+        assert Commons.ordinal(121) == "121st", "121st ordinal incorrect."
 
     def test_read_file_to_list(self):
         data = Commons.read_file_to_list("test/inc/test.txt")
@@ -347,3 +347,7 @@ class CommonsTest(unittest.TestCase):
         invalid_list = ["hello", "example", "test"]
         for invalid_str in invalid_list:
             assert Commons.string_to_bool(invalid_str) is None
+
+    def test_upper(self):
+        assert Commons.upper("test words") == "TEST WORDS"
+        assert Commons.upper("test http://google.com url") == "TEST http://google.com URL"

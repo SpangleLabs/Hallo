@@ -17,13 +17,16 @@ class TestBase(unittest.TestCase):
                                                       self.hallo)
         self.hallo.function_dispatcher = self.function_dispatcher
         self.server = ServerMock(self.hallo)
+        self.server.name = "mock-server"
         # self.server = unittest.mock.Mock()
         self.hallo.server_list = [self.server]
         # send shit in, check shit out
         self.hallo_thread = Thread(target=self.hallo.start,)
         self.hallo_thread.start()
         self.test_user = self.server.get_user_by_name("test")
+        self.test_user.online = True
         self.test_chan = self.server.get_channel_by_name("#test")
+        self.test_chan.in_channel = True
         # Wait until hallo is open
         count = 0
         while not self.hallo.open:

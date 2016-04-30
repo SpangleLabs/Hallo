@@ -47,7 +47,9 @@ class ServerMock(Server):
         if exp_lines is not None:
             assert len(out_data) == exp_lines, "Wrong amount of data received: " + str(out_data)
         if dest_obj is not None:
-            assert all(out_data[x][1] == dest_obj for x in range(len(out_data))), "Incorrect destination for data"
+            assert all(out_data[x][1] == dest_obj for x in range(len(out_data))), "Incorrect destination for data" + \
+                                                                                  str(out_data)
         if msg_type is not None:
-            assert all(out_data[x][2] == msg_type for x in range(len(out_data))), "Incorrect message type for data"
+            assert all(out_data[x][2] == msg_type for x in range(len(out_data))), "Incorrect message type for data" + \
+                                                                                  str(out_data)
         return out_data

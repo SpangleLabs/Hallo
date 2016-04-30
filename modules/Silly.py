@@ -1,3 +1,4 @@
+from Destination import Destination
 from Function import Function
 from inc.Commons import Commons
 import time
@@ -79,27 +80,27 @@ class SlowClap(Function):
         """
         super().__init__()
         # Name for use in help listing
-        help_name = "slowclap"
+        self.help_name = "slowclap"
         # Names which can be used to address the function
-        names = {"slowclap", "slow clap"}
+        self.names = {"slowclap", "slow clap"}
         # Help documentation, if it's just a single line, can be set here
-        help_docs = "Slowclap. Format: slowclap"
+        self.help_docs = "Slowclap. Format: slowclap"
 
     def run(self, line, user_obj, destination_obj=None):
         line_clean = line.strip().lower()
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         if line_clean == "":
-            if destination_obj is not None:
+            if destination_obj.type == Destination.TYPE_CHANNEL:
                 server_obj.send("*clap*", destination_obj)
                 time.sleep(0.5)
                 server_obj.send("*clap*", destination_obj)
                 time.sleep(2)
                 return '*clap.*'
             else:
-                return "You want me to slowclap yourself?"
+                return "Error, you want me to slowclap yourself?"
         channel_obj = server_obj.get_channel_by_name(line_clean)
-        if not channel_obj.is_in_channel():
-            return "I'm not in that channel."
+        if not channel_obj.in_channel:
+            return "Error, I'm not in that channel."
         server_obj.send("*clap*", channel_obj)
         time.sleep(0.5)
         server_obj.send("*clap*", channel_obj)
@@ -129,36 +130,36 @@ class Boop(Function):
         """Boops people. Format: boop <name>"""
         line_clean = line.strip().lower()
         if line_clean == '':
-            return "This function boops people, as such you need to specify a person for me to boop, " \
+            return "Error, this function boops people, as such you need to specify a person for me to boop, " \
                    "in the form 'Hallo boop <name>' but without the <> brackets."
         # Get useful objects
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         # Split arguments, see how many there are.
         line_split = line_clean.split()
         # If one argument, check that the user is in the current channel.
         if len(line_split) == 1:
             dest_user_obj = server_obj.get_user_by_name(line_clean)
-            if dest_user_obj is None or not dest_user_obj.is_online():
-                return "No one by that name is online."
-            server_obj.send("\x01ACTION boops " + dest_user_obj.get_name() + ".\x01", destination_obj)
+            if not dest_user_obj.online or dest_user_obj not in destination_obj.user_list:
+                return "Error, No one by that name is online or in channel."
+            server_obj.send("\x01ACTION boops " + dest_user_obj.name + ".\x01", destination_obj)
             return "Done."
         # If two arguments, see if one is a channel and the other a user.
         channel_test_1 = server_obj.get_channel_by_name(line_split[0])
-        if channel_test_1.is_in_channel():
+        if channel_test_1.in_channel:
             dest_channel = channel_test_1
             dest_user = server_obj.get_user_by_name(line_split[1])
         else:
             channel_test_2 = server_obj.get_channel_by_name(line_split[1])
-            if channel_test_2.is_in_channel():
+            if channel_test_2.in_channel:
                 dest_channel = channel_test_2
                 dest_user = server_obj.get_user_by_name(line_split[0])
             else:
-                return "I'm not in any channel by that name."
+                return "Error, I'm not in any channel by that name."
         # If user by that name is not online, return a message saying that.
-        if not dest_user.is_online():
-            return "No user by that name is online."
+        if not dest_user.online or dest_user not in dest_channel.user_list:
+            return "Error, No user by that name is online."
         # Send boop, then return done.
-        server_obj.send("\x01ACTION boops " + dest_user.get_name() + ".\x01", dest_channel)
+        server_obj.send("\x01ACTION boops " + dest_user.name + ".\x01", dest_channel)
         return "Done."
 
 
@@ -175,8 +176,8 @@ class ReplyMessage:
 
     def check_destination(self, destination_obj):
         """Checks if a given destination should be responded to."""
-        server_name = destination_obj.get_server().get_name().lower()
-        channel_name = destination_obj.get_name().lower()
+        server_name = destination_obj.server.name.lower()
+        channel_name = destination_obj.name.lower()
         # If a whitelist is set, check that
         if len(self.whitelist) != 0:
             if server_name in self.whitelist and channel_name in self.whitelist[server_name]:
@@ -192,9 +193,9 @@ class ReplyMessage:
         if self.prompt.search(input_line):
             # Pick a response
             response = Commons.get_random_choice(self.response_list)[0]
-            response = response.replace("{USER}", user_obj.get_name())
-            response = response.replace("{CHANNEL}", destination_obj.get_name())
-            response = response.replace("{SERVER}", user_obj.get_server().get_name())
+            response = response.replace("{USER}", user_obj.name)
+            response = response.replace("{CHANNEL}", destination_obj.name)
+            response = response.replace("{SERVER}", user_obj.server.name)
             return response
         return None
 
@@ -354,7 +355,7 @@ class Reply(Function):
         self.help_docs = "Make hallo reply to a detected phrase with a specified response."
 
     def run(self, line, user_obj, destination_obj=None):
-        return "Not yet handled."
+        return "Error, Not yet handled."
         pass
 
     def get_passive_events(self):
