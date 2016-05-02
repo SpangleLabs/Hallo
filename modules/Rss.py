@@ -89,7 +89,7 @@ class RssFeedList:
         root_elem = ElementTree.Element("rss_feeds")
         # Add all feed elements
         for rss_feed_obj in self.feed_list:
-            new_feed_elem = rss_feed_obj.to_xml_string()
+            new_feed_elem = ElementTree.fromstring(rss_feed_obj.to_xml_string())
             root_elem.append(new_feed_elem)
         # Write xml to file
         ElementTree.ElementTree(root_elem).write("store/rss_feeds.xml")
