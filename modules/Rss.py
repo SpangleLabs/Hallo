@@ -32,13 +32,6 @@ class RssFeedList:
         """
         self.feed_list.remove(remove_feed)
 
-    def get_feed_list(self):
-        """
-        Returns the full list of RSS feeds
-        :return: array
-        """
-        return self.feed_list
-
     def get_feeds_by_destination(self, server, destination):
         """
         Returns a list of feeds matching a specified destination.
@@ -356,7 +349,7 @@ class FeedCheck(Function):
 
     def run_all(self):
         output_lines = []
-        for rss_feed in self.rss_feed_list.get_feed_list():
+        for rss_feed in self.rss_feed_list.feed_list:
             new_items = rss_feed.check_feed()
             for rss_item in new_items:
                 output_lines.append(rss_feed.output_item(rss_item))
@@ -379,7 +372,7 @@ class FeedCheck(Function):
         """
         hallo = server_obj.get_hallo()
         # Check through all feeds to see which need updates
-        for rss_feed in self.rss_feed_list.get_feed_list():
+        for rss_feed in self.rss_feed_list.feed_list:
             # Only check those which have been too long since last check
             if rss_feed.needs_check():
                 # Get new items
