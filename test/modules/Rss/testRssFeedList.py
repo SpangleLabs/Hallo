@@ -171,3 +171,23 @@ class TestRssFeedList(unittest.TestCase):
         rfl.remove_feed(rf1)
         assert len(rfl.feed_list) == 1
         assert rfl.feed_list[0] == rf2
+
+    def test_xml(self):
+        # Setup a feed list
+        rfl = RssFeedList()
+        rf1 = RssFeed()
+        rf1.url = "http://spangle.org.uk/hallo/test_feed.xml?1"
+        rf1.title = "test_feed1"
+        rfl.add_feed(rf1)
+        rf2 = RssFeed()
+        rf2.url = "http://spangle.org.uk/hallo/test_feed.xml?2"
+        rf2.title = "test_feed2"
+        rfl.add_feed(rf2)
+        rf3 = RssFeed()
+        rf3.url = "http://spangle.org.uk/hallo/test_feed.xml?3"
+        rf3.title = "test_feed3"
+        rfl.add_feed(rf3)
+        # Save to XML and load
+        rfl.to_xml()
+        new_rfl = RssFeedList.from_xml()
+        assert len(new_rfl) == 3
