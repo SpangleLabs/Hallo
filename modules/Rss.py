@@ -32,55 +32,50 @@ class RssFeedList:
         """
         self.feed_list.remove(remove_feed)
 
-    def get_feeds_by_destination(self, server, destination):
+    def get_feeds_by_destination(self, destination):
         """
         Returns a list of feeds matching a specified destination.
-        :param server: Server that the RssFeed is posting to
-        :type server: Server.Server
         :param destination: Channel or User which RssFeed is posting to
         :type destination: Destination.Destination
         :return: list<RssFeed> list of RssFeeds matching destination
         """
         matching_feeds = []
         for rss_feed in self.feed_list:
-            if server.get_name() != rss_feed.server_name.lower():
+            if destination.server.name != rss_feed.server_name.lower():
                 continue
-            if destination.is_channel() and destination.get_name() != rss_feed.channel_name:
+            if destination.is_channel() and destination.name != rss_feed.channel_name:
                 continue
-            if destination.is_user() and destination.get_name() != rss_feed.user_name:
+            if destination.is_user() and destination.name != rss_feed.user_name:
                 continue
             matching_feeds.append(rss_feed)
         return matching_feeds
 
-    def get_feeds_by_title(self, title, server, destination):
+    def get_feeds_by_title(self, title, destination):
         """
         Returns a list of feeds matching a specified title
         :param title: Title of the RssFeed being searched for
         :type title: str
-        :param server: Server that the RssFeed is posting to
-        :type server: Server.Server
         :param destination: Channel or User which RssFeed is posting to
         :type destination: Destination.Destination
         :return: list<RssFeed>
         """
         title_clean = title.lower().strip()
         matching_feeds = []
-        for rss_feed in self.get_feeds_by_destination(server, destination):
+        for rss_feed in self.get_feeds_by_destination(destination):
             if title_clean == rss_feed.title.lower().strip():
                 matching_feeds.append(rss_feed)
         return matching_feeds
 
-    def get_feeds_by_url(self, url, server, destination):
+    def get_feeds_by_url(self, url, destination):
         """
         Returns a list of feeds matching a specified title
         :param url: URL of RSS feed to search for
-        :param server: Server that the RssFeed is posting to
         :param destination: Channel or User which RssFeed is posting to
         :return: list<RssFeed> List of RSS feeds matching specified URL
         """
         url_clean = url.strip()
         matching_feeds = []
-        for rss_feed in self.get_feeds_by_destination(server, destination):
+        for rss_feed in self.get_feeds_by_destination(destination):
             if url_clean == rss_feed.url.strip():
                 matching_feeds.append(rss_feed)
         return matching_feeds
@@ -331,7 +326,7 @@ class FeedCheck(Function):
         if clean_input in self.NAMES_ALL:
             return self.run_all()
         # Otherwise see if a feed title matches the specified one
-        matching_feeds = self.rss_feed_list.get_feeds_by_title(clean_input, server, destination_obj)
+        matching_feeds = self.rss_feed_list.get_feeds_by_title(clean_input, destination_obj)
         if len(matching_feeds) == 0:
             return "No Rss Feeds match that name. If you're adding a new feed, use \"rss add\" with your link."
         output_lines = []
@@ -472,7 +467,7 @@ class FeedRemove(Function):
         # Clean up input
         clean_input = line.strip()
         # Find any feeds with specified title
-        test_feeds = rss_feed_list.get_feeds_by_title(clean_input.lower(), server, destination_obj)
+        test_feeds = rss_feed_list.get_feeds_by_title(clean_input.lower(), destination_obj)
         if len(test_feeds) == 1:
             rss_feed_list.remove(test_feeds[0])
             return "Removed \"" + test_feeds[0].title + "\" RSS feed. Updates will no longer be sent to " \
@@ -480,7 +475,7 @@ class FeedRemove(Function):
         if len(test_feeds) > 1:
             return "There is more than 1 rss feed in this channel by that name. Try specifying by URL."
         # Otherwise, zero results, so try hunting by url
-        test_feeds = rss_feed_list.get_feeds_by_url(clean_input, server, destination_obj)
+        test_feeds = rss_feed_list.get_feeds_by_url(clean_input, destination_obj)
         if len(test_feeds) == 0:
             return "There are no RSS feeds in this channel matching that name or URL."
         for test_feed in test_feeds:
@@ -514,7 +509,7 @@ class FeedList(Function):
         feed_check_function = function_dispatcher.get_function_by_name("rss check")
         rss_feed_list = feed_check_function.rss_feed_list
         # Find list of feeds for current channel.
-        dest_feeds = rss_feed_list.get_feeds_by_destination(server, destination_obj)
+        dest_feeds = rss_feed_list.get_feeds_by_destination(destination_obj)
         if len(destination_obj) == 0:
             return "There are no RSS feeds posting to this destination."
         output_lines = ["RSS feeds posting to this channel:"]
