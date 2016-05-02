@@ -178,16 +178,25 @@ class TestRssFeedList(unittest.TestCase):
         rf1 = RssFeed()
         rf1.url = "http://spangle.org.uk/hallo/test_feed.xml?1"
         rf1.title = "test_feed1"
+        rf1.update_frequency = Commons.load_time_delta("P0T3600S")
+        rf1.server_name = "test_serv1"
+        rf1.channel_name = "test_chan1"
         rfl.add_feed(rf1)
         rf2 = RssFeed()
         rf2.url = "http://spangle.org.uk/hallo/test_feed.xml?2"
         rf2.title = "test_feed2"
+        rf2.update_frequency = Commons.load_time_delta("P1TS")
+        rf2.server_name = "test_serv2"
+        rf2.channel_name = "test_chan2"
         rfl.add_feed(rf2)
         rf3 = RssFeed()
         rf3.url = "http://spangle.org.uk/hallo/test_feed.xml?3"
         rf3.title = "test_feed3"
+        rf3.update_frequency = Commons.load_time_delta("PT60S")
+        rf3.server_name = "test_serv3"
+        rf3.user_name = "test_user3"
         rfl.add_feed(rf3)
         # Save to XML and load
         rfl.to_xml()
         new_rfl = RssFeedList.from_xml()
-        assert len(new_rfl) == 3
+        assert len(new_rfl.feed_list) == 3
