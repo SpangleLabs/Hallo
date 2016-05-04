@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from inc.Commons import Commons
@@ -197,6 +198,20 @@ class TestRssFeedList(unittest.TestCase):
         rf3.user_name = "test_user3"
         rfl.add_feed(rf3)
         # Save to XML and load
-        rfl.to_xml()
-        new_rfl = RssFeedList.from_xml()
-        assert len(new_rfl.feed_list) == 3
+        try:
+            try:
+                os.rename("store/rss_feeds.xml", "store/rss_feeds.xml.tmp")
+            except FileNotFoundError:
+                pass
+            rfl.to_xml()
+            new_rfl = RssFeedList.from_xml()
+            assert len(new_rfl.feed_list) == 3
+        finally:
+            try:
+                os.remove("store/rss_feeds.xml")
+            except FileNotFoundError:
+                pass
+            try:
+                os.rename("store/rss_feeds.xml.tmp", "store/rss_feeds.xml")
+            except FileNotFoundError:
+                pass

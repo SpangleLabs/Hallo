@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from Server import Server
@@ -9,9 +10,19 @@ from test.TestBase import TestBase
 class FeedCheckTest(TestBase, unittest.TestCase):
 
     def test_init(self):
-        fc = FeedCheck()
-        assert fc.rss_feed_list is not None
-        assert fc.rss_feed_list.feed_list == []
+        try:
+            try:
+                os.rename("store/rss_feeds.xml", "store/rss_feeds.xml.tmp")
+            except FileNotFoundError:
+                pass
+            fc = FeedCheck()
+            assert fc.rss_feed_list is not None
+            assert fc.rss_feed_list.feed_list == []
+        finally:
+            try:
+                os.rename("store/rss_feeds.xml.tmp", "store/rss_feeds.xml")
+            except FileNotFoundError:
+                pass
 
     def test_save_function(self):
         fc = FeedCheck()
