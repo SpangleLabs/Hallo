@@ -106,7 +106,7 @@ class BestPony(Function):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         clean_line = full_line.lower()
         if "who" in clean_line and ("best pony" in clean_line or "bestpony" in clean_line):

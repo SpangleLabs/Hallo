@@ -362,7 +362,7 @@ class Reply(Function):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         reply_message_list = ReplyMessageList.load_from_xml()
         response = reply_message_list.get_response(full_line, user_obj, channel_obj)

@@ -913,7 +913,7 @@ class HigherOrLower(Function):
         output_string += '"higher_or_lower end" to quit the game.'
         return output_string
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         clean_line = full_line.strip().lower()
         if any(cmd in clean_line for cmd in self.END_CMDS):
@@ -1128,7 +1128,7 @@ class Blackjack(Function):
         output_string += 'and "blackjack end" to quit the game.'
         return output_string
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         clean_line = full_line.strip().lower()
         if any(cmd in clean_line for cmd in self.END_CMDS):
@@ -1447,7 +1447,7 @@ class DDR(Function):
         output_string = "Invalid difficulty mode. Please specify easy, medium or hard."
         return output_string
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         full_line = full_line.strip().lower()
         if any(cmd in full_line for cmd in self.JOIN_CMDS):

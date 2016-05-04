@@ -58,12 +58,14 @@ class Function(metaclass=ABCMeta):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return set()
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot.
         :param event: Event which has called the function
         :type event: str
         :param full_line: Full user input line which came with the event
         :type full_line: str
+        :param hallo_obj: Hallo object which fired the event.
+        :type hallo_obj: Hallo.Hallo
         :param server_obj: Server object which fired the event, or none if server independent
         :type server_obj: Server.Server | None
         :param user_obj: User which triggered the event, or none if not user triggered

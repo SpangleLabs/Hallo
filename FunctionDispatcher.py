@@ -109,7 +109,7 @@ class FunctionDispatcher(object):
             function_obj = self.get_function_object(function_class)
             # Try running the function, if it fails, return an error message
             try:
-                response = function_obj.passive_run(event, full_line, server_obj, user_obj, channel_obj)
+                response = function_obj.passive_run(event, full_line, self.hallo, server_obj, user_obj, channel_obj)
                 if response is not None:
                     if destination_obj is not None and server_obj is not None:
                         server_obj.send(response, destination_obj)
