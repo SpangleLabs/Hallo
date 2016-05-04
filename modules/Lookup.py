@@ -162,7 +162,7 @@ class InSpace(Function):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         clean_line = full_line.lower()
         if "in space" in clean_line and ("who" in clean_line or "how many" in clean_line):
@@ -787,7 +787,7 @@ class UrlDetect(Function):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {Function.EVENT_MESSAGE}
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         # Get hallo object for stuff to use
         self.hallo_obj = server_obj.get_hallo()

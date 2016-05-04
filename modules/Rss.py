@@ -315,7 +315,7 @@ class FeedCheck(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_PING}
+        return {Function.EVENT_MINUTE}
 
     def run(self, line, user_obj, destination_obj=None):
         # Handy variables
@@ -356,11 +356,12 @@ class FeedCheck(Function):
         return "The following feed updates were found and posted to their registered destinations:\n" + \
                "\n".join(output_lines)
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """
         Replies to an event not directly addressed to the bot.
         :param event: string
         :param full_line: string
+        :param hallo_obj: Hallo
         :param server_obj: Server
         :param user_obj: User
         :param channel_obj: Channel
@@ -374,7 +375,7 @@ class FeedCheck(Function):
                 new_items = rss_feed.check_feed()
                 # Output all new items
                 for rss_item in new_items:
-                    rss_feed.output_item(rss_item, hallo)
+                    rss_feed.output_item(rss_item, hallo_obj)
 
 
 class FeedAdd(Function):

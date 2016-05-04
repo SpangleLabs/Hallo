@@ -947,7 +947,7 @@ class Convert(Function):
     def get_passive_events(self):
         return {Function.EVENT_MESSAGE}
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         return self.convert_parse(full_line, True)
 
 
@@ -1000,7 +1000,7 @@ class UpdateCurrencies(Function):
     def get_passive_events(self):
         return {Function.EVENT_HOUR}
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         # Load convert repo.
         repo = ConvertRepo.load_from_xml()
         # Update with the European Bank

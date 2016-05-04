@@ -193,7 +193,7 @@ class Foof(Function):
         self.names.add(self.help_name)
         return self.names
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         # Check if message matches any variation of foof
         if re.search(r'foo[o]*f[!]*', full_line, re.I):
@@ -387,7 +387,7 @@ class NightValeWeather(Function):
         # Return video information
         return "And now, the weather: http://youtu.be/" + rand_video['video_id'] + " " + rand_video['title']
 
-    def passive_run(self, event, full_line, server_obj, user_obj=None, channel_obj=None):
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         line_clean = full_line.lower().strip()
         # Get hallo's current name
