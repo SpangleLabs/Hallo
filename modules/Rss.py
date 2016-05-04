@@ -315,7 +315,7 @@ class FeedCheck(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_PING}
+        return {Function.EVENT_MINUTE}
 
     def run(self, line, user_obj, destination_obj=None):
         # Handy variables
