@@ -1,6 +1,5 @@
 import unittest
 
-from Server import Server
 from modules.Rss import FeedCheck
 from test.TestBase import TestBase
 
@@ -17,7 +16,25 @@ class FeedCheckTest(TestBase, unittest.TestCase):
         # Mock out the rss feed list
         mfl = MockRssFeedList()
         fc.rss_feed_list = mfl
+        fc.save_function()
         assert mfl.to_xml_called
+
+    def test_run_all(self):
+        assert False
+        # Test running all feed updates
+        # Test running with no new updates.
+
+    def test_run_by_title(self):
+        assert False
+        # Invalid title
+        # Correct title check update
+        # Correct title but wrong channel
+        # No updates
+
+    def test_run_passive(self):
+        assert False
+        # Test running all feed updates
+        # Test running with no new updates
 
 
 class MockRssFeedList:
