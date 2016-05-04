@@ -366,7 +366,6 @@ class FeedCheck(Function):
         :param user_obj: User
         :param channel_obj: Channel
         """
-        hallo = server_obj.get_hallo()
         # Check through all feeds to see which need updates
         for rss_feed in self.rss_feed_list.feed_list:
             # Only check those which have been too long since last check
