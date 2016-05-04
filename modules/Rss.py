@@ -319,12 +319,12 @@ class FeedCheck(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Handy variables
-        server = user_obj.get_server()
+        hallo = user_obj.server.hallo
         # Clean up input
         clean_input = line.strip().lower()
         # Check whether input is asking to update all feeds
         if clean_input in self.NAMES_ALL:
-            return self.run_all()
+            return self.run_all(hallo)
         # Otherwise see if a feed title matches the specified one
         matching_feeds = self.rss_feed_list.get_feeds_by_title(clean_input, destination_obj)
         if len(matching_feeds) == 0:
@@ -342,12 +342,12 @@ class FeedCheck(Function):
             return "There were no updates for \"" + line + "\" RSS feed."
         return "The following feed updates were found:\n" + "\n".join(output_lines)
 
-    def run_all(self):
+    def run_all(self, hallo):
         output_lines = []
         for rss_feed in self.rss_feed_list.feed_list:
             new_items = rss_feed.check_feed()
             for rss_item in new_items:
-                output_lines.append(rss_feed.output_item(rss_item))
+                output_lines.append(rss_feed.output_item(rss_item, hallo))
         # Remove duplicate entries from output_lines
         output_lines = list(set(output_lines))
         # Output response to user
