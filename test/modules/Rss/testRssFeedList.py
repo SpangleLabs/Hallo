@@ -201,7 +201,7 @@ class TestRssFeedList(unittest.TestCase):
         try:
             try:
                 os.rename("store/rss_feeds.xml", "store/rss_feeds.xml.tmp")
-            except FileNotFoundError:
+            except OSError:
                 pass
             rfl.to_xml()
             new_rfl = RssFeedList.from_xml()
@@ -209,9 +209,9 @@ class TestRssFeedList(unittest.TestCase):
         finally:
             try:
                 os.remove("store/rss_feeds.xml")
-            except FileNotFoundError:
+            except OSError:
                 pass
             try:
                 os.rename("store/rss_feeds.xml.tmp", "store/rss_feeds.xml")
-            except FileNotFoundError:
+            except OSError:
                 pass

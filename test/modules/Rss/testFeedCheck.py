@@ -14,7 +14,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
         try:
             try:
                 os.rename("store/rss_feeds.xml", "store/rss_feeds.xml.tmp")
-            except FileNotFoundError:
+            except OSError:
                 pass
             fc = FeedCheck()
             assert fc.rss_feed_list is not None
@@ -22,7 +22,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
         finally:
             try:
                 os.rename("store/rss_feeds.xml.tmp", "store/rss_feeds.xml")
-            except FileNotFoundError:
+            except OSError:
                 pass
 
     def test_save_function(self):
