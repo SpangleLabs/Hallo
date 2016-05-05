@@ -115,9 +115,9 @@ class FunctionDispatcher(object):
                         server_obj.send(response, destination_obj)
                 continue
             except Exception as e:
-                print("Passive Function: " + str(function_class.__module__) + " " + str(function_class.__name__))
-                print("Function event: " + str(event))
-                print("Function error: " + str(e))
+                print("ERROR Passive Function: " + str(function_class.__module__) + " " + str(function_class.__name__))
+                print("ERROR Function event: " + str(event))
+                print("ERROR Function error: " + str(e))
                 continue
 
     def get_function_by_name(self, function_name):
