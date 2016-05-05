@@ -328,7 +328,7 @@ class FeedCheck(Function):
         # Otherwise see if a feed title matches the specified one
         matching_feeds = self.rss_feed_list.get_feeds_by_title(clean_input, destination_obj)
         if len(matching_feeds) == 0:
-            return "No Rss Feeds match that name. If you're adding a new feed, use \"rss add\" with your link."
+            return "Error, no Rss Feeds match that name. If you're adding a new feed, use \"rss add\" with your link."
         output_lines = []
         # Loop through matching rss feeds, getting updates
         for rss_feed in matching_feeds:
