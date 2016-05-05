@@ -153,6 +153,7 @@ class RssFeed:
             new_items.append(item_elem)
         # Update last item hash
         self.last_item_hash = latest_hash
+        self.last_check = datetime.now()
         # Return new items
         return new_items
 
@@ -272,7 +273,7 @@ class RssFeed:
             new_feed.last_item_hash = feed_xml.find("last_item").text
         # Load last check
         if feed_xml.find("last_check") is not None:
-            new_feed.last_check = datetime.strptime(feed_xml.find("last_check").text, "%Y-%m-%dT%H:%M:%S")
+            new_feed.last_check = datetime.strptime(feed_xml.find("last_check").text, "%Y-%m-%dT%H:%M:%S.%f")
         # Load update frequency
         new_feed.update_frequency = Commons.load_time_delta(feed_xml.find("update_frequency").text)
         # Return new feed
