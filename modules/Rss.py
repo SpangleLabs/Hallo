@@ -400,7 +400,7 @@ class FeedAdd(Function):
         # Get input
         feed_url = line.split()[0]
         feed_period = "PT3600S"
-        if len(line.split()) > 0:
+        if len(line.split()) > 1:
             feed_period = line.split()[1]
         # Get current RSS feed list
         function_dispatcher = user_obj.server.hallo.function_dispatcher
