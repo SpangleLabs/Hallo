@@ -508,7 +508,8 @@ class FeedList(Function):
         hallo = server.get_hallo()
         function_dispatcher = hallo.get_function_dispatcher()
         feed_check_function = function_dispatcher.get_function_by_name("rss check")
-        rss_feed_list = feed_check_function.rss_feed_list
+        feed_check_obj = function_dispatcher.get_function_object(feed_check_function)
+        rss_feed_list = feed_check_obj.rss_feed_list
         # Find list of feeds for current channel.
         dest_feeds = rss_feed_list.get_feeds_by_destination(destination_obj)
         if len(destination_obj) == 0:
