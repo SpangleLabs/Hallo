@@ -403,7 +403,7 @@ class FeedAdd(Function):
         if len(line.split()) > 0:
             feed_period = line.split()[1]
         # Get current RSS feed list
-        function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
+        function_dispatcher = user_obj.server.hallo.function_dispatcher
         feed_check_class = function_dispatcher.get_function_by_name("rss check")
         feed_check_obj = function_dispatcher.get_function_object(feed_check_class)
         feed_list = feed_check_obj.rss_feed_list
@@ -419,13 +419,13 @@ class FeedAdd(Function):
             return "Error, invalid time period."
         # Create new rss feed
         rss_feed = RssFeed()
-        rss_feed.server_name = user_obj.get_server().get_name()
+        rss_feed.server_name = user_obj.server.name
         rss_feed.url = feed_url
         rss_feed.update_frequency = feed_delta
         if destination_obj == user_obj:
-            rss_feed.channel_name = destination_obj.get_name()
+            rss_feed.channel_name = destination_obj.name
         else:
-            rss_feed.user_name = user_obj.get_name()
+            rss_feed.user_name = user_obj.name
         # Update feed
         try:
             rss_feed.check_feed()
