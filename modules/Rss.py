@@ -411,12 +411,12 @@ class FeedAdd(Function):
         try:
             Commons.load_url_string(feed_url, [])
         except urllib.error.URLError:
-            return "Could not load link."
+            return "Error, could not load link."
         # Check period is valid
         try:
             feed_delta = Commons.load_time_delta(feed_period)
         except ISO8601ParseError:
-            return "Invalid time period."
+            return "Error, invalid time period."
         # Create new rss feed
         rss_feed = RssFeed()
         rss_feed.server_name = user_obj.get_server().get_name()
@@ -430,7 +430,7 @@ class FeedAdd(Function):
         try:
             rss_feed.check_feed()
         except ParseError:
-            return "RSS feed could not be parsed."
+            return "Error, RSS feed could not be parsed."
         # Add new rss feed to list
         feed_list.add_feed(rss_feed)
         # Save list
