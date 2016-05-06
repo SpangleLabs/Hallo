@@ -512,7 +512,7 @@ class FeedList(Function):
         rss_feed_list = feed_check_obj.rss_feed_list
         # Find list of feeds for current channel.
         dest_feeds = rss_feed_list.get_feeds_by_destination(destination_obj)
-        if len(destination_obj) == 0:
+        if len(dest_feeds) == 0:
             return "There are no RSS feeds posting to this destination."
         output_lines = ["RSS feeds posting to this channel:"]
         for rss_feed in dest_feeds:
