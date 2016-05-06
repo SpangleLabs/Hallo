@@ -516,4 +516,4 @@ class FeedList(Function):
         output_lines = ["RSS feeds posting to this channel:"]
         for rss_feed in dest_feeds:
             output_lines.append("\""+rss_feed.title + "\" url: " + rss_feed.url)
-        return "".join(output_lines)
+        return "\n".join(output_lines)
