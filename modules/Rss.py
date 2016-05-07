@@ -464,7 +464,8 @@ class FeedRemove(Function):
         hallo = server.get_hallo()
         function_dispatcher = hallo.get_function_dispatcher()
         feed_check_function = function_dispatcher.get_function_by_name("rss check")
-        rss_feed_list = feed_check_function.rss_feed_list
+        feed_check_obj = function_dispatcher.get_function_object(feed_check_function)
+        rss_feed_list = feed_check_obj.rss_feed_list
         # Clean up input
         clean_input = line.strip()
         # Find any feeds with specified title
