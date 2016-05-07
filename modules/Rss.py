@@ -475,11 +475,11 @@ class FeedRemove(Function):
             return "Removed \"" + test_feeds[0].title + "\" RSS feed. Updates will no longer be sent to " \
                    + next(test_feeds[0].channel_name, test_feeds[0].user_name) + "."
         if len(test_feeds) > 1:
-            return "There is more than 1 rss feed in this channel by that name. Try specifying by URL."
+            return "Error, there is more than 1 rss feed in this channel by that name. Try specifying by URL."
         # Otherwise, zero results, so try hunting by url
         test_feeds = rss_feed_list.get_feeds_by_url(clean_input, destination_obj)
         if len(test_feeds) == 0:
-            return "There are no RSS feeds in this channel matching that name or URL."
+            return "Error, there are no RSS feeds in this channel matching that name or URL."
         for test_feed in test_feeds:
             rss_feed_list.remove(test_feed)
         return "Removed subscriptions to RSS feed."
