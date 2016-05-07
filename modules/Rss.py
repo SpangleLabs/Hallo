@@ -471,7 +471,7 @@ class FeedRemove(Function):
         # Find any feeds with specified title
         test_feeds = rss_feed_list.get_feeds_by_title(clean_input.lower(), destination_obj)
         if len(test_feeds) == 1:
-            rss_feed_list.remove(test_feeds[0])
+            rss_feed_list.remove_feed(test_feeds[0])
             return "Removed \"" + test_feeds[0].title + "\" RSS feed. Updates will no longer be sent to " \
                    + next(test_feeds[0].channel_name, test_feeds[0].user_name) + "."
         if len(test_feeds) > 1:
@@ -481,7 +481,7 @@ class FeedRemove(Function):
         if len(test_feeds) == 0:
             return "Error, there are no RSS feeds in this channel matching that name or URL."
         for test_feed in test_feeds:
-            rss_feed_list.remove(test_feed)
+            rss_feed_list.remove_feed(test_feed)
         return "Removed subscriptions to RSS feed."
 
 
