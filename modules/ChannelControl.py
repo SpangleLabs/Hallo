@@ -574,7 +574,8 @@ class ChannelCaps(Function):
                 target_channel.set_upper_case(not target_channel.is_upper_case())
                 return "Caps lock toggled in " + target_channel.get_name() + "."
             # Otherwise input unknown
-            return "I don't understand your input, please specify a channel and whether to turn caps lock on or off."
+            return "Error, I don't understand your input, please specify a channel and whether to turn caps lock " \
+                   "on or off."
         # Otherwise line has 2 or more arguments.
         # Check if first argument is boolean
         input_bool = Commons.string_to_bool(line_split[0])
@@ -583,10 +584,11 @@ class ChannelCaps(Function):
             input_bool = Commons.string_to_bool(line_split[1])
             target_channel_name = line_split[0]
         if input_bool is None:
-            return "I don't understand your input, please specify a channel and whether to turn caps lock on or off."
+            return "Error, I don't understand your input, please specify a channel and whether to turn " \
+                   "caps lock on or off."
         target_channel = server_obj.get_channel_by_name(target_channel_name)
         if target_channel is None or not target_channel.is_in_channel():
-            return "I'm not in that channel."
+            return "Error, I'm not in that channel."
         destination_obj.set_upper_case(input_bool)
         return "Caps lock set " + {False: 'off', True: 'on'}[input_bool] + " in " + target_channel.get_name() + "."
 
