@@ -38,6 +38,7 @@ class ChannelCapsTest(TestBase, unittest.TestCase):
 
     def test_caps_channel_toggle(self):
         test_chan1 = self.server.get_channel_by_name("other_channel")
+        test_chan1.in_channel = True
         test_chan1.use_caps_lock = False
         self.function_dispatcher.dispatch("channel caps other_channel", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
