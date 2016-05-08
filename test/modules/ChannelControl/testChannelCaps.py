@@ -51,8 +51,14 @@ class ChannelCapsTest(TestBase, unittest.TestCase):
         assert "toggle" in data[0][0].lower()
         assert not test_chan1.use_caps_lock
 
-    def test_caps_channel_bool(self):
+    def test_caps_channel_on(self):
         pass
 
-    def test_caps_bool_channel(self):
+    def test_caps_channel_off(self):
+        pass
+
+    def test_caps_on_channel(self):
+        pass
+
+    def test_caps_off_channel(self):
         pass
