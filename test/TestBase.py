@@ -13,7 +13,8 @@ class TestBase(unittest.TestCase):
         # Create a Hallo
         self.hallo = Hallo()
         # only 1 module, only 1 (mock) server
-        self.function_dispatcher = FunctionDispatcher({"AsciiArt", "Bio", "Euler", "Math", "Rss", "Silly", "SillyEtd"},
+        self.function_dispatcher = FunctionDispatcher({"AsciiArt", "Bio", "ChannelControl", "Euler", "Math", "Rss",
+                                                       "Silly", "SillyEtd"},
                                                       self.hallo)
         self.hallo.function_dispatcher = self.function_dispatcher
         self.server = ServerMock(self.hallo)
