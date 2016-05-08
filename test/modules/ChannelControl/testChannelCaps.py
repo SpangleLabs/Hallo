@@ -21,10 +21,20 @@ class ChannelCapsTest(TestBase, unittest.TestCase):
         assert not self.test_chan.use_caps_lock
 
     def test_caps_on(self):
-        pass
+        self.test_chan.use_caps_lock = False
+        self.function_dispatcher.dispatch("channel caps on", self.test_user, self.test_chan)
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "error" not in data[0][0].lower()
+        assert "caps lock set on" in data[0][0].lower()
+        assert self.test_chan.use_caps_lock
 
     def test_caps_off(self):
-        pass
+        self.test_chan.use_caps_lock = True
+        self.function_dispatcher.dispatch("channel caps off", self.test_user, self.test_chan)
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "error" not in data[0][0].lower()
+        assert "caps lock set off" in data[0][0].lower()
+        assert not self.test_chan.use_caps_lock
 
     def test_caps_channel_toggle(self):
         pass
