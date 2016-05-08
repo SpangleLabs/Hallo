@@ -37,7 +37,19 @@ class ChannelCapsTest(TestBase, unittest.TestCase):
         assert not self.test_chan.use_caps_lock
 
     def test_caps_channel_toggle(self):
-        pass
+        test_chan1 = self.server.get_channel_by_name("other_channel")
+        test_chan1.use_caps_lock = False
+        self.function_dispatcher.dispatch("channel caps other_channel", self.test_user, self.test_chan)
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "error" not in data[0][0].lower()
+        assert "toggle" in data[0][0].lower()
+        assert test_chan1.use_caps_lock
+        # Try toggling again
+        self.function_dispatcher.dispatch("channel caps other_channel", self.test_user, self.test_chan)
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "error" not in data[0][0].lower()
+        assert "toggle" in data[0][0].lower()
+        assert not test_chan1.use_caps_lock
 
     def test_caps_channel_bool(self):
         pass
