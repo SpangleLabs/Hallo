@@ -572,7 +572,7 @@ class ChannelCaps(Function):
             target_channel = server_obj.get_channel_by_name(line_split[0])
             if target_channel.is_in_channel():
                 target_channel.set_upper_case(not target_channel.is_upper_case())
-                return "Caps lock togged in " + target_channel.get_name() + "."
+                return "Caps lock toggled in " + target_channel.get_name() + "."
             # Otherwise input unknown
             return "I don't understand your input, please specify a channel and whether to turn caps lock on or off."
         # Otherwise line has 2 or more arguments.
