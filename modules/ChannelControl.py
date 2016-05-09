@@ -630,7 +630,7 @@ class ChannelLogging(Function):
             target_channel = server_obj.get_channel_by_name(line_split[0])
             if target_channel.in_channel:
                 target_channel.logging = not target_channel.logging
-                return "Logging togged in " + target_channel.name + "."
+                return "Logging toggled in " + target_channel.name + "."
             # Otherwise input unknown
             return "Error, I don't understand your input, please specify a channel and whether to turn logging " \
                    "on or off."
