@@ -589,7 +589,7 @@ class ChannelCaps(Function):
         target_channel = server_obj.get_channel_by_name(target_channel_name)
         if target_channel is None or not target_channel.is_in_channel():
             return "Error, I'm not in that channel."
-        destination_obj.set_upper_case(input_bool)
+        target_channel.set_upper_case(input_bool)
         return "Caps lock set " + {False: 'off', True: 'on'}[input_bool] + " in " + target_channel.get_name() + "."
 
 

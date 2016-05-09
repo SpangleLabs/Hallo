@@ -60,7 +60,7 @@ class ChannelCapsTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "error" not in data[0][0].lower()
         assert "caps lock set on" in data[0][0].lower()
-        assert self.test_chan.use_caps_lock
+        assert test_chan1.use_caps_lock
 
     def test_caps_channel_off(self):
         test_chan1 = self.server.get_channel_by_name("other_channel")
@@ -70,7 +70,7 @@ class ChannelCapsTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "error" not in data[0][0].lower()
         assert "caps lock set off" in data[0][0].lower()
-        assert not self.test_chan.use_caps_lock
+        assert not test_chan1.use_caps_lock
 
     def test_caps_on_channel(self):
         test_chan1 = self.server.get_channel_by_name("other_channel")
@@ -80,7 +80,7 @@ class ChannelCapsTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "error" not in data[0][0].lower()
         assert "caps lock set on" in data[0][0].lower()
-        assert self.test_chan.use_caps_lock
+        assert test_chan1.use_caps_lock
 
     def test_caps_off_channel(self):
         test_chan1 = self.server.get_channel_by_name("other_channel")
@@ -90,7 +90,7 @@ class ChannelCapsTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "error" not in data[0][0].lower()
         assert "caps lock set off" in data[0][0].lower()
-        assert not self.test_chan.use_caps_lock
+        assert not test_chan1.use_caps_lock
 
     def test_caps_not_in_channel_toggle(self):
         test_chan1 = self.server.get_channel_by_name("other_channel")
