@@ -643,9 +643,9 @@ class ChannelLogging(Function):
         if input_bool is None:
             return "I don't understand your input, please specify a channel and whether to turn logging on or off."
         target_channel = server_obj.get_channel_by_name(target_channel_name)
-        if target_channel is None or not target_channel.in_channel:
+        if not target_channel.in_channel:
             return "I'm not in that channel."
-        destination_obj.set_logging(input_bool)
+        target_channel.logging = input_bool
         return "Logging set " + {False: 'off', True: 'on'}[input_bool] + " in " + target_channel.name + "."
 
 
