@@ -685,7 +685,7 @@ class ChannelPassiveFunctions(Function):
             destination_obj.passive_enabled = not destination_obj.passive_enabled
             return "Passive functions toggled."
         # If line has 1 argument,
-        line_split = line_clean.strip()
+        line_split = line_clean.split()
         if len(line_split) == 1:
             # Check if a boolean was specified
             input_bool = Commons.string_to_bool(line_split[0])
