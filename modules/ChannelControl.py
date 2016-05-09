@@ -698,8 +698,8 @@ class ChannelPassiveFunctions(Function):
                 target_channel.set_passive_enabled(not target_channel.is_passive_enabled())
                 return "Passive functions togged in " + target_channel.get_name() + "."
             # Otherwise input unknown
-            return "I don't understand your input, please specify a channel and whether to turn passive functions on " \
-                   "or off."
+            return "Error, I don't understand your input, please specify a channel and whether to turn passive " \
+                   "functions on or off."
         # Otherwise line has 2 or more arguments.
         # Check if first argument is boolean
         input_bool = Commons.string_to_bool(line_split[0])
@@ -708,11 +708,11 @@ class ChannelPassiveFunctions(Function):
             input_bool = Commons.string_to_bool(line_split[1])
             target_channel_name = line_split[0]
         if input_bool is None:
-            return "I don't understand your input, please specify a channel and whether to turn passive functions on " \
-                   "or off."
+            return "Error, I don't understand your input, please specify a channel and whether to turn passive " \
+                   "functions on or off."
         target_channel = server_obj.get_channel_by_name(target_channel_name)
         if target_channel is None or not target_channel.is_in_channel():
-            return "I'm not in that channel."
+            return "Error, I'm not in that channel."
         destination_obj.set_passive_enabled(input_bool)
         return "Passive functions set " + {False: 'disabled', True: 'enabled'}[
             input_bool] + " in " + target_channel.get_name() + "."
