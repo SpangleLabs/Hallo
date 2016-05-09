@@ -664,15 +664,15 @@ class ChannelPassiveFunctions(Function):
         # Name for use in help listing
         self.help_name = "passive"
         # Names which can be used to address the function
-        self.names = {"passive", "passive functions", "passive func", "passive function", "passive funcs"}
+        self.names = {"passive"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets or toggles logging for channel."
 
     def get_names(self):
         """Returns the list of names for directly addressing the function"""
         self.names = {"passive"}
-        for chan in ["chan ", "channel "]:
-            for passive in ["passive", "passive func", "passive function", "passive functions"]:
+        for chan in ["chan ", "channel ", ""]:
+            for passive in ["passive", "passive func", "passive funcs", "passive function", "passive functions"]:
                 self.names.add(chan + passive)
         return self.names
 
