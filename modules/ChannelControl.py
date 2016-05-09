@@ -713,7 +713,7 @@ class ChannelPassiveFunctions(Function):
         target_channel = server_obj.get_channel_by_name(target_channel_name)
         if target_channel is None or not target_channel.is_in_channel():
             return "Error, I'm not in that channel."
-        destination_obj.set_passive_enabled(input_bool)
+        target_channel.set_passive_enabled(input_bool)
         return "Passive functions set " + {False: 'disabled', True: 'enabled'}[
             input_bool] + " in " + target_channel.get_name() + "."
 
