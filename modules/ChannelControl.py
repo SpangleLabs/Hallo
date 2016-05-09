@@ -664,7 +664,7 @@ class ChannelPassiveFunctions(Function):
         # Name for use in help listing
         self.help_name = "passive"
         # Names which can be used to address the function
-        self.names = {"passive"}
+        self.names = {"passive", "passive functions", "passive func", "passive function", "passive funcs"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets or toggles logging for channel."
 
