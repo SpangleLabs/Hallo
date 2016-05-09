@@ -612,11 +612,11 @@ class ChannelLogging(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Get server object
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         # If no arguments given, toggle logging in current destination
         line_clean = line.strip()
         if line_clean == '':
-            destination_obj.set_logging(not destination_obj.get_logging())
+            destination_obj.logging = not destination_obj.logging
             return "Logging toggled."
         # If line has 1 argument,
         line_split = line_clean.strip()
@@ -624,13 +624,13 @@ class ChannelLogging(Function):
             # Check if a boolean was specified
             input_bool = Commons.string_to_bool(line_split[0])
             if input_bool is not None:
-                destination_obj.set_logging(input_bool)
+                destination_obj.logging = input_bool
                 return "Logging set " + {False: 'off', True: 'on'}[input_bool] + "."
             # Check if a channel was specified
             target_channel = server_obj.get_channel_by_name(line_split[0])
-            if target_channel.is_in_channel():
-                target_channel.set_logging(not target_channel.get_logging())
-                return "Logging togged in " + target_channel.get_name() + "."
+            if target_channel.in_channel:
+                target_channel.logging = not target_channel.logging
+                return "Logging togged in " + target_channel.name + "."
             # Otherwise input unknown
             return "I don't understand your input, please specify a channel and whether to turn logging on or off."
         # Otherwise line has 2 or more arguments.
@@ -643,10 +643,10 @@ class ChannelLogging(Function):
         if input_bool is None:
             return "I don't understand your input, please specify a channel and whether to turn logging on or off."
         target_channel = server_obj.get_channel_by_name(target_channel_name)
-        if target_channel is None or not target_channel.is_in_channel():
+        if target_channel is None or not target_channel.in_channel:
             return "I'm not in that channel."
         destination_obj.set_logging(input_bool)
-        return "Logging set " + {False: 'off', True: 'on'}[input_bool] + " in " + target_channel.get_name() + "."
+        return "Logging set " + {False: 'off', True: 'on'}[input_bool] + " in " + target_channel.name + "."
 
 
 class ChannelPassiveFunctions(Function):
