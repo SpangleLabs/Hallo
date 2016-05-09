@@ -632,7 +632,8 @@ class ChannelLogging(Function):
                 target_channel.logging = not target_channel.logging
                 return "Logging togged in " + target_channel.name + "."
             # Otherwise input unknown
-            return "I don't understand your input, please specify a channel and whether to turn logging on or off."
+            return "Error, I don't understand your input, please specify a channel and whether to turn logging " \
+                   "on or off."
         # Otherwise line has 2 or more arguments.
         # Check if first argument is boolean
         input_bool = Commons.string_to_bool(line_split[0])
@@ -641,10 +642,11 @@ class ChannelLogging(Function):
             input_bool = Commons.string_to_bool(line_split[1])
             target_channel_name = line_split[0]
         if input_bool is None:
-            return "I don't understand your input, please specify a channel and whether to turn logging on or off."
+            return "Error, I don't understand your input, please specify a channel and whether to turn logging " \
+                   "on or off."
         target_channel = server_obj.get_channel_by_name(target_channel_name)
         if not target_channel.in_channel:
-            return "I'm not in that channel."
+            return "Error, I'm not in that channel."
         target_channel.logging = input_bool
         return "Logging set " + {False: 'off', True: 'on'}[input_bool] + " in " + target_channel.name + "."
 
