@@ -696,7 +696,7 @@ class ChannelPassiveFunctions(Function):
             target_channel = server_obj.get_channel_by_name(line_split[0])
             if target_channel.in_channel:
                 target_channel.passive_enabled = not target_channel.passive_enabled
-                return "Passive functions togged in " + target_channel.get_name() + "."
+                return "Passive functions toggled in " + target_channel.get_name() + "."
             # Otherwise input unknown
             return "Error, I don't understand your input, please specify a channel and whether to turn passive " \
                    "functions on or off."
