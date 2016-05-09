@@ -619,7 +619,7 @@ class ChannelLogging(Function):
             destination_obj.logging = not destination_obj.logging
             return "Logging toggled."
         # If line has 1 argument,
-        line_split = line_clean.strip()
+        line_split = line_clean.split()
         if len(line_split) == 1:
             # Check if a boolean was specified
             input_bool = Commons.string_to_bool(line_split[0])
