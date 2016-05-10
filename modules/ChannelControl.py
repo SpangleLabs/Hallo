@@ -737,11 +737,11 @@ class ChannelPassword(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Get server object
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         # If no arguments given, turn the password for current channel off.
         line_clean = line.strip()
         if line_clean == '':
-            destination_obj.set_password(None)
+            destination_obj.password = None
             return "Channel password disabled."
         # If line has 1 argument, set password for current channel
         line_split = line_clean.strip()
@@ -749,10 +749,10 @@ class ChannelPassword(Function):
             # Check if null was specified
             input_null = Commons.is_string_null(line_split[0])
             if input_null:
-                destination_obj.set_password(None)
+                destination_obj.password = None
                 return "Channel password disabled."
             else:
-                destination_obj.set_password(line_split[0])
+                destination_obj.password = line_split[0]
                 return "Channel password set."
         # Otherwise line has 2 or more arguments.
         # Assume first is channel, and second is password.
@@ -760,8 +760,8 @@ class ChannelPassword(Function):
         target_channel_name = line_split[0]
         target_channel = server_obj.get_channel_by_name(target_channel_name)
         if input_null:
-            destination_obj.set_password(None)
-            return "Channel password disabled for " + target_channel.get_name() + "."
+            destination_obj.password = None
+            return "Channel password disabled for " + target_channel.name + "."
         else:
-            destination_obj.set_password(line_split[1])
-            return "Channel password set for " + target_channel.get_name() + "."
+            destination_obj.password = line_split[1]
+            return "Channel password set for " + target_channel.name + "."
