@@ -122,6 +122,7 @@ class Channel(Destination):
         self.type = Destination.TYPE_CHANNEL  # This is a channel object
         self.password = None  # Channel password, or none.
         self.user_list = set()  # Set of users in the channel
+        # TODO: Change this to a dict, referring to a list of channel-user flags?
         self.in_channel = False  # Whether or not hallo is in the channel
         self.passive_enabled = True  # Whether to use passive functions in the channel
         self.auto_join = False  # Whether hallo should automatically join this channel when loading
