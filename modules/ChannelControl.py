@@ -744,7 +744,7 @@ class ChannelPassword(Function):
             destination_obj.password = None
             return "Channel password disabled."
         # If line has 1 argument, set password for current channel
-        line_split = line_clean.strip()
+        line_split = line_clean.split()
         if len(line_split) == 1:
             # Check if null was specified
             input_null = Commons.is_string_null(line_split[0])
