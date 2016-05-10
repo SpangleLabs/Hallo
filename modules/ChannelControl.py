@@ -760,8 +760,8 @@ class ChannelPassword(Function):
         target_channel_name = line_split[0]
         target_channel = server_obj.get_channel_by_name(target_channel_name)
         if input_null:
-            destination_obj.password = None
+            target_channel.password = None
             return "Channel password disabled for " + target_channel.name + "."
         else:
-            destination_obj.password = line_split[1]
+            target_channel.password = line_split[1]
             return "Channel password set for " + target_channel.name + "."
