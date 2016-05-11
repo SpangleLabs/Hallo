@@ -150,8 +150,8 @@ class Cupcake(Function):
             output_message = "\x01ACTION gives " + recipient_user_name + " a " + cupcake_type + " cupcake, from " + \
                              user_obj.get_name() + ".\x01"
         # Get both users channel lists, and then the intersection
-        user_channel_list = user_obj.channel_list
-        recipient_channel_list = recipient_user_obj.channel_list
+        user_channel_list = user_obj.get_channel_list()
+        recipient_channel_list = recipient_user_obj.get_channel_list()
         intersection_list = user_channel_list.intersection(recipient_channel_list)
         # If current channel is in the intersection, send there.
         if destination_obj in intersection_list:

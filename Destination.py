@@ -483,6 +483,14 @@ class User(Destination):
         """
         self.user_group_list.remove(user_group)
 
+    def get_channel_list(self):
+        """
+        Returns a list of channels
+        :return: list of channels the user is in
+        :rtype: set[Channel]
+        """
+        return set([membership.channel for membership in self.memberships_list])
+
     def is_online(self):
         """Whether the user appears to be online"""
         return self.online
