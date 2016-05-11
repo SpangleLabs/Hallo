@@ -742,13 +742,13 @@ class ServerIRC(Server):
         self.hallo.get_logger().log(Function.EVENT_JOIN, None, self, join_client, join_channel)
         # TODO: Apply automatic flags as required
         # If hallo has joined a channel, get the user list and apply automatic flags as required
-        if join_client.get_name().lower() == self.get_nick().lower():
+        if join_client.name.lower() == self.name.lower():
             join_channel.set_in_channel(True)
         else:
             # If it was not hallo joining a channel, add nick to user list
             join_channel.add_user(join_client)
         # Pass to passive FunctionDispatcher
-        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(Function.EVENT_JOIN, None, self, join_client, join_channel)
 
     def parse_line_part(self, part_line):
