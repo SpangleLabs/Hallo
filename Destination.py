@@ -450,6 +450,9 @@ class User(Destination):
         self.server = server
         """:type : Server.Server"""
 
+    def __eq__(self, other):
+        return isinstance(other, User) and self.server == other.server and self.name.lower() == other.name.lower()
+
     def is_identified(self):
         """
         Checks whether this user is identified
