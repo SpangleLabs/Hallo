@@ -167,7 +167,7 @@ class Channel(Destination):
         :type user: User
         """
         self.user_list.add(user)
-        user.add_channel(self)
+        user.channel_list.add(self)
 
     def set_user_list(self, user_list):
         """
@@ -177,7 +177,7 @@ class Channel(Destination):
         """
         self.user_list = user_list
         for user in user_list:
-            user.add_channel(self)
+            user.channel_list.add(self)
 
     def remove_user(self, user):
         """
@@ -187,7 +187,7 @@ class Channel(Destination):
         """
         try:
             self.user_list.remove(user)
-            user.remove_channel(self)
+            user.channel_list.remove(self)
         except KeyError:
             pass
 
@@ -374,34 +374,6 @@ class User(Destination):
         """Checks with the server whether this user is identified."""
         identity_result = self.server.check_user_identity(self)
         self.identified = identity_result
-
-    def get_channel_list(self):
-        """Returns the list of channels this user is in"""
-        return self.channel_list
-
-    def add_channel(self, channel):
-        """
-        Adds a new channel to a given user
-        :param channel: Channel to add to user's channel list
-        :type channel: Channel
-        """
-        self.channel_list.add(channel)
-
-    def remove_channel(self, channel):
-        """
-        Removes a channel from a given user
-        :param channel: Channel to remove from user's channel list
-        :type channel: Channel
-        """
-        self.channel_list.remove(channel)
-
-    def set_channel_list(self, channel_list):
-        """
-        Sets the entire channel list of a user
-        :param channel_list: List of channels the user is in
-        :type channel_list: set
-        """
-        self.channel_list = channel_list
 
     def add_user_group(self, new_user_group):
         """
