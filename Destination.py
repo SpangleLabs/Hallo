@@ -184,6 +184,9 @@ class Channel(Destination):
     def __eq__(self, other):
         return isinstance(other, Channel) and self.server == other.server and self.name.lower() == other.name.lower()
 
+    def __hash__(self):
+        return hash(self.name.lower())
+
     def get_password(self):
         """
         Channel password getter
@@ -455,6 +458,9 @@ class User(Destination):
 
     def __eq__(self, other):
         return isinstance(other, User) and self.server == other.server and self.name.lower() == other.name.lower()
+
+    def __hash__(self):
+        return hash(self.name.lower())
 
     def is_identified(self):
         """
