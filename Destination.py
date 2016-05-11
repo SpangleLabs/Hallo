@@ -594,3 +594,9 @@ class ChannelMembership:
         self.is_op = False
         self.is_voice = False
         self.join_time = time.time()
+
+    def __eq__(self, other):
+        return (self.channel, self.user) == (other.channel, other.user)
+
+    def __hash__(self):
+        return (self.channel, self.user).__hash__()
