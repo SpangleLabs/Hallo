@@ -413,8 +413,8 @@ class User(Destination):
         """:type : set[ChannelMembership]"""
         self.online = False  # Whether or not the user is online
         """:type : bool"""
-        self.user_group_list = {}  # List of UserGroups this User is a member o
-        """:type : dict[str, UserGroup.UserGroup]"""  # TODO: Change this.
+        self.user_group_list = set()  # List of UserGroups this User is a member of
+        """:type : set[UserGroup.UserGroup]"""
         self.name = name.lower()
         """:type : str"""
         self.server = server
@@ -448,30 +448,27 @@ class User(Destination):
         :param new_user_group: User group to add the user to
         :type new_user_group: UserGroup.UserGroup
         """
-        new_user_group_name = new_user_group.get_name()
-        self.user_group_list[new_user_group_name] = new_user_group
+        self.user_group_list.add(new_user_group)
 
     def get_user_group_by_name(self, user_group_name):
         """
         Returns the UserGroup with the matching name
         :param user_group_name: Returns the user group by the specified name that this user is in
         :type user_group_name: str
+        :rtype : UserGroup.UserGroup | None
         """
-        if user_group_name in self.user_group_list:
-            return self.user_group_list[user_group_name]
+        for user_group in self.user_group_list:
+            if user_group.name == user_group_name:
+                return user_group
         return None
 
-    def get_user_group_list(self):
-        """Returns the full list of UserGroups this User is a member of"""
-        return self.user_group_list
-
-    def remove_user_group_by_name(self, user_group_name):
+    def remove_user_group(self, user_group):
         """
         Removes the UserGroup by the given name from a user
-        :param user_group_name: Removes the user group matching this name that the user is in
-        :type user_group_name: str
+        :param user_group: Removes the user group matching this name that the user is in
+        :type user_group: UserGroup.UserGroup
         """
-        del self.user_group_list[user_group_name]
+        self.user_group_list.remove(user_group)
 
     def is_online(self):
         """Whether the user appears to be online"""
@@ -503,9 +500,7 @@ class User(Destination):
                 return right_value
         # Check UserGroup rights, if any apply
         if len(self.user_group_list) != 0:
-            return any(
-                [user_group.rights_check(right_name, self, channel_obj) for user_group in self.user_group_list.values()]
-            )
+            return any([user_group.rights_check(right_name, self, channel_obj) for user_group in self.user_group_list])
         # Fall back to channel, if defined
         if channel_obj is not None and channel_obj.is_channel():
             return channel_obj.rights_check(right_name)
@@ -550,9 +545,9 @@ class User(Destination):
         root.appendChild(caps_lock_elem)
         # create user_group list
         user_group_list_elem = doc.createElement("user_group_membership")
-        for user_group_name in self.user_group_list:
+        for user_group in self.user_group_list:
             user_group_elem = doc.createElement("user_group_name")
-            user_group_elem.appendChild(doc.createTextNode(user_group_name))
+            user_group_elem.appendChild(doc.createTextNode(user_group.name))
             user_group_list_elem.appendChild(user_group_elem)
         root.appendChild(user_group_list_elem)
         # create permission_mask element
@@ -580,7 +575,7 @@ class User(Destination):
         user_group_list_elem = doc.getElementsByTagName("user_group_membership")[0]
         for user_group_elem in user_group_list_elem.getElementsByTagName("user_group_name"):
             user_group_name = user_group_elem.firstChild.data
-            user_group = server.get_hallo().get_user_group_by_name(user_group_name)
+            user_group = server.hallo.get_user_group_by_name(user_group_name)
             if user_group is not None:
                 new_user.add_user_group(user_group)
         # Add PermissionMask, if one exists

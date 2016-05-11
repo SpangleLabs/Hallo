@@ -179,7 +179,9 @@ class Hallo:
         """
         Returns the UserGroup with the specified name
         :param user_group_name: Name of user group to search for
+        :type user_group_name: str
         :return: User Group matching specified name, or None
+        :rtype: UserGroup.UserGroup | None
         """
         if user_group_name in self.user_list_list:
             return self.user_list_list[user_group_name]
