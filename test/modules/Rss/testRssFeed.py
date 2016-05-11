@@ -83,6 +83,7 @@ class TestRssFeed(unittest.TestCase):
         rf1.update_frequency = Commons.load_time_delta("P1TS")
         rf1.title = feed_title
         serv1 = ServerMock(None)
+        serv1.name = "test_serv1"
         chan1 = serv1.get_channel_by_name("test_chan1")
         rf1.output_item(item_elem, None, serv1, chan1)
         data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
@@ -95,6 +96,7 @@ class TestRssFeed(unittest.TestCase):
         rf2.title = feed_title
         rf2.channel_name = "test_chan2"
         serv2 = ServerMock(None)
+        serv2.name = "test_serv2"
         chan2 = serv2.get_channel_by_name("test_chan2")
         rf2.output_item(item_elem, None, serv2)
         data = serv2.get_send_data(1, chan2, Server.MSG_MSG)
@@ -107,6 +109,7 @@ class TestRssFeed(unittest.TestCase):
         rf3.title = feed_title
         rf3.user_name = "test_user3"
         serv3 = ServerMock(None)
+        serv3.name = "test_serv3"
         user3 = serv3.get_user_by_name("test_user3")
         rf3.output_item(item_elem, None, serv3)
         data = serv3.get_send_data(1, user3, Server.MSG_MSG)
