@@ -29,6 +29,8 @@ class Destination(metaclass=ABCMeta):
         """:type : bool"""
         self.permission_mask = None  # PermissionMask for the destination object
         """:type : PermissionMask.PermissionMask"""
+        self.memberships_list = set()  # Set of ChannelMemberships for User or Channel
+        """:type : set[ChannelMembership]"""
 
     def get_name(self):
         """
@@ -166,8 +168,6 @@ class Channel(Destination):
         self.type = Destination.TYPE_CHANNEL  # This is a channel object
         self.password = None  # Channel password, or none.
         """:type : str | None"""
-        self.user_list = set()  # Set of users in the channel
-        """:type : set[ChannelMembership]"""
         self.in_channel = False  # Whether or not hallo is in the channel
         """:type : bool"""
         self.passive_enabled = True  # Whether to use passive functions in the channel
@@ -214,8 +214,11 @@ class Channel(Destination):
         self.prefix = new_prefix
 
     def get_user_list(self):
-        """Returns the full user list of the channel"""
-        return self.user_list
+        """
+        Returns the full user list of the channel
+        :rtype : set[User]
+        """
+        return set([membership.user for membership in self.memberships_list])
 
     def add_user(self, user):
         """
@@ -223,18 +226,23 @@ class Channel(Destination):
         :param user: User object to add to channel's user list
         :type user: User
         """
-        self.user_list.add(user)
-        user.channel_list.add(self)
+        chan_membership = ChannelMembership(self, user)
+        self.memberships_list.add(chan_membership)
+        user.memberships_list.add(chan_membership)
 
     def set_user_list(self, user_list):
         """
         Sets the entire user list of a channel
         :param user_list: List of users which are currently in the channel.
-        :type user_list: set
+        :type user_list: set[User]
         """
-        self.user_list = user_list
+        # Remove all current memberships
+        for membership in self.memberships_list:
+            membership.user.memberships_list.remove(membership)
+        self.memberships_list = set()
+        # Add new users
         for user in user_list:
-            user.channel_list.add(self)
+            self.add_user(user)
 
     def remove_user(self, user):
         """
@@ -242,9 +250,13 @@ class Channel(Destination):
         :param user: User to remove from channel's user list
         :type user: User
         """
+        chan_membership = ChannelMembership(self, user)
         try:
-            self.user_list.remove(user)
-            user.channel_list.remove(self)
+            self.memberships_list.remove(chan_membership)
+        except KeyError:
+            pass
+        try:
+            user.memberships_list.remove(chan_membership)
         except KeyError:
             pass
 
@@ -253,8 +265,9 @@ class Channel(Destination):
         Returns a boolean as to whether the user is in this channel
         :param user: User being checked
         :type user: User
+        :rtype : bool
         """
-        return user in self.user_list
+        return user in [membership.user for membership in self.memberships_list]
 
     def is_passive_enabled(self):
         """Whether or not passive functions are enabled in this channel"""
@@ -292,7 +305,9 @@ class Channel(Destination):
         """
         self.in_channel = in_channel
         if in_channel is False:
-            self.user_list = set()
+            for membership in self.memberships_list:
+                membership.user.memberships_list.remove(membership)
+            self.memberships_list = set()
 
     def rights_check(self, right_name):
         """
@@ -409,8 +424,6 @@ class User(Destination):
         """:type : str"""
         self.identified = False  # Whether the user is identified (with nickserv)
         """:type : bool"""
-        self.channel_list = set()  # Set of channels this user is in
-        """:type : set[ChannelMembership]"""
         self.online = False  # Whether or not the user is online
         """:type : bool"""
         self.user_group_list = set()  # List of UserGroups this User is a member of
@@ -483,7 +496,10 @@ class User(Destination):
         self.online = online
         if online is False:
             self.identified = False
-            self.channel_list = set()
+            for membership in self.memberships_list:
+                membership.channel.memberships_list.remove(membership)
+            self.memberships_list = set()
+            """:type : set[ChannelMembership]"""
 
     def rights_check(self, right_name, channel_obj=None):
         """
