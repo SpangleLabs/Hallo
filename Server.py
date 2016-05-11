@@ -832,18 +832,27 @@ class ServerIRC(Server):
         # Get client and channel objects
         mode_channel = self.get_channel_by_name(mode_channel_name)
         mode_client = self.get_user_by_name(mode_client_name)
+        # # Handling
         # If a channel password has been set, store it
         if mode_mode == '-k':
             mode_channel.set_password(None)
         elif mode_mode == '+k':
             mode_channel.set_password(mode_args)
-        # Printing and logging
+        # Handle op changes
+        if mode_mode[1] == "o":
+            mode_args_client = self.get_user_by_name(mode_args)
+            mode_channel.get_membership_by_user(mode_args_client).is_op = (mode_mode[0] == "+")
+        # Handle voice changes
+        if mode_mode[1] == "v":
+            mode_args_client = self.get_user_by_name(mode_args)
+            mode_channel.get_membership_by_user(mode_args_client).is_voice = (mode_mode[0] == "+")
+        # # Printing and logging
         mode_full = mode_mode
         if mode_args != '':
             mode_full = mode_mode + ' ' + mode_args
         self.hallo.get_printer().output(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
         self.hallo.get_logger().log(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
-        # Pass to passive FunctionDispatcher
+        # # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.get_function_dispatcher()
         function_dispatcher.dispatch_passive(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
 
