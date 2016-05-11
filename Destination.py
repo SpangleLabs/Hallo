@@ -406,15 +406,25 @@ class User(Destination):
         """
         super().__init__()
         self.type = Destination.TYPE_USER  # This is a user object
+        """:type : str"""
         self.identified = False  # Whether the user is identified (with nickserv)
+        """:type : bool"""
         self.channel_list = set()  # Set of channels this user is in
+        """:type : set[ChannelMembership]"""
         self.online = False  # Whether or not the user is online
-        self.user_group_list = {}  # List of UserGroups this User is a member of
+        """:type : bool"""
+        self.user_group_list = {}  # List of UserGroups this User is a member o
+        """:type : dict[str, UserGroup.UserGroup]"""  # TODO: Change this.
         self.name = name.lower()
+        """:type : str"""
         self.server = server
+        """:type : Server.Server"""
 
     def is_identified(self):
-        """Checks whether this user is identified"""
+        """
+        Checks whether this user is identified
+        :rtype : bool
+        """
         if not self.identified:
             self.check_identity()
         return self.identified
