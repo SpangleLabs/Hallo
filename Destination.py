@@ -648,7 +648,7 @@ class ChannelMembership:
         self.join_time = time.time()
 
     def __eq__(self, other):
-        return (self.channel, self.user) == (other.channel, other.user)
+        return isinstance(other, ChannelMembership) and (self.channel, self.user) == (other.channel, other.user)
 
     def __hash__(self):
         return (self.channel, self.user).__hash__()
