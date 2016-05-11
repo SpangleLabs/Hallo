@@ -318,7 +318,7 @@ class ServerIRC(Server):
         self._welcome_message = ""  # Server's welcome message when connecting. MOTD and all.
         self._check_channeluserlist_lock = Lock()  # Thread lock for checking a channel's user list
         self._check_channeluserlist_channel = None  # Channel to check user list of
-        self._check_channeluserlist_user_list = None  # User name list of checked channel
+        self._check_channeluserlist_done = False  # Whether the check is complete
         self._check_usersonline_lock = Lock()  # Thread lock for checking which users are online
         self._check_usersonline_check_list = None  # List of users' names to check
         self._check_usersonline_online_list = None  # List of users' names who are online
@@ -1005,21 +1005,15 @@ class ServerIRC(Server):
         elif numeric_code == "353":
             # Parse out data
             channel_name = numeric_line.split(':')[1].split()[-1].lower()
-            channel_user_list = ':'.join(numeric_line.split(':')[2:]).split()
+            channel_user_list = ':'.join(numeric_line.split(':')[2:])
             # Get channel object
             channel_obj = self.get_channel_by_name(channel_name)
             # Set all users online and in channel
-            channel_obj.set_user_list(set())
-            for user_name in channel_user_list:
-                while user_name[0] in ['~', '&', '@', '%', '+']:
-                    user_name = user_name[1:]
-                user_obj = self.get_user_by_name(user_name)
-                user_obj.set_online(True)
-                channel_obj.add_user(user_obj)
-            # Check channel is being checked
+            self.handle_user_list(channel_obj, channel_user_list)
+            # Check if channel is being checked
             if channel_obj == self._check_channeluserlist_channel:
-                # Set user list
-                self._check_channeluserlist_user_list = channel_user_list
+                # Check is complete
+                self._check_channeluserlist_done = True
 
     def parse_line_unhandled(self, unhandled_line):
         """
@@ -1079,7 +1073,7 @@ class ServerIRC(Server):
         self._check_channeluserlist_lock.acquire()
         try:
             self._check_channeluserlist_channel = channel_obj
-            self._check_channeluserlist_user_list = None
+            self._check_channeluserlist_done = False
             # send request
             self.send("NAMES " + channel_obj.name, None, Server.MSG_RAW)
             # loop for 5 seconds
@@ -1087,36 +1081,13 @@ class ServerIRC(Server):
                 # sleep 0.5seconds
                 time.sleep(0.5)
                 # if reply is here
-                if self._check_channeluserlist_user_list is not None:
-                    # use response
-                    user_object_list = set()
-                    for user_name in self._check_channeluserlist_user_list:
-                        # Strip flags from user name
-                        flags = ""
-                        while user_name[0] in ['~', '&', '@', '%', '+']:
-                            user_name = user_name[1:]
-                            flags += user_name[0]
-                        # Add user if not exists.
-                        user_obj = self.get_user_by_name(user_name)
-                        user_obj.set_online(True)
-                        chan_membership = ChannelMembership(channel_obj, user_obj)
-                        channel_obj.memberships_list.add(chan_membership)
-                        # Set voice and op on membership
-                        channel_obj.get_membership_by_user(user_obj).is_voice = "+" in flags
-                        channel_obj.get_membership_by_user(user_obj).is_op = "@" in flags
-                        # Add to list of users in channel
-                        user_object_list.add(user_obj)
-                    # Remove all users from channel membership which are not in user list
-                    remove_users = [user for user in channel_obj.get_user_list() if user not in user_object_list]
-                    for user in remove_users:
-                        channel_obj.remove_user(user)
-                    # return
+                if self._check_channeluserlist_done:
                     break
             # return
             return
         finally:
             self._check_channeluserlist_channel = None
-            self._check_channeluserlist_user_list = None
+            self._check_channeluserlist_done = False
             self._check_channeluserlist_lock.release()
 
     def check_users_online(self, check_user_list):
@@ -1188,6 +1159,37 @@ class ServerIRC(Server):
             self._check_useridentity_user = None
             self._check_useridentity_result = None
             self._check_useridentity_lock.release()
+
+    def handle_user_list(self, channel, user_name_list):
+        """
+        Takes a user list line from the server, either by NAMES response or after joining a channel, and processes it,
+        setting the right users in the right channel.
+        :param channel: Channel the user list is for
+        :type channel: Channel
+        :param user_name_list: string containing a list of users, space separated, with flags
+        :type user_name_list: str
+        """
+        user_object_list = set()
+        for user_name in user_name_list:
+            # Strip flags from user name
+            flags = ""
+            while user_name[0] in ['~', '&', '@', '%', '+']:
+                user_name = user_name[1:]
+                flags += user_name[0]
+            # Add user if not exists.
+            user_obj = self.get_user_by_name(user_name)
+            user_obj.set_online(True)
+            chan_membership = ChannelMembership(channel, user_obj)
+            channel.memberships_list.add(chan_membership)
+            # Set voice and op on membership
+            channel.get_membership_by_user(user_obj).is_voice = "+" in flags
+            channel.get_membership_by_user(user_obj).is_op = "@" in flags
+            # Add to list of users in channel
+            user_object_list.add(user_obj)
+        # Remove all users from channel membership which are not in user list
+        remove_users = [user for user in channel.get_user_list() if user not in user_object_list]
+        for user in remove_users:
+            channel.remove_user(user)
 
     def to_xml(self):
         """
