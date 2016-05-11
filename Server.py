@@ -6,7 +6,7 @@ import socket
 import time
 import re
 
-from Destination import Channel, User
+from Destination import Channel, User, ChannelMembership
 from PermissionMask import PermissionMask
 from Function import Function
 
@@ -75,6 +75,10 @@ class Server(metaclass=ABCMeta):
         self.permission_mask = PermissionMask()  # PermissionMask for the server
         # Dynamic/unsaved class variables
         self.open = False  # Whether or not to keep reading from server
+
+    def __eq__(self, other):
+        return isinstance(other, Server) and self.hallo == other.hallo and self.type == other.type and \
+               self.name.lower() == other.name.lower()
 
     def connect(self):
         raise NotImplementedError
@@ -314,7 +318,7 @@ class ServerIRC(Server):
         self._welcome_message = ""  # Server's welcome message when connecting. MOTD and all.
         self._check_channeluserlist_lock = Lock()  # Thread lock for checking a channel's user list
         self._check_channeluserlist_channel = None  # Channel to check user list of
-        self._check_channeluserlist_user_list = None  # User name list of checked channel
+        self._check_channeluserlist_done = False  # Whether the check is complete
         self._check_usersonline_lock = Lock()  # Thread lock for checking which users are online
         self._check_usersonline_check_list = None  # List of users' names to check
         self._check_usersonline_online_list = None  # List of users' names who are online
@@ -738,13 +742,13 @@ class ServerIRC(Server):
         self.hallo.get_logger().log(Function.EVENT_JOIN, None, self, join_client, join_channel)
         # TODO: Apply automatic flags as required
         # If hallo has joined a channel, get the user list and apply automatic flags as required
-        if join_client.get_name().lower() == self.get_nick().lower():
+        if join_client.name.lower() == self.name.lower():
             join_channel.set_in_channel(True)
         else:
             # If it was not hallo joining a channel, add nick to user list
             join_channel.add_user(join_client)
         # Pass to passive FunctionDispatcher
-        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(Function.EVENT_JOIN, None, self, join_client, join_channel)
 
     def parse_line_part(self, part_line):
@@ -828,18 +832,27 @@ class ServerIRC(Server):
         # Get client and channel objects
         mode_channel = self.get_channel_by_name(mode_channel_name)
         mode_client = self.get_user_by_name(mode_client_name)
+        # # Handling
         # If a channel password has been set, store it
         if mode_mode == '-k':
             mode_channel.set_password(None)
         elif mode_mode == '+k':
             mode_channel.set_password(mode_args)
-        # Printing and logging
+        # Handle op changes
+        if mode_mode[1] == "o":
+            mode_args_client = self.get_user_by_name(mode_args)
+            mode_channel.get_membership_by_user(mode_args_client).is_op = (mode_mode[0] == "+")
+        # Handle voice changes
+        if mode_mode[1] == "v":
+            mode_args_client = self.get_user_by_name(mode_args)
+            mode_channel.get_membership_by_user(mode_args_client).is_voice = (mode_mode[0] == "+")
+        # # Printing and logging
         mode_full = mode_mode
         if mode_args != '':
             mode_full = mode_mode + ' ' + mode_args
         self.hallo.get_printer().output(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
         self.hallo.get_logger().log(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
-        # Pass to passive FunctionDispatcher
+        # # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.get_function_dispatcher()
         function_dispatcher.dispatch_passive(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
 
@@ -1001,21 +1014,15 @@ class ServerIRC(Server):
         elif numeric_code == "353":
             # Parse out data
             channel_name = numeric_line.split(':')[1].split()[-1].lower()
-            channel_user_list = ':'.join(numeric_line.split(':')[2:]).split()
+            channel_user_list = ':'.join(numeric_line.split(':')[2:])
             # Get channel object
             channel_obj = self.get_channel_by_name(channel_name)
             # Set all users online and in channel
-            channel_obj.set_user_list(set())
-            for user_name in channel_user_list:
-                while user_name[0] in ['~', '&', '@', '%', '+']:
-                    user_name = user_name[1:]
-                user_obj = self.get_user_by_name(user_name)
-                user_obj.set_online(True)
-                channel_obj.add_user(user_obj)
-            # Check channel is being checked
+            self.handle_user_list(channel_obj, channel_user_list)
+            # Check if channel is being checked
             if channel_obj == self._check_channeluserlist_channel:
-                # Set user list
-                self._check_channeluserlist_user_list = channel_user_list
+                # Check is complete
+                self._check_channeluserlist_done = True
 
     def parse_line_unhandled(self, unhandled_line):
         """
@@ -1073,38 +1080,24 @@ class ServerIRC(Server):
         """
         # get lock
         self._check_channeluserlist_lock.acquire()
-        self._check_channeluserlist_channel = channel_obj
-        self._check_channeluserlist_user_list = None
-        # send request
-        self.send("NAMES " + channel_obj.get_name(), None, Server.MSG_RAW)
-        # loop for 5 seconds
-        for _ in range(10):
-            # if reply is here
-            if self._check_channeluserlist_user_list is not None:
-                # use response
-                user_object_list = set()
-                for user_name in self._check_channeluserlist_user_list:
-                    # Strip flags from user name
-                    while user_name[0] in ['~', '&', '@', '%', '+']:
-                        user_name = user_name[1:]
-                    user_obj = self.get_user_by_name(user_name)
-                    user_obj.set_online(True)
-                    user_object_list.add(user_obj)
-                channel_obj.set_user_list(user_object_list)
-                # release lock
-                self._check_channeluserlist_channel = None
-                self._check_channeluserlist_user_list = None
-                self._check_channeluserlist_lock.release()
-                # return
-                return
-            # sleep 0.5seconds
-            time.sleep(0.5)
-        # release lock
-        self._check_channeluserlist_channel = None
-        self._check_channeluserlist_user_list = None
-        self._check_channeluserlist_lock.release()
-        # return
-        return
+        try:
+            self._check_channeluserlist_channel = channel_obj
+            self._check_channeluserlist_done = False
+            # send request
+            self.send("NAMES " + channel_obj.name, None, Server.MSG_RAW)
+            # loop for 5 seconds
+            for _ in range(10):
+                # sleep 0.5seconds
+                time.sleep(0.5)
+                # if reply is here
+                if self._check_channeluserlist_done:
+                    break
+            # return
+            return
+        finally:
+            self._check_channeluserlist_channel = None
+            self._check_channeluserlist_done = False
+            self._check_channeluserlist_lock.release()
 
     def check_users_online(self, check_user_list):
         """
@@ -1113,37 +1106,35 @@ class ServerIRC(Server):
         :type check_user_list: list
         """
         # get lock
-        self._check_channeluserlist_lock.aquire()
-        self._check_usersonline_check_list = check_user_list
-        self._check_usersonline_online_list = None
-        # send request
-        self.send("ISON " + " ".join(check_user_list), None, Server.MSG_RAW)
-        # loop for 5 seconds
-        for _ in range(10):
-            # if reply is here
-            if self._check_usersonline_online_list is not None:
-                # use response
-                for user_name in self._check_usersonline_check_list:
-                    user_obj = self.get_user_by_name(user_name)
-                    if user_name in self._check_usersonline_online_list:
-                        user_obj.set_online(True)
-                    else:
-                        user_obj.set_online(False)
-                # release lock
-                response = self._check_usersonline_online_list
-                self._check_usersonline_check_list = None
-                self._check_usersonline_online_list = None
-                self._check_usersonline_lock.release()
-                # return response
-                return response
-            # sleep 0.5 seconds
-            time.sleep(0.5)
-        # release lock
-        self._check_usersonline_check_list = None
-        self._check_usersonline_online_list = None
-        self._check_usersonline_lock.release()
-        # return empty list
-        return []
+        self._check_usersonline_lock.aquire()
+        try:
+            self._check_usersonline_check_list = check_user_list
+            self._check_usersonline_online_list = None
+            # send request
+            self.send("ISON " + " ".join(check_user_list), None, Server.MSG_RAW)
+            # loop for 5 seconds
+            for _ in range(10):
+                # if reply is here
+                if self._check_usersonline_online_list is not None:
+                    # use response
+                    for user_name in self._check_usersonline_check_list:
+                        user_obj = self.get_user_by_name(user_name)
+                        if user_name in self._check_usersonline_online_list:
+                            user_obj.set_online(True)
+                        else:
+                            user_obj.set_online(False)
+                    # return response
+                    response = self._check_usersonline_online_list
+                    return response
+                # sleep 0.5 seconds
+                time.sleep(0.5)
+            # return empty list
+            return []
+        finally:
+            # release lock
+            self._check_usersonline_check_list = None
+            self._check_usersonline_online_list = None
+            self._check_usersonline_lock.release()
 
     def check_user_identity(self, user_obj):
         """
@@ -1156,30 +1147,58 @@ class ServerIRC(Server):
         nickserv_obj = self.get_user_by_name(self.nickserv_nick)
         # get check user lock
         self._check_useridentity_lock.aquire()
-        self._check_useridentity_user = user_obj.get_name()
-        self._check_useridentity_result = None
-        # send whatever request
-        self.send(self.nickserv_ident_command + " " + user_obj.get_name(), nickserv_obj, Server.MSG_MSG)
-        # loop for 5 seconds
-        for _ in range(10):
-            # if response
-            if self._check_useridentity_result is not None:
-                # use response
-                response = self._check_useridentity_result
-                # release lock
-                self._check_useridentity_user = None
-                self._check_useridentity_result = None
-                self._check_useridentity_lock.release()
-                # return
-                return response
-            # sleep 0.5
-            time.sleep(0.5)
-        # release lock
-        self._check_useridentity_user = None
-        self._check_useridentity_result = None
-        self._check_useridentity_lock.release()
-        # return false
-        return False
+        try:
+            self._check_useridentity_user = user_obj.get_name()
+            self._check_useridentity_result = None
+            # send whatever request
+            self.send(self.nickserv_ident_command + " " + user_obj.get_name(), nickserv_obj, Server.MSG_MSG)
+            # loop for 5 seconds
+            for _ in range(10):
+                # if response
+                if self._check_useridentity_result is not None:
+                    # return
+                    response = self._check_useridentity_result
+                    return response
+                # sleep 0.5
+                time.sleep(0.5)
+            # return false
+            return False
+        finally:
+            # release lock
+            self._check_useridentity_user = None
+            self._check_useridentity_result = None
+            self._check_useridentity_lock.release()
+
+    def handle_user_list(self, channel, user_name_list):
+        """
+        Takes a user list line from the server, either by NAMES response or after joining a channel, and processes it,
+        setting the right users in the right channel.
+        :param channel: Channel the user list is for
+        :type channel: Channel
+        :param user_name_list: string containing a list of users, space separated, with flags
+        :type user_name_list: str
+        """
+        user_object_list = set()
+        for user_name in user_name_list:
+            # Strip flags from user name
+            flags = ""
+            while user_name[0] in ['~', '&', '@', '%', '+']:
+                user_name = user_name[1:]
+                flags += user_name[0]
+            # Add user if not exists.
+            user_obj = self.get_user_by_name(user_name)
+            user_obj.set_online(True)
+            chan_membership = ChannelMembership(channel, user_obj)
+            channel.memberships_list.add(chan_membership)
+            # Set voice and op on membership
+            channel.get_membership_by_user(user_obj).is_voice = "+" in flags
+            channel.get_membership_by_user(user_obj).is_op = "@" in flags
+            # Add to list of users in channel
+            user_object_list.add(user_obj)
+        # Remove all users from channel membership which are not in user list
+        remove_users = [user for user in channel.get_user_list() if user not in user_object_list]
+        for user in remove_users:
+            channel.remove_user(user)
 
     def to_xml(self):
         """

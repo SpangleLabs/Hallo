@@ -54,7 +54,9 @@ class SilenceTheRabbleTest(TestBase, unittest.TestCase):
             user1 = self.server.get_user_by_name("lambdabot")
             user2 = self.server.get_user_by_name("robot")
             chan = self.server.get_channel_by_name("#ecco-the-dolphin")
-            chan.user_list = {user, user1, user2}
+            chan.add_user(user)
+            chan.add_user(user1)
+            chan.add_user(user2)
             self.function_dispatcher.dispatch("silence the rabble", user, chan)
             data = self.server.get_send_data(6)
             try:

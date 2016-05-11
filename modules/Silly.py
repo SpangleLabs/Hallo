@@ -139,7 +139,7 @@ class Boop(Function):
         # If one argument, check that the user is in the current channel.
         if len(line_split) == 1:
             dest_user_obj = server_obj.get_user_by_name(line_clean)
-            if not dest_user_obj.online or dest_user_obj not in destination_obj.user_list:
+            if not dest_user_obj.online or dest_user_obj not in destination_obj.get_user_list():
                 return "Error, No one by that name is online or in channel."
             server_obj.send("\x01ACTION boops " + dest_user_obj.name + ".\x01", destination_obj)
             return "Done."
@@ -156,7 +156,7 @@ class Boop(Function):
             else:
                 return "Error, I'm not in any channel by that name."
         # If user by that name is not online, return a message saying that.
-        if not dest_user.online or dest_user not in dest_channel.user_list:
+        if not dest_user.online or dest_user not in dest_channel.get_user_list():
             return "Error, No user by that name is online."
         # Send boop, then return done.
         server_obj.send("\x01ACTION boops " + dest_user.name + ".\x01", dest_channel)
