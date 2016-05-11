@@ -236,13 +236,18 @@ class Channel(Destination):
         :param user_list: List of users which are currently in the channel.
         :type user_list: set[User]
         """
-        # Remove all current memberships
+        # Remove any users not in the given user list
+        remove_memberships = []
         for membership in self.memberships_list:
-            membership.user.memberships_list.remove(membership)
-        self.memberships_list = set()
-        # Add new users
+            if membership.user not in user_list:
+                membership.user.memberships_list.remove(membership)
+                remove_memberships.append(membership)
+        for remove_membership in remove_memberships:
+            self.memberships_list.remove(remove_membership)
+        # Add any users not in membership list
         for user in user_list:
-            self.add_user(user)
+            if user not in [membership.user for membership in self.memberships_list]:
+                self.add_user(user)
 
     def remove_user(self, user):
         """
