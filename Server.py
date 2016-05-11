@@ -76,6 +76,10 @@ class Server(metaclass=ABCMeta):
         # Dynamic/unsaved class variables
         self.open = False  # Whether or not to keep reading from server
 
+    def __eq__(self, other):
+        return isinstance(other, Server) and self.hallo == other.hallo and self.type == other.type and \
+               self.name.lower() == other.name.lower()
+
     def connect(self):
         raise NotImplementedError
 
