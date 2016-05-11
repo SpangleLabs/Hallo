@@ -6,7 +6,7 @@ import socket
 import time
 import re
 
-from Destination import Channel, User
+from Destination import Channel, User, ChannelMembership
 from PermissionMask import PermissionMask
 from Function import Function
 
@@ -1077,25 +1077,37 @@ class ServerIRC(Server):
             self._check_channeluserlist_channel = channel_obj
             self._check_channeluserlist_user_list = None
             # send request
-            self.send("NAMES " + channel_obj.get_name(), None, Server.MSG_RAW)
+            self.send("NAMES " + channel_obj.name, None, Server.MSG_RAW)
             # loop for 5 seconds
             for _ in range(10):
+                # sleep 0.5seconds
+                time.sleep(0.5)
                 # if reply is here
                 if self._check_channeluserlist_user_list is not None:
                     # use response
                     user_object_list = set()
                     for user_name in self._check_channeluserlist_user_list:
                         # Strip flags from user name
+                        flags = ""
                         while user_name[0] in ['~', '&', '@', '%', '+']:
                             user_name = user_name[1:]
+                            flags += user_name[0]
+                        # Add user if not exists.
                         user_obj = self.get_user_by_name(user_name)
                         user_obj.set_online(True)
+                        chan_membership = ChannelMembership(channel_obj, user_obj)
+                        channel_obj.memberships_list.add(chan_membership)
+                        # Set voice and op on membership
+                        channel_obj.get_membership_by_user(user_obj).is_voice = "+" in flags
+                        channel_obj.get_membership_by_user(user_obj).is_op = "@" in flags
+                        # Add to list of users in channel
                         user_object_list.add(user_obj)
-                    channel_obj.set_user_list(user_object_list)
+                    # Remove all users from channel membership which are not in user list
+                    remove_users = [user for user in channel_obj.get_user_list() if user not in user_object_list]
+                    for user in remove_users:
+                        channel_obj.remove_user(user)
                     # return
-                    return
-                # sleep 0.5seconds
-                time.sleep(0.5)
+                    break
             # return
             return
         finally:
