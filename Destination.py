@@ -274,6 +274,18 @@ class Channel(Destination):
         """
         return user in [membership.user for membership in self.memberships_list]
 
+    def get_membership_by_user(self, user):
+        """
+        Returns the channel membership matching this user, or None
+        :param user: The user to get membership for
+        :type user: User
+        :rtype : ChannelMembership | None
+        """
+        for membership in self.memberships_list:
+            if membership.user == user:
+                return membership
+        return None
+
     def is_passive_enabled(self):
         """Whether or not passive functions are enabled in this channel"""
         return self.passive_enabled
