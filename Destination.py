@@ -520,3 +520,20 @@ class User(Destination):
         if len(doc.getElementsByTagName("permission_mask")) != 0:
             new_user.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return new_user
+
+
+class ChannelMembership:
+
+    def __init__(self, channel, user):
+        """
+        Constructor for ChannelMembership
+        :param channel: Which channel is this a membership of
+        :type channel: Channel
+        :param user: Which use is the member
+        :type user: User
+        """
+        self.channel = channel
+        self.user = user
+        self.is_op = False
+        self.is_voice = False
+        self.join_time = time.time()
