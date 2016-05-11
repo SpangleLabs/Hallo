@@ -75,6 +75,7 @@ class PermissionMask(object):
         """
         Loads a new Destination object from XML
         :param xml_string: XML string to parse to create new PermissionMask
+        :rtype : PermissionMask
         """
         doc = minidom.parseString(xml_string)
         new_mask = PermissionMask()

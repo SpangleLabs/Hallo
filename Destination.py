@@ -16,57 +16,82 @@ class Destination(metaclass=ABCMeta):
 
     def __init__(self):
         self.type = None  # The type of destination, "channel" or "user"
+        """:type : str | None"""
         self.server = None  # The server object this destination belongs to
+        """:type : Server.Server"""
         self.name = None  # Destination name, where to send messages
+        """:type : str"""
         self.logging = True  # Whether logging is enabled for this destination
-        self.last_active = True  # Timestamp of when they were last active
+        """:type : bool"""
+        self.last_active = None  # Timestamp of when they were last active
+        """:type : float | None"""
         self.use_caps_lock = False  # Whether to use caps lock when communicating to this destination
+        """:type : bool"""
         self.permission_mask = None  # PermissionMask for the destination object
+        """:type : PermissionMask.PermissionMask"""
 
     def get_name(self):
-        """Name getter"""
+        """
+        Name getter
+        :rtype : str
+        """
         return self.name.lower()
 
     def set_name(self, name):
         """
         Name setter
         :param name: Name of the destination
+        :type name: str
         """
         self.name = name.lower()
 
     def get_type(self):
         """
         Returns whether the destination is a user or channel.
+        :rtype : str
         """
         return self.type
 
     def is_channel(self):
-        """Boolean, whether the destination is a channel."""
+        """
+        Boolean, whether the destination is a channel.
+        :rtype : bool
+        """
         if self.type == Destination.TYPE_CHANNEL:
             return True
         else:
             return False
 
     def is_user(self):
-        """Boolean, whether the destination is a user."""
+        """
+        Boolean, whether the destination is a user.
+        :rtype : bool
+        """
         if self.type == Destination.TYPE_CHANNEL:
             return False
         else:
             return True
 
     def get_logging(self):
-        """Boolean, whether the destination is supposed to have logging."""
+        """
+        Boolean, whether the destination is supposed to have logging.
+        :rtype : bool
+        """
         return self.logging
 
     def set_logging(self, logging):
         """
         Sets whether the destination is logging.
         :param logging: Boolean, whether or not to log destination content
+        :type logging: bool
         """
         self.logging = logging
 
     def get_server(self):
-        """Returns the server object that this destination belongs to"""
+        """
+        Returns the server object that this destination belongs to
+        :rtype : Server.Server
+        """
         return self.server
 
     def update_activity(self):
@@ -74,17 +99,24 @@ class Destination(metaclass=ABCMeta):
         self.last_active = time.time()
 
     def get_last_active(self):
-        """Returns when the destination was last active"""
+        """
+        Returns when the destination was last active
+        :rtype : float
+        """
         return self.last_active
 
     def is_upper_case(self):
-        """Returns a boolean representing whether to use caps lock"""
+        """
+        Returns a boolean representing whether to use caps lock
+        :rtype : bool
+        """
         return self.use_caps_lock
 
     def set_upper_case(self, upper_case):
         """
         Sets whether the destination uses caps lock
         :param upper_case: Boolean, whether or not this destination is caps-lock only
+        :type upper_case: bool
         """
         self.use_caps_lock = upper_case
 
@@ -92,14 +124,21 @@ class Destination(metaclass=ABCMeta):
         """
         Defines whether a Destination object is persistent.
         That is to say, whether it needs saving, or can be generated anew.
+        :rtype : bool
         """
         raise NotImplementedError
 
     def get_permission_mask(self):
+        """
+        :rtype : PermissionMask.PermissionMask
+        """
         return self.permission_mask
 
     def to_xml(self):
-        """Returns the Destination object XML"""
+        """
+        Returns the Destination object XML
+        :rtype : str
+        """
         raise NotImplementedError
 
     @staticmethod
@@ -107,7 +146,10 @@ class Destination(metaclass=ABCMeta):
         """
         Loads a new Destination object from XML
         :param xml_string: XML string to parse to create destination
+        :type xml_string: str
         :param server: Server on which the destination is located
+        :type server: Server.Server
+        :rtype : Destination
         """
         raise NotImplementedError
 
@@ -117,21 +159,33 @@ class Channel(Destination):
     def __init__(self, name, server):
         """
         Constructor for channel object
+        :type name: str
+        :type server: Server.Server
         """
         super().__init__()
         self.type = Destination.TYPE_CHANNEL  # This is a channel object
         self.password = None  # Channel password, or none.
+        """:type : str | None"""
         self.user_list = set()  # Set of users in the channel
-        # TODO: Change this to a dict, referring to a list of channel-user flags?
+        """:type : set[ChannelMembership]"""
         self.in_channel = False  # Whether or not hallo is in the channel
+        """:type : bool"""
         self.passive_enabled = True  # Whether to use passive functions in the channel
+        """:type : bool"""
         self.auto_join = False  # Whether hallo should automatically join this channel when loading
+        """:type : bool"""
         self.prefix = None  # Prefix for calling functions. None means inherit from Server. False means use nick.
+        """:type : bool | None | str"""
         self.name = name.lower()
+        """:type : str"""
         self.server = server
+        """:type : Server.Server"""
 
     def get_password(self):
-        """Channel password getter"""
+        """
+        Channel password getter
+        :rtype : str | None
+        """
         return self.password
 
     def set_password(self, password):
@@ -143,7 +197,10 @@ class Channel(Destination):
         self.password = password
 
     def get_prefix(self):
-        """Returns the channel prefix."""
+        """
+        Returns the channel prefix.
+        :rtype : bool | str
+        """
         if self.prefix is None:
             return self.server.get_prefix()
         return self.prefix
