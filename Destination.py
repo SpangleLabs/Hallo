@@ -181,6 +181,9 @@ class Channel(Destination):
         self.server = server
         """:type : Server.Server"""
 
+    def __eq__(self, other):
+        return isinstance(other, Channel) and self.server == other.server and self.name.lower() == other.name.lower()
+
     def get_password(self):
         """
         Channel password getter
