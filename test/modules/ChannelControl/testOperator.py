@@ -59,6 +59,29 @@ class OperatorTest(TestBase, unittest.TestCase):
         finally:
             self.hallo.remove_server(serv1)
 
+    def test_op_0_is_op(self):
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1.add_user(user_hallo)
+        chan1_user1 = chan1.get_membership_by_user(user1)
+        chan1_user1.is_op = True
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        try:
+            self.function_dispatcher.dispatch("op", user1, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert "already has op" in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
+
     def test_op_0(self):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
@@ -150,6 +173,29 @@ class OperatorTest(TestBase, unittest.TestCase):
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
+
+    def test_op_1priv_is_op(self):
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1.add_user(user_hallo)
+        chan1_user1 = chan1.get_membership_by_user(user1)
+        chan1_user1.is_op = True
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        try:
+            self.function_dispatcher.dispatch("op test_chan1", user1, user1)
+            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert "already has op" in data[0][0].lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -246,6 +292,38 @@ class OperatorTest(TestBase, unittest.TestCase):
         finally:
             self.hallo.remove_server(serv1)
 
+    def test_op_1_chan_is_op(self):
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user2 = serv1.get_user_by_name("test_user2")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1.add_user(user_hallo)
+        chan2.add_user(user1)
+        chan2.add_user(user_hallo)
+        chan1_user1 = chan1.get_membership_by_user(user1)
+        chan1_user1.is_op = False
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        chan2_user1 = chan2.get_membership_by_user(user1)
+        chan2_user1.is_op = True
+        chan2_hallo = chan2.get_membership_by_user(user_hallo)
+        chan2_hallo.is_op = True
+        try:
+            self.function_dispatcher.dispatch("op test_chan2", user1, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert "already has op" in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
+
     def test_op_1_chan(self):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
@@ -332,6 +410,33 @@ class OperatorTest(TestBase, unittest.TestCase):
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
+
+    def test_op_1_user_is_op(self):
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user2 = serv1.get_user_by_name("test_user2")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1_user1 = chan1.get_membership_by_user(user1)
+        chan1_user1.is_op = False
+        chan1.add_user(user_hallo)
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        chan1.add_user(user2)
+        chan1_user2 = chan1.get_membership_by_user(user2)
+        chan1_user2.is_op = True
+        try:
+            self.function_dispatcher.dispatch("op test_user2", user1, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert "already has op" in data[0][0].lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -432,6 +537,38 @@ class OperatorTest(TestBase, unittest.TestCase):
         finally:
             self.hallo.remove_server(serv1)
 
+    def test_op_2_chan_is_op(self):
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user2 = serv1.get_user_by_name("test_user2")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1_user1 = chan1.get_membership_by_user(user1)
+        chan1_user1.is_op = False
+        chan1.add_user(user_hallo)
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        chan2.add_user(user2)
+        chan2_user2 = chan2.get_membership_by_user(user2)
+        chan2_user2.is_op = True
+        chan2.add_user(user_hallo)
+        chan2_hallo = chan2.get_membership_by_user(user_hallo)
+        chan2_hallo.is_op = True
+        try:
+            self.function_dispatcher.dispatch("op test_chan2 test_user2", user1, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert "already has op" in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
+
     def test_op_2_chan(self):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
@@ -451,8 +588,8 @@ class OperatorTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         chan2.add_user(user2)
-        chan2_user1 = chan2.get_membership_by_user(user2)
-        chan2_user1.is_op = False
+        chan2_user2 = chan2.get_membership_by_user(user2)
+        chan2_user2.is_op = False
         chan2.add_user(user_hallo)
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
@@ -563,6 +700,38 @@ class OperatorTest(TestBase, unittest.TestCase):
         finally:
             self.hallo.remove_server(serv1)
 
+    def test_op_2_user_is_op(self):
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user2 = serv1.get_user_by_name("test_user2")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1_user1 = chan1.get_membership_by_user(user1)
+        chan1_user1.is_op = False
+        chan1.add_user(user_hallo)
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        chan2.add_user(user2)
+        chan2_user2 = chan2.get_membership_by_user(user2)
+        chan2_user2.is_op = True
+        chan2.add_user(user_hallo)
+        chan2_hallo = chan2.get_membership_by_user(user_hallo)
+        chan2_hallo.is_op = True
+        try:
+            self.function_dispatcher.dispatch("op test_user2 test_chan2", user1, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert "already has op" in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
+
     def test_op_2_user(self):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
@@ -582,8 +751,8 @@ class OperatorTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         chan2.add_user(user2)
-        chan2_user1 = chan2.get_membership_by_user(user2)
-        chan2_user1.is_op = False
+        chan2_user2 = chan2.get_membership_by_user(user2)
+        chan2_user2.is_op = False
         chan2.add_user(user_hallo)
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
