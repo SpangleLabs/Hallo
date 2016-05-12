@@ -25,6 +25,12 @@ class UserGroup:
         self.name = name
         self.permission_mask = PermissionMask()
 
+    def __eq__(self, other):
+        return (self.hallo, self.name) == (self.hallo, other.name)
+
+    def __hash__(self):
+        return (self.hallo, self.name).__hash__()
+
     def rights_check(self, right_name, user_obj, channel_obj=None):
         """Checks the value of the right with the specified name. Returns boolean
         :param right_name: Name of the right to check

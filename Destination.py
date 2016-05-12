@@ -16,57 +16,84 @@ class Destination(metaclass=ABCMeta):
 
     def __init__(self):
         self.type = None  # The type of destination, "channel" or "user"
+        """:type : str | None"""
         self.server = None  # The server object this destination belongs to
+        """:type : Server.Server"""
         self.name = None  # Destination name, where to send messages
+        """:type : str"""
         self.logging = True  # Whether logging is enabled for this destination
-        self.last_active = True  # Timestamp of when they were last active
+        """:type : bool"""
+        self.last_active = None  # Timestamp of when they were last active
+        """:type : float | None"""
         self.use_caps_lock = False  # Whether to use caps lock when communicating to this destination
+        """:type : bool"""
         self.permission_mask = None  # PermissionMask for the destination object
+        """:type : PermissionMask.PermissionMask"""
+        self.memberships_list = set()  # Set of ChannelMemberships for User or Channel
+        """:type : set[ChannelMembership]"""
 
     def get_name(self):
-        """Name getter"""
+        """
+        Name getter
+        :rtype : str
+        """
         return self.name.lower()
 
     def set_name(self, name):
         """
         Name setter
         :param name: Name of the destination
+        :type name: str
         """
         self.name = name.lower()
 
     def get_type(self):
         """
         Returns whether the destination is a user or channel.
+        :rtype : str
         """
         return self.type
 
     def is_channel(self):
-        """Boolean, whether the destination is a channel."""
+        """
+        Boolean, whether the destination is a channel.
+        :rtype : bool
+        """
         if self.type == Destination.TYPE_CHANNEL:
             return True
         else:
             return False
 
     def is_user(self):
-        """Boolean, whether the destination is a user."""
+        """
+        Boolean, whether the destination is a user.
+        :rtype : bool
+        """
         if self.type == Destination.TYPE_CHANNEL:
             return False
         else:
             return True
 
     def get_logging(self):
-        """Boolean, whether the destination is supposed to have logging."""
+        """
+        Boolean, whether the destination is supposed to have logging.
+        :rtype : bool
+        """
         return self.logging
 
     def set_logging(self, logging):
         """
         Sets whether the destination is logging.
         :param logging: Boolean, whether or not to log destination content
+        :type logging: bool
         """
         self.logging = logging
 
     def get_server(self):
-        """Returns the server object that this destination belongs to"""
+        """
+        Returns the server object that this destination belongs to
+        :rtype : Server.Server
+        """
         return self.server
 
     def update_activity(self):
@@ -74,17 +101,24 @@ class Destination(metaclass=ABCMeta):
         self.last_active = time.time()
 
     def get_last_active(self):
-        """Returns when the destination was last active"""
+        """
+        Returns when the destination was last active
+        :rtype : float
+        """
         return self.last_active
 
     def is_upper_case(self):
-        """Returns a boolean representing whether to use caps lock"""
+        """
+        Returns a boolean representing whether to use caps lock
+        :rtype : bool
+        """
         return self.use_caps_lock
 
     def set_upper_case(self, upper_case):
         """
         Sets whether the destination uses caps lock
         :param upper_case: Boolean, whether or not this destination is caps-lock only
+        :type upper_case: bool
         """
         self.use_caps_lock = upper_case
 
@@ -92,14 +126,21 @@ class Destination(metaclass=ABCMeta):
         """
         Defines whether a Destination object is persistent.
         That is to say, whether it needs saving, or can be generated anew.
+        :rtype : bool
         """
         raise NotImplementedError
 
     def get_permission_mask(self):
+        """
+        :rtype : PermissionMask.PermissionMask
+        """
         return self.permission_mask
 
     def to_xml(self):
-        """Returns the Destination object XML"""
+        """
+        Returns the Destination object XML
+        :rtype : str
+        """
         raise NotImplementedError
 
     @staticmethod
@@ -107,7 +148,10 @@ class Destination(metaclass=ABCMeta):
         """
         Loads a new Destination object from XML
         :param xml_string: XML string to parse to create destination
+        :type xml_string: str
         :param server: Server on which the destination is located
+        :type server: Server.Server
+        :rtype : Destination
         """
         raise NotImplementedError
 
@@ -117,21 +161,37 @@ class Channel(Destination):
     def __init__(self, name, server):
         """
         Constructor for channel object
+        :type name: str
+        :type server: Server.Server
         """
         super().__init__()
         self.type = Destination.TYPE_CHANNEL  # This is a channel object
         self.password = None  # Channel password, or none.
-        self.user_list = set()  # Set of users in the channel
-        # TODO: Change this to a dict, referring to a list of channel-user flags?
+        """:type : str | None"""
         self.in_channel = False  # Whether or not hallo is in the channel
+        """:type : bool"""
         self.passive_enabled = True  # Whether to use passive functions in the channel
+        """:type : bool"""
         self.auto_join = False  # Whether hallo should automatically join this channel when loading
+        """:type : bool"""
         self.prefix = None  # Prefix for calling functions. None means inherit from Server. False means use nick.
+        """:type : bool | None | str"""
         self.name = name.lower()
+        """:type : str"""
         self.server = server
+        """:type : Server.Server"""
+
+    def __eq__(self, other):
+        return isinstance(other, Channel) and self.server == other.server and self.name.lower() == other.name.lower()
+
+    def __hash__(self):
+        return hash(self.name.lower())
 
     def get_password(self):
-        """Channel password getter"""
+        """
+        Channel password getter
+        :rtype : str | None
+        """
         return self.password
 
     def set_password(self, password):
@@ -143,7 +203,10 @@ class Channel(Destination):
         self.password = password
 
     def get_prefix(self):
-        """Returns the channel prefix."""
+        """
+        Returns the channel prefix.
+        :rtype : bool | str
+        """
         if self.prefix is None:
             return self.server.get_prefix()
         return self.prefix
@@ -157,8 +220,11 @@ class Channel(Destination):
         self.prefix = new_prefix
 
     def get_user_list(self):
-        """Returns the full user list of the channel"""
-        return self.user_list
+        """
+        Returns the full user list of the channel
+        :rtype : set[User]
+        """
+        return set([membership.user for membership in self.memberships_list])
 
     def add_user(self, user):
         """
@@ -166,18 +232,28 @@ class Channel(Destination):
         :param user: User object to add to channel's user list
         :type user: User
         """
-        self.user_list.add(user)
-        user.channel_list.add(self)
+        chan_membership = ChannelMembership(self, user)
+        self.memberships_list.add(chan_membership)
+        user.memberships_list.add(chan_membership)
 
     def set_user_list(self, user_list):
         """
         Sets the entire user list of a channel
         :param user_list: List of users which are currently in the channel.
-        :type user_list: set
+        :type user_list: set[User]
         """
-        self.user_list = user_list
+        # Remove any users not in the given user list
+        remove_memberships = []
+        for membership in self.memberships_list:
+            if membership.user not in user_list:
+                membership.user.memberships_list.remove(membership)
+                remove_memberships.append(membership)
+        for remove_membership in remove_memberships:
+            self.memberships_list.remove(remove_membership)
+        # Add any users not in membership list
         for user in user_list:
-            user.channel_list.add(self)
+            if user not in [membership.user for membership in self.memberships_list]:
+                self.add_user(user)
 
     def remove_user(self, user):
         """
@@ -185,9 +261,13 @@ class Channel(Destination):
         :param user: User to remove from channel's user list
         :type user: User
         """
+        chan_membership = ChannelMembership(self, user)
         try:
-            self.user_list.remove(user)
-            user.channel_list.remove(self)
+            self.memberships_list.remove(chan_membership)
+        except KeyError:
+            pass
+        try:
+            user.memberships_list.remove(chan_membership)
         except KeyError:
             pass
 
@@ -196,8 +276,21 @@ class Channel(Destination):
         Returns a boolean as to whether the user is in this channel
         :param user: User being checked
         :type user: User
+        :rtype : bool
         """
-        return user in self.user_list
+        return user in [membership.user for membership in self.memberships_list]
+
+    def get_membership_by_user(self, user):
+        """
+        Returns the channel membership matching this user, or None
+        :param user: The user to get membership for
+        :type user: User
+        :rtype : ChannelMembership | None
+        """
+        for membership in self.memberships_list:
+            if membership.user == user:
+                return membership
+        return None
 
     def is_passive_enabled(self):
         """Whether or not passive functions are enabled in this channel"""
@@ -235,7 +328,9 @@ class Channel(Destination):
         """
         self.in_channel = in_channel
         if in_channel is False:
-            self.user_list = set()
+            for membership in self.memberships_list:
+                membership.user.memberships_list.remove(membership)
+            self.memberships_list = set()
 
     def rights_check(self, right_name):
         """
@@ -349,15 +444,29 @@ class User(Destination):
         """
         super().__init__()
         self.type = Destination.TYPE_USER  # This is a user object
+        """:type : str"""
         self.identified = False  # Whether the user is identified (with nickserv)
-        self.channel_list = set()  # Set of channels this user is in
+        """:type : bool"""
         self.online = False  # Whether or not the user is online
-        self.user_group_list = {}  # List of UserGroups this User is a member of
+        """:type : bool"""
+        self.user_group_list = set()  # List of UserGroups this User is a member of
+        """:type : set[UserGroup.UserGroup]"""
         self.name = name.lower()
+        """:type : str"""
         self.server = server
+        """:type : Server.Server"""
+
+    def __eq__(self, other):
+        return isinstance(other, User) and self.server == other.server and self.name.lower() == other.name.lower()
+
+    def __hash__(self):
+        return hash(self.name.lower())
 
     def is_identified(self):
-        """Checks whether this user is identified"""
+        """
+        Checks whether this user is identified
+        :rtype : bool
+        """
         if not self.identified:
             self.check_identity()
         return self.identified
@@ -381,30 +490,35 @@ class User(Destination):
         :param new_user_group: User group to add the user to
         :type new_user_group: UserGroup.UserGroup
         """
-        new_user_group_name = new_user_group.get_name()
-        self.user_group_list[new_user_group_name] = new_user_group
+        self.user_group_list.add(new_user_group)
 
     def get_user_group_by_name(self, user_group_name):
         """
         Returns the UserGroup with the matching name
         :param user_group_name: Returns the user group by the specified name that this user is in
         :type user_group_name: str
+        :rtype : UserGroup.UserGroup | None
         """
-        if user_group_name in self.user_group_list:
-            return self.user_group_list[user_group_name]
+        for user_group in self.user_group_list:
+            if user_group.name == user_group_name:
+                return user_group
         return None
 
-    def get_user_group_list(self):
-        """Returns the full list of UserGroups this User is a member of"""
-        return self.user_group_list
-
-    def remove_user_group_by_name(self, user_group_name):
+    def remove_user_group(self, user_group):
         """
         Removes the UserGroup by the given name from a user
-        :param user_group_name: Removes the user group matching this name that the user is in
-        :type user_group_name: str
+        :param user_group: Removes the user group matching this name that the user is in
+        :type user_group: UserGroup.UserGroup
         """
-        del self.user_group_list[user_group_name]
+        self.user_group_list.remove(user_group)
+
+    def get_channel_list(self):
+        """
+        Returns a list of channels
+        :return: list of channels the user is in
+        :rtype: set[Channel]
+        """
+        return set([membership.channel for membership in self.memberships_list])
 
     def is_online(self):
         """Whether the user appears to be online"""
@@ -419,7 +533,10 @@ class User(Destination):
         self.online = online
         if online is False:
             self.identified = False
-            self.channel_list = set()
+            for membership in self.memberships_list:
+                membership.channel.memberships_list.remove(membership)
+            self.memberships_list = set()
+            """:type : set[ChannelMembership]"""
 
     def rights_check(self, right_name, channel_obj=None):
         """
@@ -436,9 +553,7 @@ class User(Destination):
                 return right_value
         # Check UserGroup rights, if any apply
         if len(self.user_group_list) != 0:
-            return any(
-                [user_group.rights_check(right_name, self, channel_obj) for user_group in self.user_group_list.values()]
-            )
+            return any([user_group.rights_check(right_name, self, channel_obj) for user_group in self.user_group_list])
         # Fall back to channel, if defined
         if channel_obj is not None and channel_obj.is_channel():
             return channel_obj.rights_check(right_name)
@@ -483,9 +598,9 @@ class User(Destination):
         root.appendChild(caps_lock_elem)
         # create user_group list
         user_group_list_elem = doc.createElement("user_group_membership")
-        for user_group_name in self.user_group_list:
+        for user_group in self.user_group_list:
             user_group_elem = doc.createElement("user_group_name")
-            user_group_elem.appendChild(doc.createTextNode(user_group_name))
+            user_group_elem.appendChild(doc.createTextNode(user_group.name))
             user_group_list_elem.appendChild(user_group_elem)
         root.appendChild(user_group_list_elem)
         # create permission_mask element
@@ -513,10 +628,33 @@ class User(Destination):
         user_group_list_elem = doc.getElementsByTagName("user_group_membership")[0]
         for user_group_elem in user_group_list_elem.getElementsByTagName("user_group_name"):
             user_group_name = user_group_elem.firstChild.data
-            user_group = server.get_hallo().get_user_group_by_name(user_group_name)
+            user_group = server.hallo.get_user_group_by_name(user_group_name)
             if user_group is not None:
                 new_user.add_user_group(user_group)
         # Add PermissionMask, if one exists
         if len(doc.getElementsByTagName("permission_mask")) != 0:
             new_user.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return new_user
+
+
+class ChannelMembership:
+
+    def __init__(self, channel, user):
+        """
+        Constructor for ChannelMembership
+        :param channel: Which channel is this a membership of
+        :type channel: Channel
+        :param user: Which use is the member
+        :type user: User
+        """
+        self.channel = channel
+        self.user = user
+        self.is_op = False
+        self.is_voice = False
+        self.join_time = time.time()
+
+    def __eq__(self, other):
+        return isinstance(other, ChannelMembership) and (self.channel, self.user) == (other.channel, other.user)
+
+    def __hash__(self):
+        return (self.channel, self.user).__hash__()

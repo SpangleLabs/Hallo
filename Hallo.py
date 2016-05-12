@@ -19,20 +19,32 @@ class Hallo:
 
     def __init__(self):
         self.default_nick = "Hallo"
+        """:type : str"""
         self.default_prefix = False
+        """:type : bool | str"""
         self.default_full_name = "HalloBot HalloHost HalloServer :an irc bot by spangle"
+        """:type : str"""
         self.open = False
-        self.user_list_list = {}
+        """:type : bool"""
+        self.user_group_list = set()
+        """:type : set[UserGroup]"""
         self.server_list = []
+        """:type : list[Server.Server]"""
         self.logger = Logger(self)
+        """:type : Logger"""
         self.printer = Printer(self)
+        """:type : Printer"""
         self.api_key_list = {}
+        """:type : dict[str,str]"""
         # Create ServerFactory
         self.server_factory = ServerFactory(self)
+        """:type : ServerFactory"""
         self.permission_mask = PermissionMask()
+        """:type : PermissionMask"""
         # TODO: manual FunctionDispatcher construction, user input?
         self.function_dispatcher = FunctionDispatcher({"ChannelControl", "Convert", "HalloControl", "Lookup", "Math",
                                                        "PermissionControl", "Random", "ServerControl"}, self)
+        """:type : FunctionDispatcher"""
 
     def start(self):
         # If no servers, ask for a new server
@@ -144,8 +156,8 @@ class Hallo:
         root.appendChild(server_list_elem)
         # Create user_group list
         user_group_list_elem = doc.createElement("user_group_list")
-        for user_group_name in self.user_list_list:
-            user_group_elem = minidom.parseString(self.user_list_list[user_group_name].to_xml()).firstChild
+        for user_group in self.user_group_list:
+            user_group_elem = minidom.parseString(user_group.to_xml()).firstChild
             user_group_list_elem.appendChild(user_group_elem)
         root.appendChild(user_group_list_elem)
         # Create permission_mask element, if it's not empty.
@@ -171,26 +183,30 @@ class Hallo:
         """
         Adds a new UserGroup to the UserGroup list
         :param user_group: UserGroup to add to the hallo object's list of user groups
+        :type user_group: UserGroup
         """
-        user_group_name = user_group.get_name()
-        self.user_list_list[user_group_name] = user_group
+        self.user_group_list.add(user_group)
 
     def get_user_group_by_name(self, user_group_name):
         """
         Returns the UserGroup with the specified name
         :param user_group_name: Name of user group to search for
+        :type user_group_name: str
         :return: User Group matching specified name, or None
+        :rtype: UserGroup | None
         """
-        if user_group_name in self.user_list_list:
-            return self.user_list_list[user_group_name]
+        for user_group in self.user_group_list:
+            if user_group_name == user_group.name:
+                return user_group
         return None
 
-    def remove_user_group_by_name(self, user_group_name):
+    def remove_user_group(self, user_group):
         """
         Removes a user group specified by name
-        :param user_group_name: Name of the user group to remove from list
+        :param user_group: Name of the user group to remove from list
+        :type user_group: UserGroup
         """
-        del self.user_list_list[user_group_name]
+        self.user_group_list.remove(user_group)
 
     def add_server(self, server):
         """
@@ -304,7 +320,9 @@ class Hallo:
         """
         Adds an api key to the list, or overwrites one.
         :param name: Name of the API to add
+        :type name: str
         :param key: The actual API key to use
+        :type key: str
         """
         self.api_key_list[name] = key
 
