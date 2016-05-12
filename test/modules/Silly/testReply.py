@@ -71,7 +71,7 @@ class ReplyTest(TestBase, unittest.TestCase):
         page_request = urllib.request.Request(response)
         page_opener = urllib.request.build_opener()
         response_data = page_opener.open(page_request).read()
-        assert len(response) > 0, "haskell.jpg image does not exist."
+        assert len(response_data) > 0, "haskell.jpg image does not exist."
 
     def test_reply_podbay_doors(self):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
