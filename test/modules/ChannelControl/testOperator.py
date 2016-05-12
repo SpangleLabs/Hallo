@@ -65,6 +65,7 @@ class OperatorTest(TestBase, unittest.TestCase):
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
         chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
         user1 = serv1.get_user_by_name("test_user1")
         user_hallo = serv1.get_user_by_name(serv1.get_nick())
         chan1.add_user(user1)
@@ -88,10 +89,49 @@ class OperatorTest(TestBase, unittest.TestCase):
             self.hallo.remove_server(serv1)
 
     def test_op_1priv_not_in_channel(self):
-        pass
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        user1 = serv1.get_user_by_name("test_user1")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1.add_user(user_hallo)
+        chan1_user1 = chan1.get_membership_by_user(user1)
+        chan1_user1.is_op = False
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        try:
+            self.function_dispatcher.dispatch("op other_channel", user1, user1)
+            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert "not in that channel" in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
 
     def test_op_1priv_no_power(self):
-        pass
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1.add_user(user_hallo)
+        chan1_user1 = chan1.get_membership_by_user(user1)
+        chan1_user1.is_op = False
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = False
+        try:
+            self.function_dispatcher.dispatch("op test_chan1", user1, user1)
+            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert "don't have power" in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
 
     def test_op_1priv(self):
         pass
