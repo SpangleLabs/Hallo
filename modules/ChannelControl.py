@@ -267,13 +267,13 @@ class Voice(Function):
             return "Error, "+user.name+" is not in "+channel.name+"."
         # Check if hallo has op in channel
         if not self.hallo_has_op(channel):
-            return "Error, I don't have power to give op in "+channel.name+"."
+            return "Error, I don't have power to give voice in "+channel.name+"."
         # Check that user does not have op in channel
         user_membership = channel.get_membership_by_user(user)
-        if user_membership.is_op:
-            return "Error, this user already has op."
-        channel.server.send("MODE "+channel.name+" +o "+user.name, None, Server.MSG_RAW)
-        return "Op status given."
+        if user_membership.is_voice or user_membership.is_op:
+            return "Error, this user already has voice."
+        channel.server.send("MODE "+channel.name+" +v "+user.name, None, Server.MSG_RAW)
+        return "Voice status given."
 
     def hallo_has_op(self, channel):
         """
