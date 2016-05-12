@@ -98,7 +98,7 @@ class Operator(Function):
         :rtype: bool
         """
         server = channel.server
-        hallo_user = server.get_user_by_name(server.nick)
+        hallo_user = server.get_user_by_name(server.get_nick())
         hallo_membership = channel.get_membership_by_user(hallo_user)
         return hallo_membership.is_op
 
