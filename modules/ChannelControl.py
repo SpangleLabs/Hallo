@@ -26,7 +26,7 @@ class Operator(Function):
         server_obj = user_obj.get_server()
         # If server isn't IRC type, we can't give op.
         if server_obj.get_type() != Server.TYPE_IRC:
-            return "This function is only available for IRC servers."
+            return "Error, this function is only available for IRC servers."
         # If 0 arguments, op user who called command.
         line_split = line.split()
         if len(line_split) == 0:
