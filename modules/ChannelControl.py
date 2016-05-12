@@ -23,9 +23,9 @@ class Operator(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Get server object
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         # If server isn't IRC type, we can't give op.
-        if server_obj.get_type() != Server.TYPE_IRC:
+        if server_obj.type != Server.TYPE_IRC:
             return "Error, this function is only available for IRC servers."
         # If 0 arguments, op user who called command.
         line_split = line.split()
@@ -36,7 +36,7 @@ class Operator(Function):
             # Check if hallo has op
             if not self.hallo_has_op(destination_obj):
                 return "Error, I don't have power to give op."
-            server_obj.send("MODE " + destination_obj.get_name() + " +o " + user_obj.get_name(), None, Server.MSG_RAW)
+            server_obj.send("MODE " + destination_obj.name + " +o " + user_obj.name, None, Server.MSG_RAW)
             return "Op status given."
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
