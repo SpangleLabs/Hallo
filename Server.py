@@ -101,7 +101,7 @@ class Server(metaclass=ABCMeta):
         :param data: Line of data to send to server
         :type data: str
         :param destination_obj: Destination to send data to
-        :type destination_obj: Destination.Destination
+        :type destination_obj: Destination.Destination | None
         :param msg_type: Type of message which is being sent
         :type msg_type: str
         """
