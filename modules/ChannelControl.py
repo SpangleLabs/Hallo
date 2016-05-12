@@ -69,7 +69,7 @@ class Operator(Function):
                 return "Error, that user is not in this channel."
             # Check hallo has op
             if not self.hallo_has_op(destination_obj):
-                return "Error, I don't have the power to give op here."
+                return "Error, I don't have power to give op here."
             server_obj.send("MODE " + destination_obj.name + " +o " + target_user.name, None, Server.MSG_RAW)
             return "Op status given."
         # If 2 arguments, try with first argument as channel
