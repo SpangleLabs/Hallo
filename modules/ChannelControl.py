@@ -34,72 +34,55 @@ class Operator(Function):
             if destination_obj is None or destination_obj.is_user():
                 return "Error, I can't op you in a privmsg, please provide a channel."
             # Check if hallo has op
-            if not self.hallo_has_op(destination_obj):
-                return "Error, I don't have power to give op."
-            server_obj.send("MODE " + destination_obj.name + " +o " + user_obj.name, None, Server.MSG_RAW)
-            return "Op status given."
+            return self.give_op(destination_obj, user_obj)
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
             # If message was sent in privmsg, it's referring to a channel
             if destination_obj is None or destination_obj.is_user():
                 channel = server_obj.get_channel_by_name(line)
-                if not channel.in_channel:
-                    return "Error, I'm not in that channel."
-                if user_obj not in channel.get_user_list():
-                    return "Error, you are not in that channel."
-                if not self.hallo_has_op(channel):
-                    return "Error, I don't have power to give op here."
-                server_obj.send("MODE " + channel.name + " +o " + user_obj.name, None, Server.MSG_RAW)
-                return "Op status given."
+                return self.give_op(channel, user_obj)
             # See if it's a channel that hallo is in
             test_channel = server_obj.get_channel_by_name(line)
             if test_channel.in_channel:
-                # Check that the user is in the specified channel
-                if user_obj not in test_channel.get_user_list():
-                    return "Error, you are not in that channel."
-                # Check if hallo has op in specified channel
-                if not self.hallo_has_op(test_channel):
-                    return "Error, I don't have power to give op in that channel."
-                # Set op for current user in specified channel
-                server_obj.send("MODE " + test_channel.name + " +o " + user_obj.name, None, Server.MSG_RAW)
-                return "Op status given."
-            # Check if it's a user in current channel
+                return self.give_op(test_channel, user_obj)
+            # Argument must be a user?
             target_user = server_obj.get_user_by_name(line)
-            if not destination_obj.is_user_in_channel(target_user):
-                return "Error, that user is not in this channel."
-            # Check hallo has op
-            if not self.hallo_has_op(destination_obj):
-                return "Error, I don't have power to give op here."
-            server_obj.send("MODE " + destination_obj.name + " +o " + target_user.name, None, Server.MSG_RAW)
-            return "Op status given."
+            return self.give_op(destination_obj, target_user)
         # If 2 arguments, try with first argument as channel
         target_channel = server_obj.get_channel_by_name(line_split[0])
         if target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
-            if not target_channel.is_user_in_channel(target_user):
-                return "Error, "+target_user.name+" is not in "+target_channel.name+"."
-            if not self.hallo_has_op(target_channel):
-                return "Error, I don't have power to give op in "+target_channel.name+"."
-            server_obj.send("MODE " + target_channel.name + " +o " + target_user.name, None, Server.MSG_RAW)
-            return "Op status given."
+            return self.give_op(target_channel, target_user)
         # 2 args, try with second argument as channel
         target_channel = server_obj.get_channel_by_name(line_split[1])
         target_user = server_obj.get_user_by_name(line_split[0])
-        if not target_channel.in_channel:
-            return "Error, I'm not in that channel."
-        if not target_channel.is_user_in_channel(target_user):
-            return "Error, "+target_user.name+" is not in "+target_channel.name+"."
-        if not self.hallo_has_op(target_channel):
-            return "Error, I don't have power to give op in "+target_channel.name+"."
-        server_obj.send("MODE " + target_channel.name + " +o " + target_user.name, None, Server.MSG_RAW)
-        return "Op status given."
+        return self.give_op(target_channel, target_user)
 
     def give_op(self, channel, user):
+        """
+        Gives op to a user in a given channel, after checks.
+        :param channel: Channel to give user op in
+        :type channel: Destination.Channel
+        :param user: User to give op to
+        :type user: Destination.User
+        :return: Response to send to requester
+        :rtype: str
+        """
         # Check if in channel
+        if not channel.in_channel:
+            return "Error, I'm not in that channel."
         # Check if user is in channel
+        if user not in channel.get_user_list():
+            return "Error, "+user.name+" is not in "+channel.name+"."
         # Check if hallo has op in channel
+        if not self.hallo_has_op(channel):
+            return "Error, I don't have power to give op in "+channel.name+"."
         # Check that user does not have op in channel
-        pass
+        user_membership = channel.get_membership_by_user(user)
+        if user_membership.is_op:
+            return "Error, this user already has op."
+        channel.server.send("MODE "+channel.name+" +o "+user.name, None, Server.MSG_RAW)
+        return "Op status given."
 
     def hallo_has_op(self, channel):
         """
