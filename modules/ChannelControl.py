@@ -175,7 +175,7 @@ class DeOperator(Function):
             return "Error, I don't have power to take op in "+channel.name+"."
         # Check that user does not have op in channel
         user_membership = channel.get_membership_by_user(user)
-        if user_membership.is_op:
+        if not user_membership.is_op:
             return "Error, this user doesn't have op."
         channel.server.send("MODE "+channel.name+" -o "+user.name, None, Server.MSG_RAW)
         return "Op status taken."
