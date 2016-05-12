@@ -84,15 +84,22 @@ class Operator(Function):
             return "Op status given."
         # 2 args, try with second argument as channel
         target_channel = server_obj.get_channel_by_name(line_split[1])
+        target_user = server_obj.get_user_by_name(line_split[0])
         if not target_channel.in_channel:
             return "Error, I'm not in that channel."
-        target_user = server_obj.get_user_by_name(line_split[0])
         if not target_channel.is_user_in_channel(target_user):
             return "Error, "+target_user.name+" is not in "+target_channel.name+"."
         if not self.hallo_has_op(target_channel):
             return "Error, I don't have power to give op in "+target_channel.name+"."
         server_obj.send("MODE " + target_channel.name + " +o " + target_user.name, None, Server.MSG_RAW)
         return "Op status given."
+
+    def give_op(self, channel, user):
+        # Check if in channel
+        # Check if user is in channel
+        # Check if hallo has op in channel
+        # Check that user does not have op in channel
+        pass
 
     def hallo_has_op(self, channel):
         """
