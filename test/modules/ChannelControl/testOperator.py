@@ -323,8 +323,11 @@ class OperatorTest(TestBase, unittest.TestCase):
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
+        chan1.add_user(user2)
+        chan1_user2 = chan1.get_membership_by_user(user2)
+        chan1_user2.is_op = False
         try:
-            self.function_dispatcher.dispatch("op test_user1", user1, chan1)
+            self.function_dispatcher.dispatch("op test_user2", user1, chan1)
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -332,7 +335,37 @@ class OperatorTest(TestBase, unittest.TestCase):
             self.hallo.remove_server(serv1)
 
     def test_op_1_user(self):
-        pass
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user2 = serv1.get_user_by_name("test_user2")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1_user1 = chan1.get_membership_by_user(user1)
+        chan1_user1.is_op = False
+        chan1.add_user(user_hallo)
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        chan1.add_user(user2)
+        chan1_user2 = chan1.get_membership_by_user(user2)
+        chan1_user2.is_op = False
+        try:
+            self.function_dispatcher.dispatch("op test_user2", user1, chan1)
+            data = serv1.get_send_data(2)
+            assert "error" not in data[0][0].lower()
+            assert data[0][1] is None
+            assert data[1][1] == chan1
+            assert data[0][2] == Server.MSG_RAW
+            assert data[1][2] == Server.MSG_MSG
+            assert data[0][0][:4] == "MODE"
+            assert chan1.name+" +o "+user2.name in data[0][0]
+            assert "status given" in data[1][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
 
     def test_op_2_chan_user_not_there(self):
         pass
