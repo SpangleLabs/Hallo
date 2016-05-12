@@ -365,7 +365,7 @@ class DeVoice(Function):
             return "Error, I don't have power to take voice in "+channel.name+"."
         # Check that user does not have op in channel
         user_membership = channel.get_membership_by_user(user)
-        if user_membership.is_voice or user_membership.is_op:
+        if not user_membership.is_voice:
             return "Error, this user doesn't have voice."
         channel.server.send("MODE "+channel.name+" -v "+user.name, None, Server.MSG_RAW)
         return "Voice status taken."
