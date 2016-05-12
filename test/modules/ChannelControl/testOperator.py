@@ -47,6 +47,7 @@ class OperatorTest(TestBase, unittest.TestCase):
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
         chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
         user1 = serv1.get_user_by_name("test_user1")
         chan1.add_user(user1)
         chan1.add_user(serv1.get_user_by_name(serv1.get_nick()))
@@ -125,7 +126,7 @@ class OperatorTest(TestBase, unittest.TestCase):
             self.function_dispatcher.dispatch("op test_chan1", user1, user1)
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
-            assert "you are not in that channel" in data[0][0].lower()
+            assert "test_user1 is not in test_chan1" in data[0][0].lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -209,7 +210,7 @@ class OperatorTest(TestBase, unittest.TestCase):
             self.function_dispatcher.dispatch("op test_chan2", user1, chan1)
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
-            assert "you are not in that channel" in data[0][0].lower()
+            assert "test_user1 is not in test_chan2" in data[0][0].lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -303,7 +304,7 @@ class OperatorTest(TestBase, unittest.TestCase):
             self.function_dispatcher.dispatch("op test_user2", user1, chan1)
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
-            assert "user is not in this channel" in data[0][0].lower()
+            assert "test_user2 is not in test_chan1" in data[0][0].lower()
         finally:
             self.hallo.remove_server(serv1)
 
