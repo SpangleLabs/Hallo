@@ -491,7 +491,7 @@ class OperatorTest(TestBase, unittest.TestCase):
         chan2_user1 = chan2.get_membership_by_user(user2)
         chan2_user1.is_op = False
         try:
-            self.function_dispatcher.dispatch("op test_chan2 test_user2", user1, chan1)
+            self.function_dispatcher.dispatch("op test_user2 test_chan2", user1, chan1)
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "i'm not in that channel" in data[0][0].lower()
