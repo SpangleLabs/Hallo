@@ -45,6 +45,8 @@ class Operator(Function):
                 channel = server_obj.get_channel_by_name(line)
                 if not channel.in_channel:
                     return "Error, I'm not in that channel."
+                if user_obj not in channel.get_user_list():
+                    return "Error, you are not in that channel."
                 if not self.hallo_has_op(channel):
                     return "Error, I don't have power to give op here."
                 server_obj.send("MODE " + channel.name + " +o " + user_obj.name, None, Server.MSG_RAW)
@@ -52,6 +54,9 @@ class Operator(Function):
             # See if it's a channel that hallo is in
             test_channel = server_obj.get_channel_by_name(line)
             if test_channel.in_channel:
+                # Check that the user is in the specified channel
+                if user_obj not in test_channel.get_user_list():
+                    return "Error, you are not in that channel."
                 # Check if hallo has op in specified channel
                 if not self.hallo_has_op(test_channel):
                     return "Error, I don't have power to give op in that channel."
