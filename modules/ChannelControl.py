@@ -403,48 +403,72 @@ class Invite(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Get server object
-        server_obj = user_obj.get_server()
-        # If server isn't IRC type, we can't give op.
-        if server_obj.get_type() != Server.TYPE_IRC:
-            return "This function is only available for IRC servers."
-        # TODO: check if hallo has op?
+        server_obj = user_obj.server
+        # If server isn't IRC type, we can't invite people
+        if server_obj.type != Server.TYPE_IRC:
+            return "Error, this function is only available for IRC servers."
+        # If 0 arguments, ask for clarification
         line_split = line.split()
         if len(line_split) == 0:
-            return "Please specify a person to invite and/or a channel to invite to."
+            return "Error, please specify a person to invite and/or a channel to invite to."
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
-            if line.startswith("#"):
-                target_channel = server_obj.get_channel_by_name(line)
-                if target_channel is None or not target_channel.is_in_channel():
-                    return "I'm not in that channel."
-                server_obj.send("INVITE " + user_obj.get_name() + " " + target_channel.get_name(), None, Server.MSG_RAW)
-                return "Invited " + user_obj.get_name() + " to " + target_channel.get_name() + "."
-            if destination_obj is None or destination_obj == user_obj:
-                return "You can't invite a user to privmsg."
+            # If message was sent in privmsg, it's referring to a channel
+            if destination_obj is None or destination_obj.is_user():
+                channel = server_obj.get_channel_by_name(line)
+                return self.send_invite(channel, user_obj)
+            # See if it's a channel that hallo is in
+            test_channel = server_obj.get_channel_by_name(line)
+            if test_channel.in_channel:
+                return self.send_invite(test_channel, user_obj)
+            # Argument must be a user?
             target_user = server_obj.get_user_by_name(line)
-            if target_user is None or not target_user.is_online():
-                return "That user is not online."
-            server_obj.send("INVITE " + target_user.get_name() + " " + destination_obj.get_name())
-            return "Invited " + target_user.get_name() + " to " + destination_obj.get_name() + "."
-        # If 2 arguments, determine which is channel and which is user.
-        if line_split[0].startswith("#"):
-            target_channel = server_obj.get_channel_by_name(line_split[0])
+            return self.send_invite(destination_obj, target_user)
+        # If 2 arguments, try with first argument as channel
+        target_channel = server_obj.get_channel_by_name(line_split[0])
+        if target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
-        elif line_split[1].startswith("#"):
-            target_channel = server_obj.get_channel_by_name(line_split[1])
-            target_user = server_obj.get_user_by_name(line_split[0])
-        else:
-            return "Unrecognised input. Please specify user and channel."
-        # Do checks on target channel and user
-        if target_channel is None or not target_channel.is_in_channel():
-            return "I'm not in that channel."
-        if target_user is None or not target_user.is_online():
-            return "That user is not online."
-        if target_channel.is_user_in_channel(target_user):
-            return "That user is already in that channel."
-        # TODO: check if hallo has op in this channel.
-        server_obj.send("INVITE " + target_user.get_name() + " " + target_channel.get_name(), None, Server.MSG_RAW)
-        return "Invited " + target_user.get_name() + " to " + target_channel.get_name() + "."
+            return self.send_invite(target_channel, target_user)
+        # 2 args, try with second argument as channel
+        target_channel = server_obj.get_channel_by_name(line_split[1])
+        target_user = server_obj.get_user_by_name(line_split[0])
+        return self.send_invite(target_channel, target_user)
+
+    def send_invite(self, channel, user):
+        """
+        Sends an invite to a specified user to join a given channel.
+        :param channel: Channel to invite target to
+        :type channel: Destination.Channel
+        :param user: User to invite to channel
+        :type user: Destination.User
+        :return: Response to send to requester
+        :rtype: str
+        """
+        # Check if in channel
+        if not channel.in_channel:
+            return "Error, I'm not in that channel."
+        # Check if user is in channel
+        if user in channel.get_user_list():
+            return "Error, "+user.name+" is already in "+channel.name+"."
+        # Check if hallo has op in channel
+        if not self.hallo_has_op(channel):
+            return "Error, I don't have power to invite users in "+channel.name+"."
+        # Send invite
+        channel.server.send("INVITE "+user.name+" "+channel.name, None, Server.MSG_RAW)
+        return "Invite sent."
+
+    def hallo_has_op(self, channel):
+        """
+        Checks whether hallo has op in a given channel.
+        :param channel: channel to check op status for
+        :type channel: Destination.Channel
+        :return: whether hallo has op
+        :rtype: bool
+        """
+        server = channel.server
+        hallo_user = server.get_user_by_name(server.get_nick())
+        hallo_membership = channel.get_membership_by_user(hallo_user)
+        return hallo_membership.is_op
 
 
 class Mute(Function):
