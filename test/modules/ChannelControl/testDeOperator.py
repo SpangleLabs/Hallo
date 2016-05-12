@@ -59,7 +59,7 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         finally:
             self.hallo.remove_server(serv1)
 
-    def test_deop_0_is_op(self):
+    def test_deop_0_not_op(self):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
@@ -176,7 +176,7 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         finally:
             self.hallo.remove_server(serv1)
 
-    def test_deop_1priv_is_op(self):
+    def test_deop_1priv_not_op(self):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
@@ -292,7 +292,7 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         finally:
             self.hallo.remove_server(serv1)
 
-    def test_deop_1_chan_is_op(self):
+    def test_deop_1_chan_not_op(self):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
@@ -413,7 +413,7 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         finally:
             self.hallo.remove_server(serv1)
 
-    def test_deop_1_user_is_op(self):
+    def test_deop_1_user_not_op(self):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
@@ -537,7 +537,7 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         finally:
             self.hallo.remove_server(serv1)
 
-    def test_deop_2_chan_is_op(self):
+    def test_deop_2_chan_not_op(self):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
@@ -700,7 +700,7 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         finally:
             self.hallo.remove_server(serv1)
 
-    def test_deop_2_user_is_op(self):
+    def test_deop_2_user_not_op(self):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
