@@ -491,6 +491,9 @@ class Mute(Function):
     def run(self, line, user_obj, destination_obj=None):
         # Get server object
         server_obj = user_obj.server
+        # If server isn't IRC type, we can't mute channels
+        if server_obj.type != Server.TYPE_IRC:
+            return "Error, this function is only available for IRC servers."
         # Check if no arguments were provided
         if line.strip() == "":
             if destination_obj is None or destination_obj.is_user():
@@ -552,6 +555,9 @@ class UnMute(Function):
     def run(self, line, user_obj, destination_obj=None):
         # Get server object
         server_obj = user_obj.server
+        # If server isn't IRC type, we can't unmute channels
+        if server_obj.type != Server.TYPE_IRC:
+            return "Error, this function is only available for IRC servers."
         # Check if no arguments were provided
         if line.strip() == "":
             if destination_obj is None or destination_obj.is_user():
