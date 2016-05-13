@@ -37,9 +37,13 @@ class FunctionDispatcher(object):
         """
         Sends the function call out to whichever function, if one is found
         :param function_message: Message (function name and arguments) which are to be dispatched
+        :type function_message: str
         :param user_obj: User who triggered function dispatch
+        :type user_obj: Destination.User
         :param destination_obj: Destination which triggered function dispatch
+        :type destination_obj: Destination.Destination
         :param flag_list: List of flags to apply to function call
+        :type flag_list: list[str]
         """
         if flag_list is None:
             flag_list = []
