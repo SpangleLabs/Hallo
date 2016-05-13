@@ -94,48 +94,41 @@ class Permissions(Function):
                 # Get channel by that name
                 channel_name = location_other.split("=")[1]
                 channel_obj = user_obj.server.get_channel_by_name(channel_name)
-                permission_mask = channel_obj.permission_mask
-                return permission_mask
+                return channel_obj.permission_mask
             # Check if they've specified a user
             if self.is_parameter(self.USER_NAMES, location_other):
                 # Get the user by that name
                 user_name = location_other.split("=")[1]
                 user_obj.server.get_user_by_name(user_name)
-                permission_mask = user_obj.permission_mask
-                return permission_mask
+                return user_obj.permission_mask
             raise PermissionControlException("Error, input not understood. You specified a server but not channel "
                                              "or user?")
         # # All following have length location_input ==1.
         # Check if they want to set generic hallo permissions
         if location_input[0] in self.HALLO_NAMES:
-            permission_mask = user_obj.server.hallo.permission_mask
-            return permission_mask
+            return user_obj.server.hallo.permission_mask
         # Check if they have asked for current server
         if location_input[0] in self.SERVER_NAMES:
-            permission_mask = user_obj.server.permission_mask
-            return permission_mask
+            return user_obj.server.permission_mask
         # Check if they have specified a server
         if self.is_parameter(self.SERVER_NAMES, location_input[0]):
             server_name = location_input[0].split("=")[1]
             server_obj = user_obj.server.hallo.get_server_by_name(server_name)
             if server_obj is None:
                 raise PermissionControlException("Error, no server exists by that name.")
-            permission_mask = server_obj.permission_mask
-            return permission_mask
+            return server_obj.permission_mask
         # Check if they've asked for current channel
         if location_input[0] in self.CHANNEL_NAMES:
             # Check if this is a channel, and not privmsg.
             if destination_obj is None:
                 raise PermissionControlException("Error, you can't set generic channel permissions in a privmsg.")
-            permission_mask = destination_obj.permission_mask
-            return permission_mask
+            return destination_obj.permission_mask
         # Check if they have specified a channel
         if self.is_parameter(self.CHANNEL_NAMES, location_input[0]):
             # Get channel by that name
             channel_name = location_input[0].split("=")[1]
             channel_obj = user_obj.server.get_channel_by_name(channel_name)
-            permission_mask = channel_obj.permission_mask
-            return permission_mask
+            return channel_obj.permission_mask
         # Check if they've specified a user group?
         if self.is_parameter(self.USER_GROUP_NAMES, location_input[0]):
             # See if you can find a UserGroup with that name
@@ -145,23 +138,20 @@ class Permissions(Function):
             if user_group_obj is None:
                 raise PermissionControlException("Error, no user group exists by that name.")
             # get permission mask and output
-            permission_mask = user_group_obj.permission_mask
-            return permission_mask
+            return user_group_obj.permission_mask
         # Check if they've specified a user
         if self.is_parameter(self.USER_NAMES, location_input[0]):
             # Get the user by that name
             user_name = location_input[0].split("=")[1]
             user_obj.server.get_user_by_name(user_name)
-            permission_mask = user_obj.permission_mask
-            return permission_mask
+            return user_obj.permission_mask
         # Check if their current channel has any user by the name of whatever else they might have said?
         if destination_obj is not None:
             test_user = user_obj.server.get_user_by_name(location_input[0])
             if not destination_obj.is_user_in_channel(test_user):
                 raise PermissionControlException("Error, I do not understand your input. I cannot find that "
                                                  "Permission Mask.")
-            permission_mask = test_user.permission_mask
-            return permission_mask
+            return test_user.permission_mask
         # My normal approaches failed. Generic error message
         return None
 
