@@ -55,7 +55,7 @@ class Permissions(Function):
     def find_permission_mask(self, location_input, user_obj, destination_obj):
         # If locationInput is a list with more than 2 elements, I don't know how to proceed.
         if len(location_input) > 2:
-            raise Exception("I'm not sure how to interpret that PermissionMask location")
+            raise Exception("Error, I'm not sure how to interpret that PermissionMask location")
         # If they've specified a server & channel or server & user, parse here
         if len(location_input) == 2:
             # Find server object.
@@ -66,10 +66,10 @@ class Permissions(Function):
                 server_name = location_input[1].split("=")[1]
                 location_other = location_input[0]
             else:
-                raise Exception("No server name found.")
+                raise Exception("Error, no server name found.")
             server_obj = user_obj.get_server().get_hallo().get_server_by_name(server_name)
             if server_obj is None:
-                raise Exception("No server exists by that name.")
+                raise Exception("Error, no server exists by that name.")
             # Check if they have specified a channel
             if any([location_other.startswith(channel_str + "=") for channel_str in self.CHANNEL_NAMES]):
                 # Get channel by that name
@@ -84,7 +84,7 @@ class Permissions(Function):
                 user_obj.get_server().get_user_by_name(user_name)
                 permission_mask = user_obj.get_permission_mask()
                 return permission_mask
-            raise Exception("Input not understood. You specified a server but not channel or user?")
+            raise Exception("Error, input not understood. You specified a server but not channel or user?")
         # # All following have length locationInput ==1.
         # Check if they want to set generic hallo permissions
         if location_input[0] in self.HALLO_NAMES:
@@ -99,14 +99,14 @@ class Permissions(Function):
             server_name = location_input[0].split("=")[1]
             server_obj = user_obj.get_server().get_hallo().get_server_by_name(server_name)
             if server_obj is None:
-                raise Exception("No server exists by that name.")
+                raise Exception("Error, no server exists by that name.")
             permission_mask = server_obj.get_permission_mask()
             return permission_mask
         # Check if they've asked for current channel
         if location_input[0] in self.CHANNEL_NAMES:
             # Check if this is a channel, and not privmsg.
             if destination_obj is None or destination_obj == user_obj:
-                raise Exception("You can't set generic channel permissions in a privmsg.")
+                raise Exception("Error, you can't set generic channel permissions in a privmsg.")
             permission_mask = destination_obj.get_permission_mask()
             return permission_mask
         # Check if they have specified a channel
@@ -123,7 +123,7 @@ class Permissions(Function):
             hallo_obj = user_obj.get_server().get_hallo()
             user_group_obj = hallo_obj.get_user_group_by_name(user_group_name)
             if user_group_obj is None:
-                raise Exception("No user group exists by that name.")
+                raise Exception("Error, no user group exists by that name.")
             # get permission mask and output
             permission_mask = user_group_obj.get_permission_mask()
             return permission_mask
@@ -139,7 +139,7 @@ class Permissions(Function):
             user_list = destination_obj.get_user_list()
             user_list_matching = [user_obj for user_obj in user_list if user_obj.get_name() == location_input[0]]
             if len(user_list_matching) == 0:
-                raise Exception("I do not understand your input. I cannot find that Permission Mask.")
+                raise Exception("Error, I do not understand your input. I cannot find that Permission Mask.")
             user_obj = user_list_matching[0]
             permission_mask = user_obj.get_permission_mask()
             return permission_mask
