@@ -41,16 +41,16 @@ class Permissions(Function):
             return str(e)
         # If it comes back unspecified, generic error message
         if permission_mask is None:
-            return "I can't find that permission mask. Specify which you wish to modify as user={username}, " \
+            return "Error, I can't find that permission mask. Specify which you wish to modify as user={username}, " \
                    "or similarly for usergroup, channel, server or hallo."
         # Turn bool_input into a boolean
         bool_bool = Commons.string_to_bool(bool_input)
         # Check if boolean input is valid
         if bool_bool is None:
-            return "I don't understand your boolean value. Please use true or false."
+            return "Error, I don't understand your boolean value. Please use true or false."
         # Set the right
         permission_mask.set_right(right_input, bool_bool)
-        pass
+        return "Set "+right_input+" to "+{True: "true", False: "false"}[bool_bool]+"."
 
     def find_permission_mask(self, location_input, user_obj, destination_obj):
         # If locationInput is a list with more than 2 elements, I don't know how to proceed.
