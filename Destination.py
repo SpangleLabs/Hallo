@@ -136,6 +136,9 @@ class Destination(metaclass=ABCMeta):
         """
         return self.permission_mask
 
+    def rights_check(self, right_name):
+        raise NotImplementedError
+
     def to_xml(self):
         """
         Returns the Destination object XML
@@ -544,7 +547,7 @@ class User(Destination):
         :param right_name: Name of the user right to check
         :type right_name: str
         :param channel_obj: Channel in which the right is being checked
-        :type channel_obj: Channel
+        :type channel_obj: Destination | None
         """
         if self.permission_mask is not None:
             right_value = self.permission_mask.get_right(right_name)
