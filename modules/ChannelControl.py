@@ -612,11 +612,15 @@ class Kick(Function):
         target_channel = server_obj.get_channel_by_name(line_split[0])
         if target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
-            return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
+            if target_channel.is_user_in_channel(target_user):
+                return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
+            return self.send_kick(target_channel, user_obj, " ".join(line_split[1:]))
         # 2 args, try with second argument as channel
-        target_channel = server_obj.get_channel_by_name(line_split[1])
         target_user = server_obj.get_user_by_name(line_split[0])
-        return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
+        target_channel = server_obj.get_channel_by_name(line_split[1])
+        if target_channel.in_channel:
+            return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
+        return self.send_kick(destination_obj, target_user, " ".join(line_split[1:]))
 
     def send_kick(self, channel, user, message=""):
         """
