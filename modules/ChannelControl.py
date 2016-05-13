@@ -608,6 +608,18 @@ class Kick(Function):
             if target_channel.in_channel:
                 return self.send_kick(target_channel, target_user)
             return self.send_kick(destination_obj, target_user, line_split[1])
+        # If message was in private message, it's either channel, user and message or user, channel and message or
+        # channel and message
+        if destination_obj is None or destination_obj.is_user():
+            target_channel = server_obj.get_channel_by_name(line_split[0])
+            if target_channel.in_channel:
+                target_user = server_obj.get_user_by_name(line_split[1])
+                if target_channel.is_user_in_channel(target_user):
+                    return self.send_kick(target_channel, target_user, " ".join(line_split[:2]))
+                return self.send_kick(target_channel, user_obj, " ".join(line_split[1:]))
+            target_user = server_obj.get_user_by_name(line_split[0])
+            target_channel = server_obj.get_channel_by_name(line_split[1])
+            return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
         # If more than 2 arguments, determine which of the first 2 is channel/user, the rest is a message.
         target_channel = server_obj.get_channel_by_name(line_split[0])
         if target_channel.in_channel:
