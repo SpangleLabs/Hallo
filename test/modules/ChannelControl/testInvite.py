@@ -43,7 +43,7 @@ class InviteTest(TestBase, unittest.TestCase):
             self.function_dispatcher.dispatch("invite", user1, chan1)
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
-            assert "specify a person to invite and/or a channel" in data[0][0].lower()
+            assert "specify a user to invite and/or a channel" in data[0][0].lower()
         finally:
             self.hallo.remove_server(serv1)
 

@@ -410,7 +410,7 @@ class Invite(Function):
         # If 0 arguments, ask for clarification
         line_split = line.split()
         if len(line_split) == 0:
-            return "Error, please specify a person to invite and/or a channel to invite to."
+            return "Error, please specify a user to invite and/or a channel to invite to."
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
             # If message was sent in privmsg, it's referring to a channel
@@ -569,7 +569,7 @@ class Kick(Function):
         # If 0 arguments, ask for clarification
         line_split = line.split()
         if len(line_split) == 0:
-            return "Error, please specify a person to kick and/or a channel to kick from."
+            return "Error, please specify a user to kick and/or a channel to kick from."
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
             # If message was sent in privmsg, it's referring to a channel
