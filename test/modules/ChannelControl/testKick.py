@@ -1130,13 +1130,40 @@ class KickTest(TestBase, unittest.TestCase):
             self.hallo.remove_server(serv1)
 
     def test_kick_3chanusermsg_not_in_channel(self):
+        """Placeholder: If given 'channel user msg' and not in channel, will assume 'user msg'"""
         pass
 
     def test_kick_3chanusermsg_user_not_there(self):
+        """Placeholder: If given 'chan user msg' and user not in channel, will assume 'chan msg'"""
         pass
 
     def test_kick_3chanusermsg_no_power(self):
-        pass
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user2 = serv1.get_user_by_name("test_user2")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1.add_user(user_hallo)
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        chan2.add_user(user2)
+        chan2.add_user(user_hallo)
+        chan2_hallo = chan2.get_membership_by_user(user_hallo)
+        chan2_hallo.is_op = False
+        try:
+            self.function_dispatcher.dispatch("kick test_chan2 test_user2 goodbye now", user1, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert "don't have power" in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
 
     def test_kick_3chanusermsg(self):
         serv1 = ServerMock(self.hallo)
@@ -1173,13 +1200,61 @@ class KickTest(TestBase, unittest.TestCase):
             self.hallo.remove_server(serv1)
 
     def test_kick_3chanmsg_not_in_channel(self):
+        """Placeholder: If given 'channel msg' and not in channel, will assume 'user msg'"""
         pass
 
     def test_kick_3chanmsg_user_not_there(self):
-        pass
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1.add_user(user_hallo)
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        chan2.add_user(user_hallo)
+        chan2_hallo = chan2.get_membership_by_user(user_hallo)
+        chan2_hallo.is_op = True
+        try:
+            self.function_dispatcher.dispatch("kick test_chan2 goodbye now", user1, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert user1.name+" is not in "+chan2.name in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
 
     def test_kick_3chanmsg_no_power(self):
-        pass
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1.add_user(user_hallo)
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        chan2.add_user(user1)
+        chan2.add_user(user_hallo)
+        chan2_hallo = chan2.get_membership_by_user(user_hallo)
+        chan2_hallo.is_op = False
+        try:
+            self.function_dispatcher.dispatch("kick test_chan2 goodbye now", user1, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert "don't have power" in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
 
     def test_kick_3chanmsg(self):
         serv1 = ServerMock(self.hallo)
@@ -1215,13 +1290,63 @@ class KickTest(TestBase, unittest.TestCase):
             self.hallo.remove_server(serv1)
 
     def test_kick_3userchanmsg_not_in_channel(self):
+        """Placeholder: If given 'user channel msg' and not in channel, will assume 'user msg'"""
         pass
 
     def test_kick_3userchanmsg_user_not_there(self):
-        pass
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user2 = serv1.get_user_by_name("test_user2")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1.add_user(user_hallo)
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        chan2.add_user(user_hallo)
+        chan2_hallo = chan2.get_membership_by_user(user_hallo)
+        chan2_hallo.is_op = True
+        try:
+            self.function_dispatcher.dispatch("kick test_user2 test_chan2 goodbye now", user1, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert user2.name+" is not in "+chan2.name in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
 
     def test_kick_3userchanmsg_no_power(self):
-        pass
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user2 = serv1.get_user_by_name("test_user2")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1.add_user(user_hallo)
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        chan2.add_user(user2)
+        chan2.add_user(user_hallo)
+        chan2_hallo = chan2.get_membership_by_user(user_hallo)
+        chan2_hallo.is_op = False
+        try:
+            self.function_dispatcher.dispatch("kick test_user2 test_chan2 goodbye now", user1, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert "don't have power" in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
 
     def test_kick_3userchanmsg(self):
         serv1 = ServerMock(self.hallo)
@@ -1262,10 +1387,49 @@ class KickTest(TestBase, unittest.TestCase):
         pass
 
     def test_kick_3usermsg_user_not_there(self):
-        pass
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user2 = serv1.get_user_by_name("test_user2")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1.add_user(user_hallo)
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = True
+        try:
+            self.function_dispatcher.dispatch("kick test_user2 goodbye now", user1, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert user2.name+" is not in "+chan1.name in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
 
     def test_kick_3usermsg_no_power(self):
-        pass
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        serv1.type = Server.TYPE_IRC
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1.in_channel = True
+        user1 = serv1.get_user_by_name("test_user1")
+        user2 = serv1.get_user_by_name("test_user2")
+        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1.add_user(user1)
+        chan1.add_user(user2)
+        chan1.add_user(user_hallo)
+        chan1_hallo = chan1.get_membership_by_user(user_hallo)
+        chan1_hallo.is_op = False
+        try:
+            self.function_dispatcher.dispatch("kick test_user2 goodbye now", user1, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            assert "don't have power" in data[0][0].lower()
+        finally:
+            self.hallo.remove_server(serv1)
 
     def test_kick_3usermsg(self):
         serv1 = ServerMock(self.hallo)
