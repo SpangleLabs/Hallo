@@ -551,21 +551,46 @@ class UnMute(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Get server object
-        server_obj = user_obj.get_server()
-        # TODO: check if hallo has op.
+        server_obj = user_obj.server
         # Check if no arguments were provided
         if line.strip() == "":
-            target_channel = destination_obj
-            if target_channel is None or target_channel == user_obj:
-                return "You can't set mute on a private message."
-            server_obj.send("MODE " + target_channel.get_name() + " -m", None, Server.MSG_RAW)
-            return "Unset mute."
+            if destination_obj is None or destination_obj.is_user():
+                return "Error, you can't set mute on a private message."
+            return self.unmute_channel(destination_obj)
         # Get channel from user input
         target_channel = server_obj.get_channel_by_name(line.strip())
-        if target_channel is None or not target_channel.is_in_channel():
-            return "I'm not in that channel."
-        server_obj.send("MODE " + target_channel.get_name() + " -m", None, Server.MSG_RAW)
-        return "Unset mute in " + target_channel.get_name() + "."
+        return self.unmute_channel(target_channel)
+
+    def unmute_channel(self, channel):
+        """
+        Sets mute on a given channel.
+        :param channel: Channel to mute
+        :type channel: Destination.Channel
+        :return: Response to send to requester
+        :rtype: str
+        """
+        # Check if in channel
+        if not channel.in_channel:
+            return "Error, I'm not in that channel."
+        # Check if hallo has op in channel
+        if not self.hallo_has_op(channel):
+            return "Error, I don't have power to unmute "+channel.name+"."
+        # Send invite
+        channel.server.send("MODE "+channel.name+" -m", None, Server.MSG_RAW)
+        return "Unset mute in "+channel.name+"."
+
+    def hallo_has_op(self, channel):
+        """
+        Checks whether hallo has op in a given channel.
+        :param channel: channel to check op status for
+        :type channel: Destination.Channel
+        :return: whether hallo has op
+        :rtype: bool
+        """
+        server = channel.server
+        hallo_user = server.get_user_by_name(server.get_nick())
+        hallo_membership = channel.get_membership_by_user(hallo_user)
+        return hallo_membership.is_op
 
 
 class Kick(Function):
