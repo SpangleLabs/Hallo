@@ -61,7 +61,7 @@ class Permissions(Function):
         """
         Finds a permission mask by a given user input
         :param location_input: User input specifying permission mask
-        :type location_input: str
+        :type location_input: list[str]
         :param user_obj: User who asked for permission mask
         :type user_obj: Destination.User
         :param destination_obj: Channel which the user asked for permission mask from, or None if privmsg
