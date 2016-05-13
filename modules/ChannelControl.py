@@ -32,12 +32,12 @@ class Operator(Function):
         if len(line_split) == 0:
             # Check that this is a channel
             if destination_obj is None or destination_obj.is_user():
-                return "Error, I can't op you in a privmsg, please provide a channel."
+                return "Error, I can't op you in a private message, please provide a channel."
             # Give op to the user
             return self.give_op(destination_obj, user_obj)
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
-            # If message was sent in privmsg, it's referring to a channel
+            # If message was sent in private message, it's referring to a channel
             if destination_obj is None or destination_obj.is_user():
                 channel = server_obj.get_channel_by_name(line)
                 return self.give_op(channel, user_obj)
@@ -128,12 +128,12 @@ class DeOperator(Function):
         if len(line_split) == 0:
             # Check that this is a channel
             if destination_obj is None or destination_obj.is_user():
-                return "Error, I can't de-op you in a privmsg, please provide a channel."
+                return "Error, I can't de-op you in a private message, please provide a channel."
             # Remove op
             return self.take_op(destination_obj, user_obj)
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
-            # If message was sent in privmsg, it's referring to a channel
+            # If message was sent in private message, it's referring to a channel
             if destination_obj is None or destination_obj.is_user():
                 channel = server_obj.get_channel_by_name(line)
                 return self.take_op(channel, user_obj)
@@ -223,12 +223,12 @@ class Voice(Function):
         if len(line_split) == 0:
             # Check that this is a channel
             if destination_obj is None or destination_obj.is_user():
-                return "Error, I can't voice you in a privmsg, please provide a channel."
+                return "Error, I can't voice you in a private message, please provide a channel."
             # Give user voice
             return self.give_voice(destination_obj, user_obj)
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
-            # If message was sent in privmsg, it's referring to a channel
+            # If message was sent in private message, it's referring to a channel
             if destination_obj is None or destination_obj.is_user():
                 channel = server_obj.get_channel_by_name(line)
                 return self.give_voice(channel, user_obj)
@@ -318,12 +318,12 @@ class DeVoice(Function):
         if len(line_split) == 0:
             # Check that this is a channel
             if destination_obj is None or destination_obj.is_user():
-                return "Error, I can't un-voice you in a privmsg, please provide a channel."
+                return "Error, I can't un-voice you in a private message, please provide a channel."
             # Give user voice
             return self.take_voice(destination_obj, user_obj)
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
-            # If message was sent in privmsg, it's referring to a channel
+            # If message was sent in private message, it's referring to a channel
             if destination_obj is None or destination_obj.is_user():
                 channel = server_obj.get_channel_by_name(line)
                 return self.take_voice(channel, user_obj)
@@ -413,7 +413,7 @@ class Invite(Function):
             return "Error, please specify a user to invite and/or a channel to invite to."
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
-            # If message was sent in privmsg, it's referring to a channel
+            # If message was sent in private message, it's referring to a channel
             if destination_obj is None or destination_obj.is_user():
                 channel = server_obj.get_channel_by_name(line)
                 return self.send_invite(channel, user_obj)
@@ -490,21 +490,46 @@ class Mute(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Get server object
-        server_obj = user_obj.get_server()
-        # TODO: check if hallo has op.
+        server_obj = user_obj.server
         # Check if no arguments were provided
         if line.strip() == "":
-            target_channel = destination_obj
-            if target_channel is None or target_channel == user_obj:
-                return "You can't set mute on a privmsg."
-            server_obj.send("MODE " + target_channel.get_name() + " +m", None, Server.MSG_RAW)
-            return "Set mute."
+            if destination_obj is None or destination_obj.is_user():
+                return "Error, you can't set mute on a private message."
+            return self.mute_channel(destination_obj)
         # Get channel from user input
         target_channel = server_obj.get_channel_by_name(line.strip())
-        if target_channel is None or not target_channel.is_in_channel():
-            return "I'm not in that channel."
-        server_obj.send("MODE " + target_channel.get_name() + " +m", None, Server.MSG_RAW)
-        return "Set mute in " + target_channel.get_name() + "."
+        return self.mute_channel(target_channel)
+
+    def mute_channel(self, channel):
+        """
+        Sets mute on a given channel.
+        :param channel: Channel to mute
+        :type channel: Destination.Channel
+        :return: Response to send to requester
+        :rtype: str
+        """
+        # Check if in channel
+        if not channel.in_channel:
+            return "Error, I'm not in that channel."
+        # Check if hallo has op in channel
+        if not self.hallo_has_op(channel):
+            return "Error, I don't have power to mute "+channel.name+"."
+        # Send invite
+        channel.server.send("MODE "+channel.name+" +m", None, Server.MSG_RAW)
+        return "Set mute in "+channel.name+"."
+
+    def hallo_has_op(self, channel):
+        """
+        Checks whether hallo has op in a given channel.
+        :param channel: channel to check op status for
+        :type channel: Destination.Channel
+        :return: whether hallo has op
+        :rtype: bool
+        """
+        server = channel.server
+        hallo_user = server.get_user_by_name(server.get_nick())
+        hallo_membership = channel.get_membership_by_user(hallo_user)
+        return hallo_membership.is_op
 
 
 class UnMute(Function):
@@ -532,7 +557,7 @@ class UnMute(Function):
         if line.strip() == "":
             target_channel = destination_obj
             if target_channel is None or target_channel == user_obj:
-                return "You can't set mute on a privmsg."
+                return "You can't set mute on a private message."
             server_obj.send("MODE " + target_channel.get_name() + " -m", None, Server.MSG_RAW)
             return "Unset mute."
         # Get channel from user input
@@ -572,7 +597,7 @@ class Kick(Function):
             return "Error, please specify a user to kick and/or a channel to kick from."
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
-            # If message was sent in privmsg, it's referring to a channel
+            # If message was sent in private message, it's referring to a channel
             if destination_obj is None or destination_obj.is_user():
                 channel = server_obj.get_channel_by_name(line)
                 return self.send_kick(channel, user_obj)
