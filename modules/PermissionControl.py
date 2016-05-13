@@ -155,7 +155,7 @@ class Permissions(Function):
             permission_mask = user_obj.permission_mask
             return permission_mask
         # Check if their current channel has any user by the name of whatever else they might have said?
-        if destination_obj is None:
+        if destination_obj is not None:
             test_user = user_obj.server.get_user_by_name(location_input[0])
             if not destination_obj.is_user_in_channel(test_user):
                 raise PermissionControlException("Error, I do not understand your input. I cannot find that "
