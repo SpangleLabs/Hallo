@@ -71,30 +71,33 @@ class Permissions(Function):
         """
         # If locationInput is a list with more than 2 elements, I don't know how to proceed.
         if len(location_input) > 2:
-            raise PermissionControlException("Error, I'm not sure how to interpret that PermissionMask location")
+            raise PermissionControlException("Error, I'm not sure how to interpret that PermissionMask location, "
+                                             "you've provided too many filters")
         # If they've specified a server & channel or server & user, parse here
         if len(location_input) == 2:
             # Find server object.
-            if any([location_input[0].startswith(server_str + "=") for server_str in self.SERVER_NAMES]):
+            if self.is_parameter(self.SERVER_NAMES, location_input[0]):
                 server_name = location_input[0].split("=")[1]
                 location_other = location_input[1]
-            elif any([location_input[1].startswith(server_str + "=") for server_str in self.SERVER_NAMES]):
+            elif self.is_parameter(self.SERVER_NAMES, location_input[1]):
                 server_name = location_input[1].split("=")[1]
                 location_other = location_input[0]
             else:
-                raise PermissionControlException("Error, no server name found.")
+                raise PermissionControlException("Error, no server name found. If specifying 2 settings, use "
+                                                 "\"server=<server> channel=<channel>\" or "
+                                                 "\"server=<server> user=<user>\"")
             server_obj = user_obj.server.hallo.get_server_by_name(server_name)
             if server_obj is None:
                 raise PermissionControlException("Error, no server exists by that name.")
             # Check if they have specified a channel
-            if any([location_other.startswith(channel_str + "=") for channel_str in self.CHANNEL_NAMES]):
+            if self.is_parameter(self.CHANNEL_NAMES, location_other):
                 # Get channel by that name
                 channel_name = location_other.split("=")[1]
                 channel_obj = user_obj.server.get_channel_by_name(channel_name)
                 permission_mask = channel_obj.permission_mask
                 return permission_mask
             # Check if they've specified a user
-            if any([location_other.startswith(user_str + "=") for user_str in self.USER_NAMES]):
+            if self.is_parameter(self.USER_NAMES, location_other):
                 # Get the user by that name
                 user_name = location_other.split("=")[1]
                 user_obj.server.get_user_by_name(user_name)
@@ -102,7 +105,7 @@ class Permissions(Function):
                 return permission_mask
             raise PermissionControlException("Error, input not understood. You specified a server but not channel "
                                              "or user?")
-        # # All following have length locationInput ==1.
+        # # All following have length location_input ==1.
         # Check if they want to set generic hallo permissions
         if location_input[0] in self.HALLO_NAMES:
             permission_mask = user_obj.server.hallo.permission_mask
@@ -112,7 +115,7 @@ class Permissions(Function):
             permission_mask = user_obj.server.permission_mask
             return permission_mask
         # Check if they have specified a server
-        if any([location_input[0].startswith(server_str + "=") for server_str in self.SERVER_NAMES]):
+        if self.is_parameter(self.SERVER_NAMES, location_input[0]):
             server_name = location_input[0].split("=")[1]
             server_obj = user_obj.server.hallo.get_server_by_name(server_name)
             if server_obj is None:
@@ -122,19 +125,19 @@ class Permissions(Function):
         # Check if they've asked for current channel
         if location_input[0] in self.CHANNEL_NAMES:
             # Check if this is a channel, and not privmsg.
-            if destination_obj is None or destination_obj == user_obj:
+            if destination_obj is None:
                 raise PermissionControlException("Error, you can't set generic channel permissions in a privmsg.")
             permission_mask = destination_obj.permission_mask
             return permission_mask
         # Check if they have specified a channel
-        if any([location_input[0].startswith(channel_str + "=") for channel_str in self.CHANNEL_NAMES]):
+        if self.is_parameter(self.CHANNEL_NAMES, location_input[0]):
             # Get channel by that name
             channel_name = location_input[0].split("=")[1]
             channel_obj = user_obj.server.get_channel_by_name(channel_name)
             permission_mask = channel_obj.permission_mask
             return permission_mask
         # Check if they've specified a user group?
-        if any([location_input[0].startswith(user_group_str + "=") for user_group_str in self.USER_GROUP_NAMES]):
+        if self.is_parameter(self.USER_GROUP_NAMES, location_input[0]):
             # See if you can find a UserGroup with that name
             user_group_name = location_input[0].split("=")[1]
             hallo_obj = user_obj.server.hallo
@@ -145,21 +148,31 @@ class Permissions(Function):
             permission_mask = user_group_obj.permission_mask
             return permission_mask
         # Check if they've specified a user
-        if any([location_input[0].startswith(user_str + "=") for user_str in self.USER_NAMES]):
+        if self.is_parameter(self.USER_NAMES, location_input[0]):
             # Get the user by that name
             user_name = location_input[0].split("=")[1]
             user_obj.server.get_user_by_name(user_name)
             permission_mask = user_obj.permission_mask
             return permission_mask
         # Check if their current channel has any user by the name of whatever else they might have said?
-        if destination_obj is None or destination_obj == user_obj:
-            user_list = destination_obj.get_user_list()
-            user_list_matching = [user_obj for user_obj in user_list if user_obj.name == location_input[0]]
-            if len(user_list_matching) == 0:
+        if destination_obj is None:
+            test_user = user_obj.server.get_user_by_name(location_input[0])
+            if not destination_obj.is_user_in_channel(test_user):
                 raise PermissionControlException("Error, I do not understand your input. I cannot find that "
                                                  "Permission Mask.")
-            user_obj = user_list_matching[0]
-            permission_mask = user_obj.permission_mask
+            permission_mask = test_user.permission_mask
             return permission_mask
         # My normal approaches failed. Generic error message
         return None
+
+    def is_parameter(self, parameter_names, user_input):
+        """
+        Checks whether a user input string is specifying a parameter in given list
+        :param parameter_names: List of possible parameter names
+        :type parameter_names: list[str]
+        :param user_input: User provided input potentially specifying parameter
+        :type user_input: str
+        :return: Whether or not it's one of the parameters specified
+        :rtype: bool
+        """
+        return any([user_input[0].startswith(parameter_name + "=") for parameter_name in parameter_names])
