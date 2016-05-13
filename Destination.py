@@ -27,7 +27,7 @@ class Destination(metaclass=ABCMeta):
         """:type : float | None"""
         self.use_caps_lock = False  # Whether to use caps lock when communicating to this destination
         """:type : bool"""
-        self.permission_mask = None  # PermissionMask for the destination object
+        self.permission_mask = PermissionMask()  # PermissionMask for the destination object
         """:type : PermissionMask.PermissionMask"""
         self.memberships_list = set()  # Set of ChannelMemberships for User or Channel
         """:type : set[ChannelMembership]"""
