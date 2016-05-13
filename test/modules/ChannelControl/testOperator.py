@@ -37,7 +37,7 @@ class OperatorTest(TestBase, unittest.TestCase):
             self.function_dispatcher.dispatch("op", user1, user1)
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
-            assert "in a privmsg" in data[0][0].lower()
+            assert "in a private message" in data[0][0].lower()
         finally:
             self.hallo.remove_server(serv1)
 

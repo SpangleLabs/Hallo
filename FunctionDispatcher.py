@@ -37,9 +37,13 @@ class FunctionDispatcher(object):
         """
         Sends the function call out to whichever function, if one is found
         :param function_message: Message (function name and arguments) which are to be dispatched
+        :type function_message: str
         :param user_obj: User who triggered function dispatch
+        :type user_obj: Destination.User
         :param destination_obj: Destination which triggered function dispatch
+        :type destination_obj: Destination.Destination
         :param flag_list: List of flags to apply to function call
+        :type flag_list: list[str]
         """
         if flag_list is None:
             flag_list = []
@@ -162,7 +166,7 @@ class FunctionDispatcher(object):
         :param user_obj: User which has requested the function
         :type user_obj: Destination.User
         :param channel_obj: Channel on which the function was requested
-        :type channel_obj: Destination.Channel
+        :type channel_obj: Destination.Destination
         """
         # Get function name
         function_name = function_class.__name__
@@ -170,7 +174,7 @@ class FunctionDispatcher(object):
         # Check rights
         if user_obj is not None:
             return user_obj.rights_check(right_name, channel_obj)
-        if channel_obj is not None:
+        if channel_obj is not None and channel_obj.is_channel():
             return channel_obj.rights_check(right_name)
         if server_obj is not None:
             return server_obj.rights_check(right_name)

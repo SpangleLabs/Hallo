@@ -27,7 +27,7 @@ class Destination(metaclass=ABCMeta):
         """:type : float | None"""
         self.use_caps_lock = False  # Whether to use caps lock when communicating to this destination
         """:type : bool"""
-        self.permission_mask = None  # PermissionMask for the destination object
+        self.permission_mask = PermissionMask()  # PermissionMask for the destination object
         """:type : PermissionMask.PermissionMask"""
         self.memberships_list = set()  # Set of ChannelMemberships for User or Channel
         """:type : set[ChannelMembership]"""
@@ -135,6 +135,9 @@ class Destination(metaclass=ABCMeta):
         :rtype : PermissionMask.PermissionMask
         """
         return self.permission_mask
+
+    def rights_check(self, right_name):
+        raise NotImplementedError
 
     def to_xml(self):
         """
@@ -544,7 +547,7 @@ class User(Destination):
         :param right_name: Name of the user right to check
         :type right_name: str
         :param channel_obj: Channel in which the right is being checked
-        :type channel_obj: Channel
+        :type channel_obj: Destination | None
         """
         if self.permission_mask is not None:
             right_value = self.permission_mask.get_right(right_name)

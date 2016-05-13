@@ -7,10 +7,6 @@ class UserGroup:
     """
     UserGroup object, mostly exists for a speedy way to apply a PermissionsMask to a large amount of users at once
     """
-    name = None  # Name of the UserGroup
-    permission_mask = None  # PermissionMask for the UserGroup
-    hallo = None  # Hallo instance that owns this UserGroup
-    user_list = None  # Dynamic userlist of this group
 
     def __init__(self, name, hallo):
         """
@@ -20,10 +16,14 @@ class UserGroup:
         :param hallo: Hallo object which owns the user group
         :type hallo: Hallo.Hallo
         """
-        self.user_list = set()
-        self.hallo = hallo
-        self.name = name
-        self.permission_mask = PermissionMask()
+        self.user_list = set()  # Dynamic userlist of this group
+        """:type : set[Destination.User]"""
+        self.hallo = hallo  # Hallo instance that owns this UserGroup
+        """:type : Hallo.Hallo"""
+        self.name = name  # Name of the UserGroup
+        """:type : str"""
+        self.permission_mask = PermissionMask()  # PermissionMask for the UserGroup
+        """:type : PermissionMask"""
 
     def __eq__(self, other):
         return (self.hallo, self.name) == (self.hallo, other.name)
