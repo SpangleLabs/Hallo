@@ -490,6 +490,42 @@ class KickTest(TestBase, unittest.TestCase):
         finally:
             self.hallo.remove_server(serv1)
 
+    def test_kick_3privchanusermsg_not_in_channel(self):
+        pass
+
+    def test_kick_3privchanusermsg_user_not_there(self):
+        pass
+
+    def test_kick_3privchanusermsg_no_power(self):
+        pass
+
+    def test_kick_3privchanusermsg(self):
+        pass
+
+    def test_kick_3privchanmsg_not_in_channel(self):
+        pass
+
+    def test_kick_3privchanmsg_user_not_there(self):
+        pass
+
+    def test_kick_3privchanmsg_no_power(self):
+        pass
+
+    def test_kick_3privchanmsg(self):
+        pass
+
+    def test_kick_3privuserchan_not_in_channel(self):
+        pass
+
+    def test_kick_3privuserchan_user_not_there(self):
+        pass
+
+    def test_kick_3privuserchan_no_power(self):
+        pass
+
+    def test_kick_3privuserchan(self):
+        pass
+
     def test_kick_3chanusermsg_not_in_channel(self):
         pass
 
