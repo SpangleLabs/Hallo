@@ -641,7 +641,7 @@ class Kick(Function):
             return "Error, I don't have power to kick users from "+channel.name+"."
         # Send invite
         channel.server.send("KICK "+channel.name+" "+user.name+" "+message, None, Server.MSG_RAW)
-        return "Invite sent."
+        return "Kicked "+user.name+" from "+channel.name+"."
 
     def hallo_has_op(self, channel):
         """
