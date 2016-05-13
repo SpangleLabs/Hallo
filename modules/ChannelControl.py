@@ -561,7 +561,7 @@ class UnMute(Function):
         # Check if no arguments were provided
         if line.strip() == "":
             if destination_obj is None or destination_obj.is_user():
-                return "Error, you can't set mute on a private message."
+                return "Error, you can't unset mute on a private message."
             return self.unmute_channel(destination_obj)
         # Get channel from user input
         target_channel = server_obj.get_channel_by_name(line.strip())
