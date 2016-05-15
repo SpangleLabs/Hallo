@@ -1,7 +1,8 @@
 import unittest
 
-from modules.PermissionControl import Permissions, PermissionControlException
+from modules.PermissionControl import Permissions
 from test.TestBase import TestBase
+import modules.PermissionControl
 
 
 class PermissionControlTest(TestBase, unittest.TestCase):
@@ -23,7 +24,7 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         try:
             self.perm_cont.find_permission_mask(["a", "b", "c"], self.test_user, self.test_chan)
             assert False, "Exception should be thrown if more than 2 arguments passed."
-        except PermissionControlException as e:
+        except modules.PermissionControl.PermissionControlException as e:
             assert "error" in str(e).lower()
             assert "too many filters" in str(e).lower()
 
@@ -31,6 +32,6 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         try:
             self.perm_cont.find_permission_mask(["channel=chan1", "user=user1"], self.test_user, self.test_chan)
             assert False, "Exception should be thrown if 2 arguments and neither is server."
-        except PermissionControlException as e:
+        except modules.PermissionControl.PermissionControlException as e:
             assert "error" in str(e).lower()
             assert "no server name found" in str(e).lower()
