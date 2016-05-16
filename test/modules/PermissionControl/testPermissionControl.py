@@ -35,3 +35,12 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         except modules.PermissionControl.PermissionControlException as e:
             assert "error" in str(e).lower()
             assert "no server name found" in str(e).lower()
+
+    def test_2_no_server_by_name(self):
+        try:
+            self.perm_cont.find_permission_mask(["server=no_server_by_name", "chan=test_chan1"],
+                                                self.test_user, self.test_user)
+            assert False, "Exception should be thrown if server does not exist."
+        except modules.PermissionControl.PermissionControlException as e:
+            assert "error" in str(e).lower()
+            assert "no server exists by that name" in str(e).lower()
