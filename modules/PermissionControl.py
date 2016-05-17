@@ -165,4 +165,4 @@ class Permissions(Function):
         :return: Whether or not it's one of the parameters specified
         :rtype: bool
         """
-        return any([user_input[0].startswith(parameter_name + "=") for parameter_name in parameter_names])
+        return any([user_input.startswith(parameter_name + "=") for parameter_name in parameter_names])
