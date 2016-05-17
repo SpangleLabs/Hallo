@@ -93,14 +93,14 @@ class Permissions(Function):
             if self.is_parameter(self.CHANNEL_NAMES, location_other):
                 # Get channel by that name
                 channel_name = location_other.split("=")[1]
-                channel_obj = user_obj.server.get_channel_by_name(channel_name)
+                channel_obj = server_obj.get_channel_by_name(channel_name)
                 return channel_obj.permission_mask
             # Check if they've specified a user
             if self.is_parameter(self.USER_NAMES, location_other):
                 # Get the user by that name
                 user_name = location_other.split("=")[1]
-                user_obj.server.get_user_by_name(user_name)
-                return user_obj.permission_mask
+                user = server_obj.get_user_by_name(user_name)
+                return user.permission_mask
             raise PermissionControlException("Error, input not understood. You specified a server but not channel "
                                              "or user?")
         # # All following have length location_input ==1.
