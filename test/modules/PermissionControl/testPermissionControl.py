@@ -59,3 +59,16 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         data = self.perm_cont.find_permission_mask(["server=test_serv1", "channel=test_chan1"],
                                                    self.test_user, self.test_chan)
         assert perm1 == data, "Did not find the correct permission mask."
+
+    def test_2_server_user(self):
+        # Set up a test server and channel
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        self.hallo.add_server(serv1)
+        user1 = serv1.get_user_by_name("test_user1")
+        perm1 = PermissionMask()
+        user1.permission_mask = perm1
+        # Get permission mask of given channel
+        data = self.perm_cont.find_permission_mask(["server=test_serv1", "user=test_user1"],
+                                                   self.test_user, self.test_chan)
+        assert perm1 == data, "Did not find the correct permission mask."
