@@ -1,6 +1,8 @@
 import unittest
 
+from PermissionMask import PermissionMask
 from modules.PermissionControl import Permissions
+from test.ServerMock import ServerMock
 from test.TestBase import TestBase
 import modules.PermissionControl
 
@@ -44,3 +46,16 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         except modules.PermissionControl.PermissionControlException as e:
             assert "error" in str(e).lower()
             assert "no server exists by that name" in str(e).lower()
+
+    def test_2_server_chan(self):
+        # Set up a test server and channel
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        perm1 = PermissionMask()
+        chan1.permission_mask = perm1
+        # Get permission mask of given channel
+        data = self.perm_cont.find_permission_mask(["server=test_serv1", "channel=test_chan1"],
+                                                   self.test_user, self.test_chan)
+        assert perm1 == data, "Did not find the correct permission mask."
