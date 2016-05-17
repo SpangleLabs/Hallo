@@ -88,7 +88,7 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         # Get permission mask of given channel
         try:
             data = self.perm_cont.find_permission_mask(["server=test_serv1", "core"],
-                                                       self.test_user, self.test_chan)
+                                                       user1, chan1)
             assert False, "Should have failed to find any permission mask."
         except modules.PermissionControl.PermissionControlException as e:
             assert "error" in str(e).lower()
@@ -116,7 +116,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
 
     def test_1_server(self):
         # Set up a test server and channel and user
-        serv1 = ServerMock(self.hallo)
+        hallo1 = Hallo()
+        perm3 = PermissionMask()
+        hallo1.permission_mask = perm3
+        serv1 = ServerMock(hallo1)
         serv1.name = "test_serv1"
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
@@ -133,7 +136,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
 
     def test_1_server_no_name(self):
         # Set up a test server and channel and user
-        serv1 = ServerMock(self.hallo)
+        hallo1 = Hallo()
+        perm3 = PermissionMask()
+        hallo1.permission_mask = perm3
+        serv1 = ServerMock(hallo1)
         serv1.name = "test_serv1"
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
@@ -154,11 +160,14 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
 
     def test_1_server_name(self):
         # Set up a test server and channel and user
-        serv1 = ServerMock(self.hallo)
+        hallo1 = Hallo()
+        perm3 = PermissionMask()
+        hallo1.permission_mask = perm3
+        serv1 = ServerMock(hallo1)
         serv1.name = "test_serv1"
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
-        self.hallo.add_server(serv1)
+        hallo1.add_server(serv1)
         chan1 = serv1.get_channel_by_name("test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
@@ -171,7 +180,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
 
     def test_1_channel(self):
         # Set up a test server and channel and user
-        serv1 = ServerMock(self.hallo)
+        hallo1 = Hallo()
+        perm3 = PermissionMask()
+        hallo1.permission_mask = perm3
+        serv1 = ServerMock(hallo1)
         serv1.name = "test_serv1"
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
@@ -188,7 +200,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
 
     def test_1_channel_privmsg(self):
         # Set up a test server and channel and user
-        serv1 = ServerMock(self.hallo)
+        hallo1 = Hallo()
+        perm3 = PermissionMask()
+        hallo1.permission_mask = perm3
+        serv1 = ServerMock(hallo1)
         serv1.name = "test_serv1"
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
@@ -206,3 +221,26 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         except modules.PermissionControl.PermissionControlException as e:
             assert "error" in str(e).lower()
             assert "can't set generic channel permissions in a privmsg" in str(e).lower()
+
+    def test_1_channel_name(self):
+        # Set up a test server and channel and user
+        hallo1 = Hallo()
+        perm3 = PermissionMask()
+        hallo1.permission_mask = perm3
+        serv1 = ServerMock(hallo1)
+        serv1.name = "test_serv1"
+        perm0 = PermissionMask()
+        serv1.permission_mask = perm0
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        perm1 = PermissionMask()
+        chan1.permission_mask = perm1
+        chan2 = serv1.get_channel_by_name("test_chan2")
+        perm4 = PermissionMask()
+        chan2.permission_mask = perm4
+        user1 = serv1.get_user_by_name("test_user1")
+        perm2 = PermissionMask()
+        user1.permission_mask = perm2
+        # Get permissions of current channel
+        data = self.perm_cont.find_permission_mask(["channel=test_chan2"], user1, chan1)
+        assert data == perm4, "Did not find the correct permission mask."
