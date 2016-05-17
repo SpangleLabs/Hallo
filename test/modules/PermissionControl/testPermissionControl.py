@@ -92,3 +92,11 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         except modules.PermissionControl.PermissionControlException as e:
             assert "error" in str(e).lower()
             assert "server but not channel or user" in str(e).lower()
+
+    def test_1_hallo(self):
+        # Set up test info
+        perm1 = PermissionMask()
+        self.hallo.permission_mask = perm1
+        # Get permission of hallo
+        data = self.perm_cont.find_permission_mask(["hallo"], self.test_user, self.test_chan)
+        assert data == perm1, "Did not find the correct permission mask."
