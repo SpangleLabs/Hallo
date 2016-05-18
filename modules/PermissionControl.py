@@ -149,11 +149,13 @@ class Permissions(Function):
         if destination_obj is not None:
             test_user = user_obj.server.get_user_by_name(location_input[0])
             if not destination_obj.is_user_in_channel(test_user):
-                raise PermissionControlException("Error, I do not understand your input. I cannot find that "
-                                                 "Permission Mask.")
+                raise PermissionControlException("Error, I can't find that permission mask. Specify which you wish to "
+                                                 "modify as user={username}, or similarly for usergroup, channel, "
+                                                 "server or hallo.")
             return test_user.permission_mask
         # My normal approaches failed. Generic error message
-        return None
+        raise PermissionControlException("Error, I can't find that permission mask. Specify which you wish to modify "
+                                         "as user={username}, or similarly for usergroup, channel, server or hallo.")
 
     def is_parameter(self, parameter_names, user_input):
         """
