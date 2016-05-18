@@ -143,8 +143,8 @@ class Permissions(Function):
         if self.is_parameter(self.USER_NAMES, location_input[0]):
             # Get the user by that name
             user_name = location_input[0].split("=")[1]
-            user_obj.server.get_user_by_name(user_name)
-            return user_obj.permission_mask
+            user = user_obj.server.get_user_by_name(user_name)
+            return user.permission_mask
         # Check if their current channel has any user by the name of whatever else they might have said?
         if destination_obj is not None:
             test_user = user_obj.server.get_user_by_name(location_input[0])
