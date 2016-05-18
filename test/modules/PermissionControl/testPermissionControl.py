@@ -317,7 +317,7 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         user2 = serv1.get_user_by_name("test_user2")
         perm4 = PermissionMask()
         user2.permission_mask = perm4
-        # Get permissions of specified user group
+        # Get permissions of specified user
         data = self.perm_cont.find_permission_mask(["user=test_user2"], user1, chan1)
         assert data == perm4, "Did not find the correct permission mask."
 
@@ -342,6 +342,34 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm4 = PermissionMask()
         user2.permission_mask = perm4
         chan1.add_user(user2)
-        # Get permissions of specified user group
+        # Get permissions of specified user in channel
         data = self.perm_cont.find_permission_mask(["test_user2"], user1, chan1)
         assert data == perm4, "Did not find the correct permission mask."
+
+    def test_1_user_just_name_not_in_channel(self):
+        # Set up a test server and channel and user
+        hallo1 = Hallo()
+        perm3 = PermissionMask()
+        hallo1.permission_mask = perm3
+        serv1 = ServerMock(hallo1)
+        serv1.name = "test_serv1"
+        perm0 = PermissionMask()
+        serv1.permission_mask = perm0
+        self.hallo.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        perm1 = PermissionMask()
+        chan1.permission_mask = perm1
+        user1 = serv1.get_user_by_name("test_user1")
+        perm2 = PermissionMask()
+        user1.permission_mask = perm2
+        chan1.add_user(user1)
+        user2 = serv1.get_user_by_name("test_user2")
+        perm4 = PermissionMask()
+        user2.permission_mask = perm4
+        # Get permissions of specified user group
+        try:
+            data = self.perm_cont.find_permission_mask(["test_user2"], user1, chan1)
+            assert False, "Find permission mask should have failed."
+        except modules.PermissionControl.PermissionControlException as e:
+            assert "error" in str(e).lower()
+            assert "i do not understand your input" in str(e).lower()
