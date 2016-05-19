@@ -33,7 +33,6 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch("permissions server=test_serv1 channel=test_chan1 "+test_right+" on",
                                           user1, chan1)
         data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-        print(data)
         assert "error" not in data[0][0].lower()
         assert "set "+test_right+" to true" in data[0][0].lower()
         assert test_right in perm2.rights_map

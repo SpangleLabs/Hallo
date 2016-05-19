@@ -36,7 +36,7 @@ class Permissions(Function):
             return "You need to specify a location, a right and the value"
         bool_input = line_split[-1]
         right_input = line_split[-2]
-        location_input = line_split[:-3]
+        location_input = line_split[:-2]
         # Search for the permission_mask they want.
         try:
             permission_mask = self.find_permission_mask(location_input, user_obj,
