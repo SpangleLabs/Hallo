@@ -118,6 +118,15 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         assert test_right in perm2.rights_map
         assert perm2.rights_map[test_right]
 
+    def test_run_fail_args(self):
+        pass
+
+    def test_run_fail_location(self):
+        pass
+
+    def test_run_fail_not_bool(self):
+        pass
+
 
 class FindPermissionMaskTest(TestBase, unittest.TestCase):
 
