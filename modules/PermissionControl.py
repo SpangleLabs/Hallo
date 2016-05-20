@@ -33,7 +33,7 @@ class Permissions(Function):
     def run(self, line, user_obj, destination_obj=None):
         line_split = line.split()
         if len(line_split) < 3:
-            return "You need to specify a location, a right and the value"
+            return "Error, you need to specify a location, a right and the value"
         bool_input = line_split[-1]
         right_input = line_split[-2]
         location_input = line_split[:-2]
