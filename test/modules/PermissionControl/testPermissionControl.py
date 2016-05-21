@@ -144,11 +144,31 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         assert test_right in perm1.rights_map
         assert perm1.rights_map[test_right]
 
-    def test_run_fail_location(self):
-        pass
-
     def test_run_fail_not_bool(self):
-        pass
+        # Set up a test hallo and server and channel and user
+        hallo1 = Hallo()
+        perm0 = PermissionMask()
+        hallo1.permission_mask = perm0
+        serv1 = ServerMock(hallo1)
+        serv1.name = "test_serv1"
+        perm1 = PermissionMask()
+        serv1.permission_mask = perm1
+        hallo1.add_server(serv1)
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        perm2 = PermissionMask()
+        chan1.permission_mask = perm2
+        user1 = serv1.get_user_by_name("test_user1")
+        perm3 = PermissionMask()
+        user1.permission_mask = perm3
+        # Get permission mask of given channel
+        test_right = "test_right"
+        perm1.set_right(test_right, True)
+        self.function_dispatcher.dispatch("permissions server=test_serv1 "+test_right+" yellow", user1, chan1)
+        data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+        assert "error" in data[0][0].lower()
+        assert "don't understand your boolean value" in data[0][0].lower()
+        assert test_right in perm1.rights_map
+        assert perm1.rights_map[test_right]
 
 
 class FindPermissionMaskTest(TestBase, unittest.TestCase):
