@@ -110,13 +110,13 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         # Get permission mask of given channel
         test_right = "test_right"
         perm2.set_right(test_right, True)
-        self.function_dispatcher.dispatch("permissions server=test_serv1 channel=test_chan1 "+test_right+" on",
+        self.function_dispatcher.dispatch("permissions server=test_serv1 channel=test_chan1 "+test_right+" off",
                                           user1, chan1)
         data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
         assert "error" not in data[0][0].lower()
-        assert "set "+test_right+" to true" in data[0][0].lower()
+        assert "set "+test_right+" to false" in data[0][0].lower()
         assert test_right in perm2.rights_map
-        assert perm2.rights_map[test_right]
+        assert not perm2.rights_map[test_right]
 
     def test_run_fail_args(self):
         # Set up a test hallo and server and channel and user
