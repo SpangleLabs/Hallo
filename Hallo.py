@@ -42,11 +42,16 @@ class Hallo:
         self.permission_mask = PermissionMask()
         """:type : PermissionMask"""
         # TODO: manual FunctionDispatcher construction, user input?
-        self.function_dispatcher = FunctionDispatcher({"ChannelControl", "Convert", "HalloControl", "Lookup", "Math",
-                                                       "PermissionControl", "Random", "ServerControl"}, self)
-        """:type : FunctionDispatcher"""
+        self.function_dispatcher = None
+        """:type : Optional[FunctionDispatcher]"""
 
     def start(self):
+        # If no function dispatcher, create one
+        # TODO: manual FunctionDispatcher construction, user input?
+        if self.function_dispatcher is None:
+            self.function_dispatcher = FunctionDispatcher({"ChannelControl", "Convert", "HalloControl", "Lookup",
+                                                           "Math", "PermissionControl", "Random", "ServerControl"},
+                                                          self)
         # If no servers, ask for a new server
         if len(self.server_list) == 0:
             if sum([server.get_auto_connect() for server in self.server_list]) == 0:
