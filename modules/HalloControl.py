@@ -159,7 +159,6 @@ class Shutdown(Function):
         self.help_docs = "Shuts down hallo entirely."
 
     def run(self, line, user_obj, destination_obj=None):
-        server_obj = user_obj.get_server()
-        hallo_obj = server_obj.get_hallo()
+        hallo_obj = user_obj.server.hallo
         hallo_obj.close()
         return "Shutting down."
