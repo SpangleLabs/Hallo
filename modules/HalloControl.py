@@ -17,11 +17,12 @@ class ConfigSave(Function):
         # Names which can be used to address the function
         self.names = {"config save", "configsave", "save config"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Save the config and pickle it."
+        self.help_docs = "Save the config to xml."
 
     def run(self, line, user_obj, destination_obj=None):
-        hallo_obj = user_obj.get_server().get_hallo()
+        hallo_obj = user_obj.server.hallo
         hallo_obj.save_to_xml()
+        return "Config has been saved."
 
 
 class ModuleReload(Function):
