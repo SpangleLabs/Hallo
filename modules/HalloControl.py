@@ -48,7 +48,7 @@ class ModuleReload(Function):
         if reload_result:
             return "Module reloaded."
         else:
-            return "Failed to reload module."
+            return "Error, failed to reload module."
 
 
 class ActiveThreads(Function):
