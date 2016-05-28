@@ -130,7 +130,7 @@ class Help(Function):
         function_class = function_dispatcher.get_function_by_name(function_name)
         # If function isn't defined, return an error.
         if function_class is None:
-            return "No function by that name exists"
+            return "Error, no function by that name exists"
         # Get the current object (new one if non-persistent)
         function_obj = function_dispatcher.get_function_object(function_class)
         # Try and output help message, throwing an error if the function hasn't defined it
@@ -138,7 +138,7 @@ class Help(Function):
             help_message = "Documentation for \"" + function_obj.get_help_name() + "\": " + function_obj.get_help_docs()
             return help_message
         except NotImplementedError:
-            return "No documentation exists for that function"
+            return "Error, no documentation exists for that function"
 
 
 class Shutdown(Function):
