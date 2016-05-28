@@ -20,7 +20,10 @@ class HelpTest(TestBase, unittest.TestCase):
         pass
 
     def test_help_no_func(self):
-        pass
+        self.function_dispatcher.dispatch("help not a real function", self.test_user, self.test_user)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+        assert "error" in data[0][0].lower()
+        assert "no function by that name exists" in data[0][0].lower()
 
     def test_help_no_doc(self):
         pass
