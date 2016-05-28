@@ -19,5 +19,11 @@ class HelpTest(TestBase, unittest.TestCase):
     def test_help_func(self):
         pass
 
+    def test_help_no_func(self):
+        pass
+
+    def test_help_no_doc(self):
+        pass
+
     def test_help_mock_func(self):
         pass
