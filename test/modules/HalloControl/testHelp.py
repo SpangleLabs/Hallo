@@ -1,5 +1,6 @@
 import unittest
 
+from Function import Function
 from Server import Server
 from test.TestBase import TestBase
 
@@ -32,4 +33,16 @@ class HelpTest(TestBase, unittest.TestCase):
         pass
 
     def test_help_mock_func(self):
+        pass
+
+
+class FunctionMock(Function):
+
+    def __init__(self):
+        super().__init__()
+        self.help_name = "function mock"
+        self.names = {"function mock", "mock function"}
+        self.help_docs = "Example help, please ignore"
+
+    def run(self, line, user_obj, destination_obj):
         pass
