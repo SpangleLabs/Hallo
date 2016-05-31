@@ -33,7 +33,8 @@ class HelpTest(TestBase, unittest.TestCase):
         pass
 
     def test_help_mock_func(self):
-        return  # Not yet implemented
+        raise NotImplementedError
+        # Manually add FunctionMock to function dispatcher
         self.function_dispatcher.reload_module(".test.modules.HalloControl.testHelp")
         self.function_dispatcher.dispatch("help function mock", self.test_user, self.test_user)
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
