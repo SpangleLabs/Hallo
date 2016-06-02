@@ -44,10 +44,13 @@ class HelpTest(TestBase, unittest.TestCase):
     def test_help_mock_func(self):
         # Manually add FunctionMock to function dispatcher
         self.function_dispatcher.load_function(FunctionMock)
-        self.function_dispatcher.dispatch("help function mock", self.test_user, self.test_user)
-        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "example help, please ignore" in data[0][0].lower()
+        try:
+            self.function_dispatcher.dispatch("help function mock", self.test_user, self.test_user)
+            data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+            assert "error" not in data[0][0].lower()
+            assert "example help, please ignore" in data[0][0].lower()
+        finally:
+            self.function_dispatcher.unload_function(FunctionMock)
 
 
 class FunctionMock(Function):
