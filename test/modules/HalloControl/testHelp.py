@@ -30,7 +30,16 @@ class HelpTest(TestBase, unittest.TestCase):
         assert "no function by that name exists" in data[0][0].lower()
 
     def test_help_no_doc(self):
-        pass
+        # Manually add FunctionMock to function dispatcher
+        self.function_dispatcher.load_function(FunctionMockNoDoc)
+        try:
+            self.function_dispatcher.dispatch("help function no doc", self.test_user, self.test_user)
+            data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
+            print(data)
+            assert "error" in data[0][0].lower()
+            assert "no documentation exists" in data[0][0].lower()
+        finally:
+            self.function_dispatcher.unload_function(FunctionMockNoDoc)
 
     def test_help_mock_func(self):
         # Manually add FunctionMock to function dispatcher
@@ -48,6 +57,18 @@ class FunctionMock(Function):
         self.help_name = "function mock"
         self.names = {"function mock", "mock function"}
         self.help_docs = "Example help, please ignore"
+
+    def run(self, line, user_obj, destination_obj):
+        pass
+
+
+class FunctionMockNoDoc(Function):
+
+    def __init__(self):
+        super().__init__()
+        self.help_name = "function no doc"
+        self.names = {self.help_name}
+        self.help_docs = None
 
     def run(self, line, user_obj, destination_obj):
         pass
