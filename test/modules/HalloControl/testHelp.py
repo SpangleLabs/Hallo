@@ -19,6 +19,7 @@ class HelpTest(TestBase, unittest.TestCase):
         assert num_funcs > 4, "Not enough functions listed."
 
     def test_help_mock_func_disp(self):
+        # Set up mock objects
         mock_hallo = Hallo()
         mock_func_disp = FunctionDispatcher({}, mock_hallo)
         mock_hallo.function_dispatcher = mock_func_disp
@@ -28,6 +29,7 @@ class HelpTest(TestBase, unittest.TestCase):
         mock_server = ServerMock(mock_hallo)
         mock_server.name = "test_serv1"
         mock_user = mock_server.get_user_by_name("test_user1")
+        # Test things
         mock_func_disp.dispatch("help", mock_user, mock_user)
         data = mock_server.get_send_data(1, mock_user, Server.MSG_MSG)
         assert "error" not in data[0][0].lower()
