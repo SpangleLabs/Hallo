@@ -5,6 +5,17 @@ from modules.Convert import ConvertPrefix, ConvertPrefixGroup, ConvertRepo
 
 class ConvertPrefixTest(unittest.TestCase):
 
+    def test_init(self):
+        test_repo = ConvertRepo()
+        prefix_group = ConvertPrefixGroup(test_repo, "test_group")
+        prefix_name = "test_name"
+        prefix_abbr = "test_abbr"
+        prefix_mult = 1337
+        test_prefix = ConvertPrefix(prefix_group, prefix_name, prefix_abbr, prefix_mult)
+        assert test_prefix.prefix == "test_name"
+        assert test_prefix.abbreviation == "test_abbr"
+        assert test_prefix.multiplier == 1337
+
     def test_xml(self):
         test_repo = ConvertRepo()
         prefix_group = ConvertPrefixGroup(test_repo, "test_group")
