@@ -12,6 +12,7 @@ class ConvertPrefixTest(unittest.TestCase):
         prefix_abbr = "test_abbr"
         prefix_mult = 1337
         test_prefix = ConvertPrefix(prefix_group, prefix_name, prefix_abbr, prefix_mult)
+        assert test_prefix.prefix_group == prefix_group
         assert test_prefix.prefix == "test_name"
         assert test_prefix.abbreviation == "test_abbr"
         assert test_prefix.multiplier == 1337
