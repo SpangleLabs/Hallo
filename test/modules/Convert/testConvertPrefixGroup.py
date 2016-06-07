@@ -44,3 +44,18 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         assert len(rebuild_group.prefix_list) == 2
         assert rebuild_group.name == "test_group"
         # TODO test prefixes in group
+
+    def test_add_prefix(self):
+        pass
+
+    def test_remove_prefix(self):
+        pass
+
+    def test_get_prefix_by_name(self):
+        pass
+
+    def test_get_prefix_by_abbr(self):
+        pass
+
+    def test_get_appropriate_prefix(self):
+        pass
