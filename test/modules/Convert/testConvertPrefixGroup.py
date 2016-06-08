@@ -56,7 +56,26 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         assert count2 == 1
 
     def test_add_prefix(self):
-        pass
+        # Set up stuff
+        test_repo = ConvertRepo()
+        prefix_group = ConvertPrefixGroup(test_repo, "test_group")
+        prefix_name1 = "test_name1"
+        prefix_abbr1 = "test_abbr1"
+        prefix_mult1 = 1001
+        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        prefix_name2 = "test_name2"
+        prefix_abbr2 = "test_abbr2"
+        prefix_mult2 = 1002
+        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        # Add some prefixes and test
+        assert len(prefix_group.prefix_list) == 0
+        prefix_group.add_prefix(test_prefix1)
+        assert len(prefix_group.prefix_list) == 1
+        assert test_prefix1 in prefix_group.prefix_list
+        prefix_group.add_prefix(test_prefix2)
+        assert len(prefix_group.prefix_list) == 2
+        assert test_prefix2 in prefix_group.prefix_list
+
 
     def test_remove_prefix(self):
         pass
