@@ -54,7 +54,6 @@ class ConvertPrefixGroupTest(unittest.TestCase):
             count2 += prefix.prefix == prefix_name2
         assert count1 == 1
         assert count2 == 1
-        # TODO test prefixes in group
 
     def test_add_prefix(self):
         pass
