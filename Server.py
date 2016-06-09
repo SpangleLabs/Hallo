@@ -839,11 +839,11 @@ class ServerIRC(Server):
         elif mode_mode == '+k':
             mode_channel.set_password(mode_args)
         # Handle op changes
-        if mode_mode[1] == "o":
+        if "o" in mode_mode:
             mode_args_client = self.get_user_by_name(mode_args)
             mode_channel.get_membership_by_user(mode_args_client).is_op = (mode_mode[0] == "+")
         # Handle voice changes
-        if mode_mode[1] == "v":
+        if "v" in mode_mode:
             mode_args_client = self.get_user_by_name(mode_args)
             mode_channel.get_membership_by_user(mode_args_client).is_voice = (mode_mode[0] == "+")
         # # Printing and logging
