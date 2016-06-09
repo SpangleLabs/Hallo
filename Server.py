@@ -742,7 +742,7 @@ class ServerIRC(Server):
         self.hallo.get_logger().log(Function.EVENT_JOIN, None, self, join_client, join_channel)
         # TODO: Apply automatic flags as required
         # If hallo has joined a channel, get the user list and apply automatic flags as required
-        if join_client.name.lower() == self.name.lower():
+        if join_client.name.lower() == self.nick.lower():
             join_channel.set_in_channel(True)
         else:
             # If it was not hallo joining a channel, add nick to user list
