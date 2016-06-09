@@ -732,10 +732,10 @@ class ServerIRC(Server):
         """
         # Parse out the channel and client from the JOIN data
         join_channel_name = ':'.join(join_line.split(':')[2:]).lower()
-        join_client_mname = join_line.split('!')[0][1:]
+        join_client_name = join_line.split('!')[0][1:]
         # Get relevant objects
         join_channel = self.get_channel_by_name(join_channel_name)
-        join_client = self.get_user_by_name(join_client_mname)
+        join_client = self.get_user_by_name(join_client_name)
         join_client.update_activity()
         # Print and log
         self.hallo.get_printer().output(Function.EVENT_JOIN, None, self, join_client, join_channel)
