@@ -1179,7 +1179,7 @@ class ServerIRC(Server):
         :type user_name_list: str
         """
         user_object_list = set()
-        for user_name in user_name_list.split(" "):
+        for user_name in user_name_list.split():
             # Strip flags from user name
             flags = ""
             while user_name[0] in ['~', '&', '@', '%', '+']:
