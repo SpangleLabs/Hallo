@@ -840,11 +840,13 @@ class ServerIRC(Server):
             mode_channel.set_password(mode_args)
         # Handle op changes
         if "o" in mode_mode:
-            mode_args_client = self.get_user_by_name(mode_args)
+            mode_user_name = mode_args.split()[0]
+            mode_args_client = self.get_user_by_name(mode_user_name)
             mode_channel.get_membership_by_user(mode_args_client).is_op = (mode_mode[0] == "+")
         # Handle voice changes
         if "v" in mode_mode:
-            mode_args_client = self.get_user_by_name(mode_args)
+            mode_user_name = mode_args.split()[0]
+            mode_args_client = self.get_user_by_name(mode_user_name)
             mode_channel.get_membership_by_user(mode_args_client).is_voice = (mode_mode[0] == "+")
         # # Printing and logging
         mode_full = mode_mode
