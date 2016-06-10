@@ -117,6 +117,10 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         # Test things
         assert prefix_group.get_prefix_by_name(prefix_name1) == test_prefix1
         assert prefix_group.get_prefix_by_name(prefix_name2) == test_prefix2
+        assert prefix_group.get_prefix_by_name(prefix_name1.upper()) == test_prefix1
+        assert prefix_group.get_prefix_by_name(prefix_name2.upper()) == test_prefix2
+        assert prefix_group.get_prefix_by_name(prefix_name1.capitalize()) == test_prefix1
+        assert prefix_group.get_prefix_by_name(prefix_name2.capitalize()) == test_prefix2
 
     def test_get_prefix_by_abbr(self):
         # Set up stuff
@@ -135,6 +139,10 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         # Test things
         assert prefix_group.get_prefix_by_abbr(prefix_abbr1) == test_prefix1
         assert prefix_group.get_prefix_by_abbr(prefix_abbr2) == test_prefix2
+        assert prefix_group.get_prefix_by_abbr(prefix_abbr1.upper()) == test_prefix1
+        assert prefix_group.get_prefix_by_abbr(prefix_abbr2.upper()) == test_prefix2
+        assert prefix_group.get_prefix_by_abbr(prefix_abbr1.capitalize()) == test_prefix1
+        assert prefix_group.get_prefix_by_abbr(prefix_abbr2.capitalize()) == test_prefix2
 
     def test_get_appropriate_prefix(self):
         pass
