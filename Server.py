@@ -732,17 +732,17 @@ class ServerIRC(Server):
         """
         # Parse out the channel and client from the JOIN data
         join_channel_name = ':'.join(join_line.split(':')[2:]).lower()
-        join_client_mname = join_line.split('!')[0][1:]
+        join_client_name = join_line.split('!')[0][1:]
         # Get relevant objects
         join_channel = self.get_channel_by_name(join_channel_name)
-        join_client = self.get_user_by_name(join_client_mname)
+        join_client = self.get_user_by_name(join_client_name)
         join_client.update_activity()
         # Print and log
         self.hallo.get_printer().output(Function.EVENT_JOIN, None, self, join_client, join_channel)
         self.hallo.get_logger().log(Function.EVENT_JOIN, None, self, join_client, join_channel)
         # TODO: Apply automatic flags as required
         # If hallo has joined a channel, get the user list and apply automatic flags as required
-        if join_client.name.lower() == self.name.lower():
+        if join_client.name.lower() == self.get_nick().lower():
             join_channel.set_in_channel(True)
         else:
             # If it was not hallo joining a channel, add nick to user list
@@ -839,12 +839,14 @@ class ServerIRC(Server):
         elif mode_mode == '+k':
             mode_channel.set_password(mode_args)
         # Handle op changes
-        if mode_mode[1] == "o":
-            mode_args_client = self.get_user_by_name(mode_args)
+        if "o" in mode_mode:
+            mode_user_name = mode_args.split()[0]
+            mode_args_client = self.get_user_by_name(mode_user_name)
             mode_channel.get_membership_by_user(mode_args_client).is_op = (mode_mode[0] == "+")
         # Handle voice changes
-        if mode_mode[1] == "v":
-            mode_args_client = self.get_user_by_name(mode_args)
+        if "v" in mode_mode:
+            mode_user_name = mode_args.split()[0]
+            mode_args_client = self.get_user_by_name(mode_user_name)
             mode_channel.get_membership_by_user(mode_args_client).is_voice = (mode_mode[0] == "+")
         # # Printing and logging
         mode_full = mode_mode
@@ -1179,7 +1181,7 @@ class ServerIRC(Server):
         :type user_name_list: str
         """
         user_object_list = set()
-        for user_name in user_name_list:
+        for user_name in user_name_list.split():
             # Strip flags from user name
             flags = ""
             while user_name[0] in ['~', '&', '@', '%', '+']:
