@@ -145,4 +145,26 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         assert prefix_group.get_prefix_by_abbr(prefix_abbr2.capitalize()) == test_prefix2
 
     def test_get_appropriate_prefix(self):
-        pass
+        # Set up stuff
+        test_repo = ConvertRepo()
+        prefix_group = ConvertPrefixGroup(test_repo, "test_group")
+        prefix_name1 = "test_name1"
+        prefix_abbr1 = "test_abbr1"
+        prefix_mult1 = 1000
+        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        prefix_name2 = "test_name2"
+        prefix_abbr2 = "test_abbr2"
+        prefix_mult2 = 10
+        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        prefix_name3 = "test_name3"
+        prefix_abbr3 = "test_abbr3"
+        prefix_mult3 = 0.01
+        test_prefix3 = ConvertPrefix(prefix_group, prefix_name3, prefix_abbr3, prefix_mult3)
+        prefix_group.add_prefix(test_prefix1)
+        prefix_group.add_prefix(test_prefix2)
+        prefix_group.add_prefix(test_prefix3)
+        # Test things
+        assert prefix_group.get_appropriate_prefix(2) is None
+        assert prefix_group.get_appropriate_prefix(24) == test_prefix2
+        assert prefix_group.get_appropriate_prefix(1234) == test_prefix1
+        assert prefix_group.get_appropriate_prefix(0.5) == test_prefix3
