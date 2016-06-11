@@ -76,15 +76,73 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         assert len(prefix_group.prefix_list) == 2
         assert test_prefix2 in prefix_group.prefix_list
 
-
     def test_remove_prefix(self):
-        pass
+        # Set up stuff
+        test_repo = ConvertRepo()
+        prefix_group = ConvertPrefixGroup(test_repo, "test_group")
+        prefix_name1 = "test_name1"
+        prefix_abbr1 = "test_abbr1"
+        prefix_mult1 = 1001
+        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        prefix_name2 = "test_name2"
+        prefix_abbr2 = "test_abbr2"
+        prefix_mult2 = 1002
+        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        prefix_group.add_prefix(test_prefix1)
+        prefix_group.add_prefix(test_prefix2)
+        assert test_prefix1 in prefix_group.prefix_list
+        assert test_prefix2 in prefix_group.prefix_list
+        assert len(prefix_group.prefix_list) == 2
+        # Remove some prefixes and test
+        prefix_group.remove_prefix(test_prefix1)
+        assert len(prefix_group.prefix_list) == 1
+        assert test_prefix2 in prefix_group.prefix_list
+        prefix_group.remove_prefix(test_prefix2)
+        assert len(prefix_group.prefix_list) == 0
 
     def test_get_prefix_by_name(self):
-        pass
+        # Set up stuff
+        test_repo = ConvertRepo()
+        prefix_group = ConvertPrefixGroup(test_repo, "test_group")
+        prefix_name1 = "test_name1"
+        prefix_abbr1 = "test_abbr1"
+        prefix_mult1 = 1001
+        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        prefix_name2 = "test_name2"
+        prefix_abbr2 = "test_abbr2"
+        prefix_mult2 = 1002
+        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        prefix_group.add_prefix(test_prefix1)
+        prefix_group.add_prefix(test_prefix2)
+        # Test things
+        assert prefix_group.get_prefix_by_name(prefix_name1) == test_prefix1
+        assert prefix_group.get_prefix_by_name(prefix_name2) == test_prefix2
+        assert prefix_group.get_prefix_by_name(prefix_name1.upper()) == test_prefix1
+        assert prefix_group.get_prefix_by_name(prefix_name2.upper()) == test_prefix2
+        assert prefix_group.get_prefix_by_name(prefix_name1.capitalize()) == test_prefix1
+        assert prefix_group.get_prefix_by_name(prefix_name2.capitalize()) == test_prefix2
 
     def test_get_prefix_by_abbr(self):
-        pass
+        # Set up stuff
+        test_repo = ConvertRepo()
+        prefix_group = ConvertPrefixGroup(test_repo, "test_group")
+        prefix_name1 = "test_name1"
+        prefix_abbr1 = "test_abbr1"
+        prefix_mult1 = 1001
+        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        prefix_name2 = "test_name2"
+        prefix_abbr2 = "test_abbr2"
+        prefix_mult2 = 1002
+        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        prefix_group.add_prefix(test_prefix1)
+        prefix_group.add_prefix(test_prefix2)
+        # Test things
+        assert prefix_group.get_prefix_by_abbr(prefix_abbr1) == test_prefix1
+        assert prefix_group.get_prefix_by_abbr(prefix_abbr2) == test_prefix2
+        assert prefix_group.get_prefix_by_abbr(prefix_abbr1.upper()) == test_prefix1
+        assert prefix_group.get_prefix_by_abbr(prefix_abbr2.upper()) == test_prefix2
+        assert prefix_group.get_prefix_by_abbr(prefix_abbr1.capitalize()) == test_prefix1
+        assert prefix_group.get_prefix_by_abbr(prefix_abbr2.capitalize()) == test_prefix2
 
     def test_get_appropriate_prefix(self):
         pass
