@@ -491,7 +491,8 @@ class ConvertPrefixGroup:
 
     def get_appropriate_prefix(self, value):
         multiplier_bigger_than_one = True
-        for prefix_obj in self.prefix_list:
+        # TODO order by largest first
+        for prefix_obj in sorted(self.prefix_list, key=lambda x: x.multiplier, reverse=True):
             multiplier = prefix_obj.multiplier
             if multiplier_bigger_than_one and multiplier < 1:
                 multiplier_bigger_than_one = False
