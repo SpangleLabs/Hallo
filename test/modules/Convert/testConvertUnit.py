@@ -27,7 +27,23 @@ class ConvertUnitTest(unittest.TestCase):
         pass
 
     def test_add_name(self):
-        pass
+        # Set up test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit_names = ["name1", "name2"]
+        test_value = 1337
+        test_unit = ConvertUnit(test_type, test_unit_names, test_value)
+        # Test setup
+        assert test_unit.name_list == test_unit_names
+        assert len(test_unit.name_list) == 2
+        # Add name
+        test_unit.add_name("name3")
+        # Test changes
+        assert len(test_unit.name_list) == 3
+        assert "name1" in test_unit.name_list
+        assert "name2" in test_unit.name_list
+        assert "name3" in test_unit.name_list
 
     def test_remove_name(self):
         pass
