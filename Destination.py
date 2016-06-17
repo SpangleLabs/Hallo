@@ -332,7 +332,7 @@ class Channel(Destination):
         self.in_channel = in_channel
         if in_channel is False:
             for membership in self.memberships_list:
-                membership.user.memberships_list.remove(membership)
+                membership.user.memberships_list.discard(membership)
             self.memberships_list = set()
 
     def rights_check(self, right_name):
@@ -537,7 +537,7 @@ class User(Destination):
         if online is False:
             self.identified = False
             for membership in self.memberships_list:
-                membership.channel.memberships_list.remove(membership)
+                membership.channel.memberships_list.discard(membership)
             self.memberships_list = set()
             """:type : set[ChannelMembership]"""
 
