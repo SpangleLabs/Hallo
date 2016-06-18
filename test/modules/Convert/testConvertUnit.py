@@ -107,7 +107,21 @@ class ConvertUnitTest(unittest.TestCase):
         assert "abbr1" not in test_unit.abbr_list
 
     def test_set_value(self):
-        pass
+        # Set up test object
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit_names = ["name1", "name2"]
+        test_value = 1337
+        test_unit = ConvertUnit(test_type, test_unit_names, test_value)
+        # Check value and time updated
+        assert test_unit.value == 1337
+        assert test_unit.last_updated is None
+        # Change value
+        test_unit.set_value(101)
+        # Check value
+        assert test_unit.value == 101
+        assert test_unit.last_updated is not None
 
     def test_set_offset(self):
         pass
