@@ -259,7 +259,7 @@ class ConvertUnit:
         if name in self.name_list:
             self.name_list.remove(name)
 
-    def add_addr(self, abbreviation):
+    def add_abbr(self, abbreviation):
         """Adds an abbreviation to the list of abbreviations for a unit."""
         self.abbr_list.append(abbreviation)
 
@@ -389,7 +389,7 @@ class ConvertUnit:
         # Loop through abbreviation elements, adding them.
         for abbr_elem in doc.getElementsByTagName("abbr"):
             new_abbr = abbr_elem.firstChild.data
-            new_unit.add_addr(new_abbr)
+            new_unit.add_abbr(new_abbr)
         # Add prefix group
         if len(doc.getElementsByTagName("valid_prefix_group")) != 0:
             convert_repo = convert_type.repo
@@ -1702,7 +1702,7 @@ class ConvertUnitAddAbbreviation(Function):
             return "Unit name is too ambiguous, please specify with unit= and type= ."
         unit_obj = input_unit_list[0]
         # Add the new name
-        unit_obj.add_addr(new_unit_abbr)
+        unit_obj.add_abbr(new_unit_abbr)
         # Save repo
         repo.save_to_xml()
         # Output message
