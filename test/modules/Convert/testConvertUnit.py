@@ -124,7 +124,21 @@ class ConvertUnitTest(unittest.TestCase):
         assert test_unit.last_updated is not None
 
     def test_set_offset(self):
-        pass
+        # Set up test object
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit_names = ["name1", "name2"]
+        test_value = 1337
+        test_unit = ConvertUnit(test_type, test_unit_names, test_value)
+        # Check value and time updated
+        assert test_unit.offset == 0
+        assert test_unit.last_updated is None
+        # Change value
+        test_unit.set_offset(10)
+        # Check value
+        assert test_unit.offset == 10
+        assert test_unit.last_updated is not None
 
     def test_has_name(self):
         pass
