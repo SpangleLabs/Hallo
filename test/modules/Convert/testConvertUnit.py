@@ -167,7 +167,23 @@ class ConvertUnitTest(unittest.TestCase):
         assert test_unit.last_updated is not None
 
     def test_has_name(self):
-        pass
+        # Set up test object
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit_names = ["name1", "name2", "NaMe3"]
+        test_value = 1337
+        test_unit = ConvertUnit(test_type, test_unit_names, test_value)
+        test_unit.add_abbr("ABbr1")
+        test_unit.add_abbr("abbr2")
+        # Do some tests
+        assert test_unit.has_name("name1")
+        assert test_unit.has_name("name3")
+        assert test_unit.has_name("NamE2")
+        assert not test_unit.has_name("name4")
+        assert test_unit.has_name("abbr1")
+        assert test_unit.has_name("ABBR2")
+        assert not test_unit.has_name("abbr3")
 
     def test_get_prefix_from_user_input(self):
         pass
