@@ -1,6 +1,6 @@
 import unittest
 
-from modules.Convert import ConvertRepo, ConvertType, ConvertUnit
+from modules.Convert import ConvertRepo, ConvertType, ConvertUnit, ConvertPrefixGroup
 
 
 class ConvertUnitTest(unittest.TestCase):
@@ -24,7 +24,33 @@ class ConvertUnitTest(unittest.TestCase):
         assert test_unit.valid_prefix_group is None
 
     def test_xml(self):
-        pass
+        # Set up test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_repo.add_type(test_type)
+        prefix_group = ConvertPrefixGroup(test_repo, "test_group")
+        test_repo.add_prefix_group(prefix_group)
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit_names = ["name1", "name2"]
+        test_value = 1337
+        # Create test unit
+        test_unit = ConvertUnit(test_type, test_unit_names, test_value)
+        test_unit.set_offset(10)
+        test_unit.add_abbr("abbr1")
+        test_unit.valid_prefix_group = prefix_group
+        # Convert to XML and back
+        test_xml = test_unit.to_xml()
+        xml_unit = ConvertUnit.from_xml(test_type, test_xml)
+        assert len(test_unit.abbr_list) == 1
+        assert "abbr1" in xml_unit.abbr_list
+        assert xml_unit.type == test_type
+        assert len(test_unit.name_list) == 2
+        assert "name1" in xml_unit.name_list
+        assert "name2" in xml_unit.name_list
+        assert xml_unit.value == test_value
+        assert xml_unit.offset == 10
+        assert xml_unit.last_updated == test_unit.last_updated
+        assert xml_unit.valid_prefix_group == prefix_group
 
     def test_add_name(self):
         # Set up test objects
@@ -141,7 +167,23 @@ class ConvertUnitTest(unittest.TestCase):
         assert test_unit.last_updated is not None
 
     def test_has_name(self):
-        pass
+        # Set up test object
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit_names = ["name1", "name2", "NaMe3"]
+        test_value = 1337
+        test_unit = ConvertUnit(test_type, test_unit_names, test_value)
+        test_unit.add_abbr("ABbr1")
+        test_unit.add_abbr("abbr2")
+        # Do some tests
+        assert test_unit.has_name("name1")
+        assert test_unit.has_name("name3")
+        assert test_unit.has_name("NamE2")
+        assert not test_unit.has_name("name4")
+        assert test_unit.has_name("abbr1")
+        assert test_unit.has_name("ABBR2")
+        assert not test_unit.has_name("abbr3")
 
     def test_get_prefix_from_user_input(self):
         pass
