@@ -295,6 +295,7 @@ class ConvertUnit:
         False if the input does not match this unit at all.
         :param user_input: The user input
         :type user_input: str
+        :rtype: ConvertPrefix | None | Bool
         """
         for name in self.name_list:
             # If {X} is in the name, it means prefix goes in the middle.
