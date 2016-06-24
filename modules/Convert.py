@@ -298,26 +298,6 @@ class ConvertUnit:
         :rtype: ConvertPrefix | None | Bool
         """
         for name in self.name_list:
-            # If {X} is in the name, it means prefix goes in the middle.
-            if "{X}" in name:
-                name_start = name.split("{X}")[0].lower()
-                name_end = name.split("{X}")[1].lower()
-                # Ensure that userinput starts with first half and ends with second half.
-                if not user_input.lower().startswith(name_start) or not user_input.lower().endswith(name_end):
-                    continue
-                user_prefix = user_input[len(name_start):len(user_input) - len(name_end)]
-                # If user prefix is blank, return None
-                if user_prefix == "":
-                    return None
-                # If no prefix group is valid, accept blank string, reject anything else.
-                if self.valid_prefix_group is None:
-                    continue
-                # Get the prefix in the group whose name matches the user input
-                prefix_obj = self.valid_prefix_group.get_prefix_by_name(user_prefix)
-                if prefix_obj is None:
-                    continue
-                return prefix_obj
-            # So, {X} isn't in the name, so it's a standard name.
             if not user_input.lower().endswith(name.lower()):
                 continue
             # Find out what the user said was the prefix
@@ -334,27 +314,6 @@ class ConvertUnit:
             return prefix_obj
         # Do the same as above, but with abbreviations
         for abbreviation in self.abbr_list:
-            # If {X} is in the abbreviation, it means prefix goes in the middle.
-            if "{X}" in abbreviation:
-                abbreviation_start = abbreviation.split("{X}")[0].lower()
-                abbreviation_end = abbreviation.split("{X}")[1].lower()
-                # Ensure that userinput starts with first half and ends with second half.
-                if (not user_input.lower().startswith(abbreviation_start) or not user_input.lower().endswith(
-                        abbreviation_end)):
-                    continue
-                user_prefix = user_input[len(abbreviation_start):len(user_input) - len(abbreviation_end)]
-                # If user prefix is blank, return None
-                if user_prefix == "":
-                    return None
-                # If no prefix group is valid, accept blank string, reject anything else.
-                if self.valid_prefix_group is None:
-                    continue
-                # Get the prefix in the group whose abbreviation matches the user input
-                prefix_obj = self.valid_prefix_group.get_prefix_by_abbr(user_prefix)
-                if prefix_obj is None:
-                    continue
-                return prefix_obj
-            # So, {X} isn't in the abbreviation, so it's a standard abbreviation.
             if not user_input.lower().endswith(abbreviation.lower()):
                 continue
             # Find out what the user said was the prefix
