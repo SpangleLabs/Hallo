@@ -1237,8 +1237,8 @@
 			<unit>
 				<name>metres^3</name>
 				<name>metre^3</name>
-				<name>cubic metres</name>
-				<name>cubic metre</name>
+				<name>cubic {X}metres</name>
+				<name>cubic {X}metre</name>
 				<name>metres cubed</name>
 				<name>metre cubed</name>
 				<valid_prefix_group>si-cube</valid_prefix_group>
@@ -1397,8 +1397,8 @@
 			<unit>
 				<name>metres^2</name>
 				<name>metre^2</name>
-				<name>square metres</name>
-				<name>square metre</name>
+				<name>square {X}metres</name>
+				<name>square {X}metre</name>
 				<name>metres squared</name>
 				<name>metre squared</name>
 				<valid_prefix_group>si-square</valid_prefix_group>
