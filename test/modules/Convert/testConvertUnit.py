@@ -185,5 +185,14 @@ class ConvertUnitTest(unittest.TestCase):
         assert test_unit.has_name("ABBR2")
         assert not test_unit.has_name("abbr3")
 
-    def test_get_prefix_from_user_input(self):
+    def test_get_prefix_from_user_input_name(self):
+        pass
+
+    def test_get_prefix_from_user_input_abbr(self):
+        pass
+
+    def test_get_prefix_from_user_input_name_internal(self):
+        pass
+
+    def test_get_prefix_from_user_input_abbr_internal(self):
         pass
