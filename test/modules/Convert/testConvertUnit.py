@@ -196,4 +196,3 @@ class ConvertUnitTest(unittest.TestCase):
 
     def test_get_prefix_from_user_input_abbr_internal(self):
         pass
-
