@@ -209,7 +209,7 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit.add_abbr("abbr2")
         test_unit.valid_prefix_group = prefix_group
         # Get prefix from input
-        pass
+        assert test_unit.get_prefix_from_user_input("test_name1name2") == test_prefix1
 
     def test_get_prefix_from_user_input_abbr(self):
         pass
