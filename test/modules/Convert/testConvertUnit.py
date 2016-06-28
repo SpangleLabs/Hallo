@@ -248,7 +248,35 @@ class ConvertUnitTest(unittest.TestCase):
         assert test_unit.get_prefix_from_user_input("test_name1abbr2") is None
 
     def test_get_prefix_from_user_input_name_internal(self):
-        pass
+        # Set up prefix group
+        test_repo = ConvertRepo()
+        prefix_group = ConvertPrefixGroup(test_repo, "test_group")
+        prefix_name1 = "test_name1"
+        prefix_abbr1 = "test_abbr1"
+        prefix_mult1 = 1001
+        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        prefix_name2 = "test_name2"
+        prefix_abbr2 = "test_abbr2"
+        prefix_mult2 = 1002
+        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        prefix_group.add_prefix(test_prefix1)
+        prefix_group.add_prefix(test_prefix2)
+        # Set up test object
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit_names = ["name1", "cubic {X}name2", "NaMe3"]
+        test_value = 1337
+        test_unit = ConvertUnit(test_type, test_unit_names, test_value)
+        test_unit.add_abbr("ABbr1")
+        test_unit.add_abbr("abbr2")
+        test_unit.valid_prefix_group = prefix_group
+        # Get prefix from input
+        assert test_unit.get_prefix_from_user_input("cubic test_name1name2") == test_prefix1
+        assert test_unit.get_prefix_from_user_input("cubic test_name1not_a_unit") is None
+        assert test_unit.get_prefix_from_user_input("cubic not_a_prefixname2") is None
+        # Remove prefix group and see what happens
+        test_unit.valid_prefix_group = None
+        assert test_unit.get_prefix_from_user_input("cubic test_name1name2") is None
 
     def test_get_prefix_from_user_input_abbr_internal(self):
         pass
