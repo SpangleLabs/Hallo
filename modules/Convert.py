@@ -306,7 +306,7 @@ class ConvertUnit:
                 # Ensure that userinput starts with first half and ends with second half.
                 if not user_input.lower().startswith(name_start) or not user_input.lower().endswith(name_end):
                     continue
-                user_prefix = user_input[len(name_start):len(user_input) - len(name_end)]
+                user_prefix = user_input[len(name_start):-len(name_end)]
                 # If user prefix is blank, return None
                 if user_prefix == "":
                     return None
@@ -322,7 +322,7 @@ class ConvertUnit:
             if not user_input.lower().endswith(name.lower()):
                 continue
             # Find out what the user said was the prefix
-            user_prefix = user_input[:len(user_input) - len(name)]
+            user_prefix = user_input[:-len(name)]
             if user_prefix == "":
                 return None
             # If no prefix group is valid and user didn't input a blank string, reject
@@ -343,7 +343,7 @@ class ConvertUnit:
                 if (not user_input.lower().startswith(abbreviation_start) or not user_input.lower().endswith(
                         abbreviation_end)):
                     continue
-                user_prefix = user_input[len(abbreviation_start):len(user_input) - len(abbreviation_end)]
+                user_prefix = user_input[len(abbreviation_start):-len(abbreviation_end)]
                 # If user prefix is blank, return None
                 if user_prefix == "":
                     return None
@@ -359,7 +359,7 @@ class ConvertUnit:
             if not user_input.lower().endswith(abbreviation.lower()):
                 continue
             # Find out what the user said was the prefix
-            user_prefix = user_input[:len(user_input) - len(abbreviation)]
+            user_prefix = user_input[:-len(abbreviation)]
             if user_prefix == "":
                 return None
             # If no prefix group is valid and user didn't input a blank string, reject
