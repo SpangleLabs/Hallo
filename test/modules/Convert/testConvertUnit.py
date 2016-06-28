@@ -210,6 +210,11 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit.valid_prefix_group = prefix_group
         # Get prefix from input
         assert test_unit.get_prefix_from_user_input("test_name1name2") == test_prefix1
+        assert test_unit.get_prefix_from_user_input("test_name1not_a_unit") is None
+        assert test_unit.get_prefix_from_user_input("not_a_prefixname2") is None
+        # Remove prefix group and see what happens
+        test_unit.valid_prefix_group = None
+        assert test_unit.get_prefix_from_user_input("test_name1name2") is None
 
     def test_get_prefix_from_user_input_abbr(self):
         pass
