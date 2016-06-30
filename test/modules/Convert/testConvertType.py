@@ -21,7 +21,18 @@ class ConvertTypeTest(unittest.TestCase):
         pass
 
     def test_add_unit(self):
-        pass
+        # Set up test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit_names = ["name1", "name2"]
+        test_value = 1337
+        test_unit = ConvertUnit(test_type, test_unit_names, test_value)
+        # Add unit to type
+        test_type.add_unit(test_unit)
+        # Check
+        assert len(test_type.unit_list) == 1
+        assert test_type.unit_list[0] == test_unit
 
     def test_remove_unit(self):
         pass
