@@ -25,9 +25,7 @@ class ConvertTypeTest(unittest.TestCase):
         test_repo = ConvertRepo()
         test_type = ConvertType(test_repo, "test_type")
         test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
-        test_unit_names = ["name1", "name2"]
-        test_value = 1337
-        test_unit = ConvertUnit(test_type, test_unit_names, test_value)
+        test_unit = ConvertUnit(test_type, ["name1", "name2"], 1337)
         # Add unit to type
         test_type.add_unit(test_unit)
         # Check
@@ -35,7 +33,21 @@ class ConvertTypeTest(unittest.TestCase):
         assert test_type.unit_list[0] == test_unit
 
     def test_remove_unit(self):
-        pass
+        # Set up test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit1 = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        test_unit2 = ConvertUnit(test_type, ["name3", "name4"], 505)
+        test_type.add_unit(test_unit1)
+        test_type.add_unit(test_unit2)
+        # Check it's all set up correctly
+        assert len(test_type.unit_list) == 2
+        # Remove unit from type
+        test_type.remove_unit(test_unit1)
+        # Check
+        assert len(test_type.unit_list) == 1
+        assert test_type.unit_list[0] == test_unit2
 
     def test_get_unit_by_name(self):
         pass
