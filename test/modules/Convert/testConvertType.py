@@ -63,7 +63,21 @@ class ConvertTypeTest(unittest.TestCase):
         assert test_type.unit_list[0] == test_unit2
 
     def test_get_unit_by_name(self):
-        pass
+        # Set up test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_unitb = ConvertUnit(test_type, ["base_unit"], 1)
+        test_type.base_unit = test_unitb
+        test_unit1 = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        test_unit2 = ConvertUnit(test_type, ["name3", "name4"], 505)
+        test_unit2.add_abbr("u2")
+        test_type.add_unit(test_unit1)
+        test_type.add_unit(test_unit2)
+        # test some stuff
+        assert test_type.get_unit_by_name("base_unit") == test_unitb
+        assert test_type.get_unit_by_name("NAME1") == test_unit1
+        assert test_type.get_unit_by_name("NaMe4") == test_unit2
+        assert test_type.get_unit_by_name("u2") == test_unit2
 
     def test_xml(self):
         pass
