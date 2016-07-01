@@ -80,4 +80,23 @@ class ConvertTypeTest(unittest.TestCase):
         assert test_type.get_unit_by_name("u2") == test_unit2
 
     def test_xml(self):
-        pass
+        # Set up test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.decimals = 4
+        test_unitb = ConvertUnit(test_type, ["base_unit"], 1)
+        test_type.base_unit = test_unitb
+        test_unit1 = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        test_unit2 = ConvertUnit(test_type, ["name3", "name4"], 505)
+        test_unit2.add_abbr("u2")
+        test_type.add_unit(test_unit1)
+        test_type.add_unit(test_unit2)
+        # Collapse to XML and rebuild
+        test_xml = test_type.to_xml()
+        rebuild_type = ConvertType.from_xml(test_repo, test_xml)
+        # Test the type
+        assert rebuild_type.repo == test_repo
+        assert len(rebuild_type.unit_list) == 2
+        assert rebuild_type.name == "test_type"
+        assert rebuild_type.decimals == 4
+        assert rebuild_type.base_unit.name_list[0] == "base_unit"
