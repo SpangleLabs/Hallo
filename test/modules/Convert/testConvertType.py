@@ -18,7 +18,20 @@ class ConvertTypeTest(unittest.TestCase):
         assert test_type.base_unit is None
 
     def test_get_full_unit_list(self):
-        pass
+        # Set up test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_unitb = ConvertUnit(test_type, ["base_unit"], 1)
+        test_type.base_unit = test_unitb
+        test_unit1 = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        test_unit2 = ConvertUnit(test_type, ["name3", "name4"], 505)
+        test_type.add_unit(test_unit1)
+        test_type.add_unit(test_unit2)
+        # Check full unit list
+        assert len(test_type.get_full_unit_list()) == 3
+        assert test_unitb in test_type.get_full_unit_list()
+        assert test_unit1 in test_type.get_full_unit_list()
+        assert test_unit2 in test_type.get_full_unit_list()
 
     def test_add_unit(self):
         # Set up test objects
