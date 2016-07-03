@@ -116,7 +116,15 @@ class ConvertRepoTest(unittest.TestCase):
         assert test_repo.prefix_group_list == []
 
     def test_get_prefix_group_by_name(self):
-        pass
+        # Set up test objects
+        test_repo = ConvertRepo()
+        test_group1 = ConvertPrefixGroup(test_repo, "group1")
+        test_group2 = ConvertPrefixGroup(test_repo, "group2")
+        test_repo.add_prefix_group(test_group1)
+        test_repo.add_prefix_group(test_group2)
+        # Test
+        assert test_repo.get_prefix_group_by_name("group1") == test_group1
+        assert test_repo.get_prefix_group_by_name("group2") == test_group2
 
     def test_xml(self):
         pass
