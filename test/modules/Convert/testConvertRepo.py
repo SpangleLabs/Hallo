@@ -133,6 +133,10 @@ class ConvertRepoTest(unittest.TestCase):
         test_type2 = ConvertType(test_repo, "test_type2")
         test_repo.add_type(test_type1)
         test_repo.add_type(test_type2)
+        test_unit1 = ConvertUnit(test_type1, ["unit1"], 1)
+        test_unit2 = ConvertUnit(test_type2, ["unit2"], 1)
+        test_type1.base_unit = test_unit1
+        test_type2.base_unit = test_unit2
         test_group1 = ConvertPrefixGroup(test_repo, "group1")
         test_group2 = ConvertPrefixGroup(test_repo, "group2")
         test_repo.add_prefix_group(test_group1)
