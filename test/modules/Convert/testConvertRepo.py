@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from modules.Convert import ConvertRepo, ConvertType, ConvertUnit, ConvertPrefixGroup
@@ -127,4 +128,35 @@ class ConvertRepoTest(unittest.TestCase):
         assert test_repo.get_prefix_group_by_name("group2") == test_group2
 
     def test_xml(self):
-        pass
+        test_repo = ConvertRepo()
+        test_type1 = ConvertType(test_repo, "test_type1")
+        test_type2 = ConvertType(test_repo, "test_type2")
+        test_repo.add_type(test_type1)
+        test_repo.add_type(test_type2)
+        test_group1 = ConvertPrefixGroup(test_repo, "group1")
+        test_group2 = ConvertPrefixGroup(test_repo, "group2")
+        test_repo.add_prefix_group(test_group1)
+        test_repo.add_prefix_group(test_group2)
+        # Save to XML and load
+        try:
+            try:
+                os.rename("store/convert.xml", "store/convert.xml.tmp")
+            except OSError:
+                pass
+            test_repo.save_to_xml()
+            new_repo = ConvertRepo.load_from_xml()
+            assert len(new_repo.type_list) == 2
+            assert len(new_repo.prefix_group_list) == 2
+            assert "test_type1" in [x.name for x in new_repo.type_list]
+            assert "test_type2" in [x.name for x in new_repo.type_list]
+            assert "group1" in [x.name for x in new_repo.prefix_group_list]
+            assert "group2" in [x.name for x in new_repo.prefix_group_list]
+        finally:
+            try:
+                os.remove("store/convert.xml")
+            except OSError:
+                pass
+            try:
+                os.rename("store/convert.xml.tmp", "store/convert.xml")
+            except OSError:
+                pass
