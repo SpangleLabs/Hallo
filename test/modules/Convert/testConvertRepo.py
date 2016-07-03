@@ -48,7 +48,15 @@ class ConvertRepoTest(unittest.TestCase):
         assert test_repo.type_list == []
 
     def test_get_type_by_name(self):
-        pass
+        # Set up test object
+        test_repo = ConvertRepo()
+        test_type1 = ConvertType(test_repo, "test_type1")
+        test_type2 = ConvertType(test_repo, "test_type2")
+        test_repo.add_type(test_type1)
+        test_repo.add_type(test_type2)
+        # Test
+        assert test_repo.get_type_by_name("test_type1") == test_type1
+        assert test_repo.get_type_by_name("test_type2") == test_type2
 
     def test_get_full_unit_list(self):
         pass
