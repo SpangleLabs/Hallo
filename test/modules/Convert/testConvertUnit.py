@@ -210,11 +210,12 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit.valid_prefix_group = prefix_group
         # Get prefix from input
         assert test_unit.get_prefix_from_user_input("test_name1name2") == test_prefix1
-        assert test_unit.get_prefix_from_user_input("test_name1not_a_unit") is None
-        assert test_unit.get_prefix_from_user_input("not_a_prefixname2") is None
+        assert test_unit.get_prefix_from_user_input("test_name1not_a_unit") is False
+        assert test_unit.get_prefix_from_user_input("not_a_prefixname2") is False
+        assert test_unit.get_prefix_from_user_input("name2") is None
         # Remove prefix group and see what happens
         test_unit.valid_prefix_group = None
-        assert test_unit.get_prefix_from_user_input("test_name1name2") is None
+        assert test_unit.get_prefix_from_user_input("test_name1name2") is False
 
     def test_get_prefix_from_user_input_abbr(self):
         # Set up prefix group
@@ -240,12 +241,13 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit.add_abbr("abbr2")
         test_unit.valid_prefix_group = prefix_group
         # Get prefix from input
-        assert test_unit.get_prefix_from_user_input("test_name1abbr2") == test_prefix1
-        assert test_unit.get_prefix_from_user_input("test_name1not_a_unit") is None
-        assert test_unit.get_prefix_from_user_input("not_a_prefixabbr2") is None
+        assert test_unit.get_prefix_from_user_input("test_abbr1abbr2") == test_prefix1
+        assert test_unit.get_prefix_from_user_input("test_abbr1not_a_unit") is False
+        assert test_unit.get_prefix_from_user_input("not_a_prefixabbr2") is False
+        assert test_unit.get_prefix_from_user_input("abbr2") is None
         # Remove prefix group and see what happens
         test_unit.valid_prefix_group = None
-        assert test_unit.get_prefix_from_user_input("test_name1abbr2") is None
+        assert test_unit.get_prefix_from_user_input("test_abbr1abbr2") is False
 
     def test_get_prefix_from_user_input_name_internal(self):
         # Set up prefix group
@@ -272,11 +274,12 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit.valid_prefix_group = prefix_group
         # Get prefix from input
         assert test_unit.get_prefix_from_user_input("cubic test_name1name2") == test_prefix1
-        assert test_unit.get_prefix_from_user_input("cubic test_name1not_a_unit") is None
-        assert test_unit.get_prefix_from_user_input("cubic not_a_prefixname2") is None
+        assert test_unit.get_prefix_from_user_input("cubic test_name1not_a_unit") is False
+        assert test_unit.get_prefix_from_user_input("cubic not_a_prefixname2") is False
+        assert test_unit.get_prefix_from_user_input("cubic name2") is None
         # Remove prefix group and see what happens
         test_unit.valid_prefix_group = None
-        assert test_unit.get_prefix_from_user_input("cubic test_name1name2") is None
+        assert test_unit.get_prefix_from_user_input("cubic test_name1name2") is False
 
     def test_get_prefix_from_user_input_abbr_internal(self):
         # Set up prefix group
@@ -302,9 +305,10 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit.add_abbr("cubic {X}abbr2")
         test_unit.valid_prefix_group = prefix_group
         # Get prefix from input
-        assert test_unit.get_prefix_from_user_input("cubic test_name1abbr2") == test_prefix1
-        assert test_unit.get_prefix_from_user_input("cubic test_name1not_a_unit") is None
-        assert test_unit.get_prefix_from_user_input("cubic not_a_prefixabbr2") is None
+        assert test_unit.get_prefix_from_user_input("cubic test_abbr1abbr2") == test_prefix1
+        assert test_unit.get_prefix_from_user_input("cubic test_abbr1not_a_unit") is False
+        assert test_unit.get_prefix_from_user_input("cubic not_a_prefixabbr2") is False
+        assert test_unit.get_prefix_from_user_input("cubic abbr2") is None
         # Remove prefix group and see what happens
         test_unit.valid_prefix_group = None
-        assert test_unit.get_prefix_from_user_input("cubic test_name1abbr2") is None
+        assert test_unit.get_prefix_from_user_input("cubic test_abbr1abbr2") is False
