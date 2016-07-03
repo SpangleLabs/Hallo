@@ -6,7 +6,11 @@ from modules.Convert import ConvertRepo, ConvertType, ConvertUnit
 class ConvertRepoTest(unittest.TestCase):
 
     def test_init(self):
-        pass
+        # Set up test object
+        test_repo = ConvertRepo()
+        # Check init
+        assert test_repo.prefix_group_list == []
+        assert test_repo.type_list == []
 
     def test_add_type(self):
         pass
