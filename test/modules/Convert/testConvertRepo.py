@@ -1,6 +1,6 @@
 import unittest
 
-from modules.Convert import ConvertRepo, ConvertType, ConvertUnit
+from modules.Convert import ConvertRepo, ConvertType, ConvertUnit, ConvertPrefixGroup
 
 
 class ConvertRepoTest(unittest.TestCase):
@@ -62,7 +62,7 @@ class ConvertRepoTest(unittest.TestCase):
         # Set up test objects
         test_repo = ConvertRepo()
         test_type1 = ConvertType(test_repo, "test_type1")
-        test_repo.add_type(test_type2)
+        test_repo.add_type(test_type1)
         test_unit1 = ConvertUnit(test_type1, ["unit1"], 1)
         test_unit2 = ConvertUnit(test_type1, ["unit2"], 10)
         test_unit3 = ConvertUnit(test_type1, ["unit3"], 100)
@@ -74,7 +74,7 @@ class ConvertRepoTest(unittest.TestCase):
         test_unit5 = ConvertUnit(test_type2, ["unit5"], 1000)
         test_type2.base_unit = test_unit4
         test_type2.add_unit(test_unit5)
-        test_repo.add_type(test_type1)
+        test_repo.add_type(test_type2)
         # Test
         assert test_unit1 in test_repo.get_full_unit_list()
         assert test_unit2 in test_repo.get_full_unit_list()
@@ -84,7 +84,19 @@ class ConvertRepoTest(unittest.TestCase):
         assert len(test_repo.get_full_unit_list()) == 5
 
     def test_add_prefix_group(self):
-        pass
+        test_repo = ConvertRepo()
+        test_group1 = ConvertPrefixGroup(test_repo, "group1")
+        test_group2 = ConvertPrefixGroup(test_repo, "group2")
+        # Add group
+        test_repo.add_prefix_group(test_group1)
+        # Check
+        assert len(test_repo.prefix_group_list) == 1
+        assert test_repo.prefix_group_list[0] == test_group1
+        # Add group
+        test_repo.add_prefix_group(test_group2)
+        # Check
+        assert len(test_repo.prefix_group_list) == 2
+        assert test_group2 in test_repo.prefix_group_list
 
     def test_remove_prefix_group(self):
         pass
