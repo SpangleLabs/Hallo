@@ -1,6 +1,6 @@
 import unittest
 
-from modules.Convert import ConvertRepo, ConvertType
+from modules.Convert import ConvertRepo, ConvertType, ConvertUnit
 
 
 class ConvertRepoTest(unittest.TestCase):
@@ -13,7 +13,7 @@ class ConvertRepoTest(unittest.TestCase):
         assert test_repo.type_list == []
 
     def test_add_type(self):
-        # Set up test object
+        # Set up test objects
         test_repo = ConvertRepo()
         test_type1 = ConvertType(test_repo, "test_type1")
         test_type2 = ConvertType(test_repo, "test_type2")
@@ -29,7 +29,7 @@ class ConvertRepoTest(unittest.TestCase):
         assert test_type2 in test_repo.type_list
 
     def test_remove_type(self):
-        # Set up test object
+        # Set up test objects
         test_repo = ConvertRepo()
         test_type1 = ConvertType(test_repo, "test_type1")
         test_type2 = ConvertType(test_repo, "test_type2")
@@ -48,7 +48,7 @@ class ConvertRepoTest(unittest.TestCase):
         assert test_repo.type_list == []
 
     def test_get_type_by_name(self):
-        # Set up test object
+        # Set up test objects
         test_repo = ConvertRepo()
         test_type1 = ConvertType(test_repo, "test_type1")
         test_type2 = ConvertType(test_repo, "test_type2")
@@ -59,7 +59,29 @@ class ConvertRepoTest(unittest.TestCase):
         assert test_repo.get_type_by_name("test_type2") == test_type2
 
     def test_get_full_unit_list(self):
-        pass
+        # Set up test objects
+        test_repo = ConvertRepo()
+        test_type1 = ConvertType(test_repo, "test_type1")
+        test_repo.add_type(test_type2)
+        test_unit1 = ConvertUnit(test_type1, ["unit1"], 1)
+        test_unit2 = ConvertUnit(test_type1, ["unit2"], 10)
+        test_unit3 = ConvertUnit(test_type1, ["unit3"], 100)
+        test_type1.base_unit = test_unit1
+        test_type1.add_unit(test_unit2)
+        test_type1.add_unit(test_unit3)
+        test_type2 = ConvertType(test_repo, "test_type2")
+        test_unit4 = ConvertUnit(test_type2, ["unit4"], 1)
+        test_unit5 = ConvertUnit(test_type2, ["unit5"], 1000)
+        test_type2.base_unit = test_unit4
+        test_type2.add_unit(test_unit5)
+        test_repo.add_type(test_type1)
+        # Test
+        assert test_unit1 in test_repo.get_full_unit_list()
+        assert test_unit2 in test_repo.get_full_unit_list()
+        assert test_unit3 in test_repo.get_full_unit_list()
+        assert test_unit4 in test_repo.get_full_unit_list()
+        assert test_unit5 in test_repo.get_full_unit_list()
+        assert len(test_repo.get_full_unit_list()) == 5
 
     def test_add_prefix_group(self):
         pass
