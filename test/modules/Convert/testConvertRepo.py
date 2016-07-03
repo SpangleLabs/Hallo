@@ -13,7 +13,14 @@ class ConvertRepoTest(unittest.TestCase):
         assert test_repo.type_list == []
 
     def test_add_type(self):
-        pass
+        # Set up test object
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        # Add type
+        test_repo.add_type(test_type)
+        # Check
+        assert len(test_repo.type_list) == 1
+        assert test_repo.type_list[0] == test_type
 
     def test_remove_type(self):
         pass
