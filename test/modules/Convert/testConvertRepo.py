@@ -99,7 +99,21 @@ class ConvertRepoTest(unittest.TestCase):
         assert test_group2 in test_repo.prefix_group_list
 
     def test_remove_prefix_group(self):
-        pass
+        # Set up test objects
+        test_repo = ConvertRepo()
+        test_group1 = ConvertPrefixGroup(test_repo, "group1")
+        test_group2 = ConvertPrefixGroup(test_repo, "group2")
+        test_repo.add_prefix_group(test_group1)
+        test_repo.add_prefix_group(test_group2)
+        # Remove group
+        test_repo.remove_prefix_group(test_group1)
+        # Check
+        assert len(test_repo.prefix_group_list) == 1
+        assert test_repo.prefix_group_list[0] == test_group2
+        # Remove other group
+        test_repo.remove_prefix_group(test_group2)
+        # Check
+        assert test_repo.prefix_group_list == []
 
     def test_get_prefix_group_by_name(self):
         pass
