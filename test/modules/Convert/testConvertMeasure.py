@@ -15,7 +15,7 @@ class ConvertMeasureTest(unittest.TestCase):
         test_measure = ConvertMeasure(12.34, test_unit)
         # Check
         assert test_measure.amount == 12.34
-        assert test_measure.unit == test_measure
+        assert test_measure.unit == test_unit
 
     def test_is_equal(self):
         # Setup test objects
