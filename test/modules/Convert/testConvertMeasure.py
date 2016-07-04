@@ -6,7 +6,16 @@ from modules.Convert import ConvertRepo, ConvertType, ConvertUnit, ConvertPrefix
 class ConvertMeasureTest(unittest.TestCase):
 
     def test_init(self):
-        pass
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        # Init
+        test_measure = ConvertMeasure(12.34, test_unit)
+        # Check
+        assert test_measure.amount == 12.34
+        assert test_measure.unit == test_measure
 
     def test_is_equal(self):
         pass
