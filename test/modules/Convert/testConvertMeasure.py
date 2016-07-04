@@ -18,7 +18,18 @@ class ConvertMeasureTest(unittest.TestCase):
         assert test_measure.unit == test_measure
 
     def test_is_equal(self):
-        pass
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        measure1 = ConvertMeasure(17.5, test_unit)
+        measure2 = ConvertMeasure(17.5, test_unit)
+        # Check not the same object
+        assert not measure1 == measure2
+        # Check is equal
+        assert measure1.is_equal(measure2)
+        assert measure2.is_equal(measure1)
 
     def test_convert_to(self):
         pass
