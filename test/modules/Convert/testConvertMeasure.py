@@ -32,6 +32,23 @@ class ConvertMeasureTest(unittest.TestCase):
         assert measure2.is_equal(measure1)
 
     def test_convert_to(self):
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit1 = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        test_unit2 = ConvertUnit(test_type, ["name3"], 505)
+        measure1 = ConvertMeasure(17.5, test_unit1)
+        # Convert to base
+        test_result = measure1.convert_to(test_unit2)
+        # Check
+        assert test_result.unit.name_list[0] == "name3"
+        assert test_result.amount == 17.5*1337/505
+
+    def test_convert_to_offset(self):
+        pass
+
+    def test_convert_to_failure(self):
         pass
 
     def test_convert_to_base(self):
