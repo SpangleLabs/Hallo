@@ -35,7 +35,17 @@ class ConvertMeasureTest(unittest.TestCase):
         pass
 
     def test_convert_to_base(self):
-        pass
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        measure1 = ConvertMeasure(17.5, test_unit)
+        # Convert to base
+        test_result = measure1.convert_to_base()
+        # Check
+        assert test_result.unit.name_list[0] == "base_unit"
+        assert test_result.amount == 17.5*1337
 
     def test_to_string(self):
         pass
