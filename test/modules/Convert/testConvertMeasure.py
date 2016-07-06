@@ -125,7 +125,23 @@ class ConvertMeasureTest(unittest.TestCase):
         assert measure_str == "1.750 tenname1"
 
     def test_to_string_with_prefix(self):
-        pass
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_type.decimals = 3
+        test_unit = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        prefix_group = ConvertPrefixGroup(test_repo, "test_group")
+        test_prefix1 = ConvertPrefix(prefix_group, "ten", "10", 10)
+        test_prefix2 = ConvertPrefix(prefix_group, "hundred", "100", 100)
+        prefix_group.add_prefix(test_prefix1)
+        prefix_group.add_prefix(test_prefix2)
+        test_unit.valid_prefix_group = prefix_group
+        measure1 = ConvertMeasure(17.5, test_unit)
+        # Get string
+        measure_str = measure1.to_string_with_prefix(test_prefix2)
+        # Check
+        assert measure_str == "0.175 hundredname1"
 
     def test_build_list_from_user_input(self):
         pass
