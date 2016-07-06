@@ -91,6 +91,19 @@ class ConvertMeasureTest(unittest.TestCase):
         assert test_result.unit.name_list[0] == "base_unit"
         assert test_result.amount == 17.5*1337
 
+    def test_to_string_no_prefix(self):
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_type.decimals = 3
+        test_unit = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        measure1 = ConvertMeasure(17.5, test_unit)
+        # Get string
+        measure_str = measure1.to_string()
+        assert str(measure1) == measure_str
+        assert measure_str == "17.500 name1"
+
     def test_to_string(self):
         pass
 
