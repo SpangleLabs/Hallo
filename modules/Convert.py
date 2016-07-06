@@ -663,7 +663,7 @@ class ConvertMeasure:
     def to_string_with_prefix(self, prefix):
         """Converts the measure to a string with the specified prefix."""
         decimal_places = self.unit.type.decimals
-        decimal_format = "{:" + str(decimal_places) + "f}"
+        decimal_format = "{:." + str(decimal_places) + "f}"
         # Calculate the output amount
         prefix_multiplier = 1
         prefix_name = ""
