@@ -640,22 +640,13 @@ class ConvertMeasure:
 
     def to_string(self):
         """Converts the measure to a string for output."""
-        decimal_places = self.unit.type.decimals
-        decimal_format = "{:." + str(decimal_places) + "f}"
         prefix_group = self.unit.valid_prefix_group
         # If there is no prefix group, output raw.
         if prefix_group is None:
-            return decimal_format.format(self.amount) + " " + self.unit.name_list[0]
+            return self.to_string_with_prefix(None)
         # Ask the prefix group for the most appropriate prefix for the value.
         appropriate_prefix = prefix_group.get_appropriate_prefix(self.amount)
-        prefix_multiplier = 1
-        prefix_name = ""
-        if appropriate_prefix is not None:
-            prefix_name = appropriate_prefix.prefix
-            prefix_multiplier = appropriate_prefix.multiplier
-        output_amount = self.amount / prefix_multiplier
-        # Output string
-        return decimal_format.format(output_amount) + " " + prefix_name + self.unit.name_list[0]
+        return self.to_string_with_prefix(appropriate_prefix)
 
     def __str__(self):
         return self.to_string()
