@@ -613,7 +613,7 @@ class ConvertMeasure:
         """
         # Check units are the same type
         if self.unit.type != unit.type:
-            raise Exception("These are not the same unit type.")
+            raise ConvertException("These are not the same unit type.")
         # Convert to base unit
         new_amount = self.amount * self.unit.value
         base_offset = self.unit.offset
