@@ -1,6 +1,6 @@
 import unittest
 
-from modules.Convert import ConvertRepo, ConvertType, ConvertUnit, ConvertMeasure
+from modules.Convert import ConvertRepo, ConvertType, ConvertUnit, ConvertMeasure, ConvertException
 
 
 class ConvertMeasureTest(unittest.TestCase):
@@ -61,8 +61,22 @@ class ConvertMeasureTest(unittest.TestCase):
         assert test_result.unit.name_list[0] == "name3"
         assert test_result.amount == ((17.5*1337)+54-10)/505
 
-    def test_convert_to_failure(self):
-        pass
+    def test_convert_to_different_types(self):
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type1 = ConvertType(test_repo, "test_type1")
+        test_type1.base_unit = ConvertUnit(test_type1, ["base_unit"], 1)
+        test_unit1 = ConvertUnit(test_type1, ["name1", "name2"], 1337)
+        test_type2 = ConvertType(test_repo, "test_type2")
+        test_type2.base_unit = ConvertUnit(test_type2, ["another_base"], 1)
+        test_unit2 = ConvertUnit(test_type2, ["name3"], 505)
+        measure1 = ConvertMeasure(17.5, test_unit1)
+        # Convert to base
+        try:
+            test_result = measure1.convert_to(test_unit2)
+            assert False
+        except ConvertException as e:
+            assert "not the same unit type" in str(e)
 
     def test_convert_to_base(self):
         # Setup test objects
