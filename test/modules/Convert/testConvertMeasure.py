@@ -143,5 +143,17 @@ class ConvertMeasureTest(unittest.TestCase):
         # Check
         assert measure_str == "0.175 hundredname1"
 
-    def test_build_list_from_user_input(self):
+    def test_build_list_from_user_input_start(self):
+        pass
+
+    def test_build_list_from_user_input_end(self):
+        pass
+
+    def test_build_list_from_user_input_middle(self):
+        pass  # Will fail
+
+    def test_build_list_from_user_input_no_match(self):
+        pass
+
+    def test_build_list_from_user_input_multi_match(self):
         pass
