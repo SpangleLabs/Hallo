@@ -157,3 +157,6 @@ class ConvertMeasureTest(unittest.TestCase):
 
     def test_build_list_from_user_input_multi_match(self):
         pass
+
+    def test_build_list_from_user_input_prefix(self):
+        pass
