@@ -2,6 +2,7 @@ from Function import Function
 from inc.Commons import Commons
 import urllib.parse
 from datetime import datetime
+from xml.etree import ElementTree
 
 
 class E621(Function):
@@ -380,7 +381,7 @@ class E621Sub:
         self.server_name = None
         self.channel_name = None
         self.user_name = None
-        self.latest_ten_ids = None
+        self.latest_ten_ids = []
         self.last_check = None
         self.update_frequency = None
 
@@ -466,3 +467,38 @@ class E621Sub:
         if datetime.now() > self.last_check + self.update_frequency:
             return True
         return False
+
+    def to_xml_string(self):
+        """
+        Saves this E621 subscription
+        :rtype: str
+        """
+        # Create root element
+        root = ElementTree.Element("e621_sub")
+        # Create search element
+        search = ElementTree.SubElement(root, "search")
+        search.text = self.search
+        # Create server name element
+        server = ElementTree.SubElement(root, "server")
+        server.text = self.server_name
+        # Create channel name element, if applicable
+        if self.channel_name is not None:
+            channel = ElementTree.SubElement(root, "channel")
+            channel.text = self.channel_name
+        # Create user name element, if applicable
+        if self.user_name is not None:
+            user = ElementTree.SubElement(root, "user")
+            user.text = self.user_name
+        # Create latest id elements
+        for latest_id in self.latest_ten_ids:
+            latest_id_elem = ElementTree.SubElement(root, "latest_id")
+            latest_id_elem.text = str(latest_id)
+        # Create last check element
+        if self.last_check is not None:
+            last_check = ElementTree.SubElement(root, "last_check")
+            last_check.text = self.last_check.isoformat()
+        # Create update frequency element
+        update_frequency = ElementTree.SubElement(root, "update_frequency")
+        update_frequency.text = Commons.format_time_delta(self.update_frequency)
+        # Return xml string
+        return ElementTree.tostring(root)
