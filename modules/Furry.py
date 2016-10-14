@@ -1,6 +1,7 @@
 from Function import Function
 from inc.Commons import Commons
 import urllib.parse
+from datetime import datetime
 
 
 class E621(Function):
@@ -454,3 +455,14 @@ class E621Sub:
         # Construct output
         output = "Update on \"" + self.search + "\" e621 search. " + link + " " + rating
         return output
+
+    def needs_check(self):
+        """
+        Returns whether an e621 subscription check is overdue.
+        :return: bool
+        """
+        if self.last_check is None:
+            return True
+        if datetime.now() > self.last_check + self.update_frequency:
+            return True
+        return False
