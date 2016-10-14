@@ -379,7 +379,7 @@ class E621Sub:
         self.server_name = None
         self.channel_name = None
         self.user_name = None
-        self.last_ten_ids = None
+        self.latest_ten_ids = None
         self.last_check = None
         self.update_frequency = None
 
@@ -388,4 +388,21 @@ class E621Sub:
         Checks the search for any updates
         :return: List of new results
         """
+        search = self.search+" order:-id"  # Sort by id
+        if len(self.latest_ten_ids) > 0:
+            oldest_id = self.latest_ten_ids[-1]
+            search += " id>"+oldest_id  # Don't list anything older than the oldest of the last 10
         url = "http://e621.net/post/index.json?tags=" + urllib.parse.quote(self.search) + "&limit=50"
+        results = Commons.load_url_json(url)
+        return_list = []
+        new_last_ten = []
+        for result in results:
+            result_id = result["id"]
+            # Create new list of latest ten results
+            if len(new_last_ten) < 10:
+                new_last_ten.append(result_id)
+            # If post hasn't been seen in the latest ten, add it to returned list.
+            if result_id not in self.latest_ten_ids:
+                return_list.append(result)
+        self.latest_ten_ids = new_last_ten
+        return return_list
