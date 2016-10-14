@@ -406,3 +406,51 @@ class E621Sub:
                 return_list.append(result)
         self.latest_ten_ids = new_last_ten
         return return_list
+
+    def output_item(self, e621_result, hallo, server=None, destination=None):
+        """
+        Outputs an item to a given server and destination, or the feed default.
+        :param e621_result: dict e621 JSON result to output
+        :param hallo: Hallo
+        :param server: Server
+        :param destination: Destination
+        """
+        # Get server
+        if server is None:
+            server = hallo.get_server_by_name(self.server_name)
+            if server is None:
+                return "Error, invalid server."
+        # Get destination
+        if destination is None:
+            if self.channel_name is not None:
+                destination = server.get_channel_by_name(self.channel_name)
+            if self.user_name is not None:
+                destination = server.get_user_by_name(self.user_name)
+            if destination is None:
+                return "Error, invalid destination."
+        # Construct output
+        output = self.format_item(e621_result)
+        server.send(output, destination)
+        return output
+
+    def format_item(self, e621_result):
+        """
+        Formats an e621 result for output.
+        :param e621_result: e621 result to format
+        :type e621_result: dict
+        :return: Readable format of the result
+        :rtype: str
+        """
+        link = "http://e621.net/post/show/" + str(e621_result['id'])
+        # Create rating string
+        if e621_result['rating'] == 'e':
+            rating = "(Explicit)"
+        elif e621_result['rating'] == "q":
+            rating = "(Questionable)"
+        elif e621_result['rating'] == "s":
+            rating = "(Safe)"
+        else:
+            rating = "(Unknown)"
+        # Construct output
+        output = "Update on \"" + self.search + "\" e621 search. " + link + " " + rating
+        return output
