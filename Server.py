@@ -336,8 +336,8 @@ class ServerIRC(Server):
             try:
                 self.raw_connect()
                 break
-            except ServerException:
-                print("Failed to connect. Waiting 3 seconds before reconnect.")
+            except ServerException as e:
+                print("Failed to connect. ("+str(e)+") Waiting 3 seconds before reconnect.")
                 time.sleep(3)
                 continue
 
@@ -426,8 +426,8 @@ class ServerIRC(Server):
             next_line = None
             try:
                 next_line = self.read_line_from_socket()
-            except ServerException:
-                print("Server disconnected. Reconnecting.")
+            except ServerException as e:
+                print("Server disconnected. ("+str(e)+") Reconnecting.")
                 time.sleep(10)
                 self.reconnect()
             if next_line is None:
@@ -1050,11 +1050,11 @@ class ServerIRC(Server):
         while self.open:
             try:
                 next_byte = self._socket.recv(1)
-            except:
+            except Exception as e:
                 # Raise an exception, to reconnect.
-                raise ServerException
+                raise ServerException("Failed to receive byte. "+str(e))
             if next_byte is None or len(next_byte) != 1:
-                raise ServerException
+                raise ServerException("Length of next byte incorrect: "+next_byte)
             next_line += next_byte
             if next_line.endswith(endl.encode()):
                 return self.decode_line(next_line[:-len(endl)])
