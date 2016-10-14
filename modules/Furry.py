@@ -502,3 +502,36 @@ class E621Sub:
         update_frequency.text = Commons.format_time_delta(self.update_frequency)
         # Return xml string
         return ElementTree.tostring(root)
+
+    @staticmethod
+    def from_xml_string(xml_string):
+        """
+        Loads new E621Sub object from XML string
+        :param xml_string: string
+        :return: E621Sub
+        """
+        # Create blank feed
+        new_sub = E621Sub()
+        # Load xml
+        sub_xml = ElementTree.fromstring(xml_string)
+        # Load title, url, server
+        new_sub.search = sub_xml.find("search").text
+        new_sub.server_name = sub_xml.find("server").text
+        # Load channel or user
+        if sub_xml.find("channel") is not None:
+            new_sub.channel_name = sub_xml.find("channel").text
+        else:
+            if sub_xml.find("user") is not None:
+                new_sub.user_name = sub_xml.find("user").text
+            else:
+                raise Exception("Channel or user must be defined")
+        # Load last item
+        for latest_id in sub_xml.findall("latest_id"):
+            new_sub.latest_ten_ids.append(int(latest_id.text))
+        # Load last check
+        if sub_xml.find("last_check") is not None:
+            new_sub.last_check = datetime.strptime(sub_xml.find("last_check").text, "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        new_sub.update_frequency = Commons.load_time_delta(sub_xml.find("update_frequency").text)
+        # Return new feed
+        return new_sub
