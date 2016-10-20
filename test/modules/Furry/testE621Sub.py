@@ -1,8 +1,6 @@
 import unittest
 from datetime import datetime
 import time
-from xml.etree import ElementTree
-import json
 
 from Hallo import Hallo
 from Server import Server
