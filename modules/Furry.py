@@ -535,3 +535,98 @@ class E621Sub:
         new_sub.update_frequency = Commons.load_time_delta(sub_xml.find("update_frequency").text)
         # Return new feed
         return new_sub
+
+
+class E621SubList:
+    """
+    Holds the lists of E621 subscriptions, for loading and unloading.
+    """
+
+    def __init__(self):
+        self.sub_list = []
+
+    def add_feed(self, new_sub):
+        """
+        Adds a new E621 subscription to the list.
+        :param new_sub: New subscription to add
+        :type new_sub: E621Sub
+        """
+        self.sub_list.append(new_sub)
+
+    def remove_feed(self, remove_sub):
+        """
+        Removes an E621 subscription from the list.
+        :param remove_sub: Existing subscription to remove
+        :type remove_sub: E621Sub
+        """
+        self.sub_list.remove(remove_sub)
+
+    def get_subs_by_destination(self, destination):
+        """
+        Returns a list of subscriptions matching a specified destination.
+        :param destination: Channel or User which E621Sub is posting to
+        :type destination: Destination.Destination
+        :return: list of E621Sub objects matching destination
+        :rtype: list<E621Sub>
+        """
+        matching_subs = []
+        for e621_sub in self.sub_list:
+            if destination.server.name != e621_sub.server_name:
+                continue
+            if destination.is_channel() and destination.name != e621_sub.channel_name:
+                continue
+            if destination.is_user() and destination.name != e621_sub.user_name:
+                continue
+            matching_subs.append(e621_sub)
+        return matching_subs
+
+    def get_feeds_by_title(self, search, destination):
+        """
+        Returns a list of subscriptions matching a specified search
+        :param search: Search of the E621Search being searched for
+        :type search: str
+        :param destination: Channel or User which RssFeed is posting to
+        :type destination: Destination.Destination
+        :return: List of matching subscriptions
+        :rtype: list<RssFeed>
+        """
+        search_clean = search.lower().strip()
+        matching_feeds = []
+        for e621_sub in self.get_subs_by_destination(destination):
+            if search_clean == e621_sub.search.lower().strip():
+                matching_feeds.append(e621_sub)
+        return matching_feeds
+
+    def to_xml(self):
+        """
+        Saves the whole subscription list to XML file
+        :return: Nothing
+        """
+        # Create root element
+        root_elem = ElementTree.Element("e621_subscriptions")
+        # Add all feed elements
+        for e621_sub_obj in self.sub_list:
+            new_feed_elem = ElementTree.fromstring(e621_sub_obj.to_xml_string())
+            root_elem.append(new_feed_elem)
+        # Write xml to file
+        ElementTree.ElementTree(root_elem).write("store/e621_subscriptions.xml")
+
+    @staticmethod
+    def from_xml():
+        """
+        Constructs a new E621SubList from the XML file
+        :return: Newly constructed list of subscriptions
+        :rtype: E621SubList
+        """
+        new_sub_list = E621SubList()
+        # Try loading xml file, otherwise return blank list
+        try:
+            doc = ElementTree.parse("store/e621_subscriptions.xml")
+        except (OSError, IOError):
+            return new_sub_list
+        # Loop feeds in xml file adding them to list
+        root = doc.getroot()
+        for e621_sub_elem in root.findall("e621_sub"):
+            new_sub_obj = E621Sub.from_xml_string(ElementTree.tostring(e621_sub_elem))
+            new_sub_list.add_feed(new_sub_obj)
+        return new_sub_list
