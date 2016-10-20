@@ -35,7 +35,7 @@ class TestE621Sub(unittest.TestCase):
             assert "e621.net/post/show/", "E621 link not in formatted item: " + format_item
         # Check that calling twice returns no more items
         next_items = rf.check_subscription()
-        assert len(next_items) == 0, "More items should not have been found."
+        assert len(next_items) == 0, "More items should not have been found. Found "+str(len(next_items))
 
     def test_format_item(self):
         item_id = "572912"
