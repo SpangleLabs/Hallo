@@ -41,14 +41,13 @@ class TestE621Sub(unittest.TestCase):
         item_id = "572912"
         item_rating = "q"
         rf = E621Sub()
-        json_data = json()
-        rss_elem = ElementTree.fromstring(rss_data)
-        item_elem = rss_elem.find("item")
+        json_data = dict()
+        json_data["id"] = item_id
+        json_data["rating"] = item_rating
         # Get output and check it
-        output = rf.format_item(item_elem)
-        assert feed_title in output
-        assert item_title in output
-        assert item_link in output
+        output = rf.format_item(json_data)
+        assert item_id in output
+        assert "(Questionable)" in output
 
     def test_needs_check(self):
         rf1 = RssFeed()
