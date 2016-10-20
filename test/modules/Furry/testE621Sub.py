@@ -50,7 +50,7 @@ class TestE621Sub(unittest.TestCase):
         assert "(Questionable)" in output
 
     def test_needs_check(self):
-        rf1 = RssFeed()
+        rf1 = E621Sub()
         rf1.last_check = datetime.now()
         rf1.update_frequency = Commons.load_time_delta("P1TS")
         assert not rf1.needs_check()
@@ -58,7 +58,7 @@ class TestE621Sub(unittest.TestCase):
         assert rf1.needs_check()
         rf1.update_frequency = Commons.load_time_delta("P7TS")
         assert not rf1.needs_check()
-        rf2 = RssFeed()
+        rf2 = E621Sub()
         rf2.last_check = datetime.now()
         rf2.update_frequency = Commons.load_time_delta("PT5S")
         assert not rf2.needs_check()
