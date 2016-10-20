@@ -397,16 +397,15 @@ class E621Sub:
         url = "http://e621.net/post/index.json?tags=" + urllib.parse.quote(search) + "&limit=50"
         results = Commons.load_url_json(url)
         return_list = []
-        new_last_ten = []
+        new_last_ten = set(self.latest_ten_ids)
         for result in results:
             result_id = result["id"]
             # Create new list of latest ten results
-            if len(new_last_ten) < 10:
-                new_last_ten.append(result_id)
+            new_last_ten.add(result_id)
             # If post hasn't been seen in the latest ten, add it to returned list.
             if result_id not in self.latest_ten_ids:
                 return_list.append(result)
-        self.latest_ten_ids = new_last_ten
+        self.latest_ten_ids = sorted(list(new_last_ten))[::-1][:10]
         return return_list
 
     def output_item(self, e621_result, hallo, server=None, destination=None):
