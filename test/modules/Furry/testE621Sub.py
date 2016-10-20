@@ -193,25 +193,25 @@ class TestE621Sub(unittest.TestCase):
         assert "destination" in resp.lower()
 
     def test_xml(self):
-        test_rss_url = "http://spangle.org.uk/hallo/test_rss.xml"
+        test_e621_search = "butts"
         test_seconds = 3600
         test_days = 0
         # Create example feed
-        rf = RssFeed()
-        rf.url = test_rss_url
+        rf = E621Sub()
+        rf.search = test_e621_search
         rf.update_frequency = Commons.load_time_delta("P"+str(test_days)+"T"+str(test_seconds)+"S")
         rf.server_name = "test_serv"
         rf.channel_name = "test_chan"
         # Clear off the current items
-        rf.check_feed()
+        rf.check_subscription()
         # Ensure there are no new items
-        new_items = rf.check_feed()
+        new_items = rf.check_subscription()
         assert len(new_items) == 0
         # Save to XML and load up new RssFeed
         rf_xml = rf.to_xml_string()
-        rf2 = RssFeed.from_xml_string(rf_xml)
+        rf2 = E621Sub.from_xml_string(rf_xml)
         # Ensure there's still no new items
-        new_items = rf2.check_feed()
+        new_items = rf2.check_subscription()
         assert len(new_items) == 0
         assert rf2.update_frequency.days == test_days
         assert rf2.update_frequency.seconds == test_seconds
