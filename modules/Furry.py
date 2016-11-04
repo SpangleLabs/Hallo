@@ -544,7 +544,7 @@ class E621SubList:
     def __init__(self):
         self.sub_list = []
 
-    def add_feed(self, new_sub):
+    def add_sub(self, new_sub):
         """
         Adds a new E621 subscription to the list.
         :param new_sub: New subscription to add
@@ -552,7 +552,7 @@ class E621SubList:
         """
         self.sub_list.append(new_sub)
 
-    def remove_feed(self, remove_sub):
+    def remove_sub(self, remove_sub):
         """
         Removes an E621 subscription from the list.
         :param remove_sub: Existing subscription to remove
