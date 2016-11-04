@@ -102,7 +102,7 @@ class TestE621SubList(unittest.TestCase):
         rf5.channel_name = chan3.name
         rfl.add_sub(rf5)
         # Check function
-        feed_list = rfl.get_subs_by_search("test_feed3", chan3)
+        feed_list = rfl.get_subs_by_search("dragon", chan3)
         assert len(feed_list) == 2
         assert rf3 in feed_list
         assert rf5 in feed_list
