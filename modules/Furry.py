@@ -627,5 +627,5 @@ class E621SubList:
         root = doc.getroot()
         for e621_sub_elem in root.findall("e621_sub"):
             new_sub_obj = E621Sub.from_xml_string(ElementTree.tostring(e621_sub_elem))
-            new_sub_list.add_feed(new_sub_obj)
+            new_sub_list.add_sub(new_sub_obj)
         return new_sub_list
