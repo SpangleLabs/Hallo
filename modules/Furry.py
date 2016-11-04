@@ -579,7 +579,7 @@ class E621SubList:
             matching_subs.append(e621_sub)
         return matching_subs
 
-    def get_feeds_by_title(self, search, destination):
+    def get_subs_by_search(self, search, destination):
         """
         Returns a list of subscriptions matching a specified search
         :param search: Search of the E621Search being searched for
