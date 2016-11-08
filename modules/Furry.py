@@ -813,10 +813,54 @@ class SubE621List(Function):
         sub_check_obj = function_dispatcher.get_function_object(sub_check_function)
         e621_sub_list = sub_check_obj.e621_sub_list
         # Find list of feeds for current channel.
-        dest_searches = e621_sub_list.get_searches_by_destination(destination_obj)
+        dest_searches = e621_sub_list.get_subs_by_destination(destination_obj)
         if len(dest_searches) == 0:
             return "There are no e621 search subscriptions posting to this destination."
         output_lines = ["E621 search subscriptions posting to this channel:"]
         for search_item in dest_searches:
             output_lines.append(" - \"" + search_item.search + "\"")
         return "\n".join(output_lines)
+
+
+class SubE621Remove(Function):
+    """
+    Remove an E621 search subscription and no longer receive updates from it.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "e621 sub remove"
+        # Names which can be used to address the function
+        self.names = {"e621 sub remove", "remove e621 sub", "sub e621 remove", "remove sub e621",
+                      "e621 subscription remove", "remove e621 subscription", "subscription e621 remove",
+                      "remove subscription e621", "e621 search remove", "remove e621 search", "search e621 remove",
+                      "remove search e621", "e621 sub delete", "delete e621 sub", "sub e621 delete", "delete sub e621",
+                      "e621 subscription delete", "delete e621 subscription", "subscription e621 delete",
+                      "delete subscription e621", "e621 search delete", "delete e621 search", "search e621 delete",
+                      "delete search e621"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Removes a specified e621 search subscription from the current or specified channel. " \
+                         " Format: e621 sub remove <search>"
+
+    def run(self, line, user_obj, destination_obj=None):
+        # Handy variables
+        server = user_obj.get_server()
+        hallo = server.get_hallo()
+        function_dispatcher = hallo.get_function_dispatcher()
+        sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)
+        e621_sub_list = sub_check_obj.e621_sub_list
+        # Clean up input
+        clean_input = line.strip()
+        # Find any feeds with specified search
+        test_feeds = e621_sub_list.get_subs_by_search(clean_input.lower(), destination_obj)
+        if len(test_feeds) > 0:
+            for del_sub in test_feeds:
+                e621_sub_list.remove_sub(del_sub)
+            return "Removed \"" + test_feeds[0].search + "\" e621 search subscription. Updates will no longer be " \
+                   "sent to " + (test_feeds[0].channel_name or test_feeds[0].user_name) + "."
+        return "Error, there are no e621 search subscriptions in this channel matching that search."
