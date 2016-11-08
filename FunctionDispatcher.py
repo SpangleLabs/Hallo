@@ -207,6 +207,9 @@ class FunctionDispatcher(object):
         for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
             # Get class from tuple
             function_class = function_tuple[1]
+            # Ensure it is a member of this module
+            if function_class.__module__ != full_module_name:
+                continue
             # Check it's a valid function object
             if not self.check_function_class(function_class):
                 continue
