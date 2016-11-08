@@ -5,6 +5,7 @@ from modules.Games import Deck, Hand  # Problem 54 is based on poker.
 from modules.Math import ChangeOptions
 from modules.Math import NumberWord
 from modules.Math import PrimeFactors
+from modules.Math import SimplifyFraction
 
 
 class Euler(Function):
@@ -137,28 +138,6 @@ class Euler(Function):
             if item != remove_item:
                 new_list.append(item)
         return new_list
-
-    def list_minus(self, list_one, list_two):
-        list_minus = list(list_one)
-        for x in list_two:
-            if x in list_minus:
-                list_minus.remove(x)
-        return list_minus
-
-    def list_intersection(self, list_one, list_two):
-        intersection = []
-        temp_list = list(list_two)
-        for x in list_one:
-            if x in temp_list:
-                intersection.append(x)
-                temp_list.remove(x)
-        return intersection
-
-    def list_product(self, input_list):
-        product = 1
-        for number in input_list:
-            product = product * number
-        return product
 
     def get_list_pandigitals(self):
         pandigitals = []
@@ -308,13 +287,18 @@ class Euler(Function):
         return prime
 
     def euler8(self):
+        # Get SimplifyFraction function
+        function_dispatcher = self.mHalloObject.get_function_dispatcher()
+        function_class = function_dispatcher.get_function_by_name("simplify fraction")
+        function_obj = function_dispatcher.get_function_object(function_class)  # type: SimplifyFraction
+        # Calculate
         string_file = open("store/euler/euler_8_string.txt", "r")
         string = string_file.read()[:-1]
         string_file.close()
         biggest_product = 0
         while len(string) >= 13:
             substring = string[0:13]
-            product = self.list_product([int(x) for x in substring])
+            product = function_obj.list_product([int(x) for x in substring])
             biggest_product = max(product, biggest_product)
             string = string[1:]
         return biggest_product
@@ -765,6 +749,8 @@ class Euler(Function):
         function_dispatcher = self.mHalloObject.get_function_dispatcher()
         function_class = function_dispatcher.get_function_by_name("prime factors")
         function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
+        simp_frac_class = function_dispatcher.get_function_by_name("simplify fraction")
+        simp_frac_obj = function_dispatcher.get_function_object(simp_frac_class)  # type: SimplifyFraction
         # Do processing
         epsilon = 0.0000001
         total_numerator_factors = []
@@ -797,10 +783,11 @@ class Euler(Function):
                             print("found one." + str(numerator) + "/" + str(denominator))
                             total_numerator_factors = total_numerator_factors + numerator_factors_new
                             total_denominator_factors = total_denominator_factors + denominator_factors_new
-        total_denominator_factors_new = self.list_minus(total_denominator_factors,
-                                                        self.list_intersection(total_denominator_factors,
-                                                                               total_numerator_factors))
-        total_denominator_new = self.list_product(total_denominator_factors_new)
+        total_denominator_factors_new = simp_frac_obj.list_minus(total_denominator_factors,
+                                                                 simp_frac_obj.list_intersection(
+                                                                     total_denominator_factors,
+                                                                     total_numerator_factors))
+        total_denominator_new = simp_frac_obj.list_product(total_denominator_factors_new)
         return total_denominator_new
 
     def euler34(self):
@@ -1106,19 +1093,24 @@ class Euler(Function):
         return num
 
     def euler52(self):
+        # Get SimplifyFraction function
+        function_dispatcher = self.mHalloObject.get_function_dispatcher()
+        simp_frac_class = function_dispatcher.get_function_by_name("simplify fraction")
+        simp_frac_obj = function_dispatcher.get_function_object(simp_frac_class)  # type: SimplifyFraction
+        # Do processing
         num = 0
         while True:
             num += 1
             num_list = list(str(num))
-            if num_list != self.list_intersection(num_list, list(str(2 * num))):
+            if num_list != simp_frac_obj.list_intersection(num_list, list(str(2 * num))):
                 continue
-            if num_list != self.list_intersection(num_list, list(str(3 * num))):
+            if num_list != simp_frac_obj.list_intersection(num_list, list(str(3 * num))):
                 continue
-            if num_list != self.list_intersection(num_list, list(str(4 * num))):
+            if num_list != simp_frac_obj.list_intersection(num_list, list(str(4 * num))):
                 continue
-            if num_list != self.list_intersection(num_list, list(str(5 * num))):
+            if num_list != simp_frac_obj.list_intersection(num_list, list(str(5 * num))):
                 continue
-            if num_list != self.list_intersection(num_list, list(str(6 * num))):
+            if num_list != simp_frac_obj.list_intersection(num_list, list(str(6 * num))):
                 continue
             print(num)
             break
