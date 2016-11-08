@@ -487,7 +487,7 @@ class FeedRemove(Function):
 
 class FeedList(Function):
     """
-    Remove an RSS feed and no longer receive updates from it.
+    Lists the currently active RSS feed subscriptions
     """
 
     def __init__(self):
