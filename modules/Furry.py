@@ -1,5 +1,5 @@
 from Function import Function
-from inc.Commons import Commons
+from inc.Commons import Commons, ISO8601ParseError
 import urllib.parse
 from datetime import datetime
 from xml.etree import ElementTree
@@ -629,3 +629,56 @@ class E621SubList:
             new_sub_obj = E621Sub.from_xml_string(ElementTree.tostring(e621_sub_elem))
             new_sub_list.add_sub(new_sub_obj)
         return new_sub_list
+
+
+class SubE621Add(Function):
+    """
+    Adds a e621 search subscription for a given search, allowing specification of server and channel.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "e621 sub add"
+        # Names which can be used to address the function
+        self.names = {"e621 sub add", "add e621 sub", "sub e621 add", "add sub e621", "e621 subscription add",
+                      "add e621 subscription", "subscription e621 add", "add subscription e621", "e621 search add",
+                      "add e621 search", "search e621 add", "add search e621"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Adds a e621 search to be checked for updates which will be posted to the current location." \
+                         " Format: e621 sub add <search> <update period?>"
+
+    def run(self, line, user_obj, destination_obj):
+        # See if last argument is check period.
+        try:
+            try_period = line.split()[-1]
+            search_delta = Commons.load_time_delta(try_period)
+            search = line[:-len(try_period)]
+        except ISO8601ParseError:
+            search = line
+            search_delta = Commons.load_time_delta("PT300S")
+        # Get current RSS feed list
+        function_dispatcher = user_obj.server.hallo.function_dispatcher
+        sub_check_class = function_dispatcher.get_function_by_name("e621 sub check")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)
+        e621_sub_list = sub_check_obj.e621_sub_list
+        # Create new e621 search subscription
+        e621_sub = E621Sub()
+        e621_sub.server_name = user_obj.server.name
+        e621_sub.search = search
+        e621_sub.update_frequency = search_delta
+        if destination_obj.is_channel():
+            e621_sub.channel_name = destination_obj.name
+        else:
+            e621_sub.user_name = destination_obj.name
+        # Update feed
+        e621_sub.check_subscription()
+        # Add new rss feed to list
+        e621_sub_list.add_feed(e621_sub)
+        # Save list
+        e621_sub_list.to_xml()
+        # Return output
+        return "I have added new e621 subscription for the search \"" + e621_sub.search + "\""
