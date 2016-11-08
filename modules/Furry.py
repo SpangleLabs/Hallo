@@ -682,3 +682,104 @@ class SubE621Add(Function):
         e621_sub_list.to_xml()
         # Return output
         return "I have added new e621 subscription for the search \"" + e621_sub.search + "\""
+
+
+class SubE621Check(Function):
+    """
+    Checks a specified e621 search subscription for updates and returns them.
+    """
+
+    NAMES_ALL = ["*", "all"]
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "e621 sub check"
+        # Names which can be used to address the function
+        self.names = {"e621 sub check", "check e621 sub", "sub e621 check", "check sub e621", "e621 subscription check",
+                      "check e621 subscription", "subscription e621 check", "check subscription e621",
+                      "e621 search check", "check e621 search", "search e621 check", "check search e621"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Checks a specified feed for updates and returns them. Format: e621 sub check <feed name>"
+        self.e621_sub_list = E621SubList.from_xml()
+
+    @staticmethod
+    def is_persistent():
+        """Returns boolean representing whether this function is supposed to be persistent or not"""
+        return True
+
+    @staticmethod
+    def load_function():
+        """Loads the function, persistent functions only."""
+        return SubE621Check()
+
+    def save_function(self):
+        """Saves the function, persistent functions only."""
+        self.e621_sub_list.to_xml()
+
+    def get_passive_events(self):
+        """Returns a list of events which this function may want to respond to in a passive way"""
+        return {Function.EVENT_MINUTE}
+
+    def run(self, line, user_obj, destination_obj=None):
+        # Handy variables
+        hallo = user_obj.server.hallo
+        # Clean up input
+        clean_input = line.strip().lower()
+        # Check whether input is asking to update all e621 subscriptions
+        if clean_input in self.NAMES_ALL:
+            return self.run_all(hallo)
+        # Otherwise see if a search subscription matches the specified one
+        matching_subs = self.e621_sub_list.get_subs_by_search(clean_input, destination_obj)
+        if len(matching_subs) == 0:
+            return "Error, no e621 search subscriptions match that name. If you're adding a new search subscrption, " \
+                   "use \"e621 sub add\" with your search."
+        output_lines = []
+        # Loop through matching search subscriptions, getting updates
+        for search_sub in matching_subs:
+            new_items = search_sub.check_search()
+            for search_item in new_items:
+                output_lines.append(search_sub.format_item(search_item))
+        # Remove duplicate entries from output_lines
+        output_lines = list(set(output_lines))
+        # Output response to user
+        if len(output_lines) == 0:
+            return "There were no updates for \"" + line + "\" e621 search."
+        return "The following search updates were found:\n" + "\n".join(output_lines)
+
+    def run_all(self, hallo):
+        output_lines = []
+        for search_sub in self.e621_sub_list.sub_list:
+            new_items = search_sub.check_search()
+            for search_item in new_items:
+                output_lines.append(search_sub.output_item(search_item, hallo))
+        # Remove duplicate entries from output_lines
+        output_lines = list(set(output_lines))
+        # Output response to user
+        if len(output_lines) == 0:
+            return "There were no e621 search subscription updates."
+        return "The following search updates were found and posted to their registered destinations:\n" + \
+               "\n".join(output_lines)
+
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+        """
+        Replies to an event not directly addressed to the bot.
+        :param event: string
+        :param full_line: string
+        :param hallo_obj: Hallo
+        :param server_obj: Server
+        :param user_obj: User
+        :param channel_obj: Channel
+        """
+        # Check through all feeds to see which need updates
+        for search_sub in self.e621_sub_list.sub_list:
+            # Only check those which have been too long since last check
+            if search_sub.needs_check():
+                # Get new items
+                new_items = search_sub.check_search()
+                # Output all new items
+                for search_item in new_items:
+                    search_sub.output_item(search_item, hallo_obj)
