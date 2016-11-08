@@ -2,6 +2,7 @@ import os
 import unittest
 
 from Server import Server
+from modules.Rss import FeedCheck
 from test.TestBase import TestBase
 
 
@@ -49,7 +50,7 @@ class FeedAddTest(TestBase, unittest.TestCase):
         assert "added new rss feed" in data[0][0].lower()
         # Check the rss feed was added
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
         rfl = rss_check_obj.rss_feed_list.feed_list
         assert len(rfl) == 1
         assert rfl[0].url == "http://spangle.org.uk/hallo/test_rss.xml"
@@ -69,7 +70,7 @@ class FeedAddTest(TestBase, unittest.TestCase):
         assert "added new rss feed" in data[0][0].lower()
         # Check the rss feed was added
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
         rfl = rss_check_obj.rss_feed_list.feed_list
         assert len(rfl) == 1
         assert rfl[0].url == "http://spangle.org.uk/hallo/test_rss.xml"
@@ -88,7 +89,7 @@ class FeedAddTest(TestBase, unittest.TestCase):
         assert "added new rss feed" in data[0][0].lower()
         # Check the rss feed was added
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
         rfl = rss_check_obj.rss_feed_list.feed_list
         assert len(rfl) == 1
         assert rfl[0].url == "http://spangle.org.uk/hallo/test_rss.xml"

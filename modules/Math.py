@@ -81,7 +81,7 @@ class NumberWord(Function):
         elif Commons.check_calculation(number):
             function_dispatcher = user_obj.server.hallo.function_dispatcher
             calc_func = function_dispatcher.get_function_by_name("calc")
-            calc_obj = function_dispatcher.get_function_object(calc_func)
+            calc_obj = function_dispatcher.get_function_object(calc_func)  # type: Calculate
             number = calc_obj.process_calculation(number)
         else:
             return "Error, you must enter a valid number or calculation."
@@ -192,7 +192,7 @@ class PrimeFactors(Function):
         elif Commons.check_calculation(line_clean):
             function_dispatcher = user_obj.server.hallo.function_dispatcher
             calc_func = function_dispatcher.get_function_by_name("calc")
-            calc_obj = function_dispatcher.get_function_object(calc_func)
+            calc_obj = function_dispatcher.get_function_object(calc_func)  # type: Calculate
             number_str = calc_obj.process_calculation(line_clean)
             if "." in number_str:
                 return "Error, this calculation does not result in an integer. The answer is: " + number_str
@@ -325,9 +325,9 @@ class HighestCommonFactor(Function):
         hallo_obj = user_obj.get_server().get_hallo()
         function_dispatcher = hallo_obj.get_function_dispatcher()
         prime_factors_class = function_dispatcher.get_function_by_name("prime factors")
-        euler_class = function_dispatcher.get_function_by_name("euler")
-        prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)
-        euler_obj = function_dispatcher.get_function_object(euler_class)
+        simp_frac_class = function_dispatcher.get_function_by_name("simplify fraction")
+        prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)  # type: PrimeFactors
+        simp_frac_obj = function_dispatcher.get_function_object(simp_frac_class)  # type: SimplifyFraction
         # Preflight checks
         if len(line.split()) != 2:
             return "Error, You must provide two arguments."
@@ -341,8 +341,8 @@ class HighestCommonFactor(Function):
         # Get prime factors of each, get intersection, then product of that.
         number_one_factors = prime_factors_obj.find_prime_factors(number_one)
         number_two_factors = prime_factors_obj.find_prime_factors(number_two)
-        common_factors = euler_obj.list_intersection(number_one_factors, number_two_factors)
-        hcf = euler_obj.list_product(common_factors)
+        common_factors = simp_frac_obj.list_intersection(number_one_factors, number_two_factors)
+        hcf = simp_frac_obj.list_product(common_factors)
         return "The highest common factor of " + str(number_one) + " and " + str(number_two) + " is " + str(hcf) + "."
 
 
@@ -369,9 +369,7 @@ class SimplifyFraction(Function):
         hallo_obj = user_obj.get_server().get_hallo()
         function_dispatcher = hallo_obj.get_function_dispatcher()
         prime_factors_class = function_dispatcher.get_function_by_name("prime factors")
-        euler_class = function_dispatcher.get_function_by_name("euler")
-        prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)
-        euler_obj = function_dispatcher.get_function_object(euler_class)
+        prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)  # type: PrimeFactors
         # preflight checks
         if line.count("/") != 1:
             return "Error, Please give input in the form: <numerator>/<denominator>"
@@ -389,19 +387,39 @@ class SimplifyFraction(Function):
         # Sort all this and get the value
         numerator_factors = prime_factors_obj.find_prime_factors(abs(numerator))
         denominator_factors = prime_factors_obj.find_prime_factors(abs(denominator))
-        numerator_factors_new = euler_obj.list_minus(numerator_factors,
-                                                     euler_obj.list_intersection(denominator_factors,
-                                                                                 numerator_factors))
-        denominator_factors_new = euler_obj.list_minus(denominator_factors,
-                                                       euler_obj.list_intersection(denominator_factors,
-                                                                                   numerator_factors))
-        numerator_new = euler_obj.list_product(numerator_factors_new)
-        denominator_new = euler_obj.list_product(denominator_factors_new)
+        numerator_factors_new = self.list_minus(numerator_factors, self.list_intersection(denominator_factors,
+                                                                                          numerator_factors))
+        denominator_factors_new = self.list_minus(denominator_factors, self.list_intersection(denominator_factors,
+                                                                                              numerator_factors))
+        numerator_new = self.list_product(numerator_factors_new)
+        denominator_new = self.list_product(denominator_factors_new)
         numerator_out = str(numerator) + "/" + str(denominator)
         denominator_out = "-"*negative + str(numerator_new) + "/" + str(denominator_new)
         if denominator_new == 1:
             denominator_out = str(numerator_new)
         return numerator_out + " = " + denominator_out + "."
+
+    def list_minus(self, list_one, list_two):
+        list_minus = list(list_one)
+        for x in list_two:
+            if x in list_minus:
+                list_minus.remove(x)
+        return list_minus
+
+    def list_intersection(self, list_one, list_two):
+        intersection = []
+        temp_list = list(list_two)
+        for x in list_one:
+            if x in temp_list:
+                intersection.append(x)
+                temp_list.remove(x)
+        return intersection
+
+    def list_product(self, input_list):
+        product = 1
+        for number in input_list:
+            product = product * number
+        return product
 
 
 class Calculate(Function):
@@ -609,7 +627,7 @@ class Calculate(Function):
                     calc = calc.replace(running_calc, str(temp_answer))
                     del temp_answer
                     break
-                running_calc = running_calc + next_char
+                running_calc += next_char
             del temp_calc, bracket, running_calc, next_char
         calc = calc.replace(')', '')
         # powers processing

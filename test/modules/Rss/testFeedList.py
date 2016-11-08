@@ -17,7 +17,7 @@ class FeedListTest(TestBase, unittest.TestCase):
     def test_list_feeds(self):
         # Get feed list
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
         rfl = rss_check_obj.rss_feed_list
         # Add RSS feeds to feed list
         rf1 = RssFeed()

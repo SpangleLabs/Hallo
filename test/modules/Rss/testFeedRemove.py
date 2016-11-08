@@ -3,6 +3,7 @@ import unittest
 
 from Server import Server
 from inc.Commons import Commons
+from modules.Rss import FeedCheck
 from modules.Rss import RssFeed, RssFeedList
 from test.TestBase import TestBase
 
@@ -12,7 +13,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
     def setUp(self):
         super().setUp()
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
         rss_check_obj.rss_feed_list = RssFeedList()
         try:
             os.rename("store/rss_feeds.xml", "store/rss_feeds.xml.tmp")
@@ -33,7 +34,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
     def test_remove_by_title(self):
         # Get feed list
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
         rfl = rss_check_obj.rss_feed_list
         # Add RSS feeds to feed list
         rf1 = RssFeed()
@@ -68,7 +69,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
     def test_remove_multiple_matching_titles(self):
         # Get feed list
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
         rfl = rss_check_obj.rss_feed_list
         # Add RSS feeds to feed list
         rf1 = RssFeed()
@@ -103,7 +104,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
     def test_remove_no_match(self):
         # Get feed list
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
         rfl = rss_check_obj.rss_feed_list
         # Add RSS feeds to feed list
         rf1 = RssFeed()
@@ -138,7 +139,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
     def test_remove_by_url(self):
         # Get feed list
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
         rfl = rss_check_obj.rss_feed_list
         # Add RSS feeds to feed list
         rf1 = RssFeed()
@@ -175,7 +176,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
     def test_remove_multiple_matching_urls(self):
         # Get feed list
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
         rfl = rss_check_obj.rss_feed_list
         # Add RSS feeds to feed list
         rf1 = RssFeed()

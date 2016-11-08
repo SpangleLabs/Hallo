@@ -175,8 +175,8 @@ class Deck:
         for card_suit in [Card.SUIT_HEARTS, Card.SUIT_CLUBS, Card.SUIT_DIAMONDS, Card.SUIT_SPADES]:
             suit_list = []
             for card_value in [Card.CARD_ACE, Card.CARD_2, Card.CARD_3, Card.CARD_4, Card.CARD_5, Card.CARD_6,
-                              Card.CARD_7, Card.CARD_8, Card.CARD_9, Card.CARD_10, Card.CARD_JACK, Card.CARD_QUEEN,
-                              Card.CARD_KING]:
+                               Card.CARD_7, Card.CARD_8, Card.CARD_9, Card.CARD_10, Card.CARD_JACK, Card.CARD_QUEEN,
+                               Card.CARD_KING]:
                 new_card = Card(self, card_suit, card_value)
                 suit_list.append(new_card)
             if card_suit in [Card.SUIT_DIAMONDS, Card.SUIT_SPADES]:
@@ -718,7 +718,7 @@ class HigherOrLowerGame(Game):
         self.deck.shuffle()
         function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
         high_scores_class = function_dispatcher.get_function_by_name("highscores")
-        self.high_scores_obj = function_dispatcher.get_function_object(high_scores_class)
+        self.high_scores_obj = function_dispatcher.get_function_object(high_scores_class)  # type: HighScores
         self.last_card = None
         self.turns = 0
 
@@ -1222,7 +1222,7 @@ class DDRGame(Game):
         self.difficulty = game_difficulty
         function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
         high_scores_class = function_dispatcher.get_function_by_name("highscores")
-        self.high_scores_obj = function_dispatcher.get_function_object(high_scores_class)
+        self.high_scores_obj = function_dispatcher.get_function_object(high_scores_class)  # type: HighScores
         self.last_move = None
         self.can_join = True
         self.game_over = False
