@@ -2,10 +2,7 @@ from Function import Function
 import math
 import itertools
 from modules.Games import Deck, Hand  # Problem 54 is based on poker.
-from modules.Math import ChangeOptions
-from modules.Math import NumberWord
-from modules.Math import PrimeFactors
-from modules.Math import SimplifyFraction
+from modules.Math import ChangeOptions, NumberWord, PrimeFactors, SimplifyFraction
 
 
 class Euler(Function):
