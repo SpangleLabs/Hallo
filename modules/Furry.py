@@ -664,7 +664,7 @@ class SubE621Add(Function):
         function_dispatcher = user_obj.server.hallo.function_dispatcher
         sub_check_class = function_dispatcher.get_function_by_name("e621 sub check")
         sub_check_obj = function_dispatcher.get_function_object(sub_check_class)
-        e621_sub_list = sub_check_obj.e621_sub_list
+        e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
         # Create new e621 search subscription
         e621_sub = E621Sub()
         e621_sub.server_name = user_obj.server.name
@@ -677,7 +677,7 @@ class SubE621Add(Function):
         # Update feed
         e621_sub.check_subscription()
         # Add new rss feed to list
-        e621_sub_list.add_feed(e621_sub)
+        e621_sub_list.add_sub(e621_sub)
         # Save list
         e621_sub_list.to_xml()
         # Return output
@@ -811,7 +811,7 @@ class SubE621List(Function):
         function_dispatcher = hallo.get_function_dispatcher()
         sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
         sub_check_obj = function_dispatcher.get_function_object(sub_check_function)
-        e621_sub_list = sub_check_obj.e621_sub_list
+        e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
         # Find list of feeds for current channel.
         dest_searches = e621_sub_list.get_subs_by_destination(destination_obj)
         if len(dest_searches) == 0:
@@ -853,7 +853,7 @@ class SubE621Remove(Function):
         function_dispatcher = hallo.get_function_dispatcher()
         sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
         sub_check_obj = function_dispatcher.get_function_object(sub_check_function)
-        e621_sub_list = sub_check_obj.e621_sub_list
+        e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
         # Clean up input
         clean_input = line.strip()
         # Find any feeds with specified search
