@@ -566,7 +566,7 @@ class E621SubList:
         :param destination: Channel or User which E621Sub is posting to
         :type destination: Destination.Destination
         :return: list of E621Sub objects matching destination
-        :rtype: list<E621Sub>
+        :rtype: list [E621Sub]
         """
         matching_subs = []
         for e621_sub in self.sub_list:
@@ -587,7 +587,7 @@ class E621SubList:
         :param destination: Channel or User which RssFeed is posting to
         :type destination: Destination.Destination
         :return: List of matching subscriptions
-        :rtype: list<RssFeed>
+        :rtype: list [E621Sub]
         """
         search_clean = search.lower().strip()
         matching_feeds = []
@@ -740,7 +740,7 @@ class SubE621Check(Function):
         output_lines = []
         # Loop through matching search subscriptions, getting updates
         for search_sub in matching_subs:
-            new_items = search_sub.check_search()
+            new_items = search_sub.check_subscription()
             for search_item in new_items:
                 output_lines.append(search_sub.format_item(search_item))
         # Remove duplicate entries from output_lines
