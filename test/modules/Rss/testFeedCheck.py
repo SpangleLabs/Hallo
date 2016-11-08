@@ -71,7 +71,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             rfl.add_feed(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
             rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-            rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+            rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
             rss_check_obj.rss_feed_list = rfl
             # Test running all feed updates
             self.function_dispatcher.dispatch("rss check all", self.test_user, self.test_chan)
@@ -136,7 +136,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             rfl.add_feed(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
             rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-            rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+            rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
             rss_check_obj.rss_feed_list = rfl
             # Invalid title
             self.function_dispatcher.dispatch("rss check Not a valid feed", self.test_user, self.test_chan)
@@ -197,7 +197,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             rfl.add_feed(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
             rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-            rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)
+            rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
             rss_check_obj.rss_feed_list = rfl
             # Test passive feed updates
             self.function_dispatcher.dispatch_passive(Function.EVENT_MINUTE, None, None, None, None)

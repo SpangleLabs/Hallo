@@ -2,6 +2,8 @@ from Function import Function
 from inc.Commons import Commons
 import math
 
+from modules.Euler import Euler
+
 
 class Hailstone(Function):
     """
@@ -81,7 +83,7 @@ class NumberWord(Function):
         elif Commons.check_calculation(number):
             function_dispatcher = user_obj.server.hallo.function_dispatcher
             calc_func = function_dispatcher.get_function_by_name("calc")
-            calc_obj = function_dispatcher.get_function_object(calc_func)
+            calc_obj = function_dispatcher.get_function_object(calc_func)  # type: Calculate
             number = calc_obj.process_calculation(number)
         else:
             return "Error, you must enter a valid number or calculation."
@@ -192,7 +194,7 @@ class PrimeFactors(Function):
         elif Commons.check_calculation(line_clean):
             function_dispatcher = user_obj.server.hallo.function_dispatcher
             calc_func = function_dispatcher.get_function_by_name("calc")
-            calc_obj = function_dispatcher.get_function_object(calc_func)
+            calc_obj = function_dispatcher.get_function_object(calc_func)  # type: Calculate
             number_str = calc_obj.process_calculation(line_clean)
             if "." in number_str:
                 return "Error, this calculation does not result in an integer. The answer is: " + number_str
@@ -326,8 +328,8 @@ class HighestCommonFactor(Function):
         function_dispatcher = hallo_obj.get_function_dispatcher()
         prime_factors_class = function_dispatcher.get_function_by_name("prime factors")
         euler_class = function_dispatcher.get_function_by_name("euler")
-        prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)
-        euler_obj = function_dispatcher.get_function_object(euler_class)
+        prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)  # type: PrimeFactors
+        euler_obj = function_dispatcher.get_function_object(euler_class)  # type: Euler
         # Preflight checks
         if len(line.split()) != 2:
             return "Error, You must provide two arguments."
@@ -370,8 +372,8 @@ class SimplifyFraction(Function):
         function_dispatcher = hallo_obj.get_function_dispatcher()
         prime_factors_class = function_dispatcher.get_function_by_name("prime factors")
         euler_class = function_dispatcher.get_function_by_name("euler")
-        prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)
-        euler_obj = function_dispatcher.get_function_object(euler_class)
+        prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)  # type: PrimeFactors
+        euler_obj = function_dispatcher.get_function_object(euler_class)  # type: Euler
         # preflight checks
         if line.count("/") != 1:
             return "Error, Please give input in the form: <numerator>/<denominator>"
@@ -609,7 +611,7 @@ class Calculate(Function):
                     calc = calc.replace(running_calc, str(temp_answer))
                     del temp_answer
                     break
-                running_calc = running_calc + next_char
+                running_calc += next_char
             del temp_calc, bracket, running_calc, next_char
         calc = calc.replace(')', '')
         # powers processing

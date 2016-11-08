@@ -2,6 +2,9 @@ from Function import Function
 import math
 import itertools
 from modules.Games import Deck, Hand  # Problem 54 is based on poker.
+from modules.Math import ChangeOptions
+from modules.Math import NumberWord
+from modules.Math import PrimeFactors
 
 
 class Euler(Function):
@@ -461,7 +464,7 @@ class Euler(Function):
         # Get Number function
         function_dispatcher = self.mHalloObject.get_function_dispatcher()
         function_class = function_dispatcher.get_function_by_name("number")
-        function_obj = function_dispatcher.get_function_object(function_class)
+        function_obj = function_dispatcher.get_function_object(function_class)  # type: NumberWord
         # Do processing
         total = 0
         for x in range(1, 1001):
@@ -563,11 +566,11 @@ class Euler(Function):
             if factor_total > x:
                 abundant_numbers.append(x)
                 for other_number in abundant_numbers:
-                    ab_sum = other_number + x
+                    ab_sum = other_number + x  # type: int
                     if ab_sum < 28150:
                         if sum_of_two[ab_sum] != 1:
                             sum_of_two[ab_sum] = 1
-                            total = total - ab_sum
+                            total -= ab_sum
                     else:
                         break
         return total
@@ -601,7 +604,7 @@ class Euler(Function):
         # Get PrimeFactors function
         function_dispatcher = self.mHalloObject.get_function_dispatcher()
         function_class = function_dispatcher.get_function_by_name("prime factors")
-        function_obj = function_dispatcher.get_function_object(function_class)
+        function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
         # Do processing
         max_nines = 0
         max_d = 0
@@ -670,7 +673,7 @@ class Euler(Function):
         # Get PrimeFactors function
         function_dispatcher = self.mHalloObject.get_function_dispatcher()
         function_class = function_dispatcher.get_function_by_name("prime factors")
-        function_obj = function_dispatcher.get_function_object(function_class)
+        function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
         # Do processing
         answers = []
         for a in range(2, 101):
@@ -704,7 +707,7 @@ class Euler(Function):
         # Get ChangeOptions function
         function_dispatcher = self.mHalloObject.get_function_dispatcher()
         function_class = function_dispatcher.get_function_by_name("change options")
-        function_obj = function_dispatcher.get_function_object(function_class)
+        function_obj = function_dispatcher.get_function_object(function_class)  # type: ChangeOptions
         # Do processing
         coins = [200, 100, 50, 20, 10, 5, 2, 1]
         options = function_obj.change_options(coins, 0, 200)
@@ -761,7 +764,7 @@ class Euler(Function):
         # Get PrimeFactors function
         function_dispatcher = self.mHalloObject.get_function_dispatcher()
         function_class = function_dispatcher.get_function_by_name("prime factors")
-        function_obj = function_dispatcher.get_function_object(function_class)
+        function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
         # Do processing
         epsilon = 0.0000001
         total_numerator_factors = []
@@ -1006,7 +1009,7 @@ class Euler(Function):
         # Get PrimeFactors function
         function_dispatcher = self.mHalloObject.get_function_dispatcher()
         function_class = function_dispatcher.get_function_by_name("prime factors")
-        function_obj = function_dispatcher.get_function_object(function_class)
+        function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
         # Solve
         num = 1
         streak = 4

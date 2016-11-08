@@ -73,7 +73,7 @@ class RandomPorn(Function):
         line_unclean = line.strip() + " -rating:s"
         function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
         e621_class = function_dispatcher.get_function_by_name("e621")
-        e621_obj = function_dispatcher.get_function_object(e621_class)
+        e621_obj = function_dispatcher.get_function_object(e621_class)  # type: E621
         search_result = e621_obj.get_random_link_result(line_unclean)
         if search_result is None:
             return "No results."
@@ -111,7 +111,7 @@ class Butts(Function):
     def run(self, line, user_obj, destination_obj=None):
         function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
         e621_class = function_dispatcher.get_function_by_name("e621")
-        e621_obj = function_dispatcher.get_function_object(e621_class)
+        e621_obj = function_dispatcher.get_function_object(e621_class)  # type: E621
         search_result = e621_obj.get_random_link_result("butt")
         if search_result is None:
             return "No results."
@@ -663,7 +663,7 @@ class SubE621Add(Function):
         # Get current RSS feed list
         function_dispatcher = user_obj.server.hallo.function_dispatcher
         sub_check_class = function_dispatcher.get_function_by_name("e621 sub check")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubE621Check
         e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
         # Create new e621 search subscription
         e621_sub = E621Sub()
@@ -810,7 +810,7 @@ class SubE621List(Function):
         hallo = server.get_hallo()
         function_dispatcher = hallo.get_function_dispatcher()
         sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check
         e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
         # Find list of feeds for current channel.
         dest_searches = e621_sub_list.get_subs_by_destination(destination_obj)
@@ -852,7 +852,7 @@ class SubE621Remove(Function):
         hallo = server.get_hallo()
         function_dispatcher = hallo.get_function_dispatcher()
         sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check
         e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
         # Clean up input
         clean_input = line.strip()
