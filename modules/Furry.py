@@ -393,7 +393,7 @@ class E621Sub:
         search = self.search+" order:-id"  # Sort by id
         if len(self.latest_ten_ids) > 0:
             oldest_id = min(self.latest_ten_ids)
-            search += " id>"+str(oldest_id)  # Don't list anything older than the oldest of the last 10
+            search += " id:>"+str(oldest_id)  # Don't list anything older than the oldest of the last 10
         url = "http://e621.net/post/index.json?tags=" + urllib.parse.quote(search) + "&limit=50"
         results = Commons.load_url_json(url)
         return_list = []
