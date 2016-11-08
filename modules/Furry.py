@@ -542,7 +542,7 @@ class E621SubList:
     """
 
     def __init__(self):
-        self.sub_list = []
+        self.sub_list = []  # type: list [E621Sub]
 
     def add_sub(self, new_sub):
         """
@@ -753,7 +753,7 @@ class SubE621Check(Function):
     def run_all(self, hallo):
         output_lines = []
         for search_sub in self.e621_sub_list.sub_list:
-            new_items = search_sub.check_search()
+            new_items = search_sub.check_subscription()
             for search_item in new_items:
                 output_lines.append(search_sub.output_item(search_item, hallo))
         # Remove duplicate entries from output_lines
@@ -779,7 +779,7 @@ class SubE621Check(Function):
             # Only check those which have been too long since last check
             if search_sub.needs_check():
                 # Get new items
-                new_items = search_sub.check_search()
+                new_items = search_sub.check_subscription()
                 # Output all new items
                 for search_item in new_items:
                     search_sub.output_item(search_item, hallo_obj)
