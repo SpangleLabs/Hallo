@@ -783,3 +783,40 @@ class SubE621Check(Function):
                 # Output all new items
                 for search_item in new_items:
                     search_sub.output_item(search_item, hallo_obj)
+
+
+class SubE621List(Function):
+    """
+    List the currently active e621 search subscriptions.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "e621 sub list"
+        # Names which can be used to address the function
+        self.names = {"e621 sub list", "list e621 sub", "sub e621 list", "list sub e621", "e621 subscription list",
+                      "list e621 subscription", "subscription e621 list", "list subscription e621", "e621 search list",
+                      "list e621 search", "search e621 list", "list search e621"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Lists e621 search subscriptions for the current channel. Format: e621 sub list"
+
+    def run(self, line, user_obj, destination_obj=None):
+        # Handy variables
+        server = user_obj.get_server()
+        hallo = server.get_hallo()
+        function_dispatcher = hallo.get_function_dispatcher()
+        sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)
+        e621_sub_list = sub_check_obj.e621_sub_list
+        # Find list of feeds for current channel.
+        dest_searches = e621_sub_list.get_searches_by_destination(destination_obj)
+        if len(dest_searches) == 0:
+            return "There are no e621 search subscriptions posting to this destination."
+        output_lines = ["E621 search subscriptions posting to this channel:"]
+        for search_item in dest_searches:
+            output_lines.append(" - \"" + search_item.search + "\"")
+        return "\n".join(output_lines)
