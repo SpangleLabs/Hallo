@@ -32,11 +32,6 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "error" in data[0][0].lower()
 
-    def test_invalid_period(self):
-        self.function_dispatcher.dispatch("e621 sub add butt PTTS", self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" in data[0][0].lower()
-
     def test_add_search(self):
         self.function_dispatcher.dispatch("e621 sub add butt", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
