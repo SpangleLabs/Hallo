@@ -3,7 +3,6 @@ import unittest
 
 from Server import Server
 from modules.Furry import SubE621Check
-from modules.Rss import FeedCheck
 from test.TestBase import TestBase
 
 
