@@ -677,7 +677,10 @@ class SubE621Add(Function):
         else:
             e621_sub.user_name = destination_obj.name
         # Update feed
-        e621_sub.check_subscription()
+        first_results = e621_sub.check_subscription()
+        # If no results, this is an invalid search subscription
+        if len(first_results) == 0:
+            return "Error, this does not appear to be a valid search, or does not have results."
         # Add new rss feed to list
         e621_sub_list.add_sub(e621_sub)
         # Save list
