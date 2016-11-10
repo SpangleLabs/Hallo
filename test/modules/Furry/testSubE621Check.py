@@ -31,7 +31,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
         fc = SubE621Check()
         # Mock out the rss feed list
         mfl = MockSubList()
-        fc.rss_feed_list = mfl
+        fc.e621_sub_list = mfl
         fc.save_function()
         assert mfl.to_xml_called
 
@@ -246,4 +246,5 @@ class MockSubList:
         self.to_xml_called = False
 
     def to_xml(self):
+        print("ARGH")
         self.to_xml_called = True
