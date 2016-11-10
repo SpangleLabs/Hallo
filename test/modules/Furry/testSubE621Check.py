@@ -50,19 +50,19 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             # Set up rss feeds
             rfl = E621SubList()
             rf1 = E621Sub()
-            rf1.search = "butt limit:3"
+            rf1.search = "butt"
             rf1.server_name = chan1.server.name
             rf1.channel_name = chan1.name
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf1)
             rf2 = E621Sub()
-            rf2.search = "deer limit:3"
+            rf2.search = "deer"
             rf2.server_name = chan2.server.name
             rf2.channel_name = chan2.name
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf2)
             rf3 = E621Sub()
-            rf3.search = "dragon limit:3"
+            rf3.search = "dragon"
             rf3.server_name = chan3.server.name
             rf3.channel_name = chan3.name
             rf3.update_frequency = Commons.load_time_delta("PT3600S")
@@ -77,7 +77,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             serv0_data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
             assert "search updates were found" in serv0_data[0][0]
             # Check test server 1 data
-            serv1_data = serv1.get_send_data(6)
+            serv1_data = serv1.get_send_data(100)
             chan1_count = 0
             chan2_count = 0
             for data_line in serv1_data:
@@ -85,10 +85,10 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
                     chan1_count += 1
                 if data_line[1] == chan2:
                     chan2_count += 1
-            assert chan1_count == 3
-            assert chan2_count == 3
+            assert chan1_count == 50
+            assert chan2_count == 50
             # Check test server 2 data
-            serv2_data = serv2.get_send_data(3, chan3, Server.MSG_MSG)
+            serv2_data = serv2.get_send_data(50, chan3, Server.MSG_MSG)
             # Test running with no new updates.
             self.function_dispatcher.dispatch("e621 sub check all", self.test_user, self.test_chan)
             data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
