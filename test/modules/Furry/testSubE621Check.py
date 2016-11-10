@@ -168,19 +168,19 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             # Set up rss feeds
             rfl = E621SubList()
             rf1 = E621Sub()
-            rf1.url = "butt"
+            rf1.search = "butt"
             rf1.server_name = chan1.server.name
             rf1.channel_name = chan1.name
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf1)
             rf2 = E621Sub()
-            rf2.url = "deer"
+            rf2.search = "deer"
             rf2.server_name = chan2.server.name
             rf2.channel_name = chan2.name
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf2)
             rf3 = E621Sub()
-            rf3.url = "dragon"
+            rf3.search = "dragon"
             rf3.server_name = chan3.server.name
             rf3.channel_name = chan3.name
             rf3.update_frequency = Commons.load_time_delta("PT3600S")
