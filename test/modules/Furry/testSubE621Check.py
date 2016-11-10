@@ -110,48 +110,44 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             self.hallo.add_server(serv1)
             self.hallo.add_server(serv2)
             # Set up rss feeds
-            rfl = RssFeedList()
-            rf1 = RssFeed()
-            rf1.url = "http://spangle.org.uk/hallo/test_rss.xml?1"
-            rf1.title = "test_feed1"
+            rfl = E621SubList()
+            rf1 = E621Sub()
+            rf1.search = "butt"
             rf1.server_name = chan1.server.name
             rf1.channel_name = chan1.name
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
-            rfl.add_feed(rf1)
-            rf2 = RssFeed()
-            rf2.url = "http://spangle.org.uk/hallo/test_rss.xml?2"
-            rf2.title = "test_feed2"
+            rfl.add_sub(rf1)
+            rf2 = E621Sub()
+            rf2.search = "deer"
             rf2.server_name = chan2.server.name
             rf2.channel_name = chan2.name
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
-            rfl.add_feed(rf2)
-            rf3 = RssFeed()
-            rf3.url = "http://spangle.org.uk/hallo/test_rss.xml?3"
-            rf3.title = "test_feed1"
+            rfl.add_sub(rf2)
+            rf3 = E621Sub()
+            rf3.search = "dragon"
             rf3.server_name = chan3.server.name
             rf3.channel_name = chan3.name
             rf3.update_frequency = Commons.load_time_delta("PT3600S")
-            rfl.add_feed(rf3)
+            rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
-            rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-            rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
-            rss_check_obj.rss_feed_list = rfl
+            rss_check_class = self.function_dispatcher.get_function_by_name("e621 sub check")
+            rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubE621Check
+            rss_check_obj.e621_sub_list = rfl
             # Invalid title
-            self.function_dispatcher.dispatch("rss check Not a valid feed", self.test_user, self.test_chan)
+            self.function_dispatcher.dispatch("e621 sub check Not a valid search", self.test_user, self.test_chan)
             data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             # Correct title but wrong channel
-            self.function_dispatcher.dispatch("rss check test_feed2", self.test_user, chan1)
+            self.function_dispatcher.dispatch("e621 sub check deer", self.test_user, chan1)
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             # Correct title check update
-            self.function_dispatcher.dispatch("rss check test_feed2", self.test_user, chan2)
+            self.function_dispatcher.dispatch("e621 sub check deer", self.test_user, chan2)
             data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
-            assert "feed updates were found" in data[0][0].lower()
-            assert len(data[0][0].lower().split("\n")) == 4
+            assert "search updates were found" in data[0][0].lower()
+            assert len(data[0][0].lower().split("\n")) == 51
             # No updates
-            rf2.title = "test_feed2"
-            self.function_dispatcher.dispatch("rss check test_feed2", self.test_user, chan2)
+            self.function_dispatcher.dispatch("e621 sub check deer", self.test_user, chan2)
             data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
             assert "no updates" in data[0][0], "No further updates should be found."
         finally:
