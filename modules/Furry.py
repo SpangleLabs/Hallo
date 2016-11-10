@@ -406,6 +406,8 @@ class E621Sub:
             if result_id not in self.latest_ten_ids:
                 return_list.append(result)
         self.latest_ten_ids = sorted(list(new_last_ten))[::-1][:10]
+        # Update check time
+        self.last_check = datetime.now()
         return return_list
 
     def output_item(self, e621_result, hallo, server=None, destination=None):
