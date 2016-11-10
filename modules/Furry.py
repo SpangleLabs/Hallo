@@ -662,6 +662,7 @@ class SubE621Add(Function):
         except ISO8601ParseError:
             search = line
             search_delta = Commons.load_time_delta("PT300S")
+        search = search.strip()
         # Get current RSS feed list
         function_dispatcher = user_obj.server.hallo.function_dispatcher
         sub_check_class = function_dispatcher.get_function_by_name("e621 sub check")
