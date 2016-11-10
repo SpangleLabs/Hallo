@@ -167,36 +167,33 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             self.hallo.add_server(serv1)
             self.hallo.add_server(serv2)
             # Set up rss feeds
-            rfl = RssFeedList()
-            rf1 = RssFeed()
-            rf1.url = "http://spangle.org.uk/hallo/test_rss.xml?1"
-            rf1.title = "test_feed1"
+            rfl = E621SubList()
+            rf1 = E621Sub()
+            rf1.url = "butt"
             rf1.server_name = chan1.server.name
             rf1.channel_name = chan1.name
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
-            rfl.add_feed(rf1)
-            rf2 = RssFeed()
-            rf2.url = "http://spangle.org.uk/hallo/test_rss.xml?2"
-            rf2.title = "test_feed2"
+            rfl.add_sub(rf1)
+            rf2 = E621Sub()
+            rf2.url = "deer"
             rf2.server_name = chan2.server.name
             rf2.channel_name = chan2.name
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
-            rfl.add_feed(rf2)
-            rf3 = RssFeed()
-            rf3.url = "http://spangle.org.uk/hallo/test_rss.xml?3"
-            rf3.title = "test_feed1"
+            rfl.add_sub(rf2)
+            rf3 = E621Sub()
+            rf3.url = "dragon"
             rf3.server_name = chan3.server.name
             rf3.channel_name = chan3.name
             rf3.update_frequency = Commons.load_time_delta("PT3600S")
-            rfl.add_feed(rf3)
+            rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
-            rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-            rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
-            rss_check_obj.rss_feed_list = rfl
+            rss_check_class = self.function_dispatcher.get_function_by_name("e621 sub check")
+            rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubE621Check
+            rss_check_obj.e621_sub_list = rfl
             # Test passive feed updates
             self.function_dispatcher.dispatch_passive(Function.EVENT_MINUTE, None, None, None, None)
             # Check test server 1 data
-            serv1_data = serv1.get_send_data(6)
+            serv1_data = serv1.get_send_data(100)
             chan1_count = 0
             chan2_count = 0
             for data_line in serv1_data:
@@ -204,10 +201,10 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
                     chan1_count += 1
                 if data_line[1] == chan2:
                     chan2_count += 1
-            assert chan1_count == 3
-            assert chan2_count == 3
+            assert chan1_count == 50
+            assert chan2_count == 50
             # Check test server 2 data
-            serv2_data = serv2.get_send_data(3, chan3, Server.MSG_MSG)
+            serv2_data = serv2.get_send_data(50, chan3, Server.MSG_MSG)
             # Test that no updates are found the second run
             rf1.last_check = None
             rf2.last_check = None
