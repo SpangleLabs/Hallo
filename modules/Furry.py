@@ -701,7 +701,8 @@ class SubE621Check(Function):
         # Names which can be used to address the function
         self.names = {"e621 sub check", "check e621 sub", "sub e621 check", "check sub e621", "e621 subscription check",
                       "check e621 subscription", "subscription e621 check", "check subscription e621",
-                      "e621 search check", "check e621 search", "search e621 check", "check search e621"}
+                      "e621 search check", "check e621 search", "search e621 check", "check search e621", "e621 check",
+                      "check e621"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Checks a specified feed for updates and returns them. Format: e621 sub check <feed name>"
         self.e621_sub_list = E621SubList.from_xml()
