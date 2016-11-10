@@ -67,7 +67,7 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         assert rfl[0].latest_ten_ids is not None
         assert len(rfl[0].latest_ten_ids) == 10
         assert rfl[0].last_check is not None
-        assert rfl[0].update_frequency.seconds == 3600
+        assert rfl[0].update_frequency.seconds == 300
         assert rfl[0].update_frequency.days == 0
 
     def test_add_search_period(self):
