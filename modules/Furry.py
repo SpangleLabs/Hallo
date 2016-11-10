@@ -406,6 +406,8 @@ class E621Sub:
             if result_id not in self.latest_ten_ids:
                 return_list.append(result)
         self.latest_ten_ids = sorted(list(new_last_ten))[::-1][:10]
+        # Update check time
+        self.last_check = datetime.now()
         return return_list
 
     def output_item(self, e621_result, hallo, server=None, destination=None):
@@ -660,6 +662,7 @@ class SubE621Add(Function):
         except ISO8601ParseError:
             search = line
             search_delta = Commons.load_time_delta("PT300S")
+        search = search.strip()
         # Get current RSS feed list
         function_dispatcher = user_obj.server.hallo.function_dispatcher
         sub_check_class = function_dispatcher.get_function_by_name("e621 sub check")
@@ -675,7 +678,10 @@ class SubE621Add(Function):
         else:
             e621_sub.user_name = destination_obj.name
         # Update feed
-        e621_sub.check_subscription()
+        first_results = e621_sub.check_subscription()
+        # If no results, this is an invalid search subscription
+        if len(first_results) == 0:
+            return "Error, this does not appear to be a valid search, or does not have results."
         # Add new rss feed to list
         e621_sub_list.add_sub(e621_sub)
         # Save list
@@ -701,7 +707,8 @@ class SubE621Check(Function):
         # Names which can be used to address the function
         self.names = {"e621 sub check", "check e621 sub", "sub e621 check", "check sub e621", "e621 subscription check",
                       "check e621 subscription", "subscription e621 check", "check subscription e621",
-                      "e621 search check", "check e621 search", "search e621 check", "check search e621"}
+                      "e621 search check", "check e621 search", "search e621 check", "check search e621", "e621 check",
+                      "check e621"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Checks a specified feed for updates and returns them. Format: e621 sub check <feed name>"
         self.e621_sub_list = E621SubList.from_xml()
