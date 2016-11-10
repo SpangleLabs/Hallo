@@ -5,7 +5,6 @@ from Function import Function
 from Server import Server
 from inc.Commons import Commons
 from modules.Furry import SubE621Check, E621SubList, E621Sub
-from modules.Rss import FeedCheck, RssFeedList, RssFeed
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
 
