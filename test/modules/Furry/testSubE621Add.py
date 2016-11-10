@@ -85,7 +85,7 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         e621_check_obj = self.function_dispatcher.get_function_object(e621_check_class)  # type: SubE621Check
         rfl = e621_check_obj.e621_sub_list.sub_list
         assert len(rfl) == 1
-        assert rfl[0].url == "butt"
+        assert rfl[0].search == "butt"
         assert rfl[0].server_name == self.server.name
         assert rfl[0].channel_name == self.test_chan.name
         assert rfl[0].user_name is None
