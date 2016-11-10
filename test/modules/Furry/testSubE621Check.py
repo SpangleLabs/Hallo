@@ -97,67 +97,67 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             self.hallo.remove_server(serv2)
             self.hallo.remove_server(serv1)
 
-    # def test_run_by_title(self):
-    #     # Set up test servers and channels
-    #     serv1 = ServerMock(self.hallo)
-    #     serv1.name = "test_serv1"
-    #     chan1 = serv1.get_channel_by_name("test_chan1")
-    #     chan2 = serv1.get_channel_by_name("test_chan2")
-    #     serv2 = ServerMock(self.hallo)
-    #     serv2.name = "test_serv2"
-    #     chan3 = serv2.get_channel_by_name("test_chan1")
-    #     try:
-    #         self.hallo.add_server(serv1)
-    #         self.hallo.add_server(serv2)
-    #         # Set up rss feeds
-    #         rfl = RssFeedList()
-    #         rf1 = RssFeed()
-    #         rf1.url = "http://spangle.org.uk/hallo/test_rss.xml?1"
-    #         rf1.title = "test_feed1"
-    #         rf1.server_name = chan1.server.name
-    #         rf1.channel_name = chan1.name
-    #         rf1.update_frequency = Commons.load_time_delta("PT3600S")
-    #         rfl.add_feed(rf1)
-    #         rf2 = RssFeed()
-    #         rf2.url = "http://spangle.org.uk/hallo/test_rss.xml?2"
-    #         rf2.title = "test_feed2"
-    #         rf2.server_name = chan2.server.name
-    #         rf2.channel_name = chan2.name
-    #         rf2.update_frequency = Commons.load_time_delta("PT3600S")
-    #         rfl.add_feed(rf2)
-    #         rf3 = RssFeed()
-    #         rf3.url = "http://spangle.org.uk/hallo/test_rss.xml?3"
-    #         rf3.title = "test_feed1"
-    #         rf3.server_name = chan3.server.name
-    #         rf3.channel_name = chan3.name
-    #         rf3.update_frequency = Commons.load_time_delta("PT3600S")
-    #         rfl.add_feed(rf3)
-    #         # Splice this rss feed list into the function dispatcher's rss check object
-    #         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-    #         rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
-    #         rss_check_obj.rss_feed_list = rfl
-    #         # Invalid title
-    #         self.function_dispatcher.dispatch("rss check Not a valid feed", self.test_user, self.test_chan)
-    #         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-    #         assert "error" in data[0][0].lower()
-    #         # Correct title but wrong channel
-    #         self.function_dispatcher.dispatch("rss check test_feed2", self.test_user, chan1)
-    #         data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-    #         assert "error" in data[0][0].lower()
-    #         # Correct title check update
-    #         self.function_dispatcher.dispatch("rss check test_feed2", self.test_user, chan2)
-    #         data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
-    #         assert "feed updates were found" in data[0][0].lower()
-    #         assert len(data[0][0].lower().split("\n")) == 4
-    #         # No updates
-    #         rf2.title = "test_feed2"
-    #         self.function_dispatcher.dispatch("rss check test_feed2", self.test_user, chan2)
-    #         data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
-    #         assert "no updates" in data[0][0], "No further updates should be found."
-    #     finally:
-    #         self.hallo.remove_server(serv2)
-    #         self.hallo.remove_server(serv1)
-    #
+    def test_run_by_search(self):
+        # Set up test servers and channels
+        serv1 = ServerMock(self.hallo)
+        serv1.name = "test_serv1"
+        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan2 = serv1.get_channel_by_name("test_chan2")
+        serv2 = ServerMock(self.hallo)
+        serv2.name = "test_serv2"
+        chan3 = serv2.get_channel_by_name("test_chan1")
+        try:
+            self.hallo.add_server(serv1)
+            self.hallo.add_server(serv2)
+            # Set up rss feeds
+            rfl = RssFeedList()
+            rf1 = RssFeed()
+            rf1.url = "http://spangle.org.uk/hallo/test_rss.xml?1"
+            rf1.title = "test_feed1"
+            rf1.server_name = chan1.server.name
+            rf1.channel_name = chan1.name
+            rf1.update_frequency = Commons.load_time_delta("PT3600S")
+            rfl.add_feed(rf1)
+            rf2 = RssFeed()
+            rf2.url = "http://spangle.org.uk/hallo/test_rss.xml?2"
+            rf2.title = "test_feed2"
+            rf2.server_name = chan2.server.name
+            rf2.channel_name = chan2.name
+            rf2.update_frequency = Commons.load_time_delta("PT3600S")
+            rfl.add_feed(rf2)
+            rf3 = RssFeed()
+            rf3.url = "http://spangle.org.uk/hallo/test_rss.xml?3"
+            rf3.title = "test_feed1"
+            rf3.server_name = chan3.server.name
+            rf3.channel_name = chan3.name
+            rf3.update_frequency = Commons.load_time_delta("PT3600S")
+            rfl.add_feed(rf3)
+            # Splice this rss feed list into the function dispatcher's rss check object
+            rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
+            rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
+            rss_check_obj.rss_feed_list = rfl
+            # Invalid title
+            self.function_dispatcher.dispatch("rss check Not a valid feed", self.test_user, self.test_chan)
+            data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            # Correct title but wrong channel
+            self.function_dispatcher.dispatch("rss check test_feed2", self.test_user, chan1)
+            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
+            assert "error" in data[0][0].lower()
+            # Correct title check update
+            self.function_dispatcher.dispatch("rss check test_feed2", self.test_user, chan2)
+            data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
+            assert "feed updates were found" in data[0][0].lower()
+            assert len(data[0][0].lower().split("\n")) == 4
+            # No updates
+            rf2.title = "test_feed2"
+            self.function_dispatcher.dispatch("rss check test_feed2", self.test_user, chan2)
+            data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
+            assert "no updates" in data[0][0], "No further updates should be found."
+        finally:
+            self.hallo.remove_server(serv2)
+            self.hallo.remove_server(serv1)
+
     # def test_run_passive(self):
     #     # Set up test servers and channels
     #     serv1 = ServerMock(None)
