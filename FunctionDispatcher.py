@@ -19,6 +19,8 @@ class FunctionDispatcher(object):
     def __init__(self, module_list, hallo):
         """
         Constructor
+        :type module_list: set[str]
+        :type hallo: Hallo.Hallo
         """
         self.hallo = hallo  # Hallo object which owns this
         self.module_list = set()  # List of available module names
