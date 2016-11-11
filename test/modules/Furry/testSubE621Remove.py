@@ -58,9 +58,9 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch("e621 sub remove butt", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "removed \"butt\"" in data[0][0].lower()
-        assert rf1 not in rfl.feed_list
-        assert rf2 in rfl.feed_list
-        assert rf3 in rfl.feed_list
+        assert rf1 not in rfl.sub_list
+        assert rf2 in rfl.sub_list
+        assert rf3 in rfl.sub_list
 
     def test_remove_multiple_matching_searches(self):
         # Get subscription list
@@ -90,9 +90,9 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch("e621 sub remove butt", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "removed \"butt\"" in data[0][0].lower()
-        assert rf1 not in rfl.feed_list
-        assert rf2 in rfl.feed_list
-        assert rf3 not in rfl.feed_list
+        assert rf1 not in rfl.sub_list
+        assert rf2 in rfl.sub_list
+        assert rf3 not in rfl.sub_list
 
     def test_remove_no_match(self):
         # Get subscription list
@@ -122,6 +122,6 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch("e621 sub remove not_a_search", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "error" in data[0][0].lower()
-        assert rf1 in rfl.feed_list
-        assert rf2 in rfl.feed_list
-        assert rf3 in rfl.feed_list
+        assert rf1 in rfl.sub_list
+        assert rf2 in rfl.sub_list
+        assert rf3 in rfl.sub_list
