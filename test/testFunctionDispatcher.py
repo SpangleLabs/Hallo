@@ -1,15 +1,12 @@
 import unittest
 
 from FunctionDispatcher import FunctionDispatcher
-from Hallo import Hallo
 from test.TestBase import TestBase
 
 
 class FunctionDispatcherTest(TestBase, unittest.TestCase):
 
     def test_fd_load_order(self):
-        # Create a Hallo
-        self.hallo = Hallo()
         # Create a blank function dispatcher
         fd = FunctionDispatcher([], None)
         # Add modules to allowed list
@@ -22,8 +19,6 @@ class FunctionDispatcherTest(TestBase, unittest.TestCase):
         assert len(fd.function_dict) == 2
 
     def test_fd_disallowed_module(self):
-        # Create a hallo
-        self.hallo = Hallo()
         # Create a blank function dispatcher
         fd = FunctionDispatcher([], None)
         # Try and load a module
