@@ -23,14 +23,12 @@ class FunctionDispatcher(object):
         :type hallo: Hallo.Hallo
         """
         self.hallo = hallo  # Hallo object which owns this
-        self.module_list = set()  # List of available module names
+        self.module_list = module_list  # List of available module names
         self.function_dict = {}  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
         self.function_names = {}  # Dictionary of names -> functionClasses
         self.persistent_functions = {}  # Dictionary of persistent function objects. functionClass->functionObject
         self.event_functions = {}  # Dictionary with events as keys and sets of function classes
         #  (which may want to act on those events) as values
-        # Copy moduleList to self.mModuleList
-        self.module_list = module_list
         # Load all functions
         for module_name in self.module_list:
             self.reload_module(module_name)
