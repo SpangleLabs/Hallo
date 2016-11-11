@@ -10,6 +10,7 @@ import time
 class TestBase(unittest.TestCase):
 
     def setUp(self):
+        print("Running test: "+self.id())
         # Create a Hallo
         self.hallo = Hallo()
         # only 1 module, only 1 (mock) server
