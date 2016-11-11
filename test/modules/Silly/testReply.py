@@ -5,6 +5,7 @@ import urllib.request
 from Function import Function
 from Server import Server
 from inc.Commons import Commons
+from modules.Silly import Reply
 from modules.Silly import ReplyMessage, ReplyMessageList
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
@@ -25,7 +26,7 @@ class ReplyTest(TestBase, unittest.TestCase):
 
     def test_reply_beep(self):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
-        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check beep/boop works
         response = reply_obj.passive_run(Function.EVENT_MESSAGE, "beep",
                                          None, self.server, self.test_user, self.test_chan)
@@ -37,7 +38,7 @@ class ReplyTest(TestBase, unittest.TestCase):
 
     def test_reply_pew(self):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
-        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check pewpew
         response = reply_obj.passive_run(Function.EVENT_MESSAGE, "pew",
                                          None, self.server, self.test_user, self.test_chan)
@@ -53,7 +54,7 @@ class ReplyTest(TestBase, unittest.TestCase):
 
     def test_reply_haskell(self):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
-        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check haskell.jpg
         response = reply_obj.passive_run(Function.EVENT_MESSAGE, "haskell.jpg",
                                          None, self.server, self.test_user, self.test_chan)
@@ -75,7 +76,7 @@ class ReplyTest(TestBase, unittest.TestCase):
 
     def test_reply_podbay_doors(self):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
-        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check pod bay doors
         response = reply_obj.passive_run(Function.EVENT_MESSAGE, "open the pod bay doors hallo.",
                                          None, self.server, self.test_user, self.test_chan)
@@ -85,7 +86,7 @@ class ReplyTest(TestBase, unittest.TestCase):
 
     def test_reply_irc_client(self):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
-        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check irc client response
         response = reply_obj.passive_run(Function.EVENT_MESSAGE, "Which IRC client should I use?",
                                          None, self.server, self.test_user, self.test_chan)
@@ -95,7 +96,7 @@ class ReplyTest(TestBase, unittest.TestCase):
 
     def test_reply_who_hallo(self):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
-        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check what is hallo response
         response = reply_obj.passive_run(Function.EVENT_MESSAGE, "What is hallo?",
                                          None, self.server, self.test_user, self.test_chan)
@@ -103,7 +104,7 @@ class ReplyTest(TestBase, unittest.TestCase):
 
     def test_reply_mfw(self):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
-        reply_obj = self.function_dispatcher.get_function_object(reply_func)
+        reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check MFW produces response
         response = reply_obj.passive_run(Function.EVENT_MESSAGE, "MFW",
                                          None, self.server, self.test_user, self.test_chan)

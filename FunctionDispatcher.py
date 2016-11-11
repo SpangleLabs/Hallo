@@ -19,16 +19,16 @@ class FunctionDispatcher(object):
     def __init__(self, module_list, hallo):
         """
         Constructor
+        :type module_list: set[str]
+        :type hallo: Hallo.Hallo
         """
         self.hallo = hallo  # Hallo object which owns this
-        self.module_list = set()  # List of available module names
+        self.module_list = module_list  # List of available module names
         self.function_dict = {}  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
         self.function_names = {}  # Dictionary of names -> functionClasses
         self.persistent_functions = {}  # Dictionary of persistent function objects. functionClass->functionObject
         self.event_functions = {}  # Dictionary with events as keys and sets of function classes
         #  (which may want to act on those events) as values
-        # Copy moduleList to self.mModuleList
-        self.module_list = module_list
         # Load all functions
         for module_name in self.module_list:
             self.reload_module(module_name)
@@ -207,6 +207,9 @@ class FunctionDispatcher(object):
         for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
             # Get class from tuple
             function_class = function_tuple[1]
+            # Ensure it is a member of this module
+            if function_class.__module__ != full_module_name:
+                continue
             # Check it's a valid function object
             if not self.check_function_class(function_class):
                 continue

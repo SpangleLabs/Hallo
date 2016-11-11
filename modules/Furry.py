@@ -1,5 +1,8 @@
 from Function import Function
-from inc.Commons import Commons
+from inc.Commons import Commons, ISO8601ParseError
+import urllib.parse
+from datetime import datetime
+from xml.etree import ElementTree
 
 
 class E621(Function):
@@ -70,7 +73,7 @@ class RandomPorn(Function):
         line_unclean = line.strip() + " -rating:s"
         function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
         e621_class = function_dispatcher.get_function_by_name("e621")
-        e621_obj = function_dispatcher.get_function_object(e621_class)
+        e621_obj = function_dispatcher.get_function_object(e621_class)  # type: E621
         search_result = e621_obj.get_random_link_result(line_unclean)
         if search_result is None:
             return "No results."
@@ -108,7 +111,7 @@ class Butts(Function):
     def run(self, line, user_obj, destination_obj=None):
         function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
         e621_class = function_dispatcher.get_function_by_name("e621")
-        e621_obj = function_dispatcher.get_function_object(e621_class)
+        e621_obj = function_dispatcher.get_function_object(e621_class)  # type: E621
         search_result = e621_obj.get_random_link_result("butt")
         if search_result is None:
             return "No results."
@@ -362,6 +365,509 @@ class Fursona(Function):
                         "it robs banks and its partner in crime is the next fursona you generate.",
                         "its facial features are constantly shifting.", "it works as a librarian in hell.",
                         "it wears a fedora."]
-        result = "Your new fursona is: " + Commons.get_random_choice(adjective)[0] + " " + Commons.get_random_choice(
-            animal)[0] + " " + Commons.get_random_choice(description1)[0] + " " + Commons.get_random_choice(description2)[0]
+        result = "Your new fursona is: " + Commons.get_random_choice(adjective)[0] + " " + \
+                 Commons.get_random_choice(animal)[0] + " " + Commons.get_random_choice(description1)[0] + " " + \
+                 Commons.get_random_choice(description2)[0]
         return result
+
+
+class E621Sub:
+    """
+    Class representing a subscription to an E621 Search
+    """
+
+    def __init__(self):
+        self.search = ""
+        self.server_name = None
+        self.channel_name = None
+        self.user_name = None
+        self.latest_ten_ids = []
+        self.last_check = None
+        self.update_frequency = None
+
+    def check_subscription(self):
+        """
+        Checks the search for any updates
+        :return: List of new results
+        """
+        search = self.search+" order:-id"  # Sort by id
+        if len(self.latest_ten_ids) > 0:
+            oldest_id = min(self.latest_ten_ids)
+            search += " id:>"+str(oldest_id)  # Don't list anything older than the oldest of the last 10
+        url = "http://e621.net/post/index.json?tags=" + urllib.parse.quote(search) + "&limit=50"
+        results = Commons.load_url_json(url)
+        return_list = []
+        new_last_ten = set(self.latest_ten_ids)
+        for result in results:
+            result_id = result["id"]
+            # Create new list of latest ten results
+            new_last_ten.add(result_id)
+            # If post hasn't been seen in the latest ten, add it to returned list.
+            if result_id not in self.latest_ten_ids:
+                return_list.append(result)
+        self.latest_ten_ids = sorted(list(new_last_ten))[::-1][:10]
+        # Update check time
+        self.last_check = datetime.now()
+        return return_list
+
+    def output_item(self, e621_result, hallo, server=None, destination=None):
+        """
+        Outputs an item to a given server and destination, or the feed default.
+        :param e621_result: dict e621 JSON result to output
+        :param hallo: Hallo
+        :param server: Server
+        :param destination: Destination
+        """
+        # Get server
+        if server is None:
+            server = hallo.get_server_by_name(self.server_name)
+            if server is None:
+                return "Error, invalid server."
+        # Get destination
+        if destination is None:
+            if self.channel_name is not None:
+                destination = server.get_channel_by_name(self.channel_name)
+            if self.user_name is not None:
+                destination = server.get_user_by_name(self.user_name)
+            if destination is None:
+                return "Error, invalid destination."
+        # Construct output
+        output = self.format_item(e621_result)
+        server.send(output, destination)
+        return output
+
+    def format_item(self, e621_result):
+        """
+        Formats an e621 result for output.
+        :param e621_result: e621 result to format
+        :type e621_result: dict
+        :return: Readable format of the result
+        :rtype: str
+        """
+        link = "http://e621.net/post/show/" + str(e621_result['id'])
+        # Create rating string
+        if e621_result['rating'] == 'e':
+            rating = "(Explicit)"
+        elif e621_result['rating'] == "q":
+            rating = "(Questionable)"
+        elif e621_result['rating'] == "s":
+            rating = "(Safe)"
+        else:
+            rating = "(Unknown)"
+        # Construct output
+        output = "Update on \"" + self.search + "\" e621 search. " + link + " " + rating
+        return output
+
+    def needs_check(self):
+        """
+        Returns whether an e621 subscription check is overdue.
+        :return: bool
+        """
+        if self.last_check is None:
+            return True
+        if datetime.now() > self.last_check + self.update_frequency:
+            return True
+        return False
+
+    def to_xml_string(self):
+        """
+        Saves this E621 subscription
+        :rtype: str
+        """
+        # Create root element
+        root = ElementTree.Element("e621_sub")
+        # Create search element
+        search = ElementTree.SubElement(root, "search")
+        search.text = self.search
+        # Create server name element
+        server = ElementTree.SubElement(root, "server")
+        server.text = self.server_name
+        # Create channel name element, if applicable
+        if self.channel_name is not None:
+            channel = ElementTree.SubElement(root, "channel")
+            channel.text = self.channel_name
+        # Create user name element, if applicable
+        if self.user_name is not None:
+            user = ElementTree.SubElement(root, "user")
+            user.text = self.user_name
+        # Create latest id elements
+        for latest_id in self.latest_ten_ids:
+            latest_id_elem = ElementTree.SubElement(root, "latest_id")
+            latest_id_elem.text = str(latest_id)
+        # Create last check element
+        if self.last_check is not None:
+            last_check = ElementTree.SubElement(root, "last_check")
+            last_check.text = self.last_check.isoformat()
+        # Create update frequency element
+        update_frequency = ElementTree.SubElement(root, "update_frequency")
+        update_frequency.text = Commons.format_time_delta(self.update_frequency)
+        # Return xml string
+        return ElementTree.tostring(root)
+
+    @staticmethod
+    def from_xml_string(xml_string):
+        """
+        Loads new E621Sub object from XML string
+        :param xml_string: string
+        :return: E621Sub
+        """
+        # Create blank feed
+        new_sub = E621Sub()
+        # Load xml
+        sub_xml = ElementTree.fromstring(xml_string)
+        # Load title, url, server
+        new_sub.search = sub_xml.find("search").text
+        new_sub.server_name = sub_xml.find("server").text
+        # Load channel or user
+        if sub_xml.find("channel") is not None:
+            new_sub.channel_name = sub_xml.find("channel").text
+        else:
+            if sub_xml.find("user") is not None:
+                new_sub.user_name = sub_xml.find("user").text
+            else:
+                raise Exception("Channel or user must be defined")
+        # Load last item
+        for latest_id in sub_xml.findall("latest_id"):
+            new_sub.latest_ten_ids.append(int(latest_id.text))
+        # Load last check
+        if sub_xml.find("last_check") is not None:
+            new_sub.last_check = datetime.strptime(sub_xml.find("last_check").text, "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        new_sub.update_frequency = Commons.load_time_delta(sub_xml.find("update_frequency").text)
+        # Return new feed
+        return new_sub
+
+
+class E621SubList:
+    """
+    Holds the lists of E621 subscriptions, for loading and unloading.
+    """
+
+    def __init__(self):
+        self.sub_list = []  # type: list [E621Sub]
+
+    def add_sub(self, new_sub):
+        """
+        Adds a new E621 subscription to the list.
+        :param new_sub: New subscription to add
+        :type new_sub: E621Sub
+        """
+        self.sub_list.append(new_sub)
+
+    def remove_sub(self, remove_sub):
+        """
+        Removes an E621 subscription from the list.
+        :param remove_sub: Existing subscription to remove
+        :type remove_sub: E621Sub
+        """
+        self.sub_list.remove(remove_sub)
+
+    def get_subs_by_destination(self, destination):
+        """
+        Returns a list of subscriptions matching a specified destination.
+        :param destination: Channel or User which E621Sub is posting to
+        :type destination: Destination.Destination
+        :return: list of E621Sub objects matching destination
+        :rtype: list [E621Sub]
+        """
+        matching_subs = []
+        for e621_sub in self.sub_list:
+            if destination.server.name != e621_sub.server_name:
+                continue
+            if destination.is_channel() and destination.name != e621_sub.channel_name:
+                continue
+            if destination.is_user() and destination.name != e621_sub.user_name:
+                continue
+            matching_subs.append(e621_sub)
+        return matching_subs
+
+    def get_subs_by_search(self, search, destination):
+        """
+        Returns a list of subscriptions matching a specified search
+        :param search: Search of the E621Search being searched for
+        :type search: str
+        :param destination: Channel or User which RssFeed is posting to
+        :type destination: Destination.Destination
+        :return: List of matching subscriptions
+        :rtype: list [E621Sub]
+        """
+        search_clean = search.lower().strip()
+        matching_feeds = []
+        for e621_sub in self.get_subs_by_destination(destination):
+            if search_clean == e621_sub.search.lower().strip():
+                matching_feeds.append(e621_sub)
+        return matching_feeds
+
+    def to_xml(self):
+        """
+        Saves the whole subscription list to XML file
+        :return: Nothing
+        """
+        # Create root element
+        root_elem = ElementTree.Element("e621_subscriptions")
+        # Add all feed elements
+        for e621_sub_obj in self.sub_list:
+            new_feed_elem = ElementTree.fromstring(e621_sub_obj.to_xml_string())
+            root_elem.append(new_feed_elem)
+        # Write xml to file
+        ElementTree.ElementTree(root_elem).write("store/e621_subscriptions.xml")
+
+    @staticmethod
+    def from_xml():
+        """
+        Constructs a new E621SubList from the XML file
+        :return: Newly constructed list of subscriptions
+        :rtype: E621SubList
+        """
+        new_sub_list = E621SubList()
+        # Try loading xml file, otherwise return blank list
+        try:
+            doc = ElementTree.parse("store/e621_subscriptions.xml")
+        except (OSError, IOError):
+            return new_sub_list
+        # Loop feeds in xml file adding them to list
+        root = doc.getroot()
+        for e621_sub_elem in root.findall("e621_sub"):
+            new_sub_obj = E621Sub.from_xml_string(ElementTree.tostring(e621_sub_elem))
+            new_sub_list.add_sub(new_sub_obj)
+        return new_sub_list
+
+
+class SubE621Add(Function):
+    """
+    Adds a e621 search subscription for a given search, allowing specification of server and channel.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "e621 sub add"
+        # Names which can be used to address the function
+        self.names = {"e621 sub add", "add e621 sub", "sub e621 add", "add sub e621", "e621 subscription add",
+                      "add e621 subscription", "subscription e621 add", "add subscription e621", "e621 search add",
+                      "add e621 search", "search e621 add", "add search e621"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Adds a e621 search to be checked for updates which will be posted to the current location." \
+                         " Format: e621 sub add <search> <update period?>"
+
+    def run(self, line, user_obj, destination_obj):
+        # See if last argument is check period.
+        try:
+            try_period = line.split()[-1]
+            search_delta = Commons.load_time_delta(try_period)
+            search = line[:-len(try_period)]
+        except ISO8601ParseError:
+            search = line
+            search_delta = Commons.load_time_delta("PT300S")
+        search = search.strip()
+        # Get current RSS feed list
+        function_dispatcher = user_obj.server.hallo.function_dispatcher
+        sub_check_class = function_dispatcher.get_function_by_name("e621 sub check")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubE621Check
+        e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
+        # Create new e621 search subscription
+        e621_sub = E621Sub()
+        e621_sub.server_name = user_obj.server.name
+        e621_sub.search = search
+        e621_sub.update_frequency = search_delta
+        if destination_obj.is_channel():
+            e621_sub.channel_name = destination_obj.name
+        else:
+            e621_sub.user_name = destination_obj.name
+        # Update feed
+        first_results = e621_sub.check_subscription()
+        # If no results, this is an invalid search subscription
+        if len(first_results) == 0:
+            return "Error, this does not appear to be a valid search, or does not have results."
+        # Add new rss feed to list
+        e621_sub_list.add_sub(e621_sub)
+        # Save list
+        e621_sub_list.to_xml()
+        # Return output
+        return "I have added new e621 subscription for the search \"" + e621_sub.search + "\""
+
+
+class SubE621Check(Function):
+    """
+    Checks a specified e621 search subscription for updates and returns them.
+    """
+
+    NAMES_ALL = ["*", "all"]
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "e621 sub check"
+        # Names which can be used to address the function
+        self.names = {"e621 sub check", "check e621 sub", "sub e621 check", "check sub e621", "e621 subscription check",
+                      "check e621 subscription", "subscription e621 check", "check subscription e621",
+                      "e621 search check", "check e621 search", "search e621 check", "check search e621", "e621 check",
+                      "check e621"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Checks a specified feed for updates and returns them. Format: e621 sub check <feed name>"
+        self.e621_sub_list = E621SubList.from_xml()
+
+    @staticmethod
+    def is_persistent():
+        """Returns boolean representing whether this function is supposed to be persistent or not"""
+        return True
+
+    @staticmethod
+    def load_function():
+        """Loads the function, persistent functions only."""
+        return SubE621Check()
+
+    def save_function(self):
+        """Saves the function, persistent functions only."""
+        self.e621_sub_list.to_xml()
+
+    def get_passive_events(self):
+        """Returns a list of events which this function may want to respond to in a passive way"""
+        return {Function.EVENT_MINUTE}
+
+    def run(self, line, user_obj, destination_obj=None):
+        # Handy variables
+        hallo = user_obj.server.hallo
+        # Clean up input
+        clean_input = line.strip().lower()
+        # Check whether input is asking to update all e621 subscriptions
+        if clean_input in self.NAMES_ALL:
+            return self.run_all(hallo)
+        # Otherwise see if a search subscription matches the specified one
+        matching_subs = self.e621_sub_list.get_subs_by_search(clean_input, destination_obj)
+        if len(matching_subs) == 0:
+            return "Error, no e621 search subscriptions match that name. If you're adding a new search subscrption, " \
+                   "use \"e621 sub add\" with your search."
+        output_lines = []
+        # Loop through matching search subscriptions, getting updates
+        for search_sub in matching_subs:
+            new_items = search_sub.check_subscription()
+            for search_item in new_items:
+                output_lines.append(search_sub.format_item(search_item))
+        # Remove duplicate entries from output_lines
+        output_lines = list(set(output_lines))
+        # Output response to user
+        if len(output_lines) == 0:
+            return "There were no updates for \"" + line + "\" e621 search."
+        return "The following search updates were found:\n" + "\n".join(output_lines)
+
+    def run_all(self, hallo):
+        output_lines = []
+        for search_sub in self.e621_sub_list.sub_list:
+            new_items = search_sub.check_subscription()
+            for search_item in new_items:
+                output_lines.append(search_sub.output_item(search_item, hallo))
+        # Remove duplicate entries from output_lines
+        output_lines = list(set(output_lines))
+        # Output response to user
+        if len(output_lines) == 0:
+            return "There were no e621 search subscription updates."
+        return "The following search updates were found and posted to their registered destinations:\n" + \
+               "\n".join(output_lines)
+
+    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+        """
+        Replies to an event not directly addressed to the bot.
+        :param event: string
+        :param full_line: string
+        :param hallo_obj: Hallo
+        :param server_obj: Server
+        :param user_obj: User
+        :param channel_obj: Channel
+        """
+        # Check through all feeds to see which need updates
+        for search_sub in self.e621_sub_list.sub_list:
+            # Only check those which have been too long since last check
+            if search_sub.needs_check():
+                # Get new items
+                new_items = search_sub.check_subscription()
+                # Output all new items
+                for search_item in new_items:
+                    search_sub.output_item(search_item, hallo_obj)
+
+
+class SubE621List(Function):
+    """
+    List the currently active e621 search subscriptions.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "e621 sub list"
+        # Names which can be used to address the function
+        self.names = {"e621 sub list", "list e621 sub", "sub e621 list", "list sub e621", "e621 subscription list",
+                      "list e621 subscription", "subscription e621 list", "list subscription e621", "e621 search list",
+                      "list e621 search", "search e621 list", "list search e621"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Lists e621 search subscriptions for the current channel. Format: e621 sub list"
+
+    def run(self, line, user_obj, destination_obj=None):
+        # Handy variables
+        server = user_obj.get_server()
+        hallo = server.get_hallo()
+        function_dispatcher = hallo.get_function_dispatcher()
+        sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check
+        e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
+        # Find list of feeds for current channel.
+        dest_searches = e621_sub_list.get_subs_by_destination(destination_obj)
+        if len(dest_searches) == 0:
+            return "There are no e621 search subscriptions posting to this destination."
+        output_lines = ["E621 search subscriptions posting to this channel:"]
+        for search_item in dest_searches:
+            output_lines.append(" - \"" + search_item.search + "\"")
+        return "\n".join(output_lines)
+
+
+class SubE621Remove(Function):
+    """
+    Remove an E621 search subscription and no longer receive updates from it.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "e621 sub remove"
+        # Names which can be used to address the function
+        self.names = {"e621 sub remove", "remove e621 sub", "sub e621 remove", "remove sub e621",
+                      "e621 subscription remove", "remove e621 subscription", "subscription e621 remove",
+                      "remove subscription e621", "e621 search remove", "remove e621 search", "search e621 remove",
+                      "remove search e621", "e621 sub delete", "delete e621 sub", "sub e621 delete", "delete sub e621",
+                      "e621 subscription delete", "delete e621 subscription", "subscription e621 delete",
+                      "delete subscription e621", "e621 search delete", "delete e621 search", "search e621 delete",
+                      "delete search e621"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Removes a specified e621 search subscription from the current or specified channel. " \
+                         " Format: e621 sub remove <search>"
+
+    def run(self, line, user_obj, destination_obj=None):
+        # Handy variables
+        server = user_obj.get_server()
+        hallo = server.get_hallo()
+        function_dispatcher = hallo.get_function_dispatcher()
+        sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check
+        e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
+        # Clean up input
+        clean_input = line.strip()
+        # Find any feeds with specified search
+        test_feeds = e621_sub_list.get_subs_by_search(clean_input.lower(), destination_obj)
+        if len(test_feeds) > 0:
+            for del_sub in test_feeds:
+                e621_sub_list.remove_sub(del_sub)
+            return "Removed \"" + test_feeds[0].search + "\" e621 search subscription. Updates will no longer be " \
+                   "sent to " + (test_feeds[0].channel_name or test_feeds[0].user_name) + "."
+        return "Error, there are no e621 search subscriptions in this channel matching that search."

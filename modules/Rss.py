@@ -405,7 +405,7 @@ class FeedAdd(Function):
         # Get current RSS feed list
         function_dispatcher = user_obj.server.hallo.function_dispatcher
         feed_check_class = function_dispatcher.get_function_by_name("rss check")
-        feed_check_obj = function_dispatcher.get_function_object(feed_check_class)
+        feed_check_obj = function_dispatcher.get_function_object(feed_check_class)  # type: FeedCheck
         feed_list = feed_check_obj.rss_feed_list
         # Check link works
         try:
@@ -464,7 +464,7 @@ class FeedRemove(Function):
         hallo = server.get_hallo()
         function_dispatcher = hallo.get_function_dispatcher()
         feed_check_function = function_dispatcher.get_function_by_name("rss check")
-        feed_check_obj = function_dispatcher.get_function_object(feed_check_function)
+        feed_check_obj = function_dispatcher.get_function_object(feed_check_function)  # type: FeedCheck
         rss_feed_list = feed_check_obj.rss_feed_list
         # Clean up input
         clean_input = line.strip()
@@ -487,7 +487,7 @@ class FeedRemove(Function):
 
 class FeedList(Function):
     """
-    Remove an RSS feed and no longer receive updates from it.
+    Lists the currently active RSS feed subscriptions
     """
 
     def __init__(self):
@@ -509,7 +509,7 @@ class FeedList(Function):
         hallo = server.get_hallo()
         function_dispatcher = hallo.get_function_dispatcher()
         feed_check_function = function_dispatcher.get_function_by_name("rss check")
-        feed_check_obj = function_dispatcher.get_function_object(feed_check_function)
+        feed_check_obj = function_dispatcher.get_function_object(feed_check_function)  # type: FeedCheck
         rss_feed_list = feed_check_obj.rss_feed_list
         # Find list of feeds for current channel.
         dest_feeds = rss_feed_list.get_feeds_by_destination(destination_obj)

@@ -1,0 +1,9 @@
+<!ELEMENT e621_subscriptions (e621_sub*)>
+<!ELEMENT e621_sub (search,server,channel|user,latest_id*,last_check?,update_frequency)>
+<!ELEMENT search (#PCDATA)>
+<!ELEMENT server (#PCDATA)>
+<!ELEMENT channel (#PCDATA)>
+<!ELEMENT user (#PCDATA)>
+<!ELEMENT latest_id (#PCDATA)>
+<!ELEMENT last_check (#PCDATA)>
+<!ELEMENT update_frequency (#PCDATA)>
