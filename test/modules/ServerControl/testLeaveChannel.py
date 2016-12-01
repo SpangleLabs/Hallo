@@ -1,6 +1,7 @@
 import unittest
 
 from Server import Server
+from test.ServerMock import ServerMock
 from test.TestBase import TestBase
 
 
@@ -50,3 +51,37 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         self.server.get_left_channels(0)
         assert "error" in data[0][0].lower()
+
+    def test_server_specified_first(self):
+        # Set up test resources
+        test_serv = ServerMock(self.hallo)
+        test_serv.name = "TestServer1"
+        self.hallo.add_server(test_serv)
+        test_chan = test_serv.get_channel_by_name("#other_serv")
+        # Send command
+        self.function_dispatcher.dispatch("leave server="+test_serv.name+" "+test_chan.name, self.test_user,
+                                          self.test_chan)
+        # Check response data
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        self.server.get_left_channels(0)
+        chans = test_serv.get_left_channels(1)
+        assert chans[0] == test_chan
+        assert "left" in data[0][0].lower()
+        assert test_chan.name in data[0][0].lower()
+
+    def test_server_specified_second(self):
+        # Set up test resources
+        test_serv = ServerMock(self.hallo)
+        test_serv.name = "TestServer1"
+        self.hallo.add_server(test_serv)
+        test_chan = test_serv.get_channel_by_name("#other_serv")
+        # Send command
+        self.function_dispatcher.dispatch("leave "+test_chan.name+" server="+test_serv.name, self.test_user,
+                                          self.test_chan)
+        # Check response data
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        self.server.get_left_channels(0)
+        chans = test_serv.get_left_channels(1)
+        assert chans[0] == test_chan
+        assert "left" in data[0][0].lower()
+        assert test_chan.name in data[0][0].lower()
