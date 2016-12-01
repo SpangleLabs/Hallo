@@ -6,6 +6,7 @@ class ServerMock(Server):
     def __init__(self, hallo):
         super().__init__(hallo)
         self.send_data = []
+        self.left_channels = []
 
     def join_channel(self, channel_obj):
         pass
@@ -24,7 +25,7 @@ class ServerMock(Server):
         pass
 
     def leave_channel(self, channel_obj):
-        pass
+        self.left_channels.append(channel_obj)
 
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
         self.send_data.append((data, destination_obj, msg_type))
@@ -53,3 +54,10 @@ class ServerMock(Server):
             assert all(out_data[x][2] == msg_type for x in range(len(out_data))), "Incorrect message type for data" + \
                                                                                   str(out_data)
         return out_data
+
+    def get_left_channels(self, exp_chans=None):
+        left_chans = self.left_channels
+        self.left_channels = []
+        if exp_chans is not None:
+            assert len(left_chans) == exp_chans, "Wrong amount of channels left: "+str(exp_chans)
+        return left_chans
