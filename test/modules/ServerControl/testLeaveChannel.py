@@ -44,3 +44,9 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
         assert chans[0] == self.test_chan
         assert "left" in data[0][0].lower()
         assert self.test_chan.name in data[0][0].lower()
+
+    def test_not_in_channel(self):
+        self.function_dispatcher.dispatch("leave #not_in_channel", self.test_user, self.test_chan)
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        self.server.get_left_channels(0)
+        assert "error" in data[0][0].lower()
