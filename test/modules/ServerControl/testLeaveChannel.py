@@ -31,6 +31,7 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
 
     def test_other_channel_name(self):
         other = self.server.get_channel_by_name("#other")
+        other.in_channel = True
         self.function_dispatcher.dispatch("leave "+other.name, self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         chans = self.server.get_left_channels(1)
@@ -40,7 +41,7 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
 
     def test_channel_name_privmsg(self):
         self.function_dispatcher.dispatch("leave "+self.test_chan.name, self.test_user, self.test_user)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
         chans = self.server.get_left_channels(1)
         assert chans[0] == self.test_chan
         assert "left" in data[0][0].lower()
@@ -58,6 +59,7 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
         test_serv.name = "TestServer1"
         self.hallo.add_server(test_serv)
         test_chan = test_serv.get_channel_by_name("#other_serv")
+        test_chan.in_channel = True
         # Send command
         self.function_dispatcher.dispatch("leave server="+test_serv.name+" "+test_chan.name, self.test_user,
                                           self.test_chan)
@@ -75,6 +77,7 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
         test_serv.name = "TestServer1"
         self.hallo.add_server(test_serv)
         test_chan = test_serv.get_channel_by_name("#other_serv")
+        test_chan.in_channel = True
         # Send command
         self.function_dispatcher.dispatch("leave "+test_chan.name+" server="+test_serv.name, self.test_user,
                                           self.test_chan)
