@@ -59,5 +59,5 @@ class ServerMock(Server):
         left_chans = self.left_channels
         self.left_channels = []
         if exp_chans is not None:
-            assert len(left_chans) == exp_chans, "Wrong amount of channels left: "+str(exp_chans)
+            assert len(left_chans) == exp_chans, "Wrong amount of channels left: "+str(left_chans)
         return left_chans
