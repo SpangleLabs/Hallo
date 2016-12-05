@@ -104,3 +104,13 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
         self.server.get_left_channels(0)
         test_serv.get_left_channels(0)
         assert "error" in data[0][0].lower()
+
+    def test_server_not_on_server(self):
+        # Send command
+        self.function_dispatcher.dispatch("leave server=not_a_server "+self.test_chan.name, self.test_user,
+                                          self.test_chan)
+        # Check response data
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        self.server.get_left_channels(0)
+        print(data[0][0].lower())
+        assert "error" in data[0][0].lower()
