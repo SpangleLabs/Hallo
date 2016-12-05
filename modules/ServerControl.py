@@ -86,13 +86,20 @@ class LeaveChannel(Function):
             server_obj = user_obj.get_server().get_hallo().get_server_by_name(server_name)
             line = line.replace("server=" + server_name, "").strip()
         if server_obj is None:
-            return "Invalid server specified."
+            return "Error, invalid server specified."
         # Find channel object
-        channel_name = line.split()[0].lower()
-        channel_obj = server_obj.get_channel_by_name(channel_name)
+        if line.strip() != "":
+            channel_name = line.split()[0].lower()
+            channel_obj = server_obj.get_channel_by_name(channel_name)
+        else:
+            if destination_obj.is_channel():
+                channel_name = destination_obj.get_name()
+                channel_obj = destination_obj
+            else:
+                return "Error, I cannot leave a private chat."
         # Leave channel, provided hallo is in channel.
         if not channel_obj.is_in_channel():
-            return "I'm not in that channel."
+            return "Error, I'm not in that channel."
         server_obj.leave_channel(channel_obj)
         return "Left " + channel_name + "."
 
