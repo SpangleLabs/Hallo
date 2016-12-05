@@ -236,7 +236,13 @@ class Server(metaclass=ABCMeta):
         :param channel_obj: Channel for hallo to leave
         :type channel_obj: Destination.Channel
         """
-        raise NotImplementedError
+        # If channel isn't in channel list, do nothing
+        if channel_obj not in self.channel_list:
+            return
+        # Set channel to not AutoJoin, for the future
+        channel_obj.set_auto_join(False)
+        # Set not in channel
+        channel_obj.set_in_channel(False)
 
     def get_user_by_name(self, user_name):
         """
@@ -517,13 +523,7 @@ class ServerIRC(Server):
         :param channel_obj: Channel to leave
         :type channel_obj: Destination.Channel
         """
-        # If channel isn't in channel list, do nothing
-        if channel_obj not in self.channel_list:
-            return
-        # Set channel to not AutoJoin, for the future
-        channel_obj.set_auto_join(False)
-        # Set not in channel
-        channel_obj.set_in_channel(False)
+        super().leave_channel(channel_obj)
         # Send PART command
         self.send('PART ' + channel_obj.get_name(), None, self.MSG_RAW)
 

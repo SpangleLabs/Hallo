@@ -25,6 +25,7 @@ class ServerMock(Server):
         pass
 
     def leave_channel(self, channel_obj):
+        super().leave_channel(channel_obj)
         self.left_channels.append(channel_obj)
 
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
