@@ -128,3 +128,17 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
         assert self.test_chan.name in data[0][0].lower()
         # Check that test channel is not auto join anymore
         assert not self.test_chan.auto_join
+
+    def test_post_not_in_channel(self):
+        # Assert in channel
+        assert self.test_chan.in_channel
+        # Send command
+        self.function_dispatcher.dispatch("leave "+self.test_chan.name, self.test_user, self.test_chan)
+        # Check response data
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        chans = self.server.get_left_channels(1)
+        assert chans[0] == self.test_chan
+        assert "left" in data[0][0].lower()
+        assert self.test_chan.name in data[0][0].lower()
+        # Check that test channel is not in the channel anymore
+        assert not self.test_chan.in_channel
