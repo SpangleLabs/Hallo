@@ -157,7 +157,7 @@ class Connect(Function):
         # Names which can be used to address the Function
         self.names = {"connect", "new server"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Connects to an existing or a new server."
+        self.help_docs = "Connects to an existing or a new server. Format: connect <protocol> <server>"
 
     def run(self, line, user_obj, destination_obj=None):
         """Runs the function"""
@@ -183,7 +183,7 @@ class Connect(Function):
         # Go through protocols branching to whatever function to handle that protocol
         if server_protocol == Server.TYPE_IRC:
             return self.connect_to_new_server_irc(line, user_obj, destination_obj)
-        # Add in ELIF statements here, to make user Connect Function support other protocols
+        # Add in elseif statements here, to make user Connect Function support other protocols
         else:
             return "Unrecognised server protocol"
 
