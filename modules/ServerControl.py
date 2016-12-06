@@ -26,7 +26,7 @@ class JoinChannel(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Check for server name in input line
-        server_name = self.find_parameter("server", line)
+        server_name = Commons.find_parameter("server", line)
         if server_name is None:
             server_obj = user_obj.get_server()
         else:
@@ -49,15 +49,6 @@ class JoinChannel(Function):
         server_obj.join_channel(channel_obj)
         return "Joined " + channel_name + "."
 
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
-
 
 class LeaveChannel(Function):
     """
@@ -79,7 +70,7 @@ class LeaveChannel(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Check for server name in input line
-        server_name = self.find_parameter("server", line)
+        server_name = Commons.find_parameter("server", line)
         if server_name is None:
             server_obj = user_obj.get_server()
         else:
@@ -102,15 +93,6 @@ class LeaveChannel(Function):
             return "Error, I'm not in that channel."
         server_obj.leave_channel(channel_obj)
         return "Left " + channel_name + "."
-
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
 
 
 class Disconnect(Function):
@@ -196,15 +178,6 @@ class Connect(Function):
         Thread(target=server_obj.run).start()
         return "Connected to server: " + server_obj.get_name() + "."
 
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
-
     def connect_to_new_server_irc(self, line, user_obj, destination_obj):
         """Processes arguments in order to connect to a new IRC server"""
         # Get some handy objects
@@ -224,9 +197,9 @@ class Connect(Function):
             except ValueError:
                 return "Error, invalid port number"
         # Find the server_address, if specified with equals notation
-        server_address = self.find_parameter("server_address", line) or server_address
+        server_address = Commons.find_parameter("server_address", line) or server_address
         # Find the server_port, if specified with equals notation
-        server_port_param = self.find_parameter("server_port", line)
+        server_port_param = Commons.find_parameter("server_port", line)
         if server_port_param is not None:
             try:
                 server_port = int(server_port_param)
@@ -238,16 +211,16 @@ class Connect(Function):
         if server_port is None:
             server_port = current_server.get_server_port()
         # Get server name
-        server_name = self.find_parameter("name", line) or server_name
-        server_name = self.find_parameter("server_name", line) or server_name
+        server_name = Commons.find_parameter("name", line) or server_name
+        server_name = Commons.find_parameter("server_name", line) or server_name
         # if server name is null, get it from server_address
         if server_name is None:
             server_name = Commons.get_domain_name(server_address)
         # Get other parameters, if set.
-        auto_connect = Commons.string_to_bool(self.find_parameter("auto_connect", line)) or True
-        server_nick = self.find_parameter("server_nick", line) or self.find_parameter("nick", line)
-        server_prefix = self.find_parameter("server_prefix", line) or self.find_parameter("prefix", line)
-        full_name = self.find_parameter("full_name", line)
+        auto_connect = Commons.string_to_bool(Commons.find_parameter("auto_connect", line)) or True
+        server_nick = Commons.find_parameter("server_nick", line) or Commons.find_parameter("nick", line)
+        server_prefix = Commons.find_parameter("server_prefix", line) or Commons.find_parameter("prefix", line)
+        full_name = Commons.find_parameter("full_name", line)
         nickserv_nick = "nickserv"
         nickserv_identity_command = "status"
         nickserv_identity_resp = "^status [^ ]+ 3$"
@@ -257,10 +230,11 @@ class Connect(Function):
             nickserv_identity_command = current_server.get_nickserv_ident_command()
             nickserv_identity_resp = current_server.get_nickserv_ident_response()
             nickserv_password = current_server.get_nickserv_pass()
-        nickserv_nick = self.find_parameter("nickserv_nick", line) or nickserv_nick
-        nickserv_identity_command = self.find_parameter("nickserv_identity_command", line) or nickserv_identity_command
-        nickserv_identity_resp = self.find_parameter("nickserv_identity_resp", line) or nickserv_identity_resp
-        nickserv_password = self.find_parameter("nickserv_password", line) or nickserv_password
+        nickserv_nick = Commons.find_parameter("nickserv_nick", line) or nickserv_nick
+        nickserv_identity_command = Commons.find_parameter("nickserv_identity_command",
+                                                           line) or nickserv_identity_command
+        nickserv_identity_resp = Commons.find_parameter("nickserv_identity_resp", line) or nickserv_identity_resp
+        nickserv_password = Commons.find_parameter("nickserv_password", line) or nickserv_password
         # Create this serverIRC object
         new_server_obj = ServerIRC(hallo_obj, server_name, server_address, server_port)
         new_server_obj.set_auto_connect(auto_connect)
@@ -304,10 +278,10 @@ class Say(Function):
         # Setting up variables
         hallo_obj = user_obj.get_server().get_hallo()
         # See if server and channel are specified as parameters
-        server_name = self.find_parameter("server", line)
+        server_name = Commons.find_parameter("server", line)
         if server_name is not None:
             line = line.replace("server=" + server_name, "").strip()
-        channel_name = self.find_parameter("channel", line)
+        channel_name = Commons.find_parameter("channel", line)
         if channel_name is not None:
             line = line.replace("channel=" + channel_name, "").strip()
         # If channel_name is not found as a parameter, see if server/channel is given as a first argument pair.
@@ -356,15 +330,6 @@ class Say(Function):
             channel_obj.server.send(line, channel_obj, Server.MSG_MSG)
         return "Message sent."
 
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
-
 
 class EditServer(Function):
     """
@@ -403,15 +368,6 @@ class EditServer(Function):
         else:
             return "Unrecognised server protocol"
 
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
-
     def edit_server_irc(self, line, server_obj, user_obj, destination_obj):
         """Processes arguments in order to edit an IRC server"""
         # Set all variables to none as default
@@ -424,9 +380,9 @@ class EditServer(Function):
             server_address = url_search.group(4).lower()
             server_port = int(url_search.group(6))
         # Find the server_address, if specified with equals notation
-        server_address = self.find_parameter("server_address", line) or server_address
+        server_address = Commons.find_parameter("server_address", line) or server_address
         # Find the server_port, if specified with equals notation
-        server_port_param = self.find_parameter("server_port", line)
+        server_port_param = Commons.find_parameter("server_port", line)
         if server_port_param is not None:
             try:
                 server_port = int(server_port_param)
@@ -438,20 +394,20 @@ class EditServer(Function):
         if server_port is not None:
             server_obj.server_port = server_port
         # Get other parameters, if set. defaulting to whatever server defaults.
-        auto_connect = Commons.string_to_bool(self.find_parameter("auto_connect",
-                                                                  line)) or server_obj.get_auto_connect()
-        server_nick = self.find_parameter("server_nick", line) or self.find_parameter("nick",
-                                                                                      line) or server_obj.get_nick()
-        server_prefix = self.find_parameter("server_prefix",
-                                            line) or self.find_parameter("prefix",
-                                                                         line) or server_obj.get_prefix()
-        full_name = self.find_parameter("full_name", line) or server_obj.get_full_name()
-        nickserv_nick = self.find_parameter("nickserv_nick", line) or server_obj.get_nickserv_nick()
-        nickserv_identity_command = self.find_parameter("nickserv_identity_command",
-                                                        line) or server_obj.get_nickserv_ident_command()
-        nickserv_identity_response = self.find_parameter("nickserv_identity_response",
-                                                         line) or server_obj.get_nickserv_ident_response()
-        nickserv_password = self.find_parameter("nickserv_password", line) or server_obj.get_nickserv_pass()
+        auto_connect = Commons.string_to_bool(Commons.find_parameter("auto_connect",
+                                                                     line)) or server_obj.get_auto_connect()
+        server_nick = Commons.find_parameter("server_nick",
+                                             line) or Commons.find_parameter("nick", line) or server_obj.get_nick()
+        server_prefix = Commons.find_parameter("server_prefix",
+                                               line) or Commons.find_parameter("prefix",
+                                                                               line) or server_obj.get_prefix()
+        full_name = Commons.find_parameter("full_name", line) or server_obj.get_full_name()
+        nickserv_nick = Commons.find_parameter("nickserv_nick", line) or server_obj.get_nickserv_nick()
+        nickserv_identity_command = Commons.find_parameter("nickserv_identity_command",
+                                                           line) or server_obj.get_nickserv_ident_command()
+        nickserv_identity_response = Commons.find_parameter("nickserv_identity_response",
+                                                            line) or server_obj.get_nickserv_ident_response()
+        nickserv_password = Commons.find_parameter("nickserv_password", line) or server_obj.get_nickserv_pass()
         # Set all the new variables
         server_obj.set_auto_connect(auto_connect)
         server_obj.set_nick(server_nick)
@@ -489,7 +445,7 @@ class ListUsers(Function):
         # Useful object
         hallo_obj = user_obj.get_server().get_hallo()
         # See if a server was specified.
-        server_name = self.find_parameter("server", line)
+        server_name = Commons.find_parameter("server", line)
         # Get server object. If invalid, use current
         if server_name is None:
             server_obj = user_obj.get_server()
@@ -500,7 +456,7 @@ class ListUsers(Function):
             # Remove server name from line and trim
             line_clean = line_clean.replace("server=" + server_name, "").strip()
         # See if channel was specified with equals syntax
-        channel_name = self.find_parameter("channel", line_clean) or self.find_parameter("chan", line_clean)
+        channel_name = Commons.find_parameter("channel", line_clean) or Commons.find_parameter("chan", line_clean)
         # If not specified with equals syntax, check if just said.
         if channel_name is None:
             channel_name = line_clean
@@ -524,15 +480,6 @@ class ListUsers(Function):
         output_string += ", ".join([user.get_name() for user in user_list])
         output_string += "."
         return output_string
-
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
 
 
 class ListChannels(Function):
@@ -583,7 +530,7 @@ class ListChannels(Function):
             output_string += ', '.join(in_channel_name_list) + "."
             return output_string
         # If a server is specified, get that server's channel list
-        if self.find_any_parameter(self.SERVER_NAMES, line_clean):
+        if Commons.find_any_parameter(self.SERVER_NAMES, line_clean):
             server_name = line_clean.split("=")[1]
             server_obj = hallo_obj.get_server_by_name(server_name)
             if server_obj is None:
@@ -603,22 +550,6 @@ class ListChannels(Function):
         output_string = "On " + server_obj.get_name() + " server, I'm in these channels: "
         output_string += ', '.join(in_channel_name_list) + "."
         return output_string
-
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
-
-    def find_any_parameter(self, param_list, line):
-        """Finds one of any parameter in a line."""
-        for param_name in param_list:
-            if self.find_parameter(param_name, line) is not None:
-                return True
-        return False
 
     def get_in_channel_names_list(self, server_obj):
         channel_list = server_obj.get_channel_list()

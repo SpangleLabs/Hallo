@@ -387,3 +387,11 @@ class Commons(object):
         if param_search is not None:
             param_value = param_search.group(2)
         return param_value
+
+    @staticmethod
+    def find_any_parameter(param_list, line):
+        """Finds one of any parameter in a line."""
+        for param_name in param_list:
+            if Commons.find_parameter(param_name, line) is not None:
+                return Commons.find_parameter(param_name, line)
+        return False
