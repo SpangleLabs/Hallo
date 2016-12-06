@@ -167,7 +167,7 @@ class Connect(Function):
         existing_server = hallo_obj.get_server_by_name(line)
         if existing_server is not None:
             return self.connect_to_known_server(existing_server)
-        # Try to find what protocol is specififed, or use whatever protocol the user is using.
+        # Try to find what protocol is specified, or use whatever protocol the user is using.
         line_split = line.split()
         valid_protocols = [Server.TYPE_IRC]
         server_protocol = None
