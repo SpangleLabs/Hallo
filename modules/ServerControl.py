@@ -157,7 +157,8 @@ class Connect(Function):
         # Names which can be used to address the Function
         self.names = {"connect", "new server"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Connects to an existing or a new server. Format: connect <protocol> <server>"
+        self.help_docs = "Connects to an existing or a new server. " \
+                         "Format: \"connect <protocol> <server>\" or \"connect <already known server name>\""
 
     def run(self, line, user_obj, destination_obj=None):
         """Runs the function"""
