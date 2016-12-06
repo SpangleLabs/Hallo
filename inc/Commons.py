@@ -377,3 +377,13 @@ class Commons(object):
         for url in urls:
             data = data.replace(url.upper(), url)
         return data
+
+    @staticmethod
+    def find_parameter(param_name, line):
+        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
+        param_value = None
+        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_search = param_regex.search(line)
+        if param_search is not None:
+            param_value = param_search.group(2)
+        return param_value
