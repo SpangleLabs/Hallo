@@ -87,7 +87,7 @@ class FunctionDispatcher(object):
             print("Function: " + str(function_class.__module__) + " " + str(function_class.__name__))
             print("Function error: " + str(e))
             print("Function error location: " +
-                  sys.exc_info()[2].tb_frame.f_code.co_filename + " - " + sys.exc_info()[2].tb_lineno)
+                  sys.exc_info()[2].tb_frame.f_code.co_filename + " - " + str(sys.exc_info()[2].tb_lineno))
             return
 
     def dispatch_passive(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
