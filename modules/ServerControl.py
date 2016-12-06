@@ -219,7 +219,10 @@ class Connect(Function):
         if url_search is not None:
             line = line.replace(url_search.group(0), " ")
             server_address = url_search.group(4).lower()
-            server_port = int(url_search.group(6))
+            try:
+                server_port = int(url_search.group(6))
+            except ValueError:
+                return "Error, invalid port number"
         # Find the server_address, if specified with equals notation
         server_address = self.find_parameter("server_address", line) or server_address
         # Find the server_port, if specified with equals notation
@@ -228,10 +231,10 @@ class Connect(Function):
             try:
                 server_port = int(server_port_param)
             except ValueError:
-                return "Invalid port number."
+                return "Error, invalid port number."
         # Check server_address and server_port are set
         if server_address is None:
-            return "No server address specified."
+            return "Error, No server address specified."
         if server_port is None:
             server_port = current_server.get_server_port()
         # Get server name
