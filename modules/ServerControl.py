@@ -213,7 +213,7 @@ class Connect(Function):
         # Check server_address and server_port are set
         if server_address is None:
             return "Error, No server address specified."
-        if server_port is None:
+        if server_port is None and isinstance(current_server, ServerIRC):
             server_port = current_server.get_server_port()
         # Get server name
         server_name = Commons.find_parameter("name", line) or server_name
@@ -231,7 +231,7 @@ class Connect(Function):
         nickserv_identity_command = "status"
         nickserv_identity_resp = "^status [^ ]+ 3$"
         nickserv_password = None
-        if current_server.get_type() == Server.TYPE_IRC:
+        if isinstance(current_server, ServerIRC):
             nickserv_nick = current_server.get_nickserv_nick()
             nickserv_identity_command = current_server.get_nickserv_ident_command()
             nickserv_identity_resp = current_server.get_nickserv_ident_response()
