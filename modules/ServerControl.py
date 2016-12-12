@@ -217,7 +217,8 @@ class Connect(Function):
         if server_name is None:
             server_name = Commons.get_domain_name(server_address)
         # Get other parameters, if set.
-        auto_connect = Commons.string_to_bool(Commons.find_parameter("auto_connect", line)) or True
+        auto_connect_str = Commons.find_parameter("auto_connect", line)
+        auto_connect = True if auto_connect_str is None else Commons.string_to_bool(auto_connect_str)
         server_nick = Commons.find_parameter("server_nick", line) or Commons.find_parameter("nick", line)
         server_prefix = Commons.find_parameter("server_prefix", line) or Commons.find_parameter("prefix", line)
         full_name = Commons.find_parameter("full_name", line)
