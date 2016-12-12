@@ -752,6 +752,8 @@ class SubE621Check(Function):
                 output_lines.append(search_sub.format_item(search_item))
         # Remove duplicate entries from output_lines
         output_lines = list(set(output_lines))
+        # Save list
+        self.e621_sub_list.to_xml()
         # Output response to user
         if len(output_lines) == 0:
             return "There were no updates for \"" + line + "\" e621 search."
@@ -765,6 +767,8 @@ class SubE621Check(Function):
                 output_lines.append(search_sub.output_item(search_item, hallo))
         # Remove duplicate entries from output_lines
         output_lines = list(set(output_lines))
+        # Save list
+        self.e621_sub_list.to_xml()
         # Output response to user
         if len(output_lines) == 0:
             return "There were no e621 search subscription updates."
@@ -790,6 +794,8 @@ class SubE621Check(Function):
                 # Output all new items
                 for search_item in new_items:
                     search_sub.output_item(search_item, hallo_obj)
+        # Save list
+        self.e621_sub_list.to_xml()
 
 
 class SubE621List(Function):
