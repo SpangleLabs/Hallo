@@ -219,9 +219,9 @@ class Connect(Function):
         # Get other parameters, if set.
         auto_connect_str = Commons.find_parameter("auto_connect", line)
         auto_connect = True if auto_connect_str is None else Commons.string_to_bool(auto_connect_str)
-        server_nick = Commons.find_parameter("server_nick", line) or Commons.find_parameter("nick", line)
-        server_prefix = Commons.find_parameter("server_prefix", line) or Commons.find_parameter("prefix", line)
-        full_name = Commons.find_parameter("full_name", line)
+        server_nick = Commons.find_any_parameter(["server_nick", "nick"], line) or current_server.get_nick()
+        server_prefix = Commons.find_any_parameter(["server_prefix", "prefix"], line) or current_server.get_prefix()
+        full_name = Commons.find_parameter("full_name", line) or current_server.get_full_name()
         nickserv_nick = "nickserv"
         nickserv_identity_command = "status"
         nickserv_identity_resp = "^status [^ ]+ 3$"
