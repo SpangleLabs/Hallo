@@ -179,7 +179,12 @@ class Connect(Function):
         return "Connected to server: " + server_obj.get_name() + "."
 
     def connect_to_new_server_irc(self, line, user_obj, destination_obj):
-        """Processes arguments in order to connect to a new IRC server"""
+        """
+        Processes arguments in order to connect to a new IRC server
+        :type line: str
+        :type user_obj: Destination.User
+        :type destination_obj: Destination.Destination
+        """
         # Get some handy objects
         current_server = user_obj.get_server()
         hallo_obj = current_server.get_hallo()
@@ -246,6 +251,11 @@ class Connect(Function):
         new_server_obj.set_nickserv_ident_command(nickserv_identity_command)
         new_server_obj.set_nickserv_ident_response(nickserv_identity_resp)
         new_server_obj.set_nickserv_pass(nickserv_password)
+        # Add user with same name on new server to all the same groups as current user
+        new_user_nick = Commons.find_any_parameter(["user", "god"], line) or user_obj.get_name()
+        new_user = new_server_obj.get_user_by_name(new_user_nick)
+        for group in user_obj.user_group_list:
+            new_user.add_user_group(group)
         # Add the new object to Hallo's list
         hallo_obj.add_server(new_server_obj)
         # Connect to the new server object.
