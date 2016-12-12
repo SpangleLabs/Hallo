@@ -194,7 +194,7 @@ class Connect(Function):
             server_address = url_search.group(4).lower()
             try:
                 server_port = int(url_search.group(6))
-            except ValueError:
+            except (ValueError, TypeError):
                 return "Error, invalid port number"
         # Find the server_address, if specified with equals notation
         server_address = Commons.find_parameter("server_address", line) or server_address
