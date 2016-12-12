@@ -87,7 +87,7 @@ class FunctionDispatcher(object):
             server_obj.send("Function failed with error message: " + str(e), destination_obj)
             print("Function: " + str(function_class.__module__) + " " + str(function_class.__name__))
             print("Function error: " + str(e))
-            print("Function error location: " + traceback.print_exc(3))
+            print("Function error location: " + traceback.format_exc(3))
             return
 
     def dispatch_passive(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
