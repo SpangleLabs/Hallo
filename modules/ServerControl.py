@@ -203,7 +203,7 @@ class Connect(Function):
         if server_port_param is not None:
             try:
                 server_port = int(server_port_param)
-            except ValueError:
+            except (ValueError, TypeError):
                 return "Error, invalid port number."
         # Check server_address and server_port are set
         if server_address is None:
