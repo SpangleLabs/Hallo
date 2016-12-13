@@ -10,7 +10,6 @@ from test.TestBase import TestBase
 class FeedRemoveTest(TestBase, unittest.TestCase):
 
     def setUp(self):
-        super().setUp()
         e621_check_class = self.function_dispatcher.get_function_by_name("e621 sub check")
         e621_check_obj = self.function_dispatcher.get_function_object(e621_check_class)  # type: SubE621Check
         e621_check_obj.e621_sub_list = E621SubList()
@@ -18,6 +17,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             os.rename("store/e621_subscriptions.xml", "store/e621_subscriptions.xml.tmp")
         except OSError:
             pass
+        super().setUp()
 
     def tearDown(self):
         super().tearDown()
