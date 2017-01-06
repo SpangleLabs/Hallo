@@ -1,18 +1,36 @@
 import unittest
 
+from Server import Server
+from test.ServerMock import ServerMock
 from test.TestBase import TestBase
 
 
 class ConnectTest(TestBase, unittest.TestCase):
 
-    def test_no_args(self):
-        return True
+    def tearDown(self):
+        self.hallo.server_list.clear()
+        self.hallo.add_server(self.server)
+
+    def test_connect_to_known_server(self):
+        # Set up an example server
+        server_name = "known_server_name"
+        test_server = ServerMock(self.hallo)
+        test_server.auto_connect = False
+        self.hallo.add_server(test_server)
+        # Call connect function
+        self.function_dispatcher.dispatch("connect "+server_name, self.test_user, self.test_chan)
+        # Ensure response is correct
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "error" not in data[0][0].lower()
+        assert "connected" in data[0][0].lower()
+        assert server_name in data[0][0].lower()
+        # Ensure auto connect was set
+        assert test_server.auto_connect, "Auto connect should have been set to true."
+        # Ensure server was ran
+        assert test_server.open, "Test server was not started."
 
 
 # Todo, tests to write:
-# Check tests are okay
-# See if I can locate the search intermittent failure?
-# test Connect to known server
 # test Connect to known server fail already connected
 # test Connect fail unrecognised protocol
 # test Connect default to current type
