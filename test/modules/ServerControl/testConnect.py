@@ -15,15 +15,16 @@ class ConnectTest(TestBase, unittest.TestCase):
         # Set up an example server
         server_name = "known_server_name"
         test_server = ServerMock(self.hallo)
+        test_server.name = server_name
         test_server.auto_connect = False
         self.hallo.add_server(test_server)
         # Call connect function
         self.function_dispatcher.dispatch("connect "+server_name, self.test_user, self.test_chan)
         # Ensure response is correct
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "connected" in data[0][0].lower()
-        assert server_name in data[0][0].lower()
+        assert "error" not in data[0][0].lower(), data[0][0].lower()
+        assert "connected" in data[0][0].lower(), data[0][0].lower()
+        assert server_name in data[0][0].lower(), data[0][0].lower()
         # Ensure auto connect was set
         assert test_server.auto_connect, "Auto connect should have been set to true."
         # Ensure server was ran
@@ -33,6 +34,7 @@ class ConnectTest(TestBase, unittest.TestCase):
         # Set up example server
         server_name = "known_server_name"
         test_server = ServerMock(self.hallo)
+        test_server.name = server_name
         test_server.auto_connect = False
         test_server.open = True
         self.hallo.add_server(test_server)
@@ -40,8 +42,8 @@ class ConnectTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch("connect "+server_name, self.test_user, self.test_chan)
         # Ensure error response is given
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" in data[0][0].lower()
-        assert "already connected" in data[0][0].lower()
+        assert "error" in data[0][0].lower(), data[0][0].lower()
+        assert "already connected" in data[0][0].lower(), data[0][0].lower()
         # Ensure auto connect was still set
         assert test_server.auto_connect, "Auto connect should have still been set to true."
         # Ensure server is still running
