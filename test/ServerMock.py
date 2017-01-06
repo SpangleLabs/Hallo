@@ -18,7 +18,7 @@ class ServerMock(Server):
         self.open = True
 
     def get_type(self):
-        pass
+        return Server.TYPE_MOCK
 
     @staticmethod
     def from_xml(xml_string, hallo):

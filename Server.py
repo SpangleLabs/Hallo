@@ -51,6 +51,7 @@ class Server(metaclass=ABCMeta):
     """
     # Constants
     TYPE_IRC = "irc"
+    TYPE_MOCK = "mock"
     MSG_MSG = "message"
     MSG_NOTICE = "notice"
     MSG_RAW = "raw"
