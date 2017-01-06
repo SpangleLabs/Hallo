@@ -22,7 +22,7 @@ class TestBase(unittest.TestCase):
         self.server = ServerMock(self.hallo)
         self.server.name = "mock-server"
         # self.server = unittest.mock.Mock()
-        self.hallo.server_list = [self.server]
+        self.hallo.add_server(self.server)
         # send shit in, check shit out
         self.hallo_thread = Thread(target=self.hallo.start,)
         self.hallo_thread.start()

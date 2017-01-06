@@ -80,6 +80,9 @@ class Server(metaclass=ABCMeta):
         return isinstance(other, Server) and self.hallo == other.hallo and self.type == other.type and \
                self.name.lower() == other.name.lower()
 
+    def __hash__(self):
+        return hash((self.hallo, self.type, self.name.lower()))
+
     def connect(self):
         raise NotImplementedError
 

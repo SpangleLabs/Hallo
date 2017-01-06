@@ -28,8 +28,8 @@ class Hallo:
         """:type : bool"""
         self.user_group_list = set()
         """:type : set[UserGroup]"""
-        self.server_list = []
-        """:type : list[Server.Server]"""
+        self.server_list = set()
+        """:type : set[Server.Server]"""
         self.logger = Logger(self)
         """:type : Logger"""
         self.printer = Printer(self)
@@ -219,7 +219,7 @@ class Hallo:
         :param server: Server to add to Hallo's list of servers
         :type server: Server.Server
         """
-        self.server_list.append(server)
+        self.server_list.add(server)
 
     def get_server_by_name(self, server_name):
         """
