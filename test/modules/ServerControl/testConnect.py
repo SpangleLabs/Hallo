@@ -29,9 +29,26 @@ class ConnectTest(TestBase, unittest.TestCase):
         # Ensure server was ran
         assert test_server.open, "Test server was not started."
 
+    def test_connect_to_known_server_fail_connected(self):
+        # Set up example server
+        server_name = "known_server_name"
+        test_server = ServerMock(self.hallo)
+        test_server.auto_connect = False
+        test_server.open = True
+        self.hallo.add_server(test_server)
+        # Call connect function
+        self.function_dispatcher.dispatch("connect "+server_name, self.test_user, self.test_chan)
+        # Ensure error response is given
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "error" in data[0][0].lower()
+        assert "already connected" in data[0][0].lower()
+        # Ensure auto connect was still set
+        assert test_server.auto_connect, "Auto connect should have still been set to true."
+        # Ensure server is still running
+        assert test_server.open, "Test server should not have been shut down."
+
 
 # Todo, tests to write:
-# test Connect to known server fail already connected
 # test Connect fail unrecognised protocol
 # test Connect default to current type
 # test Connect specify irc
