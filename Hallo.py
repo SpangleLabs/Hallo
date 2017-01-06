@@ -217,6 +217,7 @@ class Hallo:
         """
         Adds a new server to the server list
         :param server: Server to add to Hallo's list of servers
+        :type server: Server.Server
         """
         self.server_list.append(server)
 
@@ -232,13 +233,26 @@ class Hallo:
         return None
 
     def get_server_list(self):
-        """Returns the server list for hallo"""
+        """
+        Returns the server list for hallo
+        :rtype: list[Server.Server]
+        """
         return self.server_list
 
     def remove_server(self, server):
+        """
+        Removes a server from the list of servers
+        :param server: The server to remove
+        :type server: Server.Server
+        """
         self.server_list.remove(server)
 
     def remove_server_by_name(self, server_name):
+        """
+        Removes a server, specified by name, from the list of servers
+        :param server_name: Name of the server to remove
+        :type server_name: str
+        """
         for server in self.server_list:
             if server.get_name() == server_name:
                 self.server_list.remove(server)
