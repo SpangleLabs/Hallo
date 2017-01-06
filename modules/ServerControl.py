@@ -168,7 +168,7 @@ class Connect(Function):
             return self.connect_to_new_server_irc(line, user_obj, destination_obj)
         # Add in elseif statements here, to make user Connect Function support other protocols
         else:
-            return "Unrecognised server protocol"
+            return "Error, unrecognised server protocol"
 
     def connect_to_known_server(self, server_obj):
         """Connects to a known server."""
