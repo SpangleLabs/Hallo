@@ -174,7 +174,7 @@ class Connect(Function):
         """Connects to a known server."""
         server_obj.set_auto_connect(True)
         if server_obj.is_connected():
-            return "Already connected to that server"
+            return "Error, already connected to that server"
         Thread(target=server_obj.run).start()
         return "Connected to server: " + server_obj.get_name() + "."
 
