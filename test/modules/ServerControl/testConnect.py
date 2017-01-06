@@ -10,6 +10,7 @@ class ConnectTest(TestBase, unittest.TestCase):
     def tearDown(self):
         self.hallo.server_list.clear()
         self.hallo.add_server(self.server)
+        super().tearDown()
 
     def test_connect_to_known_server(self):
         # Set up an example server
@@ -49,9 +50,14 @@ class ConnectTest(TestBase, unittest.TestCase):
         # Ensure server is still running
         assert test_server.open, "Test server should not have been shut down."
 
+    def test_connect_fail_unrecognised_protocol(self):
+        self.function_dispatcher.dispatch("connect www.example.com", self.test_user, self.test_chan)
+        # Ensure error response is given
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "error" in data[0][0].lower()
+        assert "unrecognised server protocol" in data[0][0].lower()
 
 # Todo, tests to write:
-# test Connect fail unrecognised protocol
 # test Connect default to current type
 # test Connect specify irc
 # port in url
