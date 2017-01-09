@@ -1,6 +1,7 @@
 import unittest
 
 from Server import Server
+from Server import ServerIRC
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
 
@@ -81,6 +82,21 @@ class ConnectTest(TestBase, unittest.TestCase):
         # Kill the server
         for server in self.hallo.server_list:
             server.open = False
+
+    def test_port_in_url(self):
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:1234", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            server.open = False
+            if server != self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.get_server_port() == 1234, "Port incorrect"
 
 
 # Todo, tests to write:
