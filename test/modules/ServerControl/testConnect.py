@@ -90,6 +90,7 @@ class ConnectTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
         # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
         right_server = None  # type: ServerIRC
         for server in self.hallo.server_list:
             server.open = False
@@ -98,10 +99,23 @@ class ConnectTest(TestBase, unittest.TestCase):
         assert right_server is not None, "New server wasn't found."
         assert right_server.get_server_port() == 1234, "Port incorrect"
 
+    def test_port_by_argument(self):
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com server_port=1234", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            server.open = False
+            if server != self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.get_server_port() == 1234, "Port incorrect"
 
 # Todo, tests to write:
-# port in url
-# port by argument
 # address by argument
 # address in argument
 # inherit port
