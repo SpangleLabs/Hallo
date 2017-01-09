@@ -342,14 +342,18 @@ class ServerIRC(Server):
             self.server_port = server_port
 
     def connect(self):
-        while True:
-            try:
-                self.raw_connect()
-                break
-            except ServerException as e:
-                print("Failed to connect. ("+str(e)+") Waiting 3 seconds before reconnect.")
-                time.sleep(3)
-                continue
+        try:
+            self.raw_connect()
+            return
+        except ServerException as e:
+            while self.open:
+                try:
+                    self.raw_connect()
+                    break
+                except ServerException as e:
+                    print("Failed to connect. ("+str(e)+") Waiting 3 seconds before reconnect.")
+                    time.sleep(3)
+                    continue
 
     def raw_connect(self):
         # Begin pulling data from a given server
