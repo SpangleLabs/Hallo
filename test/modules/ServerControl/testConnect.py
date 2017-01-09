@@ -72,9 +72,20 @@ class ConnectTest(TestBase, unittest.TestCase):
     def return_irc(self):
         return Server.TYPE_IRC
 
+    def test_connect_specify_irc(self):
+        # Set up some mock methods
+        self.server.get_type = self.return_irc
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com", self.test_user, self.test_chan)
+        # Ensure correct response is given
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Kill the server
+        for server in self.hallo.server_list:
+            server.open = False
+
 
 # Todo, tests to write:
-# test Connect specify irc
 # port in url
 # port by argument
 # address by argument
