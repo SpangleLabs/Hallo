@@ -73,8 +73,6 @@ class ConnectTest(TestBase, unittest.TestCase):
         return Server.TYPE_IRC
 
     def test_connect_specify_irc(self):
-        # Set up some mock methods
-        self.server.get_type = self.return_irc
         # Run command
         self.function_dispatcher.dispatch("connect irc www.example.com", self.test_user, self.test_chan)
         # Ensure correct response is given
