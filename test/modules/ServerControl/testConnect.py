@@ -85,7 +85,7 @@ class ConnectTest(TestBase, unittest.TestCase):
 
     def test_port_in_url(self):
         # Run command
-        self.function_dispatcher.dispatch("connect irc www.example.com:1234", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
         # Ensure correct response
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
@@ -97,11 +97,11 @@ class ConnectTest(TestBase, unittest.TestCase):
             if server != self.server:
                 right_server = server
         assert right_server is not None, "New server wasn't found."
-        assert right_server.get_server_port() == 1234, "Port incorrect"
+        assert right_server.get_server_port() == 80, "Port incorrect"
 
     def test_port_by_argument(self):
         # Run command
-        self.function_dispatcher.dispatch("connect irc www.example.com server_port=1234", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch("connect irc www.example.com server_port=80", self.test_user, self.test_chan)
         # Ensure correct response
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
@@ -113,7 +113,7 @@ class ConnectTest(TestBase, unittest.TestCase):
             if server != self.server:
                 right_server = server
         assert right_server is not None, "New server wasn't found."
-        assert right_server.get_server_port() == 1234, "Port incorrect"
+        assert right_server.get_server_port() == 80, "Port incorrect"
 
 # Todo, tests to write:
 # address by argument
