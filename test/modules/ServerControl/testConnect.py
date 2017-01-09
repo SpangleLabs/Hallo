@@ -84,8 +84,9 @@ class ConnectTest(TestBase, unittest.TestCase):
             server.open = False
 
     def test_port_in_url(self):
+        test_port = 80
         # Run command
-        self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch("connect irc www.example.com:"+str(test_port), self.test_user, self.test_chan)
         # Ensure correct response
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
@@ -97,11 +98,13 @@ class ConnectTest(TestBase, unittest.TestCase):
             if server != self.server:
                 right_server = server
         assert right_server is not None, "New server wasn't found."
-        assert right_server.get_server_port() == 80, "Port incorrect"
+        assert right_server.get_server_port() == test_port, "Port incorrect"
 
     def test_port_by_argument(self):
+        test_port = 80
         # Run command
-        self.function_dispatcher.dispatch("connect irc www.example.com server_port=80", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch("connect irc www.example.com server_port="+str(test_port),
+                                          self.test_user, self.test_chan)
         # Ensure correct response
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
@@ -113,11 +116,27 @@ class ConnectTest(TestBase, unittest.TestCase):
             if server != self.server:
                 right_server = server
         assert right_server is not None, "New server wasn't found."
-        assert right_server.get_server_port() == 80, "Port incorrect"
+        assert right_server.get_server_port() == test_port, "Port incorrect"
+
+    def test_address_in_argument(self):
+        test_url = "www.example.com"
+        # Run command
+        self.function_dispatcher.dispatch("connect irc "+test_url, self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance"
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            server.open = False
+            if server != self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.server_address == test_url, "Address incorrect"
 
 # Todo, tests to write:
 # address by argument
-# address in argument
 # inherit port
 # non-int port
 # null address
