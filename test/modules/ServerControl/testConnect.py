@@ -57,8 +57,23 @@ class ConnectTest(TestBase, unittest.TestCase):
         assert "error" in data[0][0].lower()
         assert "unrecognised server protocol" in data[0][0].lower()
 
+    def test_connect_default_current_protocol(self):
+        # Set up some mock methods
+        self.server.get_type = self.return_irc
+        # Run command
+        self.function_dispatcher.dispatch("connect www.example.com", self.test_user, self.test_chan)
+        # Ensure correct response is given
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Kill the server
+        for server in self.hallo.server_list:
+            server.open = False
+
+    def return_irc(self):
+        return Server.TYPE_IRC
+
+
 # Todo, tests to write:
-# test Connect default to current type
 # test Connect specify irc
 # port in url
 # port by argument
