@@ -208,12 +208,48 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert right_server is not None, "New server wasn't found."
         assert not right_server.auto_connect, "Auto connect didn't set to false"
 
+    def test_server_nick_inherit(self):
+        # Set up
+        test_nick = "test_hallo"
+        self.server.nick = test_nick
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.nick == test_nick, "Nick did not inherit from other server"
+
+    def test_server_nick_specified(self):
+        # Set up
+        test_nick = "test_hallo2"
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80 nick="+test_nick,
+                                          self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.nick == test_nick, "Specified nick was not used"
+
 
 # Todo, tests to write:
-# server nick specified
-# server nick inherit
-# server prefix specified
-# server prefix inherit
+# server prefix specified as string
+# server prefix specified as none
+# server prefix inherit string
+# server prefix inherit none
 # full name specified
 # full name inherit
 # nickserv nick default
