@@ -5,7 +5,7 @@ from Server import ServerIRC
 from test.TestBase import TestBase
 
 
-class ConnectTest(TestBase, unittest.TestCase):
+class ConnectIRCTest(TestBase, unittest.TestCase):
 
     def tearDown(self):
         self.hallo.server_list.clear()
