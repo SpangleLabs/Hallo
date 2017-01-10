@@ -12,9 +12,6 @@ class ConnectTest(TestBase, unittest.TestCase):
         self.hallo.add_server(self.server)
         super().tearDown()
 
-    def return_irc(self):
-        return Server.TYPE_IRC
-
     def test_connect_specify_irc(self):
         # Run command
         self.function_dispatcher.dispatch("connect irc www.example.com", self.test_user, self.test_chan)
