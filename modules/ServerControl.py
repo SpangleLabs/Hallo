@@ -218,8 +218,7 @@ class Connect(Function):
         if server_port is None:
             return "Error, No server port specified."
         # Get server name
-        server_name = Commons.find_parameter("name", line) or server_name
-        server_name = Commons.find_parameter("server_name", line) or server_name
+        server_name = Commons.find_any_parameter(["server_name", "name"], line) or server_name
         # if server name is null, get it from server_address
         if server_name is None:
             server_name = Commons.get_domain_name(server_address)
