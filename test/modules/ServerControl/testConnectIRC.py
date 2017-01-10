@@ -163,11 +163,53 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert right_server.server_address == test_server, "Address incorrect"
         assert right_server.get_name() == test_name, "Name incorrect"
 
+    def test_auto_connect_default(self):
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.auto_connect, "Auto connect didn't default to true"
+
+    def test_auto_connect_true(self):
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80 auto_connect=true", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.auto_connect, "Auto connect didn't set to true"
+
+    def test_auto_connect_false(self):
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80 auto_connect=false", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert not right_server.auto_connect, "Auto connect didn't set to false"
+
 
 # Todo, tests to write:
-# auto connect true
-# auto connect false
-# auto connect default true
 # server nick specified
 # server nick inherit
 # server prefix specified
