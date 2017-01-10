@@ -189,9 +189,29 @@ class ConnectTest(TestBase, unittest.TestCase):
         assert "error" in data[0][0].lower(), "Connect didn't respond with an error."
         assert "no server address" in data[0][0].lower(), "Connect returned the wrong error ("+str(data[0][0])+")"
 
+    def test_specified_server_name(self):
+        # Test vars
+        test_name = "test_server"
+        test_server = "www.example.com"
+        # Run command
+        self.function_dispatcher.dispatch("connect irc "+test_server+" server_name="+test_name,
+                                          self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            server.open = False
+            if server != self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.server_address == test_server, "Address incorrect"
+        assert right_server.get_name() == test_name, "Name incorrect"
+
 
 # Todo, tests to write:
-# specified server name
 # get server name from domain
 # auto connect true
 # auto connect false
