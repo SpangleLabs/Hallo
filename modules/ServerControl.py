@@ -215,6 +215,8 @@ class Connect(Function):
             return "Error, No server address specified."
         if server_port is None and isinstance(current_server, ServerIRC):
             server_port = current_server.get_server_port()
+        if server_port is None:
+            return "Error, No server port specified."
         # Get server name
         server_name = Commons.find_parameter("name", line) or server_name
         server_name = Commons.find_parameter("server_name", line) or server_name
