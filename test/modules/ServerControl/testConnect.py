@@ -8,6 +8,9 @@ from test.TestBase import TestBase
 class ConnectTest(TestBase, unittest.TestCase):
 
     def tearDown(self):
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                server.open = False
         self.hallo.server_list.clear()
         self.hallo.add_server(self.server)
         super().tearDown()
@@ -65,9 +68,6 @@ class ConnectTest(TestBase, unittest.TestCase):
         # Ensure correct response is given
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
-        # Kill the server
-        for server in self.hallo.server_list:
-            server.open = False
 
     def return_irc(self):
         return Server.TYPE_IRC

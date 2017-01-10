@@ -8,6 +8,9 @@ from test.TestBase import TestBase
 class ConnectIRCTest(TestBase, unittest.TestCase):
 
     def tearDown(self):
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                server.open = False
         self.hallo.server_list.clear()
         self.hallo.add_server(self.server)
         super().tearDown()
@@ -18,9 +21,6 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         # Ensure correct response is given
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
-        # Kill the server
-        for server in self.hallo.server_list:
-            server.open = False
 
     def test_port_in_url(self):
         test_port = 80
@@ -33,8 +33,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
         right_server = None  # type: ServerIRC
         for server in self.hallo.server_list:
-            server.open = False
-            if server != self.server:
+            if server is not self.server:
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         assert right_server.get_server_port() == test_port, "Port incorrect"
@@ -51,8 +50,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
         right_server = None  # type: ServerIRC
         for server in self.hallo.server_list:
-            server.open = False
-            if server != self.server:
+            if server is not self.server:
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         assert right_server.get_server_port() == test_port, "Port incorrect"
@@ -68,8 +66,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance"
         right_server = None  # type: ServerIRC
         for server in self.hallo.server_list:
-            server.open = False
-            if server != self.server:
+            if server is not self.server:
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         assert right_server.server_address == test_url, "Address incorrect"
@@ -85,8 +82,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance"
         right_server = None  # type: ServerIRC
         for server in self.hallo.server_list:
-            server.open = False
-            if server != self.server:
+            if server is not self.server:
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         assert right_server.server_address == test_url, "Address incorrect"
@@ -106,8 +102,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance"
         right_server = None  # type: ServerIRC
         for server in self.hallo.server_list:
-            server.open = False
-            if server != self.server:
+            if server is not self.server:
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         assert right_server.server_port == test_port, "Port incorrect"
@@ -142,8 +137,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
         right_server = None  # type: ServerIRC
         for server in self.hallo.server_list:
-            server.open = False
-            if server != self.server:
+            if server is not self.server:
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         assert right_server.server_address == test_server, "Address incorrect"
@@ -162,8 +156,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
         right_server = None  # type: ServerIRC
         for server in self.hallo.server_list:
-            server.open = False
-            if server != self.server:
+            if server is not self.server:
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         assert right_server.server_address == test_server, "Address incorrect"
