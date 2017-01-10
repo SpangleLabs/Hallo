@@ -181,8 +181,16 @@ class ConnectTest(TestBase, unittest.TestCase):
         assert "error" in data[0][0].lower(), "Connect didn't respond with an error."
         assert "invalid port" in data[0][0].lower(), "Connect returned the wrong error ("+str(data[0][0])+")"
 
+    def test_null_address(self):
+        # Run command
+        self.function_dispatcher.dispatch("connect irc", self.test_user, self.test_chan)
+        # Check response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "error" in data[0][0].lower(), "Connect didn't respond with an error."
+        assert "no server address" in data[0][0].lower(), "Connect returned the wrong error ("+str(data[0][0])+")"
+
+
 # Todo, tests to write:
-# null address
 # specified server name
 # get server name from domain
 # auto connect true
