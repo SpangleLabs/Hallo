@@ -152,9 +152,29 @@ class ConnectTest(TestBase, unittest.TestCase):
         assert right_server is not None, "New server wasn't found."
         assert right_server.server_address == test_url, "Address incorrect"
 
+    def test_inherit_port(self):
+        # Set things up
+        test_port = 80
+        test_serv_irc = ServerIRC(self.hallo)
+        test_serv_irc.name = "test_serv_irc"
+        test_serv_irc.server_port = test_port
+        test_chan_irc = test_serv_irc.get_channel_by_name("test_chan")
+        test_user_irc = test_serv_irc.get_user_by_name("test_user")
+        # Run command
+        self.function_dispatcher.dispatch("connect irc example.com", test_user_irc, test_chan_irc)
+        # Can't check response because I'm using a ServerIRC instead of a ServerMock
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance"
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            server.open = False
+            if server != self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.server_port == test_port, "Port incorrect"
+
+
 # Todo, tests to write:
-# address by argument
-# inherit port
 # non-int port
 # null address
 # specified server name
