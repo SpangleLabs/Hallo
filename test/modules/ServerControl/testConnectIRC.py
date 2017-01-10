@@ -17,7 +17,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
 
     def test_connect_specify_irc(self):
         # Run command
-        self.function_dispatcher.dispatch("connect irc www.example.com", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
         # Ensure correct response is given
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
@@ -58,7 +58,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
     def test_address_in_argument(self):
         test_url = "www.example.com"
         # Run command
-        self.function_dispatcher.dispatch("connect irc "+test_url, self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch("connect irc "+test_url+" server_port=80", self.test_user, self.test_chan)
         # Ensure correct response
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
@@ -74,7 +74,8 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
     def test_address_by_argument(self):
         test_url = "www.example.com"
         # Run command
-        self.function_dispatcher.dispatch("connect irc server_address="+test_url, self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch("connect irc server_address="+test_url+" server_port=80",
+                                          self.test_user, self.test_chan)
         # Ensure correct response
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
@@ -128,7 +129,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         test_name = "test_server"
         test_server = "www.example.com"
         # Run command
-        self.function_dispatcher.dispatch("connect irc "+test_server+" server_name="+test_name,
+        self.function_dispatcher.dispatch("connect irc "+test_server+" server_port=80 server_name="+test_name,
                                           self.test_user, self.test_chan)
         # Ensure correct response
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
@@ -148,7 +149,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         test_name = "example"
         test_server = "www."+test_name+".com"
         # Run command
-        self.function_dispatcher.dispatch("connect irc "+test_server, self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch("connect irc "+test_server+" server_port=80", self.test_user, self.test_chan)
         # Ensure correct response
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])

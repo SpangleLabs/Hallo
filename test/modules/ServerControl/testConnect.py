@@ -64,7 +64,7 @@ class ConnectTest(TestBase, unittest.TestCase):
         # Set up some mock methods
         self.server.get_type = self.return_irc
         # Run command
-        self.function_dispatcher.dispatch("connect www.example.com", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch("connect www.example.com:80", self.test_user, self.test_chan)
         # Ensure correct response is given
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
