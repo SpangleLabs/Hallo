@@ -173,9 +173,15 @@ class ConnectTest(TestBase, unittest.TestCase):
         assert right_server is not None, "New server wasn't found."
         assert right_server.server_port == test_port, "Port incorrect"
 
+    def test_non_int_port_failure(self):
+        # Run command
+        self.function_dispatcher.dispatch("connect irc example.com server_port=abc", self.test_user, self.test_chan)
+        # Check response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "error" in data[0][0].lower(), "Connect didn't respond with an error."
+        assert "invalid port" in data[0][0].lower(), "Connect returned the wrong error ("+str(data[0][0])+")"
 
 # Todo, tests to write:
-# non-int port
 # null address
 # specified server name
 # get server name from domain
