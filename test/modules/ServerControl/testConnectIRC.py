@@ -149,9 +149,28 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert right_server.server_address == test_server, "Address incorrect"
         assert right_server.get_name() == test_name, "Name incorrect"
 
+    def test_get_server_name_from_domain(self):
+        # Test vars
+        test_name = "example"
+        test_server = "www."+test_name+".com"
+        # Run command
+        self.function_dispatcher.dispatch("connect irc "+test_server, self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            server.open = False
+            if server != self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.server_address == test_server, "Address incorrect"
+        assert right_server.get_name() == test_name, "Name incorrect"
+
 
 # Todo, tests to write:
-# get server name from domain
 # auto connect true
 # auto connect false
 # auto connect default true
