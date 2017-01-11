@@ -74,7 +74,6 @@ class ConnectTest(TestBase, unittest.TestCase):
 
 
 # Todo, tests to write:
-# set groups of current user on other server
 # check server added
 # check thread started
 # check server started
