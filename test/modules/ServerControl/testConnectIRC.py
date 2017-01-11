@@ -659,5 +659,5 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
             if server is not self.server:
                 right_server = server
         assert right_server is not None, "New server wasn't found."
-        # Ensure thread count is up
+        # Ensure new server is started
         assert right_server.open, "New server was not started."
