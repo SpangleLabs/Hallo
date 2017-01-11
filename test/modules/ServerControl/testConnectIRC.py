@@ -1,3 +1,4 @@
+import threading
 import unittest
 
 from Server import Server
@@ -627,6 +628,38 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
                 right_server = server
         assert right_server is not None, "New server wasn't found."
 
-# Todo, tests to write:
-# check thread started
-# check server started
+    def test_thread_started(self):
+        # Pre flight calc
+        thread_count = threading.active_count()
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        # Ensure thread count is up
+        assert threading.active_count() == thread_count+1, "Incorrect number of running threads."
+
+    def test_server_started(self):
+        # Pre flight calc
+        thread_count = threading.active_count()
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        # Ensure thread count is up
+        assert right_server.open, "New server was not started."
