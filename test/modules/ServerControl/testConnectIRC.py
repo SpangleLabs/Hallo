@@ -647,8 +647,6 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert threading.active_count() == thread_count+1, "Incorrect number of running threads."
 
     def test_server_started(self):
-        # Pre flight calc
-        thread_count = threading.active_count()
         # Run command
         self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
         # Ensure correct response
