@@ -2,6 +2,7 @@ import unittest
 
 from Server import Server
 from Server import ServerIRC
+from UserGroup import UserGroup
 from test.TestBase import TestBase
 
 
@@ -568,9 +569,50 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert right_server is not None, "New server wasn't found."
         assert right_server.nickserv_pass == test_nickserv_pass, "Specified nickserv password wasn't set"
 
+    def test_inherit_user_groups_default(self):
+        # Set up
+        test_user_group = UserGroup("test_group", self.hallo)
+        self.test_user.add_user_group(test_user_group)
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        # Check user groups
+        new_user = right_server.get_user_by_name(self.test_user.get_name())
+        assert test_user_group in new_user.user_group_list
+
+    def test_inherit_user_groups_specify_nick(self):
+        # Set up
+        test_user = "AzureDiamond"
+        test_user_group = UserGroup("test_group", self.hallo)
+        self.test_user.add_user_group(test_user_group)
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80 god="+test_user,
+                                          self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        # Check user groups
+        new_user = right_server.get_user_by_name(test_user)
+        assert test_user_group in new_user.user_group_list
+
 
 # Todo, tests to write:
-# set groups of current user on other server
 # check server added
 # check thread started
 # check server started
