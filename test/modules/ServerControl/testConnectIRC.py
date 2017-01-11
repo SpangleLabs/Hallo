@@ -402,11 +402,64 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert right_server is not None, "New server wasn't found."
         assert right_server.nickserv_nick == test_nickserv_name, "Specified nickserv nick wasn't set"
 
+    def test_nickserv_identity_command_default(self):
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.nickserv_ident_command == "status", "Default nickserv identity command incorrect"
+
+    def test_nickserv_identity_command_inherit(self):
+        # Set up
+        test_nickserv_command = "identity"
+        test_serv_irc = ServerIRC(self.hallo)
+        test_serv_irc.name = "test_serv_irc"
+        test_serv_irc.nickserv_ident_command = test_nickserv_command
+        test_chan_irc = test_serv_irc.get_channel_by_name("test_chan")
+        test_user_irc = test_serv_irc.get_user_by_name("test_user")
+        # Run command
+        self.function_dispatcher.dispatch("connect irc example.com:80", test_user_irc, test_chan_irc)
+        # Can't check response because I'm using a ServerIRC instead of a ServerMock
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.nickserv_ident_command == test_nickserv_command, \
+            "Specified nickserv identity command wasn't set"
+
+    def test_nickserv_identity_command_specify(self):
+        # Set up
+        test_nickserv_command = "identity"
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80 nickserv_identity_command=" +
+                                          test_nickserv_command,
+                                          self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.nickserv_ident_command == test_nickserv_command, \
+            "Specified nickserv identity command wasn't set"
+
 
 # Todo, tests to write:
-# nickserv identity command default
-# nickserv identity command inherit
-# nickserv identity command specified
 # nickserv identity resp default
 # nickserv identity resp inherit
 # nickserv identity resp specified
