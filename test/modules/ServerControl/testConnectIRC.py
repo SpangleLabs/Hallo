@@ -611,8 +611,22 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         new_user = right_server.get_user_by_name(test_user)
         assert test_user_group in new_user.user_group_list
 
+    def test_server_added(self):
+        # Pre flight check
+        assert len(self.hallo.server_list) == 1, "Too many servers when starting test."
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
 
 # Todo, tests to write:
-# check server added
 # check thread started
 # check server started
