@@ -244,12 +244,77 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         assert right_server is not None, "New server wasn't found."
         assert right_server.nick == test_nick, "Specified nick was not used"
 
+    def test_server_prefix_specified_string(self):
+        # Set up
+        test_prefix = "robot"
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80 prefix="+test_prefix,
+                                          self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.prefix == test_prefix, "Specified prefix was not used"
+
+    def test_server_prefix_specified_none(self):
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80 prefix=none",
+                                          self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.prefix is None, "Prefix wasn't set to None as specified"
+
+    def test_server_prefix_inherit_string(self):
+        # Set up
+        test_prefix = "robot"
+        self.server.prefix = test_prefix
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.prefix == test_prefix, "Inherited prefix was not used"
+
+    def test_server_prefix_inherit_none(self):
+        # Set up
+        self.server.prefix = None
+        # Run command
+        self.function_dispatcher.dispatch("connect irc www.example.com:80", self.test_user, self.test_chan)
+        # Ensure correct response
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
+        # Find the right server
+        assert len(self.hallo.server_list) == 2, "Incorrect number of servers in hallo instance."
+        right_server = None  # type: ServerIRC
+        for server in self.hallo.server_list:
+            if server is not self.server:
+                right_server = server
+        assert right_server is not None, "New server wasn't found."
+        assert right_server.prefix is None, "Prefix wasn't inherited as None"
+
 
 # Todo, tests to write:
-# server prefix specified as string
-# server prefix specified as none
-# server prefix inherit string
-# server prefix inherit none
 # full name specified
 # full name inherit
 # nickserv nick default
