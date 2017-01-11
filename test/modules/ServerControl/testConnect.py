@@ -71,9 +71,3 @@ class ConnectTest(TestBase, unittest.TestCase):
 
     def return_irc(self):
         return Server.TYPE_IRC
-
-
-# Todo, tests to write:
-# check server added
-# check thread started
-# check server started
