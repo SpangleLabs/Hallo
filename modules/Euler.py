@@ -10,7 +10,7 @@ class Euler(Function):
     euler project functions
     """
 
-    mHalloObject = None
+    mHalloObject = None  # Todo: Rename and type hint.
 
     def __init__(self):
         """
