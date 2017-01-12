@@ -15,7 +15,7 @@ class TestBase(unittest.TestCase):
         # Create a Hallo
         self.hallo = Hallo()
         # Swap out raw printer function for empty
-        self.hallo.printer.print_raw = self.empty
+        self.hallo.printer.output_raw = self.empty
         # Only the required modules, only 1 (mock) server
         # Todo: specify modules by test?
         self.function_dispatcher = FunctionDispatcher({"AsciiArt", "Bio", "ChannelControl", "Euler", "Furry",
