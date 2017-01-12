@@ -1224,13 +1224,13 @@ class Euler(Function):
         # Put the string back together, get sum of ascii values
         sum_values = 0
         for a in range(len(raw_list)):
+            char_value = ""
             if a % 3 == 1:
                 char_value = raw_list[a] ^ key_one
             if a % 3 == 2:
                 char_value = raw_list[a] ^ key_two
             if a % 3 == 0:
                 char_value = raw_list[a] ^ key_thr
-            self.mHalloObject.printer.output_raw(chr(char_value), end="")
             sum_values += char_value
         self.mHalloObject.printer.output_raw("Total: " + str(sum_values))
         return sum_values
