@@ -11,6 +11,7 @@ class TestBase(unittest.TestCase):
 
     def setUp(self):
         print("Running test: "+self.id())
+        self.start_time = time.time()
         # Create a Hallo
         self.hallo = Hallo()
         # only 1 module, only 1 (mock) server
@@ -42,6 +43,7 @@ class TestBase(unittest.TestCase):
         self.server.get_send_data()
 
     def tearDown(self):
+        print("Finishing test: "+self.id()+". Test took: "+str(time.time()-self.start_time)+" seconds.")
         self.hallo.open = False
         self.hallo_thread.join()
         self.hallo = None
