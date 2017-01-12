@@ -419,9 +419,10 @@ class ServerIRC(Server):
             except Exception as e:
                 print("Failed to send quit message. "+str(e))
                 pass
-            self._socket.close()
-            self._socket = None
             self.open = False
+            if self._socket is not None:
+                self._socket.close()
+            self._socket = None
 
     def reconnect(self):
         """
