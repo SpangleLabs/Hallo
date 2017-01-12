@@ -10,7 +10,7 @@ import time
 class TestBase(unittest.TestCase):
 
     def setUp(self):
-        print("Running test: "+self.id())
+        print("Starting test: "+self.id())
         self.start_time = time.time()
         # Create a Hallo
         self.hallo = Hallo()
@@ -41,6 +41,10 @@ class TestBase(unittest.TestCase):
                 break
         # Clear any data in the server
         self.server.get_send_data()
+        # Print test startup time
+        print("Running test: "+self.id()+". Startup took: "+str(time.time()-self.start_time)+" seconds.")
+        self.start_time = time.time()
+
 
     def tearDown(self):
         print("Finishing test: "+self.id()+". Test took: "+str(time.time()-self.start_time)+" seconds.")
