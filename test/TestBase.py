@@ -14,7 +14,10 @@ class TestBase(unittest.TestCase):
         self.start_time = time.time()
         # Create a Hallo
         self.hallo = Hallo()
-        # only 1 module, only 1 (mock) server
+        # Swap out raw printer function for empty
+        self.hallo.printer.print_raw = self.empty
+        # Only the required modules, only 1 (mock) server
+        # Todo: specify modules by test?
         self.function_dispatcher = FunctionDispatcher({"AsciiArt", "Bio", "ChannelControl", "Euler", "Furry",
                                                        "HalloControl", "Math", "PermissionControl", "Rss",
                                                        "ServerControl", "Silly", "SillyEtd"},
@@ -50,3 +53,6 @@ class TestBase(unittest.TestCase):
         self.hallo.open = False
         self.hallo_thread.join()
         self.hallo = None
+
+    def empty(self, var1=None, var2=None, var3=None, var4=None):
+        pass
