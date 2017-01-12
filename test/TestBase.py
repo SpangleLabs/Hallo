@@ -45,7 +45,6 @@ class TestBase(unittest.TestCase):
         print("Running test: "+self.id()+". Startup took: "+str(time.time()-self.start_time)+" seconds.")
         self.start_time = time.time()
 
-
     def tearDown(self):
         print("Finishing test: "+self.id()+". Test took: "+str(time.time()-self.start_time)+" seconds.")
         self.hallo.open = False
