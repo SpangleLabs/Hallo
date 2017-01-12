@@ -349,7 +349,7 @@ class ServerIRC(Server):
             while self.open:
                 try:
                     self.raw_connect()
-                    break
+                    return
                 except ServerException as e:
                     print("Failed to connect. ("+str(e)+") Waiting 3 seconds before reconnect.")
                     time.sleep(3)
@@ -445,6 +445,7 @@ class ServerIRC(Server):
                 print("Server disconnected. ("+str(e)+") Reconnecting.")
                 time.sleep(10)
                 self.reconnect()
+                continue
             if next_line is None:
                 self.open = False
             else:
