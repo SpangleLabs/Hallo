@@ -287,51 +287,51 @@ class Hallo:
             self.permission_mask.set_right(right_name, False)
             return False
 
-    def get_default_nick(self):
+    def get_default_nick(self):  # Todo: deprecate and remove.
         """Default nick getter"""
         return self.default_nick
 
-    def set_default_nick(self, default_nick):
+    def set_default_nick(self, default_nick):  # Todo: deprecate and remove.
         """
         Default nick setter
         :param default_nick: The new default nick to use on all new servers
         """
         self.default_nick = default_nick
 
-    def get_default_prefix(self):
+    def get_default_prefix(self):  # Todo: deprecate and remove.
         """Default prefix getter"""
         return self.default_prefix
 
-    def set_default_prefix(self, default_prefix):
+    def set_default_prefix(self, default_prefix):  # Todo: deprecate and remove.
         """
         Default prefix setter
         :param default_prefix: Default prefix to use for commands addressed to the bot
         """
         self.default_prefix = default_prefix
 
-    def get_default_full_name(self):
+    def get_default_full_name(self):  # Todo: deprecate and remove.
         """Default full name getter"""
         return self.default_full_name
 
-    def set_default_full_name(self, default_full_name):
+    def set_default_full_name(self, default_full_name):  # Todo: deprecate and remove.
         """
         Default full name setter
         :param default_full_name: Default full name to use on all new server connections
         """
         self.default_full_name = default_full_name
 
-    def get_permission_mask(self):
+    def get_permission_mask(self):  # Todo: deprecate and remove.
         return self.permission_mask
 
-    def get_function_dispatcher(self):
+    def get_function_dispatcher(self):  # Todo: deprecate and remove.
         """Returns the FunctionDispatcher object"""
         return self.function_dispatcher
 
-    def get_logger(self):
+    def get_logger(self):  # Todo: deprecate and remove.
         """Returns the Logger object"""
         return self.logger
 
-    def get_printer(self):
+    def get_printer(self):  # Todo: deprecate and remove
         """Returns the Printer object"""
         return self.printer
 
