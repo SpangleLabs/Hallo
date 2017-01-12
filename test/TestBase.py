@@ -44,3 +44,4 @@ class TestBase(unittest.TestCase):
     def tearDown(self):
         self.hallo.open = False
         self.hallo_thread.join()
+        self.hallo = None
