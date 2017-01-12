@@ -12,7 +12,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
     def tearDown(self):
         for server in self.hallo.server_list:
             if server is not self.server:
-                server.open = False
+                server.disconnect()
         self.hallo.server_list.clear()
         self.hallo.add_server(self.server)
         super().tearDown()
