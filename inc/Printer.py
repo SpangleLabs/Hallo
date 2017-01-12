@@ -57,6 +57,10 @@ class Printer:
         # Write the log line
         print(print_line)
         return None
+
+    def output_raw(self, raw_text):
+        print_line = self.print_raw(raw_text)
+        print(print_line)
     
     def print_second(self, full_line, server_obj, user_obj, channel_obj):
         return None
@@ -162,4 +166,9 @@ class Printer:
         output += "[" + server_obj.get_name() + "] "
         output += destination_obj.get_name() + " "
         output += "<" + user_obj.get_name() + " (CTCP)> " + full_line
+        return output
+
+    def print_raw(self, raw_text):
+        output = Commons.current_timestamp() + " " + \
+                 raw_text
         return output

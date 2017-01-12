@@ -57,7 +57,7 @@ class Hallo:
             if sum([server.get_auto_connect() for server in self.server_list]) == 0:
                 self.manual_server_connect()
         # Connect to auto-connect servers
-        print('connecting to servers')  # TODO: remove/replace this. Probably dump in Printer somewhere
+        self.printer.output_raw('connecting to servers')
         for server in self.server_list:
             if server.get_auto_connect():
                 Thread(target=server.run).start()
@@ -71,7 +71,7 @@ class Hallo:
                 print("No servers managed to connect in 60 seconds.")
                 break
         # Main loop, sticks around throughout the running of the bot
-        print('connected to all servers.')  # TODO: remove/replace this. Probably dump in Printer somewhere
+        self.printer.output_raw('connected to all servers.')
         self.core_loop_time_events()
 
     def core_loop_time_events(self):
