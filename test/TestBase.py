@@ -3,6 +3,8 @@ from threading import Thread
 
 import sys
 
+import gc
+
 from FunctionDispatcher import FunctionDispatcher
 from Hallo import Hallo
 import unittest
@@ -27,6 +29,7 @@ class TestBase(unittest.TestCase):
                                                        "ServerControl", "Silly", "SillyEtd"},
                                                       self.hallo)
         self.hallo.function_dispatcher = self.function_dispatcher
+        print("Running test: "+self.id()+". Init took: "+str(time.time()-self.start_time)+" seconds.")
         self.server = ServerMock(self.hallo)
         self.server.name = "mock-server"
         # self.server = unittest.mock.Mock()
@@ -69,3 +72,7 @@ class TestBase(unittest.TestCase):
 
     def empty(self, var1=None, var2=None, var3=None, var4=None):
         pass
+
+    @classmethod
+    def tearDownClass(cls):
+        gc.collect()
