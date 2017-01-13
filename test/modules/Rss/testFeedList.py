@@ -3,7 +3,7 @@ import unittest
 
 from Server import Server
 from inc.Commons import Commons
-from modules.Rss import FeedCheck
+from modules.Rss import FeedCheck, RssFeedList
 from modules.Rss import RssFeed
 from test.TestBase import TestBase
 

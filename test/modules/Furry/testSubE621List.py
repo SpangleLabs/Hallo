@@ -1,8 +1,9 @@
+import os
 import unittest
 
 from Server import Server
 from inc.Commons import Commons
-from modules.Furry import SubE621Check, E621Sub
+from modules.Furry import SubE621Check, E621Sub, E621SubList
 from test.TestBase import TestBase
 
 
@@ -14,6 +15,9 @@ class SubE621ListTest(TestBase, unittest.TestCase):
         except OSError:
             pass
         super().setUp()
+        e621_check_class = self.function_dispatcher.get_function_by_name("e621 sub check")
+        e621_check_obj = self.function_dispatcher.get_function_object(e621_check_class)  # type: SubE621Check
+        e621_check_obj.e621_sub_list = E621SubList()
 
     def tearDown(self):
         super().tearDown()
