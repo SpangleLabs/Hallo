@@ -1,13 +1,35 @@
+import os
 import unittest
 
 from Server import Server
 from inc.Commons import Commons
-from modules.Rss import FeedCheck
+from modules.Rss import FeedCheck, RssFeedList
 from modules.Rss import RssFeed
 from test.TestBase import TestBase
 
 
 class FeedListTest(TestBase, unittest.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
+        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
+        rss_check_obj.rss_feed_list = RssFeedList()
+        try:
+            os.rename("store/rss_feeds.xml", "store/rss_feeds.xml.tmp")
+        except OSError:
+            pass
+
+    def tearDown(self):
+        super().tearDown()
+        try:
+            os.remove("store/rss_feeds.xml")
+        except OSError:
+            pass
+        try:
+            os.rename("store/rss_feeds.xml.tmp", "store/rss_feeds.xml")
+        except OSError:
+            pass
 
     def test_no_feeds(self):
         self.function_dispatcher.dispatch("rss list", self.test_user, self.test_chan)

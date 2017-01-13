@@ -51,6 +51,7 @@ class Server(metaclass=ABCMeta):
     """
     # Constants
     TYPE_IRC = "irc"
+    TYPE_MOCK = "mock"
     MSG_MSG = "message"
     MSG_NOTICE = "notice"
     MSG_RAW = "raw"
@@ -79,6 +80,9 @@ class Server(metaclass=ABCMeta):
     def __eq__(self, other):
         return isinstance(other, Server) and self.hallo == other.hallo and self.type == other.type and \
                self.name.lower() == other.name.lower()
+
+    def __hash__(self):
+        return hash((self.hallo, self.type, self.name.lower()))
 
     def connect(self):
         raise NotImplementedError
@@ -338,14 +342,18 @@ class ServerIRC(Server):
             self.server_port = server_port
 
     def connect(self):
-        while True:
-            try:
-                self.raw_connect()
-                break
-            except ServerException as e:
-                print("Failed to connect. ("+str(e)+") Waiting 3 seconds before reconnect.")
-                time.sleep(3)
-                continue
+        try:
+            self.raw_connect()
+            return
+        except ServerException as e:
+            while self.open:
+                try:
+                    self.raw_connect()
+                    return
+                except ServerException as e:
+                    print("Failed to connect. ("+str(e)+") Waiting 3 seconds before reconnect.")
+                    time.sleep(3)
+                    continue
 
     def raw_connect(self):
         # Begin pulling data from a given server
@@ -411,9 +419,10 @@ class ServerIRC(Server):
             except Exception as e:
                 print("Failed to send quit message. "+str(e))
                 pass
-            self._socket.close()
-            self._socket = None
             self.open = False
+            if self._socket is not None:
+                self._socket.close()
+            self._socket = None
 
     def reconnect(self):
         """
@@ -436,6 +445,7 @@ class ServerIRC(Server):
                 print("Server disconnected. ("+str(e)+") Reconnecting.")
                 time.sleep(10)
                 self.reconnect()
+                continue
             if next_line is None:
                 self.open = False
             else:

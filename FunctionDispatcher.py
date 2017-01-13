@@ -1,6 +1,7 @@
 import importlib
 import sys
 import inspect
+import traceback
 from xml.dom import minidom
 # noinspection PyDeprecation
 import imp
@@ -86,6 +87,7 @@ class FunctionDispatcher(object):
             server_obj.send("Function failed with error message: " + str(e), destination_obj)
             print("Function: " + str(function_class.__module__) + " " + str(function_class.__name__))
             print("Function error: " + str(e))
+            print("Function error location: " + traceback.format_exc(3))
             return
 
     def dispatch_passive(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
@@ -361,7 +363,7 @@ class FunctionDispatcher(object):
 
     def close(self):
         """Shut down FunctionDispatcher, save all functions, etc"""
-        for module_object in self.function_dict:
+        for module_object in list(self.function_dict):
             self.unload_module_functions(module_object)
 
     def to_xml(self):

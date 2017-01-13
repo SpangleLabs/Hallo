@@ -1043,16 +1043,16 @@ class ConvertViewRepo(Function):
         # Load repo
         repo = ConvertRepo.load_from_xml()
         # Check if type is specified
-        if self.find_any_parameter(self.NAMES_TYPE, line):
+        if Commons.find_any_parameter(self.NAMES_TYPE, line):
             # Get type name and object
-            type_name = self.find_any_parameter(self.NAMES_TYPE, line)
+            type_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
             type_obj = repo.get_type_by_name(type_name)
             if type_obj is None:
                 return "Unrecognised type."
             # Check if unit & type are specified
-            if self.find_any_parameter(self.NAMES_UNIT, line):
+            if Commons.find_any_parameter(self.NAMES_UNIT, line):
                 # Get unit name and object
-                unit_name = self.find_any_parameter(self.NAMES_UNIT, line)
+                unit_name = Commons.find_any_parameter(self.NAMES_UNIT, line)
                 unit_obj = type_obj.getUnitByName(unit_name)
                 if unit_obj is None:
                     return "Unrecognised unit."
@@ -1060,16 +1060,16 @@ class ConvertViewRepo(Function):
             # Type is defined, but not unit.
             return self.output_type_as_string(type_obj)
         # Check if prefix group is specified
-        if self.find_any_parameter(self.NAMES_PREFIXGROUP, line):
+        if Commons.find_any_parameter(self.NAMES_PREFIXGROUP, line):
             # Check if prefix & group are specified
-            prefix_group_name = self.find_any_parameter(self.NAMES_PREFIXGROUP, line)
+            prefix_group_name = Commons.find_any_parameter(self.NAMES_PREFIXGROUP, line)
             prefix_group_obj = repo.get_prefix_group_by_name(prefix_group_name)
             if prefix_group_obj is None:
                 return "Unrecognised prefix group."
             # Check if prefix group & prefix are specified
-            if self.find_any_parameter(self.NAMES_PREFIX, line):
+            if Commons.find_any_parameter(self.NAMES_PREFIX, line):
                 # Get prefix name and object
-                prefix_name = self.find_any_parameter(self.NAMES_PREFIX, line)
+                prefix_name = Commons.find_any_parameter(self.NAMES_PREFIX, line)
                 prefix_obj = prefix_group_obj.getPrefixByName(
                     prefix_name) or prefix_group_obj.getPrefixByAbbreviation(prefix_name)
                 if prefix_group_obj is None:
@@ -1078,8 +1078,8 @@ class ConvertViewRepo(Function):
             # Prefix group is defined, but not prefix
             return self.output_prefix_group_as_string(prefix_group_obj)
         # Check if unit is specified
-        if self.find_any_parameter(self.NAMES_UNIT, line):
-            unit_name = self.find_any_parameter(self.NAMES_UNIT, line)
+        if Commons.find_any_parameter(self.NAMES_UNIT, line):
+            unit_name = Commons.find_any_parameter(self.NAMES_UNIT, line)
             output_lines = []
             # Loop through types, getting units for each type
             for type_obj in repo.type_list:
@@ -1091,8 +1091,8 @@ class ConvertViewRepo(Function):
                 return "Unrecognised unit."
             return "\n".join(output_lines)
         # Check if prefix is specified
-        if self.find_any_parameter(self.NAMES_PREFIX, line):
-            prefix_name = self.find_any_parameter(self.NAMES_PREFIX, line)
+        if Commons.find_any_parameter(self.NAMES_PREFIX, line):
+            prefix_name = Commons.find_any_parameter(self.NAMES_PREFIX, line)
             output_lines = []
             # Loop through groups, getting prefixes for each group
             for prefix_group_obj in repo.prefix_group_list:
@@ -1105,22 +1105,6 @@ class ConvertViewRepo(Function):
             return "\n".join(output_lines)
         # Nothing was specified, return info on the repo.
         return self.output_repo_as_string(repo)
-
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
-
-    def find_any_parameter(self, param_list, line):
-        """Finds one of any parameter in a line."""
-        for param_name in param_list:
-            if self.find_parameter(param_name, line) is not None:
-                return self.find_parameter(param_name, line)
-        return False
 
     def output_repo_as_string(self, repo):
         """Outputs a Conversion Repository as a string"""
@@ -1354,13 +1338,13 @@ class ConvertAddType(Function):
         line_clean = line.strip()
         # Check if base unit is defined
         unit_name = None
-        if self.find_any_parameter(self.NAMES_BASE_UNIT, line_clean):
-            unit_name = self.find_any_parameter(self.NAMES_BASE_UNIT, line_clean)
+        if Commons.find_any_parameter(self.NAMES_BASE_UNIT, line_clean):
+            unit_name = Commons.find_any_parameter(self.NAMES_BASE_UNIT, line_clean)
         # Check if decimal places is defined
         decimals = None
-        if self.find_any_parameter(self.NAMES_DECIMALS, line_clean):
+        if Commons.find_any_parameter(self.NAMES_DECIMALS, line_clean):
             try:
-                decimals = int(self.find_any_parameter(self.NAMES_DECIMALS, line_clean))
+                decimals = int(Commons.find_any_parameter(self.NAMES_DECIMALS, line_clean))
             except ConvertException:
                 decimals = None
         # Clean unit and type setting from the line to just get the name to remove
@@ -1390,22 +1374,6 @@ class ConvertAddType(Function):
             output_string += " and " + str(decimals) + " decimal places"
         output_string += "."
         return output_string
-
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
-
-    def find_any_parameter(self, param_list, line):
-        """Finds one of any parameter in a line."""
-        for param_name in param_list:
-            if self.find_parameter(param_name, line) is not None:
-                return self.find_parameter(param_name, line)
-        return False
 
 
 class ConvertSetTypeDecimals(Function):
@@ -1478,8 +1446,8 @@ class ConvertRemoveUnit(Function):
         repo = ConvertRepo.load_from_xml()
         # Check if a type is specified
         type_name = None
-        if self.find_any_parameter(self.NAMES_TYPE, line):
-            type_name = self.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, line):
+            type_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
         # Clean type setting from the line to just get the name to remove
         param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_name = param_regex.sub("\1\4", line).strip()
@@ -1513,22 +1481,6 @@ class ConvertRemoveUnit(Function):
         # Done
         return "Removed unit \"" + input_unit_name + "\" from conversion repository."
 
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
-
-    def find_any_parameter(self, param_list, line):
-        """Finds one of any parameter in a line."""
-        for param_name in param_list:
-            if self.find_parameter(param_name, line) is not None:
-                return self.find_parameter(param_name, line)
-        return False
-
 
 class ConvertUnitAddName(Function):
     """
@@ -1555,12 +1507,12 @@ class ConvertUnitAddName(Function):
         repo = ConvertRepo.load_from_xml()
         # Check for type=
         type_name = None
-        if self.find_any_parameter(self.NAMES_TYPE, line):
-            type_name = self.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, line):
+            type_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
         # Check for unit=
         unit_name = None
-        if self.find_any_parameter(self.NAMES_TYPE, line):
-            unit_name = self.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, line):
+            unit_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
         # clean up the line
         param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_name = param_regex.sub("\1\4", line).strip()
@@ -1607,22 +1559,6 @@ class ConvertUnitAddName(Function):
         # Output message
         return "Added \"" + new_unit_name + "\" as a new name for the \"" + unit_obj.name_list[0] + "\" unit."
 
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
-
-    def find_any_parameter(self, param_list, line):
-        """Finds one of any parameter in a line."""
-        for param_name in param_list:
-            if self.find_parameter(param_name, line) is not None:
-                return self.find_parameter(param_name, line)
-        return False
-
 
 class ConvertUnitAddAbbreviation(Function):
     """
@@ -1649,12 +1585,12 @@ class ConvertUnitAddAbbreviation(Function):
         repo = ConvertRepo.load_from_xml()
         # Check for type=
         type_name = None
-        if self.find_any_parameter(self.NAMES_TYPE, line):
-            type_name = self.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, line):
+            type_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
         # Check for unit=
         unit_name = None
-        if self.find_any_parameter(self.NAMES_TYPE, line):
-            unit_name = self.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, line):
+            unit_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
         # clean up the line
         param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_abbr = param_regex.sub("\1\4", line).strip()
@@ -1702,22 +1638,6 @@ class ConvertUnitAddAbbreviation(Function):
         return "Added \"" + new_unit_abbr + "\" as a new abbreviation for the \"" + unit_obj.name_list[
             0] + "\" unit."
 
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
-
-    def find_any_parameter(self, param_list, line):
-        """Finds one of any parameter in a line."""
-        for param_name in param_list:
-            if self.find_parameter(param_name, line) is not None:
-                return self.find_parameter(param_name, line)
-        return False
-
 
 class ConvertUnitRemoveName(Function):
     """
@@ -1748,12 +1668,12 @@ class ConvertUnitRemoveName(Function):
         line_clean = line.strip()
         # Check if unit is defined
         unit_name = None
-        if self.find_any_parameter(self.NAMES_UNIT, line_clean):
-            unit_name = self.find_any_parameter(self.NAMES_UNIT, line_clean)
+        if Commons.find_any_parameter(self.NAMES_UNIT, line_clean):
+            unit_name = Commons.find_any_parameter(self.NAMES_UNIT, line_clean)
         # Check if type is defined
         type_name = None
-        if self.find_any_parameter(self.NAMES_TYPE, line_clean):
-            type_name = self.find_any_parameter(self.NAMES_TYPE, line_clean)
+        if Commons.find_any_parameter(self.NAMES_TYPE, line_clean):
+            type_name = Commons.find_any_parameter(self.NAMES_TYPE, line_clean)
             if repo.get_type_by_name(type_name) is None:
                 return "Invalid type specified."
         # Clean unit and type setting from the line to just get the name to remove
@@ -1789,22 +1709,6 @@ class ConvertUnitRemoveName(Function):
         # Output
         return "Removed name \"" + input_name + "\" from \"" + user_unit.name_list[0] + "\" unit."
 
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
-
-    def find_any_parameter(self, param_list, line):
-        """Finds one of any parameter in a line."""
-        for param_name in param_list:
-            if self.find_parameter(param_name, line) is not None:
-                return self.find_parameter(param_name, line)
-        return False
-
 
 class ConvertUnitSetPrefixGroup(Function):
     """
@@ -1832,16 +1736,16 @@ class ConvertUnitSetPrefixGroup(Function):
         repo = ConvertRepo.load_from_xml()
         # Check for type=
         type_name = None
-        if self.find_any_parameter(self.NAMES_TYPE, line):
-            type_name = self.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, line):
+            type_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
         # Check for unit=
         unit_name = None
-        if self.find_any_parameter(self.NAMES_TYPE, line):
-            unit_name = self.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, line):
+            unit_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
         # Check for prefixgroup=
         prefix_group_name = None
-        if self.find_any_parameter(self.NAMES_PREFIX_GROUP, line):
-            prefix_group_name = self.find_any_parameter(self.NAMES_PREFIX_GROUP, line)
+        if Commons.find_any_parameter(self.NAMES_PREFIX_GROUP, line):
+            prefix_group_name = Commons.find_any_parameter(self.NAMES_PREFIX_GROUP, line)
         # clean up the line
         param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_name = param_regex.sub("\1\4", line).strip()
@@ -1903,19 +1807,3 @@ class ConvertUnitSetPrefixGroup(Function):
             prefix_group_name = prefix_group.name
         return "Set \"" + prefix_group_name + "\" as the prefix group for the \"" + unit_obj.name_list[
             0] + "\" unit."
-
-    def find_parameter(self, param_name, line):
-        """Finds a parameter value in a line, if the format parameter=value exists in the line"""
-        param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
-        param_search = param_regex.search(line)
-        if param_search is not None:
-            param_value = param_search.group(2)
-        return param_value
-
-    def find_any_parameter(self, param_list, line):
-        """Finds one of any parameter in a line."""
-        for param_name in param_list:
-            if self.find_parameter(param_name, line) is not None:
-                return self.find_parameter(param_name, line)
-        return False
