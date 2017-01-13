@@ -156,8 +156,10 @@ class Hallo:
         # Create server list
         server_list_elem = doc.createElement("server_list")
         for server_elem in self.server_list:
-            server_xml = minidom.parseString(server_elem.to_xml()).firstChild
-            server_list_elem.appendChild(server_xml)
+            server_xml_str = server_elem.to_xml()
+            if server_xml_str is not None:
+                server_xml = minidom.parseString(server_elem.to_xml()).firstChild
+                server_list_elem.appendChild(server_xml)
         root.appendChild(server_list_elem)
         # Create user_group list
         user_group_list_elem = doc.createElement("user_group_list")
