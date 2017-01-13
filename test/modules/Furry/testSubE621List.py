@@ -8,6 +8,24 @@ from test.TestBase import TestBase
 
 class SubE621ListTest(TestBase, unittest.TestCase):
 
+    def setUp(self):
+        try:
+            os.rename("store/e621_subscriptions.xml", "store/e621_subscriptions.xml.tmp")
+        except OSError:
+            pass
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        try:
+            os.remove("store/e621_subscriptions.xml")
+        except OSError:
+            pass
+        try:
+            os.rename("store/e621_subscriptions.xml.tmp", "store/e621_subscriptions.xml")
+        except OSError:
+            pass
+
     def test_no_feeds(self):
         self.function_dispatcher.dispatch("e621 sub list", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
