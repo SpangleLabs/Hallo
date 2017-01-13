@@ -6,8 +6,6 @@ from xml.dom import minidom
 # noinspection PyDeprecation
 import imp
 
-import gc
-
 from Function import Function
 
 
@@ -237,7 +235,6 @@ class FunctionDispatcher(object):
         except AttributeError:
             # noinspection PyDeprecation
             imp.reload(module_obj)
-        gc.collect()
 
     def unload_module_functions(self, module_obj):
         """
