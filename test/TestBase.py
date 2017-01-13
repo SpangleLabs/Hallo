@@ -1,4 +1,7 @@
+import threading
 from threading import Thread
+
+import sys
 
 from FunctionDispatcher import FunctionDispatcher
 from Hallo import Hallo
@@ -12,6 +15,7 @@ class TestBase(unittest.TestCase):
     def setUp(self):
         print("Starting test: "+self.id())
         self.start_time = time.time()
+        self.start_threads = threading.active_count()
         # Create a Hallo
         self.hallo = Hallo()
         # Swap out raw printer function for empty
@@ -47,12 +51,21 @@ class TestBase(unittest.TestCase):
         # Print test startup time
         print("Running test: "+self.id()+". Startup took: "+str(time.time()-self.start_time)+" seconds.")
         self.start_time = time.time()
+        self.start_modules = [str(mod) for mod in sys.modules]
 
     def tearDown(self):
         print("Finishing test: "+self.id()+". Test took: "+str(time.time()-self.start_time)+" seconds.")
         self.hallo.open = False
         self.hallo_thread.join()
         self.hallo = None
+        self.function_dispatcher = None
+        now_threads = threading.active_count()
+        assert now_threads == self.start_threads, "Started with " + str(self.start_threads) + \
+                                                  " but now have " + str(now_threads)
+        now_modules = [str(mod) for mod in sys.modules]
+        assert len(now_modules) == len(self.start_modules), \
+            "Started with " + str(len(self.start_modules)) + " but now have " + str(len(now_modules)) + \
+            ". Gained: " + str([mod for mod in now_modules if mod not in self.start_modules])
 
     def empty(self, var1=None, var2=None, var3=None, var4=None):
         pass
