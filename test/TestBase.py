@@ -53,14 +53,13 @@ class TestBase(unittest.TestCase):
 
     def tearDown(self):
         print("Finishing test: "+self.id()+". Test took: "+str(time.time()-self.start_time)+" seconds.")
-        self.hallo.open = False
+        self.hallo.close()
         self.hallo_thread.join()
-        self.hallo = None
-        self.function_dispatcher = None
 
     def empty(self, var1=None, var2=None, var3=None, var4=None):
         pass
 
     @classmethod
     def tearDownClass(cls):
+        del cls
         gc.collect()
