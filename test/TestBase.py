@@ -1,5 +1,7 @@
 from threading import Thread
 
+import gc
+
 from FunctionDispatcher import FunctionDispatcher
 from Hallo import Hallo
 import unittest
@@ -10,19 +12,24 @@ import time
 class TestBase(unittest.TestCase):
 
     def setUp(self):
-        print("Running test: "+self.id())
+        print("Starting test: "+self.id())
+        self.start_time = time.time()
         # Create a Hallo
         self.hallo = Hallo()
-        # only 1 module, only 1 (mock) server
+        # Swap out raw printer function for empty
+        self.hallo.printer.output_raw = self.empty
+        # Only the required modules, only 1 (mock) server
+        # Todo: specify modules by test?
         self.function_dispatcher = FunctionDispatcher({"AsciiArt", "Bio", "ChannelControl", "Euler", "Furry",
                                                        "HalloControl", "Math", "PermissionControl", "Rss",
                                                        "ServerControl", "Silly", "SillyEtd"},
                                                       self.hallo)
         self.hallo.function_dispatcher = self.function_dispatcher
+        print("Running test: "+self.id()+". Init took: "+str(time.time()-self.start_time)+" seconds.")
         self.server = ServerMock(self.hallo)
         self.server.name = "mock-server"
         # self.server = unittest.mock.Mock()
-        self.hallo.server_list = [self.server]
+        self.hallo.add_server(self.server)
         # send shit in, check shit out
         self.hallo_thread = Thread(target=self.hallo.start,)
         self.hallo_thread.start()
@@ -40,7 +47,19 @@ class TestBase(unittest.TestCase):
                 break
         # Clear any data in the server
         self.server.get_send_data()
+        # Print test startup time
+        print("Running test: "+self.id()+". Startup took: "+str(time.time()-self.start_time)+" seconds.")
+        self.start_time = time.time()
 
     def tearDown(self):
-        self.hallo.open = False
+        print("Finishing test: "+self.id()+". Test took: "+str(time.time()-self.start_time)+" seconds.")
+        self.hallo.close()
         self.hallo_thread.join()
+
+    def empty(self, var1=None, var2=None, var3=None, var4=None):
+        pass
+
+    @classmethod
+    def tearDownClass(cls):
+        del cls
+        gc.collect()
