@@ -660,4 +660,4 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         # Ensure new server is started
-        assert right_server.open, "New server was not started."
+        assert right_server.is_connected(), "New server was not started."

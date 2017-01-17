@@ -28,4 +28,4 @@ class ServerRaceTest(TestBase, unittest.TestCase):
         time.sleep(5)
         # Ensure they're all still closed
         for server in self.hallo.server_list:
-            assert not server.open
+            assert not server.is_connected()
