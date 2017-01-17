@@ -7,15 +7,16 @@ class ServerMock(Server):
         super().__init__(hallo)
         self.send_data = []
         self.left_channels = []
+        self.state = Server.STATE_CLOSED
 
     def join_channel(self, channel_obj):
         pass
 
     def disconnect(self):
-        pass
+        self.state = Server.STATE_CLOSED
 
     def connect(self):
-        self.open = True
+        self.state = Server.STATE_OPEN
 
     def get_type(self):
         return Server.TYPE_MOCK

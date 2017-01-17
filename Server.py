@@ -55,6 +55,10 @@ class Server(metaclass=ABCMeta):
     MSG_MSG = "message"
     MSG_NOTICE = "notice"
     MSG_RAW = "raw"
+    STATE_CLOSED = "disconnected"
+    STATE_OPEN = "connected"
+    STATE_CONNECTING = "connecting"
+    STATE_DISCONNECTING = "disconnecting"
 
     type = None
 
@@ -75,7 +79,7 @@ class Server(metaclass=ABCMeta):
         self.full_name = None  # Full name to use on this server
         self.permission_mask = PermissionMask()  # PermissionMask for the server
         # Dynamic/unsaved class variables
-        self.open = False  # Whether or not to keep reading from server
+        self.state = Server.STATE_CLOSED  # Current state of the server, replacing open
 
     def __eq__(self, other):
         return isinstance(other, Server) and self.hallo == other.hallo and self.type == other.type and \
@@ -199,7 +203,7 @@ class Server(metaclass=ABCMeta):
 
     def is_connected(self):
         """Returns boolean representing whether the server is connected or not."""
-        return self.open
+        return self.state == Server.STATE_OPEN
 
     def get_channel_by_name(self, channel_name):
         """
@@ -342,11 +346,12 @@ class ServerIRC(Server):
             self.server_port = server_port
 
     def connect(self):
+        self.state = Server.STATE_CONNECTING
         try:
             self.raw_connect()
             return
         except ServerException as e:
-            while self.open:
+            while self.state == Server.STATE_CONNECTING:
                 try:
                     self.raw_connect()
                     return
@@ -356,8 +361,6 @@ class ServerIRC(Server):
                     continue
 
     def raw_connect(self):
-        # Begin pulling data from a given server
-        self.open = True
         # Create new socket
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -365,7 +368,7 @@ class ServerIRC(Server):
             self._socket.connect((self.server_address, self.server_port))
         except Exception as e:
             print("CONNECTION ERROR: " + str(e))
-            self.open = False
+            self.state = Server.STATE_CLOSED
         # Wait for the first message back from the server.
         print(Commons.current_timestamp() + " waiting for first message from server: " + self.name)
         first_line = self.read_line_from_socket()
@@ -378,7 +381,7 @@ class ServerIRC(Server):
         self.send('NICK ' + self.get_nick(), None, self.MSG_RAW)
         self.send('USER ' + self.get_full_name(), None, self.MSG_RAW)
         # Wait for MOTD to end
-        while True:
+        while self.state == Server.STATE_CONNECTING:
             next_welcome_line = self.read_line_from_socket()
             if next_welcome_line is None:
                 raise ServerException
@@ -398,10 +401,12 @@ class ServerIRC(Server):
         for channel in self.channel_list:
             if channel.is_auto_join():
                 self.join_channel(channel)
+        self.state = Server.STATE_OPEN
 
     def disconnect(self):
         """Disconnect from the server"""
         quit_message = "Will I dream?"
+        self.state = Server.STATE_DISCONNECTING
         # Logging
         for channel in self.channel_list:
             if channel.is_in_channel():
@@ -413,41 +418,44 @@ class ServerIRC(Server):
                 channel.set_in_channel(False)
         for user in self.user_list:
             user.set_online(False)
-        if self.open:
+        if self.state == self.STATE_OPEN:
             try:
                 self.send("QUIT :" + quit_message, None, self.MSG_RAW)
             except Exception as e:
                 print("Failed to send quit message. "+str(e))
                 pass
-            self.open = False
             if self._socket is not None:
                 self._socket.close()
             self._socket = None
+        self.state = Server.STATE_CLOSED
 
     def reconnect(self):
         """
         Reconnect to a given server. Basically just disconnect and reconnect.
         """
         self.disconnect()
-        self.connect()
+        # TODO: don't call connect here, it makes no sense.
+        # Proper function should mean run() is dead after disconnect, you need a new run thread.
+        Thread(target=self.run).start()
 
     def run(self):
         """
         Method to read from stream and process. Will call an internal parsing method or whatnot
         """
-        if not self.open:
+        if self.state == Server.STATE_CLOSED:
             self.connect()
-        while self.open:
+        while self.state == Server.STATE_OPEN:
             next_line = None
             try:
                 next_line = self.read_line_from_socket()
             except ServerException as e:
                 print("Server disconnected. ("+str(e)+") Reconnecting.")
                 time.sleep(10)
-                self.reconnect()
+                self.disconnect()
+                self.connect()
                 continue
             if next_line is None:
-                self.open = False
+                self.disconnect()
             else:
                 # Parse line
                 Thread(target=self.parse_line, args=(next_line,)).start()
@@ -508,7 +516,7 @@ class ServerIRC(Server):
         :param data: Data to send to server
         :type data: str
         """
-        if self.open:
+        if self.state != Server.STATE_CLOSED:
             self._socket.send((data + endl).encode("utf-8"))
 
     def join_channel(self, channel_obj):
@@ -1057,7 +1065,7 @@ class ServerIRC(Server):
     def read_line_from_socket(self):
         """Private method to read a line from the IRC socket."""
         next_line = b""
-        while self.open:
+        while self.state != Server.STATE_CLOSED:
             try:
                 next_byte = self._socket.recv(1)
             except Exception as e:
