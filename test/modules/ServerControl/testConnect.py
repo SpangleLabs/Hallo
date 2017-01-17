@@ -32,7 +32,7 @@ class ConnectTest(TestBase, unittest.TestCase):
         # Ensure auto connect was set
         assert test_server.auto_connect, "Auto connect should have been set to true."
         # Ensure server was ran
-        assert test_server.open, "Test server was not started."
+        assert test_server.is_connected(), "Test server was not started."
 
     def test_connect_to_known_server_fail_connected(self):
         # Set up example server
