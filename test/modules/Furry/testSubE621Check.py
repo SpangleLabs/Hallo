@@ -11,6 +11,24 @@ from test.TestBase import TestBase
 
 class SubE621CheckTest(TestBase, unittest.TestCase):
 
+    def setUp(self):
+        try:
+            os.rename("store/e621_subscriptions.xml", "store/e621_subscriptions.xml.tmp")
+        except OSError:
+            pass
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        try:
+            os.remove("store/e621_subscriptions.xml")
+        except OSError:
+            pass
+        try:
+            os.rename("store/e621_subscriptions.xml.tmp", "store/e621_subscriptions.xml")
+        except OSError:
+            pass
+
     def test_init(self):
         try:
             try:

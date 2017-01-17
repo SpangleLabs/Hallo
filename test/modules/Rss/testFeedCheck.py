@@ -11,6 +11,24 @@ from test.TestBase import TestBase
 
 class FeedCheckTest(TestBase, unittest.TestCase):
 
+    def setUp(self):
+        super().setUp()
+        try:
+            os.rename("store/rss_feeds.xml", "store/rss_feeds.xml.tmp")
+        except OSError:
+            pass
+
+    def tearDown(self):
+        super().tearDown()
+        try:
+            os.remove("store/rss_feeds.xml")
+        except OSError:
+            pass
+        try:
+            os.rename("store/rss_feeds.xml.tmp", "store/rss_feeds.xml")
+        except OSError:
+            pass
+
     def test_init(self):
         try:
             try:

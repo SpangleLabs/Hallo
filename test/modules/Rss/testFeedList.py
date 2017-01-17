@@ -11,14 +11,11 @@ from test.TestBase import TestBase
 class FeedListTest(TestBase, unittest.TestCase):
 
     def setUp(self):
-        super().setUp()
-        rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
-        rss_check_obj.rss_feed_list = RssFeedList()
         try:
             os.rename("store/rss_feeds.xml", "store/rss_feeds.xml.tmp")
         except OSError:
             pass
+        super().setUp()
 
     def tearDown(self):
         super().tearDown()
