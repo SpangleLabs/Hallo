@@ -55,6 +55,7 @@ class TestBase(unittest.TestCase):
         print("Finishing test: "+self.id()+". Test took: "+str(time.time()-self.start_time)+" seconds.")
         self.hallo.close()
         self.hallo_thread.join()
+        print("Finished test: "+self.id()+". Test took: "+str(time.time()-self.start_time)+" seconds.")
 
     def empty(self, var1=None, var2=None, var3=None, var4=None):
         pass
