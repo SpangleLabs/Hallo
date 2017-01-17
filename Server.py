@@ -406,6 +406,8 @@ class ServerIRC(Server):
     def disconnect(self):
         """Disconnect from the server"""
         quit_message = "Will I dream?"
+        if self.state in [Server.STATE_DISCONNECTING, Server.STATE_CLOSED]:
+            return
         self.state = Server.STATE_DISCONNECTING
         # Logging
         for channel in self.channel_list:
@@ -418,15 +420,14 @@ class ServerIRC(Server):
                 channel.set_in_channel(False)
         for user in self.user_list:
             user.set_online(False)
-        if self.state == self.STATE_OPEN:
-            try:
-                self.send("QUIT :" + quit_message, None, self.MSG_RAW)
-            except Exception as e:
-                print("Failed to send quit message. "+str(e))
-                pass
-            if self._socket is not None:
-                self._socket.close()
-            self._socket = None
+        try:
+            self.send("QUIT :" + quit_message, None, self.MSG_RAW)
+        except Exception as e:
+            print("Failed to send quit message. "+str(e))
+            pass
+        if self._socket is not None:
+            self._socket.close()
+        self._socket = None
         self.state = Server.STATE_CLOSED
 
     def reconnect(self):
@@ -456,9 +457,12 @@ class ServerIRC(Server):
                 continue
             if next_line is None:
                 self.disconnect()
+                self.connect()
+                continue
             else:
                 # Parse line
                 Thread(target=self.parse_line, args=(next_line,)).start()
+        self.disconnect()
 
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
         """
