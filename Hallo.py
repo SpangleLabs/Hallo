@@ -63,7 +63,7 @@ class Hallo:
                 Thread(target=server.run).start()
         self.open = True
         count = 0
-        while all(not server.open for server in self.server_list if server.get_auto_connect()):
+        while all(not server.is_connected() for server in self.server_list if server.get_auto_connect()):
             time.sleep(0.1)
             count += 1
             if count > 600:
