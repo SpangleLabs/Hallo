@@ -173,8 +173,12 @@ class Connect(Function):
     def connect_to_known_server(self, server_obj):
         """Connects to a known server."""
         server_obj.set_auto_connect(True)
-        if server_obj.is_connected():
-            return "Error, already connected to that server"
+        if server_obj.state == Server.STATE_OPEN:
+            return "Error, already connected to that server."
+        if server_obj.state == Server.STATE_CONNECTING:
+            return "Error, currently connecting to that server."
+        if server_obj.state == Server.STATE_DISCONNECTING:
+            return "Error, currently disconnecting from that server."
         Thread(target=server_obj.run).start()
         return "Connected to server: " + server_obj.get_name() + "."
 
