@@ -1,6 +1,5 @@
 import threading
 import unittest
-from threading import Thread
 
 import time
 
@@ -10,12 +9,11 @@ from test.TestBase import TestBase
 
 class ServerRaceTest(TestBase, unittest.TestCase):
 
-    @unittest.skip("Skipping")
     def test_server_race_cancel_failing_connection(self):
         # Create a server
         server = ServerIRC(self.hallo, "example", "example.com", 80)
         self.hallo.add_server(server)
-        Thread(target=server.run).start()
+        server.start()
         # Disconnect a server
         server.disconnect()
         # Check it's closed
@@ -29,9 +27,10 @@ class ServerRaceTest(TestBase, unittest.TestCase):
         # Create a server
         server = ServerIRC(self.hallo, "freenode", "irc.freenode.net", 6667)
         self.hallo.add_server(server)
-        Thread(target=server.run).start()
+        server.start()
         # Delay
         time.sleep(1)
+        self.hallo.open = False
         # Disconnect a server
         server.disconnect()
         # Check it's closed
@@ -41,12 +40,11 @@ class ServerRaceTest(TestBase, unittest.TestCase):
         # Check it's still closed
         assert server.state == Server.STATE_CLOSED
 
-    @unittest.skip("Make this second")
     def test_server_race_connect_disconnect(self):
         # Create a server
         server = ServerIRC(self.hallo, "freenode", "irc.freenode.net", 6667)
         self.hallo.add_server(server)
-        Thread(target=server.run).start()
+        server.start()
         # Disconnect a server
         server.disconnect()
         # Check it's closed
@@ -56,7 +54,6 @@ class ServerRaceTest(TestBase, unittest.TestCase):
         # Check it's still closed
         assert server.state == Server.STATE_CLOSED
 
-    @unittest.skip("Skipping")
     def test_server_race_bulk_connect_fail(self):
         # Create ten servers
         for x in range(10):
@@ -66,7 +63,7 @@ class ServerRaceTest(TestBase, unittest.TestCase):
             new_server_obj.set_prefix(None)
             self.hallo.add_server(new_server_obj)
             # Connect to the new server object.
-            Thread(target=new_server_obj.run).start()
+            new_server_obj.start()
         # Wait a moment
         time.sleep(1)
         # Disconnect them all
@@ -78,13 +75,12 @@ class ServerRaceTest(TestBase, unittest.TestCase):
         for server in self.hallo.server_list:
             assert not server.is_connected()
 
-    @unittest.skip("Skipping")
     def test_server_thread_killed_after_disconnect(self):
         thread_count = threading.active_count()
         # Create a server
         server = ServerIRC(self.hallo, "freenode", "irc.freenode.net", 6667)
         self.hallo.add_server(server)
-        Thread(target=server.run).start()
+        server.start()
         # Delay
         time.sleep(1)
         # Disconnect a server

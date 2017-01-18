@@ -346,15 +346,22 @@ class ServerIRC(Server):
             self.server_address = server_url
             self.server_port = server_port
 
+    def start(self):
+        """
+        Starts up the server and launches the new thread
+        """
+        with self._connect_lock:
+            Thread(target=self.run).start()
+
     def connect(self):
-        print("CONN0")
+        print("CONN0"+self.state)
         self.state = Server.STATE_CONNECTING
         try:
             self.raw_connect()
             return
         except ServerException as e:
             while self.state == Server.STATE_CONNECTING:
-                print("CONN1")
+                print("CONN1"+self.state)
                 try:
                     self.raw_connect()
                     return
@@ -366,6 +373,7 @@ class ServerIRC(Server):
     def raw_connect(self):
         # Create new socket
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket.settimeout(5)
         try:
             # Connect to socket
             self._socket.connect((self.server_address, self.server_port))
@@ -385,7 +393,7 @@ class ServerIRC(Server):
         self.send('USER ' + self.get_full_name(), None, self.MSG_RAW)
         # Wait for MOTD to end
         while self.state == Server.STATE_CONNECTING:
-            print("CONN3")
+            print("CONN3"+self.state)
             next_welcome_line = self.read_line_from_socket()
             if next_welcome_line is None:
                 raise ServerException
@@ -396,6 +404,9 @@ class ServerIRC(Server):
                 self.parse_line_ping(next_welcome_line)
             if len(next_welcome_line.split()[1]) == 3 and next_welcome_line.split()[1].isdigit():
                 self.parse_line_numeric(next_welcome_line, False)
+        # Check we're still connecting
+        if self.state != Server.STATE_CONNECTING:
+            return
         # Identify with nickserv
         if self.nickserv_pass:
             self.send('IDENTIFY ' + self.nickserv_pass, self.get_user_by_name("nickserv"))
@@ -409,7 +420,7 @@ class ServerIRC(Server):
 
     def disconnect(self):
         """Disconnect from the server"""
-        print("DISCONNECT")
+        print("DISCONNECT"+self.state)
         quit_message = "Will I dream?"
         if self.state in [Server.STATE_DISCONNECTING, Server.STATE_CLOSED]:
             print("Cannot disconnect "+str(self.name)+" server as it is not connected.")
@@ -431,14 +442,14 @@ class ServerIRC(Server):
         except Exception as e:
             print("Failed to send quit message. "+str(e))
             pass
-        print("DISCONNECT2")
+        print("DISCONNECT2"+self.state)
         self.state = Server.STATE_DISCONNECTING
         with self._connect_lock:
-            print("DISCONNECT3")
+            print("DISCONNECT3"+self.state)
             if self._socket is not None:
                 self._socket.close()
             self._socket = None
-        print("DISCONNECT4")
+        print("DISCONNECT4"+self.state)
         self.state = Server.STATE_CLOSED
 
     def reconnect(self):
@@ -454,29 +465,31 @@ class ServerIRC(Server):
         """
         Method to read from stream and process. Will call an internal parsing method or whatnot
         """
-        print("RUN1")
+        print("RUN1"+self.state)
         with self._connect_lock:
             if self.state == Server.STATE_CLOSED:
                 self.connect()
             while self.state == Server.STATE_OPEN:
-                print("RUN2")
+                print("RUN2"+self.state)
                 next_line = None
                 try:
                     next_line = self.read_line_from_socket()
                 except ServerException as e:
                     print("Server disconnected. ("+str(e)+") Reconnecting.")
                     time.sleep(10)
-                    self.disconnect()
-                    self.connect()
+                    if self.state == Server.STATE_OPEN:
+                        self.disconnect()
+                        self.connect()
                     continue
                 if next_line is None:
-                    self.disconnect()
-                    self.connect()
+                    if self.state == Server.STATE_OPEN:
+                        self.disconnect()
+                        self.connect()
                     continue
                 else:
                     # Parse line
                     Thread(target=self.parse_line, args=(next_line,)).start()
-        print("RUN3")
+        print("RUN3"+self.state)
         self.disconnect()
 
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
