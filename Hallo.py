@@ -5,7 +5,7 @@ import re
 from xml.dom import minidom
 from xml.etree import ElementTree
 from datetime import datetime
-from Server import ServerIRC, ServerFactory
+from Server import Server, ServerIRC, ServerFactory
 from PermissionMask import PermissionMask
 from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
@@ -184,7 +184,7 @@ class Hallo:
             api_key_list_elem.appendChild(api_key_elem)
         root.appendChild(api_key_list_elem)
         # Save XML
-        doc.writexml(open("config/config.xml", "w"), addindent="\t", newl="\r\n")
+        doc.writexml(open("config/config.xml", "w+"), addindent="\t", newl="\r\n")
 
     def add_user_group(self, user_group):
         """
@@ -262,7 +262,8 @@ class Hallo:
     def close(self):
         """Shuts down the entire program"""
         for server in self.server_list:
-            server.disconnect()
+            if server.state != Server.STATE_CLOSED:
+                server.disconnect()
         self.function_dispatcher.close()
         self.save_to_xml()
         self.open = False
