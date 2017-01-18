@@ -40,7 +40,7 @@ class ConnectTest(TestBase, unittest.TestCase):
         test_server = ServerMock(self.hallo)
         test_server.name = server_name
         test_server.auto_connect = False
-        test_server.open = True
+        test_server.state = Server.STATE_OPEN
         self.hallo.add_server(test_server)
         # Call connect function
         self.function_dispatcher.dispatch("connect "+server_name, self.test_user, self.test_chan)
@@ -51,7 +51,7 @@ class ConnectTest(TestBase, unittest.TestCase):
         # Ensure auto connect was still set
         assert test_server.auto_connect, "Auto connect should have still been set to true."
         # Ensure server is still running
-        assert test_server.open, "Test server should not have been shut down."
+        assert test_server.state == Server.STATE_OPEN, "Test server should not have been shut down."
 
     def test_connect_fail_unrecognised_protocol(self):
         self.function_dispatcher.dispatch("connect www.example.com", self.test_user, self.test_chan)
