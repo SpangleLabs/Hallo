@@ -253,5 +253,4 @@ class MockSubList:
         self.to_xml_called = False
 
     def to_xml(self):
-        print("ARGH")
         self.to_xml_called = True
