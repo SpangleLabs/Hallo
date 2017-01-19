@@ -350,12 +350,14 @@ class ServerIRC(Server):
         """
         Starts up the server and launches the new thread
         """
+        if self.state != Server.STATE_CLOSED:
+            raise ServerException("Already started.")
+        self.state = Server.STATE_CONNECTING
         with self._connect_lock:
             Thread(target=self.run).start()
 
     def connect(self):
         print("CONN0"+self.state)
-        self.state = Server.STATE_CONNECTING
         try:
             self.raw_connect()
             return
@@ -443,7 +445,6 @@ class ServerIRC(Server):
             print("Failed to send quit message. "+str(e))
             pass
         print("DISCONNECT2"+self.state)
-        self.state = Server.STATE_DISCONNECTING
         with self._connect_lock:
             print("DISCONNECT3"+self.state)
             if self._socket is not None:
@@ -467,8 +468,7 @@ class ServerIRC(Server):
         """
         print("RUN1"+self.state)
         with self._connect_lock:
-            if self.state == Server.STATE_CLOSED:
-                self.connect()
+            self.connect()
             while self.state == Server.STATE_OPEN:
                 print("RUN2"+self.state)
                 next_line = None
