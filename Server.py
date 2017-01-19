@@ -1,7 +1,7 @@
 from abc import ABCMeta
 from xml.dom import minidom
 from inc.Commons import Commons
-from threading import Thread, Lock
+from threading import Thread, Lock, RLock
 import socket
 import time
 import re
@@ -343,7 +343,7 @@ class ServerIRC(Server):
         self._check_useridentity_lock = Lock()  # Thread lock for checking if a user is identified with nickserv
         self._check_useridentity_user = None  # User name which is being checked
         self._check_useridentity_result = None  # Boolean, whether or not the user is identified
-        self._connect_lock = Lock()
+        self._connect_lock = RLock()
         if server_name is not None:
             self.name = server_name
         if server_url is not None:
