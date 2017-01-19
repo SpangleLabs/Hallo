@@ -1109,7 +1109,7 @@ class ServerIRC(Server):
                 # Raise an exception, to reconnect.
                 raise ServerException("Failed to receive byte. "+str(e))
             if next_byte is None or len(next_byte) != 1:
-                raise ServerException("Length of next byte incorrect: "+str(next_byte))
+                continue
             next_line += next_byte
             if next_line.endswith(endl.encode()):
                 return self.decode_line(next_line[:-len(endl)])
