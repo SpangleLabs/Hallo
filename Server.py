@@ -357,13 +357,11 @@ class ServerIRC(Server):
             Thread(target=self.run).start()
 
     def connect(self):
-        print("CONN0"+self.state)
         try:
             self.raw_connect()
             return
         except ServerException as e:
             while self.state == Server.STATE_CONNECTING:
-                print("CONN1"+self.state)
                 try:
                     self.raw_connect()
                     return
@@ -395,7 +393,6 @@ class ServerIRC(Server):
         self.send('USER ' + self.get_full_name(), None, self.MSG_RAW)
         # Wait for MOTD to end
         while self.state == Server.STATE_CONNECTING:
-            print("CONN3"+self.state)
             next_welcome_line = self.read_line_from_socket()
             if next_welcome_line is None:
                 raise ServerException
@@ -422,7 +419,6 @@ class ServerIRC(Server):
 
     def disconnect(self):
         """Disconnect from the server"""
-        print("DISCONNECT"+self.state)
         quit_message = "Will I dream?"
         if self.state in [Server.STATE_DISCONNECTING, Server.STATE_CLOSED]:
             print("Cannot disconnect "+str(self.name)+" server as it is not connected.")
@@ -444,13 +440,10 @@ class ServerIRC(Server):
         except Exception as e:
             print("Failed to send quit message. "+str(e))
             pass
-        print("DISCONNECT2"+self.state)
         with self._connect_lock:
-            print("DISCONNECT3"+self.state)
             if self._socket is not None:
                 self._socket.close()
             self._socket = None
-        print("DISCONNECT4"+self.state)
         self.state = Server.STATE_CLOSED
 
     def reconnect(self):
@@ -466,11 +459,9 @@ class ServerIRC(Server):
         """
         Method to read from stream and process. Will call an internal parsing method or whatnot
         """
-        print("RUN1"+self.state)
         with self._connect_lock:
             self.connect()
             while self.state == Server.STATE_OPEN:
-                print("RUN2"+self.state)
                 next_line = None
                 try:
                     next_line = self.read_line_from_socket()
@@ -489,7 +480,6 @@ class ServerIRC(Server):
                 else:
                     # Parse line
                     Thread(target=self.parse_line, args=(next_line,)).start()
-        print("RUN3"+self.state)
         self.disconnect()
 
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
