@@ -1,3 +1,4 @@
+from threading import Lock
 from xml.etree.ElementTree import ParseError
 from xml.etree import ElementTree
 from datetime import datetime
@@ -15,6 +16,7 @@ class RssFeedList:
 
     def __init__(self):
         self.feed_list = []
+        self.feed_lock = Lock()
 
     def add_feed(self, new_feed):
         """
@@ -327,15 +329,19 @@ class FeedCheck(Function):
         if clean_input in self.NAMES_ALL:
             return self.run_all(hallo)
         # Otherwise see if a feed title matches the specified one
-        matching_feeds = self.rss_feed_list.get_feeds_by_title(clean_input, destination_obj)
-        if len(matching_feeds) == 0:
-            return "Error, no Rss Feeds match that name. If you're adding a new feed, use \"rss add\" with your link."
-        output_lines = []
-        # Loop through matching rss feeds, getting updates
-        for rss_feed in matching_feeds:
-            new_items = rss_feed.check_feed()
-            for rss_item in new_items:
-                output_lines.append(rss_feed.format_item(rss_item))
+        with self.rss_feed_list.feed_lock:
+            matching_feeds = self.rss_feed_list.get_feeds_by_title(clean_input, destination_obj)
+            if len(matching_feeds) == 0:
+                return "Error, no Rss Feeds match that name. If you're adding a new feed, use \"rss add\" " \
+                       "with your link."
+            output_lines = []
+            # Loop through matching rss feeds, getting updates
+            for rss_feed in matching_feeds:
+                new_items = rss_feed.check_feed()
+                for rss_item in new_items:
+                    output_lines.append(rss_feed.format_item(rss_item))
+            # Save RSS feed data
+            self.rss_feed_list.to_xml()
         # Remove duplicate entries from output_lines
         output_lines = list(set(output_lines))
         # Output response to user
@@ -345,10 +351,11 @@ class FeedCheck(Function):
 
     def run_all(self, hallo):
         output_lines = []
-        for rss_feed in self.rss_feed_list.feed_list:
-            new_items = rss_feed.check_feed()
-            for rss_item in new_items:
-                output_lines.append(rss_feed.output_item(rss_item, hallo))
+        with self.rss_feed_list.feed_lock:
+            for rss_feed in self.rss_feed_list.feed_list:
+                new_items = rss_feed.check_feed()
+                for rss_item in new_items:
+                    output_lines.append(rss_feed.output_item(rss_item, hallo))
         # Remove duplicate entries from output_lines
         output_lines = list(set(output_lines))
         # Output response to user
@@ -368,14 +375,15 @@ class FeedCheck(Function):
         :param channel_obj: Channel
         """
         # Check through all feeds to see which need updates
-        for rss_feed in self.rss_feed_list.feed_list:
-            # Only check those which have been too long since last check
-            if rss_feed.needs_check():
-                # Get new items
-                new_items = rss_feed.check_feed()
-                # Output all new items
-                for rss_item in new_items:
-                    rss_feed.output_item(rss_item, hallo_obj)
+        with self.rss_feed_list.feed_lock:
+            for rss_feed in self.rss_feed_list.feed_list:
+                # Only check those which have been too long since last check
+                if rss_feed.needs_check():
+                    # Get new items
+                    new_items = rss_feed.check_feed()
+                    # Output all new items
+                    for rss_item in new_items:
+                        rss_feed.output_item(rss_item, hallo_obj)
 
 
 class FeedAdd(Function):
@@ -431,10 +439,12 @@ class FeedAdd(Function):
             rss_feed.check_feed()
         except ParseError:
             return "Error, RSS feed could not be parsed."
-        # Add new rss feed to list
-        feed_list.add_feed(rss_feed)
-        # Save list
-        feed_list.to_xml()
+        # Acquire lock
+        with feed_list.feed_lock:
+            # Add new rss feed to list
+            feed_list.add_feed(rss_feed)
+            # Save list
+            feed_list.to_xml()
         # Return output
         return "I have added new RSS feed titled \"" + rss_feed.title + "\""
 
@@ -468,21 +478,23 @@ class FeedRemove(Function):
         rss_feed_list = feed_check_obj.rss_feed_list
         # Clean up input
         clean_input = line.strip()
-        # Find any feeds with specified title
-        test_feeds = rss_feed_list.get_feeds_by_title(clean_input.lower(), destination_obj)
-        if len(test_feeds) == 1:
-            rss_feed_list.remove_feed(test_feeds[0])
-            return "Removed \"" + test_feeds[0].title + "\" RSS feed. Updates will no longer be sent to " \
-                   + (test_feeds[0].channel_name or test_feeds[0].user_name) + "."
-        if len(test_feeds) > 1:
-            return "Error, there is more than 1 rss feed in this channel by that name. Try specifying by URL."
-        # Otherwise, zero results, so try hunting by url
-        test_feeds = rss_feed_list.get_feeds_by_url(clean_input, destination_obj)
-        if len(test_feeds) == 0:
-            return "Error, there are no RSS feeds in this channel matching that name or URL."
-        for test_feed in test_feeds:
-            rss_feed_list.remove_feed(test_feed)
-        return "Removed subscriptions to RSS feed."
+        # Acquire lock
+        with rss_feed_list.feed_lock:
+            # Find any feeds with specified title
+            test_feeds = rss_feed_list.get_feeds_by_title(clean_input.lower(), destination_obj)
+            if len(test_feeds) == 1:
+                rss_feed_list.remove_feed(test_feeds[0])
+                return "Removed \"" + test_feeds[0].title + "\" RSS feed. Updates will no longer be sent to " \
+                       + (test_feeds[0].channel_name or test_feeds[0].user_name) + "."
+            if len(test_feeds) > 1:
+                return "Error, there is more than 1 rss feed in this channel by that name. Try specifying by URL."
+            # Otherwise, zero results, so try hunting by url
+            test_feeds = rss_feed_list.get_feeds_by_url(clean_input, destination_obj)
+            if len(test_feeds) == 0:
+                return "Error, there are no RSS feeds in this channel matching that name or URL."
+            for test_feed in test_feeds:
+                rss_feed_list.remove_feed(test_feed)
+            return "Removed subscriptions to RSS feed."
 
 
 class FeedList(Function):
@@ -512,7 +524,8 @@ class FeedList(Function):
         feed_check_obj = function_dispatcher.get_function_object(feed_check_function)  # type: FeedCheck
         rss_feed_list = feed_check_obj.rss_feed_list
         # Find list of feeds for current channel.
-        dest_feeds = rss_feed_list.get_feeds_by_destination(destination_obj)
+        with rss_feed_list.feed_lock:
+            dest_feeds = rss_feed_list.get_feeds_by_destination(destination_obj)
         if len(dest_feeds) == 0:
             return "There are no RSS feeds posting to this destination."
         output_lines = ["RSS feeds posting to this channel:"]

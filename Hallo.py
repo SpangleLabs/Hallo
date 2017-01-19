@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import time
-from threading import Thread
 import re
 from xml.dom import minidom
 from xml.etree import ElementTree
 from datetime import datetime
-from Server import ServerIRC, ServerFactory
+from Server import Server, ServerIRC, ServerFactory
 from PermissionMask import PermissionMask
 from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
@@ -60,16 +59,16 @@ class Hallo:
         self.printer.output_raw('connecting to servers')
         for server in self.server_list:
             if server.get_auto_connect():
-                Thread(target=server.run).start()
-        self.open = True
+                server.start()
         count = 0
-        while all(not server.open for server in self.server_list if server.get_auto_connect()):
+        while all(not server.is_connected() for server in self.server_list if server.get_auto_connect()):
             time.sleep(0.1)
             count += 1
             if count > 600:
                 self.open = False
                 print("No servers managed to connect in 60 seconds.")
                 break
+        self.open = True
         # Main loop, sticks around throughout the running of the bot
         self.printer.output_raw('connected to all servers.')
         self.core_loop_time_events()
@@ -184,7 +183,7 @@ class Hallo:
             api_key_list_elem.appendChild(api_key_elem)
         root.appendChild(api_key_list_elem)
         # Save XML
-        doc.writexml(open("config/config.xml", "w"), addindent="\t", newl="\r\n")
+        doc.writexml(open("config/config.xml", "w+"), addindent="\t", newl="\r\n")
 
     def add_user_group(self, user_group):
         """
@@ -262,7 +261,8 @@ class Hallo:
     def close(self):
         """Shuts down the entire program"""
         for server in self.server_list:
-            server.disconnect()
+            if server.state != Server.STATE_CLOSED:
+                server.disconnect()
         self.function_dispatcher.close()
         self.save_to_xml()
         self.open = False

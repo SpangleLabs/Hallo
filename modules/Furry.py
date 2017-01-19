@@ -1,3 +1,5 @@
+from threading import Lock
+
 from Function import Function
 from inc.Commons import Commons, ISO8601ParseError
 import urllib.parse
@@ -545,6 +547,7 @@ class E621SubList:
 
     def __init__(self):
         self.sub_list = []  # type: list [E621Sub]
+        self.sub_lock = Lock()
 
     def add_sub(self, new_sub):
         """
@@ -682,10 +685,12 @@ class SubE621Add(Function):
         # If no results, this is an invalid search subscription
         if len(first_results) == 0:
             return "Error, this does not appear to be a valid search, or does not have results."
-        # Add new rss feed to list
-        e621_sub_list.add_sub(e621_sub)
-        # Save list
-        e621_sub_list.to_xml()
+        # Locking
+        with e621_sub_list.sub_lock:
+            # Add new rss feed to list
+            e621_sub_list.add_sub(e621_sub)
+            # Save list
+            e621_sub_list.to_xml()
         # Return output
         return "I have added new e621 subscription for the search \"" + e621_sub.search + "\""
 
@@ -739,21 +744,23 @@ class SubE621Check(Function):
         # Check whether input is asking to update all e621 subscriptions
         if clean_input in self.NAMES_ALL:
             return self.run_all(hallo)
-        # Otherwise see if a search subscription matches the specified one
-        matching_subs = self.e621_sub_list.get_subs_by_search(clean_input, destination_obj)
-        if len(matching_subs) == 0:
-            return "Error, no e621 search subscriptions match that name. If you're adding a new search subscrption, " \
-                   "use \"e621 sub add\" with your search."
-        output_lines = []
-        # Loop through matching search subscriptions, getting updates
-        for search_sub in matching_subs:
-            new_items = search_sub.check_subscription()
-            for search_item in new_items:
-                output_lines.append(search_sub.format_item(search_item))
-        # Remove duplicate entries from output_lines
-        output_lines = list(set(output_lines))
-        # Save list
-        self.e621_sub_list.to_xml()
+        # Acquire lock
+        with self.e621_sub_list.sub_lock:
+            # Otherwise see if a search subscription matches the specified one
+            matching_subs = self.e621_sub_list.get_subs_by_search(clean_input, destination_obj)
+            if len(matching_subs) == 0:
+                return "Error, no e621 search subscriptions match that name. If you're adding a new search " \
+                       "subscription, use \"e621 sub add\" with your search."
+            output_lines = []
+            # Loop through matching search subscriptions, getting updates
+            for search_sub in matching_subs:
+                new_items = search_sub.check_subscription()
+                for search_item in new_items:
+                    output_lines.append(search_sub.format_item(search_item))
+            # Remove duplicate entries from output_lines
+            output_lines = list(set(output_lines))
+            # Save list
+            self.e621_sub_list.to_xml()
         # Output response to user
         if len(output_lines) == 0:
             return "There were no updates for \"" + line + "\" e621 search."
@@ -761,14 +768,15 @@ class SubE621Check(Function):
 
     def run_all(self, hallo):
         output_lines = []
-        for search_sub in self.e621_sub_list.sub_list:
-            new_items = search_sub.check_subscription()
-            for search_item in new_items:
-                output_lines.append(search_sub.output_item(search_item, hallo))
-        # Remove duplicate entries from output_lines
-        output_lines = list(set(output_lines))
-        # Save list
-        self.e621_sub_list.to_xml()
+        with self.e621_sub_list.sub_lock:
+            for search_sub in self.e621_sub_list.sub_list:
+                new_items = search_sub.check_subscription()
+                for search_item in new_items:
+                    output_lines.append(search_sub.output_item(search_item, hallo))
+            # Remove duplicate entries from output_lines
+            output_lines = list(set(output_lines))
+            # Save list
+            self.e621_sub_list.to_xml()
         # Output response to user
         if len(output_lines) == 0:
             return "There were no e621 search subscription updates."
@@ -786,16 +794,17 @@ class SubE621Check(Function):
         :param channel_obj: Channel
         """
         # Check through all feeds to see which need updates
-        for search_sub in self.e621_sub_list.sub_list:
-            # Only check those which have been too long since last check
-            if search_sub.needs_check():
-                # Get new items
-                new_items = search_sub.check_subscription()
-                # Output all new items
-                for search_item in new_items:
-                    search_sub.output_item(search_item, hallo_obj)
-        # Save list
-        self.e621_sub_list.to_xml()
+        with self.e621_sub_list.sub_lock:
+            for search_sub in self.e621_sub_list.sub_list:
+                # Only check those which have been too long since last check
+                if search_sub.needs_check():
+                    # Get new items
+                    new_items = search_sub.check_subscription()
+                    # Output all new items
+                    for search_item in new_items:
+                        search_sub.output_item(search_item, hallo_obj)
+            # Save list
+            self.e621_sub_list.to_xml()
 
 
 class SubE621List(Function):
@@ -826,7 +835,8 @@ class SubE621List(Function):
         sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check
         e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
         # Find list of feeds for current channel.
-        dest_searches = e621_sub_list.get_subs_by_destination(destination_obj)
+        with e621_sub_list.sub_lock:
+            dest_searches = e621_sub_list.get_subs_by_destination(destination_obj)
         if len(dest_searches) == 0:
             return "There are no e621 search subscriptions posting to this destination."
         output_lines = ["E621 search subscriptions posting to this channel:"]
@@ -870,10 +880,11 @@ class SubE621Remove(Function):
         # Clean up input
         clean_input = line.strip()
         # Find any feeds with specified search
-        test_feeds = e621_sub_list.get_subs_by_search(clean_input.lower(), destination_obj)
-        if len(test_feeds) > 0:
-            for del_sub in test_feeds:
-                e621_sub_list.remove_sub(del_sub)
-            return "Removed \"" + test_feeds[0].search + "\" e621 search subscription. Updates will no longer be " \
-                   "sent to " + (test_feeds[0].channel_name or test_feeds[0].user_name) + "."
+        with e621_sub_list.sub_lock:
+            test_feeds = e621_sub_list.get_subs_by_search(clean_input.lower(), destination_obj)
+            if len(test_feeds) > 0:
+                for del_sub in test_feeds:
+                    e621_sub_list.remove_sub(del_sub)
+                return "Removed \"" + test_feeds[0].search + "\" e621 search subscription. Updates will no longer be " \
+                       "sent to " + (test_feeds[0].channel_name or test_feeds[0].user_name) + "."
         return "Error, there are no e621 search subscriptions in this channel matching that search."

@@ -3,7 +3,7 @@ import unittest
 
 from Server import Server
 from inc.Commons import Commons
-from modules.Furry import SubE621Check, E621Sub, E621SubList
+from modules.Furry import SubE621Check, E621Sub
 from test.TestBase import TestBase
 
 
@@ -60,7 +60,7 @@ class SubE621ListTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch("e621 sub list", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         data_split = data[0][0].split("\n")
-        assert "e621 search subscriptions posting" in data_split[0].lower()
+        assert "e621 search subscriptions posting" in data_split[0].lower(), "Missing title. Response data: "+str(data)
         assert "butt" in data_split[1].lower() or "butt" in data_split[2].lower()
         assert "deer" not in data_split[1].lower() and "deer" not in data_split[2].lower()
         assert "dragon" in data_split[1].lower() or "dragon" in data_split[2].lower()
