@@ -477,11 +477,12 @@ class ServerIRC(Server):
                 try:
                     next_line = self.read_line_from_socket()
                 except ServerException as e:
-                    print("Server disconnected. ("+str(e)+") Reconnecting.")
+                    print("Server \""+str(self.name)+"\" disconnected. ("+str(e)+") Reconnecting.")
                     time.sleep(10)
                     if self.state == Server.STATE_OPEN:
                         self.disconnect()
                         self.connect()
+                        print("Reconnected.")
                     continue
                 if next_line is None:
                     if self.state == Server.STATE_OPEN:
@@ -1103,13 +1104,17 @@ class ServerIRC(Server):
         """
         next_line = b""
         while self.state != Server.STATE_CLOSED:
+            next_byte = None
             try:
                 next_byte = self._socket.recv(1)
+            except socket.timeout as e:
+                if e.args[0] != "timed out":
+                    raise ServerException("Failed to receive byte. "+str(e))
             except Exception as e:
                 # Raise an exception, to reconnect.
                 raise ServerException("Failed to receive byte. "+str(e))
             if next_byte is None or len(next_byte) != 1:
-                continue
+                raise ServerException("Length of next byte incorrect: " + str(next_byte))
             next_line += next_byte
             if next_line.endswith(endl.encode()):
                 return self.decode_line(next_line[:-len(endl)])
