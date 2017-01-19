@@ -1,5 +1,4 @@
 from Function import Function
-from threading import Thread
 import re
 from inc.Commons import Commons
 from Server import Server, ServerIRC
@@ -179,7 +178,7 @@ class Connect(Function):
             return "Error, currently connecting to that server."
         if server_obj.state == Server.STATE_DISCONNECTING:
             return "Error, currently disconnecting from that server."
-        Thread(target=server_obj.run).start()
+        server_obj.start()
         return "Connected to server: " + server_obj.get_name() + "."
 
     def connect_to_new_server_irc(self, line, user_obj, destination_obj):
@@ -268,7 +267,7 @@ class Connect(Function):
         # Add the new object to Hallo's list
         hallo_obj.add_server(new_server_obj)
         # Connect to the new server object.
-        Thread(target=new_server_obj.run).start()
+        new_server_obj.start()
         return "Connected to new IRC server: " + new_server_obj.get_name() + "."
 
 

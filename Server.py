@@ -88,20 +88,24 @@ class Server(metaclass=ABCMeta):
     def __hash__(self):
         return hash((self.hallo, self.type, self.name.lower()))
 
-    def connect(self):
+    def start(self):
+        """
+        Starts the new server, launching new thread as appropriate.
+        """
         raise NotImplementedError
 
     def disconnect(self):
+        """
+        Disconnects from the server, shutting down remaining threads
+        """
         raise NotImplementedError
 
     def reconnect(self):
-        raise NotImplementedError
-
-    def run(self):
         """
-        Method to read from stream and process. Will call an internal parsing method or whatnot
+        Disconnects and reconnects from the server
         """
-        raise NotImplementedError
+        self.disconnect()
+        self.start()
 
     def send(self, data, destination_obj=None, msg_type=MSG_MSG):
         """
@@ -357,6 +361,9 @@ class ServerIRC(Server):
             Thread(target=self.run).start()
 
     def connect(self):
+        """
+        Internal method, connects to the IRC server, attempting as many times as is necessary.
+        """
         try:
             self.raw_connect()
             return
@@ -371,6 +378,9 @@ class ServerIRC(Server):
                     continue
 
     def raw_connect(self):
+        """
+        Internal method, does the actual connection logic to try connecting to the server once.
+        """
         # Create new socket
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.settimeout(5)
@@ -418,7 +428,9 @@ class ServerIRC(Server):
         self.state = Server.STATE_OPEN
 
     def disconnect(self):
-        """Disconnect from the server"""
+        """
+        Disconnect from the server, ensuring the run thread is ended.
+        """
         quit_message = "Will I dream?"
         if self.state in [Server.STATE_DISCONNECTING, Server.STATE_CLOSED]:
             print("Cannot disconnect "+str(self.name)+" server as it is not connected.")
@@ -448,16 +460,15 @@ class ServerIRC(Server):
 
     def reconnect(self):
         """
-        Reconnect to a given server. Basically just disconnect and reconnect.
+        Reconnect to a given server. No changes from Server base, just here for clarity
         """
-        self.disconnect()
-        # TODO: don't call connect here, it makes no sense.
-        # Proper function should mean run() is dead after disconnect, you need a new run thread.
-        Thread(target=self.run).start()
+        super().reconnect()
 
     def run(self):
         """
-        Method to read from stream and process. Will call an internal parsing method or whatnot
+        Internal method
+        Method to read from stream and process. Will connect and call internal parsing methods or whatnot.
+        Needs to be started in it's own thread, only exits when the server connection ends
         """
         with self._connect_lock:
             self.connect()
@@ -1085,7 +1096,11 @@ class ServerIRC(Server):
         pass
 
     def read_line_from_socket(self):
-        """Private method to read a line from the IRC socket."""
+        """
+        Private method to read a line from the IRC socket.
+        :return: A line of text from the socket
+        :rtype: str
+        """
         next_line = b""
         while self.state != Server.STATE_CLOSED:
             try:

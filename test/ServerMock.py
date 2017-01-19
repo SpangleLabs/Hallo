@@ -12,11 +12,11 @@ class ServerMock(Server):
     def join_channel(self, channel_obj):
         pass
 
+    def start(self):
+        self.state = Server.STATE_OPEN
+
     def disconnect(self):
         self.state = Server.STATE_CLOSED
-
-    def connect(self):
-        self.state = Server.STATE_OPEN
 
     def get_type(self):
         return Server.TYPE_MOCK
@@ -32,9 +32,6 @@ class ServerMock(Server):
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
         self.send_data.append((data, destination_obj, msg_type))
 
-    def run(self):
-        self.connect()
-
     def reconnect(self):
         pass
 
@@ -43,6 +40,8 @@ class ServerMock(Server):
 
     def to_xml(self):
         pass
+
+    # Mock server specific methods below:
 
     def get_send_data(self, exp_lines=None, dest_obj=None, msg_type=None):
         out_data = self.send_data

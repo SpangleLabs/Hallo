@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import time
-from threading import Thread
 import re
 from xml.dom import minidom
 from xml.etree import ElementTree
@@ -60,7 +59,7 @@ class Hallo:
         self.printer.output_raw('connecting to servers')
         for server in self.server_list:
             if server.get_auto_connect():
-                Thread(target=server.run).start()
+                server.start()
         count = 0
         while all(not server.is_connected() for server in self.server_list if server.get_auto_connect()):
             time.sleep(0.1)
