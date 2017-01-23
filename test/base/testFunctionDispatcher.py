@@ -48,3 +48,20 @@ class FunctionDispatcherTest(TestBase, unittest.TestCase):
         finally:
             fd.close()
             test_hallo.close()
+
+# TODO: write tests for each method:
+# dispatch
+# dispatch_passive
+# get_function_by_name
+# get_function_class_list
+# get_function_object
+# check_function_permissions
+# reload_module
+# _reload
+# unload_module_functions
+# check_function_class
+# load_function
+# unload_function
+# close
+# to_xml
+# from_xml
