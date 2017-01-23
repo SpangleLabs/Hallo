@@ -94,7 +94,7 @@ class Server(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    def disconnect(self):
+    def disconnect(self, force=False):
         """
         Disconnects from the server, shutting down remaining threads
         """
@@ -427,31 +427,34 @@ class ServerIRC(Server):
                 self.join_channel(channel)
         self.state = Server.STATE_OPEN
 
-    def disconnect(self):
+    def disconnect(self, force=False):
         """
         Disconnect from the server, ensuring the run thread is ended.
         """
-        quit_message = "Will I dream?"
-        if self.state in [Server.STATE_DISCONNECTING, Server.STATE_CLOSED]:
-            print("Cannot disconnect "+str(self.name)+" server as it is not connected.")
-            return
-        self.state = Server.STATE_DISCONNECTING
-        # Logging
-        for channel in self.channel_list:
-            if channel.is_in_channel():
-                self.hallo.get_logger().log(Function.EVENT_QUIT,
-                                            quit_message,
-                                            self,
-                                            self.get_user_by_name(self.get_nick()),
-                                            channel)
-                channel.set_in_channel(False)
-        for user in self.user_list:
-            user.set_online(False)
-        try:
-            self.send("QUIT :" + quit_message, None, self.MSG_RAW)
-        except Exception as e:
-            print("Failed to send quit message. "+str(e))
-            pass
+        if force:
+            self.state = Server.STATE_CLOSED
+        else:
+            quit_message = "Will I dream?"
+            if self.state in [Server.STATE_DISCONNECTING, Server.STATE_CLOSED]:
+                print("Cannot disconnect "+str(self.name)+" server as it is not connected.")
+                return
+            self.state = Server.STATE_DISCONNECTING
+            # Logging
+            for channel in self.channel_list:
+                if channel.is_in_channel():
+                    self.hallo.get_logger().log(Function.EVENT_QUIT,
+                                                quit_message,
+                                                self,
+                                                self.get_user_by_name(self.get_nick()),
+                                                channel)
+                    channel.set_in_channel(False)
+            for user in self.user_list:
+                user.set_online(False)
+            try:
+                self.send("QUIT :" + quit_message, None, self.MSG_RAW)
+            except Exception as e:
+                print("Failed to send quit message. "+str(e))
+                pass
         with self._connect_lock:
             if self._socket is not None:
                 self._socket.close()

@@ -15,7 +15,7 @@ class ServerMock(Server):
     def start(self):
         self.state = Server.STATE_OPEN
 
-    def disconnect(self):
+    def disconnect(self, force=False):
         self.state = Server.STATE_CLOSED
 
     def get_type(self):
