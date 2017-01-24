@@ -20,7 +20,7 @@ class TestE621Sub(unittest.TestCase):
 
     def test_check_search(self):
         # Check loading up an example search
-        test_search = "butts"
+        test_search = "cabinet"
         rf = E621Sub()
         rf.search = test_search
         new_items = rf.check_subscription()
@@ -68,7 +68,7 @@ class TestE621Sub(unittest.TestCase):
         item_id = "652362"
         item_rate = "q"
         item_rating = "(Questionable)"
-        item_elem = {"id":item_id, "rating":item_rate}
+        item_elem = {"id": item_id, "rating": item_rate}
         # Check output works with given server and channel
         rf1 = E621Sub()
         rf1.update_frequency = Commons.load_time_delta("P1TS")
@@ -193,7 +193,7 @@ class TestE621Sub(unittest.TestCase):
         assert "destination" in resp.lower()
 
     def test_xml(self):
-        test_e621_search = "butts"
+        test_e621_search = "cabinet"
         test_seconds = 3600
         test_days = 0
         # Create example feed

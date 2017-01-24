@@ -67,19 +67,19 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             # Set up rss feeds
             rfl = E621SubList()
             rf1 = E621Sub()
-            rf1.search = "butt"
+            rf1.search = "cabinet"
             rf1.server_name = chan1.server.name
             rf1.channel_name = chan1.name
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf1)
             rf2 = E621Sub()
-            rf2.search = "deer"
+            rf2.search = "clefable"
             rf2.server_name = chan2.server.name
             rf2.channel_name = chan2.name
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf2)
             rf3 = E621Sub()
-            rf3.search = "dragon"
+            rf3.search = "fez"
             rf3.server_name = chan3.server.name
             rf3.channel_name = chan3.name
             rf3.update_frequency = Commons.load_time_delta("PT3600S")
@@ -129,19 +129,19 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             # Set up rss feeds
             rfl = E621SubList()
             rf1 = E621Sub()
-            rf1.search = "butt"
+            rf1.search = "cabinet"
             rf1.server_name = chan1.server.name
             rf1.channel_name = chan1.name
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf1)
             rf2 = E621Sub()
-            rf2.search = "deer"
+            rf2.search = "clefable"
             rf2.server_name = chan2.server.name
             rf2.channel_name = chan2.name
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf2)
             rf3 = E621Sub()
-            rf3.search = "dragon"
+            rf3.search = "fez"
             rf3.server_name = chan3.server.name
             rf3.channel_name = chan3.name
             rf3.update_frequency = Commons.load_time_delta("PT3600S")
@@ -155,16 +155,16 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             # Correct title but wrong channel
-            self.function_dispatcher.dispatch("e621 sub check deer", self.test_user, chan1)
+            self.function_dispatcher.dispatch("e621 sub check cabinet", self.test_user, chan1)
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             # Correct title check update
-            self.function_dispatcher.dispatch("e621 sub check deer", self.test_user, chan2)
+            self.function_dispatcher.dispatch("e621 sub check clefable", self.test_user, chan2)
             data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
             assert "search updates were found" in data[0][0].lower()
             assert len(data[0][0].lower().split("\n")) == 51
             # No updates
-            self.function_dispatcher.dispatch("e621 sub check deer", self.test_user, chan2)
+            self.function_dispatcher.dispatch("e621 sub check fez", self.test_user, chan2)
             data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
             assert "no updates" in data[0][0], "No further updates should be found."
         finally:
@@ -186,19 +186,19 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             # Set up rss feeds
             rfl = E621SubList()
             rf1 = E621Sub()
-            rf1.search = "butt"
+            rf1.search = "cabinet"
             rf1.server_name = chan1.server.name
             rf1.channel_name = chan1.name
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf1)
             rf2 = E621Sub()
-            rf2.search = "deer"
+            rf2.search = "clefable"
             rf2.server_name = chan2.server.name
             rf2.channel_name = chan2.name
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf2)
             rf3 = E621Sub()
-            rf3.search = "dragon"
+            rf3.search = "fez"
             rf3.server_name = chan3.server.name
             rf3.channel_name = chan3.name
             rf3.update_frequency = Commons.load_time_delta("PT3600S")

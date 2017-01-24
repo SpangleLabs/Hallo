@@ -18,7 +18,7 @@ class TestE621SubList(unittest.TestCase):
         # Create example rss feed
         rf = E621Sub()
         rf.update_frequency = Commons.load_time_delta("P0T3600S")
-        rf.search = "butt"
+        rf.search = "cabinet"
         rfl.add_sub(rf)
         assert len(rfl.sub_list) == 1
         assert rfl.sub_list[0] == rf
@@ -34,28 +34,27 @@ class TestE621SubList(unittest.TestCase):
         # Setup a feed list
         rfl = E621SubList()
         rf1 = E621Sub()
-        rf1.search = "butt"
+        rf1.search = "cabinet"
         rf1.server_name = chan1.server.name
         rf1.channel_name = chan1.name
         rfl.add_sub(rf1)
         rf2 = E621Sub()
-        rf2.search = "deer"
+        rf2.search = "clefable"
         rf2.server_name = user2.server.name
         rf2.user_name = user2.name
         rfl.add_sub(rf2)
         rf3 = E621Sub()
-        rf3.search = "dragon"
+        rf3.search = "fez"
         rf3.server_name = chan3.server.name
         rf3.channel_name = chan3.name
         rfl.add_sub(rf3)
         rf4 = E621Sub()
-        rf4.search = "fox"
+        rf4.search = "tail_cuff"
         rf4.server_name = chan3.server.name
         rf4.channel_name = chan3.name
         rfl.add_sub(rf4)
         rf5 = E621Sub()
         rf5.search = "score:>50"
-        rf5.title = "test_feed3"
         rf5.server_name = chan3.server.name
         rf5.channel_name = chan3.name
         rfl.add_sub(rf5)
@@ -77,32 +76,32 @@ class TestE621SubList(unittest.TestCase):
         # Setup a feed list
         rfl = E621SubList()
         rf1 = E621Sub()
-        rf1.search = "butt"
+        rf1.search = "cabinet"
         rf1.server_name = chan1.server.name
         rf1.channel_name = chan1.name
         rfl.add_sub(rf1)
         rf2 = E621Sub()
-        rf2.search = "deer"
+        rf2.search = "clefable"
         rf2.server_name = user2.server.name
         rf2.user_name = user2.name
         rfl.add_sub(rf2)
         rf3 = E621Sub()
-        rf3.search = "dragon"
+        rf3.search = "fez"
         rf3.server_name = chan3.server.name
         rf3.channel_name = chan3.name
         rfl.add_sub(rf3)
         rf4 = E621Sub()
-        rf4.search = "fox"
+        rf4.search = "tail_cuff"
         rf4.server_name = chan3.server.name
         rf4.channel_name = chan3.name
         rfl.add_sub(rf4)
         rf5 = E621Sub()
-        rf5.search = "dragon"
+        rf5.search = "fez"
         rf5.server_name = chan3.server.name
         rf5.channel_name = chan3.name
         rfl.add_sub(rf5)
         # Check function
-        feed_list = rfl.get_subs_by_search("dragon", chan3)
+        feed_list = rfl.get_subs_by_search("fez", chan3)
         assert len(feed_list) == 2
         assert rf3 in feed_list
         assert rf5 in feed_list
@@ -111,10 +110,10 @@ class TestE621SubList(unittest.TestCase):
         # Setup a feed list
         rfl = E621SubList()
         rf1 = E621Sub()
-        rf1.search = "butt"
+        rf1.search = "cabinet"
         rfl.add_sub(rf1)
         rf2 = E621Sub()
-        rf2.search = "deer"
+        rf2.search = "clefable"
         rfl.add_sub(rf2)
         assert len(rfl.sub_list) == 2
         # Remove an item from the feed list
@@ -126,19 +125,19 @@ class TestE621SubList(unittest.TestCase):
         # Setup a feed list
         rfl = E621SubList()
         rf1 = E621Sub()
-        rf1.search = "butt"
+        rf1.search = "cabinet"
         rf1.update_frequency = Commons.load_time_delta("P0T3600S")
         rf1.server_name = "test_serv1"
         rf1.channel_name = "test_chan1"
         rfl.add_sub(rf1)
         rf2 = E621Sub()
-        rf2.search = "deer"
+        rf2.search = "clefable"
         rf2.update_frequency = Commons.load_time_delta("P1TS")
         rf2.server_name = "test_serv2"
         rf2.channel_name = "test_chan2"
         rfl.add_sub(rf2)
         rf3 = E621Sub()
-        rf3.search = "dragon"
+        rf3.search = "fez"
         rf3.update_frequency = Commons.load_time_delta("PT60S")
         rf3.server_name = "test_serv3"
         rf3.user_name = "test_user3"

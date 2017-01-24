@@ -39,19 +39,19 @@ class SubE621ListTest(TestBase, unittest.TestCase):
         rfl = rss_check_obj.e621_sub_list
         # Add RSS feeds to feed list
         rf1 = E621Sub()
-        rf1.search = "butt"
+        rf1.search = "cabinet"
         rf1.server_name = self.server.name
         rf1.channel_name = self.test_chan.name
         rf1.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf1)
         rf2 = E621Sub()
-        rf2.search = "deer"
+        rf2.search = "clefable"
         rf2.server_name = self.server.name
         rf2.channel_name = "another_channel"
         rf2.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf2)
         rf3 = E621Sub()
-        rf3.search = "dragon"
+        rf3.search = "fez"
         rf3.server_name = self.server.name
         rf3.channel_name = self.test_chan.name
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
@@ -61,6 +61,6 @@ class SubE621ListTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         data_split = data[0][0].split("\n")
         assert "e621 search subscriptions posting" in data_split[0].lower(), "Missing title. Response data: "+str(data)
-        assert "butt" in data_split[1].lower() or "butt" in data_split[2].lower()
-        assert "deer" not in data_split[1].lower() and "deer" not in data_split[2].lower()
-        assert "dragon" in data_split[1].lower() or "dragon" in data_split[2].lower()
+        assert "cabinet" in data_split[1].lower() or "cabinet" in data_split[2].lower()
+        assert "clefable" not in data_split[1].lower() and "clefable" not in data_split[2].lower()
+        assert "fez" in data_split[1].lower() or "fez" in data_split[2].lower()

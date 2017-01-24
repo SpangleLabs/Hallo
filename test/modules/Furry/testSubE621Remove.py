@@ -3,7 +3,7 @@ import unittest
 
 from Server import Server
 from inc.Commons import Commons
-from modules.Furry import SubE621Check, E621SubList, E621Sub
+from modules.Furry import SubE621Check, E621Sub
 from test.TestBase import TestBase
 
 
@@ -34,27 +34,27 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rfl = e621_check_obj.e621_sub_list
         # Add E621 searches to subscription list
         rf1 = E621Sub()
-        rf1.search = "butt"
+        rf1.search = "cabinet"
         rf1.server_name = self.server.name
         rf1.channel_name = self.test_chan.name
         rf1.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf1)
         rf2 = E621Sub()
-        rf2.search = "deer"
+        rf2.search = "clefable"
         rf2.server_name = self.server.name
         rf2.channel_name = "another_channel"
         rf2.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf2)
         rf3 = E621Sub()
-        rf3.search = "dragon"
+        rf3.search = "fez"
         rf3.server_name = self.server.name
         rf3.channel_name = self.test_chan.name
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf3)
         # Remove test search
-        self.function_dispatcher.dispatch("e621 sub remove butt", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch("e621 sub remove cabinet", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "removed \"butt\"" in data[0][0].lower()
+        assert "removed \"cabinet\"" in data[0][0].lower()
         assert rf1 not in rfl.sub_list
         assert rf2 in rfl.sub_list
         assert rf3 in rfl.sub_list
@@ -66,27 +66,27 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rfl = e621_check_obj.e621_sub_list
         # Add E621 searches to subscription list
         rf1 = E621Sub()
-        rf1.search = "butt"
+        rf1.search = "cabinet"
         rf1.server_name = self.server.name
         rf1.channel_name = self.test_chan.name
         rf1.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf1)
         rf2 = E621Sub()
-        rf2.search = "deer"
+        rf2.search = "clefable"
         rf2.server_name = self.server.name
         rf2.channel_name = "another_channel"
         rf2.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf2)
         rf3 = E621Sub()
-        rf3.search = "butt"
+        rf3.search = "cabinet"
         rf3.server_name = self.server.name
         rf3.channel_name = self.test_chan.name
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf3)
         # Remove test feed
-        self.function_dispatcher.dispatch("e621 sub remove butt", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch("e621 sub remove cabinet", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "removed \"butt\"" in data[0][0].lower()
+        assert "removed \"cabinet\"" in data[0][0].lower()
         assert rf1 not in rfl.sub_list
         assert rf2 in rfl.sub_list
         assert rf3 not in rfl.sub_list
@@ -98,19 +98,19 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rfl = e621_check_obj.e621_sub_list
         # Add E621 searches to subscription list
         rf1 = E621Sub()
-        rf1.search = "butt"
+        rf1.search = "cabinet"
         rf1.server_name = self.server.name
         rf1.channel_name = self.test_chan.name
         rf1.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf1)
         rf2 = E621Sub()
-        rf2.search = "deer"
+        rf2.search = "clefable"
         rf2.server_name = self.server.name
         rf2.channel_name = "another_channel"
         rf2.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf2)
         rf3 = E621Sub()
-        rf3.search = "dragon"
+        rf3.search = "fez"
         rf3.server_name = self.server.name
         rf3.channel_name = self.test_chan.name
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
