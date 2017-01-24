@@ -63,7 +63,25 @@ class FunctionDispatcherTest(TestBase, unittest.TestCase):
             assert module in fd.module_list
         assert fd2.hallo == self.hallo
 
+    def test_open_close(self):
+        # Set up
+        test_module = "Euler"
+        test_modules = {test_module}
+        # Create function dispatcher
+        fd = FunctionDispatcher(test_modules, self.hallo)
+        try:
+            # Check test module is loaded
+            assert len(fd.function_dict) == len(test_modules)
+            assert len(fd.function_names) > 0
+        finally:
+            # Close function dispatcher
+            fd.close()
+        # Check test module unloaded
+        assert len(fd.function_dict) == 0
+        assert len(fd.function_names) == 0
+
 # TODO: write tests for each method:
+# Test init loads function from xml, test close saves it
 # dispatch
 # dispatch_passive
 # get_function_by_name
