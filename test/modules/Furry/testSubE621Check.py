@@ -155,7 +155,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             # Correct title but wrong channel
-            self.function_dispatcher.dispatch("e621 sub check cabinet", self.test_user, chan1)
+            self.function_dispatcher.dispatch("e621 sub check clefable", self.test_user, chan1)
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             # Correct title check update
