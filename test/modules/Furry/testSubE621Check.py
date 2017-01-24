@@ -164,7 +164,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             assert "search updates were found" in data[0][0].lower()
             assert len(data[0][0].lower().split("\n")) == 51
             # No updates
-            self.function_dispatcher.dispatch("e621 sub check fez", self.test_user, chan2)
+            self.function_dispatcher.dispatch("e621 sub check clefable", self.test_user, chan2)
             data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
             assert "no updates" in data[0][0], "No further updates should be found."
         finally:
