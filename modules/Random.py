@@ -79,7 +79,7 @@ class Choose(Function):
                          "Format: choose <first_option>, <second_option> ... <n-1th option> or <nth option>"
 
     def run(self, line, user_obj, channel_obj=None):
-        choices = re.compile(', | or ', re.IGNORECASE).split(line)
+        choices = re.compile(', (or )?| or,? ', re.IGNORECASE).split(line)
         numchoices = len(choices)
         if numchoices == 1:
             return 'Please present me with more than 1 thing to choose from!'
