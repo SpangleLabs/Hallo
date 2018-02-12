@@ -164,7 +164,7 @@ class Commons(object):
         for header in headers:
             page_request.add_header(header[0], header[1])
         page_opener = urllib.request.build_opener()
-        code = page_opener.open(page_request).read().decode('utf-8')
+        code = page_opener.open(page_request, timeout=60).read().decode('utf-8')
         return code
 
     @staticmethod
