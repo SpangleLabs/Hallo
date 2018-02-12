@@ -160,11 +160,11 @@ class Commons(object):
         if headers is None:
             headers = []
         page_request = urllib.request.Request(url)
-        page_request.add_header('User-Agent', 'Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
+        page_request.add_header('User-Agent', 'Hallo IRCBot hallo@dr-spangle.com')
         for header in headers:
             page_request.add_header(header[0], header[1])
         page_opener = urllib.request.build_opener()
-        code = page_opener.open(page_request).read().decode('utf-8')
+        code = page_opener.open(page_request, timeout=60).read().decode('utf-8')
         return code
 
     @staticmethod
