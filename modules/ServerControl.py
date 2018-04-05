@@ -612,11 +612,11 @@ class ListServers(Function):
             server_nick = server.nick
             server_state = server.state
             server_type = server.type
-            type_str = server_type
+            type_str = str(server_type)
             if server_type == Server.TYPE_IRC:
                 server_addr = server.server_address+":"+str(server.server_port)
                 type_str += "("+server_addr+")"
-            server_str = server_name + "[type=" + type_str + ", state=" + server_state + ", nick=" + server_nick + \
+            server_str = str(server_name) + "[type=" + str(type_str) + ", state=" + str(server_state) + ", nick=" + str(server_nick) + \
                          ", auto_connect=" + str(server_auto) + "]"
             server_str_list.append(server_str)
         output_string += ', '.join(server_str_list) + "."
