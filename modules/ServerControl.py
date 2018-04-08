@@ -600,7 +600,6 @@ class ListServers(Function):
         Hallo will tell you which servers he knows about and is/isn't connected to, ops only.
         Format: "servers" for all servers.
         """
-        line_clean = line.strip().lower()
         hallo_obj = user_obj.get_server().get_hallo()
         # If they ask for all channels, give them all channels.
         server_list = hallo_obj.get_server_list()
