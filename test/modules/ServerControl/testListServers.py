@@ -7,6 +7,9 @@ from test.TestBase import TestBase
 
 class ConnectTest(TestBase, unittest.TestCase):
 
+    def setUp(self):
+        # Clear servers
+
     def tearDown(self):
         for server in self.hallo.server_list:
             if server is not self.server:
@@ -16,9 +19,12 @@ class ConnectTest(TestBase, unittest.TestCase):
         super().tearDown()
 
     def test_no_servers(self):
-        pass
+        self.function_dispatcher.dispatch("list servers ", self.test_user, self.test_chan)
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        assert "do not currently have any servers" in data[0][0].lower()
 
     def test_one_server(self):
+        # Add a mock server
         pass
 
     def test_two_mock_servers(self):
