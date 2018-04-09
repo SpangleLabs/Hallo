@@ -603,6 +603,8 @@ class ListServers(Function):
         hallo_obj = user_obj.get_server().get_hallo()
         # If they ask for all channels, give them all channels.
         server_list = hallo_obj.get_server_list()
+        if len(server_list) == 0:
+            return "I do not currently have any servers in my list."
         output_string = "Here is my current server list: "
         server_str_list = []
         for server in server_list:
