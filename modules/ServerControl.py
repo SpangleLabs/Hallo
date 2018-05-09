@@ -563,7 +563,7 @@ class ListChannels(Function):
         if server_obj is None:
             # Otherwise, return an error
             output_string = "I don't understand your input, please specify a server, or hallo, " \
-                           "or no input to get the current server's list"
+                            "or no input to get the current server's list"
             return output_string
         in_channel_name_list = self.get_in_channel_names_list(server_obj)
         output_string = "On " + server_obj.get_name() + " server, I'm in these channels: "
@@ -608,15 +608,15 @@ class ListServers(Function):
         for server in server_list:
             server_name = server.name
             server_auto = server.auto_connect
-            server_nick = server.nick
+            server_nick = server.get_nick()
             server_state = server.state
             server_type = server.type
             type_str = str(server_type)
             if server_type == Server.TYPE_IRC:
-                server_addr = server.server_address+":"+str(server.server_port)
-                type_str += "("+server_addr+")"
-            server_str = str(server_name) + "[type=" + str(type_str) + ", state=" + str(server_state) + ", nick=" + str(server_nick) + \
-                         ", auto_connect=" + str(server_auto) + "]"
+                server_addr = server.server_address + ":" + str(server.server_port)
+                type_str += "(" + server_addr + ")"
+            server_str = str(server_name) + "[type=" + str(type_str) + ", state=" + str(server_state) + \
+                         ", nick=" + str(server_nick) + ", auto_connect=" + str(server_auto) + "]"
             server_str_list.append(server_str)
         output_string += ', '.join(server_str_list) + "."
         return output_string
