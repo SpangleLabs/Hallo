@@ -121,5 +121,37 @@ class ConnectTest(TestBase, unittest.TestCase):
                                                                           "Full output: " + data[0][0]
 
     def test_irc_server(self):
-        # TODO
-        assert False
+        # Add one server
+        serv1 = ServerMock(self.hallo)
+        serv1.type = Server.TYPE_IRC
+        serv1.server_address = "irc.example.org"
+        serv1.server_port = 6789
+        serv1.name = "irc_server_list_test"
+        self.hallo.add_server(serv1)
+        # Send command
+        self.function_dispatcher.dispatch("list servers", self.test_user, self.test_chan)
+        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        # Check response
+        server_list_text = data[0][0].split(":", 1)[1]
+        server_list = server_list_text.split("], ")
+        assert len(server_list) == 1
+        assert serv1.name in server_list[0], "Server name not found in output.\n" \
+                                             "Server name: " + serv1.name + "\n" \
+                                             "Command output: " + server_list[0]
+        assert "type=" + serv1.type in server_list[0], "Server type not found in output.\n" \
+                                                       "Server type: " + serv1.type + "\n" \
+                                                       "Command output: " + server_list[0]
+        irc_address = serv1.server_address + ":" + str(serv1.server_port)
+        assert irc_address in server_list[0], "IRC server address not found in output.\n" \
+                                              "Server address: " + irc_address + "\n" \
+                                              "Command output: " + server_list[0]
+        assert "state=" + serv1.state in server_list[0], "Server state not found in output.\n" \
+                                                         "Server name: " + serv1.state + "\n" \
+                                                         "Command output: " + server_list[0]
+        assert "nick=" + serv1.get_nick() in server_list[0], "Server nick not found in output.\n" \
+                                                             "Server nick: " + serv1.get_nick() + "\n" \
+                                                             "Command output: " + server_list[0]
+        assert "auto_connect=" + str(serv1.auto_connect) in server_list[0], "Server auto connect not found in output.\n" \
+                                                                            "Server auto connect: " + \
+                                                                            str(serv1.auto_connect) + "\n" \
+                                                                            "Command output: " + server_list[0]
