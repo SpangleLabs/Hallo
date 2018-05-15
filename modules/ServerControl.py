@@ -563,7 +563,7 @@ class ListChannels(Function):
         if server_obj is None:
             # Otherwise, return an error
             output_string = "I don't understand your input, please specify a server, or hallo, " \
-                           "or no input to get the current server's list"
+                            "or no input to get the current server's list"
             return output_string
         in_channel_name_list = self.get_in_channel_names_list(server_obj)
         output_string = "On " + server_obj.get_name() + " server, I'm in these channels: "
@@ -575,3 +575,50 @@ class ListChannels(Function):
         in_channel_list = [channel for channel in channel_list if channel.is_in_channel()]
         in_channel_names_list = [channel.get_name() for channel in in_channel_list]
         return in_channel_names_list
+
+
+class ListServers(Function):
+    """
+    Lists channels in a specified server, or for all of hallo.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "list servers"
+        # Names which can be used to address the Function
+        self.names = {"list servers", "server list", "servlist", "servers", "servers list"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Hallo will tell you which servers he knows about, and whether he's connected to them. " \
+                         "Format: \"list servers\" will list all servers."
+
+    def run(self, line, user_obj, destination_obj=None):
+        """
+        Hallo will tell you which servers he knows about and is/isn't connected to, ops only.
+        Format: "servers" for all servers.
+        """
+        hallo_obj = user_obj.get_server().get_hallo()
+        # If they ask for all channels, give them all channels.
+        server_list = hallo_obj.get_server_list()
+        if len(server_list) == 0:
+            return "I do not currently have any servers in my list."
+        output_string = "Here is my current server list: "
+        server_str_list = []
+        for server in server_list:
+            server_name = server.name
+            server_auto = server.auto_connect
+            server_nick = server.get_nick()
+            server_state = server.state
+            server_type = server.type
+            type_str = str(server_type)
+            if server_type == Server.TYPE_IRC:
+                server_addr = server.server_address + ":" + str(server.server_port)
+                type_str += "(" + server_addr + ")"
+            server_str = str(server_name) + "[type=" + str(type_str) + ", state=" + str(server_state) + \
+                         ", nick=" + str(server_nick) + ", auto_connect=" + str(server_auto) + "]"
+            server_str_list.append(server_str)
+        output_string += ', '.join(server_str_list) + "."
+        return output_string
