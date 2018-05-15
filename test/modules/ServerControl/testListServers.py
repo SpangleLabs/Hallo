@@ -5,7 +5,7 @@ from test.ServerMock import ServerMock
 from test.TestBase import TestBase
 
 
-class ConnectTest(TestBase, unittest.TestCase):
+class ListServersTest(TestBase, unittest.TestCase):
 
     def setUp(self):
         super().setUp()
