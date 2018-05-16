@@ -18,12 +18,15 @@ class ListServersTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch("list servers", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         # Check response
-        assert data[0][0].split(":")[1].strip() == ".", "Response contained at least one server. " \
-                                                        "Response: " + str(data[0][0])
+        assert "do not" in data[0][0], "Response did not say it doesn't have servers. " \
+                                       "Response: " + str(data[0][0])
+        assert ":" not in data[0][0], "Response tried to list servers. " \
+                                      "Response: " + str(data[0][0])
 
     def test_one_server(self):
         # Add one server
         serv1 = ServerMock(self.hallo)
+
         serv1.name = "server_list_test"
         self.hallo.add_server(serv1)
         # Send command
