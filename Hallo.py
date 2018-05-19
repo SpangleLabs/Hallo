@@ -90,6 +90,7 @@ class Hallo:
                 self.function_dispatcher.dispatch_passive(Function.EVENT_DAY, None, None, None, None)
             last_date_time = now_date_time
             time.sleep(0.1)
+        self.close()
 
     @staticmethod
     def load_from_xml():
