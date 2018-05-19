@@ -46,6 +46,8 @@ class ServerFactory:
         server_type = doc.getElementsByTagName("server_type")[0].firstChild.data
         if server_type == Server.TYPE_IRC:
             return ServerIRC.from_xml(xml_string, self.hallo)
+        elif server_type == Server.TYPE_TELEGRAM:
+            return ServerTelegram.from_xml(xml_string, self.hallo)
         else:
             return None
 
@@ -57,6 +59,7 @@ class Server(metaclass=ABCMeta):
     # Constants
     TYPE_IRC = "irc"
     TYPE_MOCK = "mock"
+    TYPE_TELEGRAM = "telegram"
     MSG_MSG = "message"
     MSG_NOTICE = "notice"
     MSG_RAW = "raw"
@@ -1535,8 +1538,78 @@ class ServerTelegram(Server):
             self.state = Server.STATE_OPEN
 
     def parse_message(self, bot, update):
-        print(update)
-        #TODO
+        """
+        Handles a new update object from the server
+        :param bot: telegram bot object
+        :type bot: telegram.Bot
+        :param update: Update object from telegram API
+        :type update: telegram.Update
+        """
+        # Parse out the message text
+        message_text = update.message.text
+        # Parse out the message sender
+        message_sender_name = update.message.chat.username
+        # Test for private message or public message.
+        message_private_bool = update.message.chat.type == "private"
+        # Parse out where the message went to (e.g. channel or private message to Hallo)
+        message_destination_name = None
+        if not message_private_bool:
+            message_destination_name = update.message.chat.title
+        # Get relevant objects.
+        message_sender = self.get_user_by_name(message_sender_name)
+        message_sender.update_activity()
+        message_sender.telegram_chat_id = update.message.chat.id
+        message_destination = message_sender
+        # Get function dispatcher ready
+        function_dispatcher = self.hallo.get_function_dispatcher()
+        if message_private_bool:
+            # Print and Log the private message
+            self.hallo.get_printer().output(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
+            self.hallo.get_logger().log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
+            function_dispatcher.dispatch(message_text, message_sender, message_destination)
+        else:
+            message_channel = self.get_channel_by_name(message_destination_name)
+            # Print and Log the public message
+            self.hallo.get_printer().output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
+            self.hallo.get_logger().log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
+            # Update channel activity
+            message_channel.update_activity()
+            # Get acting command prefix
+            acting_prefix = message_channel.get_prefix()
+            # Figure out if the message is a command, Send to FunctionDispatcher
+            if acting_prefix is False:
+                acting_prefix = self.get_nick().lower()
+                # Check if directly addressed
+                if any(message_text.lower().startswith(acting_prefix+x) for x in [":", ","]):
+                    message_text = message_text[len(acting_prefix) + 1:]
+                    function_dispatcher.dispatch(message_text,
+                                                 message_sender,
+                                                 message_channel)
+                elif message_text.lower().startswith(acting_prefix):
+                    message_text = message_text[len(acting_prefix):]
+                    function_dispatcher.dispatch(message_text,
+                                                 message_sender,
+                                                 message_channel,
+                                                 [function_dispatcher.FLAG_HIDE_ERRORS])
+                else:
+                    # Pass to passive function checker
+                    function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
+                                                         message_text,
+                                                         self,
+                                                         message_sender,
+                                                         message_channel)
+            elif message_text.lower().startswith(acting_prefix):
+                message_text = message_text[len(acting_prefix):]
+                function_dispatcher.dispatch(message_text,
+                                             message_sender,
+                                             message_channel)
+            else:
+                # Pass to passive function checker
+                function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
+                                                     message_text,
+                                                     self,
+                                                     message_sender,
+                                                     message_channel)
 
     def disconnect(self, force=False):
         pass
@@ -1547,6 +1620,11 @@ class ServerTelegram(Server):
         #TODO
 
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
+        if destination_obj.is_channel():
+            #TODO
+            pass
+        else:
+            self.bot.send_message(chat_id=destination_obj.telegram_chat_id, text=data)
         pass
         #TODO
 
@@ -1558,9 +1636,25 @@ class ServerTelegram(Server):
         :param hallo: Hallo object which is connected to this server
         """
         doc = minidom.parseString(xml_string)
-        api_key = doc.getElementsByTagName("api_key")[0].firstChild.data
-        new_server = ServerIRC(hallo, api_key)
+        api_key = doc.getElementsByTagName("server_api_key")[0].firstChild.data
+        new_server = ServerTelegram(hallo, api_key)
         new_server.auto_connect = Commons.string_from_file(doc.getElementsByTagName("auto_connect")[0].firstChild.data)
+        if len(doc.getElementsByTagName("server_nick")) != 0:
+            new_server.nick = doc.getElementsByTagName("server_nick")[0].firstChild.data
+        if len(doc.getElementsByTagName("server_prefix")) != 0:
+            new_server.prefix = doc.getElementsByTagName("server_prefix")[0].firstChild.data
+        # Load channels
+        channel_list_elem = doc.getElementsByTagName("channel_list")[0]
+        for channel_elem in channel_list_elem.getElementsByTagName("channel"):
+            channel_obj = Channel.from_xml(channel_elem.toxml(), new_server)
+            new_server.add_channel(channel_obj)
+        # Load users
+        user_list_elem = doc.getElementsByTagName("user_list")[0]
+        for user_elem in user_list_elem.getElementsByTagName("user"):
+            user_obj = User.from_xml(user_elem.toxml(), new_server)
+            new_server.add_user(user_obj)
+        if len(doc.getElementsByTagName("permission_mask")) != 0:
+            new_server.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return new_server
 
     def to_xml(self):
