@@ -5,6 +5,11 @@ from threading import Thread, Lock, RLock
 import socket
 import time
 import re
+import telegram
+from telegram.ext import Updater, Filters
+import logging
+from telegram.ext import MessageHandler
+from telegram.utils.request import Request
 
 from Destination import Channel, User, ChannelMembership
 from PermissionMask import PermissionMask
@@ -1475,3 +1480,97 @@ class ServerIRC(Server):
         if len(doc.getElementsByTagName("permission_mask")) != 0:
             new_server.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return new_server
+
+
+class ServerTelegram(Server):
+
+    def __init__(self, hallo, api_key):
+        super().__init__(hallo)
+        """
+        Constructor for server object
+        :param hallo: Hallo Instance of hallo that contains this server object
+        :type hallo: Hallo.Hallo
+        """
+        self.hallo = hallo  # The hallo object that created this server
+        # Persistent/saved class variables
+        self.api_key = api_key
+        self.name = "Telegram"  # Server name
+        self.auto_connect = True  # Whether to automatically connect to this server when hallo starts
+        self.channel_list = []  # List of channels on this server (which may or may not be currently active)
+        self.user_list = []  # Users on this server (not all of which are online)
+        self.nick = None  # Nickname to use on this server
+        self.prefix = None  # Prefix to use with functions on this server
+        self.full_name = None  # Full name to use on this server
+        self.permission_mask = PermissionMask()  # PermissionMask for the server
+        # Dynamic/unsaved class variables
+        self.state = Server.STATE_CLOSED  # Current state of the server, replacing open
+        self._connect_lock = Lock()
+        request = Request(con_pool_size=8)
+        self.bot = telegram.Bot(token=self.api_key, request=request)
+        self.bot.logger.setLevel(logging.INFO)
+        self.updater = Updater(bot=self.bot)
+        self.dispatcher = self.updater.dispatcher
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.ERROR)
+        self.core_msg_handler = MessageHandler(Filters.all, self.parse_message)
+        self.dispatcher.add_handler(self.core_msg_handler)
+
+    def start(self):
+        """
+        Starts up the server and launches the new thread
+        """
+        if self.state != Server.STATE_CLOSED:
+            raise ServerException("Already started.")
+        self.state = Server.STATE_CONNECTING
+        with self._connect_lock:
+            Thread(target=self.connect).start()
+
+    def connect(self):
+        """
+        Internal method
+        Method to read from stream and process. Will connect and call internal parsing methods or whatnot.
+        Needs to be started in it's own thread, only exits when the server connection ends
+        """
+        with self._connect_lock:
+            self.updater.start_polling()
+            self.state = Server.STATE_OPEN
+
+    def parse_message(self, bot, update):
+        print(update)
+        #TODO
+
+    def disconnect(self, force=False):
+        pass
+        #TODO
+
+    def reconnect(self):
+        pass
+        #TODO
+
+    def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
+        pass
+        #TODO
+
+    @staticmethod
+    def from_xml(xml_string, hallo):
+        """
+        Constructor to build a new server object from xml
+        :param xml_string: XML string representation of telegram server configuration
+        :param hallo: Hallo object which is connected to this server
+        """
+        doc = minidom.parseString(xml_string)
+        api_key = doc.getElementsByTagName("api_key")[0].firstChild.data
+        new_server = ServerIRC(hallo, api_key)
+        new_server.auto_connect = Commons.string_from_file(doc.getElementsByTagName("auto_connect")[0].firstChild.data)
+        return new_server
+
+    def to_xml(self):
+        pass
+        #TODO
+
+    def join_channel(self, channel_obj):
+        pass
+        #TODO
+
+    def check_user_identity(self, user_obj):
+        pass
+        #TODO
