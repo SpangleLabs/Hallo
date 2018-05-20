@@ -173,7 +173,7 @@ class Foof(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         """FOOOOOOOOOF. Format: foof"""
-        rand = Commons.get_random_int(0, 60)
+        rand = Commons.get_random_int(0, 60)[0]
         if rand <= 20:
             return 'doof'
         elif rand <= 40:
