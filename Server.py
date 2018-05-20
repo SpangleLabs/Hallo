@@ -1715,5 +1715,4 @@ class ServerTelegram(Server):
         #TODO
 
     def check_user_identity(self, user_obj):
-        pass
-        #TODO
+        return True
