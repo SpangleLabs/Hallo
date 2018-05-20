@@ -1537,6 +1537,15 @@ class ServerTelegram(Server):
             self.updater.start_polling()
             self.state = Server.STATE_OPEN
 
+    def disconnect(self, force=False):
+        self.state = Server.STATE_DISCONNECTING
+        with self._connect_lock:
+            self.updater.stop()
+            self.state = Server.STATE_CLOSED
+
+    def reconnect(self):
+        super().reconnect()
+
     def parse_message(self, bot, update):
         """
         Handles a new update object from the server
@@ -1610,14 +1619,6 @@ class ServerTelegram(Server):
                                                      self,
                                                      message_sender,
                                                      message_channel)
-
-    def disconnect(self, force=False):
-        pass
-        #TODO
-
-    def reconnect(self):
-        pass
-        #TODO
 
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
         if destination_obj.is_channel():
