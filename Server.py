@@ -1658,8 +1658,56 @@ class ServerTelegram(Server):
         return new_server
 
     def to_xml(self):
-        pass
-        #TODO
+        """
+        Returns an XML representation of the server object
+        """
+        # create document
+        doc = minidom.Document()
+        # create root element
+        root = doc.createElement("server")
+        doc.appendChild(root)
+        # create type element
+        type_elem = doc.createElement("server_type")
+        type_elem.appendChild(doc.createTextNode(self.get_type()))
+        root.appendChild(type_elem)
+        # create server API key element
+        key_elem = doc.createElement("server_api_key")
+        key_elem.appendChild(doc.createTextNode(self.api_key))
+        root.appendChild(key_elem)
+        # create auto connect element
+        auto_connect_elem = doc.createElement("auto_connect")
+        auto_connect_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.auto_connect]))
+        root.appendChild(auto_connect_elem)
+        # create channel list
+        channel_list_elem = doc.createElement("channel_list")
+        for channel_obj in self.channel_list:
+            if channel_obj.is_persistent():
+                channel_elem = minidom.parseString(channel_obj.to_xml()).firstChild
+                channel_list_elem.appendChild(channel_elem)
+        root.appendChild(channel_list_elem)
+        # create user list
+        user_list_elem = doc.createElement("user_list")
+        for user_obj in self.user_list:
+            if user_obj.is_persistent():
+                user_elem = minidom.parseString(user_obj.to_xml()).firstChild
+                user_list_elem.appendChild(user_elem)
+        root.appendChild(user_list_elem)
+        # create nick element
+        if self.nick is not None:
+            nick_elem = doc.createElement("server_nick")
+            nick_elem.appendChild(doc.createTextNode(self.nick))
+            root.appendChild(nick_elem)
+        # create prefix element
+        if self.prefix is not None:
+            prefix_elem = doc.createElement("server_prefix")
+            prefix_elem.appendChild(doc.createTextNode(self.prefix))
+            root.appendChild(prefix_elem)
+        # create permission_mask element
+        if not self.permission_mask.is_empty():
+            permission_mask_elem = minidom.parse(self.permission_mask.to_xml()).firstChild
+            root.appendChild(permission_mask_elem)
+        # output XML string
+        return doc.toxml()
 
     def join_channel(self, channel_obj):
         pass
