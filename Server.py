@@ -1554,6 +1554,7 @@ class ServerTelegram(Server):
             # Check if it's a group add
             if update.message.new_chat_members is not None and len(update.message.new_chat_members) == 0:
                 return self.parse_join(bot, update)
+        # TODO Else log to file and report maybe?
 
     def parse_message(self, bot, update):
         """
