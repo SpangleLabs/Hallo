@@ -4,8 +4,10 @@ import re
 from xml.dom import minidom
 from xml.etree import ElementTree
 from datetime import datetime
-from Server import Server, ServerIRC, ServerFactory
+from Server import Server
 from PermissionMask import PermissionMask
+from ServerFactory import ServerFactory
+from ServerIRC import ServerIRC
 from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
 from Function import Function
