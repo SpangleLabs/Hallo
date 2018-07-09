@@ -1514,7 +1514,7 @@ class ServerTelegram(Server):
         self.updater = Updater(bot=self.bot)
         self.dispatcher = self.updater.dispatcher
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.ERROR)
-        self.core_msg_handler = MessageHandler(Filters.all, self.parse_message)
+        self.core_msg_handler = MessageHandler(Filters.all, self.parse_update, channel_post_updates=True)
         self.dispatcher.add_handler(self.core_msg_handler)
 
     def start(self):
@@ -1545,6 +1545,15 @@ class ServerTelegram(Server):
 
     def reconnect(self):
         super().reconnect()
+
+    def parse_update(self, bot, update):
+        if update.message is not None:
+            # Check if it's a normal message
+            if update.message.text is not None:
+                return self.parse_message(bot, update)
+            # Check if it's a group add
+            if update.message.new_chat_members is not None and len(update.message.new_chat_members) == 0:
+                return self.parse_join(bot, update)
 
     def parse_message(self, bot, update):
         """
@@ -1620,14 +1629,16 @@ class ServerTelegram(Server):
                                                      message_sender,
                                                      message_channel)
 
+    def parse_join(self, bot, update):
+        #TODO
+        pass
+
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
         if destination_obj.is_channel():
             #TODO
             pass
         else:
             self.bot.send_message(chat_id=destination_obj.telegram_chat_id, text=data)
-        pass
-        #TODO
 
     @staticmethod
     def from_xml(xml_string, hallo):
