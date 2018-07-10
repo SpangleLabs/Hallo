@@ -747,8 +747,9 @@ class ServerIRC(Server):
         # TODO: add logging?
         # Check for a 433 "ERR_NICKNAMEINUSE"
         if numeric_code == "433":
-            nick_numstr: Optional[str] = \
-                ([self.nick[x:] for x in range(len(self.nick)) if Commons.is_float_string(self.nick[x:])] + [None])[0]
+            nick_numstr = (
+                    [self.nick[x:] for x in range(len(self.nick)) if Commons.is_float_string(self.nick[x:])]
+                    + [None])[0]  # type: Optional[str]
             if nick_numstr is None:
                 nick_number = 0
                 nick_word = self.nick
