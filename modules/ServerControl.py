@@ -1,7 +1,9 @@
 from Function import Function
 import re
+
+from ServerIRC import ServerIRC
 from inc.Commons import Commons
-from Server import Server, ServerIRC
+from Server import Server
 
 
 class JoinChannel(Function):
