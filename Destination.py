@@ -11,10 +11,12 @@ class Destination(metaclass=ABCMeta):
     Abstract class for Channel and User. It just means messages can be sent to these entities.
     """
 
-    def __init__(self):
-        self.server = None  # The server object this destination belongs to
+    def __init__(self, server, address, name):
+        self.server = server  # The server object this destination belongs to
         """:type : Server.Server"""
-        self.name = None  # Destination name, where to send messages
+        self.address = address
+        """:type : str"""
+        self.name = name  # Destination name, where to send messages
         """:type : str"""
         self.logging = True  # Whether logging is enabled for this destination
         """:type : bool"""
@@ -149,13 +151,13 @@ class Destination(metaclass=ABCMeta):
 
 class Channel(Destination):
 
-    def __init__(self, name, server):
+    def __init__(self, server, address, name):
         """
         Constructor for channel object
         :type name: str
         :type server: Server.Server
         """
-        super().__init__()
+        super().__init__(server, address, name)
         self.password = None  # Channel password, or none.
         """:type : str | None"""
         self.in_channel = False  # Whether or not hallo is in the channel
@@ -166,10 +168,6 @@ class Channel(Destination):
         """:type : bool"""
         self.prefix = None  # Prefix for calling functions. None means inherit from Server. False means use nick.
         """:type : bool | None | str"""
-        self.name = name.lower()
-        """:type : str"""
-        self.server = server
-        """:type : Server.Server"""
 
     def __eq__(self, other):
         return isinstance(other, Channel) and self.server == other.server and self.name.lower() == other.name.lower()
@@ -370,6 +368,10 @@ class Channel(Destination):
         name_elem = doc.createElement("channel_name")
         name_elem.appendChild(doc.createTextNode(self.name))
         root.appendChild(name_elem)
+        # create address element
+        addr_elem = doc.createElement("channel_address")
+        addr_elem.appendChild(doc.createTextNode(self.address))
+        root.appendChild(addr_elem)
         # create logging element
         logging_elem = doc.createElement("logging")
         logging_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.logging]))
@@ -409,7 +411,8 @@ class Channel(Destination):
         """
         doc = minidom.parseString(xml_string)
         new_name = doc.getElementsByTagName("channel_name")[0].firstChild.data
-        channel = Channel(new_name, server)
+        new_addr = doc.getElementsByTagName("channel_address")[0].firstChild.data
+        channel = Channel(server, new_addr, new_name)
         channel.logging = Commons.string_from_file(doc.getElementsByTagName("logging")[0].firstChild.data)
         channel.use_caps_lock = Commons.string_from_file(doc.getElementsByTagName("caps_lock")[0].firstChild.data)
         if len(doc.getElementsByTagName("password")) != 0:
@@ -424,7 +427,7 @@ class Channel(Destination):
 
 class User(Destination):
 
-    def __init__(self, name, server):
+    def __init__(self, server, address, name):
         """
         Constructor for user object
         :param name: Name of the user
@@ -432,7 +435,7 @@ class User(Destination):
         :param server: Server the user is on
         :type server: Server.Server
         """
-        super().__init__()
+        super().__init__(server, address, name)
         """:type : str"""
         self.identified = False  # Whether the user is identified (with nickserv)
         """:type : bool"""
@@ -440,10 +443,6 @@ class User(Destination):
         """:type : bool"""
         self.user_group_list = set()  # List of UserGroups this User is a member of
         """:type : set[UserGroup.UserGroup]"""
-        self.name = name.lower()
-        """:type : str"""
-        self.server = server
-        """:type : Server.Server"""
 
     def __eq__(self, other):
         return isinstance(other, User) and self.server == other.server and self.name.lower() == other.name.lower()
@@ -577,6 +576,10 @@ class User(Destination):
         name_elem = doc.createElement("user_name")
         name_elem.appendChild(doc.createTextNode(self.name))
         root.appendChild(name_elem)
+        # create address element
+        addr_elem = doc.createElement("user_address")
+        addr_elem.appendChild(doc.createTextNode(self.address))
+        root.appendChild(addr_elem)
         # create logging element
         logging_elem = doc.createElement("logging")
         logging_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.logging]))
@@ -610,7 +613,8 @@ class User(Destination):
         """
         doc = minidom.parseString(xml_string)
         new_name = doc.getElementsByTagName("user_name")[0].firstChild.data
-        new_user = User(new_name, server)
+        new_addr = doc.getElementsByTagName("user_address")[0].firstChild.data
+        new_user = User(server, new_addr, new_name)
         new_user.logging = Commons.string_from_file(doc.getElementsByTagName("logging")[0].firstChild.data)
         new_user.use_caps_lock = Commons.string_from_file(doc.getElementsByTagName("caps_lock")[0].firstChild.data)
         # Load UserGroups from XML

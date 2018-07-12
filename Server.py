@@ -173,17 +173,41 @@ class Server(metaclass=ABCMeta):
         """Returns boolean representing whether the server is connected or not."""
         return self.state == Server.STATE_OPEN
 
-    def get_channel_by_name(self, channel_name):
+    def get_channel_by_name(self, channel_name, address=None):
+        # TODO: fix all usages of this
         """
         Returns a Channel object with the specified channel name.
         :param channel_name: Name of the channel which is being searched for
         :type channel_name: str
+        :param address: Address of the channel
+        :type address: str
+        :return: Destination.Channel
         """
         channel_name = channel_name.lower()
         for channel in self.channel_list:
             if channel.get_name() == channel_name:
                 return channel
-        new_channel = Channel(channel_name, self)
+        new_channel = None
+        if address is not None:
+            new_channel = Channel(self, address, channel_name)
+            self.add_channel(new_channel)
+        else:
+            self.hallo.printer.print_raw("WARNING: Server.get_channel_by_name() used without address")
+        return new_channel
+
+    def get_channel_by_address(self, address, channel_name):
+        """
+        Returns a Channel object with the specified channel name.
+        :param address: Address of the channel
+        :type address: str
+        :param channel_name: Name of the channel which is being searched for
+        :type channel_name: str
+        :return: Destination.Channel
+        """
+        for channel in self.channel_list:
+            if channel.address == address:
+                return channel
+        new_channel = Channel(self, address, channel_name)
         self.add_channel(new_channel)
         return new_channel
 
@@ -220,19 +244,43 @@ class Server(metaclass=ABCMeta):
         # Set not in channel
         channel_obj.set_in_channel(False)
 
-    def get_user_by_name(self, user_name):
+    def get_user_by_name(self, user_name, address=None):
+        # TODO: fix all usages of this
         """
         Returns a User object with the specified user name.
         :param user_name: Name of user which is being searched for
         :type user_name: str
-        :return: Destination.User
+        :param address: address of the user which is being searched for or added
+        :type address: str | None
+        :return: Destination.User | None
         """
         user_name = user_name.lower()
         for user in self.user_list:
             if user.get_name() == user_name:
                 return user
-        # No user by that name exists, so create one.
-        new_user = User(user_name, self)
+        # No user by that name exists, so create one, provided address is supplied
+        new_user = None
+        if address is not None:
+            new_user = User(self, address, user_name)
+            self.add_user(new_user)
+        else:
+            self.hallo.printer.print_raw("WARNING: Server.get_user_by_name() used without address")
+        return new_user
+
+    def get_user_by_address(self, address, user_name):
+        """
+        Returns a User object with the specified user name.
+        :param address: address of the user which is being searched for or added
+        :type address: str
+        :param user_name: Name of user which is being searched for
+        :type user_name: str
+        :return: Destination.User | None
+        """
+        for user in self.user_list:
+            if user.address == address:
+                return user
+        # No user by that name exists, so create one
+        new_user = User(self, address, user_name)
         self.add_user(new_user)
         return new_user
 
@@ -269,4 +317,3 @@ class Server(metaclass=ABCMeta):
         :type user_obj: Destination.User
         """
         raise NotImplementedError
-
