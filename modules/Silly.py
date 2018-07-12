@@ -90,7 +90,7 @@ class SlowClap(Function):
         line_clean = line.strip().lower()
         server_obj = user_obj.server
         if line_clean == "":
-            if destination_obj.type == Destination.TYPE_CHANNEL:
+            if destination_obj.is_channel():
                 server_obj.send("*clap*", destination_obj)
                 time.sleep(0.5)
                 server_obj.send("*clap*", destination_obj)

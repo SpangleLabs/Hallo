@@ -11,12 +11,7 @@ class Destination(metaclass=ABCMeta):
     Abstract class for Channel and User. It just means messages can be sent to these entities.
     """
 
-    TYPE_CHANNEL = "channel"
-    TYPE_USER = "user"
-
     def __init__(self):
-        self.type = None  # The type of destination, "channel" or "user"
-        """:type : str | None"""
         self.server = None  # The server object this destination belongs to
         """:type : Server.Server"""
         self.name = None  # Destination name, where to send messages
@@ -47,19 +42,12 @@ class Destination(metaclass=ABCMeta):
         """
         self.name = name.lower()
 
-    def get_type(self):
-        """
-        Returns whether the destination is a user or channel.
-        :rtype : str
-        """
-        return self.type
-
     def is_channel(self):
         """
         Boolean, whether the destination is a channel.
         :rtype : bool
         """
-        if self.type == Destination.TYPE_CHANNEL:
+        if isinstance(self, Channel):
             return True
         else:
             return False
@@ -69,7 +57,7 @@ class Destination(metaclass=ABCMeta):
         Boolean, whether the destination is a user.
         :rtype : bool
         """
-        if self.type == Destination.TYPE_CHANNEL:
+        if isinstance(self, Channel):
             return False
         else:
             return True
@@ -168,7 +156,6 @@ class Channel(Destination):
         :type server: Server.Server
         """
         super().__init__()
-        self.type = Destination.TYPE_CHANNEL  # This is a channel object
         self.password = None  # Channel password, or none.
         """:type : str | None"""
         self.in_channel = False  # Whether or not hallo is in the channel
@@ -446,7 +433,6 @@ class User(Destination):
         :type server: Server.Server
         """
         super().__init__()
-        self.type = Destination.TYPE_USER  # This is a user object
         """:type : str"""
         self.identified = False  # Whether the user is identified (with nickserv)
         """:type : bool"""
