@@ -389,7 +389,7 @@ class ServerIRC(Server):
             self.hallo.get_logger().log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
             function_dispatcher.dispatch(message_text, message_sender, message_destination)
         else:
-            message_channel = self.get_channel_by_name(message_destination_name)
+            message_channel = self.get_channel_by_address(message_destination_name.lower(), message_destination_name)
             # Print and Log the public message
             self.hallo.get_printer().output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
             self.hallo.get_logger().log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
@@ -453,7 +453,7 @@ class ServerIRC(Server):
         # Get relevant objects.
         message_channel = None
         if message_public_bool:
-            message_channel = self.get_channel_by_name(message_destination_name)
+            message_channel = self.get_channel_by_address(message_destination_name, message_destination_name)
             message_channel.update_activity()
         message_sender = self.get_user_by_name(message_sender_name)
         message_sender.update_activity()
@@ -496,7 +496,7 @@ class ServerIRC(Server):
         join_channel_name = ':'.join(join_line.split(':')[2:]).lower()
         join_client_name = join_line.split('!')[0][1:]
         # Get relevant objects
-        join_channel = self.get_channel_by_name(join_channel_name)
+        join_channel = self.get_channel_by_address(join_channel_name.lower(), join_channel_name)
         join_client = self.get_user_by_name(join_client_name)
         join_client.update_activity()
         # Print and log
@@ -524,7 +524,7 @@ class ServerIRC(Server):
         part_client_name = part_line.split('!')[0][1:]
         part_message = ':'.join(part_line.split(':')[2:])
         # Get channel and user object
-        part_channel = self.get_channel_by_name(part_channel_name)
+        part_channel = self.get_channel_by_address(part_channel_name.lower(), part_channel_name)
         part_client = self.get_user_by_name(part_client_name)
         # Print and log
         self.hallo.get_printer().output(Function.EVENT_LEAVE, part_message, self, part_client, part_channel)
@@ -592,7 +592,7 @@ class ServerIRC(Server):
         else:
             mode_args = ''
         # Get client and channel objects
-        mode_channel = self.get_channel_by_name(mode_channel_name)
+        mode_channel = self.get_channel_by_address(mode_channel_name.lower(), mode_channel_name)
         mode_client = self.get_user_by_name(mode_client_name)
         # # Handling
         # If a channel password has been set, store it
@@ -631,7 +631,7 @@ class ServerIRC(Server):
         notice_client_name = notice_line.split('!')[0][1:]
         notice_message = ':'.join(notice_line.split(':')[2:])
         # Get client and channel objects
-        notice_channel = self.get_channel_by_name(notice_channel_name)
+        notice_channel = self.get_channel_by_address(notice_channel_name.lower(), notice_channel_name)
         notice_channel.update_activity()
         notice_client = self.get_user_by_name(notice_client_name)
         notice_client.update_activity()
@@ -696,7 +696,7 @@ class ServerIRC(Server):
         # Get destination objects
         invite_client = self.get_user_by_name(invite_client_name)
         invite_client.update_activity()
-        invite_channel = self.get_channel_by_name(invite_channel_name)
+        invite_channel = self.get_channel_by_address(invite_channel_name.lower(), invite_channel_name)
         # Printing and logging
         self.hallo.get_printer().output(Function.EVENT_INVITE, None, self, invite_client, invite_channel)
         self.hallo.get_logger().log(Function.EVENT_INVITE, None, self, invite_client, invite_channel)
@@ -718,7 +718,7 @@ class ServerIRC(Server):
         kick_client_name = kick_line.split()[3]
         kick_message = ':'.join(kick_line.split(':')[4:])
         # GetObjects
-        kick_channel = self.get_channel_by_name(kick_channel_name)
+        kick_channel = self.get_channel_by_address(kick_channel_name.lower(), kick_channel_name)
         kick_client = self.get_user_by_name(kick_client_name)
         # Log, if applicable
         self.hallo.get_printer().output(Function.EVENT_KICK, kick_message, self, kick_client, kick_channel)
@@ -781,7 +781,7 @@ class ServerIRC(Server):
             channel_name = numeric_line.split(':')[1].split()[-1].lower()
             channel_user_list = ':'.join(numeric_line.split(':')[2:])
             # Get channel object
-            channel_obj = self.get_channel_by_name(channel_name)
+            channel_obj = self.get_channel_by_address(channel_name.lower(), channel_name)
             # Set all users online and in channel
             self.handle_user_list(channel_obj, channel_user_list)
             # Check if channel is being checked
