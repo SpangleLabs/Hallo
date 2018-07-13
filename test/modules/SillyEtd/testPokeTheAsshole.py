@@ -39,7 +39,7 @@ class PokeTheAssholeTest(TestBase, unittest.TestCase):
         try:
             self.server.type = Server.TYPE_IRC
             user = self.server.get_user_by_address("TEST000242".lower(), "TEST000242")
-            chan = self.server.get_channel_by_name("#hallotest")
+            chan = self.server.get_channel_by_address("#hallotest".lower(), "#hallotest")
             self.function_dispatcher.dispatch("poke the asshole", user, chan)
             data = self.server.get_send_data(1, chan, Server.MSG_MSG)
             assert "error" in data[0][0].lower(), "Poke the asshole function should not work in non-ETD channels."
@@ -51,7 +51,7 @@ class PokeTheAssholeTest(TestBase, unittest.TestCase):
         try:
             self.server.type = Server.TYPE_IRC
             user = self.server.get_user_by_address("TEST000242".lower(), "TEST000242")
-            chan = self.server.get_channel_by_name("#ecco-the-dolphin")
+            chan = self.server.get_channel_by_address("#ecco-the-dolphin".lower(), "#ecco-the-dolphin")
             self.function_dispatcher.dispatch("poke the asshole", user, chan)
             data = self.server.get_send_data(11)  # 11, chan, Server.MSG_MSG)
             for x in range(10):

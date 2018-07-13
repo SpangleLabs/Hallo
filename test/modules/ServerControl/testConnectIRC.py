@@ -96,7 +96,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         test_serv_irc = ServerIRC(self.hallo)
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.server_port = test_port
-        test_chan_irc = test_serv_irc.get_channel_by_name("test_chan")
+        test_chan_irc = test_serv_irc.get_channel_by_address("test_chan".lower(), "test_chan")
         test_user_irc = test_serv_irc.get_user_by_address("test_user".lower(), "test_user")
         # Run command
         self.function_dispatcher.dispatch("connect irc example.com", test_user_irc, test_chan_irc)
@@ -372,7 +372,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         test_serv_irc = ServerIRC(self.hallo)
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.nickserv_nick = test_nickserv_name
-        test_chan_irc = test_serv_irc.get_channel_by_name("test_chan")
+        test_chan_irc = test_serv_irc.get_channel_by_address("test_chan".lower(), "test_chan")
         test_user_irc = test_serv_irc.get_user_by_address("test_user".lower(), "test_user")
         # Run command
         self.function_dispatcher.dispatch("connect irc example.com:80", test_user_irc, test_chan_irc)
@@ -425,7 +425,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         test_serv_irc = ServerIRC(self.hallo)
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.nickserv_ident_command = test_nickserv_command
-        test_chan_irc = test_serv_irc.get_channel_by_name("test_chan")
+        test_chan_irc = test_serv_irc.get_channel_by_address("test_chan".lower(), "test_chan")
         test_user_irc = test_serv_irc.get_user_by_address("test_user".lower(), "test_user")
         # Run command
         self.function_dispatcher.dispatch("connect irc example.com:80", test_user_irc, test_chan_irc)
@@ -482,7 +482,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         test_serv_irc = ServerIRC(self.hallo)
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.nickserv_ident_response = test_nickserv_response
-        test_chan_irc = test_serv_irc.get_channel_by_name("test_chan")
+        test_chan_irc = test_serv_irc.get_channel_by_address("test_chan".lower(), "test_chan")
         test_user_irc = test_serv_irc.get_user_by_address("test_user".lower(), "test_user")
         # Run command
         self.function_dispatcher.dispatch("connect irc example.com:80", test_user_irc, test_chan_irc)
@@ -538,7 +538,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         test_serv_irc = ServerIRC(self.hallo)
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.nickserv_pass = test_nickserv_pass
-        test_chan_irc = test_serv_irc.get_channel_by_name("test_chan")
+        test_chan_irc = test_serv_irc.get_channel_by_address("test_chan".lower(), "test_chan")
         test_user_irc = test_serv_irc.get_user_by_address("test_user".lower(), "test_user")
         # Run command
         self.function_dispatcher.dispatch("connect irc example.com:80", test_user_irc, test_chan_irc)

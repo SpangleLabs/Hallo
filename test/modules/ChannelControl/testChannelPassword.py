@@ -31,7 +31,7 @@ class ChannelPasswordTest(TestBase, unittest.TestCase):
         assert self.test_chan.password == "test_pass"
 
     def test_pass_chan_null(self):
-        test_chan1 = self.server.get_channel_by_name("other_channel")
+        test_chan1 = self.server.get_channel_by_address("other_channel".lower(), "other_channel")
         test_chan1.in_channel = True
         test_chan1.password = "test_pass"
         self.function_dispatcher.dispatch("channel password other_channel none", self.test_user, self.test_chan)
@@ -42,7 +42,7 @@ class ChannelPasswordTest(TestBase, unittest.TestCase):
         assert test_chan1.password is None
 
     def test_pass_chan_set(self):
-        test_chan1 = self.server.get_channel_by_name("other_channel")
+        test_chan1 = self.server.get_channel_by_address("other_channel".lower(), "other_channel")
         test_chan1.in_channel = True
         test_chan1.password = None
         self.function_dispatcher.dispatch("channel password other_channel test_pass", self.test_user, self.test_chan)

@@ -12,7 +12,7 @@ class MuteTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = "NOT_IRC"
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         chan1.add_user(user1)
         chan1.add_user(serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick()))
@@ -43,7 +43,7 @@ class MuteTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
         user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
@@ -66,7 +66,7 @@ class MuteTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
         user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
@@ -95,7 +95,7 @@ class MuteTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
         user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
@@ -118,7 +118,7 @@ class MuteTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
         user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
@@ -141,7 +141,7 @@ class MuteTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
         user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())

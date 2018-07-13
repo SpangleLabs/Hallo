@@ -28,9 +28,9 @@ class TestRssFeedList(unittest.TestCase):
         serv1.name = "test_serv1"
         serv2 = ServerMock(None)
         serv2.name = "test_serv2"
-        chan1 = serv1.get_channel_by_name("test_chan1")
-        user2 = serv1.get_user_by_address("test_user2","test_user2")
-        chan3 = serv2.get_channel_by_name("test_chan3")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        user2 = serv1.get_user_by_address("test_user2", "test_user2")
+        chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
         # Setup a feed list
         rfl = RssFeedList()
         rf1 = RssFeed()
@@ -71,9 +71,9 @@ class TestRssFeedList(unittest.TestCase):
         serv1.name = "test_serv1"
         serv2 = ServerMock(None)
         serv2.name = "test_serv2"
-        chan1 = serv1.get_channel_by_name("test_chan1")
-        user2 = serv1.get_user_by_address("test_user2","test_user2")
-        chan3 = serv2.get_channel_by_name("test_chan3")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        user2 = serv1.get_user_by_address("test_user2", "test_user2")
+        chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
         # Setup a feed list
         rfl = RssFeedList()
         rf1 = RssFeed()
@@ -117,9 +117,9 @@ class TestRssFeedList(unittest.TestCase):
         serv1.name = "test_serv1"
         serv2 = ServerMock(None)
         serv2.name = "test_serv2"
-        chan1 = serv1.get_channel_by_name("test_chan1")
-        user2 = serv1.get_user_by_address("test_user2","test_user2")
-        chan3 = serv2.get_channel_by_name("test_chan3")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        user2 = serv1.get_user_by_address("test_user2", "test_user2")
+        chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
         # Setup a feed list
         rfl = RssFeedList()
         rf1 = RssFeed()

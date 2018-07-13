@@ -30,7 +30,7 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
         assert "error" in data[0][0].lower()
 
     def test_other_channel_name(self):
-        other = self.server.get_channel_by_name("#other")
+        other = self.server.get_channel_by_address("#other".lower(), "#other")
         other.in_channel = True
         self.function_dispatcher.dispatch("leave "+other.name, self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
@@ -58,7 +58,7 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
         test_serv = ServerMock(self.hallo)
         test_serv.name = "TestServer1"
         self.hallo.add_server(test_serv)
-        test_chan = test_serv.get_channel_by_name("#other_serv")
+        test_chan = test_serv.get_channel_by_address("#other_serv".lower(), "#other_serv")
         test_chan.in_channel = True
         # Send command
         self.function_dispatcher.dispatch("leave server="+test_serv.name+" "+test_chan.name, self.test_user,
@@ -76,7 +76,7 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
         test_serv = ServerMock(self.hallo)
         test_serv.name = "TestServer1"
         self.hallo.add_server(test_serv)
-        test_chan = test_serv.get_channel_by_name("#other_serv")
+        test_chan = test_serv.get_channel_by_address("#other_serv".lower(), "#other_serv")
         test_chan.in_channel = True
         # Send command
         self.function_dispatcher.dispatch("leave "+test_chan.name+" server="+test_serv.name, self.test_user,
@@ -94,7 +94,7 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
         test_serv = ServerMock(self.hallo)
         test_serv.name = "TestServer1"
         self.hallo.add_server(test_serv)
-        test_chan = test_serv.get_channel_by_name("#not_in_channel")
+        test_chan = test_serv.get_channel_by_address("#not_in_channel".lower(), "#not_in_channel")
         test_chan.in_channel = False
         # Send command
         self.function_dispatcher.dispatch("leave server="+test_serv.name+" "+test_chan.name, self.test_user,

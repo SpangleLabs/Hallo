@@ -39,7 +39,7 @@ class SilenceTheRabbleTest(TestBase, unittest.TestCase):
         try:
             self.server.type = Server.TYPE_IRC
             user = self.server.get_user_by_address("TEST000242".lower(), "TEST000242")
-            chan = self.server.get_channel_by_name("#hallotest")
+            chan = self.server.get_channel_by_address("#hallotest".lower(), "#hallotest")
             self.function_dispatcher.dispatch("silence the rabble", user, chan)
             data = self.server.get_send_data(1, chan, Server.MSG_MSG)
             assert "error" in data[0][0].lower(), "Silence the rabble function should not work in non-ETD channels."
@@ -53,7 +53,7 @@ class SilenceTheRabbleTest(TestBase, unittest.TestCase):
             user = self.server.get_user_by_address("TEST000242".lower(), "TEST000242")
             user1 = self.server.get_user_by_address("lambdabot".lower(), "lambdabot")
             user2 = self.server.get_user_by_address("robot".lower(), "robot")
-            chan = self.server.get_channel_by_name("#ecco-the-dolphin")
+            chan = self.server.get_channel_by_address("#ecco-the-dolphin".lower(), "#ecco-the-dolphin")
             chan.add_user(user)
             chan.add_user(user1)
             chan.add_user(user2)

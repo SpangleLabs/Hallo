@@ -42,7 +42,7 @@ class BoopTest(TestBase, unittest.TestCase):
 
     def test_boop_user_chan_offline(self):
         self.test_chan.add_user(self.test_user)
-        test_chan2 = self.server.get_channel_by_name("another_chan")
+        test_chan2 = self.server.get_channel_by_address("another_chan".lower(), "another_chan")
         test_chan2.in_channel = True
         test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = False
@@ -53,7 +53,7 @@ class BoopTest(TestBase, unittest.TestCase):
 
     def test_boop_user_chan_not_in_channel(self):
         self.test_chan.add_user(self.test_user)
-        test_chan2 = self.server.get_channel_by_name("another_chan")
+        test_chan2 = self.server.get_channel_by_address("another_chan".lower(), "another_chan")
         test_chan2.in_channel = True
         test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
@@ -63,7 +63,7 @@ class BoopTest(TestBase, unittest.TestCase):
 
     def test_boop_user_chan_hallo_not_in_channel(self):
         self.test_chan.add_user(self.test_user)
-        test_chan2 = self.server.get_channel_by_name("another_chan")
+        test_chan2 = self.server.get_channel_by_address("another_chan".lower(), "another_chan")
         test_chan2.in_channel = False
         test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
@@ -73,7 +73,7 @@ class BoopTest(TestBase, unittest.TestCase):
 
     def test_boop_user_chan_privmsg(self):
         self.test_chan.add_user(self.test_user)
-        test_chan2 = self.server.get_channel_by_name("another_chan")
+        test_chan2 = self.server.get_channel_by_address("another_chan".lower(), "another_chan")
         test_chan2.in_channel = True
         test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
@@ -89,7 +89,7 @@ class BoopTest(TestBase, unittest.TestCase):
 
     def test_boop_user_chan(self):
         self.test_chan.add_user(self.test_user)
-        test_chan2 = self.server.get_channel_by_name("another_chan")
+        test_chan2 = self.server.get_channel_by_address("another_chan".lower(), "another_chan")
         test_chan2.in_channel = True
         test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
@@ -105,7 +105,7 @@ class BoopTest(TestBase, unittest.TestCase):
 
     def test_boop_chan_user_offline(self):
         self.test_chan.add_user(self.test_user)
-        test_chan2 = self.server.get_channel_by_name("another_chan")
+        test_chan2 = self.server.get_channel_by_address("another_chan".lower(), "another_chan")
         test_chan2.in_channel = True
         test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = False
@@ -116,7 +116,7 @@ class BoopTest(TestBase, unittest.TestCase):
 
     def test_boop_chan_user_not_in_channel(self):
         self.test_chan.add_user(self.test_user)
-        test_chan2 = self.server.get_channel_by_name("another_chan")
+        test_chan2 = self.server.get_channel_by_address("another_chan".lower(), "another_chan")
         test_chan2.in_channel = True
         test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
@@ -126,7 +126,7 @@ class BoopTest(TestBase, unittest.TestCase):
 
     def test_boop_chan_user_hallo_not_in_channel(self):
         self.test_chan.add_user(self.test_user)
-        test_chan2 = self.server.get_channel_by_name("another_chan")
+        test_chan2 = self.server.get_channel_by_address("another_chan".lower(), "another_chan")
         test_chan2.in_channel = False
         test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
@@ -136,7 +136,7 @@ class BoopTest(TestBase, unittest.TestCase):
 
     def test_boop_chan_user_privmsg(self):
         self.test_chan.add_user(self.test_user)
-        test_chan2 = self.server.get_channel_by_name("another_chan")
+        test_chan2 = self.server.get_channel_by_address("another_chan".lower(), "another_chan")
         test_chan2.in_channel = True
         test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
@@ -152,7 +152,7 @@ class BoopTest(TestBase, unittest.TestCase):
 
     def test_boop_chan_user(self):
         self.test_chan.add_user(self.test_user)
-        test_chan2 = self.server.get_channel_by_name("another_chan")
+        test_chan2 = self.server.get_channel_by_address("another_chan".lower(), "another_chan")
         test_chan2.in_channel = True
         test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
