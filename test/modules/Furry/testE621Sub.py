@@ -96,7 +96,7 @@ class TestE621Sub(unittest.TestCase):
         rf3.user_name = "test_user3"
         serv3 = ServerMock(None)
         serv3.name = "test_serv3"
-        user3 = serv3.get_user_by_name("test_user3")
+        user3 = serv3.get_user_by_address("test_user3".lower(), "test_user3")
         rf3.output_item(item_elem, None, serv3)
         data = serv3.get_send_data(1, user3, Server.MSG_MSG)
         assert item_id in data[0][0]
@@ -150,7 +150,7 @@ class TestE621Sub(unittest.TestCase):
         serv7.name = "test_serv7"
         hallo7 = Hallo()
         hallo7.add_server(serv7)
-        user7 = serv7.get_user_by_name("test_user7")
+        user7 = serv7.get_user_by_address("test_user7".lower(), "test_user7")
         rf7.output_item(item_elem, hallo7)
         data = serv7.get_send_data(1, user7, Server.MSG_MSG)
         assert item_id in data[0][0]

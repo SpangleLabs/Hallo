@@ -12,7 +12,7 @@ class BoopTest(TestBase, unittest.TestCase):
         assert "error" in data[0][0].lower(), "Boop function should return error if no arguments given."
 
     def test_boop_user_offline(self):
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = False
         self.test_chan.add_user(self.test_user)
         self.test_chan.add_user(test_user2)
@@ -21,7 +21,7 @@ class BoopTest(TestBase, unittest.TestCase):
         assert "error" in data[0][0].lower()
 
     def test_boop_user_not_in_channel(self):
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
         self.test_chan.add_user(self.test_user)
         self.function_dispatcher.dispatch("boop another_user", self.test_user, self.test_chan)
@@ -29,7 +29,7 @@ class BoopTest(TestBase, unittest.TestCase):
         assert "error" in data[0][0].lower()
 
     def test_boop_user(self):
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
         self.test_chan.add_user(self.test_user)
         self.test_chan.add_user(test_user2)
@@ -44,7 +44,7 @@ class BoopTest(TestBase, unittest.TestCase):
         self.test_chan.add_user(self.test_user)
         test_chan2 = self.server.get_channel_by_name("another_chan")
         test_chan2.in_channel = True
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = False
         test_chan2.add_user(test_user2)
         self.function_dispatcher.dispatch("boop another_user another_chan", self.test_user, self.test_chan)
@@ -55,7 +55,7 @@ class BoopTest(TestBase, unittest.TestCase):
         self.test_chan.add_user(self.test_user)
         test_chan2 = self.server.get_channel_by_name("another_chan")
         test_chan2.in_channel = True
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
         self.function_dispatcher.dispatch("boop another_user another_chan", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
@@ -65,7 +65,7 @@ class BoopTest(TestBase, unittest.TestCase):
         self.test_chan.add_user(self.test_user)
         test_chan2 = self.server.get_channel_by_name("another_chan")
         test_chan2.in_channel = False
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
         self.function_dispatcher.dispatch("boop another_user another_chan", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
@@ -75,7 +75,7 @@ class BoopTest(TestBase, unittest.TestCase):
         self.test_chan.add_user(self.test_user)
         test_chan2 = self.server.get_channel_by_name("another_chan")
         test_chan2.in_channel = True
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
         test_chan2.add_user(test_user2)
         self.function_dispatcher.dispatch("boop another_user another_chan", self.test_user, self.test_user)
@@ -91,7 +91,7 @@ class BoopTest(TestBase, unittest.TestCase):
         self.test_chan.add_user(self.test_user)
         test_chan2 = self.server.get_channel_by_name("another_chan")
         test_chan2.in_channel = True
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
         test_chan2.add_user(test_user2)
         self.function_dispatcher.dispatch("boop another_user another_chan", self.test_user, self.test_chan)
@@ -107,7 +107,7 @@ class BoopTest(TestBase, unittest.TestCase):
         self.test_chan.add_user(self.test_user)
         test_chan2 = self.server.get_channel_by_name("another_chan")
         test_chan2.in_channel = True
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = False
         test_chan2.add_user(test_user2)
         self.function_dispatcher.dispatch("boop another_chan another_user", self.test_user, self.test_chan)
@@ -118,7 +118,7 @@ class BoopTest(TestBase, unittest.TestCase):
         self.test_chan.add_user(self.test_user)
         test_chan2 = self.server.get_channel_by_name("another_chan")
         test_chan2.in_channel = True
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
         self.function_dispatcher.dispatch("boop another_chan another_user", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
@@ -128,7 +128,7 @@ class BoopTest(TestBase, unittest.TestCase):
         self.test_chan.add_user(self.test_user)
         test_chan2 = self.server.get_channel_by_name("another_chan")
         test_chan2.in_channel = False
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
         self.function_dispatcher.dispatch("boop another_chan another_user", self.test_user, self.test_chan)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
@@ -138,7 +138,7 @@ class BoopTest(TestBase, unittest.TestCase):
         self.test_chan.add_user(self.test_user)
         test_chan2 = self.server.get_channel_by_name("another_chan")
         test_chan2.in_channel = True
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
         test_chan2.add_user(test_user2)
         self.function_dispatcher.dispatch("boop another_chan another_user", self.test_user, self.test_user)
@@ -154,7 +154,7 @@ class BoopTest(TestBase, unittest.TestCase):
         self.test_chan.add_user(self.test_user)
         test_chan2 = self.server.get_channel_by_name("another_chan")
         test_chan2.in_channel = True
-        test_user2 = self.server.get_user_by_name("another_user")
+        test_user2 = self.server.get_user_by_address("another_user", "another_user")
         test_user2.online = True
         test_chan2.add_user(test_user2)
         self.function_dispatcher.dispatch("boop another_chan another_user", self.test_user, self.test_chan)

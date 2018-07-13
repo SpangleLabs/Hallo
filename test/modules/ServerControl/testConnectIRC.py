@@ -2,7 +2,7 @@ import threading
 import unittest
 
 from Server import Server
-from Server import ServerIRC
+from ServerIRC import ServerIRC
 from UserGroup import UserGroup
 from test.TestBase import TestBase
 
@@ -97,7 +97,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.server_port = test_port
         test_chan_irc = test_serv_irc.get_channel_by_name("test_chan")
-        test_user_irc = test_serv_irc.get_user_by_name("test_user")
+        test_user_irc = test_serv_irc.get_user_by_address("test_user".lower(), "test_user")
         # Run command
         self.function_dispatcher.dispatch("connect irc example.com", test_user_irc, test_chan_irc)
         # Can't check response because I'm using a ServerIRC instead of a ServerMock
@@ -373,7 +373,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.nickserv_nick = test_nickserv_name
         test_chan_irc = test_serv_irc.get_channel_by_name("test_chan")
-        test_user_irc = test_serv_irc.get_user_by_name("test_user")
+        test_user_irc = test_serv_irc.get_user_by_address("test_user".lower(), "test_user")
         # Run command
         self.function_dispatcher.dispatch("connect irc example.com:80", test_user_irc, test_chan_irc)
         # Can't check response because I'm using a ServerIRC instead of a ServerMock
@@ -426,7 +426,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.nickserv_ident_command = test_nickserv_command
         test_chan_irc = test_serv_irc.get_channel_by_name("test_chan")
-        test_user_irc = test_serv_irc.get_user_by_name("test_user")
+        test_user_irc = test_serv_irc.get_user_by_address("test_user".lower(), "test_user")
         # Run command
         self.function_dispatcher.dispatch("connect irc example.com:80", test_user_irc, test_chan_irc)
         # Can't check response because I'm using a ServerIRC instead of a ServerMock
@@ -483,7 +483,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.nickserv_ident_response = test_nickserv_response
         test_chan_irc = test_serv_irc.get_channel_by_name("test_chan")
-        test_user_irc = test_serv_irc.get_user_by_name("test_user")
+        test_user_irc = test_serv_irc.get_user_by_address("test_user".lower(), "test_user")
         # Run command
         self.function_dispatcher.dispatch("connect irc example.com:80", test_user_irc, test_chan_irc)
         # Can't check response because I'm using a ServerIRC instead of a ServerMock
@@ -539,7 +539,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.nickserv_pass = test_nickserv_pass
         test_chan_irc = test_serv_irc.get_channel_by_name("test_chan")
-        test_user_irc = test_serv_irc.get_user_by_name("test_user")
+        test_user_irc = test_serv_irc.get_user_by_address("test_user".lower(), "test_user")
         # Run command
         self.function_dispatcher.dispatch("connect irc example.com:80", test_user_irc, test_chan_irc)
         # Can't check response because I'm using a ServerIRC instead of a ServerMock
@@ -587,7 +587,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         # Check user groups
-        new_user = right_server.get_user_by_name(self.test_user.get_name())
+        new_user = right_server.get_user_by_address(self.test_user.get_name().lower(), self.test_user.get_name())
         assert test_user_group in new_user.user_group_list
 
     def test_inherit_user_groups_specify_nick(self):
@@ -609,7 +609,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         # Check user groups
-        new_user = right_server.get_user_by_name(test_user)
+        new_user = right_server.get_user_by_address(test_user.lower(), test_user)
         assert test_user_group in new_user.user_group_list
 
     def test_server_added(self):

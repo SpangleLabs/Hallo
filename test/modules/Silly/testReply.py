@@ -47,7 +47,7 @@ class ReplyTest(TestBase, unittest.TestCase):
         serv1 = ServerMock(None)
         serv1.name = "canternet"
         chan1 = serv1.get_channel_by_name("#ukofequestria")
-        user1 = serv1.get_user_by_name("test_user")
+        user1 = serv1.get_user_by_address("test_user".lower(), "test_user")
         response = reply_obj.passive_run(Function.EVENT_MESSAGE, "pew",
                                          None, serv1, user1, chan1)
         assert response is None
@@ -63,7 +63,7 @@ class ReplyTest(TestBase, unittest.TestCase):
         serv1 = ServerMock(None)
         serv1.name = "shadowworld"
         chan1 = serv1.get_channel_by_name("#ecco-the-dolphin")
-        user1 = serv1.get_user_by_name("test_user")
+        user1 = serv1.get_user_by_address("test_user".lower(), "test_user")
         response = reply_obj.passive_run(Function.EVENT_MESSAGE, "haskell.jpg",
                                          None, serv1, user1, chan1)
         assert "http" in response.lower()
@@ -210,7 +210,7 @@ class ReplyMessageTest(unittest.TestCase):
         serv1 = ServerMock(None)
         serv1.name = "test_serv1"
         chan1 = serv1.get_channel_by_name("test_chan1")
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1","test_user1")
         # Test basic response works
         rm1 = ReplyMessage("test")
         rm1.add_response("response")
@@ -341,7 +341,7 @@ class ReplyMessageListTest(unittest.TestCase):
         serv1 = ServerMock(None)
         serv1.name = "test_serv1"
         chan1 = serv1.get_channel_by_name("test_chan1")
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1","test_user1")
         # Basic ReplyMessageList get_response() test
         rml1 = ReplyMessageList()
         rm1 = ReplyMessage("test1")
