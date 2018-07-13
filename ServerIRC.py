@@ -125,7 +125,7 @@ class ServerIRC(Server):
             return
         # Identify with nickserv
         if self.nickserv_pass:
-            self.send('IDENTIFY ' + self.nickserv_pass, self.get_user_by_name("nickserv"))
+            self.send('IDENTIFY ' + self.nickserv_pass, self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick))
         # Join channels
         print(Commons.current_timestamp() + " joining channels on " + self.name + ", identifying.")
         # Join relevant channels
@@ -152,7 +152,7 @@ class ServerIRC(Server):
                     self.hallo.get_logger().log(Function.EVENT_QUIT,
                                                 quit_message,
                                                 self,
-                                                self.get_user_by_name(self.get_nick()),
+                                                self.get_user_by_address(self.get_nick().lower(), self.get_nick()),
                                                 channel)
                     channel.set_in_channel(False)
             for user in self.user_list:
@@ -378,7 +378,7 @@ class ServerIRC(Server):
         # Test for private message or public message.
         message_private_bool = message_destination_name.lower() == self.get_nick().lower()
         # Get relevant objects.
-        message_sender = self.get_user_by_name(message_sender_name)
+        message_sender = self.get_user_by_address(message_sender_name.lower(), message_sender_name)
         message_sender.update_activity()
         message_destination = message_sender
         # Get function dispatcher ready
@@ -455,7 +455,7 @@ class ServerIRC(Server):
         if message_public_bool:
             message_channel = self.get_channel_by_address(message_destination_name, message_destination_name)
             message_channel.update_activity()
-        message_sender = self.get_user_by_name(message_sender_name)
+        message_sender = self.get_user_by_address(message_sender_name.lower(), message_sender_name)
         message_sender.update_activity()
         # Print and log the message
         if message_private_bool:
@@ -497,7 +497,7 @@ class ServerIRC(Server):
         join_client_name = join_line.split('!')[0][1:]
         # Get relevant objects
         join_channel = self.get_channel_by_address(join_channel_name.lower(), join_channel_name)
-        join_client = self.get_user_by_name(join_client_name)
+        join_client = self.get_user_by_address(join_client_name.lower(), join_client_name)
         join_client.update_activity()
         # Print and log
         self.hallo.get_printer().output(Function.EVENT_JOIN, None, self, join_client, join_channel)
@@ -525,7 +525,7 @@ class ServerIRC(Server):
         part_message = ':'.join(part_line.split(':')[2:])
         # Get channel and user object
         part_channel = self.get_channel_by_address(part_channel_name.lower(), part_channel_name)
-        part_client = self.get_user_by_name(part_client_name)
+        part_client = self.get_user_by_address(part_client_name.lower(), part_client_name)
         # Print and log
         self.hallo.get_printer().output(Function.EVENT_LEAVE, part_message, self, part_client, part_channel)
         self.hallo.get_logger().log(Function.EVENT_LEAVE, part_message, self, part_client, part_channel)
@@ -553,7 +553,7 @@ class ServerIRC(Server):
         quit_client_name = quit_line.split('!')[0][1:]
         quit_message = ':'.join(quit_line.split(':')[2:])
         # Get client object
-        quit_client = self.get_user_by_name(quit_client_name)
+        quit_client = self.get_user_by_address(quit_client_name.lower(), quit_client_name)
         # Print and Log to all channels on server
         self.hallo.get_printer().output(Function.EVENT_QUIT, quit_message, self, quit_client, Commons.ALL_CHANNELS)
         for channel in self.channel_list:
@@ -593,7 +593,7 @@ class ServerIRC(Server):
             mode_args = ''
         # Get client and channel objects
         mode_channel = self.get_channel_by_address(mode_channel_name.lower(), mode_channel_name)
-        mode_client = self.get_user_by_name(mode_client_name)
+        mode_client = self.get_user_by_address(mode_client_name.lower(), mode_client_name)
         # # Handling
         # If a channel password has been set, store it
         if mode_mode == '-k':
@@ -603,12 +603,12 @@ class ServerIRC(Server):
         # Handle op changes
         if "o" in mode_mode:
             mode_user_name = mode_args.split()[0]
-            mode_args_client = self.get_user_by_name(mode_user_name)
+            mode_args_client = self.get_user_by_address(mode_user_name.lower(), mode_user_name)
             mode_channel.get_membership_by_user(mode_args_client).is_op = (mode_mode[0] == "+")
         # Handle voice changes
         if "v" in mode_mode:
             mode_user_name = mode_args.split()[0]
-            mode_args_client = self.get_user_by_name(mode_user_name)
+            mode_args_client = self.get_user_by_address(mode_user_name.lower(), mode_user_name)
             mode_channel.get_membership_by_user(mode_args_client).is_voice = (mode_mode[0] == "+")
         # # Printing and logging
         mode_full = mode_mode
@@ -633,7 +633,7 @@ class ServerIRC(Server):
         # Get client and channel objects
         notice_channel = self.get_channel_by_address(notice_channel_name.lower(), notice_channel_name)
         notice_channel.update_activity()
-        notice_client = self.get_user_by_name(notice_client_name)
+        notice_client = self.get_user_by_address(notice_client_name.lower(), notice_client_name)
         notice_client.update_activity()
         # Print to console, log to file
         self.hallo.get_printer().output(Function.EVENT_NOTICE, notice_message, self, notice_client, notice_channel)
@@ -668,7 +668,7 @@ class ServerIRC(Server):
         else:
             nick_new_nick = nick_line.split()[2]
         # Get user object
-        nick_client = self.get_user_by_name(nick_client_name)
+        nick_client = self.get_user_by_address(nick_client_name.lower(), nick_client_name)
         # If it was the bots nick that just changed, update that.
         if nick_client.get_name() == self.get_nick():
             self.nick = nick_new_nick
@@ -694,7 +694,7 @@ class ServerIRC(Server):
         invite_client_name = invite_line.split('!')[0][1:]
         invite_channel_name = ':'.join(invite_line.split(':')[2:])
         # Get destination objects
-        invite_client = self.get_user_by_name(invite_client_name)
+        invite_client = self.get_user_by_address(invite_client_name.lower(), invite_client_name)
         invite_client.update_activity()
         invite_channel = self.get_channel_by_address(invite_channel_name.lower(), invite_channel_name)
         # Printing and logging
@@ -719,7 +719,7 @@ class ServerIRC(Server):
         kick_message = ':'.join(kick_line.split(':')[4:])
         # GetObjects
         kick_channel = self.get_channel_by_address(kick_channel_name.lower(), kick_channel_name)
-        kick_client = self.get_user_by_name(kick_client_name)
+        kick_client = self.get_user_by_address(kick_client_name.lower(), kick_client_name)
         # Log, if applicable
         self.hallo.get_printer().output(Function.EVENT_KICK, kick_message, self, kick_client, kick_channel)
         self.hallo.get_logger().log(Function.EVENT_KICK, kick_message, self, kick_client, kick_channel)
@@ -770,7 +770,7 @@ class ServerIRC(Server):
             users_online_list = users_online.split()
             # Mark them all as online
             for user_name in users_online_list:
-                user_obj = self.get_user_by_name(user_name)
+                user_obj = self.get_user_by_address(user_name.lower(), user_name)
                 user_obj.set_online(True)
             # Check if users are being checked
             if all([users_online_list in self._check_usersonline_check_list]):
@@ -893,7 +893,7 @@ class ServerIRC(Server):
                 if self._check_usersonline_online_list is not None:
                     # use response
                     for user_name in self._check_usersonline_check_list:
-                        user_obj = self.get_user_by_name(user_name)
+                        user_obj = self.get_user_by_address(user_name.lower(), user_name)
                         if user_name in self._check_usersonline_online_list:
                             user_obj.set_online(True)
                         else:
@@ -919,7 +919,7 @@ class ServerIRC(Server):
         if self.nickserv_nick is None or self.nickserv_ident_command is None:
             return False
         # get nickserv object
-        nickserv_obj = self.get_user_by_name(self.nickserv_nick)
+        nickserv_obj = self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick)
         # get check user lock
         self._check_useridentity_lock.acquire()
         try:
@@ -961,7 +961,7 @@ class ServerIRC(Server):
                 user_name = user_name[1:]
                 flags += user_name[0]
             # Add user if not exists.
-            user_obj = self.get_user_by_name(user_name)
+            user_obj = self.get_user_by_address(user_name.lower(), user_name)
             user_obj.set_online(True)
             chan_membership = ChannelMembership(channel, user_obj)
             channel.memberships_list.add(chan_membership)
@@ -1072,7 +1072,7 @@ class ServerIRC(Server):
         self.nick = nick
         if nick != old_nick:
             self.send("NICK " + self.nick, None, self.MSG_RAW)
-            hallo_user_obj = self.get_user_by_name(nick)
+            hallo_user_obj = self.get_user_by_address(nick.lower(), nick)
             # Log in all channel Hallo is in.
             for channel in self.channel_list:
                 if not channel.is_in_channel():
@@ -1131,7 +1131,8 @@ class ServerIRC(Server):
         """
         self.nickserv_pass = nickserv_pass
         if self.nickserv_pass is not None:
-            self.send('IDENTIFY ' + self.nickserv_pass, self.get_user_by_name("nickserv"))
+            self.send('IDENTIFY ' + self.nickserv_pass,
+                      self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick))
 
     @staticmethod
     def from_xml(xml_string, hallo):
