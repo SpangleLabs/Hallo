@@ -56,11 +56,11 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
         # Set up test servers and channels
         serv1 = ServerMock(None)
         serv1.name = "test_serv1"
-        chan1 = serv1.get_channel_by_name("test_chan1")
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         serv2 = ServerMock(None)
         serv2.name = "test_serv2"
-        chan3 = serv2.get_channel_by_name("test_chan1")
+        chan3 = serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
         try:
             self.hallo.add_server(serv1)
             self.hallo.add_server(serv2)
@@ -118,11 +118,11 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
         # Set up test servers and channels
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
-        chan1 = serv1.get_channel_by_name("test_chan1")
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         serv2 = ServerMock(self.hallo)
         serv2.name = "test_serv2"
-        chan3 = serv2.get_channel_by_name("test_chan1")
+        chan3 = serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
         try:
             self.hallo.add_server(serv1)
             self.hallo.add_server(serv2)
@@ -175,11 +175,11 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
         # Set up test servers and channels
         serv1 = ServerMock(None)
         serv1.name = "test_serv1"
-        chan1 = serv1.get_channel_by_name("test_chan1")
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         serv2 = ServerMock(None)
         serv2.name = "test_serv2"
-        chan3 = serv2.get_channel_by_name("test_chan1")
+        chan3 = serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
         try:
             self.hallo.add_server(serv1)
             self.hallo.add_server(serv2)

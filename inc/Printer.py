@@ -52,7 +52,7 @@ class Printer:
         if event not in self.event_dict:
             return None
         print_function = self.event_dict[event]
-        hallo_user_obj = server_obj.get_user_by_name(server_obj.get_nick())
+        hallo_user_obj = server_obj.get_user_by_address(server_obj.get_nick().lower(), server_obj.get_nick())
         print_line = print_function(full_line, server_obj, hallo_user_obj, channel_obj)
         # Write the log line
         print(print_line)

@@ -74,7 +74,7 @@ class TestE621Sub(unittest.TestCase):
         rf1.update_frequency = Commons.load_time_delta("P1TS")
         serv1 = ServerMock(None)
         serv1.name = "test_serv1"
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         rf1.output_item(item_elem, None, serv1, chan1)
         data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
         assert item_id in data[0][0]
@@ -85,7 +85,7 @@ class TestE621Sub(unittest.TestCase):
         rf2.channel_name = "test_chan2"
         serv2 = ServerMock(None)
         serv2.name = "test_serv2"
-        chan2 = serv2.get_channel_by_name("test_chan2")
+        chan2 = serv2.get_channel_by_address("test_chan2".lower(), "test_chan2")
         rf2.output_item(item_elem, None, serv2)
         data = serv2.get_send_data(1, chan2, Server.MSG_MSG)
         assert item_id in data[0][0]
@@ -96,7 +96,7 @@ class TestE621Sub(unittest.TestCase):
         rf3.user_name = "test_user3"
         serv3 = ServerMock(None)
         serv3.name = "test_serv3"
-        user3 = serv3.get_user_by_name("test_user3")
+        user3 = serv3.get_user_by_address("test_user3".lower(), "test_user3")
         rf3.output_item(item_elem, None, serv3)
         data = serv3.get_send_data(1, user3, Server.MSG_MSG)
         assert item_id in data[0][0]
@@ -109,7 +109,7 @@ class TestE621Sub(unittest.TestCase):
         serv4.name = "test_serv4"
         hallo4 = Hallo()
         hallo4.add_server(serv4)
-        chan4 = serv4.get_channel_by_name("test_chan4")
+        chan4 = serv4.get_channel_by_address("test_chan4".lower(), "test_chan4")
         rf4.output_item(item_elem, hallo4, None, chan4)
         data = serv4.get_send_data(1, chan4, Server.MSG_MSG)
         assert item_id in data[0][0]
@@ -122,7 +122,7 @@ class TestE621Sub(unittest.TestCase):
         serv5.name = "test_serv5"
         hallo5 = Hallo()
         hallo5.add_server(serv5)
-        chan5 = serv5.get_channel_by_name("test_chan5")
+        chan5 = serv5.get_channel_by_address("test_chan5".lower(), "test_chan5")
         rf5.output_item(item_elem, hallo5, None, chan5)
         data = serv5.get_send_data(1, chan5, Server.MSG_MSG)
         assert item_id in data[0][0]
@@ -136,7 +136,7 @@ class TestE621Sub(unittest.TestCase):
         serv6.name = "test_serv6"
         hallo6 = Hallo()
         hallo6.add_server(serv6)
-        chan6 = serv6.get_channel_by_name("test_chan6")
+        chan6 = serv6.get_channel_by_address("test_chan6".lower(), "test_chan6")
         rf6.output_item(item_elem, hallo6)
         data = serv6.get_send_data(1, chan6, Server.MSG_MSG)
         assert item_id in data[0][0]
@@ -150,7 +150,7 @@ class TestE621Sub(unittest.TestCase):
         serv7.name = "test_serv7"
         hallo7 = Hallo()
         hallo7.add_server(serv7)
-        user7 = serv7.get_user_by_name("test_user7")
+        user7 = serv7.get_user_by_address("test_user7".lower(), "test_user7")
         rf7.output_item(item_elem, hallo7)
         data = serv7.get_send_data(1, user7, Server.MSG_MSG)
         assert item_id in data[0][0]

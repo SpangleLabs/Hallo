@@ -67,7 +67,7 @@ class Logger:
         if event not in self.event_dict:
             return None
         log_function = self.event_dict[event]
-        hallo_user_obj = server_obj.get_user_by_name(server_obj.get_nick())
+        hallo_user_obj = server_obj.get_user_by_address(server_obj.get_nick().lower(), server_obj.get_nick())
         log_line = log_function(full_line, server_obj, hallo_user_obj, channel_obj)
         # If log_line is null, do nothing.
         if log_line is None:
