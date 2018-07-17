@@ -202,7 +202,7 @@ class Server(metaclass=ABCMeta):
         :type address: str
         :param channel_name: Name of the channel which is being searched for
         :type channel_name: str
-        :return: Destination.Channel
+        :rtype: Destination.Channel
         """
         for channel in self.channel_list:
             if channel.address == address:
@@ -240,7 +240,7 @@ class Server(metaclass=ABCMeta):
         if channel_obj not in self.channel_list:
             return
         # Set channel to not AutoJoin, for the future
-        channel_obj.set_auto_join(False)
+        channel_obj.auto_join = False
         # Set not in channel
         channel_obj.set_in_channel(False)
 

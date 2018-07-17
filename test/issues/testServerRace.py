@@ -60,7 +60,7 @@ class ServerRaceTest(TestBase, unittest.TestCase):
             new_server_obj = ServerIRC(self.hallo, "example"+str(x), "example.com", 80)
             new_server_obj.set_auto_connect(True)
             new_server_obj.set_nick("hallo")
-            new_server_obj.set_prefix(None)
+            new_server_obj.prefix = None
             self.hallo.add_server(new_server_obj)
             # Connect to the new server object.
             new_server_obj.start()

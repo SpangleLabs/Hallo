@@ -44,9 +44,9 @@ class JoinChannel(Function):
             channel_password = line[len(channel_name):]
         # Get channel object, set password
         channel_obj = server_obj.get_channel_by_name(channel_name)
-        channel_obj.set_password(channel_password)
+        channel_obj.password = channel_password
         # Join channel if not already in channel.
-        if channel_obj.is_in_channel():
+        if channel_obj.in_channel:
             return "I'm already in that channel."
         server_obj.join_channel(channel_obj)
         return "Joined " + channel_name + "."
@@ -91,7 +91,7 @@ class LeaveChannel(Function):
             else:
                 return "Error, I cannot leave a private chat."
         # Leave channel, provided hallo is in channel.
-        if not channel_obj.is_in_channel():
+        if not channel_obj.in_channel:
             return "Error, I'm not in that channel."
         server_obj.leave_channel(channel_obj)
         return "Left " + channel_name + "."
@@ -344,7 +344,7 @@ class Say(Function):
             channel_regex = re.escape(channel_name).replace("\*", ".*")
             channel_list = server_obj.get_channel_list()
             for channel_obj in channel_list:
-                if not channel_obj.is_in_channel():
+                if not channel_obj.in_channel:
                     continue
                 if re.match(channel_regex, channel_obj.name, re.IGNORECASE):
                     channel_objs.append(channel_obj)
@@ -437,7 +437,7 @@ class EditServer(Function):
         # Set all the new variables
         server_obj.set_auto_connect(auto_connect)
         server_obj.set_nick(server_nick)
-        server_obj.set_prefix(server_prefix)
+        server_obj.prefix = server_prefix
         server_obj.set_full_name(full_name)
         server_obj.set_nickserv_nick(nickserv_nick)
         server_obj.set_nickserv_ident_command(nickserv_identity_command)
@@ -579,7 +579,7 @@ class ListChannels(Function):
 
     def get_in_channel_names_list(self, server_obj):
         channel_list = server_obj.get_channel_list()
-        in_channel_list = [channel for channel in channel_list if channel.is_in_channel()]
+        in_channel_list = [channel for channel in channel_list if channel.in_channel]
         in_channel_names_list = [channel.name for channel in in_channel_list]
         return in_channel_names_list
 

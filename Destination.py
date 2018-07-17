@@ -110,21 +110,6 @@ class Channel(Destination):
     def __hash__(self):
         return hash(self.address)
 
-    def get_password(self):
-        """
-        Channel password getter
-        :rtype : str | None
-        """
-        return self.password
-
-    def set_password(self, password):
-        """
-        Channel password setter
-        :param password: Password of the channel
-        :type password: str | None
-        """
-        self.password = password
-
     def get_prefix(self):
         """
         Returns the channel prefix.
@@ -133,14 +118,6 @@ class Channel(Destination):
         if self.prefix is None:
             return self.server.get_prefix()
         return self.prefix
-
-    def set_prefix(self, new_prefix):
-        """
-        Sets the channel function prefix.
-        :param new_prefix: New prefix to use to identify calls to hallo in this destination
-        :type new_prefix: bool | str | None
-        """
-        self.prefix = new_prefix
 
     def get_user_list(self):
         """
@@ -214,34 +191,6 @@ class Channel(Destination):
             if membership.user == user:
                 return membership
         return None
-
-    def is_passive_enabled(self):
-        """Whether or not passive functions are enabled in this channel"""
-        return self.passive_enabled
-
-    def set_passive_enabled(self, passive_enabled):
-        """
-        Sets whether passive functions are enabled in this channel
-        :param passive_enabled: Boolean, whether functions triggered indirectly are enabled for this channel.
-        :type passive_enabled: bool
-        """
-        self.passive_enabled = passive_enabled
-
-    def is_auto_join(self):
-        """Whether or not hallo should automatically join this channel"""
-        return self.auto_join
-
-    def set_auto_join(self, auto_join):
-        """
-        Sets whether hallo automatically joins this channel
-        :param auto_join: Boolean, whether or not to join this channel when the server connects.
-        :type auto_join: bool
-        """
-        self.auto_join = auto_join
-
-    def is_in_channel(self):
-        """Whether or not hallo is in this channel"""
-        return self.in_channel
 
     def set_in_channel(self, in_channel):
         """

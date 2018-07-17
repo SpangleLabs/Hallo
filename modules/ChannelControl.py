@@ -765,7 +765,7 @@ class ChannelCaps(Function):
                 return "Caps lock set " + {False: 'off', True: 'on'}[input_bool] + "."
             # Check if a channel was specified
             target_channel = server_obj.get_channel_by_name(line_split[0])
-            if target_channel.is_in_channel():
+            if target_channel.in_channel:
                 target_channel.use_caps_lock = not target_channel.use_caps_lock
                 return "Caps lock toggled in " + target_channel.name + "."
             # Otherwise input unknown
@@ -782,7 +782,7 @@ class ChannelCaps(Function):
             return "Error, I don't understand your input, please specify a channel and whether to turn " \
                    "caps lock on or off."
         target_channel = server_obj.get_channel_by_name(target_channel_name)
-        if target_channel is None or not target_channel.is_in_channel():
+        if target_channel is None or not target_channel.in_channel:
             return "Error, I'm not in that channel."
         target_channel.use_caps_lock = input_bool
         return "Caps lock set " + {False: 'off', True: 'on'}[input_bool] + " in " + target_channel.name + "."

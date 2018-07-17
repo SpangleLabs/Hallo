@@ -130,7 +130,7 @@ class ServerIRC(Server):
         print(Commons.current_timestamp() + " joining channels on " + self.name + ", identifying.")
         # Join relevant channels
         for channel in self.channel_list:
-            if channel.is_auto_join():
+            if channel.auto_join:
                 self.join_channel(channel)
         self.state = Server.STATE_OPEN
 
@@ -148,7 +148,7 @@ class ServerIRC(Server):
             self.state = Server.STATE_DISCONNECTING
             # Logging
             for channel in self.channel_list:
-                if channel.is_in_channel():
+                if channel.in_channel:
                     self.hallo.get_logger().log(Function.EVENT_QUIT,
                                                 quit_message,
                                                 self,
@@ -272,7 +272,7 @@ class ServerIRC(Server):
         if channel_obj not in self.channel_list:
             self.add_channel(channel_obj)
         # Set channel to AutoJoin, for the future
-        channel_obj.set_auto_join(True)
+        channel_obj.auto_join  = True
         # Send JOIN command
         if channel_obj.password is None:
             self.send('JOIN ' + channel_obj.address, None, self.MSG_RAW)
@@ -597,9 +597,9 @@ class ServerIRC(Server):
         # # Handling
         # If a channel password has been set, store it
         if mode_mode == '-k':
-            mode_channel.set_password(None)
+            mode_channel.password = None
         elif mode_mode == '+k':
-            mode_channel.set_password(mode_args)
+            mode_channel.password = mode_args
         # Handle op changes
         if "o" in mode_mode:
             mode_user_name = mode_args.split()[0]
@@ -1076,7 +1076,7 @@ class ServerIRC(Server):
             hallo_user_obj = self.get_user_by_address(nick.lower(), nick)
             # Log in all channel Hallo is in.
             for channel in self.channel_list:
-                if not channel.is_in_channel():
+                if not channel.in_channel:
                     continue
                 self.hallo.get_logger().log_from_self(Function.EVENT_CHNAME, old_nick, self, hallo_user_obj, channel)
 

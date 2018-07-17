@@ -157,14 +157,14 @@ class Cupcake(Function):
         if destination_obj in intersection_list:
             return output_message
         # Get list of channels that hallo is in inside that intersection
-        valid_channels = [chan for chan in intersection_list if chan.is_in_channel()]
+        valid_channels = [chan for chan in intersection_list if chan.in_channel]
         # If length of valid channel list is nonzero, pick a channel and send.
         if len(valid_channels) != 0:
             chosen_channel = Commons.get_random_choice(valid_channels)[0]
             server_obj.send(output_message, chosen_channel, Server.MSG_MSG)
             return "Cupcake sent."
         # If no valid intersection channels, see if there are any valid recipient channels
-        valid_channels = [chan for chan in recipient_channel_list if chan.is_in_channel()]
+        valid_channels = [chan for chan in recipient_channel_list if chan.in_channel]
         if len(valid_channels) != 0:
             chosen_channel = Commons.get_random_choice(valid_channels)[0]
             server_obj.send(output_message, chosen_channel, Server.MSG_MSG)
