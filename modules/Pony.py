@@ -94,7 +94,7 @@ class BestPony(Function):
         random_half_2 = Commons.get_random_choice(message_half_2)[0]
         # Select a random pony, or, if it's eli, select Pinkie Pie
         chosen_pony = Commons.get_random_choice(pony_list)[0]
-        if user_obj.get_name().endswith("000242"):
+        if user_obj.name.endswith("000242"):
             chosen_pony = {'name': "Pinkie Pie", 'pronoun': "she", 'categories': ["mane6"]}
         # Assemble and output the message
         output_message = random_half_1.replace("{X}",
@@ -143,12 +143,12 @@ class Cupcake(Function):
             return "No one called " + recipient_user_name + " is online."
         # Generate the output message, adding cupcake type if required
         if recipient_user_name == line.strip():
-            output_message = "\x01ACTION gives " + recipient_user_name + " a cupcake, from " + user_obj.get_name() + \
+            output_message = "\x01ACTION gives " + recipient_user_name + " a cupcake, from " + user_obj.name + \
                             ".\x01"
         else:
             cupcake_type = line[len(recipient_user_name):].strip()
             output_message = "\x01ACTION gives " + recipient_user_name + " a " + cupcake_type + " cupcake, from " + \
-                             user_obj.get_name() + ".\x01"
+                             user_obj.name + ".\x01"
         # Get both users channel lists, and then the intersection
         user_channel_list = user_obj.get_channel_list()
         recipient_channel_list = recipient_user_obj.get_channel_list()

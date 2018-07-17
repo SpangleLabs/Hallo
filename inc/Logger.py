@@ -95,53 +95,53 @@ class Logger:
     
     def log_message(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += '<' + user_obj.get_name() + '> ' + full_line
+        output += '<' + user_obj.name + '> ' + full_line
         return output
     
     def log_join(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += user_obj.get_name() + " joined " + channel_obj.get_name()
+        output += user_obj.name + " joined " + channel_obj.name
         return output
     
     def log_leave(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += user_obj.get_name() + " left " + channel_obj.get_name()
+        output += user_obj.name + " left " + channel_obj.name
         if full_line.strip() != "":
             output += " (" + full_line + ")"
         return output
     
     def log_quit(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += user_obj.get_name() + " has quit."
+        output += user_obj.name + " has quit."
         if full_line.strip() != "":
             output += " (" + full_line + ")"
         return output
     
     def log_name_change(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += "Nick change: " + full_line + " -> " + user_obj.get_name()
+        output += "Nick change: " + full_line + " -> " + user_obj.name
         return output
     
     def log_kick(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += user_obj.get_name() + " was kicked from " + channel_obj.get_name()
+        output += user_obj.name + " was kicked from " + channel_obj.name
         if full_line.strip() != "":
             output += " (" + full_line + ")"
         return output
     
     def log_invite(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += "Invite to " + channel_obj.get_name() + ' from ' + user_obj.get_name()
+        output += "Invite to " + channel_obj.name + ' from ' + user_obj.name
         return output
     
     def log_notice(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += "Notice from " + user_obj.get_name() + ": " + full_line
+        output += "Notice from " + user_obj.name + ": " + full_line
         return output
     
     def log_mode_change(self, full_line, server_obj, user_obj, channel_obj):
         output = Commons.current_timestamp() + " "
-        output += user_obj.get_name() + ' set ' + full_line + ' on ' + channel_obj.get_name()
+        output += user_obj.name + ' set ' + full_line + ' on ' + channel_obj.name
         return output
     
     def log_ctcp(self, full_line, server_obj, user_obj, channel_obj):
@@ -149,10 +149,10 @@ class Logger:
         ctcp_arguments = ' '.join(full_line.split()[1:])
         if ctcp_command.lower() == "action":
             output = Commons.current_timestamp() + " "
-            output += "**" + user_obj.get_name() + ' ' + ctcp_arguments + '**'
+            output += "**" + user_obj.name + ' ' + ctcp_arguments + '**'
             return output
         output = Commons.current_timestamp() + " "
-        output += "<" + user_obj.get_name() + ' (CTCP)> ' + full_line
+        output += "<" + user_obj.name + ' (CTCP)> ' + full_line
         return output
     
     def get_file_name(self, server_obj, user_obj, channel_obj):
@@ -166,7 +166,7 @@ class Logger:
             file_name += file_date+file_ext
             return file_name
         # Otherwise, go into server directory
-        file_name += server_obj.get_name() + "/"
+        file_name += server_obj.name + "/"
         # Check if channel object is specified
         if channel_obj is None:
             if user_obj is None:
@@ -175,11 +175,11 @@ class Logger:
                 file_name += file_date+file_ext
                 return file_name
             # No channel, but there is a user
-            file_name += user_obj.get_name() + "/"
+            file_name += user_obj.name + "/"
             file_name += file_date+file_ext
             return file_name
         # Channel object is set
-        file_name += channel_obj.get_name() + "/"
+        file_name += channel_obj.name + "/"
         file_name += file_date+file_ext
         return file_name
 

@@ -587,7 +587,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         # Check user groups
-        new_user = right_server.get_user_by_address(self.test_user.get_name().lower(), self.test_user.get_name())
+        new_user = right_server.get_user_by_address(self.test_user.address, self.test_user.name)
         assert test_user_group in new_user.user_group_list
 
     def test_inherit_user_groups_specify_nick(self):

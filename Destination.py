@@ -29,21 +29,6 @@ class Destination(metaclass=ABCMeta):
         self.memberships_list = set()  # Set of ChannelMemberships for User or Channel
         """:type : set[ChannelMembership]"""
 
-    def get_name(self):
-        """
-        Name getter
-        :rtype : str
-        """
-        return self.name.lower()
-
-    def set_name(self, name):
-        """
-        Name setter
-        :param name: Name of the destination
-        :type name: str
-        """
-        self.name = name.lower()
-
     def is_channel(self):
         """
         Boolean, whether the destination is a channel.

@@ -227,7 +227,7 @@ class ServerIRC(Server):
         else:
             msg_type_name = "PRIVMSG"
         # Get channel or user name and data
-        destination_name = destination_obj.get_name()
+        destination_addr = destination_obj.address
         channel_obj = None
         user_obj = destination_obj
         if destination_obj.is_channel():
@@ -237,12 +237,12 @@ class ServerIRC(Server):
         if destination_obj.is_upper_case():
             data = Commons.upper(data)
         # Get max line length
-        max_line_length = self.MAX_MSG_LENGTH - len(msg_type_name + ' ' + destination_name + ' :' + endl)
+        max_line_length = self.MAX_MSG_LENGTH - len(msg_type_name + ' ' + destination_addr + ' :' + endl)
         # Split and send
         for data_line in data.split("\n"):
             data_line_split = Commons.chunk_string_dot(data_line, max_line_length)
             for date_line_line in data_line_split:
-                self.send_raw(msg_type_name + ' ' + destination_name + ' :' + date_line_line)
+                self.send_raw(msg_type_name + ' ' + destination_addr + ' :' + date_line_line)
                 # Log sent data, if it's not message or notice
                 if msg_type == self.MSG_MSG:
                     self.hallo.get_printer().output_from_self(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
@@ -274,10 +274,10 @@ class ServerIRC(Server):
         # Set channel to AutoJoin, for the future
         channel_obj.set_auto_join(True)
         # Send JOIN command
-        if channel_obj.get_password() is None:
-            self.send('JOIN ' + channel_obj.get_name(), None, self.MSG_RAW)
+        if channel_obj.password is None:
+            self.send('JOIN ' + channel_obj.address, None, self.MSG_RAW)
         else:
-            self.send('JOIN ' + channel_obj.get_name() + ' ' + channel_obj.get_password(), None, self.MSG_RAW)
+            self.send('JOIN ' + channel_obj.address + ' ' + channel_obj.password, None, self.MSG_RAW)
 
     def leave_channel(self, channel_obj):
         """
@@ -287,7 +287,7 @@ class ServerIRC(Server):
         """
         super().leave_channel(channel_obj)
         # Send PART command
-        self.send('PART ' + channel_obj.get_name(), None, self.MSG_RAW)
+        self.send('PART ' + channel_obj.address, None, self.MSG_RAW)
 
     def parse_line(self, new_line):
         """
@@ -564,7 +564,7 @@ class ServerIRC(Server):
         # Remove auth stuff from user
         quit_client.set_online(False)
         # If it was hallo which quit, set all channels to out of channel and all users to offline
-        if quit_client.get_name().lower() == self.get_nick().lower():
+        if quit_client.address == self.get_nick().lower():
             for channel in self.channel_list:
                 channel.set_in_channel(False)
             for user in self.user_list:
@@ -639,7 +639,7 @@ class ServerIRC(Server):
         self.hallo.get_printer().output(Function.EVENT_NOTICE, notice_message, self, notice_client, notice_channel)
         self.hallo.get_logger().log(Function.EVENT_NOTICE, notice_message, self, notice_client, notice_channel)
         # Checking if user is registered
-        if notice_client.get_name() == self.nickserv_nick and \
+        if notice_client.address == self.nickserv_nick and \
                 self._check_useridentity_user is not None and \
                 self.nickserv_ident_command is not None:
             # check if notice message contains command and user name
@@ -670,11 +670,12 @@ class ServerIRC(Server):
         # Get user object
         nick_client = self.get_user_by_address(nick_client_name.lower(), nick_client_name)
         # If it was the bots nick that just changed, update that.
-        if nick_client.get_name() == self.get_nick():
+        if nick_client.name == self.get_nick():
             self.nick = nick_new_nick
         # TODO: Check whether this verifies anything that means automatic flags need to be applied
         # Update name for user object
-        nick_client.set_name(nick_new_nick)
+        nick_client.name = nick_new_nick
+        nick_client.address = nick_new_nick.lower()
         # Printing and logging
         self.hallo.get_printer().output(Function.EVENT_CHNAME, nick_client_name, self, nick_client,
                                         Commons.ALL_CHANNELS)
@@ -726,7 +727,7 @@ class ServerIRC(Server):
         # Remove kicked user from user list
         kick_channel.remove_user(kick_client)
         # If it was the bot who was kicked, set "in channel" status to False
-        if kick_client.get_name() == self.get_nick():
+        if kick_client.name == self.get_nick():
             kick_channel.set_in_channel(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.get_function_dispatcher()
@@ -923,10 +924,10 @@ class ServerIRC(Server):
         # get check user lock
         self._check_useridentity_lock.acquire()
         try:
-            self._check_useridentity_user = user_obj.get_name()
+            self._check_useridentity_user = user_obj.address
             self._check_useridentity_result = None
             # send whatever request
-            self.send(self.nickserv_ident_command + " " + user_obj.get_name(), nickserv_obj, Server.MSG_MSG)
+            self.send(self.nickserv_ident_command + " " + user_obj.address, nickserv_obj, Server.MSG_MSG)
             # loop for 5 seconds
             for _ in range(10):
                 # if response

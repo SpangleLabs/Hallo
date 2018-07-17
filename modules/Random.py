@@ -151,7 +151,7 @@ class ChosenOne(Function):
         # Get the user list
         user_set = channel_obj.get_user_list()
         # Get list of users' names
-        names_list = [user_obj.get_name() for user_obj in user_set]
+        names_list = [user_obj.name for user_obj in user_set]
         rand = Commons.get_random_int(0, len(names_list) - 1)[0]
         return 'It should be obvious by now that ' + names_list[rand] + ' is the chosen one.'
 

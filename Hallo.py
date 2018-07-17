@@ -232,7 +232,7 @@ class Hallo:
         :return: Server matching specified name of None
         """
         for server in self.server_list:
-            if server.get_name().lower() == server_name.lower():
+            if server.name.lower() == server_name.lower():
                 return server
         return None
 
@@ -258,7 +258,7 @@ class Hallo:
         :type server_name: str
         """
         for server in self.server_list:
-            if server.get_name() == server_name:
+            if server.name.lower() == server_name.lower():
                 self.server_list.remove(server)
 
     def close(self):

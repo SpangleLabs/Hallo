@@ -1,3 +1,4 @@
+from Destination import Channel
 from Function import Function
 from inc.Commons import Commons
 from xml.dom import minidom
@@ -311,8 +312,8 @@ class WeatherLocationRepo:
 
     def get_entry_by_user_obj(self, user_obj):
         """Returns an entry matching the given userObject, or None."""
-        user_name = user_obj.get_name()
-        server_name = user_obj.get_server().get_name()
+        user_name = user_obj.address
+        server_name = user_obj.server.name
         return self.get_entry_by_user_name_and_server_name(user_name, server_name)
 
     @staticmethod
@@ -357,9 +358,9 @@ class WeatherLocationEntry:
     TYPE_COORDS = "coords"
     TYPE_ZIP = "zip"
 
-    def __init__(self, server_name, user_name):
+    def __init__(self, server_name, user_addr):
         self.server_name = server_name
-        self.user_name = user_name
+        self.user_name = user_addr
         self.country_code = None
         self.type = None
         self.city_name = None
@@ -523,7 +524,7 @@ class WeatherLocation(Function):
         line_clean = line.strip().lower()
         # Load up Weather locations repo
         weather_repo = WeatherLocationRepo.load_from_xml()
-        user_name = user_obj.get_name()
+        user_name = user_obj.address
         server_obj = user_obj.get_server()
         server_name = server_obj.get_name()
         # Check that an argument is provided
@@ -534,7 +535,7 @@ class WeatherLocation(Function):
         test_user = server_obj.get_user_by_name(first_arg)
         if destination_obj is not None and destination_obj.is_channel():
             if destination_obj.is_user_in_channel(test_user):
-                user_name = test_user.get_name()
+                user_name = test_user.address
                 line_clean = line_clean[len(first_arg):].strip()
         # Create entry
         new_entry = WeatherLocationEntry(server_name, user_name)
@@ -573,15 +574,15 @@ class CurrentWeather(Function):
         else:
             # Check if a user was specified
             test_user = user_obj.get_server().get_user_by_name(line_clean)
-            if (destination_obj is not None and destination_obj.is_channel() and destination_obj.is_user_in_channel(
-                    test_user)):
+            if (destination_obj is not None and isinstance(destination_obj, Channel) and
+                    destination_obj.is_user_in_channel(test_user)):
                 location_repo = WeatherLocationRepo.load_from_xml()
                 location_entry = location_repo.get_entry_by_user_obj(test_user)
                 if location_entry is None:
                     return "No location stored for this user. Please specify a location or store one with " \
                            "the \"weather location\" function."
             else:
-                user_name = user_obj.get_name()
+                user_name = user_obj.address
                 server_name = user_obj.get_server().get_name()
                 location_entry = WeatherLocationEntry(user_name, server_name)
                 location_entry.set_from_input(line_clean)
@@ -674,7 +675,7 @@ class Weather(Function):
                     return "No location stored for this user. Please specify a location or store one with " \
                            "the \"weather location\" function."
             else:
-                user_name = user_obj.get_name()
+                user_name = user_obj.address
                 server_name = user_obj.get_server().get_name()
                 location_entry = WeatherLocationEntry(user_name, server_name)
                 location_entry.set_from_input(line_clean)

@@ -185,7 +185,7 @@ class Server(metaclass=ABCMeta):
         """
         channel_name = channel_name.lower()
         for channel in self.channel_list:
-            if channel.get_name() == channel_name:
+            if channel.name == channel_name:
                 return channel
         new_channel = None
         if address is not None:
@@ -256,7 +256,7 @@ class Server(metaclass=ABCMeta):
         """
         user_name = user_name.lower()
         for user in self.user_list:
-            if user.get_name() == user_name:
+            if user.name == user_name:
                 return user
         # No user by that name exists, so create one, provided address is supplied
         new_user = None

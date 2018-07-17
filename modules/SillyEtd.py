@@ -1,3 +1,4 @@
+from Destination import Channel
 from Function import Function
 from inc.Commons import Commons
 import datetime
@@ -73,24 +74,24 @@ class SilenceTheRabble(Function):
         # TODO: check if not opped?
         # if(not opped):
         #    return 'I cannot handle it, master!'
-        if not user_obj.get_name().endswith('000242'):
+        if not user_obj.name.endswith('000242'):
             return "Error, you are not my master."
         server_obj = user_obj.get_server()
         if server_obj.get_type() == Server.TYPE_IRC:
             return "Error, this function is only available on IRC servers."
-        if destination_obj is None or destination_obj == user_obj:
+        if not isinstance(destination_obj, Channel):
             return "Error, this function can only be used in ETD."
-        if destination_obj.get_name().lower() != "#ecco-the-dolphin":
+        if destination_obj.name.lower() != "#ecco-the-dolphin":
             return "Error, this function can only be used in ETD."
         user_list = destination_obj.get_user_list()
         for user_obj in user_list:
-            if user_obj.get_name().endswith("000242"):
+            if user_obj.name.endswith("000242"):
                 continue
-            if user_obj.get_name().lower() == server_obj.get_nick().lower():
+            if user_obj.name.lower() == server_obj.name.lower():
                 continue
-            server_obj.send("MODE " + destination_obj.get_name() + " -o " + user_obj.get_name(), None, Server.MSG_RAW)
-            server_obj.send("MODE " + destination_obj.get_name() + " -v " + user_obj.get_name(), None, Server.MSG_RAW)
-        server_obj.send("MODE " + destination_obj.get_name() + " +m", None, Server.MSG_RAW)
+            server_obj.send("MODE " + destination_obj.address + " -o " + user_obj.address, None, Server.MSG_RAW)
+            server_obj.send("MODE " + destination_obj.address + " -v " + user_obj.address, None, Server.MSG_RAW)
+        server_obj.send("MODE " + destination_obj.address + " +m", None, Server.MSG_RAW)
         return "I have done your bidding, master."
 
 
@@ -113,14 +114,14 @@ class PokeTheAsshole(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # TODO: check if not opped?
-        if not user_obj.get_name().endswith('000242'):
+        if not user_obj.name.endswith('000242'):
             return "Error, You are not my master."
         server_obj = user_obj.get_server()
         if server_obj.get_type() == Server.TYPE_IRC:
             return "Error, This function is only available on IRC servers."
         if destination_obj is None or destination_obj == user_obj:
             return "Error, This function can only be used in ETD."
-        if destination_obj.get_name().lower() != "#ecco-the-dolphin":
+        if destination_obj.name.lower() != "#ecco-the-dolphin":
             return "Error, This function can only be used in ETD."
         # Take input, or assume input is 5
         if line.strip().isdigit():
@@ -128,8 +129,8 @@ class PokeTheAsshole(Function):
         else:
             number = 5
         for _ in range(number):
-            server_obj.send("MODE " + destination_obj.get_name() + " +v Dolphin", None, Server.MSG_RAW)
-            server_obj.send("MODE " + destination_obj.get_name() + " -v Dolphin", None, Server.MSG_RAW)
+            server_obj.send("MODE " + destination_obj.address + " +v Dolphin", None, Server.MSG_RAW)
+            server_obj.send("MODE " + destination_obj.address + " -v Dolphin", None, Server.MSG_RAW)
         return 'Dolphin: You awake yet?'
 
 

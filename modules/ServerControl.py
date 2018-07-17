@@ -1,3 +1,4 @@
+from Destination import Channel
 from Function import Function
 import re
 
@@ -84,8 +85,8 @@ class LeaveChannel(Function):
             channel_name = line.split()[0].lower()
             channel_obj = server_obj.get_channel_by_name(channel_name)
         else:
-            if destination_obj.is_channel():
-                channel_name = destination_obj.get_name()
+            if isinstance(destination_obj, Channel):
+                channel_name = destination_obj.name
                 channel_obj = destination_obj
             else:
                 return "Error, I cannot leave a private chat."
@@ -181,7 +182,7 @@ class Connect(Function):
         if server_obj.state == Server.STATE_DISCONNECTING:
             return "Error, currently disconnecting from that server."
         server_obj.start()
-        return "Connected to server: " + server_obj.get_name() + "."
+        return "Connected to server: " + server_obj.name + "."
 
     def connect_to_new_server_irc(self, line, user_obj, destination_obj):
         """
@@ -262,8 +263,12 @@ class Connect(Function):
         new_server_obj.set_nickserv_ident_response(nickserv_identity_resp)
         new_server_obj.set_nickserv_pass(nickserv_password)
         # Add user with same name on new server to all the same groups as current user
-        new_user_nick = Commons.find_any_parameter(["user", "god"], line) or user_obj.get_name()
-        new_user = new_server_obj.get_user_by_name(new_user_nick)
+        new_user_nick = Commons.find_any_parameter(["user", "god"], line)
+        new_user = user_obj
+        if new_user_nick is not None:
+            new_user = new_server_obj.get_user_by_name(new_user_nick)
+            if new_user is None:
+                return "Could not find a user by the name specified (\"%s\").".format(new_user_nick)
         for group in user_obj.user_group_list:
             new_user.add_user_group(group)
         # Add the new object to Hallo's list
@@ -328,7 +333,7 @@ class Say(Function):
             for server_obj in server_list:
                 if not server_obj.is_connected():
                     continue
-                if re.match(server_regex, server_obj.get_name(), re.IGNORECASE):
+                if re.match(server_regex, server_obj.name, re.IGNORECASE):
                     server_objs.append(server_obj)
         # If server is not recognised or found, respond with an error
         if len(server_objs) == 0:
@@ -341,7 +346,7 @@ class Say(Function):
             for channel_obj in channel_list:
                 if not channel_obj.is_in_channel():
                     continue
-                if re.match(channel_regex, channel_obj.get_name(), re.IGNORECASE):
+                if re.match(channel_regex, channel_obj.name, re.IGNORECASE):
                     channel_objs.append(channel_obj)
         # If no channels were found that match, respond with an error
         if len(channel_objs) == 0:
@@ -441,7 +446,7 @@ class EditServer(Function):
         # If server address or server port was changed, reconnect.
         if server_port is not None or server_address is not None:
             server_obj.reconnect()
-        return "Modified the IRC server: " + server_obj.get_name() + "."
+        return "Modified the IRC server: " + server_obj.name + "."
 
 
 class ListUsers(Function):
@@ -484,12 +489,12 @@ class ListUsers(Function):
         if channel_name == "":
             if destination_obj is None or not destination_obj.is_channel():
                 return "I don't recognise that channel name."
-            channel_name = destination_obj.get_name()
+            channel_name = destination_obj.name
         # If they've specified all channels, display the server list.
         if channel_name in ["*", "all"]:
-            output_string = "Users on " + server_obj.get_name() + ": "
+            output_string = "Users on " + server_obj.name + ": "
             user_list = server_obj.get_user_list()
-            output_string += ", ".join([user.get_name() for user in user_list if user.is_online()])
+            output_string += ", ".join([user.name for user in user_list if user.is_online()])
             output_string += "."
             return output_string
         # Get channel object
@@ -498,7 +503,7 @@ class ListUsers(Function):
         user_list = channel_obj.get_user_list()
         # Output
         output_string = "Users in " + channel_name + ": "
-        output_string += ", ".join([user.get_name() for user in user_list])
+        output_string += ", ".join([user.name for user in user_list])
         output_string += "."
         return output_string
 
@@ -537,7 +542,7 @@ class ListChannels(Function):
             server_list = hallo_obj.get_server_list()
             channel_title_list = []
             for server_obj in server_list:
-                server_name = server_obj.get_name()
+                server_name = server_obj.name
                 in_channel_name_list = self.get_in_channel_names_list(server_obj)
                 channel_title_list += [server_name + "-" + channel_name for channel_name in in_channel_name_list]
             output_string += ', '.join(channel_title_list)
@@ -557,7 +562,7 @@ class ListChannels(Function):
             if server_obj is None:
                 return "I don't recognise that server name."
             in_channel_name_list = self.get_in_channel_names_list(server_obj)
-            output_string = "On " + server_obj.get_name() + " server, I'm in these channels: "
+            output_string = "On " + server_obj.name + " server, I'm in these channels: "
             output_string += ', '.join(in_channel_name_list) + "."
             return output_string
         # Check if whatever input they gave is a server
@@ -568,14 +573,14 @@ class ListChannels(Function):
                             "or no input to get the current server's list"
             return output_string
         in_channel_name_list = self.get_in_channel_names_list(server_obj)
-        output_string = "On " + server_obj.get_name() + " server, I'm in these channels: "
+        output_string = "On " + server_obj.name + " server, I'm in these channels: "
         output_string += ', '.join(in_channel_name_list) + "."
         return output_string
 
     def get_in_channel_names_list(self, server_obj):
         channel_list = server_obj.get_channel_list()
         in_channel_list = [channel for channel in channel_list if channel.is_in_channel()]
-        in_channel_names_list = [channel.get_name() for channel in in_channel_list]
+        in_channel_names_list = [channel.name for channel in in_channel_list]
         return in_channel_names_list
 
 

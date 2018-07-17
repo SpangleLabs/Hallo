@@ -767,7 +767,7 @@ class ChannelCaps(Function):
             target_channel = server_obj.get_channel_by_name(line_split[0])
             if target_channel.is_in_channel():
                 target_channel.set_upper_case(not target_channel.is_upper_case())
-                return "Caps lock toggled in " + target_channel.get_name() + "."
+                return "Caps lock toggled in " + target_channel.name + "."
             # Otherwise input unknown
             return "Error, I don't understand your input, please specify a channel and whether to turn caps lock " \
                    "on or off."
@@ -785,7 +785,7 @@ class ChannelCaps(Function):
         if target_channel is None or not target_channel.is_in_channel():
             return "Error, I'm not in that channel."
         target_channel.set_upper_case(input_bool)
-        return "Caps lock set " + {False: 'off', True: 'on'}[input_bool] + " in " + target_channel.get_name() + "."
+        return "Caps lock set " + {False: 'off', True: 'on'}[input_bool] + " in " + target_channel.name + "."
 
 
 class ChannelLogging(Function):
@@ -891,7 +891,7 @@ class ChannelPassiveFunctions(Function):
             target_channel = server_obj.get_channel_by_name(line_split[0])
             if target_channel.in_channel:
                 target_channel.passive_enabled = not target_channel.passive_enabled
-                return "Passive functions toggled in " + target_channel.get_name() + "."
+                return "Passive functions toggled in " + target_channel.name + "."
             # Otherwise input unknown
             return "Error, I don't understand your input, please specify a channel and whether to turn passive " \
                    "functions on or off."

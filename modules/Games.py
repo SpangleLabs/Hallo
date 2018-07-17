@@ -760,7 +760,7 @@ class HigherOrLowerGame(Game):
         current_score = self.turns
         if self.lost:
             current_score = self.turns - 1
-        user_name = list(self.players)[0].get_name()
+        user_name = list(self.players)[0].name
         score = str(current_score) + " cards"
         game_data = {'cards': current_score}
         self.high_scores_obj.add_high_score(self.HIGH_SCORE_NAME, score, user_name, game_data)
@@ -1255,7 +1255,7 @@ class DDRGame(Game):
         # Output how many players joined and begin
         self.can_join = False
         output_string = str(len(self.players)) + " players joined: " + ", ".join(
-            [player.get_name() for player in self.players]) + ". Starting game."
+            [player.name for player in self.players]) + ". Starting game."
         server_obj.send(output_string, self.channel, Server.MSG_MSG)
         # Do the various turns of the game
         for _ in range(self.num_turns):
@@ -1274,7 +1274,7 @@ class DDRGame(Game):
         server_obj.send(output_string, self.channel, Server.MSG_MSG)
         # See who wins
         winner_player = self.find_winner()
-        output_string = "Winner is: " + winner_player.get_name()
+        output_string = "Winner is: " + winner_player.name
         server_obj.send(output_string, self.channel, Server.MSG_MSG)
         # Output player ratings
         for player in self.players:
@@ -1283,7 +1283,7 @@ class DDRGame(Game):
         # Check if they have a highscore
         if self.check_high_score(winner_player):
             self.update_high_score(winner_player)
-            server_obj.send(winner_player.get_name() + " has set a new DDR highscore with " + str(
+            server_obj.send(winner_player.name + " has set a new DDR highscore with " + str(
                 self.player_dict[winner_player]['hits']) + " hits and " + str(
                 self.player_dict[winner_player]['lag']) + " lag!", self.channel, Server.MSG_MSG)
             # Game ended
@@ -1346,7 +1346,7 @@ class DDRGame(Game):
         winner_lag = self.player_dict[winner_player]['lag']
         winner_score = str(winner_hits) + " hits, " + "{0:.3f}".format(winner_lag) + "s lag"
         game_data = {'hits': winner_hits, 'lag': winner_lag}
-        self.high_scores_obj.add_high_score(self.HIGH_SCORE_NAME, winner_score, winner_player.get_name(), game_data)
+        self.high_scores_obj.add_high_score(self.HIGH_SCORE_NAME, winner_score, winner_player.name, game_data)
         return True
 
     def can_join(self):
@@ -1361,7 +1361,7 @@ class DDRGame(Game):
         if self.can_join:
             self.players.add(user_obj)
             self.player_dict[user_obj] = {'hits': 0, 'lag': 0}
-            return user_obj.get_name() + " has joined."
+            return user_obj.name + " has joined."
         else:
             return "This game cannot be joined now."
 
@@ -1386,7 +1386,7 @@ class DDRGame(Game):
             self.game_over = True
             return "All players quit. game over."
         else:
-            return user_obj.get_name() + " has quit the game."
+            return user_obj.name + " has quit the game."
 
 
 class DDR(Function):
