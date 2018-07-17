@@ -234,7 +234,7 @@ class ServerIRC(Server):
             channel_obj = destination_obj
             user_obj = None
         # Find out if destination wants caps lock
-        if destination_obj.is_upper_case():
+        if destination_obj.use_caps_lock:
             data = Commons.upper(data)
         # Get max line length
         max_line_length = self.MAX_MSG_LENGTH - len(msg_type_name + ' ' + destination_addr + ' :' + endl)

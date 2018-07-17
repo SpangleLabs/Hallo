@@ -53,28 +53,6 @@ class Destination(metaclass=ABCMeta):
         """Updates LastActive timestamp"""
         self.last_active = time.time()
 
-    def get_last_active(self):
-        """
-        Returns when the destination was last active
-        :rtype : float
-        """
-        return self.last_active
-
-    def is_upper_case(self):
-        """
-        Returns a boolean representing whether to use caps lock
-        :rtype : bool
-        """
-        return self.use_caps_lock
-
-    def set_upper_case(self, upper_case):
-        """
-        Sets whether the destination uses caps lock
-        :param upper_case: Boolean, whether or not this destination is caps-lock only
-        :type upper_case: bool
-        """
-        self.use_caps_lock = upper_case
-
     def is_persistent(self):
         """
         Defines whether a Destination object is persistent.
@@ -82,12 +60,6 @@ class Destination(metaclass=ABCMeta):
         :rtype : bool
         """
         raise NotImplementedError
-
-    def get_permission_mask(self):
-        """
-        :rtype : PermissionMask.PermissionMask
-        """
-        return self.permission_mask
 
     def rights_check(self, right_name):
         raise NotImplementedError

@@ -181,7 +181,7 @@ class Server(metaclass=ABCMeta):
         :type channel_name: str
         :param address: Address of the channel
         :type address: str
-        :return: Destination.Channel
+        :rtype: Optional[Destination.Channel]
         """
         channel_name = channel_name.lower()
         for channel in self.channel_list:
