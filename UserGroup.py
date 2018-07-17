@@ -48,7 +48,7 @@ class UserGroup:
         if channel_obj is not None:
             return channel_obj.rights_check(right_name)
         # Fall back to the parent Server's decision.
-        return user_obj.get_server().rights_check(right_name)
+        return user_obj.server.rights_check(right_name)
 
     def get_name(self):
         return self.name

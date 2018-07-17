@@ -749,7 +749,7 @@ class ChannelCaps(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Get server object
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         # If no arguments given, toggle caps lock in current destination
         line_clean = line.strip()
         if line_clean == '':

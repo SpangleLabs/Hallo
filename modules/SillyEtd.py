@@ -76,7 +76,7 @@ class SilenceTheRabble(Function):
         #    return 'I cannot handle it, master!'
         if not user_obj.name.endswith('000242'):
             return "Error, you are not my master."
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         if server_obj.get_type() == Server.TYPE_IRC:
             return "Error, this function is only available on IRC servers."
         if not isinstance(destination_obj, Channel):
@@ -116,7 +116,7 @@ class PokeTheAsshole(Function):
         # TODO: check if not opped?
         if not user_obj.name.endswith('000242'):
             return "Error, You are not my master."
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         if server_obj.get_type() == Server.TYPE_IRC:
             return "Error, This function is only available on IRC servers."
         if destination_obj is None or destination_obj == user_obj:

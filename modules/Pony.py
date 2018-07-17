@@ -135,7 +135,7 @@ class Cupcake(Function):
         if line.strip() == '':
             return "You must specify a recipient for the cupcake."
         # Get some required objects
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         recipient_user_name = line.split()[0]
         recipient_user_obj = server_obj.get_user_by_name(recipient_user_name)
         # If user isn't online, I can't send a cupcake

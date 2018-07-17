@@ -73,7 +73,7 @@ class RandomPorn(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         line_unclean = line.strip() + " -rating:s"
-        function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
+        function_dispatcher = user_obj.server.hallo.function_dispatcher
         e621_class = function_dispatcher.get_function_by_name("e621")
         e621_obj = function_dispatcher.get_function_object(e621_class)  # type: E621
         search_result = e621_obj.get_random_link_result(line_unclean)
@@ -111,7 +111,7 @@ class Butts(Function):
         self.help_docs = "Returns a random image from e621 for the search \"butt\". Format: butts"
 
     def run(self, line, user_obj, destination_obj=None):
-        function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
+        function_dispatcher = user_obj.server.hallo.function_dispatcher
         e621_class = function_dispatcher.get_function_by_name("e621")
         e621_obj = function_dispatcher.get_function_object(e621_class)  # type: E621
         search_result = e621_obj.get_random_link_result("butt")
@@ -828,7 +828,7 @@ class SubE621List(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Handy variables
-        server = user_obj.get_server()
+        server = user_obj.server
         hallo = server.get_hallo()
         function_dispatcher = hallo.get_function_dispatcher()
         sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
@@ -871,7 +871,7 @@ class SubE621Remove(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Handy variables
-        server = user_obj.get_server()
+        server = user_obj.server
         hallo = server.get_hallo()
         function_dispatcher = hallo.get_function_dispatcher()
         sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")

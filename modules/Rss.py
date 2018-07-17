@@ -470,7 +470,7 @@ class FeedRemove(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Handy variables
-        server = user_obj.get_server()
+        server = user_obj.server
         hallo = server.get_hallo()
         function_dispatcher = hallo.get_function_dispatcher()
         feed_check_function = function_dispatcher.get_function_by_name("rss check")
@@ -517,7 +517,7 @@ class FeedList(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Handy variables
-        server = user_obj.get_server()
+        server = user_obj.server
         hallo = server.get_hallo()
         function_dispatcher = hallo.get_function_dispatcher()
         feed_check_function = function_dispatcher.get_function_by_name("rss check")

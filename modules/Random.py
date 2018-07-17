@@ -180,7 +180,7 @@ class Foof(Function):
             return 'doooooof'
         else:
             if rand == 40 + 15:
-                server_obj = user_obj.get_server()
+                server_obj = user_obj.server
                 server_obj.send('powering up...', destination_obj)
                 time.sleep(5)
                 return 'd' * 100 + 'o' * 1000 + 'f' * 200 + '!' * 50
@@ -311,7 +311,7 @@ class CatGif(Function):
         help_docs = "Returns a random cat gif Format: cat gif"
 
     def run(self, line, user_obj, destination_obj=None):
-        api_key = user_obj.get_server().get_hallo().get_api_key("thecatapi")
+        api_key = user_obj.server.hallo.get_api_key("thecatapi")
         if api_key is None:
             return "No API key loaded for cat api."
         url = "http://thecatapi.com/api/images/get?format=xml&api_key=" + api_key + "&type=gif"
@@ -341,7 +341,7 @@ class RandomQuote(Function):
         self.help_docs = "Returns a quote. Format: random quote"
 
     def run(self, line, user_obj, destination_obj=None):
-        api_key = user_obj.get_server().get_hallo().get_api_key("mashape")
+        api_key = user_obj.server.hallo.get_api_key("mashape")
         if api_key is None:
             return "No API key loaded for mashape."
         url = "https://andruxnet-random-famous-quotes.p.mashape.com/"
@@ -379,7 +379,7 @@ class NightValeWeather(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Get hallo object
-        self.hallo_obj = user_obj.get_server().get_hallo()
+        self.hallo_obj = user_obj.server.hallo
         # Get playlist data from youtube api
         playlist_data = self.get_youtube_playlist("PL5bFd9WyHshXpZK-VPpH8UPXx6wCOIaQW")
         # Select a video from the playlist

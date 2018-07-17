@@ -716,7 +716,7 @@ class HigherOrLowerGame(Game):
         self.card_list = []
         self.deck = Deck()
         self.deck.shuffle()
-        function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
+        function_dispatcher = user_obj.server.hallo.function_dispatcher
         high_scores_class = function_dispatcher.get_function_by_name("highscores")
         self.high_scores_obj = function_dispatcher.get_function_object(high_scores_class)  # type: HighScores
         self.last_card = None
@@ -1220,7 +1220,7 @@ class DDRGame(Game):
         self.players_moved = set()
         self.player_dict = {user_obj: {'hits': 0, 'lag': 0}}
         self.difficulty = game_difficulty
-        function_dispatcher = user_obj.get_server().get_hallo().get_function_dispatcher()
+        function_dispatcher = user_obj.server.hallo.function_dispatcher
         high_scores_class = function_dispatcher.get_function_by_name("highscores")
         self.high_scores_obj = function_dispatcher.get_function_object(high_scores_class)  # type: HighScores
         self.last_move = None
@@ -1234,7 +1234,7 @@ class DDRGame(Game):
 
     def run(self):
         """Launched into a new thread, this function actually plays the DDR game."""
-        server_obj = self.channel.get_server()
+        server_obj = self.channel.server
         if self.difficulty == self.DIFFICULTY_HARD:
             self.num_turns = 20
             time_min = 1

@@ -49,13 +49,6 @@ class Destination(metaclass=ABCMeta):
         else:
             return True
 
-    def get_server(self):
-        """
-        Returns the server object that this destination belongs to
-        :rtype : Server.Server
-        """
-        return self.server
-
     def update_activity(self):
         """Updates LastActive timestamp"""
         self.last_active = time.time()

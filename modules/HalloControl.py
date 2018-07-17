@@ -43,7 +43,7 @@ class ModuleReload(Function):
         self.help_docs = "Reloads a specified module."
 
     def run(self, line, user_obj, destination_obj=None):
-        hallo_obj = user_obj.get_server().get_hallo()
+        hallo_obj = user_obj.server.hallo
         function_dispatcher = hallo_obj.get_function_dispatcher()
         reload_result = function_dispatcher.reload_module(line)
         if reload_result:
@@ -96,7 +96,7 @@ class Help(Function):
         self.hallo_obj = None  # Hallo object containing everything.
 
     def run(self, line, user_obj, destination_obj=None):
-        self.hallo_obj = user_obj.get_server().get_hallo()
+        self.hallo_obj = user_obj.server.hallo
         if line.strip() == "":
             return self.list_all_functions(user_obj, destination_obj)
         else:
@@ -106,7 +106,7 @@ class Help(Function):
     def list_all_functions(self, user_obj, destination_obj):
         """Returns a list of all functions."""
         # Get required objects
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         function_dispatcher = self.hallo_obj.get_function_dispatcher()
         # Get list of function classes
         function_class_list = function_dispatcher.get_function_class_list()

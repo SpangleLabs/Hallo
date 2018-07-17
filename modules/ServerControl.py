@@ -30,9 +30,9 @@ class JoinChannel(Function):
         # Check for server name in input line
         server_name = Commons.find_parameter("server", line)
         if server_name is None:
-            server_obj = user_obj.get_server()
+            server_obj = user_obj.server
         else:
-            server_obj = user_obj.get_server().get_hallo().get_server_by_name(server_name)
+            server_obj = user_obj.server.hallo.get_server_by_name(server_name)
             line = line.replace("server=" + server_name, "").strip()
         if server_obj is None:
             return "Invalid server specified."
@@ -74,9 +74,9 @@ class LeaveChannel(Function):
         # Check for server name in input line
         server_name = Commons.find_parameter("server", line)
         if server_name is None:
-            server_obj = user_obj.get_server()
+            server_obj = user_obj.server
         else:
-            server_obj = user_obj.get_server().get_hallo().get_server_by_name(server_name)
+            server_obj = user_obj.server.hallo.get_server_by_name(server_name)
             line = line.replace("server=" + server_name, "").strip()
         if server_obj is None:
             return "Error, invalid server specified."
@@ -115,7 +115,7 @@ class Disconnect(Function):
         self.help_docs = "Disconnects from a server."
 
     def run(self, line, user_obj, destination_obj=None):
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         hallo_obj = server_obj.get_hallo()
         if line.strip() != "":
             server_obj = hallo_obj.get_server_by_name(line)
@@ -146,7 +146,7 @@ class Connect(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         """Runs the function"""
-        current_server = user_obj.get_server()
+        current_server = user_obj.server
         hallo_obj = current_server.get_hallo()
         # Try and see if it's a server we already know
         existing_server = hallo_obj.get_server_by_name(line)
@@ -192,7 +192,7 @@ class Connect(Function):
         :type destination_obj: Destination.Destination
         """
         # Get some handy objects
-        current_server = user_obj.get_server()
+        current_server = user_obj.server
         hallo_obj = current_server.get_hallo()
         # Set all variables to none as default
         server_address, server_port = None, None
@@ -302,7 +302,7 @@ class Say(Function):
         Format: say <channel> <message>
         """
         # Setting up variables
-        hallo_obj = user_obj.get_server().get_hallo()
+        hallo_obj = user_obj.server.hallo
         # See if server and channel are specified as parameters
         server_name = Commons.find_parameter("server", line)
         if server_name is not None:
@@ -325,7 +325,7 @@ class Say(Function):
         # Get server_obj list from server_name
         server_objs = []
         if server_name is None:
-            server_objs = [user_obj.get_server()]
+            server_objs = [user_obj.server]
         else:
             # Create a regex query from their input
             server_regex = re.escape(server_name).replace("\*", ".*")
@@ -376,7 +376,7 @@ class EditServer(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         """Runs the function"""
-        current_server = user_obj.get_server()
+        current_server = user_obj.server
         hallo_obj = current_server.get_hallo()
         # Split line, to find server name
         line_split = line.split()
@@ -469,12 +469,12 @@ class ListUsers(Function):
     def run(self, line, user_obj, destination_obj=None):
         line_clean = line.strip().lower()
         # Useful object
-        hallo_obj = user_obj.get_server().get_hallo()
+        hallo_obj = user_obj.server.hallo
         # See if a server was specified.
         server_name = Commons.find_parameter("server", line)
         # Get server object. If invalid, use current
         if server_name is None:
-            server_obj = user_obj.get_server()
+            server_obj = user_obj.server
         else:
             server_obj = hallo_obj.get_server_by_name(server_name)
             if server_obj is None:
@@ -535,7 +535,7 @@ class ListChannels(Function):
         Format: "channels" for channels on current server, "channels all" for all channels on all servers.
         """
         line_clean = line.strip().lower()
-        hallo_obj = user_obj.get_server().get_hallo()
+        hallo_obj = user_obj.server.hallo
         # If they ask for all channels, give them all channels.
         if line_clean in self.HALLO_NAMES:
             output_string = "On all servers, I am on these channels: "
@@ -550,7 +550,7 @@ class ListChannels(Function):
             return output_string
         # If nothing specified, or "server", then output current server channel list
         if line_clean == "" or line_clean in self.SERVER_NAMES:
-            server_obj = user_obj.get_server()
+            server_obj = user_obj.server
             in_channel_name_list = self.get_in_channel_names_list(server_obj)
             output_string = "On this server, I'm in these channels: "
             output_string += ', '.join(in_channel_name_list) + "."
@@ -607,7 +607,7 @@ class ListServers(Function):
         Hallo will tell you which servers he knows about and is/isn't connected to, ops only.
         Format: "servers" for all servers.
         """
-        hallo_obj = user_obj.get_server().get_hallo()
+        hallo_obj = user_obj.server.hallo
         # If they ask for all channels, give them all channels.
         server_list = hallo_obj.get_server_list()
         if len(server_list) == 0:
