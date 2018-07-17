@@ -105,10 +105,10 @@ class Channel(Destination):
         """:type : bool | None | str"""
 
     def __eq__(self, other):
-        return isinstance(other, Channel) and self.server == other.server and self.name.lower() == other.name.lower()
+        return isinstance(other, Channel) and self.server == other.server and self.address == other.address
 
     def __hash__(self):
-        return hash(self.name.lower())
+        return hash(self.address)
 
     def get_password(self):
         """
@@ -380,10 +380,10 @@ class User(Destination):
         """:type : set[UserGroup.UserGroup]"""
 
     def __eq__(self, other):
-        return isinstance(other, User) and self.server == other.server and self.name.lower() == other.name.lower()
+        return isinstance(other, User) and self.server == other.server and self.address == other.address
 
     def __hash__(self):
-        return hash(self.name.lower())
+        return hash(self.address)
 
     def is_identified(self):
         """
