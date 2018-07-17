@@ -49,21 +49,6 @@ class Destination(metaclass=ABCMeta):
         else:
             return True
 
-    def get_logging(self):
-        """
-        Boolean, whether the destination is supposed to have logging.
-        :rtype : bool
-        """
-        return self.logging
-
-    def set_logging(self, logging):
-        """
-        Sets whether the destination is logging.
-        :param logging: Boolean, whether or not to log destination content
-        :type logging: bool
-        """
-        self.logging = logging
-
     def get_server(self):
         """
         Returns the server object that this destination belongs to

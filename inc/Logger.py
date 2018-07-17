@@ -36,10 +36,10 @@ class Logger:
     def log(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
         """The function which actually writes the logs."""
         # If channel is set, check logging
-        if channel_obj is not None and not channel_obj.get_logging():
+        if channel_obj is not None and not channel_obj.logging:
             return None
         # If channel not set, but user is set, check their logging settings.
-        if channel_obj is None and user_obj is not None and not user_obj.get_logging():
+        if channel_obj is None and user_obj is not None and not user_obj.logging:
             return None
         # Check what type of event and pass to that to create line
         if event not in self.event_dict:
@@ -58,10 +58,10 @@ class Logger:
     def log_from_self(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
         """Writes a log line for a message from hallo."""
         # If channel is set, check logging
-        if channel_obj is not None and not channel_obj.get_logging():
+        if channel_obj is not None and not channel_obj.logging:
             return None
         # If channel not set, but user is set, check their logging settings.
-        if channel_obj is None and user_obj is not None and not user_obj.get_logging():
+        if channel_obj is None and user_obj is not None and not user_obj.logging:
             return None
         # Check what type of event and pass to that to create line
         if event not in self.event_dict:
