@@ -139,7 +139,7 @@ class Cupcake(Function):
         recipient_user_name = line.split()[0]
         recipient_user_obj = server_obj.get_user_by_name(recipient_user_name)
         # If user isn't online, I can't send a cupcake
-        if not recipient_user_obj.is_online():
+        if not recipient_user_obj.online:
             return "No one called " + recipient_user_name + " is online."
         # Generate the output message, adding cupcake type if required
         if recipient_user_name == line.strip():

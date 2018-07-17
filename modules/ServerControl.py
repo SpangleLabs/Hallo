@@ -494,7 +494,7 @@ class ListUsers(Function):
         if channel_name in ["*", "all"]:
             output_string = "Users on " + server_obj.name + ": "
             user_list = server_obj.get_user_list()
-            output_string += ", ".join([user.name for user in user_list if user.is_online()])
+            output_string += ", ".join([user.name for user in user_list if user.online])
             output_string += "."
             return output_string
         # Get channel object

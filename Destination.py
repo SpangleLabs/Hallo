@@ -343,14 +343,6 @@ class User(Destination):
             self.check_identity()
         return self.identified
 
-    def set_identified(self, identified):
-        """
-        Sets whether this user is identified
-        :param identified: Boolean, whether this user is identified
-        :type identified: bool
-        """
-        self.identified = identified
-
     def check_identity(self):
         """Checks with the server whether this user is identified."""
         identity_result = self.server.check_user_identity(self)
@@ -392,10 +384,6 @@ class User(Destination):
         """
         return set([membership.channel for membership in self.memberships_list])
 
-    def is_online(self):
-        """Whether the user appears to be online"""
-        return self.online
-
     def set_online(self, online):
         """
         Sets whether the user is online
@@ -416,7 +404,7 @@ class User(Destination):
         :param right_name: Name of the user right to check
         :type right_name: str
         :param channel_obj: Channel in which the right is being checked
-        :type channel_obj: Destination | None
+        :type channel_obj: Channel | None
         """
         if self.permission_mask is not None:
             right_value = self.permission_mask.get_right(right_name)
