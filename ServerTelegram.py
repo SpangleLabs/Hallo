@@ -97,6 +97,8 @@ class ServerTelegram(Server):
         message_text = update.message.text
         # Parse out the message sender
         message_sender_name = update.message.chat.username
+        # Parser message sender address
+        message_sender_addr = update.message.chat.id
         # Test for private message or public message.
         message_private_bool = update.message.chat.type == "private"
         # Parse out where the message went to (e.g. channel or private message to Hallo)
@@ -104,22 +106,21 @@ class ServerTelegram(Server):
         if not message_private_bool:
             message_destination_name = update.message.chat.title
         # Get relevant objects.
-        message_sender = self.get_user_by_name(message_sender_name)
+        message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
-        message_sender.telegram_chat_id = update.message.chat.id
         message_destination = message_sender
         # Get function dispatcher ready
-        function_dispatcher = self.hallo.get_function_dispatcher()
+        function_dispatcher = self.hallo.function_dispatcher
         if message_private_bool:
             # Print and Log the private message
-            self.hallo.get_printer().output(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
-            self.hallo.get_logger().log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
+            self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
+            self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
             function_dispatcher.dispatch(message_text, message_sender, message_destination)
         else:
-            message_channel = self.get_channel_by_name(message_destination_name)
+            message_channel = self.get_channel_by_address(message_sender_addr, message_destination_name)
             # Print and Log the public message
-            self.hallo.get_printer().output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
-            self.hallo.get_logger().log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
+            self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
+            self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
             # Update channel activity
             message_channel.update_activity()
             # Get acting command prefix
@@ -168,7 +169,7 @@ class ServerTelegram(Server):
             # TODO
             pass
         else:
-            self.bot.send_message(chat_id=destination_obj.telegram_chat_id, text=data)
+            self.bot.send_message(chat_id=destination_obj.address, text=data)
 
     @staticmethod
     def from_xml(xml_string, hallo):
