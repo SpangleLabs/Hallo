@@ -90,7 +90,7 @@ class Printer:
             destination_object = user_obj
         output = Commons.current_timestamp() + " "
         output += "[" + server_obj.name + "] "
-        output += destination_object.get_name() + " "
+        output += destination_object.name + " "
         output += "<" + user_obj.name + "> " + full_line
         return output
     
