@@ -2,7 +2,8 @@ from threading import Lock, Thread
 from xml.dom import minidom
 
 import telegram
-from telegram.ext import Updater, Filters
+from telegram import Chat
+from telegram.ext import Updater, Filters, BaseFilter
 import logging
 from telegram.ext import MessageHandler
 from telegram.utils.request import Request
@@ -43,8 +44,20 @@ class ServerTelegram(Server):
         self.updater = Updater(bot=self.bot)
         self.dispatcher = self.updater.dispatcher
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.ERROR)
-        self.core_msg_handler = MessageHandler(Filters.all, self.parse_update, channel_post_updates=True)
-        self.dispatcher.add_handler(self.core_msg_handler)
+        # Message handlers
+        # self.core_msg_handler = MessageHandler(Filters.all, self.parse_update, channel_post_updates=True)
+        # self.dispatcher.add_handler(self.core_msg_handler)
+
+        self.private_msg_handler = MessageHandler(Filters.private, self.parse_private_message)
+        self.dispatcher.add_handler(self.private_msg_handler)
+        self.chat_msg_handler = MessageHandler(Filters.group | self.ChannelFilter(),
+                                               self.parse_chat_message,
+                                               channel_post_updates=True)
+        self.dispatcher.add_handler(self.chat_msg_handler)
+
+    class ChannelFilter(BaseFilter):
+        def filter(self, message):
+            return message.chat.type in [Chat.CHANNEL]
 
     def start(self):
         """
@@ -76,18 +89,19 @@ class ServerTelegram(Server):
         super().reconnect()
 
     def parse_update(self, bot, update):
-        if update.message is not None:
-            # Check if it's a normal message
-            if update.message.text is not None:
-                return self.parse_message(bot, update)
-            # Check if it's a group add
-            if update.message.new_chat_members is not None and len(update.message.new_chat_members) == 0:
-                return self.parse_join(bot, update)
-        # TODO Else log to file and report maybe?
+        return
+        # if update.message is not None:
+        #     # Check if it's a normal message
+        #     if update.message.text is not None:
+        #         return self.parse_message(bot, update)
+        #     # Check if it's a group add
+        #     if update.message.new_chat_members is not None and len(update.message.new_chat_members) == 0:
+        #         return self.parse_join(bot, update)
+        # # TODO Else log to file and report maybe?
 
-    def parse_message(self, bot, update):
+    def parse_private_message(self, bot, update):
         """
-        Handles a new update object from the server
+        Handles a new private message
         :param bot: telegram bot object
         :type bot: telegram.Bot
         :param update: Update object from telegram API
@@ -99,59 +113,59 @@ class ServerTelegram(Server):
         message_sender_name = update.message.chat.username
         # Parser message sender address
         message_sender_addr = update.message.chat.id
-        # Test for private message or public message.
-        message_private_bool = update.message.chat.type == "private"
-        # Parse out where the message went to (e.g. channel or private message to Hallo)
-        message_destination_name = None
-        if not message_private_bool:
-            message_destination_name = update.message.chat.title
         # Get relevant objects.
         message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
-        message_destination = message_sender
+        # Print and Log the private message
+        self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
+        self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
+        self.hallo.function_dispatcher.dispatch(message_text, message_sender, message_sender)
+
+    def parse_chat_message(self, bot, update):
+        """
+        Handles a new update object from the server
+        :param bot: telegram bot object
+        :type bot: telegram.Bot
+        :param update: Update object from telegram API
+        :type update: telegram.Update
+        """
+        # Parse out the message text
+        message_text = update.message.text
+        # Parse out the message sender
+        message_sender_name = update.message.from_user.username
+        # Parser message sender address
+        message_sender_addr = update.message.from_user.id
+        # Test for private message or public message.
+        # Parse out where the message went to (e.g. channel or private message to Hallo)
+        message_destination_name = update.message.chat.title
+        message_destination_addr = update.message.chat.id
+        # Get relevant objects.
+        message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
+        message_sender.update_activity()
         # Get function dispatcher ready
         function_dispatcher = self.hallo.function_dispatcher
-        if message_private_bool:
-            # Print and Log the private message
-            self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
-            self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
-            function_dispatcher.dispatch(message_text, message_sender, message_destination)
-        else:
-            message_channel = self.get_channel_by_address(message_sender_addr, message_destination_name)
-            # Print and Log the public message
-            self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
-            self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
-            # Update channel activity
-            message_channel.update_activity()
-            # Get acting command prefix
-            acting_prefix = message_channel.get_prefix()
-            # Figure out if the message is a command, Send to FunctionDispatcher
-            if acting_prefix is False:
-                acting_prefix = self.get_nick().lower()
-                # Check if directly addressed
-                if any(message_text.lower().startswith(acting_prefix+x) for x in [":", ","]):
-                    message_text = message_text[len(acting_prefix) + 1:]
-                    function_dispatcher.dispatch(message_text,
-                                                 message_sender,
-                                                 message_channel)
-                elif message_text.lower().startswith(acting_prefix):
-                    message_text = message_text[len(acting_prefix):]
-                    function_dispatcher.dispatch(message_text,
-                                                 message_sender,
-                                                 message_channel,
-                                                 [function_dispatcher.FLAG_HIDE_ERRORS])
-                else:
-                    # Pass to passive function checker
-                    function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
-                                                         message_text,
-                                                         self,
-                                                         message_sender,
-                                                         message_channel)
+        message_channel = self.get_channel_by_address(message_destination_addr, message_destination_name)
+        message_channel.update_activity()
+        # Print and Log the public message
+        self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
+        self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
+        # Get acting command prefix
+        acting_prefix = message_channel.get_prefix()
+        # Figure out if the message is a command, Send to FunctionDispatcher
+        if acting_prefix is False:
+            acting_prefix = self.get_nick().lower()
+            # Check if directly addressed
+            if any(message_text.lower().startswith(acting_prefix+x) for x in [":", ","]):
+                message_text = message_text[len(acting_prefix) + 1:]
+                function_dispatcher.dispatch(message_text,
+                                             message_sender,
+                                             message_channel)
             elif message_text.lower().startswith(acting_prefix):
                 message_text = message_text[len(acting_prefix):]
                 function_dispatcher.dispatch(message_text,
                                              message_sender,
-                                             message_channel)
+                                             message_channel,
+                                             [function_dispatcher.FLAG_HIDE_ERRORS])
             else:
                 # Pass to passive function checker
                 function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
@@ -159,6 +173,18 @@ class ServerTelegram(Server):
                                                      self,
                                                      message_sender,
                                                      message_channel)
+        elif message_text.lower().startswith(acting_prefix):
+            message_text = message_text[len(acting_prefix):]
+            function_dispatcher.dispatch(message_text,
+                                         message_sender,
+                                         message_channel)
+        else:
+            # Pass to passive function checker
+            function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
+                                                 message_text,
+                                                 self,
+                                                 message_sender,
+                                                 message_channel)
 
     def parse_join(self, bot, update):
         # TODO
