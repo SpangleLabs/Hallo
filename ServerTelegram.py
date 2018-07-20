@@ -45,15 +45,13 @@ class ServerTelegram(Server):
         self.dispatcher = self.updater.dispatcher
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.ERROR)
         # Message handlers
-        # self.core_msg_handler = MessageHandler(Filters.all, self.parse_update, channel_post_updates=True)
-        # self.dispatcher.add_handler(self.core_msg_handler)
-
         self.private_msg_handler = MessageHandler(Filters.private, self.parse_private_message)
         self.dispatcher.add_handler(self.private_msg_handler)
-        self.chat_msg_handler = MessageHandler(Filters.group | self.ChannelFilter(),
-                                               self.parse_chat_message,
-                                               channel_post_updates=True)
-        self.dispatcher.add_handler(self.chat_msg_handler)
+        self.group_msg_handler = MessageHandler(Filters.group, self.parse_group_message)
+        self.dispatcher.add_handler(self.group_msg_handler)
+        # Catch-all message handler for anything not already handled.
+        self.core_msg_handler = MessageHandler(Filters.all, self.parse_unhandled, channel_post_updates=True)
+        self.dispatcher.add_handler(self.core_msg_handler)
 
     class ChannelFilter(BaseFilter):
         def filter(self, message):
@@ -121,9 +119,9 @@ class ServerTelegram(Server):
         self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
         self.hallo.function_dispatcher.dispatch(message_text, message_sender, message_sender)
 
-    def parse_chat_message(self, bot, update):
+    def parse_group_message(self, bot, update):
         """
-        Handles a new update object from the server
+        Handles a new group or supergroup message (does not handle channel posts)
         :param bot: telegram bot object
         :type bot: telegram.Bot
         :param update: Update object from telegram API
@@ -190,12 +188,19 @@ class ServerTelegram(Server):
         # TODO
         pass
 
+    def parse_unhandled(self, bot, update):
+        """
+        Parses an unhandled message from the server
+        :param bot: telegram bot object
+        :type bot: telegram.Bot
+        :param update: Update object from telegram API
+        :type update: telegram.Update
+        """
+        # Print it to console
+        print(Commons.current_timestamp() + ' [' + self.name + '] Unhandled data: ' + update)
+
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
-        if destination_obj.is_channel():
-            # TODO
-            pass
-        else:
-            self.bot.send_message(chat_id=destination_obj.address, text=data)
+        self.bot.send_message(chat_id=destination_obj.address, text=data)
 
     @staticmethod
     def from_xml(xml_string, hallo):
