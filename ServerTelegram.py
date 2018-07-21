@@ -86,17 +86,6 @@ class ServerTelegram(Server):
     def reconnect(self):
         super().reconnect()
 
-    def parse_update(self, bot, update):
-        return
-        # if update.message is not None:
-        #     # Check if it's a normal message
-        #     if update.message.text is not None:
-        #         return self.parse_message(bot, update)
-        #     # Check if it's a group add
-        #     if update.message.new_chat_members is not None and len(update.message.new_chat_members) == 0:
-        #         return self.parse_join(bot, update)
-        # # TODO Else log to file and report maybe?
-
     def parse_private_message(self, bot, update):
         """
         Handles a new private message
@@ -108,7 +97,7 @@ class ServerTelegram(Server):
         # Parse out the message text
         message_text = update.message.text
         # Parse out the message sender
-        message_sender_name = update.message.chat.username
+        message_sender_name = " ".join([update.message.chat.first_name, update.message.chat.last_name])
         # Parser message sender address
         message_sender_addr = update.message.chat.id
         # Get relevant objects.
@@ -130,7 +119,7 @@ class ServerTelegram(Server):
         # Parse out the message text
         message_text = update.message.text
         # Parse out the message sender
-        message_sender_name = update.message.from_user.username
+        message_sender_name = " ".join([update.message.from_user.first_name, update.message.from_user.last_name])
         # Parser message sender address
         message_sender_addr = update.message.from_user.id
         # Test for private message or public message.
