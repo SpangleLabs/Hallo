@@ -328,31 +328,41 @@ class DeVoice(Function):
         line_split = line.split()
         if len(line_split) == 0:
             # Check that this is a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 return "Error, I can't un-voice you in a private message, please provide a channel."
             # Give user voice
             return self.take_voice(destination_obj, user_obj)
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
             # If message was sent in private message, it's referring to a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 channel = server_obj.get_channel_by_name(line)
+                if channel is None:
+                    return "Error, " + line + " is not known on " + server_obj.name + "."
                 return self.take_voice(channel, user_obj)
             # See if it's a channel that hallo is in
             test_channel = server_obj.get_channel_by_name(line)
-            if test_channel.in_channel:
+            if test_channel is not None and test_channel.in_channel:
                 return self.take_voice(test_channel, user_obj)
             # Argument must be a user?
             target_user = server_obj.get_user_by_name(line)
+            if target_user is None:
+                return "Error, " + line + " is not known on " + server_obj.name + "."
             return self.take_voice(destination_obj, target_user)
         # If 2 arguments, try with first argument as channel
         target_channel = server_obj.get_channel_by_name(line_split[0])
-        if target_channel.in_channel:
+        if target_channel is not None and target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
+            if target_user is None:
+                return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
             return self.take_voice(target_channel, target_user)
         # 2 args, try with second argument as channel
-        target_channel = server_obj.get_channel_by_name(line_split[1])
         target_user = server_obj.get_user_by_name(line_split[0])
+        if target_user is None:
+            return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
+        target_channel = server_obj.get_channel_by_name(line_split[1])
+        if target_channel is None:
+            return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
         return self.take_voice(target_channel, target_user)
 
     def take_voice(self, channel, user):
@@ -390,7 +400,7 @@ class DeVoice(Function):
         :rtype: bool
         """
         server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
+        hallo_user = server.get_user_by_address(server.get_nick().lower(), server.get_nick())
         hallo_membership = channel.get_membership_by_user(hallo_user)
         return hallo_membership.is_op
 
