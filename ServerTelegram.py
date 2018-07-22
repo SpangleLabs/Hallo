@@ -190,6 +190,10 @@ class ServerTelegram(Server):
 
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
         self.bot.send_message(chat_id=destination_obj.address, text=data)
+        user_obj = destination_obj if isinstance(destination_obj, User) else None
+        channel_obj = destination_obj if isinstance(destination_obj, Channel) else None
+        self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, data, self, user_obj, channel_obj)
+        self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, data, self, user_obj, channel_obj)
 
     @staticmethod
     def from_xml(xml_string, hallo):
