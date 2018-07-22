@@ -144,7 +144,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         assert right_server.server_address == test_server, "Address incorrect"
-        assert right_server.get_name() == test_name, "Name incorrect"
+        assert right_server.name == test_name, "Name incorrect"
 
     def test_get_server_name_from_domain(self):
         # Test vars
@@ -163,7 +163,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
                 right_server = server
         assert right_server is not None, "New server wasn't found."
         assert right_server.server_address == test_server, "Address incorrect"
-        assert right_server.get_name() == test_name, "Name incorrect"
+        assert right_server.name == test_name, "Name incorrect"
 
     def test_auto_connect_default(self):
         # Run command

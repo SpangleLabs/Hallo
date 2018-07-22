@@ -62,12 +62,9 @@ class ConnectTest(TestBase, unittest.TestCase):
 
     def test_connect_default_current_protocol(self):
         # Set up some mock methods
-        self.server.get_type = self.return_irc
+        self.server.type = Server.TYPE_IRC
         # Run command
         self.function_dispatcher.dispatch("connect www.example.com:80", self.test_user, self.test_chan)
         # Ensure correct response is given
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
-
-    def return_irc(self):
-        return Server.TYPE_IRC

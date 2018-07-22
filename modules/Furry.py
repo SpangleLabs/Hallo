@@ -829,7 +829,7 @@ class SubE621List(Function):
     def run(self, line, user_obj, destination_obj=None):
         # Handy variables
         server = user_obj.server
-        hallo = server.get_hallo()
+        hallo = server.hallo
         function_dispatcher = hallo.get_function_dispatcher()
         sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
         sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check
@@ -872,7 +872,7 @@ class SubE621Remove(Function):
     def run(self, line, user_obj, destination_obj=None):
         # Handy variables
         server = user_obj.server
-        hallo = server.get_hallo()
+        hallo = server.hallo
         function_dispatcher = hallo.get_function_dispatcher()
         sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
         sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check

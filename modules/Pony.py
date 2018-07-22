@@ -131,7 +131,13 @@ class Cupcake(Function):
         self.help_docs = "Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>"
 
     def run(self, line, user_obj, destination_obj=None):
-        """Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>"""
+        """
+        Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>
+        :type line: str
+        :type user_obj: Destination.User
+        :type destination_obj: Destination
+        :rtype: str
+        """
         if line.strip() == '':
             return "You must specify a recipient for the cupcake."
         # Get some required objects

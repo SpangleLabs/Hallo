@@ -116,14 +116,14 @@ class Disconnect(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         server_obj = user_obj.server
-        hallo_obj = server_obj.get_hallo()
+        hallo_obj = server_obj.hallo
         if line.strip() != "":
             server_obj = hallo_obj.get_server_by_name(line)
         if server_obj is None:
             return "Invalid server."
         server_obj.set_auto_connect(False)
         server_obj.disconnect()
-        return "Disconnected from server: " + server_obj.get_name() + "."
+        return "Disconnected from server: " + server_obj.name + "."
 
 
 class Connect(Function):
@@ -147,7 +147,7 @@ class Connect(Function):
     def run(self, line, user_obj, destination_obj=None):
         """Runs the function"""
         current_server = user_obj.server
-        hallo_obj = current_server.get_hallo()
+        hallo_obj = current_server.hallo
         # Try and see if it's a server we already know
         existing_server = hallo_obj.get_server_by_name(line)
         if existing_server is not None:
@@ -164,7 +164,7 @@ class Connect(Function):
                     line = protocol_regex.sub(" ", line)
                     break
         else:
-            server_protocol = current_server.get_type()
+            server_protocol = current_server.type
         # Go through protocols branching to whatever function to handle that protocol
         if server_protocol == Server.TYPE_IRC:
             return self.connect_to_new_server_irc(line, user_obj, destination_obj)
@@ -193,7 +193,7 @@ class Connect(Function):
         """
         # Get some handy objects
         current_server = user_obj.server
-        hallo_obj = current_server.get_hallo()
+        hallo_obj = current_server.hallo
         # Set all variables to none as default
         server_address, server_port = None, None
         server_name = None
@@ -275,7 +275,7 @@ class Connect(Function):
         hallo_obj.add_server(new_server_obj)
         # Connect to the new server object.
         new_server_obj.start()
-        return "Connected to new IRC server: " + new_server_obj.get_name() + "."
+        return "Connected to new IRC server: " + new_server_obj.name + "."
 
 
 class Say(Function):
@@ -342,7 +342,7 @@ class Say(Function):
         channel_objs = []
         for server_obj in server_objs:
             channel_regex = re.escape(channel_name).replace("\*", ".*")
-            channel_list = server_obj.get_channel_list()
+            channel_list = server_obj.channel_list
             for channel_obj in channel_list:
                 if not channel_obj.in_channel:
                     continue
@@ -377,7 +377,7 @@ class EditServer(Function):
     def run(self, line, user_obj, destination_obj=None):
         """Runs the function"""
         current_server = user_obj.server
-        hallo_obj = current_server.get_hallo()
+        hallo_obj = current_server.hallo
         # Split line, to find server name
         line_split = line.split()
         server_name = line_split[0]
@@ -387,7 +387,7 @@ class EditServer(Function):
             return "This is not a recognised server name. Please specify server name, " \
                    "then whichever variables and values you wish to set. In variable=value pairs."
         # Get protocol and go through protocols branching to whatever function to handle modifying servers of it.
-        server_protocol = server_obj.get_type()
+        server_protocol = server_obj.type
         if server_protocol == Server.TYPE_IRC:
             return self.edit_server_irc(line, server_obj, user_obj, destination_obj)
         # Add in ELIF statements here, to make user Connect Function support other protocols
@@ -436,7 +436,7 @@ class EditServer(Function):
         nickserv_password = Commons.find_parameter("nickserv_password", line) or server_obj.get_nickserv_pass()
         # Set all the new variables
         server_obj.set_auto_connect(auto_connect)
-        server_obj.set_nick(server_nick)
+        server_obj.nick = server_nick
         server_obj.prefix = server_prefix
         server_obj.set_full_name(full_name)
         server_obj.set_nickserv_nick(nickserv_nick)
@@ -493,7 +493,7 @@ class ListUsers(Function):
         # If they've specified all channels, display the server list.
         if channel_name in ["*", "all"]:
             output_string = "Users on " + server_obj.name + ": "
-            user_list = server_obj.get_user_list()
+            user_list = server_obj.user_list
             output_string += ", ".join([user.name for user in user_list if user.online])
             output_string += "."
             return output_string
@@ -578,7 +578,7 @@ class ListChannels(Function):
         return output_string
 
     def get_in_channel_names_list(self, server_obj):
-        channel_list = server_obj.get_channel_list()
+        channel_list = server_obj.channel_list
         in_channel_list = [channel for channel in channel_list if channel.in_channel]
         in_channel_names_list = [channel.name for channel in in_channel_list]
         return in_channel_names_list

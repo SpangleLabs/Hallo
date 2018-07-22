@@ -797,7 +797,7 @@ class UrlDetect(Function):
     def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         # Get hallo object for stuff to use
-        self.hallo_obj = server_obj.get_hallo()
+        self.hallo_obj = server_obj.hallo
         # Search for a link
         url_regex = re.compile(r'\b((https?://|www.)[-A-Z0-9+&?%@#/=~_|$:,.]*[A-Z0-9+&@#/%=~_|$])', re.I)
         url_search = url_regex.search(full_line)

@@ -58,13 +58,13 @@ class ListServersTest(TestBase, unittest.TestCase):
         serv1 = ServerMock(self.hallo)
         serv1.name = "server_list_test1"
         serv1.auto_connect = True
-        serv1.set_nick("hallo")
+        serv1.nick = "hallo"
         serv1.disconnect()
         self.hallo.add_server(serv1)
         serv2 = ServerMock(self.hallo)
         serv2.name = "server_list_test2"
         serv2.auto_connect = False
-        serv2.set_nick("yobot")
+        serv2.nick = "yobot"
         serv2.start()
         self.hallo.add_server(serv2)
         # Send command

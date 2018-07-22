@@ -235,7 +235,7 @@ class ServerTelegram(Server):
         doc.appendChild(root)
         # create type element
         type_elem = doc.createElement("server_type")
-        type_elem.appendChild(doc.createTextNode(self.get_type()))
+        type_elem.appendChild(doc.createTextNode(self.type))
         root.appendChild(type_elem)
         # create server API key element
         key_elem = doc.createElement("server_api_key")

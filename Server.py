@@ -100,14 +100,6 @@ class Server(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    def get_hallo(self):
-        """Returns the Hallo instance that created this Server"""
-        return self.hallo
-
-    def get_name(self):
-        """Name getter"""
-        return self.name
-
     def get_nick(self):
         """Nick getter"""
         if self.nick is None:
@@ -162,13 +154,6 @@ class Server(metaclass=ABCMeta):
         """
         self.auto_connect = auto_connect
 
-    def get_type(self):
-        """Type getter"""
-        return self.type
-
-    def get_permission_mask(self):
-        return self.permission_mask
-
     def is_connected(self):
         """Returns boolean representing whether the server is connected or not."""
         return self.state == Server.STATE_OPEN
@@ -211,9 +196,6 @@ class Server(metaclass=ABCMeta):
         self.add_channel(new_channel)
         return new_channel
 
-    def get_channel_list(self):
-        return self.channel_list
-
     def add_channel(self, channel_obj):
         """
         Adds a channel to the channel list
@@ -252,7 +234,7 @@ class Server(metaclass=ABCMeta):
         :type user_name: str
         :param address: address of the user which is being searched for or added
         :type address: str | None
-        :return: Destination.User | None
+        :rtype: Destination.User | None
         """
         user_name = user_name.lower()
         for user in self.user_list:
