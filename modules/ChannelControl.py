@@ -4,6 +4,20 @@ from inc.Commons import Commons
 from Server import Server
 
 
+def hallo_has_op(channel):
+    """
+    Checks whether hallo has op in a given channel.
+    :param channel: channel to check op status for
+    :type channel: Destination.Channel
+    :return: whether hallo has op
+    :rtype: bool
+    """
+    server = channel.server
+    hallo_user = server.get_user_by_address(server.get_nick().lower(), server.get_nick())
+    hallo_membership = channel.get_membership_by_user(hallo_user)
+    return hallo_membership.is_op
+
+
 class Operator(Function):
     """
     Gives a user on an irc server "operator" status.
@@ -76,7 +90,7 @@ class Operator(Function):
         if user not in channel.get_user_list():
             return "Error, "+user.name+" is not in "+channel.name+"."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to give op in "+channel.name+"."
         # Check that user does not have op in channel
         user_membership = channel.get_membership_by_user(user)
@@ -84,19 +98,6 @@ class Operator(Function):
             return "Error, this user already has op."
         channel.server.send("MODE "+channel.name+" +o "+user.name, None, Server.MSG_RAW)
         return "Op status given."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class DeOperator(Function):
@@ -182,7 +183,7 @@ class DeOperator(Function):
         if user not in channel.get_user_list():
             return "Error, "+user.name+" is not in "+channel.name+"."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to take op in "+channel.name+"."
         # Check that user does not have op in channel
         user_membership = channel.get_membership_by_user(user)
@@ -190,19 +191,6 @@ class DeOperator(Function):
             return "Error, this user doesn't have op."
         channel.server.send("MODE "+channel.name+" -o "+user.name, None, Server.MSG_RAW)
         return "Op status taken."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_address(server.get_nick().lower(), server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class Voice(Function):
@@ -277,7 +265,7 @@ class Voice(Function):
         if user not in channel.get_user_list():
             return "Error, "+user.name+" is not in "+channel.name+"."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to give voice in "+channel.name+"."
         # Check that user does not have op in channel
         user_membership = channel.get_membership_by_user(user)
@@ -285,19 +273,6 @@ class Voice(Function):
             return "Error, this user already has voice."
         channel.server.send("MODE "+channel.name+" +v "+user.name, None, Server.MSG_RAW)
         return "Voice status given."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class DeVoice(Function):
@@ -382,7 +357,7 @@ class DeVoice(Function):
         if user not in channel.get_user_list():
             return "Error, "+user.name+" is not in "+channel.name+"."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to take voice in "+channel.name+"."
         # Check that user does not have op in channel
         user_membership = channel.get_membership_by_user(user)
@@ -390,19 +365,6 @@ class DeVoice(Function):
             return "Error, this user doesn't have voice."
         channel.server.send("MODE "+channel.name+" -v "+user.name, None, Server.MSG_RAW)
         return "Voice status taken."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_address(server.get_nick().lower(), server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class Invite(Function):
@@ -435,24 +397,34 @@ class Invite(Function):
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
             # If message was sent in private message, it's referring to a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 channel = server_obj.get_channel_by_name(line)
+                if channel is None:
+                    return "Error, " + line + " is not known on " + server_obj.name + "."
                 return self.send_invite(channel, user_obj)
             # See if it's a channel that hallo is in
             test_channel = server_obj.get_channel_by_name(line)
-            if test_channel.in_channel:
+            if test_channel is not None and test_channel.in_channel:
                 return self.send_invite(test_channel, user_obj)
             # Argument must be a user?
             target_user = server_obj.get_user_by_name(line)
+            if target_user is None:
+                return "Error, " + line + " is not known on " + server_obj.name + "."
             return self.send_invite(destination_obj, target_user)
         # If 2 arguments, try with first argument as channel
         target_channel = server_obj.get_channel_by_name(line_split[0])
-        if target_channel.in_channel:
+        if target_channel is not None and target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
+            if target_user is None:
+                return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
             return self.send_invite(target_channel, target_user)
         # 2 args, try with second argument as channel
-        target_channel = server_obj.get_channel_by_name(line_split[1])
         target_user = server_obj.get_user_by_name(line_split[0])
+        if target_user is None:
+            return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
+        target_channel = server_obj.get_channel_by_name(line_split[1])
+        if target_channel is None:
+            return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
         return self.send_invite(target_channel, target_user)
 
     def send_invite(self, channel, user):
@@ -472,24 +444,11 @@ class Invite(Function):
         if user in channel.get_user_list():
             return "Error, "+user.name+" is already in "+channel.name+"."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to invite users in "+channel.name+"."
         # Send invite
         channel.server.send("INVITE "+user.name+" "+channel.name, None, Server.MSG_RAW)
         return "Invite sent."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class Mute(Function):
@@ -536,24 +495,11 @@ class Mute(Function):
         if not channel.in_channel:
             return "Error, I'm not in that channel."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to mute "+channel.name+"."
         # Send invite
         channel.server.send("MODE "+channel.name+" +m", None, Server.MSG_RAW)
         return "Set mute in "+channel.name+"."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class UnMute(Function):
@@ -600,24 +546,11 @@ class UnMute(Function):
         if not channel.in_channel:
             return "Error, I'm not in that channel."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to unmute "+channel.name+"."
         # Send invite
         channel.server.send("MODE "+channel.name+" -m", None, Server.MSG_RAW)
         return "Unset mute in "+channel.name+"."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class Kick(Function):
@@ -730,24 +663,11 @@ class Kick(Function):
         if user not in channel.get_user_list():
             return "Error, "+user.name+" is not in "+channel.name+"."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to kick users from "+channel.name+"."
         # Send invite
         channel.server.send("KICK "+channel.name+" "+user.name+" "+message, None, Server.MSG_RAW)
         return "Kicked "+user.name+" from "+channel.name+"."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class ChannelCaps(Function):
