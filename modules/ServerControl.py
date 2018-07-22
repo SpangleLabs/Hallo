@@ -329,7 +329,7 @@ class Say(Function):
         else:
             # Create a regex query from their input
             server_regex = re.escape(server_name).replace("\*", ".*")
-            server_list = hallo_obj.get_server_list()
+            server_list = hallo_obj.server_list
             for server_obj in server_list:
                 if not server_obj.is_connected():
                     continue
@@ -539,7 +539,7 @@ class ListChannels(Function):
         # If they ask for all channels, give them all channels.
         if line_clean in self.HALLO_NAMES:
             output_string = "On all servers, I am on these channels: "
-            server_list = hallo_obj.get_server_list()
+            server_list = hallo_obj.server_list
             channel_title_list = []
             for server_obj in server_list:
                 server_name = server_obj.name
@@ -609,7 +609,7 @@ class ListServers(Function):
         """
         hallo_obj = user_obj.server.hallo
         # If they ask for all channels, give them all channels.
-        server_list = hallo_obj.get_server_list()
+        server_list = hallo_obj.server_list
         if len(server_list) == 0:
             return "I do not currently have any servers in my list."
         output_string = "Here is my current server list: "

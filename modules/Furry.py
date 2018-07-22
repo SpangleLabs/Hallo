@@ -830,7 +830,7 @@ class SubE621List(Function):
         # Handy variables
         server = user_obj.server
         hallo = server.hallo
-        function_dispatcher = hallo.get_function_dispatcher()
+        function_dispatcher = hallo.function_dispatcher
         sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
         sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check
         e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
@@ -873,7 +873,7 @@ class SubE621Remove(Function):
         # Handy variables
         server = user_obj.server
         hallo = server.hallo
-        function_dispatcher = hallo.get_function_dispatcher()
+        function_dispatcher = hallo.function_dispatcher
         sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
         sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check
         e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList

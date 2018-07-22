@@ -285,7 +285,7 @@ class Euler(Function):
 
     def euler8(self):
         # Get SimplifyFraction function
-        function_dispatcher = self.mHalloObject.get_function_dispatcher()
+        function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("simplify fraction")
         function_obj = function_dispatcher.get_function_object(function_class)  # type: SimplifyFraction
         # Calculate
@@ -443,7 +443,7 @@ class Euler(Function):
 
     def euler17(self):
         # Get Number function
-        function_dispatcher = self.mHalloObject.get_function_dispatcher()
+        function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("number")
         function_obj = function_dispatcher.get_function_object(function_class)  # type: NumberWord
         # Do processing
@@ -583,7 +583,7 @@ class Euler(Function):
 
     def euler26(self):
         # Get PrimeFactors function
-        function_dispatcher = self.mHalloObject.get_function_dispatcher()
+        function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("prime factors")
         function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
         # Do processing
@@ -652,7 +652,7 @@ class Euler(Function):
 
     def euler29(self):
         # Get PrimeFactors function
-        function_dispatcher = self.mHalloObject.get_function_dispatcher()
+        function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("prime factors")
         function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
         # Do processing
@@ -686,7 +686,7 @@ class Euler(Function):
 
     def euler31(self):
         # Get ChangeOptions function
-        function_dispatcher = self.mHalloObject.get_function_dispatcher()
+        function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("change options")
         function_obj = function_dispatcher.get_function_object(function_class)  # type: ChangeOptions
         # Do processing
@@ -745,7 +745,7 @@ class Euler(Function):
 
     def euler33(self):
         # Get PrimeFactors function
-        function_dispatcher = self.mHalloObject.get_function_dispatcher()
+        function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("prime factors")
         function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
         simp_frac_class = function_dispatcher.get_function_by_name("simplify fraction")
@@ -993,7 +993,7 @@ class Euler(Function):
 
     def euler47(self):
         # Get PrimeFactors function
-        function_dispatcher = self.mHalloObject.get_function_dispatcher()
+        function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("prime factors")
         function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
         # Solve
@@ -1093,7 +1093,7 @@ class Euler(Function):
 
     def euler52(self):
         # Get SimplifyFraction function
-        function_dispatcher = self.mHalloObject.get_function_dispatcher()
+        function_dispatcher = self.mHalloObject.function_dispatcher
         simp_frac_class = function_dispatcher.get_function_by_name("simplify fraction")
         simp_frac_obj = function_dispatcher.get_function_object(simp_frac_class)  # type: SimplifyFraction
         # Do processing

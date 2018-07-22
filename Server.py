@@ -103,7 +103,7 @@ class Server(metaclass=ABCMeta):
     def get_nick(self):
         """Nick getter"""
         if self.nick is None:
-            return self.hallo.get_default_nick()
+            return self.hallo.default_nick
         return self.nick
 
     def set_nick(self, nick):
@@ -117,7 +117,7 @@ class Server(metaclass=ABCMeta):
     def get_prefix(self):
         """Prefix getter"""
         if self.prefix is None:
-            return self.hallo.get_default_prefix()
+            return self.hallo.default_prefix
         return self.prefix
 
     def set_prefix(self, prefix):
@@ -131,7 +131,7 @@ class Server(metaclass=ABCMeta):
     def get_full_name(self):
         """Full name getter"""
         if self.full_name is None:
-            return self.hallo.get_default_full_name()
+            return self.hallo.default_full_name
         return self.full_name
 
     def set_full_name(self, full_name):

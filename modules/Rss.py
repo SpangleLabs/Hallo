@@ -472,7 +472,7 @@ class FeedRemove(Function):
         # Handy variables
         server = user_obj.server
         hallo = server.hallo
-        function_dispatcher = hallo.get_function_dispatcher()
+        function_dispatcher = hallo.function_dispatcher
         feed_check_function = function_dispatcher.get_function_by_name("rss check")
         feed_check_obj = function_dispatcher.get_function_object(feed_check_function)  # type: FeedCheck
         rss_feed_list = feed_check_obj.rss_feed_list
@@ -519,7 +519,7 @@ class FeedList(Function):
         # Handy variables
         server = user_obj.server
         hallo = server.hallo
-        function_dispatcher = hallo.get_function_dispatcher()
+        function_dispatcher = hallo.function_dispatcher
         feed_check_function = function_dispatcher.get_function_by_name("rss check")
         feed_check_obj = function_dispatcher.get_function_object(feed_check_function)  # type: FeedCheck
         rss_feed_list = feed_check_obj.rss_feed_list
