@@ -583,64 +583,80 @@ class Kick(Function):
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
             # If message was sent in private message, it's referring to a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 channel = server_obj.get_channel_by_name(line)
+                if channel is None:
+                    return "Error, " + line + " is not known on " + server_obj.name + "."
                 return self.send_kick(channel, user_obj)
             # See if it's a channel that hallo is in
             test_channel = server_obj.get_channel_by_name(line)
-            if test_channel.in_channel:
+            if test_channel is not None and test_channel.in_channel:
                 return self.send_kick(test_channel, user_obj)
             # Argument must be a user?
             target_user = server_obj.get_user_by_name(line)
+            if target_user is None:
+                return "Error, " + line + " is not known on " + server_obj.name + "."
             return self.send_kick(destination_obj, target_user)
         if len(line_split) == 2:
             # If message was in private message, it's either channel and user, user and channel or channel and message
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 target_channel = server_obj.get_channel_by_name(line_split[0])
-                if target_channel.in_channel:
+                if target_channel is not None and target_channel.in_channel:
                     target_user = server_obj.get_user_by_name(line_split[1])
-                    if target_channel.is_user_in_channel(target_user):
+                    if target_user is not None and target_channel.is_user_in_channel(target_user):
                         return self.send_kick(target_channel, target_user)
                     return self.send_kick(target_channel, user_obj, line_split[1])
                 target_user = server_obj.get_user_by_name(line_split[0])
+                if target_user is None:
+                    return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
                 target_channel = server_obj.get_channel_by_name(line_split[1])
+                if target_channel is None:
+                    return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
                 return self.send_kick(target_channel, target_user)
             # If 2 arguments, try with first argument as channel
             target_channel = server_obj.get_channel_by_name(line_split[0])
-            if target_channel.in_channel:
+            if target_channel is not None and target_channel.in_channel:
                 target_user = server_obj.get_user_by_name(line_split[1])
-                if target_channel.is_user_in_channel(target_user):
+                if target_user is not None and target_channel.is_user_in_channel(target_user):
                     return self.send_kick(target_channel, target_user)
                 return self.send_kick(target_channel, user_obj, line_split[1])
             # 2 args, try with second argument as channel
             target_user = server_obj.get_user_by_name(line_split[0])
+            if target_user is None:
+                return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
             target_channel = server_obj.get_channel_by_name(line_split[1])
-            if target_channel.in_channel:
+            if target_channel is not None and target_channel.in_channel:
                 return self.send_kick(target_channel, target_user)
             return self.send_kick(destination_obj, target_user, line_split[1])
         # If message was in private message, it's either channel, user and message or user, channel and message or
         # channel and message
-        if destination_obj is None or destination_obj.is_user():
+        if destination_obj is None or not isinstance(destination_obj, Channel):
             target_channel = server_obj.get_channel_by_name(line_split[0])
-            if target_channel.in_channel:
+            if target_channel is not None and target_channel.in_channel:
                 target_user = server_obj.get_user_by_name(line_split[1])
-                if target_channel.is_user_in_channel(target_user):
+                if target_user is not None and target_channel.is_user_in_channel(target_user):
                     return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
                 return self.send_kick(target_channel, user_obj, " ".join(line_split[1:]))
             target_user = server_obj.get_user_by_name(line_split[0])
+            if target_user is None:
+                return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
             target_channel = server_obj.get_channel_by_name(line_split[1])
+            if target_channel is None:
+                return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
             return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
         # If more than 2 arguments, determine which of the first 2 is channel/user, the rest is a message.
         target_channel = server_obj.get_channel_by_name(line_split[0])
-        if target_channel.in_channel:
+        if target_channel is not None and target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
-            if target_channel.is_user_in_channel(target_user):
+            if target_user is not None and target_channel.is_user_in_channel(target_user):
                 return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
             return self.send_kick(target_channel, user_obj, " ".join(line_split[1:]))
         # 2 args, try with second argument as channel
         target_user = server_obj.get_user_by_name(line_split[0])
+        if target_user is None:
+            return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
         target_channel = server_obj.get_channel_by_name(line_split[1])
-        if target_channel.in_channel:
+        if target_channel is not None and target_channel.in_channel:
             return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
         return self.send_kick(destination_obj, target_user, " ".join(line_split[1:]))
 
