@@ -241,19 +241,19 @@ class ServerIRC(Server):
         # Split and send
         for data_line in data.split("\n"):
             data_line_split = Commons.chunk_string_dot(data_line, max_line_length)
-            for date_line_line in data_line_split:
-                self.send_raw(msg_type_name + ' ' + destination_addr + ' :' + date_line_line)
+            for data_line_line in data_line_split:
+                self.send_raw(msg_type_name + ' ' + destination_addr + ' :' + data_line_line)
                 # Log sent data, if it's not message or notice
                 if msg_type == self.MSG_MSG:
-                    self.hallo.get_printer().output_from_self(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
-                                                              channel_obj)
-                    self.hallo.get_logger().log_from_self(Function.EVENT_MESSAGE, date_line_line, self, user_obj,
-                                                          channel_obj)
+                    self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, data_line_line, self, user_obj,
+                                                        channel_obj)
+                    self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, data_line_line, self, user_obj,
+                                                    channel_obj)
                 elif msg_type == self.MSG_NOTICE:
-                    self.hallo.get_printer().output_from_self(Function.EVENT_NOTICE, date_line_line, self, user_obj,
-                                                              channel_obj)
-                    self.hallo.get_logger().log_from_self(Function.EVENT_NOTICE, date_line_line, self, user_obj,
-                                                          channel_obj)
+                    self.hallo.printer.output_from_self(Function.EVENT_NOTICE, data_line_line, self, user_obj,
+                                                        channel_obj)
+                    self.hallo.logger.log_from_self(Function.EVENT_NOTICE, data_line_line, self, user_obj,
+                                                    channel_obj)
 
     def send_raw(self, data):
         """Sends raw data to the server
