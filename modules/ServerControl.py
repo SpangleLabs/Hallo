@@ -160,7 +160,7 @@ class Connect(Function):
             for protocol in valid_protocols:
                 if protocol in [arg.lower() for arg in line_split]:
                     server_protocol = protocol
-                    protocol_regex = re.compile("\s" + protocol + "\s", re.IGNORECASE)
+                    protocol_regex = re.compile(r"\s" + protocol + r"\s", re.IGNORECASE)
                     line = protocol_regex.sub(" ", line)
                     break
         else:
@@ -198,7 +198,7 @@ class Connect(Function):
         server_address, server_port = None, None
         server_name = None
         # Find the URL, if specified
-        url_regex = re.compile("(^|\s)(irc://)?(([a-z.]+\.[a-z]+)(:([0-9]+))?)(\s|$)", re.IGNORECASE)
+        url_regex = re.compile(r"(^|\s)(irc://)?(([a-z.]+\.[a-z]+)(:([0-9]+))?)(\s|$)", re.IGNORECASE)
         url_search = url_regex.search(line)
         if url_search is not None:
             line = line.replace(url_search.group(0), " ")
@@ -328,7 +328,7 @@ class Say(Function):
             server_objs = [user_obj.server]
         else:
             # Create a regex query from their input
-            server_regex = re.escape(server_name).replace("\*", ".*")
+            server_regex = re.escape(server_name).replace(r"\*", ".*")
             server_list = hallo_obj.server_list
             for server_obj in server_list:
                 if not server_obj.is_connected():
@@ -341,7 +341,7 @@ class Say(Function):
         # Get channel_obj list from server_obj and channel_name
         channel_objs = []
         for server_obj in server_objs:
-            channel_regex = re.escape(channel_name).replace("\*", ".*")
+            channel_regex = re.escape(channel_name).replace(r"\*", ".*")
             channel_list = server_obj.channel_list
             for channel_obj in channel_list:
                 if not channel_obj.in_channel:
@@ -399,7 +399,7 @@ class EditServer(Function):
         # Set all variables to none as default
         server_address, server_port = None, None
         # Find the URL, if specified
-        url_regex = re.compile("(^|\s)(irc://)?(([a-z.]+\.[a-z]+)(:([0-9]+))?)(\s|$)", re.IGNORECASE)
+        url_regex = re.compile(r"(^|\s)(irc://)?(([a-z.]+\.[a-z]+)(:([0-9]+))?)(\s|$)", re.IGNORECASE)
         url_search = url_regex.search(line)
         if url_search is not None:
             line = line.replace(url_search.group(0), " ")
