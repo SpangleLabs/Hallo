@@ -476,7 +476,7 @@ class Mute(Function):
             return "Error, this function is only available for IRC servers."
         # Check if no arguments were provided
         if line.strip() == "":
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 return "Error, you can't set mute on a private message."
             return self.mute_channel(destination_obj)
         # Get channel from user input
@@ -529,11 +529,13 @@ class UnMute(Function):
             return "Error, this function is only available for IRC servers."
         # Check if no arguments were provided
         if line.strip() == "":
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 return "Error, you can't unset mute on a private message."
             return self.unmute_channel(destination_obj)
         # Get channel from user input
         target_channel = server_obj.get_channel_by_name(line.strip())
+        if target_channel is None:
+            return "Error, " + line.strip() + " is not known on " + server_obj.name + "."
         return self.unmute_channel(target_channel)
 
     def unmute_channel(self, channel):
