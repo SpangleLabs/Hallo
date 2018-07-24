@@ -481,6 +481,8 @@ class Mute(Function):
             return self.mute_channel(destination_obj)
         # Get channel from user input
         target_channel = server_obj.get_channel_by_name(line.strip())
+        if target_channel is None:
+            return "Error, " + line.strip() + " is not known on " + server_obj.name + "."
         return self.mute_channel(target_channel)
 
     def mute_channel(self, channel):
