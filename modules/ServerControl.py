@@ -265,7 +265,7 @@ class Connect(Function):
         # Add user with same name on new server to all the same groups as current user
         new_user_nick = Commons.find_any_parameter(["user", "god"], line)
         new_user = user_obj
-        if new_user_nick is not None:
+        if new_user_nick is not False:
             new_user = new_server_obj.get_user_by_name(new_user_nick)
             if new_user is None:
                 return "Could not find a user by the name specified (\"%s\").".format(new_user_nick)
