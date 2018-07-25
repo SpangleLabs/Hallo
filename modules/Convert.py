@@ -124,7 +124,8 @@ class ConvertRepo:
             type_elem = minidom.parseString(type_obj.to_xml()).firstChild
             root.appendChild(type_elem)
         # save XML
-        doc.writexml(open("store/convert.xml", "w"), addindent="\t", newl="\n")
+        with open("store/convert.xml", "w") as f:
+            doc.writexml(f, addindent="\t", newl="\n")
 
 
 class ConvertType:
