@@ -77,7 +77,7 @@ class SilenceTheRabble(Function):
         if not user_obj.name.endswith('000242'):
             return "Error, you are not my master."
         server_obj = user_obj.server
-        if server_obj.type == Server.TYPE_IRC:
+        if server_obj.type != Server.TYPE_IRC:
             return "Error, this function is only available on IRC servers."
         if not isinstance(destination_obj, Channel):
             return "Error, this function can only be used in ETD."
