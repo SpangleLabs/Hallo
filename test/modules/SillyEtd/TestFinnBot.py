@@ -28,4 +28,5 @@ class FinnBotTest(TestBase, unittest.TestCase):
         for _ in range(10):
             self.function_dispatcher.dispatch("finnbot", self.test_user, self.test_user)
             data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-            assert data in valid, "Invalid quote returned."
+            line = data[0][0][:-1] if data[0][0][-1] == "." else data[0][0]
+            assert line in valid, "Invalid quote returned."
