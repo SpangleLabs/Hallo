@@ -117,7 +117,7 @@ class PokeTheAsshole(Function):
         if not user_obj.name.endswith('000242'):
             return "Error, You are not my master."
         server_obj = user_obj.server
-        if server_obj.type == Server.TYPE_IRC:
+        if server_obj.type != Server.TYPE_IRC:
             return "Error, This function is only available on IRC servers."
         if destination_obj is None or destination_obj == user_obj:
             return "Error, This function can only be used in ETD."
