@@ -2,7 +2,6 @@ import re
 import socket
 import time
 from threading import RLock, Lock, Thread
-from typing import Optional
 from xml.dom import minidom
 
 from Destination import ChannelMembership, Channel, User
@@ -748,9 +747,11 @@ class ServerIRC(Server):
         # TODO: add logging?
         # Check for a 433 "ERR_NICKNAMEINUSE"
         if numeric_code == "433":
+            nick_num_suffixes = [self.nick[x:] for x in range(len(self.nick)) if Commons.is_float_string(self.nick[x:])]
+
             nick_numstr = (
                     [self.nick[x:] for x in range(len(self.nick)) if Commons.is_float_string(self.nick[x:])]
-                    + [None])[0]  # type: Optional[str]
+                    + [None])[0]
             if nick_numstr is None:
                 nick_number = 0
                 nick_word = self.nick
