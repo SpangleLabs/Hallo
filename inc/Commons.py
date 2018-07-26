@@ -69,7 +69,8 @@ class Commons(object):
         url = url.split("/")[0]
         url = url.split(":")[0]
         # Get the list of TLDs, from mozilla's http://publicsuffix.org
-        tld_list = [x.strip() for x in open("store/tld_list.txt", "rb").read().decode("utf-8").split("\n")]
+        with open("store/tld_list.txt", "rb") as f:
+            tld_list = [x.strip() for x in f.read().decode("utf-8").split("\n")]
         url_split = url.split(".")
         url_tld = None
         for tld_test in ['.'.join(url_split[x:]) for x in range(len(url_split))]:
