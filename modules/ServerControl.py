@@ -254,7 +254,7 @@ class Connect(Function):
         nickserv_password = Commons.find_parameter("nickserv_password", line) or nickserv_password
         # Create this serverIRC object
         new_server_obj = ServerIRC(hallo_obj, server_name, server_address, server_port)
-        new_server_obj.set_auto_connect(auto_connect)
+        new_server_obj.auto_connect = auto_connect
         new_server_obj.set_nick(server_nick)
         new_server_obj.set_prefix(server_prefix)
         new_server_obj.set_full_name(full_name)
@@ -264,11 +264,12 @@ class Connect(Function):
         new_server_obj.set_nickserv_pass(nickserv_password)
         # Add user with same name on new server to all the same groups as current user
         new_user_nick = Commons.find_any_parameter(["user", "god"], line)
-        new_user = user_obj
-        if new_user_nick is not None:
-            new_user = new_server_obj.get_user_by_name(new_user_nick)
-            if new_user is None:
-                return "Could not find a user by the name specified (\"%s\").".format(new_user_nick)
+        if new_user_nick is False:  # TODO: check user exists on server, ask server?
+            new_user = new_server_obj.get_user_by_address(user_obj.address, user_obj.name)
+        else:
+            new_user = new_server_obj.get_user_by_address(new_user_nick.lower(), new_user_nick)
+        if new_user is None:
+            return "Could not find a user by the name specified (\"{}\") on the new server.".format(new_user_nick)
         for group in user_obj.user_group_list:
             new_user.add_user_group(group)
         # Add the new object to Hallo's list

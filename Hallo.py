@@ -186,7 +186,8 @@ class Hallo:
             api_key_list_elem.appendChild(api_key_elem)
         root.appendChild(api_key_list_elem)
         # Save XML
-        doc.writexml(open("config/config.xml", "w+"), addindent="\t", newl="\r\n")
+        with open("config/config.xml", "w+") as f:
+            doc.writexml(f, addindent="\t", newl="\r\n")
 
     def add_user_group(self, user_group):
         """
