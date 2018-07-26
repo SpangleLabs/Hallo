@@ -1,4 +1,4 @@
-from Destination import Destination
+from Destination import Destination, Channel
 from Function import Function
 from inc.Commons import Commons
 import time
@@ -138,26 +138,30 @@ class Boop(Function):
         line_split = line_clean.split()
         # If one argument, check that the user is in the current channel.
         if len(line_split) == 1:
+            if destination_obj is None or not isinstance(destination_obj, Channel):
+                return "Error, please provide a username and a channel, if using function from private message."
             dest_user_obj = server_obj.get_user_by_name(line_clean)
-            if not dest_user_obj.online or dest_user_obj not in destination_obj.get_user_list():
+            if dest_user_obj is None \
+                    or not dest_user_obj.online \
+                    or dest_user_obj not in destination_obj.get_user_list():
                 return "Error, No one by that name is online or in channel."
             server_obj.send("\x01ACTION boops " + dest_user_obj.name + ".\x01", destination_obj)
             return "Done."
         # If two arguments, see if one is a channel and the other a user.
         channel_test_1 = server_obj.get_channel_by_name(line_split[0])
-        if channel_test_1.in_channel:
+        if channel_test_1 is not None and channel_test_1.in_channel:
             dest_channel = channel_test_1
             dest_user = server_obj.get_user_by_name(line_split[1])
         else:
             channel_test_2 = server_obj.get_channel_by_name(line_split[1])
-            if channel_test_2.in_channel:
+            if channel_test_2 is not None and channel_test_2.in_channel:
                 dest_channel = channel_test_2
                 dest_user = server_obj.get_user_by_name(line_split[0])
             else:
                 return "Error, I'm not in any channel by that name."
         # If user by that name is not online, return a message saying that.
-        if not dest_user.online or dest_user not in dest_channel.get_user_list():
-            return "Error, No user by that name is online."
+        if dest_user is None or not dest_user.online or dest_user not in dest_channel.get_user_list():
+            return "Error, No user by that name is known and/or online."
         # Send boop, then return done.
         server_obj.send("\x01ACTION boops " + dest_user.name + ".\x01", dest_channel)
         return "Done."
