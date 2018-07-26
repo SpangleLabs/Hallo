@@ -1,6 +1,21 @@
+from Destination import User, Channel
 from Function import Function
 from inc.Commons import Commons
 from Server import Server
+
+
+def hallo_has_op(channel):
+    """
+    Checks whether hallo has op in a given channel.
+    :param channel: channel to check op status for
+    :type channel: Destination.Channel
+    :return: whether hallo has op
+    :rtype: bool
+    """
+    server = channel.server
+    hallo_user = server.get_user_by_address(server.get_nick().lower(), server.get_nick())
+    hallo_membership = channel.get_membership_by_user(hallo_user)
+    return hallo_membership.is_op
 
 
 class Operator(Function):
@@ -31,31 +46,41 @@ class Operator(Function):
         line_split = line.split()
         if len(line_split) == 0:
             # Check that this is a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 return "Error, I can't op you in a private message, please provide a channel."
             # Give op to the user
             return self.give_op(destination_obj, user_obj)
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
             # If message was sent in private message, it's referring to a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 channel = server_obj.get_channel_by_name(line)
+                if channel is None:
+                    return "Error, " + line + " is not known on " + server_obj.name + "."
                 return self.give_op(channel, user_obj)
             # See if it's a channel that hallo is in
             test_channel = server_obj.get_channel_by_name(line)
-            if test_channel.in_channel:
+            if test_channel is not None and test_channel.in_channel:
                 return self.give_op(test_channel, user_obj)
             # Argument must be a user?
             target_user = server_obj.get_user_by_name(line)
+            if target_user is None:
+                return "Error, " + line + " is not known on " + server_obj.name + "."
             return self.give_op(destination_obj, target_user)
         # If 2 arguments, try with first argument as channel
         target_channel = server_obj.get_channel_by_name(line_split[0])
-        if target_channel.in_channel:
+        if target_channel is not None and target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
+            if target_user is None:
+                return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
             return self.give_op(target_channel, target_user)
         # 2 args, try with second argument as channel
-        target_channel = server_obj.get_channel_by_name(line_split[1])
         target_user = server_obj.get_user_by_name(line_split[0])
+        if target_user is None:
+            return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
+        target_channel = server_obj.get_channel_by_name(line_split[1])
+        if target_channel is None:
+            return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
         return self.give_op(target_channel, target_user)
 
     def give_op(self, channel, user):
@@ -75,7 +100,7 @@ class Operator(Function):
         if user not in channel.get_user_list():
             return "Error, "+user.name+" is not in "+channel.name+"."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to give op in "+channel.name+"."
         # Check that user does not have op in channel
         user_membership = channel.get_membership_by_user(user)
@@ -83,19 +108,6 @@ class Operator(Function):
             return "Error, this user already has op."
         channel.server.send("MODE "+channel.name+" +o "+user.name, None, Server.MSG_RAW)
         return "Op status given."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class DeOperator(Function):
@@ -127,31 +139,41 @@ class DeOperator(Function):
         line_split = line.split()
         if len(line_split) == 0:
             # Check that this is a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 return "Error, I can't de-op you in a private message, please provide a channel."
             # Remove op
             return self.take_op(destination_obj, user_obj)
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
             # If message was sent in private message, it's referring to a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 channel = server_obj.get_channel_by_name(line)
+                if channel is None:
+                    return "Error, " + line + " is not known on " + server_obj.name + "."
                 return self.take_op(channel, user_obj)
             # See if it's a channel that hallo is in
             test_channel = server_obj.get_channel_by_name(line)
-            if test_channel.in_channel:
+            if test_channel is not None and test_channel.in_channel:
                 return self.take_op(test_channel, user_obj)
             # Argument must be a user?
             target_user = server_obj.get_user_by_name(line)
+            if target_user is None:
+                return "Error, " + line + " is not known on " + server_obj.name + "."
             return self.take_op(destination_obj, target_user)
         # If 2 arguments, try with first argument as channel
         target_channel = server_obj.get_channel_by_name(line_split[0])
-        if target_channel.in_channel:
+        if target_channel is not None and target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
+            if target_user is None:
+                return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
             return self.take_op(target_channel, target_user)
         # 2 args, try with second argument as channel
-        target_channel = server_obj.get_channel_by_name(line_split[1])
         target_user = server_obj.get_user_by_name(line_split[0])
+        if target_user is None:
+            return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
+        target_channel = server_obj.get_channel_by_name(line_split[1])
+        if target_channel is None:
+            return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
         return self.take_op(target_channel, target_user)
 
     def take_op(self, channel, user):
@@ -171,7 +193,7 @@ class DeOperator(Function):
         if user not in channel.get_user_list():
             return "Error, "+user.name+" is not in "+channel.name+"."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to take op in "+channel.name+"."
         # Check that user does not have op in channel
         user_membership = channel.get_membership_by_user(user)
@@ -179,19 +201,6 @@ class DeOperator(Function):
             return "Error, this user doesn't have op."
         channel.server.send("MODE "+channel.name+" -o "+user.name, None, Server.MSG_RAW)
         return "Op status taken."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class Voice(Function):
@@ -222,31 +231,41 @@ class Voice(Function):
         line_split = line.split()
         if len(line_split) == 0:
             # Check that this is a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 return "Error, I can't voice you in a private message, please provide a channel."
             # Give user voice
             return self.give_voice(destination_obj, user_obj)
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
             # If message was sent in private message, it's referring to a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj,Channel):
                 channel = server_obj.get_channel_by_name(line)
+                if channel is None:
+                    return "Error, " + line + " is not known on " + server_obj.name + "."
                 return self.give_voice(channel, user_obj)
             # See if it's a channel that hallo is in
             test_channel = server_obj.get_channel_by_name(line)
-            if test_channel.in_channel:
+            if test_channel is not None and test_channel.in_channel:
                 return self.give_voice(test_channel, user_obj)
             # Argument must be a user?
             target_user = server_obj.get_user_by_name(line)
+            if target_user is None:
+                return "Error, " + line + " is not known on " + server_obj.name + "."
             return self.give_voice(destination_obj, target_user)
         # If 2 arguments, try with first argument as channel
         target_channel = server_obj.get_channel_by_name(line_split[0])
-        if target_channel.in_channel:
+        if target_channel is not None and target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
+            if target_user is None:
+                return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
             return self.give_voice(target_channel, target_user)
         # 2 args, try with second argument as channel
-        target_channel = server_obj.get_channel_by_name(line_split[1])
         target_user = server_obj.get_user_by_name(line_split[0])
+        if target_user is None:
+            return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
+        target_channel = server_obj.get_channel_by_name(line_split[1])
+        if target_channel is None:
+            return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
         return self.give_voice(target_channel, target_user)
 
     def give_voice(self, channel, user):
@@ -266,7 +285,7 @@ class Voice(Function):
         if user not in channel.get_user_list():
             return "Error, "+user.name+" is not in "+channel.name+"."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to give voice in "+channel.name+"."
         # Check that user does not have op in channel
         user_membership = channel.get_membership_by_user(user)
@@ -274,19 +293,6 @@ class Voice(Function):
             return "Error, this user already has voice."
         channel.server.send("MODE "+channel.name+" +v "+user.name, None, Server.MSG_RAW)
         return "Voice status given."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class DeVoice(Function):
@@ -317,31 +323,41 @@ class DeVoice(Function):
         line_split = line.split()
         if len(line_split) == 0:
             # Check that this is a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 return "Error, I can't un-voice you in a private message, please provide a channel."
             # Give user voice
             return self.take_voice(destination_obj, user_obj)
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
             # If message was sent in private message, it's referring to a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 channel = server_obj.get_channel_by_name(line)
+                if channel is None:
+                    return "Error, " + line + " is not known on " + server_obj.name + "."
                 return self.take_voice(channel, user_obj)
             # See if it's a channel that hallo is in
             test_channel = server_obj.get_channel_by_name(line)
-            if test_channel.in_channel:
+            if test_channel is not None and test_channel.in_channel:
                 return self.take_voice(test_channel, user_obj)
             # Argument must be a user?
             target_user = server_obj.get_user_by_name(line)
+            if target_user is None:
+                return "Error, " + line + " is not known on " + server_obj.name + "."
             return self.take_voice(destination_obj, target_user)
         # If 2 arguments, try with first argument as channel
         target_channel = server_obj.get_channel_by_name(line_split[0])
-        if target_channel.in_channel:
+        if target_channel is not None and target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
+            if target_user is None:
+                return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
             return self.take_voice(target_channel, target_user)
         # 2 args, try with second argument as channel
-        target_channel = server_obj.get_channel_by_name(line_split[1])
         target_user = server_obj.get_user_by_name(line_split[0])
+        if target_user is None:
+            return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
+        target_channel = server_obj.get_channel_by_name(line_split[1])
+        if target_channel is None:
+            return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
         return self.take_voice(target_channel, target_user)
 
     def take_voice(self, channel, user):
@@ -361,7 +377,7 @@ class DeVoice(Function):
         if user not in channel.get_user_list():
             return "Error, "+user.name+" is not in "+channel.name+"."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to take voice in "+channel.name+"."
         # Check that user does not have op in channel
         user_membership = channel.get_membership_by_user(user)
@@ -369,19 +385,6 @@ class DeVoice(Function):
             return "Error, this user doesn't have voice."
         channel.server.send("MODE "+channel.name+" -v "+user.name, None, Server.MSG_RAW)
         return "Voice status taken."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class Invite(Function):
@@ -414,24 +417,34 @@ class Invite(Function):
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
             # If message was sent in private message, it's referring to a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 channel = server_obj.get_channel_by_name(line)
+                if channel is None:
+                    return "Error, " + line + " is not known on " + server_obj.name + "."
                 return self.send_invite(channel, user_obj)
             # See if it's a channel that hallo is in
             test_channel = server_obj.get_channel_by_name(line)
-            if test_channel.in_channel:
+            if test_channel is not None and test_channel.in_channel:
                 return self.send_invite(test_channel, user_obj)
             # Argument must be a user?
             target_user = server_obj.get_user_by_name(line)
+            if target_user is None:
+                return "Error, " + line + " is not known on " + server_obj.name + "."
             return self.send_invite(destination_obj, target_user)
         # If 2 arguments, try with first argument as channel
         target_channel = server_obj.get_channel_by_name(line_split[0])
-        if target_channel.in_channel:
+        if target_channel is not None and target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
+            if target_user is None:
+                return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
             return self.send_invite(target_channel, target_user)
         # 2 args, try with second argument as channel
-        target_channel = server_obj.get_channel_by_name(line_split[1])
         target_user = server_obj.get_user_by_name(line_split[0])
+        if target_user is None:
+            return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
+        target_channel = server_obj.get_channel_by_name(line_split[1])
+        if target_channel is None:
+            return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
         return self.send_invite(target_channel, target_user)
 
     def send_invite(self, channel, user):
@@ -451,24 +464,11 @@ class Invite(Function):
         if user in channel.get_user_list():
             return "Error, "+user.name+" is already in "+channel.name+"."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to invite users in "+channel.name+"."
         # Send invite
         channel.server.send("INVITE "+user.name+" "+channel.name, None, Server.MSG_RAW)
         return "Invite sent."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class Mute(Function):
@@ -496,11 +496,13 @@ class Mute(Function):
             return "Error, this function is only available for IRC servers."
         # Check if no arguments were provided
         if line.strip() == "":
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 return "Error, you can't set mute on a private message."
             return self.mute_channel(destination_obj)
         # Get channel from user input
         target_channel = server_obj.get_channel_by_name(line.strip())
+        if target_channel is None:
+            return "Error, " + line.strip() + " is not known on " + server_obj.name + "."
         return self.mute_channel(target_channel)
 
     def mute_channel(self, channel):
@@ -515,24 +517,11 @@ class Mute(Function):
         if not channel.in_channel:
             return "Error, I'm not in that channel."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to mute "+channel.name+"."
         # Send invite
         channel.server.send("MODE "+channel.name+" +m", None, Server.MSG_RAW)
         return "Set mute in "+channel.name+"."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class UnMute(Function):
@@ -560,11 +549,13 @@ class UnMute(Function):
             return "Error, this function is only available for IRC servers."
         # Check if no arguments were provided
         if line.strip() == "":
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 return "Error, you can't unset mute on a private message."
             return self.unmute_channel(destination_obj)
         # Get channel from user input
         target_channel = server_obj.get_channel_by_name(line.strip())
+        if target_channel is None:
+            return "Error, " + line.strip() + " is not known on " + server_obj.name + "."
         return self.unmute_channel(target_channel)
 
     def unmute_channel(self, channel):
@@ -579,24 +570,11 @@ class UnMute(Function):
         if not channel.in_channel:
             return "Error, I'm not in that channel."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to unmute "+channel.name+"."
         # Send invite
         channel.server.send("MODE "+channel.name+" -m", None, Server.MSG_RAW)
         return "Unset mute in "+channel.name+"."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class Kick(Function):
@@ -629,64 +607,84 @@ class Kick(Function):
         # If 1 argument, see if it's a channel or a user.
         if len(line_split) == 1:
             # If message was sent in private message, it's referring to a channel
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 channel = server_obj.get_channel_by_name(line)
+                if channel is None:
+                    return "Error, " + line + " is not known on " + server_obj.name + "."
                 return self.send_kick(channel, user_obj)
             # See if it's a channel that hallo is in
             test_channel = server_obj.get_channel_by_name(line)
-            if test_channel.in_channel:
+            if test_channel is not None and test_channel.in_channel:
                 return self.send_kick(test_channel, user_obj)
             # Argument must be a user?
             target_user = server_obj.get_user_by_name(line)
+            if target_user is None:
+                return "Error, " + line + " is not known on " + server_obj.name + "."
             return self.send_kick(destination_obj, target_user)
         if len(line_split) == 2:
             # If message was in private message, it's either channel and user, user and channel or channel and message
-            if destination_obj is None or destination_obj.is_user():
+            if destination_obj is None or not isinstance(destination_obj, Channel):
                 target_channel = server_obj.get_channel_by_name(line_split[0])
-                if target_channel.in_channel:
-                    target_user = server_obj.get_user_by_name(line_split[1])
-                    if target_channel.is_user_in_channel(target_user):
-                        return self.send_kick(target_channel, target_user)
-                    return self.send_kick(target_channel, user_obj, line_split[1])
+                if target_channel is not None:
+                    if target_channel.in_channel:
+                        target_user = server_obj.get_user_by_name(line_split[1])
+                        if target_user is not None and target_channel.is_user_in_channel(target_user):
+                            return self.send_kick(target_channel, target_user)
+                        return self.send_kick(target_channel, user_obj, line_split[1])
+                    return "Error, I am not in that channel."
                 target_user = server_obj.get_user_by_name(line_split[0])
+                if target_user is None:
+                    return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
                 target_channel = server_obj.get_channel_by_name(line_split[1])
+                if target_channel is None:
+                    return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
                 return self.send_kick(target_channel, target_user)
             # If 2 arguments, try with first argument as channel
             target_channel = server_obj.get_channel_by_name(line_split[0])
-            if target_channel.in_channel:
+            if target_channel is not None and target_channel.in_channel:
                 target_user = server_obj.get_user_by_name(line_split[1])
-                if target_channel.is_user_in_channel(target_user):
+                if target_user is not None and target_channel.is_user_in_channel(target_user):
                     return self.send_kick(target_channel, target_user)
                 return self.send_kick(target_channel, user_obj, line_split[1])
             # 2 args, try with second argument as channel
             target_user = server_obj.get_user_by_name(line_split[0])
+            if target_user is None:
+                return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
             target_channel = server_obj.get_channel_by_name(line_split[1])
-            if target_channel.in_channel:
+            if target_channel is not None and target_channel.in_channel:
                 return self.send_kick(target_channel, target_user)
             return self.send_kick(destination_obj, target_user, line_split[1])
         # If message was in private message, it's either channel, user and message or user, channel and message or
         # channel and message
-        if destination_obj is None or destination_obj.is_user():
+        if destination_obj is None or not isinstance(destination_obj, Channel):
             target_channel = server_obj.get_channel_by_name(line_split[0])
-            if target_channel.in_channel:
-                target_user = server_obj.get_user_by_name(line_split[1])
-                if target_channel.is_user_in_channel(target_user):
-                    return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
-                return self.send_kick(target_channel, user_obj, " ".join(line_split[1:]))
+            if target_channel is not None:
+                if target_channel.in_channel:
+                    target_user = server_obj.get_user_by_name(line_split[1])
+                    if target_user is not None and target_channel.is_user_in_channel(target_user):
+                        return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
+                    return self.send_kick(target_channel, user_obj, " ".join(line_split[1:]))
+                return "Error, I am not in that channel."
             target_user = server_obj.get_user_by_name(line_split[0])
+            if target_user is None:
+                return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
             target_channel = server_obj.get_channel_by_name(line_split[1])
+            if target_channel is None:
+                return "Error, " + line_split[1] + " is not known on " + server_obj.name + "."
             return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
         # If more than 2 arguments, determine which of the first 2 is channel/user, the rest is a message.
         target_channel = server_obj.get_channel_by_name(line_split[0])
-        if target_channel.in_channel:
+        if target_channel is not None and target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
-            if target_channel.is_user_in_channel(target_user):
+            if target_user is not None and target_channel.is_user_in_channel(target_user):
                 return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
             return self.send_kick(target_channel, user_obj, " ".join(line_split[1:]))
         # 2 args, try with second argument as channel
         target_user = server_obj.get_user_by_name(line_split[0])
+        if target_user is None:
+            return "Error, " + line_split[0] + " is not known on " + server_obj.name + "."
         target_channel = server_obj.get_channel_by_name(line_split[1])
-        if target_channel.in_channel:
+        if target_channel is not None and target_channel.in_channel:
             return self.send_kick(target_channel, target_user, " ".join(line_split[2:]))
         return self.send_kick(destination_obj, target_user, " ".join(line_split[1:]))
 
@@ -709,24 +707,11 @@ class Kick(Function):
         if user not in channel.get_user_list():
             return "Error, "+user.name+" is not in "+channel.name+"."
         # Check if hallo has op in channel
-        if not self.hallo_has_op(channel):
+        if not hallo_has_op(channel):
             return "Error, I don't have power to kick users from "+channel.name+"."
         # Send invite
         channel.server.send("KICK "+channel.name+" "+user.name+" "+message, None, Server.MSG_RAW)
         return "Kicked "+user.name+" from "+channel.name+"."
-
-    def hallo_has_op(self, channel):
-        """
-        Checks whether hallo has op in a given channel.
-        :param channel: channel to check op status for
-        :type channel: Destination.Channel
-        :return: whether hallo has op
-        :rtype: bool
-        """
-        server = channel.server
-        hallo_user = server.get_user_by_name(server.get_nick())
-        hallo_membership = channel.get_membership_by_user(hallo_user)
-        return hallo_membership.is_op
 
 
 class ChannelCaps(Function):
@@ -749,11 +734,11 @@ class ChannelCaps(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Get server object
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         # If no arguments given, toggle caps lock in current destination
         line_clean = line.strip()
         if line_clean == '':
-            destination_obj.set_upper_case(not destination_obj.is_upper_case())
+            destination_obj.use_caps_lock = not destination_obj.use_caps_lock
             return "Caps lock toggled."
         # If line has 1 argument,
         line_split = line_clean.split()
@@ -761,13 +746,13 @@ class ChannelCaps(Function):
             # Check if a boolean was specified
             input_bool = Commons.string_to_bool(line_split[0])
             if input_bool is not None:
-                destination_obj.set_upper_case(input_bool)
+                destination_obj.use_caps_lock = input_bool
                 return "Caps lock set " + {False: 'off', True: 'on'}[input_bool] + "."
             # Check if a channel was specified
             target_channel = server_obj.get_channel_by_name(line_split[0])
-            if target_channel.is_in_channel():
-                target_channel.set_upper_case(not target_channel.is_upper_case())
-                return "Caps lock toggled in " + target_channel.get_name() + "."
+            if target_channel.in_channel:
+                target_channel.use_caps_lock = not target_channel.use_caps_lock
+                return "Caps lock toggled in " + target_channel.name + "."
             # Otherwise input unknown
             return "Error, I don't understand your input, please specify a channel and whether to turn caps lock " \
                    "on or off."
@@ -782,10 +767,10 @@ class ChannelCaps(Function):
             return "Error, I don't understand your input, please specify a channel and whether to turn " \
                    "caps lock on or off."
         target_channel = server_obj.get_channel_by_name(target_channel_name)
-        if target_channel is None or not target_channel.is_in_channel():
+        if target_channel is None or not target_channel.in_channel:
             return "Error, I'm not in that channel."
-        target_channel.set_upper_case(input_bool)
-        return "Caps lock set " + {False: 'off', True: 'on'}[input_bool] + " in " + target_channel.get_name() + "."
+        target_channel.use_caps_lock = input_bool
+        return "Caps lock set " + {False: 'off', True: 'on'}[input_bool] + " in " + target_channel.name + "."
 
 
 class ChannelLogging(Function):
@@ -891,7 +876,7 @@ class ChannelPassiveFunctions(Function):
             target_channel = server_obj.get_channel_by_name(line_split[0])
             if target_channel.in_channel:
                 target_channel.passive_enabled = not target_channel.passive_enabled
-                return "Passive functions toggled in " + target_channel.get_name() + "."
+                return "Passive functions toggled in " + target_channel.name + "."
             # Otherwise input unknown
             return "Error, I don't understand your input, please specify a channel and whether to turn passive " \
                    "functions on or off."

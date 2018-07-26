@@ -43,8 +43,8 @@ class ModuleReload(Function):
         self.help_docs = "Reloads a specified module."
 
     def run(self, line, user_obj, destination_obj=None):
-        hallo_obj = user_obj.get_server().get_hallo()
-        function_dispatcher = hallo_obj.get_function_dispatcher()
+        hallo_obj = user_obj.server.hallo
+        function_dispatcher = hallo_obj.function_dispatcher
         reload_result = function_dispatcher.reload_module(line)
         if reload_result:
             return "Module reloaded."
@@ -96,7 +96,7 @@ class Help(Function):
         self.hallo_obj = None  # Hallo object containing everything.
 
     def run(self, line, user_obj, destination_obj=None):
-        self.hallo_obj = user_obj.get_server().get_hallo()
+        self.hallo_obj = user_obj.server.hallo
         if line.strip() == "":
             return self.list_all_functions(user_obj, destination_obj)
         else:
@@ -106,8 +106,8 @@ class Help(Function):
     def list_all_functions(self, user_obj, destination_obj):
         """Returns a list of all functions."""
         # Get required objects
-        server_obj = user_obj.get_server()
-        function_dispatcher = self.hallo_obj.get_function_dispatcher()
+        server_obj = user_obj.server
+        function_dispatcher = self.hallo_obj.function_dispatcher
         # Get list of function classes
         function_class_list = function_dispatcher.get_function_class_list()
         # Construct list of available function names
@@ -126,7 +126,7 @@ class Help(Function):
     def get_help_on_function(self, function_name):
         """Returns help documentation on a specified function."""
         # Get required objects
-        function_dispatcher = self.hallo_obj.get_function_dispatcher()
+        function_dispatcher = self.hallo_obj.function_dispatcher
         function_class = function_dispatcher.get_function_by_name(function_name)
         # If function isn't defined, return an error.
         if function_class is None:

@@ -12,10 +12,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = "NOT_IRC"
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
-        user1 = serv1.get_user_by_name("test_user1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         chan1.add_user(user1)
-        chan1.add_user(serv1.get_user_by_name(serv1.get_nick()))
+        chan1.add_user(serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick()))
         try:
             self.function_dispatcher.dispatch("kick", user1, chan1)
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
@@ -29,10 +29,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_user1 = chan1.get_membership_by_user(user1)
@@ -52,9 +52,9 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         try:
             self.function_dispatcher.dispatch("kick test_chan1", user1, user1)
@@ -69,10 +69,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
@@ -89,10 +89,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -110,10 +110,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -141,12 +141,12 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan2.add_user(user_hallo)
@@ -167,12 +167,12 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan2.add_user(user1)
@@ -194,12 +194,12 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan2.add_user(user1)
@@ -231,11 +231,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -253,11 +253,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
@@ -276,11 +276,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
@@ -305,10 +305,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         try:
             self.function_dispatcher.dispatch("kick test_chan1 test_user2", user1, user1)
@@ -328,11 +328,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -350,11 +350,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -378,10 +378,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = False
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         try:
             self.function_dispatcher.dispatch("kick test_chan1 goodbye", user1, user1)
@@ -396,10 +396,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
@@ -416,10 +416,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -437,10 +437,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -464,11 +464,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = False
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         try:
             self.function_dispatcher.dispatch("kick test_user2 test_chan1", user1, user1)
@@ -483,11 +483,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
@@ -504,11 +504,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -526,11 +526,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -562,13 +562,13 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -590,13 +590,13 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -628,12 +628,12 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -654,12 +654,12 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -681,12 +681,12 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -718,13 +718,13 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -745,13 +745,13 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -773,13 +773,13 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -811,11 +811,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -833,11 +833,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
@@ -856,11 +856,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
@@ -885,11 +885,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = False
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         try:
             self.function_dispatcher.dispatch("kick test_chan1 test_user2 goodbye now", user1, user1)
@@ -908,11 +908,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -930,11 +930,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -958,10 +958,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = False
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         try:
             self.function_dispatcher.dispatch("kick test_chan1 goodbye now", user1, user1)
@@ -976,10 +976,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
@@ -996,10 +996,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1017,10 +1017,10 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1044,11 +1044,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = False
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         try:
             self.function_dispatcher.dispatch("kick test_user2 test_chan1 goodbye now", user1, user1)
@@ -1063,11 +1063,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
@@ -1084,11 +1084,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1106,11 +1106,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1142,13 +1142,13 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1170,13 +1170,13 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1208,12 +1208,12 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1234,12 +1234,12 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1261,12 +1261,12 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1298,13 +1298,13 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1325,13 +1325,13 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1353,13 +1353,13 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         chan2.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1391,11 +1391,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user_hallo)
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
@@ -1413,11 +1413,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user2)
         chan1.add_user(user_hallo)
@@ -1436,11 +1436,11 @@ class KickTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         serv1.type = Server.TYPE_IRC
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan1.in_channel = True
-        user1 = serv1.get_user_by_name("test_user1")
-        user2 = serv1.get_user_by_name("test_user2")
-        user_hallo = serv1.get_user_by_name(serv1.get_nick())
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
+        user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         chan1.add_user(user2)
         chan1.add_user(user_hallo)

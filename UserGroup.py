@@ -38,7 +38,8 @@ class UserGroup:
         :param user_obj: User which is having rights checked
         :type user_obj: Destination.User
         :param channel_obj: Channel in which rights are being checked, None for private messages
-        :type channel_obj: Destination.Channel
+        :type channel_obj: Destination.Channel | None
+        :rtype: bool
         """
         right_value = self.permission_mask.get_right(right_name)
         # PermissionMask contains that right, return it.
@@ -48,7 +49,7 @@ class UserGroup:
         if channel_obj is not None:
             return channel_obj.rights_check(right_name)
         # Fall back to the parent Server's decision.
-        return user_obj.get_server().rights_check(right_name)
+        return user_obj.server.rights_check(right_name)
 
     def get_name(self):
         return self.name

@@ -27,7 +27,7 @@ class SlowClapTest(TestBase, unittest.TestCase):
         assert "error" in data[0][0].lower()
 
     def test_slowclap_chan(self):
-        test_chan2 = self.server.get_channel_by_name("another_chan")
+        test_chan2 = self.server.get_channel_by_address("another_chan".lower(), "another_chan")
         test_chan2.in_channel = True
         time_start = time.time()
         self.function_dispatcher.dispatch("slowclap "+test_chan2.name, self.test_user, self.test_user)
@@ -44,7 +44,7 @@ class SlowClapTest(TestBase, unittest.TestCase):
         assert "done" in data[3][0].lower(), "Done message should be sent to original user."
 
     def test_slowclap_chan_not_in_chan(self):
-        test_chan2 = self.server.get_channel_by_name("another_chan")
+        test_chan2 = self.server.get_channel_by_address("another_chan".lower(), "another_chan")
         test_chan2.in_channel = False
         time_start = time.time()
         self.function_dispatcher.dispatch("slowclap "+test_chan2.name, self.test_user, self.test_user)

@@ -322,8 +322,8 @@ class HighestCommonFactor(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Getting function_dispatcher and required function objects
-        hallo_obj = user_obj.get_server().get_hallo()
-        function_dispatcher = hallo_obj.get_function_dispatcher()
+        hallo_obj = user_obj.server.hallo
+        function_dispatcher = hallo_obj.function_dispatcher
         prime_factors_class = function_dispatcher.get_function_by_name("prime factors")
         simp_frac_class = function_dispatcher.get_function_by_name("simplify fraction")
         prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)  # type: PrimeFactors
@@ -366,8 +366,8 @@ class SimplifyFraction(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Getting function_dispatcher and required function objects
-        hallo_obj = user_obj.get_server().get_hallo()
-        function_dispatcher = hallo_obj.get_function_dispatcher()
+        hallo_obj = user_obj.server.hallo
+        function_dispatcher = hallo_obj.function_dispatcher
         prime_factors_class = function_dispatcher.get_function_by_name("prime factors")
         prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)  # type: PrimeFactors
         # preflight checks

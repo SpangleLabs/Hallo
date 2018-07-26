@@ -4,8 +4,10 @@ import re
 from xml.dom import minidom
 from xml.etree import ElementTree
 from datetime import datetime
-from Server import Server, ServerIRC, ServerFactory
+from Server import Server
 from PermissionMask import PermissionMask
+from ServerFactory import ServerFactory
+from ServerIRC import ServerIRC
 from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
 from Function import Function
@@ -52,16 +54,15 @@ class Hallo:
                                                            "Math", "PermissionControl", "Random", "ServerControl"},
                                                           self)
         # If no servers, ask for a new server
-        if len(self.server_list) == 0:
-            if sum([server.get_auto_connect() for server in self.server_list]) == 0:
-                self.manual_server_connect()
+        if len(self.server_list) == 0 or all([not server.get_auto_connect() for server in self.server_list]):
+            self.manual_server_connect()
         # Connect to auto-connect servers
         self.printer.output_raw('connecting to servers')
         for server in self.server_list:
             if server.get_auto_connect():
                 server.start()
         count = 0
-        while all(not server.is_connected() for server in self.server_list if server.get_auto_connect()):
+        while not self.connected_to_any_servers():
             time.sleep(0.1)
             count += 1
             if count > 600:
@@ -72,6 +73,11 @@ class Hallo:
         # Main loop, sticks around throughout the running of the bot
         self.printer.output_raw('connected to all servers.')
         self.core_loop_time_events()
+
+    def connected_to_any_servers(self):
+        auto_connecting_servers = [server for server in self.server_list if server.auto_connect]
+        connected_list = [server.is_connected() for server in auto_connecting_servers]
+        return any(connected_list)
 
     def core_loop_time_events(self):
         """
@@ -184,7 +190,8 @@ class Hallo:
             api_key_list_elem.appendChild(api_key_elem)
         root.appendChild(api_key_list_elem)
         # Save XML
-        doc.writexml(open("config/config.xml", "w+"), addindent="\t", newl="\r\n")
+        with open("config/config.xml", "w+") as f:
+            doc.writexml(f, addindent="\t", newl="\r\n")
 
     def add_user_group(self, user_group):
         """
@@ -230,16 +237,9 @@ class Hallo:
         :return: Server matching specified name of None
         """
         for server in self.server_list:
-            if server.get_name().lower() == server_name.lower():
+            if server.name.lower() == server_name.lower():
                 return server
         return None
-
-    def get_server_list(self):
-        """
-        Returns the server list for hallo
-        :rtype: list[Server.Server]
-        """
-        return self.server_list
 
     def remove_server(self, server):
         """
@@ -256,7 +256,7 @@ class Hallo:
         :type server_name: str
         """
         for server in self.server_list:
-            if server.get_name() == server_name:
+            if server.name.lower() == server_name.lower():
                 self.server_list.remove(server)
 
     def close(self):
@@ -289,54 +289,6 @@ class Hallo:
             # Else, define and return False
             self.permission_mask.set_right(right_name, False)
             return False
-
-    def get_default_nick(self):  # Todo: deprecate and remove.
-        """Default nick getter"""
-        return self.default_nick
-
-    def set_default_nick(self, default_nick):  # Todo: deprecate and remove.
-        """
-        Default nick setter
-        :param default_nick: The new default nick to use on all new servers
-        """
-        self.default_nick = default_nick
-
-    def get_default_prefix(self):  # Todo: deprecate and remove.
-        """Default prefix getter"""
-        return self.default_prefix
-
-    def set_default_prefix(self, default_prefix):  # Todo: deprecate and remove.
-        """
-        Default prefix setter
-        :param default_prefix: Default prefix to use for commands addressed to the bot
-        """
-        self.default_prefix = default_prefix
-
-    def get_default_full_name(self):  # Todo: deprecate and remove.
-        """Default full name getter"""
-        return self.default_full_name
-
-    def set_default_full_name(self, default_full_name):  # Todo: deprecate and remove.
-        """
-        Default full name setter
-        :param default_full_name: Default full name to use on all new server connections
-        """
-        self.default_full_name = default_full_name
-
-    def get_permission_mask(self):  # Todo: deprecate and remove.
-        return self.permission_mask
-
-    def get_function_dispatcher(self):  # Todo: deprecate and remove.
-        """Returns the FunctionDispatcher object"""
-        return self.function_dispatcher
-
-    def get_logger(self):  # Todo: deprecate and remove.
-        """Returns the Logger object"""
-        return self.logger
-
-    def get_printer(self):  # Todo: deprecate and remove
-        """Returns the Printer object"""
-        return self.printer
 
     def add_api_key(self, name, key):
         """

@@ -33,9 +33,9 @@ class TestBase(unittest.TestCase):
         # send shit in, check shit out
         self.hallo_thread = Thread(target=self.hallo.start,)
         self.hallo_thread.start()
-        self.test_user = self.server.get_user_by_name("test")
+        self.test_user = self.server.get_user_by_address("test", "test")
         self.test_user.online = True
-        self.test_chan = self.server.get_channel_by_name("#test")
+        self.test_chan = self.server.get_channel_by_address("#test", "#test")
         self.test_chan.in_channel = True
         # Wait until hallo is open
         count = 0

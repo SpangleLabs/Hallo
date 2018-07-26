@@ -49,7 +49,7 @@ class FunctionDispatcher(object):
         if flag_list is None:
             flag_list = []
         # Get server object
-        server_obj = destination_obj.get_server()
+        server_obj = destination_obj.server
         # Find the function name. Try joining each amount of words in the message until you find a valid function name
         function_message_split = function_message.split()
         if not function_message_split:

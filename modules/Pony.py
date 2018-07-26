@@ -94,7 +94,7 @@ class BestPony(Function):
         random_half_2 = Commons.get_random_choice(message_half_2)[0]
         # Select a random pony, or, if it's eli, select Pinkie Pie
         chosen_pony = Commons.get_random_choice(pony_list)[0]
-        if user_obj.get_name().endswith("000242"):
+        if user_obj.name.endswith("000242"):
             chosen_pony = {'name': "Pinkie Pie", 'pronoun': "she", 'categories': ["mane6"]}
         # Assemble and output the message
         output_message = random_half_1.replace("{X}",
@@ -131,24 +131,30 @@ class Cupcake(Function):
         self.help_docs = "Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>"
 
     def run(self, line, user_obj, destination_obj=None):
-        """Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>"""
+        """
+        Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>
+        :type line: str
+        :type user_obj: Destination.User
+        :type destination_obj: Destination
+        :rtype: str
+        """
         if line.strip() == '':
             return "You must specify a recipient for the cupcake."
         # Get some required objects
-        server_obj = user_obj.get_server()
+        server_obj = user_obj.server
         recipient_user_name = line.split()[0]
         recipient_user_obj = server_obj.get_user_by_name(recipient_user_name)
         # If user isn't online, I can't send a cupcake
-        if not recipient_user_obj.is_online():
+        if not recipient_user_obj.online:
             return "No one called " + recipient_user_name + " is online."
         # Generate the output message, adding cupcake type if required
         if recipient_user_name == line.strip():
-            output_message = "\x01ACTION gives " + recipient_user_name + " a cupcake, from " + user_obj.get_name() + \
+            output_message = "\x01ACTION gives " + recipient_user_name + " a cupcake, from " + user_obj.name + \
                             ".\x01"
         else:
             cupcake_type = line[len(recipient_user_name):].strip()
             output_message = "\x01ACTION gives " + recipient_user_name + " a " + cupcake_type + " cupcake, from " + \
-                             user_obj.get_name() + ".\x01"
+                             user_obj.name + ".\x01"
         # Get both users channel lists, and then the intersection
         user_channel_list = user_obj.get_channel_list()
         recipient_channel_list = recipient_user_obj.get_channel_list()
@@ -157,14 +163,14 @@ class Cupcake(Function):
         if destination_obj in intersection_list:
             return output_message
         # Get list of channels that hallo is in inside that intersection
-        valid_channels = [chan for chan in intersection_list if chan.is_in_channel()]
+        valid_channels = [chan for chan in intersection_list if chan.in_channel]
         # If length of valid channel list is nonzero, pick a channel and send.
         if len(valid_channels) != 0:
             chosen_channel = Commons.get_random_choice(valid_channels)[0]
             server_obj.send(output_message, chosen_channel, Server.MSG_MSG)
             return "Cupcake sent."
         # If no valid intersection channels, see if there are any valid recipient channels
-        valid_channels = [chan for chan in recipient_channel_list if chan.is_in_channel()]
+        valid_channels = [chan for chan in recipient_channel_list if chan.in_channel]
         if len(valid_channels) != 0:
             chosen_channel = Commons.get_random_choice(valid_channels)[0]
             server_obj.send(output_message, chosen_channel, Server.MSG_MSG)

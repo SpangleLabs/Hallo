@@ -22,10 +22,10 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         perm1 = PermissionMask()
         serv1.permission_mask = perm1
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm2 = PermissionMask()
         chan1.permission_mask = perm2
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1","test_user1")
         perm3 = PermissionMask()
         user1.permission_mask = perm3
         # Get permission mask of given channel
@@ -48,10 +48,10 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         perm1 = PermissionMask()
         serv1.permission_mask = perm1
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm2 = PermissionMask()
         chan1.permission_mask = perm2
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1","test_user1")
         perm3 = PermissionMask()
         user1.permission_mask = perm3
         # Get permission mask of given channel
@@ -75,10 +75,10 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         perm1 = PermissionMask()
         serv1.permission_mask = perm1
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm2 = PermissionMask()
         chan1.permission_mask = perm2
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1", "test_user1")
         perm3 = PermissionMask()
         user1.permission_mask = perm3
         # Get permission mask of given channel
@@ -101,10 +101,10 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         perm1 = PermissionMask()
         serv1.permission_mask = perm1
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm2 = PermissionMask()
         chan1.permission_mask = perm2
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1","test_user1")
         perm3 = PermissionMask()
         user1.permission_mask = perm3
         # Get permission mask of given channel
@@ -128,10 +128,10 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         perm1 = PermissionMask()
         serv1.permission_mask = perm1
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm2 = PermissionMask()
         chan1.permission_mask = perm2
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1","test_user1")
         perm3 = PermissionMask()
         user1.permission_mask = perm3
         # Get permission mask of given channel
@@ -154,10 +154,10 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         perm1 = PermissionMask()
         serv1.permission_mask = perm1
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm2 = PermissionMask()
         chan1.permission_mask = perm2
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1","test_user1")
         perm3 = PermissionMask()
         user1.permission_mask = perm3
         # Get permission mask of given channel
@@ -210,7 +210,7 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
         # Get permission mask of given channel
@@ -223,7 +223,7 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         self.hallo.add_server(serv1)
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm1 = PermissionMask()
         user1.permission_mask = perm1
         # Get permission mask of given channel
@@ -236,10 +236,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         self.hallo.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         # Get permission mask of given channel
@@ -261,10 +261,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         # Get permission of hallo
@@ -281,10 +281,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         # Get permissions of current server
@@ -301,10 +301,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         # Get permissions of current server
@@ -325,10 +325,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         # Get permissions of current server
@@ -345,10 +345,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         # Get permissions of current channel
@@ -365,10 +365,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         # Try to get permissions of current channel from a privmsg
@@ -389,13 +389,13 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        chan2 = serv1.get_channel_by_name("test_chan2")
+        chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
         perm4 = PermissionMask()
         chan2.permission_mask = perm4
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         # Get permissions of current channel
@@ -412,10 +412,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         group1 = UserGroup("test_group1", hallo1)
@@ -440,10 +440,10 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         group1 = UserGroup("test_group1", hallo1)
@@ -464,13 +464,13 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
-        user2 = serv1.get_user_by_name("test_user2")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
         perm4 = PermissionMask()
         user2.permission_mask = perm4
         # Get permissions of specified user
@@ -487,14 +487,14 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         chan1.add_user(user1)
-        user2 = serv1.get_user_by_name("test_user2")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
         perm4 = PermissionMask()
         user2.permission_mask = perm4
         chan1.add_user(user2)
@@ -512,14 +512,14 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         chan1.add_user(user1)
-        user2 = serv1.get_user_by_name("test_user2")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
         perm4 = PermissionMask()
         user2.permission_mask = perm4
         # Get permissions of specified user group
@@ -540,14 +540,14 @@ class FindPermissionMaskTest(TestBase, unittest.TestCase):
         perm0 = PermissionMask()
         serv1.permission_mask = perm0
         hallo1.add_server(serv1)
-        chan1 = serv1.get_channel_by_name("test_chan1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm1 = PermissionMask()
         chan1.permission_mask = perm1
-        user1 = serv1.get_user_by_name("test_user1")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         perm2 = PermissionMask()
         user1.permission_mask = perm2
         chan1.add_user(user1)
-        user2 = serv1.get_user_by_name("test_user2")
+        user2 = serv1.get_user_by_address("test_user2".lower(), "test_user2")
         perm4 = PermissionMask()
         user2.permission_mask = perm4
         # Get permissions of specified user group

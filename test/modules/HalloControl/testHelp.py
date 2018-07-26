@@ -28,7 +28,7 @@ class HelpTest(TestBase, unittest.TestCase):
         mock_func_disp.load_function(Help)
         mock_server = ServerMock(mock_hallo)
         mock_server.name = "test_serv1"
-        mock_user = mock_server.get_user_by_name("test_user1")
+        mock_user = mock_server.get_user_by_address("test_user1".lower(), "test_user1")
         # Test things
         mock_func_disp.dispatch("help", mock_user, mock_user)
         data = mock_server.get_send_data(1, mock_user, Server.MSG_MSG)

@@ -1,3 +1,4 @@
+from Destination import Channel
 from Function import Function
 from inc.Commons import Commons
 from xml.dom import minidom
@@ -287,11 +288,17 @@ class WeatherLocationRepo:
     """
 
     def __init__(self):
-        self.list_locations = []
+        self.list_locations = []  # type: [WeatherLocationEntry]
 
     def add_entry(self, new_entry):
-        user_name = new_entry.get_user()
-        server_name = new_entry.get_server()
+        """
+        Add a new weather location entry to the repo
+        :param new_entry: New entry to add to repository
+        :type new_entry: WeatherLocationEntry
+        :return:
+        """
+        user_name = new_entry.user_name
+        server_name = new_entry.server_name
         test_entry = self.get_entry_by_user_name_and_server_name(user_name, server_name)
         if test_entry is None:
             self.list_locations.append(new_entry)
@@ -302,17 +309,17 @@ class WeatherLocationRepo:
     def get_entry_by_user_name_and_server_name(self, user_name, server_name):
         """Returns an entry matching the given user name and server name, or None."""
         for location_entry in self.list_locations:
-            if location_entry.get_user() != user_name:
+            if location_entry.user_name != user_name:
                 continue
-            if location_entry.get_server() != server_name:
+            if location_entry.server_name != server_name:
                 continue
             return location_entry
         return None
 
     def get_entry_by_user_obj(self, user_obj):
         """Returns an entry matching the given userObject, or None."""
-        user_name = user_obj.get_name()
-        server_name = user_obj.get_server().get_name()
+        user_name = user_obj.address
+        server_name = user_obj.server.name
         return self.get_entry_by_user_name_and_server_name(user_name, server_name)
 
     @staticmethod
@@ -357,9 +364,9 @@ class WeatherLocationEntry:
     TYPE_COORDS = "coords"
     TYPE_ZIP = "zip"
 
-    def __init__(self, server_name, user_name):
+    def __init__(self, server_name, user_addr):
         self.server_name = server_name
-        self.user_name = user_name
+        self.user_name = user_addr
         self.country_code = None
         self.type = None
         self.city_name = None
@@ -405,7 +412,7 @@ class WeatherLocationEntry:
             self.set_zip_code(input_line)
             return "Set location for " + self.user_name + " as zip code: " + input_line
         # Check if coordinates are given
-        coord_match = re.match(r'^(\-?\d+(\.\d+)?)[ ,]*(\-?\d+(\.\d+)?)$', input_line)
+        coord_match = re.match(r'^(-?\d+(\.\d+)?)[ ,]*(-?\d+(\.\d+)?)$', input_line)
         if coord_match:
             new_lat = coord_match.group(1)
             new_long = coord_match.group(3)
@@ -523,18 +530,18 @@ class WeatherLocation(Function):
         line_clean = line.strip().lower()
         # Load up Weather locations repo
         weather_repo = WeatherLocationRepo.load_from_xml()
-        user_name = user_obj.get_name()
-        server_obj = user_obj.get_server()
-        server_name = server_obj.get_name()
+        user_name = user_obj.address
+        server_obj = user_obj.server
+        server_name = server_obj.name
         # Check that an argument is provided
         if len(line_clean.split()) == 0:
             return "Please specify a city, coordinates or zip code"
         # Check if first argument is a specified user for given server
         first_arg = line_clean.split()[0]
         test_user = server_obj.get_user_by_name(first_arg)
-        if destination_obj is not None and destination_obj.is_channel():
+        if destination_obj is not None and isinstance(destination_obj, Channel):
             if destination_obj.is_user_in_channel(test_user):
-                user_name = test_user.get_name()
+                user_name = test_user.address
                 line_clean = line_clean[len(first_arg):].strip()
         # Create entry
         new_entry = WeatherLocationEntry(server_name, user_name)
@@ -572,20 +579,20 @@ class CurrentWeather(Function):
                        "the \"weather location\" function."
         else:
             # Check if a user was specified
-            test_user = user_obj.get_server().get_user_by_name(line_clean)
-            if (destination_obj is not None and destination_obj.is_channel() and destination_obj.is_user_in_channel(
-                    test_user)):
+            test_user = user_obj.server.get_user_by_name(line_clean)
+            if (destination_obj is not None and isinstance(destination_obj, Channel) and
+                    destination_obj.is_user_in_channel(test_user)):
                 location_repo = WeatherLocationRepo.load_from_xml()
                 location_entry = location_repo.get_entry_by_user_obj(test_user)
                 if location_entry is None:
                     return "No location stored for this user. Please specify a location or store one with " \
                            "the \"weather location\" function."
             else:
-                user_name = user_obj.get_name()
-                server_name = user_obj.get_server().get_name()
+                user_name = user_obj.address
+                server_name = user_obj.server.name
                 location_entry = WeatherLocationEntry(user_name, server_name)
                 location_entry.set_from_input(line_clean)
-        api_key = user_obj.get_server().get_hallo().get_api_key("openweathermap")
+        api_key = user_obj.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/weather" + location_entry.create_query_params() + \
@@ -665,21 +672,21 @@ class Weather(Function):
                 return "No location stored for this user. Please specify a location or store one with " \
                        "the \"weather location\" function."
         else:
-            test_user = user_obj.get_server().get_user_by_name(line_clean)
-            if (destination_obj is not None and destination_obj.is_channel() and destination_obj.is_user_in_channel(
-                    test_user)):
+            test_user = user_obj.server.get_user_by_name(line_clean)
+            if (destination_obj is not None and isinstance(destination_obj, Channel) and
+                    destination_obj.is_user_in_channel(test_user)):
                 weather_repo = WeatherLocationRepo.load_from_xml()
                 location_entry = weather_repo.get_entry_by_user_obj(test_user)
                 if location_entry is None:
                     return "No location stored for this user. Please specify a location or store one with " \
                            "the \"weather location\" function."
             else:
-                user_name = user_obj.get_name()
-                server_name = user_obj.get_server().get_name()
+                user_name = user_obj.address
+                server_name = user_obj.server.name
                 location_entry = WeatherLocationEntry(user_name, server_name)
                 location_entry.set_from_input(line_clean)
         # Get API response
-        api_key = user_obj.get_server().get_hallo().get_api_key("openweathermap")
+        api_key = user_obj.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/forecast/daily" + location_entry.create_query_params() + \
@@ -790,7 +797,7 @@ class UrlDetect(Function):
     def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
         # Get hallo object for stuff to use
-        self.hallo_obj = server_obj.get_hallo()
+        self.hallo_obj = server_obj.hallo
         # Search for a link
         url_regex = re.compile(r'\b((https?://|www.)[-A-Z0-9+&?%@#/=~_|$:,.]*[A-Z0-9+&@#/%=~_|$])', re.I)
         url_search = url_regex.search(full_line)

@@ -11,15 +11,12 @@ class Destination(metaclass=ABCMeta):
     Abstract class for Channel and User. It just means messages can be sent to these entities.
     """
 
-    TYPE_CHANNEL = "channel"
-    TYPE_USER = "user"
-
-    def __init__(self):
-        self.type = None  # The type of destination, "channel" or "user"
-        """:type : str | None"""
-        self.server = None  # The server object this destination belongs to
+    def __init__(self, server, address, name):
+        self.server = server  # The server object this destination belongs to
         """:type : Server.Server"""
-        self.name = None  # Destination name, where to send messages
+        self.address = address
+        """:type : str"""
+        self.name = name  # Destination name, where to send messages
         """:type : str"""
         self.logging = True  # Whether logging is enabled for this destination
         """:type : bool"""
@@ -32,34 +29,12 @@ class Destination(metaclass=ABCMeta):
         self.memberships_list = set()  # Set of ChannelMemberships for User or Channel
         """:type : set[ChannelMembership]"""
 
-    def get_name(self):
-        """
-        Name getter
-        :rtype : str
-        """
-        return self.name.lower()
-
-    def set_name(self, name):
-        """
-        Name setter
-        :param name: Name of the destination
-        :type name: str
-        """
-        self.name = name.lower()
-
-    def get_type(self):
-        """
-        Returns whether the destination is a user or channel.
-        :rtype : str
-        """
-        return self.type
-
     def is_channel(self):
         """
         Boolean, whether the destination is a channel.
         :rtype : bool
         """
-        if self.type == Destination.TYPE_CHANNEL:
+        if isinstance(self, Channel):
             return True
         else:
             return False
@@ -69,58 +44,14 @@ class Destination(metaclass=ABCMeta):
         Boolean, whether the destination is a user.
         :rtype : bool
         """
-        if self.type == Destination.TYPE_CHANNEL:
+        if isinstance(self, Channel):
             return False
         else:
             return True
 
-    def get_logging(self):
-        """
-        Boolean, whether the destination is supposed to have logging.
-        :rtype : bool
-        """
-        return self.logging
-
-    def set_logging(self, logging):
-        """
-        Sets whether the destination is logging.
-        :param logging: Boolean, whether or not to log destination content
-        :type logging: bool
-        """
-        self.logging = logging
-
-    def get_server(self):
-        """
-        Returns the server object that this destination belongs to
-        :rtype : Server.Server
-        """
-        return self.server
-
     def update_activity(self):
         """Updates LastActive timestamp"""
         self.last_active = time.time()
-
-    def get_last_active(self):
-        """
-        Returns when the destination was last active
-        :rtype : float
-        """
-        return self.last_active
-
-    def is_upper_case(self):
-        """
-        Returns a boolean representing whether to use caps lock
-        :rtype : bool
-        """
-        return self.use_caps_lock
-
-    def set_upper_case(self, upper_case):
-        """
-        Sets whether the destination uses caps lock
-        :param upper_case: Boolean, whether or not this destination is caps-lock only
-        :type upper_case: bool
-        """
-        self.use_caps_lock = upper_case
 
     def is_persistent(self):
         """
@@ -129,12 +60,6 @@ class Destination(metaclass=ABCMeta):
         :rtype : bool
         """
         raise NotImplementedError
-
-    def get_permission_mask(self):
-        """
-        :rtype : PermissionMask.PermissionMask
-        """
-        return self.permission_mask
 
     def rights_check(self, right_name):
         raise NotImplementedError
@@ -161,14 +86,13 @@ class Destination(metaclass=ABCMeta):
 
 class Channel(Destination):
 
-    def __init__(self, name, server):
+    def __init__(self, server, address, name):
         """
         Constructor for channel object
         :type name: str
         :type server: Server.Server
         """
-        super().__init__()
-        self.type = Destination.TYPE_CHANNEL  # This is a channel object
+        super().__init__(server, address, name)
         self.password = None  # Channel password, or none.
         """:type : str | None"""
         self.in_channel = False  # Whether or not hallo is in the channel
@@ -179,31 +103,12 @@ class Channel(Destination):
         """:type : bool"""
         self.prefix = None  # Prefix for calling functions. None means inherit from Server. False means use nick.
         """:type : bool | None | str"""
-        self.name = name.lower()
-        """:type : str"""
-        self.server = server
-        """:type : Server.Server"""
 
     def __eq__(self, other):
-        return isinstance(other, Channel) and self.server == other.server and self.name.lower() == other.name.lower()
+        return isinstance(other, Channel) and self.server == other.server and self.address == other.address
 
     def __hash__(self):
-        return hash(self.name.lower())
-
-    def get_password(self):
-        """
-        Channel password getter
-        :rtype : str | None
-        """
-        return self.password
-
-    def set_password(self, password):
-        """
-        Channel password setter
-        :param password: Password of the channel
-        :type password: str | None
-        """
-        self.password = password
+        return hash(self.address)
 
     def get_prefix(self):
         """
@@ -213,14 +118,6 @@ class Channel(Destination):
         if self.prefix is None:
             return self.server.get_prefix()
         return self.prefix
-
-    def set_prefix(self, new_prefix):
-        """
-        Sets the channel function prefix.
-        :param new_prefix: New prefix to use to identify calls to hallo in this destination
-        :type new_prefix: bool | str | None
-        """
-        self.prefix = new_prefix
 
     def get_user_list(self):
         """
@@ -295,34 +192,6 @@ class Channel(Destination):
                 return membership
         return None
 
-    def is_passive_enabled(self):
-        """Whether or not passive functions are enabled in this channel"""
-        return self.passive_enabled
-
-    def set_passive_enabled(self, passive_enabled):
-        """
-        Sets whether passive functions are enabled in this channel
-        :param passive_enabled: Boolean, whether functions triggered indirectly are enabled for this channel.
-        :type passive_enabled: bool
-        """
-        self.passive_enabled = passive_enabled
-
-    def is_auto_join(self):
-        """Whether or not hallo should automatically join this channel"""
-        return self.auto_join
-
-    def set_auto_join(self, auto_join):
-        """
-        Sets whether hallo automatically joins this channel
-        :param auto_join: Boolean, whether or not to join this channel when the server connects.
-        :type auto_join: bool
-        """
-        self.auto_join = auto_join
-
-    def is_in_channel(self):
-        """Whether or not hallo is in this channel"""
-        return self.in_channel
-
     def set_in_channel(self, in_channel):
         """
         Sets whether hallo is in this channel
@@ -383,6 +252,10 @@ class Channel(Destination):
         name_elem = doc.createElement("channel_name")
         name_elem.appendChild(doc.createTextNode(self.name))
         root.appendChild(name_elem)
+        # create address element
+        addr_elem = doc.createElement("channel_address")
+        addr_elem.appendChild(doc.createTextNode(self.address))
+        root.appendChild(addr_elem)
         # create logging element
         logging_elem = doc.createElement("logging")
         logging_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.logging]))
@@ -422,7 +295,8 @@ class Channel(Destination):
         """
         doc = minidom.parseString(xml_string)
         new_name = doc.getElementsByTagName("channel_name")[0].firstChild.data
-        channel = Channel(new_name, server)
+        new_addr = doc.getElementsByTagName("channel_address")[0].firstChild.data
+        channel = Channel(server, new_addr, new_name)
         channel.logging = Commons.string_from_file(doc.getElementsByTagName("logging")[0].firstChild.data)
         channel.use_caps_lock = Commons.string_from_file(doc.getElementsByTagName("caps_lock")[0].firstChild.data)
         if len(doc.getElementsByTagName("password")) != 0:
@@ -437,7 +311,7 @@ class Channel(Destination):
 
 class User(Destination):
 
-    def __init__(self, name, server):
+    def __init__(self, server, address, name):
         """
         Constructor for user object
         :param name: Name of the user
@@ -445,8 +319,7 @@ class User(Destination):
         :param server: Server the user is on
         :type server: Server.Server
         """
-        super().__init__()
-        self.type = Destination.TYPE_USER  # This is a user object
+        super().__init__(server, address, name)
         """:type : str"""
         self.identified = False  # Whether the user is identified (with nickserv)
         """:type : bool"""
@@ -454,16 +327,12 @@ class User(Destination):
         """:type : bool"""
         self.user_group_list = set()  # List of UserGroups this User is a member of
         """:type : set[UserGroup.UserGroup]"""
-        self.name = name.lower()
-        """:type : str"""
-        self.server = server
-        """:type : Server.Server"""
 
     def __eq__(self, other):
-        return isinstance(other, User) and self.server == other.server and self.name.lower() == other.name.lower()
+        return isinstance(other, User) and self.server == other.server and self.address == other.address
 
     def __hash__(self):
-        return hash(self.name.lower())
+        return hash(self.address)
 
     def is_identified(self):
         """
@@ -473,14 +342,6 @@ class User(Destination):
         if not self.identified:
             self.check_identity()
         return self.identified
-
-    def set_identified(self, identified):
-        """
-        Sets whether this user is identified
-        :param identified: Boolean, whether this user is identified
-        :type identified: bool
-        """
-        self.identified = identified
 
     def check_identity(self):
         """Checks with the server whether this user is identified."""
@@ -523,10 +384,6 @@ class User(Destination):
         """
         return set([membership.channel for membership in self.memberships_list])
 
-    def is_online(self):
-        """Whether the user appears to be online"""
-        return self.online
-
     def set_online(self, online):
         """
         Sets whether the user is online
@@ -547,7 +404,7 @@ class User(Destination):
         :param right_name: Name of the user right to check
         :type right_name: str
         :param channel_obj: Channel in which the right is being checked
-        :type channel_obj: Destination | None
+        :type channel_obj: Channel | None
         """
         if self.permission_mask is not None:
             right_value = self.permission_mask.get_right(right_name)
@@ -591,6 +448,10 @@ class User(Destination):
         name_elem = doc.createElement("user_name")
         name_elem.appendChild(doc.createTextNode(self.name))
         root.appendChild(name_elem)
+        # create address element
+        addr_elem = doc.createElement("user_address")
+        addr_elem.appendChild(doc.createTextNode(self.address))
+        root.appendChild(addr_elem)
         # create logging element
         logging_elem = doc.createElement("logging")
         logging_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.logging]))
@@ -624,7 +485,8 @@ class User(Destination):
         """
         doc = minidom.parseString(xml_string)
         new_name = doc.getElementsByTagName("user_name")[0].firstChild.data
-        new_user = User(new_name, server)
+        new_addr = doc.getElementsByTagName("user_address")[0].firstChild.data
+        new_user = User(server, new_addr, new_name)
         new_user.logging = Commons.string_from_file(doc.getElementsByTagName("logging")[0].firstChild.data)
         new_user.use_caps_lock = Commons.string_from_file(doc.getElementsByTagName("caps_lock")[0].firstChild.data)
         # Load UserGroups from XML

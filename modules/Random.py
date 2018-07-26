@@ -151,7 +151,7 @@ class ChosenOne(Function):
         # Get the user list
         user_set = channel_obj.get_user_list()
         # Get list of users' names
-        names_list = [user_obj.get_name() for user_obj in user_set]
+        names_list = [user_obj.name for user_obj in user_set]
         rand = Commons.get_random_int(0, len(names_list) - 1)[0]
         return 'It should be obvious by now that ' + names_list[rand] + ' is the chosen one.'
 
@@ -173,14 +173,14 @@ class Foof(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         """FOOOOOOOOOF. Format: foof"""
-        rand = Commons.get_random_int(0, 60)
+        rand = Commons.get_random_int(0, 60)[0]
         if rand <= 20:
             return 'doof'
         elif rand <= 40:
             return 'doooooof'
         else:
             if rand == 40 + 15:
-                server_obj = user_obj.get_server()
+                server_obj = user_obj.server
                 server_obj.send('powering up...', destination_obj)
                 time.sleep(5)
                 return 'd' * 100 + 'o' * 1000 + 'f' * 200 + '!' * 50
@@ -311,7 +311,7 @@ class CatGif(Function):
         help_docs = "Returns a random cat gif Format: cat gif"
 
     def run(self, line, user_obj, destination_obj=None):
-        api_key = user_obj.get_server().get_hallo().get_api_key("thecatapi")
+        api_key = user_obj.server.hallo.get_api_key("thecatapi")
         if api_key is None:
             return "No API key loaded for cat api."
         url = "http://thecatapi.com/api/images/get?format=xml&api_key=" + api_key + "&type=gif"
@@ -341,7 +341,7 @@ class RandomQuote(Function):
         self.help_docs = "Returns a quote. Format: random quote"
 
     def run(self, line, user_obj, destination_obj=None):
-        api_key = user_obj.get_server().get_hallo().get_api_key("mashape")
+        api_key = user_obj.server.hallo.get_api_key("mashape")
         if api_key is None:
             return "No API key loaded for mashape."
         url = "https://andruxnet-random-famous-quotes.p.mashape.com/"
@@ -379,7 +379,7 @@ class NightValeWeather(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Get hallo object
-        self.hallo_obj = user_obj.get_server().get_hallo()
+        self.hallo_obj = user_obj.server.hallo
         # Get playlist data from youtube api
         playlist_data = self.get_youtube_playlist("PL5bFd9WyHshXpZK-VPpH8UPXx6wCOIaQW")
         # Select a video from the playlist

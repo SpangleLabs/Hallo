@@ -46,8 +46,8 @@ class ReplyTest(TestBase, unittest.TestCase):
         # Check blacklist
         serv1 = ServerMock(None)
         serv1.name = "canternet"
-        chan1 = serv1.get_channel_by_name("#ukofequestria")
-        user1 = serv1.get_user_by_name("test_user")
+        chan1 = serv1.get_channel_by_address("#ukofequestria".lower(), "#ukofequestria")
+        user1 = serv1.get_user_by_address("test_user".lower(), "test_user")
         response = reply_obj.passive_run(Function.EVENT_MESSAGE, "pew",
                                          None, serv1, user1, chan1)
         assert response is None
@@ -62,8 +62,8 @@ class ReplyTest(TestBase, unittest.TestCase):
         # Check on correct channel
         serv1 = ServerMock(None)
         serv1.name = "shadowworld"
-        chan1 = serv1.get_channel_by_name("#ecco-the-dolphin")
-        user1 = serv1.get_user_by_name("test_user")
+        chan1 = serv1.get_channel_by_address("#ecco-the-dolphin".lower(), "#ecco-the-dolphin")
+        user1 = serv1.get_user_by_address("test_user".lower(), "test_user")
         response = reply_obj.passive_run(Function.EVENT_MESSAGE, "haskell.jpg",
                                          None, serv1, user1, chan1)
         assert "http" in response.lower()
@@ -209,8 +209,8 @@ class ReplyMessageTest(unittest.TestCase):
         # Setup common testing objects
         serv1 = ServerMock(None)
         serv1.name = "test_serv1"
-        chan1 = serv1.get_channel_by_name("test_chan1")
-        user1 = serv1.get_user_by_name("test_user1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        user1 = serv1.get_user_by_address("test_user1","test_user1")
         # Test basic response works
         rm1 = ReplyMessage("test")
         rm1.add_response("response")
@@ -254,11 +254,11 @@ class ReplyMessageTest(unittest.TestCase):
         serv1.name = serv_name1
         serv2.name = serv_name2
         serv3.name = serv_name3
-        chan1 = serv1.get_channel_by_name(chan_name1)
-        chan2 = serv1.get_channel_by_name(chan_name2)
-        chan3 = serv2.get_channel_by_name(chan_name3)
-        chan4 = serv3.get_channel_by_name(chan_name4)
-        chan5 = serv3.get_channel_by_name(chan_name5)
+        chan1 = serv1.get_channel_by_address(chan_name1.lower(), chan_name1)
+        chan2 = serv1.get_channel_by_address(chan_name2.lower(), chan_name2)
+        chan3 = serv2.get_channel_by_address(chan_name3.lower(), chan_name3)
+        chan4 = serv3.get_channel_by_address(chan_name4.lower(), chan_name4)
+        chan5 = serv3.get_channel_by_address(chan_name5.lower(), chan_name5)
         # Check when no whitelist or blacklist
         rm = ReplyMessage("test")
         assert rm.check_destination(chan1), "check_destination() not working without list"
@@ -340,8 +340,8 @@ class ReplyMessageListTest(unittest.TestCase):
         # Setup common testing objects
         serv1 = ServerMock(None)
         serv1.name = "test_serv1"
-        chan1 = serv1.get_channel_by_name("test_chan1")
-        user1 = serv1.get_user_by_name("test_user1")
+        chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        user1 = serv1.get_user_by_address("test_user1","test_user1")
         # Basic ReplyMessageList get_response() test
         rml1 = ReplyMessageList()
         rm1 = ReplyMessage("test1")
