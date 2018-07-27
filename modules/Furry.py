@@ -29,7 +29,7 @@ class E621(Function):
         if search_result is None:
             return "No results."
         else:
-            link = "http://e621.net/post/show/" + str(search_result['id'])
+            link = "http://e621.net/post/show/{}".format(search_result['id'])
             if search_result['rating'] == 'e':
                 rating = "(Explicit)"
             elif search_result['rating'] == "q":
@@ -39,12 +39,12 @@ class E621(Function):
             else:
                 rating = "(Unknown)"
             line_response = line.strip()
-            return "e621 search for \"" + line_response + "\" returned: " + link + " " + rating
+            return "e621 search for \"{}\" returned: {} {}".format(line_response, link, rating)
 
     def get_random_link_result(self, search):
         """Gets a random link from the e621 api."""
         line_clean = search.replace(' ', '%20')
-        url = 'https://e621.net/post/index.json?tags=order:random%20score:%3E0%20' + line_clean + '%20&limit=1'
+        url = "https://e621.net/post/index.json?tags=order:random%20score:%3E0%20{}%20&limit=1".format(line_clean)
         return_list = Commons.load_url_json(url)
         if len(return_list) == 0:
             return None
@@ -72,7 +72,7 @@ class RandomPorn(Function):
                          "Format: random porn <tags>"
 
     def run(self, line, user_obj, destination_obj=None):
-        line_unclean = line.strip() + " -rating:s"
+        line_unclean = "{} -rating:s".format(line.strip())
         function_dispatcher = user_obj.server.hallo.function_dispatcher
         e621_class = function_dispatcher.get_function_by_name("e621")
         e621_obj = function_dispatcher.get_function_object(e621_class)  # type: E621
@@ -80,7 +80,7 @@ class RandomPorn(Function):
         if search_result is None:
             return "No results."
         else:
-            link = "http://e621.net/post/show/" + str(search_result['id'])
+            link = "http://e621.net/post/show/{}".format(search_result['id'])
             if search_result['rating'] == 'e':
                 rating = "(Explicit)"
             elif search_result['rating'] == "q":
@@ -90,7 +90,7 @@ class RandomPorn(Function):
             else:
                 rating = "(Unknown)"
             line_response = line.strip()
-            return "e621 search for \"" + line_response + "\" returned: " + link + " " + rating
+            return "e621 search for \"{}\" returned: {} {}".format(line_response, link, rating)
 
 
 class Butts(Function):
@@ -118,7 +118,7 @@ class Butts(Function):
         if search_result is None:
             return "No results."
         else:
-            link = "http://e621.net/post/show/" + str(search_result['id'])
+            link = "http://e621.net/post/show/{}".format(search_result['id'])
             if search_result['rating'] == 'e':
                 rating = "(Explicit)"
             elif search_result['rating'] == "q":
@@ -127,7 +127,7 @@ class Butts(Function):
                 rating = "(Safe)"
             else:
                 rating = "(Unknown)"
-            return "e621 search for \"butt\" returned: " + link + " " + rating
+            return "e621 search for \"butt\" returned: {} {}".format(link, rating)
 
 
 class Fursona(Function):
@@ -367,9 +367,10 @@ class Fursona(Function):
                         "it robs banks and its partner in crime is the next fursona you generate.",
                         "its facial features are constantly shifting.", "it works as a librarian in hell.",
                         "it wears a fedora."]
-        result = "Your new fursona is: " + Commons.get_random_choice(adjective)[0] + " " + \
-                 Commons.get_random_choice(animal)[0] + " " + Commons.get_random_choice(description1)[0] + " " + \
-                 Commons.get_random_choice(description2)[0]
+        result = "Your new fursona is: {} {} {} {}".format(Commons.get_random_choice(adjective)[0],
+                                                           Commons.get_random_choice(animal)[0],
+                                                           Commons.get_random_choice(description1)[0],
+                                                           Commons.get_random_choice(description2)[0])
         return result
 
 
@@ -392,11 +393,11 @@ class E621Sub:
         Checks the search for any updates
         :return: List of new results
         """
-        search = self.search+" order:-id"  # Sort by id
+        search = "{} order:-id".format(self.search)  # Sort by id
         if len(self.latest_ten_ids) > 0:
             oldest_id = min(self.latest_ten_ids)
-            search += " id:>"+str(oldest_id)  # Don't list anything older than the oldest of the last 10
-        url = "http://e621.net/post/index.json?tags=" + urllib.parse.quote(search) + "&limit=50"
+            search += " id:>{}".format(oldest_id)  # Don't list anything older than the oldest of the last 10
+        url = "http://e621.net/post/index.json?tags={}&limit=50".format(urllib.parse.quote(search))
         results = Commons.load_url_json(url)
         return_list = []
         new_last_ten = set(self.latest_ten_ids)
@@ -446,7 +447,7 @@ class E621Sub:
         :return: Readable format of the result
         :rtype: str
         """
-        link = "http://e621.net/post/show/" + str(e621_result['id'])
+        link = "http://e621.net/post/show/{}".format(e621_result['id'])
         # Create rating string
         if e621_result['rating'] == 'e':
             rating = "(Explicit)"
@@ -457,7 +458,7 @@ class E621Sub:
         else:
             rating = "(Unknown)"
         # Construct output
-        output = "Update on \"" + self.search + "\" e621 search. " + link + " " + rating
+        output = "Update on \"{}\" e621 search. {} {}".format(self.search, link, rating)
         return output
 
     def needs_check(self):
@@ -692,7 +693,7 @@ class SubE621Add(Function):
             # Save list
             e621_sub_list.to_xml()
         # Return output
-        return "I have added new e621 subscription for the search \"" + e621_sub.search + "\""
+        return "I have added new e621 subscription for the search \"{}\"".format(e621_sub.search)
 
 
 class SubE621Check(Function):
@@ -763,7 +764,7 @@ class SubE621Check(Function):
             self.e621_sub_list.to_xml()
         # Output response to user
         if len(output_lines) == 0:
-            return "There were no updates for \"" + line + "\" e621 search."
+            return "There were no updates for \"{}\" e621 search.".format(line)
         return "The following search updates were found:\n" + "\n".join(output_lines)
 
     def run_all(self, hallo):
@@ -841,7 +842,7 @@ class SubE621List(Function):
             return "There are no e621 search subscriptions posting to this destination."
         output_lines = ["E621 search subscriptions posting to this channel:"]
         for search_item in dest_searches:
-            output_lines.append(" - \"" + search_item.search + "\"")
+            output_lines.append(" - \"{}\"".format(search_item.search))
         return "\n".join(output_lines)
 
 
@@ -885,6 +886,6 @@ class SubE621Remove(Function):
             if len(test_feeds) > 0:
                 for del_sub in test_feeds:
                     e621_sub_list.remove_sub(del_sub)
-                return "Removed \"" + test_feeds[0].search + "\" e621 search subscription. Updates will no longer be " \
-                       "sent to " + (test_feeds[0].channel_name or test_feeds[0].user_name) + "."
+                return "Removed \"{}\" e621 search subscription. Updates will no longer be " \
+                       "sent to .".format(test_feeds[0].search, (test_feeds[0].channel_name or test_feeds[0].user_name))
         return "Error, there are no e621 search subscriptions in this channel matching that search."
