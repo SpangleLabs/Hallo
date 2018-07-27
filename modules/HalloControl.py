@@ -73,7 +73,7 @@ class ActiveThreads(Function):
         """
         Returns current number of active threads.. should probably be gods only, but it is not. Format: active_thread
         """
-        return "I think I have " + str(threading.active_count()) + " active threads right now."
+        return "I think I have {} active threads right now.".format(threading.active_count())
 
 
 class Help(Function):
@@ -135,7 +135,8 @@ class Help(Function):
         function_obj = function_dispatcher.get_function_object(function_class)
         # Try and output help message, throwing an error if the function hasn't defined it
         try:
-            help_message = "Documentation for \"" + function_obj.get_help_name() + "\": " + function_obj.get_help_docs()
+            help_message = "Documentation for \"{}\": {}".format(function_obj.get_help_name(),
+                                                                 function_obj.get_help_docs())
             return help_message
         except NotImplementedError:
             return "Error, no documentation exists for that function"
