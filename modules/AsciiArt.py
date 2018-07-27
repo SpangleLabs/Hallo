@@ -43,7 +43,7 @@ class Longcat(Function):
  /  |      |  \ 
  \__/      \__/'''
         longcat = long_cat_head + long_cat_segment * segments + long_cat_tail
-        longcat += '\n Longcat is L' + 'o' * segments + 'ng!'
+        longcat += "\n Longcat is L{}ng!".format("o"*segments)
         return longcat
 
 
