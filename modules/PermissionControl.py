@@ -55,7 +55,7 @@ class Permissions(Function):
             return "Error, I don't understand your boolean value. Please use true or false."
         # Set the right
         permission_mask.set_right(right_input, bool_bool)
-        return "Set "+right_input+" to "+{True: "true", False: "false"}[bool_bool]+"."
+        return "Set {} to {}.".format(right_input, "true" if bool_bool else "false")
 
     def find_permission_mask(self, location_input, user_obj, destination_obj):
         """
