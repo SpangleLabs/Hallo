@@ -804,7 +804,7 @@ class SubE621Check(Function):
                       "check e621"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Checks a specified feed for updates and returns them. Format: e621 sub check <feed name>"
-        self.e621_sub_list = E621SubList.from_xml()
+        self.e621_sub_list = E621SubList.load_json()
 
     @staticmethod
     def is_persistent():
