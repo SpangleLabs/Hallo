@@ -30,7 +30,7 @@ class RandomPokemon(Function):
             pokemon_dict = {'name': pokemon_elem.getElementsByTagName("name")[0].firstChild.data}
             pokemon_list.append(pokemon_dict)
         random_pokemon = Commons.get_random_choice(pokemon_list)[0]
-        return "I choose you, " + random_pokemon['name'] + "!"
+        return "I choose you, {}!".format(random_pokemon['name'])
 
 
 class PickATeam(Function):
@@ -60,8 +60,8 @@ class PickATeam(Function):
             pokemon_dict = {'name': pokemon_elem.getElementsByTagName("name")[0].firstChild.data}
             pokemon_list.append(pokemon_dict)
         random_pokemon_team = Commons.get_random_choice(pokemon_list, 6)
-        return "Your team is: " + ", ".join([pokemon['name'] for pokemon in random_pokemon_team[:5]]) + " and " + \
-               random_pokemon_team[5]['name'] + "."
+        return "Your team is: {} and {}.".format(", ".join([pokemon['name'] for pokemon in random_pokemon_team[:5]]),
+                                                 random_pokemon_team[5]['name'])
 
 
 class FullyEvolvedTeam(Function):
@@ -93,8 +93,8 @@ class FullyEvolvedTeam(Function):
             if evolution_choices == 0:
                 pokemon_list.append(pokemon_dict)
         random_pokemon_team = Commons.get_random_choice(pokemon_list, 6)
-        return "Your team is: " + ", ".join([pokemon['name'] for pokemon in random_pokemon_team[:5]]) + " and " + \
-               random_pokemon_team[5]['name'] + "."
+        return "Your team is: {} and {}.".format(", ".join([pokemon['name'] for pokemon in random_pokemon_team[:5]]),
+                                                 random_pokemon_team[5]['name'])
 
 
 class Pokedex(Function):
