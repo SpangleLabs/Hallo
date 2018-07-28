@@ -384,7 +384,7 @@ class E621Sub:
         self.search = ""
         self.server_name = None
         self.channel_address = None
-        self.user_name = None
+        self.user_address = None
         self.latest_ten_ids = []
         self.last_check = None
         self.update_frequency = None
@@ -431,8 +431,8 @@ class E621Sub:
         if destination is None:
             if self.channel_address is not None:
                 destination = server.get_channel_by_address(self.channel_address)
-            if self.user_name is not None:
-                destination = server.get_user_by_name(self.user_name)
+            if self.user_address is not None:
+                destination = server.get_user_by_address(self.user_address)
             if destination is None:
                 return "Error, invalid destination."
         # Construct output
@@ -491,9 +491,9 @@ class E621Sub:
             channel = ElementTree.SubElement(root, "channel")
             channel.text = self.channel_address
         # Create user name element, if applicable
-        if self.user_name is not None:
+        if self.user_address is not None:
             user = ElementTree.SubElement(root, "user")
-            user.text = self.user_name
+            user.text = self.user_address
         # Create latest id elements
         for latest_id in self.latest_ten_ids:
             latest_id_elem = ElementTree.SubElement(root, "latest_id")
@@ -519,8 +519,8 @@ class E621Sub:
         if self.channel_address is not None:
             json_obj.channel_address = self.channel_address
         # Create user name element, if applicable
-        if self.user_name is not None:
-            json_obj.user_address = self.user_name
+        if self.user_address is not None:
+            json_obj.user_address = self.user_address
         # Create latest id elements
         json_obj.latest_ids = []
         for latest_id in self.latest_ten_ids:
@@ -552,7 +552,7 @@ class E621Sub:
             new_sub.channel_address = sub_xml.find("channel").text
         else:
             if sub_xml.find("user") is not None:
-                new_sub.user_name = sub_xml.find("user").text
+                new_sub.user_address = sub_xml.find("user").text
             else:
                 raise Exception("Channel or user must be defined")
         # Load last item
@@ -606,7 +606,7 @@ class E621SubList:
                 continue
             if destination.is_channel() and destination.address != e621_sub.channel_address:
                 continue
-            if destination.is_user() and destination.name != e621_sub.user_name:
+            if destination.is_user() and destination.address != e621_sub.user_address:
                 continue
             matching_subs.append(e621_sub)
         return matching_subs
@@ -719,7 +719,7 @@ class SubE621Add(Function):
         if destination_obj.is_channel():
             e621_sub.channel_address = destination_obj.address
         else:
-            e621_sub.user_name = destination_obj.name
+            e621_sub.user_address = destination_obj.address
         # Update feed
         first_results = e621_sub.check_subscription()
         # If no results, this is an invalid search subscription
@@ -926,5 +926,6 @@ class SubE621Remove(Function):
                 for del_sub in test_feeds:
                     e621_sub_list.remove_sub(del_sub)
                 return "Removed \"{}\" e621 search subscription. Updates will no longer be " \
-                       "sent to .".format(test_feeds[0].search, (test_feeds[0].channel_address or test_feeds[0].user_name))
+                       "sent to .".format(test_feeds[0].search,
+                                          (test_feeds[0].channel_address or test_feeds[0].user_address))
         return "Error, there are no e621 search subscriptions in this channel matching that search."

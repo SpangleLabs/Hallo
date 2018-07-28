@@ -93,7 +93,7 @@ class TestE621Sub(unittest.TestCase):
         # Check output works with given server not user
         rf3 = E621Sub()
         rf3.update_frequency = Commons.load_time_delta("P1TS")
-        rf3.user_name = "test_user3"
+        rf3.user_address = "test_user3"
         serv3 = ServerMock(None)
         serv3.name = "test_serv3"
         user3 = serv3.get_user_by_address("test_user3".lower(), "test_user3")
@@ -145,7 +145,7 @@ class TestE621Sub(unittest.TestCase):
         rf7 = E621Sub()
         rf7.update_frequency = Commons.load_time_delta("P1TS")
         rf7.server_name = "test_serv7"
-        rf7.user_name = "test_user7"
+        rf7.user_address = "test_user7"
         serv7 = ServerMock(None)
         serv7.name = "test_serv7"
         hallo7 = Hallo()

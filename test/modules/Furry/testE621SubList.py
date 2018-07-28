@@ -41,7 +41,7 @@ class TestE621SubList(unittest.TestCase):
         rf2 = E621Sub()
         rf2.search = "clefable"
         rf2.server_name = user2.server.name
-        rf2.user_name = user2.name
+        rf2.user_address = user2.address
         rfl.add_sub(rf2)
         rf3 = E621Sub()
         rf3.search = "fez"
@@ -83,7 +83,7 @@ class TestE621SubList(unittest.TestCase):
         rf2 = E621Sub()
         rf2.search = "clefable"
         rf2.server_name = user2.server.name
-        rf2.user_name = user2.name
+        rf2.user_address = user2.address
         rfl.add_sub(rf2)
         rf3 = E621Sub()
         rf3.search = "fez"
@@ -140,7 +140,7 @@ class TestE621SubList(unittest.TestCase):
         rf3.search = "fez"
         rf3.update_frequency = Commons.load_time_delta("PT60S")
         rf3.server_name = "test_serv3"
-        rf3.user_name = "test_user3"
+        rf3.user_address = "test_user3"
         rfl.add_sub(rf3)
         # Save to XML and load
         try:
