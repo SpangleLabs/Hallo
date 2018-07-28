@@ -82,7 +82,7 @@ class TestE621Sub(unittest.TestCase):
         # Check output works with given server not channel
         rf2 = E621Sub()
         rf2.update_frequency = Commons.load_time_delta("P1TS")
-        rf2.channel_name = "test_chan2"
+        rf2.channel_address = "test_chan2"
         serv2 = ServerMock(None)
         serv2.name = "test_serv2"
         chan2 = serv2.get_channel_by_address("test_chan2".lower(), "test_chan2")
@@ -131,7 +131,7 @@ class TestE621Sub(unittest.TestCase):
         rf6 = E621Sub()
         rf6.update_frequency = Commons.load_time_delta("P1TS")
         rf6.server_name = "test_serv6"
-        rf6.channel_name = "test_chan6"
+        rf6.channel_address = "test_chan6"
         serv6 = ServerMock(None)
         serv6.name = "test_serv6"
         hallo6 = Hallo()
@@ -201,7 +201,7 @@ class TestE621Sub(unittest.TestCase):
         rf.search = test_e621_search
         rf.update_frequency = Commons.load_time_delta("P"+str(test_days)+"T"+str(test_seconds)+"S")
         rf.server_name = "test_serv"
-        rf.channel_name = "test_chan"
+        rf.channel_address = "test_chan"
         # Clear off the current items
         rf.check_subscription()
         # Ensure there are no new items

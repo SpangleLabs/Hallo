@@ -69,19 +69,19 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             rf1 = E621Sub()
             rf1.search = "cabinet"
             rf1.server_name = chan1.server.name
-            rf1.channel_name = chan1.name
+            rf1.channel_address = chan1.address
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf1)
             rf2 = E621Sub()
             rf2.search = "clefable"
             rf2.server_name = chan2.server.name
-            rf2.channel_name = chan2.name
+            rf2.channel_address = chan2.address
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf2)
             rf3 = E621Sub()
             rf3.search = "fez"
             rf3.server_name = chan3.server.name
-            rf3.channel_name = chan3.name
+            rf3.channel_address = chan3.address
             rf3.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
@@ -131,19 +131,19 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             rf1 = E621Sub()
             rf1.search = "cabinet"
             rf1.server_name = chan1.server.name
-            rf1.channel_name = chan1.name
+            rf1.channel_address = chan1.address
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf1)
             rf2 = E621Sub()
             rf2.search = "clefable"
             rf2.server_name = chan2.server.name
-            rf2.channel_name = chan2.name
+            rf2.channel_address = chan2.address
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf2)
             rf3 = E621Sub()
             rf3.search = "fez"
             rf3.server_name = chan3.server.name
-            rf3.channel_name = chan3.name
+            rf3.channel_address = chan3.address
             rf3.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
@@ -188,19 +188,19 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             rf1 = E621Sub()
             rf1.search = "cabinet"
             rf1.server_name = chan1.server.name
-            rf1.channel_name = chan1.name
+            rf1.channel_address = chan1.address
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf1)
             rf2 = E621Sub()
             rf2.search = "clefable"
             rf2.server_name = chan2.server.name
-            rf2.channel_name = chan2.name
+            rf2.channel_address = chan2.address
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf2)
             rf3 = E621Sub()
             rf3.search = "fez"
             rf3.server_name = chan3.server.name
-            rf3.channel_name = chan3.name
+            rf3.channel_address = chan3.address
             rf3.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object

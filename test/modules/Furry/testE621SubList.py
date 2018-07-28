@@ -36,7 +36,7 @@ class TestE621SubList(unittest.TestCase):
         rf1 = E621Sub()
         rf1.search = "cabinet"
         rf1.server_name = chan1.server.name
-        rf1.channel_name = chan1.name
+        rf1.channel_address = chan1.address
         rfl.add_sub(rf1)
         rf2 = E621Sub()
         rf2.search = "clefable"
@@ -46,17 +46,17 @@ class TestE621SubList(unittest.TestCase):
         rf3 = E621Sub()
         rf3.search = "fez"
         rf3.server_name = chan3.server.name
-        rf3.channel_name = chan3.name
+        rf3.channel_address = chan3.address
         rfl.add_sub(rf3)
         rf4 = E621Sub()
         rf4.search = "tail_cuff"
         rf4.server_name = chan3.server.name
-        rf4.channel_name = chan3.name
+        rf4.channel_address = chan3.address
         rfl.add_sub(rf4)
         rf5 = E621Sub()
         rf5.search = "score:>50"
         rf5.server_name = chan3.server.name
-        rf5.channel_name = chan3.name
+        rf5.channel_address = chan3.address
         rfl.add_sub(rf5)
         # Check function
         feed_list = rfl.get_subs_by_destination(chan3)
@@ -78,7 +78,7 @@ class TestE621SubList(unittest.TestCase):
         rf1 = E621Sub()
         rf1.search = "cabinet"
         rf1.server_name = chan1.server.name
-        rf1.channel_name = chan1.name
+        rf1.channel_address = chan1.address
         rfl.add_sub(rf1)
         rf2 = E621Sub()
         rf2.search = "clefable"
@@ -88,17 +88,17 @@ class TestE621SubList(unittest.TestCase):
         rf3 = E621Sub()
         rf3.search = "fez"
         rf3.server_name = chan3.server.name
-        rf3.channel_name = chan3.name
+        rf3.channel_address = chan3.address
         rfl.add_sub(rf3)
         rf4 = E621Sub()
         rf4.search = "tail_cuff"
         rf4.server_name = chan3.server.name
-        rf4.channel_name = chan3.name
+        rf4.channel_address = chan3.address
         rfl.add_sub(rf4)
         rf5 = E621Sub()
         rf5.search = "fez"
         rf5.server_name = chan3.server.name
-        rf5.channel_name = chan3.name
+        rf5.channel_address = chan3.address
         rfl.add_sub(rf5)
         # Check function
         feed_list = rfl.get_subs_by_search("fez", chan3)
@@ -128,13 +128,13 @@ class TestE621SubList(unittest.TestCase):
         rf1.search = "cabinet"
         rf1.update_frequency = Commons.load_time_delta("P0T3600S")
         rf1.server_name = "test_serv1"
-        rf1.channel_name = "test_chan1"
+        rf1.channel_address = "test_chan1"
         rfl.add_sub(rf1)
         rf2 = E621Sub()
         rf2.search = "clefable"
         rf2.update_frequency = Commons.load_time_delta("P1TS")
         rf2.server_name = "test_serv2"
-        rf2.channel_name = "test_chan2"
+        rf2.channel_address = "test_chan2"
         rfl.add_sub(rf2)
         rf3 = E621Sub()
         rf3.search = "fez"

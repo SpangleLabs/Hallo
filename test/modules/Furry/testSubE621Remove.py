@@ -36,19 +36,19 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf1 = E621Sub()
         rf1.search = "cabinet"
         rf1.server_name = self.server.name
-        rf1.channel_name = self.test_chan.name
+        rf1.channel_address = self.test_chan.address
         rf1.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf1)
         rf2 = E621Sub()
         rf2.search = "clefable"
         rf2.server_name = self.server.name
-        rf2.channel_name = "another_channel"
+        rf2.channel_address = "another_channel"
         rf2.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf2)
         rf3 = E621Sub()
         rf3.search = "fez"
         rf3.server_name = self.server.name
-        rf3.channel_name = self.test_chan.name
+        rf3.channel_address = self.test_chan.address
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf3)
         # Remove test search
@@ -68,19 +68,19 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf1 = E621Sub()
         rf1.search = "cabinet"
         rf1.server_name = self.server.name
-        rf1.channel_name = self.test_chan.name
+        rf1.channel_address = self.test_chan.address
         rf1.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf1)
         rf2 = E621Sub()
         rf2.search = "clefable"
         rf2.server_name = self.server.name
-        rf2.channel_name = "another_channel"
+        rf2.channel_address = "another_channel"
         rf2.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf2)
         rf3 = E621Sub()
         rf3.search = "cabinet"
         rf3.server_name = self.server.name
-        rf3.channel_name = self.test_chan.name
+        rf3.channel_address = self.test_chan.address
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf3)
         # Remove test feed
@@ -100,19 +100,19 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf1 = E621Sub()
         rf1.search = "cabinet"
         rf1.server_name = self.server.name
-        rf1.channel_name = self.test_chan.name
+        rf1.channel_address = self.test_chan.address
         rf1.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf1)
         rf2 = E621Sub()
         rf2.search = "clefable"
         rf2.server_name = self.server.name
-        rf2.channel_name = "another_channel"
+        rf2.channel_address = "another_channel"
         rf2.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf2)
         rf3 = E621Sub()
         rf3.search = "fez"
         rf3.server_name = self.server.name
-        rf3.channel_name = self.test_chan.name
+        rf3.channel_address = self.test_chan.address
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf3)
         # Try to remove invalid search
