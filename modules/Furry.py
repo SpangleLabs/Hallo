@@ -508,6 +508,39 @@ class E621Sub:
         # Return xml string
         return ElementTree.tostring(root)
 
+    @staticmethod
+    def from_xml_string(xml_string):
+        """
+        Loads new E621Sub object from XML string
+        :param xml_string: string
+        :return: E621Sub
+        """
+        # Create blank subscription
+        new_sub = E621Sub()
+        # Load xml
+        sub_xml = ElementTree.fromstring(xml_string)
+        # Load title, url, server
+        new_sub.search = sub_xml.find("search").text
+        new_sub.server_name = sub_xml.find("server").text
+        # Load channel or user
+        if sub_xml.find("channel") is not None:
+            new_sub.channel_address = sub_xml.find("channel").text
+        else:
+            if sub_xml.find("user") is not None:
+                new_sub.user_address = sub_xml.find("user").text
+            else:
+                raise Exception("Channel or user must be defined")
+        # Load last item
+        for latest_id in sub_xml.findall("latest_id"):
+            new_sub.latest_ten_ids.append(int(latest_id.text))
+        # Load last check
+        if sub_xml.find("last_check") is not None:
+            new_sub.last_check = datetime.strptime(sub_xml.find("last_check").text, "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        new_sub.update_frequency = Commons.load_time_delta(sub_xml.find("update_frequency").text)
+        # Return new feed
+        return new_sub
+
     def to_json(self):
         # Create root element
         json_obj = {}
@@ -534,35 +567,33 @@ class E621Sub:
         return json_obj
 
     @staticmethod
-    def from_xml_string(xml_string):
+    def from_json(json_obj):
         """
-        Loads new E621Sub object from XML string
-        :param xml_string: string
+        Loads new E621Sub object from JSON object
+        :param json_obj: object
         :return: E621Sub
         """
-        # Create blank feed
+        # Create blank subscription
         new_sub = E621Sub()
-        # Load xml
-        sub_xml = ElementTree.fromstring(xml_string)
-        # Load title, url, server
-        new_sub.search = sub_xml.find("search").text
-        new_sub.server_name = sub_xml.find("server").text
+        # Load search, server
+        new_sub.search = json_obj.search
+        new_sub.server_name = json_obj.server_name
         # Load channel or user
-        if sub_xml.find("channel") is not None:
-            new_sub.channel_address = sub_xml.find("channel").text
+        if "channel_address" in json_obj:
+            new_sub.channel_address = json_obj.channel_address
         else:
-            if sub_xml.find("user") is not None:
-                new_sub.user_address = sub_xml.find("user").text
+            if "user_address" in json_obj:
+                new_sub.user_address = json_obj.user_address
             else:
                 raise Exception("Channel or user must be defined")
         # Load last item
-        for latest_id in sub_xml.findall("latest_id"):
-            new_sub.latest_ten_ids.append(int(latest_id.text))
+        for latest_id in json_obj.latest_ids:
+            new_sub.latest_ten_ids.append(latest_id)
         # Load last check
-        if sub_xml.find("last_check") is not None:
-            new_sub.last_check = datetime.strptime(sub_xml.find("last_check").text, "%Y-%m-%dT%H:%M:%S.%f")
+        if "last_check" in json_obj:
+            new_sub.last_check = datetime.strptime(json_obj.last_check, "%Y-%m-%dT%H:%M:%S.%f")
         # Load update frequency
-        new_sub.update_frequency = Commons.load_time_delta(sub_xml.find("update_frequency").text)
+        new_sub.update_frequency = Commons.load_time_delta(json_obj.update_frequency)
         # Return new feed
         return new_sub
 
@@ -642,19 +673,6 @@ class E621SubList:
         # Write xml to file
         ElementTree.ElementTree(root_elem).write("store/e621_subscriptions.xml")
 
-    def save_json(self):
-        """
-        Saves the whole subscription list to a JSON file
-        :return: None
-        """
-        json_obj = {}
-        json_obj.e621_subs = []
-        for e621_sub in self.sub_list:
-            json_obj.e621_subs.append(e621_sub.to_json())
-        # Write json to file
-        with open("store/e621_subscriptions.json", "w") as f:
-            json.dump(json_obj, f, indent=2)
-
     @staticmethod
     def from_xml():
         """
@@ -672,6 +690,36 @@ class E621SubList:
         root = doc.getroot()
         for e621_sub_elem in root.findall("e621_sub"):
             new_sub_obj = E621Sub.from_xml_string(ElementTree.tostring(e621_sub_elem))
+            new_sub_list.add_sub(new_sub_obj)
+        return new_sub_list
+
+    def save_json(self):
+        """
+        Saves the whole subscription list to a JSON file
+        :return: None
+        """
+        json_obj = {}
+        json_obj.e621_subs = []
+        for e621_sub in self.sub_list:
+            json_obj.e621_subs.append(e621_sub.to_json())
+        # Write json to file
+        with open("store/e621_subscriptions.json", "w") as f:
+            json.dump(json_obj, f, indent=2)
+
+    @staticmethod
+    def load_json():
+        """
+        Constructs a new E621SubList from the JSON file
+        :return: Newly constructed list of subscriptions
+        :rtype: E621SubList
+        """
+        new_sub_list = E621SubList()
+        # Try loading xml file, otherwise return blank list
+        with open("store/e621_subscriptions.json", "r") as f:
+            json_obj = json.load(f)
+        # Loop subs in json file adding them to list
+        for e621_sub_elem in json_obj.e621_subs:
+            new_sub_obj = E621Sub.from_json(e621_sub_elem)
             new_sub_list.add_sub(new_sub_obj)
         return new_sub_list
 
