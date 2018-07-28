@@ -68,7 +68,7 @@
             ]
           }
         },
-        "required": ["search", "server_name", "latest_ids", "last_check", "update_frequency"],
+        "required": ["search", "server_name", "latest_ids", "update_frequency"],
         "oneOf": [
           {
             "required": ["channel_address"]

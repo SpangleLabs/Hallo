@@ -1,3 +1,4 @@
+import json
 from threading import Lock
 
 from Function import Function
@@ -507,6 +508,31 @@ class E621Sub:
         # Return xml string
         return ElementTree.tostring(root)
 
+    def to_json(self):
+        # Create root element
+        json_obj = {}
+        # Create search element
+        json_obj.search = self.search
+        # Create server name element
+        json_obj.server_name = self.server_name
+        # Create channel name element, if applicable
+        if self.channel_name is not None:
+            json_obj.channel_address = self.channel_name
+        # Create user name element, if applicable
+        if self.user_name is not None:
+            json_obj.user_address = self.user_name
+        # Create latest id elements
+        json_obj.latest_ids = []
+        for latest_id in self.latest_ten_ids:
+            json_obj.latest_ids.append(latest_id)
+        # Create last check element
+        if self.last_check is not None:
+            json_obj.last_check = self.last_check.isoformat()
+        # Create update frequency element
+        json_obj.update_frequency = Commons.format_time_delta(self.update_frequency)
+        # Return xml string
+        return json_obj
+
     @staticmethod
     def from_xml_string(xml_string):
         """
@@ -615,6 +641,19 @@ class E621SubList:
             root_elem.append(new_feed_elem)
         # Write xml to file
         ElementTree.ElementTree(root_elem).write("store/e621_subscriptions.xml")
+
+    def save_json(self):
+        """
+        Saves the whole subscription list to a JSON file
+        :return: None
+        """
+        json_obj = {}
+        json_obj.e621_subs = []
+        for e621_sub in self.sub_list:
+            json_obj.e621_subs.append(e621_sub.to_json())
+        # Write json to file
+        with open("store/e621_subscriptions.json", "w") as f:
+            json.dump(json_obj, f, indent=2)
 
     @staticmethod
     def from_xml():
