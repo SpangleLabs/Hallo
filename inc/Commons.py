@@ -132,13 +132,13 @@ class Commons(object):
         :type: number: int
         """
         if number % 10 == 1 and number % 100 != 11:
-            return str(number) + "st"
+            return "{}st".format(number)
         elif number % 10 == 2 and number % 100 != 12:
-            return str(number) + "nd"
+            return "{}nd".format(number)
         elif number % 10 == 3 and number % 100 != 13:
-            return str(number) + "rd"
+            return "{}rd".format(number)
         else:
-            return str(number) + "th"
+            return "{}th".format(number)
 
     @staticmethod
     def format_unix_time(time_stamp):
@@ -362,7 +362,7 @@ class Commons(object):
         :type delta: timedelta
         :return: string
         """
-        output = "P" + str(delta.days) + "T" + str(delta.seconds) + "S"
+        output = "P{}T{}S".format(delta.days, delta.seconds)
         return output
 
     @staticmethod
@@ -373,7 +373,7 @@ class Commons(object):
         :return: str
         """
         # Find any URLs, convert line to uppercase, then convert URLs back to original
-        urls = re.findall("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", data)
+        urls = re.findall("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", data)
         data = data.upper()
         for url in urls:
             data = data.replace(url.upper(), url)
@@ -383,7 +383,7 @@ class Commons(object):
     def find_parameter(param_name, line):
         """Finds a parameter value in a line, if the format parameter=value exists in the line"""
         param_value = None
-        param_regex = re.compile("(^|\s)" + param_name + "=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_regex = re.compile("(^|\s){}=([^\s]+)(\s|$)".format(param_name), re.IGNORECASE)
         param_search = param_regex.search(line)
         if param_search is not None:
             param_value = param_search.group(2)

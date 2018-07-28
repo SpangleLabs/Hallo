@@ -84,10 +84,10 @@ class FunctionDispatcher(object):
                 server_obj.send(response, destination_obj)
             return
         except Exception as e:
-            server_obj.send("Function failed with error message: " + str(e), destination_obj)
-            print("Function: " + str(function_class.__module__) + " " + str(function_class.__name__))
-            print("Function error: " + str(e))
-            print("Function error location: " + traceback.format_exc(3))
+            server_obj.send("Function failed with error message: {}".format(e), destination_obj)
+            print("Function: {} {}".format(function_class.__module__, function_class.__name__))
+            print("Function error: {}".format(e))
+            print("Function error location: {}".format(traceback.format_exc(3)))
             return
 
     def dispatch_passive(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
@@ -121,9 +121,9 @@ class FunctionDispatcher(object):
                         server_obj.send(response, destination_obj)
                 continue
             except Exception as e:
-                print("ERROR Passive Function: " + str(function_class.__module__) + " " + str(function_class.__name__))
-                print("ERROR Function event: " + str(event))
-                print("ERROR Function error: " + str(e))
+                print("ERROR Passive Function: {} {}".format(function_class.__module__, function_class.__name__))
+                print("ERROR Function event: {}".format(event))
+                print("ERROR Function error: {}".format(e))
                 continue
 
     def get_function_by_name(self, function_name):
@@ -172,7 +172,7 @@ class FunctionDispatcher(object):
         """
         # Get function name
         function_name = function_class.__name__
-        right_name = "function_" + function_name
+        right_name = "function_{}".format(function_name)
         # Check rights
         if user_obj is not None:
             return user_obj.rights_check(right_name, channel_obj)
@@ -192,7 +192,7 @@ class FunctionDispatcher(object):
             return False
         # Create full name
         # TODO: allow bypass for reloading of core classes: Hallo, Server, Destination, etc
-        full_module_name = "modules." + module_name
+        full_module_name = "modules.{}".format(module_name)
         # Check if module has already been imported
         if full_module_name in sys.modules:
             module_obj = sys.modules[full_module_name]
@@ -355,7 +355,7 @@ class FunctionDispatcher(object):
             try:
                 function_obj.save_function()
             except Exception as e:
-                print("Failed to save " + function_class.__name__)
+                print("Failed to save {}".format(function_class.__name__))
                 print(str(e))
             del self.persistent_functions[function_class]
         # Remove from mFunctionDict

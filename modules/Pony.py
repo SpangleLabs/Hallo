@@ -43,7 +43,7 @@ class PonyEpisode(Function):
         else:
             episode = Commons.get_random_choice(song_list)[0]
         # Return output
-        return "You should choose: " + episode['full_code'] + " - " + episode['name'] + "."
+        return "You should choose: {} - {}.".format(episode['full_code'], episode['name'])
 
 
 class BestPony(Function):
@@ -146,15 +146,14 @@ class Cupcake(Function):
         recipient_user_obj = server_obj.get_user_by_name(recipient_user_name)
         # If user isn't online, I can't send a cupcake
         if not recipient_user_obj.online:
-            return "No one called " + recipient_user_name + " is online."
+            return "No one called {} is online.".format(recipient_user_name)
         # Generate the output message, adding cupcake type if required
         if recipient_user_name == line.strip():
-            output_message = "\x01ACTION gives " + recipient_user_name + " a cupcake, from " + user_obj.name + \
-                            ".\x01"
+            output_message = "\x01ACTION gives {} a cupcake, from {}.\x01".format(recipient_user_name, user_obj.name)
         else:
             cupcake_type = line[len(recipient_user_name):].strip()
-            output_message = "\x01ACTION gives " + recipient_user_name + " a " + cupcake_type + " cupcake, from " + \
-                             user_obj.name + ".\x01"
+            output_message = "\x01ACTION gives {} a {} cupcake, from {}.\x01".format(recipient_user_name, cupcake_type,
+                                                                                     user_obj.name)
         # Get both users channel lists, and then the intersection
         user_channel_list = user_obj.get_channel_list()
         recipient_channel_list = recipient_user_obj.get_channel_list()

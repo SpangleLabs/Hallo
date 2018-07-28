@@ -33,13 +33,13 @@ class UrbanDictionary(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         url_line = line.replace(' ', '+').lower()
-        url = 'http://api.urbandictionary.com/v0/define?term=' + url_line
+        url = "http://api.urbandictionary.com/v0/define?term={}".format(url_line)
         urban_dict = Commons.load_url_json(url)
         if len(urban_dict['list']) > 0:
             definition = urban_dict['list'][0]['definition'].replace("\r", '').replace("\n", '')
             return definition
         else:
-            return "Sorry, I cannot find a definition for " + line + "."
+            return "Sorry, I cannot find a definition for {}.".format(line)
 
 
 class RandomCocktail(Function):
@@ -66,7 +66,7 @@ class RandomCocktail(Function):
         random_cocktail_elem = Commons.get_random_choice(cocktail_list_elem.getElementsByTagName("cocktail"))[0]
         random_cocktail_name = random_cocktail_elem.getElementsByTagName("name")[0].firstChild.data
         random_cocktail_instructions = random_cocktail_elem.getElementsByTagName("instructions")[0].firstChild.data
-        output_string = "Randomly selected cocktail is: " + random_cocktail_name + ". The ingredients are: "
+        output_string = "Randomly selected cocktail is: {}. The ingredients are: ".format(random_cocktail_name)
         ingredient_list = []
         for ingredient_elem in random_cocktail_elem.getElementsByTagName("ingredients"):
             ingredient_amount = ingredient_elem.getElementsByTagName("amount")[0].firstChild.data
@@ -126,9 +126,9 @@ class Cocktail(Function):
             ingredient_name = ingredient_elem.getElementsByTagName("name")[0].firstChild.data
             ingredient_list.append(ingredient_amount + ingredient_name)
         # Construct output
-        output_string = "Closest I have is " + closest_match_name + "."
-        output_string += "The ingredients are: " + ", ".join(ingredient_list) + "."
-        output_string += "The recipe is: " + cocktail_instructions
+        output_string = "Closest I have is {}.".format(closest_match_name)
+        output_string += "The ingredients are: {}.".format(", ".join(ingredient_list))
+        output_string += "The recipe is: {}".format(cocktail_instructions)
         if output_string[-1] != ".":
             output_string += "."
         return output_string
@@ -155,8 +155,7 @@ class InSpace(Function):
         space_dict = Commons.load_url_json("http://www.howmanypeopleareinspacerightnow.com/space.json")
         space_number = str(space_dict['number'])
         space_names = ", ".join(person['name'].strip() for person in space_dict['people'])
-        output_string = "There are " + space_number + " people in space right now. "
-        output_string += "Their names are: " + space_names + "."
+        output_string = "There are {} people in space right now. Their names are: {}.".format(space_number, space_names)
         return output_string
 
     def get_passive_events(self):
@@ -214,8 +213,8 @@ class Wiki(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         line_clean = line.strip().replace(" ", "_")
-        url = 'http://en.wikipedia.org/w/api.php?format=json&action=query&titles=' + line_clean + \
-              '&prop=revisions&rvprop=content&redirects=True'
+        url = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles={}" \
+              "&prop=revisions&rvprop=content&redirects=True".format(line_clean)
         article_dict = Commons.load_url_json(url)
         page_code = list(article_dict['query']['pages'])[0]
         article_text = article_dict['query']['pages'][page_code]['revisions'][0]['*']
@@ -275,11 +274,11 @@ class Translate(Function):
             lang_to = lang_change.split('->')[1]
         trans_safe = urllib.parse.quote(trans_string.strip(), '')
         # This uses google's secret translate API, it's not meant to be used by robots, and often it won't work
-        url = "http://translate.google.com/translate_a/t?client=t&text=" + trans_safe + "&hl=en&sl=" + lang_from + \
-              "&tl=" + lang_to + "&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1"
+        url = "http://translate.google.com/translate_a/t?client=t&text={}&hl=en&sl={}&tl={}" \
+              "&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1".format(trans_safe, lang_from, lang_to)
         trans_dict = Commons.load_url_json(url, [], True)
         translation_string = " ".join([x[0] for x in trans_dict[0]])
-        return "Translation: " + translation_string
+        return "Translation: {}".format(translation_string)
 
 
 class WeatherLocationRepo:
@@ -417,24 +416,24 @@ class WeatherLocationEntry:
             new_lat = coord_match.group(1)
             new_long = coord_match.group(3)
             self.set_coords(new_lat, new_long)
-            return "Set location for " + self.user_name + " as coords: " + new_lat + ", " + new_long
+            return "Set location for {} as coords: {}, {}".format(self.user_name, new_lat, new_long)
         # Otherwise, assume it's a city
         new_city = input_line
         self.set_city(new_city)
-        return "Set location for " + self.user_name + " as city: " + new_city
+        return "Set location for {} as city: {}".format(self.user_name, new_city)
 
     def create_query_params(self):
         """Creates query parameters for API call."""
         if self.get_type() == self.TYPE_CITY:
-            query = "?q=" + self.city_name.replace(" ", "+")
+            query = "?q={}".format(self.city_name.replace(" ", "+"))
             if self.country_code is not None:
                 query += "," + self.country_code
             return query
         if self.get_type() == self.TYPE_COORDS:
-            query = "?lat=" + self.latitude + "&lon=" + self.longitude
+            query = "?lat={}&lon={}".format(self.latitude, self.longitude)
             return query
         if self.get_type() == self.TYPE_ZIP:
-            query = "?zip=" + self.zip_code
+            query = "?zip={}".format(self.zip_code)
             if self.country_code is not None:
                 query += "," + self.country_code
             return query
@@ -595,8 +594,8 @@ class CurrentWeather(Function):
         api_key = user_obj.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return "No API key loaded for openweathermap."
-        url = "http://api.openweathermap.org/data/2.5/weather" + location_entry.create_query_params() + \
-              "&APPID=" + api_key
+        url = "http://api.openweathermap.org/data/2.5/weather{}&APPID={}".format(location_entry.create_query_params(),
+                                                                                 api_key)
         response = Commons.load_url_json(url)
         if str(response['cod']) != "200":
             return "Location not recognised."
@@ -606,10 +605,10 @@ class CurrentWeather(Function):
         weather_temp = response['main']['temp'] - 273.15
         weather_humidity = response['main']['humidity']
         weather_wind_speed = response['wind']['speed']
-        output = "Current weather in " + city_name + " is " + weather_main + " (" + weather_desc + "). "
-        output += "Temp: " + "{0:.2f}".format(weather_temp) + "C, "
-        output += "Humidity: " + str(weather_humidity) + "%, "
-        output += "Wind speed: " + str(weather_wind_speed) + "m/s"
+        output = "Current weather in {} is {} ({}). " \
+                 "Temp: {:.2f}C, Humidity: {}%, Wind speed: {}m/s".format(city_name, weather_main, weather_desc,
+                                                                          weather_temp, weather_humidity,
+                                                                          weather_wind_speed)
         return output
 
 
@@ -689,8 +688,8 @@ class Weather(Function):
         api_key = user_obj.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return "No API key loaded for openweathermap."
-        url = "http://api.openweathermap.org/data/2.5/forecast/daily" + location_entry.create_query_params() + \
-              "&cnt=16&APPID=" + api_key
+        url = "http://api.openweathermap.org/data/2.5/forecast/daily{}" \
+              "&cnt=16&APPID={}".format(location_entry.create_query_params(), api_key)
         response = Commons.load_url_json(url)
         # Check API responded well
         if str(response['cod']) != "200":
@@ -717,20 +716,15 @@ class Weather(Function):
             dayaf_temp = response['list'][2]['temp']['day'] - 273.15
             dayaf_humi = response['list'][2]['humidity']
             dayaf_spee = response['list'][2]['speed']
-            output = "Weather in " + city_name + " today will be " + today_main + " (" + today_desc + ") "
-            output += "Temp: " + "{0:.2f}".format(today_temp) + "C, "
-            output += "Humidity: " + str(today_humi) + "%, "
-            output += "Wind speed: " + str(today_spee) + "m/s. "
+            output = "Weather in {} today will be {} ({}) " \
+                     "Temp: {:.2f}C, Humidity: {}%, Wind speed: {}m/s. ".format(city_name, today_main, today_desc,
+                                                                                today_temp, today_humi, today_spee)
             # Add tomorrow output
-            output += "Tomorrow: " + tomor_main + " (" + tomor_desc + ") "
-            output += "{0:.2f}".format(tomor_temp) + "C "
-            output += str(tomor_humi) + "% "
-            output += str(tomor_spee) + "m/s. "
+            output += "Tomorrow: {} ({}) {:.2f}C {}% {}m/s ".format(tomor_main, tomor_desc, tomor_temp,
+                                                                    tomor_humi, tomor_spee)
             # Day after output
-            output += "Day after: " + dayaf_main + " (" + dayaf_desc + ") "
-            output += "{0:.2f}".format(dayaf_temp) + "C "
-            output += str(dayaf_humi) + "% "
-            output += str(dayaf_spee) + "m/s."
+            output += "Day after: {} ({}) {:.2f}C {}% {}m/s.".format(dayaf_main, dayaf_desc, dayaf_temp,
+                                                                     dayaf_humi, dayaf_spee)
             return output
         response_weather = response['list'][days_offset]
         weather_main = response_weather['weather'][0]['main']
@@ -738,11 +732,10 @@ class Weather(Function):
         weather_temp = response_weather['temp']['day'] - 273.15
         weather_humidity = response_weather['humidity']
         weather_wind_speed = response_weather['speed']
-        output = "Weather in " + city_name + " " + self.number_days(
-            days_offset) + " will be " + weather_main + " (" + weather_desc + "). "
-        output += "Temp: " + "{0:.2f}".format(weather_temp) + "C, "
-        output += "Humidity: " + str(weather_humidity) + "%, "
-        output += "Wind speed: " + str(weather_wind_speed) + "m/s"
+        output = "Weather in {} {} will be {} ({}). " \
+                 "Temp: {:.2f}C, Humidity: {}%, Wind speed: {}m/s".format(city_name, self.number_days(days_offset),
+                                                                          weather_main, weather_desc, weather_temp,
+                                                                          weather_humidity, weather_wind_speed)
         return output
 
     def weekday_to_number(self, weekday):
@@ -766,7 +759,7 @@ class Weather(Function):
             return "today"
         if days_offset == 1:
             return "tomorrow"
-        return "in " + str(days_offset) + " days"
+        return "in {} days".format(days_offset)
 
 
 class UrlDetect(Function):
@@ -865,8 +858,7 @@ class UrlDetect(Function):
         image_width, image_height = self.get_image_size(image_data)
         image_size = len(image_data)
         image_size_str = self.file_size_to_string(image_size)
-        return "Image: " + page_type + " (" + str(image_width) + "px by " + str(image_height) + "px) " + \
-               image_size_str + "."
+        return "Image: {} ({}px by {}px) {}.".format(page_type, image_width, image_height, image_size_str)
 
     def url_generic(self, url_address, page_opener, page_request):
         """Handling for generic links not caught by any other url handling function."""
@@ -879,7 +871,7 @@ class UrlDetect(Function):
         title_text = title_search.group(1)
         title_clean = self.html_unescape(title_text).replace("\n", "").strip()
         if title_clean != "":
-            return "URL title: " + title_clean.replace("\n", "")
+            return "URL title: {}".format(title_clean.replace("\n", ""))
         return None
 
     def html_unescape(self, html_str):
@@ -915,29 +907,27 @@ class UrlDetect(Function):
         if api_key is None:
             return None
         # Get API response
-        api_url = "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid=" + api_key + \
-                  "&siteid=0&version=515&ItemID=" + item_id + "&IncludeSelector=Details"
+        api_url = "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid={}" \
+                  "&siteid=0&version=515&ItemID={}&IncludeSelector=Details".format(api_key, item_id)
         api_dict = Commons.load_url_json(api_url)
         # Get item data from api response
         item_title = api_dict["Item"]["Title"]
-        item_price = "" + str(api_dict["Item"]["CurrentPrice"]["Value"]) + " " + \
-                     api_dict["Item"]["CurrentPrice"]["CurrencyID"]
+        item_price = "{} {}".format(api_dict["Item"]["CurrentPrice"]["Value"], api_dict["Item"]["CurrentPrice"]["CurrencyID"])
         item_end_time = api_dict["Item"]["EndTime"][:19].replace("T", " ")
         # Start building output
-        output = "eBay> Title: " + item_title + " | "
-        output += "Price: " + item_price + " | "
+        output = "eBay> Title: {} | Price: {} | ".format(item_title, item_price)
         # Check listing type
         if api_dict["Item"]["ListingType"] == "Chinese":
             # Listing type: bidding
             item_bid_count = str(api_dict["Item"]["BidCount"])
             if item_bid_count == "1":
-                output += "Auction, " + str(item_bid_count) + " bid"
+                output += "Auction, {} bid".format(item_bid_count)
             else:
-                output += "Auction, " + str(item_bid_count) + " bids"
+                output += "Auction, {} bids".format(item_bid_count)
         elif api_dict["Item"]["ListingType"] == "FixedPriceItem":
             # Listing type: buy it now
             output += "Buy it now | "
-        output += "Ends: " + item_end_time
+        output += "Ends: {}".format(item_end_time)
         return output
 
     def site_flist(self, url_address, page_opener, page_request):
@@ -961,7 +951,7 @@ class UrlDetect(Function):
             return self.url_generic(url_address, page_opener, page_request)
         movie_id = movie_id_search.group(1)
         # Download API response
-        api_url = 'http://www.omdbapi.com/?i=' + movie_id
+        api_url = "http://www.omdbapi.com/?i={}".format(movie_id)
         api_dict = Commons.load_url_json(api_url)
         # Get movie information from API response
         movie_title = api_dict['Title']
@@ -970,9 +960,9 @@ class UrlDetect(Function):
         movie_rating = api_dict['imdbRating']
         movie_votes = api_dict['imdbVotes']
         # Construct output
-        output = "IMDB> Title: " + movie_title + " (" + movie_year + ") | "
-        output += "Rating " + movie_rating + "/10, " + movie_votes + " votes. | "
-        output += "Genres: " + movie_genre + "."
+        output = "IMDB> Title: {} ({}) | Rating {}/10, {} votes. | Genres: {}.".format(movie_title, movie_year,
+                                                                                       movie_rating, movie_votes,
+                                                                                       movie_genre)
         return output
 
     def site_imgur(self, url_address, page_opener, page_request):
@@ -983,7 +973,7 @@ class UrlDetect(Function):
         # Handle individual imgur image links
         # Example imgur links: http://i.imgur.com/2XBqIIT.jpg http://imgur.com/2XBqIIT
         imgur_id = url_address.split('/')[-1].split('.')[0]
-        api_url = 'https://api.imgur.com/3/image/' + imgur_id
+        api_url = "https://api.imgur.com/3/image/{}".format(imgur_id)
         # Load API response (in json) using Client-ID.
         api_key = self.hallo_obj.get_api_key("imgur")
         if api_key is None:
@@ -997,17 +987,16 @@ class UrlDetect(Function):
         image_size_string = self.file_size_to_string(image_size)
         image_views = api_dict['data']['views']
         # Create output and return
-        output = "Imgur> Title: " + image_title + " | "
-        output += "Size: " + image_width + "x" + image_height + " | "
-        output += "Filesize: " + image_size_string + " | "
-        output += "Views: " + "{:,}".format(image_views) + "."
+        output = "Imgur> Title: {} | Size: {}x{} | Filesize: {} | Views: {:,}.".format(image_title, image_width,
+                                                                                       image_height, image_size_string,
+                                                                                       image_views)
         return output
 
     def site_imgur_album(self, url_address, page_opener, page_request):
         """Handling imgur albums"""
         # http://imgur.com/a/qJctj#0 example imgur album
         imgur_id = url_address.split('/')[-1].split('#')[0]
-        api_url = 'https://api.imgur.com/3/album/' + imgur_id
+        api_url = "https://api.imgur.com/3/album/{}".format(imgur_id)
         # Load API response (in json) using Client-ID.
         api_key = self.hallo_obj.get_api_key("imgur")
         if api_key is None:
@@ -1017,12 +1006,10 @@ class UrlDetect(Function):
         album_title = api_dict['data']['title']
         album_views = api_dict['data']['views']
         # Start on output
-        output = "Imgur album> "
-        output += "Album title: " + album_title + " | "
-        output += "Gallery views: " + "{:,}".format(album_views) + " | "
+        output = "Imgur album> Album title: {} | Gallery views: {:,} | ".format(album_title, album_views)
         if 'section' in api_dict['data']:
             album_section = api_dict['data']['section']
-            output += "Section: " + album_section + " | "
+            output += "Section: {} | ".format(album_section)
         album_count = api_dict['data']['images_count']
         # If an image was specified, show some information about that specific image
         if "#" in url_address:
@@ -1031,10 +1018,10 @@ class UrlDetect(Function):
             image_height = api_dict['data']['images'][image_number]['height']
             image_size = int(api_dict['data']['images'][image_number]['size'])
             image_size_string = self.file_size_to_string(image_size)
-            output += "Image " + str(image_number + 1) + " of " + str(album_count) + " | "
-            output += "Current image: " + str(image_width) + "x" + str(image_height) + ", " + image_size_string + "."
+            output += "Image {} of {} | Current image: {}x{}, {}.".format(image_number+1, album_count, image_width,
+                                                                          image_height, image_size_string)
             return output
-        output += str(album_count) + "images."
+        output += "{} images.".format(album_count)
         return output
 
     def site_pastebin(self, url_address, page_opener, page_request):
@@ -1051,7 +1038,7 @@ class UrlDetect(Function):
         """Handling speedtest links"""
         if url_address[-4:] == '.png':
             url_number = url_address[32:-4]
-            url_address = 'http://www.speedtest.net/my-result/' + url_number
+            url_address = "http://www.speedtest.net/my-result/".format(url_number)
             page_request = urllib.request.Request(url_address)
             page_request.add_header('User-Agent', 'Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
             page_opener = urllib.request.build_opener()
@@ -1060,7 +1047,7 @@ class UrlDetect(Function):
         download = re.search('<h3>Download</h3><p>([0-9\.]*)', page_code).group(1)
         upload = re.search('<h3>Upload</h3><p>([0-9\.]*)', page_code).group(1)
         ping = re.search('<h3>Ping</h3><p>([0-9]*)', page_code).group(1)
-        return "Speedtest> Download: " + download + "Mb/s | Upload: " + upload + "Mb/s | Ping: " + ping + "ms"
+        return "Speedtest> Download: {}Mb/s | Upload: {}Mb/s | Ping: {}ms".format(download, upload, ping)
 
     def site_wikipedia(self, url_address, page_opener, page_request):
         """Handling for wikipedia links"""
@@ -1078,8 +1065,8 @@ class UrlDetect(Function):
         api_key = self.hallo_obj.get_api_key("youtube")
         if api_key is None:
             return None
-        api_url = "https://www.googleapis.com/youtube/v3/videos?id=" + video_id + \
-                  "&part=snippet,contentDetails,statistics&key=" + api_key
+        api_url = "https://www.googleapis.com/youtube/v3/videos?id={}" \
+                  "&part=snippet,contentDetails,statistics&key={}".format(video_id, api_key)
         # Load API response (in json).
         api_dict = Commons.load_url_json(api_url)
         # Get video data from API response.
@@ -1087,9 +1074,7 @@ class UrlDetect(Function):
         video_duration = api_dict['items'][0]['contentDetails']['duration'][2:].lower()
         video_views = api_dict['items'][0]['statistics']['viewCount']
         # Create output
-        output = "Youtube video> Title: " + video_title + " | "
-        output += "Length: " + video_duration + " | "
-        output += "Views: " + video_views + "."
+        output = "Youtube video> Title: {} | Length {} | Views: {}.".format(video_title, video_duration, video_views)
         return output
 
     def get_image_size(self, image_data):
@@ -1136,11 +1121,11 @@ class UrlDetect(Function):
 
     def file_size_to_string(self, size):
         if size < 2048:
-            size_string = str(size) + "Bytes"
+            size_string = "{}Bytes".format(size)
         elif size < (2048 * 1024):
-            size_string = str(math.floor(float(size) / 10.24) / 100) + "KiB"
+            size_string = "{}KiB".format(math.floor(float(size) / 10.24) / 100)
         elif size < (2048 * 1024 * 1024):
-            size_string = str(math.floor(float(size) / (1024 * 10.24)) / 100) + "MiB"
+            size_string = "{}MiB".format(math.floor(float(size) / (1024 * 10.24)) / 100)
         else:
-            size_string = str(math.floor(float(size) / (1024 * 1024 * 10.24)) / 100) + "GiB"
+            size_string = "{}GiB".format(math.floor(float(size) / (1024 * 1024 * 10.24)) / 100)
         return size_string

@@ -30,8 +30,8 @@ class Hailstone(Function):
         if number > Hailstone.LIMIT:
             return "Error, this is above the limit for this function."
         sequence = self.collatz_sequence([number])
-        output_string = "Hailstone (Collatz) sequence for " + str(number) + ": "
-        output_string += '->'.join(str(x) for x in sequence) + " (" + str(len(sequence)) + " steps.)"
+        output_string = "Hailstone (Collatz) sequence for {}: " \
+                        "{} ({} steps.)".format(number, "->".join(str(x) for x in sequence), len(sequence))
         return output_string
 
     def collatz_sequence(self, sequence):
@@ -111,7 +111,7 @@ class NumberWord(Function):
             number = exp_number[0]
             decimal = " point"
             for num in number_decimal:
-                decimal = decimal + " " + digits[int(num)]
+                decimal = "{} {}".format(decimal, digits[int(num)])
         else:
             decimal = ""
         # Convert number to a string, to string
@@ -195,12 +195,12 @@ class PrimeFactors(Function):
             calc_obj = function_dispatcher.get_function_object(calc_func)  # type: Calculate
             number_str = calc_obj.process_calculation(line_clean)
             if "." in number_str:
-                return "Error, this calculation does not result in an integer. The answer is: " + number_str
+                return "Error, this calculation does not result in an integer. The answer is: {}".format(number_str)
             number = int(number_str)
         else:
             return "Error, this is not a valid number or calculation."
         prime_factors = self.find_prime_factors(number)
-        return "The prime factors of " + str(number) + " are: " + 'x'.join(str(x) for x in prime_factors) + "."
+        return "The prime factors of {} are: {}.".format(number, "x".join(str(x) for x in prime_factors))
 
     def find_prime_factors(self, number):
         number = int(number)
@@ -254,7 +254,7 @@ class ChangeOptions(Function):
         options = self.change_options(coins, 0, number)
         output_string = 'Possible ways to give that change: '
         for option in options:
-            output_string += '[' + ','.join(str(x) for x in option) + '],'
+            output_string += "[{}],".format(','.join(str(x) for x in option))
         return output_string + "."
 
     def change_options(self, coins, coin_num, amount):
@@ -299,7 +299,7 @@ class Average(Function):
             number_sum = sum(float(x) for x in number_list)
         except ValueError:
             return "Error, Please only input a list of numbers"
-        return "The average of " + ', '.join(number_list) + " is: " + str(number_sum / float(len(number_list))) + "."
+        return "The average of {} is: {}.".format(", ".join(number_list), number_sum / float(len(number_list)))
 
 
 class HighestCommonFactor(Function):
@@ -343,7 +343,7 @@ class HighestCommonFactor(Function):
         number_two_factors = prime_factors_obj.find_prime_factors(number_two)
         common_factors = simp_frac_obj.list_intersection(number_one_factors, number_two_factors)
         hcf = simp_frac_obj.list_product(common_factors)
-        return "The highest common factor of " + str(number_one) + " and " + str(number_two) + " is " + str(hcf) + "."
+        return "The highest common factor of {} and {} is {}.".format(number_one, number_two, hcf)
 
 
 class SimplifyFraction(Function):
@@ -393,11 +393,11 @@ class SimplifyFraction(Function):
                                                                                               numerator_factors))
         numerator_new = self.list_product(numerator_factors_new)
         denominator_new = self.list_product(denominator_factors_new)
-        numerator_out = str(numerator) + "/" + str(denominator)
-        denominator_out = "-"*negative + str(numerator_new) + "/" + str(denominator_new)
+        numerator_out = "{}/{}".format(numerator, denominator)
+        denominator_out = "{}{}/{}".format("-"*negative, numerator_new, denominator_new)
         if denominator_new == 1:
             denominator_out = str(numerator_new)
-        return numerator_out + " = " + denominator_out + "."
+        return "{} = {}.".format(numerator_out, denominator_out)
 
     def list_minus(self, list_one, list_two):
         list_minus = list(list_one)
@@ -465,7 +465,7 @@ class Calculate(Function):
             if not number_answers:
                 answer += "\nWait, there's no calculation there..."
             if number_answers and number_answers.count(number_answers[0]) != len(number_answers):
-                answer += "\n" + "Wait, that's not right..."
+                answer += "\nWait, that's not right..."
             return answer
         # If there's no equals signs, collapse it all together
         calc = calc.replace(' ', '').lower()
@@ -496,7 +496,7 @@ class Calculate(Function):
             answer = self.process_calculation(calc)
             return answer
         except Exception as e:
-            print("Passive calc failed: "+str(e))
+            print("Passive calc failed: {}".format(e))
             return None
 
     def after_infix(self, calc, sub_str):
@@ -553,7 +553,7 @@ class Calculate(Function):
 
     def process_trigonometry(self, calc, running_calc):
         temp_answer = self.process_calculation(running_calc)
-        running_calc = '(' + running_calc + ')'
+        running_calc = "({})".format(running_calc)
         before = calc.split(running_calc)[0]
         trig_dict = {'acos': math.acos, 'asin': math.asin, 'atan': math.atan, 'cos': math.cos, 'sin': math.sin,
                      'tan': math.tan, 'sqrt': math.sqrt, 'log': math.log, 'acosh': math.acosh, 'asinh': math.asinh,
@@ -581,17 +581,17 @@ class Calculate(Function):
         while calc.count('pi') != 0:
             temp_answer = math.pi
             if self.before_infix(calc, 'pi') != '':
-                temp_answer = '*' + str(temp_answer)
+                temp_answer = "*{}".format(temp_answer)
             if self.after_infix(calc, 'pi') != '':
-                temp_answer = str(temp_answer) + '*'
+                temp_answer = "{}*".format(temp_answer)
             calc = calc.replace('pi', str(temp_answer), 1)
             del temp_answer
         while calc.count('e') != 0:
             temp_answer = math.e
             if self.before_infix(calc, 'e') != '':
-                temp_answer = '*' + str(temp_answer)
+                temp_answer = "*{}".format(temp_answer)
             if self.after_infix(calc, 'e') != '':
-                temp_answer = str(temp_answer) + '*'
+                temp_answer = "{}*".format(temp_answer)
             calc = calc.replace('e', str(temp_answer), 1)
             del temp_answer
         # bracket processing
@@ -619,11 +619,11 @@ class Calculate(Function):
                     before_running_calc = self.before_infix(calc, running_calc)
                     if before_running_calc != '':
                         running_calc = before_running_calc + running_calc
-                        temp_answer = before_running_calc + '*' + str(temp_answer)
+                        temp_answer = "{}*{}".format(before_running_calc, temp_answer)
                     after_running_calc = self.after_infix(calc, running_calc)
                     if after_running_calc != '' and after_running_calc[0] != '+':
                         running_calc = running_calc + after_running_calc
-                        temp_answer = str(temp_answer) + '*' + after_running_calc
+                        temp_answer = "{}*{}".format(temp_answer, after_running_calc)
                     calc = calc.replace(running_calc, str(temp_answer))
                     del temp_answer
                     break
@@ -634,13 +634,13 @@ class Calculate(Function):
         while calc.count('^') != 0:
             pre_calc = self.before_infix(calc, '^')
             post_calc = self.after_infix(calc, '^')
-            calc = calc.replace(str(pre_calc) + '^' + str(post_calc), str(float(pre_calc) ** float(post_calc)), 1)
+            calc = calc.replace("{}^{}".format(pre_calc, post_calc), str(float(pre_calc) ** float(post_calc)), 1)
             del pre_calc, post_calc
         # powers processing 2
         while calc.count('**') != 0:
             pre_calc = self.before_infix(calc, '**')
             post_calc = self.after_infix(calc, '**')
-            calc = calc.replace(str(pre_calc) + '**' + str(post_calc), str(float(pre_calc) ** float(post_calc)), 1)
+            calc = calc.replace("{}**{}".format(pre_calc, post_calc), str(float(pre_calc) ** float(post_calc)), 1)
             del pre_calc, post_calc
         # modulo processing
         while calc.count('%') != 0:
@@ -648,7 +648,7 @@ class Calculate(Function):
             post_calc = self.after_infix(calc, '%')
             if float(post_calc) == 0:
                 return 'error, no division by zero, sorry.'
-            calc = calc.replace(str(pre_calc) + '%' + str(post_calc), str(float(pre_calc) % float(post_calc)), 1)
+            calc = calc.replace("{}%{}".format(pre_calc, post_calc), str(float(pre_calc) % float(post_calc)), 1)
             del pre_calc, post_calc
         # multiplication processing
         while calc.count('/') != 0:
@@ -656,13 +656,13 @@ class Calculate(Function):
             post_calc = self.after_infix(calc, '/')
             if float(post_calc) == 0:
                 return 'error, no division by zero, sorry.'
-            calc = calc.replace(str(pre_calc) + '/' + str(post_calc), str(float(pre_calc) / float(post_calc)), 1)
+            calc = calc.replace("{}/{}".format(pre_calc, post_calc), str(float(pre_calc) / float(post_calc)), 1)
             del pre_calc, post_calc
         # multiplication processing
         while calc.count('*') != 0:
             pre_calc = self.before_infix(calc, '*')
             post_calc = self.after_infix(calc, '*')
-            calc = calc.replace(str(pre_calc) + '*' + str(post_calc), str(float(pre_calc) * float(post_calc)), 1)
+            calc = calc.replace("{}*{}".format(pre_calc, post_calc), str(float(pre_calc) * float(post_calc)), 1)
             del pre_calc, post_calc
         # addition processing
         calc = calc.replace('-', '+-')
