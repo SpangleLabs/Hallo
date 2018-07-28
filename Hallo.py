@@ -323,7 +323,7 @@ class Hallo:
             server_addr = 'irc.freenode.net:6667'
         server_url = server_addr.split(':')[0]
         server_port = int(server_addr.split(':')[1])
-        server_match = re.match(r'([a-z\d\.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})', server_url,
+        server_match = re.match(r'([a-z\d.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})', server_url,
                                 re.I)
         server_name = server_match.group(2)
         # Create the server object

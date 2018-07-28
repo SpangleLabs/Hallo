@@ -186,7 +186,7 @@ class ServerTelegram(Server):
         :type update: telegram.Update
         """
         # Print it to console
-        print(Commons.current_timestamp() + ' [' + self.name + '] Unhandled data: ' + update)
+        print("{} [{}] Unhandled data: {}".format(Commons.current_timestamp(), self.name, update))
 
     def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
         self.bot.send_message(chat_id=destination_obj.address, text=data)

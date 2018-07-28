@@ -79,7 +79,7 @@ class ServerIRC(Server):
                     self.raw_connect()
                     return
                 except ServerException as e:
-                    print("Failed to connect. ("+str(e)+") Waiting 3 seconds before reconnect.")
+                    print("Failed to connect. ({}) Waiting 3 seconds before reconnect.".format(e))
                     time.sleep(3)
                     continue
 
@@ -94,19 +94,19 @@ class ServerIRC(Server):
             # Connect to socket
             self._socket.connect((self.server_address, self.server_port))
         except Exception as e:
-            print("CONNECTION ERROR: " + str(e))
+            print("CONNECTION ERROR: {}".format(e))
             self.state = Server.STATE_CLOSED
         # Wait for the first message back from the server.
-        print(Commons.current_timestamp() + " waiting for first message from server: " + self.name)
+        print("{} Waiting for first message from server: {}".format(Commons.current_timestamp(), self.name))
         first_line = self.read_line_from_socket()
         # If first line is null, that means connection was closed.
         if first_line is None:
             raise ServerException
         self._welcome_message = first_line + "\n"
         # Send nick and full name to server
-        print(Commons.current_timestamp() + " sending nick and user info to server: " + self.name)
-        self.send('NICK ' + self.get_nick(), None, self.MSG_RAW)
-        self.send('USER ' + self.get_full_name(), None, self.MSG_RAW)
+        print("{} Sending nick and user info to server: {}".format(Commons.current_timestamp(), self.name))
+        self.send("NICK {}".format(self.get_nick()), None, self.MSG_RAW)
+        self.send("USER {}".format(self.get_full_name()), None, self.MSG_RAW)
         # Wait for MOTD to end
         while self.state == Server.STATE_CONNECTING:
             next_welcome_line = self.read_line_from_socket()
@@ -124,9 +124,10 @@ class ServerIRC(Server):
             return
         # Identify with nickserv
         if self.nickserv_pass:
-            self.send('IDENTIFY ' + self.nickserv_pass, self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick))
+            self.send("IDENTIFY {}".format(self.nickserv_pass),
+                      self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick))
         # Join channels
-        print(Commons.current_timestamp() + " joining channels on " + self.name + ", identifying.")
+        print("{} Joining channels on {}, identifying.".format(Commons.current_timestamp(), self.name))
         # Join relevant channels
         for channel in self.channel_list:
             if channel.auto_join:
@@ -142,7 +143,7 @@ class ServerIRC(Server):
         else:
             quit_message = "Will I dream?"
             if self.state in [Server.STATE_DISCONNECTING, Server.STATE_CLOSED]:
-                print("Cannot disconnect "+str(self.name)+" server as it is not connected.")
+                print("Cannot disconnect {} server as it is not connected.".format(self.name))
                 return
             self.state = Server.STATE_DISCONNECTING
             # Logging
@@ -157,9 +158,9 @@ class ServerIRC(Server):
             for user in self.user_list:
                 user.set_online(False)
             try:
-                self.send("QUIT :" + quit_message, None, self.MSG_RAW)
+                self.send("QUIT :{}".format(quit_message), None, self.MSG_RAW)
             except Exception as e:
-                print("Failed to send quit message. "+str(e))
+                print("Failed to send quit message. {}".format(e))
                 pass
         with self._connect_lock:
             if self._socket is not None:
@@ -186,7 +187,7 @@ class ServerIRC(Server):
                 try:
                     next_line = self.read_line_from_socket()
                 except ServerException as e:
-                    print("Server \""+str(self.name)+"\" disconnected. ("+str(e)+") Reconnecting.")
+                    print("Server \"{}\" disconnected. ({}) Reconnecting.".format(self.name, e))
                     time.sleep(10)
                     if self.state == Server.STATE_OPEN:
                         self.disconnect()
@@ -236,12 +237,12 @@ class ServerIRC(Server):
         if destination_obj.use_caps_lock:
             data = Commons.upper(data)
         # Get max line length
-        max_line_length = self.MAX_MSG_LENGTH - len(msg_type_name + ' ' + destination_addr + ' :' + endl)
+        max_line_length = self.MAX_MSG_LENGTH - len("{} {} :{}".format(msg_type_name, destination_addr, endl))
         # Split and send
         for data_line in data.split("\n"):
             data_line_split = Commons.chunk_string_dot(data_line, max_line_length)
             for data_line_line in data_line_split:
-                self.send_raw(msg_type_name + ' ' + destination_addr + ' :' + data_line_line)
+                self.send_raw("{} {} :{}".format(msg_type_name, destination_addr, data_line_line))
                 # Log sent data, if it's not message or notice
                 if msg_type == self.MSG_MSG:
                     self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, data_line_line, self, user_obj,
@@ -274,9 +275,9 @@ class ServerIRC(Server):
         channel_obj.auto_join  = True
         # Send JOIN command
         if channel_obj.password is None:
-            self.send('JOIN ' + channel_obj.address, None, self.MSG_RAW)
+            self.send("JOIN {}".format(channel_obj.address), None, self.MSG_RAW)
         else:
-            self.send('JOIN ' + channel_obj.address + ' ' + channel_obj.password, None, self.MSG_RAW)
+            self.send("JOIN {} {}".format(channel_obj.address, channel_obj.password), None, self.MSG_RAW)
 
     def leave_channel(self, channel_obj):
         """
@@ -286,7 +287,7 @@ class ServerIRC(Server):
         """
         super().leave_channel(channel_obj)
         # Send PART command
-        self.send('PART ' + channel_obj.address, None, self.MSG_RAW)
+        self.send("PART {}".format(channel_obj.address), None, self.MSG_RAW)
 
     def parse_line(self, new_line):
         """
@@ -347,7 +348,7 @@ class ServerIRC(Server):
         # Get data
         ping_number = ping_line.split()[1]
         # Respond
-        self.send("PONG " + ping_number, None, self.MSG_RAW)
+        self.send("PONG {}".format(ping_number), None, self.MSG_RAW)
         # Print and log
         self.hallo.printer.output(Function.EVENT_PING, ping_number, self, None, None)
         self.hallo.printer.output_from_self(Function.EVENT_PING, ping_number, self, None, None)
@@ -467,17 +468,17 @@ class ServerIRC(Server):
         if message_ctcp_command.lower() == 'version':
             self.send("\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01", message_sender, self.MSG_NOTICE)
         elif message_ctcp_command.lower() == 'time':
-            self.send("\x01TIME Fribsday 15 Nov 2024 " + str(time.gmtime()[3] + 100).rjust(2, '0') + ":" + str(
-                time.gmtime()[4] + 20).rjust(2, '0') + ":" + str(time.gmtime()[5]).rjust(2, '0') + "GMT\x01",
+            self.send("\x01TIME Fribsday 15 Nov 2024 {}:{}:{} GMT\x01".format(str(time.gmtime()[3] + 100).rjust(2, '0'),
+                                                                              str(time.gmtime()[4] + 20).rjust(2, '0'),
+                                                                              str(time.gmtime()[5]).rjust(2, '0')),
                       message_sender, self.MSG_NOTICE)
         elif message_ctcp_command.lower() == 'ping':
-            self.send('\x01PING ' + message_ctcp_arguments + '\x01', message_sender, self.MSG_NOTICE)
+            self.send("\x01PING {}\x01".format(message_ctcp_arguments), message_sender, self.MSG_NOTICE)
         elif message_ctcp_command.lower() == 'userinfo':
-            hallo_info = "Hello, I'm hallo, I'm a robot who does a few different things," \
+            hallo_info = "\x01Hello, I'm hallo, I'm a robot who does a few different things," \
                          " mostly roll numbers and choose things," \
-                         " occasionally giving my input on who is the best pony." \
-                         " dr-spangle built me, if you have any questions he tends to be better at replying than I."
-            self.send("\x01" + hallo_info + "\x01", message_sender, self.MSG_NOTICE)
+                         " dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01"
+            self.send(hallo_info, message_sender, self.MSG_NOTICE)
         elif message_ctcp_command.lower() == 'clientinfo':
             self.send('\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01', message_sender,
                       self.MSG_NOTICE)
@@ -612,7 +613,7 @@ class ServerIRC(Server):
         # # Printing and logging
         mode_full = mode_mode
         if mode_args != '':
-            mode_full = mode_mode + ' ' + mode_args
+            mode_full = "{} {}".format(mode_mode, mode_args)
         self.hallo.printer.output(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
         self.hallo.logger.log(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
         # # Pass to passive FunctionDispatcher
@@ -743,7 +744,7 @@ class ServerIRC(Server):
         # Parse out numeric line data
         numeric_code = numeric_line.split()[1]
         # Print to console
-        print(Commons.current_timestamp() + ' [' + self.name + '] Numeric server info: ' + numeric_line)
+        print("{} [{}] Numeric server info: {}".format(Commons.current_timestamp(), self.name, numeric_line))
         # TODO: add logging?
         # Check for a 433 "ERR_NICKNAMEINUSE"
         if numeric_code == "433":
@@ -760,7 +761,7 @@ class ServerIRC(Server):
                 nick_number = float(nick_numstr)
             new_nick = nick_word + str(nick_number + 1)
             self.nick = new_nick
-            self.send("NICK" + self.get_nick(), None, self.MSG_RAW)
+            self.send("NICK {}".format(self.get_nick()), None, self.MSG_RAW)
             return
         # Only process further numeric codes if motd has ended
         if not motd_ended:
@@ -798,7 +799,7 @@ class ServerIRC(Server):
         :type unhandled_line: str
         """
         # Print it to console
-        print(Commons.current_timestamp() + ' [' + self.name + '] Unhandled data: ' + unhandled_line)
+        print("{} [{}] Unhandled data: {}".format(Commons.current_timestamp(), self.name, unhandled_line))
 
     def parse_line_raw(self, raw_line, line_type):
         """Handed all raw data, along with the type of message
@@ -822,14 +823,14 @@ class ServerIRC(Server):
                 next_byte = self._socket.recv(1)
             except socket.timeout as e:
                 if e.args[0] != "timed out":
-                    raise ServerException("Failed to receive byte. "+str(e))
+                    raise ServerException("Failed to receive byte. {}".format(e))
             except Exception as e:
                 # Raise an exception, to reconnect.
-                raise ServerException("Failed to receive byte. "+str(e))
+                raise ServerException("Failed to receive byte. {}".format(e))
             if next_byte is None:
                 continue
             if len(next_byte) != 1:
-                raise ServerException("Length of next byte incorrect: " + str(next_byte))
+                raise ServerException("Length of next byte incorrect: {}".format(next_byte))
             next_line += next_byte
             if next_line.endswith(endl.encode()):
                 return self.decode_line(next_line[:-len(endl)])
@@ -861,7 +862,7 @@ class ServerIRC(Server):
             self._check_channeluserlist_channel = channel_obj
             self._check_channeluserlist_done = False
             # send request
-            self.send("NAMES " + channel_obj.name, None, Server.MSG_RAW)
+            self.send("NAMES {}".format(channel_obj.name), None, Server.MSG_RAW)
             # loop for 5 seconds
             for _ in range(10):
                 # sleep 0.5seconds
@@ -888,7 +889,7 @@ class ServerIRC(Server):
             self._check_usersonline_check_list = check_user_list
             self._check_usersonline_online_list = None
             # send request
-            self.send("ISON " + " ".join(check_user_list), None, Server.MSG_RAW)
+            self.send("ISON {}".format(" ".join(check_user_list)), None, Server.MSG_RAW)
             # loop for 5 seconds
             for _ in range(10):
                 # if reply is here
@@ -928,7 +929,7 @@ class ServerIRC(Server):
             self._check_useridentity_user = user_obj.address
             self._check_useridentity_result = None
             # send whatever request
-            self.send(self.nickserv_ident_command + " " + user_obj.address, nickserv_obj, Server.MSG_MSG)
+            self.send("{} {}".format(self.nickserv_ident_command, user_obj.address), nickserv_obj, self.MSG_MSG)
             # loop for 5 seconds
             for _ in range(10):
                 # if response
@@ -1073,7 +1074,7 @@ class ServerIRC(Server):
         old_nick = self.get_nick()
         self.nick = nick
         if nick != old_nick:
-            self.send("NICK " + self.nick, None, self.MSG_RAW)
+            self.send("NICK {}".format(self.nick), None, self.MSG_RAW)
             hallo_user_obj = self.get_user_by_address(nick.lower(), nick)
             # Log in all channel Hallo is in.
             for channel in self.channel_list:
@@ -1133,7 +1134,7 @@ class ServerIRC(Server):
         """
         self.nickserv_pass = nickserv_pass
         if self.nickserv_pass is not None:
-            self.send('IDENTIFY ' + self.nickserv_pass,
+            self.send("IDENTIFY {}".format(self.nickserv_pass),
                       self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick))
 
     @staticmethod
@@ -1186,4 +1187,3 @@ class ServerIRC(Server):
         if len(doc.getElementsByTagName("permission_mask")) != 0:
             new_server.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return new_server
-
