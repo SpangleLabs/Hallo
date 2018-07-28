@@ -195,7 +195,7 @@ class RssFeed:
         item_title = rss_item.find("title").text
         item_link = rss_item.find("link").text
         # Construct output
-        output = "Update on \"" + self.title + "\" RSS feed. \"" + item_title + "\" " + item_link
+        output = "Update on \"{}\" RSS feed. \"{}\" {}".format(self.title, item_title, item_link)
         return output
 
     def needs_check(self):
@@ -346,7 +346,7 @@ class FeedCheck(Function):
         output_lines = list(set(output_lines))
         # Output response to user
         if len(output_lines) == 0:
-            return "There were no updates for \"" + line + "\" RSS feed."
+            return "There were no updates for \"{}\" RSS feed.".format(line)
         return "The following feed updates were found:\n" + "\n".join(output_lines)
 
     def run_all(self, hallo):
@@ -446,7 +446,7 @@ class FeedAdd(Function):
             # Save list
             feed_list.to_xml()
         # Return output
-        return "I have added new RSS feed titled \"" + rss_feed.title + "\""
+        return "I have added new RSS feed titled \"{}\"".format(rss_feed.title)
 
 
 class FeedRemove(Function):
@@ -484,8 +484,10 @@ class FeedRemove(Function):
             test_feeds = rss_feed_list.get_feeds_by_title(clean_input.lower(), destination_obj)
             if len(test_feeds) == 1:
                 rss_feed_list.remove_feed(test_feeds[0])
-                return "Removed \"" + test_feeds[0].title + "\" RSS feed. Updates will no longer be sent to " \
-                       + (test_feeds[0].channel_name or test_feeds[0].user_name) + "."
+                return "Removed \"{}\" RSS feed. " \
+                       "Updates will no longer be sent to {}.".format(test_feeds[0].title,
+                                                                      (test_feeds[0].channel_name or
+                                                                       test_feeds[0].user_name))
             if len(test_feeds) > 1:
                 return "Error, there is more than 1 rss feed in this channel by that name. Try specifying by URL."
             # Otherwise, zero results, so try hunting by url
@@ -530,5 +532,5 @@ class FeedList(Function):
             return "There are no RSS feeds posting to this destination."
         output_lines = ["RSS feeds posting to this channel:"]
         for rss_feed in dest_feeds:
-            output_lines.append("\""+rss_feed.title + "\" url: " + rss_feed.url)
+            output_lines.append("\"{}\" url: {}".format(rss_feed.title, rss_feed.url))
         return "\n".join(output_lines)

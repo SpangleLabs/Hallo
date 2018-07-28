@@ -94,65 +94,54 @@ class Logger:
         return None
     
     def log_message(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += '<' + user_obj.name + '> ' + full_line
+        output = "{} <{}> {}".format(Commons.current_timestamp(), user_obj.name, full_line)
         return output
     
     def log_join(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += user_obj.name + " joined " + channel_obj.name
+        output = "{} {} joined {}".format(Commons.current_timestamp(), user_obj.name, channel_obj.name)
         return output
     
     def log_leave(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += user_obj.name + " left " + channel_obj.name
+        output = "{} {} left {}".format(Commons.current_timestamp(), user_obj.name, channel_obj.name)
         if full_line.strip() != "":
-            output += " (" + full_line + ")"
+            output += " ({})".format(full_line)
         return output
     
     def log_quit(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += user_obj.name + " has quit."
+        output = "{} {} has quit.".format(Commons.current_timestamp(), user_obj.name)
         if full_line.strip() != "":
-            output += " (" + full_line + ")"
+            output += " ({})".format(full_line)
         return output
     
     def log_name_change(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += "Nick change: " + full_line + " -> " + user_obj.name
+        output = "{} Nick change: {} -> {}".format(Commons.current_timestamp(), full_line, user_obj.name)
         return output
     
     def log_kick(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += user_obj.name + " was kicked from " + channel_obj.name
+        output = "{} {} was kicked from {}".format(Commons.current_timestamp(), user_obj.name, channel_obj.name)
         if full_line.strip() != "":
-            output += " (" + full_line + ")"
+            output += " ({})".format(full_line)
         return output
     
     def log_invite(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += "Invite to " + channel_obj.name + ' from ' + user_obj.name
+        output = "{} Invite to {} from {}".format(Commons.current_timestamp(), channel_obj.name, user_obj.name)
         return output
     
     def log_notice(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += "Notice from " + user_obj.name + ": " + full_line
+        output = "{} Notice from {}: {}".format(Commons.current_timestamp(), user_obj.name, full_line)
         return output
     
     def log_mode_change(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += user_obj.name + ' set ' + full_line + ' on ' + channel_obj.name
+        output = "{} {} set {} on {}".format(Commons.current_timestamp(), user_obj.name, full_line, channel_obj.name)
         return output
     
     def log_ctcp(self, full_line, server_obj, user_obj, channel_obj):
         ctcp_command = full_line.split()[0]
         ctcp_arguments = ' '.join(full_line.split()[1:])
         if ctcp_command.lower() == "action":
-            output = Commons.current_timestamp() + " "
-            output += "**" + user_obj.name + ' ' + ctcp_arguments + '**'
+            output = "{} **{} {}**".format(Commons.current_timestamp(), user_obj.name, ctcp_arguments)
             return output
-        output = Commons.current_timestamp() + " "
-        output += "<" + user_obj.name + ' (CTCP)> ' + full_line
+        output = "{} <{} (CTCP)> {}".format(Commons.current_timestamp(), user_obj.name, full_line)
         return output
     
     def get_file_name(self, server_obj, user_obj, channel_obj):

@@ -72,80 +72,65 @@ class Printer:
         return None
     
     def print_day(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += "Day changed: "+datetime.datetime.now().strftime("%Y-%m-%d")
+        output = "{} Day changed: {}".format(Commons.current_timestamp(), datetime.datetime.now().strftime("%Y-%m-%d"))
         return output
     
     def print_ping(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        if user_obj is None:
-            output += "["+server_obj.name + "] PING"
-        else:
-            output += "["+server_obj.name + "] PONG"
+        output = "{} [{}] {}".format(Commons.current_timestamp(), server_obj.name,
+                                     "PING" if user_obj is None else "PONG")
         return output
     
     def print_message(self, full_line, server_obj, user_obj, channel_obj):
         destination_object = channel_obj
         if channel_obj is None:
             destination_object = user_obj
-        output = Commons.current_timestamp() + " "
-        output += "[" + server_obj.name + "] "
-        output += destination_object.name + " "
-        output += "<" + user_obj.name + "> " + full_line
+        output = "{} [{}] {} <{}> {}".format(Commons.current_timestamp(), server_obj.name,
+                                             destination_object.name, user_obj.name, full_line)
         return output
     
     def print_join(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += "[" + server_obj.name + "] "
-        output += user_obj.name + " joined " + channel_obj.name
+        output = "{} [{}] {} joined {}".format(Commons.current_timestamp(), server_obj.name,
+                                               user_obj.name, channel_obj.name)
         return output
     
     def print_leave(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += "[" + server_obj.name + "] "
-        output += user_obj.name + " left " + channel_obj.name
+        output = "{} [{}] {} left {}".format(Commons.current_timestamp(), server_obj.name,
+                                             user_obj.name, channel_obj.name)
         if full_line.strip() != "":
-            output += " (" + full_line + ")"
+            output += " ({})".format(full_line)
         return output
     
     def print_quit(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += "[" + server_obj.name + "] "
-        output += user_obj.name + " has quit."
+        output = "{} [{}] {} has quit.".format(Commons.current_timestamp(), server_obj.name, user_obj.name)
         if full_line.strip() != "":
-            output += " (" + full_line + ")"
+            output += " ({})".format(full_line)
         return output
     
     def print_name_change(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += "[" + server_obj.name + "] "
-        output += "Nick change: " + full_line + " -> " + user_obj.name
+        output = "{} [{}] Nick change: {} -> {}".format(Commons.current_timestamp(), server_obj.name,
+                                                        full_line, user_obj.name)
         return output
     
     def print_kick(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += "[" + server_obj.name + "] "
-        output += user_obj.name + " was kicked from " + channel_obj.name
+        output = "{} [{}] {} was kicked from {}".format(Commons.current_timestamp(), server_obj.name,
+                                                        user_obj.name, channel_obj.name)
         if full_line.strip() != "":
-            output += " (" + full_line + ")"
+            output += " ({})".format(full_line)
         return output
     
     def print_invite(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += "[" + server_obj.name + "] "
-        output += "Invite to " + channel_obj.name + ' from ' + user_obj.name
+        output = "{} [{}] Invite to {} from {}".format(Commons.current_timestamp(), server_obj.name,
+                                                       channel_obj.name, user_obj.name)
         return output
     
     def print_notice(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += "[" + server_obj.name + "] "
-        output += "Notice from " + user_obj.name + ": " + full_line
+        output = "{} [{}] Notice from {}: {}".format(Commons.current_timestamp(), server_obj.name,
+                                                     user_obj.name, full_line)
         return output
     
     def print_mode_change(self, full_line, server_obj, user_obj, channel_obj):
-        output = Commons.current_timestamp() + " "
-        output += "[" + server_obj.name + "] "
-        output += user_obj.name + ' set ' + full_line + ' on ' + channel_obj.name
+        output = "{} [{}] {} set {} on {}".format(Commons.current_timestamp(), server_obj.name,
+                                                  user_obj.name, full_line, channel_obj.name)
         return output
     
     def print_ctcp(self, full_line, server_obj, user_obj, channel_obj):
@@ -157,18 +142,13 @@ class Printer:
             destination_obj = user_obj
         # Print CTCP actions differently to other CTCP commands
         if ctcp_command.lower() == "action":
-            output = Commons.current_timestamp() + " "
-            output += "[" + server_obj.name + "] "
-            output += destination_obj.name + " "
-            output += "**" + user_obj.name + " " + ctcp_arguments + "**"
+            output = "{} [{}] {} **{} {}**".format(Commons.current_timestamp(), server_obj.name, destination_obj.name,
+                                                   user_obj.name, ctcp_arguments)
             return output
-        output = Commons.current_timestamp() + " "
-        output += "[" + server_obj.name + "] "
-        output += destination_obj.name + " "
-        output += "<" + user_obj.name + " (CTCP)> " + full_line
+        output = "{} [{}] {} <{} (CTCP)> {}".format(Commons.current_timestamp(), server_obj.name, destination_obj.name,
+                                                    user_obj.name, full_line)
         return output
 
     def print_raw(self, raw_text):
-        output = Commons.current_timestamp() + " " + \
-                 raw_text
+        output = "{} {}".format(Commons.current_timestamp(), raw_text)
         return output

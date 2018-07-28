@@ -733,8 +733,8 @@ class Convert(Function):
             except Exception as e:
                 if passive:
                     return None
-                return "I don't understand your input. (" + str(
-                    e) + ") Please format like so: convert <value> <old unit> to <new unit>"
+                return "I don't understand your input. ({}) Please format like so: " \
+                       "convert <value> <old unit> to <new unit>".format(e)
         # Split input
         line_split = split_regex.split(line)
         # If there are more than 2 parts, be confused.
@@ -756,8 +756,8 @@ class Convert(Function):
                 # If both fail, send an error message
                 if passive:
                     return None
-                return "I don't understand your input. (" + str(
-                    e) + ") Please format like so: convert <value> <old unit> to <new unit>"
+                return "I don't understand your input. ({}) Please format like so: " \
+                       "convert <value> <old unit> to <new unit>".format(e)
 
     def convert_one_unit(self, from_measure_list, passive):
         """Converts a single given measure into whatever base unit of the type the measure is."""
@@ -794,9 +794,9 @@ class Convert(Function):
     def output_line(self, from_measure, to_measure):
         """Creates a line to output for the equality of a fromMeasure and toMeasure."""
         last_update = to_measure.unit.last_updated or from_measure.unit.last_updated
-        output_string = from_measure.to_string() + " = " + to_measure.to_string() + "."
+        output_string = "{} = {}.".format(from_measure.to_string(), to_measure.to_string())
         if last_update is not None:
-            output_string += " (Last updated: " + Commons.format_unix_time(last_update) + ")"
+            output_string += " (Last updated: {})".format(Commons.format_unix_time(last_update))
         return output_string
 
     def output_line_with_to_prefix(self, from_measure, to_measure, to_prefix):
@@ -805,9 +805,9 @@ class Convert(Function):
         with a specified prefix for the toMeasure.
         """
         last_update = to_measure.unit.last_updated or from_measure.unit.last_updated
-        output_string = from_measure.to_string() + " = " + to_measure.to_string_with_prefix(to_prefix) + "."
+        output_string = "{} = {}.".format(from_measure.to_string(), to_measure.to_string_with_prefix(to_prefix))
         if last_update is not None:
-            output_string += " (Last updated: " + Commons.format_unix_time(last_update) + ")"
+            output_string += " (Last updated: {})".format(Commons.format_unix_time(last_update))
         return output_string
 
     def get_passive_events(self):
@@ -845,19 +845,19 @@ class UpdateCurrencies(Function):
             output_lines.append(self.update_from_european_bank_data(repo) or
                                 "Updated currency data from The European Bank.")
         except Exception as e:
-            output_lines.append("Failed to update european central bank data." + str(e))
+            output_lines.append("Failed to update european central bank data. {}".format(e))
         # Update with Forex
         try:
             output_lines.append(self.update_from_forex_data(repo) or
                                 "Updated currency data from Forex.")
         except Exception as e:
-            output_lines.append("Failed to update Forex data. " + str(e))
+            output_lines.append("Failed to update Forex data. {}".format(e))
         # Update with Preev
         try:
             output_lines.append(self.update_from_preev_data(repo) or
                                 "Updated currency data from Preev.")
         except Exception as e:
-            output_lines.append("Failed to update Preev data. " + str(e))
+            output_lines.append("Failed to update Preev data. {}".format(e))
         # Save repo
         repo.save_to_xml()
         # Return output
@@ -873,17 +873,17 @@ class UpdateCurrencies(Function):
         try:
             self.update_from_european_bank_data(repo)
         except Exception as e:
-            print("Failed to update european central bank data. " + str(e))
+            print("Failed to update european central bank data. {}".format(e))
         # Update with Forex
         try:
             self.update_from_forex_data(repo)
         except Exception as e:
-            print("Failed to update forex data. " + str(e))
+            print("Failed to update forex data. {}".format(e))
         # Update with Preev
         try:
             self.update_from_preev_data(repo)
         except Exception as e:
-            print("Failed to update preev data. " + str(e))
+            print("Failed to update preev data. {}".format(e))
         # Save repo
         repo.save_to_xml()
         return None
@@ -1118,24 +1118,26 @@ class ConvertViewRepo(Function):
 
     def output_type_as_string(self, type_obj):
         """Outputs a Conversion Type object as a string"""
-        output_string = "Conversion Type: (" + type_obj.name + ")\n"
-        output_string += "Decimals: " + str(type_obj.decimals) + "\n"
-        output_string += "Base unit: " + type_obj.base_unit.name_list[0] + "\n"
-        output_string += "Other units: "
         unit_name_list = [unit_obj.get_names()[0] for unit_obj in type_obj.get_full_unit_list() if
                           unit_obj != type_obj.base_unit]
-        output_string += ", ".join(unit_name_list)
+        output_string = "Conversion Type: ({})\n".format(type_obj.name)
+        output_string += "Decimals: {}\n".format(type_obj.decimals)
+        output_string += "Base unit: {}\n".format(type_obj.base_unit.name_list[0])
+        output_string += "Other units: {}".format(", ".join(unit_name_list))
         return output_string
 
     def output_unit_as_string(self, unit_obj):
         """Outputs a Conversion Unit object as a string"""
-        output_lines = ["Conversion Unit: (" + unit_obj.name_list[0] + ")",
-                        "Type: " + unit_obj.type.name, "Name list: " + ", ".join(unit_obj.name_list),
-                        "Abbreviation list: " + ", ".join(unit_obj.abbr_list),
-                        "Value: 1 " + unit_obj.name_list[0] + " = " + str(unit_obj.value) + " " +
-                        unit_obj.type.base_unit.name_list[0],
-                        "Offset: 0 " + unit_obj.name_list[0] + " = " + str(unit_obj.offset) + " " +
-                        unit_obj.type.base_unit.name_list[0]]
+        output_lines = ["Conversion Unit: ({})".format(unit_obj.name_list[0]),
+                        "Type: {}".format(unit_obj.type.name),
+                        "Name list: {}".format(", ".join(unit_obj.name_list)),
+                        "Abbreviation list: {}".format(", ".join(unit_obj.abbr_list)),
+                        "Value: 1 {} - {} {}".format(unit_obj.name_list[0],
+                                                     unit_obj.value,
+                                                     unit_obj.type.base_unit.name_list[0]),
+                        "Offset: 0 {} = {} {}".format(unit_obj.name_list[0],
+                                                      unit_obj.offset,
+                                                      unit_obj.type.base_unit.name_list[0])]
         last_update = unit_obj.last_updated
         if last_update is not None:
             output_lines.append("Last updated: " + Commons.format_unix_time(last_update))
@@ -1146,16 +1148,16 @@ class ConvertViewRepo(Function):
 
     def output_prefix_group_as_string(self, prefix_group_obj):
         """Outputs a Conversion PrefixGroup object as a string"""
-        output_string = "Prefix group: (" + prefix_group_obj.name + ")\n"
-        output_string += "Prefix list: " + ", ".join(
-            [prefix_obj.prefix for prefix_obj in prefix_group_obj.prefix_list])
+        prefix_list = [prefix_obj.prefix for prefix_obj in prefix_group_obj.prefix_list]
+        output_string = "Prefix group: ({}\n".format(prefix_group_obj.name)
+        output_string += "Prefix list: " + ", ".join(prefix_list)
         return output_string
 
     def output_prefix_as_string(self, prefix_obj):
         """Outputs a Conversion prefix object as a string"""
-        output_string = "Prefix: (" + prefix_obj.prefix + ")\n"
-        output_string += "Abbreviation: " + prefix_obj.abbreviation + "\n"
-        output_string += "Multiplier: " + str(prefix_obj.prefix)
+        output_string = "Prefix: ({})\n".format(prefix_obj.prefix)
+        output_string += "Abbreviation: {}\n".format(prefix_obj.abbreviation)
+        output_string += "Multiplier: {}".format(prefix_obj.prefix)
         return output_string
 
 
@@ -1247,8 +1249,7 @@ class ConvertSet(Function):
             repo = var_unit.type.repo
             repo.save_to_xml()
             # Output message
-            return "Set new offset for " + var_name + ": 0 " + var_name + " = " + str(new_offset) + " " + base_name + \
-                   "."
+            return "Set new offset for {}: 0 {} = {} {}.".format(var_name, var_name, new_offset, base_name)
         # Get new value
         new_value = (ref_amount - ((var_offset - ref_offset) / ref_value)) / var_amount
         var_unit.set_value(new_value)
@@ -1256,7 +1257,7 @@ class ConvertSet(Function):
         repo = var_unit.type.repo
         repo.save_to_xml()
         # Output message
-        return "Set new value for " + var_name + ": Δ 1 " + var_name + " = Δ " + str(new_value) + " " + base_name + "."
+        return "Set new value for {}: Δ 1 {} = Δ {} {}.".format(var_name, var_name, new_value, base_name)
 
     def add_unit(self, user_input, ref_measure_list):
         # Check reference measure has exactly 1 unit option
@@ -1300,8 +1301,10 @@ class ConvertSet(Function):
             repo = ref_unit.type.repo
             repo.save_to_xml()
             # Output message
-            return "Created new unit " + input_name + " with offset: 0 " + input_name + " = " + str(
-                new_offset) + " " + base_name + "."
+            return "Created new unit {} with offset: 0 {} = {} {}.".format(input_name,
+                                                                           input_name,
+                                                                           new_offset,
+                                                                           base_name)
         # Get new value
         new_value = (ref_amount - ((0 - ref_offset) / ref_value)) / input_amount_float
         new_unit.set_value(new_value)
@@ -1309,8 +1312,7 @@ class ConvertSet(Function):
         repo = ref_unit.type.repo
         repo.save_to_xml()
         # Output message
-        return "Created new unit " + input_name + " with value: 1 " + input_name + " = " + str(
-            new_value) + " " + base_name + "."
+        return "Created new unit {} with value: 1 {} = {} {}.".format(input_name, input_name, new_value, base_name)
 
 
 class ConvertAddType(Function):
@@ -1370,10 +1372,10 @@ class ConvertAddType(Function):
         repo.add_type(new_type)
         repo.save_to_xml()
         # Output message
-        output_string = "Created new type \"" + input_name + "\" with base unit \"" + unit_name + "\""
+        decimal_string = ""
         if decimals is not None:
-            output_string += " and " + str(decimals) + " decimal places"
-        output_string += "."
+            decimal_string = " and {} decimal places".format(decimals)
+        output_string = "Created new type \"{}\" with base unit \"{}\"{}.".format(input_name, unit_name, decimal_string)
         return output_string
 
 
@@ -1419,8 +1421,8 @@ class ConvertSetTypeDecimals(Function):
         # Save repo
         repo.save_to_xml()
         # Output message
-        return "Set the number of decimal places to display for \"" + input_type.name + "\" type units at " + str(
-            decimals) + " places."
+        return "Set the number of decimal places to display for \"{}\" type units at {} places.".format(input_type.name,
+                                                                                                        decimals)
 
 
 class ConvertRemoveUnit(Function):
@@ -1480,7 +1482,7 @@ class ConvertRemoveUnit(Function):
         input_unit_name = input_unit.name_list[0]
         input_unit.type.remove_unit(input_unit)
         # Done
-        return "Removed unit \"" + input_unit_name + "\" from conversion repository."
+        return "Removed unit \"{}\" from conversion repository.".format(input_unit_name)
 
 
 class ConvertUnitAddName(Function):
@@ -1558,7 +1560,7 @@ class ConvertUnitAddName(Function):
         # Save repo
         repo.save_to_xml()
         # Output message
-        return "Added \"" + new_unit_name + "\" as a new name for the \"" + unit_obj.name_list[0] + "\" unit."
+        return "Added \"{}\" as a new name for the \"{}\" unit.".format(new_unit_name, unit_obj.name_list[0])
 
 
 class ConvertUnitAddAbbreviation(Function):
@@ -1636,8 +1638,7 @@ class ConvertUnitAddAbbreviation(Function):
         # Save repo
         repo.save_to_xml()
         # Output message
-        return "Added \"" + new_unit_abbr + "\" as a new abbreviation for the \"" + unit_obj.name_list[
-            0] + "\" unit."
+        return "Added \"{}\" as a new abbreviation for the \"{}\" unit.".format(new_unit_abbr, unit_obj.name_list[0])
 
 
 class ConvertUnitRemoveName(Function):
@@ -1708,7 +1709,7 @@ class ConvertUnitRemoveName(Function):
         # Save repo
         repo.save_to_xml()
         # Output
-        return "Removed name \"" + input_name + "\" from \"" + user_unit.name_list[0] + "\" unit."
+        return "Removed name \"{}\" from \"{}\" unit.".format(input_name, user_unit.name_list[0])
 
 
 class ConvertUnitSetPrefixGroup(Function):
@@ -1806,5 +1807,4 @@ class ConvertUnitSetPrefixGroup(Function):
             prefix_group_name = "none"
         else:
             prefix_group_name = prefix_group.name
-        return "Set \"" + prefix_group_name + "\" as the prefix group for the \"" + unit_obj.name_list[
-            0] + "\" unit."
+        return "Set \"{}\" as the prefix group for the \"{}\" unit.".format(prefix_group_name, unit_obj.name_list[0])

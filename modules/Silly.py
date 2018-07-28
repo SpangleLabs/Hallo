@@ -1,4 +1,4 @@
-from Destination import Destination, Channel
+from Destination import Channel
 from Function import Function
 from inc.Commons import Commons
 import time
@@ -66,7 +66,7 @@ class Alarm(Function):
         self.help_docs = "Alarm. Format: alarm <subject>"
 
     def run(self, line, user_obj, destination_obj=None):
-        return 'woo woooooo woooooo ' + line + ' wooo wooo!'
+        return "woo woooooo woooooo {} wooo wooo!".format(line)
 
 
 class SlowClap(Function):
@@ -145,7 +145,7 @@ class Boop(Function):
                     or not dest_user_obj.online \
                     or dest_user_obj not in destination_obj.get_user_list():
                 return "Error, No one by that name is online or in channel."
-            server_obj.send("\x01ACTION boops " + dest_user_obj.name + ".\x01", destination_obj)
+            server_obj.send("\x01ACTION boops {}.\x01".format(dest_user_obj.name), destination_obj)
             return "Done."
         # If two arguments, see if one is a channel and the other a user.
         channel_test_1 = server_obj.get_channel_by_name(line_split[0])
@@ -163,7 +163,7 @@ class Boop(Function):
         if dest_user is None or not dest_user.online or dest_user not in dest_channel.get_user_list():
             return "Error, No user by that name is known and/or online."
         # Send boop, then return done.
-        server_obj.send("\x01ACTION boops " + dest_user.name + ".\x01", dest_channel)
+        server_obj.send("\x01ACTION boops {}.\x01".format(dest_user.name), dest_channel)
         return "Done."
 
 

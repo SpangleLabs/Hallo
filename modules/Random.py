@@ -48,18 +48,17 @@ class Roll(Function):
             return "Invalid number of sides."
         if num_dice == 1:
             rand = Commons.get_random_int(1, num_sides)[0]
-            return "I roll " + str(rand) + "!!!"
+            return "I roll {}!!!".format(rand)
         else:
             dice_rolls = Commons.get_random_int(1, num_sides, num_dice)
-            output_string = "I roll "
-            output_string += ", ".join([str(x) for x in dice_rolls])
-            output_string += ". The total is " + str(sum(dice_rolls)) + "."
+            output_string = "I roll {}. The total is {}.".format(", ".join([str(x) for x in dice_rolls]),
+                                                                 sum(dice_rolls))
             return output_string
 
     def run_range_format(self, range_min, range_max):
         """Generates a random number between rangeMin and rangeMax"""
         rand = Commons.get_random_int(range_min, range_max)[0]
-        return "I roll " + str(rand) + "!!!"
+        return "I roll {}!!!".format(rand)
 
 
 class Choose(Function):
@@ -86,7 +85,7 @@ class Choose(Function):
         else:
             rand = Commons.get_random_int(0, numchoices - 1)[0]
             choice = choices[rand]
-            return 'I choose "' + choice + '".'
+            return "I choose \"{}\".".format(choice)
 
 
 class EightBall(Function):
@@ -114,7 +113,7 @@ class EightBall(Function):
         responses += ["Don't count on it", 'My reply is no', 'My sources say no', 'Outlook not so good',
                       'Very doubtful']
         rand = Commons.get_random_int(0, len(responses) - 1)[0]
-        return responses[rand] + "."
+        return "{}.".format(responses[rand])
 
     def get_names(self):
         """Returns the list of names for directly addressing the function"""
@@ -122,7 +121,7 @@ class EightBall(Function):
         for magic in ['magic ', 'magic', '']:
             for eight in ['eight', '8']:
                 for space in [' ', '-', '']:
-                    self.names.add(magic + eight + space + "ball")
+                    self.names.add("{}{}{}ball".format(magic, eight, space))
         self.names.add(self.help_name)
         return self.names
 
@@ -153,7 +152,7 @@ class ChosenOne(Function):
         # Get list of users' names
         names_list = [user_obj.name for user_obj in user_set]
         rand = Commons.get_random_int(0, len(names_list) - 1)[0]
-        return 'It should be obvious by now that ' + names_list[rand] + ' is the chosen one.'
+        return "It should be obvious by now that {} is the chosen one.".format(names_list[rand])
 
 
 class Foof(Function):
@@ -233,7 +232,7 @@ class ThoughtForTheDay(Function):
         rand = Commons.get_random_int(0, len(thought_list) - 1)[0]
         if thought_list[rand][-1] not in ['.', '!', '?']:
             thought_list[rand] += "."
-        return '"' + thought_list[rand] + '"'
+            return "\"{}\"".format(thought_list[rand])
 
 
 class Ouija(Function):
@@ -257,9 +256,8 @@ class Ouija(Function):
         word_list = Commons.read_file_to_list('store/ouija_wordlist.txt')
         rand_list = Commons.get_random_int(0, len(word_list) - 1, 4)
         num_words = (rand_list[0] % 3) + 1
-        output_string = "I'm getting a message from the other side..."
-        output_string += " ".join([word_list[rand_list[x + 2]] for x in range(num_words)])
-        output_string += "."
+        rand_words = " ".join([word_list[rand_list[x + 2]] for x in range(num_words)])
+        output_string = "I'm getting a message from the other side... {}.".format(rand_words)
         return output_string
 
 
@@ -314,7 +312,7 @@ class CatGif(Function):
         api_key = user_obj.server.hallo.get_api_key("thecatapi")
         if api_key is None:
             return "No API key loaded for cat api."
-        url = "http://thecatapi.com/api/images/get?format=xml&api_key=" + api_key + "&type=gif"
+        url = "http://thecatapi.com/api/images/get?format=xml&api_key={}&type=gif".format(api_key)
         xml_string = Commons.load_url_string(url)
         doc = minidom.parseString(xml_string)
         cat_url = doc.getElementsByTagName("url")[0].firstChild.data
@@ -354,7 +352,7 @@ class RandomQuote(Function):
         # Construct response
         quote = json_dict['quote']
         author = json_dict['author']
-        output = '"' + quote + '" - ' + author
+        output = "\"{}\" - {}".format(quote, author)
         return output
 
 
@@ -385,7 +383,7 @@ class NightValeWeather(Function):
         # Select a video from the playlist
         rand_video = Commons.get_random_choice(playlist_data)[0]
         # Return video information
-        return "And now, the weather: http://youtu.be/" + rand_video['video_id'] + " " + rand_video['title']
+        return "And now, the weather: http://youtu.be/{} {}".format(rand_video['video_id'], rand_video['title'])
 
     def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         """Replies to an event not directly addressed to the bot."""
@@ -415,10 +413,10 @@ class NightValeWeather(Function):
             return []
         # Find API url
         api_fields = "nextPageToken,items(snippet/title,snippet/resourceId/videoId)"
-        api_url = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=" + \
-                  playlist_id + "&fields=" + urllib.parse.quote(api_fields) + "&key=" + api_key
+        api_url = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={}" \
+                  "&fields={}&key={}".format(playlist_id, urllib.parse.quote(api_fields), api_key)
         if page_token is not None:
-            api_url += "&pageToken=" + page_token
+            api_url += "&pageToken={}".format(page_token)
         # Load API response (in json).
         api_dict = Commons.load_url_json(api_url)
         for api_item in api_dict['items']:
@@ -456,11 +454,13 @@ class RandomPerson(Function):
         json_dict = Commons.load_url_json(url)
         user_dict = json_dict['results'][0]['user']
         # Construct response
-        name = (user_dict['name']['title'] + " " + user_dict['name']['first'] + " " + user_dict['name']['last']).title()
+        name = "{} {} {}".format(user_dict['name']['title'],
+                                 user_dict['name']['first'],
+                                 user_dict['name']['last']).title()
         email = user_dict['email']
-        address = user_dict['location']['street'].title() + ", "
-        address += user_dict['location']['city'].title() + ", "
-        address += user_dict['location']['postcode']
+        address = "{}, {}, {}".format(user_dict['location']['street'].title(),
+                                      user_dict['location']['city'].title(),
+                                      user_dict['location']['postcode'])
         username = user_dict['username']
         password = user_dict['password']
         date_of_birth = Commons.format_unix_time(int(user_dict['dob']))
@@ -470,16 +470,20 @@ class RandomPerson(Function):
         pronoun = "he" if user_dict['gender'] == "male" else "she"
         pronoun_possessive = "his" if user_dict['gender'] == "male" else "her"
         if input_clean not in ["more", "full", "verbose", "all"]:
-            output = "I have generated this person: Say hello to " + name + ". "
-            output += pronoun.title() + " was born at " + date_of_birth + "."
+            output = "I have generated this person: Say hello to {}. {} was form at {}.".format(name,
+                                                                                                pronoun.title(),
+                                                                                                date_of_birth)
             return output
-        output = "I have generated this person: Say hello to " + name + ". "
-        output += pronoun.title() + " was born at " + date_of_birth + " and lives at " + address + ". "
-        output += pronoun.title() + " uses the email " + email + ", the username \"" + username + \
-            "\" and usually uses the password \"" + password + "\". "
-        output += pronoun_possessive.title() + " home number is " + phone_home + " but "
-        output += pronoun_possessive + " mobile number is " + phone_mob + ". "
-        output += pronoun_possessive + " national insurance number is " + national_insurance + "."
+        output = "I have generated this person: Say hello to {}. " \
+                 "{} was born at {} and lives at {}. " \
+                 "{} uses the email {}, the username {} and usually uses the password \"{}\". " \
+                 "{} home number is {} but {} mobile number is {}. " \
+                 "{} national insurance number is {}.".format(name,
+                                                              pronoun.title(), date_of_birth, address,
+                                                              pronoun.title(), email, username, password,
+                                                              pronoun_possessive.title(), phone_home,
+                                                              pronoun_possessive, phone_mob,
+                                                              pronoun_possessive.title(), national_insurance)
         return output
 
 
@@ -539,10 +543,10 @@ class RandomColour(Function):
         url_data = Commons.load_url_string(url)
         colour_match = re.search('<meta name="Description" content="([A-Za-z ]+)#', url_data, re.M)
         if colour_match is None or colour_match.group(1) is None:
-            output = "Randomly chosen colour is: #" + hex_code + " or rgb(" + str(rgb_list[0]) + "," + str(
-                    rgb_list[1]) + "," + str(rgb_list[2]) + ") " + url
+            output = "Randomly chosen colour is: #{} or rgb({},{},{}) {}".format(hex_code, rgb_list[0],
+                                                                                 rgb_list[1], rgb_list[2], url)
         else:
             colour_name = colour_match.group(1)
-            output = "Randomly chosen colour is: " + colour_name + " #" + hex_code + " or rgb(" + str(
-                    rgb_list[0]) + "," + str(rgb_list[1]) + "," + str(rgb_list[2]) + ") " + url
+            output = "Randomly chosen colour is: {} #{} or rgb({},{},{}) {}".format(colour_name, hex_code, rgb_list[0],
+                                                                                    rgb_list[1], rgb_list[2], url)
         return output

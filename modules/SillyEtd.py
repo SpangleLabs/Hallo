@@ -89,9 +89,9 @@ class SilenceTheRabble(Function):
                 continue
             if user_obj.name.lower() == server_obj.name.lower():
                 continue
-            server_obj.send("MODE " + destination_obj.address + " -o " + user_obj.address, None, Server.MSG_RAW)
-            server_obj.send("MODE " + destination_obj.address + " -v " + user_obj.address, None, Server.MSG_RAW)
-        server_obj.send("MODE " + destination_obj.address + " +m", None, Server.MSG_RAW)
+            server_obj.send("MODE {} -o {}".format(destination_obj.address, user_obj.address), None, Server.MSG_RAW)
+            server_obj.send("MODE {} -v {}".format(destination_obj.address, user_obj.address), None, Server.MSG_RAW)
+        server_obj.send("MODE {} +m".format(destination_obj.address), None, Server.MSG_RAW)
         return "I have done your bidding, master."
 
 
@@ -129,45 +129,45 @@ class PokeTheAsshole(Function):
         else:
             number = 5
         for _ in range(number):
-            server_obj.send("MODE " + destination_obj.address + " +v Dolphin", None, Server.MSG_RAW)
-            server_obj.send("MODE " + destination_obj.address + " -v Dolphin", None, Server.MSG_RAW)
+            server_obj.send("MODE {} +v Dolphin".format(destination_obj.address), None, Server.MSG_RAW)
+            server_obj.send("MODE {} -v Dolphin".format(destination_obj.address), None, Server.MSG_RAW)
         return 'Dolphin: You awake yet?'
 
 
-class Trump(Function):
-    """
-    Announces the years that Donald Trump will win the US elections.
-    """
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        super().__init__()
-        # Name for use in help listing
-        self.help_name = "trump"
-        # Names which can be used to address the function
-        self.names = {"trump", "donald trump"}
-        # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Returns the election years that Donald Trump will win US election. " \
-                         "Format: \"trump <number of terms>\""
-
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip()
-        try:
-            num_terms = int(line_clean)
-        except ValueError:
-            num_terms = 4
-        if num_terms > 10:
-            num_terms = 10
-        current_year = datetime.date.today().year
-        first_year = math.ceil(current_year / 4) * 4
-        output_terms = []
-        for term in range(num_terms):
-            election_year = first_year + (4 * term)
-            output_terms.append("Trump " + str(election_year) + "!")
-        output = " ".join(output_terms) + " IMPERATOR TRUMP!"
-        return output
+# class Trump(Function):
+#     """
+#     Announces the years that Donald Trump will win the US elections.
+#     """
+#
+#     def __init__(self):
+#         """
+#         Constructor
+#         """
+#         super().__init__()
+#         # Name for use in help listing
+#         self.help_name = "trump"
+#         # Names which can be used to address the function
+#         self.names = {"trump", "donald trump"}
+#         # Help documentation, if it's just a single line, can be set here
+#         self.help_docs = "Returns the election years that Donald Trump will win US election. " \
+#                          "Format: \"trump <number of terms>\""
+#
+#     def run(self, line, user_obj, destination_obj=None):
+#         line_clean = line.strip()
+#         try:
+#             num_terms = int(line_clean)
+#         except ValueError:
+#             num_terms = 4
+#         if num_terms > 10:
+#             num_terms = 10
+#         current_year = datetime.date.today().year
+#         first_year = math.ceil(current_year / 4) * 4
+#         output_terms = []
+#         for term in range(num_terms):
+#             election_year = first_year + (4 * term)
+#             output_terms.append("Trump {}!".format(election_year))
+#         output = "{} IMPERATOR TRUMP!".format(" ".join(output_terms))
+#         return output
 
 
 class Corbyn(Function):
@@ -197,10 +197,11 @@ class Corbyn(Function):
         if num_terms > 10:
             num_terms = 10
         current_year = datetime.date.today().year
-        first_year = math.ceil(current_year / 5) * 5
+        last_election = 2017
+        first_year = last_election+math.ceil((current_year-last_election) / 5) * 5
         output_terms = []
         for term in range(num_terms):
             election_year = first_year + (5 * term)
-            output_terms.append("Corbyn " + str(election_year) + "!")
-        output = " ".join(output_terms) + " CHAIRMAN CORBYN!"
+            output_terms.append("Corbyn {}!".format(election_year))
+        output = "{} CHAIRMAN CORBYN!".format(" ".join(output_terms))
         return output
