@@ -13,7 +13,7 @@ class TestE621Sub(unittest.TestCase):
 
     def test_init(self):
         rf = E621Sub()
-        keys = ["search", "server_name", "channel_name", "user_name", "latest_ten_ids", "last_check",
+        keys = ["search", "server_name", "channel_address", "user_address", "latest_ten_ids", "last_check",
                 "update_frequency"]
         for key in keys:
             assert key in rf.__dict__, "Key is missing from E621Sub object: " + key

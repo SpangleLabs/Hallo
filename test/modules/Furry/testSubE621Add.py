@@ -42,8 +42,8 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         assert len(rfl) == 1, "Actual length: "+str(len(rfl))
         assert rfl[0].search == "cabinet"
         assert rfl[0].server_name == self.server.name
-        assert rfl[0].channel_name == self.test_chan.name
-        assert rfl[0].user_name is None
+        assert rfl[0].channel_address == self.test_chan.name
+        assert rfl[0].user_address is None
         assert rfl[0].latest_ten_ids is not None
         assert len(rfl[0].latest_ten_ids) == 10
         assert rfl[0].last_check is not None
@@ -61,8 +61,8 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         assert len(rfl) == 1, "Actual length: "+str(len(rfl))
         assert rfl[0].search == "cabinet"
         assert rfl[0].server_name == self.server.name
-        assert rfl[0].channel_name is None
-        assert rfl[0].user_name == self.test_user.name
+        assert rfl[0].channel_address is None
+        assert rfl[0].user_address == self.test_user.name
         assert rfl[0].latest_ten_ids is not None
         assert len(rfl[0].latest_ten_ids) == 10
         assert rfl[0].last_check is not None
@@ -81,8 +81,8 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         assert len(rfl) == 1, "Actual length: "+str(len(rfl))
         assert rfl[0].search == "cabinet"
         assert rfl[0].server_name == self.server.name
-        assert rfl[0].channel_name == self.test_chan.name
-        assert rfl[0].user_name is None
+        assert rfl[0].channel_address == self.test_chan.name
+        assert rfl[0].user_address is None
         assert rfl[0].latest_ten_ids is not None
         assert len(rfl[0].latest_ten_ids) == 10
         assert rfl[0].last_check is not None

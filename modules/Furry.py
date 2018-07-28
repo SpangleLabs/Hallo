@@ -430,9 +430,9 @@ class E621Sub:
         # Get destination
         if destination is None:
             if self.channel_address is not None:
-                destination = server.get_channel_by_address(self.channel_address)
+                destination = server.get_channel_by_address(self.channel_address, None)
             if self.user_address is not None:
-                destination = server.get_user_by_address(self.user_address)
+                destination = server.get_user_by_address(self.user_address, None)
             if destination is None:
                 return "Error, invalid destination."
         # Construct output
@@ -545,24 +545,24 @@ class E621Sub:
         # Create root element
         json_obj = {}
         # Create search element
-        json_obj.search = self.search
+        json_obj["search"] = self.search
         # Create server name element
-        json_obj.server_name = self.server_name
+        json_obj["server_name"] = self.server_name
         # Create channel name element, if applicable
         if self.channel_address is not None:
-            json_obj.channel_address = self.channel_address
+            json_obj["channel_address"] = self.channel_address
         # Create user name element, if applicable
         if self.user_address is not None:
-            json_obj.user_address = self.user_address
+            json_obj["user_address"] = self.user_address
         # Create latest id elements
-        json_obj.latest_ids = []
+        json_obj["latest_ids"] = []
         for latest_id in self.latest_ten_ids:
-            json_obj.latest_ids.append(latest_id)
+            json_obj["latest_ids"].append(latest_id)
         # Create last check element
         if self.last_check is not None:
-            json_obj.last_check = self.last_check.isoformat()
+            json_obj["last_check"] = self.last_check.isoformat()
         # Create update frequency element
-        json_obj.update_frequency = Commons.format_time_delta(self.update_frequency)
+        json_obj["update_frequency"] = Commons.format_time_delta(self.update_frequency)
         # Return xml string
         return json_obj
 
@@ -576,24 +576,24 @@ class E621Sub:
         # Create blank subscription
         new_sub = E621Sub()
         # Load search, server
-        new_sub.search = json_obj.search
-        new_sub.server_name = json_obj.server_name
+        new_sub.search = json_obj["search"]
+        new_sub.server_name = json_obj["server_name"]
         # Load channel or user
         if "channel_address" in json_obj:
-            new_sub.channel_address = json_obj.channel_address
+            new_sub.channel_address = json_obj["channel_address"]
         else:
             if "user_address" in json_obj:
-                new_sub.user_address = json_obj.user_address
+                new_sub.user_address = json_obj["user_address"]
             else:
                 raise Exception("Channel or user must be defined")
         # Load last item
-        for latest_id in json_obj.latest_ids:
+        for latest_id in json_obj["latest_ids"]:
             new_sub.latest_ten_ids.append(latest_id)
         # Load last check
         if "last_check" in json_obj:
-            new_sub.last_check = datetime.strptime(json_obj.last_check, "%Y-%m-%dT%H:%M:%S.%f")
+            new_sub.last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
         # Load update frequency
-        new_sub.update_frequency = Commons.load_time_delta(json_obj.update_frequency)
+        new_sub.update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
         # Return new feed
         return new_sub
 
@@ -699,9 +699,9 @@ class E621SubList:
         :return: None
         """
         json_obj = {}
-        json_obj.e621_subs = []
+        json_obj["e621_subs"] = []
         for e621_sub in self.sub_list:
-            json_obj.e621_subs.append(e621_sub.to_json())
+            json_obj["e621_subs"].append(e621_sub.to_json())
         # Write json to file
         with open("store/e621_subscriptions.json", "w") as f:
             json.dump(json_obj, f, indent=2)
@@ -718,7 +718,7 @@ class E621SubList:
         with open("store/e621_subscriptions.json", "r") as f:
             json_obj = json.load(f)
         # Loop subs in json file adding them to list
-        for e621_sub_elem in json_obj.e621_subs:
+        for e621_sub_elem in json_obj["e621_subs"]:
             new_sub_obj = E621Sub.from_json(e621_sub_elem)
             new_sub_list.add_sub(new_sub_obj)
         return new_sub_list
@@ -778,7 +778,7 @@ class SubE621Add(Function):
             # Add new rss feed to list
             e621_sub_list.add_sub(e621_sub)
             # Save list
-            e621_sub_list.to_xml()
+            e621_sub_list.save_json()
         # Return output
         return "I have added new e621 subscription for the search \"{}\"".format(e621_sub.search)
 
@@ -818,7 +818,7 @@ class SubE621Check(Function):
 
     def save_function(self):
         """Saves the function, persistent functions only."""
-        self.e621_sub_list.to_xml()
+        self.e621_sub_list.save_json()
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
@@ -848,7 +848,7 @@ class SubE621Check(Function):
             # Remove duplicate entries from output_lines
             output_lines = list(set(output_lines))
             # Save list
-            self.e621_sub_list.to_xml()
+            self.e621_sub_list.save_json()
         # Output response to user
         if len(output_lines) == 0:
             return "There were no updates for \"{}\" e621 search.".format(line)
@@ -864,7 +864,7 @@ class SubE621Check(Function):
             # Remove duplicate entries from output_lines
             output_lines = list(set(output_lines))
             # Save list
-            self.e621_sub_list.to_xml()
+            self.e621_sub_list.save_json()
         # Output response to user
         if len(output_lines) == 0:
             return "There were no e621 search subscription updates."
@@ -892,7 +892,7 @@ class SubE621Check(Function):
                     for search_item in new_items:
                         search_sub.output_item(search_item, hallo_obj)
             # Save list
-            self.e621_sub_list.to_xml()
+            self.e621_sub_list.save_json()
 
 
 class SubE621List(Function):

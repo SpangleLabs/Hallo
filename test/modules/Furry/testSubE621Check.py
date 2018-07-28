@@ -50,7 +50,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
         mfl = MockSubList()
         fc.e621_sub_list = mfl
         fc.save_function()
-        assert mfl.to_xml_called
+        assert mfl.save_json_called
 
     def test_run_all(self):
         # Set up test servers and channels
@@ -250,7 +250,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
 class MockSubList:
 
     def __init__(self):
-        self.to_xml_called = False
+        self.save_json_called = False
 
-    def to_xml(self):
-        self.to_xml_called = True
+    def save_json(self):
+        self.save_json_called = True
