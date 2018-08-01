@@ -402,3 +402,14 @@ class FunctionDispatcher(object):
         # Create new FunctionDispatcher
         new_function_dispatcher = FunctionDispatcher(module_list, hallo)
         return new_function_dispatcher
+
+    def to_json(self):
+        """
+        Output the function dispatcher configuration in a dict format for saving as json
+        :return: dict
+        """
+        json_obj = {}
+        json_obj["modules"] = []
+        for module_name in self.module_list:
+            json_obj["modules"].append({"name":module_name})
+        return json_obj
