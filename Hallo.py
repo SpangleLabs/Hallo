@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import time
 import re
 from xml.dom import minidom
@@ -30,7 +31,7 @@ class Hallo:
         self.user_group_list = set()
         """:type : set[UserGroup]"""
         self.server_list = set()
-        """:type : set[Server.Server]"""
+        """:type : set[Server]"""
         self.logger = Logger(self)
         """:type : Logger"""
         self.printer = Printer(self)
@@ -44,7 +45,7 @@ class Hallo:
         """:type : PermissionMask"""
         # TODO: manual FunctionDispatcher construction, user input?
         self.function_dispatcher = None
-        """:type : Optional[FunctionDispatcher]"""
+        """:type : FunctionDispatcher"""
 
     def start(self):
         # If no function dispatcher, create one
@@ -145,7 +146,7 @@ class Hallo:
         default_nick_elem.appendChild(doc.createTextNode(self.default_nick))
         root.appendChild(default_nick_elem)
         # Create default_prefix element
-        if self.default_prefix is not None:
+        if self.default_prefix is not None: # todo, wrong. shouldn't be none.
             default_prefix_elem = doc.createElement("default_prefix")
             if self.default_prefix is False:
                 default_prefix_elem.appendChild(doc.createTextNode("0"))
@@ -192,6 +193,31 @@ class Hallo:
         # Save XML
         with open("config/config.xml", "w+") as f:
             doc.writexml(f, addindent="\t", newl="\r\n")
+
+    def save_json(self):
+        """
+        Saves the whole hallo config to a JSON file
+        :return: None
+        """
+        json_obj = {}
+        json_obj["default_nick"] = self.default_nick
+        json_obj["default_prefix"] = self.default_prefix
+        json_obj["default_full_name"] = self.default_full_name
+        json_obj["function_dispatcher"] = self.function_dispatcher.to_json()
+        json_obj["servers"] = []
+        for server in self.server_list:
+            json_obj["servers"].append(server.to_json())
+        json_obj["user_groups"] = []
+        for user_group in self.user_group_list:
+            json_obj["user_groups"].append(user_group.to_json())
+        if not self.permission_mask.is_empty():
+            json_obj["permission_mask"] = self.permission_mask.to_json()
+        json_obj["api_keys"] = {}
+        for api_key_name in self.api_key_list:
+            json_obj["api_keys"][api_key_name] = self.api_key_list[api_key_name]
+        # Write json to file
+        with open("config/config.json", "w") as f:
+            json.dump(json_obj, f, indent=2)
 
     def add_user_group(self, user_group):
         """
