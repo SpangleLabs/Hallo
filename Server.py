@@ -100,6 +100,13 @@ class Server(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
+    def to_json(self):
+        """
+        Returns a dict formatted so it may be serialised into json configuration data
+        :return: dict
+        """
+        raise NotImplementedError
+
     def get_nick(self):
         """Nick getter"""
         if self.nick is None:
