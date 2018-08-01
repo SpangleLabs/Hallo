@@ -3,6 +3,7 @@
   "type": "object",
   "definitions": {
     "permission_mask": {
+      "$id": "/definitions/permission_mask",
       "type": "object",
       "description": "Map of rights to boolean values, of whether they have that right.",
       "additionalProperties": {
@@ -174,7 +175,7 @@
                 },
                 "permission_mask": {
                   "$id": "/properties/servers/items/properties/channels/items/properties/permission_mask",
-                  "$ref": "#/definitions/permission_mask"
+                  "$ref": "http://hallo.spangle.org.uk/config.json#/definitions/permission_mask"
                 }
               }
             }
@@ -237,7 +238,7 @@
                 },
                 "permission_mask": {
                   "$id": "/properties/servers/items/properties/users/items/properties/permission_mask",
-                  "$ref": "#/definitions/permission_mask"
+                  "$ref": "http://hallo.spangle.org.uk/config.json#/definitions/permission_mask"
                 }
               }
             }
@@ -264,7 +265,7 @@
           },
           "permission_mask": {
             "$id": "/properties/servers/items/properties/permission_mask",
-            "$ref": "#/definitions/permission_mask"
+            "$ref": "http://hallo.spangle.org.uk/config.json#/definitions/permission_mask"
           }
         },
         "anyOf": [
@@ -389,14 +390,14 @@
           },
           "permission_mask": {
             "$id": "/properties/user_groups/items/properties/permission_mask",
-            "$ref": "#/definitions/permission_mask"
+            "$ref": "http://hallo.spangle.org.uk/config.json#/definitions/permission_mask"
           }
         }
       }
     },
     "permission_mask": {
       "$id": "/properties/permission_mask",
-      "$ref": "#/definitions/permission_mask"
+      "$ref": "http://hallo.spangle.org.uk/config.json#/definitions/permission_mask"
     },
     "api_keys": {
       "$id": "/properties/api_keys",
