@@ -86,3 +86,15 @@ class PermissionMask(object):
             right_value = Commons.string_from_file(right_elem.getElementsByTagName("value")[0].firstChild.data)
             new_mask.set_right(right_name, right_value)
         return new_mask
+
+    def to_json(self):
+        """
+        Returns the PermissionMask configuration as an object for serialisation into json
+        :return: dict
+        """
+        json_obj = {}
+        for map_right in self.rights_map:
+            if self.rights_map[map_right] is None:
+                continue
+            json_obj[map_right] = self.rights_map[map_right]
+        return json_obj
