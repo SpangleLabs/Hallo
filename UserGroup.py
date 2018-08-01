@@ -113,3 +113,14 @@ class UserGroup:
             new_user_group.permission_mask = PermissionMask.from_xml(
                 doc.getElementsByTagName("permission_mask")[0].toxml())
         return new_user_group
+
+    def to_json(self):
+        """
+        Returns the user group configuration as a dict for serialisation into json
+        :return: dict
+        """
+        json_obj = {}
+        json_obj["name"] = self.name
+        if not self.permission_mask.is_empty():
+            json_obj["permission_mask"] = self.permission_mask.to_json()
+        return json_obj
