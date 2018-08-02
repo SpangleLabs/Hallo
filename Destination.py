@@ -284,6 +284,24 @@ class Channel(Destination):
         # output XML string
         return doc.toxml()
 
+    def to_json(self):
+        """
+        Returns a dictionary which can be serialised into a json config object
+        :return: dict
+        """
+        json_obj = dict()
+        json_obj["name"] = self.name
+        json_obj["address"] = self.address
+        json_obj["logging"] = self.logging
+        json_obj["caps_lock"] = self.use_caps_lock
+        json_obj["passive_enabled"] = self.passive_enabled
+        json_obj["auto_join"] = self.auto_join
+        if self.password is not None:
+            json_obj["password"] = self.password
+        if not self.permission_mask.is_empty():
+            json_obj["permission_mask"] = self.permission_mask.to_json()
+        return json_obj
+
     @staticmethod
     def from_xml(xml_string, server):
         """
