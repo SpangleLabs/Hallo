@@ -27,7 +27,7 @@ class ServerTelegram(Server):
         self.hallo = hallo  # The hallo object that created this server
         # Persistent/saved class variables
         self.api_key = api_key
-        self.name = "Telegram"  # Server name
+        self.name = "Telegram"  # Server name #TODO: needs to be configurable!
         self.auto_connect = True  # Whether to automatically connect to this server when hallo starts
         self.channel_list = []  # List of channels on this server (which may or may not be currently active)
         self.user_list = []  # Users on this server (not all of which are online)
@@ -275,6 +275,30 @@ class ServerTelegram(Server):
             root.appendChild(permission_mask_elem)
         # output XML string
         return doc.toxml()
+
+    def to_json(self):
+        """
+        Creates a dict of configuration for the server, to store as json
+        :return: dict
+        """
+        json_obj = dict()
+        json_obj["type"] = Server.TYPE_TELEGRAM
+        json_obj["name"] = self.name
+        json_obj["auto_connect"] = self.auto_connect
+        json_obj["channels"] = []
+        for channel in self.channel_list:
+            json_obj["channels"].append(channel.to_json())
+        json_obj["users"] = []
+        for user in self.user_list:
+            json_obj["users"].append(user.to_json())
+        if self.nick is not None:
+            json_obj["nick"] = self.nick
+        if self.prefix is not None:
+            json_obj["prefix"] = self.prefix
+        if not self.permission_mask.is_empty():
+            json_obj["permission_mask"] = self.permission_mask.to_json()
+        json_obj["api_key"] = self.api_key
+        return json_obj
 
     def join_channel(self, channel_obj):
         pass

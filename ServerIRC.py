@@ -1215,3 +1215,4 @@ class ServerIRC(Server):
             json_obj["nickserv"]["password"] = self.nickserv_pass
             json_obj["nickserv"]["identity_command"] = self.nickserv_ident_command
             json_obj["nickserv"]["identity_status"] = self.nickserv_ident_response
+        return json_obj
