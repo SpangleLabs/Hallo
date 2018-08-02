@@ -1198,7 +1198,7 @@ class ServerIRC(Server):
             json_obj["channels"].append(channel.to_json())
         json_obj["users"] = []
         for user in self.user_list:
-            json_obj["users"].append(user.to_json())  # TODO
+            json_obj["users"].append(user.to_json())
         if self.nick is not None:
             json_obj["nick"] = self.nick
         if self.prefix is not None:
