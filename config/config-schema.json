@@ -307,16 +307,10 @@
                   "identity_response"
                 ],
                 "properties": {
-                  "name": {
-                    "$id": "/properties/servers/items/properties/nickserv/properties/name",
+                  "nick": {
+                    "$id": "/properties/servers/items/properties/nickserv/properties/nick",
                     "type": "string",
                     "description": "The nickname nickserv uses on this server",
-                    "default": "nickserv"
-                  },
-                  "address": {
-                    "$id": "/properties/servers/items/properties/nickserv/properties/address",
-                    "type": "string",
-                    "description": "The address nickserv uses on this server",
                     "default": "nickserv"
                   },
                   "password": {
@@ -347,8 +341,7 @@
             },
             "required": [
               "address",
-              "port",
-              "nickserv"
+              "port"
             ]
           },
           {
