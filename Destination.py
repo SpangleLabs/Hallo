@@ -564,6 +564,7 @@ class User(Destination):
                 new_user.add_user_group(user_group)
         if "permission_mask" in json_obj:
             new_user.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+        return new_user
 
 
 class ChannelMembership:
