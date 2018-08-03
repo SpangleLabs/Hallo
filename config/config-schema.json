@@ -300,8 +300,7 @@
                 "description": "Nickserv object, details how to verify self and others with nickserv on irc servers",
                 "type": "object",
                 "required": [
-                  "name",
-                  "address",
+                  "nick",
                   "password",
                   "identity_command",
                   "identity_response"
