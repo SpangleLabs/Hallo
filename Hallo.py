@@ -322,7 +322,7 @@ class Hallo:
             if server.state != Server.STATE_CLOSED:
                 server.disconnect()
         self.function_dispatcher.close()
-        self.save_to_xml()
+        self.save_json()
         self.open = False
 
     def rights_check(self, right_name):
@@ -388,10 +388,10 @@ class Hallo:
         # Add new server to server list
         self.add_server(new_server)
         # Save XML
-        self.save_to_xml()
+        self.save_json()
         print("Config file saved.")
 
 
 if __name__ == '__main__':
-    hallo = Hallo.load_from_xml()
+    hallo = Hallo.load_json()
     hallo.start()
