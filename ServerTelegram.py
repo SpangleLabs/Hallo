@@ -303,7 +303,7 @@ class ServerTelegram(Server):
     @staticmethod
     def from_json(json_obj, hallo):
         api_key = json_obj["api_key"]
-        new_server = ServerTelegram(api_key, hallo)
+        new_server = ServerTelegram(hallo, api_key)
         new_server.name = json_obj["name"]
         new_server.auto_connect = json_obj["auto_connect"]
         if "nick" in json_obj:
