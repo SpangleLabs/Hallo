@@ -507,23 +507,6 @@ class User(Destination):
         # output XML string
         return doc.toxml()
 
-    def to_json(self):
-        """
-        Creates a dict of the user object, to serialise and store as json configuration
-        :return: dict
-        """
-        json_obj = dict()
-        json_obj["name"] = self.name
-        json_obj["address"] = self.address
-        json_obj["logging"] = self.logging
-        json_obj["caps_lock"] = self.use_caps_lock
-        json_obj["user_groups"] = []
-        for user_group in self.user_group_list:
-            json_obj["user_groups"].append(user_group.name)
-        if not self.permission_mask.is_empty():
-            json_obj["permission_mask"] = self.permission_mask.to_json()
-        return json_obj
-
     @staticmethod
     def from_xml(xml_string, server):
         """
@@ -550,6 +533,37 @@ class User(Destination):
         if len(doc.getElementsByTagName("permission_mask")) != 0:
             new_user.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return new_user
+
+    def to_json(self):
+        """
+        Creates a dict of the user object, to serialise and store as json configuration
+        :return: dict
+        """
+        json_obj = dict()
+        json_obj["name"] = self.name
+        json_obj["address"] = self.address
+        json_obj["logging"] = self.logging
+        json_obj["caps_lock"] = self.use_caps_lock
+        json_obj["user_groups"] = []
+        for user_group in self.user_group_list:
+            json_obj["user_groups"].append(user_group.name)
+        if not self.permission_mask.is_empty():
+            json_obj["permission_mask"] = self.permission_mask.to_json()
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, server):
+        name = json_obj["name"]
+        address = json_obj["address"]
+        new_user = User(server, address, name)
+        new_user.logging = json_obj["logging"]
+        new_user.use_caps_lock = json_obj["caps_lock"]
+        for user_group_name in json_obj["user_groups"]:
+            user_group = server.hallo.get_user_group_by_name(user_group_name)
+            if user_group is not None:
+                new_user.add_user_group(user_group)
+        if "permission_mask" in json_obj:
+            new_user.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
 
 
 class ChannelMembership:
