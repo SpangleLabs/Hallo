@@ -240,7 +240,8 @@ class Hallo:
         new_hallo.default_full_name = json_obj["default_full_name"]
         new_hallo.function_dispatcher = FunctionDispatcher.from_json(json_obj["function_dispatcher"], new_hallo)
         for server in json_obj["servers"]:
-            new_hallo.add_server(Server.from_json(server, new_hallo))
+            new_server = new_hallo.server_factory.new_server_from_json(server)
+            new_hallo.add_server(new_server)
         for user_group in json_obj["user_groups"]:
             new_hallo.add_user_group(UserGroup.from_json(user_group, new_hallo))
         if "permission_mask" in json_obj:
