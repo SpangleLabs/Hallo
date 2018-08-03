@@ -284,24 +284,6 @@ class Channel(Destination):
         # output XML string
         return doc.toxml()
 
-    def to_json(self):
-        """
-        Returns a dictionary which can be serialised into a json config object
-        :return: dict
-        """
-        json_obj = dict()
-        json_obj["name"] = self.name
-        json_obj["address"] = self.address
-        json_obj["logging"] = self.logging
-        json_obj["caps_lock"] = self.use_caps_lock
-        json_obj["passive_enabled"] = self.passive_enabled
-        json_obj["auto_join"] = self.auto_join
-        if self.password is not None:
-            json_obj["password"] = self.password
-        if not self.permission_mask.is_empty():
-            json_obj["permission_mask"] = self.permission_mask.to_json()
-        return json_obj
-
     @staticmethod
     def from_xml(xml_string, server):
         """
@@ -325,6 +307,39 @@ class Channel(Destination):
         if len(doc.getElementsByTagName("permission_mask")) != 0:
             channel.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
         return channel
+
+    def to_json(self):
+        """
+        Returns a dictionary which can be serialised into a json config object
+        :return: dict
+        """
+        json_obj = dict()
+        json_obj["name"] = self.name
+        json_obj["address"] = self.address
+        json_obj["logging"] = self.logging
+        json_obj["caps_lock"] = self.use_caps_lock
+        json_obj["passive_enabled"] = self.passive_enabled
+        json_obj["auto_join"] = self.auto_join
+        if self.password is not None:
+            json_obj["password"] = self.password
+        if not self.permission_mask.is_empty():
+            json_obj["permission_mask"] = self.permission_mask.to_json()
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, server):
+        name = json_obj["name"]
+        address = json_obj["address"]
+        new_channel = Channel(server, address, name)
+        new_channel.logging = json_obj["logging"]
+        new_channel.use_caps_lock = json_obj["caps_lock"]
+        new_channel.passive_enabled = json_obj["passive_enabled"]
+        new_channel.auto_join = json_obj["auto_join"]
+        if "password" in json_obj:
+            new_channel.password = json_obj["password"]
+        if "permission_mask" in json_obj:
+            new_channel.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+        return new_channel
 
 
 class User(Destination):
