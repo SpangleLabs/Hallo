@@ -219,6 +219,36 @@ class Hallo:
         with open("config/config.json", "w") as f:
             json.dump(json_obj, f, indent=2)
 
+    @staticmethod
+    def load_json():
+        """
+        Loads up the json configuration and creates a new Hallo object
+        :return: new Hallo object
+        :rtype: Hallo
+        """
+        try:
+            with open("config/config.json", "r") as f:
+                json_obj = json.load(f)
+        except (OSError, IOError):
+            print("No current config, loading from default.")
+            with open("config/config-default.json", "r") as f:
+                json_obj = json.load(f)
+        # Create new hallo object
+        new_hallo = Hallo()
+        new_hallo.default_nick = json_obj["default_nick"]
+        new_hallo.default_prefix = json_obj["default_prefix"]
+        new_hallo.default_full_name = json_obj["default_full_name"]
+        new_hallo.function_dispatcher = FunctionDispatcher.from_json(json_obj["function_dispatcher"], new_hallo)
+        for server in json_obj["servers"]:
+            new_hallo.add_server(Server.from_json(server, new_hallo))
+        for user_group in json_obj["user_groups"]:
+            new_hallo.add_user_group(UserGroup.from_json(user_group, new_hallo))
+        if "permission_mask" in json_obj:
+            new_hallo.permission_mask = PermissionMask.from_json(json_obj["permission_mask"], new_hallo)
+        for api_key in json_obj["api_keys"]:
+            new_hallo.add_api_key(api_key, json_obj["api_keys"][api_key])
+        return new_hallo
+
     def add_user_group(self, user_group):
         """
         Adds a new UserGroup to the UserGroup list
