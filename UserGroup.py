@@ -124,3 +124,19 @@ class UserGroup:
         if not self.permission_mask.is_empty():
             json_obj["permission_mask"] = self.permission_mask.to_json()
         return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo):
+        """
+        Creates a UserGroup object from json object dictionary
+        :param json_obj: json object dictionary
+        :type json_obj: dict
+        :param hallo: root hallo object
+        :type hallo: Hallo.Hallo
+        :return: new user group
+        :rtype: UserGroup
+        """
+        new_group = UserGroup(json_obj["name"], hallo)
+        if "permission_mask" in json_obj:
+            new_group.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+        return new_group
