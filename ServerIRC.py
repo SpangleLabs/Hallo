@@ -1216,3 +1216,29 @@ class ServerIRC(Server):
             json_obj["nickserv"]["identity_command"] = self.nickserv_ident_command
             json_obj["nickserv"]["identity_status"] = self.nickserv_ident_response
         return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo):
+        name = json_obj["name"]
+        address = json_obj["address"]
+        port = json_obj["port"]
+        new_server = ServerIRC(hallo, name, address, port)
+        new_server.auto_connect = json_obj["auto_connect"]
+        if "full_name" in json_obj:
+            new_server.full_name = json_obj["full_name"]
+        if "nickserv" in json_obj:
+            new_server.nickserv_nick = json_obj["nickserv"]["nick"]
+            new_server.nickserv_pass = json_obj["nickserv"]["password"]
+            new_server.nickserv_ident_command = json_obj["nickserv"]["identity_command"]
+            new_server.nickserv_ident_response = json_obj["nickserv"]["identity_response"]
+        if "nick" in json_obj:
+            new_server.nick = json_obj["nick"]
+        if "prefix" in json_obj:
+            new_server.prefix = json_obj["prefix"]
+        for channel in json_obj["channels"]:
+            new_server.add_channel(Channel.from_json(channel, new_server))
+        for user in json_obj["users"]:
+            new_server.add_user(User.from_json(user, new_server))
+        if "permission_mask" in json_obj:
+            new_server.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+        return new_server
