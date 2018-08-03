@@ -239,11 +239,12 @@ class Hallo:
         new_hallo.default_prefix = json_obj["default_prefix"]
         new_hallo.default_full_name = json_obj["default_full_name"]
         new_hallo.function_dispatcher = FunctionDispatcher.from_json(json_obj["function_dispatcher"], new_hallo)
+        # User groups must be done before servers, as users will try and look up and add user groups!
+        for user_group in json_obj["user_groups"]:
+            new_hallo.add_user_group(UserGroup.from_json(user_group, new_hallo))
         for server in json_obj["servers"]:
             new_server = new_hallo.server_factory.new_server_from_json(server)
             new_hallo.add_server(new_server)
-        for user_group in json_obj["user_groups"]:
-            new_hallo.add_user_group(UserGroup.from_json(user_group, new_hallo))
         if "permission_mask" in json_obj:
             new_hallo.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
         for api_key in json_obj["api_keys"]:
