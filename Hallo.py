@@ -244,7 +244,7 @@ class Hallo:
         for user_group in json_obj["user_groups"]:
             new_hallo.add_user_group(UserGroup.from_json(user_group, new_hallo))
         if "permission_mask" in json_obj:
-            new_hallo.permission_mask = PermissionMask.from_json(json_obj["permission_mask"], new_hallo)
+            new_hallo.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
         for api_key in json_obj["api_keys"]:
             new_hallo.add_api_key(api_key, json_obj["api_keys"][api_key])
         return new_hallo

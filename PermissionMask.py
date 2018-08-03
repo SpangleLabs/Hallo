@@ -98,3 +98,10 @@ class PermissionMask(object):
                 continue
             json_obj[map_right] = self.rights_map[map_right]
         return json_obj
+
+    @staticmethod
+    def from_json(json_obj):
+        new_mask = PermissionMask()
+        for map_right in json_obj:
+            new_mask.set_right(map_right, json_obj[map_right])
+        return new_mask
