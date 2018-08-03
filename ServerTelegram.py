@@ -300,6 +300,24 @@ class ServerTelegram(Server):
         json_obj["api_key"] = self.api_key
         return json_obj
 
+    @staticmethod
+    def from_json(json_obj, hallo):
+        api_key = json_obj["api_key"]
+        new_server = ServerTelegram(api_key, hallo)
+        new_server.name = json_obj["name"]
+        new_server.auto_connect = json_obj["auto_connect"]
+        if "nick" in json_obj:
+            new_server.nick = json_obj["nick"]
+        if "prefix" in json_obj:
+            new_server.prefix = json_obj["prefix"]
+        if "permission_mask" in json_obj:
+            new_server.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+        for channel in json_obj["channels"]:
+            new_server.add_channel(Channel.from_json(channel, new_server))
+        for user in json_obj["users"]:
+            new_server.add_user(User.from_json(user, new_server))
+        return new_server
+
     def join_channel(self, channel_obj):
         pass
         # TODO
