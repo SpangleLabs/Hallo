@@ -170,14 +170,14 @@
           },
           "base_unit": {
             "$id": "/properties/unit_types/items/properties/base_unit",
-            "$ref": "http://hallo.spangle.org.uk/convert.json/definitions/unit"
+            "$ref": "http://hallo.spangle.org.uk/convert.json#/definitions/unit"
           },
           "units": {
             "$id": "/properties/unit_types/items/properties/units",
             "type": "array",
             "items": {
               "$id": "/properties/unit_types/items/properties/units/items",
-              "$ref": "http://hallo.spangle.org.uk/convert.json/definitions/unit"
+              "$ref": "http://hallo.spangle.org.uk/convert.json#/definitions/unit"
             }
           }
         }
