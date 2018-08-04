@@ -5,7 +5,7 @@
     "unit": {
       "$id": "/definitions/unit",
       "type": "object",
-      "required": ["names", "value", "abbrs"],
+      "required": ["names", "value"],
       "properties": {
         "names": {
           "$id": "/definitions/unit/properties/names",
