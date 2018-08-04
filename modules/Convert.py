@@ -1,3 +1,5 @@
+import datetime
+import json
 from xml.dom import minidom
 from inc.Commons import Commons
 from Function import Function
@@ -19,7 +21,9 @@ class ConvertRepo:
         Constructor
         """
         self.type_list = []
+        """:type : list[ConvertType]"""
         self.prefix_group_list = []
+        """:type : list[ConvertPrefixGroup]"""
 
     def add_type(self, new_type):
         """
@@ -127,6 +131,23 @@ class ConvertRepo:
         with open("store/convert.xml", "w") as f:
             doc.writexml(f, addindent="\t", newl="\n")
 
+    def save_json(self):
+        """
+        Saves the convert unit repository to json.
+        :return: None
+        """
+        # Create json object
+        json_obj = dict()
+        json_obj["prefix_groups"] = []
+        for prefix_group in self.prefix_group_list:
+            json_obj["prefix_groups"].append(prefix_group.to_json())
+        json_obj["unit_types"] = []
+        for unit_type in self.type_list:
+            json_obj["unit_types"].append(unit_type.to_json())
+        # Save json to file
+        with open("store/convert.json", "w") as f:
+            json.dump(json_obj, f)
+
 
 class ConvertType:
     """
@@ -141,10 +162,15 @@ class ConvertType:
         :type name: str
         """
         self.unit_list = []  # Contains all units of this type except base_unit
+        """:type : list[ConvertUnit]"""
         self.repo = repo
+        """:type : ConvertRepo"""
         self.name = name
+        """:type : str"""
         self.decimals = 2
+        """:type : int"""
         self.base_unit = None
+        """:type : ConvertUnit"""
 
     def get_full_unit_list(self):
         """Returns the full list of ConvertUnit objects"""
@@ -160,7 +186,11 @@ class ConvertType:
             self.unit_list.remove(unit)
 
     def get_unit_by_name(self, name):
-        """Get a unit by a specified name or abbreviation"""
+        """
+        Get a unit by a specified name or abbreviation
+        :type name: str
+        :rtype: ConvertUnit | None
+        """
         full_unit_list = [self.base_unit] + self.unit_list
         for unit_obj in full_unit_list:
             if name in unit_obj.name_list:
@@ -228,6 +258,20 @@ class ConvertType:
         # Output XML
         return doc.toxml()
 
+    def to_json(self):
+        """
+        Outputs a conversion type in a dict, for serialisation into json
+        :return: dict
+        """
+        json_obj = dict()
+        json_obj["name"] = self.name
+        json_obj["decimals"] = self.decimals
+        json_obj["base_unit"] = self.base_unit.to_json()
+        json_obj["units"] = []
+        for unit in self.unit_list:
+            json_obj["units"].append(unit.to_json())
+        return json_obj
+
 
 class ConvertUnit:
     """
@@ -244,12 +288,21 @@ class ConvertUnit:
         :type value: float
         """
         self.abbr_list = []
+        """:type : list[str]"""
         self.type = convert_type
+        """:type : ConvertType"""
         self.name_list = names
+        """:type : list[str]"""
         self.value = value
+        """:type : float"""
         self.offset = 0
+        """:type : float"""
         self.last_updated = None
+        """ :type : float"""
+        self.last_updated_date = None
+        """ :type : datetime.datetime"""
         self.valid_prefix_group = None
+        """ :type : ConvertPrefixGroup"""
 
     def add_name(self, name):
         """Adds a name to the list of names for a unit."""
@@ -269,16 +322,16 @@ class ConvertUnit:
         if abbreviation in self.abbr_list:
             self.abbr_list.remove(abbreviation)
 
-    def set_value(self, value):
+    def update_value(self, value):
         """Changes the value of the unit."""
-        # TODO, remove this
         self.last_updated = time.time()
+        self.last_updated_date = datetime.datetime.now()
         self.value = value
 
-    def set_offset(self, offset):
+    def update_offset(self, offset):
         """Changes the offset of the unit."""
-        # TODO, remove this
         self.last_updated = time.time()
+        self.last_updated_date = datetime.datetime.now()
         self.offset = offset
 
     def has_name(self, input_name):
@@ -402,7 +455,7 @@ class ConvertUnit:
         # Get offset
         if len(doc.getElementsByTagName("offset")) != 0:
             new_offset = float(doc.getElementsByTagName("offset")[0].firstChild.data)
-            new_unit.set_offset(new_offset)
+            new_unit.offset = new_offset
         # Get update time
         if len(doc.getElementsByTagName("last_update")) != 0:
             new_last_updated = float(doc.getElementsByTagName("last_update")[0].firstChild.data)
@@ -452,6 +505,28 @@ class ConvertUnit:
         # Output XML
         return doc.toxml()
 
+    def to_json(self):
+        """
+        Outputs a ConvertUnit as a dict which can be serialised into a json object
+        :return: dict
+        """
+        json_obj = dict()
+        json_obj["names"] = []
+        for name in self.name_list:
+            json_obj["names"].append(name)
+        json_obj["value"] = self.value
+        if len(self.abbr_list) != 0:
+            json_obj["abbrs"] = []
+            for abbr in self.abbr_list:
+                json_obj["abbrs"].append(abbr)
+        if self.offset != 0:
+            json_obj["offset"] = self.offset
+        if self.last_updated_date is not None:
+            json_obj["last_updated"] = self.last_updated_date.isoformat()
+        if self.valid_prefix_group is not None:
+            json_obj["valid_prefix_group"] = self.valid_prefix_group.name
+        return json_obj
+
 
 class ConvertPrefixGroup:
     """
@@ -460,8 +535,11 @@ class ConvertPrefixGroup:
 
     def __init__(self, repo, name):
         self.prefix_list = []
+        """:type : list[ConvertPrefix]"""
         self.repo = repo
+        """:type : ConvertRepo"""
         self.name = name
+        """:type : str"""
 
     def add_prefix(self, prefix):
         """Adds a new prefix to the prefix list"""
@@ -538,6 +616,18 @@ class ConvertPrefixGroup:
         # Output XML
         return doc.toxml()
 
+    def to_json(self):
+        """
+        Outputs a ConvertPrefixGroup as a dict ready to be turned into json
+        :return: dict
+        """
+        json_obj = dict()
+        json_obj["name"] = self.name
+        json_obj["prefixes"] = []
+        for prefix in self.prefix_list:
+            json_obj["prefixes"].append(prefix.to_json())
+        return json_obj
+
 
 class ConvertPrefix:
     """
@@ -587,6 +677,17 @@ class ConvertPrefix:
         root.appendChild(value_elem)
         # Return XML
         return doc.toxml()
+
+    def to_json(self):
+        """
+        Outputs a ConvertPrefix in a dict for serialisation to json
+        :return: dict
+        """
+        json_obj = dict()
+        json_obj["name"] = self.prefix
+        json_obj["abbr"] = self.abbreviation
+        json_obj["value"] = self.multiplier
+        return json_obj
 
 
 class ConvertMeasure:
@@ -917,7 +1018,7 @@ class UpdateCurrencies(Function):
             if currency_unit is None:
                 continue
             # Set value
-            currency_unit.set_value(currency_value)
+            currency_unit.update_value(currency_value)
 
     def update_from_european_bank_data(self, repo):
         """Updates the value of conversion currency units using The European Bank data."""
@@ -942,7 +1043,7 @@ class UpdateCurrencies(Function):
             if currency_unit is None:
                 continue
             # Set Value
-            currency_unit.set_value(currency_value)
+            currency_unit.update_value(currency_value)
 
     def update_from_forex_data(self, repo):
         """Updates the value of conversion currency units using Forex data."""
@@ -970,7 +1071,7 @@ class UpdateCurrencies(Function):
             if currency_unit is None:
                 continue
             # Set Value
-            currency_unit.set_value(currency_value)
+            currency_unit.update_value(currency_value)
 
     def update_from_preev_data(self, repo):
         """Updates the value of conversion cryptocurrencies using Preev data."""
@@ -1015,7 +1116,7 @@ class UpdateCurrencies(Function):
             currency_unit = currency_type.get_unit_by_name(currency_code)
             if currency_unit is None:
                 continue
-            currency_unit.set_value(currency_value)
+            currency_unit.update_value(currency_value)
 
 
 class ConvertViewRepo(Function):
@@ -1244,7 +1345,7 @@ class ConvertSet(Function):
         if var_amount == 0 or ref_amount == 0:
             # Calculate the new offset
             new_offset = (ref_amount - (var_amount * var_value)) * ref_value + ref_offset
-            var_unit.set_offset(new_offset)
+            var_unit.update_offset(new_offset)
             # Save repo
             repo = var_unit.type.repo
             repo.save_to_xml()
@@ -1252,7 +1353,7 @@ class ConvertSet(Function):
             return "Set new offset for {}: 0 {} = {} {}.".format(var_name, var_name, new_offset, base_name)
         # Get new value
         new_value = (ref_amount - ((var_offset - ref_offset) / ref_value)) / var_amount
-        var_unit.set_value(new_value)
+        var_unit.update_value(new_value)
         # Save repo
         repo = var_unit.type.repo
         repo.save_to_xml()
@@ -1296,7 +1397,7 @@ class ConvertSet(Function):
         if input_amount_float == 0 or ref_amount == 0:
             # Calculate the new offset
             new_offset = (ref_amount - (input_amount_float * 1)) * ref_value + ref_offset
-            new_unit.set_offset(new_offset)
+            new_unit.update_offset(new_offset)
             # Save repo
             repo = ref_unit.type.repo
             repo.save_to_xml()
@@ -1307,7 +1408,7 @@ class ConvertSet(Function):
                                                                            base_name)
         # Get new value
         new_value = (ref_amount - ((0 - ref_offset) / ref_value)) / input_amount_float
-        new_unit.set_value(new_value)
+        new_unit.update_value(new_value)
         # Save repo
         repo = ref_unit.type.repo
         repo.save_to_xml()
