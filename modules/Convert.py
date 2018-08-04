@@ -1,6 +1,9 @@
 import datetime
 import json
 from xml.dom import minidom
+
+import dateutil
+
 from inc.Commons import Commons
 from Function import Function
 import re
@@ -115,6 +118,25 @@ class ConvertRepo:
             type_obj = ConvertType.from_xml(new_repo, type_elem.toxml())
             new_repo.add_type(type_obj)
         # Return new repo object
+        return new_repo
+
+    @staticmethod
+    def load_json():
+        """
+        Loads a new conversion repository from json file.
+        :rtype: ConvertRepo
+        """
+        try:
+            with open("store/convert.json", "r") as f:
+                json_obj = json.load(f)
+        except (OSError, IOError):
+            with open("store/convert-default.json", "r") as f:
+                json_obj = json.load(f)
+        new_repo = ConvertRepo()
+        for prefix_group in json_obj["prefix_groups"]:
+            new_repo.add_prefix_group(ConvertPrefixGroup.from_json(new_repo, prefix_group))
+        for unit_type in json_obj["unit_types"]:
+            new_repo.add_type(ConvertType.from_json(new_repo, unit_type))
         return new_repo
 
     def save_to_xml(self):
@@ -255,6 +277,25 @@ class ConvertType:
             unit_obj = ConvertUnit.from_xml(new_type, unit_elem.toxml())
             new_type.add_unit(unit_obj)
         # Return created Type
+        return new_type
+
+    @staticmethod
+    def from_json(repo, json_obj):
+        """
+        Loads a new ConvertType from json dict
+        :type repo: ConvertRepo
+        :type json_obj: dict
+        :rtype: ConvertType
+        """
+        name = json_obj["name"]
+        new_type = ConvertType(repo, name)
+        if "decimals" in json_obj:
+            new_type.decimals = json_obj["decimals"]
+        # Get base unit
+        new_type.base_unit = ConvertUnit.from_json(new_type, json_obj["base_unit"])
+        # Add unit elements
+        for unit in json_obj["units"]:
+            new_type.add_unit(ConvertUnit.from_json(new_type, unit))
         return new_type
 
     def to_xml(self):
@@ -517,6 +558,30 @@ class ConvertUnit:
         # Return created ConvertUnit
         return new_unit
 
+    @staticmethod
+    def from_json(convert_type, json_obj):
+        """
+        Loads a ConvertUnit object from json dict
+        :type convert_type: ConvertType
+        :type json_obj: dict
+        :rtype: ConvertUnit
+        """
+        names = []
+        for name in json_obj["names"]:
+            names.append(name)
+        value = json_obj["value"]
+        new_unit = ConvertUnit(convert_type, names, value)
+        for abbr in json_obj["abbrs"]:
+            new_unit.add_abbr(abbr)
+        if "valid_prefix_group" in json_obj:
+            prefix_group = convert_type.repo.get_prefix_group_by_name(json_obj["valid_prefix_group"])
+            new_unit.valid_prefix_group = prefix_group
+        if "offset" in json_obj:
+            new_unit.offset = json_obj["offset"]
+        if "last_updated" in json_obj:
+            new_unit.last_updated_date = dateutil.parser.parse(json_obj["last_updated"])
+        return new_unit
+
     def to_xml(self):
         """
         Outputs a ConvertUnit object as XML.
@@ -680,6 +745,20 @@ class ConvertPrefixGroup:
         # Return created PrefixGroup
         return new_prefix_group
 
+    @staticmethod
+    def from_json(repo, json_obj):
+        """
+        Loads a new ConvertPrefixGroup from json dict
+        :type repo: ConvertRepo
+        :type json_obj: dict
+        :rtype: ConvertPrefixGroup
+        """
+        name = json_obj["name"]
+        new_group = ConvertPrefixGroup(repo, name)
+        for prefix in json_obj["prefixes"]:
+            new_group.add_prefix(ConvertPrefix.from_json(new_group, prefix))
+        return new_group
+
     def to_xml(self):
         """
         Outputs a ConvertUnit object as XML.
@@ -734,7 +813,7 @@ class ConvertPrefix:
     @staticmethod
     def from_xml(prefix_group, xml_string):
         """
-        Loads a new ConvertUnit object from XML.
+        Loads a new ConvertPrefix object from XML.
         :type prefix_group: ConvertPrefixGroup
         :type xml_string: str
         :rtype: ConvertPrefix
@@ -744,6 +823,20 @@ class ConvertPrefix:
         new_abbreviation = doc.getElementsByTagName("abbr")[0].firstChild.data
         new_value = float(doc.getElementsByTagName("value")[0].firstChild.data)
         new_prefix = ConvertPrefix(prefix_group, new_name, new_abbreviation, new_value)
+        return new_prefix
+
+    @staticmethod
+    def from_json(prefix_group, json_obj):
+        """
+        Loads a new ConvertPrefix object from json dict
+        :type prefix_group: ConvertPrefixGroup
+        :type json_obj: dict
+        :rtype: ConvertPrefix
+        """
+        name = json_obj["name"]
+        abbr = json_obj["abbr"]
+        value = json_obj["value"]
+        new_prefix = ConvertPrefix(prefix_group, name, abbr, value)
         return new_prefix
 
     def to_xml(self):
