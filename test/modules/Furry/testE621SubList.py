@@ -121,46 +121,6 @@ class TestE621SubList(unittest.TestCase):
         assert len(rfl.sub_list) == 1
         assert rfl.sub_list[0] == rf2
 
-    def test_xml(self):
-        # Setup a feed list
-        rfl = E621SubList()
-        rf1 = E621Sub()
-        rf1.search = "cabinet"
-        rf1.update_frequency = Commons.load_time_delta("P0T3600S")
-        rf1.server_name = "test_serv1"
-        rf1.channel_address = "test_chan1"
-        rfl.add_sub(rf1)
-        rf2 = E621Sub()
-        rf2.search = "clefable"
-        rf2.update_frequency = Commons.load_time_delta("P1TS")
-        rf2.server_name = "test_serv2"
-        rf2.channel_address = "test_chan2"
-        rfl.add_sub(rf2)
-        rf3 = E621Sub()
-        rf3.search = "fez"
-        rf3.update_frequency = Commons.load_time_delta("PT60S")
-        rf3.server_name = "test_serv3"
-        rf3.user_address = "test_user3"
-        rfl.add_sub(rf3)
-        # Save to XML and load
-        try:
-            try:
-                os.rename("store/e621_subscriptions.xml", "store/e621_subscriptions.xml.tmp")
-            except OSError:
-                pass
-            rfl.to_xml()
-            new_rfl = E621SubList.from_xml()
-            assert len(new_rfl.sub_list) == 3
-        finally:
-            try:
-                os.remove("store/e621_subscriptions.xml")
-            except OSError:
-                pass
-            try:
-                os.rename("store/e621_subscriptions.xml.tmp", "store/e621_subscriptions.xml")
-            except OSError:
-                pass
-
     def test_json(self):
         # Setup a feed list
         rfl = E621SubList()
