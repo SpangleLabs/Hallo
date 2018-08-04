@@ -258,8 +258,6 @@ class ConvertUnit:
         """:type : float"""
         self.offset = 0
         """:type : float"""
-        self.last_updated = None
-        """ :type : float"""
         self.last_updated_date = None
         """ :type : datetime.datetime"""
         self.valid_prefix_group = None
@@ -300,7 +298,6 @@ class ConvertUnit:
         Changes the value of the unit.
         :type value: float
         """
-        self.last_updated = time.time()
         self.last_updated_date = datetime.datetime.now()
         self.value = value
 
@@ -309,7 +306,6 @@ class ConvertUnit:
         Changes the offset of the unit.
         :type offset: float
         """
-        self.last_updated = time.time()
         self.last_updated_date = datetime.datetime.now()
         self.offset = offset
 
