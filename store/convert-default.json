@@ -1,0 +1,2310 @@
+{
+  "prefix_groups": [
+    {
+      "name": "si",
+      "prefixes": [
+        {
+          "name": "yotta",
+          "abbr": "Y",
+          "value": 1e+24
+        },
+        {
+          "name": "zetta",
+          "abbr": "Z",
+          "value": 1e+21
+        },
+        {
+          "name": "exa",
+          "abbr": "E",
+          "value": 1e+18
+        },
+        {
+          "name": "peta",
+          "abbr": "P",
+          "value": 1000000000000000.0
+        },
+        {
+          "name": "tera",
+          "abbr": "T",
+          "value": 1000000000000.0
+        },
+        {
+          "name": "giga",
+          "abbr": "G",
+          "value": 1000000000.0
+        },
+        {
+          "name": "mega",
+          "abbr": "M",
+          "value": 1000000.0
+        },
+        {
+          "name": "kilo",
+          "abbr": "k",
+          "value": 1000.0
+        },
+        {
+          "name": "hecto",
+          "abbr": "h",
+          "value": 100.0
+        },
+        {
+          "name": "deca",
+          "abbr": "da",
+          "value": 10.0
+        },
+        {
+          "name": "deci",
+          "abbr": "d",
+          "value": 0.1
+        },
+        {
+          "name": "centi",
+          "abbr": "c",
+          "value": 0.01
+        },
+        {
+          "name": "milli",
+          "abbr": "m",
+          "value": 0.001
+        },
+        {
+          "name": "micro",
+          "abbr": "u",
+          "value": 1e-06
+        },
+        {
+          "name": "nano",
+          "abbr": "n",
+          "value": 1e-09
+        },
+        {
+          "name": "pico",
+          "abbr": "p",
+          "value": 1e-12
+        },
+        {
+          "name": "femto",
+          "abbr": "f",
+          "value": 1e-15
+        },
+        {
+          "name": "atto",
+          "abbr": "a",
+          "value": 1e-18
+        },
+        {
+          "name": "zepto",
+          "abbr": "z",
+          "value": 1e-21
+        },
+        {
+          "name": "yocto",
+          "abbr": "y",
+          "value": 1e-24
+        }
+      ]
+    },
+    {
+      "name": "si-square",
+      "prefixes": [
+        {
+          "name": "yotta",
+          "abbr": "Y",
+          "value": 1e+48
+        },
+        {
+          "name": "zetta",
+          "abbr": "Z",
+          "value": 1e+42
+        },
+        {
+          "name": "exa",
+          "abbr": "E",
+          "value": 1e+36
+        },
+        {
+          "name": "peta",
+          "abbr": "P",
+          "value": 1e+30
+        },
+        {
+          "name": "tera",
+          "abbr": "T",
+          "value": 1e+24
+        },
+        {
+          "name": "giga",
+          "abbr": "G",
+          "value": 1e+18
+        },
+        {
+          "name": "mega",
+          "abbr": "M",
+          "value": 1000000000000.0
+        },
+        {
+          "name": "kilo",
+          "abbr": "k",
+          "value": 1000000.0
+        },
+        {
+          "name": "hecto",
+          "abbr": "h",
+          "value": 10000.0
+        },
+        {
+          "name": "deca",
+          "abbr": "da",
+          "value": 100.0
+        },
+        {
+          "name": "deci",
+          "abbr": "d",
+          "value": 0.01
+        },
+        {
+          "name": "centi",
+          "abbr": "c",
+          "value": 0.0001
+        },
+        {
+          "name": "milli",
+          "abbr": "m",
+          "value": 1e-06
+        },
+        {
+          "name": "micro",
+          "abbr": "u",
+          "value": 1e-12
+        },
+        {
+          "name": "nano",
+          "abbr": "n",
+          "value": 1e-18
+        },
+        {
+          "name": "pico",
+          "abbr": "p",
+          "value": 1e-24
+        },
+        {
+          "name": "femto",
+          "abbr": "f",
+          "value": 1e-30
+        },
+        {
+          "name": "atto",
+          "abbr": "a",
+          "value": 1e-36
+        },
+        {
+          "name": "zepto",
+          "abbr": "z",
+          "value": 1e-42
+        },
+        {
+          "name": "yocto",
+          "abbr": "y",
+          "value": 1e-48
+        }
+      ]
+    },
+    {
+      "name": "si-cube",
+      "prefixes": [
+        {
+          "name": "yotta",
+          "abbr": "Y",
+          "value": 1e+72
+        },
+        {
+          "name": "zetta",
+          "abbr": "Z",
+          "value": 1e+63
+        },
+        {
+          "name": "exa",
+          "abbr": "E",
+          "value": 1e+54
+        },
+        {
+          "name": "peta",
+          "abbr": "P",
+          "value": 1e+45
+        },
+        {
+          "name": "tera",
+          "abbr": "T",
+          "value": 1e+36
+        },
+        {
+          "name": "giga",
+          "abbr": "G",
+          "value": 1e+27
+        },
+        {
+          "name": "mega",
+          "abbr": "M",
+          "value": 1e+18
+        },
+        {
+          "name": "kilo",
+          "abbr": "k",
+          "value": 1000000000.0
+        },
+        {
+          "name": "hecto",
+          "abbr": "h",
+          "value": 1000000.0
+        },
+        {
+          "name": "deca",
+          "abbr": "da",
+          "value": 1000.0
+        },
+        {
+          "name": "deci",
+          "abbr": "d",
+          "value": 0.001
+        },
+        {
+          "name": "centi",
+          "abbr": "c",
+          "value": 1e-06
+        },
+        {
+          "name": "milli",
+          "abbr": "m",
+          "value": 1e-09
+        },
+        {
+          "name": "micro",
+          "abbr": "u",
+          "value": 1e-18
+        },
+        {
+          "name": "nano",
+          "abbr": "n",
+          "value": 1e-27
+        },
+        {
+          "name": "pico",
+          "abbr": "p",
+          "value": 1e-36
+        },
+        {
+          "name": "femto",
+          "abbr": "f",
+          "value": 1e-45
+        },
+        {
+          "name": "atto",
+          "abbr": "a",
+          "value": 1e-54
+        },
+        {
+          "name": "zepto",
+          "abbr": "z",
+          "value": 1e-63
+        },
+        {
+          "name": "yocto",
+          "abbr": "y",
+          "value": 1e-72
+        }
+      ]
+    },
+    {
+      "name": "si-big",
+      "prefixes": [
+        {
+          "name": "yotta",
+          "abbr": "Y",
+          "value": 1e+24
+        },
+        {
+          "name": "zetta",
+          "abbr": "Z",
+          "value": 1e+21
+        },
+        {
+          "name": "exa",
+          "abbr": "E",
+          "value": 1e+18
+        },
+        {
+          "name": "peta",
+          "abbr": "P",
+          "value": 1000000000000000.0
+        },
+        {
+          "name": "tera",
+          "abbr": "T",
+          "value": 1000000000000.0
+        },
+        {
+          "name": "giga",
+          "abbr": "G",
+          "value": 1000000000.0
+        },
+        {
+          "name": "mega",
+          "abbr": "M",
+          "value": 1000000.0
+        },
+        {
+          "name": "kilo",
+          "abbr": "k",
+          "value": 1000.0
+        },
+        {
+          "name": "hecto",
+          "abbr": "h",
+          "value": 100.0
+        },
+        {
+          "name": "deca",
+          "abbr": "da",
+          "value": 10.0
+        }
+      ]
+    },
+    {
+      "name": "si-small",
+      "prefixes": [
+        {
+          "name": "deci",
+          "abbr": "d",
+          "value": 0.1
+        },
+        {
+          "name": "centi",
+          "abbr": "c",
+          "value": 0.01
+        },
+        {
+          "name": "milli",
+          "abbr": "m",
+          "value": 0.001
+        },
+        {
+          "name": "micro",
+          "abbr": "u",
+          "value": 1e-06
+        },
+        {
+          "name": "nano",
+          "abbr": "n",
+          "value": 1e-09
+        },
+        {
+          "name": "pico",
+          "abbr": "p",
+          "value": 1e-12
+        },
+        {
+          "name": "femto",
+          "abbr": "f",
+          "value": 1e-15
+        },
+        {
+          "name": "atto",
+          "abbr": "a",
+          "value": 1e-18
+        },
+        {
+          "name": "zepto",
+          "abbr": "z",
+          "value": 1e-21
+        },
+        {
+          "name": "yocto",
+          "abbr": "y",
+          "value": 1e-24
+        }
+      ]
+    },
+    {
+      "name": "si-binary",
+      "prefixes": [
+        {
+          "name": "yobi",
+          "abbr": "Yi",
+          "value": 1.2089258196146292e+24
+        },
+        {
+          "name": "zebi",
+          "abbr": "Zi",
+          "value": 1.1805916207174113e+21
+        },
+        {
+          "name": "exbi",
+          "abbr": "Ei",
+          "value": 1.152921504606847e+18
+        },
+        {
+          "name": "pebi",
+          "abbr": "Pi",
+          "value": 1125899906842624.0
+        },
+        {
+          "name": "tebi",
+          "abbr": "Ti",
+          "value": 1099511627776.0
+        },
+        {
+          "name": "gibi",
+          "abbr": "Gi",
+          "value": 1073741824.0
+        },
+        {
+          "name": "mebi",
+          "abbr": "Mi",
+          "value": 1048576.0
+        },
+        {
+          "name": "kibi",
+          "abbr": "Ki",
+          "value": 1024.0
+        }
+      ]
+    }
+  ],
+  "unit_types": [
+    {
+      "name": "length",
+      "decimals": 3,
+      "base_unit": {
+        "names": [
+          "metres",
+          "meters",
+          "metre",
+          "meter"
+        ],
+        "abbrs": [
+          "m"
+        ],
+        "valid_prefix_group": "si",
+        "value": 1.0
+      },
+      "units": [
+        {
+          "names": [
+            "light-years",
+            "light-year",
+            "lightyears",
+            "lightyear"
+          ],
+          "abbrs": [
+            "ly"
+          ],
+          "value": 9460730472580800.0
+        },
+        {
+          "names": [
+            "miles",
+            "mile"
+          ],
+          "value": 1609.344
+        },
+        {
+          "names": [
+            "inches",
+            "inch"
+          ],
+          "abbrs": [
+            "in",
+            "\""
+          ],
+          "value": 0.0254
+        },
+        {
+          "names": [
+            "sticks",
+            "stick"
+          ],
+          "value": 0.508
+        },
+        {
+          "names": [
+            "feet",
+            "foot"
+          ],
+          "abbrs": [
+            "ft",
+            "'"
+          ],
+          "value": 0.3
+        },
+        {
+          "names": [
+            "yards",
+            "yard"
+          ],
+          "value": 0.9
+        },
+        {
+          "names": [
+            "marathons",
+            "marathon"
+          ],
+          "value": 42195.0
+        },
+        {
+          "names": [
+            "cubits",
+            "cubit"
+          ],
+          "value": 0.4572
+        },
+        {
+          "names": [
+            "astronomical units",
+            "astronomical unit",
+            "au"
+          ],
+          "value": 149597870691.6
+        },
+        {
+          "names": [
+            "parsecs",
+            "parsec",
+            "pc"
+          ],
+          "value": 3.08567758e+16
+        },
+        {
+          "names": [
+            "li"
+          ],
+          "value": 500.0,
+          "last_update": "2018-08-04T08:47:04+00:00"
+        },
+        {
+          "names": [
+            "chances",
+            "chance",
+            "chance flared xl",
+            "xl flared chance",
+            "xl chance flared"
+          ],
+          "valid_prefix_group": "si",
+          "value": 0.44196
+        }
+      ]
+    },
+    {
+      "name": "currency",
+      "decimals": 3,
+      "base_unit": {
+        "names": [
+          "euro",
+          "eurogolds",
+          "eurogold"
+        ],
+        "abbrs": [
+          "eur"
+        ],
+        "value": 1.0,
+        "last_update": "1970-01-01T00:00:00+00:00"
+      },
+      "units": [
+        {
+          "names": [
+            "real",
+            "brazilian real"
+          ],
+          "abbrs": [
+            "brl"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "nuevos soles",
+            "nuevo sol",
+            "peruvian nuevos soles",
+            "peruvian nuevo sol"
+          ],
+          "abbrs": [
+            "pen"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "moldovan leu"
+          ],
+          "abbrs": [
+            "mdl"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "saudi riyal"
+          ],
+          "abbrs": [
+            "sar"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "namibian dollar"
+          ],
+          "abbrs": [
+            "nad"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "cfp franc"
+          ],
+          "abbrs": [
+            "xpf"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "bahraini dinar"
+          ],
+          "abbrs": [
+            "bhd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "lebanese pound"
+          ],
+          "abbrs": [
+            "lbp"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "west african cfa franc"
+          ],
+          "abbrs": [
+            "xof"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "kuna",
+            "croatian kuna"
+          ],
+          "abbrs": [
+            "hrk"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "shekels",
+            "shekel",
+            "new shekels",
+            "new shekel",
+            "israeli new shekels",
+            "israeli new shekel"
+          ],
+          "abbrs": [
+            "ils"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "naira",
+            "nigerian naira"
+          ],
+          "abbrs": [
+            "ngn"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "syrian pound"
+          ],
+          "abbrs": [
+            "syp"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "guarani",
+            "paraguayan guarani"
+          ],
+          "abbrs": [
+            "pyg"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "swedish krona",
+            "swedish crown"
+          ],
+          "abbrs": [
+            "sek"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "peercoins",
+            "peercoin",
+            "ppcoins",
+            "ppcoin"
+          ],
+          "abbrs": [
+            "ppc"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "qatari riyal"
+          ],
+          "abbrs": [
+            "qar"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "dominican peso"
+          ],
+          "abbrs": [
+            "dop"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "colombian peso"
+          ],
+          "abbrs": [
+            "cop"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "danish krone"
+          ],
+          "abbrs": [
+            "dkk"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "rupiah",
+            "indonesian rupiah"
+          ],
+          "abbrs": [
+            "idr"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "balboa",
+            "panamanian balboa",
+            "pab"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "mauritian rupee"
+          ],
+          "abbrs": [
+            "mur"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "east caribbean dollar"
+          ],
+          "abbrs": [
+            "xcd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "uae dirham",
+            "united arab emirates dirham"
+          ],
+          "abbrs": [
+            "aed"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "marks",
+            "mark",
+            "convertible marks",
+            "convertible mark",
+            "bosnia and herzegovina convertible marks",
+            "bosnia and herzegovina convertible mark"
+          ],
+          "abbrs": [
+            "bam"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "kenyan shilling"
+          ],
+          "abbrs": [
+            "kes"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "kip",
+            "lao kip"
+          ],
+          "abbrs": [
+            "lak"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "dogecoins",
+            "doge",
+            "dogecoin"
+          ],
+          "abbrs": [
+            "xdg"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "kroon",
+            "estonian kroon"
+          ],
+          "abbrs": [
+            "eek"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "fiji dollar"
+          ],
+          "abbrs": [
+            "fjd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "florins",
+            "florin",
+            "aruban florins",
+            "aruban florin"
+          ],
+          "abbrs": [
+            "awg"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "dalasi",
+            "gambian dalasi"
+          ],
+          "abbrs": [
+            "gmd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "hong kong dollar"
+          ],
+          "abbrs": [
+            "hkd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "dong",
+            "vietnamese dong"
+          ],
+          "abbrs": [
+            "vnd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "ringgit",
+            "malaysian ringgit"
+          ],
+          "abbrs": [
+            "myr"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "icelandic krona"
+          ],
+          "abbrs": [
+            "isk"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "riel",
+            "cambodian riel"
+          ],
+          "abbrs": [
+            "khr"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "boliviano",
+            "bolivian boliviano"
+          ],
+          "abbrs": [
+            "bob"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "denar",
+            "macedonian denar"
+          ],
+          "abbrs": [
+            "mkd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "hryvnia",
+            "ukrainian hryvnia"
+          ],
+          "abbrs": [
+            "uah"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "mexican peso"
+          ],
+          "abbrs": [
+            "mxn"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "koruna",
+            "czech koruna"
+          ],
+          "abbrs": [
+            "czk"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "lats",
+            "latvian lats"
+          ],
+          "abbrs": [
+            "lvl"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "sri lankan rupee"
+          ],
+          "abbrs": [
+            "lkr"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "malagasy ariary"
+          ],
+          "abbrs": [
+            "mga"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "bolivar",
+            "venezuelan bolivar",
+            "venezuelan bolivar fuerte"
+          ],
+          "abbrs": [
+            "vef"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "pound sterling",
+            "queensgolds",
+            "pounds",
+            "quid",
+            "queensgold",
+            "queengold",
+            "pound",
+            "qg",
+            "golds",
+            "queengolds",
+            "queen golds",
+            "queen gold"
+          ],
+          "abbrs": [
+            "gbp"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "jordanian dinar"
+          ],
+          "abbrs": [
+            "jod"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "barbados dollar"
+          ],
+          "abbrs": [
+            "bbd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "ghanaian cedi"
+          ],
+          "abbrs": [
+            "ghs"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "ruble",
+            "russian ruble"
+          ],
+          "abbrs": [
+            "rub"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "chinese yuan",
+            "rmb",
+            "yuan"
+          ],
+          "abbrs": [
+            "cny"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "franc",
+            "swiss franc"
+          ],
+          "abbrs": [
+            "chf"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "ugangan shilling"
+          ],
+          "abbrs": [
+            "ugx"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "uruguayan peso"
+          ],
+          "abbrs": [
+            "uyu"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "seychelles rupee"
+          ],
+          "abbrs": [
+            "scr"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "new zealand dollar"
+          ],
+          "abbrs": [
+            "nzd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "cypriot pound"
+          ],
+          "abbrs": [
+            "cyp"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "dollars",
+            "dollar",
+            "dolla",
+            "united states dollar",
+            "us dollar",
+            "usagolds",
+            "gringogolds"
+          ],
+          "abbrs": [
+            "usd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "moroccan dirham"
+          ],
+          "abbrs": [
+            "mad"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "rupee",
+            "indian rupee"
+          ],
+          "abbrs": [
+            "inr"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "rand",
+            "south african rand"
+          ],
+          "abbrs": [
+            "zar"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "argentine peso"
+          ],
+          "abbrs": [
+            "ars"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "tunisian dinar"
+          ],
+          "abbrs": [
+            "tnd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "new taiwan dollar"
+          ],
+          "abbrs": [
+            "twd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "lev",
+            "bulgarian lev"
+          ],
+          "abbrs": [
+            "bgn"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "minimum wage for an hour",
+            "hours of minimum wage",
+            "minimum wage",
+            "hour of min wage",
+            "min wage",
+            "hour of minimum wage",
+            "min wage for an hour",
+            "hours of min wage"
+          ],
+          "value": 8.85,
+          "last_update": "2015-09-06T13:22:47+00:00"
+        },
+        {
+          "names": [
+            "pakistani rupee"
+          ],
+          "abbrs": [
+            "pkr"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "norwegian krone"
+          ],
+          "abbrs": [
+            "nok"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "bitcoins",
+            "bitcoin"
+          ],
+          "abbrs": [
+            "btc"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "kuwaiti dinar"
+          ],
+          "abbrs": [
+            "kwd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "nepalese rupee"
+          ],
+          "abbrs": [
+            "npr"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "central african franc",
+            "central african cfa franc",
+            "cfa franc"
+          ],
+          "abbrs": [
+            "xaf"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "bahamian dollar"
+          ],
+          "abbrs": [
+            "bsd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "australian dollar",
+            "aus dollar"
+          ],
+          "abbrs": [
+            "aud"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "canadian dollar"
+          ],
+          "abbrs": [
+            "cad"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "omani rial"
+          ],
+          "abbrs": [
+            "omr"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "jamaican dollar"
+          ],
+          "abbrs": [
+            "jmd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "hungarian forint"
+          ],
+          "abbrs": [
+            "huf"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "quetzal",
+            "guatemalan quetzal"
+          ],
+          "abbrs": [
+            "gtq"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "baht",
+            "thai baht"
+          ],
+          "abbrs": [
+            "thb"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "bermudian dollar"
+          ],
+          "abbrs": [
+            "bmd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "egyptian pound"
+          ],
+          "abbrs": [
+            "egp"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "lira",
+            "turkish lira"
+          ],
+          "abbrs": [
+            "try"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "romanian leu"
+          ],
+          "abbrs": [
+            "ron"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "won",
+            "south korean won"
+          ],
+          "abbrs": [
+            "krw"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "litecoins",
+            "litecoin"
+          ],
+          "abbrs": [
+            "ltc"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "zloty",
+            "polish zloty"
+          ],
+          "abbrs": [
+            "pln"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "litas",
+            "lithuanian litas"
+          ],
+          "abbrs": [
+            "ltl"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "singapore dollar"
+          ],
+          "abbrs": [
+            "sgd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "rufiyaa",
+            "maldivian rufiyaa"
+          ],
+          "abbrs": [
+            "mvr"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "taka",
+            "bangladeshi taka"
+          ],
+          "abbrs": [
+            "bdt"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "yen",
+            "japanese yen"
+          ],
+          "abbrs": [
+            "jpy"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "philippine peso"
+          ],
+          "abbrs": [
+            "php"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "serbian dinar"
+          ],
+          "abbrs": [
+            "rsd"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        },
+        {
+          "names": [
+            "chilean peso"
+          ],
+          "abbrs": [
+            "clp"
+          ],
+          "value": 1,
+          "last_update": "1970-01-01T00:00:00+00:00"
+        }
+      ]
+    },
+    {
+      "name": "volume",
+      "decimals": 5,
+      "base_unit": {
+        "names": [
+          "metres^3",
+          "metre^3",
+          "cubic {X}metres",
+          "cubic {X}metre",
+          "metres cubed",
+          "metre cubed"
+        ],
+        "valid_prefix_group": "si-cube",
+        "value": 1.0
+      },
+      "units": [
+        {
+          "names": [
+            "litres",
+            "litre"
+          ],
+          "valid_prefix_group": "si-cube",
+          "value": 0.001
+        },
+        {
+          "names": [
+            "inches^3",
+            "inch^3",
+            "cubic inches",
+            "cubic inch"
+          ],
+          "value": 1.6387064000000003e-05
+        },
+        {
+          "names": [
+            "feet^3",
+            "foot^3",
+            "cubic feet",
+            "cubic foot"
+          ],
+          "value": 0.0283168466
+        },
+        {
+          "names": [
+            "miles^3",
+            "mile^3",
+            "cubic miles",
+            "cubic mile"
+          ],
+          "value": 4168181830.0
+        },
+        {
+          "names": [
+            "teaspoons",
+            "teaspoon",
+            "tsp"
+          ],
+          "value": 5.919390469999999e-06
+        },
+        {
+          "names": [
+            "tablespoons",
+            "tablespoon",
+            "tb",
+            "tbs",
+            "tbsp",
+            "tblsp",
+            "tblspn"
+          ],
+          "value": 1.7758171400000003e-05
+        },
+        {
+          "names": [
+            "sticks",
+            "stick",
+            "sticks of butter",
+            "stick of butter"
+          ],
+          "value": 0.00014206537120000002
+        },
+        {
+          "names": [
+            "cups",
+            "cup"
+          ],
+          "value": 0.000236588237
+        },
+        {
+          "names": [
+            "fluid ounces",
+            "fluid ounce",
+            "fl oz",
+            "fl. oz.",
+            "oz. fl."
+          ],
+          "value": 2.8413074200000003e-05
+        },
+        {
+          "names": [
+            "fluid drams",
+            "fluid dram",
+            "fluid drachms",
+            "fluid drachm",
+            "fluidrams",
+            "fluidram",
+            "fluidrachms",
+            "fluidrachm"
+          ],
+          "value": 3.6966912e-06
+        },
+        {
+          "names": [
+            "gills",
+            "gill"
+          ],
+          "value": 0.000142065371
+        },
+        {
+          "names": [
+            "pints",
+            "pint",
+            "imperial pint",
+            "pt"
+          ],
+          "value": 0.000568261485
+        },
+        {
+          "names": [
+            "quarts",
+            "quart",
+            "imperial quarts",
+            "imperial quart"
+          ],
+          "value": 0.00113652297
+        },
+        {
+          "names": [
+            "gallons",
+            "gallon",
+            "imperial gallons",
+            "imperial gallon"
+          ],
+          "value": 0.00454609188
+        },
+        {
+          "names": [
+            "minims",
+            "minim",
+            "imperial minims",
+            "imperial minim"
+          ],
+          "value": 6.16115199e-08
+        },
+        {
+          "names": [
+            "barrels",
+            "barrel",
+            "beer barrels",
+            "beer barrel",
+            "imperial beer barrels",
+            "imperial beer barrel"
+          ],
+          "value": 0.136274824
+        },
+        {
+          "names": [
+            "oil barrels",
+            "oil barrel",
+            "bbl"
+          ],
+          "value": 0.158987295
+        },
+        {
+          "names": [
+            "cords",
+            "cord"
+          ],
+          "value": 3.62455636
+        },
+        {
+          "names": [
+            "pecks",
+            "peck"
+          ],
+          "value": 0.00909218376
+        },
+        {
+          "names": [
+            "bushels",
+            "bushel",
+            "bsh",
+            "bu"
+          ],
+          "value": 0.036368735
+        },
+        {
+          "names": [
+            "hogsheads",
+            "hogshead"
+          ],
+          "value": 0.238480942
+        }
+      ]
+    },
+    {
+      "name": "area",
+      "decimals": 2,
+      "base_unit": {
+        "names": [
+          "metres^2",
+          "metre^2",
+          "square {X}metres",
+          "square {X}metre",
+          "metres squared",
+          "metre squared"
+        ],
+        "valid_prefix_group": "si-square",
+        "value": 1.0
+      },
+      "units": [
+        {
+          "names": [
+            "wales",
+            "area of wales"
+          ],
+          "value": 20779000000.0,
+          "last_update": "2014-08-14T11:24:16+00:00"
+        },
+        {
+          "names": [
+            "inches^2",
+            "inch^2",
+            "square inches",
+            "square inch"
+          ],
+          "value": 0.00064516
+        },
+        {
+          "names": [
+            "feet^2",
+            "foot^2",
+            "square feet",
+            "square foot"
+          ],
+          "value": 0.09,
+          "last_update": "2014-08-14T11:25:17+00:00"
+        },
+        {
+          "names": [
+            "yards^2",
+            "yard^2",
+            "square yards",
+            "square yard"
+          ],
+          "value": 0.83612736
+        },
+        {
+          "names": [
+            "miles^2",
+            "mile^2",
+            "square miles",
+            "square mile"
+          ],
+          "value": 2589988.1103359996
+        },
+        {
+          "names": [
+            "acres",
+            "acre"
+          ],
+          "value": 4046.85642,
+          "last_update": "2014-06-24T12:14:23+00:00"
+        }
+      ]
+    },
+    {
+      "name": "mass",
+      "decimals": 5,
+      "base_unit": {
+        "names": [
+          "grams",
+          "gram",
+          "grammes",
+          "gramme",
+          "g"
+        ],
+        "valid_prefix_group": "si",
+        "value": 1.0
+      },
+      "units": [
+        {
+          "names": [
+            "ounces",
+            "ounce",
+            "oz"
+          ],
+          "value": 28.3495,
+          "last_update": "2014-06-27T13:05:12+00:00"
+        },
+        {
+          "names": [
+            "sticks",
+            "stick",
+            "sticks of butter",
+            "stick of butter",
+            "sticks of butter"
+          ],
+          "value": 113.398
+        },
+        {
+          "names": [
+            "suns",
+            "sun"
+          ],
+          "value": 1.9891e+33
+        },
+        {
+          "names": [
+            "electrokitty"
+          ],
+          "value": 50000.0,
+          "last_update": "2014-06-22T22:29:24+00:00"
+        },
+        {
+          "names": [
+            "kitten"
+          ],
+          "value": 450.0,
+          "last_update": "2014-06-22T22:29:34+00:00"
+        },
+        {
+          "names": [
+            "graves",
+            "grave"
+          ],
+          "value": 1000.0
+        },
+        {
+          "names": [
+            "pounds",
+            "pound",
+            "lbs",
+            "lb"
+          ],
+          "value": 453.59237,
+          "last_update": "2014-08-06T15:00:06+00:00"
+        },
+        {
+          "names": [
+            "tonne"
+          ],
+          "value": 10000000.0,
+          "last_update": "2014-08-14T11:25:46+00:00"
+        },
+        {
+          "names": [
+            "tons",
+            "ton",
+            "short tons",
+            "short ton"
+          ],
+          "value": 907185.0
+        }
+      ]
+    },
+    {
+      "name": "temperature",
+      "decimals": 2,
+      "base_unit": {
+        "names": [
+          "kelvin"
+        ],
+        "abbrs": [
+          "k"
+        ],
+        "valid_prefix_group": "si",
+        "value": 1.0
+      },
+      "units": [
+        {
+          "names": [
+            "celsius",
+            "centigrade"
+          ],
+          "abbrs": [
+            "c"
+          ],
+          "value": 1.0,
+          "offset": 273.15
+        },
+        {
+          "names": [
+            "farenheit"
+          ],
+          "abbrs": [
+            "f"
+          ],
+          "value": 0.5555555555555556,
+          "offset": 255.372
+        },
+        {
+          "names": [
+            "rankine"
+          ],
+          "value": 0.5555555555555556
+        }
+      ]
+    },
+    {
+      "name": "time",
+      "decimals": 2,
+      "base_unit": {
+        "names": [
+          "seconds",
+          "second"
+        ],
+        "abbrs": [
+          "s"
+        ],
+        "valid_prefix_group": "si-small",
+        "value": 1.0
+      },
+      "units": [
+        {
+          "names": [
+            "minutes",
+            "minute"
+          ],
+          "abbrs": [
+            "m"
+          ],
+          "value": 60.0
+        },
+        {
+          "names": [
+            "years",
+            "year"
+          ],
+          "abbrs": [
+            "y"
+          ],
+          "value": 31556952.0
+        },
+        {
+          "names": [
+            "common years",
+            "common year"
+          ],
+          "value": 31536000.0
+        },
+        {
+          "names": [
+            "sidereal years",
+            "sidereal year"
+          ],
+          "value": 31558149.503999997
+        },
+        {
+          "names": [
+            "leap years",
+            "leap year"
+          ],
+          "value": 31622400.0
+        },
+        {
+          "names": [
+            "weeks",
+            "week"
+          ],
+          "value": 604800.0
+        },
+        {
+          "names": [
+            "days",
+            "day"
+          ],
+          "abbrs": [
+            "d"
+          ],
+          "value": 86400.0
+        },
+        {
+          "names": [
+            "moons",
+            "moon"
+          ],
+          "value": 2548800.0,
+          "last_update": "2014-06-24T08:52:49+00:00"
+        },
+        {
+          "names": [
+            "hours",
+            "hour"
+          ],
+          "abbrs": [
+            "h"
+          ],
+          "value": 3600.0
+        },
+        {
+          "names": [
+            "coasties",
+            "coastie"
+          ],
+          "value": 1800.0,
+          "last_update": "2014-08-14T11:23:15+00:00"
+        },
+        {
+          "names": [
+            "fortnights",
+            "fortnight"
+          ],
+          "value": 1209600.0
+        },
+        {
+          "names": [
+            "planck time units",
+            "planck time unit",
+            "planck times",
+            "planck time"
+          ],
+          "value": 5.391063199999999e-44
+        },
+        {
+          "names": [
+            "moments",
+            "moment"
+          ],
+          "value": 90.0
+        },
+        {
+          "names": [
+            "olympiads",
+            "olympiad"
+          ],
+          "value": 126227808.0
+        },
+        {
+          "names": [
+            "lustra",
+            "lustrum"
+          ],
+          "value": 157784760.0
+        },
+        {
+          "names": [
+            "decades",
+            "decade"
+          ],
+          "value": 315569520.0
+        },
+        {
+          "names": [
+            "jubilees",
+            "jubilee"
+          ],
+          "value": 1577847600.0
+        },
+        {
+          "names": [
+            "centuries",
+            "century"
+          ],
+          "value": 3155695200.0
+        },
+        {
+          "names": [
+            "milleniums",
+            "millenium"
+          ],
+          "value": 31556952000.0
+        },
+        {
+          "names": [
+            "galactic years",
+            "galactic year"
+          ],
+          "value": 7100314200000000.0
+        }
+      ]
+    },
+    {
+      "name": "speed",
+      "decimals": 2,
+      "base_unit": {
+        "names": [
+          "metres per second",
+          "metre per second",
+          "metres/second",
+          "metre/second"
+        ],
+        "abbrs": [
+          "m/s"
+        ],
+        "valid_prefix_group": "si",
+        "value": 1.0
+      },
+      "units": [
+        {
+          "names": [
+            "metres per hour",
+            "metre per hour",
+            "metres an hour",
+            "metre an hour",
+            "metres/hour",
+            "metre/hour"
+          ],
+          "abbrs": [
+            "m/h",
+            "m/hr",
+            "mph",
+            "ph"
+          ],
+          "valid_prefix_group": "si",
+          "value": 0.0002777777777777778
+        },
+        {
+          "names": [
+            "miles per hour",
+            "mile per hour",
+            "miles an hour",
+            "mile an hour",
+            "miles/hour",
+            "mile/hour"
+          ],
+          "abbrs": [
+            "mph"
+          ],
+          "value": 0.44704
+        },
+        {
+          "names": [
+            "mach",
+            "mach number"
+          ],
+          "abbrs": [
+            "M"
+          ],
+          "value": 340.29
+        }
+      ]
+    }
+  ]
+}
