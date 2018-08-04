@@ -49,7 +49,7 @@ class ConvertUnitTest(unittest.TestCase):
         assert "name2" in xml_unit.name_list
         assert xml_unit.value == test_value
         assert xml_unit.offset == 10
-        assert xml_unit.last_updated_date == test_unit.last_updated_date
+        assert xml_unit.last_updated == test_unit.last_updated
         assert xml_unit.valid_prefix_group == prefix_group
 
     def test_json(self):
