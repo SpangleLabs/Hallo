@@ -571,8 +571,9 @@ class ConvertUnit:
             names.append(name)
         value = json_obj["value"]
         new_unit = ConvertUnit(convert_type, names, value)
-        for abbr in json_obj["abbrs"]:
-            new_unit.add_abbr(abbr)
+        if "abbrs" in json_obj:
+            for abbr in json_obj["abbrs"]:
+                new_unit.add_abbr(abbr)
         if "valid_prefix_group" in json_obj:
             prefix_group = convert_type.repo.get_prefix_group_by_name(json_obj["valid_prefix_group"])
             new_unit.valid_prefix_group = prefix_group
