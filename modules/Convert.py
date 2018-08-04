@@ -1121,10 +1121,10 @@ class Convert(Function):
         :type to_measure: ConvertMeasure
         :rtype: str
         """
-        last_update = to_measure.unit.last_updated or from_measure.unit.last_updated
+        last_update = to_measure.unit.last_updated_date or from_measure.unit.last_updated_date
         output_string = "{} = {}.".format(from_measure.to_string(), to_measure.to_string())
         if last_update is not None:
-            output_string += " (Last updated: {})".format(Commons.format_unix_time(last_update))
+            output_string += " (Last updated: {})".format(last_update.strftime('%Y-%m-%d %H:%M:%S'))
         return output_string
 
     def output_line_with_to_prefix(self, from_measure, to_measure, to_prefix):
@@ -1136,10 +1136,10 @@ class Convert(Function):
         :type to_prefix: ConvertPrefix
         :rtype: str
         """
-        last_update = to_measure.unit.last_updated or from_measure.unit.last_updated
+        last_update = to_measure.unit.last_updated_date or from_measure.unit.last_updated_date
         output_string = "{} = {}.".format(from_measure.to_string(), to_measure.to_string_with_prefix(to_prefix))
         if last_update is not None:
-            output_string += " (Last updated: {})".format(Commons.format_unix_time(last_update))
+            output_string += " (Last updated: {})".format(last_update.strftime('%Y-%m-%d %H:%M:%S'))
         return output_string
 
     def get_passive_events(self):
@@ -1460,9 +1460,9 @@ class ConvertViewRepo(Function):
                         "Offset: 0 {} = {} {}".format(unit_obj.name_list[0],
                                                       unit_obj.offset,
                                                       unit_obj.type.base_unit.name_list[0])]
-        last_update = unit_obj.last_updated
+        last_update = unit_obj.last_updated_date
         if last_update is not None:
-            output_lines.append("Last updated: " + Commons.format_unix_time(last_update))
+            output_lines.append("Last updated: " + last_update.strftime('%Y-%m-%d %H:%M:%S'))
         prefix_group_names = unit_obj.valid_prefix_group.name
         if prefix_group_names is not None:
             output_lines.append("Prefix group: " + prefix_group_names)

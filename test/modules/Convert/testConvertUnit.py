@@ -20,7 +20,7 @@ class ConvertUnitTest(unittest.TestCase):
         assert test_unit.name_list == test_unit_names
         assert test_unit.value == test_value
         assert test_unit.offset == 0
-        assert test_unit.last_updated is None
+        assert test_unit.last_updated_date is None
         assert test_unit.valid_prefix_group is None
 
     def test_xml(self):
@@ -49,7 +49,7 @@ class ConvertUnitTest(unittest.TestCase):
         assert "name2" in xml_unit.name_list
         assert xml_unit.value == test_value
         assert xml_unit.offset == 10
-        assert xml_unit.last_updated == test_unit.last_updated
+        assert xml_unit.last_updated_date == test_unit.last_updated_date
         assert xml_unit.valid_prefix_group == prefix_group
 
     def test_json(self):
@@ -78,7 +78,7 @@ class ConvertUnitTest(unittest.TestCase):
         assert "name2" in json_unit.name_list
         assert json_unit.value == test_value
         assert json_unit.offset == 10
-        assert json_unit.last_updated == test_unit.last_updated
+        assert json_unit.last_updated_date == test_unit.last_updated_date
         assert json_unit.valid_prefix_group == prefix_group
 
     def test_add_name(self):
@@ -171,12 +171,12 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit = ConvertUnit(test_type, test_unit_names, test_value)
         # Check value and time updated
         assert test_unit.value == 1337
-        assert test_unit.last_updated is None
+        assert test_unit.last_updated_date is None
         # Change value
         test_unit.update_value(101)
         # Check value
         assert test_unit.value == 101
-        assert test_unit.last_updated is not None
+        assert test_unit.last_updated_date is not None
 
     def test_set_offset(self):
         # Set up test object
@@ -188,12 +188,12 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit = ConvertUnit(test_type, test_unit_names, test_value)
         # Check value and time updated
         assert test_unit.offset == 0
-        assert test_unit.last_updated is None
+        assert test_unit.last_updated_date is None
         # Change value
         test_unit.update_offset(10)
         # Check value
         assert test_unit.offset == 10
-        assert test_unit.last_updated is not None
+        assert test_unit.last_updated_date is not None
 
     def test_has_name(self):
         # Set up test object
