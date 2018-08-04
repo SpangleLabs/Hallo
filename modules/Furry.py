@@ -714,9 +714,12 @@ class E621SubList:
         :rtype: E621SubList
         """
         new_sub_list = E621SubList()
-        # Try loading xml file, otherwise return blank list
-        with open("store/e621_subscriptions.json", "r") as f:
-            json_obj = json.load(f)
+        # Try loading json file, otherwise return blank list
+        try:
+            with open("store/e621_subscriptions.json", "r") as f:
+                json_obj = json.load(f)
+        except (OSError, IOError):
+            return new_sub_list
         # Loop subs in json file adding them to list
         for e621_sub_elem in json_obj["e621_subs"]:
             new_sub_obj = E621Sub.from_json(e621_sub_elem)
