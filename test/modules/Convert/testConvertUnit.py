@@ -52,6 +52,35 @@ class ConvertUnitTest(unittest.TestCase):
         assert xml_unit.last_updated == test_unit.last_updated
         assert xml_unit.valid_prefix_group == prefix_group
 
+    def test_json(self):
+        # Set up test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_repo.add_type(test_type)
+        prefix_group = ConvertPrefixGroup(test_repo, "test_group")
+        test_repo.add_prefix_group(prefix_group)
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_unit_names = ["name1", "name2"]
+        test_value = 1337
+        # Create test unit
+        test_unit = ConvertUnit(test_type, test_unit_names, test_value)
+        test_unit.update_offset(10)
+        test_unit.add_abbr("abbr1")
+        test_unit.valid_prefix_group = prefix_group
+        # Convert to json and back
+        test_json = test_unit.to_json()
+        json_unit = ConvertUnit.from_json(test_type, test_json)
+        assert len(test_unit.abbr_list) == 1
+        assert "abbr1" in json_unit.abbr_list
+        assert json_unit.type == test_type
+        assert len(test_unit.name_list) == 2
+        assert "name1" in json_unit.name_list
+        assert "name2" in json_unit.name_list
+        assert json_unit.value == test_value
+        assert json_unit.offset == 10
+        assert json_unit.last_updated == test_unit.last_updated
+        assert json_unit.valid_prefix_group == prefix_group
+
     def test_add_name(self):
         # Set up test objects
         test_repo = ConvertRepo()

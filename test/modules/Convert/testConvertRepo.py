@@ -164,3 +164,41 @@ class ConvertRepoTest(unittest.TestCase):
                 os.rename("store/convert.xml.tmp", "store/convert.xml")
             except OSError:
                 pass
+
+    def test_json(self):
+        test_repo = ConvertRepo()
+        test_type1 = ConvertType(test_repo, "test_type1")
+        test_type2 = ConvertType(test_repo, "test_type2")
+        test_repo.add_type(test_type1)
+        test_repo.add_type(test_type2)
+        test_unit1 = ConvertUnit(test_type1, ["unit1"], 1)
+        test_unit2 = ConvertUnit(test_type2, ["unit2"], 1)
+        test_type1.base_unit = test_unit1
+        test_type2.base_unit = test_unit2
+        test_group1 = ConvertPrefixGroup(test_repo, "group1")
+        test_group2 = ConvertPrefixGroup(test_repo, "group2")
+        test_repo.add_prefix_group(test_group1)
+        test_repo.add_prefix_group(test_group2)
+        # Save to JSON and load
+        try:
+            try:
+                os.rename("store/convert.json", "store/convert.json.tmp")
+            except OSError:
+                pass
+            test_repo.save_json()
+            new_repo = ConvertRepo.load_json()
+            assert len(new_repo.type_list) == 2
+            assert len(new_repo.prefix_group_list) == 2
+            assert "test_type1" in [x.name for x in new_repo.type_list]
+            assert "test_type2" in [x.name for x in new_repo.type_list]
+            assert "group1" in [x.name for x in new_repo.prefix_group_list]
+            assert "group2" in [x.name for x in new_repo.prefix_group_list]
+        finally:
+            try:
+                os.remove("store/convert.json")
+            except OSError:
+                pass
+            try:
+                os.rename("store/convert.json.tmp", "store/convert.json")
+            except OSError:
+                pass
