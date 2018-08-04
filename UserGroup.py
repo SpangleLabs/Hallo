@@ -79,47 +79,12 @@ class UserGroup:
     def remove_user(self, remove_user):
         self.user_list.remove(remove_user)
 
-    def to_xml(self):
-        """Returns the UserGroup object XML"""
-        # create document
-        doc = minidom.Document()
-        # create root element
-        root = doc.createElement("user_group")
-        doc.appendChild(root)
-        # create name element
-        name_elem = doc.createElement("name")
-        name_elem.appendChild(doc.createTextNode(self.name))
-        root.appendChild(name_elem)
-        # create permission_mask element
-        if not self.permission_mask.is_empty():
-            permission_mask_elem = minidom.parseString(self.permission_mask.to_xml()).firstChild
-            root.appendChild(permission_mask_elem)
-        # output XML string
-        return doc.toxml()
-
-    @staticmethod
-    def from_xml(xml_string, hallo):
-        """
-        Loads a new UserGroup object from XML
-        :param xml_string: String containing XML to parse for usergroup
-        :type xml_string: str
-        :param hallo: Hallo object to add user group to
-        :type hallo: Hallo.Hallo
-        """
-        doc = minidom.parseString(xml_string)
-        new_name = doc.getElementsByTagName("name")[0].firstChild.data
-        new_user_group = UserGroup(new_name, hallo)
-        if len(doc.getElementsByTagName("permission_mask")) != 0:
-            new_user_group.permission_mask = PermissionMask.from_xml(
-                doc.getElementsByTagName("permission_mask")[0].toxml())
-        return new_user_group
-
     def to_json(self):
         """
         Returns the user group configuration as a dict for serialisation into json
         :return: dict
         """
-        json_obj = {}
+        json_obj = dict()
         json_obj["name"] = self.name
         if not self.permission_mask.is_empty():
             json_obj["permission_mask"] = self.permission_mask.to_json()

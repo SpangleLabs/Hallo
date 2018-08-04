@@ -1,5 +1,3 @@
-from xml.dom import minidom
-from inc.Commons import Commons
 
 
 class PermissionMask(object):
@@ -41,51 +39,6 @@ class PermissionMask(object):
     def is_empty(self):
         """Returns a boolean representing whether the PermissionMask is "empty" or has no rights set."""
         return len(self.rights_map) == 0
-
-    def to_xml(self):
-        """Returns the FunctionMask object XML"""
-        # create document
-        doc = minidom.Document()
-        # create root element
-        root = doc.createElement("permission_mask")
-        doc.appendChild(root)
-        # Add rights list element
-        right_list_elem = doc.createElement("right_list")
-        # create rights elements
-        for map_right in self.rights_map:
-            if self.rights_map[map_right] is None:
-                continue
-            right_elem = doc.createElement("right")
-            # Add right name
-            name_elem = doc.createElement("name")
-            name_elem.appendChild(doc.createTextNode(map_right))
-            right_elem.appendChild(name_elem)
-            # Add right value
-            value_elem = doc.createElement("value")
-            value_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.rights_map[map_right]]))
-            right_elem.appendChild(value_elem)
-            # Add right element to list
-            right_list_elem.appendChild(right_elem)
-        root.appendChild(right_list_elem)
-        # output XML string
-        return doc.toxml()
-
-    @staticmethod
-    def from_xml(xml_string):
-        """
-        Loads a new Destination object from XML
-        :param xml_string: XML string to parse to create new PermissionMask
-        :rtype : PermissionMask
-        """
-        doc = minidom.parseString(xml_string)
-        new_mask = PermissionMask()
-        # Load rights
-        rights_list_elem = doc.getElementsByTagName("right_list")[0]
-        for right_elem in rights_list_elem.getElementsByTagName("right"):
-            right_name = right_elem.getElementsByTagName("name")[0].firstChild.data
-            right_value = Commons.string_from_file(right_elem.getElementsByTagName("value")[0].firstChild.data)
-            new_mask.set_right(right_name, right_value)
-        return new_mask
 
     def to_json(self):
         """

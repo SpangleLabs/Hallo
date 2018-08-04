@@ -83,23 +83,6 @@ class Server(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    @staticmethod
-    def from_xml(xml_string, hallo):
-        """
-        Constructor to build a new server object from xml
-        :param xml_string: XML string representation of the server
-        :type xml_string: str
-        :param hallo: Hallo object which is connected to this server
-        :type hallo: Hallo.Hallo
-        """
-        raise NotImplementedError
-
-    def to_xml(self):
-        """
-        Returns an XML representation of the server object
-        """
-        raise NotImplementedError
-
     def to_json(self):
         """
         Returns a dict formatted so it may be serialised into json configuration data

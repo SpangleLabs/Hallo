@@ -5,7 +5,6 @@ from Function import Function
 from inc.Commons import Commons, ISO8601ParseError
 import urllib.parse
 from datetime import datetime
-from xml.etree import ElementTree
 
 
 class E621(Function):
@@ -473,74 +472,6 @@ class E621Sub:
             return True
         return False
 
-    def to_xml_string(self):
-        """
-        Saves this E621 subscription
-        :rtype: str
-        """
-        # Create root element
-        root = ElementTree.Element("e621_sub")
-        # Create search element
-        search = ElementTree.SubElement(root, "search")
-        search.text = self.search
-        # Create server name element
-        server = ElementTree.SubElement(root, "server")
-        server.text = self.server_name
-        # Create channel name element, if applicable
-        if self.channel_address is not None:
-            channel = ElementTree.SubElement(root, "channel")
-            channel.text = self.channel_address
-        # Create user name element, if applicable
-        if self.user_address is not None:
-            user = ElementTree.SubElement(root, "user")
-            user.text = self.user_address
-        # Create latest id elements
-        for latest_id in self.latest_ten_ids:
-            latest_id_elem = ElementTree.SubElement(root, "latest_id")
-            latest_id_elem.text = str(latest_id)
-        # Create last check element
-        if self.last_check is not None:
-            last_check = ElementTree.SubElement(root, "last_check")
-            last_check.text = self.last_check.isoformat()
-        # Create update frequency element
-        update_frequency = ElementTree.SubElement(root, "update_frequency")
-        update_frequency.text = Commons.format_time_delta(self.update_frequency)
-        # Return xml string
-        return ElementTree.tostring(root)
-
-    @staticmethod
-    def from_xml_string(xml_string):
-        """
-        Loads new E621Sub object from XML string
-        :param xml_string: string
-        :return: E621Sub
-        """
-        # Create blank subscription
-        new_sub = E621Sub()
-        # Load xml
-        sub_xml = ElementTree.fromstring(xml_string)
-        # Load title, url, server
-        new_sub.search = sub_xml.find("search").text
-        new_sub.server_name = sub_xml.find("server").text
-        # Load channel or user
-        if sub_xml.find("channel") is not None:
-            new_sub.channel_address = sub_xml.find("channel").text
-        else:
-            if sub_xml.find("user") is not None:
-                new_sub.user_address = sub_xml.find("user").text
-            else:
-                raise Exception("Channel or user must be defined")
-        # Load last item
-        for latest_id in sub_xml.findall("latest_id"):
-            new_sub.latest_ten_ids.append(int(latest_id.text))
-        # Load last check
-        if sub_xml.find("last_check") is not None:
-            new_sub.last_check = datetime.strptime(sub_xml.find("last_check").text, "%Y-%m-%dT%H:%M:%S.%f")
-        # Load update frequency
-        new_sub.update_frequency = Commons.load_time_delta(sub_xml.find("update_frequency").text)
-        # Return new feed
-        return new_sub
-
     def to_json(self):
         # Create root element
         json_obj = {}
@@ -658,40 +589,6 @@ class E621SubList:
             if search_clean == e621_sub.search.lower().strip():
                 matching_feeds.append(e621_sub)
         return matching_feeds
-
-    def to_xml(self):
-        """
-        Saves the whole subscription list to XML file
-        :return: Nothing
-        """
-        # Create root element
-        root_elem = ElementTree.Element("e621_subscriptions")
-        # Add all feed elements
-        for e621_sub_obj in self.sub_list:
-            new_feed_elem = ElementTree.fromstring(e621_sub_obj.to_xml_string())
-            root_elem.append(new_feed_elem)
-        # Write xml to file
-        ElementTree.ElementTree(root_elem).write("store/e621_subscriptions.xml")
-
-    @staticmethod
-    def from_xml():
-        """
-        Constructs a new E621SubList from the XML file
-        :return: Newly constructed list of subscriptions
-        :rtype: E621SubList
-        """
-        new_sub_list = E621SubList()
-        # Try loading xml file, otherwise return blank list
-        try:
-            doc = ElementTree.parse("store/e621_subscriptions.xml")
-        except (OSError, IOError):
-            return new_sub_list
-        # Loop feeds in xml file adding them to list
-        root = doc.getroot()
-        for e621_sub_elem in root.findall("e621_sub"):
-            new_sub_obj = E621Sub.from_xml_string(ElementTree.tostring(e621_sub_elem))
-            new_sub_list.add_sub(new_sub_obj)
-        return new_sub_list
 
     def save_json(self):
         """
