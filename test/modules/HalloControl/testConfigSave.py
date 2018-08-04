@@ -24,5 +24,5 @@ class ConfigSaveTest(TestBase, unittest.TestCase):
 class HalloMock(Hallo):
     saved_to_json = False
 
-    def save_to_json(self):
+    def save_json(self):
         self.saved_to_json = True
