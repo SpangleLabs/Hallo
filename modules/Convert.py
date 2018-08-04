@@ -1014,9 +1014,6 @@ class UpdateCurrencies(Function):
         json_dict = {'ltc': Commons.load_url_json(
                 "http://preev.com/pulse/units:ltc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
             ),
-            'ppc': Commons.load_url_json(
-                "http://preev.com/pulse/units:ppc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
-            ),
             'btc': Commons.load_url_json(
                 "http://preev.com/pulse/units:btc+eur/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
             ),
