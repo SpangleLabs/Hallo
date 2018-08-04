@@ -98,29 +98,6 @@ class ConvertRepo:
         return None
 
     @staticmethod
-    def load_from_xml():
-        """
-        Loads Convert Repo from XML.
-        :rtype: ConvertRepo
-        """
-        try:
-            doc = minidom.parse("store/convert.xml")
-        except (OSError, IOError):
-            doc = minidom.parse("store/convert-default.xml")
-        # Create new object
-        new_repo = ConvertRepo()
-        # Loop through prefix groups
-        for prefix_group_elem in doc.getElementsByTagName("prefix_group"):
-            prefix_group_obj = ConvertPrefixGroup.from_xml(new_repo, prefix_group_elem.toxml())
-            new_repo.add_prefix_group(prefix_group_obj)
-        # Loop through types
-        for type_elem in doc.getElementsByTagName("type"):
-            type_obj = ConvertType.from_xml(new_repo, type_elem.toxml())
-            new_repo.add_type(type_obj)
-        # Return new repo object
-        return new_repo
-
-    @staticmethod
     def load_json():
         """
         Loads a new conversion repository from json file.
@@ -138,32 +115,6 @@ class ConvertRepo:
         for unit_type in json_obj["unit_types"]:
             new_repo.add_type(ConvertType.from_json(new_repo, unit_type))
         return new_repo
-
-    def save_to_xml(self):
-        """
-        Saves Convert Repo to XML.
-        """
-        # Create document, with DTD
-        doc_imp = minidom.DOMImplementation()
-        doc_type = doc_imp.createDocumentType(
-            qualifiedName='convert',
-            publicId='',
-            systemId='convert.dtd',
-        )
-        doc = doc_imp.createDocument(None, 'convert', doc_type)
-        # get root element
-        root = doc.getElementsByTagName("convert")[0]
-        # Add prefix groups
-        for prefix_group_obj in self.prefix_group_list:
-            prefix_group_elem = minidom.parseString(prefix_group_obj.to_xml()).firstChild
-            root.appendChild(prefix_group_elem)
-        # Add types
-        for type_obj in self.type_list:
-            type_elem = minidom.parseString(type_obj.to_xml()).firstChild
-            root.appendChild(type_elem)
-        # save XML
-        with open("store/convert.xml", "w") as f:
-            doc.writexml(f, addindent="\t", newl="\n")
 
     def save_json(self):
         """
@@ -250,36 +201,6 @@ class ConvertType:
         return None
 
     @staticmethod
-    def from_xml(repo, xml_string):
-        """
-        Loads a new ConvertType object from XML
-        :type repo: ConvertRepo
-        :type xml_string: str
-        :rtype: ConvertType
-        """
-        # Load document
-        doc = minidom.parseString(xml_string)
-        # Get name and create ConvertType object
-        new_name = doc.getElementsByTagName("name")[0].firstChild.data
-        new_type = ConvertType(repo, new_name)
-        # Get number of decimals
-        if len(doc.getElementsByTagName("decimals")) > 0:
-            new_decimals = int(doc.getElementsByTagName("decimals")[0].firstChild.data)
-            new_type.decimals = new_decimals
-        # Get base unit
-        base_unit_elem = doc.getElementsByTagName("base_unit")[0].getElementsByTagName("unit")[0]
-        base_unit_obj = ConvertUnit.from_xml(new_type, base_unit_elem.toxml())
-        new_type.base_unit = base_unit_obj
-        # Loop through unit elements, creating and adding objects.
-        for unit_elem in doc.getElementsByTagName("unit"):
-            if unit_elem == base_unit_elem:
-                continue
-            unit_obj = ConvertUnit.from_xml(new_type, unit_elem.toxml())
-            new_type.add_unit(unit_obj)
-        # Return created Type
-        return new_type
-
-    @staticmethod
     def from_json(repo, json_obj):
         """
         Loads a new ConvertType from json dict
@@ -297,36 +218,6 @@ class ConvertType:
         for unit in json_obj["units"]:
             new_type.add_unit(ConvertUnit.from_json(new_type, unit))
         return new_type
-
-    def to_xml(self):
-        """
-        Writes ConvertType object as XML
-        :rtype: str
-        """
-        # create document
-        doc = minidom.Document()
-        # create root element
-        root = doc.createElement("type")
-        doc.appendChild(root)
-        # Add name element
-        name_elem = doc.createElement("name")
-        name_elem.appendChild(doc.createTextNode(self.name))
-        root.appendChild(name_elem)
-        # Add decimals element
-        decimals_elem = doc.createElement("decimals")
-        decimals_elem.appendChild(doc.createTextNode(str(self.decimals)))
-        root.appendChild(decimals_elem)
-        # Add base unit element
-        base_unit_elem = doc.createElement("base_unit")
-        base_unit_unit_elem = minidom.parseString(self.base_unit.to_xml()).firstChild
-        base_unit_elem.appendChild(base_unit_unit_elem)
-        root.appendChild(base_unit_elem)
-        # Add units
-        for unit_obj in self.unit_list:
-            unit_elem = minidom.parseString(unit_obj.to_xml()).firstChild
-            root.appendChild(unit_elem)
-        # Output XML
-        return doc.toxml()
 
     def to_json(self):
         """
@@ -519,46 +410,6 @@ class ConvertUnit:
         return False
 
     @staticmethod
-    def from_xml(convert_type, xml_string):
-        """
-        Loads a new ConvertUnit object from XML.
-        :type convert_type: ConvertType
-        :type xml_string: str
-        :rtype: ConvertUnit
-        """
-        # Load document
-        doc = minidom.parseString(xml_string)
-        # Get names, value and create object
-        new_name_list = []
-        for name_elem in doc.getElementsByTagName("name"):
-            new_name = name_elem.firstChild.data
-            new_name_list.append(new_name)
-        new_value = float(doc.getElementsByTagName("value")[0].firstChild.data)
-        new_unit = ConvertUnit(convert_type, new_name_list, new_value)
-        # Loop through abbreviation elements, adding them.
-        for abbr_elem in doc.getElementsByTagName("abbr"):
-            new_abbr = abbr_elem.firstChild.data
-            new_unit.add_abbr(new_abbr)
-        # Add prefix group
-        if len(doc.getElementsByTagName("valid_prefix_group")) != 0:
-            convert_repo = convert_type.repo
-            value_prefix_group_name = doc.getElementsByTagName("valid_prefix_group")[0].firstChild.data
-            valid_prefix_group = convert_repo.get_prefix_group_by_name(value_prefix_group_name)
-            new_unit.valid_prefix_group = valid_prefix_group
-        # Get offset
-        if len(doc.getElementsByTagName("offset")) != 0:
-            new_offset = float(doc.getElementsByTagName("offset")[0].firstChild.data)
-            new_unit.offset = new_offset
-        # Get update time
-        if len(doc.getElementsByTagName("last_update")) != 0:
-            new_last_updated = float(doc.getElementsByTagName("last_update")[0].firstChild.data)
-            new_unit.last_updated = new_last_updated
-        else:
-            new_unit.last_updated = None
-        # Return created ConvertUnit
-        return new_unit
-
-    @staticmethod
     def from_json(convert_type, json_obj):
         """
         Loads a ConvertUnit object from json dict
@@ -582,49 +433,6 @@ class ConvertUnit:
         if "last_updated" in json_obj:
             new_unit.last_updated_date = dateutil.parser.parse(json_obj["last_updated"])
         return new_unit
-
-    def to_xml(self):
-        """
-        Outputs a ConvertUnit object as XML.
-        :rtype: str
-        """
-        # create document
-        doc = minidom.Document()
-        # create root element
-        root = doc.createElement("unit")
-        doc.appendChild(root)
-        # Add name elements
-        for name_str in self.name_list:
-            name_elem = doc.createElement("name")
-            name_elem.appendChild(doc.createTextNode(name_str))
-            root.appendChild(name_elem)
-        # Add abbreviations
-        for abbr_str in self.abbr_list:
-            abbr_elem = doc.createElement("abbr")
-            abbr_elem.appendChild(doc.createTextNode(abbr_str))
-            root.appendChild(abbr_elem)
-        # Add prefix group
-        if self.valid_prefix_group is not None:
-            valid_prefix_group_name = self.valid_prefix_group.name
-            valid_prefix_group_elem = doc.createElement("valid_prefix_group")
-            valid_prefix_group_elem.appendChild(doc.createTextNode(valid_prefix_group_name))
-            root.appendChild(valid_prefix_group_elem)
-        # Add value element
-        value_elem = doc.createElement("value")
-        value_elem.appendChild(doc.createTextNode(str(self.value)))
-        root.appendChild(value_elem)
-        # Add offset
-        if self.offset != 0:
-            offset_elem = doc.createElement("offset")
-            offset_elem.appendChild(doc.createTextNode(str(self.offset)))
-            root.appendChild(offset_elem)
-        # Add update time
-        if self.last_updated is not None:
-            last_update_elem = doc.createElement("last_update")
-            last_update_elem.appendChild(doc.createTextNode(str(self.last_updated)))
-            root.appendChild(last_update_elem)
-        # Output XML
-        return doc.toxml()
 
     def to_json(self):
         """
@@ -727,26 +535,6 @@ class ConvertPrefixGroup:
         return None
 
     @staticmethod
-    def from_xml(repo, xml_string):
-        """
-        Loads a new ConvertPrefixGroup object from XML.
-        :type repo: ConvertRepo
-        :type xml_string: str
-        :rtype: ConvertPrefixGroup
-        """
-        # Load document
-        doc = minidom.parseString(xml_string)
-        # Get name and create object
-        new_name = doc.getElementsByTagName("name")[0].firstChild.data
-        new_prefix_group = ConvertPrefixGroup(repo, new_name)
-        # Loop through prefix elements, creating and adding objects.
-        for prefix_elem in doc.getElementsByTagName("prefix"):
-            prefix_obj = ConvertPrefix.from_xml(new_prefix_group, prefix_elem.toxml())
-            new_prefix_group.add_prefix(prefix_obj)
-        # Return created PrefixGroup
-        return new_prefix_group
-
-    @staticmethod
     def from_json(repo, json_obj):
         """
         Loads a new ConvertPrefixGroup from json dict
@@ -759,27 +547,6 @@ class ConvertPrefixGroup:
         for prefix in json_obj["prefixes"]:
             new_group.add_prefix(ConvertPrefix.from_json(new_group, prefix))
         return new_group
-
-    def to_xml(self):
-        """
-        Outputs a ConvertUnit object as XML.
-        :rtype: str
-        """
-        # create document
-        doc = minidom.Document()
-        # create root element
-        root = doc.createElement("prefix_group")
-        doc.appendChild(root)
-        # Add name element
-        name_elem = doc.createElement("name")
-        name_elem.appendChild(doc.createTextNode(self.name))
-        root.appendChild(name_elem)
-        # Add prefixes
-        for prefix_obj in self.prefix_list:
-            prefix_elem = minidom.parseString(prefix_obj.to_xml()).firstChild
-            root.appendChild(prefix_elem)
-        # Output XML
-        return doc.toxml()
 
     def to_json(self):
         """
@@ -812,21 +579,6 @@ class ConvertPrefix:
         self.multiplier = multiplier
 
     @staticmethod
-    def from_xml(prefix_group, xml_string):
-        """
-        Loads a new ConvertPrefix object from XML.
-        :type prefix_group: ConvertPrefixGroup
-        :type xml_string: str
-        :rtype: ConvertPrefix
-        """
-        doc = minidom.parseString(xml_string)
-        new_name = doc.getElementsByTagName("name")[0].firstChild.data
-        new_abbreviation = doc.getElementsByTagName("abbr")[0].firstChild.data
-        new_value = float(doc.getElementsByTagName("value")[0].firstChild.data)
-        new_prefix = ConvertPrefix(prefix_group, new_name, new_abbreviation, new_value)
-        return new_prefix
-
-    @staticmethod
     def from_json(prefix_group, json_obj):
         """
         Loads a new ConvertPrefix object from json dict
@@ -839,31 +591,6 @@ class ConvertPrefix:
         value = json_obj["value"]
         new_prefix = ConvertPrefix(prefix_group, name, abbr, value)
         return new_prefix
-
-    def to_xml(self):
-        """
-        Outputs a ConvertUnit object as XML.
-        :rtype: str
-        """
-        # create document
-        doc = minidom.Document()
-        # create root element
-        root = doc.createElement("prefix")
-        doc.appendChild(root)
-        # Add name
-        name_elem = doc.createElement("name")
-        name_elem.appendChild(doc.createTextNode(self.prefix))
-        root.appendChild(name_elem)
-        # Add abbreviation
-        abbr_elem = doc.createElement("abbr")
-        abbr_elem.appendChild(doc.createTextNode(self.abbreviation))
-        root.appendChild(abbr_elem)
-        # Add multiplier
-        value_elem = doc.createElement("value")
-        value_elem.appendChild(doc.createTextNode(str(self.multiplier)))
-        root.appendChild(value_elem)
-        # Return XML
-        return doc.toxml()
 
     def to_json(self):
         """
