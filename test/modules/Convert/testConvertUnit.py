@@ -35,7 +35,7 @@ class ConvertUnitTest(unittest.TestCase):
         test_value = 1337
         # Create test unit
         test_unit = ConvertUnit(test_type, test_unit_names, test_value)
-        test_unit.set_offset(10)
+        test_unit.update_offset(10)
         test_unit.add_abbr("abbr1")
         test_unit.valid_prefix_group = prefix_group
         # Convert to XML and back
@@ -144,7 +144,7 @@ class ConvertUnitTest(unittest.TestCase):
         assert test_unit.value == 1337
         assert test_unit.last_updated is None
         # Change value
-        test_unit.set_value(101)
+        test_unit.update_value(101)
         # Check value
         assert test_unit.value == 101
         assert test_unit.last_updated is not None
@@ -161,7 +161,7 @@ class ConvertUnitTest(unittest.TestCase):
         assert test_unit.offset == 0
         assert test_unit.last_updated is None
         # Change value
-        test_unit.set_offset(10)
+        test_unit.update_offset(10)
         # Check value
         assert test_unit.offset == 10
         assert test_unit.last_updated is not None
