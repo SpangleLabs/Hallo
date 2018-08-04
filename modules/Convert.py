@@ -1036,7 +1036,7 @@ class Convert(Function):
         # Create regex to find the place to split a user string.
         split_regex = re.compile(' into | to |->| in ', re.IGNORECASE)
         # Load ConvertRepo
-        repo = ConvertRepo.load_from_xml()
+        repo = ConvertRepo.load_json()
         # See if the input needs splitting.
         if split_regex.search(line) is None:
             try:
@@ -1171,7 +1171,7 @@ class UpdateCurrencies(Function):
     def run(self, line, user_obj, destination_obj=None):
         output_lines = []
         # Load convert repo.
-        repo = ConvertRepo.load_from_xml()
+        repo = ConvertRepo.load_json()
         # Update with the European Bank
         try:
             output_lines.append(self.update_from_european_bank_data(repo) or
@@ -1191,7 +1191,7 @@ class UpdateCurrencies(Function):
         except Exception as e:
             output_lines.append("Failed to update Preev data. {}".format(e))
         # Save repo
-        repo.save_to_xml()
+        repo.save_json()
         # Return output
         return "\n".join(output_lines)
 
@@ -1200,7 +1200,7 @@ class UpdateCurrencies(Function):
 
     def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
         # Load convert repo.
-        repo = ConvertRepo.load_from_xml()
+        repo = ConvertRepo.load_json()
         # Update with the European Bank
         try:
             self.update_from_european_bank_data(repo)
@@ -1217,7 +1217,7 @@ class UpdateCurrencies(Function):
         except Exception as e:
             print("Failed to update preev data. {}".format(e))
         # Save repo
-        repo.save_to_xml()
+        repo.save_json()
         return None
 
     def update_from_european_bank_data(self, repo):
@@ -1352,7 +1352,7 @@ class ConvertViewRepo(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load repo
-        repo = ConvertRepo.load_from_xml()
+        repo = ConvertRepo.load_json()
         # Check if type is specified
         if Commons.find_any_parameter(self.NAMES_TYPE, line):
             # Get type name and object
@@ -1511,7 +1511,7 @@ class ConvertSet(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load Conversion Repo
-        repo = ConvertRepo.load_from_xml()
+        repo = ConvertRepo.load_json()
         # Create regex to find the place to split a user string.
         split_regex = re.compile(' into | to |->| in ', re.IGNORECASE)
         # Split input
@@ -1582,7 +1582,7 @@ class ConvertSet(Function):
             var_unit.update_offset(new_offset)
             # Save repo
             repo = var_unit.type.repo
-            repo.save_to_xml()
+            repo.save_json()
             # Output message
             return "Set new offset for {}: 0 {} = {} {}.".format(var_name, var_name, new_offset, base_name)
         # Get new value
@@ -1590,7 +1590,7 @@ class ConvertSet(Function):
         var_unit.update_value(new_value)
         # Save repo
         repo = var_unit.type.repo
-        repo.save_to_xml()
+        repo.save_json()
         # Output message
         return "Set new value for {}: Δ 1 {} = Δ {} {}.".format(var_name, var_name, new_value, base_name)
 
@@ -1639,7 +1639,7 @@ class ConvertSet(Function):
             new_unit.update_offset(new_offset)
             # Save repo
             repo = ref_unit.type.repo
-            repo.save_to_xml()
+            repo.save_json()
             # Output message
             return "Created new unit {} with offset: 0 {} = {} {}.".format(input_name,
                                                                            input_name,
@@ -1650,7 +1650,7 @@ class ConvertSet(Function):
         new_unit.update_value(new_value)
         # Save repo
         repo = ref_unit.type.repo
-        repo.save_to_xml()
+        repo.save_json()
         # Output message
         return "Created new unit {} with value: 1 {} = {} {}.".format(input_name, input_name, new_value, base_name)
 
@@ -1677,7 +1677,7 @@ class ConvertAddType(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load repo, clean line
-        repo = ConvertRepo.load_from_xml()
+        repo = ConvertRepo.load_json()
         line_clean = line.strip()
         # Check if base unit is defined
         unit_name = None
@@ -1710,7 +1710,7 @@ class ConvertAddType(Function):
             new_type.decimals = decimals
         # add type to repo, save
         repo.add_type(new_type)
-        repo.save_to_xml()
+        repo.save_json()
         # Output message
         decimal_string = ""
         if decimals is not None:
@@ -1738,7 +1738,7 @@ class ConvertSetTypeDecimals(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load convert repo
-        repo = ConvertRepo.load_from_xml()
+        repo = ConvertRepo.load_json()
         # Get decimals from input
         input_decimals = Commons.get_digits_from_start_or_end(line)
         # If decimals is null, return error
@@ -1759,7 +1759,7 @@ class ConvertSetTypeDecimals(Function):
         # Set decimals
         input_type.decimals = decimals
         # Save repo
-        repo.save_to_xml()
+        repo.save_json()
         # Output message
         return "Set the number of decimal places to display for \"{}\" type units at {} places.".format(input_type.name,
                                                                                                         decimals)
@@ -1786,7 +1786,7 @@ class ConvertRemoveUnit(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load convert repo
-        repo = ConvertRepo.load_from_xml()
+        repo = ConvertRepo.load_json()
         # Check if a type is specified
         type_name = None
         if Commons.find_any_parameter(self.NAMES_TYPE, line):
@@ -1847,7 +1847,7 @@ class ConvertUnitAddName(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load repository
-        repo = ConvertRepo.load_from_xml()
+        repo = ConvertRepo.load_json()
         # Check for type=
         type_name = None
         if Commons.find_any_parameter(self.NAMES_TYPE, line):
@@ -1898,7 +1898,7 @@ class ConvertUnitAddName(Function):
         # Add the new name
         unit_obj.add_name(new_unit_name)
         # Save repo
-        repo.save_to_xml()
+        repo.save_json()
         # Output message
         return "Added \"{}\" as a new name for the \"{}\" unit.".format(new_unit_name, unit_obj.name_list[0])
 
@@ -1925,7 +1925,7 @@ class ConvertUnitAddAbbreviation(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load repository
-        repo = ConvertRepo.load_from_xml()
+        repo = ConvertRepo.load_json()
         # Check for type=
         type_name = None
         if Commons.find_any_parameter(self.NAMES_TYPE, line):
@@ -1976,7 +1976,7 @@ class ConvertUnitAddAbbreviation(Function):
         # Add the new name
         unit_obj.add_abbr(new_unit_abbr)
         # Save repo
-        repo.save_to_xml()
+        repo.save_json()
         # Output message
         return "Added \"{}\" as a new abbreviation for the \"{}\" unit.".format(new_unit_abbr, unit_obj.name_list[0])
 
@@ -2006,7 +2006,7 @@ class ConvertUnitRemoveName(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load repo, clean line
-        repo = ConvertRepo.load_from_xml()
+        repo = ConvertRepo.load_json()
         line_clean = line.strip()
         # Check if unit is defined
         unit_name = None
@@ -2047,7 +2047,7 @@ class ConvertUnitRemoveName(Function):
         # Remove name
         user_unit.remove_name(input_name)
         # Save repo
-        repo.save_to_xml()
+        repo.save_json()
         # Output
         return "Removed name \"{}\" from \"{}\" unit.".format(input_name, user_unit.name_list[0])
 
@@ -2075,7 +2075,7 @@ class ConvertUnitSetPrefixGroup(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         # Load repository
-        repo = ConvertRepo.load_from_xml()
+        repo = ConvertRepo.load_json()
         # Check for type=
         type_name = None
         if Commons.find_any_parameter(self.NAMES_TYPE, line):
@@ -2141,7 +2141,7 @@ class ConvertUnitSetPrefixGroup(Function):
         # Set the prefix group
         unit_obj.valid_prefix_group = prefix_group
         # Save repo
-        repo.save_to_xml()
+        repo.save_json()
         # Output message
         if prefix_group is None:
             prefix_group_name = "none"
