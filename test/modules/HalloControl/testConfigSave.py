@@ -16,13 +16,13 @@ class ConfigSaveTest(TestBase, unittest.TestCase):
             data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
             assert "error" not in data[0][0].lower()
             assert "config has been saved" in data[0][0].lower()
-            assert mock_hallo.saved_to_xml
+            assert mock_hallo.saved_to_json
         finally:
             self.test_user.server.hallo = old_hallo
 
 
 class HalloMock(Hallo):
-    saved_to_xml = False
+    saved_to_json = False
 
-    def save_to_xml(self):
-        self.saved_to_xml = True
+    def save_to_json(self):
+        self.saved_to_json = True
