@@ -21,7 +21,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
     def tearDown(self):
         super().tearDown()
         try:
-            os.remove("store/e621_subscriptions.xml")
+            os.remove("store/e621_subscriptions.json")
         except OSError:
             pass
         try:
@@ -32,7 +32,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
     def test_init(self):
         try:
             try:
-                os.rename("store/e621_subscriptions.xml", "store/e621_subscriptions.xml.tmp")
+                os.rename("store/e621_subscriptions.json", "store/e621_subscriptions.json.tmp")
             except OSError:
                 pass
             fc = SubE621Check()
@@ -40,7 +40,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             assert fc.e621_sub_list.sub_list == []
         finally:
             try:
-                os.rename("store/e621_subscriptions.xml.tmp", "store/e621_subscriptions.xml")
+                os.rename("store/e621_subscriptions.json.tmp", "store/e621_subscriptions.json")
             except OSError:
                 pass
 

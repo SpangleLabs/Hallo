@@ -19,7 +19,7 @@ class SubE621ListTest(TestBase, unittest.TestCase):
     def tearDown(self):
         super().tearDown()
         try:
-            os.remove("store/e621_subscriptions.xml")
+            os.remove("store/e621_subscriptions.json")
         except OSError:
             pass
         try:
