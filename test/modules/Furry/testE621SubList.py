@@ -182,7 +182,7 @@ class TestE621SubList(unittest.TestCase):
         rf3.server_name = "test_serv3"
         rf3.user_address = "test_user3"
         rfl.add_sub(rf3)
-        # Save to XML and load
+        # Save to JSON and load
         try:
             try:
                 os.rename("store/e621_subscriptions.json", "store/e621_subscriptions.json.tmp")

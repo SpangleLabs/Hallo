@@ -11,7 +11,7 @@ class SubE621ListTest(TestBase, unittest.TestCase):
 
     def setUp(self):
         try:
-            os.rename("store/e621_subscriptions.xml", "store/e621_subscriptions.xml.tmp")
+            os.rename("store/e621_subscriptions.json", "store/e621_subscriptions.json.tmp")
         except OSError:
             pass
         super().setUp()
@@ -23,7 +23,7 @@ class SubE621ListTest(TestBase, unittest.TestCase):
         except OSError:
             pass
         try:
-            os.rename("store/e621_subscriptions.xml.tmp", "store/e621_subscriptions.xml")
+            os.rename("store/e621_subscriptions.json.tmp", "store/e621_subscriptions.json")
         except OSError:
             pass
 
