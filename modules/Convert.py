@@ -2,7 +2,7 @@ import datetime
 import json
 from xml.dom import minidom
 
-import dateutil
+from dateutil import parser
 
 from inc.Commons import Commons
 from Function import Function
