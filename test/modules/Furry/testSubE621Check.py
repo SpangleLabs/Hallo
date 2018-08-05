@@ -13,7 +13,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
 
     def setUp(self):
         try:
-            os.rename("store/e621_subscriptions.xml", "store/e621_subscriptions.xml.tmp")
+            os.rename("store/e621_subscriptions.json", "store/e621_subscriptions.json.tmp")
         except OSError:
             pass
         super().setUp()
@@ -21,18 +21,18 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
     def tearDown(self):
         super().tearDown()
         try:
-            os.remove("store/e621_subscriptions.xml")
+            os.remove("store/e621_subscriptions.json")
         except OSError:
             pass
         try:
-            os.rename("store/e621_subscriptions.xml.tmp", "store/e621_subscriptions.xml")
+            os.rename("store/e621_subscriptions.json.tmp", "store/e621_subscriptions.json")
         except OSError:
             pass
 
     def test_init(self):
         try:
             try:
-                os.rename("store/e621_subscriptions.xml", "store/e621_subscriptions.xml.tmp")
+                os.rename("store/e621_subscriptions.json", "store/e621_subscriptions.json.tmp")
             except OSError:
                 pass
             fc = SubE621Check()
@@ -40,7 +40,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             assert fc.e621_sub_list.sub_list == []
         finally:
             try:
-                os.rename("store/e621_subscriptions.xml.tmp", "store/e621_subscriptions.xml")
+                os.rename("store/e621_subscriptions.json.tmp", "store/e621_subscriptions.json")
             except OSError:
                 pass
 
@@ -50,7 +50,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
         mfl = MockSubList()
         fc.e621_sub_list = mfl
         fc.save_function()
-        assert mfl.to_xml_called
+        assert mfl.save_json_called
 
     def test_run_all(self):
         # Set up test servers and channels
@@ -69,19 +69,19 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             rf1 = E621Sub()
             rf1.search = "cabinet"
             rf1.server_name = chan1.server.name
-            rf1.channel_name = chan1.name
+            rf1.channel_address = chan1.address
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf1)
             rf2 = E621Sub()
             rf2.search = "clefable"
             rf2.server_name = chan2.server.name
-            rf2.channel_name = chan2.name
+            rf2.channel_address = chan2.address
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf2)
             rf3 = E621Sub()
             rf3.search = "fez"
             rf3.server_name = chan3.server.name
-            rf3.channel_name = chan3.name
+            rf3.channel_address = chan3.address
             rf3.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
@@ -131,19 +131,19 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             rf1 = E621Sub()
             rf1.search = "cabinet"
             rf1.server_name = chan1.server.name
-            rf1.channel_name = chan1.name
+            rf1.channel_address = chan1.address
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf1)
             rf2 = E621Sub()
             rf2.search = "clefable"
             rf2.server_name = chan2.server.name
-            rf2.channel_name = chan2.name
+            rf2.channel_address = chan2.address
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf2)
             rf3 = E621Sub()
             rf3.search = "fez"
             rf3.server_name = chan3.server.name
-            rf3.channel_name = chan3.name
+            rf3.channel_address = chan3.address
             rf3.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
@@ -188,19 +188,19 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             rf1 = E621Sub()
             rf1.search = "cabinet"
             rf1.server_name = chan1.server.name
-            rf1.channel_name = chan1.name
+            rf1.channel_address = chan1.address
             rf1.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf1)
             rf2 = E621Sub()
             rf2.search = "clefable"
             rf2.server_name = chan2.server.name
-            rf2.channel_name = chan2.name
+            rf2.channel_address = chan2.address
             rf2.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf2)
             rf3 = E621Sub()
             rf3.search = "fez"
             rf3.server_name = chan3.server.name
-            rf3.channel_name = chan3.name
+            rf3.channel_address = chan3.address
             rf3.update_frequency = Commons.load_time_delta("PT3600S")
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
@@ -250,7 +250,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
 class MockSubList:
 
     def __init__(self):
-        self.to_xml_called = False
+        self.save_json_called = False
 
-    def to_xml(self):
-        self.to_xml_called = True
+    def save_json(self):
+        self.save_json_called = True

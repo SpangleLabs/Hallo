@@ -42,6 +42,13 @@ class ServerMock(Server):
     def to_xml(self):
         pass
 
+    def to_json(self):
+        return dict()
+
+    @staticmethod
+    def from_json(json_obj, hallo):
+        return ServerMock(hallo)
+
     # Mock server specific methods below:
 
     def get_send_data(self, exp_lines=None, dest_obj=None, msg_type=None):

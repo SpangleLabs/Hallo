@@ -1,10 +1,10 @@
+import json
 from threading import Lock
 
 from Function import Function
 from inc.Commons import Commons, ISO8601ParseError
 import urllib.parse
 from datetime import datetime
-from xml.etree import ElementTree
 
 
 class E621(Function):
@@ -382,8 +382,8 @@ class E621Sub:
     def __init__(self):
         self.search = ""
         self.server_name = None
-        self.channel_name = None
-        self.user_name = None
+        self.channel_address = None
+        self.user_address = None
         self.latest_ten_ids = []
         self.last_check = None
         self.update_frequency = None
@@ -428,10 +428,10 @@ class E621Sub:
                 return "Error, invalid server."
         # Get destination
         if destination is None:
-            if self.channel_name is not None:
-                destination = server.get_channel_by_name(self.channel_name)
-            if self.user_name is not None:
-                destination = server.get_user_by_name(self.user_name)
+            if self.channel_address is not None:
+                destination = server.get_channel_by_address(self.channel_address, None)
+            if self.user_address is not None:
+                destination = server.get_user_by_address(self.user_address, None)
             if destination is None:
                 return "Error, invalid destination."
         # Construct output
@@ -472,71 +472,59 @@ class E621Sub:
             return True
         return False
 
-    def to_xml_string(self):
-        """
-        Saves this E621 subscription
-        :rtype: str
-        """
+    def to_json(self):
         # Create root element
-        root = ElementTree.Element("e621_sub")
+        json_obj = {}
         # Create search element
-        search = ElementTree.SubElement(root, "search")
-        search.text = self.search
+        json_obj["search"] = self.search
         # Create server name element
-        server = ElementTree.SubElement(root, "server")
-        server.text = self.server_name
+        json_obj["server_name"] = self.server_name
         # Create channel name element, if applicable
-        if self.channel_name is not None:
-            channel = ElementTree.SubElement(root, "channel")
-            channel.text = self.channel_name
+        if self.channel_address is not None:
+            json_obj["channel_address"] = self.channel_address
         # Create user name element, if applicable
-        if self.user_name is not None:
-            user = ElementTree.SubElement(root, "user")
-            user.text = self.user_name
+        if self.user_address is not None:
+            json_obj["user_address"] = self.user_address
         # Create latest id elements
+        json_obj["latest_ids"] = []
         for latest_id in self.latest_ten_ids:
-            latest_id_elem = ElementTree.SubElement(root, "latest_id")
-            latest_id_elem.text = str(latest_id)
+            json_obj["latest_ids"].append(latest_id)
         # Create last check element
         if self.last_check is not None:
-            last_check = ElementTree.SubElement(root, "last_check")
-            last_check.text = self.last_check.isoformat()
+            json_obj["last_check"] = self.last_check.isoformat()
         # Create update frequency element
-        update_frequency = ElementTree.SubElement(root, "update_frequency")
-        update_frequency.text = Commons.format_time_delta(self.update_frequency)
+        json_obj["update_frequency"] = Commons.format_time_delta(self.update_frequency)
         # Return xml string
-        return ElementTree.tostring(root)
+        return json_obj
 
     @staticmethod
-    def from_xml_string(xml_string):
+    def from_json(json_obj):
         """
-        Loads new E621Sub object from XML string
-        :param xml_string: string
+        Loads new E621Sub object from JSON object
+        :param json_obj: object
         :return: E621Sub
         """
-        # Create blank feed
+        # Create blank subscription
         new_sub = E621Sub()
-        # Load xml
-        sub_xml = ElementTree.fromstring(xml_string)
-        # Load title, url, server
-        new_sub.search = sub_xml.find("search").text
-        new_sub.server_name = sub_xml.find("server").text
+        # Load search, server
+        new_sub.search = json_obj["search"]
+        new_sub.server_name = json_obj["server_name"]
         # Load channel or user
-        if sub_xml.find("channel") is not None:
-            new_sub.channel_name = sub_xml.find("channel").text
+        if "channel_address" in json_obj:
+            new_sub.channel_address = json_obj["channel_address"]
         else:
-            if sub_xml.find("user") is not None:
-                new_sub.user_name = sub_xml.find("user").text
+            if "user_address" in json_obj:
+                new_sub.user_address = json_obj["user_address"]
             else:
                 raise Exception("Channel or user must be defined")
         # Load last item
-        for latest_id in sub_xml.findall("latest_id"):
-            new_sub.latest_ten_ids.append(int(latest_id.text))
+        for latest_id in json_obj["latest_ids"]:
+            new_sub.latest_ten_ids.append(latest_id)
         # Load last check
-        if sub_xml.find("last_check") is not None:
-            new_sub.last_check = datetime.strptime(sub_xml.find("last_check").text, "%Y-%m-%dT%H:%M:%S.%f")
+        if "last_check" in json_obj:
+            new_sub.last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
         # Load update frequency
-        new_sub.update_frequency = Commons.load_time_delta(sub_xml.find("update_frequency").text)
+        new_sub.update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
         # Return new feed
         return new_sub
 
@@ -578,9 +566,9 @@ class E621SubList:
         for e621_sub in self.sub_list:
             if destination.server.name != e621_sub.server_name:
                 continue
-            if destination.is_channel() and destination.name != e621_sub.channel_name:
+            if destination.is_channel() and destination.address != e621_sub.channel_address:
                 continue
-            if destination.is_user() and destination.name != e621_sub.user_name:
+            if destination.is_user() and destination.address != e621_sub.user_address:
                 continue
             matching_subs.append(e621_sub)
         return matching_subs
@@ -602,37 +590,36 @@ class E621SubList:
                 matching_feeds.append(e621_sub)
         return matching_feeds
 
-    def to_xml(self):
+    def save_json(self):
         """
-        Saves the whole subscription list to XML file
-        :return: Nothing
+        Saves the whole subscription list to a JSON file
+        :return: None
         """
-        # Create root element
-        root_elem = ElementTree.Element("e621_subscriptions")
-        # Add all feed elements
-        for e621_sub_obj in self.sub_list:
-            new_feed_elem = ElementTree.fromstring(e621_sub_obj.to_xml_string())
-            root_elem.append(new_feed_elem)
-        # Write xml to file
-        ElementTree.ElementTree(root_elem).write("store/e621_subscriptions.xml")
+        json_obj = {}
+        json_obj["e621_subs"] = []
+        for e621_sub in self.sub_list:
+            json_obj["e621_subs"].append(e621_sub.to_json())
+        # Write json to file
+        with open("store/e621_subscriptions.json", "w") as f:
+            json.dump(json_obj, f, indent=2)
 
     @staticmethod
-    def from_xml():
+    def load_json():
         """
-        Constructs a new E621SubList from the XML file
+        Constructs a new E621SubList from the JSON file
         :return: Newly constructed list of subscriptions
         :rtype: E621SubList
         """
         new_sub_list = E621SubList()
-        # Try loading xml file, otherwise return blank list
+        # Try loading json file, otherwise return blank list
         try:
-            doc = ElementTree.parse("store/e621_subscriptions.xml")
+            with open("store/e621_subscriptions.json", "r") as f:
+                json_obj = json.load(f)
         except (OSError, IOError):
             return new_sub_list
-        # Loop feeds in xml file adding them to list
-        root = doc.getroot()
-        for e621_sub_elem in root.findall("e621_sub"):
-            new_sub_obj = E621Sub.from_xml_string(ElementTree.tostring(e621_sub_elem))
+        # Loop subs in json file adding them to list
+        for e621_sub_elem in json_obj["e621_subs"]:
+            new_sub_obj = E621Sub.from_json(e621_sub_elem)
             new_sub_list.add_sub(new_sub_obj)
         return new_sub_list
 
@@ -678,9 +665,9 @@ class SubE621Add(Function):
         e621_sub.search = search
         e621_sub.update_frequency = search_delta
         if destination_obj.is_channel():
-            e621_sub.channel_name = destination_obj.name
+            e621_sub.channel_address = destination_obj.address
         else:
-            e621_sub.user_name = destination_obj.name
+            e621_sub.user_address = destination_obj.address
         # Update feed
         first_results = e621_sub.check_subscription()
         # If no results, this is an invalid search subscription
@@ -691,7 +678,7 @@ class SubE621Add(Function):
             # Add new rss feed to list
             e621_sub_list.add_sub(e621_sub)
             # Save list
-            e621_sub_list.to_xml()
+            e621_sub_list.save_json()
         # Return output
         return "I have added new e621 subscription for the search \"{}\"".format(e621_sub.search)
 
@@ -717,7 +704,7 @@ class SubE621Check(Function):
                       "check e621"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Checks a specified feed for updates and returns them. Format: e621 sub check <feed name>"
-        self.e621_sub_list = E621SubList.from_xml()
+        self.e621_sub_list = E621SubList.load_json()
 
     @staticmethod
     def is_persistent():
@@ -731,7 +718,7 @@ class SubE621Check(Function):
 
     def save_function(self):
         """Saves the function, persistent functions only."""
-        self.e621_sub_list.to_xml()
+        self.e621_sub_list.save_json()
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
@@ -761,7 +748,7 @@ class SubE621Check(Function):
             # Remove duplicate entries from output_lines
             output_lines = list(set(output_lines))
             # Save list
-            self.e621_sub_list.to_xml()
+            self.e621_sub_list.save_json()
         # Output response to user
         if len(output_lines) == 0:
             return "There were no updates for \"{}\" e621 search.".format(line)
@@ -777,7 +764,7 @@ class SubE621Check(Function):
             # Remove duplicate entries from output_lines
             output_lines = list(set(output_lines))
             # Save list
-            self.e621_sub_list.to_xml()
+            self.e621_sub_list.save_json()
         # Output response to user
         if len(output_lines) == 0:
             return "There were no e621 search subscription updates."
@@ -805,7 +792,7 @@ class SubE621Check(Function):
                     for search_item in new_items:
                         search_sub.output_item(search_item, hallo_obj)
             # Save list
-            self.e621_sub_list.to_xml()
+            self.e621_sub_list.save_json()
 
 
 class SubE621List(Function):
@@ -887,5 +874,6 @@ class SubE621Remove(Function):
                 for del_sub in test_feeds:
                     e621_sub_list.remove_sub(del_sub)
                 return "Removed \"{}\" e621 search subscription. Updates will no longer be " \
-                       "sent to .".format(test_feeds[0].search, (test_feeds[0].channel_name or test_feeds[0].user_name))
+                       "sent to .".format(test_feeds[0].search,
+                                          (test_feeds[0].channel_address or test_feeds[0].user_address))
         return "Error, there are no e621 search subscriptions in this channel matching that search."

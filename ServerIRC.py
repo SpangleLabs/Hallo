@@ -2,7 +2,6 @@ import re
 import socket
 import time
 from threading import RLock, Lock, Thread
-from xml.dom import minidom
 
 from Destination import ChannelMembership, Channel, User
 from Function import Function
@@ -978,94 +977,6 @@ class ServerIRC(Server):
         for user in remove_users:
             channel.remove_user(user)
 
-    def to_xml(self):
-        """
-        Returns an XML representation of the server object
-        """
-        # create document
-        doc = minidom.Document()
-        # create root element
-        root = doc.createElement("server")
-        doc.appendChild(root)
-        # create type element
-        type_elem = doc.createElement("server_type")
-        type_elem.appendChild(doc.createTextNode(self.type))
-        root.appendChild(type_elem)
-        # create name element
-        name_elem = doc.createElement("server_name")
-        name_elem.appendChild(doc.createTextNode(self.name))
-        root.appendChild(name_elem)
-        # create auto connect element
-        auto_connect_elem = doc.createElement("auto_connect")
-        auto_connect_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.auto_connect]))
-        root.appendChild(auto_connect_elem)
-        # create channel list
-        channel_list_elem = doc.createElement("channel_list")
-        for channel_obj in self.channel_list:
-            if channel_obj.is_persistent():
-                channel_elem = minidom.parseString(channel_obj.to_xml()).firstChild
-                channel_list_elem.appendChild(channel_elem)
-        root.appendChild(channel_list_elem)
-        # create user list
-        user_list_elem = doc.createElement("user_list")
-        for user_obj in self.user_list:
-            if user_obj.is_persistent():
-                user_elem = minidom.parseString(user_obj.to_xml()).firstChild
-                user_list_elem.appendChild(user_elem)
-        root.appendChild(user_list_elem)
-        # create nick element
-        if self.nick is not None:
-            nick_elem = doc.createElement("server_nick")
-            nick_elem.appendChild(doc.createTextNode(self.nick))
-            root.appendChild(nick_elem)
-        # create prefix element
-        if self.prefix is not None:
-            prefix_elem = doc.createElement("server_prefix")
-            prefix_elem.appendChild(doc.createTextNode(self.prefix))
-            root.appendChild(prefix_elem)
-        # create full name element
-        if self.full_name is not None:
-            full_name_elem = doc.createElement("full_name")
-            full_name_elem.appendChild(doc.createTextNode(self.full_name))
-            root.appendChild(full_name_elem)
-        # create server address element
-        server_url_elem = doc.createElement("server_address")
-        server_url_elem.appendChild(doc.createTextNode(self.server_address))
-        root.appendChild(server_url_elem)
-        # create server port element
-        server_port_elem = doc.createElement("server_port")
-        server_port_elem.appendChild(doc.createTextNode(str(self.server_port)))
-        root.appendChild(server_port_elem)
-        # Create nickserv element
-        if self.nickserv_nick is not None:
-            nickserv_elem = doc.createElement("nickserv")
-            # Nickserv nick element
-            nickserv_nick_elem = doc.createElement("nick")
-            nickserv_nick_elem.appendChild(doc.createTextNode(self.nickserv_nick))
-            nickserv_elem.appendChild(nickserv_nick_elem)
-            # Nickserv password element
-            if self.nickserv_pass is not None:
-                nickserv_pass_elem = doc.createElement("password")
-                nickserv_pass_elem.appendChild(doc.createTextNode(self.nickserv_pass))
-                nickserv_elem.appendChild(nickserv_pass_elem)
-            # Nickserv identity check command element
-            if self.nickserv_ident_command is not None:
-                nickserv_ident_command_elem = doc.createElement("identity_command")
-                nickserv_ident_command_elem.appendChild(doc.createTextNode(self.nickserv_ident_command))
-                nickserv_elem.appendChild(nickserv_ident_command_elem)
-                # Nickserv identity check response element
-                nickserv_ident_response_elem = doc.createElement("identity_response")
-                nickserv_ident_response_elem.appendChild(doc.createTextNode(self.nickserv_ident_response))
-                nickserv_elem.appendChild(nickserv_ident_response_elem)
-            # Add nickserv element to document
-            root.appendChild(nickserv_elem)
-        # create permission_mask element
-        if not self.permission_mask.is_empty():
-            permission_mask_elem = minidom.parse(self.permission_mask.to_xml()).firstChild
-            root.appendChild(permission_mask_elem)
-        # output XML string
-        return doc.toxml()
-
     def set_nick(self, nick):
         """
         Nick setter
@@ -1137,53 +1048,57 @@ class ServerIRC(Server):
             self.send("IDENTIFY {}".format(self.nickserv_pass),
                       self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick))
 
+    def to_json(self):
+        json_obj = dict()
+        json_obj["type"] = Server.TYPE_IRC
+        json_obj["name"] = self.name
+        json_obj["auto_connect"] = self.auto_connect
+        json_obj["channels"] = []
+        for channel in self.channel_list:
+            json_obj["channels"].append(channel.to_json())
+        json_obj["users"] = []
+        for user in self.user_list:
+            json_obj["users"].append(user.to_json())
+        if self.nick is not None:
+            json_obj["nick"] = self.nick
+        if self.prefix is not None:
+            json_obj["prefix"] = self.prefix
+        if not self.permission_mask.is_empty():
+            json_obj["permission_mask"] = self.permission_mask.to_json()
+        json_obj["address"] = self.server_address
+        json_obj["port"] = self.server_port
+        if self.full_name is not None:
+            json_obj["full_name"] = self.full_name
+        if self.nickserv_pass is not None:
+            json_obj["nickserv"] = {}  # TODO
+            json_obj["nickserv"]["nick"] = self.nickserv_nick
+            json_obj["nickserv"]["password"] = self.nickserv_pass
+            json_obj["nickserv"]["identity_command"] = self.nickserv_ident_command
+            json_obj["nickserv"]["identity_response"] = self.nickserv_ident_response
+        return json_obj
+
     @staticmethod
-    def from_xml(xml_string, hallo):
-        """
-        Constructor to build a new server object from xml
-        :param xml_string: XML string representation of IRC server configuration
-        :param hallo: Hallo object which is connected to this server
-        """
-        doc = minidom.parseString(xml_string)
-        new_server = ServerIRC(hallo)
-        new_server.name = doc.getElementsByTagName("server_name")[0].firstChild.data
-        new_server.auto_connect = Commons.string_from_file(doc.getElementsByTagName("auto_connect")[0].firstChild.data)
-        if len(doc.getElementsByTagName("server_nick")) != 0:
-            new_server.nick = doc.getElementsByTagName("server_nick")[0].firstChild.data
-        if len(doc.getElementsByTagName("server_prefix")) != 0:
-            new_server.prefix = doc.getElementsByTagName("server_prefix")[0].firstChild.data
-        if len(doc.getElementsByTagName("full_name")) != 0:
-            new_server.full_name = doc.getElementsByTagName("full_name")[0].firstChild.data
-        new_server.server_address = doc.getElementsByTagName("server_address")[0].firstChild.data
-        new_server.server_port = int(doc.getElementsByTagName("server_port")[0].firstChild.data)
-        if len(doc.getElementsByTagName("nickserv")) == 0:
-            new_server.nickserv_nick = None
-            new_server.nickserv_pass = None
-            new_server.nickserv_ident_command = None
-            new_server.nickserv_ident_response = None
-        else:
-            nickserv_elem = doc.getElementsByTagName("nickserv")[0]
-            new_server.nickserv_nick = nickserv_elem.getElementsByTagName("nick")[0].firstChild.data
-            if len(nickserv_elem.getElementsByTagName("identity_command")) == 0:
-                new_server.nickserv_ident_command = None
-                new_server.nickserv_ident_response = None
-            else:
-                new_server.nickserv_ident_command = nickserv_elem.getElementsByTagName("identity_command")[
-                    0].firstChild.data
-                new_server.nickserv_ident_response = nickserv_elem.getElementsByTagName("identity_response")[
-                    0].firstChild.data
-            if len(nickserv_elem.getElementsByTagName("password")) != 0:
-                new_server.nickserv_pass = nickserv_elem.getElementsByTagName("password")[0].firstChild.data
-        # Load channels
-        channel_list_elem = doc.getElementsByTagName("channel_list")[0]
-        for channel_elem in channel_list_elem.getElementsByTagName("channel"):
-            channel_obj = Channel.from_xml(channel_elem.toxml(), new_server)
-            new_server.add_channel(channel_obj)
-        # Load users
-        user_list_elem = doc.getElementsByTagName("user_list")[0]
-        for user_elem in user_list_elem.getElementsByTagName("user"):
-            user_obj = User.from_xml(user_elem.toxml(), new_server)
-            new_server.add_user(user_obj)
-        if len(doc.getElementsByTagName("permission_mask")) != 0:
-            new_server.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
+    def from_json(json_obj, hallo):
+        name = json_obj["name"]
+        address = json_obj["address"]
+        port = json_obj["port"]
+        new_server = ServerIRC(hallo, name, address, port)
+        new_server.auto_connect = json_obj["auto_connect"]
+        if "full_name" in json_obj:
+            new_server.full_name = json_obj["full_name"]
+        if "nickserv" in json_obj:
+            new_server.nickserv_nick = json_obj["nickserv"]["nick"]
+            new_server.nickserv_pass = json_obj["nickserv"]["password"]
+            new_server.nickserv_ident_command = json_obj["nickserv"]["identity_command"]
+            new_server.nickserv_ident_response = json_obj["nickserv"]["identity_response"]
+        if "nick" in json_obj:
+            new_server.nick = json_obj["nick"]
+        if "prefix" in json_obj:
+            new_server.prefix = json_obj["prefix"]
+        for channel in json_obj["channels"]:
+            new_server.add_channel(Channel.from_json(channel, new_server))
+        for user in json_obj["users"]:
+            new_server.add_user(User.from_json(user, new_server))
+        if "permission_mask" in json_obj:
+            new_server.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
         return new_server

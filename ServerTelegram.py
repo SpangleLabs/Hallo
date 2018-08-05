@@ -27,7 +27,7 @@ class ServerTelegram(Server):
         self.hallo = hallo  # The hallo object that created this server
         # Persistent/saved class variables
         self.api_key = api_key
-        self.name = "Telegram"  # Server name
+        self.name = "Telegram"  # Server name #TODO: needs to be configurable!
         self.auto_connect = True  # Whether to automatically connect to this server when hallo starts
         self.channel_list = []  # List of channels on this server (which may or may not be currently active)
         self.user_list = []  # Users on this server (not all of which are online)
@@ -195,86 +195,47 @@ class ServerTelegram(Server):
         self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, data, self, user_obj, channel_obj)
         self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, data, self, user_obj, channel_obj)
 
-    @staticmethod
-    def from_xml(xml_string, hallo):
+    def to_json(self):
         """
-        Constructor to build a new server object from xml
-        :param xml_string: XML string representation of telegram server configuration
-        :param hallo: Hallo object which is connected to this server
+        Creates a dict of configuration for the server, to store as json
+        :return: dict
         """
-        doc = minidom.parseString(xml_string)
-        api_key = doc.getElementsByTagName("server_api_key")[0].firstChild.data
-        new_server = ServerTelegram(hallo, api_key)
-        new_server.auto_connect = Commons.string_from_file(doc.getElementsByTagName("auto_connect")[0].firstChild.data)
-        if len(doc.getElementsByTagName("server_nick")) != 0:
-            new_server.nick = doc.getElementsByTagName("server_nick")[0].firstChild.data
-        if len(doc.getElementsByTagName("server_prefix")) != 0:
-            new_server.prefix = doc.getElementsByTagName("server_prefix")[0].firstChild.data
-        # Load channels
-        channel_list_elem = doc.getElementsByTagName("channel_list")[0]
-        for channel_elem in channel_list_elem.getElementsByTagName("channel"):
-            channel_obj = Channel.from_xml(channel_elem.toxml(), new_server)
-            new_server.add_channel(channel_obj)
-        # Load users
-        user_list_elem = doc.getElementsByTagName("user_list")[0]
-        for user_elem in user_list_elem.getElementsByTagName("user"):
-            user_obj = User.from_xml(user_elem.toxml(), new_server)
-            new_server.add_user(user_obj)
-        if len(doc.getElementsByTagName("permission_mask")) != 0:
-            new_server.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
-        return new_server
-
-    def to_xml(self):
-        """
-        Returns an XML representation of the server object
-        """
-        # create document
-        doc = minidom.Document()
-        # create root element
-        root = doc.createElement("server")
-        doc.appendChild(root)
-        # create type element
-        type_elem = doc.createElement("server_type")
-        type_elem.appendChild(doc.createTextNode(self.type))
-        root.appendChild(type_elem)
-        # create server API key element
-        key_elem = doc.createElement("server_api_key")
-        key_elem.appendChild(doc.createTextNode(self.api_key))
-        root.appendChild(key_elem)
-        # create auto connect element
-        auto_connect_elem = doc.createElement("auto_connect")
-        auto_connect_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.auto_connect]))
-        root.appendChild(auto_connect_elem)
-        # create channel list
-        channel_list_elem = doc.createElement("channel_list")
-        for channel_obj in self.channel_list:
-            if channel_obj.is_persistent():
-                channel_elem = minidom.parseString(channel_obj.to_xml()).firstChild
-                channel_list_elem.appendChild(channel_elem)
-        root.appendChild(channel_list_elem)
-        # create user list
-        user_list_elem = doc.createElement("user_list")
-        for user_obj in self.user_list:
-            if user_obj.is_persistent():
-                user_elem = minidom.parseString(user_obj.to_xml()).firstChild
-                user_list_elem.appendChild(user_elem)
-        root.appendChild(user_list_elem)
-        # create nick element
+        json_obj = dict()
+        json_obj["type"] = Server.TYPE_TELEGRAM
+        json_obj["name"] = self.name
+        json_obj["auto_connect"] = self.auto_connect
+        json_obj["channels"] = []
+        for channel in self.channel_list:
+            json_obj["channels"].append(channel.to_json())
+        json_obj["users"] = []
+        for user in self.user_list:
+            json_obj["users"].append(user.to_json())
         if self.nick is not None:
-            nick_elem = doc.createElement("server_nick")
-            nick_elem.appendChild(doc.createTextNode(self.nick))
-            root.appendChild(nick_elem)
-        # create prefix element
+            json_obj["nick"] = self.nick
         if self.prefix is not None:
-            prefix_elem = doc.createElement("server_prefix")
-            prefix_elem.appendChild(doc.createTextNode(self.prefix))
-            root.appendChild(prefix_elem)
-        # create permission_mask element
+            json_obj["prefix"] = self.prefix
         if not self.permission_mask.is_empty():
-            permission_mask_elem = minidom.parse(self.permission_mask.to_xml()).firstChild
-            root.appendChild(permission_mask_elem)
-        # output XML string
-        return doc.toxml()
+            json_obj["permission_mask"] = self.permission_mask.to_json()
+        json_obj["api_key"] = self.api_key
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo):
+        api_key = json_obj["api_key"]
+        new_server = ServerTelegram(hallo, api_key)
+        new_server.name = json_obj["name"]
+        new_server.auto_connect = json_obj["auto_connect"]
+        if "nick" in json_obj:
+            new_server.nick = json_obj["nick"]
+        if "prefix" in json_obj:
+            new_server.prefix = json_obj["prefix"]
+        if "permission_mask" in json_obj:
+            new_server.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+        for channel in json_obj["channels"]:
+            new_server.add_channel(Channel.from_json(channel, new_server))
+        for user in json_obj["users"]:
+            new_server.add_user(User.from_json(user, new_server))
+        return new_server
 
     def join_channel(self, channel_obj):
         pass

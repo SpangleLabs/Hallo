@@ -79,7 +79,7 @@ class ConvertTypeTest(unittest.TestCase):
         assert test_type.get_unit_by_name("NaMe4") == test_unit2
         assert test_type.get_unit_by_name("u2") == test_unit2
 
-    def test_xml(self):
+    def test_json(self):
         # Set up test objects
         test_repo = ConvertRepo()
         test_type = ConvertType(test_repo, "test_type")
@@ -92,8 +92,8 @@ class ConvertTypeTest(unittest.TestCase):
         test_type.add_unit(test_unit1)
         test_type.add_unit(test_unit2)
         # Collapse to XML and rebuild
-        test_xml = test_type.to_xml()
-        rebuild_type = ConvertType.from_xml(test_repo, test_xml)
+        test_json = test_type.to_json()
+        rebuild_type = ConvertType.from_json(test_repo, test_json)
         # Test the type
         assert rebuild_type.repo == test_repo
         assert len(rebuild_type.unit_list) == 2

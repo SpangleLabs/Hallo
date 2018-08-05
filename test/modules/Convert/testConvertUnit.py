@@ -20,10 +20,10 @@ class ConvertUnitTest(unittest.TestCase):
         assert test_unit.name_list == test_unit_names
         assert test_unit.value == test_value
         assert test_unit.offset == 0
-        assert test_unit.last_updated is None
+        assert test_unit.last_updated_date is None
         assert test_unit.valid_prefix_group is None
 
-    def test_xml(self):
+    def test_json(self):
         # Set up test objects
         test_repo = ConvertRepo()
         test_type = ConvertType(test_repo, "test_type")
@@ -35,22 +35,22 @@ class ConvertUnitTest(unittest.TestCase):
         test_value = 1337
         # Create test unit
         test_unit = ConvertUnit(test_type, test_unit_names, test_value)
-        test_unit.set_offset(10)
+        test_unit.update_offset(10)
         test_unit.add_abbr("abbr1")
         test_unit.valid_prefix_group = prefix_group
-        # Convert to XML and back
-        test_xml = test_unit.to_xml()
-        xml_unit = ConvertUnit.from_xml(test_type, test_xml)
+        # Convert to json and back
+        test_json = test_unit.to_json()
+        json_unit = ConvertUnit.from_json(test_type, test_json)
         assert len(test_unit.abbr_list) == 1
-        assert "abbr1" in xml_unit.abbr_list
-        assert xml_unit.type == test_type
+        assert "abbr1" in json_unit.abbr_list
+        assert json_unit.type == test_type
         assert len(test_unit.name_list) == 2
-        assert "name1" in xml_unit.name_list
-        assert "name2" in xml_unit.name_list
-        assert xml_unit.value == test_value
-        assert xml_unit.offset == 10
-        assert xml_unit.last_updated == test_unit.last_updated
-        assert xml_unit.valid_prefix_group == prefix_group
+        assert "name1" in json_unit.name_list
+        assert "name2" in json_unit.name_list
+        assert json_unit.value == test_value
+        assert json_unit.offset == 10
+        assert json_unit.last_updated_date == test_unit.last_updated_date
+        assert json_unit.valid_prefix_group == prefix_group
 
     def test_add_name(self):
         # Set up test objects
@@ -142,12 +142,12 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit = ConvertUnit(test_type, test_unit_names, test_value)
         # Check value and time updated
         assert test_unit.value == 1337
-        assert test_unit.last_updated is None
+        assert test_unit.last_updated_date is None
         # Change value
-        test_unit.set_value(101)
+        test_unit.update_value(101)
         # Check value
         assert test_unit.value == 101
-        assert test_unit.last_updated is not None
+        assert test_unit.last_updated_date is not None
 
     def test_set_offset(self):
         # Set up test object
@@ -159,12 +159,12 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit = ConvertUnit(test_type, test_unit_names, test_value)
         # Check value and time updated
         assert test_unit.offset == 0
-        assert test_unit.last_updated is None
+        assert test_unit.last_updated_date is None
         # Change value
-        test_unit.set_offset(10)
+        test_unit.update_offset(10)
         # Check value
         assert test_unit.offset == 10
-        assert test_unit.last_updated is not None
+        assert test_unit.last_updated_date is not None
 
     def test_has_name(self):
         # Set up test object

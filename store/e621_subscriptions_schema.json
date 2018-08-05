@@ -1,0 +1,83 @@
+{
+  "$id": "http://hallo.spangle.org.uk/e621.json",
+  "type": "object",
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "required": ["e621_subs"],
+  "properties": {
+    "e621_subs": {
+      "$id": "/properties/e621_subs",
+      "type": "array",
+      "items": {
+        "$id": "/properties/e621_subs/items",
+        "type": "object",
+        "properties": {
+          "search": {
+            "$id": "/properties/e621_subs/items/properties/search",
+            "type": "string",
+            "title": "The search term(s) to subscribe to",
+            "examples": [
+              "solo", "duo"
+            ]
+          },
+          "server_name": {
+            "$id": "/properties/e621_subs/items/properties/server_name",
+            "type": "string",
+            "title": "Name of the server to post subscription results on"
+          },
+          "channel_address": {
+            "$id": "/properties/e621_subs/items/properties/channel_address",
+            "type": "string",
+            "title": "Address of the channel to post subscription results on"
+          },
+          "user_address": {
+            "$id": "/properties/e621_subs/items/properties/user_address",
+            "type": "string",
+            "title": "Address of the user to post subscription results to"
+          },
+          "latest_ids": {
+            "$id": "/properties/e621_subs/items/properties/latest_ids",
+            "type": "array",
+            "title": "List of the latest post IDs sighted for that search.",
+            "items": {
+              "$id": "/properties/e621_subs/items/properties/latest_ids/items",
+              "type": "integer",
+              "examples": [
+                1611023,
+                1610703,
+                1610693
+              ]
+            }
+          },
+          "last_check": {
+            "$id": "/properties/e621_subs/items/properties/last_check",
+            "type": "string",
+            "title": "Datetime that the search was last checked on e621, in ISO8601 format",
+            "format": "date-time",
+            "examples": [
+              "2018-07-28T16:26:01.154"
+            ]
+          },
+          "update_frequency": {
+            "$id": "/properties/e621_subs/items/properties/update_frequency",
+            "type": "string",
+            "title": "Period between checks for new items matching subscription, ISO8601 period format",
+            "pattern": "P[0-9]+T[0-9]+S",
+            "examples": [
+              "P0T300S"
+            ]
+          }
+        },
+        "required": ["search", "server_name", "latest_ids", "update_frequency"],
+        "oneOf": [
+          {
+            "required": ["channel_address"]
+          },
+          {
+            "required": ["user_address"]
+          }
+        ]
+      }
+    }
+  }
+}

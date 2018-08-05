@@ -52,9 +52,9 @@ class ConvertMeasureTest(unittest.TestCase):
         test_type = ConvertType(test_repo, "test_type")
         test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
         test_unit1 = ConvertUnit(test_type, ["name1", "name2"], 1337)
-        test_unit1.set_offset(54)
+        test_unit1.update_offset(54)
         test_unit2 = ConvertUnit(test_type, ["name3"], 505)
-        test_unit2.set_offset(10)
+        test_unit2.update_offset(10)
         measure1 = ConvertMeasure(17.5, test_unit1)
         # Convert to base
         test_result = measure1.convert_to(test_unit2)

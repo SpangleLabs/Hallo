@@ -33,3 +33,12 @@ class ServerFactory:
             return ServerTelegram.from_xml(xml_string, self.hallo)
         else:
             return None
+
+    def new_server_from_json(self, json_obj):
+        server_type = json_obj["type"]
+        if server_type == Server.TYPE_IRC:
+            return ServerIRC.from_json(json_obj, self.hallo)
+        elif server_type == Server.TYPE_TELEGRAM:
+            return ServerTelegram.from_json(json_obj, self.hallo)
+        else:
+            return None

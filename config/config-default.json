@@ -1,0 +1,161 @@
+{
+  "default_nick": "Hallo",
+  "default_prefix": false,
+  "default_full_name": "HalloBot HalloHost HalloServer :a bot by spangle",
+  "function_dispatcher": {
+    "modules": [
+      {
+        "name": "AsciiArt"
+      },
+      {
+        "name": "Bio"
+      },
+      {
+        "name": "ChannelControl"
+      },
+      {
+        "name": "Convert"
+      },
+      {
+        "name": "Euler"
+      },
+      {
+        "name": "Furry"
+      },
+      {
+        "name": "Games"
+      },
+      {
+        "name": "HalloControl"
+      },
+      {
+        "name": "Lookup"
+      },
+      {
+        "name": "Math"
+      },
+      {
+        "name": "PermissionControl"
+      },
+      {
+        "name": "Pokemon"
+      },
+      {
+        "name": "Pony"
+      },
+      {
+        "name": "Random"
+      },
+      {
+        "name": "Rss"
+      },
+      {
+        "name": "ServerControl"
+      },
+      {
+        "name": "Silly"
+      },
+      {
+        "name": "SillyEtd"
+      }
+    ]
+  },
+  "servers": [],
+  "user_groups": [
+    {
+      "name": "god",
+      "permission_mask": {
+        "function_JoinChannel": true,
+        "function_LeaveChannel": true,
+        "function_Shutdown": true,
+        "function_Disconnect": true,
+        "function_Connect": true,
+        "function_Say": true,
+        "function_EditServer": true,
+        "function_ListUsers": true,
+        "function_ListChannels": true,
+        "function_Permissions": true,
+        "function_ConfigSave": true,
+        "function_ModuleReload": true,
+        "function_UpdateCurrencies": true,
+        "function_ConvertSet": true,
+        "function_ConvertAddType": true,
+        "function_ConvertSetTypeDecimals": true,
+        "function_ConvertRemoveUnit": true,
+        "function_ConvertUnitAddName": true,
+        "function_ConvertUnitAddAbbreviation": true,
+        "function_ConvertUnitRemoveName": true,
+        "function_ConvertUnitSetPrefixGroup": true,
+        "function_Longcat": true,
+        "function_Deer": true,
+        "function_SilenceTheRabble": true,
+        "function_PokeTheAsshole": true,
+        "function_Operator": true,
+        "function_DeOperator": true,
+        "function_Voice": true,
+        "function_DeVoice": true,
+        "function_Invite": true,
+        "function_Mute": true,
+        "function_UnMute": true,
+        "function_Kick": true
+      }
+    },
+    {
+      "name": "operator",
+      "permission_mask": {
+        "function_JoinChannel": true,
+        "function_LeaveChannel": true,
+        "function_Say": true,
+        "function_Deer": true,
+        "function_SilenceTheRabble": true,
+        "function_Operator": true,
+        "function_DeOperator": true,
+        "function_Voice": true,
+        "function_DeVoice": true,
+        "function_Invite": true,
+        "function_Mute": true,
+        "function_UnMute": true,
+        "function_Kick": true
+      }
+    }
+  ],
+  "permission_mask":
+  {
+    "invite_channel": false,
+    "default_function": true,
+    "function_JoinChannel": false,
+    "function_LeaveChannel": false,
+    "function_Shutdown": false,
+    "function_Disconnect": false,
+    "function_Connect": false,
+    "function_Say": false,
+    "function_EditServer": false,
+    "function_ListUsers": false,
+    "function_ListChannels": false,
+    "function_Permissions": false,
+    "function_ConfigSave": false,
+    "function_ModuleReload": false,
+    "function_UpdateCurrencies": false,
+    "function_ConvertSet": false,
+    "function_ConvertAddType": false,
+    "function_ConvertSetTypeDecimals": false,
+    "function_ConvertRemoveUnit": false,
+    "function_ConvertUnitAddName": false,
+    "function_ConvertUnitAddAdbbreviation": false,
+    "function_ConvertUnitRemoveName": false,
+    "function_ConvertUnitSetPrefixGroup": false,
+    "function_Longcat": false,
+    "function_Deer": false,
+    "function_SilenceTheRabble": false,
+    "function_PokeTheAsshole": false,
+    "function_Operator": false,
+    "function_DeOperator": false,
+    "function_Voice": false,
+    "function_DeVoice": false,
+    "function_Invite": false,
+    "function_Mute": false,
+    "function_UnMute": false,
+    "function_Kick": false
+  },
+  "api_keys": []
+}

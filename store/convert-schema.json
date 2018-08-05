@@ -1,0 +1,187 @@
+{
+  "$id": "http://hallo.spangle.org.uk/convert.json",
+  "type": "object",
+  "definitions": {
+    "unit": {
+      "$id": "/definitions/unit",
+      "type": "object",
+      "required": ["names", "value"],
+      "properties": {
+        "names": {
+          "$id": "/definitions/unit/properties/names",
+          "type": "array",
+          "items": {
+            "$id": "/definitions/unit/properties/names/items",
+            "type": "string",
+            "title": "A name of the unit",
+            "examples": [
+              "metres",
+              "meters",
+              "metre",
+              "meter",
+              "light-years",
+              "light-year",
+              "lightyears",
+              "lightyear"
+            ]
+          }
+        },
+        "value": {
+          "$id": "/definitions/unit/properties/value",
+          "type": "number",
+          "title": "The value of 1 of this unit, measured in respect to the base unit for this unit type",
+          "examples": [
+            1,
+            9460730472580800
+          ]
+        },
+        "abbrs": {
+          "$id": "/definitions/unit/properties/abbrs",
+          "type": "array",
+          "items": {
+            "$id": "/definitions/unit/properties/abbrs/items",
+            "type": "string",
+            "title": "An abbreviation of the unit name",
+            "default": "",
+            "examples": [
+              "m",
+              "ly"
+            ]
+          }
+        },
+        "offset": {
+          "$id": "definitions/unit/properties/offset",
+          "type": "number",
+          "title": "The offset of the unit compared to the base unit. Such that if you have 0 of this unit, how many base unit do you have",
+          "default": 0,
+          "examples": [
+            0,
+            273.1499938964844
+          ]
+        },
+        "last_updated": {
+          "$id": "/definition/unit/properties/last_update",
+          "type": "string",
+          "format": "date-time",
+          "title": "Time that this value was last updated. Useful mostly for currencies and such, which fluctuate",
+          "examples": [
+            "2014-06-24T08:52:49+00:00"
+          ]
+        },
+        "valid_prefix_group": {
+          "$id": "/definitions/unit/properties/valid_prefix_group",
+          "type": "string",
+          "title": "Which prefix group is valid to use for this unit",
+          "examples": [
+            "si"
+          ]
+        }
+      }
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "required": ["prefix_groups", "unit_types"],
+  "properties": {
+    "prefix_groups": {
+      "$id": "/properties/prefix_groups",
+      "type": "array",
+      "items": {
+        "$id": "/properties/prefix_groups/items",
+        "description": "A group of prefixes which may be added to the names of units",
+        "type": "object",
+        "required": ["name", "prefixes"],
+        "properties": {
+          "name": {
+            "$id": "/properties/prefix_groups/items/properties/name",
+            "type": "string",
+            "title": "Name of the prefix group"
+          },
+          "prefixes": {
+            "$id": "/properties/prefix_groups/items/properties/prefixes",
+            "type": "array",
+            "items": {
+              "$id": "/properties/prefix_groups/items/properties/prefixes/items",
+              "description": "A prefix which can be used before the name of a unit",
+              "type": "object",
+              "required": ["name", "abbr", "value"],
+              "properties": {
+                "name": {
+                  "$id": "/properties/prefix_groups/items/properties/prefixes/items/properties/name",
+                  "type": "string",
+                  "title": "Name of the prefix",
+                  "examples": [
+                    "yotta",
+                    "kilo",
+                    "micro"
+                  ]
+                },
+                "abbr": {
+                  "$id": "/properties/prefix_groups/items/properties/prefixes/items/properties/abbr",
+                  "type": "string",
+                  "title": "An abbreviation of the prefix name",
+                  "examples": [
+                    "Y",
+                    "k",
+                    "u"
+                  ]
+                },
+                "value": {
+                  "$id": "/properties/prefix_groups/items/properties/prefixes/items/properties/value",
+                  "type": "number",
+                  "title": "The multiplier the prefix gives to the unit",
+                  "examples": [
+                    1e+24,
+                    1000,
+                    1e-06
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "unit_types": {
+      "$id": "/properties/unit_types",
+      "type": "array",
+      "items": {
+        "$id": "/properties/unit_types/items",
+        "type": "object",
+        "required": ["name", "base_unit", "units"],
+        "properties": {
+          "name": {
+            "$id": "/properties/unit_types/items/properties/name",
+            "type": "string",
+            "title": "Name of the unit type",
+            "examples": [
+              "length",
+              "weight",
+              "currency"
+            ]
+          },
+          "decimals": {
+            "$id": "/properties/unit_types/items/properties/decimals",
+            "type": "integer",
+            "title": "Number of decimals to display this unit type in",
+            "default": 2,
+            "examples": [
+              3
+            ]
+          },
+          "base_unit": {
+            "$id": "/properties/unit_types/items/properties/base_unit",
+            "$ref": "http://hallo.spangle.org.uk/convert.json#/definitions/unit"
+          },
+          "units": {
+            "$id": "/properties/unit_types/items/properties/units",
+            "type": "array",
+            "items": {
+              "$id": "/properties/unit_types/items/properties/units/items",
+              "$ref": "http://hallo.spangle.org.uk/convert.json#/definitions/unit"
+            }
+          }
+        }
+      }
+    }
+  }
+}

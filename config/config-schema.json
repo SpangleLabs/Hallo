@@ -1,0 +1,402 @@
+{
+  "$id": "http://hallo.spangle.org.uk/config.json",
+  "type": "object",
+  "definitions": {
+    "permission_mask": {
+      "$id": "/definitions/permission_mask",
+      "type": "object",
+      "description": "Map of rights to boolean values, of whether they have that right.",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "required": [
+    "default_nick",
+    "default_prefix",
+    "default_full_name",
+    "function_dispatcher",
+    "servers",
+    "user_groups",
+    "api_keys"
+  ],
+  "properties": {
+    "default_nick": {
+      "$id": "/properties/default_nick",
+      "type": "string",
+      "description": "Default nickname for the bot to use",
+      "default": "Hallo"
+    },
+    "default_prefix": {
+      "$id": "/properties/default_prefix",
+      "type": "boolean",
+      "description": "Default prefix to use for commands addressed to the bot in channel. Set to false to use the bot's name",
+      "default": false,
+      "examples": [
+        false, "bot", "`"
+      ]
+    },
+    "default_full_name": {
+      "$id": "/properties/default_full_name",
+      "type": "string",
+      "description": "Default full name to use for IRC servers",
+      "default": "HalloBot HalloHost HalloServer :a bot by spangle"
+    },
+    "function_dispatcher": {
+      "$id": "/properties/function_dispatcher",
+      "type": "object",
+      "required": [
+        "modules"
+      ],
+      "properties": {
+        "modules": {
+          "$id": "/properties/function_dispatcher/properties/modules",
+          "type": "array",
+          "items": {
+            "$id": "/properties/function_dispatcher/properties/modules/items",
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "$id": "/properties/function_dispatcher/properties/modules/items/properties/name",
+                "type": "string",
+                "description": "Name of the module to import",
+                "examples": [
+                  "AsciiArt", "Bio", "Convert"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "servers": {
+      "$id": "/properties/servers",
+      "type": "array",
+      "items": {
+        "$id": "/properties/servers/items",
+        "type": "object",
+        "description": "Server object, detailing an individual server to connect to",
+        "required": [
+          "type",
+          "name",
+          "auto_connect",
+          "channels",
+          "users"
+        ],
+        "properties": {
+          "type": {
+            "$id": "/properties/servers/items/properties/type",
+            "type": "string",
+            "enum": ["irc", "telegram"],
+            "description": "Type of server to connect to"
+          },
+          "name": {
+            "$id": "/properties/servers/items/properties/name",
+            "type": "string",
+            "description": "Name of the server",
+            "examples": [
+              "freenode",
+              "telegram"
+            ]
+          },
+          "auto_connect": {
+            "$id": "/properties/servers/items/properties/auto_connect",
+            "type": "boolean",
+            "description": "Whether to connect to the server immediately when the bot starts up",
+            "default": true
+          },
+          "channels": {
+            "$id": "/properties/servers/items/properties/channels",
+            "type": "array",
+            "description": "List of channels or groups on the server. Used to join irc servers, but used to store info on telegram servers.",
+            "items": {
+              "$id": "/properties/servers/items/properties/channels/items",
+              "type": "object",
+              "required": [
+                "name",
+                "address",
+                "logging",
+                "caps_lock",
+                "passive_enabled",
+                "auto_join"
+              ],
+              "properties": {
+                "name": {
+                  "$id": "/properties/servers/items/properties/channels/items/properties/name",
+                  "type": "string",
+                  "description": "Name of the channel",
+                  "examples": [
+                    "#hallotest"
+                  ]
+                },
+                "address": {
+                  "$id": "/properties/servers/items/properties/channels/items/properties/address",
+                  "type": "string",
+                  "description": "Unique address to locate the channel",
+                  "examples": [
+                    "#hallotest"
+                  ]
+                },
+                "logging": {
+                  "$id": "/properties/servers/items/properties/channels/items/properties/logging",
+                  "type": "boolean",
+                  "description": "Whether the bot should be logging the channel",
+                  "default": true
+                },
+                "caps_lock": {
+                  "$id": "/properties/servers/items/properties/channels/items/properties/caps_lock",
+                  "type": "boolean",
+                  "description": "Whether the bot should use caps lock in this channel",
+                  "default": false
+                },
+                "password": {
+                  "$id": "/properties/servers/items/properties/channels/items/properties/password",
+                  "type": "string",
+                  "description": "Password to access the channel",
+                  "examples": [
+                    "hunter2"
+                  ]
+                },
+                "passive_enabled": {
+                  "$id": "/properties/servers/items/properties/channels/items/properties/passive_enabled",
+                  "type": "boolean",
+                  "description": "Whether passive functions are allowed to respond in this channel",
+                  "default": true
+                },
+                "auto_join": {
+                  "$id": "/properties/servers/items/properties/channels/items/properties/auto_join",
+                  "type": "boolean",
+                  "description": "Whether to automatically join the channel when the bot starts or server connects",
+                  "default": true
+                },
+                "permission_mask": {
+                  "$id": "/properties/servers/items/properties/channels/items/properties/permission_mask",
+                  "$ref": "http://hallo.spangle.org.uk/config.json#/definitions/permission_mask"
+                }
+              }
+            }
+          },
+          "users": {
+            "$id": "/properties/servers/items/properties/users",
+            "type": "array",
+            "description": "List of users on the server.",
+            "items": {
+              "$id": "/properties/servers/items/properties/users/items",
+              "type": "object",
+              "required": [
+                "name",
+                "address",
+                "logging",
+                "caps_lock",
+                "user_groups"
+              ],
+              "properties": {
+                "name": {
+                  "$id": "/properties/servers/items/properties/users/items/properties/name",
+                  "type": "string",
+                  "description": "Name of the user",
+                  "examples": [
+                    "dr-spangle"
+                  ]
+                },
+                "address": {
+                  "$id": "/properties/servers/items/properties/users/items/properties/address",
+                  "type": "string",
+                  "description": "Unique address of the user",
+                  "examples": [
+                    "dr-spangle"
+                  ]
+                },
+                "logging": {
+                  "$id": "/properties/servers/items/properties/users/items/properties/logging",
+                  "type": "boolean",
+                  "description": "Whether to log private messages to and from that user",
+                  "default": true
+                },
+                "caps_lock": {
+                  "$id": "/properties/servers/items/properties/users/items/properties/caps_lock",
+                  "type": "boolean",
+                  "description": "Whether to use caps lock in private messages to that user",
+                  "default": false
+                },
+                "user_groups": {
+                  "$id": "/properties/servers/items/properties/users/items/properties/user_groups",
+                  "type": "array",
+                  "description": "List of user groups the user is in",
+                  "items": {
+                    "$id": "/properties/servers/items/properties/users/items/properties/user_groups/items",
+                    "type": "string",
+                    "description": "Name of a user group the user is in",
+                    "examples": [
+                      "god"
+                    ]
+                  }
+                },
+                "permission_mask": {
+                  "$id": "/properties/servers/items/properties/users/items/properties/permission_mask",
+                  "$ref": "http://hallo.spangle.org.uk/config.json#/definitions/permission_mask"
+                }
+              }
+            }
+          },
+          "nick": {
+            "$id": "/properties/servers/items/properties/nick",
+            "type": ["string", "null"],
+            "description": "Nickname to use on this server, null will inherit from bot root",
+            "examples": [
+              "Hallo",
+              null
+            ]
+          },
+          "prefix": {
+            "$id": "/properties/servers/items/properties/prefix",
+            "type": ["string", "boolean", "null"],
+            "description": "Prefix to use for commands on this server. False will use nick, null will inherit from bot root",
+            "examples": [
+              "Hallo",
+              "`",
+              false,
+              null
+            ]
+          },
+          "permission_mask": {
+            "$id": "/properties/servers/items/properties/permission_mask",
+            "$ref": "http://hallo.spangle.org.uk/config.json#/definitions/permission_mask"
+          }
+        },
+        "anyOf": [
+          {
+            "properties": {
+              "type": {
+                "enum": ["irc"]
+              },
+              "full_name": {
+                "$id": "/properties/servers/items/properties/full_name",
+                "type": "string",
+                "description": "Full name to use on the irc server"
+              },
+              "address": {
+                "$id": "/properties/servers/items/properties/address",
+                "type": "string",
+                "description": "Address of the irc server",
+                "examples": [
+                  "irc.freenode.org"
+                ]
+              },
+              "port": {
+                "$id": "/properties/servers/items/properties/port",
+                "type": "integer",
+                "description": "Port of the irc server",
+                "examples": [
+                  6666
+                ]
+              },
+              "nickserv": {
+                "$id": "/properties/servers/items/properties/nickserv",
+                "description": "Nickserv object, details how to verify self and others with nickserv on irc servers",
+                "type": "object",
+                "required": [
+                  "nick",
+                  "password",
+                  "identity_command",
+                  "identity_response"
+                ],
+                "properties": {
+                  "nick": {
+                    "$id": "/properties/servers/items/properties/nickserv/properties/nick",
+                    "type": "string",
+                    "description": "The nickname nickserv uses on this server",
+                    "default": "nickserv"
+                  },
+                  "password": {
+                    "$id": "/properties/servers/items/properties/nickserv/properties/password",
+                    "type": "string",
+                    "description": "Password the bot should use to identify with nickserv"
+                  },
+                  "identity_command": {
+                    "$id": "/properties/servers/items/properties/nickserv/properties/identity_command",
+                    "type": "string",
+                    "description": "Command that the bot can use to check a user's identity",
+                    "examples": [
+                      "status",
+                      "acc"
+                    ]
+                  },
+                  "identity_response": {
+                    "$id": "/properties/servers/items/properties/nickserv/properties/identity_response",
+                    "type": "string",
+                    "description": "Regex pattern to match in an identity status request response to confirm that a user is identified",
+                    "examples": [
+                      "^status [^ ]+ 3$",
+                      "^[^ ]+ acc 3 [^ ]$"
+                    ]
+                  }
+                }
+              }
+            },
+            "required": [
+              "address",
+              "port"
+            ]
+          },
+          {
+            "properties": {
+              "type": {
+                "enum": ["telegram"]
+              },
+              "api_key": {
+                "$id": "/properties/servers/items/properties/api_key",
+                "type": "string",
+                "description": "Telegram bot api key, to connect to telegram"
+              }
+            },
+            "required": [
+              "api_key"
+            ]
+          }
+        ]
+      }
+    },
+    "user_groups": {
+      "$id": "/properties/user_groups",
+      "type": "array",
+      "description": "List of user groups users may be in",
+      "items": {
+        "$id": "/properties/user_groups/items",
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "$id": "/properties/user_groups/items/properties/name",
+            "type": "string",
+            "description": "Name of the user group",
+            "examples": [
+              "god"
+            ]
+          },
+          "permission_mask": {
+            "$id": "/properties/user_groups/items/properties/permission_mask",
+            "$ref": "http://hallo.spangle.org.uk/config.json#/definitions/permission_mask"
+          }
+        }
+      }
+    },
+    "permission_mask": {
+      "$id": "/properties/permission_mask",
+      "$ref": "http://hallo.spangle.org.uk/config.json#/definitions/permission_mask"
+    },
+    "api_keys": {
+      "$id": "/properties/api_keys",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}
