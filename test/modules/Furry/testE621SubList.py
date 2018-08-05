@@ -36,27 +36,27 @@ class TestE621SubList(unittest.TestCase):
         rf1 = E621Sub()
         rf1.search = "cabinet"
         rf1.server_name = chan1.server.name
-        rf1.channel_name = chan1.name
+        rf1.channel_address = chan1.address
         rfl.add_sub(rf1)
         rf2 = E621Sub()
         rf2.search = "clefable"
         rf2.server_name = user2.server.name
-        rf2.user_name = user2.name
+        rf2.user_address = user2.address
         rfl.add_sub(rf2)
         rf3 = E621Sub()
         rf3.search = "fez"
         rf3.server_name = chan3.server.name
-        rf3.channel_name = chan3.name
+        rf3.channel_address = chan3.address
         rfl.add_sub(rf3)
         rf4 = E621Sub()
         rf4.search = "tail_cuff"
         rf4.server_name = chan3.server.name
-        rf4.channel_name = chan3.name
+        rf4.channel_address = chan3.address
         rfl.add_sub(rf4)
         rf5 = E621Sub()
         rf5.search = "score:>50"
         rf5.server_name = chan3.server.name
-        rf5.channel_name = chan3.name
+        rf5.channel_address = chan3.address
         rfl.add_sub(rf5)
         # Check function
         feed_list = rfl.get_subs_by_destination(chan3)
@@ -78,27 +78,27 @@ class TestE621SubList(unittest.TestCase):
         rf1 = E621Sub()
         rf1.search = "cabinet"
         rf1.server_name = chan1.server.name
-        rf1.channel_name = chan1.name
+        rf1.channel_address = chan1.address
         rfl.add_sub(rf1)
         rf2 = E621Sub()
         rf2.search = "clefable"
         rf2.server_name = user2.server.name
-        rf2.user_name = user2.name
+        rf2.user_address = user2.address
         rfl.add_sub(rf2)
         rf3 = E621Sub()
         rf3.search = "fez"
         rf3.server_name = chan3.server.name
-        rf3.channel_name = chan3.name
+        rf3.channel_address = chan3.address
         rfl.add_sub(rf3)
         rf4 = E621Sub()
         rf4.search = "tail_cuff"
         rf4.server_name = chan3.server.name
-        rf4.channel_name = chan3.name
+        rf4.channel_address = chan3.address
         rfl.add_sub(rf4)
         rf5 = E621Sub()
         rf5.search = "fez"
         rf5.server_name = chan3.server.name
-        rf5.channel_name = chan3.name
+        rf5.channel_address = chan3.address
         rfl.add_sub(rf5)
         # Check function
         feed_list = rfl.get_subs_by_search("fez", chan3)
@@ -121,42 +121,42 @@ class TestE621SubList(unittest.TestCase):
         assert len(rfl.sub_list) == 1
         assert rfl.sub_list[0] == rf2
 
-    def test_xml(self):
+    def test_json(self):
         # Setup a feed list
         rfl = E621SubList()
         rf1 = E621Sub()
         rf1.search = "cabinet"
         rf1.update_frequency = Commons.load_time_delta("P0T3600S")
         rf1.server_name = "test_serv1"
-        rf1.channel_name = "test_chan1"
+        rf1.channel_address = "test_chan1"
         rfl.add_sub(rf1)
         rf2 = E621Sub()
         rf2.search = "clefable"
         rf2.update_frequency = Commons.load_time_delta("P1TS")
         rf2.server_name = "test_serv2"
-        rf2.channel_name = "test_chan2"
+        rf2.channel_address = "test_chan2"
         rfl.add_sub(rf2)
         rf3 = E621Sub()
         rf3.search = "fez"
         rf3.update_frequency = Commons.load_time_delta("PT60S")
         rf3.server_name = "test_serv3"
-        rf3.user_name = "test_user3"
+        rf3.user_address = "test_user3"
         rfl.add_sub(rf3)
-        # Save to XML and load
+        # Save to JSON and load
         try:
             try:
-                os.rename("store/e621_subscriptions.xml", "store/e621_subscriptions.xml.tmp")
+                os.rename("store/e621_subscriptions.json", "store/e621_subscriptions.json.tmp")
             except OSError:
                 pass
-            rfl.to_xml()
-            new_rfl = E621SubList.from_xml()
+            rfl.save_json()
+            new_rfl = E621SubList.load_json()
             assert len(new_rfl.sub_list) == 3
         finally:
             try:
-                os.remove("store/e621_subscriptions.xml")
+                os.remove("store/e621_subscriptions.json")
             except OSError:
                 pass
             try:
-                os.rename("store/e621_subscriptions.xml.tmp", "store/e621_subscriptions.xml")
+                os.rename("store/e621_subscriptions.json.tmp", "store/e621_subscriptions.json")
             except OSError:
                 pass

@@ -145,7 +145,7 @@ class Commons(object):
         """
         Returns a string, formatted datetime from a timestamp
         :param time_stamp: unix timestamp
-        :type time_stamp: int
+        :type time_stamp: float
         """
         return datetime.datetime.utcfromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
 

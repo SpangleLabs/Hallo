@@ -10,7 +10,7 @@ class E621SubAddTest(TestBase, unittest.TestCase):
 
     def setUp(self):
         try:
-            os.rename("store/e621_subscriptions.xml", "store/e621_subscriptions.xml.tmp")
+            os.rename("store/e621_subscriptions.json", "store/e621_subscriptions.json.tmp")
         except OSError:
             pass
         super().setUp()
@@ -18,11 +18,11 @@ class E621SubAddTest(TestBase, unittest.TestCase):
     def tearDown(self):
         super().tearDown()
         try:
-            os.remove("store/e621_subscriptions.xml")
+            os.remove("store/e621_subscriptions.json")
         except OSError:
             pass
         try:
-            os.rename("store/e621_subscriptions.xml.tmp", "store/e621_subscriptions.xml")
+            os.rename("store/e621_subscriptions.json.tmp", "store/e621_subscriptions.json")
         except OSError:
             pass
 
@@ -42,8 +42,8 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         assert len(rfl) == 1, "Actual length: "+str(len(rfl))
         assert rfl[0].search == "cabinet"
         assert rfl[0].server_name == self.server.name
-        assert rfl[0].channel_name == self.test_chan.name
-        assert rfl[0].user_name is None
+        assert rfl[0].channel_address == self.test_chan.name
+        assert rfl[0].user_address is None
         assert rfl[0].latest_ten_ids is not None
         assert len(rfl[0].latest_ten_ids) == 10
         assert rfl[0].last_check is not None
@@ -61,8 +61,8 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         assert len(rfl) == 1, "Actual length: "+str(len(rfl))
         assert rfl[0].search == "cabinet"
         assert rfl[0].server_name == self.server.name
-        assert rfl[0].channel_name is None
-        assert rfl[0].user_name == self.test_user.name
+        assert rfl[0].channel_address is None
+        assert rfl[0].user_address == self.test_user.name
         assert rfl[0].latest_ten_ids is not None
         assert len(rfl[0].latest_ten_ids) == 10
         assert rfl[0].last_check is not None
@@ -81,8 +81,8 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         assert len(rfl) == 1, "Actual length: "+str(len(rfl))
         assert rfl[0].search == "cabinet"
         assert rfl[0].server_name == self.server.name
-        assert rfl[0].channel_name == self.test_chan.name
-        assert rfl[0].user_name is None
+        assert rfl[0].channel_address == self.test_chan.name
+        assert rfl[0].user_address is None
         assert rfl[0].latest_ten_ids is not None
         assert len(rfl[0].latest_ten_ids) == 10
         assert rfl[0].last_check is not None

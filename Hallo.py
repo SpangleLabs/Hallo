@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
+import json
 import time
 import re
-from xml.dom import minidom
-from xml.etree import ElementTree
 from datetime import datetime
 from Server import Server
 from PermissionMask import PermissionMask
@@ -13,7 +12,6 @@ from FunctionDispatcher import FunctionDispatcher
 from Function import Function
 from inc.Logger import Logger
 from inc.Printer import Printer
-from inc.Commons import Commons
 
 
 class Hallo:
@@ -30,7 +28,7 @@ class Hallo:
         self.user_group_list = set()
         """:type : set[UserGroup]"""
         self.server_list = set()
-        """:type : set[Server.Server]"""
+        """:type : set[Server]"""
         self.logger = Logger(self)
         """:type : Logger"""
         self.printer = Printer(self)
@@ -44,7 +42,7 @@ class Hallo:
         """:type : PermissionMask"""
         # TODO: manual FunctionDispatcher construction, user input?
         self.function_dispatcher = None
-        """:type : Optional[FunctionDispatcher]"""
+        """:type : FunctionDispatcher"""
 
     def start(self):
         # If no function dispatcher, create one
@@ -98,100 +96,62 @@ class Hallo:
             time.sleep(0.1)
         self.close()
 
+    def save_json(self):
+        """
+        Saves the whole hallo config to a JSON file
+        :return: None
+        """
+        json_obj = {}
+        json_obj["default_nick"] = self.default_nick
+        json_obj["default_prefix"] = self.default_prefix
+        json_obj["default_full_name"] = self.default_full_name
+        json_obj["function_dispatcher"] = self.function_dispatcher.to_json()
+        json_obj["servers"] = []
+        for server in self.server_list:
+            json_obj["servers"].append(server.to_json())
+        json_obj["user_groups"] = []
+        for user_group in self.user_group_list:
+            json_obj["user_groups"].append(user_group.to_json())
+        if not self.permission_mask.is_empty():
+            json_obj["permission_mask"] = self.permission_mask.to_json()
+        json_obj["api_keys"] = {}
+        for api_key_name in self.api_key_list:
+            json_obj["api_keys"][api_key_name] = self.api_key_list[api_key_name]
+        # Write json to file
+        with open("config/config.json", "w") as f:
+            json.dump(json_obj, f, indent=2)
+
     @staticmethod
-    def load_from_xml():
+    def load_json():
+        """
+        Loads up the json configuration and creates a new Hallo object
+        :return: new Hallo object
+        :rtype: Hallo
+        """
         try:
-            doc = ElementTree.parse("config/config.xml")
+            with open("config/config.json", "r") as f:
+                json_obj = json.load(f)
         except (OSError, IOError):
             print("No current config, loading from default.")
-            doc = ElementTree.parse("config/config-default.xml")
+            with open("config/config-default.json", "r") as f:
+                json_obj = json.load(f)
+        # Create new hallo object
         new_hallo = Hallo()
-        root = doc.getroot()
-        new_hallo.default_nick = root.findtext("default_nick")
-        new_hallo.default_prefix = Commons.string_from_file(root.findtext("default_prefix"))
-        new_hallo.default_full_name = root.findtext("default_full_name")
-        new_hallo.function_dispatcher = FunctionDispatcher.from_xml(
-            ElementTree.tostring(root.find("function_dispatcher")), new_hallo)
-        user_group_list_xml = root.find("user_group_list")
-        for user_group_xml in user_group_list_xml.findall("user_group"):
-            user_group_obj = UserGroup.from_xml(ElementTree.tostring(user_group_xml), new_hallo)
-            new_hallo.add_user_group(user_group_obj)
-        server_list_xml = root.find("server_list")
-        for server_xml in server_list_xml.findall("server"):
-            server_obj = new_hallo.server_factory.new_server_from_xml(ElementTree.tostring(server_xml))
-            new_hallo.add_server(server_obj)
-        if root.find("permission_mask") is not None:
-            new_hallo.permission_mask = PermissionMask.from_xml(ElementTree.tostring(root.find("permission_mask")))
-        api_key_list_xml = root.find("api_key_list")
-        for api_key_xml in api_key_list_xml.findall("api_key"):
-            api_key_name = api_key_xml.findtext("name")
-            api_key_key = api_key_xml.findtext("key")
-            new_hallo.add_api_key(api_key_name, api_key_key)
+        new_hallo.default_nick = json_obj["default_nick"]
+        new_hallo.default_prefix = json_obj["default_prefix"]
+        new_hallo.default_full_name = json_obj["default_full_name"]
+        new_hallo.function_dispatcher = FunctionDispatcher.from_json(json_obj["function_dispatcher"], new_hallo)
+        # User groups must be done before servers, as users will try and look up and add user groups!
+        for user_group in json_obj["user_groups"]:
+            new_hallo.add_user_group(UserGroup.from_json(user_group, new_hallo))
+        for server in json_obj["servers"]:
+            new_server = new_hallo.server_factory.new_server_from_json(server)
+            new_hallo.add_server(new_server)
+        if "permission_mask" in json_obj:
+            new_hallo.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+        for api_key in json_obj["api_keys"]:
+            new_hallo.add_api_key(api_key, json_obj["api_keys"][api_key])
         return new_hallo
-
-    def save_to_xml(self):
-        # Create document, with DTD
-        docimp = minidom.DOMImplementation()
-        doctype = docimp.createDocumentType(
-            qualifiedName='config',
-            publicId='',
-            systemId='config.dtd',
-        )
-        doc = docimp.createDocument(None, 'config', doctype)
-        # Get root element
-        root = doc.getElementsByTagName("config")[0]
-        # Create default_nick element
-        default_nick_elem = doc.createElement("default_nick")
-        default_nick_elem.appendChild(doc.createTextNode(self.default_nick))
-        root.appendChild(default_nick_elem)
-        # Create default_prefix element
-        if self.default_prefix is not None:
-            default_prefix_elem = doc.createElement("default_prefix")
-            if self.default_prefix is False:
-                default_prefix_elem.appendChild(doc.createTextNode("0"))
-            else:
-                default_prefix_elem.appendChild(doc.createTextNode(self.default_prefix))
-            root.appendChild(default_prefix_elem)
-        # Create default_full_name element
-        default_full_name_elem = doc.createElement("default_full_name")
-        default_full_name_elem.appendChild(doc.createTextNode(self.default_full_name))
-        root.appendChild(default_full_name_elem)
-        # Create function dispatcher
-        function_dispatcher_elem = minidom.parseString(self.function_dispatcher.to_xml()).firstChild
-        root.appendChild(function_dispatcher_elem)
-        # Create server list
-        server_list_elem = doc.createElement("server_list")
-        for server_elem in self.server_list:
-            server_xml_str = server_elem.to_xml()
-            if server_xml_str is not None:
-                server_xml = minidom.parseString(server_elem.to_xml()).firstChild
-                server_list_elem.appendChild(server_xml)
-        root.appendChild(server_list_elem)
-        # Create user_group list
-        user_group_list_elem = doc.createElement("user_group_list")
-        for user_group in self.user_group_list:
-            user_group_elem = minidom.parseString(user_group.to_xml()).firstChild
-            user_group_list_elem.appendChild(user_group_elem)
-        root.appendChild(user_group_list_elem)
-        # Create permission_mask element, if it's not empty.
-        if not self.permission_mask.is_empty():
-            permission_mask_elem = minidom.parseString(self.permission_mask.to_xml()).firstChild
-            root.appendChild(permission_mask_elem)
-        # Save api key list
-        api_key_list_elem = doc.createElement("api_key_list")
-        for api_key_name in self.api_key_list:
-            api_key_elem = doc.createElement("api_key")
-            api_key_name_elem = doc.createElement("name")
-            api_key_name_elem.appendChild(doc.createTextNode(api_key_name))
-            api_key_elem.appendChild(api_key_name_elem)
-            api_key_key_elem = doc.createElement("key")
-            api_key_key_elem.appendChild(doc.createTextNode(self.api_key_list[api_key_name]))
-            api_key_elem.appendChild(api_key_key_elem)
-            api_key_list_elem.appendChild(api_key_elem)
-        root.appendChild(api_key_list_elem)
-        # Save XML
-        with open("config/config.xml", "w+") as f:
-            doc.writexml(f, addindent="\t", newl="\r\n")
 
     def add_user_group(self, user_group):
         """
@@ -265,7 +225,7 @@ class Hallo:
             if server.state != Server.STATE_CLOSED:
                 server.disconnect()
         self.function_dispatcher.close()
-        self.save_to_xml()
+        self.save_json()
         self.open = False
 
     def rights_check(self, right_name):
@@ -331,10 +291,10 @@ class Hallo:
         # Add new server to server list
         self.add_server(new_server)
         # Save XML
-        self.save_to_xml()
+        self.save_json()
         print("Config file saved.")
 
 
 if __name__ == '__main__':
-    hallo = Hallo.load_from_xml()
+    hallo = Hallo.load_json()
     hallo.start()

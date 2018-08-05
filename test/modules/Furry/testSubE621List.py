@@ -11,7 +11,7 @@ class SubE621ListTest(TestBase, unittest.TestCase):
 
     def setUp(self):
         try:
-            os.rename("store/e621_subscriptions.xml", "store/e621_subscriptions.xml.tmp")
+            os.rename("store/e621_subscriptions.json", "store/e621_subscriptions.json.tmp")
         except OSError:
             pass
         super().setUp()
@@ -19,11 +19,11 @@ class SubE621ListTest(TestBase, unittest.TestCase):
     def tearDown(self):
         super().tearDown()
         try:
-            os.remove("store/e621_subscriptions.xml")
+            os.remove("store/e621_subscriptions.json")
         except OSError:
             pass
         try:
-            os.rename("store/e621_subscriptions.xml.tmp", "store/e621_subscriptions.xml")
+            os.rename("store/e621_subscriptions.json.tmp", "store/e621_subscriptions.json")
         except OSError:
             pass
 
@@ -41,19 +41,19 @@ class SubE621ListTest(TestBase, unittest.TestCase):
         rf1 = E621Sub()
         rf1.search = "cabinet"
         rf1.server_name = self.server.name
-        rf1.channel_name = self.test_chan.name
+        rf1.channel_address = self.test_chan.address
         rf1.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf1)
         rf2 = E621Sub()
         rf2.search = "clefable"
         rf2.server_name = self.server.name
-        rf2.channel_name = "another_channel"
+        rf2.channel_address = "another_channel"
         rf2.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf2)
         rf3 = E621Sub()
         rf3.search = "fez"
         rf3.server_name = self.server.name
-        rf3.channel_name = self.test_chan.name
+        rf3.channel_address = self.test_chan.address
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf3)
         # Run FeedList and check output

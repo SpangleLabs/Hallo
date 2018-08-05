@@ -13,7 +13,7 @@ class TestE621Sub(unittest.TestCase):
 
     def test_init(self):
         rf = E621Sub()
-        keys = ["search", "server_name", "channel_name", "user_name", "latest_ten_ids", "last_check",
+        keys = ["search", "server_name", "channel_address", "user_address", "latest_ten_ids", "last_check",
                 "update_frequency"]
         for key in keys:
             assert key in rf.__dict__, "Key is missing from E621Sub object: " + key
@@ -82,7 +82,7 @@ class TestE621Sub(unittest.TestCase):
         # Check output works with given server not channel
         rf2 = E621Sub()
         rf2.update_frequency = Commons.load_time_delta("P1TS")
-        rf2.channel_name = "test_chan2"
+        rf2.channel_address = "test_chan2"
         serv2 = ServerMock(None)
         serv2.name = "test_serv2"
         chan2 = serv2.get_channel_by_address("test_chan2".lower(), "test_chan2")
@@ -93,7 +93,7 @@ class TestE621Sub(unittest.TestCase):
         # Check output works with given server not user
         rf3 = E621Sub()
         rf3.update_frequency = Commons.load_time_delta("P1TS")
-        rf3.user_name = "test_user3"
+        rf3.user_address = "test_user3"
         serv3 = ServerMock(None)
         serv3.name = "test_serv3"
         user3 = serv3.get_user_by_address("test_user3".lower(), "test_user3")
@@ -131,7 +131,7 @@ class TestE621Sub(unittest.TestCase):
         rf6 = E621Sub()
         rf6.update_frequency = Commons.load_time_delta("P1TS")
         rf6.server_name = "test_serv6"
-        rf6.channel_name = "test_chan6"
+        rf6.channel_address = "test_chan6"
         serv6 = ServerMock(None)
         serv6.name = "test_serv6"
         hallo6 = Hallo()
@@ -145,7 +145,7 @@ class TestE621Sub(unittest.TestCase):
         rf7 = E621Sub()
         rf7.update_frequency = Commons.load_time_delta("P1TS")
         rf7.server_name = "test_serv7"
-        rf7.user_name = "test_user7"
+        rf7.user_address = "test_user7"
         serv7 = ServerMock(None)
         serv7.name = "test_serv7"
         hallo7 = Hallo()
@@ -192,7 +192,7 @@ class TestE621Sub(unittest.TestCase):
         assert "error" in resp.lower()
         assert "destination" in resp.lower()
 
-    def test_xml(self):
+    def test_json(self):
         test_e621_search = "cabinet"
         test_seconds = 3600
         test_days = 0
@@ -201,15 +201,15 @@ class TestE621Sub(unittest.TestCase):
         rf.search = test_e621_search
         rf.update_frequency = Commons.load_time_delta("P"+str(test_days)+"T"+str(test_seconds)+"S")
         rf.server_name = "test_serv"
-        rf.channel_name = "test_chan"
+        rf.channel_address = "test_chan"
         # Clear off the current items
         rf.check_subscription()
         # Ensure there are no new items
         new_items = rf.check_subscription()
         assert len(new_items) == 0
         # Save to XML and load up new RssFeed
-        rf_xml = rf.to_xml_string()
-        rf2 = E621Sub.from_xml_string(rf_xml)
+        rf_json = rf.to_json()
+        rf2 = E621Sub.from_json(rf_json)
         # Ensure there's still no new items
         new_items = rf2.check_subscription()
         assert len(new_items) == 0

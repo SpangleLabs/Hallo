@@ -21,7 +21,7 @@ class ConfigSave(Function):
 
     def run(self, line, user_obj, destination_obj=None):
         hallo_obj = user_obj.server.hallo
-        hallo_obj.save_to_xml()
+        hallo_obj.save_json()
         return "Config has been saved."
 
 

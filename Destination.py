@@ -1,8 +1,6 @@
 import time
 
-from xml.dom import minidom
 from PermissionMask import PermissionMask
-from inc.Commons import Commons
 from abc import ABCMeta
 
 
@@ -62,25 +60,6 @@ class Destination(metaclass=ABCMeta):
         raise NotImplementedError
 
     def rights_check(self, right_name):
-        raise NotImplementedError
-
-    def to_xml(self):
-        """
-        Returns the Destination object XML
-        :rtype : str
-        """
-        raise NotImplementedError
-
-    @staticmethod
-    def from_xml(xml_string, server):
-        """
-        Loads a new Destination object from XML
-        :param xml_string: XML string to parse to create destination
-        :type xml_string: str
-        :param server: Server on which the destination is located
-        :type server: Server.Server
-        :rtype : Destination
-        """
         raise NotImplementedError
 
 
@@ -241,72 +220,38 @@ class Channel(Destination):
         # Otherwise it can be generated anew to be identical.
         return False
 
-    def to_xml(self):
-        """Returns the Channel object XML"""
-        # create document
-        doc = minidom.Document()
-        # create root element
-        root = doc.createElement("channel")
-        doc.appendChild(root)
-        # create name element
-        name_elem = doc.createElement("channel_name")
-        name_elem.appendChild(doc.createTextNode(self.name))
-        root.appendChild(name_elem)
-        # create address element
-        addr_elem = doc.createElement("channel_address")
-        addr_elem.appendChild(doc.createTextNode(self.address))
-        root.appendChild(addr_elem)
-        # create logging element
-        logging_elem = doc.createElement("logging")
-        logging_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.logging]))
-        root.appendChild(logging_elem)
-        # create caps_lock element, to say whether to use caps lock
-        caps_lock_elem = doc.createElement("caps_lock")
-        caps_lock_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.use_caps_lock]))
-        root.appendChild(caps_lock_elem)
-        # create password element
+    def to_json(self):
+        """
+        Returns a dictionary which can be serialised into a json config object
+        :return: dict
+        """
+        json_obj = dict()
+        json_obj["name"] = self.name
+        json_obj["address"] = self.address
+        json_obj["logging"] = self.logging
+        json_obj["caps_lock"] = self.use_caps_lock
+        json_obj["passive_enabled"] = self.passive_enabled
+        json_obj["auto_join"] = self.auto_join
         if self.password is not None:
-            password_elem = doc.createElement("password")
-            password_elem.appendChild(doc.createTextNode(self.password))
-            root.appendChild(password_elem)
-        # create passive_enabled element, saying whether passive functions are enabled
-        passive_enabled_elem = doc.createElement("passive_enabled")
-        passive_enabled_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.passive_enabled]))
-        root.appendChild(passive_enabled_elem)
-        # create auto_join element, whether or not to automatically join a channel
-        auto_join_elem = doc.createElement("auto_join")
-        auto_join_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.auto_join]))
-        root.appendChild(auto_join_elem)
-        # create permission_mask element
+            json_obj["password"] = self.password
         if not self.permission_mask.is_empty():
-            permission_mask_elem = minidom.parseString(self.permission_mask.to_xml()).firstChild
-            root.appendChild(permission_mask_elem)
-        # output XML string
-        return doc.toxml()
+            json_obj["permission_mask"] = self.permission_mask.to_json()
+        return json_obj
 
     @staticmethod
-    def from_xml(xml_string, server):
-        """
-        Loads a new Channel object from XML
-        :param xml_string: XML string representation of the channel
-        :type xml_string: str
-        :param server: Server the channel is on
-        :type server: Server.Server
-        """
-        doc = minidom.parseString(xml_string)
-        new_name = doc.getElementsByTagName("channel_name")[0].firstChild.data
-        new_addr = doc.getElementsByTagName("channel_address")[0].firstChild.data
-        channel = Channel(server, new_addr, new_name)
-        channel.logging = Commons.string_from_file(doc.getElementsByTagName("logging")[0].firstChild.data)
-        channel.use_caps_lock = Commons.string_from_file(doc.getElementsByTagName("caps_lock")[0].firstChild.data)
-        if len(doc.getElementsByTagName("password")) != 0:
-            channel.password = doc.getElementsByTagName("password")[0].firstChild.data
-        channel.passive_enabled = Commons.string_from_file(
-            doc.getElementsByTagName("passive_enabled")[0].firstChild.data)
-        channel.auto_join = Commons.string_from_file(doc.getElementsByTagName("auto_join")[0].firstChild.data)
-        if len(doc.getElementsByTagName("permission_mask")) != 0:
-            channel.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
-        return channel
+    def from_json(json_obj, server):
+        name = json_obj["name"]
+        address = json_obj["address"]
+        new_channel = Channel(server, address, name)
+        new_channel.logging = json_obj["logging"]
+        new_channel.use_caps_lock = json_obj["caps_lock"]
+        new_channel.passive_enabled = json_obj["passive_enabled"]
+        new_channel.auto_join = json_obj["auto_join"]
+        if "password" in json_obj:
+            new_channel.password = json_obj["password"]
+        if "permission_mask" in json_obj:
+            new_channel.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+        return new_channel
 
 
 class User(Destination):
@@ -437,68 +382,36 @@ class User(Destination):
         # Otherwise it can be generated anew to be identical.
         return False
 
-    def to_xml(self):
-        """Returns the User object XML"""
-        # create document
-        doc = minidom.Document()
-        # create root element
-        root = doc.createElement("user")
-        doc.appendChild(root)
-        # create name element
-        name_elem = doc.createElement("user_name")
-        name_elem.appendChild(doc.createTextNode(self.name))
-        root.appendChild(name_elem)
-        # create address element
-        addr_elem = doc.createElement("user_address")
-        addr_elem.appendChild(doc.createTextNode(self.address))
-        root.appendChild(addr_elem)
-        # create logging element
-        logging_elem = doc.createElement("logging")
-        logging_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.logging]))
-        root.appendChild(logging_elem)
-        # create caps_lock element, to say whether to use caps lock
-        caps_lock_elem = doc.createElement("caps_lock")
-        caps_lock_elem.appendChild(doc.createTextNode(Commons.BOOL_STRING_DICT[self.use_caps_lock]))
-        root.appendChild(caps_lock_elem)
-        # create user_group list
-        user_group_list_elem = doc.createElement("user_group_membership")
+    def to_json(self):
+        """
+        Creates a dict of the user object, to serialise and store as json configuration
+        :return: dict
+        """
+        json_obj = dict()
+        json_obj["name"] = self.name
+        json_obj["address"] = self.address
+        json_obj["logging"] = self.logging
+        json_obj["caps_lock"] = self.use_caps_lock
+        json_obj["user_groups"] = []
         for user_group in self.user_group_list:
-            user_group_elem = doc.createElement("user_group_name")
-            user_group_elem.appendChild(doc.createTextNode(user_group.name))
-            user_group_list_elem.appendChild(user_group_elem)
-        root.appendChild(user_group_list_elem)
-        # create permission_mask element
+            json_obj["user_groups"].append(user_group.name)
         if not self.permission_mask.is_empty():
-            permission_mask_elem = minidom.parseString(self.permission_mask.to_xml()).firstChild
-            root.appendChild(permission_mask_elem)
-        # output XML string
-        return doc.toxml()
+            json_obj["permission_mask"] = self.permission_mask.to_json()
+        return json_obj
 
     @staticmethod
-    def from_xml(xml_string, server):
-        """
-        Loads a new User object from XML
-        :param xml_string: XML string representation of the user to create
-        :type xml_string: str
-        :param server: Server which the user is on
-        :type server: Server.Server
-        """
-        doc = minidom.parseString(xml_string)
-        new_name = doc.getElementsByTagName("user_name")[0].firstChild.data
-        new_addr = doc.getElementsByTagName("user_address")[0].firstChild.data
-        new_user = User(server, new_addr, new_name)
-        new_user.logging = Commons.string_from_file(doc.getElementsByTagName("logging")[0].firstChild.data)
-        new_user.use_caps_lock = Commons.string_from_file(doc.getElementsByTagName("caps_lock")[0].firstChild.data)
-        # Load UserGroups from XML
-        user_group_list_elem = doc.getElementsByTagName("user_group_membership")[0]
-        for user_group_elem in user_group_list_elem.getElementsByTagName("user_group_name"):
-            user_group_name = user_group_elem.firstChild.data
+    def from_json(json_obj, server):
+        name = json_obj["name"]
+        address = json_obj["address"]
+        new_user = User(server, address, name)
+        new_user.logging = json_obj["logging"]
+        new_user.use_caps_lock = json_obj["caps_lock"]
+        for user_group_name in json_obj["user_groups"]:
             user_group = server.hallo.get_user_group_by_name(user_group_name)
             if user_group is not None:
                 new_user.add_user_group(user_group)
-        # Add PermissionMask, if one exists
-        if len(doc.getElementsByTagName("permission_mask")) != 0:
-            new_user.permission_mask = PermissionMask.from_xml(doc.getElementsByTagName("permission_mask")[0].toxml())
+        if "permission_mask" in json_obj:
+            new_user.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
         return new_user
 
 
