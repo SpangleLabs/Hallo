@@ -6,6 +6,7 @@ from xml.dom import minidom
 # noinspection PyDeprecation
 import imp
 
+from Destination import Channel
 from Function import Function
 
 
@@ -175,7 +176,7 @@ class FunctionDispatcher(object):
         right_name = "function_{}".format(function_name)
         # Check rights
         if user_obj is not None:
-            return user_obj.rights_check(right_name, channel_obj)
+            return user_obj.rights_check(right_name, channel_obj if isinstance(channel_obj, Channel) else None)
         if channel_obj is not None and channel_obj.is_channel():
             return channel_obj.rights_check(right_name)
         if server_obj is not None:

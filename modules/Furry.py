@@ -535,7 +535,8 @@ class E621SubList:
     """
 
     def __init__(self):
-        self.sub_list = []  # type: list [E621Sub]
+        self.sub_list = []
+        """ :type : list [E621Sub]"""
         self.sub_lock = Lock()
 
     def add_sub(self, new_sub):

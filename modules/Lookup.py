@@ -1044,8 +1044,8 @@ class UrlDetect(Function):
             page_opener = urllib.request.build_opener()
         page_code = page_opener.open(page_request).read().decode('utf-8')
         page_code = re.sub(r'\s+', '', page_code)
-        download = re.search('<h3>Download</h3><p>([0-9\.]*)', page_code).group(1)
-        upload = re.search('<h3>Upload</h3><p>([0-9\.]*)', page_code).group(1)
+        download = re.search('<h3>Download</h3><p>([0-9.]*)', page_code).group(1)
+        upload = re.search('<h3>Upload</h3><p>([0-9.]*)', page_code).group(1)
         ping = re.search('<h3>Ping</h3><p>([0-9]*)', page_code).group(1)
         return "Speedtest> Download: {}Mb/s | Upload: {}Mb/s | Ping: {}ms".format(download, upload, ping)
 

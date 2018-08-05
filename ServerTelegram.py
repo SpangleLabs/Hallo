@@ -1,5 +1,4 @@
 from threading import Lock, Thread
-from xml.dom import minidom
 
 import telegram
 from telegram import Chat

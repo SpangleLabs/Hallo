@@ -7,7 +7,6 @@ import dateutil.parser
 from inc.Commons import Commons
 from Function import Function
 import re
-import time
 
 
 class ConvertException(Exception):
