@@ -19,21 +19,6 @@ class ServerFactory:
         """
         self.hallo = hallo
 
-    def new_server_from_xml(self, xml_string):
-        """
-        Identifies type of server and constructs from xml
-        :param xml_string: XML string to create server from
-        :type xml_string: str
-        """
-        doc = minidom.parseString(xml_string)
-        server_type = doc.getElementsByTagName("server_type")[0].firstChild.data
-        if server_type == Server.TYPE_IRC:
-            return ServerIRC.from_xml(xml_string, self.hallo)
-        elif server_type == Server.TYPE_TELEGRAM:
-            return ServerTelegram.from_xml(xml_string, self.hallo)
-        else:
-            return None
-
     def new_server_from_json(self, json_obj):
         server_type = json_obj["type"]
         if server_type == Server.TYPE_IRC:
