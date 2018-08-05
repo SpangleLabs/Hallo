@@ -131,7 +131,7 @@ class ConvertRepo:
             json_obj["unit_types"].append(unit_type.to_json())
         # Save json to file
         with open("store/convert.json", "w") as f:
-            json.dump(json_obj, f)
+            json.dump(json_obj, f, indent=2)
 
 
 class ConvertType:
