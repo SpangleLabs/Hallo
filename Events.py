@@ -35,89 +35,68 @@ class EventPing(ServerEvent):  # TODO: implement
     """ :type : str"""
 
 
-class EventMessage(ServerEvent):  # TODO: implement
-    from_user = None
-    """ :type : Destination.User"""
-    to_destination = None
-    """ :type : Destination.Channel | Destination.User"""
-    text = None
-    """ :type : str"""
-
-
-class EventJoin(ServerEvent):  # TODO: implement
+class UserEvent(ServerEvent, metaclass=ABCMeta):
     user = None
     """ :type : Destination.User"""
-    channel = None
-    """ :type : Destination.Channel"""
 
 
-class EventLeave(ServerEvent):  # TODO: implement
-    user = None
-    """ :type : Destination.User"""
-    channel = None
-    """ :type : Destination.Channel"""
-    leave_message = None
-    """ :type : str"""
-
-
-class EventQuit(ServerEvent):  # TODO: implement
-    user = None
-    """ :type : Destination.User"""
+class EventQuit(UserEvent):  # TODO: implement
     quit_message = None
     """ :type : str"""
 
 
-class EventNameChange(ServerEvent):  # TODO: implement
-    user = None
-    """ :type : Destination.User"""
+class EventNameChange(UserEvent):  # TODO: implement
     old_name = None
     """ :type : str"""
     new_name = None
     """ :type : str"""
 
 
-class EventKick(ServerEvent):  # TODO: implement
+class ChannelEvent(ServerEvent, metaclass=ABCMeta):
     channel = None
-    """ :type : Destination.Channel"""
+    """ :type : Destination.Channel | None"""
+
+
+class ChannelUserEvent(UserEvent, ChannelEvent, metaclass=ABCMeta):
+    pass
+
+
+class EventMessage(ChannelUserEvent):  # TODO: implement
+    text = None
+    """ :type : str"""
+
+
+class EventJoin(ChannelUserEvent):  # TODO: implement
+    pass
+
+
+class EventLeave(ChannelUserEvent):  # TODO: implement
+    leave_message = None
+    """ :type : str"""
+
+
+class EventKick(ChannelUserEvent):  # TODO: implement
     kicked_user = None
-    """ :type : Destination.User"""
-    kicking_user = None
     """ :type : Destination.User"""
     kick_message = None
     """:type : str"""
 
 
-class EventInvite(ServerEvent):  # TODO: implement
-    channel = None
-    """ :type : Destination.Channel"""
+class EventInvite(ChannelUserEvent):  # TODO: implement
     invited_user = None
     """ :type : Destination.User"""
-    inviting_user = None
-    """ :type : Destination.User"""
 
 
-class EventNotice(ServerEvent):  # TODO: implement
-    from_user = None
-    """ :type : Destination.User"""
-    to_destination = None
-    """ :type : Destination.Channel | Destination.User"""
+class EventNotice(ChannelUserEvent):  # TODO: implement
     text = None
     """ :type : str"""
 
 
-class EventMode(ServerEvent):  # TODO: implement
-    channel = None
-    """ :type : Destination.Channel"""
-    mode_changer = None
-    """ :type : Destination.User"""
-    mode_changes = None
+class EventMode(ChannelUserEvent):  # TODO: implement
+    mode_changes = None  # TODO: maybe have flags, arguments/users as separate?
     """ :type : str"""
 
 
-class EventCTCP(ServerEvent):  # TODO: implement
-    from_user = None
-    """ :type : Destination.User"""
-    to_destination = None
-    """ :type : Destination.Channel | Destination.User"""
+class EventCTCP(ChannelUserEvent):  # TODO: implement
     text = None
     """ :type : str"""
