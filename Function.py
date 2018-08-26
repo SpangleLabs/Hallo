@@ -1,4 +1,7 @@
-from Events import *
+from abc import ABCMeta
+
+from Events import EventSecond, EventMinute, EventHour, EventDay, EventPing, EventMessage, EventJoin, EventLeave, \
+    EventQuit, EventNameChange, EventKick, EventInvite, EventNotice, EventMode, EventCTCP
 
 
 class Function(metaclass=ABCMeta):
