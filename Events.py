@@ -9,30 +9,33 @@ class Event(metaclass=ABCMeta):
     """ :type : """
 
 
-class EventSecond(Event):
+class EventSecond(Event):  # TODO: implement
     pass
 
 
-class EventMinute(Event):
+class EventMinute(Event):  # TODO: implement
     pass
 
 
-class EventHour(Event):
+class EventHour(Event):  # TODO: implement
     pass
 
 
-class EventDay(Event):
+class EventDay(Event):  # TODO: implement
     pass
 
 
-class EventPing(Event):
+class ServerEvent(Event, metaclass=ABCMeta):
     server = None
     """ :type : Server.Server"""
 
 
-class EventMessage(Event):
-    server = None
-    """ :type : Server.Server"""
+class EventPing(ServerEvent):  # TODO: implement
+    ping_number = None
+    """ :type : str"""
+
+
+class EventMessage(ServerEvent):  # TODO: implement
     from_user = None
     """ :type : Destination.User"""
     to_destination = None
@@ -41,18 +44,14 @@ class EventMessage(Event):
     """ :type : str"""
 
 
-class EventJoin(Event):
-    server = None
-    """ :type : Server.Server"""
+class EventJoin(ServerEvent):  # TODO: implement
     user = None
     """ :type : Destination.User"""
     channel = None
     """ :type : Destination.Channel"""
 
 
-class EventLeave(Event):
-    server = None
-    """ :type : Server.Server"""
+class EventLeave(ServerEvent):  # TODO: implement
     user = None
     """ :type : Destination.User"""
     channel = None
@@ -61,18 +60,14 @@ class EventLeave(Event):
     """ :type : str"""
 
 
-class EventQuit(Event):
-    server = None
-    """ :type : Server.Server"""
+class EventQuit(ServerEvent):  # TODO: implement
     user = None
     """ :type : Destination.User"""
     quit_message = None
     """ :type : str"""
 
 
-class EventNameChange(Event):
-    server = None
-    """ :type : Server.Server"""
+class EventNameChange(ServerEvent):  # TODO: implement
     user = None
     """ :type : Destination.User"""
     old_name = None
@@ -81,9 +76,7 @@ class EventNameChange(Event):
     """ :type : str"""
 
 
-class EventKick(Event):
-    server = None
-    """ :type : Server.Server"""
+class EventKick(ServerEvent):  # TODO: implement
     channel = None
     """ :type : Destination.Channel"""
     kicked_user = None
@@ -94,9 +87,7 @@ class EventKick(Event):
     """:type : str"""
 
 
-class EventInvite(Event):
-    server = None
-    """ :type : Server.Server"""
+class EventInvite(ServerEvent):  # TODO: implement
     channel = None
     """ :type : Destination.Channel"""
     invited_user = None
@@ -105,9 +96,7 @@ class EventInvite(Event):
     """ :type : Destination.User"""
 
 
-class EventNotice(Event):
-    server = None
-    """ :type : Server.Server"""
+class EventNotice(ServerEvent):  # TODO: implement
     from_user = None
     """ :type : Destination.User"""
     to_destination = None
@@ -116,9 +105,7 @@ class EventNotice(Event):
     """ :type : str"""
 
 
-class EventMode(Event):
-    server = None
-    """ :type : Server.Server"""
+class EventMode(ServerEvent):  # TODO: implement
     channel = None
     """ :type : Destination.Channel"""
     mode_changer = None
@@ -127,9 +114,7 @@ class EventMode(Event):
     """ :type : str"""
 
 
-class EventCTCP(Event):
-    server = None
-    """ :type : Server.Server"""
+class EventCTCP(ServerEvent):  # TODO: implement
     from_user = None
     """ :type : Destination.User"""
     to_destination = None
