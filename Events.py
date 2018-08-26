@@ -121,7 +121,3 @@ class EventCTCP(ServerEvent):  # TODO: implement
     """ :type : Destination.Channel | Destination.User"""
     text = None
     """ :type : str"""
-
-
-# EVENT_NUMERIC = "numeric"      # Event constant signifying a numeric message from a server (IRC only)
-#EVENT_RAW = "raw"              # Event constant signifying raw data received from server which doesn't fit the above

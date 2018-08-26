@@ -1,4 +1,4 @@
-from abc import ABCMeta
+from Events import *
 
 
 class Function(metaclass=ABCMeta):
@@ -6,23 +6,23 @@ class Function(metaclass=ABCMeta):
     Generic function object. All functions inherit from this.
     """
     # Static constants
-    EVENT_SECOND = "time_second"   # Event which happens every second
-    EVENT_MINUTE = "time_minute"   # Event which happens every minute
-    EVENT_HOUR = "time_hour"       # Event which happens every hour
-    EVENT_DAY = "time_day"         # Event which happens every day
-    EVENT_PING = "ping"            # Event constant signifying a server ping has been received
-    EVENT_MESSAGE = "message"      # Event constant signifying a standard message
-    EVENT_JOIN = "join_channel"    # Event constant signifying someone joined a channel
-    EVENT_LEAVE = "leave_channel"  # Event constant signifying someone left a channel
-    EVENT_QUIT = "quit"            # Event constant signifying someone disconnected
-    EVENT_CHNAME = "name_change"   # Event constant signifying someone changed their name
-    EVENT_KICK = "kick"            # Event constant signifying someone was forcibly removed from the channel
-    EVENT_INVITE = "invite"        # Event constant signifying someone has invited hallo to a channel
-    EVENT_NOTICE = "notice"        # Event constant signifying a notice was received. (IRC only?)
-    EVENT_MODE = "mode_change"     # Event constant signifying a channel mode change. (IRC only?)
-    EVENT_CTCP = "message_ctcp"    # Event constant signifying a CTCP message received (IRC only)
-    EVENT_NUMERIC = "numeric"      # Event constant signifying a numeric message from a server (IRC only)
-    EVENT_RAW = "raw"              # Event constant signifying raw data received from server which doesn't fit the above
+    EVENT_SECOND = EventSecond      # Event which happens every second
+    EVENT_MINUTE = EventMinute      # Event which happens every minute
+    EVENT_HOUR = EventHour          # Event which happens every hour
+    EVENT_DAY = EventDay            # Event which happens every day
+    EVENT_PING = EventPing          # Event constant signifying a server ping has been received
+    EVENT_MESSAGE = EventMessage    # Event constant signifying a standard message
+    EVENT_JOIN = EventJoin          # Event constant signifying someone joined a channel
+    EVENT_LEAVE = EventLeave        # Event constant signifying someone left a channel
+    EVENT_QUIT = EventQuit          # Event constant signifying someone disconnected
+    EVENT_CHNAME = EventNameChange  # Event constant signifying someone changed their name
+    EVENT_KICK = EventKick          # Event constant signifying someone was forcibly removed from the channel
+    EVENT_INVITE = EventInvite      # Event constant signifying someone has invited hallo to a channel
+    EVENT_NOTICE = EventNotice      # Event constant signifying a notice was received. (IRC only?)
+    EVENT_MODE = EventMode          # Event constant signifying a channel mode change. (IRC only?)
+    EVENT_CTCP = EventCTCP          # Event constant signifying a CTCP message received (IRC only)
+    # EVENT_NUMERIC = "numeric"      # Event constant signifying a numeric message from a server (IRC only)
+    # EVENT_RAW = "raw"           # Event constant signifying raw data received from server which doesn't fit the above
 
     def __init__(self):
         self.help_name = None  # Name for use in help listing
