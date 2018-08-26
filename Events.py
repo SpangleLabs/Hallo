@@ -1,4 +1,5 @@
 from abc import ABCMeta
+from datetime import datetime
 
 
 class Event(metaclass=ABCMeta):
@@ -6,7 +7,10 @@ class Event(metaclass=ABCMeta):
     is_inbound = True
     """ :type : bool"""
     send_time = None
-    """ :type : """
+    """ :type : datetime"""
+
+    def __init__(self):
+        self.send_time = datetime.now()
 
 
 class EventSecond(Event):  # TODO: implement
