@@ -7,6 +7,7 @@ from xml.dom import minidom
 import imp
 
 from Destination import Channel
+from Events import ServerEvent, UserEvent, ChannelEvent
 from Function import Function
 
 
@@ -29,7 +30,7 @@ class FunctionDispatcher(object):
         self.function_dict = {}  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
         self.function_names = {}  # Dictionary of names -> functionClasses
         self.persistent_functions = {}  # Dictionary of persistent function objects. functionClass->functionObject
-        self.event_functions = {}  # Dictionary with events as keys and sets of function classes
+        self.event_functions = {}  # Dictionary with events classes as keys and sets of function classes
         #  (which may want to act on those events) as values
         # Load all functions
         for module_name in self.module_list:
@@ -91,35 +92,34 @@ class FunctionDispatcher(object):
             print("Function error location: {}".format(traceback.format_exc(3)))
             return
 
-    def dispatch_passive(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
-        """Dispatches a event call to passive functions, if any apply
-        :param event: Event which is triggering passive functions
-        :param full_line: User input line accompanying event
-        :param server_obj: Server on which the event was triggered, or None if not a server based event
-        :param user_obj: User which triggered the event, or None if not a user based event
-        :param channel_obj: Channel on which the event was triggered, or None if not a channel based event
+    def dispatch_passive(self, event):
+        """
+        Dispatches a event call to passive functions, if any apply
+        :param event: Event object which is triggering passive functions
+        :type event: Events.Event
         """
         # If this event is not used, skip this
-        if event not in self.event_functions or len(self.event_functions[event]) == 0:
+        if event.__class__ not in self.event_functions or len(self.event_functions[event]) == 0:
             return
-        # Get destination object
-        destination_obj = channel_obj
-        if destination_obj is None:
-            destination_obj = user_obj
         # Get list of functions that want things
-        function_list = self.event_functions[event]
+        function_list = self.event_functions[event.__class__]
         for function_class in function_list:
             # Check function rights and permissions
-            if not self.check_function_permissions(function_class, server_obj, user_obj, channel_obj):
+            if not self.check_function_permissions(function_class,
+                                                   event.server if isinstance(event, ServerEvent) else None,
+                                                   event.user if isinstance(event, UserEvent) else None,
+                                                   event.channel if isinstance(event, ChannelEvent) else None):
                 continue
             # If persistent, get the object, otherwise make one
             function_obj = self.get_function_object(function_class)
             # Try running the function, if it fails, return an error message
             try:
-                response = function_obj.passive_run(event, full_line, self.hallo, server_obj, user_obj, channel_obj)
+                response = function_obj.passive_run(event, self.hallo)
                 if response is not None:
-                    if destination_obj is not None and server_obj is not None:
-                        server_obj.send(response, destination_obj)
+                    if isinstance(event, ChannelEvent) and event.channel is not None:
+                        event.server.send(response, event.channel)
+                    elif isinstance(event, UserEvent) and event.user is not None:
+                        event.server.send(response, event.user)
                 continue
             except Exception as e:
                 print("ERROR Passive Function: {} {}".format(function_class.__module__, function_class.__name__))
