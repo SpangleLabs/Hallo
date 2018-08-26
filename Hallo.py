@@ -3,13 +3,14 @@ import json
 import time
 import re
 from datetime import datetime
+
+from Events import EventSecond, EventMinute, EventDay, EventHour
 from Server import Server
 from PermissionMask import PermissionMask
 from ServerFactory import ServerFactory
 from ServerIRC import ServerIRC
 from UserGroup import UserGroup
 from FunctionDispatcher import FunctionDispatcher
-from Function import Function
 from inc.Logger import Logger
 from inc.Printer import Printer
 
@@ -85,13 +86,17 @@ class Hallo:
         while self.open:
             now_date_time = datetime.now()
             if now_date_time.second != last_date_time.second:
-                self.function_dispatcher.dispatch_passive(Function.EVENT_SECOND, None, None, None, None)
+                second = EventSecond()
+                self.function_dispatcher.dispatch_passive(second)
             if now_date_time.minute != last_date_time.minute:
-                self.function_dispatcher.dispatch_passive(Function.EVENT_MINUTE, None, None, None, None)
+                minute = EventMinute()
+                self.function_dispatcher.dispatch_passive(minute)
             if now_date_time.hour != last_date_time.hour:
-                self.function_dispatcher.dispatch_passive(Function.EVENT_HOUR, None, None, None, None)
+                hour = EventHour()
+                self.function_dispatcher.dispatch_passive(hour)
             if now_date_time.day != last_date_time.day:
-                self.function_dispatcher.dispatch_passive(Function.EVENT_DAY, None, None, None, None)
+                day = EventDay()
+                self.function_dispatcher.dispatch_passive(day)
             last_date_time = now_date_time
             time.sleep(0.1)
         self.close()
