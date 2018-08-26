@@ -37,7 +37,7 @@ class EventPing(ServerEvent):  # TODO: implement
 
 class UserEvent(ServerEvent, metaclass=ABCMeta):
     user = None
-    """ :type : Destination.User"""
+    """ :type : Destination.User | None"""
 
 
 class EventQuit(UserEvent):  # TODO: implement
