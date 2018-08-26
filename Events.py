@@ -57,7 +57,7 @@ class ChannelEvent(ServerEvent, metaclass=ABCMeta):
     """ :type : Destination.Channel | None"""
 
 
-class ChannelUserEvent(UserEvent, ChannelEvent, metaclass=ABCMeta):
+class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
     pass
 
 
