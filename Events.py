@@ -61,11 +61,6 @@ class ChannelUserEvent(UserEvent, ChannelEvent, metaclass=ABCMeta):
     pass
 
 
-class EventMessage(ChannelUserEvent):  # TODO: implement
-    text = None
-    """ :type : str"""
-
-
 class EventJoin(ChannelUserEvent):  # TODO: implement
     pass
 
@@ -87,16 +82,23 @@ class EventInvite(ChannelUserEvent):  # TODO: implement
     """ :type : Destination.User"""
 
 
-class EventNotice(ChannelUserEvent):  # TODO: implement
-    text = None
-    """ :type : str"""
-
-
 class EventMode(ChannelUserEvent):  # TODO: implement
     mode_changes = None  # TODO: maybe have flags, arguments/users as separate?
     """ :type : str"""
 
 
-class EventCTCP(ChannelUserEvent):  # TODO: implement
+class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
     text = None
     """ :type : str"""
+
+
+class EventMessage(ChannelUserTextEvent):  # TODO: implement
+    pass
+
+
+class EventNotice(ChannelUserTextEvent):  # TODO: implement
+    pass
+
+
+class EventCTCP(ChannelUserTextEvent):  # TODO: implement
+    pass
