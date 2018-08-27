@@ -157,7 +157,7 @@ class EventKick(ChannelUserEvent):
         """:type : str | None"""
 
 
-class EventInvite(ChannelUserEvent):  # TODO: implement
+class EventInvite(ChannelUserEvent):
 
     def __init__(self, server, channel, inviting_user, invited_user):
         """
