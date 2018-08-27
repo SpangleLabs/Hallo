@@ -4,13 +4,11 @@ from datetime import datetime
 
 class Event(metaclass=ABCMeta):
 
-    is_inbound = True
-    """ :type : bool"""
-    send_time = None
-    """ :type : datetime"""
-
     def __init__(self):
+        self.is_inbound = True
+        """ :type : bool"""
         self.send_time = datetime.now()
+        """ :type : datetime"""
 
 
 class EventSecond(Event):  # TODO: implement
@@ -30,39 +28,91 @@ class EventDay(Event):  # TODO: implement
 
 
 class ServerEvent(Event, metaclass=ABCMeta):
-    server = None
-    """ :type : Server.Server"""
+
+    def __init__(self, server):
+        """
+        :type server: Server.Server
+        """
+        super().__init__()
+        self.server = server
+        """ :type : Server.Server"""
 
 
 class EventPing(ServerEvent):  # TODO: implement
-    ping_number = None
-    """ :type : str"""
+
+    def __init__(self, server, ping_number):
+        """
+        :type server: Server.Server
+        :type ping_number: str
+        """
+        super().__init__(server)
+        self.ping_number = ping_number
+        """ :type : str"""
 
 
 class UserEvent(ServerEvent, metaclass=ABCMeta):
-    user = None
-    """ :type : Destination.User | None"""
+
+    def __init__(self, server, user):
+        """
+        :type server: Server.Server
+        :type user: Destination.User | None
+        """
+        super().__init__(server)
+        self.user = user
+        """ :type : Destination.User | None"""
 
 
 class EventQuit(UserEvent):  # TODO: implement
-    quit_message = None
-    """ :type : str"""
+
+    def __init__(self, server, user, message):
+        """
+        :type server: Server.Server
+        :type user: Destination.User
+        :type message: str
+        """
+        super().__init__(server, user)
+        self.quit_message = message
+        """ :type : str"""
 
 
 class EventNameChange(UserEvent):  # TODO: implement
-    old_name = None
-    """ :type : str"""
-    new_name = None
-    """ :type : str"""
+
+    def __init__(self, server, user, old_name, new_name):
+        """
+        :type server: Server.Server
+        :type user: Destination.User
+        :type old_name: str
+        :type new_name: str
+        """
+        super().__init__(server, user)
+        self.old_name = old_name
+        """ :type : str"""
+        self.new_name = new_name
+        """ :type : str"""
 
 
 class ChannelEvent(ServerEvent, metaclass=ABCMeta):
-    channel = None
-    """ :type : Destination.Channel | None"""
+
+    def __init__(self, server, channel):
+        """
+        :type server: Server.Server
+        :type channel: Destination.Channel | None
+        """
+        super().__init__(server)
+        self.channel = channel
+        """ :type : Destination.Channel | None"""
 
 
 class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
-    pass
+
+    def __init__(self, server, channel, user):
+        """
+        :type server: Server.Server
+        :type channel: Destination.Channel | None
+        :type user: Destination.User | None
+        """
+        ChannelEvent.__init__(self, server, channel)
+        UserEvent.__init__(self, server, user)
 
 
 class EventJoin(ChannelUserEvent):  # TODO: implement
@@ -70,30 +120,76 @@ class EventJoin(ChannelUserEvent):  # TODO: implement
 
 
 class EventLeave(ChannelUserEvent):  # TODO: implement
-    leave_message = None
-    """ :type : str"""
+
+    def __init__(self, server, channel, user, message):
+        """
+        :type server: Server.Server
+        :type channel: Destination.Channel
+        :type user: Destination.User
+        :type message: str | None
+        """
+        super().__init__(server, channel, user)
+        self.leave_message = message
+        """ :type : str | None"""
 
 
 class EventKick(ChannelUserEvent):  # TODO: implement
-    kicked_user = None
-    """ :type : Destination.User"""
-    kick_message = None
-    """:type : str"""
+
+    def __init__(self, server, channel, kicking_user, kicked_user, kick_message):
+        """
+        :type server: Server.Server
+        :type channel: Destination.Channel
+        :type kicking_user: Destination.User
+        :type kicked_user: Destination.User
+        :type kick_message: str | None
+        """
+        super().__init__(server, channel, kicking_user)
+        self.kicked_user = kicked_user
+        """ :type : Destination.User"""
+        self.kick_message = kick_message
+        """:type : str | None"""
 
 
 class EventInvite(ChannelUserEvent):  # TODO: implement
-    invited_user = None
-    """ :type : Destination.User"""
+
+    def __init__(self, server, channel, inviting_user, invited_user):
+        """
+        :type server: Server.Server
+        :type channel: Destination.Channel
+        :type inviting_user: Destination.User
+        :type invited_user: Destination.User
+        """
+        super().__init__(server, channel, inviting_user)
+        self.invited_user = invited_user
+        """ :type : Destination.User"""
 
 
 class EventMode(ChannelUserEvent):  # TODO: implement
-    mode_changes = None  # TODO: maybe have flags, arguments/users as separate?
-    """ :type : str"""
+
+    def __init__(self, server, channel, user, mode_changes):
+        """
+        :type server: Server.Server
+        :type channel: Destination.Channel | None
+        :type user: Destination.User | None
+        :type mode_changes: str
+        """
+        super().__init__(server, channel, user)
+        self.mode_changes = mode_changes  # TODO: maybe have flags, arguments/users as separate?
+        """ :type : str"""
 
 
 class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
-    text = None
-    """ :type : str"""
+
+    def __init__(self, server, channel, user, text):
+        """
+        :type server: Server.Server
+        :type channel: Destination.Channel | None
+        :type user: Destination.User | None
+        :type text: str
+        """
+        super().__init__(server, channel, user)
+        self.text = text
+        """ :type : str"""
 
 
 class EventMessage(ChannelUserTextEvent):  # TODO: implement
