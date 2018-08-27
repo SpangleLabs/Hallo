@@ -140,7 +140,7 @@ class EventLeave(ChannelUserEvent):
         """ :type : str | None"""
 
 
-class EventKick(ChannelUserEvent):  # TODO: implement
+class EventKick(ChannelUserEvent):
 
     def __init__(self, server, channel, kicking_user, kicked_user, kick_message):
         """
