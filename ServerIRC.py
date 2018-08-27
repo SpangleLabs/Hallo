@@ -4,7 +4,7 @@ import time
 from threading import RLock, Lock, Thread
 
 from Destination import ChannelMembership, Channel, User
-from Events import EventPing, EventQuit, EventNameChange, EventJoin, EventLeave, EventKick, EventInvite
+from Events import EventPing, EventQuit, EventNameChange, EventJoin, EventLeave, EventKick, EventInvite, EventMode
 from Function import Function
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -622,7 +622,8 @@ class ServerIRC(Server):
         self.hallo.logger.log(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
         # # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
+        mode_evt = EventMode(self, mode_channel, mode_client, mode_full)
+        function_dispatcher.dispatch_passive(mode_evt)
 
     def parse_line_notice(self, notice_line):
         """

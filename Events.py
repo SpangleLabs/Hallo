@@ -171,7 +171,7 @@ class EventInvite(ChannelUserEvent):
         """ :type : Destination.User"""
 
 
-class EventMode(ChannelUserEvent):  # TODO: implement
+class EventMode(ChannelUserEvent):
 
     def __init__(self, server, channel, user, mode_changes):
         """
