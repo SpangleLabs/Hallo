@@ -7,7 +7,7 @@ from xml.dom import minidom
 import imp
 
 from Destination import Channel
-from Events import ServerEvent, UserEvent, ChannelEvent
+from Events import ServerEvent, UserEvent, ChannelEvent, EventMessage
 from Function import Function
 
 
@@ -15,9 +15,6 @@ class FunctionDispatcher(object):
     """
     FunctionDispatcher is a class to manage functions and to send function requests to the relevant function.
     """
-
-    # Flags, can be passed as a list to function dispatcher, and will change how it operates.
-    FLAG_HIDE_ERRORS = "hide_errors"  # Hide all errors that result from running the function.
 
     def __init__(self, module_list, hallo):
         """
@@ -63,7 +60,7 @@ class FunctionDispatcher(object):
                 break
         # If function isn't found, output a not found message
         if function_class_test is None:
-            if self.FLAG_HIDE_ERRORS not in flag_list:
+            if EventMessage.FLAG_HIDE_ERRORS not in flag_list:
                 event.server.send("Error, this is not a recognised function.", event.channel)
                 print("Error, this is not a recognised function.")
             return

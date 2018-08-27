@@ -1,8 +1,6 @@
 from abc import ABCMeta
 from datetime import datetime
 
-from FunctionDispatcher import FunctionDispatcher
-
 
 class Event(metaclass=ABCMeta):
 
@@ -203,6 +201,9 @@ class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
 
 class EventMessage(ChannelUserTextEvent):
 
+    # Flags, can be passed as a list to function dispatcher, and will change how it operates.
+    FLAG_HIDE_ERRORS = "hide_errors"  # Hide all errors that result from running the function.
+
     def __init__(self, server, channel, user, text):
         super().__init__(server, channel, user, text)
         self.command_text = None
@@ -222,7 +223,7 @@ class EventMessage(ChannelUserTextEvent):
                 self.is_prefixed = True
                 self.command_text = self.text[len(acting_prefix) + 1:]
             elif self.text.lower().startswith(acting_prefix):
-                self.is_prefixed = FunctionDispatcher.FLAG_HIDE_ERRORS
+                self.is_prefixed = EventMessage.FLAG_HIDE_ERRORS
                 self.command_text = self.text[len(acting_prefix):]
             else:
                 self.is_prefixed = False
