@@ -207,5 +207,5 @@ class EventNotice(ChannelUserTextEvent):  # TODO: implement
     pass
 
 
-class EventCTCP(ChannelUserTextEvent):  # TODO: implement
+class EventCTCP(ChannelUserTextEvent):
     pass

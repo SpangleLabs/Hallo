@@ -4,7 +4,8 @@ import time
 from threading import RLock, Lock, Thread
 
 from Destination import ChannelMembership, Channel, User
-from Events import EventPing, EventQuit, EventNameChange, EventJoin, EventLeave, EventKick, EventInvite, EventMode
+from Events import EventPing, EventQuit, EventNameChange, EventJoin, EventLeave, EventKick, EventInvite, EventMode, \
+    EventCTCP
 from Function import Function
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -450,10 +451,9 @@ class ServerIRC(Server):
         message_ctcp_arguments = ' '.join(message_text.split()[1:])
         # Test for private message or public message
         message_private_bool = message_destination_name.lower() == self.get_nick().lower()
-        message_public_bool = not message_private_bool
         # Get relevant objects.
         message_channel = None
-        if message_public_bool:
+        if not message_private_bool:
             message_channel = self.get_channel_by_address(message_destination_name, message_destination_name)
             message_channel.update_activity()
         message_sender = self.get_user_by_address(message_sender_name.lower(), message_sender_name)
@@ -485,7 +485,8 @@ class ServerIRC(Server):
                       self.MSG_NOTICE)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(Function.EVENT_CTCP, message_text, self, message_sender, message_channel)
+        ctcp_evt = EventCTCP(self, message_channel, message_sender, message_text)
+        function_dispatcher.dispatch_passive(ctcp_evt)
 
     def parse_line_join(self, join_line):
         """
