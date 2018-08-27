@@ -75,7 +75,7 @@ class EventQuit(UserEvent):
         """ :type : str"""
 
 
-class EventNameChange(UserEvent):  # TODO: implement
+class EventNameChange(UserEvent):
 
     def __init__(self, server, user, old_name, new_name):
         """
