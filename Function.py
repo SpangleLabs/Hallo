@@ -61,7 +61,7 @@ class Function(metaclass=ABCMeta):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return set()
 
-    def passive_run(self, event, hallo_obj):   # TODO: change all the Function methods, remove args except event, hallo
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot.
         :param event: Event which has called the function
         :type event: Events.Event
