@@ -1,6 +1,7 @@
 import os
 import unittest
 
+from Events import EventMessage
 from Server import Server
 from inc.Commons import Commons
 from modules.Rss import FeedCheck, RssFeedList
@@ -29,7 +30,7 @@ class FeedListTest(TestBase, unittest.TestCase):
             pass
 
     def test_no_feeds(self):
-        self.function_dispatcher.dispatch("rss list", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "rss list"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "no rss feeds" in data[0][0].lower()
 
@@ -61,7 +62,7 @@ class FeedListTest(TestBase, unittest.TestCase):
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_feed(rf3)
         # Run FeedList and check output
-        self.function_dispatcher.dispatch("rss list", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "rss list"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         data_split = data[0][0].split("\n")
         assert "rss feeds posting" in data_split[0].lower()

@@ -15,7 +15,7 @@ from test.TestBase import TestBase
 class ReplyTest(TestBase, unittest.TestCase):
 
     def test_run(self):
-        self.function_dispatcher.dispatch("reply", self.test_user, self.test_user)
+        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "reply"))
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
         assert "error" in data[0][0].lower()
 

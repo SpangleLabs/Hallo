@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from Events import EventMinute
+from Events import EventMinute, EventMessage
 from Server import Server
 from inc.Commons import Commons
 from modules.Rss import FeedCheck, RssFeedList, RssFeed
@@ -92,7 +92,8 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
             rss_check_obj.rss_feed_list = rfl
             # Test running all feed updates
-            self.function_dispatcher.dispatch("rss check all", self.test_user, self.test_chan)
+            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                           "rss check all"))
             # Check original calling channel data
             serv0_data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
             assert "feed updates were found" in serv0_data[0][0]
@@ -110,7 +111,8 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             # Check test server 2 data
             serv2_data = serv2.get_send_data(3, chan3, Server.MSG_MSG)
             # Test running with no new updates.
-            self.function_dispatcher.dispatch("rss check all", self.test_user, self.test_chan)
+            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                           "rss check all"))
             data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
             assert "no feed updates" in data[0][0], "No further updates should be found."
         finally:
@@ -123,6 +125,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
         serv1.name = "test_serv1"
         chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         serv2 = ServerMock(self.hallo)
         serv2.name = "test_serv2"
         chan3 = serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
@@ -157,21 +160,21 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
             rss_check_obj.rss_feed_list = rfl
             # Invalid title
-            self.function_dispatcher.dispatch("rss check Not a valid feed", self.test_user, self.test_chan)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "rss check Not a valid feed"))
             data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             # Correct title but wrong channel
-            self.function_dispatcher.dispatch("rss check test_feed2", self.test_user, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "rss check test_feed2"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             # Correct title check update
-            self.function_dispatcher.dispatch("rss check test_feed2", self.test_user, chan2)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan2, user1, "rss check test_feed2"))
             data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
             assert "feed updates were found" in data[0][0].lower()
             assert len(data[0][0].lower().split("\n")) == 4
             # No updates
             rf2.title = "test_feed2"
-            self.function_dispatcher.dispatch("rss check test_feed2", self.test_user, chan2)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan2, user1, "rss check test_feed2"))
             data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
             assert "no updates" in data[0][0], "No further updates should be found."
         finally:

@@ -36,24 +36,21 @@ class FunctionDispatcher(object):
         for module_name in self.module_list:
             self.reload_module(module_name)
 
-    def dispatch(self, function_message, user_obj, destination_obj, flag_list=None):
+    # def dispatch(self, function_message, user_obj, destination_obj, flag_list=None):
+    def dispatch(self, event, flag_list=None):
         """
         Sends the function call out to whichever function, if one is found
-        :param function_message: Message (function name and arguments) which are to be dispatched
-        :type function_message: str
-        :param user_obj: User who triggered function dispatch
-        :type user_obj: Destination.User
-        :param destination_obj: Destination which triggered function dispatch
-        :type destination_obj: Destination.Destination
+        :param event: The message event which has triggered the function dispatch
+        :type event: Events.EventMessage
         :param flag_list: List of flags to apply to function call
         :type flag_list: list[str]
         """
         if flag_list is None:
             flag_list = []
         # Get server object
-        server_obj = destination_obj.server
+        server_obj = event.server
         # Find the function name. Try joining each amount of words in the message until you find a valid function name
-        function_message_split = function_message.split()
+        function_message_split = event.command_text.split()
         if not function_message_split:
             function_message_split = [""]
         function_class_test = None
@@ -67,26 +64,26 @@ class FunctionDispatcher(object):
         # If function isn't found, output a not found message
         if function_class_test is None:
             if self.FLAG_HIDE_ERRORS not in flag_list:
-                server_obj.send("Error, this is not a recognised function.", destination_obj)
+                event.server.send("Error, this is not a recognised function.", event.channel)
                 print("Error, this is not a recognised function.")
             return
         function_class = function_class_test
         function_args = function_args_test
         # Check function rights and permissions
-        if not self.check_function_permissions(function_class, server_obj, user_obj, destination_obj):
-            server_obj.send("You do not have permission to use this function.", destination_obj)
+        if not self.check_function_permissions(function_class, event.server, event.user, event.channel):
+            event.server.send("You do not have permission to use this function.", event.channel)
             print("You do not have permission to use this function.")
             return
         # If persistent, get the object, otherwise make one
         function_obj = self.get_function_object(function_class)
         # Try running the function, if it fails, return an error message
         try:
-            response = function_obj.run(function_args, user_obj, destination_obj)
+            response = function_obj.run(function_args, event.user, event.channel)
             if response is not None:
-                server_obj.send(response, destination_obj)
+                server_obj.send(response, event.channel)
             return
         except Exception as e:
-            server_obj.send("Function failed with error message: {}".format(e), destination_obj)
+            server_obj.send("Function failed with error message: {}".format(e), event.channel)
             print("Function: {} {}".format(function_class.__module__, function_class.__name__))
             print("Function error: {}".format(e))
             print("Function error location: {}".format(traceback.format_exc(3)))

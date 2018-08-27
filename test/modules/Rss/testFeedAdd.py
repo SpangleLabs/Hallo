@@ -1,6 +1,7 @@
 import os
 import unittest
 
+from Events import EventMessage
 from Server import Server
 from modules.Rss import FeedCheck
 from test.TestBase import TestBase
@@ -27,24 +28,26 @@ class FeedAddTest(TestBase, unittest.TestCase):
             pass
 
     def test_invalid_url(self):
-        self.function_dispatcher.dispatch("rss add not_a_url", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "rss add not_a_url"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "error" in data[0][0].lower()
 
     def test_invalid_period(self):
-        self.function_dispatcher.dispatch("rss add http://spangle.org.uk/hallo/test_rss.xml PTTS",
-                                          self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "rss add http://spangle.org.uk/hallo/test_rss.xml PTTS"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "error" in data[0][0].lower()
 
     def test_invalid_rss(self):
-        self.function_dispatcher.dispatch("rss add http://example.com", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "rss add http://example.com"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "error" in data[0][0].lower()
 
     def test_add_feed(self):
-        self.function_dispatcher.dispatch("rss add http://spangle.org.uk/hallo/test_rss.xml",
-                                          self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "rss add http://spangle.org.uk/hallo/test_rss.xml"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         print(data)
         assert "added new rss feed" in data[0][0].lower()
@@ -63,8 +66,8 @@ class FeedAddTest(TestBase, unittest.TestCase):
         assert rfl[0].update_frequency.days == 0
 
     def test_add_feed_user(self):
-        self.function_dispatcher.dispatch("rss add http://spangle.org.uk/hallo/test_rss.xml",
-                                          self.test_user, self.test_user)
+        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
+                                                       "rss add http://spangle.org.uk/hallo/test_rss.xml"))
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
         print(data)
         assert "added new rss feed" in data[0][0].lower()
@@ -83,8 +86,8 @@ class FeedAddTest(TestBase, unittest.TestCase):
         assert rfl[0].update_frequency.days == 0
 
     def test_add_feed_period(self):
-        self.function_dispatcher.dispatch("rss add http://spangle.org.uk/hallo/test_rss.xml PT300S",
-                                          self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "rss add http://spangle.org.uk/hallo/test_rss.xml PT300S"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "added new rss feed" in data[0][0].lower()
         # Check the rss feed was added

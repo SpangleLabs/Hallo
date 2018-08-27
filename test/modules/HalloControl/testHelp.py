@@ -1,5 +1,6 @@
 import unittest
 
+from Events import EventMessage
 from Function import Function
 from FunctionDispatcher import FunctionDispatcher
 from Hallo import Hallo
@@ -12,7 +13,7 @@ from test.TestBase import TestBase
 class HelpTest(TestBase, unittest.TestCase):
 
     def test_help_all(self):
-        self.function_dispatcher.dispatch("help", self.test_user, self.test_user)
+        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "help"))
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
         assert "list of available functions:" in data[0][0].lower()
         num_funcs = len(data[0][0].lower().replace("list of available functions: ", "").split(","))
@@ -21,7 +22,7 @@ class HelpTest(TestBase, unittest.TestCase):
     def test_help_mock_func_disp(self):
         # Set up mock objects
         mock_hallo = Hallo()
-        mock_func_disp = FunctionDispatcher({}, mock_hallo)
+        mock_func_disp = FunctionDispatcher(set(), mock_hallo)
         mock_hallo.function_dispatcher = mock_func_disp
         mock_func_disp.load_function(FunctionMock)
         mock_func_disp.load_function(FunctionMockNoDoc)
@@ -30,7 +31,7 @@ class HelpTest(TestBase, unittest.TestCase):
         mock_server.name = "test_serv1"
         mock_user = mock_server.get_user_by_address("test_user1".lower(), "test_user1")
         # Test things
-        mock_func_disp.dispatch("help", mock_user, mock_user)
+        mock_func_disp.dispatch(EventMessage(mock_server, None, mock_user, "help"))
         data = mock_server.get_send_data(1, mock_user, Server.MSG_MSG)
         assert "error" not in data[0][0].lower()
         assert "list of available functions:" in data[0][0].lower()
@@ -38,13 +39,13 @@ class HelpTest(TestBase, unittest.TestCase):
         assert "function no doc" in data[0][0].lower()
 
     def test_help_func(self):
-        self.function_dispatcher.dispatch("help help", self.test_user, self.test_user)
+        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "help help"))
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
         assert "error" not in data[0][0].lower()
         assert "documentation for \"help\":" in data[0][0].lower()
 
     def test_help_no_func(self):
-        self.function_dispatcher.dispatch("help not a real function", self.test_user, self.test_user)
+        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "help not a real function"))
         data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
         assert "error" in data[0][0].lower()
         assert "no function by that name exists" in data[0][0].lower()
@@ -53,7 +54,7 @@ class HelpTest(TestBase, unittest.TestCase):
         # Manually add FunctionMock to function dispatcher
         self.function_dispatcher.load_function(FunctionMockNoDoc)
         try:
-            self.function_dispatcher.dispatch("help function no doc", self.test_user, self.test_user)
+            self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "help function no doc"))
             data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
             print(data)
             assert "error" in data[0][0].lower()
@@ -65,7 +66,7 @@ class HelpTest(TestBase, unittest.TestCase):
         # Manually add FunctionMock to function dispatcher
         self.function_dispatcher.load_function(FunctionMock)
         try:
-            self.function_dispatcher.dispatch("help function mock", self.test_user, self.test_user)
+            self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "help function mock"))
             data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
             assert "error" not in data[0][0].lower()
             assert "example help, please ignore" in data[0][0].lower()

@@ -1,6 +1,7 @@
 import os
 import unittest
 
+from Events import EventMessage
 from Server import Server
 from inc.Commons import Commons
 from modules.Furry import SubE621Check, E621Sub
@@ -52,7 +53,8 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf3)
         # Remove test search
-        self.function_dispatcher.dispatch("e621 sub remove cabinet", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "e621 sub remove cabinet"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "removed \"cabinet\"" in data[0][0].lower()
         assert rf1 not in rfl.sub_list
@@ -84,7 +86,8 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf3)
         # Remove test feed
-        self.function_dispatcher.dispatch("e621 sub remove cabinet", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "e621 sub remove cabinet"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "removed \"cabinet\"" in data[0][0].lower()
         assert rf1 not in rfl.sub_list
@@ -116,7 +119,8 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_sub(rf3)
         # Try to remove invalid search
-        self.function_dispatcher.dispatch("e621 sub remove not_a_search", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "e621 sub remove not_a_search"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "error" in data[0][0].lower()
         assert rf1 in rfl.sub_list

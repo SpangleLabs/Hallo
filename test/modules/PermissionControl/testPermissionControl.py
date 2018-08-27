@@ -1,5 +1,6 @@
 import unittest
 
+from Events import EventMessage
 from Hallo import Hallo
 from PermissionMask import PermissionMask
 from Server import Server
@@ -30,8 +31,9 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         user1.permission_mask = perm3
         # Get permission mask of given channel
         test_right = "test_right"
-        self.function_dispatcher.dispatch("permissions server=test_serv1 channel=test_chan1 "+test_right+" on",
-                                          user1, chan1)
+        self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1,
+                                                       "permissions server=test_serv1 channel=test_chan1 " +
+                                                       test_right+" on"))
         data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
         assert "error" not in data[0][0].lower()
         assert "set "+test_right+" to true" in data[0][0].lower()
@@ -51,14 +53,15 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm2 = PermissionMask()
         chan1.permission_mask = perm2
-        user1 = serv1.get_user_by_address("test_user1","test_user1")
+        user1 = serv1.get_user_by_address("test_user1", "test_user1")
         perm3 = PermissionMask()
         user1.permission_mask = perm3
         # Get permission mask of given channel
         test_right = "test_right"
         perm2.set_right(test_right, False)
-        self.function_dispatcher.dispatch("permissions server=test_serv1 channel=test_chan1 "+test_right+" on",
-                                          user1, chan1)
+        self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1,
+                                                       "permissions server=test_serv1 channel=test_chan1 " +
+                                                       test_right + " on"))
         data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
         assert "error" not in data[0][0].lower()
         assert "set "+test_right+" to true" in data[0][0].lower()
@@ -83,8 +86,9 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         user1.permission_mask = perm3
         # Get permission mask of given channel
         test_right = "test_right"
-        self.function_dispatcher.dispatch("permissions server=test_serv1 channel=test_chan1 "+test_right+" off",
-                                          user1, chan1)
+        self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1,
+                                                       "permissions server=test_serv1 channel=test_chan1 "+
+                                                       test_right+" off"))
         data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
         assert "error" not in data[0][0].lower()
         assert "set "+test_right+" to false" in data[0][0].lower()
@@ -110,8 +114,9 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         # Get permission mask of given channel
         test_right = "test_right"
         perm2.set_right(test_right, True)
-        self.function_dispatcher.dispatch("permissions server=test_serv1 channel=test_chan1 "+test_right+" off",
-                                          user1, chan1)
+        self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1,
+                                                       "permissions server=test_serv1 channel=test_chan1 " +
+                                                       test_right+" off"))
         data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
         assert "error" not in data[0][0].lower()
         assert "set "+test_right+" to false" in data[0][0].lower()
@@ -137,7 +142,8 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         # Get permission mask of given channel
         test_right = "test_right"
         perm1.set_right(test_right, True)
-        self.function_dispatcher.dispatch("permissions server=test_serv1 "+test_right, user1, chan1)
+        self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1,
+                                                       "permissions server=test_serv1 "+test_right))
         data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
         assert "error" in data[0][0].lower()
         assert "a location, a right and the value" in data[0][0].lower()
@@ -163,7 +169,8 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         # Get permission mask of given channel
         test_right = "test_right"
         perm1.set_right(test_right, True)
-        self.function_dispatcher.dispatch("permissions server=test_serv1 "+test_right+" yellow", user1, chan1)
+        self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1,
+                                                       "permissions server=test_serv1 "+test_right+" yellow"))
         data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
         assert "error" in data[0][0].lower()
         assert "don't understand your boolean value" in data[0][0].lower()

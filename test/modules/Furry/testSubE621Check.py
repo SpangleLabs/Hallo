@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from Events import EventMinute
+from Events import EventMinute, EventMessage
 from Server import Server
 from inc.Commons import Commons
 from modules.Furry import SubE621Check, E621SubList, E621Sub
@@ -89,7 +89,8 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             e621_sub_obj = self.function_dispatcher.get_function_object(e621_sub_check)  # type: SubE621Check
             e621_sub_obj.e621_sub_list = rfl
             # Test running all feed updates
-            self.function_dispatcher.dispatch("e621 sub check all", self.test_user, self.test_chan)
+            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                           "e621 sub check all"))
             # Check original calling channel data
             serv0_data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
             assert "search updates were found" in serv0_data[0][0]
@@ -107,7 +108,8 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             # Check test server 2 data
             serv2_data = serv2.get_send_data(50, chan3, Server.MSG_MSG)
             # Test running with no new updates.
-            self.function_dispatcher.dispatch("e621 sub check all", self.test_user, self.test_chan)
+            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                           "e621 sub check all"))
             data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
             assert "no e621 search subscription updates" in data[0][0], "No further updates should be found."
         finally:
@@ -151,20 +153,24 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubE621Check
             rss_check_obj.e621_sub_list = rfl
             # Invalid title
-            self.function_dispatcher.dispatch("e621 sub check Not a valid search", self.test_user, self.test_chan)
+            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                           "e621 sub check Not a valid search"))
             data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             # Correct title but wrong channel
-            self.function_dispatcher.dispatch("e621 sub check clefable", self.test_user, chan1)
+            self.function_dispatcher.dispatch(EventMessage(self.server, chan1, self.test_user,
+                                                           "e621 sub check clefable"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             # Correct title check update
-            self.function_dispatcher.dispatch("e621 sub check clefable", self.test_user, chan2)
+            self.function_dispatcher.dispatch(EventMessage(self.server, chan2, self.test_user,
+                                                           "e621 sub check clefable"))
             data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
             assert "search updates were found" in data[0][0].lower()
             assert len(data[0][0].lower().split("\n")) == 51
             # No updates
-            self.function_dispatcher.dispatch("e621 sub check clefable", self.test_user, chan2)
+            self.function_dispatcher.dispatch(EventMessage(self.server, chan2, self.test_user,
+                                                           "e621 sub check clefable"))
             data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
             assert "no updates" in data[0][0], "No further updates should be found."
         finally:

@@ -1,5 +1,6 @@
 import unittest
 
+from Events import EventMessage
 from Server import Server
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
@@ -15,7 +16,7 @@ class ListServersTest(TestBase, unittest.TestCase):
 
     def test_no_servers(self):
         # Send command
-        self.function_dispatcher.dispatch("list servers", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "list servers"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         # Check response
         assert "do not" in data[0][0], "Response did not say it doesn't have servers. " \
@@ -30,7 +31,7 @@ class ListServersTest(TestBase, unittest.TestCase):
         serv1.name = "server_list_test"
         self.hallo.add_server(serv1)
         # Send command
-        self.function_dispatcher.dispatch("list servers", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "list servers"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         # Check response
         server_list_text = data[0][0].split(":")[1]
@@ -68,7 +69,7 @@ class ListServersTest(TestBase, unittest.TestCase):
         serv2.start()
         self.hallo.add_server(serv2)
         # Send command
-        self.function_dispatcher.dispatch("list servers", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "list servers"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         # Check response
         server_list_text = data[0][0].split(":")[1]
@@ -132,7 +133,7 @@ class ListServersTest(TestBase, unittest.TestCase):
         serv1.name = "irc_server_list_test"
         self.hallo.add_server(serv1)
         # Send command
-        self.function_dispatcher.dispatch("list servers", self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "list servers"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         # Check response
         server_list_text = data[0][0].split(":", 1)[1]

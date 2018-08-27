@@ -393,37 +393,17 @@ class ServerIRC(Server):
         function_dispatcher = self.hallo.function_dispatcher
         message_evt = EventMessage(self, None if message_private_bool else message_channel, message_sender, message_text)
         if message_private_bool:
-            function_dispatcher.dispatch(message_text, message_sender, message_destination)
+            function_dispatcher.dispatch(message_evt)
         else:
             # Update channel activity
             message_channel.update_activity()
-            # Get acting command prefix
-            acting_prefix = message_channel.get_prefix()
-            # Figure out if the message is a command, Send to FunctionDispatcher
-            if acting_prefix is False:
-                acting_prefix = self.get_nick().lower()
-                # Check if directly addressed
-                if any(message_text.lower().startswith(acting_prefix+x) for x in [":", ","]):
-                    message_text = message_text[len(acting_prefix) + 1:]
-                    function_dispatcher.dispatch(message_text,
-                                                 message_sender,
-                                                 message_channel)
-                elif message_text.lower().startswith(acting_prefix):
-                    message_text = message_text[len(acting_prefix):]
-                    function_dispatcher.dispatch(message_text,
-                                                 message_sender,
-                                                 message_channel,
-                                                 [function_dispatcher.FLAG_HIDE_ERRORS])
+            # Send to function dispatcher, or passive dispatcher
+            if message_evt.is_prefixed:
+                if message_evt.is_prefixed is True:
+                    function_dispatcher.dispatch(message_evt)
                 else:
-                    # Pass to passive function checker
-                    function_dispatcher.dispatch_passive(message_evt)
-            elif message_text.lower().startswith(acting_prefix):
-                message_text = message_text[len(acting_prefix):]
-                function_dispatcher.dispatch(message_text,
-                                             message_sender,
-                                             message_channel)
+                    function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
             else:
-                # Pass to passive function checker
                 function_dispatcher.dispatch_passive(message_evt)
 
     def parse_line_ctcp(self, ctcp_line):

@@ -103,10 +103,12 @@ class ServerTelegram(Server):
         # Get relevant objects.
         message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
+        # Create Event object
+        message_evt = EventMessage(self, None, message_sender, message_text)
         # Print and Log the private message
         self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
         self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
-        self.hallo.function_dispatcher.dispatch(message_text, message_sender, message_sender)
+        self.hallo.function_dispatcher.dispatch(message_evt)
 
     def parse_group_message(self, bot, update):
         """
@@ -138,33 +140,13 @@ class ServerTelegram(Server):
         # Print and Log the public message
         self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
         self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
-        # Get acting command prefix
-        acting_prefix = message_channel.get_prefix()
-        # Figure out if the message is a command, Send to FunctionDispatcher
-        if acting_prefix is False:
-            acting_prefix = self.get_nick().lower()
-            # Check if directly addressed
-            if any(message_text.lower().startswith(acting_prefix+x) for x in [":", ","]):
-                message_text = message_text[len(acting_prefix) + 1:]
-                function_dispatcher.dispatch(message_text,
-                                             message_sender,
-                                             message_channel)
-            elif message_text.lower().startswith(acting_prefix):
-                message_text = message_text[len(acting_prefix):]
-                function_dispatcher.dispatch(message_text,
-                                             message_sender,
-                                             message_channel,
-                                             [function_dispatcher.FLAG_HIDE_ERRORS])
+        # Send event to function dispatcher or passive dispatcher
+        if message_evt.is_prefixed:
+            if message_evt.is_prefixed is True:
+                function_dispatcher.dispatch(message_evt)
             else:
-                # Pass to passive function checker
-                function_dispatcher.dispatch_passive(message_evt)
-        elif message_text.lower().startswith(acting_prefix):
-            message_text = message_text[len(acting_prefix):]
-            function_dispatcher.dispatch(message_text,
-                                         message_sender,
-                                         message_channel)
+                function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
         else:
-            # Pass to passive function checker
             function_dispatcher.dispatch_passive(message_evt)
 
     def parse_join(self, bot, update):

@@ -1,5 +1,6 @@
 import unittest
 
+from Events import EventMessage
 from Server import Server
 from test.TestBase import TestBase
 
@@ -8,7 +9,7 @@ class SilenceTheRabbleTest(TestBase, unittest.TestCase):
 
     def test_silence_not_000242(self):
         user = self.server.get_user_by_address("lambdabot".lower(), "lambdabot")
-        self.function_dispatcher.dispatch("silence the rabble", user, user)
+        self.function_dispatcher.dispatch(EventMessage(self.server, None, user, "silence the rabble"))
         data = self.server.get_send_data(1, user, Server.MSG_MSG)
         assert "error" in data[0][0].lower(), "Silence the rabble function should not be usable by non-000242 users."
 
@@ -17,7 +18,7 @@ class SilenceTheRabbleTest(TestBase, unittest.TestCase):
         try:
             self.server.type = "TEST"
             user = self.server.get_user_by_address("TEST000242".lower(), "TEST000242")
-            self.function_dispatcher.dispatch("silence the rabble", user, user)
+            self.function_dispatcher.dispatch(EventMessage(self.server, None, user, "silence the rabble"))
             data = self.server.get_send_data(1, user, Server.MSG_MSG)
             assert "error" in data[0][0].lower(), "Silence the rabble function should not be usable on non-irc servers."
         finally:
@@ -28,7 +29,7 @@ class SilenceTheRabbleTest(TestBase, unittest.TestCase):
         try:
             self.server.type = Server.TYPE_IRC
             user = self.server.get_user_by_address("TEST000242".lower(), "TEST000242")
-            self.function_dispatcher.dispatch("silence the rabble", user, user)
+            self.function_dispatcher.dispatch(EventMessage(self.server, None, user, "silence the rabble"))
             data = self.server.get_send_data(1, user, Server.MSG_MSG)
             assert "error" in data[0][0].lower(), "Silence the rabble function should not work in private message."
         finally:
@@ -40,7 +41,7 @@ class SilenceTheRabbleTest(TestBase, unittest.TestCase):
             self.server.type = Server.TYPE_IRC
             user = self.server.get_user_by_address("TEST000242".lower(), "TEST000242")
             chan = self.server.get_channel_by_address("#hallotest".lower(), "#hallotest")
-            self.function_dispatcher.dispatch("silence the rabble", user, chan)
+            self.function_dispatcher.dispatch(EventMessage(self.server, chan, user, "silence the rabble"))
             data = self.server.get_send_data(1, chan, Server.MSG_MSG)
             assert "error" in data[0][0].lower(), "Silence the rabble function should not work in non-ETD channels."
         finally:
@@ -57,7 +58,7 @@ class SilenceTheRabbleTest(TestBase, unittest.TestCase):
             chan.add_user(user)
             chan.add_user(user1)
             chan.add_user(user2)
-            self.function_dispatcher.dispatch("silence the rabble", user, chan)
+            self.function_dispatcher.dispatch(EventMessage(self.server, chan, user, "silence the rabble"))
             data = self.server.get_send_data(6)
             try:
                 assert data[0][0] == "MODE #ecco-the-dolphin -o lambdabot"

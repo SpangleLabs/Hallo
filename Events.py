@@ -1,6 +1,8 @@
 from abc import ABCMeta
 from datetime import datetime
 
+from FunctionDispatcher import FunctionDispatcher
+
 
 class Event(metaclass=ABCMeta):
 
@@ -200,7 +202,37 @@ class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
 
 
 class EventMessage(ChannelUserTextEvent):
-    pass
+
+    def __init__(self, server, channel, user, text):
+        super().__init__(server, channel, user, text)
+        self.command_text = None
+        """ :type : str | None"""
+        self.is_prefixed = None
+        """ :type : bool | str"""
+        self.check_prefix()
+
+    def check_prefix(self):
+        if self.channel is None:
+            return
+        acting_prefix = self.channel.get_prefix()
+        if acting_prefix is False:
+            acting_prefix = self.server.get_nick().lower()
+            # Check if directly addressed
+            if any(self.text.lower().startswith(acting_prefix+x) for x in [":", ","]):
+                self.is_prefixed = True
+                self.command_text = self.text[len(acting_prefix) + 1:]
+            elif self.text.lower().startswith(acting_prefix):
+                self.is_prefixed = FunctionDispatcher.FLAG_HIDE_ERRORS
+                self.command_text = self.text[len(acting_prefix):]
+            else:
+                self.is_prefixed = False
+                self.command_text = None
+        elif self.text.lower().startswith(acting_prefix):
+            self.is_prefixed = True
+            self.command_text = self.text[len(acting_prefix):]
+        else:
+            self.is_prefixed = False
+            self.command_text = None
 
 
 class EventNotice(ChannelUserTextEvent):

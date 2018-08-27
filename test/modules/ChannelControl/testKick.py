@@ -1,5 +1,6 @@
 import unittest
 
+from Events import EventMessage
 from Server import Server
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
@@ -17,7 +18,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1.add_user(user1)
         chan1.add_user(serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick()))
         try:
-            self.function_dispatcher.dispatch("kick", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "only available for irc" in data[0][0].lower()
@@ -40,7 +41,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "specify a user to kick and/or a channel" in data[0][0].lower()
@@ -57,7 +58,7 @@ class KickTest(TestBase, unittest.TestCase):
         user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         try:
-            self.function_dispatcher.dispatch("kick test_chan1", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "not in that channel" in data[0][0].lower()
@@ -77,7 +78,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan1", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user1.name+" is not in "+chan1.name in data[0][0].lower()
@@ -98,7 +99,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_chan1", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -119,7 +120,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan1", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -155,7 +156,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user1.name+" is not in "+chan2.name in data[0][0].lower()
@@ -182,7 +183,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_chan2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -209,7 +210,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -241,7 +242,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user2.name+" is not in "+chan1.name in data[0][0].lower()
@@ -264,7 +265,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_user2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -287,7 +288,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -311,7 +312,7 @@ class KickTest(TestBase, unittest.TestCase):
         user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 test_user2", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 test_user2"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "not in that channel" in data[0][0].lower()
@@ -338,7 +339,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 test_user2", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 test_user2"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -360,7 +361,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 test_user2", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 test_user2"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -384,7 +385,7 @@ class KickTest(TestBase, unittest.TestCase):
         user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 goodbye", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 goodbye"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "not in that channel" in data[0][0].lower()
@@ -404,7 +405,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 goodbye", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 goodbye"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user1.name+" is not in "+chan1.name in data[0][0].lower()
@@ -425,7 +426,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 goodbye", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 goodbye"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -446,7 +447,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 goodbye", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 goodbye"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -471,7 +472,7 @@ class KickTest(TestBase, unittest.TestCase):
         user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan1", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_user2 test_chan1"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "not in that channel" in data[0][0].lower()
@@ -492,7 +493,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan1", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_user2 test_chan1"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user2.name+" is not in "+chan1.name in data[0][0].lower()
@@ -514,7 +515,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan1", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_user2 test_chan1"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -536,7 +537,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan1", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_user2 test_chan1"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -578,7 +579,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_chan2 test_user2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2 test_user2"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -606,7 +607,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan2 test_user2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2 test_user2"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -642,7 +643,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan2 goodbye", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2 goodbye"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user1.name+" is not in "+chan2.name in data[0][0].lower()
@@ -669,7 +670,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_chan2 goodbye", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2 goodbye"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -696,7 +697,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan2 goodbye", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2 goodbye"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -733,7 +734,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2 test_chan2"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user2.name+" is not in "+chan2.name in data[0][0].lower()
@@ -761,7 +762,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2 test_chan2"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -789,7 +790,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2 test_chan2"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -821,7 +822,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2 goodbye", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2 goodbye"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user2.name+" is not in "+chan1.name in data[0][0].lower()
@@ -844,7 +845,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_user2 goodbye", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2 goodbye"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -867,7 +868,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2 goodbye", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2 goodbye"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -892,7 +893,7 @@ class KickTest(TestBase, unittest.TestCase):
         user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 test_user2 goodbye now", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 test_user2 goodbye now"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "not in that channel" in data[0][0].lower()
@@ -918,7 +919,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 test_user2 goodbye now", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 test_user2 goodbye now"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -940,7 +941,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 test_user2 goodbye now", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 test_user2 goodbye now"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -964,7 +965,7 @@ class KickTest(TestBase, unittest.TestCase):
         user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user1)
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 goodbye now", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 goodbye now"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "not in that channel" in data[0][0].lower()
@@ -984,7 +985,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 goodbye now", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 goodbye now"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user1.name+" is not in "+chan1.name in data[0][0].lower()
@@ -1005,7 +1006,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 goodbye now", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 goodbye now"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -1026,7 +1027,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan1 goodbye now", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_chan1 goodbye now"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -1051,7 +1052,7 @@ class KickTest(TestBase, unittest.TestCase):
         user_hallo = serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
         chan1.add_user(user2)
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan1 goodbye now", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_user2 test_chan1 goodbye now"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "not in that channel" in data[0][0].lower()
@@ -1072,7 +1073,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan1 goodbye now", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_user2 test_chan1 goodbye now"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user2.name+" is not in "+chan1.name in data[0][0].lower()
@@ -1094,7 +1095,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan1 goodbye now", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_user2 test_chan1 goodbye now"))
             data = serv1.get_send_data(1, user1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -1116,7 +1117,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan1 goodbye now", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "kick test_user2 test_chan1 goodbye now"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -1158,7 +1159,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_chan2 test_user2 goodbye now", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2 test_user2 goodbye now"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -1186,7 +1187,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan2 test_user2 goodbye now", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2 test_user2 goodbye now"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -1222,7 +1223,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan2 goodbye now", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2 goodbye now"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user1.name+" is not in "+chan2.name in data[0][0].lower()
@@ -1249,7 +1250,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_chan2 goodbye now", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2 goodbye now"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -1276,7 +1277,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_chan2 goodbye now", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_chan2 goodbye now"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -1313,7 +1314,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan2 goodbye now", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2 test_chan2 goodbye now"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user2.name+" is not in "+chan2.name in data[0][0].lower()
@@ -1341,7 +1342,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan2 goodbye now", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2 test_chan2 goodbye now"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -1369,7 +1370,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2 test_chan2 goodbye now", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2 test_chan2 goodbye now"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
@@ -1401,7 +1402,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2 goodbye now", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2 goodbye now"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert user2.name+" is not in "+chan1.name in data[0][0].lower()
@@ -1424,7 +1425,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("kick test_user2 goodbye now", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2 goodbye now"))
             data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             assert "don't have power" in data[0][0].lower()
@@ -1447,7 +1448,7 @@ class KickTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("kick test_user2 goodbye now", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "kick test_user2 goodbye now"))
             data = serv1.get_send_data(2)
             assert "error" not in data[0][0].lower()
             assert data[0][1] is None
