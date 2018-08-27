@@ -4,7 +4,7 @@ import time
 from threading import RLock, Lock, Thread
 
 from Destination import ChannelMembership, Channel, User
-from Events import EventPing, EventQuit, EventNameChange, EventJoin, EventLeave, EventKick
+from Events import EventPing, EventQuit, EventNameChange, EventJoin, EventLeave, EventKick, EventInvite
 from Function import Function
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -697,21 +697,24 @@ class ServerIRC(Server):
         :type invite_line: str
         """
         # Parse out INVITE data
-        invite_client_name = invite_line.split('!')[0][1:]
+        inviter_client_name = invite_line.split('!')[0][1:]
         invite_channel_name = ':'.join(invite_line.split(':')[2:])
+        invited_client_name = invite_line.split()[2]
         # Get destination objects
-        invite_client = self.get_user_by_address(invite_client_name.lower(), invite_client_name)
-        invite_client.update_activity()
+        inviter_client = self.get_user_by_address(inviter_client_name.lower(), inviter_client_name)
+        inviter_client.update_activity()
+        invited_client = self.get_user_by_address(invited_client_name.lower(), invited_client_name)
         invite_channel = self.get_channel_by_address(invite_channel_name.lower(), invite_channel_name)
         # Printing and logging
-        self.hallo.printer.output(Function.EVENT_INVITE, None, self, invite_client, invite_channel)
-        self.hallo.logger.log(Function.EVENT_INVITE, None, self, invite_client, invite_channel)
+        self.hallo.printer.output(Function.EVENT_INVITE, None, self, inviter_client, invite_channel)
+        self.hallo.logger.log(Function.EVENT_INVITE, None, self, inviter_client, invite_channel)
         # Check if they are an op, then join the channel.
-        if invite_client.rights_check("invite_channel", invite_channel):
+        if inviter_client.rights_check("invite_channel", invite_channel) and invited_client_name == self.get_nick():
             self.join_channel(invite_channel)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(Function.EVENT_INVITE, None, self, invite_client, invite_channel)
+        invite_evt = EventInvite(self, invite_channel, inviter_client, invited_client)
+        function_dispatcher.dispatch_passive(invite_evt)
 
     def parse_line_kick(self, kick_line):
         """
@@ -723,14 +726,14 @@ class ServerIRC(Server):
         kick_channel_name = kick_line.split()[2]
         kicked_client_name = kick_line.split()[3]
         kick_message = ':'.join(kick_line.split(':')[2:])
-        kicking_user_name = kick_line.split()[0][1:]
+        kicking_user_name = kick_line.split("!")[0][1:]
         # GetObjects
         kick_channel = self.get_channel_by_address(kick_channel_name.lower(), kick_channel_name)
         kicked_client = self.get_user_by_address(kicked_client_name.lower(), kicked_client_name)
         kicking_client = self.get_user_by_address(kicking_user_name.lower(), kicking_user_name)
         # Log, if applicable
-        self.hallo.printer.output(Function.EVENT_KICK, kick_message, self, kick_client, kick_channel)
-        self.hallo.logger.log(Function.EVENT_KICK, kick_message, self, kick_client, kick_channel)
+        self.hallo.printer.output(Function.EVENT_KICK, kick_message, self, kicked_client, kick_channel)
+        self.hallo.logger.log(Function.EVENT_KICK, kick_message, self, kicked_client, kick_channel)
         # Remove kicked user from user list
         kick_channel.remove_user(kicked_client)
         # If it was the bot who was kicked, set "in channel" status to False
