@@ -4,7 +4,7 @@ import time
 from threading import RLock, Lock, Thread
 
 from Destination import ChannelMembership, Channel, User
-from Events import EventPing, EventQuit, EventNameChange, EventJoin
+from Events import EventPing, EventQuit, EventNameChange, EventJoin, EventLeave
 from Function import Function
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -543,7 +543,8 @@ class ServerIRC(Server):
             part_client.set_online(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(Function.EVENT_LEAVE, part_message, self, part_client, part_channel)
+        leave_evt = EventLeave(self, part_channel, part_client, part_message)
+        function_dispatcher.dispatch_passive(leave_evt)
 
     def parse_line_quit(self, quit_line):
         """
