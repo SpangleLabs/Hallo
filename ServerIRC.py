@@ -5,7 +5,7 @@ from threading import RLock, Lock, Thread
 
 from Destination import ChannelMembership, Channel, User
 from Events import EventPing, EventQuit, EventNameChange, EventJoin, EventLeave, EventKick, EventInvite, EventMode, \
-    EventCTCP, EventNotice
+    EventCTCP, EventNotice, EventMessage
 from Function import Function
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -383,18 +383,18 @@ class ServerIRC(Server):
         message_sender = self.get_user_by_address(message_sender_name.lower(), message_sender_name)
         message_sender.update_activity()
         message_destination = message_sender
+        message_channel = None
+        if not message_private_bool:
+            message_channel = self.get_channel_by_address(message_destination_name.lower(), message_destination_name)
+        # Print and Log the message
+        self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
+        self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
         # Get function dispatcher ready
         function_dispatcher = self.hallo.function_dispatcher
+        message_evt = EventMessage(self, None if message_private_bool else message_channel, message_sender, message_text)
         if message_private_bool:
-            # Print and Log the private message
-            self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
-            self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
             function_dispatcher.dispatch(message_text, message_sender, message_destination)
         else:
-            message_channel = self.get_channel_by_address(message_destination_name.lower(), message_destination_name)
-            # Print and Log the public message
-            self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
-            self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
             # Update channel activity
             message_channel.update_activity()
             # Get acting command prefix
@@ -416,11 +416,7 @@ class ServerIRC(Server):
                                                  [function_dispatcher.FLAG_HIDE_ERRORS])
                 else:
                     # Pass to passive function checker
-                    function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
-                                                         message_text,
-                                                         self,
-                                                         message_sender,
-                                                         message_channel)
+                    function_dispatcher.dispatch_passive(message_evt)
             elif message_text.lower().startswith(acting_prefix):
                 message_text = message_text[len(acting_prefix):]
                 function_dispatcher.dispatch(message_text,
@@ -428,11 +424,7 @@ class ServerIRC(Server):
                                              message_channel)
             else:
                 # Pass to passive function checker
-                function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
-                                                     message_text,
-                                                     self,
-                                                     message_sender,
-                                                     message_channel)
+                function_dispatcher.dispatch_passive(message_evt)
 
     def parse_line_ctcp(self, ctcp_line):
         """

@@ -1,3 +1,4 @@
+from Events import EventMessage
 from Function import Function
 from inc.Commons import Commons
 import math
@@ -478,16 +479,18 @@ class Calculate(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
+        if not isinstance(event, EventMessage):
+            return
         # Check if fullLine is a calculation, and is not just numbers, and contains numbers.
-        if not Commons.check_calculation(full_line):
+        if not Commons.check_calculation(event.text):
             return None
-        if Commons.check_numbers(full_line.replace(".", "")):
+        if Commons.check_numbers(event.text.replace(".", "")):
             return None
-        if not any([char in full_line for char in [str(x) for x in range(10)] + ["e", "pi"]]):
+        if not any([char in event.text for char in [str(x) for x in range(10)] + ["e", "pi"]]):
             return None
         # Clean up the line and feed to the calculator.
         calc = full_line.replace(' ', '').lower()

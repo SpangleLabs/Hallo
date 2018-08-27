@@ -1,3 +1,4 @@
+from Events import EventMessage
 from Function import Function
 
 
@@ -67,11 +68,13 @@ class Protein(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
-        clean_line = full_line.strip().upper()
+        if not isinstance(event, EventMessage):
+            return
+        clean_line = event.text.strip().upper()
         if len(clean_line) < 3:
             return None
         valid_chars = list("ACGUT")
@@ -79,5 +82,5 @@ class Protein(Function):
         for valid_char in valid_chars:
             check_message = check_message.replace(valid_char, "")
         if check_message == "":
-            return self.run(clean_line, user_obj, channel_obj)
+            return self.run(clean_line, event.user, event.channel)
         return None

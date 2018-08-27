@@ -8,6 +8,7 @@ from telegram.ext import MessageHandler
 from telegram.utils.request import Request
 
 from Destination import User, Channel
+from Events import EventMessage
 from Function import Function
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -132,6 +133,8 @@ class ServerTelegram(Server):
         function_dispatcher = self.hallo.function_dispatcher
         message_channel = self.get_channel_by_address(message_destination_addr, message_destination_name)
         message_channel.update_activity()
+        # Create message event object
+        message_evt = EventMessage(self, message_channel, message_sender, message_text)
         # Print and Log the public message
         self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
         self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
@@ -154,11 +157,7 @@ class ServerTelegram(Server):
                                              [function_dispatcher.FLAG_HIDE_ERRORS])
             else:
                 # Pass to passive function checker
-                function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
-                                                     message_text,
-                                                     self,
-                                                     message_sender,
-                                                     message_channel)
+                function_dispatcher.dispatch_passive(message_evt)
         elif message_text.lower().startswith(acting_prefix):
             message_text = message_text[len(acting_prefix):]
             function_dispatcher.dispatch(message_text,
@@ -166,11 +165,7 @@ class ServerTelegram(Server):
                                          message_channel)
         else:
             # Pass to passive function checker
-            function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
-                                                 message_text,
-                                                 self,
-                                                 message_sender,
-                                                 message_channel)
+            function_dispatcher.dispatch_passive(message_evt)
 
     def parse_join(self, bot, update):
         # TODO

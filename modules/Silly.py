@@ -1,4 +1,5 @@
 from Destination import Channel
+from Events import EventMessage
 from Function import Function
 from inc.Commons import Commons
 import time
@@ -364,10 +365,12 @@ class Reply(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
+        if not isinstance(event, EventMessage):
+            return
         reply_message_list = ReplyMessageList.load_from_xml()
-        response = reply_message_list.get_response(full_line, user_obj, channel_obj)
+        response = reply_message_list.get_response(event.text, event.user, event.channel)
         return response

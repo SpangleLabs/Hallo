@@ -1,3 +1,4 @@
+from Events import EventMessage
 from Function import Function
 from xml.dom import minidom
 
@@ -104,13 +105,15 @@ class BestPony(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
-        clean_line = full_line.lower()
+        if not isinstance(event, EventMessage):
+            return
+        clean_line = event.text.lower()
         if "who" in clean_line and ("best pony" in clean_line or "bestpony" in clean_line):
-            return self.run(clean_line, user_obj, channel_obj)
+            return self.run(clean_line, event.user, event.channel)
 
 
 class Cupcake(Function):

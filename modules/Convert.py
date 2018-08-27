@@ -4,7 +4,7 @@ from xml.dom import minidom
 
 import dateutil.parser
 
-from Events import EventHour
+from Events import EventHour, EventMessage
 from inc.Commons import Commons
 from Function import Function
 import re
@@ -867,10 +867,12 @@ class Convert(Function):
         return output_string
 
     def get_passive_events(self):
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
-        return self.convert_parse(full_line, True)
+    def passive_run(self, event, hallo_obj):
+        if not isinstance(event, EventMessage):
+            return
+        return self.convert_parse(event.text, True)
 
 
 class UpdateCurrencies(Function):

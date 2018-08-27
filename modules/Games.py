@@ -1,3 +1,4 @@
+from Events import EventMessage
 from Function import Function
 import random
 import time
@@ -891,7 +892,7 @@ class HigherOrLower(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
     # Interesting functions from here
     def run(self, line, user_obj, destination_obj=None):
@@ -911,15 +912,17 @@ class HigherOrLower(Function):
         output_string += '"higher_or_lower end" to quit the game.'
         return output_string
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
-        clean_line = full_line.strip().lower()
+        if not isinstance(event, EventMessage):
+            return
+        clean_line = event.text.strip().lower()
         if any(cmd in clean_line for cmd in self.END_CMDS):
-            return self.quit_game(user_obj, channel_obj, True)
+            return self.quit_game(event.user, event.channel, True)
         elif any(cmd in clean_line for cmd in self.HIGH_CMDS):
-            return self.guess_higher(user_obj, channel_obj, True)
+            return self.guess_higher(event.user, event.channel, True)
         elif any(cmd in clean_line for cmd in self.LOW_CMDS):
-            return self.guess_lower(user_obj, channel_obj, True)
+            return self.guess_lower(event.user, event.channel, True)
         pass
 
     def find_game(self, user_obj):
@@ -1105,7 +1108,7 @@ class Blackjack(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
     # Interesting functions from here
     def run(self, line, user_obj, destination_obj=None):
@@ -1124,15 +1127,17 @@ class Blackjack(Function):
         output_string += 'and "blackjack end" to quit the game.'
         return output_string
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
-        clean_line = full_line.strip().lower()
+        if not isinstance(event, EventMessage):
+            return
+        clean_line = event.text.strip().lower()
         if any(cmd in clean_line for cmd in self.END_CMDS):
-            return self.quit_game(user_obj, channel_obj, True)
+            return self.quit_game(event.user, event.channel, True)
         elif any(cmd in clean_line for cmd in self.HIT_CMDS):
-            return self.hit(user_obj, channel_obj, True)
+            return self.hit(event.user, event.channel, True)
         elif any(cmd in clean_line for cmd in self.STICK_CMDS):
-            return self.stick(user_obj, channel_obj, True)
+            return self.stick(event.user, event.channel, True)
         pass
 
     def find_game(self, user_obj):
@@ -1429,7 +1434,7 @@ class DDR(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
     # Interesting functions from here
     def run(self, line, user_obj, destination_obj=None):
@@ -1445,15 +1450,17 @@ class DDR(Function):
         output_string = "Invalid difficulty mode. Please specify easy, medium or hard."
         return output_string
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
-        full_line = full_line.strip().lower()
+        if not isinstance(event, EventMessage):
+            return
+        full_line = event.text.strip().lower()
         if any(cmd in full_line for cmd in self.JOIN_CMDS):
-            return self.join_game(full_line, user_obj, channel_obj, True)
+            return self.join_game(full_line, event.user, event.channel, True)
         elif any(cmd in full_line for cmd in self.END_CMDS):
-            return self.quit_game(full_line, user_obj, channel_obj, True)
+            return self.quit_game(full_line, event.user, event.channel, True)
         elif any(cmd in full_line for cmd in self.MOVE_CMDS):
-            return self.make_move(full_line, user_obj, channel_obj, True)
+            return self.make_move(full_line, event.user, event.channel, True)
         pass
 
     def find_game(self, destination_obj):

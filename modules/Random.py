@@ -4,6 +4,7 @@ import urllib.parse
 
 from xml.dom import minidom
 
+from Events import EventMessage
 from Function import Function
 from inc.Commons import Commons
 
@@ -192,21 +193,19 @@ class Foof(Function):
         self.names.add(self.help_name)
         return self.names
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
+        if not isinstance(event, EventMessage):
+            return
         # Check if message matches any variation of foof
-        if re.search(r'foo[o]*f[!]*', full_line, re.I):
-            # get destination object
-            destination_obj = channel_obj
-            if destination_obj is None:
-                destination_obj = user_obj
+        if re.search(r'foo[o]*f[!]*', event.text, re.I):
             # Return response
-            out = self.run(full_line, user_obj, destination_obj)
+            out = self.run(event.text, event.user, event.channel)
             return out
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
 
 class ThoughtForTheDay(Function):
@@ -385,24 +384,22 @@ class NightValeWeather(Function):
         # Return video information
         return "And now, the weather: http://youtu.be/{} {}".format(rand_video['video_id'], rand_video['title'])
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
-        line_clean = full_line.lower().strip()
+        if not isinstance(event, EventMessage):
+            return
+        line_clean = event.text.lower().strip()
         # Get hallo's current name
-        hallo_name = server_obj.get_nick().lower()
+        hallo_name = event.server.get_nick().lower()
         # Check if message matches specified patterns
         if hallo_name + " with the weather" in line_clean:
-            # get destination object
-            destination_obj = channel_obj
-            if destination_obj is None:
-                destination_obj = user_obj
             # Return response
-            out = self.run(full_line, user_obj, destination_obj)
+            out = self.run(event.text, event.user, event.channel)
             return out
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
     def get_youtube_playlist(self, playlist_id, page_token=None):
         """Returns a list of video information for a youtube playlist."""

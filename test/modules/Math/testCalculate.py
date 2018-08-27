@@ -1,6 +1,6 @@
 import unittest
 
-from Function import Function
+from Events import EventMessage
 from Server import Server
 from test.TestBase import TestBase
 
@@ -281,46 +281,36 @@ class CalculateTest(TestBase, unittest.TestCase):
         assert "error" in data[0][0], "gamma(0) should fail"
 
     def test_passive(self):
-        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "25", self.server,
-                                                  self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, "25"))
         data = self.server.get_send_data(0)
         assert len(data) == 0, "No response should have happened."
-        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "23.47", self.server,
-                                                  self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, "23.47"))
         data = self.server.get_send_data(0)
         assert len(data) == 0, "No response should have happened."
-        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "2+2", self.server,
-                                                  self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, "2+2"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert data[0][0] == "4", "2+2 = 4, hallo should have responded"
-        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "pie", self.server,
-                                                  self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, "pie"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert 8.539 == float(data[0][0][:5]), "Response should have been received."
-        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
+        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user,
                                                   "cos(acos(sin(asin(tan(atan(acosh(cosh(sinh(asinh(tanh("
-                                                  "atanh(0))))))))))))",
-                                                  self.server,
-                                                  self.test_user,
-                                                  self.test_chan)
+                                                  "atanh(0))))))))))))"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert len(data) != 0, "Response should have been received."
-        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "acos(2)", self.server,
-                                                  self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, "acos(2)"))
         data = self.server.get_send_data(0)
         assert len(data) == 0, "No response should have been received"
-        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, " 97", self.server,
-                                                  self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, " 97"))
         data = self.server.get_send_data(0)
         assert len(data) == 0, "No response should have been received"
-        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "9 7", self.server,
-                                                  self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, "9 7"))
         data = self.server.get_send_data(0)
         assert len(data) == 0, "No response should have been received"
 
     def test_passive_ip_error(self):
-        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "127.0.0.1", self.server,
-                                                  self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user,
+                                                               "127.0.0.1"))
         data = self.server.get_send_data(0)
         assert len(data) == 0, "No response should have happened."
 

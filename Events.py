@@ -199,7 +199,7 @@ class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
         """ :type : str"""
 
 
-class EventMessage(ChannelUserTextEvent):  # TODO: implement
+class EventMessage(ChannelUserTextEvent):
     pass
 
 

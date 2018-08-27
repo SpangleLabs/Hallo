@@ -2,6 +2,7 @@ import re
 import unittest
 import urllib.request
 
+from Events import EventMessage
 from Function import Function
 from Server import Server
 from inc.Commons import Commons
@@ -19,8 +20,8 @@ class ReplyTest(TestBase, unittest.TestCase):
         assert "error" in data[0][0].lower()
 
     def test_reply_passive(self):
-        self.function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE, "beep",
-                                                  self.server, self.test_user, self.test_chan)
+        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, "beep"),
+                                                  self.hallo)
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "boop" == data[0][0].lower()
 
@@ -28,44 +29,41 @@ class ReplyTest(TestBase, unittest.TestCase):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
         reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check beep/boop works
-        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "beep",
-                                         None, self.server, self.test_user, self.test_chan)
+        response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user, "beep"))
         assert response == "boop"
         # Check that it doesn't respond if beep is in the message
-        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "it goes beep",
-                                         None, self.server, self.test_user, self.test_chan)
+        response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user, "it goes beep"))
         assert response is None
 
     def test_reply_pew(self):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
         reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check pewpew
-        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "pew",
-                                         None, self.server, self.test_user, self.test_chan)
+        response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user, "pew"),
+                                         self.hallo)
         assert response == "pew pew"
         # Check blacklist
-        serv1 = ServerMock(None)
+        serv1 = ServerMock(self.hallo)
         serv1.name = "canternet"
         chan1 = serv1.get_channel_by_address("#ukofequestria".lower(), "#ukofequestria")
         user1 = serv1.get_user_by_address("test_user".lower(), "test_user")
-        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "pew",
-                                         None, serv1, user1, chan1)
+        response = reply_obj.passive_run(EventMessage(serv1, chan1, user1, "pew"), self.hallo)
         assert response is None
 
     def test_reply_haskell(self):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
         reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check haskell.jpg
-        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "haskell.jpg",
-                                         None, self.server, self.test_user, self.test_chan)
+        response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user, "haskell.jpg"),
+                                         self.hallo)
         assert response is None
         # Check on correct channel
         serv1 = ServerMock(None)
         serv1.name = "shadowworld"
         chan1 = serv1.get_channel_by_address("#ecco-the-dolphin".lower(), "#ecco-the-dolphin")
         user1 = serv1.get_user_by_address("test_user".lower(), "test_user")
-        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "haskell.jpg",
-                                         None, serv1, user1, chan1)
+        response = reply_obj.passive_run(EventMessage(serv1, chan1, user1, "haskell.jpg"),
+                                         self.hallo)
         assert "http" in response.lower()
         assert "haskell.jpg" in response.lower()
         # Check image exists
@@ -78,8 +76,9 @@ class ReplyTest(TestBase, unittest.TestCase):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
         reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check pod bay doors
-        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "open the pod bay doors hallo.",
-                                         None, self.server, self.test_user, self.test_chan)
+        response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user,
+                                                      "open the pod bay doors hallo."),
+                                         self.hallo)
         assert self.test_user.name in response
         assert "i'm sorry" in response.lower()
         assert "afraid i cannot do that" in response.lower()
@@ -88,8 +87,9 @@ class ReplyTest(TestBase, unittest.TestCase):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
         reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check irc client response
-        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "Which IRC client should I use?",
-                                         None, self.server, self.test_user, self.test_chan)
+        response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user,
+                                                      "Which IRC client should I use?"),
+                                         self.hallo)
         assert "irssi" in response
         assert "hexchat" in response
         assert "mibbit" in response
@@ -98,21 +98,21 @@ class ReplyTest(TestBase, unittest.TestCase):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
         reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check what is hallo response
-        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "What is hallo?",
-                                         None, self.server, self.test_user, self.test_chan)
+        response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user, "What is hallo?"),
+                                         self.hallo)
         assert "built by dr-spangle" in response
 
     def test_reply_mfw(self):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
         reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check MFW produces response
-        response = reply_obj.passive_run(Function.EVENT_MESSAGE, "MFW",
-                                         None, self.server, self.test_user, self.test_chan)
+        response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user, "MFW"),
+                                         self.hallo)
         assert "http" in response
         # Check multiple times
         for _ in range(10):
-            response = reply_obj.passive_run(Function.EVENT_MESSAGE, "MFW",
-                                             None, self.server, self.test_user, self.test_chan)
+            response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user, "MFW"),
+                                             self.hallo)
             assert "http" in response
             response_url = "http" + response.split("http")[1]
             page_request = urllib.request.Request(response_url)

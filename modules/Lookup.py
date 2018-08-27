@@ -1,4 +1,5 @@
 from Destination import Channel
+from Events import EventMessage
 from Function import Function
 from inc.Commons import Commons
 from xml.dom import minidom
@@ -160,13 +161,15 @@ class InSpace(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
-        clean_line = full_line.lower()
+        if not isinstance(event, EventMessage):
+            return
+        clean_line = event.text.lower()
         if "in space" in clean_line and ("who" in clean_line or "how many" in clean_line):
-            return self.run(clean_line, user_obj, channel_obj)
+            return self.run(clean_line, event.user, event.channel)
 
 
 class TimestampToDate(Function):
@@ -785,15 +788,17 @@ class UrlDetect(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
+        if not isinstance(event, EventMessage):
+            return
         # Get hallo object for stuff to use
-        self.hallo_obj = server_obj.hallo
+        self.hallo_obj = hallo_obj
         # Search for a link
         url_regex = re.compile(r'\b((https?://|www.)[-A-Z0-9+&?%@#/=~_|$:,.]*[A-Z0-9+&@#/%=~_|$])', re.I)
-        url_search = url_regex.search(full_line)
+        url_search = url_regex.search(event.text)
         if not url_search:
             return None
         # Get link address
