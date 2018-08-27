@@ -33,7 +33,7 @@ class ServerEvent(Event, metaclass=ABCMeta):
         """
         :type server: Server.Server
         """
-        super().__init__()
+        Event.__init__(self)
         self.server = server
         """ :type : Server.Server"""
 
@@ -45,7 +45,7 @@ class EventPing(ServerEvent):
         :type server: Server.Server
         :type ping_number: str
         """
-        super().__init__(server)
+        ServerEvent.__init__(self, server)
         self.ping_number = ping_number
         """ :type : str"""
 
@@ -57,7 +57,7 @@ class UserEvent(ServerEvent, metaclass=ABCMeta):
         :type server: Server.Server
         :type user: Destination.User | None
         """
-        super().__init__(server)
+        ServerEvent.__init__(self, server)
         self.user = user
         """ :type : Destination.User | None"""
 
@@ -70,7 +70,7 @@ class EventQuit(UserEvent):
         :type user: Destination.User
         :type message: str
         """
-        super().__init__(server, user)
+        UserEvent.__init__(self, server, user)
         self.quit_message = message
         """ :type : str"""
 
@@ -84,7 +84,7 @@ class EventNameChange(UserEvent):
         :type old_name: str
         :type new_name: str
         """
-        super().__init__(server, user)
+        UserEvent.__init__(self, server, user)
         self.old_name = old_name
         """ :type : str"""
         self.new_name = new_name
@@ -98,7 +98,7 @@ class ChannelEvent(ServerEvent, metaclass=ABCMeta):
         :type server: Server.Server
         :type channel: Destination.Channel | None
         """
-        super().__init__(server)
+        ServerEvent.__init__(self, server)
         self.channel = channel
         """ :type : Destination.Channel | None"""
 
@@ -123,7 +123,7 @@ class EventJoin(ChannelUserEvent):
         :type channel: Destination.Channel
         :type user: Destination.User
         """
-        super().__init__(server, channel, user)
+        ChannelUserEvent.__init__(self, server, channel, user)
 
 
 class EventLeave(ChannelUserEvent):
@@ -135,7 +135,7 @@ class EventLeave(ChannelUserEvent):
         :type user: Destination.User
         :type message: str | None
         """
-        super().__init__(server, channel, user)
+        ChannelUserEvent.__init__(self, server, channel, user)
         self.leave_message = message
         """ :type : str | None"""
 
@@ -150,7 +150,7 @@ class EventKick(ChannelUserEvent):
         :type kicked_user: Destination.User
         :type kick_message: str | None
         """
-        super().__init__(server, channel, kicking_user)
+        ChannelUserEvent.__init__(self, server, channel, kicking_user)
         self.kicked_user = kicked_user
         """ :type : Destination.User"""
         self.kick_message = kick_message
@@ -166,7 +166,7 @@ class EventInvite(ChannelUserEvent):
         :type inviting_user: Destination.User
         :type invited_user: Destination.User
         """
-        super().__init__(server, channel, inviting_user)
+        ChannelUserEvent.__init__(self, server, channel, inviting_user)
         self.invited_user = invited_user
         """ :type : Destination.User"""
 
@@ -180,7 +180,7 @@ class EventMode(ChannelUserEvent):
         :type user: Destination.User | None
         :type mode_changes: str
         """
-        super().__init__(server, channel, user)
+        ChannelUserEvent.__init__(self, server, channel, user)
         self.mode_changes = mode_changes  # TODO: maybe have flags, arguments/users as separate?
         """ :type : str"""
 
@@ -194,7 +194,7 @@ class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
         :type user: Destination.User | None
         :type text: str
         """
-        super().__init__(server, channel, user)
+        ChannelUserEvent.__init__(self, server, channel, user)
         self.text = text
         """ :type : str"""
 
@@ -205,7 +205,7 @@ class EventMessage(ChannelUserTextEvent):
     FLAG_HIDE_ERRORS = "hide_errors"  # Hide all errors that result from running the function.
 
     def __init__(self, server, channel, user, text):
-        super().__init__(server, channel, user, text)
+        ChannelUserTextEvent.__init__(self, server, channel, user, text)
         self.command_text = None
         """ :type : str | None"""
         self.is_prefixed = None
