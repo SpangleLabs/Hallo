@@ -11,19 +11,19 @@ class Event(metaclass=ABCMeta):
         """ :type : datetime"""
 
 
-class EventSecond(Event):  # TODO: implement
+class EventSecond(Event):
     pass
 
 
-class EventMinute(Event):  # TODO: implement
+class EventMinute(Event):
     pass
 
 
-class EventHour(Event):  # TODO: implement
+class EventHour(Event):
     pass
 
 
-class EventDay(Event):  # TODO: implement
+class EventDay(Event):
     pass
 
 
