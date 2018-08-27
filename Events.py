@@ -126,7 +126,7 @@ class EventJoin(ChannelUserEvent):
         super().__init__(server, channel, user)
 
 
-class EventLeave(ChannelUserEvent):  # TODO: implement
+class EventLeave(ChannelUserEvent):
 
     def __init__(self, server, channel, user, message):
         """
