@@ -1,6 +1,7 @@
 import json
 from threading import Lock
 
+from Events import EventMinute
 from Function import Function
 from inc.Commons import Commons, ISO8601ParseError
 import urllib.parse
@@ -723,7 +724,7 @@ class SubE621Check(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MINUTE}
+        return {EventMinute}
 
     def run(self, line, user_obj, destination_obj=None):
         # Handy variables
@@ -772,15 +773,11 @@ class SubE621Check(Function):
         return "The following search updates were found and posted to their registered destinations:\n" + \
                "\n".join(output_lines)
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """
         Replies to an event not directly addressed to the bot.
-        :param event: string
-        :param full_line: string
-        :param hallo_obj: Hallo
-        :param server_obj: Server
-        :param user_obj: User
-        :param channel_obj: Channel
+        :type event: Events.Event
+        :type hallo_obj: Hallo.Hallo
         """
         # Check through all feeds to see which need updates
         with self.e621_sub_list.sub_lock:

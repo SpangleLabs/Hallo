@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from Function import Function
+from Events import EventMinute
 from Server import Server
 from inc.Commons import Commons
 from modules.Rss import FeedCheck, RssFeedList, RssFeed
@@ -54,11 +54,11 @@ class FeedCheckTest(TestBase, unittest.TestCase):
 
     def test_run_all(self):
         # Set up test servers and channels
-        serv1 = ServerMock(None)
+        serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
-        serv2 = ServerMock(None)
+        serv2 = ServerMock(self.hallo)
         serv2.name = "test_serv2"
         chan3 = serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
         try:
@@ -180,11 +180,11 @@ class FeedCheckTest(TestBase, unittest.TestCase):
 
     def test_run_passive(self):
         # Set up test servers and channels
-        serv1 = ServerMock(None)
+        serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
-        serv2 = ServerMock(None)
+        serv2 = ServerMock(self.hallo)
         serv2.name = "test_serv2"
         chan3 = serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
         try:
@@ -218,7 +218,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
             rss_check_obj.rss_feed_list = rfl
             # Test passive feed updates
-            self.function_dispatcher.dispatch_passive(Function.EVENT_MINUTE, None, None, None, None)
+            self.function_dispatcher.dispatch_passive(EventMinute())
             # Check test server 1 data
             serv1_data = serv1.get_send_data(6)
             chan1_count = 0
@@ -236,7 +236,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             rf1.last_check = None
             rf2.last_check = None
             rf3.last_check = None
-            self.function_dispatcher.dispatch_passive(Function.EVENT_MINUTE, None, None, None, None)
+            self.function_dispatcher.dispatch_passive(EventMinute())
             serv1.get_send_data(0)
             serv2.get_send_data(0)
             # Test that no feeds are checked before timeout, set urls to none and see if anything explodes.
@@ -244,7 +244,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             rf1.check_feed = self.do_not_call
             rf2.check_feed = self.do_not_call
             rf3.check_feed = self.do_not_call
-            self.function_dispatcher.dispatch_passive(Function.EVENT_MINUTE, None, None, None, None)
+            self.function_dispatcher.dispatch_passive(EventMinute())
             serv1.get_send_data(0)
             serv2.get_send_data(0)
             assert not self.failed, "check_feed() should not have been called on any feed."

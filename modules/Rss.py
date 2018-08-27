@@ -2,6 +2,8 @@ from threading import Lock
 from xml.etree.ElementTree import ParseError
 from xml.etree import ElementTree
 from datetime import datetime
+
+from Events import EventMinute
 from inc.Commons import Commons
 import hashlib
 from Function import Function
@@ -318,7 +320,7 @@ class FeedCheck(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MINUTE}
+        return {EventMinute}
 
     def run(self, line, user_obj, destination_obj=None):
         # Handy variables
@@ -364,15 +366,11 @@ class FeedCheck(Function):
         return "The following feed updates were found and posted to their registered destinations:\n" + \
                "\n".join(output_lines)
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """
         Replies to an event not directly addressed to the bot.
-        :param event: string
-        :param full_line: string
-        :param hallo_obj: Hallo
-        :param server_obj: Server
-        :param user_obj: User
-        :param channel_obj: Channel
+        :type event: Events.Event
+        :type hallo_obj: Hallo.Hallo
         """
         # Check through all feeds to see which need updates
         with self.rss_feed_list.feed_lock:
@@ -384,6 +382,8 @@ class FeedCheck(Function):
                     # Output all new items
                     for rss_item in new_items:
                         rss_feed.output_item(rss_item, hallo_obj)
+            # Save list
+            self.rss_feed_list.to_xml()
 
 
 class FeedAdd(Function):
