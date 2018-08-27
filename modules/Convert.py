@@ -4,6 +4,7 @@ from xml.dom import minidom
 
 import dateutil.parser
 
+from Events import EventHour
 from inc.Commons import Commons
 from Function import Function
 import re
@@ -919,9 +920,9 @@ class UpdateCurrencies(Function):
         return "\n".join(output_lines)
 
     def get_passive_events(self):
-        return {Function.EVENT_HOUR}
+        return {EventHour}
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         # Load convert repo.
         repo = ConvertRepo.load_json()
         # Update with the European Bank
