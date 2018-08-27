@@ -115,8 +115,15 @@ class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
         UserEvent.__init__(self, server, user)
 
 
-class EventJoin(ChannelUserEvent):  # TODO: implement
-    pass
+class EventJoin(ChannelUserEvent):
+
+    def __init__(self, server, channel, user):
+        """
+        :type server: Server.Server
+        :type channel: Destination.Channel
+        :type user: Destination.User
+        """
+        super().__init__(server, channel, user)
 
 
 class EventLeave(ChannelUserEvent):  # TODO: implement

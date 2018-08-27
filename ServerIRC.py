@@ -4,7 +4,7 @@ import time
 from threading import RLock, Lock, Thread
 
 from Destination import ChannelMembership, Channel, User
-from Events import EventPing, EventQuit, EventNameChange
+from Events import EventPing, EventQuit, EventNameChange, EventJoin
 from Function import Function
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -512,7 +512,8 @@ class ServerIRC(Server):
             join_channel.add_user(join_client)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(Function.EVENT_JOIN, None, self, join_client, join_channel)
+        join_evt = EventJoin(self, join_channel, join_client)
+        function_dispatcher.dispatch_passive(join_evt)
 
     def parse_line_part(self, part_line):
         """
