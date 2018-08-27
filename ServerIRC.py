@@ -4,6 +4,7 @@ import time
 from threading import RLock, Lock, Thread
 
 from Destination import ChannelMembership, Channel, User
+from Events import EventPing, EventQuit
 from Function import Function
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -355,7 +356,8 @@ class ServerIRC(Server):
         self.hallo.logger.log_from_self(Function.EVENT_PING, ping_number, self, None, None)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(Function.EVENT_PING, ping_number, self, None, None)
+        ping_evt = EventPing(self, ping_number)
+        function_dispatcher.dispatch_passive(ping_evt)
 
     def parse_line_message(self, message_line):
         """
@@ -570,7 +572,8 @@ class ServerIRC(Server):
                 user.set_online(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(Function.EVENT_QUIT, quit_message, self, quit_client, None)
+        quit_evt = EventQuit(self, quit_client, quit_message)
+        function_dispatcher.dispatch_passive(quit_evt)
 
     def parse_line_mode(self, mode_line):
         """

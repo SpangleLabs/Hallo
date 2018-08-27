@@ -38,7 +38,7 @@ class ServerEvent(Event, metaclass=ABCMeta):
         """ :type : Server.Server"""
 
 
-class EventPing(ServerEvent):  # TODO: implement
+class EventPing(ServerEvent):
 
     def __init__(self, server, ping_number):
         """
@@ -62,7 +62,7 @@ class UserEvent(ServerEvent, metaclass=ABCMeta):
         """ :type : Destination.User | None"""
 
 
-class EventQuit(UserEvent):  # TODO: implement
+class EventQuit(UserEvent):
 
     def __init__(self, server, user, message):
         """
