@@ -203,7 +203,7 @@ class EventMessage(ChannelUserTextEvent):  # TODO: implement
     pass
 
 
-class EventNotice(ChannelUserTextEvent):  # TODO: implement
+class EventNotice(ChannelUserTextEvent):
     pass
 
 

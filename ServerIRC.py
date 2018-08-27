@@ -5,7 +5,7 @@ from threading import RLock, Lock, Thread
 
 from Destination import ChannelMembership, Channel, User
 from Events import EventPing, EventQuit, EventNameChange, EventJoin, EventLeave, EventKick, EventInvite, EventMode, \
-    EventCTCP
+    EventCTCP, EventNotice
 from Function import Function
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -659,7 +659,8 @@ class ServerIRC(Server):
                     self._check_useridentity_result = False
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(Function.EVENT_NOTICE, notice_message, self, notice_client, notice_channel)
+        notice_event = EventNotice(self, notice_channel, notice_client, notice_message)
+        function_dispatcher.dispatch_passive(notice_event)
 
     def parse_line_nick(self, nick_line):
         """
