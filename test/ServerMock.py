@@ -9,6 +9,7 @@ class ServerMock(Server):
         self.left_channels = []
         self.state = Server.STATE_CLOSED
         self.type = Server.TYPE_MOCK
+        self.prefix = ""
 
     def join_channel(self, channel_obj):
         pass
