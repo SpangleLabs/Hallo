@@ -493,7 +493,7 @@ class Calculate(Function):
         if not any([char in event.text for char in [str(x) for x in range(10)] + ["e", "pi"]]):
             return None
         # Clean up the line and feed to the calculator.
-        calc = full_line.replace(' ', '').lower()
+        calc = event.text.replace(' ', '').lower()
         try:
             self.preflight_checks(calc)
             answer = self.process_calculation(calc)

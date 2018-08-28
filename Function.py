@@ -38,8 +38,8 @@ class Function(metaclass=ABCMeta):
         :type line: str
         :param user_obj: User who called the function
         :type user_obj: Destination.User
-        :param destination_obj: Destination the function was called from, equal to user if private message
-        :type destination_obj: Destination.Destination
+        :param destination_obj: Channel the function was called from, is None if private message
+        :type destination_obj: Destination.Channel | None
         """
         raise NotImplementedError
 
