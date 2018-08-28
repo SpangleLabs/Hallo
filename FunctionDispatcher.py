@@ -79,7 +79,7 @@ class FunctionDispatcher(object):
         try:
             response = function_obj.run(function_args, event.user, event.channel)
             if response is not None:
-                server_obj.send(response, event.channel)
+                server_obj.send(response, resp_destination)
             return
         except Exception as e:
             server_obj.send("Function failed with error message: {}".format(e), resp_destination)
@@ -95,7 +95,7 @@ class FunctionDispatcher(object):
         :type event: Events.Event
         """
         # If this event is not used, skip this
-        if event.__class__ not in self.event_functions or len(self.event_functions[event]) == 0:
+        if event.__class__ not in self.event_functions or len(self.event_functions[event.__class__]) == 0:
             return
         # Get list of functions that want things
         function_list = self.event_functions[event.__class__]
