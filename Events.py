@@ -214,6 +214,8 @@ class EventMessage(ChannelUserTextEvent):
 
     def check_prefix(self):
         if self.channel is None:
+            self.is_prefixed = True
+            self.command_text = self.text
             return
         acting_prefix = self.channel.get_prefix()
         if acting_prefix is False:
