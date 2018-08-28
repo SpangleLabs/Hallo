@@ -1,0 +1,54 @@
+[
+  {
+    "ownerServer": "Telegram",
+    "ownerAddress": "36957937",
+    "spreadsheetId": "----",
+    "sheetName": "Sheet1",
+    "initialDataRow": 9,
+    "initialDataDate": "2016-04-11",
+    "titleRow": 2,
+    "columns": {
+      "wakeTime": {
+        "column": "E",
+        "title": "Wake up"
+      },
+      "sleepTime": {
+        "column": "GE",
+        "title": "Sleep"
+      }
+    },
+    "mood": {
+      "variables": [
+        {
+          "letter": "F",
+          "name": "Fragility"
+        },
+        {
+          "letter": "H",
+          "name": "Happiness"
+        },
+        {
+          "letter": "I",
+          "name": "Irritability"
+        },
+        {
+          "letter": "S",
+          "name": "Sexual energy"
+        },
+        {
+          "letter": "T",
+          "name": "Tiredness"
+        },
+        {
+          "letter": "M",
+          "name": "Motivation"
+        },
+        {
+          "letter": "W",
+          "name": "Worry"
+        }
+      ],
+      "times": ["wake", "13:00:00", "18:00:00", "sleep"]
+    }
+  }
+]
