@@ -46,6 +46,8 @@ class FunctionDispatcher(object):
             flag_list = []
         # Get server object
         server_obj = event.server
+        # Get destination
+        resp_destination = event.channel if event.channel is not None else event.user
         # Find the function name. Try joining each amount of words in the message until you find a valid function name
         function_message_split = event.command_text.split()
         if not function_message_split:
@@ -61,14 +63,14 @@ class FunctionDispatcher(object):
         # If function isn't found, output a not found message
         if function_class_test is None:
             if EventMessage.FLAG_HIDE_ERRORS not in flag_list:
-                event.server.send("Error, this is not a recognised function.", event.channel)
+                event.server.send("Error, this is not a recognised function.", resp_destination)
                 print("Error, this is not a recognised function.")
             return
         function_class = function_class_test
         function_args = function_args_test
         # Check function rights and permissions
         if not self.check_function_permissions(function_class, event.server, event.user, event.channel):
-            event.server.send("You do not have permission to use this function.", event.channel)
+            event.server.send("You do not have permission to use this function.", resp_destination)
             print("You do not have permission to use this function.")
             return
         # If persistent, get the object, otherwise make one
@@ -80,7 +82,7 @@ class FunctionDispatcher(object):
                 server_obj.send(response, event.channel)
             return
         except Exception as e:
-            server_obj.send("Function failed with error message: {}".format(e), event.channel)
+            server_obj.send("Function failed with error message: {}".format(e), resp_destination)
             print("Function: {} {}".format(function_class.__module__, function_class.__name__))
             print("Function error: {}".format(e))
             print("Function error location: {}".format(traceback.format_exc(3)))
