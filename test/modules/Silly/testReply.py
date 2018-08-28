@@ -20,8 +20,7 @@ class ReplyTest(TestBase, unittest.TestCase):
         assert "error" in data[0][0].lower()
 
     def test_reply_passive(self):
-        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, "beep"),
-                                                  self.hallo)
+        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, "beep"))
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "boop" == data[0][0].lower()
 
