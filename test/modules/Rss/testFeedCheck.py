@@ -160,7 +160,8 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: FeedCheck
             rss_check_obj.rss_feed_list = rfl
             # Invalid title
-            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "rss check Not a valid feed"))
+            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                           "rss check Not a valid feed"))
             data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
             assert "error" in data[0][0].lower()
             # Correct title but wrong channel
