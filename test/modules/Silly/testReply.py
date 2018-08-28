@@ -29,10 +29,11 @@ class ReplyTest(TestBase, unittest.TestCase):
         reply_func = self.function_dispatcher.get_function_by_name("reply")
         reply_obj = self.function_dispatcher.get_function_object(reply_func)  # type: Reply
         # Check beep/boop works
-        response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user, "beep"))
+        response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user, "beep"), self.hallo)
         assert response == "boop"
         # Check that it doesn't respond if beep is in the message
-        response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user, "it goes beep"))
+        response = reply_obj.passive_run(EventMessage(self.server, self.test_chan, self.test_user, "it goes beep"),
+                                         self.hallo)
         assert response is None
 
     def test_reply_pew(self):
