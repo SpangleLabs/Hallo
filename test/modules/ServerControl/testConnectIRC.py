@@ -98,6 +98,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         # Set things up
         test_port = 80
         test_serv_irc = ServerIRC(self.hallo)
+        test_serv_irc.prefix = ""
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.server_port = test_port
         test_chan_irc = test_serv_irc.get_channel_by_address("test_chan".lower(), "test_chan")
@@ -298,7 +299,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         self.server.prefix = test_prefix
         # Run command
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                       "connect irc www.example.com:80"))
+                                                       test_prefix + " connect irc www.example.com:80"))
         # Ensure correct response
         data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
         assert "connected to new irc server" in data[0][0].lower(), "Incorrect output: "+str(data[0][0])
@@ -314,6 +315,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
     def test_server_prefix_inherit_none(self):
         # Set up
         self.server.prefix = None
+        self.hallo.default_prefix = ""
         # Run command
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "connect irc www.example.com:80"))
@@ -386,6 +388,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         # Set up
         test_nickserv_name = "nameserv"
         test_serv_irc = ServerIRC(self.hallo)
+        test_serv_irc.prefix = ""
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.nickserv_nick = test_nickserv_name
         test_chan_irc = test_serv_irc.get_channel_by_address("test_chan".lower(), "test_chan")
@@ -442,12 +445,13 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         # Set up
         test_nickserv_command = "identity"
         test_serv_irc = ServerIRC(self.hallo)
+        test_serv_irc.prefix = ""
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.nickserv_ident_command = test_nickserv_command
         test_chan_irc = test_serv_irc.get_channel_by_address("test_chan".lower(), "test_chan")
         test_user_irc = test_serv_irc.get_user_by_address("test_user".lower(), "test_user")
         # Run command
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+        self.function_dispatcher.dispatch(EventMessage(test_serv_irc, test_chan_irc, test_user_irc,
                                                        "connect irc example.com:80"))
         # Can't check response because I'm using a ServerIRC instead of a ServerMock
         # Find the right server
@@ -501,12 +505,13 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         # Set up
         test_nickserv_response = "identity"
         test_serv_irc = ServerIRC(self.hallo)
+        test_serv_irc.prefix = ""
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.nickserv_ident_response = test_nickserv_response
         test_chan_irc = test_serv_irc.get_channel_by_address("test_chan".lower(), "test_chan")
         test_user_irc = test_serv_irc.get_user_by_address("test_user".lower(), "test_user")
         # Run command
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+        self.function_dispatcher.dispatch(EventMessage(test_serv_irc, test_chan_irc, test_user_irc,
                                                        "connect irc example.com:80"))
         # Can't check response because I'm using a ServerIRC instead of a ServerMock
         # Find the right server
@@ -559,6 +564,7 @@ class ConnectIRCTest(TestBase, unittest.TestCase):
         # Set up
         test_nickserv_pass = "hunter2"
         test_serv_irc = ServerIRC(self.hallo)
+        test_serv_irc.prefix = ""
         test_serv_irc.name = "test_serv_irc"
         test_serv_irc.nickserv_pass = test_nickserv_pass
         test_chan_irc = test_serv_irc.get_channel_by_address("test_chan".lower(), "test_chan")
