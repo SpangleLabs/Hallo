@@ -666,10 +666,10 @@ class SubE621Add(Function):
         e621_sub.server_name = user_obj.server.name
         e621_sub.search = search
         e621_sub.update_frequency = search_delta
-        if destination_obj.is_channel():
+        if destination_obj is not None:
             e621_sub.channel_address = destination_obj.address
         else:
-            e621_sub.user_address = destination_obj.address
+            e621_sub.user_address = user_obj.address
         # Update feed
         first_results = e621_sub.check_subscription()
         # If no results, this is an invalid search subscription

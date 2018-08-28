@@ -430,10 +430,10 @@ class FeedAdd(Function):
         rss_feed.server_name = user_obj.server.name
         rss_feed.url = feed_url
         rss_feed.update_frequency = feed_delta
-        if destination_obj.is_channel():
+        if destination_obj is not None:
             rss_feed.channel_name = destination_obj.name
         else:
-            rss_feed.user_name = destination_obj.name
+            rss_feed.user_name = user_obj.name
         # Update feed
         try:
             rss_feed.check_feed()
