@@ -32,14 +32,11 @@ class Function(metaclass=ABCMeta):
         self.names = set()  # Set of names which can be used to address the function
         self.help_docs = None  # Help documentation, if it's just a single line, can be set here
     
-    def run(self, line, user_obj, destination_obj):
+    def run(self, event):
         """Runs the function when it is called directly
-        :param line: User supplied arguments for this function call
-        :type line: str
-        :param user_obj: User who called the function
-        :type user_obj: Destination.User
-        :param destination_obj: Channel the function was called from, is None if private message
-        :type destination_obj: Destination.Channel | None
+        :param event: Event which function wants running on, for which, this should be true:
+        (is_prefixed is not false and command_args is not None)
+        :type event: EventMessage
         """
         raise NotImplementedError
 

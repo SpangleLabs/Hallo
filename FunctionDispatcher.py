@@ -53,6 +53,7 @@ class FunctionDispatcher(object):
         if not function_message_split:
             function_message_split = [""]
         function_class_test = None
+        function_name_test = ""
         function_args_test = ""
         for function_name_test in [' '.join(function_message_split[:x + 1]) for x in
                                    range(len(function_message_split))[::-1]]:
@@ -67,7 +68,7 @@ class FunctionDispatcher(object):
                 print("Error, this is not a recognised function.")
             return
         function_class = function_class_test
-        function_args = function_args_test
+        event.split_command_text(function_name_test, function_args_test)
         # Check function rights and permissions
         if not self.check_function_permissions(function_class, event.server, event.user, event.channel):
             event.server.send("You do not have permission to use this function.", resp_destination)
@@ -77,7 +78,7 @@ class FunctionDispatcher(object):
         function_obj = self.get_function_object(function_class)
         # Try running the function, if it fails, return an error message
         try:
-            response = function_obj.run(function_args, event.user, event.channel)
+            response = function_obj.run(event)
             if response is not None:
                 server_obj.send(response, resp_destination)
             return
@@ -159,7 +160,7 @@ class FunctionDispatcher(object):
     def check_function_permissions(self, function_class, server_obj, user_obj, channel_obj):
         """Checks if a function can be called. Returns boolean, True if allowed
         :param function_class: Class of function to check permissions for
-        :type function_class: str
+        :type function_class: type
         :param server_obj: Server on which to check function permissions
         :type server_obj: Server.Server
         :param user_obj: User which has requested the function
