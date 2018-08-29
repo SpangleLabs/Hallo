@@ -123,7 +123,7 @@ class Hallo:
         for api_key_name in self.api_key_list:
             json_obj["api_keys"][api_key_name] = self.api_key_list[api_key_name]
         # Write json to file
-        with open("config/config.json", "w") as f:
+        with open("config/config.json", "w+") as f:
             json.dump(json_obj, f, indent=2)
 
     @staticmethod
