@@ -251,31 +251,6 @@ class EventMessage(ChannelUserTextEvent):
         self.command_name = command_name
         self.command_args = command_args
 
-    def create_function_call(self, command_class, command_name, command_args):
-        self.function_call = self.FunctionCall(command_class, command_name, command_args)
-
-    class FunctionCall:
-
-        def __init__(self, command_class, command_name, command_args):
-            """
-            :type command_name:
-            :type command_class:
-            :type command_args:
-            """
-            self.command_name = command_name
-            """ :type : str"""
-            self.command_class = command_class
-            """ :type : type"""
-            self.command_args = command_args
-            """ :type : str"""
-
-        def check_permissions(self):
-            self.command_text
-            if not self.check_function_permissions(function_class, event.server, event.user, event.channel):
-                event.server.send("You do not have permission to use this function.", resp_destination)
-                print("You do not have permission to use this function.")
-                return
-
 
 class EventNotice(ChannelUserTextEvent):
     pass
