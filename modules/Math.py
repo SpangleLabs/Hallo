@@ -441,8 +441,8 @@ class Calculate(Function):
         self.help_docs = "Calculate function, calculates the answer to mathematical expressions. " \
                          "Format: calc <calculation>"
 
-    def run(self, line, user_obj, destination_obj=None):
-        calc = line
+    def run(self, event):
+        calc = event.command_args
         # check for equals signs, and split at them if so.
         if calc.count('=') >= 1:
             calc_parts = calc.split('=')
