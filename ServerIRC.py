@@ -5,7 +5,7 @@ from threading import RLock, Lock, Thread
 
 from Destination import ChannelMembership, Channel, User
 from Events import EventPing, EventQuit, EventNameChange, EventJoin, EventLeave, EventKick, EventInvite, EventMode, \
-    EventCTCP, EventNotice, EventMessage
+    EventCTCP, EventNotice, EventMessage, ChannelUserTextEvent
 from Function import Function
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -205,56 +205,70 @@ class ServerIRC(Server):
                     Thread(target=self.parse_line, args=(next_line,)).start()
         self.disconnect()
 
-    def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
-        """
-        Sends a message to the server, or a specific channel in the server
-        :param data: Line of data to send to server
-        :type data: str
-        :param destination_obj: Destination to send data to
-        :type destination_obj: Destination.Destination or None
-        :param msg_type: Type of message which is being sent
-        :type msg_type: str
-        """
-        if msg_type not in [self.MSG_MSG, self.MSG_NOTICE, self.MSG_RAW]:
-            msg_type = self.MSG_MSG
-        # If it's raw data, just send it.
-        if destination_obj is None or msg_type == self.MSG_RAW:
-            for data_line in data.split("\n"):
-                self.send_raw(data_line)
+    def send(self, event):
+        if isinstance(event, EventPing):
+            self.send_raw("PONG {}".format(event.ping_number))
             return
-        # Get message type
-        if msg_type == self.MSG_NOTICE:
-            msg_type_name = "NOTICE"
-        else:
+        if isinstance(event, EventQuit):
+            self.send_raw("QUIT :{}".format(event.quit_message))
+            return
+        if isinstance(event, EventNameChange):
+            self.send_raw("NICK {}".format(event.new_name))
+            return
+        if isinstance(event, EventJoin):
+            if event.password is not None:
+                self.send_raw("JOIN {} {}".format(event.channel.address, event.password))
+            else:
+                self.send_raw("JOIN {}".format(event.channel.address))
+            return
+        if isinstance(event, EventLeave):
+            if event.leave_message is not None:
+                self.send_raw("PART {} {}".format(event.channel.address, event.leave_message))
+            else:
+                self.send_raw("PART {}".format(event.channel.address))
+            return
+        if isinstance(event, EventKick):
+            self.send_raw("KICK {} {} {}".format(event.channel.address, event.kicked_user.address, event.kick_message))
+            return
+        if isinstance(event, EventInvite):
+            self.send_raw("INVITE {} {}".format(event.user.address, event.channel.address))
+            return
+        if isinstance(event, EventMode):
+            self.send_raw("MODE {} {}".format(event.channel.address, event.mode_changes))
+            return
+        if isinstance(event, ChannelUserTextEvent):
             msg_type_name = "PRIVMSG"
-        # Get channel or user name and data
-        destination_addr = destination_obj.address
-        channel_obj = None
-        user_obj = destination_obj
-        if destination_obj.is_channel():
-            channel_obj = destination_obj
-            user_obj = None
-        # Find out if destination wants caps lock
-        if destination_obj.use_caps_lock:
-            data = Commons.upper(data)
-        # Get max line length
-        max_line_length = self.MAX_MSG_LENGTH - len("{} {} :{}".format(msg_type_name, destination_addr, endl))
-        # Split and send
-        for data_line in data.split("\n"):
-            data_line_split = Commons.chunk_string_dot(data_line, max_line_length)
-            for data_line_line in data_line_split:
-                self.send_raw("{} {} :{}".format(msg_type_name, destination_addr, data_line_line))
-                # Log sent data, if it's not message or notice
-                if msg_type == self.MSG_MSG:
-                    self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, data_line_line, self, user_obj,
-                                                        channel_obj)
-                    self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, data_line_line, self, user_obj,
-                                                    channel_obj)
-                elif msg_type == self.MSG_NOTICE:
-                    self.hallo.printer.output_from_self(Function.EVENT_NOTICE, data_line_line, self, user_obj,
-                                                        channel_obj)
-                    self.hallo.logger.log_from_self(Function.EVENT_NOTICE, data_line_line, self, user_obj,
-                                                    channel_obj)
+            msg_text = event.text
+            dest_addr = event.user.address if event.channel is None else event.channel.address
+            use_caps = event.user.use_caps_lock if event.channel is None else event.channel.use_caps_lock
+            if use_caps:
+                msg_text = Commons.upper(msg_text)
+            if isinstance(event, EventNotice):
+                msg_type_name = "NOTICE"
+            max_line_length = self.MAX_MSG_LENGTH - len("{} {} :{}".format(msg_type_name, dest_addr, endl))
+            if isinstance(event, EventCTCP):
+                max_line_length -= 2
+            # Split and send
+            for data_line in msg_text.split("\n"):
+                data_line_split = Commons.chunk_string_dot(data_line, max_line_length)
+                for data_line_line in data_line_split:
+                    if isinstance(event, EventCTCP):
+                        data_line_line = "\x01{}\x01".format(data_line_line)
+                    self.send_raw("{} {} :{}".format(msg_type_name, dest_addr, data_line_line))
+                    # Log sent data, if it's not message or notice
+                    if isinstance(event, EventMessage) or isinstance(event, EventCTCP):
+                        self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, data_line_line, self, event.user,
+                                                            event.channel)
+                        self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, data_line_line, self, event.user,
+                                                        event.channel)
+                    elif isinstance(event, EventNotice):
+                        self.hallo.printer.output_from_self(Function.EVENT_NOTICE, data_line_line, self, event.user,
+                                                            event.channel)
+                        self.hallo.logger.log_from_self(Function.EVENT_NOTICE, data_line_line, self, event.user,
+                                                        event.channel)
+            return
+        print("This event type, {}, is not currently supported to send on IRC servers", event.__class__.__name__)
+        raise NotImplementedError()
 
     def send_raw(self, data):
         """Sends raw data to the server
