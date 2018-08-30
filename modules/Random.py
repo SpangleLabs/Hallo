@@ -33,13 +33,13 @@ class Roll(Function):
         if dice_format_regex.match(event.command_args):
             num_dice = int(event.command_args.lower().split('d')[0])
             num_sides = int(event.command_args.lower().split('d')[1])
-            return self.run_dice_format(num_dice, num_sides)
+            return event.create_response(self.run_dice_format(num_dice, num_sides))
         elif range_format_regex.match(event.command_args):
             range_min = min([int(x) for x in event.command_args.split('-')])
             range_max = max([int(x) for x in event.command_args.split('-')])
-            return self.run_range_format(range_min, range_max)
+            return event.create_response(self.run_range_format(range_min, range_max))
         else:
-            return "Please give input in the form of X-Y or XdY."
+            return event.create_response("Please give input in the form of X-Y or XdY.")
 
     def run_dice_format(self, num_dice, num_sides):
         """Rolls numDice number of dice, each with numSides number of sides"""
@@ -82,11 +82,11 @@ class Choose(Function):
         choices = re.compile(', (?:or )?| or,? ', re.IGNORECASE).split(event.command_args)
         numchoices = len(choices)
         if numchoices == 1:
-            return 'Please present me with more than 1 thing to choose from!'
+            return event.create_response('Please present me with more than 1 thing to choose from!')
         else:
             rand = Commons.get_random_int(0, numchoices - 1)[0]
             choice = choices[rand]
-            return "I choose \"{}\".".format(choice)
+            return event.create_response("I choose \"{}\".".format(choice))
 
 
 class EightBall(Function):
@@ -114,7 +114,7 @@ class EightBall(Function):
         responses += ["Don't count on it", 'My reply is no', 'My sources say no', 'Outlook not so good',
                       'Very doubtful']
         rand = Commons.get_random_int(0, len(responses) - 1)[0]
-        return "{}.".format(responses[rand])
+        return event.create_response("{}.".format(responses[rand]))
 
     def get_names(self):
         """Returns the list of names for directly addressing the function"""
@@ -147,13 +147,13 @@ class ChosenOne(Function):
     def run(self, event):
         # If this command is run in privmsg, it won't work
         if event.channel is None:
-            return "This function can only be used in a channel"
+            return event.create_response("This function can only be used in a channel")
         # Get the user list
         user_set = event.channel.get_user_list()
         # Get list of users' names
         names_list = [user_obj.name for user_obj in user_set]
         rand = Commons.get_random_int(0, len(names_list) - 1)[0]
-        return "It should be obvious by now that {} is the chosen one.".format(names_list[rand])
+        return event.create_response("It should be obvious by now that {} is the chosen one.".format(names_list[rand]))
 
 
 class Foof(Function):
@@ -175,17 +175,17 @@ class Foof(Function):
         """FOOOOOOOOOF. Format: foof"""
         rand = Commons.get_random_int(0, 60)[0]
         if rand <= 20:
-            return 'doof'
+            return event.create_response('doof')
         elif rand <= 40:
-            return 'doooooof'
+            return event.create_response('doooooof')
         else:
             if rand == 40 + 15:
                 server_obj = event.server
-                server_obj.send('powering up...', event.user if event.channel is None else event.channel)
+                server_obj.send(event.create_response("Powering up..."))
                 time.sleep(5)
-                return 'd' * 100 + 'o' * 1000 + 'f' * 200 + '!' * 50
+                return event.create_response('d' * 100 + 'o' * 1000 + 'f' * 200 + '!' * 50)
             else:
-                return 'ddddoooooooooooooooooooooffffffffff.'
+                return event.create_response('ddddoooooooooooooooooooooffffffffff.')
 
     def get_names(self):
         """Returns the list of names for directly addressing the function"""
@@ -201,8 +201,7 @@ class Foof(Function):
         if re.search(r'foo[o]*f[!]*', event.text, re.I):
             # Return response
             event = event.split_command_text("", event.text)
-            out = self.run(event)
-            return out
+            return self.run(event)
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
@@ -232,7 +231,7 @@ class ThoughtForTheDay(Function):
         rand = Commons.get_random_int(0, len(thought_list) - 1)[0]
         if thought_list[rand][-1] not in ['.', '!', '?']:
             thought_list[rand] += "."
-            return "\"{}\"".format(thought_list[rand])
+            return event.create_response("\"{}\"".format(thought_list[rand]))
 
 
 class Ouija(Function):
@@ -258,7 +257,7 @@ class Ouija(Function):
         num_words = (rand_list[0] % 3) + 1
         rand_words = " ".join([word_list[rand_list[x + 2]] for x in range(num_words)])
         output_string = "I'm getting a message from the other side... {}.".format(rand_words)
-        return output_string
+        return event.create_response(output_string)
 
 
 class Scriptures(Function):
@@ -288,7 +287,7 @@ class Scriptures(Function):
 
     def run(self, event):
         rand = Commons.get_random_int(0, len(self.scripture_list) - 1)[0]
-        return self.scripture_list[rand]
+        return event.create_response(self.scripture_list[rand])
 
 
 class CatGif(Function):
@@ -311,12 +310,12 @@ class CatGif(Function):
     def run(self, event):
         api_key = event.server.hallo.get_api_key("thecatapi")
         if api_key is None:
-            return "No API key loaded for cat api."
+            return event.create_response("No API key loaded for cat api.")
         url = "http://thecatapi.com/api/images/get?format=xml&api_key={}&type=gif".format(api_key)
         xml_string = Commons.load_url_string(url)
         doc = minidom.parseString(xml_string)
         cat_url = doc.getElementsByTagName("url")[0].firstChild.data
-        return cat_url
+        return event.create_response(cat_url)
 
 
 class RandomQuote(Function):
@@ -341,7 +340,7 @@ class RandomQuote(Function):
     def run(self, event):
         api_key = event.server.hallo.get_api_key("mashape")
         if api_key is None:
-            return "No API key loaded for mashape."
+            return event.create_response("No API key loaded for mashape.")
         url = "https://andruxnet-random-famous-quotes.p.mashape.com/"
         # Construct headers
         headers = [["X-Mashape-Key", api_key],
@@ -353,7 +352,7 @@ class RandomQuote(Function):
         quote = json_dict['quote']
         author = json_dict['author']
         output = "\"{}\" - {}".format(quote, author)
-        return output
+        return event.create_response(output)
 
 
 class NightValeWeather(Function):
@@ -383,7 +382,8 @@ class NightValeWeather(Function):
         # Select a video from the playlist
         rand_video = Commons.get_random_choice(playlist_data)[0]
         # Return video information
-        return "And now, the weather: http://youtu.be/{} {}".format(rand_video['video_id'], rand_video['title'])
+        return event.create_response("And now, the weather: http://youtu.be/{} {}".format(rand_video['video_id'],
+                                                                                          rand_video['title']))
 
     def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
@@ -396,8 +396,7 @@ class NightValeWeather(Function):
         if hallo_name + " with the weather" in line_clean:
             # Return response
             event.split_command_text("", event.text)
-            out = self.run(event)
-            return out
+            return self.run(event)
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
@@ -473,7 +472,7 @@ class RandomPerson(Function):
             output = "I have generated this person: Say hello to {}. {} was form at {}.".format(name,
                                                                                                 pronoun.title(),
                                                                                                 date_of_birth)
-            return output
+            return event.create_response(output)
         output = "I have generated this person: Say hello to {}. " \
                  "{} was born at {} and lives at {}. " \
                  "{} uses the email {}, the username {} and usually uses the password \"{}\". " \
@@ -484,7 +483,7 @@ class RandomPerson(Function):
                                                               pronoun_possessive.title(), phone_home,
                                                               pronoun_possessive, phone_mob,
                                                               pronoun_possessive.title(), national_insurance)
-        return output
+        return event.create_response(output)
 
 
 class NightValeProverb(Function):
@@ -514,7 +513,7 @@ class NightValeProverb(Function):
 
     def run(self, event):
         rand = Commons.get_random_int(0, len(self.proverb_list) - 1)[0]
-        return self.proverb_list[rand]
+        return event.create_response(self.proverb_list[rand])
 
 
 class RandomColour(Function):
@@ -549,4 +548,4 @@ class RandomColour(Function):
             colour_name = colour_match.group(1)
             output = "Randomly chosen colour is: {} #{} or rgb({},{},{}) {}".format(colour_name, hex_code, rgb_list[0],
                                                                                     rgb_list[1], rgb_list[2], url)
-        return output
+        return event.create_response(output)
