@@ -25,18 +25,18 @@ class Roll(Function):
         self.help_docs = "Roll X-Y returns a random number between X and Y. " \
                          "Format: \"roll <min>-<max>\" or \"roll <num>d<sides>\""
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """Runs the function"""
         # Check which format the input is in.
         dice_format_regex = re.compile("^[0-9]+d[0-9]+$", re.IGNORECASE)
         range_format_regex = re.compile("^[0-9]+-[0-9]+$", re.IGNORECASE)
-        if dice_format_regex.match(line):
-            num_dice = int(line.lower().split('d')[0])
-            num_sides = int(line.lower().split('d')[1])
+        if dice_format_regex.match(event.command_args):
+            num_dice = int(event.command_args.lower().split('d')[0])
+            num_sides = int(event.command_args.lower().split('d')[1])
             return self.run_dice_format(num_dice, num_sides)
-        elif range_format_regex.match(line):
-            range_min = min([int(x) for x in line.split('-')])
-            range_max = max([int(x) for x in line.split('-')])
+        elif range_format_regex.match(event.command_args):
+            range_min = min([int(x) for x in event.command_args.split('-')])
+            range_max = max([int(x) for x in event.command_args.split('-')])
             return self.run_range_format(range_min, range_max)
         else:
             return "Please give input in the form of X-Y or XdY."
@@ -78,8 +78,8 @@ class Choose(Function):
         self.help_docs = "Choose X, Y or Z or ... Returns one of the options separated by \"or\" or a comma. " \
                          "Format: choose <first_option>, <second_option> ... <n-1th option> or <nth option>"
 
-    def run(self, line, user_obj, channel_obj=None):
-        choices = re.compile(', (?:or )?| or,? ', re.IGNORECASE).split(line)
+    def run(self, event):
+        choices = re.compile(', (?:or )?| or,? ', re.IGNORECASE).split(event.command_args)
         numchoices = len(choices)
         if numchoices == 1:
             return 'Please present me with more than 1 thing to choose from!'
@@ -106,7 +106,7 @@ class EightBall(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Magic 8 ball. Format: eightball"
 
-    def run(self, line, user_obj, channel_obj=None):
+    def run(self, event):
         responses = ['It is certain', 'It is decidedly so', 'Without a doubt', 'Yes definitely', 'You may rely on it']
         responses += ['As I see it yes', 'Most likely', 'Outlook good', 'Yes', 'Signs point to yes']
         responses += ['Reply hazy try again', 'Ask again later', 'Better not tell you now', 'Cannot predict now',
@@ -144,12 +144,12 @@ class ChosenOne(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Specifies who the chosen one is. Format: chosen one"
 
-    def run(self, line, user_obj, channel_obj=None):
+    def run(self, event):
         # If this command is run in privmsg, it won't work
-        if channel_obj is None or channel_obj.is_user():
+        if event.channel is None:
             return "This function can only be used in a channel"
         # Get the user list
-        user_set = channel_obj.get_user_list()
+        user_set = event.channel.get_user_list()
         # Get list of users' names
         names_list = [user_obj.name for user_obj in user_set]
         rand = Commons.get_random_int(0, len(names_list) - 1)[0]
@@ -171,7 +171,7 @@ class Foof(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "FOOOOOOOOOF. Format: foof"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """FOOOOOOOOOF. Format: foof"""
         rand = Commons.get_random_int(0, 60)[0]
         if rand <= 20:
@@ -180,8 +180,8 @@ class Foof(Function):
             return 'doooooof'
         else:
             if rand == 40 + 15:
-                server_obj = user_obj.server
-                server_obj.send('powering up...', destination_obj)
+                server_obj = event.server
+                server_obj.send('powering up...', event.user if event.channel is None else event.channel)
                 time.sleep(5)
                 return 'd' * 100 + 'o' * 1000 + 'f' * 200 + '!' * 50
             else:
@@ -200,7 +200,8 @@ class Foof(Function):
         # Check if message matches any variation of foof
         if re.search(r'foo[o]*f[!]*', event.text, re.I):
             # Return response
-            out = self.run(event.text, event.user, event.channel)
+            event = event.split_command_text("", event.text)
+            out = self.run(event)
             return out
 
     def get_passive_events(self):
@@ -225,7 +226,7 @@ class ThoughtForTheDay(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "WH40K Thought for the day. Format: thought_for_the_day"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """WH40K Thought for the day. Format: thought_for_the_day"""
         thought_list = Commons.read_file_to_list('store/WH40K_ToTD2.txt')
         rand = Commons.get_random_int(0, len(thought_list) - 1)[0]
@@ -251,7 +252,7 @@ class Ouija(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Ouija board function. Format: ouija <message>"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         word_list = Commons.read_file_to_list('store/ouija_wordlist.txt')
         rand_list = Commons.get_random_int(0, len(word_list) - 1, 4)
         num_words = (rand_list[0] % 3) + 1
@@ -285,7 +286,7 @@ class Scriptures(Function):
         for scripture_elem in scripture_list_elem.getElementsByTagName("scripture"):
             self.scripture_list.append(scripture_elem.firstChild.data)
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         rand = Commons.get_random_int(0, len(self.scripture_list) - 1)[0]
         return self.scripture_list[rand]
 
@@ -301,14 +302,14 @@ class CatGif(Function):
         """
         super().__init__()
         # Name for use in help listing
-        help_name = "catgif"
+        self.help_name = "catgif"
         # Names which can be used to address the function
-        names = {"catgif", "cat gif", "random cat", "random cat gif", "random catgif", "cat.gif"}
+        self.names = {"catgif", "cat gif", "random cat", "random cat gif", "random catgif", "cat.gif"}
         # Help documentation, if it's just a single line, can be set here
-        help_docs = "Returns a random cat gif Format: cat gif"
+        self.help_docs = "Returns a random cat gif Format: cat gif"
 
-    def run(self, line, user_obj, destination_obj=None):
-        api_key = user_obj.server.hallo.get_api_key("thecatapi")
+    def run(self, event):
+        api_key = event.server.hallo.get_api_key("thecatapi")
         if api_key is None:
             return "No API key loaded for cat api."
         url = "http://thecatapi.com/api/images/get?format=xml&api_key={}&type=gif".format(api_key)
@@ -337,8 +338,8 @@ class RandomQuote(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns a quote. Format: random quote"
 
-    def run(self, line, user_obj, destination_obj=None):
-        api_key = user_obj.server.hallo.get_api_key("mashape")
+    def run(self, event):
+        api_key = event.server.hallo.get_api_key("mashape")
         if api_key is None:
             return "No API key loaded for mashape."
         url = "https://andruxnet-random-famous-quotes.p.mashape.com/"
@@ -374,9 +375,9 @@ class NightValeWeather(Function):
                          "Format: nightvale weather"
         self.hallo_obj = None
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Get hallo object
-        self.hallo_obj = user_obj.server.hallo
+        self.hallo_obj = event.server.hallo
         # Get playlist data from youtube api
         playlist_data = self.get_youtube_playlist("PL5bFd9WyHshXpZK-VPpH8UPXx6wCOIaQW")
         # Select a video from the playlist
@@ -394,7 +395,8 @@ class NightValeWeather(Function):
         # Check if message matches specified patterns
         if hallo_name + " with the weather" in line_clean:
             # Return response
-            out = self.run(event.text, event.user, event.channel)
+            event.split_command_text("", event.text)
+            out = self.run(event)
             return out
 
     def get_passive_events(self):
@@ -417,7 +419,8 @@ class NightValeWeather(Function):
         # Load API response (in json).
         api_dict = Commons.load_url_json(api_url)
         for api_item in api_dict['items']:
-            new_video = {'title': api_item['snippet']['title'], 'video_id': api_item['snippet']['resourceId']['videoId']}
+            new_video = {'title': api_item['snippet']['title'],
+                         'video_id': api_item['snippet']['resourceId']['videoId']}
             list_videos.append(new_video)
         # Check if there's another page to add
         if "nextPageToken" in api_dict:
@@ -444,8 +447,8 @@ class RandomPerson(Function):
         self.help_docs = "Generates and returns a random person's details. Specify \"full\" for more details. " \
                          "Format: random person"
 
-    def run(self, line, user_obj, destination_obj=None):
-        input_clean = line.strip().lower()
+    def run(self, event):
+        input_clean = event.command_args.strip().lower()
         url = "http://api.randomuser.me/0.6/?nat=gb&format=json"
         # Get api response
         json_dict = Commons.load_url_json(url)
@@ -509,7 +512,7 @@ class NightValeProverb(Function):
         for proverb_elem in proverb_list_elem.getElementsByTagName("proverb"):
             self.proverb_list.append(proverb_elem.firstChild.data)
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         rand = Commons.get_random_int(0, len(self.proverb_list) - 1)[0]
         return self.proverb_list[rand]
 
@@ -533,7 +536,7 @@ class RandomColour(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns a random colour. Format: random colour"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         rgb_list = Commons.get_random_int(0, 256, 3)
         hex_code = (hex(rgb_list[0])[2:] + hex(rgb_list[1])[2:] + hex(rgb_list[2])[2:]).upper()
         url = "http://www.perbang.dk/rgb/" + hex_code + "/"
