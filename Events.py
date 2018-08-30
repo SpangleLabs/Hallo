@@ -233,7 +233,8 @@ class EventMessage(ChannelUserTextEvent):
         """
         :type server: Server.Server
         :type channel: Destination.Channel | None
-        :type user: Destination.User
+        :param user: User who sent the event, or None for outbound
+        :type user: Destination.User | None
         :type text: str
         :type inbound: bool
         """
