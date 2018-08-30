@@ -33,7 +33,7 @@ class Permissions(Function):
     def run(self, event):
         line_split = event.command_args.split()
         if len(line_split) < 3:
-            return "Error, you need to specify a location, a right and the value"
+            return event.create_response("Error, you need to specify a location, a right and the value")
         bool_input = line_split[-1]
         right_input = line_split[-2]
         location_input = line_split[:-2]
@@ -42,19 +42,20 @@ class Permissions(Function):
             permission_mask = self.find_permission_mask(location_input, event.user, event.channel)
         # If it comes back with an error message, return that error
         except PermissionControlException as e:
-            return str(e)
+            return event.create_response(str(e))
         # If it comes back unspecified, generic error message
         if permission_mask is None:
-            return "Error, I can't find that permission mask. Specify which you wish to modify as user={username}, " \
-                   "or similarly for usergroup, channel, server or hallo."
+            return event.create_response("Error, I can't find that permission mask. " +
+                                         "Specify which you wish to modify as user={username}, " +
+                                         "or similarly for usergroup, channel, server or hallo.")
         # Turn bool_input into a boolean
         bool_bool = Commons.string_to_bool(bool_input)
         # Check if boolean input is valid
         if bool_bool is None:
-            return "Error, I don't understand your boolean value. Please use true or false."
+            return event.create_response("Error, I don't understand your boolean value. Please use true or false.")
         # Set the right
         permission_mask.set_right(right_input, bool_bool)
-        return "Set {} to {}.".format(right_input, "true" if bool_bool else "false")
+        return event.create_response("Set {} to {}.".format(right_input, "true" if bool_bool else "false"))
 
     def find_permission_mask(self, location_input, user_obj, destination_obj):
         """
