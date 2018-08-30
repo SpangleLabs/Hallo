@@ -22,9 +22,9 @@ class Hailstone(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "The hailstone function has to be given with a number (to generate the collatz sequence of.)"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """Returns the hailstone sequence for a given number. Format: hailstone <number>"""
-        line_clean = line.strip().lower()
+        line_clean = event.command_args.strip().lower()
         if not line_clean.isdigit():
             return "Error, the hailstone function has to be given with a number (to generate the collatz sequence of.)"
         number = int(line_clean)
@@ -64,23 +64,23 @@ class NumberWord(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the textual representation of a given number. Format: number <number>"
 
-    def run(self, line, user_obj, destination_obj=None):
-        if line.count(' ') == 0:
-            number = line
+    def run(self, event):
+        if event.command_args.count(' ') == 0:
+            number = event.command_args
             lang = "american"
-        elif line.split()[1].lower() in ["british", "english"]:
-            number = line.split()[0]
+        elif event.command_args.split()[1].lower() in ["british", "english"]:
+            number = event.command_args.split()[0]
             lang = "english"
-        elif line.split()[1].lower() in ["european", "french"]:
-            number = line.split()[0]
+        elif event.command_args.split()[1].lower() in ["european", "french"]:
+            number = event.command_args.split()[0]
             lang = "european"
         else:
-            number = line.split()[0]
+            number = event.command_args.split()[0]
             lang = "american"
         if Commons.check_numbers(number):
             number = number
         elif Commons.check_calculation(number):
-            function_dispatcher = user_obj.server.hallo.function_dispatcher
+            function_dispatcher = event.server.hallo.function_dispatcher
             calc_func = function_dispatcher.get_function_by_name("calc")
             calc_obj = function_dispatcher.get_function_object(calc_func)  # type: Calculate
             number = calc_obj.process_calculation(number)
@@ -186,12 +186,12 @@ class PrimeFactors(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the prime factors of a given number. Format: prime factors <number>"
 
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
+    def run(self, event):
+        line_clean = event.command_args.strip().lower()
         if line_clean.isdigit():
             number = int(line_clean)
         elif Commons.check_calculation(line_clean):
-            function_dispatcher = user_obj.server.hallo.function_dispatcher
+            function_dispatcher = event.server.hallo.function_dispatcher
             calc_func = function_dispatcher.get_function_by_name("calc")
             calc_obj = function_dispatcher.get_function_object(calc_func)  # type: Calculate
             number_str = calc_obj.process_calculation(line_clean)
@@ -237,12 +237,12 @@ class ChangeOptions(Function):
         self.help_docs = "Returns the different ways to give change for a given amount (in pence, using british " \
                          "coins.) Format: change_options <number>"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """
         Returns the number of ways to give change for a given amount (in pence, using british coins.)
         Format: change_options <number>
         """
-        line_clean = line.strip().lower()
+        line_clean = event.command_args.strip().lower()
         try:
             number = int(line_clean)
         except ValueError:
@@ -294,8 +294,8 @@ class Average(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Finds the average of a list of numbers. Format: average <number1> <number2> ... <number n>"
 
-    def run(self, line, user_obj, destination_obj=None):
-        number_list = line.split()
+    def run(self, event):
+        number_list = event.command_args.split()
         try:
             number_sum = sum(float(x) for x in number_list)
         except ValueError:
@@ -321,19 +321,19 @@ class HighestCommonFactor(Function):
         self.help_docs = "Returns the highest common factor of two numbers. " \
                          "Format: highest common factor <number1> <number2>"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Getting function_dispatcher and required function objects
-        hallo_obj = user_obj.server.hallo
+        hallo_obj = event.server.hallo
         function_dispatcher = hallo_obj.function_dispatcher
         prime_factors_class = function_dispatcher.get_function_by_name("prime factors")
         simp_frac_class = function_dispatcher.get_function_by_name("simplify fraction")
         prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)  # type: PrimeFactors
         simp_frac_obj = function_dispatcher.get_function_object(simp_frac_class)  # type: SimplifyFraction
         # Preflight checks
-        if len(line.split()) != 2:
+        if len(event.command_args.split()) != 2:
             return "Error, You must provide two arguments."
-        input_one = line.split()[0]
-        input_two = line.split()[1]
+        input_one = event.command_args.split()[0]
+        input_two = event.command_args.split()[1]
         try:
             number_one = int(input_one)
             number_two = int(input_two)
@@ -365,18 +365,18 @@ class SimplifyFraction(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns a fraction in its simplest form. Format: simplify fraction <numerator>/<denominator>"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Getting function_dispatcher and required function objects
-        hallo_obj = user_obj.server.hallo
+        hallo_obj = event.server.hallo
         function_dispatcher = hallo_obj.function_dispatcher
         prime_factors_class = function_dispatcher.get_function_by_name("prime factors")
         prime_factors_obj = function_dispatcher.get_function_object(prime_factors_class)  # type: PrimeFactors
         # preflight checks
-        if line.count("/") != 1:
+        if event.command_args.count("/") != 1:
             return "Error, Please give input in the form: <numerator>/<denominator>"
         # Get numerator and denominator
-        numerator_string = line.split('/')[0]
-        denominator_string = line.split('/')[1]
+        numerator_string = event.command_args.split('/')[0]
+        denominator_string = event.command_args.split('/')[1]
         try:
             numerator = int(numerator_string)
             denominator = int(denominator_string)
