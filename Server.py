@@ -74,12 +74,8 @@ class Server(metaclass=ABCMeta):
     def send(self, event):
         """
         Sends a message to the server, or a specific channel in the server
-        :param data: Line of data to send to server
-        :type data: str
-        :param destination_obj: Destination to send data to
-        :type destination_obj: Destination.Destination | None
-        :param msg_type: Type of message which is being sent
-        :type msg_type: str
+        :param event: Event to send, should be outbound.
+        :type event: Events.ServerEvent
         """
         raise NotImplementedError
 
