@@ -37,9 +37,9 @@ class UrbanDictionary(Function):
         urban_dict = Commons.load_url_json(url)
         if len(urban_dict['list']) > 0:
             definition = urban_dict['list'][0]['definition'].replace("\r", '').replace("\n", '')
-            return definition
+            return event.create_response(definition)
         else:
-            return "Sorry, I cannot find a definition for {}.".format(event.command_args)
+            return event.create_response("Sorry, I cannot find a definition for {}.".format(event.command_args))
 
 
 class RandomCocktail(Function):
@@ -75,7 +75,7 @@ class RandomCocktail(Function):
         output_string += ", ".join(ingredient_list) + ". The recipe is: " + random_cocktail_instructions
         if output_string[-1] != '.':
             output_string += "."
-        return output_string
+        return event.create_response(output_string)
 
 
 class Cocktail(Function):
@@ -110,7 +110,7 @@ class Cocktail(Function):
         closest_matches = difflib.get_close_matches(event.command_args.lower(), cocktail_names)
         # If there are no close matches, return error
         if len(closest_matches) == 0 or closest_matches[0] == '':
-            return "I haven't got anything close to that name."
+            return event.create_response("I haven't got anything close to that name.")
         # Get closest match XML
         closest_match_name = closest_matches[0]
         for cocktail_elem in cocktail_list_elem.getElementsByTagName("cocktail"):
@@ -131,7 +131,7 @@ class Cocktail(Function):
         output_string += "The recipe is: {}".format(cocktail_instructions)
         if output_string[-1] != ".":
             output_string += "."
-        return output_string
+        return event.create_response(output_string)
 
 
 class InSpace(Function):
@@ -156,7 +156,7 @@ class InSpace(Function):
         space_number = str(space_dict['number'])
         space_names = ", ".join(person['name'].strip() for person in space_dict['people'])
         output_string = "There are {} people in space right now. Their names are: {}.".format(space_number, space_names)
-        return output_string
+        return event.create_response(output_string)
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
@@ -193,8 +193,8 @@ class TimestampToDate(Function):
         try:
             line = int(event.command_args)
         except ValueError:
-            return "Invalid timestamp"
-        return Commons.format_unix_time(line) + "."
+            return event.create_response("Invalid timestamp")
+        return event.create_response(Commons.format_unix_time(line) + ".")
 
 
 class Wiki(Function):
@@ -241,7 +241,7 @@ class Wiki(Function):
         plain_text = re.sub(r'<!--[^>]*-->', '', plain_text)  # Strip out comments
         plain_text = re.sub(r'<ref[^>]*/>', '', plain_text)  # Strip out remaining references
         first_paragraph = plain_text.strip().split('\n')[0]
-        return first_paragraph
+        return event.create_response(first_paragraph)
 
 
 class Translate(Function):
@@ -281,7 +281,7 @@ class Translate(Function):
               "&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1".format(trans_safe, lang_from, lang_to)
         trans_dict = Commons.load_url_json(url, [], True)
         translation_string = " ".join([x[0] for x in trans_dict[0]])
-        return "Translation: {}".format(translation_string)
+        return event.create_response("Translation: {}".format(translation_string))
 
 
 class WeatherLocationRepo:
@@ -537,7 +537,7 @@ class WeatherLocation(Function):
         server_name = server_obj.name
         # Check that an argument is provided
         if len(line_clean.split()) == 0:
-            return "Please specify a city, coordinates or zip code"
+            return event.create_response("Please specify a city, coordinates or zip code")
         # Check if first argument is a specified user for given server
         first_arg = line_clean.split()[0]
         test_user = server_obj.get_user_by_name(first_arg)
@@ -551,7 +551,7 @@ class WeatherLocation(Function):
         output = new_entry.set_from_input(line_clean)
         weather_repo.add_entry(new_entry)
         weather_repo.save_to_xml()
-        return output
+        return event.create_response(output)
 
 
 class CurrentWeather(Function):
@@ -577,8 +577,8 @@ class CurrentWeather(Function):
             location_repo = WeatherLocationRepo.load_from_xml()
             location_entry = location_repo.get_entry_by_user_obj(event.user)
             if location_entry is None:
-                return "No location stored for this user. Please specify a location or store one with " \
-                       "the \"weather location\" function."
+                return event.create_response("No location stored for this user. Please specify a location or " +
+                                             "store one with the \"weather location\" function.")
         else:
             # Check if a user was specified
             test_user = event.user.server.get_user_by_name(line_clean)
@@ -586,8 +586,8 @@ class CurrentWeather(Function):
                 location_repo = WeatherLocationRepo.load_from_xml()
                 location_entry = location_repo.get_entry_by_user_obj(test_user)
                 if location_entry is None:
-                    return "No location stored for this user. Please specify a location or store one with " \
-                           "the \"weather location\" function."
+                    return event.create_response("No location stored for this user. Please specify a location or " +
+                                                 "store one with the \"weather location\" function.")
             else:
                 user_name = event.user.address
                 server_name = event.server.name
@@ -595,12 +595,12 @@ class CurrentWeather(Function):
                 location_entry.set_from_input(line_clean)
         api_key = event.server.hallo.get_api_key("openweathermap")
         if api_key is None:
-            return "No API key loaded for openweathermap."
+            return event.create_response("No API key loaded for openweathermap.")
         url = "http://api.openweathermap.org/data/2.5/weather{}&APPID={}".format(location_entry.create_query_params(),
                                                                                  api_key)
         response = Commons.load_url_json(url)
         if str(response['cod']) != "200":
-            return "Location not recognised."
+            return event.create_response("Location not recognised.")
         city_name = response['name']
         weather_main = response['weather'][0]['main']
         weather_desc = response['weather'][0]['description']
@@ -611,7 +611,7 @@ class CurrentWeather(Function):
                  "Temp: {:.2f}C, Humidity: {}%, Wind speed: {}m/s".format(city_name, weather_main, weather_desc,
                                                                           weather_temp, weather_humidity,
                                                                           weather_wind_speed)
-        return output
+        return event.create_response(output)
 
 
 class Weather(Function):
@@ -670,16 +670,16 @@ class Weather(Function):
             weather_repo = WeatherLocationRepo.load_from_xml()
             location_entry = weather_repo.get_entry_by_user_obj(event.user)
             if location_entry is None:
-                return "No location stored for this user. Please specify a location or store one with " \
-                       "the \"weather location\" function."
+                return event.create_response("No location stored for this user. Please specify a location or " +
+                                             "store one with the \"weather location\" function.")
         else:
             test_user = event.server.get_user_by_name(line_clean)
             if event.channel is not None and event.channel.is_user_in_channel(test_user):
                 weather_repo = WeatherLocationRepo.load_from_xml()
                 location_entry = weather_repo.get_entry_by_user_obj(test_user)
                 if location_entry is None:
-                    return "No location stored for this user. Please specify a location or store one with " \
-                           "the \"weather location\" function."
+                    return event.create_response("No location stored for this user. Please specify a location or " +
+                                                 "store one with the \"weather location\" function.")
             else:
                 user_name = event.user.address
                 server_name = event.server.name
@@ -688,17 +688,18 @@ class Weather(Function):
         # Get API response
         api_key = event.server.hallo.get_api_key("openweathermap")
         if api_key is None:
-            return "No API key loaded for openweathermap."
+            return event.create_response("No API key loaded for openweathermap.")
         url = "http://api.openweathermap.org/data/2.5/forecast/daily{}" \
               "&cnt=16&APPID={}".format(location_entry.create_query_params(), api_key)
         response = Commons.load_url_json(url)
         # Check API responded well
         if str(response['cod']) != "200":
-            return "Location not recognised."
+            return event.create_response("Location not recognised.")
         # Check that days is within bounds for API response
         days_available = len(response['list'])
         if days_offset > days_available:
-            return "I cannot predict the weather that far in the future. I can't predict much further than 2 weeks."
+            return event.create_response("I cannot predict the weather that far in the future. " +
+                                         "I can't predict much further than 2 weeks.")
         # Format and return output
         city_name = response['city']['name']
         if days_offset == 0:
@@ -726,7 +727,7 @@ class Weather(Function):
             # Day after output
             output += "Day after: {} ({}) {:.2f}C {}% {}m/s.".format(dayaf_main, dayaf_desc, dayaf_temp,
                                                                      dayaf_humi, dayaf_spee)
-            return output
+            return event.create_response(output)
         response_weather = response['list'][days_offset]
         weather_main = response_weather['weather'][0]['main']
         weather_desc = response_weather['weather'][0]['description']
@@ -737,7 +738,7 @@ class Weather(Function):
                  "Temp: {:.2f}C, Humidity: {}%, Wind speed: {}m/s".format(city_name, self.number_days(days_offset),
                                                                           weather_main, weather_desc, weather_temp,
                                                                           weather_humidity, weather_wind_speed)
-        return output
+        return event.create_response(output)
 
     def weekday_to_number(self, weekday):
         """Converts weekday text to integer. Monday = 0"""
@@ -782,7 +783,7 @@ class UrlDetect(Function):
         self.hallo_obj = None
 
     def run(self, event):
-        return "This function does not take input."
+        return event.create_response("This function does not take input.")
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
@@ -820,32 +821,32 @@ class UrlDetect(Function):
         url_site = Commons.get_domain_name(url_address).lower()
         # Get response if link is an image
         if "image" in page_type:
-            return self.url_image(url_address, page_opener, page_request, page_type)
+            return event.create_response(self.url_image(url_address, page_opener, page_request, page_type))
         # Get a response depending on the website
         if url_site == "amazon":
-            return self.site_amazon(url_address, page_opener, page_request)
+            return event.create_response(self.site_amazon(url_address, page_opener, page_request))
         if url_site == "e621":
-            return self.site_e621(url_address, page_opener, page_request)
+            return event.create_response(self.site_e621(url_address, page_opener, page_request))
         if url_site == "ebay":
-            return self.site_ebay(url_address, page_opener, page_request)
+            return event.create_response(self.site_ebay(url_address, page_opener, page_request))
         if url_site == "f-list":
-            return self.site_flist(url_address, page_opener, page_request)
+            return event.create_response(self.site_flist(url_address, page_opener, page_request))
         if url_site == "furaffinity" or url_site == "facdn":
-            return self.site_furaffinity(url_address, page_opener, page_request)
+            return event.create_response(self.site_furaffinity(url_address, page_opener, page_request))
         if url_site == "imdb":
-            return self.site_imdb(url_address, page_opener, page_request)
+            return event.create_response(self.site_imdb(url_address, page_opener, page_request))
         if url_site == "imgur":
-            return self.site_imgur(url_address, page_opener, page_request)
+            return event.create_response(self.site_imgur(url_address, page_opener, page_request))
         if url_site == "speedtest":
-            return self.site_speedtest(url_address, page_opener, page_request)
+            return event.create_response(self.site_speedtest(url_address, page_opener, page_request))
         if url_site == "reddit" or url_site == "redd":
-            return self.site_reddit(url_address, page_opener, page_request)
+            return event.create_response(self.site_reddit(url_address, page_opener, page_request))
         if url_site == "wikipedia":
-            return self.site_wikipedia(url_address, page_opener, page_request)
+            return event.create_response(self.site_wikipedia(url_address, page_opener, page_request))
         if url_site == "youtube" or url_site == "youtu":
-            return self.site_youtube(url_address, page_opener, page_request)
+            return event.create_response(self.site_youtube(url_address, page_opener, page_request))
         # If other url, return generic URL response
-        return self.url_generic(url_address, page_opener, page_request)
+        return event.create_response(self.url_generic(url_address, page_opener, page_request))
 
     def url_image(self, url_address, page_opener, page_request, page_type):
         """Handling direct image links"""
@@ -915,7 +916,8 @@ class UrlDetect(Function):
         api_dict = Commons.load_url_json(api_url)
         # Get item data from api response
         item_title = api_dict["Item"]["Title"]
-        item_price = "{} {}".format(api_dict["Item"]["CurrentPrice"]["Value"], api_dict["Item"]["CurrentPrice"]["CurrencyID"])
+        item_price = "{} {}".format(api_dict["Item"]["CurrentPrice"]["Value"],
+                                    api_dict["Item"]["CurrentPrice"]["CurrencyID"])
         item_end_time = api_dict["Item"]["EndTime"][:19].replace("T", " ")
         # Start building output
         output = "eBay> Title: {} | Price: {} | ".format(item_title, item_price)
