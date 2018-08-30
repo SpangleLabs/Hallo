@@ -161,7 +161,8 @@ class EventKick(ChannelUserEvent):
         """
         :type server: Server.Server
         :type channel: Destination.Channel
-        :type kicking_user: Destination.User
+        :param kicking_user: User which sent the kick event, or None if outbound
+        :type kicking_user: Destination.User | None
         :type kicked_user: Destination.User
         :type kick_message: str | None
         :type inbound: bool
