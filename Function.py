@@ -65,6 +65,7 @@ class Function(metaclass=ABCMeta):
         :type event: Events.Event
         :param hallo_obj: Hallo object which fired the event.
         :type hallo_obj: Hallo.Hallo
+        :rtype : ServerEvent | None
         """
         pass
         
