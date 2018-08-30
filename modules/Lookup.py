@@ -1,4 +1,3 @@
-from Destination import Channel
 from Events import EventMessage
 from Function import Function
 from inc.Commons import Commons
@@ -32,15 +31,15 @@ class UrbanDictionary(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Gives the top urban dictionary definition for a word. Format: urban dictionary <word>"
 
-    def run(self, line, user_obj, destination_obj=None):
-        url_line = line.replace(' ', '+').lower()
+    def run(self, event):
+        url_line = event.command_args.replace(' ', '+').lower()
         url = "http://api.urbandictionary.com/v0/define?term={}".format(url_line)
         urban_dict = Commons.load_url_json(url)
         if len(urban_dict['list']) > 0:
             definition = urban_dict['list'][0]['definition'].replace("\r", '').replace("\n", '')
             return definition
         else:
-            return "Sorry, I cannot find a definition for {}.".format(line)
+            return "Sorry, I cannot find a definition for {}.".format(event.command_args)
 
 
 class RandomCocktail(Function):
@@ -60,7 +59,7 @@ class RandomCocktail(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Delivers ingredients and recipes for a random cocktail. Format: random cocktail"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Load XML
         doc = minidom.parse("store/cocktail_list.xml")
         cocktail_list_elem = doc.getElementsByTagName("cocktail_list")[0]
@@ -97,7 +96,7 @@ class Cocktail(Function):
         self.help_docs = "Returns ingredients and instructions for a given cocktail (or closest guess). " \
                          "Format: cocktail <name>"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>"""
         doc = minidom.parse("store/cocktail_list.xml")
         cocktail_list_elem = doc.getElementsByTagName("cocktail_list")[0]
@@ -108,7 +107,7 @@ class Cocktail(Function):
             cocktail_name = cocktail_elem.getElementsByTagName("name")[0].firstChild.data
             cocktail_names.append(cocktail_name)
         # Find the closest matching names
-        closest_matches = difflib.get_close_matches(line.lower(), cocktail_names)
+        closest_matches = difflib.get_close_matches(event.command_args.lower(), cocktail_names)
         # If there are no close matches, return error
         if len(closest_matches) == 0 or closest_matches[0] == '':
             return "I haven't got anything close to that name."
@@ -152,7 +151,7 @@ class InSpace(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the number of people in space right now, and their names. Format: in space"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         space_dict = Commons.load_url_json("http://www.howmanypeopleareinspacerightnow.com/space.json")
         space_number = str(space_dict['number'])
         space_names = ", ".join(person['name'].strip() for person in space_dict['people'])
@@ -169,7 +168,8 @@ class InSpace(Function):
             return
         clean_line = event.text.lower()
         if "in space" in clean_line and ("who" in clean_line or "how many" in clean_line):
-            return self.run(clean_line, event.user, event.channel)
+            event.split_command_text("", clean_line)
+            return self.run(event)
 
 
 class TimestampToDate(Function):
@@ -189,9 +189,9 @@ class TimestampToDate(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the date from a given unix timestamp. Format: date <timestamp>"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         try:
-            line = int(line)
+            line = int(event.command_args)
         except ValueError:
             return "Invalid timestamp"
         return Commons.format_unix_time(line) + "."
@@ -214,8 +214,8 @@ class Wiki(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Reads the first paragraph from a wikipedia article"
 
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().replace(" ", "_")
+    def run(self, event):
+        line_clean = event.command_args.strip().replace(" ", "_")
         url = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles={}" \
               "&prop=revisions&rvprop=content&redirects=True".format(line_clean)
         article_dict = Commons.load_url_json(url)
@@ -261,13 +261,13 @@ class Translate(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Translates a given block of text. Format: translate <from>-><to> <text>"
 
-    def run(self, line, user_obj, destination_obj=None):
-        if len(line.split()) <= 1:
+    def run(self, event):
+        if len(event.command_args.split()) <= 1:
             lang_change = ''
-            trans_string = line
+            trans_string = event.command_args
         else:
-            lang_change = line.split()[0]
-            trans_string = ' '.join(line.split()[1:])
+            lang_change = event.command_args.split()[0]
+            trans_string = ' '.join(event.command_args.split()[1:])
         if '->' not in lang_change:
             lang_from = "auto"
             lang_to = "en"
@@ -528,12 +528,12 @@ class WeatherLocation(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets a user's location for weather-related functions"
 
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
+    def run(self, event):
+        line_clean = event.command_args.strip().lower()
         # Load up Weather locations repo
         weather_repo = WeatherLocationRepo.load_from_xml()
-        user_name = user_obj.address
-        server_obj = user_obj.server
+        user_name = event.user.address
+        server_obj = event.server
         server_name = server_obj.name
         # Check that an argument is provided
         if len(line_clean.split()) == 0:
@@ -541,8 +541,8 @@ class WeatherLocation(Function):
         # Check if first argument is a specified user for given server
         first_arg = line_clean.split()[0]
         test_user = server_obj.get_user_by_name(first_arg)
-        if destination_obj is not None and isinstance(destination_obj, Channel):
-            if destination_obj.is_user_in_channel(test_user):
+        if event.channel is not None:
+            if event.channel.is_user_in_channel(test_user):
                 user_name = test_user.address
                 line_clean = line_clean[len(first_arg):].strip()
         # Create entry
@@ -571,30 +571,29 @@ class CurrentWeather(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the current weather in your location (if known) or in provided location."
 
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
+    def run(self, event):
+        line_clean = event.command_args.strip().lower()
         if line_clean == "":
             location_repo = WeatherLocationRepo.load_from_xml()
-            location_entry = location_repo.get_entry_by_user_obj(user_obj)
+            location_entry = location_repo.get_entry_by_user_obj(event.user)
             if location_entry is None:
                 return "No location stored for this user. Please specify a location or store one with " \
                        "the \"weather location\" function."
         else:
             # Check if a user was specified
-            test_user = user_obj.server.get_user_by_name(line_clean)
-            if (destination_obj is not None and isinstance(destination_obj, Channel) and
-                    destination_obj.is_user_in_channel(test_user)):
+            test_user = event.user.server.get_user_by_name(line_clean)
+            if event.channel is not None and event.channel.is_user_in_channel(test_user):
                 location_repo = WeatherLocationRepo.load_from_xml()
                 location_entry = location_repo.get_entry_by_user_obj(test_user)
                 if location_entry is None:
                     return "No location stored for this user. Please specify a location or store one with " \
                            "the \"weather location\" function."
             else:
-                user_name = user_obj.address
-                server_name = user_obj.server.name
+                user_name = event.user.address
+                server_name = event.server.name
                 location_entry = WeatherLocationEntry(user_name, server_name)
                 location_entry.set_from_input(line_clean)
-        api_key = user_obj.server.hallo.get_api_key("openweathermap")
+        api_key = event.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/weather{}&APPID={}".format(location_entry.create_query_params(),
@@ -632,8 +631,8 @@ class Weather(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Random weather"
 
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
+    def run(self, event):
+        line_clean = event.command_args.strip().lower()
         regex_fluff = re.compile(r'\b(for|[io]n)\b')
         # Clear input fluff
         line_clean = regex_fluff.sub("", line_clean).strip()
@@ -669,26 +668,25 @@ class Weather(Function):
         # Figure out if a user or city was specified
         if line_clean == "":
             weather_repo = WeatherLocationRepo.load_from_xml()
-            location_entry = weather_repo.get_entry_by_user_obj(user_obj)
+            location_entry = weather_repo.get_entry_by_user_obj(event.user)
             if location_entry is None:
                 return "No location stored for this user. Please specify a location or store one with " \
                        "the \"weather location\" function."
         else:
-            test_user = user_obj.server.get_user_by_name(line_clean)
-            if (destination_obj is not None and isinstance(destination_obj, Channel) and
-                    destination_obj.is_user_in_channel(test_user)):
+            test_user = event.server.get_user_by_name(line_clean)
+            if event.channel is not None and event.channel.is_user_in_channel(test_user):
                 weather_repo = WeatherLocationRepo.load_from_xml()
                 location_entry = weather_repo.get_entry_by_user_obj(test_user)
                 if location_entry is None:
                     return "No location stored for this user. Please specify a location or store one with " \
                            "the \"weather location\" function."
             else:
-                user_name = user_obj.address
-                server_name = user_obj.server.name
+                user_name = event.user.address
+                server_name = event.server.name
                 location_entry = WeatherLocationEntry(user_name, server_name)
                 location_entry.set_from_input(line_clean)
         # Get API response
-        api_key = user_obj.server.hallo.get_api_key("openweathermap")
+        api_key = event.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return "No API key loaded for openweathermap."
         url = "http://api.openweathermap.org/data/2.5/forecast/daily{}" \
@@ -783,7 +781,7 @@ class UrlDetect(Function):
         self.help_docs = "URL detection."
         self.hallo_obj = None
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         return "This function does not take input."
 
     def get_passive_events(self):

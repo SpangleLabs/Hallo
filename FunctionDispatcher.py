@@ -80,7 +80,9 @@ class FunctionDispatcher(object):
         try:
             response = function_obj.run(event)
             if response is not None:
-                server_obj.send(response, resp_destination)
+                server_obj.send(response)
+            else:
+                event.server.send("The function returned no value.", resp_destination)
             return
         except Exception as e:
             server_obj.send("Function failed with error message: {}".format(e), resp_destination)
@@ -166,15 +168,15 @@ class FunctionDispatcher(object):
         :param user_obj: User which has requested the function
         :type user_obj: Destination.User
         :param channel_obj: Channel on which the function was requested
-        :type channel_obj: Destination.Destination
+        :type channel_obj: Destination.Channel | None
         """
         # Get function name
         function_name = function_class.__name__
         right_name = "function_{}".format(function_name)
         # Check rights
         if user_obj is not None:
-            return user_obj.rights_check(right_name, channel_obj if isinstance(channel_obj, Channel) else None)
-        if channel_obj is not None and channel_obj.is_channel():
+            return user_obj.rights_check(right_name, channel_obj)
+        if channel_obj is not None:
             return channel_obj.rights_check(right_name)
         if server_obj is not None:
             return server_obj.rights_check(right_name)

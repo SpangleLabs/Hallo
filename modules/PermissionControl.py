@@ -30,8 +30,8 @@ class Permissions(Function):
         self.help_docs = "Changes the permissions of a specified permission map." \
                          " Format: permissions <location> <permission> <on/off>"
 
-    def run(self, line, user_obj, destination_obj=None):
-        line_split = line.split()
+    def run(self, event):
+        line_split = event.command_args.split()
         if len(line_split) < 3:
             return "Error, you need to specify a location, a right and the value"
         bool_input = line_split[-1]
@@ -39,8 +39,7 @@ class Permissions(Function):
         location_input = line_split[:-2]
         # Search for the permission_mask they want.
         try:
-            permission_mask = self.find_permission_mask(location_input, user_obj,
-                                                        destination_obj if destination_obj.is_channel() else None)
+            permission_mask = self.find_permission_mask(location_input, event.user, event.channel)
         # If it comes back with an error message, return that error
         except PermissionControlException as e:
             return str(e)

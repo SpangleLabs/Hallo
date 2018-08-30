@@ -25,10 +25,10 @@ class Euler(Function):
         self.help_docs = "Project Euler functions. Format: \"euler list\" to list project euler solutions. " \
                          "\"euler <number>\" for the solution to project euler problem of the given number."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Some functions might need this.
-        self.mHalloObject = user_obj.server.hallo
-        line_clean = line.strip().lower()
+        self.mHalloObject = event.server.hallo
+        line_clean = event.command_args.strip().lower()
         if line_clean == "list":
             return self.list_all()
         elif line_clean.isdigit():

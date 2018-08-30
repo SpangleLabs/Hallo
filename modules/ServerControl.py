@@ -1,4 +1,3 @@
-from Destination import Channel
 from Function import Function
 import re
 
@@ -26,13 +25,14 @@ class JoinChannel(Function):
                          "Server can be specified with \"server=<server_name>\"." \
                          " Format: \"join <channel> <password?>\"."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Check for server name in input line
+        line = event.command_args
         server_name = Commons.find_parameter("server", line)
         if server_name is None:
-            server_obj = user_obj.server
+            server_obj = event.server
         else:
-            server_obj = user_obj.server.hallo.get_server_by_name(server_name)
+            server_obj = event.server.hallo.get_server_by_name(server_name)
             line = line.replace("server={}".format(server_name), "").strip()
         if server_obj is None:
             return "Invalid server specified."
@@ -70,13 +70,14 @@ class LeaveChannel(Function):
         self.help_docs = "Leave a channel. Server can be specified with \"server=<server_name>\". " \
                          "Format: \"leave <channel>\"."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Check for server name in input line
+        line = event.command_args
         server_name = Commons.find_parameter("server", line)
         if server_name is None:
-            server_obj = user_obj.server
+            server_obj = event.server
         else:
-            server_obj = user_obj.server.hallo.get_server_by_name(server_name)
+            server_obj = event.server.hallo.get_server_by_name(server_name)
             line = line.replace("server={}".format(server_name), "").strip()
         if server_obj is None:
             return "Error, invalid server specified."
@@ -85,9 +86,9 @@ class LeaveChannel(Function):
             channel_name = line.split()[0].lower()
             channel_obj = server_obj.get_channel_by_name(channel_name)
         else:
-            if isinstance(destination_obj, Channel):
-                channel_name = destination_obj.name
-                channel_obj = destination_obj
+            if event.channel is not None:
+                channel_name = event.channel.name
+                channel_obj = event.channel
             else:
                 return "Error, I cannot leave a private chat."
         # Leave channel, provided hallo is in channel.
@@ -114,11 +115,11 @@ class Disconnect(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Disconnects from a server."
 
-    def run(self, line, user_obj, destination_obj=None):
-        server_obj = user_obj.server
+    def run(self, event):
+        server_obj = event.server
         hallo_obj = server_obj.hallo
-        if line.strip() != "":
-            server_obj = hallo_obj.get_server_by_name(line)
+        if event.command_args.strip() != "":
+            server_obj = hallo_obj.get_server_by_name(event.command_args)
         if server_obj is None:
             return "Invalid server."
         server_obj.set_auto_connect(False)
@@ -144,16 +145,17 @@ class Connect(Function):
         self.help_docs = "Connects to an existing or a new server. " \
                          "Format: \"connect <protocol> <server>\" or \"connect <already known server name>\""
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """Runs the function"""
-        current_server = user_obj.server
+        remaining_line = event.command_args
+        current_server = event.server
         hallo_obj = current_server.hallo
         # Try and see if it's a server we already know
-        existing_server = hallo_obj.get_server_by_name(line)
+        existing_server = hallo_obj.get_server_by_name(remaining_line)
         if existing_server is not None:
             return self.connect_to_known_server(existing_server)
         # Try to find what protocol is specified, or use whatever protocol the user is using.
-        line_split = line.split()
+        line_split = remaining_line.split()
         valid_protocols = [Server.TYPE_IRC]
         server_protocol = None
         if any([prot in [arg.lower() for arg in line_split] for prot in valid_protocols]):
@@ -161,13 +163,13 @@ class Connect(Function):
                 if protocol in [arg.lower() for arg in line_split]:
                     server_protocol = protocol
                     protocol_regex = re.compile(r"\s" + protocol + r"\s", re.IGNORECASE)
-                    line = protocol_regex.sub(" ", line)
+                    remaining_line = protocol_regex.sub(" ", remaining_line)
                     break
         else:
             server_protocol = current_server.type
         # Go through protocols branching to whatever function to handle that protocol
         if server_protocol == Server.TYPE_IRC:
-            return self.connect_to_new_server_irc(line, user_obj, destination_obj)
+            return self.connect_to_new_server_irc(remaining_line, event)
         # Add in elseif statements here, to make user Connect Function support other protocols
         else:
             return "Error, unrecognised server protocol"
@@ -184,15 +186,14 @@ class Connect(Function):
         server_obj.start()
         return "Connected to server: {}.".format(server_obj.name)
 
-    def connect_to_new_server_irc(self, line, user_obj, destination_obj):
+    def connect_to_new_server_irc(self, line, event):
         """
         Processes arguments in order to connect to a new IRC server
         :type line: str
-        :type user_obj: Destination.User
-        :type destination_obj: Destination.Destination
+        :type event: EventMessage
         """
         # Get some handy objects
-        current_server = user_obj.server
+        current_server = event.server
         hallo_obj = current_server.hallo
         # Set all variables to none as default
         server_address, server_port = None, None
@@ -265,12 +266,12 @@ class Connect(Function):
         # Add user with same name on new server to all the same groups as current user
         new_user_nick = Commons.find_any_parameter(["user", "god"], line)
         if new_user_nick is False:  # TODO: check user exists on server, ask server?
-            new_user = new_server_obj.get_user_by_address(user_obj.address, user_obj.name)
+            new_user = new_server_obj.get_user_by_address(event.user.address, event.user.name)
         else:
             new_user = new_server_obj.get_user_by_address(new_user_nick.lower(), new_user_nick)
         if new_user is None:
             return "Could not find a user by the name specified (\"{}\") on the new server.".format(new_user_nick)
-        for group in user_obj.user_group_list:
+        for group in event.user.user_group_list:
             new_user.add_user_group(group)
         # Add the new object to Hallo's list
         hallo_obj.add_server(new_server_obj)
@@ -297,13 +298,14 @@ class Say(Function):
         self.help_docs = "Say a message into a channel or server/channel pair (in the format \"{server,channel}\"). " \
                          "Format: say <channel> <message>"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """
         Say a message into a channel or server/channel pair (in the format "{server,channel}").
         Format: say <channel> <message>
         """
         # Setting up variables
-        hallo_obj = user_obj.server.hallo
+        line = event.command_args
+        hallo_obj = event.server.hallo
         # See if server and channel are specified as parameters
         server_name = Commons.find_parameter("server", line)
         if server_name is not None:
@@ -326,7 +328,7 @@ class Say(Function):
         # Get server_obj list from server_name
         server_objs = []
         if server_name is None:
-            server_objs = [user_obj.server]
+            server_objs = [event.server]
         else:
             # Create a regex query from their input
             server_regex = re.escape(server_name).replace(r"\*", ".*")
@@ -375,12 +377,12 @@ class EditServer(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Edits a server's configuration."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """Runs the function"""
-        current_server = user_obj.server
+        current_server = event.server
         hallo_obj = current_server.hallo
         # Split line, to find server name
-        line_split = line.split()
+        line_split = event.command_args.split()
         server_name = line_split[0]
         # See is a server by this name is known
         server_obj = hallo_obj.get_server_by_name(server_name)
@@ -390,12 +392,12 @@ class EditServer(Function):
         # Get protocol and go through protocols branching to whatever function to handle modifying servers of it.
         server_protocol = server_obj.type
         if server_protocol == Server.TYPE_IRC:
-            return self.edit_server_irc(line, server_obj, user_obj, destination_obj)
+            return self.edit_server_irc(event.command_args, server_obj)
         # Add in ELIF statements here, to make user Connect Function support other protocols
         else:
             return "Unrecognised server protocol"
 
-    def edit_server_irc(self, line, server_obj, user_obj, destination_obj):
+    def edit_server_irc(self, line, server_obj):
         """Processes arguments in order to edit an IRC server"""
         # Set all variables to none as default
         server_address, server_port = None, None
@@ -467,15 +469,15 @@ class ListUsers(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns a user list for a given channel."
 
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
+    def run(self, event):
+        line_clean = event.command_args.strip().lower()
         # Useful object
-        hallo_obj = user_obj.server.hallo
+        hallo_obj = event.server.hallo
         # See if a server was specified.
-        server_name = Commons.find_parameter("server", line)
+        server_name = Commons.find_parameter("server", event.command_args)
         # Get server object. If invalid, use current
         if server_name is None:
-            server_obj = user_obj.server
+            server_obj = event.server
         else:
             server_obj = hallo_obj.get_server_by_name(server_name)
             if server_obj is None:
@@ -488,9 +490,9 @@ class ListUsers(Function):
         if channel_name is None:
             channel_name = line_clean
         if channel_name == "":
-            if destination_obj is None or not destination_obj.is_channel():
+            if event.channel is None:
                 return "I don't recognise that channel name."
-            channel_name = destination_obj.name
+            channel_name = event.channel.name
         # If they've specified all channels, display the server list.
         if channel_name in ["*", "all"]:
             user_list = server_obj.user_list
@@ -527,13 +529,13 @@ class ListChannels(Function):
         self.help_docs = "Hallo will tell you which channels he is in. Format: \"list channels\" " \
                          "for channels on current server, \"list channels all\" for all channels on all servers."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """
         Hallo will tell you which channels he is in, ops only.
         Format: "channels" for channels on current server, "channels all" for all channels on all servers.
         """
-        line_clean = line.strip().lower()
-        hallo_obj = user_obj.server.hallo
+        line_clean = event.command_args.strip().lower()
+        hallo_obj = event.server.hallo
         # If they ask for all channels, give them all channels.
         if line_clean in self.HALLO_NAMES:
             output_string = "On all servers, I am on these channels: "
@@ -548,7 +550,7 @@ class ListChannels(Function):
             return output_string
         # If nothing specified, or "server", then output current server channel list
         if line_clean == "" or line_clean in self.SERVER_NAMES:
-            server_obj = user_obj.server
+            server_obj = event.server
             in_channel_name_list = self.get_in_channel_names_list(server_obj)
             output_string = "On this server, I'm in these channels: "
             output_string += ', '.join(in_channel_name_list) + "."
@@ -600,12 +602,12 @@ class ListServers(Function):
         self.help_docs = "Hallo will tell you which servers he knows about, and whether he's connected to them. " \
                          "Format: \"list servers\" will list all servers."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """
         Hallo will tell you which servers he knows about and is/isn't connected to, ops only.
         Format: "servers" for all servers.
         """
-        hallo_obj = user_obj.server.hallo
+        hallo_obj = event.server.hallo
         # If they ask for all channels, give them all channels.
         server_list = hallo_obj.server_list
         if len(server_list) == 0:

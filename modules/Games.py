@@ -532,7 +532,7 @@ class RandomCard(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Picks a random card from a deck. Format: random_card"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         new_deck = Deck()
         new_deck.shuffle()
         random_card = new_deck.get_next_card()
@@ -646,7 +646,7 @@ class HighScores(Function):
         # save XML
         doc.writexml(open("store/high_score_list.xml", "w"), addindent="\t", newl="\r\n")
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         output_lines = ["High scores:"]
         for game_name in self.high_scores:
             score = self.high_scores[game_name]['score']
@@ -895,16 +895,16 @@ class HigherOrLower(Function):
         return {EventMessage}
 
     # Interesting functions from here
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
+    def run(self, event):
+        line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
-            return self.new_game(user_obj, destination_obj)
+            return self.new_game(event.user, event.user if event.channel is None else event.channel)
         elif any(cmd in line_clean for cmd in self.END_CMDS):
-            return self.quit_game(user_obj, destination_obj)
+            return self.quit_game(event.user, event.user if event.channel is None else event.channel)
         elif any(cmd in line_clean for cmd in self.HIGH_CMDS):
-            return self.guess_higher(user_obj, destination_obj)
+            return self.guess_higher(event.user, event.user if event.channel is None else event.channel)
         elif any(cmd in line_clean for cmd in self.LOW_CMDS):
-            return self.guess_lower(user_obj, destination_obj)
+            return self.guess_lower(event.user, event.user if event.channel is None else event.channel)
         output_string = "I don't understand this input."
         output_string += ' Syntax: "higher_or_lower start" to start a game, '
         output_string += '"higher_or_lower higher" to guess the next card will be higher, '
@@ -1111,16 +1111,16 @@ class Blackjack(Function):
         return {EventMessage}
 
     # Interesting functions from here
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
+    def run(self, event):
+        line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
-            return self.new_game(user_obj, destination_obj)
+            return self.new_game(event.user, event.user if event.channel is None else event.channel)
         elif any(cmd in line_clean for cmd in self.END_CMDS):
-            return self.quit_game(user_obj, destination_obj)
+            return self.quit_game(event.user, event.user if event.channel is None else event.channel)
         elif any(cmd in line_clean for cmd in self.HIT_CMDS):
-            return self.hit(user_obj, destination_obj)
+            return self.hit(event.user, event.user if event.channel is None else event.channel)
         elif any(cmd in line_clean for cmd in self.STICK_CMDS):
-            return self.stick(user_obj, destination_obj)
+            return self.stick(event.user, event.user if event.channel is None else event.channel)
         output_string = "I don't understand this input."
         output_string += ' Syntax: "blackjack start" to start a game, '
         output_string += '"blackjack hit" to hit, "blackjack stick" to stick, '
@@ -1437,16 +1437,16 @@ class DDR(Function):
         return {EventMessage}
 
     # Interesting functions from here
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
+    def run(self, event):
+        line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
-            return self.new_game(line_clean, user_obj, destination_obj)
+            return self.new_game(line_clean, event.user, event.user if event.channel is None else event.channel)
         elif any(cmd in line_clean for cmd in self.JOIN_CMDS):
-            return self.join_game(line_clean, user_obj, destination_obj)
+            return self.join_game(line_clean, event.user, event.user if event.channel is None else event.channel)
         elif any(cmd in line_clean for cmd in self.END_CMDS):
-            return self.quit_game(line_clean, user_obj, destination_obj)
+            return self.quit_game(line_clean, event.user, event.user if event.channel is None else event.channel)
         elif any(cmd in line_clean for cmd in self.MOVE_CMDS):
-            return self.make_move(line_clean, user_obj, destination_obj)
+            return self.make_move(line_clean, event.user, event.user if event.channel is None else event.channel)
         output_string = "Invalid difficulty mode. Please specify easy, medium or hard."
         return output_string
 
