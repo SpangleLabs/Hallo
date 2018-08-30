@@ -47,7 +47,7 @@ class Protein(Function):
         # Clean the string, replace Thymine with Uracil
         line_clean = event.command_args.upper().replace('T', 'U')
         if not all([c in 'ACGU' for c in line_clean]):
-            return "Error, invalid nucleotides."
+            return event.create_response("Error, invalid nucleotides.")
         strand = ["..."]
         if codon_table[Protein.START][0] in line_clean:
             strand = [Protein.START]
@@ -64,7 +64,7 @@ class Protein(Function):
                     break
         if not stop:
             strand += ["..."]
-        return "-".join(strand)
+        return event.create_response("-".join(strand))
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
@@ -73,7 +73,7 @@ class Protein(Function):
     def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
         if not isinstance(event, EventMessage):
-            return
+            return None
         clean_line = event.text.strip().upper()
         if len(clean_line) < 3:
             return None
