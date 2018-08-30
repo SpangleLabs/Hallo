@@ -4,8 +4,11 @@ from datetime import datetime
 
 class Event(metaclass=ABCMeta):
 
-    def __init__(self):
-        self.is_inbound = True
+    def __init__(self, inbound=True):
+        """
+        :type inbound: bool
+        """
+        self.is_inbound = inbound
         """ :type : bool"""
         self.send_time = datetime.now()
         """ :type : datetime"""
@@ -29,62 +32,67 @@ class EventDay(Event):
 
 class ServerEvent(Event, metaclass=ABCMeta):
 
-    def __init__(self, server):
+    def __init__(self, server, inbound=True):
         """
         :type server: Server.Server
+        :type inbound: bool
         """
-        Event.__init__(self)
+        Event.__init__(self, inbound=inbound)
         self.server = server
         """ :type : Server.Server"""
 
 
 class EventPing(ServerEvent):
 
-    def __init__(self, server, ping_number):
+    def __init__(self, server, ping_number, inbound=True):
         """
         :type server: Server.Server
         :type ping_number: str
+        :type inbound: bool
         """
-        ServerEvent.__init__(self, server)
+        ServerEvent.__init__(self, server, inbound=inbound)
         self.ping_number = ping_number
         """ :type : str"""
 
 
 class UserEvent(ServerEvent, metaclass=ABCMeta):
 
-    def __init__(self, server, user):
+    def __init__(self, server, user, inbound=True):
         """
         :type server: Server.Server
         :type user: Destination.User | None
+        :type inbound: bool
         """
-        ServerEvent.__init__(self, server)
+        ServerEvent.__init__(self, server, inbound=inbound)
         self.user = user
         """ :type : Destination.User | None"""
 
 
 class EventQuit(UserEvent):
 
-    def __init__(self, server, user, message):
+    def __init__(self, server, user, message, inbound=True):
         """
         :type server: Server.Server
         :type user: Destination.User
         :type message: str
+        :type inbound: bool
         """
-        UserEvent.__init__(self, server, user)
+        UserEvent.__init__(self, server, user, inbound=inbound)
         self.quit_message = message
         """ :type : str"""
 
 
 class EventNameChange(UserEvent):
 
-    def __init__(self, server, user, old_name, new_name):
+    def __init__(self, server, user, old_name, new_name, inbound=True):
         """
         :type server: Server.Server
         :type user: Destination.User
         :type old_name: str
         :type new_name: str
+        :type inbound: bool
         """
-        UserEvent.__init__(self, server, user)
+        UserEvent.__init__(self, server, user, inbound=inbound)
         self.old_name = old_name
         """ :type : str"""
         self.new_name = new_name
@@ -93,64 +101,69 @@ class EventNameChange(UserEvent):
 
 class ChannelEvent(ServerEvent, metaclass=ABCMeta):
 
-    def __init__(self, server, channel):
+    def __init__(self, server, channel, inbound=True):
         """
         :type server: Server.Server
         :type channel: Destination.Channel | None
+        :type inbound: bool
         """
-        ServerEvent.__init__(self, server)
+        ServerEvent.__init__(self, server, inbound=inbound)
         self.channel = channel
         """ :type : Destination.Channel | None"""
 
 
 class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
 
-    def __init__(self, server, channel, user):
+    def __init__(self, server, channel, user, inbound=True):
         """
         :type server: Server.Server
         :type channel: Destination.Channel | None
         :type user: Destination.User | None
+        :type inbound: bool
         """
-        ChannelEvent.__init__(self, server, channel)
-        UserEvent.__init__(self, server, user)
+        ChannelEvent.__init__(self, server, channel, inbound=inbound)
+        UserEvent.__init__(self, server, user, inbound=inbound)
 
 
 class EventJoin(ChannelUserEvent):
 
-    def __init__(self, server, channel, user):
+    def __init__(self, server, channel, user, inbound=True):
         """
         :type server: Server.Server
         :type channel: Destination.Channel
         :type user: Destination.User
+        :type inbound: bool
         """
-        ChannelUserEvent.__init__(self, server, channel, user)
+        ChannelUserEvent.__init__(self, server, channel, user, inbound=inbound)
 
 
 class EventLeave(ChannelUserEvent):
 
-    def __init__(self, server, channel, user, message):
+    def __init__(self, server, channel, user, message, inbound=True):
         """
         :type server: Server.Server
         :type channel: Destination.Channel
         :type user: Destination.User
         :type message: str | None
+        :type inbound: bool
         """
-        ChannelUserEvent.__init__(self, server, channel, user)
+        ChannelUserEvent.__init__(self, server, channel, user, inbound=inbound)
         self.leave_message = message
         """ :type : str | None"""
 
 
 class EventKick(ChannelUserEvent):
 
-    def __init__(self, server, channel, kicking_user, kicked_user, kick_message):
+    def __init__(self, server, channel, kicking_user, kicked_user, kick_message, inbound=True):
         """
         :type server: Server.Server
         :type channel: Destination.Channel
         :type kicking_user: Destination.User
         :type kicked_user: Destination.User
         :type kick_message: str | None
+        :type inbound: bool
         """
-        ChannelUserEvent.__init__(self, server, channel, kicking_user)
+        ChannelUserEvent.__init__(self, server, channel, kicking_user, inbound=inbound)
         self.kicked_user = kicked_user
         """ :type : Destination.User"""
         self.kick_message = kick_message
@@ -159,42 +172,45 @@ class EventKick(ChannelUserEvent):
 
 class EventInvite(ChannelUserEvent):
 
-    def __init__(self, server, channel, inviting_user, invited_user):
+    def __init__(self, server, channel, inviting_user, invited_user, inbound=True):
         """
         :type server: Server.Server
         :type channel: Destination.Channel
         :type inviting_user: Destination.User
         :type invited_user: Destination.User
+        :type inbound: bool
         """
-        ChannelUserEvent.__init__(self, server, channel, inviting_user)
+        ChannelUserEvent.__init__(self, server, channel, inviting_user, inbound=inbound)
         self.invited_user = invited_user
         """ :type : Destination.User"""
 
 
 class EventMode(ChannelUserEvent):
 
-    def __init__(self, server, channel, user, mode_changes):
+    def __init__(self, server, channel, user, mode_changes, inbound=True):
         """
         :type server: Server.Server
         :type channel: Destination.Channel | None
         :type user: Destination.User | None
         :type mode_changes: str
+        :type inbound: bool
         """
-        ChannelUserEvent.__init__(self, server, channel, user)
+        ChannelUserEvent.__init__(self, server, channel, user, inbound=inbound)
         self.mode_changes = mode_changes  # TODO: maybe have flags, arguments/users as separate?
         """ :type : str"""
 
 
 class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
 
-    def __init__(self, server, channel, user, text):
+    def __init__(self, server, channel, user, text, inbound=True):
         """
         :type server: Server.Server
         :type channel: Destination.Channel | None
         :type user: Destination.User | None
         :type text: str
+        :type inbound: bool
         """
-        ChannelUserEvent.__init__(self, server, channel, user)
+        ChannelUserEvent.__init__(self, server, channel, user, inbound=inbound)
         self.text = text
         """ :type : str"""
 
@@ -204,8 +220,15 @@ class EventMessage(ChannelUserTextEvent):
     # Flags, can be passed as a list to function dispatcher, and will change how it operates.
     FLAG_HIDE_ERRORS = "hide_errors"  # Hide all errors that result from running the function.
 
-    def __init__(self, server, channel, user, text):
-        ChannelUserTextEvent.__init__(self, server, channel, user, text)
+    def __init__(self, server, channel, user, text, inbound=True):
+        """
+        :type server: Server.Server
+        :type channel: Destination.Channel | None
+        :type user: Destination.User
+        :type text: str
+        :type inbound: bool
+        """
+        ChannelUserTextEvent.__init__(self, server, channel, user, text, inbound=inbound)
         self.command_text = None
         """ :type : str | None"""
         self.is_prefixed = None
