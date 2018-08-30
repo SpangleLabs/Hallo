@@ -22,7 +22,7 @@ class Protein(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Convert a set of nucleobases to a string of amino acids"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         codon_table = {'Ala': ['GCU', 'GCC', 'GCA', 'GCG'],
                        'Arg': ['CGU', 'CGC', 'CGA', 'CGG', 'AGA', 'AGG'],
                        'Asn': ['AAU', 'AAC'],
@@ -45,7 +45,7 @@ class Protein(Function):
                        'Val': ['GUU', 'GUC', 'GUA', 'GUG'],
                        Protein.STOP: ['UAA', 'UGA', 'UAG']}
         # Clean the string, replace Thymine with Uracil
-        line_clean = line.upper().replace('T', 'U')
+        line_clean = event.command_args.upper().replace('T', 'U')
         if not all([c in 'ACGU' for c in line_clean]):
             return "Error, invalid nucleotides."
         strand = ["..."]
@@ -82,5 +82,6 @@ class Protein(Function):
         for valid_char in valid_chars:
             check_message = check_message.replace(valid_char, "")
         if check_message == "":
-            return self.run(clean_line, event.user, event.channel)
+            event.split_command_text("", clean_line)
+            return self.run(event)
         return None
