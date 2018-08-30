@@ -127,14 +127,17 @@ class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
 
 class EventJoin(ChannelUserEvent):
 
-    def __init__(self, server, channel, user, inbound=True):
+    def __init__(self, server, channel, user, password=None, inbound=True):
         """
         :type server: Server.Server
         :type channel: Destination.Channel
         :type user: Destination.User
+        :type password: str | None
         :type inbound: bool
         """
         ChannelUserEvent.__init__(self, server, channel, user, inbound=inbound)
+        self.password = password
+        """ :type : str | None"""
 
 
 class EventLeave(ChannelUserEvent):
