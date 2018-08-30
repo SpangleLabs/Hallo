@@ -1,3 +1,4 @@
+from Events import EventMode
 from Function import Function
 from inc.Commons import Commons
 import datetime
@@ -49,7 +50,7 @@ class FinnBot(Function):
         quote = Commons.get_random_choice(ari_quotes)[0]
         if quote[-1] not in ['.', '?', '!']:
             quote += '.'
-        return quote
+        return event.create_response(quote)
 
 
 class SilenceTheRabble(Function):
@@ -74,24 +75,24 @@ class SilenceTheRabble(Function):
         # if(not opped):
         #    return 'I cannot handle it, master!'
         if not event.user.name.endswith('000242'):
-            return "Error, you are not my master."
+            return event.create_response("Error, you are not my master.")
         server_obj = event.server
         if server_obj.type != Server.TYPE_IRC:
-            return "Error, this function is only available on IRC servers."
+            return event.create_response("Error, this function is only available on IRC servers.")
         if event.channel is None:
-            return "Error, this function can only be used in ETD."
+            return event.create_response("Error, this function can only be used in ETD.")
         if event.channel.name.lower() != "#ecco-the-dolphin":
-            return "Error, this function can only be used in ETD."
+            return event.create_response("Error, this function can only be used in ETD.")
         user_list = event.channel.get_user_list()
         for user_obj in user_list:
             if user_obj.name.endswith("000242"):
                 continue
             if user_obj.name.lower() == server_obj.name.lower():
                 continue
-            server_obj.send("MODE {} -o {}".format(event.channel.address, user_obj.address), None, Server.MSG_RAW)
-            server_obj.send("MODE {} -v {}".format(event.channel.address, user_obj.address), None, Server.MSG_RAW)
-        server_obj.send("MODE {} +m".format(event.channel.address), None, Server.MSG_RAW)
-        return "I have done your bidding, master."
+            server_obj.send(EventMode(server_obj, event.channel, None, "-o {}".format(user_obj.address), inbound=False))
+            server_obj.send(EventMode(server_obj, event.channel, None, "-v {}".format(user_obj.address), inbound=False))
+        server_obj.send(EventMode(server_obj, event.channel, None, "+m", inbound=False))
+        return event.create_response("I have done your bidding, master.")
 
 
 class PokeTheAsshole(Function):
@@ -114,23 +115,23 @@ class PokeTheAsshole(Function):
     def run(self, event):
         # TODO: check if not opped?
         if not event.user.name.endswith('000242'):
-            return "Error, You are not my master."
+            return event.create_response("Error, You are not my master.")
         server_obj = event.server
         if server_obj.type != Server.TYPE_IRC:
-            return "Error, This function is only available on IRC servers."
+            return event.create_response("Error, This function is only available on IRC servers.")
         if event.channel is None:
-            return "Error, This function can only be used in ETD."
+            return event.create_response("Error, This function can only be used in ETD.")
         if event.channel.name.lower() != "#ecco-the-dolphin":
-            return "Error, This function can only be used in ETD."
+            return event.create_response("Error, This function can only be used in ETD.")
         # Take input, or assume input is 5
         if event.command_args.strip().isdigit():
             number = int(event.command_args.strip())
         else:
             number = 5
         for _ in range(number):
-            server_obj.send("MODE {} +v Dolphin".format(event.channel.address), None, Server.MSG_RAW)
-            server_obj.send("MODE {} -v Dolphin".format(event.channel.address), None, Server.MSG_RAW)
-        return 'Dolphin: You awake yet?'
+            server_obj.send(EventMode(server_obj, event.channel, None, "+v Dolphin", inbound=False))
+            server_obj.send(EventMode(server_obj, event.channel, None, "-v Dolphin", inbound=False))
+        return event.create_response('Dolphin: You awake yet?')
 
 
 # class Trump(Function):
@@ -166,7 +167,7 @@ class PokeTheAsshole(Function):
 #             election_year = first_year + (4 * term)
 #             output_terms.append("Trump {}!".format(election_year))
 #         output = "{} IMPERATOR TRUMP!".format(" ".join(output_terms))
-#         return output
+#         return event.create_response(output)
 
 
 class Corbyn(Function):
@@ -203,4 +204,4 @@ class Corbyn(Function):
             election_year = first_year + (5 * term)
             output_terms.append("Corbyn {}!".format(election_year))
         output = "{} CHAIRMAN CORBYN!".format(" ".join(output_terms))
-        return output
+        return event.create_response(output)
