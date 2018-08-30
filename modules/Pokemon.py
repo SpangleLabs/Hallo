@@ -30,7 +30,7 @@ class RandomPokemon(Function):
             pokemon_dict = {'name': pokemon_elem.getElementsByTagName("name")[0].firstChild.data}
             pokemon_list.append(pokemon_dict)
         random_pokemon = Commons.get_random_choice(pokemon_list)[0]
-        return "I choose you, {}!".format(random_pokemon['name'])
+        return event.create_response("I choose you, {}!".format(random_pokemon['name']))
 
 
 class PickATeam(Function):
@@ -60,8 +60,10 @@ class PickATeam(Function):
             pokemon_dict = {'name': pokemon_elem.getElementsByTagName("name")[0].firstChild.data}
             pokemon_list.append(pokemon_dict)
         random_pokemon_team = Commons.get_random_choice(pokemon_list, 6)
-        return "Your team is: {} and {}.".format(", ".join([pokemon['name'] for pokemon in random_pokemon_team[:5]]),
-                                                 random_pokemon_team[5]['name'])
+        return event.create_response("Your team is: {} and {}.".format(", ".join([pokemon['name']
+                                                                                  for pokemon
+                                                                                  in random_pokemon_team[:5]]),
+                                                                       random_pokemon_team[5]['name']))
 
 
 class FullyEvolvedTeam(Function):
@@ -93,8 +95,10 @@ class FullyEvolvedTeam(Function):
             if evolution_choices == 0:
                 pokemon_list.append(pokemon_dict)
         random_pokemon_team = Commons.get_random_choice(pokemon_list, 6)
-        return "Your team is: {} and {}.".format(", ".join([pokemon['name'] for pokemon in random_pokemon_team[:5]]),
-                                                 random_pokemon_team[5]['name'])
+        return event.create_response("Your team is: {} and {}.".format(", ".join([pokemon['name']
+                                                                                  for pokemon
+                                                                                  in random_pokemon_team[:5]]),
+                                                                       random_pokemon_team[5]['name']))
 
 
 class Pokedex(Function):
@@ -129,9 +133,9 @@ class Pokedex(Function):
                 break
         # If pokemon couldn't be found, return a message to the user
         if selected_pokemon_elem is None:
-            return "No available pokedex data."
+            return event.create_response("No available pokedex data.")
         # Select a random pokedex entry
         pokedex_entry_list_elem = selected_pokemon_elem.getElementsByTagName("dex_entry_list")
         pokedex_entry_elem = Commons.get_random_choice(pokedex_entry_list_elem.getElementsByTagName("dex_entry"))[0]
         pokedex_entry_text = pokedex_entry_elem.firstChild.data
-        return pokedex_entry_text
+        return event.create_response(pokedex_entry_text)
