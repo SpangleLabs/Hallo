@@ -1,4 +1,3 @@
-from Destination import Channel
 from Function import Function
 from inc.Commons import Commons
 import datetime
@@ -24,7 +23,7 @@ class FinnBot(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Simulates a typical finn in conversation. Format: finnbot"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """Simulates a typical finn in conversation. Format: finnbot"""
         ari_quotes = ["|:", "After hearing you say that, I don't think we can ever be friends",
                       "Brb, cutting down a forest", "Can't answer, I'm shaving and it'll take all day",
@@ -70,28 +69,28 @@ class SilenceTheRabble(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "ETD only. De-ops all but D000242 and self. Sets mute. Format: silence the rabble"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # TODO: check if not opped?
         # if(not opped):
         #    return 'I cannot handle it, master!'
-        if not user_obj.name.endswith('000242'):
+        if not event.user.name.endswith('000242'):
             return "Error, you are not my master."
-        server_obj = user_obj.server
+        server_obj = event.server
         if server_obj.type != Server.TYPE_IRC:
             return "Error, this function is only available on IRC servers."
-        if not isinstance(destination_obj, Channel):
+        if event.channel is None:
             return "Error, this function can only be used in ETD."
-        if destination_obj.name.lower() != "#ecco-the-dolphin":
+        if event.channel.name.lower() != "#ecco-the-dolphin":
             return "Error, this function can only be used in ETD."
-        user_list = destination_obj.get_user_list()
+        user_list = event.channel.get_user_list()
         for user_obj in user_list:
             if user_obj.name.endswith("000242"):
                 continue
             if user_obj.name.lower() == server_obj.name.lower():
                 continue
-            server_obj.send("MODE {} -o {}".format(destination_obj.address, user_obj.address), None, Server.MSG_RAW)
-            server_obj.send("MODE {} -v {}".format(destination_obj.address, user_obj.address), None, Server.MSG_RAW)
-        server_obj.send("MODE {} +m".format(destination_obj.address), None, Server.MSG_RAW)
+            server_obj.send("MODE {} -o {}".format(event.channel.address, user_obj.address), None, Server.MSG_RAW)
+            server_obj.send("MODE {} -v {}".format(event.channel.address, user_obj.address), None, Server.MSG_RAW)
+        server_obj.send("MODE {} +m".format(event.channel.address), None, Server.MSG_RAW)
         return "I have done your bidding, master."
 
 
@@ -112,25 +111,25 @@ class PokeTheAsshole(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "ETD only. Voices and unvoices Dolphin repeatedly. Format: poke the asshole"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # TODO: check if not opped?
-        if not user_obj.name.endswith('000242'):
+        if not event.user.name.endswith('000242'):
             return "Error, You are not my master."
-        server_obj = user_obj.server
+        server_obj = event.server
         if server_obj.type != Server.TYPE_IRC:
             return "Error, This function is only available on IRC servers."
-        if destination_obj is None or destination_obj == user_obj:
+        if event.channel is None:
             return "Error, This function can only be used in ETD."
-        if destination_obj.name.lower() != "#ecco-the-dolphin":
+        if event.channel.name.lower() != "#ecco-the-dolphin":
             return "Error, This function can only be used in ETD."
         # Take input, or assume input is 5
-        if line.strip().isdigit():
-            number = int(line.strip())
+        if event.command_args.strip().isdigit():
+            number = int(event.command_args.strip())
         else:
             number = 5
         for _ in range(number):
-            server_obj.send("MODE {} +v Dolphin".format(destination_obj.address), None, Server.MSG_RAW)
-            server_obj.send("MODE {} -v Dolphin".format(destination_obj.address), None, Server.MSG_RAW)
+            server_obj.send("MODE {} +v Dolphin".format(event.channel.address), None, Server.MSG_RAW)
+            server_obj.send("MODE {} -v Dolphin".format(event.channel.address), None, Server.MSG_RAW)
         return 'Dolphin: You awake yet?'
 
 
@@ -152,8 +151,8 @@ class PokeTheAsshole(Function):
 #         self.help_docs = "Returns the election years that Donald Trump will win US election. " \
 #                          "Format: \"trump <number of terms>\""
 #
-#     def run(self, line, user_obj, destination_obj=None):
-#         line_clean = line.strip()
+#     def run(self, event):
+#         line_clean = event.command_args.strip()
 #         try:
 #             num_terms = int(line_clean)
 #         except ValueError:
@@ -188,8 +187,8 @@ class Corbyn(Function):
         self.help_docs = "Returns the election years that Jeremy Corbyn will win UK election." \
                          "Format: \"corbyn <number of terms>\""
 
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip()
+    def run(self, event):
+        line_clean = event.command_args.strip()
         try:
             num_terms = int(line_clean)
         except ValueError:
