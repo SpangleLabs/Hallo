@@ -199,7 +199,9 @@ class Hallo:
         """
         Returns a server matching the given name
         :param server_name: name of the server to search for
+        :type server_name: str
         :return: Server matching specified name of None
+        :rtype: Server | None
         """
         for server in self.server_list:
             if server.name.lower() == server_name.lower():
