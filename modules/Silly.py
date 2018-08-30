@@ -1,4 +1,4 @@
-from Events import EventMessage
+from Events import EventMessage, EventCTCP
 from Function import Function
 from inc.Commons import Commons
 import time
@@ -24,7 +24,7 @@ class Is(Function):
         self.help_docs = "Placeholder. Format: is"
 
     def run(self, event):
-        return "I am?"
+        return event.create_response("I am?")
 
 
 class Blank(Function):
@@ -45,7 +45,7 @@ class Blank(Function):
         self.help_docs = "I wonder if this works. Format: "
 
     def run(self, event):
-        return "Yes?"
+        return event.create_response("Yes?")
 
 
 class Alarm(Function):
@@ -66,7 +66,7 @@ class Alarm(Function):
         self.help_docs = "Alarm. Format: alarm <subject>"
 
     def run(self, event):
-        return "woo woooooo woooooo {} wooo wooo!".format(event.command_args)
+        return event.create_response("woo woooooo woooooo {} wooo wooo!".format(event.command_args))
 
 
 class SlowClap(Function):
@@ -91,22 +91,22 @@ class SlowClap(Function):
         server_obj = event.server
         if line_clean == "":
             if event.channel is not None:
-                server_obj.send("*clap*", event.channel)
+                server_obj.send(EventMessage(server_obj, event.channel, None, "*clap*", inbound=False))
                 time.sleep(0.5)
-                server_obj.send("*clap*", event.channel)
+                server_obj.send(EventMessage(server_obj, event.channel, None, "*clap*", inbound=False))
                 time.sleep(2)
-                return '*clap.*'
+                return event.create_response('*clap.*')
             else:
-                return "Error, you want me to slowclap yourself?"
+                return event.create_response("Error, you want me to slowclap yourself?")
         channel_obj = server_obj.get_channel_by_name(line_clean)
         if not channel_obj.in_channel:
-            return "Error, I'm not in that channel."
-        server_obj.send("*clap*", channel_obj)
+            return event.create_response("Error, I'm not in that channel.")
+        server_obj.send(EventMessage(server_obj, channel_obj, None, "*clap*", inbound=False))
         time.sleep(0.5)
-        server_obj.send("*clap*", channel_obj)
+        server_obj.send(EventMessage(server_obj, channel_obj, None, "*clap*", inbound=False))
         time.sleep(2)
-        server_obj.send("*clap.*", channel_obj)
-        return "done. :)"
+        server_obj.send(EventMessage(server_obj, channel_obj, None, "*clap.*", inbound=False))
+        return event.create_response("done. :)")
 
 
 class Boop(Function):
@@ -130,8 +130,8 @@ class Boop(Function):
         """Boops people. Format: boop <name>"""
         line_clean = event.command_args.strip().lower()
         if line_clean == '':
-            return "Error, this function boops people, as such you need to specify a person for me to boop, " \
-                   "in the form 'Hallo boop <name>' but without the <> brackets."
+            return event.create_response("Error, this function boops people, as such you need to specify a person "
+                                         "for me to boop, in the form 'Hallo boop <name>' but without the <> brackets.")
         # Get useful objects
         server_obj = event.server
         # Split arguments, see how many there are.
@@ -139,14 +139,15 @@ class Boop(Function):
         # If one argument, check that the user is in the current channel.
         if len(line_split) == 1:
             if event.channel is None:
-                return "Error, please provide a username and a channel, if using function from private message."
+                return event.create_response("Error, please provide a username and a channel, "
+                                             "if using function from private message.")
             dest_user_obj = server_obj.get_user_by_name(line_clean)
             if dest_user_obj is None \
                     or not dest_user_obj.online \
                     or dest_user_obj not in event.channel.get_user_list():
-                return "Error, No one by that name is online or in channel."
-            server_obj.send("\x01ACTION boops {}.\x01".format(dest_user_obj.name), event.channel)
-            return "Done."
+                return event.create_response("Error, No one by that name is online or in channel.")
+            server_obj.send(EventCTCP(server_obj, event.channel, None, "ACTION boops {}.".format(dest_user_obj.name)))
+            return event.create_response("Done.")
         # If two arguments, see if one is a channel and the other a user.
         channel_test_1 = server_obj.get_channel_by_name(line_split[0])
         if channel_test_1 is not None and channel_test_1.in_channel:
@@ -158,13 +159,13 @@ class Boop(Function):
                 dest_channel = channel_test_2
                 dest_user = server_obj.get_user_by_name(line_split[0])
             else:
-                return "Error, I'm not in any channel by that name."
+                return event.create_response("Error, I'm not in any channel by that name.")
         # If user by that name is not online, return a message saying that.
         if dest_user is None or not dest_user.online or dest_user not in dest_channel.get_user_list():
-            return "Error, No user by that name is known and/or online."
+            return event.create_response("Error, No user by that name is known and/or online.")
         # Send boop, then return done.
-        server_obj.send("\x01ACTION boops {}.\x01".format(dest_user.name), dest_channel)
-        return "Done."
+        server_obj.send(EventCTCP(server_obj, dest_channel, None, "ACTION boops {}".format(dest_user.name)))
+        return event.create_response("Done.")
 
 
 class ReplyMessage:
@@ -359,7 +360,7 @@ class Reply(Function):
         self.help_docs = "Make hallo reply to a detected phrase with a specified response."
 
     def run(self, event):
-        return "Error, Not yet handled."
+        return event.create_response("Error, Not yet handled.")
         pass
 
     def get_passive_events(self):
@@ -372,4 +373,4 @@ class Reply(Function):
             return
         reply_message_list = ReplyMessageList.load_from_xml()
         response = reply_message_list.get_response(event.text, event.user, event.channel)
-        return response
+        return event.create_response(response)
