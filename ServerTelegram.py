@@ -164,12 +164,16 @@ class ServerTelegram(Server):
         # Print it to console
         print("{} [{}] Unhandled data: {}".format(Commons.current_timestamp(), self.name, update))
 
-    def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
-        self.bot.send_message(chat_id=destination_obj.address, text=data)
-        user_obj = destination_obj if isinstance(destination_obj, User) else None
-        channel_obj = destination_obj if isinstance(destination_obj, Channel) else None
-        self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, data, self, user_obj, channel_obj)
-        self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, data, self, user_obj, channel_obj)
+    def send(self, event):
+        if isinstance(event, EventMessage):
+            destination = event.user if event.channel is None else event.channel
+            self.bot.send_message(chat_id=destination.address, text=event.text)
+            self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, event.text, self, None, event.channel)
+            self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, event.text, self, None, event.channel)
+        else:
+            print("This event type, {}, is not currently supported to send on Telegram servers",
+                  event.__class__.__name__)
+            raise NotImplementedError()
 
     def to_json(self):
         """
