@@ -80,7 +80,9 @@ class FunctionDispatcher(object):
         try:
             response = function_obj.run(event)
             if response is not None:
-                server_obj.send(response, resp_destination)
+                server_obj.send(response)
+            else:
+                event.server.send("The function returned no value.", resp_destination)
             return
         except Exception as e:
             server_obj.send("Function failed with error message: {}".format(e), resp_destination)
