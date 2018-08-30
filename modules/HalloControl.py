@@ -22,7 +22,7 @@ class ConfigSave(Function):
     def run(self, event):
         hallo_obj = event.server.hallo
         hallo_obj.save_json()
-        return "Config has been saved."
+        return event.create_response("Config has been saved.")
 
 
 class ModuleReload(Function):
@@ -47,9 +47,9 @@ class ModuleReload(Function):
         function_dispatcher = hallo_obj.function_dispatcher
         reload_result = function_dispatcher.reload_module(event.command_args)
         if reload_result:
-            return "Module reloaded."
+            return event.create_response("Module reloaded.")
         else:
-            return "Error, failed to reload module."
+            return event.create_response("Error, failed to reload module.")
 
 
 class ActiveThreads(Function):
@@ -73,7 +73,7 @@ class ActiveThreads(Function):
         """
         Returns current number of active threads.. should probably be gods only, but it is not. Format: active_thread
         """
-        return "I think I have {} active threads right now.".format(threading.active_count())
+        return event.create_response("I think I have {} active threads right now.".format(threading.active_count()))
 
 
 class Help(Function):
@@ -98,10 +98,10 @@ class Help(Function):
     def run(self, event):
         self.hallo_obj = event.server.hallo
         if event.command_args.strip() == "":
-            return self.list_all_functions(event.user, event.channel)
+            return event.create_response(self.list_all_functions(event.user, event.channel))
         else:
             function_name = event.command_args.strip().lower()
-            return self.get_help_on_function(function_name)
+            return event.create_response(self.get_help_on_function(function_name))
 
     def list_all_functions(self, user_obj, channel_obj):
         """Returns a list of all functions."""
@@ -162,4 +162,4 @@ class Shutdown(Function):
     def run(self, event):
         hallo_obj = event.server.hallo
         hallo_obj.close()
-        return "Shutting down."
+        return event.create_response("Shutting down.")
