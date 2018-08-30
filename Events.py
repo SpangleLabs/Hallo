@@ -214,8 +214,6 @@ class EventMessage(ChannelUserTextEvent):
         """ :type : str | None"""
         self.command_args = None
         """ :type : str | None"""
-        self.function_call = None
-        """ :type : EventMessage.FunctionCall | None"""
         self.check_prefix()
 
     def check_prefix(self):
