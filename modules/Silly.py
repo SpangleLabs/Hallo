@@ -1,4 +1,3 @@
-from Destination import Channel
 from Events import EventMessage
 from Function import Function
 from inc.Commons import Commons
@@ -24,7 +23,7 @@ class Is(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Placeholder. Format: is"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         return "I am?"
 
 
@@ -45,7 +44,7 @@ class Blank(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "I wonder if this works. Format: "
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         return "Yes?"
 
 
@@ -66,8 +65,8 @@ class Alarm(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Alarm. Format: alarm <subject>"
 
-    def run(self, line, user_obj, destination_obj=None):
-        return "woo woooooo woooooo {} wooo wooo!".format(line)
+    def run(self, event):
+        return "woo woooooo woooooo {} wooo wooo!".format(event.command_args)
 
 
 class SlowClap(Function):
@@ -87,14 +86,14 @@ class SlowClap(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Slowclap. Format: slowclap"
 
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
-        server_obj = user_obj.server
+    def run(self, event):
+        line_clean = event.command_args.strip().lower()
+        server_obj = event.server
         if line_clean == "":
-            if destination_obj.is_channel():
-                server_obj.send("*clap*", destination_obj)
+            if event.channel is not None:
+                server_obj.send("*clap*", event.channel)
                 time.sleep(0.5)
-                server_obj.send("*clap*", destination_obj)
+                server_obj.send("*clap*", event.channel)
                 time.sleep(2)
                 return '*clap.*'
             else:
@@ -127,26 +126,26 @@ class Boop(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Boops people. Format: boop <name>"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """Boops people. Format: boop <name>"""
-        line_clean = line.strip().lower()
+        line_clean = event.command_args.strip().lower()
         if line_clean == '':
             return "Error, this function boops people, as such you need to specify a person for me to boop, " \
                    "in the form 'Hallo boop <name>' but without the <> brackets."
         # Get useful objects
-        server_obj = user_obj.server
+        server_obj = event.server
         # Split arguments, see how many there are.
         line_split = line_clean.split()
         # If one argument, check that the user is in the current channel.
         if len(line_split) == 1:
-            if destination_obj is None or not isinstance(destination_obj, Channel):
+            if event.channel is None:
                 return "Error, please provide a username and a channel, if using function from private message."
             dest_user_obj = server_obj.get_user_by_name(line_clean)
             if dest_user_obj is None \
                     or not dest_user_obj.online \
-                    or dest_user_obj not in destination_obj.get_user_list():
+                    or dest_user_obj not in event.channel.get_user_list():
                 return "Error, No one by that name is online or in channel."
-            server_obj.send("\x01ACTION boops {}.\x01".format(dest_user_obj.name), destination_obj)
+            server_obj.send("\x01ACTION boops {}.\x01".format(dest_user_obj.name), event.channel)
             return "Done."
         # If two arguments, see if one is a channel and the other a user.
         channel_test_1 = server_obj.get_channel_by_name(line_split[0])
@@ -359,7 +358,7 @@ class Reply(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Make hallo reply to a detected phrase with a specified response."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         return "Error, Not yet handled."
         pass
 
