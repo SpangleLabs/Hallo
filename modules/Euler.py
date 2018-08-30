@@ -30,9 +30,9 @@ class Euler(Function):
         self.mHalloObject = event.server.hallo
         line_clean = event.command_args.strip().lower()
         if line_clean == "list":
-            return self.list_all()
+            return event.create_response(self.list_all())
         elif line_clean.isdigit():
-            return self.run_function(line_clean)
+            return event.create_response(self.run_function(line_clean))
         else:
             count_solutions = len(
                 [func_name for func_name in dir(self) if func_name[:5] == 'euler' and func_name[5:].isdigit()])
@@ -40,7 +40,7 @@ class Euler(Function):
                             "I've not done many so far, I've only done {} of the 514 problems. ".format(count_solutions)
             output_string += "But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, " \
                              "say 'Hallo Euler {num}' for the answer to challenge number {num}."
-            return output_string
+            return event.create_response(output_string)
 
     def list_all(self):
         # list all available project Euler answers
