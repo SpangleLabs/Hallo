@@ -6,7 +6,6 @@ from xml.dom import minidom
 # noinspection PyDeprecation
 import imp
 
-from Destination import Channel
 from Events import ServerEvent, UserEvent, ChannelEvent, EventMessage
 from Function import Function
 
@@ -115,10 +114,7 @@ class FunctionDispatcher(object):
             try:
                 response = function_obj.passive_run(event, self.hallo)
                 if response is not None:
-                    if isinstance(event, ChannelEvent) and event.channel is not None:
-                        event.server.send(response, event.channel)
-                    elif isinstance(event, UserEvent) and event.user is not None:
-                        event.server.send(response, event.user)
+                    event.server.send(response)
                 continue
             except Exception as e:
                 print("ERROR Passive Function: {} {}".format(function_class.__module__, function_class.__name__))
