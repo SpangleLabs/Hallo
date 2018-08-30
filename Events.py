@@ -179,7 +179,8 @@ class EventInvite(ChannelUserEvent):
         """
         :type server: Server.Server
         :type channel: Destination.Channel
-        :type inviting_user: Destination.User
+        :param inviting_user: User which is doing the inviting, or None if outbound
+        :type inviting_user: Destination.User | None
         :type invited_user: Destination.User
         :type inbound: bool
         """
