@@ -1,7 +1,8 @@
 import json
 from threading import Lock
 
-from Events import EventMinute
+from Destination import Channel, User
+from Events import EventMinute, EventMessage
 from Function import Function
 from inc.Commons import Commons, ISO8601ParseError
 import urllib.parse
@@ -28,7 +29,7 @@ class E621(Function):
     def run(self, event):
         search_result = self.get_random_link_result(event.command_args)
         if search_result is None:
-            return "No results."
+            return event.create_response("No results.")
         else:
             link = "http://e621.net/post/show/{}".format(search_result['id'])
             if search_result['rating'] == 'e':
@@ -40,7 +41,7 @@ class E621(Function):
             else:
                 rating = "(Unknown)"
             line_response = event.command_args.strip()
-            return "e621 search for \"{}\" returned: {} {}".format(line_response, link, rating)
+            return event.create_response("e621 search for \"{}\" returned: {} {}".format(line_response, link, rating))
 
     def get_random_link_result(self, search):
         """Gets a random link from the e621 api."""
@@ -79,7 +80,7 @@ class RandomPorn(Function):
         e621_obj = function_dispatcher.get_function_object(e621_class)  # type: E621
         search_result = e621_obj.get_random_link_result(line_unclean)
         if search_result is None:
-            return "No results."
+            return event.create_response("No results.")
         else:
             link = "http://e621.net/post/show/{}".format(search_result['id'])
             if search_result['rating'] == 'e':
@@ -91,7 +92,7 @@ class RandomPorn(Function):
             else:
                 rating = "(Unknown)"
             line_response = event.command_args.strip()
-            return "e621 search for \"{}\" returned: {} {}".format(line_response, link, rating)
+            return event.create_response("e621 search for \"{}\" returned: {} {}".format(line_response, link, rating))
 
 
 class Butts(Function):
@@ -117,7 +118,7 @@ class Butts(Function):
         e621_obj = function_dispatcher.get_function_object(e621_class)  # type: E621
         search_result = e621_obj.get_random_link_result("butt")
         if search_result is None:
-            return "No results."
+            return event.create_response("No results.")
         else:
             link = "http://e621.net/post/show/{}".format(search_result['id'])
             if search_result['rating'] == 'e':
@@ -128,7 +129,7 @@ class Butts(Function):
                 rating = "(Safe)"
             else:
                 rating = "(Unknown)"
-            return "e621 search for \"butt\" returned: {} {}".format(link, rating)
+            return event.create_response("e621 search for \"butt\" returned: {} {}".format(link, rating))
 
 
 class Fursona(Function):
@@ -372,7 +373,7 @@ class Fursona(Function):
                                                            Commons.get_random_choice(animal)[0],
                                                            Commons.get_random_choice(description1)[0],
                                                            Commons.get_random_choice(description2)[0])
-        return result
+        return event.create_response(result)
 
 
 class E621Sub:
@@ -418,9 +419,9 @@ class E621Sub:
         """
         Outputs an item to a given server and destination, or the feed default.
         :param e621_result: dict e621 JSON result to output
-        :param hallo: Hallo
-        :param server: Server
-        :param destination: Destination
+        :type hallo: Hallo.Hallo
+        :type server: Server.Server
+        :type destination: Destination.Destination
         """
         # Get server
         if server is None:
@@ -436,8 +437,11 @@ class E621Sub:
             if destination is None:
                 return "Error, invalid destination."
         # Construct output
+        channel = destination if isinstance(destination, Channel) else None
+        user = destination if isinstance(destination, User) else None
         output = self.format_item(e621_result)
-        server.send(output, destination)
+        output_evt = EventMessage(server, channel, user, output, inbound=False)
+        server.send(output_evt)
         return output
 
     def format_item(self, e621_result):
@@ -674,7 +678,7 @@ class SubE621Add(Function):
         first_results = e621_sub.check_subscription()
         # If no results, this is an invalid search subscription
         if len(first_results) == 0:
-            return "Error, this does not appear to be a valid search, or does not have results."
+            return event.create_response("Error, this does not appear to be a valid search, or does not have results.")
         # Locking
         with e621_sub_list.sub_lock:
             # Add new rss feed to list
@@ -682,7 +686,7 @@ class SubE621Add(Function):
             # Save list
             e621_sub_list.save_json()
         # Return output
-        return "I have added new e621 subscription for the search \"{}\"".format(e621_sub.search)
+        return event.create_response("I have added new e621 subscription for the search \"{}\"".format(e621_sub.search))
 
 
 class SubE621Check(Function):
@@ -733,7 +737,7 @@ class SubE621Check(Function):
         clean_input = event.command_args.strip().lower()
         # Check whether input is asking to update all e621 subscriptions
         if clean_input in self.NAMES_ALL:
-            return self.run_all(hallo)
+            return event.create_response(self.run_all(hallo))
         # Acquire lock
         with self.e621_sub_list.sub_lock:
             # Otherwise see if a search subscription matches the specified one
@@ -742,8 +746,9 @@ class SubE621Check(Function):
                                                                   if event.channel is None
                                                                   else event.channel)
             if len(matching_subs) == 0:
-                return "Error, no e621 search subscriptions match that name. If you're adding a new search " \
-                       "subscription, use \"e621 sub add\" with your search."
+                return event.create_response("Error, no e621 search subscriptions match that name. " +
+                                             "If you're adding a new search subscription, " +
+                                             "use \"e621 sub add\" with your search.")
             output_lines = []
             # Loop through matching search subscriptions, getting updates
             for search_sub in matching_subs:
@@ -756,8 +761,8 @@ class SubE621Check(Function):
             self.e621_sub_list.save_json()
         # Output response to user
         if len(output_lines) == 0:
-            return "There were no updates for \"{}\" e621 search.".format(event.command_args)
-        return "The following search updates were found:\n" + "\n".join(output_lines)
+            return event.create_response("There were no updates for \"{}\" e621 search.".format(event.command_args))
+        return event.create_response("The following search updates were found:\n" + "\n".join(output_lines))
 
     def run_all(self, hallo):
         output_lines = []
@@ -829,11 +834,11 @@ class SubE621List(Function):
                                                                   if event.channel is None
                                                                   else event.channel)
         if len(dest_searches) == 0:
-            return "There are no e621 search subscriptions posting to this destination."
+            return event.create_response("There are no e621 search subscriptions posting to this destination.")
         output_lines = ["E621 search subscriptions posting to this channel:"]
         for search_item in dest_searches:
             output_lines.append(" - \"{}\"".format(search_item.search))
-        return "\n".join(output_lines)
+        return event.create_response("\n".join(output_lines))
 
 
 class SubE621Remove(Function):
@@ -877,7 +882,9 @@ class SubE621Remove(Function):
             if len(test_feeds) > 0:
                 for del_sub in test_feeds:
                     e621_sub_list.remove_sub(del_sub)
-                return "Removed \"{}\" e621 search subscription. Updates will no longer be " \
-                       "sent to .".format(test_feeds[0].search,
-                                          (test_feeds[0].channel_address or test_feeds[0].user_address))
-        return "Error, there are no e621 search subscriptions in this channel matching that search."
+                return event.create_response("Removed \"{}\" e621 search subscription. " +
+                                             "Updates will no longer be sent to {}" +
+                                             ".".format(test_feeds[0].search,
+                                                        (test_feeds[0].channel_address or test_feeds[0].user_address)))
+        return event.create_response("Error, there are no e621 search subscriptions in this channel matching " +
+                                     "that search.")
