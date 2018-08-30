@@ -37,6 +37,7 @@ class Function(metaclass=ABCMeta):
         :param event: Event which function wants running on, for which, this should be true:
         (is_prefixed is not false and command_args is not None)
         :type event: EventMessage
+        :rtype: EventMessage
         """
         raise NotImplementedError
 
