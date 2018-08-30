@@ -44,7 +44,7 @@ class Longcat(Function):
  \__/      \__/'''
         longcat = long_cat_head + long_cat_segment * segments + long_cat_tail
         longcat += "\n Longcat is L{}ng!".format("o"*segments)
-        return longcat
+        return event.create_response(longcat)
 
 
 class Deer(Function):
@@ -90,7 +90,7 @@ class Deer(Function):
            | || |           | |   | |
            |_||_|           |_|   |_|
           /_//_/           /_/   /_/'''
-        return deer
+        return event.create_response(deer)
 
 
 class Dragon(Function):
@@ -147,7 +147,7 @@ class Dragon(Function):
             dragon = dragon_one
         else:
             dragon = dragon_two
-        return dragon
+        return event.create_response(dragon)
 
 
 class Train(Function):
@@ -174,4 +174,4 @@ class Train(Function):
            {"""""LILI|[" " "'"]['""'"""][''"""'']["" """"][LI LI]
   ^#^#^#^#^/_OO====OO`'OO---OO''OO---OO''OO---OO''OO---OO`'OO-OO'^#^#^#^
  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'''
-        return train
+        return event.create_response(train)
