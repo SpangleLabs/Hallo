@@ -19,8 +19,8 @@ class ConfigSave(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Save the config to xml."
 
-    def run(self, line, user_obj, destination_obj=None):
-        hallo_obj = user_obj.server.hallo
+    def run(self, event):
+        hallo_obj = event.server.hallo
         hallo_obj.save_json()
         return "Config has been saved."
 
@@ -42,10 +42,10 @@ class ModuleReload(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Reloads a specified module."
 
-    def run(self, line, user_obj, destination_obj=None):
-        hallo_obj = user_obj.server.hallo
+    def run(self, event):
+        hallo_obj = event.server.hallo
         function_dispatcher = hallo_obj.function_dispatcher
-        reload_result = function_dispatcher.reload_module(line)
+        reload_result = function_dispatcher.reload_module(event.command_args)
         if reload_result:
             return "Module reloaded."
         else:
@@ -69,7 +69,7 @@ class ActiveThreads(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns current number of active threads. Format: active thread"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """
         Returns current number of active threads.. should probably be gods only, but it is not. Format: active_thread
         """
@@ -95,15 +95,15 @@ class Help(Function):
                          "or \"help <command>\" for help on a specific command."
         self.hallo_obj = None  # Hallo object containing everything.
 
-    def run(self, line, user_obj, destination_obj=None):
-        self.hallo_obj = user_obj.server.hallo
-        if line.strip() == "":
-            return self.list_all_functions(user_obj, destination_obj)
+    def run(self, event):
+        self.hallo_obj = event.server.hallo
+        if event.command_args.strip() == "":
+            return self.list_all_functions(event.user, event.channel)
         else:
-            function_name = line.strip().lower()
+            function_name = event.command_args.strip().lower()
             return self.get_help_on_function(function_name)
 
-    def list_all_functions(self, user_obj, destination_obj):
+    def list_all_functions(self, user_obj, channel_obj):
         """Returns a list of all functions."""
         # Get required objects
         server_obj = user_obj.server
@@ -117,7 +117,7 @@ class Help(Function):
             function_help_name = function_obj.get_help_name()
             # Check permissions allow user to use this function
             if (function_dispatcher.check_function_permissions(function_class, server_obj, user_obj,
-                                                               destination_obj)):
+                                                               channel_obj)):
                 output_list.append(function_help_name)
         # Construct the output string
         output_string = "List of available functions: " + ", ".join(output_list)
@@ -159,7 +159,7 @@ class Shutdown(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Shuts down hallo entirely."
 
-    def run(self, line, user_obj, destination_obj=None):
-        hallo_obj = user_obj.server.hallo
+    def run(self, event):
+        hallo_obj = event.server.hallo
         hallo_obj.close()
         return "Shutting down."
