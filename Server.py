@@ -71,7 +71,7 @@ class Server(metaclass=ABCMeta):
         self.disconnect()
         self.start()
 
-    def send(self, data, destination_obj=None, msg_type=MSG_MSG):
+    def send(self, event):
         """
         Sends a message to the server, or a specific channel in the server
         :param data: Line of data to send to server
