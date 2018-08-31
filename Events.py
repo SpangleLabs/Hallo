@@ -91,7 +91,8 @@ class EventNameChange(UserEvent):
     def __init__(self, server, user, old_name, new_name, inbound=True):
         """
         :type server: Server.Server
-        :type user: Destination.User
+        :param user: User object who has changed their name, or None if outbound
+        :type user: Destination.User | None
         :type old_name: str
         :type new_name: str
         :type inbound: bool
