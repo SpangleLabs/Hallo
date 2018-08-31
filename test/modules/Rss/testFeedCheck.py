@@ -102,9 +102,9 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             chan1_count = 0
             chan2_count = 0
             for data_line in serv1_data:
-                if data_line[1] == chan1:
+                if data_line.channel == chan1:
                     chan1_count += 1
-                if data_line[1] == chan2:
+                if data_line.channel == chan2:
                     chan2_count += 1
             assert chan1_count == 3
             assert chan2_count == 3
@@ -228,9 +228,9 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             chan1_count = 0
             chan2_count = 0
             for data_line in serv1_data:
-                if data_line[1] == chan1:
+                if data_line.channel == chan1:
                     chan1_count += 1
-                if data_line[1] == chan2:
+                if data_line.channel == chan2:
                     chan2_count += 1
             assert chan1_count == 3
             assert chan2_count == 3

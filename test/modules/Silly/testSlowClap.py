@@ -37,7 +37,7 @@ class SlowClapTest(TestBase, unittest.TestCase):
         assert data[0].channel == test_chan2
         assert data[1].channel == test_chan2
         assert data[2].channel == test_chan2
-        assert data[3].channel == self.test_user, "Done response should go to user."
+        assert data[3].user == self.test_user, "Done response should go to user."
         assert "clap" in data[0].text.lower()
         assert "clap" in data[1].text.lower()
         assert "clap." in data[2].text.lower(), "Final clap needs a fullstop."

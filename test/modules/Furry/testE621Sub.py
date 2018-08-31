@@ -2,6 +2,7 @@ import unittest
 from datetime import datetime
 import time
 
+from Events import EventMessage
 from Hallo import Hallo
 from inc.Commons import Commons
 from modules.Furry import E621Sub

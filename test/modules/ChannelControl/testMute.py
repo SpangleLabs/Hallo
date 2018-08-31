@@ -179,7 +179,7 @@ class MuteTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "mute test_chan1"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0].text.lower()
+            assert "error" not in data[1].text.lower()
             assert data[0].channel == chan1
             assert data[1].user == user1
             assert data[0].__class__ == EventMode
