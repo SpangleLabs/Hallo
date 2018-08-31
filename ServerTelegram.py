@@ -169,11 +169,32 @@ class ServerTelegram(Server):
         if isinstance(event, EventMessage):
             destination = event.user if event.channel is None else event.channel
             self.bot.send_message(chat_id=destination.address, text=event.text)
-            self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, event.text, self, None, event.channel)
-            self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, event.text, self, None, event.channel)
+            self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, event.text, self, event.user, event.channel)
+            self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, event.text, self, event.user, event.channel)
         else:
             print("This event type, {}, is not currently supported to send on Telegram servers",
                   event.__class__.__name__)
+            raise NotImplementedError()
+
+    def reply(self, old_event, new_event):
+        """
+        :type old_event: Events.ChannelUserTextEvent
+        :param new_event:
+        :return:
+        """
+        # Do checks
+        super().reply(old_event, new_event)
+        if old_event.raw_data is None or not isinstance(old_event.raw_data, RawDataTelegram):
+            raise ServerException("Old event has no telegram data associated with it")
+        if isinstance(new_event, EventMessage):
+            old_event.raw_data.update_obj.message.reply_text(new_event.text)
+            self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, new_event.text, self, new_event.user,
+                                                new_event.channel)
+            self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, new_event.text, self, new_event.user,
+                                            new_event.channel)
+        else:
+            print("This event type, {}, is not currently supported to send on Telegram servers",
+                  new_event.__class__.__name__)
             raise NotImplementedError()
 
     def to_json(self):

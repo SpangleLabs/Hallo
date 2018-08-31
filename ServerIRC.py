@@ -273,6 +273,11 @@ class ServerIRC(Server):
         print("This event type, {}, is not currently supported to send on IRC servers", event.__class__.__name__)
         raise NotImplementedError()
 
+    def reply(self, old_event, new_event):
+        super().reply(old_event, new_event)
+        # We can't do any fancy reply mechanics on IRC, so just send the event.
+        self.send(new_event)
+
     def send_raw(self, data):
         """Sends raw data to the server
         :param data: Data to send to server

@@ -34,6 +34,10 @@ class ServerMock(Server):
     def send(self, event):
         self.send_data.append(event)
 
+    def reply(self, old_event, new_event):
+        super().reply(old_event, new_event)
+        self.send(new_event)
+
     def reconnect(self):
         pass
 

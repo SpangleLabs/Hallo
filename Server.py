@@ -77,6 +77,25 @@ class Server(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
+    def reply(self, old_event, new_event):
+        """
+        Sends a message as a reply to another message, such as a response to a function call
+        :param old_event: The event which was received, to reply to
+        :type old_event: Events.ChannelUserTextEvent
+        :param new_event: The event to be sent
+        :type new_event: Events.ChannelUserTextEvent
+        """
+        # This method will just do some checks, implementations will have to actually send events
+        if not old_event.is_inbound or new_event.is_inbound:
+            raise ServerException("Cannot reply to outbound event, or send inbound one")
+        if old_event.channel != new_event.channel:
+            raise ServerException("Cannot send reply to a different channel than original message came from")
+        if new_event.user is not None and old_event.user != new_event.user:
+            raise ServerException("Cannot send reply to a different private chat than original message came from")
+        if old_event.server != new_event.server:
+            raise ServerException("Cannot send reply to a different server than the original message came from")
+        return
+
     def to_json(self):
         """
         Returns a dict formatted so it may be serialised into json configuration data
