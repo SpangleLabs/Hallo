@@ -2,7 +2,7 @@ import json
 from threading import Lock
 
 from Destination import Channel, User
-from Events import EventMinute, EventMessage
+from Events import EventMinute, EventMessageWithPhoto
 from Function import Function
 from inc.Commons import Commons, ISO8601ParseError
 import urllib.parse
@@ -440,7 +440,8 @@ class E621Sub:
         channel = destination if isinstance(destination, Channel) else None
         user = destination if isinstance(destination, User) else None
         output = self.format_item(e621_result)
-        output_evt = EventMessage(server, channel, user, output, inbound=False)
+        image_url = e621_result["file_url"]
+        output_evt = EventMessageWithPhoto(server, channel, user, output, image_url, inbound=False)
         server.send(output_evt)
         return output
 
