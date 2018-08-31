@@ -54,6 +54,9 @@ class EventPing(ServerEvent):
         self.ping_number = ping_number
         """ :type : str"""
 
+    def get_pong(self):
+        return EventPing(self.server, self.ping_number, inbound=False)
+
 
 class UserEvent(ServerEvent, metaclass=ABCMeta):
 
