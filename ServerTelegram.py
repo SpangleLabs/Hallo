@@ -169,11 +169,18 @@ class ServerTelegram(Server):
         print("{} [{}] Unhandled data: {}".format(Commons.current_timestamp(), self.name, update))
 
     def send(self, event):
+        if isinstance(event, EventMessageWithPhoto):
+            destination = event.user if event.channel is None else event.channel
+            self.bot.send_photo(chat_id=destination.address, photo=event.photo_id, caption=event.text)
+            self.hallo.printer.output(event)
+            self.hallo.logger.log(event)
+            return
         if isinstance(event, EventMessage):
             destination = event.user if event.channel is None else event.channel
             self.bot.send_message(chat_id=destination.address, text=event.text)
             self.hallo.printer.output(event)
             self.hallo.logger.log(event)
+            return
         else:
             print("This event type, {}, is not currently supported to send on Telegram servers",
                   event.__class__.__name__)
@@ -189,10 +196,23 @@ class ServerTelegram(Server):
         super().reply(old_event, new_event)
         if old_event.raw_data is None or not isinstance(old_event.raw_data, RawDataTelegram):
             raise ServerException("Old event has no telegram data associated with it")
-        if isinstance(new_event, EventMessage):
-            old_event.raw_data.update_obj.message.reply_text(new_event.text)
+        # Send event
+        if isinstance(new_event, EventMessageWithPhoto):
+            destination = new_event.user if new_event.channel is None else new_event.channel
+            old_message_id = old_event.raw_data.update_obj.message.message_id
+            self.bot.send_photo(destination.address, new_event.photo_id, caption=new_event.text,
+                                reply_to_message_id=old_message_id)
             self.hallo.printer.output(new_event)
             self.hallo.logger.log(new_event)
+            return
+        if isinstance(new_event, EventMessage):
+            destination = new_event.user if new_event.channel is None else new_event.channel
+            old_message_id = old_event.raw_data.update_obj.message.message_id
+            self.bot.send_message(destination.address, new_event.text,
+                                  reply_to_message_id=old_message_id)
+            self.hallo.printer.output(new_event)
+            self.hallo.logger.log(new_event)
+            return
         else:
             print("This event type, {}, is not currently supported to send on Telegram servers",
                   new_event.__class__.__name__)
