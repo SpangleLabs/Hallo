@@ -3,7 +3,6 @@ import unittest
 from Events import EventMessage
 from Hallo import Hallo
 from PermissionMask import PermissionMask
-from Server import Server
 from UserGroup import UserGroup
 from modules.PermissionControl import Permissions
 from test.ServerMock import ServerMock
@@ -26,7 +25,7 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm2 = PermissionMask()
         chan1.permission_mask = perm2
-        user1 = serv1.get_user_by_address("test_user1","test_user1")
+        user1 = serv1.get_user_by_address("test_user1", "test_user1")
         perm3 = PermissionMask()
         user1.permission_mask = perm3
         # Get permission mask of given channel
@@ -87,7 +86,7 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         # Get permission mask of given channel
         test_right = "test_right"
         self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1,
-                                                       "permissions server=test_serv1 channel=test_chan1 "+
+                                                       "permissions server=test_serv1 channel=test_chan1 " +
                                                        test_right+" off"))
         data = serv1.get_send_data(1, chan1, EventMessage)
         assert "error" not in data[0].text.lower()
@@ -108,7 +107,7 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm2 = PermissionMask()
         chan1.permission_mask = perm2
-        user1 = serv1.get_user_by_address("test_user1","test_user1")
+        user1 = serv1.get_user_by_address("test_user1", "test_user1")
         perm3 = PermissionMask()
         user1.permission_mask = perm3
         # Get permission mask of given channel
@@ -136,7 +135,7 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm2 = PermissionMask()
         chan1.permission_mask = perm2
-        user1 = serv1.get_user_by_address("test_user1","test_user1")
+        user1 = serv1.get_user_by_address("test_user1", "test_user1")
         perm3 = PermissionMask()
         user1.permission_mask = perm3
         # Get permission mask of given channel
@@ -163,7 +162,7 @@ class PermissionControlTest(TestBase, unittest.TestCase):
         chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         perm2 = PermissionMask()
         chan1.permission_mask = perm2
-        user1 = serv1.get_user_by_address("test_user1","test_user1")
+        user1 = serv1.get_user_by_address("test_user1", "test_user1")
         perm3 = PermissionMask()
         user1.permission_mask = perm3
         # Get permission mask of given channel

@@ -2,7 +2,6 @@ import os
 import unittest
 
 from Events import EventMinute, EventMessage
-from Server import Server
 from inc.Commons import Commons
 from modules.Rss import FeedCheck, RssFeedList, RssFeed
 from test.ServerMock import ServerMock

@@ -1,7 +1,6 @@
 import unittest
 
 from Events import EventMessage
-from Server import Server
 from test.TestBase import TestBase
 
 
@@ -36,7 +35,7 @@ class SimplifyFractionTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "fraction 17/3"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "17/3." == data[0].text[-5:], "Simplify fraction should return original " \
-                                           "fraction if it cannot be simplified."
+                                             "fraction if it cannot be simplified."
 
     def test_factors_float(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "fraction 17.5/2"))

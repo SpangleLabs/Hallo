@@ -1,7 +1,6 @@
 import unittest
 
 from Events import EventMessage
-from Server import Server
 from modules.Math import Hailstone
 from test.TestBase import TestBase
 

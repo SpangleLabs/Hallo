@@ -20,7 +20,8 @@ class SilenceTheRabbleTest(TestBase, unittest.TestCase):
             user = self.server.get_user_by_address("TEST000242".lower(), "TEST000242")
             self.function_dispatcher.dispatch(EventMessage(self.server, None, user, "silence the rabble"))
             data = self.server.get_send_data(1, user, EventMessage)
-            assert "error" in data[0].text.lower(), "Silence the rabble function should not be usable on non-irc servers."
+            assert "error" in data[0].text.lower(), "Silence the rabble function should not be usable on " \
+                                                    "non-irc servers."
         finally:
             self.server.type = type_original
 

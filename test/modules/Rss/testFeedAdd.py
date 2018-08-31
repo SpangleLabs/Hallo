@@ -2,7 +2,6 @@ import os
 import unittest
 
 from Events import EventMessage
-from Server import Server
 from modules.Rss import FeedCheck
 from test.TestBase import TestBase
 

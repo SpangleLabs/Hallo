@@ -20,9 +20,9 @@ class ListServersTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         # Check response
         assert "do not" in data[0].text, "Response did not say it doesn't have servers. " \
-                                       "Response: " + str(data[0].text)
+                                         "Response: " + str(data[0].text)
         assert ":" not in data[0].text, "Response tried to list servers. " \
-                                      "Response: " + str(data[0].text)
+                                        "Response: " + str(data[0].text)
 
     def test_one_server(self):
         # Add one server
@@ -49,10 +49,11 @@ class ListServersTest(TestBase, unittest.TestCase):
         assert "nick=" + serv1.get_nick() in server_list[0], "Server nick not found in output.\n" \
                                                              "Server nick: " + serv1.get_nick() + "\n" \
                                                              "Command output: " + server_list[0]
-        assert "auto_connect=" + str(serv1.auto_connect) in server_list[0], "Server auto connect not found in output.\n" \
-                                                                            "Server auto connect: " + \
-                                                                            str(serv1.auto_connect) + "\n" \
-                                                                            "Command output: " + server_list[0]
+        assert "auto_connect=" + str(serv1.auto_connect) in \
+               server_list[0], "Server auto connect not found in output.\n" \
+                               "Server auto connect: " + \
+                               str(serv1.auto_connect) + "\n" \
+                                                         "Command output: " + server_list[0]
 
     def test_two_mock_servers(self):
         # Add two servers
@@ -97,11 +98,12 @@ class ListServersTest(TestBase, unittest.TestCase):
                                                            "Server nick: " + serv1.get_nick() + "\n" \
                                                            "Server output: " + str(server_text1) + "\n" \
                                                            "Full output: " + data[0].text
-        assert "auto_connect=" + str(serv1.auto_connect) in server_text1, "Server 1 auto connect not found in output.\n" \
-                                                                          "Server auto connect: " + \
-                                                                          str(serv1.auto_connect) + "\n" \
-                                                                          "Server output: " + str(server_text1) + "\n" \
-                                                                          "Full output: " + data[0].text
+        assert "auto_connect=" + str(serv1.auto_connect) in \
+               server_text1, "Server 1 auto connect not found in output.\n" \
+                             "Server auto connect: " + \
+                             str(serv1.auto_connect) + "\n" \
+                             "Server output: " + str(server_text1) + "\n" \
+                             "Full output: " + data[0].text
         assert serv2.name in server_text2, "Server 2 name not found in output.\n" \
                                            "Server name: " + serv2.name + "\n" \
                                            "Server output: " + str(server_text2) + "\n" \
@@ -118,11 +120,12 @@ class ListServersTest(TestBase, unittest.TestCase):
                                                            "Server nick: " + serv2.get_nick() + "\n" \
                                                            "Server output: " + str(server_text2) + "\n" \
                                                            "Full output: " + data[0].text
-        assert "auto_connect=" + str(serv2.auto_connect) in server_text2, "Server 2 auto connect not found in output.\n" \
-                                                                          "Server auto connect: " + \
-                                                                          str(serv2.auto_connect) + "\n" \
-                                                                          "Server output: " + str(server_text2) + "\n" \
-                                                                          "Full output: " + data[0].text
+        assert "auto_connect=" + str(serv2.auto_connect) in \
+               server_text2, "Server 2 auto connect not found in output.\n" \
+                             "Server auto connect: " + \
+                             str(serv2.auto_connect) + "\n" \
+                             "Server output: " + str(server_text2) + "\n" \
+                             "Full output: " + data[0].text
 
     def test_irc_server(self):
         # Add one server
@@ -155,7 +158,8 @@ class ListServersTest(TestBase, unittest.TestCase):
         assert "nick=" + serv1.get_nick() in server_list[0], "Server nick not found in output.\n" \
                                                              "Server nick: " + serv1.get_nick() + "\n" \
                                                              "Command output: " + server_list[0]
-        assert "auto_connect=" + str(serv1.auto_connect) in server_list[0], "Server auto connect not found in output.\n" \
-                                                                            "Server auto connect: " + \
-                                                                            str(serv1.auto_connect) + "\n" \
-                                                                            "Command output: " + server_list[0]
+        assert "auto_connect=" + str(serv1.auto_connect) in \
+               server_list[0], "Server auto connect not found in output.\n" \
+                               "Server auto connect: " + \
+                               str(serv1.auto_connect) + "\n" \
+                               "Command output: " + server_list[0]

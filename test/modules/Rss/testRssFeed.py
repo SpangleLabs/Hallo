@@ -5,7 +5,6 @@ from xml.etree import ElementTree
 
 from Events import EventMessage
 from Hallo import Hallo
-from Server import Server
 from inc.Commons import Commons
 from modules.Rss import RssFeed
 from test.ServerMock import ServerMock
@@ -111,7 +110,7 @@ class TestRssFeed(unittest.TestCase):
         rf3.user_name = "test_user3"
         serv3 = ServerMock(None)
         serv3.name = "test_serv3"
-        user3 = serv3.get_user_by_address("test_user3","test_user3")
+        user3 = serv3.get_user_by_address("test_user3", "test_user3")
         rf3.output_item(item_elem, None, serv3)
         data = serv3.get_send_data(1, user3, EventMessage)
         assert feed_title in data[0].text
@@ -173,7 +172,7 @@ class TestRssFeed(unittest.TestCase):
         serv7.name = "test_serv7"
         hallo7 = Hallo()
         hallo7.add_server(serv7)
-        user7 = serv7.get_user_by_address("test_user7","test_user7")
+        user7 = serv7.get_user_by_address("test_user7", "test_user7")
         rf7.output_item(item_elem, hallo7)
         data = serv7.get_send_data(1, user7, EventMessage)
         assert feed_title in data[0].text

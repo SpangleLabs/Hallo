@@ -32,7 +32,7 @@ class EulerTest(TestBase, unittest.TestCase):
             data = self.server.get_send_data(1, self.test_user, EventMessage)
             assert "error" not in data[0].text.lower(), "Euler problem " + prob_num + " throws an error."
             assert "Euler project problem " + prob_num + "?" in data[0].text, "Problem name is not in output for " \
-                                                                            "problem " + prob_num
+                                                                              "problem " + prob_num
             assert prob_ans in data[0].text.lower(), "Euler problem " + prob_num + \
-                                                   " has incorrect answer. It should return " + prob_ans + \
-                                                   " but it returns: " + data[0].text
+                                                     " has incorrect answer. It should return " + prob_ans + \
+                                                     " but it returns: " + data[0].text

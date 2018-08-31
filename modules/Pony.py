@@ -152,7 +152,7 @@ class Cupcake(Function):
         else:
             cupcake_type = event.command_args[len(recipient_user_name):].strip()
             output_message = "ACTION gives {} a {} cupcake, from {}.".format(recipient_user_name, cupcake_type,
-                                                                                     event.user.name)
+                                                                             event.user.name)
         # Get both users channel lists, and then the intersection
         user_channel_list = event.user.get_channel_list()
         recipient_channel_list = recipient_user_obj.get_channel_list()

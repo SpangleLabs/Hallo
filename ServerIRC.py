@@ -1008,7 +1008,6 @@ class ServerIRC(Server):
             nick_evt = EventNameChange(self, hallo_user, old_nick, nick, inbound=False)
             self.send(nick_evt)
 
-
     def get_server_port(self):
         """server_port getter"""
         return self.server_port

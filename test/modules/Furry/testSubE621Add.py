@@ -2,7 +2,6 @@ import os
 import unittest
 
 from Events import EventMessage
-from Server import Server
 from modules.Furry import SubE621Check
 from test.TestBase import TestBase
 

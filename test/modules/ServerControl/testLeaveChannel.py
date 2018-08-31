@@ -1,7 +1,6 @@
 import unittest
 
 from Events import EventMessage
-from Server import Server
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
 

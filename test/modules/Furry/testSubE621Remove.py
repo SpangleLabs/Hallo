@@ -2,7 +2,6 @@ import os
 import unittest
 
 from Events import EventMessage
-from Server import Server
 from inc.Commons import Commons
 from modules.Furry import SubE621Check, E621Sub
 from test.TestBase import TestBase

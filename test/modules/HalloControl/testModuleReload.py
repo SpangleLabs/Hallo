@@ -28,7 +28,7 @@ class ModuleReloadTest(TestBase, unittest.TestCase):
             mock_func_disp.module_reload_resp = False
             self.hallo.function_dispatcher = mock_func_disp
             self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                          "module reload HalloControl"))
+                                                           "module reload HalloControl"))
             data = self.server.get_send_data(1, self.test_user, EventMessage)
             assert "error" in data[0].text.lower()
             assert "module reloaded" not in data[0].text.lower()

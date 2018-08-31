@@ -1,7 +1,6 @@
 import unittest
 
 from Events import EventMessage
-from Server import Server
 from test.TestBase import TestBase
 
 
@@ -293,8 +292,9 @@ class CalculateTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, "pie"))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert 8.539 == float(data[0].text[:5]), "Response should have been received."
-        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user,
-                                                  "cos(acos(sin(asin(tan(atan(acosh(cosh(sinh(asinh(tanh(atanh(0))))))))))))"))
+        evt_msg = EventMessage(self.server, self.test_chan, self.test_user,
+                               "cos(acos(sin(asin(tan(atan(acosh(cosh(sinh(asinh(tanh(atanh(0))))))))))))")
+        self.function_dispatcher.dispatch_passive(evt_msg)
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert len(data) != 0, "Response should have been received."
         self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, "acos(2)"))

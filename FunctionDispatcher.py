@@ -406,7 +406,7 @@ class FunctionDispatcher(object):
         json_obj = {}
         json_obj["modules"] = []
         for module_name in self.module_list:
-            json_obj["modules"].append({"name":module_name})
+            json_obj["modules"].append({"name": module_name})
         return json_obj
 
     @staticmethod
