@@ -76,7 +76,8 @@ class EventQuit(UserEvent):
     def __init__(self, server, user, message, inbound=True):
         """
         :type server: Server.Server
-        :type user: Destination.User
+        :param user: User who quit the server, or none if outbound
+        :type user: Destination.User | None
         :type message: str
         :type inbound: bool
         """
