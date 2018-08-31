@@ -34,6 +34,7 @@ class TestBase(unittest.TestCase):
         self.hallo_thread = Thread(target=self.hallo.start,)
         self.hallo_thread.start()
         self.test_user = self.server.get_user_by_address("test", "test")
+        """ :type : Destination.User"""
         self.test_user.online = True
         self.test_chan = self.server.get_channel_by_address("#test", "#test")
         self.test_chan.in_channel = True
