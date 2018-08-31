@@ -226,7 +226,9 @@ class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
         self.text = text
         """ :type : str"""
 
-    def create_response(self, text, event_class=self.__class__):
+    def create_response(self, text, event_class=None):
+        if event_class is None:
+            event_class = self.__class__
         resp = event_class(self.server, self.channel, self.user, text, inbound=False)
         return resp
 
