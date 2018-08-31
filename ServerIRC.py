@@ -106,8 +106,8 @@ class ServerIRC(Server):
         self._welcome_message = first_line + "\n"
         # Send nick and full name to server
         print("{} Sending nick and user info to server: {}".format(Commons.current_timestamp(), self.name))
-        self.send("NICK {}".format(self.get_nick()), None, self.MSG_RAW)
-        self.send("USER {}".format(self.get_full_name()), None, self.MSG_RAW)
+        self.send_raw("NICK {}".format(self.get_nick()))
+        self.send_raw("USER {}".format(self.get_full_name()))
         # Wait for MOTD to end
         while self.state == Server.STATE_CONNECTING:
             next_welcome_line = self.read_line_from_socket()
@@ -125,8 +125,10 @@ class ServerIRC(Server):
             return
         # Identify with nickserv
         if self.nickserv_pass:
-            self.send("IDENTIFY {}".format(self.nickserv_pass),
-                      self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick))
+            ident_evt = EventMessage(self, None,
+                                     self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick),
+                                     "IDENTIFY {}".format(self.nickserv_pass), inbound=False)
+            self.send(ident_evt)
         # Join channels
         print("{} Joining channels on {}, identifying.".format(Commons.current_timestamp(), self.name))
         # Join relevant channels
@@ -159,7 +161,8 @@ class ServerIRC(Server):
             for user in self.user_list:
                 user.set_online(False)
             try:
-                self.send("QUIT :{}".format(quit_message), None, self.MSG_RAW)
+                quit_evt = EventQuit(self, None, quit_message, inbound=False)
+                self.send(quit_evt)
             except Exception as e:
                 print("Failed to send quit message. {}".format(e))
                 pass
@@ -287,12 +290,10 @@ class ServerIRC(Server):
         if channel_obj not in self.channel_list:
             self.add_channel(channel_obj)
         # Set channel to AutoJoin, for the future
-        channel_obj.auto_join  = True
+        channel_obj.auto_join = True
         # Send JOIN command
-        if channel_obj.password is None:
-            self.send("JOIN {}".format(channel_obj.address), None, self.MSG_RAW)
-        else:
-            self.send("JOIN {} {}".format(channel_obj.address, channel_obj.password), None, self.MSG_RAW)
+        join_evt = EventJoin(self, channel_obj, None, channel_obj.password, inbound=False)
+        self.send(join_evt)
 
     def leave_channel(self, channel_obj):
         """
@@ -302,7 +303,7 @@ class ServerIRC(Server):
         """
         super().leave_channel(channel_obj)
         # Send PART command
-        self.send("PART {}".format(channel_obj.address), None, self.MSG_RAW)
+        self.send(EventLeave(self, channel_obj, None, None, inbound=False))
 
     def parse_line(self, new_line):
         """
@@ -362,8 +363,10 @@ class ServerIRC(Server):
         """
         # Get data
         ping_number = ping_line.split()[1]
+        ping_evt = EventPing(self, ping_number)
         # Respond
-        self.send("PONG {}".format(ping_number), None, self.MSG_RAW)
+        pong_evt = ping_evt.get_pong()
+        self.send(pong_evt)
         # Print and log
         self.hallo.printer.output(Function.EVENT_PING, ping_number, self, None, None)
         self.hallo.printer.output_from_self(Function.EVENT_PING, ping_number, self, None, None)
@@ -371,7 +374,6 @@ class ServerIRC(Server):
         self.hallo.logger.log_from_self(Function.EVENT_PING, ping_number, self, None, None)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        ping_evt = EventPing(self, ping_number)
         function_dispatcher.dispatch_passive(ping_evt)
 
     def parse_line_message(self, message_line):
@@ -453,22 +455,27 @@ class ServerIRC(Server):
             self.hallo.logger.log(Function.EVENT_CTCP, message_text, self, message_sender, message_channel)
         # Reply to certain types of CTCP command
         if message_ctcp_command.lower() == 'version':
-            self.send("\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01", message_sender, self.MSG_NOTICE)
+            self.send(EventNotice(self, None, message_sender,
+                                  "\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01", inbound=False))
         elif message_ctcp_command.lower() == 'time':
-            self.send("\x01TIME Fribsday 15 Nov 2024 {}:{}:{} GMT\x01".format(str(time.gmtime()[3] + 100).rjust(2, '0'),
-                                                                              str(time.gmtime()[4] + 20).rjust(2, '0'),
-                                                                              str(time.gmtime()[5]).rjust(2, '0')),
-                      message_sender, self.MSG_NOTICE)
+            self.send(EventNotice(self, None, message_sender,
+                                  "\x01TIME Fribsday 15 Nov 2024 {}:{}:{} " +
+                                  "GMT\x01".format(str(time.gmtime()[3] + 100).rjust(2, '0'),
+                                                   str(time.gmtime()[4] + 20).rjust(2, '0'),
+                                                   str(time.gmtime()[5]).rjust(2, '0')),
+                                  inbound=False))
         elif message_ctcp_command.lower() == 'ping':
-            self.send("\x01PING {}\x01".format(message_ctcp_arguments), message_sender, self.MSG_NOTICE)
+            self.send(EventNotice(self, None, message_sender,
+                                  "\x01PING {}\x01".format(message_ctcp_arguments), inbound=False))
         elif message_ctcp_command.lower() == 'userinfo':
             hallo_info = "\x01Hello, I'm hallo, I'm a robot who does a few different things," \
                          " mostly roll numbers and choose things," \
                          " dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01"
-            self.send(hallo_info, message_sender, self.MSG_NOTICE)
+            self.send(EventNotice(self, None, message_sender, hallo_info, inbound=False))
         elif message_ctcp_command.lower() == 'clientinfo':
-            self.send('\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01', message_sender,
-                      self.MSG_NOTICE)
+            self.send(EventNotice(self, None, message_sender,
+                                  "\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01",
+                                  inbound=False))
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
         ctcp_evt = EventCTCP(self, message_channel, message_sender, message_text)
@@ -760,8 +767,7 @@ class ServerIRC(Server):
                 nick_word = self.nick[:-len(nick_numstr)]
                 nick_number = float(nick_numstr)
             new_nick = nick_word + str(nick_number + 1)
-            self.nick = new_nick
-            self.send("NICK {}".format(self.get_nick()), None, self.MSG_RAW)
+            self.set_nick(new_nick)
             return
         # Only process further numeric codes if motd has ended
         if not motd_ended:
@@ -862,7 +868,7 @@ class ServerIRC(Server):
             self._check_channeluserlist_channel = channel_obj
             self._check_channeluserlist_done = False
             # send request
-            self.send("NAMES {}".format(channel_obj.name), None, Server.MSG_RAW)
+            self.send_raw("NAMES {}".format(channel_obj.name))
             # loop for 5 seconds
             for _ in range(10):
                 # sleep 0.5seconds
@@ -889,7 +895,7 @@ class ServerIRC(Server):
             self._check_usersonline_check_list = check_user_list
             self._check_usersonline_online_list = None
             # send request
-            self.send("ISON {}".format(" ".join(check_user_list)), None, Server.MSG_RAW)
+            self.send_raw("ISON {}".format(" ".join(check_user_list)))
             # loop for 5 seconds
             for _ in range(10):
                 # if reply is here
@@ -929,7 +935,8 @@ class ServerIRC(Server):
             self._check_useridentity_user = user_obj.address
             self._check_useridentity_result = None
             # send whatever request
-            self.send("{} {}".format(self.nickserv_ident_command, user_obj.address), nickserv_obj, self.MSG_MSG)
+            self.send(EventMessage(self, None, nickserv_obj,
+                                   "{} {}".format(self.nickserv_ident_command, user_obj.address), inbound=False))
             # loop for 5 seconds
             for _ in range(10):
                 # if response
@@ -986,7 +993,8 @@ class ServerIRC(Server):
         old_nick = self.get_nick()
         self.nick = nick
         if nick != old_nick:
-            self.send("NICK {}".format(self.nick), None, self.MSG_RAW)
+            nick_evt = EventNameChange(self, None, old_nick, nick, inbound=False)
+            self.send(nick_evt)
             hallo_user_obj = self.get_user_by_address(nick.lower(), nick)
             # Log in all channel Hallo is in.
             for channel in self.channel_list:
@@ -1046,8 +1054,8 @@ class ServerIRC(Server):
         """
         self.nickserv_pass = nickserv_pass
         if self.nickserv_pass is not None:
-            self.send("IDENTIFY {}".format(self.nickserv_pass),
-                      self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick))
+            nickserv_obj = self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick)
+            self.send(EventMessage(self, None, nickserv_obj, "IDENTIFY {}".format(self.nickserv_pass)))
 
     def to_json(self):
         json_obj = dict()
