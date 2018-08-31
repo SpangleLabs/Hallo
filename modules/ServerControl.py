@@ -1,3 +1,4 @@
+from Events import EventMessage
 from Function import Function
 import re
 
@@ -356,7 +357,7 @@ class Say(Function):
             return event.create_response("Unrecognised channel.")
         # Send message to all matching channels
         for channel_obj in channel_objs:
-            channel_obj.server.send(line, channel_obj, Server.MSG_MSG)
+            event.server.send(EventMessage(event.server, channel_obj, None, line, inbound=False))
         return event.create_response("Message sent.")
 
 
