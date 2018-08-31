@@ -5,7 +5,7 @@ from threading import RLock, Lock, Thread
 
 from Destination import ChannelMembership, Channel, User
 from Events import EventPing, EventQuit, EventNameChange, EventJoin, EventLeave, EventKick, EventInvite, EventMode, \
-    EventCTCP, EventNotice, EventMessage, ChannelUserTextEvent
+    EventCTCP, EventNotice, EventMessage, ChannelUserTextEvent, RawDataIRC
 from Function import Function
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -363,7 +363,7 @@ class ServerIRC(Server):
         """
         # Get data
         ping_number = ping_line.split()[1]
-        ping_evt = EventPing(self, ping_number)
+        ping_evt = EventPing(self, ping_number).with_raw_data(RawDataIRC(ping_line))
         # Respond
         pong_evt = ping_evt.get_pong()
         self.send(pong_evt)
@@ -407,7 +407,8 @@ class ServerIRC(Server):
         self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
         # Get function dispatcher ready
         function_dispatcher = self.hallo.function_dispatcher
-        message_evt = EventMessage(self, None if message_private_bool else message_channel, message_sender, message_text)
+        message_evt = EventMessage(self, None if message_private_bool else message_channel,
+                                   message_sender, message_text).with_raw_data(RawDataIRC(message_line))
         if message_private_bool:
             function_dispatcher.dispatch(message_evt)
         else:
@@ -506,7 +507,7 @@ class ServerIRC(Server):
             join_channel.add_user(join_client)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        join_evt = EventJoin(self, join_channel, join_client)
+        join_evt = EventJoin(self, join_channel, join_client).with_raw_data(RawDataIRC(join_line))
         function_dispatcher.dispatch_passive(join_evt)
 
     def parse_line_part(self, part_line):
@@ -537,7 +538,7 @@ class ServerIRC(Server):
             part_client.set_online(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        leave_evt = EventLeave(self, part_channel, part_client, part_message)
+        leave_evt = EventLeave(self, part_channel, part_client, part_message).with_raw_data(RawDataIRC(part_line))
         function_dispatcher.dispatch_passive(leave_evt)
 
     def parse_line_quit(self, quit_line):
@@ -568,7 +569,7 @@ class ServerIRC(Server):
                 user.set_online(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        quit_evt = EventQuit(self, quit_client, quit_message)
+        quit_evt = EventQuit(self, quit_client, quit_message).with_raw_data(RawDataIRC(quit_line))
         function_dispatcher.dispatch_passive(quit_evt)
 
     def parse_line_mode(self, mode_line):
@@ -616,7 +617,7 @@ class ServerIRC(Server):
         self.hallo.logger.log(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
         # # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        mode_evt = EventMode(self, mode_channel, mode_client, mode_full)
+        mode_evt = EventMode(self, mode_channel, mode_client, mode_full).with_raw_data(RawDataIRC(mode_line))
         function_dispatcher.dispatch_passive(mode_evt)
 
     def parse_line_notice(self, notice_line):
@@ -652,7 +653,8 @@ class ServerIRC(Server):
                     self._check_useridentity_result = False
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        notice_event = EventNotice(self, notice_channel, notice_client, notice_message)
+        notice_event = EventNotice(self, notice_channel, notice_client, notice_message)\
+            .with_raw_data(RawDataIRC(notice_line))
         function_dispatcher.dispatch_passive(notice_event)
 
     def parse_line_nick(self, nick_line):
@@ -683,7 +685,8 @@ class ServerIRC(Server):
             self.hallo.logger.log(Function.EVENT_CHNAME, nick_client_name, self, nick_client, channel)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        chname_evt = EventNameChange(self, nick_client, nick_client_name, nick_new_nick)
+        chname_evt = EventNameChange(self, nick_client, nick_client_name, nick_new_nick)\
+            .with_raw_data(RawDataIRC(nick_line))
         function_dispatcher.dispatch_passive(chname_evt)
 
     def parse_line_invite(self, invite_line):
@@ -709,7 +712,8 @@ class ServerIRC(Server):
             self.join_channel(invite_channel)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        invite_evt = EventInvite(self, invite_channel, inviter_client, invited_client)
+        invite_evt = EventInvite(self, invite_channel, inviter_client, invited_client)\
+            .with_raw_data(RawDataIRC(invite_line))
         function_dispatcher.dispatch_passive(invite_evt)
 
     def parse_line_kick(self, kick_line):
@@ -737,7 +741,8 @@ class ServerIRC(Server):
             kick_channel.set_in_channel(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        kick_evt = EventKick(self, kick_channel, kicking_client, kicked_client, kick_message)
+        kick_evt = EventKick(self, kick_channel, kicking_client, kicked_client, kick_message)\
+            .with_raw_data(RawDataIRC(kick_line))
         function_dispatcher.dispatch_passive(kick_evt)
 
     def parse_line_numeric(self, numeric_line, motd_ended=True):
@@ -1055,7 +1060,7 @@ class ServerIRC(Server):
         self.nickserv_pass = nickserv_pass
         if self.nickserv_pass is not None:
             nickserv_obj = self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick)
-            self.send(EventMessage(self, None, nickserv_obj, "IDENTIFY {}".format(self.nickserv_pass)))
+            self.send(EventMessage(self, None, nickserv_obj, "IDENTIFY {}".format(self.nickserv_pass), inbound=False))
 
     def to_json(self):
         json_obj = dict()

@@ -8,7 +8,7 @@ from telegram.ext import MessageHandler
 from telegram.utils.request import Request
 
 from Destination import User, Channel
-from Events import EventMessage
+from Events import EventMessage, RawDataTelegram
 from Function import Function
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -104,7 +104,7 @@ class ServerTelegram(Server):
         message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
         # Create Event object
-        message_evt = EventMessage(self, None, message_sender, message_text)
+        message_evt = EventMessage(self, None, message_sender, message_text).with_raw_data(RawDataTelegram(update))
         # Print and Log the private message
         self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
         self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
@@ -136,7 +136,8 @@ class ServerTelegram(Server):
         message_channel = self.get_channel_by_address(message_destination_addr, message_destination_name)
         message_channel.update_activity()
         # Create message event object
-        message_evt = EventMessage(self, message_channel, message_sender, message_text)
+        message_evt = EventMessage(self, message_channel, message_sender, message_text)\
+            .with_raw_data(RawDataTelegram(update))
         # Print and Log the public message
         self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
         self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)

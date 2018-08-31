@@ -2,6 +2,30 @@ from abc import ABCMeta
 from datetime import datetime
 
 
+class RawData(metaclass=ABCMeta):
+    pass
+
+
+class RawDataIRC(RawData):
+
+    def __init__(self, line):
+        """
+        :param line: Line of text direct from the IRC server
+        :type line: str
+        """
+        self.line = line
+
+
+class RawDataTelegram(RawData):
+
+    def __init__(self, update_obj):
+        """
+        :param update_obj: Update object from telegram server
+        :type update_obj: ??
+        """
+        self.update_obj = update_obj
+
+
 class Event(metaclass=ABCMeta):
 
     def __init__(self, inbound=True):
@@ -40,6 +64,15 @@ class ServerEvent(Event, metaclass=ABCMeta):
         Event.__init__(self, inbound=inbound)
         self.server = server
         """ :type : Server.Server"""
+        self.raw_data = None
+        """ :type : RawData | None"""
+
+    def with_raw_data(self, raw_data):
+        """
+        :type raw_data: RawData
+        """
+        self.raw_data = raw_data
+        return self
 
 
 class EventPing(ServerEvent):
