@@ -150,7 +150,8 @@ class EventLeave(ChannelUserEvent):
         """
         :type server: Server.Server
         :type channel: Destination.Channel
-        :type user: Destination.User
+        :param user: User who left the channel, or None if outbound
+        :type user: Destination.User | None
         :type message: str | None
         :type inbound: bool
         """
