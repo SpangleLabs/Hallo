@@ -132,18 +132,14 @@ class Printer:
     
     def print_message(self, event):
         user_name = event.user.name if event.is_inbound else event.server.get_nick()
-        dest_name = event.channel.name
-        if event.channel is None:
-            dest_name = event.user.name
+        dest_name = event.channel.name if event.channel is not None else event.user.name
         output = "{} [{}] {} <{}> {}".format(Commons.current_timestamp(), event.server.name,
                                              dest_name, user_name, event.text)
         return output
     
     def print_notice(self, event):
         user_name = event.user.name if event.is_inbound else event.server.get_nick()
-        dest_name = event.channel.name
-        if event.channel is None:
-            dest_name = event.user.name
+        dest_name = event.channel.name if event.channel is not None else event.user.name
         output = "{} [{}] Notice in {} from {}: {}".format(Commons.current_timestamp(), event.server.name, dest_name,
                                                            user_name, event.text)
         return output
@@ -153,9 +149,7 @@ class Printer:
         ctcp_command = event.text.split()[0]
         ctcp_arguments = ' '.join(event.text.split()[1:])
         user_name = event.user.name if event.is_inbound else event.server.get_nick()
-        dest_name = event.channel.name
-        if event.channel is None:
-            dest_name = event.user.name
+        dest_name = event.channel.name if event.channel is not None else event.user.name
         # Print CTCP actions differently to other CTCP commands
         if ctcp_command.lower() == "action":
             output = "{} [{}] {} **{} {}**".format(Commons.current_timestamp(), event.server.name, dest_name,
