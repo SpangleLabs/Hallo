@@ -1473,11 +1473,14 @@ class DDR(Function):
             return
         full_line = event.text.strip().lower()
         if any(cmd in full_line for cmd in self.JOIN_CMDS):
-            return event.create_response(self.join_game(full_line, event.user, event.channel, True))
+            resp = self.join_game(full_line, event.user, event.channel, True)
+            return None if resp is None else event.create_response(resp)
         elif any(cmd in full_line for cmd in self.END_CMDS):
-            return event.create_response(self.quit_game(full_line, event.user, event.channel, True))
+            resp = self.quit_game(full_line, event.user, event.channel, True)
+            return None if resp is None else event.create_response(resp)
         elif any(cmd in full_line for cmd in self.MOVE_CMDS):
-            return event.create_response(self.make_move(full_line, event.user, event.channel, True))
+            resp = self.make_move(full_line, event.user, event.channel, True)
+            return None if resp is None else event.create_response(resp)
         pass
 
     def find_game(self, destination_obj):
