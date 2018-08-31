@@ -59,8 +59,8 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         # Remove test feed
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "rss remove test_feed1"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "removed \"test_feed1\"" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "removed \"test_feed1\"" in data[0].text.lower()
         assert rf1 not in rfl.feed_list
         assert rf2 in rfl.feed_list
         assert rf3 in rfl.feed_list
@@ -95,8 +95,8 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         # Remove test feed
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "rss remove test_feed1"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" in data[0].text.lower()
         assert rf1 in rfl.feed_list
         assert rf2 in rfl.feed_list
         assert rf3 in rfl.feed_list
@@ -131,8 +131,8 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         # Remove test feed
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "rss remove not_a_feed"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" in data[0].text.lower()
         assert rf1 in rfl.feed_list
         assert rf2 in rfl.feed_list
         assert rf3 in rfl.feed_list
@@ -167,9 +167,9 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         # Remove test feed
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "rss remove http://spangle.org.uk/hallo/test_rss.xml?1"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "removed" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "removed" in data[0].text.lower()
         assert rf1 not in rfl.feed_list
         assert rf2 in rfl.feed_list
         assert rf3 in rfl.feed_list
@@ -204,9 +204,9 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         # Remove test feed
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "rss remove http://spangle.org.uk/hallo/test_rss.xml?1"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "removed" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "removed" in data[0].text.lower()
         assert rf1 not in rfl.feed_list
         assert rf2 in rfl.feed_list
         assert rf3 not in rfl.feed_list

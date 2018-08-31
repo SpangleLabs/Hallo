@@ -55,8 +55,8 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         # Remove test search
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "e621 sub remove cabinet"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "removed \"cabinet\"" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "removed \"cabinet\"" in data[0].text.lower()
         assert rf1 not in rfl.sub_list
         assert rf2 in rfl.sub_list
         assert rf3 in rfl.sub_list
@@ -88,8 +88,8 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         # Remove test feed
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "e621 sub remove cabinet"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "removed \"cabinet\"" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "removed \"cabinet\"" in data[0].text.lower()
         assert rf1 not in rfl.sub_list
         assert rf2 in rfl.sub_list
         assert rf3 not in rfl.sub_list
@@ -121,8 +121,8 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         # Try to remove invalid search
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "e621 sub remove not_a_search"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" in data[0].text.lower()
         assert rf1 in rfl.sub_list
         assert rf2 in rfl.sub_list
         assert rf3 in rfl.sub_list

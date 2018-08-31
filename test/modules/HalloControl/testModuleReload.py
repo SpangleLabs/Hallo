@@ -1,7 +1,6 @@
 import unittest
 
 from Events import EventMessage
-from Server import Server
 from test.TestBase import TestBase
 
 
@@ -15,9 +14,9 @@ class ModuleReloadTest(TestBase, unittest.TestCase):
             self.hallo.function_dispatcher = mock_func_disp
             self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
                                                            "module reload HalloControl"))
-            data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-            assert "error" not in data[0][0].lower()
-            assert "module reloaded" in data[0][0].lower()
+            data = self.server.get_send_data(1, self.test_user, EventMessage)
+            assert "error" not in data[0].text.lower()
+            assert "module reloaded" in data[0].text.lower()
             assert mock_func_disp.module_reloaded
         finally:
             self.hallo.function_dispatcher = old_func_disp
@@ -30,9 +29,9 @@ class ModuleReloadTest(TestBase, unittest.TestCase):
             self.hallo.function_dispatcher = mock_func_disp
             self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
                                                           "module reload HalloControl"))
-            data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "module reloaded" not in data[0][0].lower()
+            data = self.server.get_send_data(1, self.test_user, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "module reloaded" not in data[0].text.lower()
             assert not mock_func_disp.module_reloaded
         finally:
             self.hallo.function_dispatcher = old_func_disp

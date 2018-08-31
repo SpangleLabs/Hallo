@@ -1,6 +1,6 @@
 import unittest
 
-from Events import EventMessage
+from Events import EventMessage, EventMode
 from Server import Server
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
@@ -19,9 +19,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan1.add_user(serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick()))
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "only available for irc" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "only available for irc" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -36,9 +36,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan1.add_user(serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick()))
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "deop"))
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "in a private message" in data[0][0].lower()
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "in a private message" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -54,9 +54,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan1.add_user(serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick()))
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -77,9 +77,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan1_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "doesn't have op" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "doesn't have op" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -101,14 +101,13 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == chan1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:4] == "MODE"
-            assert chan1.name+" -o "+user1.name in data[0][0]
-            assert "status taken" in data[1][0].lower()
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan1
+            assert data[1].channel == chan1
+            assert data[0].__class__ == EventMode
+            assert data[1].__class__ == EventMessage
+            assert "-o "+user1.name in data[0].mode_changes
+            assert "status taken" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -128,9 +127,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan1_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "deop other_channel"))
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "other_channel is not known" in data[0][0].lower()
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "other_channel is not known" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -151,9 +150,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan1_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "deop test_chan2"))
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "not in that channel" in data[0][0].lower()
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "not in that channel" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -171,9 +170,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan1_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "deop test_chan1"))
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_user1 is not in test_chan1" in data[0][0].lower()
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_user1 is not in test_chan1" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -194,9 +193,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan1_hallo.is_op = False
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "deop test_chan1"))
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -217,9 +216,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan1_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "deop test_chan1"))
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "doesn't have op" in data[0][0].lower()
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "doesn't have op" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -241,14 +240,13 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "deop test_chan1"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == user1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:4] == "MODE"
-            assert chan1.name+" -o "+user1.name in data[0][0]
-            assert "status taken" in data[1][0].lower()
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan1
+            assert data[1].user == user1
+            assert data[0].__class__ == EventMode
+            assert data[1].__class__ == EventMessage
+            assert "-o "+user1.name in data[0].mode_changes
+            assert "status taken" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -278,9 +276,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan2_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_chan2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_user1 is not in test_chan2" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_user1 is not in test_chan2" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -310,9 +308,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan2_hallo.is_op = False
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_chan2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -342,9 +340,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan2_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_chan2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "doesn't have op" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "doesn't have op" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -375,14 +373,13 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_chan2"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == chan1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:4] == "MODE"
-            assert chan2.name+" -o "+user1.name in data[0][0]
-            assert "status taken" in data[1][0].lower()
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan2
+            assert data[1].channel == chan1
+            assert data[0].__class__ == EventMode
+            assert data[1].__class__ == EventMessage
+            assert "-o "+user1.name in data[0].mode_changes
+            assert "status taken" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -404,9 +401,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan1_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_user2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_user2 is not in test_chan1" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_user2 is not in test_chan1" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -431,9 +428,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan1_user2.is_op = False
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_user2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -458,9 +455,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan1_user2.is_op = False
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_user2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "doesn't have op" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "doesn't have op" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -486,14 +483,13 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_user2"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == chan1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:4] == "MODE"
-            assert chan1.name+" -o "+user2.name in data[0][0]
-            assert "status taken" in data[1][0].lower()
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan1
+            assert data[1].channel == chan1
+            assert data[0].__class__ == EventMode
+            assert data[1].__class__ == EventMessage
+            assert "-o "+user2.name in data[0].text
+            assert "status taken" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -523,9 +519,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan2_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_chan2 test_user3"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_user3 is not known" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_user3 is not known" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -556,9 +552,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan2_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_chan2 test_user3"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_user3 is not in test_chan2" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_user3 is not in test_chan2" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -588,9 +584,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan2_hallo.is_op = False
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_chan2 test_user2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -620,9 +616,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan2_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_chan2 test_user2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "doesn't have op" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "doesn't have op" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -653,14 +649,13 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_chan2 test_user2"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == chan1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:4] == "MODE"
-            assert chan2.name+" -o "+user2.name in data[0][0]
-            assert "status taken" in data[1][0].lower()
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan2
+            assert data[1].channel == chan1
+            assert data[0].__class__ == EventMode
+            assert data[1].__class__ == EventMessage
+            assert "-o "+user2.name in data[0].mode_changes
+            assert "status taken" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -687,9 +682,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan2_user1.is_op = False
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_user2 test_chan2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "i'm not in that channel" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "i'm not in that channel" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -719,9 +714,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan2_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_user3 test_chan2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_user3 is not known" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_user3 is not known" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -752,9 +747,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan2_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_user3 test_chan2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_user3 is not in test_chan2" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_user3 is not in test_chan2" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -784,9 +779,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan2_hallo.is_op = False
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_user2 test_chan2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -816,9 +811,9 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         chan2_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_user2 test_chan2"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "doesn't have op" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "doesn't have op" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -849,13 +844,12 @@ class DeOperatorTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "deop test_user2 test_chan2"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == chan1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:4] == "MODE"
-            assert chan2.name+" -o "+user2.name in data[0][0]
-            assert "status taken" in data[1][0].lower()
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan2
+            assert data[1].channel == chan1
+            assert data[0].__class__ == EventMode
+            assert data[1].__class__ == EventMessage
+            assert "-o "+user2.name in data[0].mode_changes
+            assert "status taken" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)

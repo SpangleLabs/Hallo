@@ -92,8 +92,8 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                            "e621 sub check all"))
             # Check original calling channel data
-            serv0_data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-            assert "search updates were found" in serv0_data[0][0]
+            serv0_data = self.server.get_send_data(1, self.test_chan, EventMessage)
+            assert "search updates were found" in serv0_data[0].text
             # Check test server 1 data
             serv1_data = serv1.get_send_data(100)
             chan1_count = 0
@@ -106,12 +106,12 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             assert chan1_count == 50
             assert chan2_count == 50
             # Check test server 2 data
-            serv2_data = serv2.get_send_data(50, chan3, Server.MSG_MSG)
+            serv2_data = serv2.get_send_data(50, chan3, EventMessage)
             # Test running with no new updates.
             self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                            "e621 sub check all"))
-            data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-            assert "no e621 search subscription updates" in data[0][0], "No further updates should be found."
+            data = self.server.get_send_data(1, self.test_chan, EventMessage)
+            assert "no e621 search subscription updates" in data[0].text, "No further updates should be found."
         finally:
             self.hallo.remove_server(serv2)
             self.hallo.remove_server(serv1)
@@ -156,24 +156,24 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             # Invalid title
             self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                            "e621 sub check Not a valid search"))
-            data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
+            data = self.server.get_send_data(1, self.test_chan, EventMessage)
+            assert "error" in data[0].text.lower()
             # Correct title but wrong channel
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1,
                                                            "e621 sub check clefable"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
             # Correct title check update
             self.function_dispatcher.dispatch(EventMessage(serv1, chan2, user1,
                                                            "e621 sub check clefable"))
-            data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
-            assert "search updates were found" in data[0][0].lower()
-            assert len(data[0][0].lower().split("\n")) == 51
+            data = serv1.get_send_data(1, chan2, EventMessage)
+            assert "search updates were found" in data[0].text.lower()
+            assert len(data[0].text.lower().split("\n")) == 51
             # No updates
             self.function_dispatcher.dispatch(EventMessage(serv1, chan2, user1,
                                                            "e621 sub check clefable"))
-            data = serv1.get_send_data(1, chan2, Server.MSG_MSG)
-            assert "no updates" in data[0][0], "No further updates should be found."
+            data = serv1.get_send_data(1, chan2, EventMessage)
+            assert "no updates" in data[0].text, "No further updates should be found."
         finally:
             self.hallo.remove_server(serv2)
             self.hallo.remove_server(serv1)
@@ -228,7 +228,7 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             assert chan1_count == 50
             assert chan2_count == 50
             # Check test server 2 data
-            serv2_data = serv2.get_send_data(50, chan3, Server.MSG_MSG)
+            serv2_data = serv2.get_send_data(50, chan3, EventMessage)
             # Test that no updates are found the second run
             rf1.last_check = None
             rf2.last_check = None

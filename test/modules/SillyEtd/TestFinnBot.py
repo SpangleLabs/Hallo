@@ -1,7 +1,6 @@
 import unittest
 
 from Events import EventMessage
-from Server import Server
 from test.TestBase import TestBase
 
 
@@ -28,6 +27,6 @@ class FinnBotTest(TestBase, unittest.TestCase):
                  "I have found a new favourite thing to hate"]
         for _ in range(10):
             self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "finnbot"))
-            data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-            line = data[0][0][:-1] if data[0][0][-1] == "." else data[0][0]
+            data = self.server.get_send_data(1, self.test_user, EventMessage)
+            line = data[0].text[:-1] if data[0].text[-1] == "." else data[0].text
             assert line in valid, "Invalid quote returned."

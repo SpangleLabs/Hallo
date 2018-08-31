@@ -1,7 +1,6 @@
 import unittest
 
 from Events import EventMessage
-from Server import Server
 from test.TestBase import TestBase
 
 
@@ -11,34 +10,34 @@ class ChannelPassiveFunctionsTest(TestBase, unittest.TestCase):
         self.test_chan.passive_enabled = False
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "toggle" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "toggle" in data[0].text.lower()
         assert self.test_chan.passive_enabled
         # Try toggling again
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "toggle" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "toggle" in data[0].text.lower()
         assert not self.test_chan.passive_enabled
 
     def test_passive_on(self):
         self.test_chan.passive_enabled = False
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions on"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "passive functions set enabled" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "passive functions set enabled" in data[0].text.lower()
         assert self.test_chan.passive_enabled
 
     def test_passive_off(self):
         self.test_chan.passive_enabled = True
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions off"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "passive functions set disabled" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "passive functions set disabled" in data[0].text.lower()
         assert not self.test_chan.passive_enabled
 
     def test_passive_channel_toggle(self):
@@ -47,16 +46,16 @@ class ChannelPassiveFunctionsTest(TestBase, unittest.TestCase):
         test_chan1.passive_enabled = False
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions other_channel"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "toggle" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "toggle" in data[0].text.lower()
         assert test_chan1.passive_enabled
         # Try toggling again
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions other_channel"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "toggle" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "toggle" in data[0].text.lower()
         assert not test_chan1.passive_enabled
 
     def test_passive_channel_on(self):
@@ -65,9 +64,9 @@ class ChannelPassiveFunctionsTest(TestBase, unittest.TestCase):
         test_chan1.passive_enabled = False
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions other_channel on"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "passive functions set enabled" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "passive functions set enabled" in data[0].text.lower()
         assert test_chan1.passive_enabled
 
     def test_passive_channel_off(self):
@@ -76,9 +75,9 @@ class ChannelPassiveFunctionsTest(TestBase, unittest.TestCase):
         test_chan1.passive_enabled = True
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions other_channel off"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "passive functions set disabled" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "passive functions set disabled" in data[0].text.lower()
         assert not test_chan1.passive_enabled
 
     def test_passive_on_channel(self):
@@ -87,9 +86,9 @@ class ChannelPassiveFunctionsTest(TestBase, unittest.TestCase):
         test_chan1.passive_enabled = False
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions on other_channel"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "passive functions set enabled" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "passive functions set enabled" in data[0].text.lower()
         assert test_chan1.passive_enabled
 
     def test_passive_off_channel(self):
@@ -98,9 +97,9 @@ class ChannelPassiveFunctionsTest(TestBase, unittest.TestCase):
         test_chan1.passive_enabled = True
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions off other_channel"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "passive functions set disabled" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "passive functions set disabled" in data[0].text.lower()
         assert not test_chan1.passive_enabled
 
     def test_passive_not_in_channel_toggle(self):
@@ -109,8 +108,8 @@ class ChannelPassiveFunctionsTest(TestBase, unittest.TestCase):
         test_chan1.passive_enabled = False
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions other_channel"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" in data[0].text.lower()
         assert not test_chan1.passive_enabled
 
     def test_passive_not_in_channel_on(self):
@@ -119,8 +118,8 @@ class ChannelPassiveFunctionsTest(TestBase, unittest.TestCase):
         test_chan1.passive_enabled = False
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions other_channel on"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" in data[0].text.lower()
         assert not test_chan1.passive_enabled
 
     def test_passive_no_bool(self):
@@ -129,6 +128,6 @@ class ChannelPassiveFunctionsTest(TestBase, unittest.TestCase):
         test_chan1.passive_enabled = False
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "channel passive functions other_channel word"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" in data[0].text.lower()
         assert not test_chan1.passive_enabled

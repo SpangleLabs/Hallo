@@ -30,8 +30,8 @@ class SubE621ListTest(TestBase, unittest.TestCase):
 
     def test_no_feeds(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "e621 sub list"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "no e621 search subscriptions" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "no e621 search subscriptions" in data[0].text.lower()
 
     def test_list_feeds(self):
         # Get feed list
@@ -59,8 +59,8 @@ class SubE621ListTest(TestBase, unittest.TestCase):
         rfl.add_sub(rf3)
         # Run FeedList and check output
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "e621 sub list"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        data_split = data[0][0].split("\n")
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        data_split = data[0].text.split("\n")
         assert "e621 search subscriptions posting" in data_split[0].lower(), "Missing title. Response data: "+str(data)
         assert "cabinet" in data_split[1].lower() or "cabinet" in data_split[2].lower()
         assert "clefable" not in data_split[1].lower() and "clefable" not in data_split[2].lower()

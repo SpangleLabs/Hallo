@@ -9,11 +9,11 @@ class EulerTest(TestBase, unittest.TestCase):
 
     def test_euler_list(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "euler"))
-        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower(), "Euler function should not throw errors."
+        data = self.server.get_send_data(1, self.test_user, EventMessage)
+        assert "error" not in data[0].text.lower(), "Euler function should not throw errors."
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "euler list"))
-        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower(), "Euler function should not throw errors."
+        data = self.server.get_send_data(1, self.test_user, EventMessage)
+        assert "error" not in data[0].text.lower(), "Euler function should not throw errors."
 
     def test_euler_solutions(self):
         # Spoilers
@@ -30,10 +30,10 @@ class EulerTest(TestBase, unittest.TestCase):
                      "59": "107359", "60": "26033", "67": "7273"}
         for prob_num, prob_ans in prob_dict.items():
             self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "euler " + prob_num))
-            data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-            assert "error" not in data[0][0].lower(), "Euler problem " + prob_num + " throws an error."
-            assert "Euler project problem " + prob_num + "?" in data[0][0], "Problem name is not in output for " \
+            data = self.server.get_send_data(1, self.test_user, EventMessage)
+            assert "error" not in data[0].text.lower(), "Euler problem " + prob_num + " throws an error."
+            assert "Euler project problem " + prob_num + "?" in data[0].text, "Problem name is not in output for " \
                                                                             "problem " + prob_num
-            assert prob_ans in data[0][0].lower(), "Euler problem " + prob_num + \
+            assert prob_ans in data[0].text.lower(), "Euler problem " + prob_num + \
                                                    " has incorrect answer. It should return " + prob_ans + \
-                                                   " but it returns: " + data[0][0]
+                                                   " but it returns: " + data[0].text

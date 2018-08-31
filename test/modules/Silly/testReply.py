@@ -3,8 +3,6 @@ import unittest
 import urllib.request
 
 from Events import EventMessage
-from Function import Function
-from Server import Server
 from inc.Commons import Commons
 from modules.Silly import Reply
 from modules.Silly import ReplyMessage, ReplyMessageList
@@ -16,13 +14,13 @@ class ReplyTest(TestBase, unittest.TestCase):
 
     def test_run(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "reply"))
-        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        assert "error" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_user, EventMessage)
+        assert "error" in data[0].text.lower()
 
     def test_reply_passive(self):
         self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user, "beep"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "boop" == data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "boop" == data[0].text.lower()
 
     def test_reply_beep(self):
         reply_func = self.function_dispatcher.get_function_by_name("reply")

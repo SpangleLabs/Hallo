@@ -19,9 +19,9 @@ class UnMuteTest(TestBase, unittest.TestCase):
         chan1.add_user(serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick()))
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "unmute"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "only available for irc" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "only available for irc" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -33,9 +33,9 @@ class UnMuteTest(TestBase, unittest.TestCase):
         user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "unmute"))
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "can't unset mute on a private message" in data[0][0].lower()
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "can't unset mute on a private message" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -56,9 +56,9 @@ class UnMuteTest(TestBase, unittest.TestCase):
         chan1_hallo.is_op = False
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "unmute"))
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -80,14 +80,14 @@ class UnMuteTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "unmute"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == chan1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:4] == "MODE"
-            assert chan1.name+" -m" in data[0][0]
-            assert "set mute in "+chan1.name in data[1][0].lower()
+            assert "error" not in data[0].text.lower()
+            assert data[0].channel is None
+            assert data[1].channel == chan1
+            assert data[0].__class__ == EventMode
+            assert data[1].__class__ == EventMessage
+            assert data[0].text[:4] == "MODE"
+            assert chan1.name+" -m" in data[0].text
+            assert "set mute in "+chan1.name in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -108,9 +108,9 @@ class UnMuteTest(TestBase, unittest.TestCase):
         chan1_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "unmute test_chan2"))
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_chan2 is not known" in data[0][0].lower()
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_chan2 is not known" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -133,9 +133,9 @@ class UnMuteTest(TestBase, unittest.TestCase):
         chan1_hallo.is_op = True
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "unmute test_chan2"))
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "not in that channel" in data[0][0].lower()
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "not in that channel" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -156,9 +156,9 @@ class UnMuteTest(TestBase, unittest.TestCase):
         chan1_hallo.is_op = False
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "unmute test_chan1"))
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -180,13 +180,13 @@ class UnMuteTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "unmute test_chan1"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == user1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:4] == "MODE"
-            assert chan1.name+" -m" in data[0][0]
-            assert "set mute in "+chan1.name in data[1][0].lower()
+            assert "error" not in data[0].text.lower()
+            assert data[0].channel is None
+            assert data[1].channel == user1
+            assert data[0].__class__ == EventMode
+            assert data[1].__class__ == EventMessage
+            assert data[0].text[:4] == "MODE"
+            assert chan1.name+" -m" in data[0].text
+            assert "set mute in "+chan1.name in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)

@@ -31,8 +31,8 @@ class FeedListTest(TestBase, unittest.TestCase):
 
     def test_no_feeds(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "rss list"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "no rss feeds" in data[0][0].lower()
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "no rss feeds" in data[0].text.lower()
 
     def test_list_feeds(self):
         # Get feed list
@@ -63,8 +63,8 @@ class FeedListTest(TestBase, unittest.TestCase):
         rfl.add_feed(rf3)
         # Run FeedList and check output
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "rss list"))
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        data_split = data[0][0].split("\n")
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        data_split = data[0].text.split("\n")
         assert "rss feeds posting" in data_split[0].lower()
         assert "test_feed1" in data_split[1].lower() or "test_feed1" in data_split[2].lower()
         assert "test_feed3" in data_split[1].lower() or "test_feed3" in data_split[2].lower()
