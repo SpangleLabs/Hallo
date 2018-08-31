@@ -346,7 +346,7 @@ class EventCTCP(ChannelUserTextEvent):
 
 class EventMessageWithPhoto(EventMessage):
 
-    def __init__(self, server, channel, user, text, photo_id):
+    def __init__(self, server, channel, user, text, photo_id, inbound=True):
         """
         :type server: Server.Server
         :type channel: Destination.Channel | None
@@ -355,6 +355,6 @@ class EventMessageWithPhoto(EventMessage):
         :type text: str
         :type photo_id: str
         """
-        super().__init__(server, channel, user, text)
+        super().__init__(server, channel, user, text, inbound=inbound)
         self.photo_id = photo_id
         """ :type : str"""
