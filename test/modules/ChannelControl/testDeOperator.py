@@ -488,7 +488,7 @@ class DeOperatorTest(TestBase, unittest.TestCase):
             assert data[1].channel == chan1
             assert data[0].__class__ == EventMode
             assert data[1].__class__ == EventMessage
-            assert "-o "+user2.name in data[0].text
+            assert "-o "+user2.name in data[0].mode_changes
             assert "status taken" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)

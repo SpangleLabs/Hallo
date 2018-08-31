@@ -59,25 +59,24 @@ class SilenceTheRabbleTest(TestBase, unittest.TestCase):
             chan.add_user(user1)
             chan.add_user(user2)
             self.function_dispatcher.dispatch(EventMessage(self.server, chan, user, "silence the rabble"))
-            data = self.server.get_send_data(6)
+            data = self.server.get_send_data(6, chan)
             try:
-                assert data[0].text == "MODE #ecco-the-dolphin -o lambdabot"
-                assert data[1].text == "MODE #ecco-the-dolphin -v lambdabot"
-                assert data[2].text == "MODE #ecco-the-dolphin -o robot"
-                assert data[3].text == "MODE #ecco-the-dolphin -v robot"
+                assert data[0].mode_changes == "-o lambdabot"
+                assert data[1].mode_changes == "-v lambdabot"
+                assert data[2].mode_changes == "-o robot"
+                assert data[3].mode_changes == "-v robot"
             except AssertionError:
-                assert data[0].text == "MODE #ecco-the-dolphin -o robot"
-                assert data[1].text == "MODE #ecco-the-dolphin -v robot"
-                assert data[2].text == "MODE #ecco-the-dolphin -o lambdabot"
-                assert data[3].text == "MODE #ecco-the-dolphin -v lambdabot"
+                assert data[0].mode_changes == "-o robot"
+                assert data[1].mode_changes == "-v robot"
+                assert data[2].mode_changes == "-o lambdabot"
+                assert data[3].mode_changes == "-v lambdabot"
             assert data[0].__class__ == EventMode
             assert data[1].__class__ == EventMode
             assert data[2].__class__ == EventMode
             assert data[3].__class__ == EventMode
-            assert data[4].text == "MODE #ecco-the-dolphin +m"
+            assert data[4].mode_changes == "+m"
             assert data[4].__class__ == EventMode
             assert data[5].text == "I have done your bidding, master."
-            assert data[5].channel == chan
             assert data[5].__class__ == EventMessage
         finally:
             self.server.type = type_original

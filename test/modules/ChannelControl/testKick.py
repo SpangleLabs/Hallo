@@ -447,7 +447,7 @@ class KickTest(TestBase, unittest.TestCase):
             data = serv1.get_send_data(2)
             assert "error" not in data[1].text.lower()
             assert data[0].channel == chan1
-            assert data[1].channel == user1
+            assert data[1].user == user1
             assert data[0].__class__ == EventKick
             assert data[1].__class__ == EventMessage
             assert data[0].kicked_user == user1
@@ -537,11 +537,10 @@ class KickTest(TestBase, unittest.TestCase):
             data = serv1.get_send_data(2)
             assert "error" not in data[1].text.lower()
             assert data[0].channel == chan1
-            assert data[1].channel == user1
+            assert data[1].user == user1
             assert data[0].__class__ == EventKick
             assert data[1].__class__ == EventMessage
-            assert data[0].text[:4] == "KICK"
-            assert chan1.name+" "+user2.name in data[0].text
+            assert data[0].kicked_user == user2
             assert "kicked "+user2.name+" from "+chan1.name in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)

@@ -1,6 +1,6 @@
 import unittest
 
-from Events import EventMessage
+from Events import EventMessage, EventMode
 from Server import Server
 from test.TestBase import TestBase
 
@@ -56,14 +56,14 @@ class PokeTheAssholeTest(TestBase, unittest.TestCase):
             self.function_dispatcher.dispatch(EventMessage(self.server, chan, user, "poke the asshole"))
             data = self.server.get_send_data(11)  # 11, chan, EventMessage)
             for x in range(10):
-                assert data[x][1] is None, "Ten mode events should have been sent to ETD."
-                assert data[x][2] == EventMode, "Ten raw lines should have been sent to ETD."
+                assert data[x].channel == chan, "Ten mode events should have been sent to ETD."
+                assert data[x].__class__ == EventMode, "Ten mode events should have been sent to ETD."
                 if x % 2 == 0:
-                    assert data[x][0] == "MODE #ecco-the-dolphin +v Dolphin", "Adding voice incorrect."
+                    assert data[x].mode_changes == "+v Dolphin", "Adding voice incorrect."
                 else:
-                    assert data[x][0] == "MODE #ecco-the-dolphin -v Dolphin", "Removing voice incorrect."
-            assert data[10][0] == "Dolphin: You awake yet?", "Final output line incorrect."
-            assert data[10][1] == chan, "Final output channel incorrect."
-            assert data[10][2] == EventMessage, "Final output message type incorrect."
+                    assert data[x].mode_changes == "-v Dolphin", "Removing voice incorrect."
+            assert data[10].text == "Dolphin: You awake yet?", "Final output line incorrect."
+            assert data[10].channel == chan, "Final output channel incorrect."
+            assert data[10].__class__ == EventMessage, "Final output message type incorrect."
         finally:
             self.server.type = type_original

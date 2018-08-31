@@ -3,6 +3,7 @@ from datetime import datetime
 import time
 from xml.etree import ElementTree
 
+from Events import EventMessage
 from Hallo import Hallo
 from Server import Server
 from inc.Commons import Commons

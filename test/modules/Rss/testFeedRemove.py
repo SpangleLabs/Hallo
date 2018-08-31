@@ -2,10 +2,9 @@ import os
 import unittest
 
 from Events import EventMessage
-from Server import Server
 from inc.Commons import Commons
 from modules.Rss import FeedCheck
-from modules.Rss import RssFeed, RssFeedList
+from modules.Rss import RssFeed
 from test.TestBase import TestBase
 
 
@@ -60,7 +59,8 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "rss remove test_feed1"))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert "removed \"test_feed1\"" in data[0].text.lower()
+        assert "removed \"test_feed1\"" in data[0].text.lower(), "Response did not contain expected string. " \
+                                                                 "Response was: {}".format(data[0].text)
         assert rf1 not in rfl.feed_list
         assert rf2 in rfl.feed_list
         assert rf3 in rfl.feed_list

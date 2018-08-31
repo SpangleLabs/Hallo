@@ -22,7 +22,7 @@ class CorbynTest(TestBase, unittest.TestCase):
         data10 = self.server.get_send_data(1, self.test_user, EventMessage)
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "corbyn 20"))
         data20 = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert data10[0][0] == data20[0][0], "Corbyn function max limit is not working."
+        assert data10[0].text == data20[0].text, "Corbyn function max limit is not working."
 
     def test_corbyn_str(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "corbyn woo!"))

@@ -56,7 +56,8 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "e621 sub remove cabinet"))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert "removed \"cabinet\"" in data[0].text.lower()
+        assert "removed \"cabinet\"" in data[0].text.lower(), "Response did not contain expected string. " \
+                                                              "Response was {}".format(data[0].text)
         assert rf1 not in rfl.sub_list
         assert rf2 in rfl.sub_list
         assert rf3 in rfl.sub_list
@@ -89,7 +90,8 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "e621 sub remove cabinet"))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert "removed \"cabinet\"" in data[0].text.lower()
+        assert "removed \"cabinet\"" in data[0].text.lower(), "Response did not contain expected string. " \
+                                                              "Response was {}".format(data[0].text)
         assert rf1 not in rfl.sub_list
         assert rf2 in rfl.sub_list
         assert rf3 not in rfl.sub_list

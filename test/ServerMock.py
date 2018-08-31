@@ -54,9 +54,9 @@ class ServerMock(Server):
 
     def get_send_data(self, exp_lines=None, dest_obj=None, msg_type=None):
         """
-        :type exp_lines: int
-        :type dest_obj: Destination.Destination
-        :type msg_type: type
+        :type exp_lines: int | None
+        :type dest_obj: Destination.Destination | None
+        :type msg_type: type | None
         :rtype: list[ServerEvent]
         """
         out_data = self.send_data

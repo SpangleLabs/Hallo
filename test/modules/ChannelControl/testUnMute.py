@@ -1,6 +1,6 @@
 import unittest
 
-from Events import EventMessage
+from Events import EventMessage, EventMode
 from Server import Server
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
@@ -80,13 +80,12 @@ class UnMuteTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "unmute"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0].text.lower()
-            assert data[0].channel is None
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan1
             assert data[1].channel == chan1
             assert data[0].__class__ == EventMode
             assert data[1].__class__ == EventMessage
-            assert data[0].text[:4] == "MODE"
-            assert chan1.name+" -m" in data[0].text
+            assert data[0].mode_changes == "-m"
             assert "set mute in "+chan1.name in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
@@ -180,13 +179,12 @@ class UnMuteTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "unmute test_chan1"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0].text.lower()
-            assert data[0].channel is None
-            assert data[1].channel == user1
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan1
+            assert data[1].user == user1
             assert data[0].__class__ == EventMode
             assert data[1].__class__ == EventMessage
-            assert data[0].text[:4] == "MODE"
-            assert chan1.name+" -m" in data[0].text
+            assert data[0].mode_changes == "-m"
             assert "set mute in "+chan1.name in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)

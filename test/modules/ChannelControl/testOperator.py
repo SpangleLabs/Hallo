@@ -1,6 +1,6 @@
 import unittest
 
-from Events import EventMessage
+from Events import EventMessage, EventMode
 from Server import Server
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
@@ -101,13 +101,12 @@ class OperatorTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "op"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0].text.lower()
-            assert data[0].channel is None
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan1
             assert data[1].channel == chan1
             assert data[0].__class__ == EventMode
             assert data[1].__class__ == EventMessage
-            assert data[0].text[:4] == "MODE"
-            assert chan1.name+" +o "+user1.name in data[0].text
+            assert data[0].mode_changes == "+o {}".format(user1.address)
             assert "status given" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
@@ -241,13 +240,12 @@ class OperatorTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "op test_chan1"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0].text.lower()
-            assert data[0].channel is None
-            assert data[1].channel == user1
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan1
+            assert data[1].user == user1
             assert data[0].__class__ == EventMode
             assert data[1].__class__ == EventMessage
-            assert data[0].text[:4] == "MODE"
-            assert chan1.name+" +o "+user1.name in data[0].text
+            assert data[0].mode_changes == "+o {}".format(user1.address)
             assert "status given" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
@@ -375,13 +373,12 @@ class OperatorTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "op test_chan2"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0].text.lower()
-            assert data[0].channel is None
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan2
             assert data[1].channel == chan1
             assert data[0].__class__ == EventMode
             assert data[1].__class__ == EventMessage
-            assert data[0].text[:4] == "MODE"
-            assert chan2.name+" +o "+user1.name in data[0].text
+            assert data[0].mode_changes == "+o {}".format(user1.address)
             assert "status given" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
@@ -486,13 +483,12 @@ class OperatorTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "op test_user2"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0].text.lower()
-            assert data[0].channel is None
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan1
             assert data[1].channel == chan1
             assert data[0].__class__ == EventMode
             assert data[1].__class__ == EventMessage
-            assert data[0].text[:4] == "MODE"
-            assert chan1.name+" +o "+user2.name in data[0].text
+            assert data[0].mode_changes == "+o {}".format(user2.address)
             assert "status given" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
@@ -653,13 +649,12 @@ class OperatorTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "op test_chan2 test_user2"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0].text.lower()
-            assert data[0].channel is None
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan2
             assert data[1].channel == chan1
             assert data[0].__class__ == EventMode
             assert data[1].__class__ == EventMessage
-            assert data[0].text[:4] == "MODE"
-            assert chan2.name+" +o "+user2.name in data[0].text
+            assert data[0].mode_changes == "+o {}".format(user2.address)
             assert "status given" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
@@ -849,13 +844,12 @@ class OperatorTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "op test_user2 test_chan2"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0].text.lower()
-            assert data[0].channel is None
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan2
             assert data[1].channel == chan1
             assert data[0].__class__ == EventMode
             assert data[1].__class__ == EventMessage
-            assert data[0].text[:4] == "MODE"
-            assert chan2.name+" +o "+user2.name in data[0].text
+            assert data[0].mode_changes == "+o {}".format(user2.address)
             assert "status given" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
