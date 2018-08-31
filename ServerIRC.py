@@ -211,33 +211,41 @@ class ServerIRC(Server):
     def send(self, event):
         if isinstance(event, EventPing):
             self.send_raw("PONG {}".format(event.ping_number))
+            self.hallo.printer.output(event)
             return
         if isinstance(event, EventQuit):
             self.send_raw("QUIT :{}".format(event.quit_message))
+            self.hallo.printer.output(event)
             return
         if isinstance(event, EventNameChange):
             self.send_raw("NICK {}".format(event.new_name))
+            self.hallo.printer.output(event)
             return
         if isinstance(event, EventJoin):
             if event.password is not None:
                 self.send_raw("JOIN {} {}".format(event.channel.address, event.password))
             else:
                 self.send_raw("JOIN {}".format(event.channel.address))
+            self.hallo.printer.output(event)
             return
         if isinstance(event, EventLeave):
             if event.leave_message is not None:
                 self.send_raw("PART {} {}".format(event.channel.address, event.leave_message))
             else:
                 self.send_raw("PART {}".format(event.channel.address))
+            self.hallo.printer.output(event)
             return
         if isinstance(event, EventKick):
             self.send_raw("KICK {} {} {}".format(event.channel.address, event.kicked_user.address, event.kick_message))
+            self.hallo.printer.output(event)
             return
         if isinstance(event, EventInvite):
             self.send_raw("INVITE {} {}".format(event.user.address, event.channel.address))
+            self.hallo.printer.output(event)
             return
         if isinstance(event, EventMode):
             self.send_raw("MODE {} {}".format(event.channel.address, event.mode_changes))
+            self.hallo.printer.output(event)
             return
         if isinstance(event, ChannelUserTextEvent):
             msg_type_name = "PRIVMSG"
@@ -259,14 +267,12 @@ class ServerIRC(Server):
                         data_line_line = "\x01{}\x01".format(data_line_line)
                     self.send_raw("{} {} :{}".format(msg_type_name, dest_addr, data_line_line))
                     # Log sent data, if it's not message or notice
+                    self.hallo.printer.output(event.__class__(event.server, event.channel, event.user,
+                                                              data_line_line, inbound=False))
                     if isinstance(event, EventMessage) or isinstance(event, EventCTCP):
-                        self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, data_line_line, self, event.user,
-                                                            event.channel)
                         self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, data_line_line, self, event.user,
                                                         event.channel)
                     elif isinstance(event, EventNotice):
-                        self.hallo.printer.output_from_self(Function.EVENT_NOTICE, data_line_line, self, event.user,
-                                                            event.channel)
                         self.hallo.logger.log_from_self(Function.EVENT_NOTICE, data_line_line, self, event.user,
                                                         event.channel)
             return
@@ -373,8 +379,7 @@ class ServerIRC(Server):
         pong_evt = ping_evt.get_pong()
         self.send(pong_evt)
         # Print and log
-        self.hallo.printer.output(Function.EVENT_PING, ping_number, self, None, None)
-        self.hallo.printer.output_from_self(Function.EVENT_PING, ping_number, self, None, None)
+        self.hallo.printer.output(ping_evt)
         self.hallo.logger.log(Function.EVENT_PING, ping_number, self, None, None)
         self.hallo.logger.log_from_self(Function.EVENT_PING, ping_number, self, None, None)
         # Pass to passive FunctionDispatcher
@@ -403,17 +408,17 @@ class ServerIRC(Server):
         # Get relevant objects.
         message_sender = self.get_user_by_address(message_sender_name.lower(), message_sender_name)
         message_sender.update_activity()
-        message_destination = message_sender
         message_channel = None
         if not message_private_bool:
             message_channel = self.get_channel_by_address(message_destination_name.lower(), message_destination_name)
+        # Create message event
+        message_evt = EventMessage(self, None if message_private_bool else message_channel,
+                                   message_sender, message_text).with_raw_data(RawDataIRC(message_line))
         # Print and Log the message
-        self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
+        self.hallo.printer.output(message_evt)
         self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
         # Get function dispatcher ready
         function_dispatcher = self.hallo.function_dispatcher
-        message_evt = EventMessage(self, None if message_private_bool else message_channel,
-                                   message_sender, message_text).with_raw_data(RawDataIRC(message_line))
         if message_private_bool:
             function_dispatcher.dispatch(message_evt)
         else:
@@ -452,39 +457,36 @@ class ServerIRC(Server):
             message_channel.update_activity()
         message_sender = self.get_user_by_address(message_sender_name.lower(), message_sender_name)
         message_sender.update_activity()
+        ctcp_evt = EventCTCP(self, message_channel, message_sender, message_text)
         # Print and log the message
+        self.hallo.printer.output(ctcp_evt)
         if message_private_bool:
-            self.hallo.printer.output(Function.EVENT_CTCP, message_text, self, message_sender, None)
             self.hallo.logger.log(Function.EVENT_CTCP, message_text, self, message_sender, None)
         else:
-            self.hallo.printer.output(Function.EVENT_CTCP, message_text, self, message_sender, message_channel)
             self.hallo.logger.log(Function.EVENT_CTCP, message_text, self, message_sender, message_channel)
         # Reply to certain types of CTCP command
         if message_ctcp_command.lower() == 'version':
-            self.send(EventNotice(self, None, message_sender,
-                                  "\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01", inbound=False))
+            ctcp_evt.reply(ctcp_evt.create_response("\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01",
+                                                    event_class=EventNotice))
         elif message_ctcp_command.lower() == 'time':
-            self.send(EventNotice(self, None, message_sender,
-                                  "\x01TIME Fribsday 15 Nov 2024 {}:{}:{} " +
-                                  "GMT\x01".format(str(time.gmtime()[3] + 100).rjust(2, '0'),
-                                                   str(time.gmtime()[4] + 20).rjust(2, '0'),
-                                                   str(time.gmtime()[5]).rjust(2, '0')),
-                                  inbound=False))
+            time_text = ("\x01TIME Fribsday 15 Nov 2024 {}:{}:{} " +
+                        "GMT\x01").format(str(time.gmtime()[3] + 100).rjust(2, '0'),
+                                          str(time.gmtime()[4] + 20).rjust(2, '0'),
+                                          str(time.gmtime()[5]).rjust(2, '0'))
+            ctcp_evt.reply(ctcp_evt.create_response(time_text, event_class=EventNotice))
         elif message_ctcp_command.lower() == 'ping':
-            self.send(EventNotice(self, None, message_sender,
-                                  "\x01PING {}\x01".format(message_ctcp_arguments), inbound=False))
+            ctcp_evt.reply(ctcp_evt.create_response("\x01PING {}\x01".format(message_ctcp_arguments),
+                                                    event_class=EventNotice))
         elif message_ctcp_command.lower() == 'userinfo':
             hallo_info = "\x01Hello, I'm hallo, I'm a robot who does a few different things," \
                          " mostly roll numbers and choose things," \
                          " dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01"
-            self.send(EventNotice(self, None, message_sender, hallo_info, inbound=False))
+            ctcp_evt.reply(ctcp_evt.create_response(hallo_info, event_class=EventNotice))
         elif message_ctcp_command.lower() == 'clientinfo':
-            self.send(EventNotice(self, None, message_sender,
-                                  "\x01VERSION, NOTICE, TIME, USERINFO and obviously CLIENTINFO are supported.\x01",
-                                  inbound=False))
+            ctcp_evt.reply(ctcp_evt.create_response("\x01VERSION, NOTICE, TIME, USERINFO and obviously "
+                                                    "CLIENTINFO are supported.\x01", event_class=EventNotice))
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        ctcp_evt = EventCTCP(self, message_channel, message_sender, message_text)
         function_dispatcher.dispatch_passive(ctcp_evt)
 
     def parse_line_join(self, join_line):
@@ -500,8 +502,10 @@ class ServerIRC(Server):
         join_channel = self.get_channel_by_address(join_channel_name.lower(), join_channel_name)
         join_client = self.get_user_by_address(join_client_name.lower(), join_client_name)
         join_client.update_activity()
+        # Create join event
+        join_evt = EventJoin(self, join_channel, join_client).with_raw_data(RawDataIRC(join_line))
         # Print and log
-        self.hallo.printer.output(Function.EVENT_JOIN, None, self, join_client, join_channel)
+        self.hallo.printer.output(join_evt)
         self.hallo.logger.log(Function.EVENT_JOIN, None, self, join_client, join_channel)
         # TODO: Apply automatic flags as required
         # If hallo has joined a channel, get the user list and apply automatic flags as required
@@ -512,7 +516,6 @@ class ServerIRC(Server):
             join_channel.add_user(join_client)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        join_evt = EventJoin(self, join_channel, join_client).with_raw_data(RawDataIRC(join_line))
         function_dispatcher.dispatch_passive(join_evt)
 
     def parse_line_part(self, part_line):
@@ -528,8 +531,10 @@ class ServerIRC(Server):
         # Get channel and user object
         part_channel = self.get_channel_by_address(part_channel_name.lower(), part_channel_name)
         part_client = self.get_user_by_address(part_client_name.lower(), part_client_name)
+        # Create leave event
+        leave_evt = EventLeave(self, part_channel, part_client, part_message).with_raw_data(RawDataIRC(part_line))
         # Print and log
-        self.hallo.printer.output(Function.EVENT_LEAVE, part_message, self, part_client, part_channel)
+        self.hallo.printer.output(leave_evt)
         self.hallo.logger.log(Function.EVENT_LEAVE, part_message, self, part_client, part_channel)
         # Remove user from channel's user list
         part_channel.remove_user(part_client)
@@ -543,7 +548,6 @@ class ServerIRC(Server):
             part_client.set_online(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        leave_evt = EventLeave(self, part_channel, part_client, part_message).with_raw_data(RawDataIRC(part_line))
         function_dispatcher.dispatch_passive(leave_evt)
 
     def parse_line_quit(self, quit_line):
@@ -557,8 +561,10 @@ class ServerIRC(Server):
         quit_message = ':'.join(quit_line.split(':')[2:])
         # Get client object
         quit_client = self.get_user_by_address(quit_client_name.lower(), quit_client_name)
+        # Create quit event
+        quit_evt = EventQuit(self, quit_client, quit_message).with_raw_data(RawDataIRC(quit_line))
         # Print and Log to all channels on server
-        self.hallo.printer.output(Function.EVENT_QUIT, quit_message, self, quit_client, Commons.ALL_CHANNELS)
+        self.hallo.printer.output(quit_evt)
         for channel in self.channel_list:
             self.hallo.logger.log(Function.EVENT_QUIT, quit_message, self, quit_client, channel)
         # Remove user from user list on all channels
@@ -574,7 +580,6 @@ class ServerIRC(Server):
                 user.set_online(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        quit_evt = EventQuit(self, quit_client, quit_message).with_raw_data(RawDataIRC(quit_line))
         function_dispatcher.dispatch_passive(quit_evt)
 
     def parse_line_mode(self, mode_line):
@@ -614,15 +619,16 @@ class ServerIRC(Server):
             mode_user_name = mode_args.split()[0]
             mode_args_client = self.get_user_by_address(mode_user_name.lower(), mode_user_name)
             mode_channel.get_membership_by_user(mode_args_client).is_voice = (mode_mode[0] == "+")
-        # # Printing and logging
+        # Create mode event
         mode_full = mode_mode
         if mode_args != '':
             mode_full = "{} {}".format(mode_mode, mode_args)
-        self.hallo.printer.output(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
+        mode_evt = EventMode(self, mode_channel, mode_client, mode_full).with_raw_data(RawDataIRC(mode_line))
+        # # Printing and logging
+        self.hallo.printer.output(mode_evt)
         self.hallo.logger.log(Function.EVENT_MODE, mode_full, self, mode_client, mode_channel)
         # # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        mode_evt = EventMode(self, mode_channel, mode_client, mode_full).with_raw_data(RawDataIRC(mode_line))
         function_dispatcher.dispatch_passive(mode_evt)
 
     def parse_line_notice(self, notice_line):
@@ -640,8 +646,11 @@ class ServerIRC(Server):
         notice_channel.update_activity()
         notice_client = self.get_user_by_address(notice_client_name.lower(), notice_client_name)
         notice_client.update_activity()
+        # Create notice event
+        notice_event = EventNotice(self, notice_channel, notice_client, notice_message)\
+            .with_raw_data(RawDataIRC(notice_line))
         # Print to console, log to file
-        self.hallo.printer.output(Function.EVENT_NOTICE, notice_message, self, notice_client, notice_channel)
+        self.hallo.printer.output(notice_event)
         self.hallo.logger.log(Function.EVENT_NOTICE, notice_message, self, notice_client, notice_channel)
         # Checking if user is registered
         if notice_client.address == self.nickserv_nick and \
@@ -658,8 +667,6 @@ class ServerIRC(Server):
                     self._check_useridentity_result = False
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        notice_event = EventNotice(self, notice_channel, notice_client, notice_message)\
-            .with_raw_data(RawDataIRC(notice_line))
         function_dispatcher.dispatch_passive(notice_event)
 
     def parse_line_nick(self, nick_line):
@@ -683,15 +690,15 @@ class ServerIRC(Server):
         # Update name for user object
         nick_client.name = nick_new_nick
         nick_client.address = nick_new_nick.lower()
+        # Create name change event
+        chname_evt = EventNameChange(self, nick_client, nick_client_name, nick_new_nick)\
+            .with_raw_data(RawDataIRC(nick_line))
         # Printing and logging
-        self.hallo.printer.output(Function.EVENT_CHNAME, nick_client_name, self, nick_client,
-                                  Commons.ALL_CHANNELS)
+        self.hallo.printer.output(chname_evt)
         for channel in self.channel_list:
             self.hallo.logger.log(Function.EVENT_CHNAME, nick_client_name, self, nick_client, channel)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        chname_evt = EventNameChange(self, nick_client, nick_client_name, nick_new_nick)\
-            .with_raw_data(RawDataIRC(nick_line))
         function_dispatcher.dispatch_passive(chname_evt)
 
     def parse_line_invite(self, invite_line):
@@ -709,16 +716,17 @@ class ServerIRC(Server):
         inviter_client.update_activity()
         invited_client = self.get_user_by_address(invited_client_name.lower(), invited_client_name)
         invite_channel = self.get_channel_by_address(invite_channel_name.lower(), invite_channel_name)
+        # Create invite event
+        invite_evt = EventInvite(self, invite_channel, inviter_client, invited_client)\
+            .with_raw_data(RawDataIRC(invite_line))
         # Printing and logging
-        self.hallo.printer.output(Function.EVENT_INVITE, None, self, inviter_client, invite_channel)
+        self.hallo.printer.output(invite_evt)
         self.hallo.logger.log(Function.EVENT_INVITE, None, self, inviter_client, invite_channel)
         # Check if they are an op, then join the channel.
         if inviter_client.rights_check("invite_channel", invite_channel) and invited_client_name == self.get_nick():
             self.join_channel(invite_channel)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        invite_evt = EventInvite(self, invite_channel, inviter_client, invited_client)\
-            .with_raw_data(RawDataIRC(invite_line))
         function_dispatcher.dispatch_passive(invite_evt)
 
     def parse_line_kick(self, kick_line):
@@ -736,8 +744,11 @@ class ServerIRC(Server):
         kick_channel = self.get_channel_by_address(kick_channel_name.lower(), kick_channel_name)
         kicked_client = self.get_user_by_address(kicked_client_name.lower(), kicked_client_name)
         kicking_client = self.get_user_by_address(kicking_user_name.lower(), kicking_user_name)
+        # Create kick event
+        kick_evt = EventKick(self, kick_channel, kicking_client, kicked_client, kick_message)\
+            .with_raw_data(RawDataIRC(kick_line))
         # Log, if applicable
-        self.hallo.printer.output(Function.EVENT_KICK, kick_message, self, kicked_client, kick_channel)
+        self.hallo.printer.output(kick_evt)
         self.hallo.logger.log(Function.EVENT_KICK, kick_message, self, kicked_client, kick_channel)
         # Remove kicked user from user list
         kick_channel.remove_user(kicked_client)
@@ -746,8 +757,6 @@ class ServerIRC(Server):
             kick_channel.set_in_channel(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        kick_evt = EventKick(self, kick_channel, kicking_client, kicked_client, kick_message)\
-            .with_raw_data(RawDataIRC(kick_line))
         function_dispatcher.dispatch_passive(kick_evt)
 
     def parse_line_numeric(self, numeric_line, motd_ended=True):

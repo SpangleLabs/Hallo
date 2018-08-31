@@ -106,7 +106,7 @@ class ServerTelegram(Server):
         # Create Event object
         message_evt = EventMessage(self, None, message_sender, message_text).with_raw_data(RawDataTelegram(update))
         # Print and Log the private message
-        self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
+        self.hallo.printer.output(message_evt)
         self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
         self.hallo.function_dispatcher.dispatch(message_evt)
 
@@ -139,7 +139,7 @@ class ServerTelegram(Server):
         message_evt = EventMessage(self, message_channel, message_sender, message_text)\
             .with_raw_data(RawDataTelegram(update))
         # Print and Log the public message
-        self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
+        self.hallo.printer.output(message_evt)
         self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
         # Send event to function dispatcher or passive dispatcher
         if message_evt.is_prefixed:
@@ -169,7 +169,7 @@ class ServerTelegram(Server):
         if isinstance(event, EventMessage):
             destination = event.user if event.channel is None else event.channel
             self.bot.send_message(chat_id=destination.address, text=event.text)
-            self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, event.text, self, event.user, event.channel)
+            self.hallo.printer.output(event)
             self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, event.text, self, event.user, event.channel)
         else:
             print("This event type, {}, is not currently supported to send on Telegram servers",
@@ -188,8 +188,7 @@ class ServerTelegram(Server):
             raise ServerException("Old event has no telegram data associated with it")
         if isinstance(new_event, EventMessage):
             old_event.raw_data.update_obj.message.reply_text(new_event.text)
-            self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, new_event.text, self, new_event.user,
-                                                new_event.channel)
+            self.hallo.printer.output(new_event)
             self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, new_event.text, self, new_event.user,
                                             new_event.channel)
         else:
