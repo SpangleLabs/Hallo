@@ -63,14 +63,14 @@ class FunctionDispatcher(object):
         # If function isn't found, output a not found message
         if function_class_test is None:
             if EventMessage.FLAG_HIDE_ERRORS not in flag_list:
-                event.server.send("Error, this is not a recognised function.", resp_destination)
+                event.server.send(event.create_response("Error, this is not a recognised function."))
                 print("Error, this is not a recognised function.")
             return
         function_class = function_class_test
         event.split_command_text(function_name_test, function_args_test)
         # Check function rights and permissions
         if not self.check_function_permissions(function_class, event.server, event.user, event.channel):
-            event.server.send("You do not have permission to use this function.", resp_destination)
+            event.server.send(event.create_response("You do not have permission to use this function."))
             print("You do not have permission to use this function.")
             return
         # If persistent, get the object, otherwise make one
@@ -79,12 +79,12 @@ class FunctionDispatcher(object):
         try:
             response = function_obj.run(event)
             if response is not None:
-                server_obj.send(response)
+                event.server.send(response)
             else:
-                event.server.send("The function returned no value.", resp_destination)
+                event.server.send(event.create_response("The function returned no value."))
             return
         except Exception as e:
-            server_obj.send("Function failed with error message: {}".format(e), resp_destination)
+            event.server.send(event.create_response("Function failed with error message: {}".format(e)))
             print("Function: {} {}".format(function_class.__module__, function_class.__name__))
             print("Function error: {}".format(e))
             print("Function error location: {}".format(traceback.format_exc(3)))
