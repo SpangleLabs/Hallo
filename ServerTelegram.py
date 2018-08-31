@@ -8,7 +8,7 @@ from telegram.ext import MessageHandler
 from telegram.utils.request import Request
 
 from Destination import User, Channel
-from Events import EventMessage, RawDataTelegram
+from Events import EventMessage, RawDataTelegram, EventMessageWithPhoto
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
 from inc.Commons import Commons
@@ -93,17 +93,20 @@ class ServerTelegram(Server):
         :param update: Update object from telegram API
         :type update: telegram.Update
         """
-        # Parse out the message text
-        message_text = update.message.text
-        # Parse out the message sender
+        # Get sender object
         message_sender_name = " ".join([update.message.chat.first_name, update.message.chat.last_name])
-        # Parser message sender address
         message_sender_addr = update.message.chat.id
-        # Get relevant objects.
         message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
         # Create Event object
-        message_evt = EventMessage(self, None, message_sender, message_text).with_raw_data(RawDataTelegram(update))
+        if update.message.photo:
+            photo_id = update.message.photo[-1]["file_id"]
+            message_text = update.message.caption or ""
+            message_evt = EventMessageWithPhoto(self, None, message_sender, message_text, photo_id)\
+                .with_raw_data(RawDataTelegram(update))
+        else:
+            message_text = update.message.text
+            message_evt = EventMessage(self, None, message_sender, message_text).with_raw_data(RawDataTelegram(update))
         # Print and Log the private message
         self.hallo.printer.output(message_evt)
         self.hallo.logger.log(message_evt)
@@ -117,30 +120,31 @@ class ServerTelegram(Server):
         :param update: Update object from telegram API
         :type update: telegram.Update
         """
-        # Parse out the message text
-        message_text = update.message.text
-        # Parse out the message sender
+        # Get sender object
         message_sender_name = " ".join([update.message.from_user.first_name, update.message.from_user.last_name])
-        # Parser message sender address
         message_sender_addr = update.message.from_user.id
-        # Test for private message or public message.
-        # Parse out where the message went to (e.g. channel or private message to Hallo)
-        message_destination_name = update.message.chat.title
-        message_destination_addr = update.message.chat.id
-        # Get relevant objects.
         message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
-        # Get function dispatcher ready
-        function_dispatcher = self.hallo.function_dispatcher
-        message_channel = self.get_channel_by_address(message_destination_addr, message_destination_name)
+        # Get channel object
+        message_channel_name = update.message.chat.title
+        message_channel_addr = update.message.chat.id
+        message_channel = self.get_channel_by_address(message_channel_addr, message_channel_name)
         message_channel.update_activity()
         # Create message event object
-        message_evt = EventMessage(self, message_channel, message_sender, message_text)\
-            .with_raw_data(RawDataTelegram(update))
-        # Print and Log the public message
+        if update.message.photo:
+            photo_id = update.message.photo[-1]["file_id"]
+            message_text = update.message.caption or ""
+            message_evt = EventMessageWithPhoto(self, message_channel, message_sender, message_text, photo_id)\
+                .with_raw_data(RawDataTelegram(update))
+        else:
+            message_text = update.message.text
+            message_evt = EventMessage(self, message_channel, message_sender, message_text)\
+                .with_raw_data(RawDataTelegram(update))
+        # Print and log the public message
         self.hallo.printer.output(message_evt)
         self.hallo.logger.log(message_evt)
         # Send event to function dispatcher or passive dispatcher
+        function_dispatcher = self.hallo.function_dispatcher
         if message_evt.is_prefixed:
             if message_evt.is_prefixed is True:
                 function_dispatcher.dispatch(message_evt)
