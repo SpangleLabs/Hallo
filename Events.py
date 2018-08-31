@@ -286,7 +286,7 @@ class EventMessage(ChannelUserTextEvent):
         """
         :type server: Server.Server
         :type channel: Destination.Channel | None
-        :param user: User who sent the event, or None for outbound
+        :param user: User who sent the event, or None for outbound to channel
         :type user: Destination.User | None
         :type text: str
         :type inbound: bool
@@ -342,3 +342,19 @@ class EventNotice(ChannelUserTextEvent):
 
 class EventCTCP(ChannelUserTextEvent):
     pass
+
+
+class EventMessageWithPhoto(EventMessage):
+
+    def __init__(self, server, channel, user, text, photo_id):
+        """
+        :type server: Server.Server
+        :type channel: Destination.Channel | None
+        :param user: User who sent the event, or None for outbound to channel
+        :type user: Destination.User | None
+        :type text: str
+        :type photo_id: str
+        """
+        super().__init__(server, channel, user, text)
+        self.photo_id = photo_id
+        """ :type : str"""
