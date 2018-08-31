@@ -491,11 +491,11 @@ class FeedRemove(Function):
                                                           event.user if event.channel is None else event.channel)
             if len(test_feeds) == 1:
                 rss_feed_list.remove_feed(test_feeds[0])
-                return event.create_response("Removed \"{}\" RSS feed. "
+                return event.create_response(("Removed \"{}\" RSS feed. "
                                              "Updates will no longer be sent to " +
-                                             "{}.".format(test_feeds[0].title,
-                                                          (test_feeds[0].channel_name or
-                                                           test_feeds[0].user_name)))
+                                              "{}.").format(test_feeds[0].title,
+                                                            (test_feeds[0].channel_name or
+                                                             test_feeds[0].user_name)))
             if len(test_feeds) > 1:
                 return event.create_response("Error, there is more than 1 rss feed in this channel by that name. "
                                              "Try specifying by URL.")

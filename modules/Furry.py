@@ -882,9 +882,9 @@ class SubE621Remove(Function):
             if len(test_feeds) > 0:
                 for del_sub in test_feeds:
                     e621_sub_list.remove_sub(del_sub)
-                return event.create_response("Removed \"{}\" e621 search subscription. " +
+                return event.create_response(("Removed \"{}\" e621 search subscription. " +
                                              "Updates will no longer be sent to {}" +
-                                             ".".format(test_feeds[0].search,
+                                             ".").format(test_feeds[0].search,
                                                         (test_feeds[0].channel_address or test_feeds[0].user_address)))
         return event.create_response("Error, there are no e621 search subscriptions in this channel matching " +
                                      "that search.")
