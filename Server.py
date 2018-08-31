@@ -37,6 +37,7 @@ class Server(metaclass=ABCMeta):
         self.name = None  # Server name
         self.auto_connect = True  # Whether to automatically connect to this server when hallo starts
         self.channel_list = []  # List of channels on this server (which may or may not be currently active)
+        """ :type : list[Destination.Channel]"""
         self.user_list = []  # Users on this server (not all of which are online)
         self.nick = None  # Nickname to use on this server
         self.prefix = None  # Prefix to use with functions on this server
