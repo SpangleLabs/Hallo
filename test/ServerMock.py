@@ -73,7 +73,7 @@ class ServerMock(Server):
                        for x in range(len(out_data))), \
                 "Incorrect destination for data. Full data: " + str(out_data)
         if msg_type is not None:
-            assert all(out_data[x].__class__ == msg_type for x in range(len(out_data))), \
+            assert all(isinstance(out_data[x], msg_type) for x in range(len(out_data))), \
                 "Incorrect message type for data. Full data: " + str(out_data)
         return out_data
 
