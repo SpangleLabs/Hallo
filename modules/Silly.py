@@ -373,4 +373,6 @@ class Reply(Function):
             return
         reply_message_list = ReplyMessageList.load_from_xml()
         response = reply_message_list.get_response(event.text, event.user, event.channel)
+        if response is None:
+            return None
         return event.create_response(response)
