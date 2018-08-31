@@ -68,7 +68,7 @@ class TestE621Sub(unittest.TestCase):
         item_id = "652362"
         item_rate = "q"
         item_rating = "(Questionable)"
-        item_elem = {"id": item_id, "rating": item_rate}
+        item_elem = {"id": item_id, "rating": item_rate, "file_url": "12345"}
         # Check output works with given server and channel
         rf1 = E621Sub()
         rf1.update_frequency = Commons.load_time_delta("P1TS")
