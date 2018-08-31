@@ -81,7 +81,7 @@ class FunctionMock(Function):
         self.names = {"function mock", "mock function"}
         self.help_docs = "Example help, please ignore"
 
-    def run(self, line, user_obj, destination_obj):
+    def run(self, event):
         pass
 
 
@@ -93,5 +93,5 @@ class FunctionMockNoDoc(Function):
         self.names = {self.help_name}
         self.help_docs = None
 
-    def run(self, line, user_obj, destination_obj):
+    def run(self, event):
         pass
