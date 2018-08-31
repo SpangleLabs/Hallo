@@ -3,8 +3,7 @@ from threading import Lock
 import datetime
 
 from Events import EventSecond, EventMinute, EventHour, EventDay, EventPing, EventQuit, EventNameChange, EventJoin, \
-    EventLeave, EventKick, EventInvite, EventMode, EventNotice, EventCTCP, EventMessage
-from Function import Function
+    EventLeave, EventKick, EventInvite, EventMode, EventNotice, EventCTCP, EventMessage, ChannelEvent
 from inc.Commons import Commons
 
 
@@ -20,29 +19,19 @@ class Logger:
         """
         self.hallo = hallo
         self.lock = Lock()
-        self.event_dict = {Function.EVENT_SECOND: self.log_second,
-                           Function.EVENT_MINUTE: self.log_minute,
-                           Function.EVENT_HOUR: self.log_hour,
-                           Function.EVENT_DAY: self.log_day,
-                           Function.EVENT_PING: self.log_ping,
-                           Function.EVENT_MESSAGE: self.log_message,
-                           Function.EVENT_JOIN: self.log_join,
-                           Function.EVENT_LEAVE: self.log_leave,
-                           Function.EVENT_QUIT: self.log_quit,
-                           Function.EVENT_CHNAME: self.log_name_change,
-                           Function.EVENT_KICK: self.log_kick,
-                           Function.EVENT_INVITE: self.log_invite,
-                           Function.EVENT_NOTICE: self.log_notice,
-                           Function.EVENT_MODE: self.log_mode_change,
-                           Function.EVENT_CTCP: self.log_ctcp}
 
     def log(self, event):
         """The function which actually writes the logs."""
         # If channel is set, check logging
-        if event.channel is not None and not event.channel.logging:
+        if isinstance(event, ChannelEvent) and \
+                event.channel is not None and \
+                not event.channel.logging:
             return
         # If channel not set, but user is set, check their logging settings.
-        if event.channel is None and event.user is not None and not event.user.logging:
+        if isinstance(event, ChannelEvent) and \
+                event.channel is None and \
+                event.user is not None and \
+                not event.user.logging:
             return
         # Log the event
         self.log_event(event)

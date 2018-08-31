@@ -999,10 +999,15 @@ class ServerIRC(Server):
         :param nick: New nickname to use on the server
         """
         old_nick = self.get_nick()
+        # Update my user object
+        hallo_user = self.get_user_by_address(old_nick.lower(), old_nick)
+        hallo_user.name = nick
+        hallo_user.address = nick.lower()
         self.nick = nick
         if nick != old_nick:
-            nick_evt = EventNameChange(self, None, old_nick, nick, inbound=False)
+            nick_evt = EventNameChange(self, hallo_user, old_nick, nick, inbound=False)
             self.send(nick_evt)
+
 
     def get_server_port(self):
         """server_port getter"""
