@@ -134,7 +134,8 @@ class EventJoin(ChannelUserEvent):
         """
         :type server: Server.Server
         :type channel: Destination.Channel
-        :type user: Destination.User
+        :param user: User who joined the channel, or None if outbound
+        :type user: Destination.User | None
         :type password: str | None
         :type inbound: bool
         """
