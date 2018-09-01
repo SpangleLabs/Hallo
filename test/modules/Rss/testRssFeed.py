@@ -3,8 +3,8 @@ from datetime import datetime
 import time
 from xml.etree import ElementTree
 
+from Events import EventMessage
 from Hallo import Hallo
-from Server import Server
 from inc.Commons import Commons
 from modules.Rss import RssFeed
 from test.ServerMock import ServerMock
@@ -86,10 +86,10 @@ class TestRssFeed(unittest.TestCase):
         serv1.name = "test_serv1"
         chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         rf1.output_item(item_elem, None, serv1, chan1)
-        data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-        assert feed_title in data[0][0]
-        assert item_title in data[0][0]
-        assert item_link in data[0][0]
+        data = serv1.get_send_data(1, chan1, EventMessage)
+        assert feed_title in data[0].text
+        assert item_title in data[0].text
+        assert item_link in data[0].text
         # Check output works with given server not channel
         rf2 = RssFeed()
         rf2.update_frequency = Commons.load_time_delta("P1TS")
@@ -99,10 +99,10 @@ class TestRssFeed(unittest.TestCase):
         serv2.name = "test_serv2"
         chan2 = serv2.get_channel_by_address("test_chan2".lower(), "test_chan2")
         rf2.output_item(item_elem, None, serv2)
-        data = serv2.get_send_data(1, chan2, Server.MSG_MSG)
-        assert feed_title in data[0][0]
-        assert item_title in data[0][0]
-        assert item_link in data[0][0]
+        data = serv2.get_send_data(1, chan2, EventMessage)
+        assert feed_title in data[0].text
+        assert item_title in data[0].text
+        assert item_link in data[0].text
         # Check output works with given server not user
         rf3 = RssFeed()
         rf3.update_frequency = Commons.load_time_delta("P1TS")
@@ -110,12 +110,12 @@ class TestRssFeed(unittest.TestCase):
         rf3.user_name = "test_user3"
         serv3 = ServerMock(None)
         serv3.name = "test_serv3"
-        user3 = serv3.get_user_by_address("test_user3","test_user3")
+        user3 = serv3.get_user_by_address("test_user3", "test_user3")
         rf3.output_item(item_elem, None, serv3)
-        data = serv3.get_send_data(1, user3, Server.MSG_MSG)
-        assert feed_title in data[0][0]
-        assert item_title in data[0][0]
-        assert item_link in data[0][0]
+        data = serv3.get_send_data(1, user3, EventMessage)
+        assert feed_title in data[0].text
+        assert item_title in data[0].text
+        assert item_link in data[0].text
         # Check output works without given server with given channel
         rf4 = RssFeed()
         rf4.update_frequency = Commons.load_time_delta("P1TS")
@@ -127,10 +127,10 @@ class TestRssFeed(unittest.TestCase):
         hallo4.add_server(serv4)
         chan4 = serv4.get_channel_by_address("test_chan4".lower(), "test_chan4")
         rf4.output_item(item_elem, hallo4, None, chan4)
-        data = serv4.get_send_data(1, chan4, Server.MSG_MSG)
-        assert feed_title in data[0][0]
-        assert item_title in data[0][0]
-        assert item_link in data[0][0]
+        data = serv4.get_send_data(1, chan4, EventMessage)
+        assert feed_title in data[0].text
+        assert item_title in data[0].text
+        assert item_link in data[0].text
         # Check output works without given server with given user
         rf5 = RssFeed()
         rf5.update_frequency = Commons.load_time_delta("P1TS")
@@ -142,10 +142,10 @@ class TestRssFeed(unittest.TestCase):
         hallo5.add_server(serv5)
         chan5 = serv5.get_channel_by_address("test_chan5".lower(), "test_chan5")
         rf5.output_item(item_elem, hallo5, None, chan5)
-        data = serv5.get_send_data(1, chan5, Server.MSG_MSG)
-        assert feed_title in data[0][0]
-        assert item_title in data[0][0]
-        assert item_link in data[0][0]
+        data = serv5.get_send_data(1, chan5, EventMessage)
+        assert feed_title in data[0].text
+        assert item_title in data[0].text
+        assert item_link in data[0].text
         # Check output works without given server or channel to channel
         rf6 = RssFeed()
         rf6.update_frequency = Commons.load_time_delta("P1TS")
@@ -158,10 +158,10 @@ class TestRssFeed(unittest.TestCase):
         hallo6.add_server(serv6)
         chan6 = serv6.get_channel_by_address("test_chan6".lower(), "test_chan6")
         rf6.output_item(item_elem, hallo6)
-        data = serv6.get_send_data(1, chan6, Server.MSG_MSG)
-        assert feed_title in data[0][0]
-        assert item_title in data[0][0]
-        assert item_link in data[0][0]
+        data = serv6.get_send_data(1, chan6, EventMessage)
+        assert feed_title in data[0].text
+        assert item_title in data[0].text
+        assert item_link in data[0].text
         # Check output works without given server or channel to user
         rf7 = RssFeed()
         rf7.update_frequency = Commons.load_time_delta("P1TS")
@@ -172,12 +172,12 @@ class TestRssFeed(unittest.TestCase):
         serv7.name = "test_serv7"
         hallo7 = Hallo()
         hallo7.add_server(serv7)
-        user7 = serv7.get_user_by_address("test_user7","test_user7")
+        user7 = serv7.get_user_by_address("test_user7", "test_user7")
         rf7.output_item(item_elem, hallo7)
-        data = serv7.get_send_data(1, user7, Server.MSG_MSG)
-        assert feed_title in data[0][0]
-        assert item_title in data[0][0]
-        assert item_link in data[0][0]
+        data = serv7.get_send_data(1, user7, EventMessage)
+        assert feed_title in data[0].text
+        assert item_title in data[0].text
+        assert item_link in data[0].text
         # Check invalid server output (server name is none)
         rf8 = RssFeed()
         rf8.update_frequency = Commons.load_time_delta("P1TS")

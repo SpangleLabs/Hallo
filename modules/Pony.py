@@ -1,7 +1,7 @@
+from Events import EventMessage, EventCTCP
 from Function import Function
 from xml.dom import minidom
 
-from Server import Server
 from inc.Commons import Commons
 
 
@@ -24,7 +24,7 @@ class PonyEpisode(Function):
         self.help_docs = "Chooses a pony episode to watch at random. Format: \"pony_ep\" to pick a random pony " \
                          "episode, \"pony_ep song\" to pick a random pony episode which includes a song."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Load XML
         doc = minidom.parse("store/pony/pony_episodes.xml")
         pony_episodes_list_elem = doc.getElementsByTagName("pony_episodes")[0]
@@ -38,12 +38,12 @@ class PonyEpisode(Function):
                 song_list.append(episode_dict)
             episode_list.append(episode_dict)
         # If song, get episode from song list, otherwise get one from episode list
-        if line.strip().lower() != "song":
+        if event.command_args.strip().lower() != "song":
             episode = Commons.get_random_choice(episode_list)[0]
         else:
             episode = Commons.get_random_choice(song_list)[0]
         # Return output
-        return "You should choose: {} - {}.".format(episode['full_code'], episode['name'])
+        return event.create_response("You should choose: {} - {}.".format(episode['full_code'], episode['name']))
 
 
 class BestPony(Function):
@@ -63,7 +63,7 @@ class BestPony(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Who is bestpony? Format: bestpony"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Load XML
         doc = minidom.parse("store/pony/ponies.xml")
         pony_list_elem = doc.getElementsByTagName("ponies")[0]
@@ -94,23 +94,26 @@ class BestPony(Function):
         random_half_2 = Commons.get_random_choice(message_half_2)[0]
         # Select a random pony, or, if it's eli, select Pinkie Pie
         chosen_pony = Commons.get_random_choice(pony_list)[0]
-        if user_obj.name.endswith("000242"):
+        if event.user.name.endswith("000242"):
             chosen_pony = {'name': "Pinkie Pie", 'pronoun': "she", 'categories': ["mane6"]}
         # Assemble and output the message
         output_message = random_half_1.replace("{X}",
                                                chosen_pony['name']) + random_half_2.replace("{Y}",
                                                                                             chosen_pony['pronoun'])
-        return output_message
+        return event.create_response(output_message)
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
-        clean_line = full_line.lower()
+        if not isinstance(event, EventMessage):
+            return
+        clean_line = event.text.lower()
         if "who" in clean_line and ("best pony" in clean_line or "bestpony" in clean_line):
-            return self.run(clean_line, user_obj, channel_obj)
+            event.split_command_text("", clean_line)
+            return self.run(event)
 
 
 class Cupcake(Function):
@@ -130,50 +133,46 @@ class Cupcake(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """
         Gives out cupcakes (much better than muffins.) Format: cupcake <username> <type>
-        :type line: str
-        :type user_obj: Destination.User
-        :type destination_obj: Destination
-        :rtype: str
         """
-        if line.strip() == '':
-            return "You must specify a recipient for the cupcake."
+        if event.command_args.strip() == '':
+            return event.create_response("You must specify a recipient for the cupcake.")
         # Get some required objects
-        server_obj = user_obj.server
-        recipient_user_name = line.split()[0]
+        server_obj = event.server
+        recipient_user_name = event.command_args.split()[0]
         recipient_user_obj = server_obj.get_user_by_name(recipient_user_name)
         # If user isn't online, I can't send a cupcake
         if not recipient_user_obj.online:
-            return "No one called {} is online.".format(recipient_user_name)
+            return event.create_response("No one called {} is online.".format(recipient_user_name))
         # Generate the output message, adding cupcake type if required
-        if recipient_user_name == line.strip():
-            output_message = "\x01ACTION gives {} a cupcake, from {}.\x01".format(recipient_user_name, user_obj.name)
+        if recipient_user_name == event.command_args.strip():
+            output_message = "ACTION gives {} a cupcake, from {}.".format(recipient_user_name, event.user.name)
         else:
-            cupcake_type = line[len(recipient_user_name):].strip()
-            output_message = "\x01ACTION gives {} a {} cupcake, from {}.\x01".format(recipient_user_name, cupcake_type,
-                                                                                     user_obj.name)
+            cupcake_type = event.command_args[len(recipient_user_name):].strip()
+            output_message = "ACTION gives {} a {} cupcake, from {}.".format(recipient_user_name, cupcake_type,
+                                                                             event.user.name)
         # Get both users channel lists, and then the intersection
-        user_channel_list = user_obj.get_channel_list()
+        user_channel_list = event.user.get_channel_list()
         recipient_channel_list = recipient_user_obj.get_channel_list()
         intersection_list = user_channel_list.intersection(recipient_channel_list)
         # If current channel is in the intersection, send there.
-        if destination_obj in intersection_list:
-            return output_message
+        if event.channel in intersection_list:
+            return event.create_response(output_message)
         # Get list of channels that hallo is in inside that intersection
         valid_channels = [chan for chan in intersection_list if chan.in_channel]
         # If length of valid channel list is nonzero, pick a channel and send.
         if len(valid_channels) != 0:
             chosen_channel = Commons.get_random_choice(valid_channels)[0]
-            server_obj.send(output_message, chosen_channel, Server.MSG_MSG)
-            return "Cupcake sent."
+            server_obj.send(EventCTCP(server_obj, chosen_channel, None, output_message, inbound=False))
+            return event.create_response("Cupcake sent.")
         # If no valid intersection channels, see if there are any valid recipient channels
         valid_channels = [chan for chan in recipient_channel_list if chan.in_channel]
         if len(valid_channels) != 0:
             chosen_channel = Commons.get_random_choice(valid_channels)[0]
-            server_obj.send(output_message, chosen_channel, Server.MSG_MSG)
-            return "Cupcake sent."
+            server_obj.send(EventCTCP(server_obj, chosen_channel, None, output_message, inbound=False))
+            return event.create_response("Cupcake sent.")
         # Otherwise, use privmsg
-        server_obj.send(output_message, recipient_user_obj, Server.MSG_MSG)
-        return "Cupcake sent."
+        server_obj.send(EventCTCP(server_obj, None, recipient_user_obj, output_message, inbound=False))
+        return event.create_response("Cupcake sent.")

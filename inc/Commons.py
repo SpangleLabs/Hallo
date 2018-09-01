@@ -20,8 +20,6 @@ class Commons(object):
     """
     END_LINE = '\r\n'
     BOOL_STRING_DICT = {True: "True", False: "False", None: "None"}
-    ALL_CHANNELS = "all_channels"
-    ALL_SERVERS = "all_servers"
 
     @staticmethod
     def current_timestamp():

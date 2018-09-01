@@ -19,10 +19,10 @@ class Longcat(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Make a longcat! Format: longcat <length>"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """Make a longcat! Format: longcat <length>"""
         try:
-            segments = int(line)
+            segments = int(event.command_args)
         except ValueError:
             segments = 5
         long_cat_head = r'''    /\___/\
@@ -44,7 +44,7 @@ class Longcat(Function):
  \__/      \__/'''
         longcat = long_cat_head + long_cat_segment * segments + long_cat_tail
         longcat += "\n Longcat is L{}ng!".format("o"*segments)
-        return longcat
+        return event.create_response(longcat)
 
 
 class Deer(Function):
@@ -64,7 +64,7 @@ class Deer(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Ascii art deer. Format: deer"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """ascii art deer. Format: deer"""
         deer = r'''   /|       |\
 `__\\       //__'
@@ -90,7 +90,7 @@ class Deer(Function):
            | || |           | |   | |
            |_||_|           |_|   |_|
           /_//_/           /_/   /_/'''
-        return deer
+        return event.create_response(deer)
 
 
 class Dragon(Function):
@@ -110,7 +110,7 @@ class Dragon(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Prints ascii dragon. Format: dragon"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """Prints ascii dragon. Format: dragon"""
         dragon_deer = r'''hmm.. nah. have another deer.
        ""\/ \/""
@@ -147,7 +147,7 @@ class Dragon(Function):
             dragon = dragon_one
         else:
             dragon = dragon_two
-        return dragon
+        return event.create_response(dragon)
 
 
 class Train(Function):
@@ -167,11 +167,11 @@ class Train(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Prints ascii train. Format: train"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         """Prints ascii train. Format: train"""
         train = r'''chugga chugga, chugga chugga, woo woo!
             ____.-==-, _______  _______  _______  _______  _..._
            {"""""LILI|[" " "'"]['""'"""][''"""'']["" """"][LI LI]
   ^#^#^#^#^/_OO====OO`'OO---OO''OO---OO''OO---OO''OO---OO`'OO-OO'^#^#^#^
  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'''
-        return train
+        return event.create_response(train)

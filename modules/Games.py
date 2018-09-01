@@ -1,8 +1,8 @@
+from Events import EventMessage
 from Function import Function
 import random
 import time
 
-from Server import Server
 from inc.Commons import Commons
 from xml.dom import minidom
 from threading import Thread
@@ -531,11 +531,11 @@ class RandomCard(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Picks a random card from a deck. Format: random_card"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         new_deck = Deck()
         new_deck.shuffle()
         random_card = new_deck.get_next_card()
-        return "I have chosen the {}.".format(random_card.to_string())
+        return event.create_response("I have chosen the {}.".format(random_card.to_string()))
 
 
 class HighScores(Function):
@@ -645,7 +645,7 @@ class HighScores(Function):
         # save XML
         doc.writexml(open("store/high_score_list.xml", "w"), addindent="\t", newl="\r\n")
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         output_lines = ["High scores:"]
         for game_name in self.high_scores:
             score = self.high_scores[game_name]['score']
@@ -653,7 +653,7 @@ class HighScores(Function):
             date = self.high_scores[game_name]['date']
             output_lines.append("{}> Score: {}, Player: {}, Date: {}".format(
                 game_name, score, player, Commons.format_unix_time(date)))
-        return "\n".join(output_lines)
+        return event.create_response("\n".join(output_lines))
 
     def add_high_score(self, game_name, score, user_name, data=None):
         """Adds a new highscore to the list. Overwriting the old high score for that game if it exists"""
@@ -678,6 +678,10 @@ class Game:
     """
 
     def __init__(self, player_list, channel_obj):
+        """
+        :type player_list: list[Destination.User]
+        :type channel_obj: Destination.Channel
+        """
         self.players = set(player_list)
         self.channel = channel_obj
         self.start_time = time.time()
@@ -891,35 +895,41 @@ class HigherOrLower(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
     # Interesting functions from here
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
+    def run(self, event):
+        line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
-            return self.new_game(user_obj, destination_obj)
+            return event.create_response(self.new_game(event.user,
+                                                       event.user if event.channel is None else event.channel))
         elif any(cmd in line_clean for cmd in self.END_CMDS):
-            return self.quit_game(user_obj, destination_obj)
+            return event.create_response(self.quit_game(event.user,
+                                                        event.user if event.channel is None else event.channel))
         elif any(cmd in line_clean for cmd in self.HIGH_CMDS):
-            return self.guess_higher(user_obj, destination_obj)
+            return event.create_response(self.guess_higher(event.user,
+                                                           event.user if event.channel is None else event.channel))
         elif any(cmd in line_clean for cmd in self.LOW_CMDS):
-            return self.guess_lower(user_obj, destination_obj)
+            return event.create_response(self.guess_lower(event.user,
+                                                          event.user if event.channel is None else event.channel))
         output_string = "I don't understand this input."
         output_string += ' Syntax: "higher_or_lower start" to start a game, '
         output_string += '"higher_or_lower higher" to guess the next card will be higher, '
         output_string += '"higher_or_lower lower" to guess the next card will be lower, '
         output_string += '"higher_or_lower end" to quit the game.'
-        return output_string
+        return event.create_response(output_string)
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
-        clean_line = full_line.strip().lower()
+        if not isinstance(event, EventMessage):
+            return
+        clean_line = event.text.strip().lower()
         if any(cmd in clean_line for cmd in self.END_CMDS):
-            return self.quit_game(user_obj, channel_obj, True)
+            return event.create_response(self.quit_game(event.user, event.channel, True))
         elif any(cmd in clean_line for cmd in self.HIGH_CMDS):
-            return self.guess_higher(user_obj, channel_obj, True)
+            return event.create_response(self.guess_higher(event.user, event.channel, True))
         elif any(cmd in clean_line for cmd in self.LOW_CMDS):
-            return self.guess_lower(user_obj, channel_obj, True)
+            return event.create_response(self.guess_lower(event.user, event.channel, True))
         pass
 
     def find_game(self, user_obj):
@@ -1105,34 +1115,40 @@ class Blackjack(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
     # Interesting functions from here
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
+    def run(self, event):
+        line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
-            return self.new_game(user_obj, destination_obj)
+            return event.create_response(self.new_game(event.user,
+                                                       event.user if event.channel is None else event.channel))
         elif any(cmd in line_clean for cmd in self.END_CMDS):
-            return self.quit_game(user_obj, destination_obj)
+            return event.create_response(self.quit_game(event.user,
+                                                        event.user if event.channel is None else event.channel))
         elif any(cmd in line_clean for cmd in self.HIT_CMDS):
-            return self.hit(user_obj, destination_obj)
+            return event.create_response(self.hit(event.user,
+                                                  event.user if event.channel is None else event.channel))
         elif any(cmd in line_clean for cmd in self.STICK_CMDS):
-            return self.stick(user_obj, destination_obj)
+            return event.create_response(self.stick(event.user,
+                                                    event.user if event.channel is None else event.channel))
         output_string = "I don't understand this input."
         output_string += ' Syntax: "blackjack start" to start a game, '
         output_string += '"blackjack hit" to hit, "blackjack stick" to stick, '
         output_string += 'and "blackjack end" to quit the game.'
-        return output_string
+        return event.create_response(output_string)
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
-        clean_line = full_line.strip().lower()
+        if not isinstance(event, EventMessage):
+            return
+        clean_line = event.text.strip().lower()
         if any(cmd in clean_line for cmd in self.END_CMDS):
-            return self.quit_game(user_obj, channel_obj, True)
+            return event.create_response(self.quit_game(event.user, event.channel, True))
         elif any(cmd in clean_line for cmd in self.HIT_CMDS):
-            return self.hit(user_obj, channel_obj, True)
+            return event.create_response(self.hit(event.user, event.channel, True))
         elif any(cmd in clean_line for cmd in self.STICK_CMDS):
-            return self.stick(user_obj, channel_obj, True)
+            return event.create_response(self.stick(event.user, event.channel, True))
         pass
 
     def find_game(self, user_obj):
@@ -1246,13 +1262,13 @@ class DDRGame(Game):
         directions = [self.DIRECTION_LEFT, self.DIRECTION_RIGHT, self.DIRECTION_UP, self.DIRECTION_DOWN]
         # Send first message and wait for new players to join
         output_string = "Starting new game of DDR in 5 seconds, say 'join' to join."
-        server_obj.send(output_string, self.channel, Server.MSG_MSG)
+        server_obj.send(EventMessage(server_obj, self.channel, None, output_string, inbound=False))
         time.sleep(5)
         # Output how many players joined and begin
         self.can_join = False
         output_string = "{} players joined: {}. Starting game.".format(len(self.players),
                                                                        ", ".join([p.name for p in self.players]))
-        server_obj.send(output_string, self.channel, Server.MSG_MSG)
+        server_obj.send(EventMessage(server_obj, self.channel, None, output_string, inbound=False))
         # Do the various turns of the game
         for _ in range(self.num_turns):
             if self.is_game_over():
@@ -1261,29 +1277,31 @@ class DDRGame(Game):
             self.last_move = direction
             self.players_moved = set()
             self.update_time()
-            server_obj.send(direction, self.channel, Server.MSG_MSG)
+            server_obj.send(EventMessage(server_obj, self.channel, None, direction, inbound=False))
             time.sleep(random.uniform(time_min, time_max))
         # end game
         # Set game over
         self.game_over = True
         output_string = "Game has finished!"
-        server_obj.send(output_string, self.channel, Server.MSG_MSG)
+        server_obj.send(EventMessage(server_obj, self.channel, None, output_string, inbound=False))
         # See who wins
         winner_player = self.find_winner()
         output_string = "Winner is: " + winner_player.name
-        server_obj.send(output_string, self.channel, Server.MSG_MSG)
+        server_obj.send(EventMessage(server_obj, self.channel, None, output_string, inbound=False))
         # Output player ratings
         for player in self.players:
             output_string = self.player_rating(player)
-            server_obj.send(output_string, self.channel, Server.MSG_MSG)
+            server_obj.send(EventMessage(server_obj, self.channel, None, output_string, inbound=False))
         # Check if they have a highscore
         if self.check_high_score(winner_player):
             self.update_high_score(winner_player)
-            server_obj.send("{} has set a new DDR highscore "
-                            "with {} hits and {} lag!".format(winner_player.name,
-                                                              self.player_dict[winner_player]['hits'],
-                                                              self.player_dict[winner_player]['lag']),
-                            self.channel, Server.MSG_MSG)
+            highscore_evt = EventMessage(server_obj, self.channel, None,
+                                         "{} has set a new DDR highscore " +
+                                         "with {} hits and {} lag!".format(winner_player.name,
+                                                                           self.player_dict[winner_player]['hits'],
+                                                                           self.player_dict[winner_player]['lag']),
+                                         inbound=False)
+            server_obj.send(highscore_evt)
             # Game ended
 
     def find_winner(self):
@@ -1429,31 +1447,40 @@ class DDR(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
     # Interesting functions from here
-    def run(self, line, user_obj, destination_obj=None):
-        line_clean = line.strip().lower()
+    def run(self, event):
+        line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
-            return self.new_game(line_clean, user_obj, destination_obj)
+            return event.create_response(self.new_game(line_clean, event.user,
+                                                       event.user if event.channel is None else event.channel))
         elif any(cmd in line_clean for cmd in self.JOIN_CMDS):
-            return self.join_game(line_clean, user_obj, destination_obj)
+            return event.create_response(self.join_game(line_clean, event.user,
+                                                        event.user if event.channel is None else event.channel))
         elif any(cmd in line_clean for cmd in self.END_CMDS):
-            return self.quit_game(line_clean, user_obj, destination_obj)
+            return event.create_response(self.quit_game(line_clean, event.user,
+                                                        event.user if event.channel is None else event.channel))
         elif any(cmd in line_clean for cmd in self.MOVE_CMDS):
-            return self.make_move(line_clean, user_obj, destination_obj)
+            return event.create_response(self.make_move(line_clean, event.user,
+                                                        event.user if event.channel is None else event.channel))
         output_string = "Invalid difficulty mode. Please specify easy, medium or hard."
-        return output_string
+        return event.create_response(output_string)
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
-        full_line = full_line.strip().lower()
+        if not isinstance(event, EventMessage):
+            return
+        full_line = event.text.strip().lower()
         if any(cmd in full_line for cmd in self.JOIN_CMDS):
-            return self.join_game(full_line, user_obj, channel_obj, True)
+            resp = self.join_game(full_line, event.user, event.channel, True)
+            return None if resp is None else event.create_response(resp)
         elif any(cmd in full_line for cmd in self.END_CMDS):
-            return self.quit_game(full_line, user_obj, channel_obj, True)
+            resp = self.quit_game(full_line, event.user, event.channel, True)
+            return None if resp is None else event.create_response(resp)
         elif any(cmd in full_line for cmd in self.MOVE_CMDS):
-            return self.make_move(full_line, user_obj, channel_obj, True)
+            resp = self.make_move(full_line, event.user, event.channel, True)
+            return None if resp is None else event.create_response(resp)
         pass
 
     def find_game(self, destination_obj):

@@ -1,7 +1,7 @@
 import unittest
 
-from modules.Convert import ConvertRepo, ConvertType, ConvertUnit, ConvertMeasure, ConvertException, ConvertPrefixGroup, \
-    ConvertPrefix
+from modules.Convert import ConvertRepo, ConvertType, ConvertUnit, ConvertMeasure, ConvertException, \
+    ConvertPrefixGroup, ConvertPrefix
 
 
 class ConvertMeasureTest(unittest.TestCase):
