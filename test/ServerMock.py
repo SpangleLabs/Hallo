@@ -9,6 +9,7 @@ class ServerMock(Server):
         self.left_channels = []
         self.state = Server.STATE_CLOSED
         self.type = Server.TYPE_MOCK
+        self.prefix = ""
 
     def join_channel(self, channel_obj):
         pass
@@ -30,8 +31,12 @@ class ServerMock(Server):
         super().leave_channel(channel_obj)
         self.left_channels.append(channel_obj)
 
-    def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
-        self.send_data.append((data, destination_obj, msg_type))
+    def send(self, event):
+        self.send_data.append(event)
+
+    def reply(self, old_event, new_event):
+        super().reply(old_event, new_event)
+        self.send(new_event)
 
     def reconnect(self):
         pass
@@ -52,19 +57,24 @@ class ServerMock(Server):
     # Mock server specific methods below:
 
     def get_send_data(self, exp_lines=None, dest_obj=None, msg_type=None):
+        """
+        :type exp_lines: int | None
+        :type dest_obj: Destination.Destination | None
+        :type msg_type: type | None
+        :rtype: list[ServerEvent]
+        """
         out_data = self.send_data
         self.send_data = []
         if exp_lines is not None:
-            assert len(out_data) == exp_lines, "Wrong amount of data received. Expected "+str(exp_lines)+\
+            assert len(out_data) == exp_lines, "Wrong amount of events received. Expected "+str(exp_lines) + \
                                                " but got "+str(len(out_data))+". Full data : " + str(out_data)
         if dest_obj is not None:
-            assert all(out_data[x][1] == dest_obj for x in range(len(out_data))), "Incorrect destination for data. " \
-                                                                                  "Full data: " + \
-                                                                                  str(out_data)
+            assert all((out_data[x].user == dest_obj or out_data[x].channel == dest_obj)
+                       for x in range(len(out_data))), \
+                "Incorrect destination for data. Full data: " + str(out_data)
         if msg_type is not None:
-            assert all(out_data[x][2] == msg_type for x in range(len(out_data))), "Incorrect message type for data. " \
-                                                                                  "Full data: " + \
-                                                                                  str(out_data)
+            assert all(isinstance(out_data[x], msg_type) for x in range(len(out_data))), \
+                "Incorrect message type for data. Full data: " + str(out_data)
         return out_data
 
     def get_left_channels(self, exp_chans=None):

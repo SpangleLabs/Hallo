@@ -16,9 +16,6 @@ class Server(metaclass=ABCMeta):
     TYPE_IRC = "irc"
     TYPE_MOCK = "mock"
     TYPE_TELEGRAM = "telegram"
-    MSG_MSG = "message"
-    MSG_NOTICE = "notice"
-    MSG_RAW = "raw"
     STATE_CLOSED = "disconnected"
     STATE_OPEN = "connected"
     STATE_CONNECTING = "connecting"
@@ -37,6 +34,7 @@ class Server(metaclass=ABCMeta):
         self.name = None  # Server name
         self.auto_connect = True  # Whether to automatically connect to this server when hallo starts
         self.channel_list = []  # List of channels on this server (which may or may not be currently active)
+        """ :type : list[Destination.Channel]"""
         self.user_list = []  # Users on this server (not all of which are online)
         self.nick = None  # Nickname to use on this server
         self.prefix = None  # Prefix to use with functions on this server
@@ -71,17 +69,32 @@ class Server(metaclass=ABCMeta):
         self.disconnect()
         self.start()
 
-    def send(self, data, destination_obj=None, msg_type=MSG_MSG):
+    def send(self, event):
         """
         Sends a message to the server, or a specific channel in the server
-        :param data: Line of data to send to server
-        :type data: str
-        :param destination_obj: Destination to send data to
-        :type destination_obj: Destination.Destination | None
-        :param msg_type: Type of message which is being sent
-        :type msg_type: str
+        :param event: Event to send, should be outbound.
+        :type event: Events.ServerEvent
         """
         raise NotImplementedError
+
+    def reply(self, old_event, new_event):
+        """
+        Sends a message as a reply to another message, such as a response to a function call
+        :param old_event: The event which was received, to reply to
+        :type old_event: Events.ChannelUserTextEvent
+        :param new_event: The event to be sent
+        :type new_event: Events.ChannelUserTextEvent
+        """
+        # This method will just do some checks, implementations will have to actually send events
+        if not old_event.is_inbound or new_event.is_inbound:
+            raise ServerException("Cannot reply to outbound event, or send inbound one")
+        if old_event.channel != new_event.channel:
+            raise ServerException("Cannot send reply to a different channel than original message came from")
+        if new_event.user is not None and old_event.user != new_event.user:
+            raise ServerException("Cannot send reply to a different private chat than original message came from")
+        if old_event.server != new_event.server:
+            raise ServerException("Cannot send reply to a different server than the original message came from")
+        return
 
     def to_json(self):
         """

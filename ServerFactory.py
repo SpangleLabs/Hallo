@@ -1,5 +1,3 @@
-from xml.dom import minidom
-
 from Server import Server
 from ServerIRC import ServerIRC
 from ServerTelegram import ServerTelegram

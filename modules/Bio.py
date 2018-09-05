@@ -1,3 +1,4 @@
+from Events import EventMessage
 from Function import Function
 
 
@@ -21,7 +22,7 @@ class Protein(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Convert a set of nucleobases to a string of amino acids"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         codon_table = {'Ala': ['GCU', 'GCC', 'GCA', 'GCG'],
                        'Arg': ['CGU', 'CGC', 'CGA', 'CGG', 'AGA', 'AGG'],
                        'Asn': ['AAU', 'AAC'],
@@ -44,9 +45,9 @@ class Protein(Function):
                        'Val': ['GUU', 'GUC', 'GUA', 'GUG'],
                        Protein.STOP: ['UAA', 'UGA', 'UAG']}
         # Clean the string, replace Thymine with Uracil
-        line_clean = line.upper().replace('T', 'U')
+        line_clean = event.command_args.upper().replace('T', 'U')
         if not all([c in 'ACGU' for c in line_clean]):
-            return "Error, invalid nucleotides."
+            return event.create_response("Error, invalid nucleotides.")
         strand = ["..."]
         if codon_table[Protein.START][0] in line_clean:
             strand = [Protein.START]
@@ -63,15 +64,17 @@ class Protein(Function):
                     break
         if not stop:
             strand += ["..."]
-        return "-".join(strand)
+        return event.create_response("-".join(strand))
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
-        clean_line = full_line.strip().upper()
+        if not isinstance(event, EventMessage):
+            return None
+        clean_line = event.text.strip().upper()
         if len(clean_line) < 3:
             return None
         valid_chars = list("ACGUT")
@@ -79,5 +82,6 @@ class Protein(Function):
         for valid_char in valid_chars:
             check_message = check_message.replace(valid_char, "")
         if check_message == "":
-            return self.run(clean_line, user_obj, channel_obj)
+            event.split_command_text("", clean_line)
+            return self.run(event)
         return None

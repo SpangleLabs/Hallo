@@ -1,10 +1,10 @@
 import os
 import unittest
 
-from Server import Server
+from Events import EventMessage
 from inc.Commons import Commons
 from modules.Rss import FeedCheck
-from modules.Rss import RssFeed, RssFeedList
+from modules.Rss import RssFeed
 from test.TestBase import TestBase
 
 
@@ -56,9 +56,11 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_feed(rf3)
         # Remove test feed
-        self.function_dispatcher.dispatch("rss remove test_feed1", self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "removed \"test_feed1\"" in data[0][0].lower()
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "rss remove test_feed1"))
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "removed \"test_feed1\"" in data[0].text.lower(), "Response did not contain expected string. " \
+                                                                 "Response was: {}".format(data[0].text)
         assert rf1 not in rfl.feed_list
         assert rf2 in rfl.feed_list
         assert rf3 in rfl.feed_list
@@ -91,9 +93,10 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_feed(rf3)
         # Remove test feed
-        self.function_dispatcher.dispatch("rss remove test_feed1", self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" in data[0][0].lower()
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "rss remove test_feed1"))
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" in data[0].text.lower()
         assert rf1 in rfl.feed_list
         assert rf2 in rfl.feed_list
         assert rf3 in rfl.feed_list
@@ -126,9 +129,10 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_feed(rf3)
         # Remove test feed
-        self.function_dispatcher.dispatch("rss remove not_a_feed", self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" in data[0][0].lower()
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "rss remove not_a_feed"))
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" in data[0].text.lower()
         assert rf1 in rfl.feed_list
         assert rf2 in rfl.feed_list
         assert rf3 in rfl.feed_list
@@ -161,11 +165,11 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_feed(rf3)
         # Remove test feed
-        self.function_dispatcher.dispatch("rss remove http://spangle.org.uk/hallo/test_rss.xml?1",
-                                          self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "removed" in data[0][0].lower()
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "rss remove http://spangle.org.uk/hallo/test_rss.xml?1"))
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "removed" in data[0].text.lower()
         assert rf1 not in rfl.feed_list
         assert rf2 in rfl.feed_list
         assert rf3 in rfl.feed_list
@@ -198,11 +202,11 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf3.update_frequency = Commons.load_time_delta("PT3600S")
         rfl.add_feed(rf3)
         # Remove test feed
-        self.function_dispatcher.dispatch("rss remove http://spangle.org.uk/hallo/test_rss.xml?1",
-                                          self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower()
-        assert "removed" in data[0][0].lower()
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "rss remove http://spangle.org.uk/hallo/test_rss.xml?1"))
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "removed" in data[0].text.lower()
         assert rf1 not in rfl.feed_list
         assert rf2 in rfl.feed_list
         assert rf3 not in rfl.feed_list

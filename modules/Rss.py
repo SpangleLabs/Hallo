@@ -2,6 +2,9 @@ from threading import Lock
 from xml.etree.ElementTree import ParseError
 from xml.etree import ElementTree
 from datetime import datetime
+
+from Destination import Channel, User
+from Events import EventMinute, EventMessage
 from inc.Commons import Commons
 import hashlib
 from Function import Function
@@ -163,9 +166,9 @@ class RssFeed:
         """
         Outputs an item to a given server and destination, or the feed default.
         :param rss_item: ElementTree.Element rss item xml element which wants outputting
-        :param hallo: Hallo
-        :param server: Server
-        :param destination: Destination
+        :type hallo: Hallo.Hallo
+        :type server: Server.Server
+        :type destination: Destination.Destination
         """
         # Get server
         if server is None:
@@ -175,14 +178,16 @@ class RssFeed:
         # Get destination
         if destination is None:
             if self.channel_name is not None:
-                destination = server.get_channel_by_name(self.channel_name)
+                destination = server.get_channel_by_address(self.channel_name, None)
             if self.user_name is not None:
-                destination = server.get_user_by_name(self.user_name)
+                destination = server.get_user_by_address(self.user_name, None)
             if destination is None:
                 return "Error, invalid destination."
         # Construct output
+        channel = destination if isinstance(destination, Channel) else None
+        user = destination if isinstance(destination, User) else None
         output = self.format_item(rss_item)
-        server.send(output, destination)
+        server.send(EventMessage(server, channel, user, output, inbound=False))
         return output
 
     def format_item(self, rss_item):
@@ -318,22 +323,25 @@ class FeedCheck(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {Function.EVENT_MINUTE}
+        return {EventMinute}
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Handy variables
-        hallo = user_obj.server.hallo
+        hallo = event.server.hallo
         # Clean up input
-        clean_input = line.strip().lower()
+        clean_input = event.command_args.strip().lower()
         # Check whether input is asking to update all feeds
         if clean_input in self.NAMES_ALL:
-            return self.run_all(hallo)
+            return event.create_response(self.run_all(hallo))
         # Otherwise see if a feed title matches the specified one
         with self.rss_feed_list.feed_lock:
-            matching_feeds = self.rss_feed_list.get_feeds_by_title(clean_input, destination_obj)
+            matching_feeds = self.rss_feed_list.get_feeds_by_title(clean_input,
+                                                                   event.user
+                                                                   if event.channel is None
+                                                                   else event.channel)
             if len(matching_feeds) == 0:
-                return "Error, no Rss Feeds match that name. If you're adding a new feed, use \"rss add\" " \
-                       "with your link."
+                return event.create_response("Error, no Rss Feeds match that name. "
+                                             "If you're adding a new feed, use \"rss add\" with your link.")
             output_lines = []
             # Loop through matching rss feeds, getting updates
             for rss_feed in matching_feeds:
@@ -346,8 +354,8 @@ class FeedCheck(Function):
         output_lines = list(set(output_lines))
         # Output response to user
         if len(output_lines) == 0:
-            return "There were no updates for \"{}\" RSS feed.".format(line)
-        return "The following feed updates were found:\n" + "\n".join(output_lines)
+            return event.create_response("There were no updates for \"{}\" RSS feed.".format(event.command_args))
+        return event.create_response("The following feed updates were found:\n" + "\n".join(output_lines))
 
     def run_all(self, hallo):
         output_lines = []
@@ -364,15 +372,11 @@ class FeedCheck(Function):
         return "The following feed updates were found and posted to their registered destinations:\n" + \
                "\n".join(output_lines)
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         """
         Replies to an event not directly addressed to the bot.
-        :param event: string
-        :param full_line: string
-        :param hallo_obj: Hallo
-        :param server_obj: Server
-        :param user_obj: User
-        :param channel_obj: Channel
+        :type event: Events.Event
+        :type hallo_obj: Hallo.Hallo
         """
         # Check through all feeds to see which need updates
         with self.rss_feed_list.feed_lock:
@@ -384,6 +388,8 @@ class FeedCheck(Function):
                     # Output all new items
                     for rss_item in new_items:
                         rss_feed.output_item(rss_item, hallo_obj)
+            # Save list
+            self.rss_feed_list.to_xml()
 
 
 class FeedAdd(Function):
@@ -404,14 +410,14 @@ class FeedAdd(Function):
         self.help_docs = "Adds a new feed to be checked for updates which will be posted to the current location." \
                          " Format: rss add <feed name> <update period?>"
 
-    def run(self, line, user_obj, destination_obj):
+    def run(self, event):
         # Get input
-        feed_url = line.split()[0]
+        feed_url = event.command_args.split()[0]
         feed_period = "PT3600S"
-        if len(line.split()) > 1:
-            feed_period = line.split()[1]
+        if len(event.command_args.split()) > 1:
+            feed_period = event.command_args.split()[1]
         # Get current RSS feed list
-        function_dispatcher = user_obj.server.hallo.function_dispatcher
+        function_dispatcher = event.server.hallo.function_dispatcher
         feed_check_class = function_dispatcher.get_function_by_name("rss check")
         feed_check_obj = function_dispatcher.get_function_object(feed_check_class)  # type: FeedCheck
         feed_list = feed_check_obj.rss_feed_list
@@ -419,26 +425,26 @@ class FeedAdd(Function):
         try:
             Commons.load_url_string(feed_url, [])
         except urllib.error.URLError:
-            return "Error, could not load link."
+            return event.create_response("Error, could not load link.")
         # Check period is valid
         try:
             feed_delta = Commons.load_time_delta(feed_period)
         except ISO8601ParseError:
-            return "Error, invalid time period."
+            return event.create_response("Error, invalid time period.")
         # Create new rss feed
         rss_feed = RssFeed()
-        rss_feed.server_name = user_obj.server.name
+        rss_feed.server_name = event.server.name
         rss_feed.url = feed_url
         rss_feed.update_frequency = feed_delta
-        if destination_obj.is_channel():
-            rss_feed.channel_name = destination_obj.name
+        if event.channel is not None:
+            rss_feed.channel_name = event.channel.address
         else:
-            rss_feed.user_name = destination_obj.name
+            rss_feed.user_name = event.user.address
         # Update feed
         try:
             rss_feed.check_feed()
         except ParseError:
-            return "Error, RSS feed could not be parsed."
+            return event.create_response("Error, RSS feed could not be parsed.")
         # Acquire lock
         with feed_list.feed_lock:
             # Add new rss feed to list
@@ -446,7 +452,7 @@ class FeedAdd(Function):
             # Save list
             feed_list.to_xml()
         # Return output
-        return "I have added new RSS feed titled \"{}\"".format(rss_feed.title)
+        return event.create_response("I have added new RSS feed titled \"{}\"".format(rss_feed.title))
 
 
 class FeedRemove(Function):
@@ -468,35 +474,39 @@ class FeedRemove(Function):
         self.help_docs = "Removes a specified RSS feed from the current or specified channel. " \
                          " Format: rss remove <feed title or url>"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Handy variables
-        server = user_obj.server
+        server = event.server
         hallo = server.hallo
         function_dispatcher = hallo.function_dispatcher
         feed_check_function = function_dispatcher.get_function_by_name("rss check")
         feed_check_obj = function_dispatcher.get_function_object(feed_check_function)  # type: FeedCheck
         rss_feed_list = feed_check_obj.rss_feed_list
         # Clean up input
-        clean_input = line.strip()
+        clean_input = event.command_args.strip()
         # Acquire lock
         with rss_feed_list.feed_lock:
             # Find any feeds with specified title
-            test_feeds = rss_feed_list.get_feeds_by_title(clean_input.lower(), destination_obj)
+            test_feeds = rss_feed_list.get_feeds_by_title(clean_input.lower(),
+                                                          event.user if event.channel is None else event.channel)
             if len(test_feeds) == 1:
                 rss_feed_list.remove_feed(test_feeds[0])
-                return "Removed \"{}\" RSS feed. " \
-                       "Updates will no longer be sent to {}.".format(test_feeds[0].title,
-                                                                      (test_feeds[0].channel_name or
-                                                                       test_feeds[0].user_name))
+                return event.create_response(("Removed \"{}\" RSS feed. "
+                                             "Updates will no longer be sent to " +
+                                              "{}.").format(test_feeds[0].title,
+                                                            (test_feeds[0].channel_name or
+                                                             test_feeds[0].user_name)))
             if len(test_feeds) > 1:
-                return "Error, there is more than 1 rss feed in this channel by that name. Try specifying by URL."
+                return event.create_response("Error, there is more than 1 rss feed in this channel by that name. "
+                                             "Try specifying by URL.")
             # Otherwise, zero results, so try hunting by url
-            test_feeds = rss_feed_list.get_feeds_by_url(clean_input, destination_obj)
+            test_feeds = rss_feed_list.get_feeds_by_url(clean_input,
+                                                        event.user if event.channel is None else event.channel)
             if len(test_feeds) == 0:
-                return "Error, there are no RSS feeds in this channel matching that name or URL."
+                return event.create_response("Error, there are no RSS feeds in this channel matching that name or URL.")
             for test_feed in test_feeds:
                 rss_feed_list.remove_feed(test_feed)
-            return "Removed subscriptions to RSS feed."
+            return event.create_response("Removed subscriptions to RSS feed.")
 
 
 class FeedList(Function):
@@ -517,9 +527,9 @@ class FeedList(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Lists RSS feeds for the current channel. Format: rss list"
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Handy variables
-        server = user_obj.server
+        server = event.server
         hallo = server.hallo
         function_dispatcher = hallo.function_dispatcher
         feed_check_function = function_dispatcher.get_function_by_name("rss check")
@@ -527,10 +537,10 @@ class FeedList(Function):
         rss_feed_list = feed_check_obj.rss_feed_list
         # Find list of feeds for current channel.
         with rss_feed_list.feed_lock:
-            dest_feeds = rss_feed_list.get_feeds_by_destination(destination_obj)
+            dest_feeds = rss_feed_list.get_feeds_by_destination(event.user if event.channel is None else event.channel)
         if len(dest_feeds) == 0:
-            return "There are no RSS feeds posting to this destination."
+            return event.create_response("There are no RSS feeds posting to this destination.")
         output_lines = ["RSS feeds posting to this channel:"]
         for rss_feed in dest_feeds:
             output_lines.append("\"{}\" url: {}".format(rss_feed.title, rss_feed.url))
-        return "\n".join(output_lines)
+        return event.create_response("\n".join(output_lines))

@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from Server import Server
+from Events import EventMessage
 from modules.Furry import SubE621Check
 from test.TestBase import TestBase
 
@@ -27,14 +27,15 @@ class E621SubAddTest(TestBase, unittest.TestCase):
             pass
 
     def test_invalid_search(self):
-        self.function_dispatcher.dispatch("e621 sub add ::", self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "error" in data[0][0].lower()
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "e621 sub add ::"))
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "error" in data[0].text.lower()
 
     def test_add_search(self):
-        self.function_dispatcher.dispatch("e621 sub add cabinet", self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
-        assert "added new e621 subscription" in data[0][0].lower()
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "e621 sub add cabinet"))
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "added new e621 subscription" in data[0].text.lower()
         # Check the search subscription was added
         e621_check_class = self.function_dispatcher.get_function_by_name("e621 sub check")
         e621_check_obj = self.function_dispatcher.get_function_object(e621_check_class)  # type: SubE621Check
@@ -51,9 +52,9 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         assert rfl[0].update_frequency.days == 0
 
     def test_add_search_user(self):
-        self.function_dispatcher.dispatch("e621 sub add cabinet", self.test_user, self.test_user)
-        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        assert "added new e621 subscription" in data[0][0].lower()
+        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "e621 sub add cabinet"))
+        data = self.server.get_send_data(1, self.test_user, EventMessage)
+        assert "added new e621 subscription" in data[0].text.lower()
         # Check the search subscription was added
         e621_check_class = self.function_dispatcher.get_function_by_name("e621 sub check")
         e621_check_obj = self.function_dispatcher.get_function_object(e621_check_class)  # type: SubE621Check
@@ -70,10 +71,11 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         assert rfl[0].update_frequency.days == 0
 
     def test_add_search_period(self):
-        self.function_dispatcher.dispatch("e621 sub add cabinet PT3600S", self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
+                                                       "e621 sub add cabinet PT3600S"))
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
         print(data)
-        assert "added new e621 subscription" in data[0][0].lower()
+        assert "added new e621 subscription" in data[0].text.lower()
         # Check the search subscription was added
         e621_check_class = self.function_dispatcher.get_function_by_name("e621 sub check")
         e621_check_obj = self.function_dispatcher.get_function_object(e621_check_class)  # type: SubE621Check

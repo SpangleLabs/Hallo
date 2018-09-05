@@ -1,5 +1,6 @@
 import unittest
 
+from Events import EventMessage, EventInvite
 from Server import Server
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
@@ -17,10 +18,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan1.add_user(user1)
         chan1.add_user(serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick()))
         try:
-            self.function_dispatcher.dispatch("invite", user1, chan1)
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "only available for irc" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite"))
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "only available for irc" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -40,10 +41,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("invite", user1, chan1)
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "specify a user to invite and/or a channel" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite"))
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "specify a user to invite and/or a channel" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -62,10 +63,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("invite other_channel", user1, user1)
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "other_channel is not known" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "invite other_channel"))
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "other_channel is not known" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -85,10 +86,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("invite test_chan2", user1, user1)
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "not in that channel" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "invite test_chan2"))
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "not in that channel" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -106,10 +107,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("invite test_chan1", user1, user1)
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_user1 is already in test_chan1" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "invite test_chan1"))
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_user1 is already in test_chan1" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -126,10 +127,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("invite test_chan1", user1, user1)
-            data = serv1.get_send_data(1, user1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "invite test_chan1"))
+            data = serv1.get_send_data(1, user1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -146,16 +147,15 @@ class InviteTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("invite test_chan1", user1, user1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "invite test_chan1"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == user1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:6] == "INVITE"
-            assert user1.name+" "+chan1.name in data[0][0]
-            assert "invite sent" in data[1][0].lower()
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan1
+            assert data[1].user == user1
+            assert data[0].__class__ == EventInvite
+            assert data[1].__class__ == EventMessage
+            assert data[0].invited_user == user1
+            assert "invite sent" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -184,10 +184,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("invite test_chan2", user1, chan1)
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_user1 is already in test_chan2" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_chan2"))
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_user1 is already in test_chan2" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -213,10 +213,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("invite test_chan2", user1, chan1)
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_chan2"))
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -242,16 +242,15 @@ class InviteTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("invite test_chan2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_chan2"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == chan1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:6] == "INVITE"
-            assert user1.name+" "+chan2.name in data[0][0]
-            assert "invite sent" in data[1][0].lower()
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan2
+            assert data[1].channel == chan1
+            assert data[0].__class__ == EventInvite
+            assert data[1].__class__ == EventMessage
+            assert data[0].invited_user == user1
+            assert "invite sent" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -273,10 +272,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan1_hallo.is_op = True
         chan1.add_user(user2)
         try:
-            self.function_dispatcher.dispatch("invite test_user2", user1, chan1)
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_user2 is already in test_chan1" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_user2"))
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_user2 is already in test_chan1" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -297,10 +296,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("invite test_user2", user1, chan1)
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_user2"))
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -321,16 +320,15 @@ class InviteTest(TestBase, unittest.TestCase):
         chan1_hallo = chan1.get_membership_by_user(user_hallo)
         chan1_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("invite test_user2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_user2"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == chan1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:6] == "INVITE"
-            assert user2.name+" "+chan1.name in data[0][0]
-            assert "invite sent" in data[1][0].lower()
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan1
+            assert data[1].channel == chan1
+            assert data[0].__class__ == EventInvite
+            assert data[1].__class__ == EventMessage
+            assert data[0].invited_user == user2
+            assert "invite sent" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -359,10 +357,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("invite test_chan2 test_user2", user1, chan1)
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_user2 is already in test_chan2" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_chan2 test_user2"))
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_user2 is already in test_chan2" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -388,10 +386,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("invite test_chan2 test_user2", user1, chan1)
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_chan2 test_user2"))
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -417,16 +415,15 @@ class InviteTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("invite test_chan2 test_user2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_chan2 test_user2"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == chan1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:6] == "INVITE"
-            assert user2.name+" "+chan2.name in data[0][0]
-            assert "invite sent" in data[1][0].lower()
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan2
+            assert data[1].channel == chan1
+            assert data[0].__class__ == EventInvite
+            assert data[1].__class__ == EventMessage
+            assert data[0].invited_user == user2
+            assert "invite sent" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -452,10 +449,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan2_user1 = chan2.get_membership_by_user(user2)
         chan2_user1.is_op = False
         try:
-            self.function_dispatcher.dispatch("invite test_user2 test_chan2", user1, chan1)
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "i'm not in that channel" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_user2 test_chan2"))
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "i'm not in that channel" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -484,10 +481,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("invite test_user2 test_chan2", user1, chan1)
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "test_user2 is already in test_chan2" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_user2 test_chan2"))
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "test_user2 is already in test_chan2" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -513,10 +510,10 @@ class InviteTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = False
         try:
-            self.function_dispatcher.dispatch("invite test_user2 test_chan2", user1, chan1)
-            data = serv1.get_send_data(1, chan1, Server.MSG_MSG)
-            assert "error" in data[0][0].lower()
-            assert "don't have power" in data[0][0].lower()
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_user2 test_chan2"))
+            data = serv1.get_send_data(1, chan1, EventMessage)
+            assert "error" in data[0].text.lower()
+            assert "don't have power" in data[0].text.lower()
         finally:
             self.hallo.remove_server(serv1)
 
@@ -542,15 +539,14 @@ class InviteTest(TestBase, unittest.TestCase):
         chan2_hallo = chan2.get_membership_by_user(user_hallo)
         chan2_hallo.is_op = True
         try:
-            self.function_dispatcher.dispatch("invite test_user2 test_chan2", user1, chan1)
+            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite test_user2 test_chan2"))
             data = serv1.get_send_data(2)
-            assert "error" not in data[0][0].lower()
-            assert data[0][1] is None
-            assert data[1][1] == chan1
-            assert data[0][2] == Server.MSG_RAW
-            assert data[1][2] == Server.MSG_MSG
-            assert data[0][0][:6] == "INVITE"
-            assert user2.name+" "+chan2.name in data[0][0]
-            assert "invite sent" in data[1][0].lower()
+            assert "error" not in data[1].text.lower()
+            assert data[0].channel == chan2
+            assert data[1].channel == chan1
+            assert data[0].__class__ == EventInvite
+            assert data[1].__class__ == EventMessage
+            assert data[0].invited_user == user2
+            assert "invite sent" in data[1].text.lower()
         finally:
             self.hallo.remove_server(serv1)

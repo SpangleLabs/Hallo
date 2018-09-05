@@ -4,6 +4,7 @@ from xml.dom import minidom
 
 import dateutil.parser
 
+from Events import EventHour, EventMessage
 from inc.Commons import Commons
 from Function import Function
 import re
@@ -747,8 +748,8 @@ class Convert(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "converts values from one unit to another. Format: convert <value> <old unit> to <new unit>"
 
-    def run(self, line, user_obj, destination_obj=None):
-        return self.convert_parse(line)
+    def run(self, event):
+        return event.create_response(self.convert_parse(event.command_args))
 
     def convert_parse(self, line, passive=False):
         """
@@ -866,10 +867,12 @@ class Convert(Function):
         return output_string
 
     def get_passive_events(self):
-        return {Function.EVENT_MESSAGE}
+        return {EventMessage}
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
-        return self.convert_parse(full_line, True)
+    def passive_run(self, event, hallo_obj):
+        if not isinstance(event, EventMessage):
+            return
+        return self.convert_parse(event.text, True)
 
 
 class UpdateCurrencies(Function):
@@ -891,7 +894,7 @@ class UpdateCurrencies(Function):
         self.help_docs = "Update currency conversion figures, using data from the money converter, the European " \
                          "central bank, forex and preev."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         output_lines = []
         # Load convert repo.
         repo = ConvertRepo.load_json()
@@ -916,12 +919,12 @@ class UpdateCurrencies(Function):
         # Save repo
         repo.save_json()
         # Return output
-        return "\n".join(output_lines)
+        return event.create_response("\n".join(output_lines))
 
     def get_passive_events(self):
-        return {Function.EVENT_HOUR}
+        return {EventHour}
 
-    def passive_run(self, event, full_line, hallo_obj, server_obj=None, user_obj=None, channel_obj=None):
+    def passive_run(self, event, hallo_obj):
         # Load convert repo.
         repo = ConvertRepo.load_json()
         # Update with the European Bank
@@ -1070,47 +1073,47 @@ class ConvertViewRepo(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns information about the conversion repository."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Load repo
         repo = ConvertRepo.load_json()
         # Check if type is specified
-        if Commons.find_any_parameter(self.NAMES_TYPE, line):
+        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
             # Get type name and object
-            type_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
+            type_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
             type_obj = repo.get_type_by_name(type_name)
             if type_obj is None:
-                return "Unrecognised type."
+                return event.create_response("Unrecognised type.")
             # Check if unit & type are specified
-            if Commons.find_any_parameter(self.NAMES_UNIT, line):
+            if Commons.find_any_parameter(self.NAMES_UNIT, event.command_args):
                 # Get unit name and object
-                unit_name = Commons.find_any_parameter(self.NAMES_UNIT, line)
+                unit_name = Commons.find_any_parameter(self.NAMES_UNIT, event.command_args)
                 unit_obj = type_obj.get_unit_by_name(unit_name)
                 if unit_obj is None:
-                    return "Unrecognised unit."
-                return self.output_unit_as_string(unit_obj)
+                    return event.create_response("Unrecognised unit.")
+                return event.create_response(self.output_unit_as_string(unit_obj))
             # Type is defined, but not unit.
-            return self.output_type_as_string(type_obj)
+            return event.create_response(self.output_type_as_string(type_obj))
         # Check if prefix group is specified
-        if Commons.find_any_parameter(self.NAMES_PREFIXGROUP, line):
+        if Commons.find_any_parameter(self.NAMES_PREFIXGROUP, event.command_args):
             # Check if prefix & group are specified
-            prefix_group_name = Commons.find_any_parameter(self.NAMES_PREFIXGROUP, line)
+            prefix_group_name = Commons.find_any_parameter(self.NAMES_PREFIXGROUP, event.command_args)
             prefix_group_obj = repo.get_prefix_group_by_name(prefix_group_name)
             if prefix_group_obj is None:
-                return "Unrecognised prefix group."
+                return event.create_response("Unrecognised prefix group.")
             # Check if prefix group & prefix are specified
-            if Commons.find_any_parameter(self.NAMES_PREFIX, line):
+            if Commons.find_any_parameter(self.NAMES_PREFIX, event.command_args):
                 # Get prefix name and object
-                prefix_name = Commons.find_any_parameter(self.NAMES_PREFIX, line)
+                prefix_name = Commons.find_any_parameter(self.NAMES_PREFIX, event.command_args)
                 prefix_obj = prefix_group_obj.get_prefix_by_name(
                     prefix_name) or prefix_group_obj.get_prefix_by_abbr(prefix_name)
                 if prefix_group_obj is None:
-                    return "Unrecognised prefix."
-                return self.output_prefix_as_string(prefix_obj)
+                    return event.create_response("Unrecognised prefix.")
+                return event.create_response(self.output_prefix_as_string(prefix_obj))
             # Prefix group is defined, but not prefix
-            return self.output_prefix_group_as_string(prefix_group_obj)
+            return event.create_response(self.output_prefix_group_as_string(prefix_group_obj))
         # Check if unit is specified
-        if Commons.find_any_parameter(self.NAMES_UNIT, line):
-            unit_name = Commons.find_any_parameter(self.NAMES_UNIT, line)
+        if Commons.find_any_parameter(self.NAMES_UNIT, event.command_args):
+            unit_name = Commons.find_any_parameter(self.NAMES_UNIT, event.command_args)
             output_lines = []
             # Loop through types, getting units for each type
             for type_obj in repo.type_list:
@@ -1119,11 +1122,11 @@ class ConvertViewRepo(Function):
                 if unit_obj is not None:
                     output_lines.append(self.output_unit_as_string(unit_obj))
             if len(output_lines) == 0:
-                return "Unrecognised unit."
-            return "\n".join(output_lines)
+                return event.create_response("Unrecognised unit.")
+            return event.create_response("\n".join(output_lines))
         # Check if prefix is specified
-        if Commons.find_any_parameter(self.NAMES_PREFIX, line):
-            prefix_name = Commons.find_any_parameter(self.NAMES_PREFIX, line)
+        if Commons.find_any_parameter(self.NAMES_PREFIX, event.command_args):
+            prefix_name = Commons.find_any_parameter(self.NAMES_PREFIX, event.command_args)
             output_lines = []
             # Loop through groups, getting prefixes for each group
             for prefix_group_obj in repo.prefix_group_list:
@@ -1132,10 +1135,10 @@ class ConvertViewRepo(Function):
                 if prefix_obj is not None:
                     output_lines.append(self.output_prefix_as_string(prefix_obj))
             if len(output_lines) == 0:
-                return "Unrecognised prefix."
-            return "\n".join(output_lines)
+                return event.create_response("Unrecognised prefix.")
+            return event.create_response("\n".join(output_lines))
         # Nothing was specified, return info on the repo.
-        return self.output_repo_as_string(repo)
+        return event.create_response(self.output_repo_as_string(repo))
 
     def output_repo_as_string(self, repo):
         """
@@ -1229,17 +1232,17 @@ class ConvertSet(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets the value of a unit, Format: <amount> <unit_set> = <amount>? <unit_reference>."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Load Conversion Repo
         repo = ConvertRepo.load_json()
         # Create regex to find the place to split a user string.
         split_regex = re.compile(' into | to |->| in ', re.IGNORECASE)
         # Split input
-        line_split = split_regex.split(line)
+        line_split = split_regex.split(event.command_args)
         # If there are more than 2 parts, be confused.
         if len(line_split) > 2:
-            return "I don't understand your input. (Are you specifying 3 units?) Please format like so: " \
-                   "convert <value> <old unit> to <new unit>"
+            return event.create_response("I don't understand your input. (Are you specifying 3 units?) " +
+                                         "Please format like so: convert <value> <old unit> to <new unit>")
         # Try loading the second part (reference measure) as a measure
         try:
             ref_measure_list = ConvertMeasure.build_list_from_user_input(repo, line_split[1])
@@ -1247,7 +1250,7 @@ class ConvertSet(Function):
             try:
                 ref_measure_list = ConvertMeasure.build_list_from_user_input(repo, "1" + line_split[1])
             except ConvertException:
-                return "I don't understand the second half of your input."
+                return event.create_response("I don't understand the second half of your input.")
         # Try loading the first part as a measure
         try:
             var_measure_list = ConvertMeasure.build_list_from_user_input(repo, line_split[0])
@@ -1256,8 +1259,8 @@ class ConvertSet(Function):
                 var_measure_list = ConvertMeasure.build_list_from_user_input(repo, "1" + line_split[0])
             except ConvertException:
                 # Add a unit.
-                return self.add_unit(line_split[0], ref_measure_list)
-        return self.set_unit(var_measure_list, ref_measure_list)
+                return event.create_response(self.add_unit(line_split[0], ref_measure_list))
+        return event.create_response(self.set_unit(var_measure_list, ref_measure_list))
 
     def set_unit(self, var_measure_list, ref_measure_list):
         """
@@ -1395,10 +1398,10 @@ class ConvertAddType(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Adds a new conversion unit type and base unit."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Load repo, clean line
         repo = ConvertRepo.load_json()
-        line_clean = line.strip()
+        line_clean = event.command_args.strip()
         # Check if base unit is defined
         unit_name = None
         if Commons.find_any_parameter(self.NAMES_BASE_UNIT, line_clean):
@@ -1418,10 +1421,10 @@ class ConvertAddType(Function):
         # Check that type name doesn't already exist.
         existing_type = repo.get_type_by_name(input_name)
         if existing_type is not None:
-            return "A type by this name already exists."
+            return event.create_response("A type by this name already exists.")
         # Check base unit name was defined.
         if unit_name is None:
-            return "You must define a base unit for this type using unit=<unit name>."
+            return event.create_response("You must define a base unit for this type using unit=<unit name>.")
         # Create new type, Create new unit, set unit as base unit, set decimals
         new_type = ConvertType(repo, input_name)
         new_base_unit = ConvertUnit(new_type, [unit_name], 1)
@@ -1436,7 +1439,7 @@ class ConvertAddType(Function):
         if decimals is not None:
             decimal_string = " and {} decimal places".format(decimals)
         output_string = "Created new type \"{}\" with base unit \"{}\"{}.".format(input_name, unit_name, decimal_string)
-        return output_string
+        return event.create_response(output_string)
 
 
 class ConvertSetTypeDecimals(Function):
@@ -1456,33 +1459,34 @@ class ConvertSetTypeDecimals(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets the number of decimal places to show for a unit type."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Load convert repo
         repo = ConvertRepo.load_json()
         # Get decimals from input
-        input_decimals = Commons.get_digits_from_start_or_end(line)
+        input_decimals = Commons.get_digits_from_start_or_end(event.command_args)
         # If decimals is null, return error
         if input_decimals is None:
-            return "Please specify a conversion type and a number of decimal places it should output."
+            return event.create_response("Please specify a conversion type and a number of decimal places " +
+                                         "it should output.")
         # Get type name from input
-        if line.startswith(input_decimals):
-            input_name = line[len(input_decimals):].strip()
+        if event.command_args.startswith(input_decimals):
+            input_name = event.command_args[len(input_decimals):].strip()
         else:
-            input_name = line[:-len(input_decimals)].strip()
+            input_name = event.command_args[:-len(input_decimals)].strip()
         # Convert decimals to integer
         decimals = int(float(input_decimals))
         # Get selected type
         input_type = repo.get_type_by_name(input_name)
         # If type does not exist, return error
         if input_type is None:
-            return "This is not a recognised conversion type."
+            return event.create_response("This is not a recognised conversion type.")
         # Set decimals
         input_type.decimals = decimals
         # Save repo
         repo.save_json()
         # Output message
-        return "Set the number of decimal places to display for \"{}\" type units at {} places.".format(input_type.name,
-                                                                                                        decimals)
+        return event.create_response("Set the number of decimal places to display for " +
+                                     "\"{}\" type units at {} places.".format(input_type.name, decimals))
 
 
 class ConvertRemoveUnit(Function):
@@ -1504,24 +1508,24 @@ class ConvertRemoveUnit(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Removes a specified unit from the conversion repository."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Load convert repo
         repo = ConvertRepo.load_json()
         # Check if a type is specified
         type_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, line):
-            type_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
+            type_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
         # Clean type setting from the line to just get the name to remove
         param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        input_name = param_regex.sub("\1\4", line).strip()
+        input_name = param_regex.sub("\1\4", event.command_args).strip()
         # Find unit
         if type_name is not None:
             type_obj = repo.get_type_by_name(type_name)
             if type_obj is None:
-                return "This conversion type is not recognised."
+                return event.create_response("This conversion type is not recognised.")
             input_unit = type_obj.get_unit_by_name(input_name)
             if input_unit is None:
-                return "This unit name is not recognised for that unit type."
+                return event.create_response("This unit name is not recognised for that unit type.")
         else:
             input_unit_list = []
             for type_obj in repo.type_list:
@@ -1530,19 +1534,19 @@ class ConvertRemoveUnit(Function):
                     input_unit_list.append(input_unit)
             # Check if results are 0
             if len(input_unit_list) == 0:
-                return "No unit by that name is found in any type."
+                return event.create_response("No unit by that name is found in any type.")
             # Check if results are >=2
             if len(input_unit_list) >= 2:
-                return ""
+                return event.create_response("")  # TODO
             input_unit = input_unit_list[0]
         # Ensure it is not a base unit for its type
         if input_unit == input_unit.type.base_unit:
-            return "You cannot remove the base unit for a unit type."
+            return event.create_response("You cannot remove the base unit for a unit type.")
         # Remove unit
         input_unit_name = input_unit.name_list[0]
         input_unit.type.remove_unit(input_unit)
         # Done
-        return "Removed unit \"{}\" from conversion repository.".format(input_unit_name)
+        return event.create_response("Removed unit \"{}\" from conversion repository.".format(input_unit_name))
 
 
 class ConvertUnitAddName(Function):
@@ -1565,27 +1569,27 @@ class ConvertUnitAddName(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Adds a new name to a unit."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Load repository
         repo = ConvertRepo.load_json()
         # Check for type=
         type_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, line):
-            type_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
+            type_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
         # Check for unit=
         unit_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, line):
-            unit_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
+            unit_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
         # clean up the line
         param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        input_name = param_regex.sub("\1\4", line).strip()
+        input_name = param_regex.sub("\1\4", event.command_args).strip()
         # Get unit list
         if type_name is None:
             unit_list = repo.get_full_unit_list()
         else:
             type_obj = repo.get_type_by_name(type_name)
             if type_obj is None:
-                return "Unrecognised type."
+                return event.create_response("Unrecognised type.")
             unit_list = type_obj.get_full_unit_list()
         # If no unit=, try splitting the line to find where the old name ends and new name begins
         if unit_name is None:
@@ -1610,17 +1614,18 @@ class ConvertUnitAddName(Function):
             new_unit_name = input_name
         # If 0 units found, throw error
         if len(input_unit_list) == 0:
-            return "No unit found by that name."
+            return event.create_response("No unit found by that name.")
         # If 2+ units found, throw error
         if len(input_unit_list) >= 2:
-            return "Unit name is too ambiguous, please specify with unit= and type= ."
+            return event.create_response("Unit name is too ambiguous, please specify with unit= and type= .")
         unit_obj = input_unit_list[0]
         # Add the new name
         unit_obj.add_name(new_unit_name)
         # Save repo
         repo.save_json()
         # Output message
-        return "Added \"{}\" as a new name for the \"{}\" unit.".format(new_unit_name, unit_obj.name_list[0])
+        return event.create_response("Added \"{}\" as a new name for the \"{}\" unit.".format(new_unit_name,
+                                                                                              unit_obj.name_list[0]))
 
 
 class ConvertUnitAddAbbreviation(Function):
@@ -1643,27 +1648,27 @@ class ConvertUnitAddAbbreviation(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Adds a new abbreviation to a unit."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Load repository
         repo = ConvertRepo.load_json()
         # Check for type=
         type_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, line):
-            type_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
+            type_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
         # Check for unit=
         unit_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, line):
-            unit_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
+            unit_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
         # clean up the line
         param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        input_abbr = param_regex.sub("\1\4", line).strip()
+        input_abbr = param_regex.sub("\1\4", event.command_args).strip()
         # Get unit list
         if type_name is None:
             unit_list = repo.get_full_unit_list()
         else:
             type_obj = repo.get_type_by_name(type_name)
             if type_obj is None:
-                return "Unrecognised type."
+                return event.create_response("Unrecognised type.")
             unit_list = type_obj.get_full_unit_list()
         # If no unit=, try splitting the line to find where the old name ends and new name begins
         if unit_name is None:
@@ -1688,17 +1693,18 @@ class ConvertUnitAddAbbreviation(Function):
             new_unit_abbr = input_abbr
         # If 0 units found, throw error
         if len(input_unit_list) == 0:
-            return "No unit found by that name."
+            return event.create_response("No unit found by that name.")
         # If 2+ units found, throw error
         if len(input_unit_list) >= 2:
-            return "Unit name is too ambiguous, please specify with unit= and type= ."
+            return event.create_response("Unit name is too ambiguous, please specify with unit= and type= .")
         unit_obj = input_unit_list[0]
         # Add the new name
         unit_obj.add_abbr(new_unit_abbr)
         # Save repo
         repo.save_json()
         # Output message
-        return "Added \"{}\" as a new abbreviation for the \"{}\" unit.".format(new_unit_abbr, unit_obj.name_list[0])
+        return event.create_response("Added \"{}\" as a new abbreviation for " +
+                                     "the \"{}\" unit.".format(new_unit_abbr, unit_obj.name_list[0]))
 
 
 class ConvertUnitRemoveName(Function):
@@ -1724,10 +1730,10 @@ class ConvertUnitRemoveName(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Removes a name or abbreviation from a unit, unless it's the last name."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Load repo, clean line
         repo = ConvertRepo.load_json()
-        line_clean = line.strip()
+        line_clean = event.command_args.strip()
         # Check if unit is defined
         unit_name = None
         if Commons.find_any_parameter(self.NAMES_UNIT, line_clean):
@@ -1737,7 +1743,7 @@ class ConvertUnitRemoveName(Function):
         if Commons.find_any_parameter(self.NAMES_TYPE, line_clean):
             type_name = Commons.find_any_parameter(self.NAMES_TYPE, line_clean)
             if repo.get_type_by_name(type_name) is None:
-                return "Invalid type specified."
+                return event.create_response("Invalid type specified.")
         # Clean unit and type setting from the line to just get the name to remove
         param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_name = param_regex.sub("\1\4", line_clean).strip()
@@ -1757,19 +1763,19 @@ class ConvertUnitRemoveName(Function):
             user_unit_options.append(unit_obj)
         # Check if that narrowed it down correctly.
         if len(user_unit_options) == 0:
-            return "There are no units matching that description."
+            return event.create_response("There are no units matching that description.")
         if len(user_unit_options) >= 2:
-            return "It is ambiguous which unit you refer to."
+            return event.create_response("It is ambiguous which unit you refer to.")
         # Check this unit has other names.
         user_unit = user_unit_options[0]
         if len(user_unit.name_list) == 1:
-            return "This unit only has 1 name, you cannot remove its last name."
+            return event.create_response("This unit only has 1 name, you cannot remove its last name.")
         # Remove name
         user_unit.remove_name(input_name)
         # Save repo
         repo.save_json()
         # Output
-        return "Removed name \"{}\" from \"{}\" unit.".format(input_name, user_unit.name_list[0])
+        return event.create_response("Removed name \"{}\" from \"{}\" unit.".format(input_name, user_unit.name_list[0]))
 
 
 class ConvertUnitSetPrefixGroup(Function):
@@ -1793,24 +1799,24 @@ class ConvertUnitSetPrefixGroup(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Removes a name or abbreviation from a unit, unless it's the last name."
 
-    def run(self, line, user_obj, destination_obj=None):
+    def run(self, event):
         # Load repository
         repo = ConvertRepo.load_json()
         # Check for type=
         type_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, line):
-            type_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
+            type_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
         # Check for unit=
         unit_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, line):
-            unit_name = Commons.find_any_parameter(self.NAMES_TYPE, line)
+        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
+            unit_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
         # Check for prefixgroup=
         prefix_group_name = None
-        if Commons.find_any_parameter(self.NAMES_PREFIX_GROUP, line):
-            prefix_group_name = Commons.find_any_parameter(self.NAMES_PREFIX_GROUP, line)
+        if Commons.find_any_parameter(self.NAMES_PREFIX_GROUP, event.command_args):
+            prefix_group_name = Commons.find_any_parameter(self.NAMES_PREFIX_GROUP, event.command_args)
         # clean up the line
         param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        input_name = param_regex.sub("\1\4", line).strip()
+        input_name = param_regex.sub("\1\4", event.command_args).strip()
         # Get prefix group
         if prefix_group_name is None:
             line_split = input_name.split()
@@ -1827,18 +1833,18 @@ class ConvertUnitSetPrefixGroup(Function):
                 prefix_group = None
                 input_name = ' '.join(line_split[1:])
             else:
-                return "Prefix group not recognised."
+                return event.create_response("Prefix group not recognised.")
         else:
             prefix_group = repo.get_prefix_group_by_name(prefix_group_name)
             if prefix_group is None and prefix_group_name.lower() != "none":
-                return "Prefix group not recognised."
+                return event.create_response("Prefix group not recognised.")
         # Get unit list
         if type_name is None:
             unit_list = repo.get_full_unit_list()
         else:
             type_obj = repo.get_type_by_name(type_name)
             if type_obj is None:
-                return "Unrecognised type."
+                return event.create_response("Unrecognised type.")
             unit_list = type_obj.get_full_unit_list()
         # If no unit=, try splitting the line to find where the old name ends and new name begins
         if unit_name is None:
@@ -1853,10 +1859,10 @@ class ConvertUnitSetPrefixGroup(Function):
                     input_unit_list.append(unit_obj)
         # If 0 units found, throw error
         if len(input_unit_list) == 0:
-            return "No unit found by that name."
+            return event.create_response("No unit found by that name.")
         # If 2+ units found, throw error
         if len(input_unit_list) >= 2:
-            return "Unit name is too ambiguous, please specify with unit= and type= ."
+            return event.create_response("Unit name is too ambiguous, please specify with unit= and type= .")
         unit_obj = input_unit_list[0]
         # Set the prefix group
         unit_obj.valid_prefix_group = prefix_group
@@ -1867,4 +1873,5 @@ class ConvertUnitSetPrefixGroup(Function):
             prefix_group_name = "none"
         else:
             prefix_group_name = prefix_group.name
-        return "Set \"{}\" as the prefix group for the \"{}\" unit.".format(prefix_group_name, unit_obj.name_list[0])
+        return event.create_response("Set \"{}\" as the prefix group for " +
+                                     "the \"{}\" unit.".format(prefix_group_name, unit_obj.name_list[0]))

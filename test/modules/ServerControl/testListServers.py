@@ -1,5 +1,6 @@
 import unittest
 
+from Events import EventMessage
 from Server import Server
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
@@ -15,13 +16,13 @@ class ListServersTest(TestBase, unittest.TestCase):
 
     def test_no_servers(self):
         # Send command
-        self.function_dispatcher.dispatch("list servers", self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "list servers"))
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
         # Check response
-        assert "do not" in data[0][0], "Response did not say it doesn't have servers. " \
-                                       "Response: " + str(data[0][0])
-        assert ":" not in data[0][0], "Response tried to list servers. " \
-                                      "Response: " + str(data[0][0])
+        assert "do not" in data[0].text, "Response did not say it doesn't have servers. " \
+                                         "Response: " + str(data[0].text)
+        assert ":" not in data[0].text, "Response tried to list servers. " \
+                                        "Response: " + str(data[0].text)
 
     def test_one_server(self):
         # Add one server
@@ -30,10 +31,10 @@ class ListServersTest(TestBase, unittest.TestCase):
         serv1.name = "server_list_test"
         self.hallo.add_server(serv1)
         # Send command
-        self.function_dispatcher.dispatch("list servers", self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "list servers"))
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
         # Check response
-        server_list_text = data[0][0].split(":")[1]
+        server_list_text = data[0].text.split(":")[1]
         server_list = server_list_text.split("], ")
         assert len(server_list) == 1
         assert serv1.name in server_list[0], "Server name not found in output.\n" \
@@ -48,10 +49,11 @@ class ListServersTest(TestBase, unittest.TestCase):
         assert "nick=" + serv1.get_nick() in server_list[0], "Server nick not found in output.\n" \
                                                              "Server nick: " + serv1.get_nick() + "\n" \
                                                              "Command output: " + server_list[0]
-        assert "auto_connect=" + str(serv1.auto_connect) in server_list[0], "Server auto connect not found in output.\n" \
-                                                                            "Server auto connect: " + \
-                                                                            str(serv1.auto_connect) + "\n" \
-                                                                            "Command output: " + server_list[0]
+        assert "auto_connect=" + str(serv1.auto_connect) in \
+               server_list[0], "Server auto connect not found in output.\n" \
+                               "Server auto connect: " + \
+                               str(serv1.auto_connect) + "\n" \
+                                                         "Command output: " + server_list[0]
 
     def test_two_mock_servers(self):
         # Add two servers
@@ -68,10 +70,10 @@ class ListServersTest(TestBase, unittest.TestCase):
         serv2.start()
         self.hallo.add_server(serv2)
         # Send command
-        self.function_dispatcher.dispatch("list servers", self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "list servers"))
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
         # Check response
-        server_list_text = data[0][0].split(":")[1]
+        server_list_text = data[0].text.split(":")[1]
         server_list = server_list_text.split("], ")
         assert len(server_list) == 2
         if serv1.name in server_list[0]:
@@ -83,45 +85,47 @@ class ListServersTest(TestBase, unittest.TestCase):
         assert serv1.name in server_text1, "Server 1 name not found in output.\n" \
                                            "Server name: " + serv1.name + "\n" \
                                            "Server output: " + str(server_text1) + "\n" \
-                                           "Full output: " + data[0][0]
+                                           "Full output: " + data[0].text
         assert "type=" + serv1.type in server_text1, "Server 1 type not found in output.\n" \
                                                      "Server type: " + serv1.type + "\n" \
                                                      "Server output: " + str(server_text1) + "\n" \
-                                                     "Full output: " + data[0][0]
+                                                     "Full output: " + data[0].text
         assert "state=" + serv1.state in server_text1, "Server 1 state not found in output.\n" \
                                                        "Server state: " + serv1.state + "\n" \
                                                        "Server output: " + str(server_text1) + "\n" \
-                                                       "Full output: " + data[0][0]
+                                                       "Full output: " + data[0].text
         assert "nick=" + serv1.get_nick() in server_text1, "Server 1 nick not found in output.\n" \
                                                            "Server nick: " + serv1.get_nick() + "\n" \
                                                            "Server output: " + str(server_text1) + "\n" \
-                                                           "Full output: " + data[0][0]
-        assert "auto_connect=" + str(serv1.auto_connect) in server_text1, "Server 1 auto connect not found in output.\n" \
-                                                                          "Server auto connect: " + \
-                                                                          str(serv1.auto_connect) + "\n" \
-                                                                          "Server output: " + str(server_text1) + "\n" \
-                                                                          "Full output: " + data[0][0]
+                                                           "Full output: " + data[0].text
+        assert "auto_connect=" + str(serv1.auto_connect) in \
+               server_text1, "Server 1 auto connect not found in output.\n" \
+                             "Server auto connect: " + \
+                             str(serv1.auto_connect) + "\n" \
+                             "Server output: " + str(server_text1) + "\n" \
+                             "Full output: " + data[0].text
         assert serv2.name in server_text2, "Server 2 name not found in output.\n" \
                                            "Server name: " + serv2.name + "\n" \
                                            "Server output: " + str(server_text2) + "\n" \
-                                           "Full output: " + data[0][0]
+                                           "Full output: " + data[0].text
         assert "type=" + serv2.type in server_text2, "Server 2 type not found in output.\n" \
                                                      "Server type: " + serv2.type + "\n" \
                                                      "Server output: " + str(server_text2) + "\n" \
-                                                     "Full output: " + data[0][0]
+                                                     "Full output: " + data[0].text
         assert "state=" + serv2.state in server_text2, "Server 2 state not found in output.\n" \
                                                        "Server state: " + serv2.state + "\n" \
                                                        "Server output: " + str(server_text2) + "\n" \
-                                                       "Full output: " + data[0][0]
+                                                       "Full output: " + data[0].text
         assert "nick=" + serv2.get_nick() in server_text2, "Server 2 nick not found in output.\n" \
                                                            "Server nick: " + serv2.get_nick() + "\n" \
                                                            "Server output: " + str(server_text2) + "\n" \
-                                                           "Full output: " + data[0][0]
-        assert "auto_connect=" + str(serv2.auto_connect) in server_text2, "Server 2 auto connect not found in output.\n" \
-                                                                          "Server auto connect: " + \
-                                                                          str(serv2.auto_connect) + "\n" \
-                                                                          "Server output: " + str(server_text2) + "\n" \
-                                                                          "Full output: " + data[0][0]
+                                                           "Full output: " + data[0].text
+        assert "auto_connect=" + str(serv2.auto_connect) in \
+               server_text2, "Server 2 auto connect not found in output.\n" \
+                             "Server auto connect: " + \
+                             str(serv2.auto_connect) + "\n" \
+                             "Server output: " + str(server_text2) + "\n" \
+                             "Full output: " + data[0].text
 
     def test_irc_server(self):
         # Add one server
@@ -132,10 +136,10 @@ class ListServersTest(TestBase, unittest.TestCase):
         serv1.name = "irc_server_list_test"
         self.hallo.add_server(serv1)
         # Send command
-        self.function_dispatcher.dispatch("list servers", self.test_user, self.test_chan)
-        data = self.server.get_send_data(1, self.test_chan, Server.MSG_MSG)
+        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "list servers"))
+        data = self.server.get_send_data(1, self.test_chan, EventMessage)
         # Check response
-        server_list_text = data[0][0].split(":", 1)[1]
+        server_list_text = data[0].text.split(":", 1)[1]
         server_list = server_list_text.split("], ")
         assert len(server_list) == 1
         assert serv1.name in server_list[0], "Server name not found in output.\n" \
@@ -154,7 +158,8 @@ class ListServersTest(TestBase, unittest.TestCase):
         assert "nick=" + serv1.get_nick() in server_list[0], "Server nick not found in output.\n" \
                                                              "Server nick: " + serv1.get_nick() + "\n" \
                                                              "Command output: " + server_list[0]
-        assert "auto_connect=" + str(serv1.auto_connect) in server_list[0], "Server auto connect not found in output.\n" \
-                                                                            "Server auto connect: " + \
-                                                                            str(serv1.auto_connect) + "\n" \
-                                                                            "Command output: " + server_list[0]
+        assert "auto_connect=" + str(serv1.auto_connect) in \
+               server_list[0], "Server auto connect not found in output.\n" \
+                               "Server auto connect: " + \
+                               str(serv1.auto_connect) + "\n" \
+                               "Command output: " + server_list[0]
