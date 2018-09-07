@@ -1,5 +1,6 @@
 import json
 from abc import ABCMeta
+from datetime import datetime
 from threading import Lock
 
 from Destination import Channel, User
@@ -109,15 +110,73 @@ class SubscriptionRepo:
 
 
 class Subscription(metaclass=ABCMeta):
-    def __init__(self):
-        self.channel_address = None
-        self.server_name = None
-        self.user_address = None
 
-    pass
+    def __init__(self):
+        self.server_name = None
+        """ :type : str"""
+        self.channel_address = None
+        """ :type : str"""
+        self.user_address = None
+        """ :type : str"""
+        self.last_check = None
+        """ :type : datetime"""
+        self.update_frequency = None
+        """ :type : timedelta"""
+        self.names = []
+        """ :type : list[str]"""
+
+    @staticmethod
+    def create_from_input(input_evt):
+        raise NotImplementedError()  # TODO
 
     def matches_name(self, name_clean):
-        pass
+        raise NotImplementedError()  # TODO
+
+    def check(self):
+        raise NotImplementedError()  # TODO
+
+    def output_item(self, item, hallo):
+        server = hallo.get_server_by_name(self.server_name)
+        if server is None:
+            return "Error, invalid server."
+        channel = None
+        user = None
+        if self.channel_address is not None:
+            channel = server.get_channel_by_address(self.channel_address)
+        if self.user_address is not None:
+            user = server.get_user_by_address(self.user_address)
+        if channel is None and user is None:
+            return "Error, invalid destination."
+        output_evt = self.format_item(item, server, channel, user)
+        server.send(output_evt)
+
+    def format_item(self, item, server, channel, user):
+        """
+        :type item: obj
+        :type server: Server.Server
+        :type channel: Destination.Channel | None
+        :type user: Destination.User | None
+        :rtype: EventMessage
+        """
+        raise NotImplementedError()  # TODO
+
+    def needs_check(self):
+        """
+        Returns whether a subscription check is overdue.
+        :return: bool
+        """
+        if self.last_check is None:
+            return True
+        if datetime.now() > self.last_check + self.update_frequency:
+            return True
+        return False
+
+    def to_json(self):
+        raise NotImplementedError()  # TODO
+
+    @staticmethod
+    def from_json(json_obj):
+        raise NotImplementedError()  # TODO
 
 
 class SubscriptionFactory(object):
