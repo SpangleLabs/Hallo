@@ -1,10 +1,17 @@
 import json
+import urllib.parse
 from abc import ABCMeta
 from datetime import datetime
 from threading import Lock
 
 from Destination import Channel, User
+from Events import EventMessageWithPhoto
 from Function import Function
+from inc.Commons import Commons, ISO8601ParseError
+
+
+class SubscriptionException(Exception):
+    pass
 
 
 class SubscriptionRepo:
@@ -110,60 +117,67 @@ class SubscriptionRepo:
 
 
 class Subscription(metaclass=ABCMeta):
+    names = []
+    """ :type : list[str]"""
 
-    def __init__(self):
-        self.server_name = None
-        """ :type : str"""
-        self.channel_address = None
-        """ :type : str"""
-        self.user_address = None
-        """ :type : str"""
-        self.last_check = None
+    def __init__(self, server, destination, last_check=None, update_frequency=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        """
+        if update_frequency is None:
+            update_frequency = Commons.load_time_delta("PT300S")
+        self.server = server
+        """ :type : Server.Server"""
+        self.destination = destination
+        """ :type : Destination.Destination"""
+        self.last_check = last_check
         """ :type : datetime"""
-        self.update_frequency = None
+        self.update_frequency = update_frequency
         """ :type : timedelta"""
-        self.names = []
-        """ :type : list[str]"""
 
     @staticmethod
     def create_from_input(input_evt):
+        """
+        :type input_evt: EventMessage
+        :rtype: Subscription
+        """
         raise NotImplementedError()  # TODO
 
     def matches_name(self, name_clean):
+        """
+        :type name_clean: str
+        :rtype: bool
+        """
         raise NotImplementedError()  # TODO
 
     def check(self):
+        """
+        :rtype: list[object]
+        """
         raise NotImplementedError()  # TODO
 
-    def output_item(self, item, hallo):
-        server = hallo.get_server_by_name(self.server_name)
-        if server is None:
-            return "Error, invalid server."
-        channel = None
-        user = None
-        if self.channel_address is not None:
-            channel = server.get_channel_by_address(self.channel_address)
-        if self.user_address is not None:
-            user = server.get_user_by_address(self.user_address)
-        if channel is None and user is None:
-            return "Error, invalid destination."
-        output_evt = self.format_item(item, server, channel, user)
-        server.send(output_evt)
-
-    def format_item(self, item, server, channel, user):
+    def send_item(self, item):
         """
-        :type item: obj
-        :type server: Server.Server
-        :type channel: Destination.Channel | None
-        :type user: Destination.User | None
-        :rtype: EventMessage
+        :type item: object
+        :rtype: None
+        """
+        output_evt = self.format_item(item)
+        self.server.send(output_evt)
+
+    def format_item(self, item):
+        """
+        :type item: object
+        :rtype: Events.EventMessage
         """
         raise NotImplementedError()  # TODO
 
     def needs_check(self):
         """
         Returns whether a subscription check is overdue.
-        :return: bool
+        :rtype: bool
         """
         if self.last_check is None:
             return True
@@ -172,19 +186,28 @@ class Subscription(metaclass=ABCMeta):
         return False
 
     def to_json(self):
-        raise NotImplementedError()  # TODO
+        """
+        :rtype: dict
+        """
+        json_obj = dict()
+        json_obj["server_name"] = self.server.name
+        if isinstance(self.destination, Channel):
+            json_obj["channel_name"] = self.destination.name
+        if isinstance(self.destination, User):
+            json_obj["user_name"] = self.destination.name
+        if self.last_check is not None:
+            json_obj["last_check"] = self.last_check.isoformat()
+        json_obj["update_frequency"] = Commons.format_time_delta(self.update_frequency)
+        return json_obj
 
     @staticmethod
-    def from_json(json_obj):
+    def from_json(json_obj, hallo):
+        """
+        :type json_obj: dict
+        :type hallo: Hallo.Hallo
+        :rtype: Subscription
+        """
         raise NotImplementedError()  # TODO
-
-
-class SubscriptionFactory(object):
-
-    @staticmethod
-    def from_json(e621_sub_elem):
-        return Subscription()  # TODO
-        pass
 
 
 class RssSub(Subscription):
@@ -192,7 +215,128 @@ class RssSub(Subscription):
 
 
 class E621Sub(Subscription):
-    pass
+    names = ["e621"]
+    """ :type : list[str]"""
+    type_name = "e621"
+    """ :type : str"""
+
+    def __init__(self, server, destination, search, last_check=None, update_frequency=None, latest_ids=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type search: str
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.search = search
+        """ :type : str"""
+        if latest_ids is None:
+            latest_ids = []
+        self.latest_ids = latest_ids
+        """ :type : list[int]"""
+
+    @staticmethod
+    def create_from_input(input_evt):
+        """
+        :type input_evt: Events.EventMessage
+        :rtype: E621Sub
+        """
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if last argument is check period.
+        try:
+            try_period = input_evt.command_args.split()[-1]
+            search_delta = Commons.load_time_delta(try_period)
+            search = input_evt.command_args[:-len(try_period)].strip()
+        except ISO8601ParseError:
+            search = input_evt.command_args.strip()
+            search_delta = Commons.load_time_delta("PT300S")
+        # Create e6 subscription object
+        e6Sub = E621Sub(server, destination, search, update_frequency=search_delta)
+        # Check if it's a valid search
+        first_results = e6Sub.check()
+        if len(first_results) == 0:
+            raise SubscriptionException("This does not appear to be a valid search, or does not have results.")
+        return e6Sub
+
+    def matches_name(self, name_clean):
+        raise NotImplementedError()  # TODO
+
+    def check(self):
+        search = "{} order:-id".format(self.search)  # Sort by id
+        if len(self.latest_ids) > 0:
+            oldest_id = min(self.latest_ids)
+            search += " id:>{}".format(oldest_id)  # Don't list anything older than the oldest of the last 10
+        url = "http://e621.net/post/index.json?tags={}&limit=50".format(urllib.parse.quote(search))
+        results = Commons.load_url_json(url)
+        return_list = []
+        new_last_ten = set(self.latest_ids)
+        for result in results:
+            result_id = result["id"]
+            # Create new list of latest ten results
+            new_last_ten.add(result_id)
+            # If post hasn't been seen in the latest ten, add it to returned list.
+            if result_id not in self.latest_ids:
+                return_list.append(result)
+        self.latest_ids = sorted(list(new_last_ten))[::-1][:10]
+        # Update check time
+        self.last_check = datetime.now()
+        return return_list
+
+    def format_item(self, e621_result):
+        link = "http://e621.net/post/show/{}".format(e621_result['id'])
+        # Create rating string
+        rating = "(Unknown)"
+        rating_dict = {"e": "(Explicit)", "q": "(Questionable)", "s": "(Safe)"}
+        if e621_result["rating"] in rating_dict:
+            rating = rating_dict[e621_result["rating"]]
+        # Construct output
+        output = "Update on \"{}\" e621 search. {} {}".format(self.search, link, rating)
+        image_url = e621_result["file_url"]
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
+        return output_evt
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["search"] = self.search
+        json_obj["latest_ids"] = []
+        for latest_id in self.latest_ids:
+            json_obj["latest_ids"].append(latest_id)
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Type specific loading
+        # Load last items
+        latest_ids = []
+        for latest_id in json_obj["latest_ids"]:
+            latest_ids.append(latest_id)
+        # Load search
+        search = json_obj["search"]
+        return E621Sub(server, destination, search, last_check, update_frequency, latest_ids)
 
 
 class GoogleDocsSub(Subscription):
@@ -233,6 +377,23 @@ class FAFavsSub(Subscription):
 
 class YoutubeSub(Subscription):
     pass
+
+
+class SubscriptionFactory(object):
+    sub_classes = [E621Sub]
+
+    @staticmethod
+    def from_json(sub_json, hallo):
+        """
+        :type sub_json: dict
+        :type hallo: Hallo.Hallo
+        :rtype: Subscription
+        """
+        sub_type_name = sub_json["sub_type"]
+        for sub_class in SubscriptionFactory.sub_classes:
+            if sub_class.type_name == sub_type_name:
+                return sub_class.from_json(sub_json, hallo)
+        raise SubscriptionException("Could not load subscription of type {}".format(sub_type_name))
 
 
 class SubscriptionAdd(Function):
