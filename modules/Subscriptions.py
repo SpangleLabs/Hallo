@@ -51,11 +51,7 @@ class SubscriptionRepo:
         """
         matching_subs = []
         for sub in self.sub_list:
-            if destination.server.name != sub.server_name:
-                continue
-            if isinstance(destination, Channel) and destination.address != sub.channel_address:
-                continue
-            if isinstance(destination, User) and destination.address != sub.user_address:
+            if sub.destination != destination:
                 continue
             matching_subs.append(sub)
         return matching_subs
