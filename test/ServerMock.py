@@ -44,8 +44,8 @@ class ServerMock(Server):
     def check_user_identity(self, user_obj):
         pass
 
-    def to_xml(self):
-        pass
+    def get_name_by_address(self, address):
+        return address
 
     def to_json(self):
         return dict()

@@ -218,6 +218,13 @@ class ServerTelegram(Server):
                   new_event.__class__.__name__)
             raise NotImplementedError()
 
+    def get_name_by_address(self, address):
+        chat = self.bot.get_chat(address)
+        if chat.type == chat.PRIVATE:
+            return " ".join([chat.first_name, chat.last_name])
+        if chat.type in [chat.GROUP, chat.SUPERGROUP, chat.CHANNEL]:
+            return chat.title
+
     def to_json(self):
         """
         Creates a dict of configuration for the server, to store as json

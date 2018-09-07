@@ -1063,6 +1063,9 @@ class ServerIRC(Server):
             nickserv_obj = self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick)
             self.send(EventMessage(self, None, nickserv_obj, "IDENTIFY {}".format(self.nickserv_pass), inbound=False))
 
+    def get_name_by_address(self, address):
+        return address
+
     def to_json(self):
         json_obj = dict()
         json_obj["type"] = Server.TYPE_IRC
