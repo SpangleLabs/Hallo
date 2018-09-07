@@ -431,9 +431,9 @@ class E621Sub:
         # Get destination
         if destination is None:
             if self.channel_address is not None:
-                destination = server.get_channel_by_address(self.channel_address, None)
+                destination = server.get_channel_by_address(self.channel_address)
             if self.user_address is not None:
-                destination = server.get_user_by_address(self.user_address, None)
+                destination = server.get_user_by_address(self.user_address)
             if destination is None:
                 return "Error, invalid destination."
         # Construct output

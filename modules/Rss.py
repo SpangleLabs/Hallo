@@ -178,9 +178,9 @@ class RssFeed:
         # Get destination
         if destination is None:
             if self.channel_name is not None:
-                destination = server.get_channel_by_address(self.channel_name, None)
+                destination = server.get_channel_by_address(self.channel_name)
             if self.user_name is not None:
-                destination = server.get_user_by_address(self.user_name, None)
+                destination = server.get_user_by_address(self.user_name)
             if destination is None:
                 return "Error, invalid destination."
         # Construct output
