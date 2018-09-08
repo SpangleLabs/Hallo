@@ -396,7 +396,7 @@ class E621Sub(Subscription):
         return name_clean == self.search
 
     def get_name(self):
-        return self.search
+        return "search for \"{}\"".format(self.search)
 
     def check(self):
         search = "{} order:-id".format(self.search)  # Sort by id
@@ -630,9 +630,10 @@ class SubscriptionRemove(Function):
             if len(test_subs) == 1:
                 del_sub = test_subs[0]
                 sub_repo.remove_sub(del_sub)
-                return event.create_response(("Removed \"{}\" subscription. "
+                return event.create_response(("Removed {} subscription to {}. "
                                              "Updates will no longer be sent to " +
-                                              "{}.").format(del_sub.get_name(), del_sub.destination.name))
+                                              "{}.").format(del_sub.type_name, del_sub.get_name(),
+                                                            del_sub.destination.name))
             if len(test_subs) > 1:
                 return event.create_response("Error, there is more than 1 subscription in this channel by that name.")
         return event.create_response("Error, there are no subscriptions in this channel matching that name.")
@@ -785,5 +786,5 @@ class SubscriptionList(Function):
             return event.create_response("There are no subscriptions posting to this destination.")
         output_lines = ["Subscriptions posting to this channel:"]
         for search_item in dest_searches:
-            output_lines.append("{} - \"{}\"".format(search_item.type_name, search_item.get_name()))
+            output_lines.append("{} - {}".format(search_item.type_name, search_item.get_name()))
         return event.create_response("\n".join(output_lines))
