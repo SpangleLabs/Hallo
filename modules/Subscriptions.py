@@ -80,9 +80,8 @@ class SubscriptionRepo:
         Saves the whole subscription list to a JSON file
         :return: None
         """
-        json_obj = {}
+        json_obj = {"subs": []}
         # Add subscriptions
-        json_obj["subs"] = []
         for sub in self.sub_list:
             json_obj["subs"].append(sub.to_json())
         # Add common configuration
@@ -142,20 +141,20 @@ class Subscription(metaclass=ABCMeta):
         :type input_evt: EventMessage
         :rtype: Subscription
         """
-        raise NotImplementedError()  # TODO
+        raise NotImplementedError()
 
     def matches_name(self, name_clean):
         """
         :type name_clean: str
         :rtype: bool
         """
-        raise NotImplementedError()  # TODO
+        raise NotImplementedError()
 
     def check(self):
         """
         :rtype: list[object]
         """
-        raise NotImplementedError()  # TODO
+        raise NotImplementedError()
 
     def send_item(self, item):
         """
@@ -170,7 +169,7 @@ class Subscription(metaclass=ABCMeta):
         :type item: object
         :rtype: Events.EventMessage
         """
-        raise NotImplementedError()  # TODO
+        raise NotImplementedError()
 
     def needs_check(self):
         """
@@ -205,7 +204,7 @@ class Subscription(metaclass=ABCMeta):
         :type hallo: Hallo.Hallo
         :rtype: Subscription
         """
-        raise NotImplementedError()  # TODO
+        raise NotImplementedError()
 
 
 class RssSub(Subscription):
@@ -364,7 +363,7 @@ class E621Sub(Subscription):
         :type input_evt: Events.EventMessage
         :rtype: E621Sub
         """
-        #TODO remove e621 from command_args
+        # TODO remove e621 from command_args
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # See if last argument is check period.
@@ -376,12 +375,12 @@ class E621Sub(Subscription):
             search = input_evt.command_args.strip()
             search_delta = Commons.load_time_delta("PT300S")
         # Create e6 subscription object
-        e6Sub = E621Sub(server, destination, search, update_frequency=search_delta)
+        e6_sub = E621Sub(server, destination, search, update_frequency=search_delta)
         # Check if it's a valid search
-        first_results = e6Sub.check()
+        first_results = e6_sub.check()
         if len(first_results) == 0:
             raise SubscriptionException("This does not appear to be a valid search, or does not have results.")
-        return e6Sub
+        return e6_sub
 
     def matches_name(self, name_clean):
         raise NotImplementedError()  # TODO
