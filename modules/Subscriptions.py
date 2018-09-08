@@ -93,7 +93,7 @@ class SubscriptionRepo:
             json.dump(json_obj, f, indent=2)
 
     @staticmethod
-    def load_json():
+    def load_json(hallo):
         """
         Constructs a new SubscriptionRepo from the JSON file
         :return: Newly constructed list of subscriptions
@@ -108,7 +108,7 @@ class SubscriptionRepo:
             return new_sub_list
         # Loop subs in json file adding them to list
         for sub_elem in json_obj["subs"]:
-            new_sub_obj = SubscriptionFactory.from_json(sub_elem)
+            new_sub_obj = SubscriptionFactory.from_json(sub_elem, hallo)
             new_sub_list.add_sub(new_sub_obj)
         # TODO: add common data
         return new_sub_list
@@ -219,9 +219,11 @@ class RssSub(Subscription):
         """
         :type server: Server.Server
         :type destination: Destination.Destination
-        :type search: str
-        :type last_check: datetime
-        :type update_frequency: timedelta
+        :type url: str
+        :type last_check: datetime | None
+        :type update_frequency: timedelta | None
+        :type title: str | None
+        :type last_item_hash | None
         """
         super().__init__(server, destination, last_check, update_frequency)
         self.url = url
@@ -240,11 +242,11 @@ class RssSub(Subscription):
 
     @staticmethod
     def create_from_input(input_evt):
-        #TODO remove rss from command_args
+        # TODO remove rss from command_args
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # Get user specified stuff
-        feed_url = event.command_args.split()[0]
+        feed_url = input_evt.command_args.split()[0]
         feed_period = "PT3600S"
         if len(input_evt.command_args.split()) > 1:
             feed_period = input_evt.command_args.split()[1]
@@ -286,7 +288,7 @@ class RssSub(Subscription):
         # Return new items
         return new_items
 
-    def format_item(self, item):
+    def format_item(self, rss_item):
         # Load item xml
         item_title = rss_item.find("title").text
         item_link = rss_item.find("link").text
