@@ -21,7 +21,7 @@ class TestBase(unittest.TestCase):
         # Only the required modules, only 1 (mock) server
         # Todo: specify modules by test?
         self.function_dispatcher = FunctionDispatcher({"AsciiArt", "Bio", "ChannelControl", "Euler", "Furry",
-                                                       "HalloControl", "Math", "PermissionControl", "Rss",
+                                                       "HalloControl", "Math", "PermissionControl",
                                                        "ServerControl", "Silly", "SillyEtd", "Subscription"},
                                                       self.hallo)
         self.hallo.function_dispatcher = self.function_dispatcher
