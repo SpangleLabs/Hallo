@@ -630,263 +630,263 @@ class E621SubList:
             new_sub_list.add_sub(new_sub_obj)
         return new_sub_list
 
-
-class SubE621Add(Function):
-    """
-    Adds a e621 search subscription for a given search, allowing specification of server and channel.
-    """
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        super().__init__()
-        # Name for use in help listing
-        self.help_name = "e621 sub add"
-        # Names which can be used to address the function
-        self.names = {"e621 sub add", "add e621 sub", "sub e621 add", "add sub e621", "e621 subscription add",
-                      "add e621 subscription", "subscription e621 add", "add subscription e621", "e621 search add",
-                      "add e621 search", "search e621 add", "add search e621"}
-        # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Adds a e621 search to be checked for updates which will be posted to the current location." \
-                         " Format: e621 sub add <search> <update period?>"
-
-    def run(self, event):
-        # See if last argument is check period.
-        try:
-            try_period = event.command_args.split()[-1]
-            search_delta = Commons.load_time_delta(try_period)
-            search = event.command_args[:-len(try_period)]
-        except ISO8601ParseError:
-            search = event.command_args
-            search_delta = Commons.load_time_delta("PT300S")
-        search = search.strip()
-        # Get current RSS feed list
-        function_dispatcher = event.server.hallo.function_dispatcher
-        sub_check_class = function_dispatcher.get_function_by_name("e621 sub check")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubE621Check
-        e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
-        # Create new e621 search subscription
-        e621_sub = E621Sub()
-        e621_sub.server_name = event.server.name
-        e621_sub.search = search
-        e621_sub.update_frequency = search_delta
-        if event.channel is not None:
-            e621_sub.channel_address = event.channel.address
-        else:
-            e621_sub.user_address = event.user.address
-        # Update feed
-        first_results = e621_sub.check_subscription()
-        # If no results, this is an invalid search subscription
-        if len(first_results) == 0:
-            return event.create_response("Error, this does not appear to be a valid search, or does not have results.")
-        # Locking
-        with e621_sub_list.sub_lock:
-            # Add new rss feed to list
-            e621_sub_list.add_sub(e621_sub)
-            # Save list
-            e621_sub_list.save_json()
-        # Return output
-        return event.create_response("I have added new e621 subscription for the search \"{}\"".format(e621_sub.search))
-
-
-class SubE621Check(Function):
-    """
-    Checks a specified e621 search subscription for updates and returns them.
-    """
-
-    NAMES_ALL = ["*", "all"]
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        super().__init__()
-        # Name for use in help listing
-        self.help_name = "e621 sub check"
-        # Names which can be used to address the function
-        self.names = {"e621 sub check", "check e621 sub", "sub e621 check", "check sub e621", "e621 subscription check",
-                      "check e621 subscription", "subscription e621 check", "check subscription e621",
-                      "e621 search check", "check e621 search", "search e621 check", "check search e621", "e621 check",
-                      "check e621"}
-        # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Checks a specified feed for updates and returns them. Format: e621 sub check <feed name>"
-        self.e621_sub_list = E621SubList.load_json()
-
-    @staticmethod
-    def is_persistent():
-        """Returns boolean representing whether this function is supposed to be persistent or not"""
-        return True
-
-    @staticmethod
-    def load_function():
-        """Loads the function, persistent functions only."""
-        return SubE621Check()
-
-    def save_function(self):
-        """Saves the function, persistent functions only."""
-        self.e621_sub_list.save_json()
-
-    def get_passive_events(self):
-        """Returns a list of events which this function may want to respond to in a passive way"""
-        return {EventMinute}
-
-    def run(self, event):
-        # Handy variables
-        hallo = event.server.hallo
-        # Clean up input
-        clean_input = event.command_args.strip().lower()
-        # Check whether input is asking to update all e621 subscriptions
-        if clean_input in self.NAMES_ALL:
-            return event.create_response(self.run_all(hallo))
-        # Acquire lock
-        with self.e621_sub_list.sub_lock:
-            # Otherwise see if a search subscription matches the specified one
-            matching_subs = self.e621_sub_list.get_subs_by_search(clean_input,
-                                                                  event.user
-                                                                  if event.channel is None
-                                                                  else event.channel)
-            if len(matching_subs) == 0:
-                return event.create_response("Error, no e621 search subscriptions match that name. " +
-                                             "If you're adding a new search subscription, " +
-                                             "use \"e621 sub add\" with your search.")
-            output_lines = []
-            # Loop through matching search subscriptions, getting updates
-            for search_sub in matching_subs:
-                new_items = search_sub.check_subscription()
-                for search_item in new_items:
-                    output_lines.append(search_sub.format_item(search_item))
-            # Remove duplicate entries from output_lines
-            output_lines = list(set(output_lines))
-            # Save list
-            self.e621_sub_list.save_json()
-        # Output response to user
-        if len(output_lines) == 0:
-            return event.create_response("There were no updates for \"{}\" e621 search.".format(event.command_args))
-        return event.create_response("The following search updates were found:\n" + "\n".join(output_lines))
-
-    def run_all(self, hallo):
-        output_lines = []
-        with self.e621_sub_list.sub_lock:
-            for search_sub in self.e621_sub_list.sub_list:
-                new_items = search_sub.check_subscription()
-                for search_item in new_items:
-                    output_lines.append(search_sub.output_item(search_item, hallo))
-            # Remove duplicate entries from output_lines
-            output_lines = list(set(output_lines))
-            # Save list
-            self.e621_sub_list.save_json()
-        # Output response to user
-        if len(output_lines) == 0:
-            return "There were no e621 search subscription updates."
-        return "The following search updates were found and posted to their registered destinations:\n" + \
-               "\n".join(output_lines)
-
-    def passive_run(self, event, hallo_obj):
-        """
-        Replies to an event not directly addressed to the bot.
-        :type event: Events.Event
-        :type hallo_obj: Hallo.Hallo
-        """
-        # Check through all feeds to see which need updates
-        with self.e621_sub_list.sub_lock:
-            for search_sub in self.e621_sub_list.sub_list:
-                # Only check those which have been too long since last check
-                if search_sub.needs_check():
-                    # Get new items
-                    new_items = search_sub.check_subscription()
-                    # Output all new items
-                    for search_item in new_items:
-                        search_sub.output_item(search_item, hallo_obj)
-            # Save list
-            self.e621_sub_list.save_json()
-
-
-class SubE621List(Function):
-    """
-    List the currently active e621 search subscriptions.
-    """
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        super().__init__()
-        # Name for use in help listing
-        self.help_name = "e621 sub list"
-        # Names which can be used to address the function
-        self.names = {"e621 sub list", "list e621 sub", "sub e621 list", "list sub e621", "e621 subscription list",
-                      "list e621 subscription", "subscription e621 list", "list subscription e621", "e621 search list",
-                      "list e621 search", "search e621 list", "list search e621"}
-        # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Lists e621 search subscriptions for the current channel. Format: e621 sub list"
-
-    def run(self, event):
-        # Handy variables
-        server = event.server
-        hallo = server.hallo
-        function_dispatcher = hallo.function_dispatcher
-        sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check
-        e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
-        # Find list of feeds for current channel.
-        with e621_sub_list.sub_lock:
-            dest_searches = e621_sub_list.get_subs_by_destination(event.user
-                                                                  if event.channel is None
-                                                                  else event.channel)
-        if len(dest_searches) == 0:
-            return event.create_response("There are no e621 search subscriptions posting to this destination.")
-        output_lines = ["E621 search subscriptions posting to this channel:"]
-        for search_item in dest_searches:
-            output_lines.append(" - \"{}\"".format(search_item.search))
-        return event.create_response("\n".join(output_lines))
-
-
-class SubE621Remove(Function):
-    """
-    Remove an E621 search subscription and no longer receive updates from it.
-    """
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        super().__init__()
-        # Name for use in help listing
-        self.help_name = "e621 sub remove"
-        # Names which can be used to address the function
-        self.names = {"e621 sub remove", "remove e621 sub", "sub e621 remove", "remove sub e621",
-                      "e621 subscription remove", "remove e621 subscription", "subscription e621 remove",
-                      "remove subscription e621", "e621 search remove", "remove e621 search", "search e621 remove",
-                      "remove search e621", "e621 sub delete", "delete e621 sub", "sub e621 delete", "delete sub e621",
-                      "e621 subscription delete", "delete e621 subscription", "subscription e621 delete",
-                      "delete subscription e621", "e621 search delete", "delete e621 search", "search e621 delete",
-                      "delete search e621"}
-        # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Removes a specified e621 search subscription from the current or specified channel. " \
-                         " Format: e621 sub remove <search>"
-
-    def run(self, event):
-        # Handy variables
-        server = event.server
-        hallo = server.hallo
-        function_dispatcher = hallo.function_dispatcher
-        sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check
-        e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
-        # Clean up input
-        clean_input = event.command_args.strip()
-        # Find any feeds with specified search
-        with e621_sub_list.sub_lock:
-            test_feeds = e621_sub_list.get_subs_by_search(clean_input.lower(),
-                                                          event.user if event.channel is None else event.channel)
-            if len(test_feeds) > 0:
-                for del_sub in test_feeds:
-                    e621_sub_list.remove_sub(del_sub)
-                return event.create_response(("Removed \"{}\" e621 search subscription. " +
-                                              "Updates will no longer be sent to {}" +
-                                              ".").format(test_feeds[0].search,
-                                                          (test_feeds[0].channel_address or
-                                                           test_feeds[0].user_address)))
-        return event.create_response("Error, there are no e621 search subscriptions in this channel matching " +
-                                     "that search.")
+#
+# class SubE621Add(Function):
+#     """
+#     Adds a e621 search subscription for a given search, allowing specification of server and channel.
+#     """
+#
+#     def __init__(self):
+#         """
+#         Constructor
+#         """
+#         super().__init__()
+#         # Name for use in help listing
+#         self.help_name = "e621 sub add"
+#         # Names which can be used to address the function
+#         self.names = {"e621 sub add", "add e621 sub", "sub e621 add", "add sub e621", "e621 subscription add",
+#                       "add e621 subscription", "subscription e621 add", "add subscription e621", "e621 search add",
+#                       "add e621 search", "search e621 add", "add search e621"}
+#         # Help documentation, if it's just a single line, can be set here
+#         self.help_docs = "Adds a e621 search to be checked for updates which will be posted to the current location." \
+#                          " Format: e621 sub add <search> <update period?>"
+#
+#     def run(self, event):
+#         # See if last argument is check period.
+#         try:
+#             try_period = event.command_args.split()[-1]
+#             search_delta = Commons.load_time_delta(try_period)
+#             search = event.command_args[:-len(try_period)]
+#         except ISO8601ParseError:
+#             search = event.command_args
+#             search_delta = Commons.load_time_delta("PT300S")
+#         search = search.strip()
+#         # Get current RSS feed list
+#         function_dispatcher = event.server.hallo.function_dispatcher
+#         sub_check_class = function_dispatcher.get_function_by_name("e621 sub check")
+#         sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubE621Check
+#         e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
+#         # Create new e621 search subscription
+#         e621_sub = E621Sub()
+#         e621_sub.server_name = event.server.name
+#         e621_sub.search = search
+#         e621_sub.update_frequency = search_delta
+#         if event.channel is not None:
+#             e621_sub.channel_address = event.channel.address
+#         else:
+#             e621_sub.user_address = event.user.address
+#         # Update feed
+#         first_results = e621_sub.check_subscription()
+#         # If no results, this is an invalid search subscription
+#         if len(first_results) == 0:
+#             return event.create_response("Error, this does not appear to be a valid search, or does not have results.")
+#         # Locking
+#         with e621_sub_list.sub_lock:
+#             # Add new rss feed to list
+#             e621_sub_list.add_sub(e621_sub)
+#             # Save list
+#             e621_sub_list.save_json()
+#         # Return output
+#         return event.create_response("I have added new e621 subscription for the search \"{}\"".format(e621_sub.search))
+#
+#
+# class SubE621Check(Function):
+#     """
+#     Checks a specified e621 search subscription for updates and returns them.
+#     """
+#
+#     NAMES_ALL = ["*", "all"]
+#
+#     def __init__(self):
+#         """
+#         Constructor
+#         """
+#         super().__init__()
+#         # Name for use in help listing
+#         self.help_name = "e621 sub check"
+#         # Names which can be used to address the function
+#         self.names = {"e621 sub check", "check e621 sub", "sub e621 check", "check sub e621", "e621 subscription check",
+#                       "check e621 subscription", "subscription e621 check", "check subscription e621",
+#                       "e621 search check", "check e621 search", "search e621 check", "check search e621", "e621 check",
+#                       "check e621"}
+#         # Help documentation, if it's just a single line, can be set here
+#         self.help_docs = "Checks a specified feed for updates and returns them. Format: e621 sub check <feed name>"
+#         self.e621_sub_list = E621SubList.load_json()
+#
+#     @staticmethod
+#     def is_persistent():
+#         """Returns boolean representing whether this function is supposed to be persistent or not"""
+#         return True
+#
+#     @staticmethod
+#     def load_function():
+#         """Loads the function, persistent functions only."""
+#         return SubE621Check()
+#
+#     def save_function(self):
+#         """Saves the function, persistent functions only."""
+#         self.e621_sub_list.save_json()
+#
+#     def get_passive_events(self):
+#         """Returns a list of events which this function may want to respond to in a passive way"""
+#         return {EventMinute}
+#
+#     def run(self, event):
+#         # Handy variables
+#         hallo = event.server.hallo
+#         # Clean up input
+#         clean_input = event.command_args.strip().lower()
+#         # Check whether input is asking to update all e621 subscriptions
+#         if clean_input in self.NAMES_ALL:
+#             return event.create_response(self.run_all(hallo))
+#         # Acquire lock
+#         with self.e621_sub_list.sub_lock:
+#             # Otherwise see if a search subscription matches the specified one
+#             matching_subs = self.e621_sub_list.get_subs_by_search(clean_input,
+#                                                                   event.user
+#                                                                   if event.channel is None
+#                                                                   else event.channel)
+#             if len(matching_subs) == 0:
+#                 return event.create_response("Error, no e621 search subscriptions match that name. " +
+#                                              "If you're adding a new search subscription, " +
+#                                              "use \"e621 sub add\" with your search.")
+#             output_lines = []
+#             # Loop through matching search subscriptions, getting updates
+#             for search_sub in matching_subs:
+#                 new_items = search_sub.check_subscription()
+#                 for search_item in new_items:
+#                     output_lines.append(search_sub.format_item(search_item))
+#             # Remove duplicate entries from output_lines
+#             output_lines = list(set(output_lines))
+#             # Save list
+#             self.e621_sub_list.save_json()
+#         # Output response to user
+#         if len(output_lines) == 0:
+#             return event.create_response("There were no updates for \"{}\" e621 search.".format(event.command_args))
+#         return event.create_response("The following search updates were found:\n" + "\n".join(output_lines))
+#
+#     def run_all(self, hallo):
+#         output_lines = []
+#         with self.e621_sub_list.sub_lock:
+#             for search_sub in self.e621_sub_list.sub_list:
+#                 new_items = search_sub.check_subscription()
+#                 for search_item in new_items:
+#                     output_lines.append(search_sub.output_item(search_item, hallo))  # TODO: fix this?
+#             # Remove duplicate entries from output_lines
+#             output_lines = list(set(output_lines))
+#             # Save list
+#             self.e621_sub_list.save_json()
+#         # Output response to user
+#         if len(output_lines) == 0:
+#             return "There were no e621 search subscription updates."
+#         return "The following search updates were found and posted to their registered destinations:\n" + \
+#                "\n".join(output_lines)
+#
+#     def passive_run(self, event, hallo_obj):
+#         """
+#         Replies to an event not directly addressed to the bot.
+#         :type event: Events.Event
+#         :type hallo_obj: Hallo.Hallo
+#         """
+#         # Check through all feeds to see which need updates
+#         with self.e621_sub_list.sub_lock:
+#             for search_sub in self.e621_sub_list.sub_list:
+#                 # Only check those which have been too long since last check
+#                 if search_sub.needs_check():
+#                     # Get new items
+#                     new_items = search_sub.check_subscription()
+#                     # Output all new items
+#                     for search_item in new_items:
+#                         search_sub.output_item(search_item, hallo_obj)
+#             # Save list
+#             self.e621_sub_list.save_json()
+#
+#
+# class SubE621List(Function):
+#     """
+#     List the currently active e621 search subscriptions.
+#     """
+#
+#     def __init__(self):
+#         """
+#         Constructor
+#         """
+#         super().__init__()
+#         # Name for use in help listing
+#         self.help_name = "e621 sub list"
+#         # Names which can be used to address the function
+#         self.names = {"e621 sub list", "list e621 sub", "sub e621 list", "list sub e621", "e621 subscription list",
+#                       "list e621 subscription", "subscription e621 list", "list subscription e621", "e621 search list",
+#                       "list e621 search", "search e621 list", "list search e621"}
+#         # Help documentation, if it's just a single line, can be set here
+#         self.help_docs = "Lists e621 search subscriptions for the current channel. Format: e621 sub list"
+#
+#     def run(self, event):
+#         # Handy variables
+#         server = event.server
+#         hallo = server.hallo
+#         function_dispatcher = hallo.function_dispatcher
+#         sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
+#         sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check
+#         e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
+#         # Find list of feeds for current channel.
+#         with e621_sub_list.sub_lock:
+#             dest_searches = e621_sub_list.get_subs_by_destination(event.user
+#                                                                   if event.channel is None
+#                                                                   else event.channel)
+#         if len(dest_searches) == 0:
+#             return event.create_response("There are no e621 search subscriptions posting to this destination.")
+#         output_lines = ["E621 search subscriptions posting to this channel:"]
+#         for search_item in dest_searches:
+#             output_lines.append(" - \"{}\"".format(search_item.search))
+#         return event.create_response("\n".join(output_lines))
+#
+#
+# class SubE621Remove(Function):
+#     """
+#     Remove an E621 search subscription and no longer receive updates from it.
+#     """
+#
+#     def __init__(self):
+#         """
+#         Constructor
+#         """
+#         super().__init__()
+#         # Name for use in help listing
+#         self.help_name = "e621 sub remove"
+#         # Names which can be used to address the function
+#         self.names = {"e621 sub remove", "remove e621 sub", "sub e621 remove", "remove sub e621",
+#                       "e621 subscription remove", "remove e621 subscription", "subscription e621 remove",
+#                       "remove subscription e621", "e621 search remove", "remove e621 search", "search e621 remove",
+#                       "remove search e621", "e621 sub delete", "delete e621 sub", "sub e621 delete", "delete sub e621",
+#                       "e621 subscription delete", "delete e621 subscription", "subscription e621 delete",
+#                       "delete subscription e621", "e621 search delete", "delete e621 search", "search e621 delete",
+#                       "delete search e621"}
+#         # Help documentation, if it's just a single line, can be set here
+#         self.help_docs = "Removes a specified e621 search subscription from the current or specified channel. " \
+#                          " Format: e621 sub remove <search>"
+#
+#     def run(self, event):
+#         # Handy variables
+#         server = event.server
+#         hallo = server.hallo
+#         function_dispatcher = hallo.function_dispatcher
+#         sub_check_function = function_dispatcher.get_function_by_name("e621 sub check")
+#         sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubE621Check
+#         e621_sub_list = sub_check_obj.e621_sub_list  # type: E621SubList
+#         # Clean up input
+#         clean_input = event.command_args.strip()
+#         # Find any feeds with specified search
+#         with e621_sub_list.sub_lock:
+#             test_feeds = e621_sub_list.get_subs_by_search(clean_input.lower(),
+#                                                           event.user if event.channel is None else event.channel)
+#             if len(test_feeds) > 0:
+#                 for del_sub in test_feeds:
+#                     e621_sub_list.remove_sub(del_sub)
+#                 return event.create_response(("Removed \"{}\" e621 search subscription. " +
+#                                               "Updates will no longer be sent to {}" +
+#                                               ".").format(test_feeds[0].search,
+#                                                           (test_feeds[0].channel_address or
+#                                                            test_feeds[0].user_address)))
+#         return event.create_response("Error, there are no e621 search subscriptions in this channel matching " +
+#                                      "that search.")
