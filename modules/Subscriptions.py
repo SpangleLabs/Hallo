@@ -117,6 +117,8 @@ class SubscriptionRepo:
 class Subscription(metaclass=ABCMeta):
     names = []
     """ :type : list[str]"""
+    type_name = ""
+    """ :type : str"""
 
     def __init__(self, server, destination, last_check=None, update_frequency=None):
         """
@@ -148,6 +150,12 @@ class Subscription(metaclass=ABCMeta):
         """
         :type name_clean: str
         :rtype: bool
+        """
+        raise NotImplementedError()
+
+    def get_name(self):
+        """
+        :rtype: str
         """
         raise NotImplementedError()
 
@@ -262,6 +270,9 @@ class RssSub(Subscription):
 
     def matches_name(self, name_clean):
         raise NotImplementedError()  # TODO
+
+    def get_name(self):
+        return "{} ({})".format(self.title, self.url)
 
     def check(self):
         rss_data = Commons.load_url_string(self.url)
@@ -383,6 +394,9 @@ class E621Sub(Subscription):
 
     def matches_name(self, name_clean):
         raise NotImplementedError()  # TODO
+
+    def get_name(self):
+        return self.search
 
     def check(self):
         search = "{} order:-id".format(self.search)  # Sort by id
@@ -558,11 +572,9 @@ class SubscriptionAdd(Function):
         sub_class = SubscriptionFactory.get_class_by_name(sub_type_name)
         # Get current RSS feed list
         function_dispatcher = event.server.hallo.function_dispatcher
-        sub_check_class = function_dispatcher.get_function_by_name("add subscription")
+        sub_check_class = function_dispatcher.get_function_by_name("check subscription")
         sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubscriptionCheck
-        if sub_check_obj.subscription_repo is None:
-            sub_check_obj.subscription_repo = SubscriptionRepo.load_json(event.server.hallo)
-        sub_repo = sub_check_obj.subscription_repo
+        sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
         # Create new subscription
         sub_obj = sub_class.create_from_input(event)
         # Acquire lock and save sub
@@ -597,6 +609,55 @@ class SubscriptionCheck(Function):
         self.help_docs = "Checks a specified feed for updates and returns them. Format: rss check <feed name>"
         self.subscription_repo = None
 
+    def get_sub_repo(self, hallo):
+        """
+        :type hallo: Hallo.Hallo
+        :rtype: SubscriptionRepo
+        """
+        if self.subscription_repo is None:
+            self.subscription_repo = SubscriptionRepo.load_json(hallo)
+        return self.subscription_repo
+
 
 class SubscriptionList(Function):
-    pass
+    """
+    List the currently active subscriptions.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "list subscription"
+        # Names which can be used to address the function
+        name_templates = {"{} list", "list {}",
+                          "list {} sub", "list sub {}", "sub {} list", "{} sub list",
+                          "list {} subscription", "list subscription {}",
+                          "subscription {} list", "{} subscription list"}
+        self.names = {[template.format(name)
+                       for name in SubscriptionFactory.get_names()
+                       for template in name_templates]}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Lists subscriptions for the current channel. Format: list subscription"
+
+    def run(self, event):
+        # Handy variables
+        server = event.server
+        hallo = server.hallo
+        function_dispatcher = hallo.function_dispatcher
+        sub_check_function = function_dispatcher.get_function_by_name("check subscription")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: SubscriptionCheck
+        sub_repo = sub_check_obj.get_sub_repo(hallo)
+        # Find list of feeds for current channel.
+        with sub_repo.sub_lock:
+            dest_searches = sub_repo.get_subs_by_destination(event.user
+                                                             if event.channel is None
+                                                             else event.channel)
+        if len(dest_searches) == 0:
+            return event.create_response("There are no subscriptions posting to this destination.")
+        output_lines = ["Subscriptions posting to this channel:"]
+        for search_item in dest_searches:
+            output_lines.append("{} - \"{}\"".format(search_item.type_name, search_item.get_name()))
+        return event.create_response("\n".join(output_lines))
