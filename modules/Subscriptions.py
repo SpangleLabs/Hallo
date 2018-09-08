@@ -8,7 +8,7 @@ from threading import Lock
 from xml.etree import ElementTree
 
 from Destination import Channel, User
-from Events import EventMessageWithPhoto, EventMessage
+from Events import EventMessageWithPhoto, EventMessage, EventMinute
 from Function import Function
 from inc.Commons import Commons, ISO8601ParseError
 
@@ -643,6 +643,8 @@ class SubscriptionCheck(Function):
     Checks subscriptions for updates and returns them.
     """
 
+    NAMES_ALL = ["*", "all"]
+
     def __init__(self):
         """
         Constructor
@@ -651,10 +653,17 @@ class SubscriptionCheck(Function):
         # Name for use in help listing
         self.help_name = "rss check"
         # Names which can be used to address the function
-        self.names = {"rss check", "check rss", "check rss feed", "rss feed check", "check feed", "feed check"}
+        name_templates = {"{} check", "check {}",
+                          "check {} sub", "check sub {}", "sub {} check", "{} sub check",
+                          "check {} subscription", "check subscription {}",
+                          "subscription {} check", "{} subscription check"}
+        self.names = {[template.format(name)
+                       for name in SubscriptionFactory.get_names()
+                       for template in name_templates]}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Checks a specified feed for updates and returns them. Format: rss check <feed name>"
         self.subscription_repo = None
+        """ :type : SubscriptionRepo | None"""
 
     def get_sub_repo(self, hallo):
         """
@@ -664,6 +673,76 @@ class SubscriptionCheck(Function):
         if self.subscription_repo is None:
             self.subscription_repo = SubscriptionRepo.load_json(hallo)
         return self.subscription_repo
+
+    @staticmethod
+    def is_persistent():
+        """Returns boolean representing whether this function is supposed to be persistent or not"""
+        return True
+
+    @staticmethod
+    def load_function():
+        """Loads the function, persistent functions only."""
+        return SubscriptionCheck()
+
+    def save_function(self):
+        """Saves the function, persistent functions only."""
+        if self.subscription_repo is not None:
+            self.subscription_repo.save_json()
+
+    def get_passive_events(self):
+        """Returns a list of events which this function may want to respond to in a passive way"""
+        return {EventMinute}
+
+    def run(self, event):
+        # Handy variables
+        hallo = event.server.hallo
+        # Clean up input
+        clean_input = event.command_args.strip().lower()
+        # Acquire lock
+        sub_repo = self.get_sub_repo(hallo)
+        with sub_repo.sub_lock:
+            # Check whether input is asking to update all e621 subscriptions
+            if clean_input in self.NAMES_ALL or clean_input == "":
+                matching_subs = sub_repo.sub_list
+            else:
+                # Otherwise see if a search subscription matches the specified one
+                matching_subs = sub_repo.get_subs_by_name(clean_input,
+                                                          event.user if event.channel is None else event.channel)
+            if len(matching_subs) == 0:
+                return event.create_response("Error, no subscriptions match that name.")
+            found_items = 0
+            # Loop through matching search subscriptions, getting updates
+            for search_sub in matching_subs:
+                new_items = search_sub.check()
+                found_items += len(new_items)
+                for search_item in new_items:
+                    search_sub.send_item(search_item)
+            # Save list
+            sub_repo.save_json()
+        # Output response to user
+        if found_items == 0:
+            return event.create_response("There were no updates for specified subscriptions.")
+        return event.create_response("{} subscription updates were found.".format(found_items))
+
+    def passive_run(self, event, hallo_obj):
+        """
+        Replies to an event not directly addressed to the bot.
+        :type event: Events.Event
+        :type hallo_obj: Hallo.Hallo
+        """
+        # Check through all feeds to see which need updates
+        sub_repo = self.get_sub_repo(hallo_obj)
+        with sub_repo.sub_lock:
+            for search_sub in sub_repo.sub_list:
+                # Only check those which have been too long since last check
+                if search_sub.needs_check():
+                    # Get new items
+                    new_items = search_sub.check()
+                    # Output all new items
+                    for search_item in new_items:
+                        search_sub.send_item(search_item)
+            # Save list
+            sub_repo.save_json()
 
 
 class SubscriptionList(Function):
