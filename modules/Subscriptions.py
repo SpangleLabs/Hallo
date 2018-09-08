@@ -269,7 +269,7 @@ class RssSub(Subscription):
         return rss_sub
 
     def matches_name(self, name_clean):
-        raise NotImplementedError()  # TODO
+        return name_clean in [self.title, self.url, self.get_name()]
 
     def get_name(self):
         return "{} ({})".format(self.title, self.url)
@@ -393,7 +393,7 @@ class E621Sub(Subscription):
         return e6_sub
 
     def matches_name(self, name_clean):
-        raise NotImplementedError()  # TODO
+        return name_clean == self.search
 
     def get_name(self):
         return self.search
