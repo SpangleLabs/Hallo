@@ -198,9 +198,9 @@ class Subscription(metaclass=ABCMeta):
         json_obj = dict()
         json_obj["server_name"] = self.server.name
         if isinstance(self.destination, Channel):
-            json_obj["channel_name"] = self.destination.name
+            json_obj["channel_address"] = self.destination.address
         if isinstance(self.destination, User):
-            json_obj["user_name"] = self.destination.name
+            json_obj["user_address"] = self.destination.address
         if self.last_check is not None:
             json_obj["last_check"] = self.last_check.isoformat()
         json_obj["update_frequency"] = Commons.format_time_delta(self.update_frequency)
