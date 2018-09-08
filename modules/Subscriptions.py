@@ -1,5 +1,6 @@
 import hashlib
 import json
+import re
 import urllib.parse
 from abc import ABCMeta
 from datetime import datetime
@@ -241,7 +242,6 @@ class RssSub(Subscription):
 
     @staticmethod
     def create_from_input(input_evt):
-        # TODO remove rss from command_args
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # Get user specified stuff
@@ -336,7 +336,7 @@ class RssSub(Subscription):
 
 
 class E621Sub(Subscription):
-    names = ["e621"]
+    names = ["e621", "e621 search", "search e621"]
     """ :type : list[str]"""
     type_name = "e621"
     """ :type : str"""
@@ -363,7 +363,6 @@ class E621Sub(Subscription):
         :type input_evt: Events.EventMessage
         :rtype: E621Sub
         """
-        # TODO remove e621 from command_args
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # See if last argument is check period.
@@ -505,6 +504,17 @@ class SubscriptionFactory(object):
     sub_classes = [E621Sub, RssSub]
 
     @staticmethod
+    def get_names():
+        return [name for sub_class in SubscriptionFactory.sub_classes for name in sub_class.names]
+
+    @staticmethod
+    def get_class_by_name(name):
+        classes = [sub_class for sub_class in SubscriptionFactory.sub_classes if name in sub_class.names]
+        if len(classes) != 1:
+            raise SubscriptionException("Failed to find a subscription type matching the name {}".format(name))
+        return classes[0]
+
+    @staticmethod
     def from_json(sub_json, hallo):
         """
         :type sub_json: dict
@@ -519,7 +529,50 @@ class SubscriptionFactory(object):
 
 
 class SubscriptionAdd(Function):
-    pass
+    """
+    Adds a new subscription, allowing specification of server and channel.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "add subscription"
+        # Names which can be used to address the function
+        name_templates = {"{} add", "add {}",
+                          "add {} sub", "add sub {}", "sub {} add", "{} sub add",
+                          "add {} subscription", "add subscription {}", "subscription {} add", "{} subscription add"}
+        self.names = {[template.format(name)
+                       for name in SubscriptionFactory.get_names()
+                       for template in name_templates]}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Adds a new subscription to be checked for updates which will be posted to the current " \
+                         "location." \
+                         " Format: add subscription <sub type> <sub details> <update period?>"
+
+    def run(self, event):
+        command_name = event.command_name
+        sub_type_name = re.sub(r"\b(add|sub|subscription)\b", "", command_name).strip()
+        sub_class = SubscriptionFactory.get_class_by_name(sub_type_name)
+        # Get current RSS feed list
+        function_dispatcher = event.server.hallo.function_dispatcher
+        sub_check_class = function_dispatcher.get_function_by_name("add subscription")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubscriptionCheck
+        if sub_check_obj.subscription_repo is None:
+            sub_check_obj.subscription_repo = SubscriptionRepo.load_json(event.server.hallo)
+        sub_repo = sub_check_obj.subscription_repo
+        # Create new subscription
+        sub_obj = sub_class.create_from_input(event)
+        # Acquire lock and save sub
+        with sub_repo.sub_lock:
+            # Add new subscription to list
+            sub_repo.add_sub(sub_obj)
+            # Save list
+            sub_repo.save_json()
+        # Send response
+        return event.create_response("Created a new {} subscription".format(sub_class.type_name))
 
 
 class SubscriptionRemove(Function):
@@ -527,7 +580,22 @@ class SubscriptionRemove(Function):
 
 
 class SubscriptionCheck(Function):
-    pass
+    """
+    Checks subscriptions for updates and returns them.
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "rss check"
+        # Names which can be used to address the function
+        self.names = {"rss check", "check rss", "check rss feed", "rss feed check", "check feed", "feed check"}
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Checks a specified feed for updates and returns them. Format: rss check <feed name>"
+        self.subscription_repo = None
 
 
 class SubscriptionList(Function):
