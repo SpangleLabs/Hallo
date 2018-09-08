@@ -254,12 +254,15 @@ class ServerIRC(Server):
             msg_text = event.text
             dest_addr = event.user.address if event.channel is None else event.channel.address
             use_caps = event.user.use_caps_lock if event.channel is None else event.channel.use_caps_lock
+            event_class = EventMessage
             if use_caps:
                 msg_text = Commons.upper(msg_text)
             if isinstance(event, EventNotice):
+                event_class = EventNotice
                 msg_type_name = "NOTICE"
             max_line_length = self.MAX_MSG_LENGTH - len("{} {} :{}".format(msg_type_name, dest_addr, endl))
             if isinstance(event, EventCTCP):
+                event_class = EventCTCP
                 max_line_length -= 2
             # Split and send
             for data_line in msg_text.split("\n"):
@@ -269,10 +272,10 @@ class ServerIRC(Server):
                         data_line_line = "\x01{}\x01".format(data_line_line)
                     self.send_raw("{} {} :{}".format(msg_type_name, dest_addr, data_line_line))
                     # Log sent data, if it's not message or notice
-                    self.hallo.printer.output(event.__class__(event.server, event.channel, event.user,
-                                                              data_line_line, inbound=False))
-                    self.hallo.logger.log(event.__class__(event.server, event.channel, event.user, data_line_line,
-                                                          inbound=False))
+                    self.hallo.printer.output(event_class(event.server, event.channel, event.user,
+                                                          data_line_line, inbound=False))
+                    self.hallo.logger.log(event_class(event.server, event.channel, event.user,
+                                                      data_line_line, inbound=False))
             return
         print("This event type, {}, is not currently supported to send on IRC servers", event.__class__.__name__)
         raise NotImplementedError()
