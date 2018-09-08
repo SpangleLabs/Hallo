@@ -502,7 +502,7 @@ class YoutubeSub(Subscription):
 
 
 class SubscriptionFactory(object):
-    sub_classes = [E621Sub]
+    sub_classes = [E621Sub, RssSub]
 
     @staticmethod
     def from_json(sub_json, hallo):
