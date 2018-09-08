@@ -140,7 +140,7 @@ class Logger:
         user_name = event.user.name if event.is_inbound else event.server.get_nick()
         chan_name = None if event.channel is None else event.channel.name
         output = "{} <{}> {}".format(Commons.current_timestamp(), user_name, event.text)
-        self.add_log_line(output, event.server.name, event.user.name, chan_name)
+        self.add_log_line(output, event.server.name, user_name, chan_name)
     
     def log_notice(self, event):
         user_name = event.user.name if event.is_inbound else event.server.get_nick()
