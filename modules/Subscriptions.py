@@ -558,9 +558,9 @@ class SubscriptionAdd(Function):
         name_templates = {"{} add", "add {}",
                           "add {} sub", "add sub {}", "sub {} add", "{} sub add",
                           "add {} subscription", "add subscription {}", "subscription {} add", "{} subscription add"}
-        self.names = {[template.format(name)
-                       for name in SubscriptionFactory.get_names()
-                       for template in name_templates]}
+        self.names = set([template.format(name)
+                          for name in SubscriptionFactory.get_names()
+                          for template in name_templates])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Adds a new subscription to be checked for updates which will be posted to the current " \
                          "location." \
@@ -605,9 +605,9 @@ class SubscriptionRemove(Function):
                           "remove {} sub", "remove sub {}", "sub {} remove", "{} sub remove",
                           "remove {} subscription", "remove subscription {}",
                           "subscription {} remove", "{} subscription remove"}
-        self.names = {[template.format(name)
-                       for name in SubscriptionFactory.get_names()
-                       for template in name_templates]}
+        self.names = set([template.format(name)
+                         for name in SubscriptionFactory.get_names()
+                         for template in name_templates])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Removes a specified subscription the current location. " \
                          " Format: remove subscription <feed type> <feed title or url>"
@@ -652,17 +652,17 @@ class SubscriptionCheck(Function):
         """
         super().__init__()
         # Name for use in help listing
-        self.help_name = "rss check"
+        self.help_name = "check subscription"
         # Names which can be used to address the function
         name_templates = {"{} check", "check {}",
                           "check {} sub", "check sub {}", "sub {} check", "{} sub check",
                           "check {} subscription", "check subscription {}",
                           "subscription {} check", "{} subscription check"}
-        self.names = {[template.format(name)
-                       for name in SubscriptionFactory.get_names()
-                       for template in name_templates]}
+        self.names = set([template.format(name)
+                          for name in SubscriptionFactory.get_names()
+                          for template in name_templates])
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Checks a specified feed for updates and returns them. Format: rss check <feed name>"
+        self.help_docs = "Checks a specified feed for updates and returns them. Format: subscription check <feed name>"
         self.subscription_repo = None
         """ :type : SubscriptionRepo | None"""
 
@@ -761,11 +761,17 @@ class SubscriptionList(Function):
         # Names which can be used to address the function
         name_templates = {"{} list", "list {}",
                           "list {} sub", "list sub {}", "sub {} list", "{} sub list",
+                          "list {} subs", "list subs {}", "subs {} list", "{} subs list",
+                          "list subs", "list subs", "subs list", "subs list",
                           "list {} subscription", "list subscription {}",
-                          "subscription {} list", "{} subscription list"}
-        self.names = {[template.format(name)
-                       for name in SubscriptionFactory.get_names()
-                       for template in name_templates]}
+                          "list {} subscriptions", "list subscriptions {}",
+                          "list subscriptions", "list subscriptions",
+                          "subscription {} list", "{} subscription list",
+                          "subscriptions {} list", "{} subscriptions list",
+                          "subscriptions list", "subscriptions list"}
+        self.names = set([template.format(name)
+                          for name in SubscriptionFactory.get_names()
+                          for template in name_templates])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Lists subscriptions for the current channel. Format: list subscription"
 
