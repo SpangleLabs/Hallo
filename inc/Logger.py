@@ -93,13 +93,15 @@ class Logger:
         if event.quit_message.strip() != "":
             output += " ({})".format(event.quit_message)
         # Log to every channel user is in
-        for channel in event.user.get_channel_list():
+        channel_list = event.server.channel_list if event.user is None else event.user.get_channel_list()
+        for channel in channel_list:
             self.add_log_line(output, event.server.name, user_name, channel.name)
 
     def log_name_change(self, event):
         output = "{} Nick change: {} -> {}".format(Commons.current_timestamp(), event.old_name, event.new_name)
         # Log to every channel user is in
-        for channel in event.user.get_channel_list():
+        channel_list = event.server.channel_list if event.user is None else event.user.get_channel_list()
+        for channel in channel_list:
             self.add_log_line(output, event.server.name, event.old_name, channel.name)
 
     def log_join(self, event):
