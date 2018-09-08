@@ -1,11 +1,13 @@
+import hashlib
 import json
 import urllib.parse
 from abc import ABCMeta
 from datetime import datetime
 from threading import Lock
+from xml.etree import ElementTree
 
 from Destination import Channel, User
-from Events import EventMessageWithPhoto
+from Events import EventMessageWithPhoto, EventMessage
 from Function import Function
 from inc.Commons import Commons, ISO8601ParseError
 
@@ -207,7 +209,129 @@ class Subscription(metaclass=ABCMeta):
 
 
 class RssSub(Subscription):
-    pass
+    names = ["rss", "rss feed"]
+    """ :type : list[str]"""
+    type_name = "rss"
+    """ :type : str"""
+
+    def __init__(self, server, destination, url, last_check=None, update_frequency=None,
+                 title=None, last_item_hash=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type search: str
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.url = url
+        """ :type : str"""
+        if title is None:
+            rss_data = Commons.load_url_string(self.url)
+            rss_elem = ElementTree.fromstring(rss_data)
+            channel_elem = rss_elem.find("channel")
+            # Update title
+            title_elem = channel_elem.find("title")
+            title = title_elem.text
+        self.title = title
+        """ :type : str"""
+        self.last_item_hash = last_item_hash
+        """ :type : str | None"""
+
+    @staticmethod
+    def create_from_input(input_evt):
+        #TODO remove rss from command_args
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # Get user specified stuff
+        feed_url = event.command_args.split()[0]
+        feed_period = "PT3600S"
+        if len(input_evt.command_args.split()) > 1:
+            feed_period = input_evt.command_args.split()[1]
+        try:
+            feed_delta = Commons.load_time_delta(feed_period)
+        except ISO8601ParseError:
+            feed_delta = Commons.load_time_delta("PT300S")
+        try:
+            rss_sub = RssSub(server, destination, feed_url, update_frequency=feed_delta)
+            rss_sub.check()
+        except Exception as e:
+            raise SubscriptionException("Failed to create RSS subscription", e)
+        return rss_sub
+
+    def matches_name(self, name_clean):
+        raise NotImplementedError()  # TODO
+
+    def check(self):
+        rss_data = Commons.load_url_string(self.url)
+        rss_elem = ElementTree.fromstring(rss_data)
+        channel_elem = rss_elem.find("channel")
+        new_items = []
+        # Update title
+        title_elem = channel_elem.find("title")
+        self.title = title_elem.text
+        # Loop elements, seeing when any match the last item's hash
+        latest_hash = None
+        for item_elem in channel_elem.findall("item"):
+            item_xml = ElementTree.tostring(item_elem)
+            item_hash = hashlib.md5(item_xml).hexdigest()
+            if latest_hash is None:
+                latest_hash = item_hash
+            if item_hash == self.last_item_hash:
+                break
+            new_items.append(item_elem)
+        # Update last item hash
+        self.last_item_hash = latest_hash
+        self.last_check = datetime.now()
+        # Return new items
+        return new_items
+
+    def format_item(self, item):
+        # Load item xml
+        item_title = rss_item.find("title").text
+        item_link = rss_item.find("link").text
+        # Construct output
+        output = "Update on \"{}\" RSS feed. \"{}\" {}".format(self.title, item_title, item_link)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        output_evt = EventMessage(self.server, channel, user, output, inbound=False)
+        return output_evt
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["title"] = self.title
+        json_obj["url"] = self.url
+        json_obj["last_item"] = self.last_item_hash
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Type specific loading
+        # Load last items
+        url = json_obj["url"]
+        title = json_obj["title"]
+        last_hash = json_obj["last_item"]
+        return RssSub(server, destination, url, last_check, update_frequency, title, last_hash)
 
 
 class E621Sub(Subscription):
@@ -238,6 +362,7 @@ class E621Sub(Subscription):
         :type input_evt: Events.EventMessage
         :rtype: E621Sub
         """
+        #TODO remove e621 from command_args
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # See if last argument is check period.
