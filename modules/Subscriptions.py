@@ -639,7 +639,14 @@ class SubscriptionRemove(Function):
                                               "{}.").format(del_sub.type_name, del_sub.get_name(),
                                                             del_sub.destination.name))
             if len(test_subs) > 1:
-                return event.create_response("Error, there is more than 1 subscription in this channel by that name.")
+                for del_sub in test_subs:
+                    sub_repo.remove_sub(del_sub)
+                return event.create_response("Removed {} subscriptions.\n{}".
+                                             format(len(test_subs),
+                                                    "\n".join(
+                                                        ["{} - {}".format(del_sub.type_name, del_sub.get_name())
+                                                         for del_sub in test_subs]
+                                                    )))
         return event.create_response("Error, there are no subscriptions in this channel matching that name.")
 
 
@@ -701,6 +708,7 @@ class SubscriptionCheck(Function):
     def run(self, event):
         # Handy variables
         hallo = event.server.hallo
+        destination = event.user if event.channel is None else event.channel
         # Clean up input
         clean_input = event.command_args.strip().lower()
         # Acquire lock
@@ -711,8 +719,7 @@ class SubscriptionCheck(Function):
                 matching_subs = sub_repo.sub_list
             else:
                 # Otherwise see if a search subscription matches the specified one
-                matching_subs = sub_repo.get_subs_by_name(clean_input,
-                                                          event.user if event.channel is None else event.channel)
+                matching_subs = sub_repo.get_subs_by_name(clean_input, destination)
             if len(matching_subs) == 0:
                 return event.create_response("Error, no subscriptions match that name.")
             found_items = 0
