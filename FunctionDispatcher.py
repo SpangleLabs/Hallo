@@ -184,6 +184,8 @@ class FunctionDispatcher(object):
         """
         # Check it's an allowed module
         if module_name not in self.module_list:
+            self.hallo.printer.output_raw("Module name, {}, is not in allowed list: {}."
+                                          .format(module_name, ", ".join(self.module_list)))
             return False
         # Create full name
         # TODO: allow bypass for reloading of core classes: Hallo, Server, Destination, etc
@@ -197,6 +199,7 @@ class FunctionDispatcher(object):
             try:
                 module_obj = importlib.import_module(full_module_name)
             except ImportError:
+                self.hallo.printer.output_raw("Could not import module")
                 return False
         # Unload module, if it was loaded.
         self.unload_module_functions(module_obj)
