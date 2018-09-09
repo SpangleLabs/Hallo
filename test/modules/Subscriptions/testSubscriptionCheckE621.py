@@ -49,15 +49,16 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             rf3 = E621Sub(chan3.server, chan3, "fez", update_frequency=Commons.load_time_delta("PT3600S"))
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
-            e621_sub_check = self.function_dispatcher.get_function_by_name("subscription check")
+            e621_sub_check = self.function_dispatcher.get_function_by_name("check subscription")
             e621_sub_obj = self.function_dispatcher.get_function_object(e621_sub_check)  # type: SubscriptionCheck
-            e621_sub_obj.e621_sub_list = rfl
+            e621_sub_obj.subscription_repo = rfl
             # Test running all feed updates
             self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                            "e621 sub check all"))
             # Check original calling channel data
             serv0_data = self.server.get_send_data(1, self.test_chan, EventMessage)
-            assert "subscription updates were found" in serv0_data[0].text
+            assert "subscription updates were found" in serv0_data[0].text, \
+                "Actual message: {}".format(serv0_data[0].text)
             # Check test server 1 data
             serv1_data = serv1.get_send_data(100)
             chan1_count = 0
@@ -102,9 +103,9 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             rf3 = E621Sub(chan3.server, chan3, "fez", update_frequency=Commons.load_time_delta("PT3600S"))
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
-            rss_check_class = self.function_dispatcher.get_function_by_name("subscription check")
+            rss_check_class = self.function_dispatcher.get_function_by_name("check subscription")
             rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubscriptionCheck
-            rss_check_obj.e621_sub_list = rfl
+            rss_check_obj.subscription_repo = rfl
             # Invalid title
             self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                            "e621 sub check Not a valid search"))
@@ -118,9 +119,12 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             # Correct title check update
             self.function_dispatcher.dispatch(EventMessage(serv1, chan2, user1,
                                                            "e621 sub check clefable"))
-            data = serv1.get_send_data(1, chan2, EventMessage)
-            assert "subscription updates were found" in data[0].text.lower()
-            assert len(data[0].text.lower().split("\n")) == 51
+            data = serv1.get_send_data(51, chan2, EventMessage)
+            for x in range(50):
+                assert "update on" in data[x].text.lower()
+                assert data[x].photo_id
+                assert "clefable" in data[x].text
+            assert "subscription updates were found" in data[50].text.lower(), "Actual message: {}".format(data[0].text)
             # No updates
             self.function_dispatcher.dispatch(EventMessage(serv1, chan2, user1,
                                                            "e621 sub check clefable"))
@@ -151,9 +155,9 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             rf3 = E621Sub(chan3.server, chan3, "fez", update_frequency=Commons.load_time_delta("PT3600S"))
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
-            rss_check_class = self.function_dispatcher.get_function_by_name("subscription check")
+            rss_check_class = self.function_dispatcher.get_function_by_name("check subscription")
             rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubscriptionCheck
-            rss_check_obj.e621_sub_list = rfl
+            rss_check_obj.subscription_repo = rfl
             # Test passive feed updates
             self.function_dispatcher.dispatch_passive(EventMinute())
             # Check test server 1 data

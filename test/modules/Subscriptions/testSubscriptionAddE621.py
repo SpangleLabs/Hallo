@@ -41,8 +41,7 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         e621_check_obj = self.function_dispatcher.get_function_object(e621_check_class)  # type: SubscriptionCheck
         rfl = e621_check_obj.get_sub_repo(self.hallo).sub_list
         assert len(rfl) == 1, "Actual length: "+str(len(rfl))
-        e6_sub = rfl[0]
-        assert isinstance(e6_sub, E621Sub)
+        e6_sub = rfl[0]  # type: E621Sub
         assert e6_sub.search == "cabinet"
         assert e6_sub.server == self.server
         assert e6_sub.destination == self.test_chan
@@ -61,13 +60,12 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         e621_check_obj = self.function_dispatcher.get_function_object(e621_check_class)  # type: SubscriptionCheck
         rfl = e621_check_obj.get_sub_repo(self.hallo).sub_list
         assert len(rfl) == 1, "Actual length: "+str(len(rfl))
-        e6_sub = rfl[0]
-        assert isinstance(e6_sub, E621Sub)
+        e6_sub = rfl[0]  # type: E621Sub
         assert e6_sub.search == "cabinet"
         assert e6_sub.server == self.server
         assert e6_sub.destination == self.test_user
-        assert e6_sub.last_check is not None
-        assert len(e6_sub.last_check) == 10
+        assert e6_sub.latest_ids is not None
+        assert len(e6_sub.latest_ids) == 10
         assert e6_sub.last_check is not None
         assert e6_sub.update_frequency.seconds == 300
         assert e6_sub.update_frequency.days == 0
@@ -83,13 +81,12 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         e621_check_obj = self.function_dispatcher.get_function_object(e621_check_class)  # type: SubscriptionCheck
         rfl = e621_check_obj.get_sub_repo(self.hallo).sub_list
         assert len(rfl) == 1, "Actual length: "+str(len(rfl))
-        e6_sub = rfl[0]
-        assert isinstance(e6_sub, E621Sub)
+        e6_sub = rfl[0]  # type: E621Sub
         assert e6_sub.search == "cabinet"
-        assert e6_sub.server == self.server.name
-        assert e6_sub.destination == self.test_chan.name
-        assert e6_sub.last_check is not None
-        assert len(e6_sub.last_check) == 10
+        assert e6_sub.server == self.server
+        assert e6_sub.destination == self.test_chan
+        assert e6_sub.latest_ids is not None
+        assert len(e6_sub.latest_ids) == 10
         assert e6_sub.last_check is not None
         assert e6_sub.update_frequency.seconds == 3600
         assert e6_sub.update_frequency.days == 0

@@ -73,10 +73,10 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "rss remove test_feed1"))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert "error" in data[0].text.lower()
-        assert rf1 in rfl.sub_list
+        assert "removed 2 subscriptions" in data[0].text.lower(), "Response was: {}".format(data[0].text)
+        assert rf1 not in rfl.sub_list
         assert rf2 in rfl.sub_list
-        assert rf3 in rfl.sub_list
+        assert rf3 not in rfl.sub_list
 
     def test_remove_no_match(self):
         another_chan = self.server.get_channel_by_address("another_channel")
@@ -149,7 +149,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "rss remove http://spangle.org.uk/hallo/test_rss.xml?1"))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert "error" not in data[0].text.lower()
+        assert "error" not in data[0].text.lower(), "Actual response: {}".format(data[0].text)
         assert "removed" in data[0].text.lower()
         assert rf1 not in rfl.sub_list
         assert rf2 in rfl.sub_list

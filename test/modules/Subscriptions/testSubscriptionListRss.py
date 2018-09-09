@@ -35,7 +35,7 @@ class FeedListTest(TestBase, unittest.TestCase):
     def test_list_feeds(self):
         another_chan = self.server.get_channel_by_address("another_channel")
         # Get feed list
-        rss_check_class = self.function_dispatcher.get_function_by_name("subscription check")
+        rss_check_class = self.function_dispatcher.get_function_by_name("check subscription")
         rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubscriptionCheck
         rfl = rss_check_obj.get_sub_repo(self.hallo)
         # Add RSS feeds to feed list
@@ -52,7 +52,7 @@ class FeedListTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "rss list"))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         data_split = data[0].text.split("\n")
-        assert "rss feeds posting" in data_split[0].lower()
+        assert "subscriptions posting" in data_split[0].lower(), "Actual message: {}".format(data[0].text)
         assert "test_feed1" in data_split[1].lower() or "test_feed1" in data_split[2].lower()
         assert "test_feed3" in data_split[1].lower() or "test_feed3" in data_split[2].lower()
         assert "http://spangle.org.uk/hallo/test_rss.xml?1" in data_split[1].lower() or \

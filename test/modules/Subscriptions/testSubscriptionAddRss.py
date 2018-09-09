@@ -32,12 +32,6 @@ class FeedAddTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "error" in data[0].text.lower()
 
-    def test_invalid_period(self):
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                       "rss add http://spangle.org.uk/hallo/test_rss.xml PTTS"))
-        data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert "error" in data[0].text.lower()
-
     def test_invalid_rss(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "rss add http://example.com"))
@@ -55,8 +49,7 @@ class FeedAddTest(TestBase, unittest.TestCase):
         rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubscriptionCheck
         rfl = rss_check_obj.get_sub_repo(self.hallo).sub_list
         assert len(rfl) == 1
-        rss_sub = rfl[0]
-        assert isinstance(rss_sub, RssSub)
+        rss_sub = rfl[0]  # type: RssSub
         assert rss_sub.url == "http://spangle.org.uk/hallo/test_rss.xml"
         assert rss_sub.server == self.server
         assert rss_sub.destination == self.test_chan
@@ -76,8 +69,7 @@ class FeedAddTest(TestBase, unittest.TestCase):
         rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubscriptionCheck
         rfl = rss_check_obj.get_sub_repo(self.hallo).sub_list
         assert len(rfl) == 1
-        rss_sub = rfl[0]
-        assert isinstance(rss_sub, RssSub)
+        rss_sub = rfl[0]  # type: RssSub
         assert rss_sub.url == "http://spangle.org.uk/hallo/test_rss.xml"
         assert rss_sub.server == self.server
         assert rss_sub.destination == self.test_user
@@ -96,8 +88,7 @@ class FeedAddTest(TestBase, unittest.TestCase):
         rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubscriptionCheck
         rfl = rss_check_obj.get_sub_repo(self.hallo).sub_list
         assert len(rfl) == 1
-        rss_sub = rfl[0]
-        assert isinstance(rss_sub, RssSub)
+        rss_sub = rfl[0]  # type: RssSub
         assert rss_sub.url == "http://spangle.org.uk/hallo/test_rss.xml"
         assert rss_sub.server == self.server
         assert rss_sub.destination == self.test_chan
