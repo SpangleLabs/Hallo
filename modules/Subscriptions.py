@@ -609,8 +609,11 @@ class SubscriptionRemove(Function):
         # Names which can be used to address the function
         name_templates = {"{} remove", "remove {}",
                           "remove {} sub", "remove sub {}", "sub {} remove", "{} sub remove",
+                          "remove sub", "remove sub", "sub remove", "sub remove",
                           "remove {} subscription", "remove subscription {}",
-                          "subscription {} remove", "{} subscription remove"}
+                          "remove subscription", "remove subscription",
+                          "subscription {} remove", "{} subscription remove",
+                          "subscription remove", "subscription remove"}
         self.names = set([template.format(name)
                          for name in SubscriptionFactory.get_names()
                          for template in name_templates])
@@ -669,8 +672,14 @@ class SubscriptionCheck(Function):
         # Names which can be used to address the function
         name_templates = {"{} check", "check {}",
                           "check {} sub", "check sub {}", "sub {} check", "{} sub check",
+                          "check {} subs", "check subs {}", "subs {} check", "{} subs check",
+                          "check subs", "check subs", "subs check", "subs check",
                           "check {} subscription", "check subscription {}",
-                          "subscription {} check", "{} subscription check"}
+                          "check {} subscriptions", "check subscriptions {}",
+                          "check subscriptions", "check subscriptions",
+                          "subscription {} check", "{} subscription check",
+                          "subscriptions {} check", "{} subscriptions check",
+                          "subscriptions check", "subscriptions check"}
         self.names = set([template.format(name)
                           for name in SubscriptionFactory.get_names()
                           for template in name_templates])
