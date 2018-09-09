@@ -514,6 +514,10 @@ class YoutubeSub(Subscription):
     pass
 
 
+class ImgurSub(Subscription):
+    pass
+
+
 class SubscriptionFactory(object):
     sub_classes = [E621Sub, RssSub]
 
