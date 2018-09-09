@@ -428,9 +428,11 @@ class E621Sub(Subscription):
             rating = rating_dict[e621_result["rating"]]
         # Construct output
         output = "Update on \"{}\" e621 search. {} {}".format(self.search, link, rating)
-        image_url = e621_result["file_url"]
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
+        if e621_result["file_ext"] in ["swf", "webm"]:
+            return EventMessage(self.server, channel, user, output, inbound=False)
+        image_url = e621_result["file_url"]
         output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
         return output_evt
 
