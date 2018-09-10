@@ -25,6 +25,8 @@ class SubscriptionRepo:
     def __init__(self):
         self.sub_list = []
         """ :type : list[Subscription]"""
+        self.common_list = []
+        """ :type : list[SubscriptionCommon]"""
         self.sub_lock = Lock()
         """ :type : threading.Lock"""
 
@@ -43,6 +45,22 @@ class SubscriptionRepo:
         :type remove_sub: Subscription
         """
         self.sub_list.remove(remove_sub)
+
+    def add_common(self, new_common):
+        """
+        Adds a new common configuration to the list.
+        :param new_common: New common configuration to add
+        :type new_common: SubscriptionCommon
+        """
+        self.common_list.append(new_common)
+
+    def remove_common(self, remove_common):
+        """
+        Removes a common configuration from the list.
+        :param remove_common: Existing common config to remove
+        :type remove_common: SubscriptionCommon
+        """
+        self.common_list.remove(remove_common)
 
     def get_subs_by_destination(self, destination):
         """
@@ -87,7 +105,8 @@ class SubscriptionRepo:
             json_obj["subs"].append(sub.to_json())
         # Add common configuration
         json_obj["common"] = []
-        # TODO
+        for common in self.common_list:
+            json_obj["common"].append(common.to_json())
         # Write json to file
         with open("store/subscriptions.json", "w") as f:
             json.dump(json_obj, f, indent=2)
@@ -110,7 +129,10 @@ class SubscriptionRepo:
         for sub_elem in json_obj["subs"]:
             new_sub_obj = SubscriptionFactory.from_json(sub_elem, hallo)
             new_sub_list.add_sub(new_sub_obj)
-        # TODO: add common data
+        # Loop common objects in json file adding them to list
+        for common_elem in json_obj["common"]:
+            new_common_obj = SubscriptionFactory.common_from_json(common_elem, hallo)
+            new_sub_list.add_common(new_common_obj)
         return new_sub_list
 
 
@@ -520,8 +542,70 @@ class ImgurSub(Subscription):
     pass
 
 
+class SubscriptionCommon:
+    type_name = ""
+    """ :type : str"""
+
+    def to_json(self):
+        raise NotImplementedError()
+
+    @staticmethod
+    def from_json(json_obj, hallo):
+        raise NotImplementedError()
+
+
+class FAKeysCommon(SubscriptionCommon):
+    type_name = "FA_keys"
+    """ :type : str"""
+
+    def __init__(self):
+        self.list_keys = []
+        """ :type : list[FAKey]"""
+
+    def add_key(self, key):
+        self.list_keys.append(key)
+
+    def to_json(self):
+        json_obj = {"common_type": self.type_name,
+                    "key_list": []}
+        for key in self.list_keys:
+            json_obj["key_list"].append(key.to_json())
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo):
+        keys_common = FAKeysCommon()
+        for key_dict in json_obj["key_list"]:
+            keys_common.add_key(FAKey.from_json(key_dict, hallo))
+        return keys_common
+
+
+class FAKey:
+
+    def __init__(self, user, cookie_a, cookie_b):
+        self.user = user
+        self.cookie_a = cookie_a
+        self.cookie_b = cookie_b
+
+    def to_json(self):
+        json_obj = {"server_name": self.user.server.name,
+                    "user_address": self.user.address,
+                    "cookie_a": self.cookie_a,
+                    "cookie_b": self.cookie_b}
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        user = server.get_user_by_address(json_obj["user_address"])
+        cookie_a = json_obj["cookie_a"]
+        cookie_b = json_obj["cookie_b"]
+        return FAKey(user, cookie_a, cookie_b)
+
+
 class SubscriptionFactory(object):
     sub_classes = [E621Sub, RssSub]
+    common_classes = [FAKeysCommon]
 
     @staticmethod
     def get_names():
@@ -546,6 +630,19 @@ class SubscriptionFactory(object):
             if sub_class.type_name == sub_type_name:
                 return sub_class.from_json(sub_json, hallo)
         raise SubscriptionException("Could not load subscription of type {}".format(sub_type_name))
+
+    @staticmethod
+    def common_from_json(common_json, hallo):
+        """
+        :type common_json: dict
+        :type hallo: Hallo.Hallo
+        :rtype: SubscriptionCommon
+        """
+        common_type_name = common_json["common_type"]
+        for common_class in SubscriptionFactory.common_classes:
+            if common_class.type_name == common_type_name:
+                return common_class.from_json(common_json, hallo)
+        raise SubscriptionException("Could not load common configuration of type {}".format(common_type_name))
 
 
 class SubscriptionAdd(Function):
