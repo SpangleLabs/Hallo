@@ -732,11 +732,11 @@ class FAKey:
                 """ :type : list[FAKey.FAReader.FANotificationCommentSubmission]"""
                 sub_comment_list = self.soup.find("fieldset", id="messages-comments-submission")
                 if sub_comment_list is not None:
-                    for sub_comment_notif in sub_comment_list.find_all("li", attrs={"class":""}):
+                    for sub_comment_notif in sub_comment_list.find_all("li", attrs={"class": None}):
                         try:
                             sub_comment_notif_links = sub_comment_notif.find_all("a")
                             comment_id = sub_comment_notif.input["value"]
-                            username = sub_comment_notif_links[0]["href"].replace("/user/","")[:-1]
+                            username = sub_comment_notif_links[0]["href"].split("/")[2]
                             name = sub_comment_notif.a.string
                             comment_on = "<em>your</em> comment on" in str(sub_comment_notif)
                             submission_yours = sub_comment_notif.find_all("em")[-1].string == "your"
@@ -748,7 +748,26 @@ class FAKey:
                             self.submission_comments.append(new_comment)
                         except Exception as e:
                             print("Failed to read submission comment: {}".format(e))
-                journal_comments = []
+                self.journal_comments = []
+                """ :type : list[FAKey.FAReader.FANotificationCommentJournal]"""
+                jou_comment_list = self.soup.find("fieldset", id="messages-comments-journal")
+                if jou_comment_list is not None:
+                    for jou_comment_notif in jou_comment_list.find_all("li", attrs={"class": None}):
+                        try:
+                            jou_comment_links = jou_comment_notif.find_all("a")
+                            comment_id = jou_comment_notif.value["input"]
+                            username = jou_comment_links[0]["href"].split("/")[2]
+                            name = jou_comment_links[0].string
+                            comment_on = "<em>your</em> comment on" in str(jou_comment_notif)
+                            journal_yours = jou_comment_notif.find_all("em")[-1].string == "your"
+                            journal_id = jou_comment_links[1]["href"].split("/")[2]
+                            journal_title = jou_comment_links[1].string
+                            new_comment = FAKey.FAReader.FANotificationCommentJournal(comment_id, username, name,
+                                                                                      comment_on, journal_yours,
+                                                                                      journal_id, journal_title)
+                            self.journal_comments.append(new_comment)
+                        except Exception as e:
+                            print("Failed to read journal comment: {}".format(e))
                 shouts = []
                 favourites = []
                 journals = []
@@ -768,7 +787,8 @@ class FAKey:
 
         class FANotificationCommentSubmission:
 
-            def __init__(self, comment_id, username, name, comment_on, submission_yours, submission_id, submission_name):
+            def __init__(self, comment_id, username, name, comment_on,
+                         submission_yours, submission_id, submission_name):
                 self.comment_id = comment_id
                 """ :type : str"""
                 self.comment_link = "https://furaffinity.net/view/{}/#cid:{}".format(submission_id, comment_id)
@@ -786,6 +806,28 @@ class FAKey:
                 self.submission_name = submission_name
                 """ :type : str"""
                 self.submission_link = "https://furaffinity.net/view/{}/".format(submission_id)
+                """ :type : str"""
+
+        class FANotificationCommentJournal:
+
+            def __init__(self, comment_id, username, name, comment_on, journal_yours, journal_id, journal_name):
+                self.comment_id = comment_id
+                """ :type : str"""
+                self.comment_link = "https://furaffinity.net/journal/{}/#cid:{}".format(submission_id, comment_id)
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.comment_on = comment_on
+                """ :type : bool"""
+                self.journal_yours = journal_yours
+                """ :type : bool"""
+                self.journal_id = journal_id
+                """ :type : str"""
+                self.journal_name = journal_name
+                """ :type : str"""
+                self.journal_link = "https://furaffinity.net/journal/{}/".format(submission_id)
                 """ :type : str"""
 
         class FASubmissionsPage(FAPage):
