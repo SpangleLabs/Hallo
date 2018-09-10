@@ -630,9 +630,10 @@ class FAKey:
             self.b = cookie_b
             """ :type : str"""
             self.timeout = timedelta(seconds=60)
-            self.login_user_time = None
-            self.login_user = None
-            
+            """ :type : timedelta"""
+            self.notification_page = None
+            """ :type : FAKey.FAReader.FANotificationsPage | None"""
+
         def _get_page_code(self, url, extra_cookie=""):
             if len(extra_cookie) > 0 or not extra_cookie.startswith(";"):
                 extra_cookie = ";"+extra_cookie
@@ -641,9 +642,12 @@ class FAKey:
 
         def get_notification_page(self):
             """
-            :rtype: FAReader.FANotificationsPage
+            :rtype: FAKey.FAReader.FANotificationsPage
             """
-            raise NotImplementedError()
+            if self.notification_page is None or datetime.now() > (self.notification_page.retrieve_time + self.timeout):
+                self.notification_page = FAKey.FAReader.FANotificationsPage(
+                    self._get_page_code("https://www.furaffinity.net/msg/others/"))
+            return self.notification_page
 
         def get_submissions_page(self):
             """
@@ -708,7 +712,81 @@ class FAKey:
                 """ :type : int"""
 
         class FANotificationsPage(FAPage):
-            pass
+
+            def __init__(self, code):
+                super().__init__(code)
+                self.watches = []
+                """ :type : list[FAKey.FAReader.FANotificationWatch]"""
+                watch_list = self.soup.find("ul", id="watches")
+                if watch_list is not None:
+                    for watch_notif in watch_list.find_all("li", attrs={"class":None}):
+                        try:
+                            name = watch_notif.span.string
+                            username = watch_notif.a["href"].replace("/user/","")[:-1]
+                            avatar = "https:" + watch_notif.img["src"]
+                            new_watch = FAKey.FAReader.FANotificationWatch(name, username, avatar)
+                            self.watches.append(new_watch)
+                        except Exception as e:
+                            print("Failed to read watch: {}".format(e))
+                self.submission_comments = []
+                """ :type : list[FAKey.FAReader.FANotificationCommentSubmission]"""
+                sub_comment_list = self.soup.find("fieldset", id="messages-comments-submission")
+                if sub_comment_list is not None:
+                    for sub_comment_notif in sub_comment_list.find_all("li", attrs={"class":""}):
+                        try:
+                            sub_comment_notif_links = sub_comment_notif.find_all("a")
+                            comment_id = sub_comment_notif.input["value"]
+                            username = sub_comment_notif_links[0]["href"].replace("/user/","")[:-1]
+                            name = sub_comment_notif.a.string
+                            comment_on = "<em>your</em> comment on" in str(sub_comment_notif)
+                            submission_yours = sub_comment_notif.find_all("em")[-1].string == "your"
+                            submission_id = sub_comment_notif_links[1]["href"].split("/")[2]
+                            submission_name = sub_comment_notif_links[1].string
+                            new_comment = FAKey.FAReader.FANotificationCommentSubmission(comment_id, username, name,
+                                                                                         comment_on, submission_yours,
+                                                                                         submission_id, submission_name)
+                            self.submission_comments.append(new_comment)
+                        except Exception as e:
+                            print("Failed to read submission comment: {}".format(e))
+                journal_comments = []
+                shouts = []
+                favourites = []
+                journals = []
+                pass
+
+        class FANotificationWatch:
+
+            def __init__(self, name, username, avatar):
+                self.name = name
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.link = "https://furaffinity.net/user/{}/".format(username)
+                """ :type : str"""
+                self.avatar = avatar
+                """ :type : str"""
+
+        class FANotificationCommentSubmission:
+
+            def __init__(self, comment_id, username, name, comment_on, submission_yours, submission_id, submission_name):
+                self.comment_id = comment_id
+                """ :type : str"""
+                self.comment_link = "https://furaffinity.net/view/{}/#cid:{}".format(submission_id, comment_id)
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.comment_on = comment_on
+                """ :type : bool"""
+                self.submission_yours = submission_yours
+                """ :type : bool"""
+                self.submission_id = submission_id
+                """ :type : str"""
+                self.submission_name = submission_name
+                """ :type : str"""
+                self.submission_link = "https://furaffinity.net/view/{}/".format(submission_id)
+                """ :type : str"""
 
         class FASubmissionsPage(FAPage):
             pass
