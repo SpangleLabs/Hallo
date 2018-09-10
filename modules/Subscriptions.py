@@ -691,10 +691,10 @@ class FAKey:
         class FAUserFavPage(FAPage):
             pass
 
-        class FASubmissionPage(FAPage):
+        class FAViewSubmissionPage(FAPage):
             pass
 
-        class FAJournalPage(FAPage):
+        class FAViewJournalPage(FAPage):
             pass
 
 
