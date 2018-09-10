@@ -628,5 +628,5 @@ class ListServers(Function):
             server_str = "{}[type={}, state={}, nick={}, auto_connect={}]".format(server_name, type_str, server_state,
                                                                                   server_nick, server_auto)
             server_str_list.append(server_str)
-        output_string += ', '.join(server_str_list) + "."
+        output_string += '\n - '.join(server_str_list) + "."
         return event.create_response(output_string)
