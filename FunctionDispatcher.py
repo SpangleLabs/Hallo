@@ -80,7 +80,8 @@ class FunctionDispatcher(object):
                 event.reply(event.create_response("The function returned no value."))
             return
         except Exception as e:
-            event.reply(event.create_response("Function failed with error message: {}".format(e)))
+            e_str = (str(e)[:75] + '..') if len(str(e)) > 75 else str(e)
+            event.reply(event.create_response("Function failed with error message: {}".format(e_str)))
             print("Function: {} {}".format(function_class.__module__, function_class.__name__))
             print("Function error: {}".format(e))
             print("Function error location: {}".format(traceback.format_exc(3)))

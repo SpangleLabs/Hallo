@@ -584,8 +584,21 @@ class FAKey:
 
     def __init__(self, user, cookie_a, cookie_b):
         self.user = user
+        """ :type : Destination.Destination"""
         self.cookie_a = cookie_a
+        """ :type : str"""
         self.cookie_b = cookie_b
+        """ :type : str"""
+        self.fa_reader = None
+        """ :type : FAReader | None"""
+
+    def get_fa_reader(self):
+        """
+        :rtype: FAKey.FAReader
+        """
+        if self.fa_reader is None:
+            self.fa_reader = FAKey.FAReader(self.cookie_a, self.cookie_b)
+        return self.fa_reader
 
     def to_json(self):
         json_obj = {"server_name": self.user.server.name,
@@ -601,6 +614,94 @@ class FAKey:
         cookie_a = json_obj["cookie_a"]
         cookie_b = json_obj["cookie_b"]
         return FAKey(user, cookie_a, cookie_b)
+
+    class FAReader:
+        NOTES_INBOX = "inbox"
+        NOTES_OUTBOX = "outbox"
+
+        class FALoginFailedError(Exception):
+            pass
+
+        def __init__(self, cookie_a, cookie_b):
+            self.a = cookie_a
+            self.b = cookie_b
+            
+        def _get_page_code(self, url, extra_cookie=""):
+            if len(extra_cookie) > 0 or not extra_cookie.startswith(";"):
+                extra_cookie = ";"+extra_cookie
+            cookie_string = "a="+self.a+";b="+self.b+extra_cookie
+            return Commons.load_url_string(url, [["Cookie", cookie_string]])
+
+        def check_login(self):
+            """
+            :rtype: bool
+            :raises: FAReader.FALoginFailedError
+            """
+            raise NotImplementedError()
+
+        def get_notification_page(self):
+            """
+            :rtype: FAReader.FANotificationsPage
+            """
+            raise NotImplementedError()
+
+        def get_submissions_page(self):
+            """
+            :rtype: FAReader.FASubmissionsPage
+            """
+            raise NotImplementedError()
+
+        def get_notes_page(self, folder):
+            """
+            :type folder: str
+            :return: FAReader.FANotesPage
+            """
+            if folder not in [self.NOTES_INBOX, self.NOTES_OUTBOX]:
+                raise ValueError("Invalid FA note folder.")
+            raise NotImplementedError()
+
+        def get_user_page(self, username):
+            # Needs shout list, for checking own shouts
+            raise NotImplementedError()
+
+        def get_user_fav_page(self, username):
+            """
+            :type username: str
+            :rtype: FAReader.FAUserFavPage
+            """
+            raise NotImplementedError()
+
+        def get_submission_page(self, submission_id):
+            raise NotImplementedError()
+
+        def get_journal_page(self, journal_id):
+            raise NotImplementedError()
+
+        class FAPage:
+            def __init__(self, url):
+                self.url = url
+                """ :type : str"""
+
+        class FANotificationsPage(FAPage):
+            pass
+
+        class FASubmissionsPage(FAPage):
+            pass
+
+        class FANotesPage(FAPage):
+            pass
+
+        class FAUserPage(FAPage):
+            pass
+
+        class FAUserFavPage(FAPage):
+            pass
+
+        class FAViewSubmissionPage(FAPage):
+            pass
+
+        class FAViewJournalPage(FAPage):
+            pass
 
 
 class SubscriptionFactory(object):
