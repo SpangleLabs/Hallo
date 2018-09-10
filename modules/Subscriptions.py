@@ -625,6 +625,12 @@ class FAKey:
         def __init__(self, cookie_a, cookie_b):
             self.a = cookie_a
             self.b = cookie_b
+            
+        def _get_page_code(self, url, extra_cookie=""):
+            if len(extra_cookie) > 0 or not extra_cookie.startswith(";"):
+                extra_cookie = ";"+extra_cookie
+            cookie_string = "a="+self.a+";b="+self.b+extra_cookie
+            return Commons.load_url_string(url, [["Cookie", cookie_string]])
 
         def check_login(self):
             """
