@@ -3,9 +3,11 @@ import json
 import re
 import urllib.parse
 from abc import ABCMeta
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Lock
 from xml.etree import ElementTree
+
+from bs4 import BeautifulSoup
 
 from Destination import Channel, User
 from Events import EventMessageWithPhoto, EventMessage, EventMinute
@@ -625,6 +627,9 @@ class FAKey:
         def __init__(self, cookie_a, cookie_b):
             self.a = cookie_a
             self.b = cookie_b
+            self.timeout = timedelta(seconds=60)
+            self.login_user_time = None
+            self.login_user = None
             
         def _get_page_code(self, url, extra_cookie=""):
             if len(extra_cookie) > 0 or not extra_cookie.startswith(";"):
@@ -632,12 +637,18 @@ class FAKey:
             cookie_string = "a="+self.a+";b="+self.b+extra_cookie
             return Commons.load_url_string(url, [["Cookie", cookie_string]])
 
-        def check_login(self):
+        def get_login_user(self):
             """
             :rtype: bool
             :raises: FAReader.FALoginFailedError
             """
-            raise NotImplementedError()
+            if self.login_user_time is None or datetime.now() > (self.login_user_time + self.timeout):
+                soup = BeautifulSoup(self._get_page_code("http://furaffinity.net/"), "html.parser")
+                login_user = soup.find(id="my-username")
+                if login_user is None:
+                    raise self.FALoginFailedError("Not currently logged in")
+                self.login_user = login_user.string[1:]
+            return self.login_user
 
         def get_notification_page(self):
             """
