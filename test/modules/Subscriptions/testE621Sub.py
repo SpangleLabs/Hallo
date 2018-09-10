@@ -5,7 +5,7 @@ import time
 from Events import EventMessage
 from Hallo import Hallo
 from inc.Commons import Commons
-from modules.Subscriptions import E621Sub, SubscriptionException
+from modules.Subscriptions import E621Sub
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
 
@@ -43,6 +43,7 @@ class TestE621Sub(TestBase, unittest.TestCase):
         json_data["id"] = item_id
         json_data["rating"] = item_rating
         json_data["file_url"] = "http://spangle.org.uk/haskell.jpg"
+        json_data["file_ext"] = "jpg"
         # Get output and check it
         output = rf.format_item(json_data).text
         assert item_id in output
@@ -67,7 +68,7 @@ class TestE621Sub(TestBase, unittest.TestCase):
         item_id = "652362"
         item_rate = "q"
         item_rating = "(Questionable)"
-        item_elem = {"id": item_id, "rating": item_rate, "file_url": "12345"}
+        item_elem = {"id": item_id, "rating": item_rate, "file_url": "12345", "file_ext": "png"}
         # Check output works with given server and channel
         rf1 = E621Sub(self.server, self.test_chan, "cabinet")
         rf1.update_frequency = Commons.load_time_delta("P1TS")
