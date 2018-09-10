@@ -768,7 +768,19 @@ class FAKey:
                             self.journal_comments.append(new_comment)
                         except Exception as e:
                             print("Failed to read journal comment: {}".format(e))
-                shouts = []
+                self.shouts = []
+                """ :type : list[FAKey.FAReader.FANotificationShout]"""
+                shout_list = self.soup.find("fieldset", id="messages-shouts")
+                if shout_list is not None:
+                    for shout_notif in shout_list.find_all("li", attrs={"class": None}):
+                        try:
+                            shout_id = shout_notif.input["value"]
+                            username = shout_notif.a["href"].split("/")[2]
+                            name = shout_notif.a.string
+                            new_shout = FAKey.FAReader.FANotificationShout(shout_id, username, name)
+                            self.shouts.append(new_shout)
+                        except Exception as e:
+                            print("Failed to read shout: {}".format(e))
                 favourites = []
                 journals = []
                 pass
@@ -828,6 +840,16 @@ class FAKey:
                 self.journal_name = journal_name
                 """ :type : str"""
                 self.journal_link = "https://furaffinity.net/journal/{}/".format(submission_id)
+                """ :type : str"""
+
+        class FANotificationShout:
+
+            def __init__(self, shout_id, username, name):
+                self.shout_id = shout_id
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
                 """ :type : str"""
 
         class FASubmissionsPage(FAPage):
