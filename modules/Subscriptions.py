@@ -626,7 +626,9 @@ class FAKey:
 
         def __init__(self, cookie_a, cookie_b):
             self.a = cookie_a
+            """ :type : str"""
             self.b = cookie_b
+            """ :type : str"""
             self.timeout = timedelta(seconds=60)
             self.login_user_time = None
             self.login_user = None
@@ -636,19 +638,6 @@ class FAKey:
                 extra_cookie = ";"+extra_cookie
             cookie_string = "a="+self.a+";b="+self.b+extra_cookie
             return Commons.load_url_string(url, [["Cookie", cookie_string]])
-
-        def get_login_user(self):
-            """
-            :rtype: bool
-            :raises: FAReader.FALoginFailedError
-            """
-            if self.login_user_time is None or datetime.now() > (self.login_user_time + self.timeout):
-                soup = BeautifulSoup(self._get_page_code("http://furaffinity.net/"), "html.parser")
-                login_user = soup.find(id="my-username")
-                if login_user is None:
-                    raise self.FALoginFailedError("Not currently logged in")
-                self.login_user = login_user.string[1:]
-            return self.login_user
 
         def get_notification_page(self):
             """
@@ -689,9 +678,34 @@ class FAKey:
             raise NotImplementedError()
 
         class FAPage:
-            def __init__(self, url):
-                self.url = url
+            def __init__(self, code):
+                self.retrieve_time = datetime.now()
+                """ :type : datetime"""
+                self.soup = BeautifulSoup(code, "html.parser")
+                """ :type : BeautifulSoup"""
+                login_user = self.soup.find(id="my-username")
+                if login_user is None:
+                    raise FAKey.FAReader.FALoginFailedError("Not currently logged in")
+                self.username = login_user.string[1:]
                 """ :type : str"""
+                total_submissions = self.soup.find_all(title="Submission Notifications")
+                self.total_submissions = 0 if len(total_submissions) == 0 else int(total_submissions[0].string[:-1])
+                """ :type : int"""
+                total_comments = self.soup.find_all(title="Comment Notifications")
+                self.total_comments = 0 if len(total_comments) == 0 else int(total_comments[0].string[:-1])
+                """ :type : int"""
+                total_journals = self.soup.find_all(title="Journal Notifications")
+                self.total_journals = 0 if len(total_journals) == 0 else int(total_journals[0].string[:-1])
+                """ :type : int"""
+                total_favs = self.soup.find_all(title="Favorite Notifications")
+                self.total_favs = 0 if len(total_favs) == 0 else int(total_favs[0].string[:-1])
+                """ :type : int"""
+                total_watches = self.soup.find_all(title="Watch Notifications")
+                self.total_watches = 0 if len(total_watches) == 0 else int(total_watches[0].string[:-1])
+                """ :type : int"""
+                total_notes = self.soup.find_all(title="Note Notifications")
+                self.total_notes = 0 if len(total_notes) == 0 else int(total_notes[0].string[:-1])
+                """ :type : int"""
 
         class FANotificationsPage(FAPage):
             pass
