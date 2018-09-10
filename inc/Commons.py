@@ -1,3 +1,4 @@
+import gzip
 import time
 import datetime
 import urllib.request
@@ -163,8 +164,12 @@ class Commons(object):
         for header in headers:
             page_request.add_header(header[0], header[1])
         page_opener = urllib.request.build_opener()
-        code = page_opener.open(page_request, timeout=60).read().decode('utf-8')
-        return code
+        resp = page_opener.open(page_request, timeout=60)
+        code = resp.read()
+        if resp.getheader("Content-Encoding") == "gzip":
+            code = gzip.decompress(code)
+        code_str = code.decode('utf-8')
+        return code_str
 
     @staticmethod
     def load_url_json(url, headers=None, json_fix=False):
