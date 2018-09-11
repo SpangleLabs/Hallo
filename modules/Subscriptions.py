@@ -635,6 +635,10 @@ class FAKey:
             """ :type : FAKey.FAReader.FANotificationsPage | None"""
             self.submissions_page = None
             """ :type : FAKey.FAReader.FASubmissionsPage | None"""
+            self.notes_page_inbox = None
+            """ :type : FAKer.FAReader.FANotesPage | None"""
+            self.notes_page_outbox = None
+            """ :type : FAKey.FAReader.FANotesPage | None"""
 
         def _get_page_code(self, url, extra_cookie=""):
             if len(extra_cookie) > 0 or not extra_cookie.startswith(";"):
@@ -665,9 +669,19 @@ class FAKey:
             :type folder: str
             :return: FAReader.FANotesPage
             """
-            if folder not in [self.NOTES_INBOX, self.NOTES_OUTBOX]:
-                raise ValueError("Invalid FA note folder.")
-            raise NotImplementedError()
+            if folder == self.NOTES_INBOX:
+                if self.notes_page_inbox is None or \
+                        datetime.now() > (self.notes_page_inbox.retrieve_time + self.timeout):
+                    page_code = self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=inbox")
+                    self.notes_page_inbox = FAKey.FAReader.FANotesPage(page_code)
+                return self.notes_page_inbox
+            if folder == self.NOTES_OUTBOX:
+                if self.notes_page_outbox is None or \
+                        datetime.now() > (self.notes_page_outbox.retrieve_time + self.timeout):
+                    page_code = self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=outbox")
+                    self.notes_page_outbox = FAKey.FAReader.FANotesPage(page_code)
+                return self.notes_page_outbox
+            raise ValueError("Invalid FA note folder.")
 
         def get_user_page(self, username):
             # Needs shout list, for checking own shouts
@@ -968,7 +982,7 @@ class FAKey:
 
         class FAViewJournalPage(FAPage):
             pass
-        
+
         class FASearchPage(FAPage):
             pass
 
