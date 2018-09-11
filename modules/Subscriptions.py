@@ -633,6 +633,8 @@ class FAKey:
             """ :type : timedelta"""
             self.notification_page = None
             """ :type : FAKey.FAReader.FANotificationsPage | None"""
+            self.submissions_page = None
+            """ :type : FAKey.FAReader.FASubmissionsPage | None"""
 
         def _get_page_code(self, url, extra_cookie=""):
             if len(extra_cookie) > 0 or not extra_cookie.startswith(";"):
@@ -645,15 +647,18 @@ class FAKey:
             :rtype: FAKey.FAReader.FANotificationsPage
             """
             if self.notification_page is None or datetime.now() > (self.notification_page.retrieve_time + self.timeout):
-                self.notification_page = FAKey.FAReader.FANotificationsPage(
-                    self._get_page_code("https://www.furaffinity.net/msg/others/"))
+                page_code = self._get_page_code("https://www.furaffinity.net/msg/others/")
+                self.notification_page = FAKey.FAReader.FANotificationsPage(page_code)
             return self.notification_page
 
         def get_submissions_page(self):
             """
             :rtype: FAReader.FASubmissionsPage
             """
-            raise NotImplementedError()
+            if self.submissions_page is None or datetime.now() > (self.submissions_page.retrieve_time + self.timeout):
+                page_code = self._get_page_code("https://www.furaffinity.net/msg/submissions/")
+                self.submissions_page = FAKey.FAReader.FASubmissionsPage(page_code)
+            return self.submissions_page
 
         def get_notes_page(self, folder):
             """
@@ -854,7 +859,7 @@ class FAKey:
             def __init__(self, comment_id, username, name, comment_on, journal_yours, journal_id, journal_name):
                 self.comment_id = comment_id
                 """ :type : str"""
-                self.comment_link = "https://furaffinity.net/journal/{}/#cid:{}".format(submission_id, comment_id)
+                self.comment_link = "https://furaffinity.net/journal/{}/#cid:{}".format(journal_id, comment_id)
                 """ :type : str"""
                 self.username = username
                 """ :type : str"""
@@ -868,7 +873,7 @@ class FAKey:
                 """ :type : str"""
                 self.journal_name = journal_name
                 """ :type : str"""
-                self.journal_link = "https://furaffinity.net/journal/{}/".format(submission_id)
+                self.journal_link = "https://furaffinity.net/journal/{}/".format(journal_id)
                 """ :type : str"""
 
         class FANotificationShout:
@@ -911,7 +916,42 @@ class FAKey:
                 """ :type : str"""
 
         class FASubmissionsPage(FAPage):
-            pass
+
+            def __init__(self, code):
+                super().__init__(code)
+                self.submissions = []
+                """ :type : list[FAKey.FAReader.FANotificationSubmission]"""
+                subs_list = self.soup.find("form", id="messages-form")  # line 181
+                if subs_list is not None:
+                    for sub_notif in subs_list.find_all("figure"):
+                        sub_links = sub_notif.find_all("a")
+                        submission_id = sub_notif.input["value"]
+                        rating = [i[2:] for i in sub_notif["class"] if i.startswith("r-")][0]
+                        preview_link = sub_notif.img["src"]
+                        title = sub_links[1].string
+                        username = sub_links[2]["href"].split("/")[-2]
+                        name = sub_links[2]
+                        new_submission = FAKey.FAReader.FANotificationSubmission(submission_id, rating, preview_link,
+                                                                                 title, username, name)
+                        self.submissions.append(new_submission)
+
+        class FANotificationSubmission:
+
+            def __init__(self, submission_id, rating, preview_link, title, username, name):
+                self.submission_id = submission_id
+                """ :type : str"""
+                self.submission_link = "https://furaffinity.net/view/{}/".format(submission_id)
+                """ :type : str"""
+                self.rating = rating
+                """ :type : str"""
+                self.preview_link = preview_link
+                """ :type : str"""
+                self.title = title
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
 
         class FANotesPage(FAPage):
             pass
