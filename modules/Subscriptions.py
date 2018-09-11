@@ -680,20 +680,20 @@ class FAKey:
 
         def get_user_page(self, username):
             # Needs shout list, for checking own shouts
-            raise NotImplementedError()
+            raise NotImplementedError()  # TODO
 
         def get_user_fav_page(self, username):
             """
             :type username: str
             :rtype: FAReader.FAUserFavPage
             """
-            raise NotImplementedError()
+            raise NotImplementedError()  # TODO
 
         def get_submission_page(self, submission_id):
-            raise NotImplementedError()
+            raise NotImplementedError()  # TODO
 
         def get_journal_page(self, journal_id):
-            raise NotImplementedError()
+            raise NotImplementedError()  # TODO
 
         class FAPage:
             def __init__(self, code):
