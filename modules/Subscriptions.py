@@ -633,6 +633,10 @@ class FAKey:
             """ :type : timedelta"""
             self.notification_page = None
             """ :type : FAKey.FAReader.FANotificationsPage | None"""
+            self.notes_page_inbox = None
+            """ :type : FAKey.FAReader.FANotesPage | None"""
+            self.notes_page_outbox = None
+            """ :type : FAKey.FAReader.FANotesPage | None"""
 
         def _get_page_code(self, url, extra_cookie=""):
             if len(extra_cookie) > 0 or not extra_cookie.startswith(";"):
@@ -660,9 +664,19 @@ class FAKey:
             :type folder: str
             :return: FAReader.FANotesPage
             """
-            if folder not in [self.NOTES_INBOX, self.NOTES_OUTBOX]:
-                raise ValueError("Invalid FA note folder.")
-            raise NotImplementedError()
+            if folder == self.NOTES_INBOX:
+                if self.notes_page_inbox is None or \
+                        datetime.now() > (self.notes_page_inbox.retrieve_time + self.timeout):
+                    code = self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=inbox")
+                    self.notes_page_inbox = FAKey.FAReader.FANotesPage(code)
+                return self.notes_page_inbox
+            if folder == self.NOTES_OUTBOX:
+                if self.notes_page_outbox is None or \
+                        datetime.now() > (self.notes_page_outbox.retrieve_time + self.timeout):
+                    code = self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=outbox")
+                    self.notes_page_outbox = FAKey.FAReader.FANotesPage(code)
+                return self.notes_page_outbox
+            raise ValueError("Invalid FA note folder.")
 
         def get_user_page(self, username):
             # Needs shout list, for checking own shouts
@@ -856,7 +870,37 @@ class FAKey:
             pass
 
         class FANotesPage(FAPage):
-            pass
+
+            def __init__(self, code, folder):
+                super().__init__(code)
+                self.folder = folder
+                """ :type : str"""
+                self.notes = []
+                """ :type : list[FAKey.FAReader.FANote]"""
+                notes_list = self.soup.find("table", id="notes-list")
+                if notes_list is not None:
+                    for note in notes_list:
+                        note_links = note.find_all("a")
+                        note_id = note.input["value"]
+                        subject = note_links[0].string
+                        username = note_links[1]["href"].split("/")[-2]
+                        name = note_links[1].string
+                        new_note = FAKey.FAReader.FANote(note_id, subject, username, name)
+                        self.notes.append(new_note)
+
+        class FANote:
+
+            def __init__(self, note_id, subject, username, name):
+                self.note_id = note_id
+                """ :type : str"""
+                self.note_link = "https://www.furaffinity.net/viewmessage/{}/".format(note_id)
+                """ :type : str"""
+                self.subject = subject
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
 
         class FAUserPage(FAPage):
             pass
