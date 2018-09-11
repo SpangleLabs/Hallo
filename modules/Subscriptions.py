@@ -900,6 +900,7 @@ class FAKey:
                 self.submission_name = submission_name
                 """ :type : str"""
                 self.submission_link = "https://furaffinity.net/view/{}/".format(submission_id)
+                """ :type : str"""
 
         class FANotificationJournal:
 
