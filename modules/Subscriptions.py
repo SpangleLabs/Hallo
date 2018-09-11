@@ -798,8 +798,21 @@ class FAKey:
                             self.favourites.append(new_fav)
                         except Exception as e:
                             print("Failed to read favourite: {}".format(e))
-                journals = []
-                pass
+                self.journals = []
+                """ :type : list[FAKey.FAReader.FANotificationJournal]"""
+                jou_list = self.soup.find("ul", id="journals")
+                if jou_list is not None:
+                    for jou_notif in jou_list.find_all("li", attrs={"class": None}):
+                        try:
+                            jou_links = jou_notif.find_all("a")
+                            journal_id = jou_notif.input["value"]
+                            journal_name = jou_links[0].string
+                            username = jou_links[1].split("/")[-2]
+                            name = jou_links[1].string
+                            new_journal = FAKey.FAReader.FANotificationJournal(journal_id, journal_name, username, name)
+                            self.journals.append(new_journal)
+                        except Exception as e:
+                            print("Failed to read journal: {}".format(e))
 
         class FANotificationWatch:
 
@@ -882,6 +895,20 @@ class FAKey:
                 self.submission_name = submission_name
                 """ :type : str"""
                 self.submission_link = "https://furaffinity.net/view/{}/".format(submission_id)
+
+        class FANotificationJournal:
+
+            def __init__(self, journal_id, journal_name, username, name):
+                self.journal_id = journal_id
+                """ :type : str"""
+                self.journal_link = "https://furaffinity.net/journal/{}/".format(journal_id)
+                """ :type : str"""
+                self.journal_name = journal_name
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
 
         class FASubmissionsPage(FAPage):
             pass
