@@ -968,6 +968,9 @@ class FAKey:
 
         class FAViewJournalPage(FAPage):
             pass
+        
+        class FASearchPage(FAPage):
+            pass
 
 
 class SubscriptionFactory(object):
