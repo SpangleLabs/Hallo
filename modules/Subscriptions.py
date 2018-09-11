@@ -781,7 +781,23 @@ class FAKey:
                             self.shouts.append(new_shout)
                         except Exception as e:
                             print("Failed to read shout: {}".format(e))
-                favourites = []
+                self.favourites = []
+                """ :type : list[FAKey.FAReader.FANotificationFavourite]"""
+                fav_list = self.soup.find("ul", id="favorites")
+                if fav_list is not None:
+                    for fav_notif in fav_list.find_all("li", attrs={"class": None}):
+                        try:
+                            fav_links = fav_notif.find_all("a")
+                            fav_id = fav_notif.input["value"]
+                            username = fav_links[0]["href"].split("/")[-2]
+                            name = fav_links[0].string
+                            submission_id = fav_links[1]["href"].split("/")[-2]
+                            submission_name = fav_links[1].string
+                            new_fav = FAKey.FAReader.FANotificationFavourite(fav_id, username, name,
+                                                                             submission_id, submission_name)
+                            self.favourites.append(new_fav)
+                        except Exception as e:
+                            print("Failed to read favourite: {}".format(e))
                 journals = []
                 pass
 
@@ -851,6 +867,21 @@ class FAKey:
                 """ :type : str"""
                 self.name = name
                 """ :type : str"""
+
+        class FANotificationFavourite:
+
+            def __init__(self, fav_id, username, name, submission_id, submission_name):
+                self.fav_id = fav_id
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.submission_id = submission_id
+                """ :type : str"""
+                self.submission_name = submission_name
+                """ :type : str"""
+                self.submission_link = "https://furaffinity.net/view/{}/".format(submission_id)
 
         class FASubmissionsPage(FAPage):
             pass
