@@ -1011,10 +1011,16 @@ class FAKey:
                 main_panel = self.soup.find("b", string="Full Name:").parent
                 main_panel_strings = main_panel.stripped_strings
                 self.username = username
+                """ :type : str"""
                 self.name = main_panel_strings[main_panel_strings.index("Full Name:")+1]
-                # user_title
-                # registered_since
-                # current_mood
+                """ :type : str"""
+                self.user_title = main_panel_strings[main_panel_strings.index("User Title:")+1]
+                """ :type : str"""
+                registered_since_str = main_panel_strings[main_panel_strings.index("Registered since:")+1]
+                self.registered_since = datetime.strptime(registered_since_str, "%b %dth, %Y %H:%M")
+                """ :type : datetime"""
+                self.current_mood = main_panel_strings[main_panel_strings.index("Current mood:")+1]
+                """ :type : str"""
                 # artist_profile
                 self.num_page_visits = None
                 """ :type : int | None"""
