@@ -695,7 +695,9 @@ class FAKey:
             :type username: str
             :rtype: FAReader.FAUserFavPage
             """
-            raise NotImplementedError()  # TODO
+            code = self._get_page_code("http://www.furaffinity.net/favorites/{}/".format(username))
+            fav_page = FAKey.FAReader.FAUserFavouritesPage(code, username)
+            return fav_page
 
         def get_submission_page(self, submission_id):
             raise NotImplementedError()  # TODO
@@ -1108,8 +1110,48 @@ class FAKey:
                 self.watched_name = watched_name
                 """ :type : str"""
 
-        class FAUserFavPage(FAPage):
-            pass
+        class FAUserFavouritesPage(FAPage):
+
+            def __init__(self, code, username):
+                super().__init__(code)
+                self.username = username
+                """ :type : str"""
+                self.favourites = []
+                """ :type : list[FAKey.FAReader.FAFavourite]"""
+                fav_gallery = self.soup.find(id="gallery-favorites")
+                for fav in fav_gallery.find_all("figure"):
+                    try:
+                        fav_links = fav.find_all("a")
+                        submission_id = fav_links[0]["href"].split("/")[-2]
+                        submission_type = [c[2:] for c in fav["class"] if c.startswith("t-")][0]
+                        rating = [c[2:] for c in fav["class"] if c.startswith("r-")][0]
+                        title = fav_links[1].string
+                        preview_image = "https:"+fav.img["src"]
+                        username = fav_links[2]["href"].split("/")[-2]
+                        name = fav_links[2].string
+                        new_fav = FAKey.FAReader.FAFavourite(submission_id, submission_type, rating, title,
+                                                             preview_image, username, name)
+                        self.favourites.append(fav)
+                    except Exception as e:
+                        print("Could not read favourite: {}".format(e))
+
+        class FAFavourite:
+
+            def __init__(self, submission_id, submission_type, rating, title, preview_image, username, name):
+                self.submission_id = submission_id
+                """ :type : str"""
+                self.submission_type = submission_type
+                """ :type : str"""
+                self.rating = rating
+                """ :type : str"""
+                self.title = title
+                """ :type : str"""
+                self.preview_image = preview_image
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
 
         class FAViewSubmissionPage(FAPage):
             pass
