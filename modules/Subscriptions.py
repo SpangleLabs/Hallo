@@ -1018,6 +1018,7 @@ class FAKey:
                 """ :type : str"""
                 registered_since_str = main_panel_strings[main_panel_strings.index("Registered since:")+1]
                 self.registered_since = datetime.strptime(registered_since_str, "%b %dth, %Y %H:%M")
+                # TODO: fix above for other dates, check 12/24, check th/rd/st, etc
                 """ :type : datetime"""
                 self.current_mood = main_panel_strings[main_panel_strings.index("Current mood:")+1]
                 """ :type : str"""
