@@ -687,7 +687,7 @@ class FAKey:
             # Needs shout list, for checking own shouts
             # TODO: If spinning this out into its own project, use an expiringdict to cache things.
             code = self._get_page_code("http://www.furaffinity.net/user/{}/".format(username))
-            user_page = FAKey.FAReader.FAUserPage(code)
+            user_page = FAKey.FAReader.FAUserPage(code, username)
             return user_page
 
         def get_user_fav_page(self, username):
@@ -1006,9 +1006,12 @@ class FAKey:
 
         class FAUserPage(FAPage):
 
-            def __init__(self, code):
+            def __init__(self, code, username):
                 super().__init__(code)
-                # full_name
+                main_panel = self.soup.find("b", string="Full Name:").parent
+                main_panel_strings = main_panel.stripped_strings
+                self.username = username
+                self.name = main_panel_strings[main_panel_strings.index("Full Name:")+1]
                 # user_title
                 # registered_since
                 # current_mood
@@ -1050,7 +1053,17 @@ class FAKey:
                         text = shout.find_all("div")[0].string.strip()
                         new_shout = FAKey.FAReader.FAShout(shout_id, username, name, avatar, text)
                         self.shouts.append(new_shout)
-                watched_by = []  # TODO
+                self.watched_by = []
+                """ :type : list[FAKey.FAReader.FAWatch]"""
+                try:
+                    watcher_list = self.soup.find_all("b", text="Watched by")[0].parent.parent.parent
+                    for watch in watcher_list.find_all("span", {"class": "artist_name"}):
+                        watcher_username = watch.parent["href"].split("/")[-2]
+                        watcher_name = watch.string
+                        new_watch = FAKey.FAReader.FAWatch(watcher_username, watcher_name, self.username, self.name)
+                        self.watched_by.append(new_watch)
+                except Exception as e:
+                    print("Failed to get watched by list: {}".format(e))
                 is_watching = []  # TODO
                 pass
 
@@ -1066,6 +1079,18 @@ class FAKey:
                 self.avatar = avatar
                 """ :type : str"""
                 self.text = text
+                """ :type : str"""
+
+        class FAWatch:
+
+            def __init__(self, watcher_username, watcher_name, watched_username, watched_name):
+                self.watcher_username = watcher_username
+                """ :type : str"""
+                self.watcher_name = watcher_name
+                """ :type : str"""
+                self.watched_username = watched_username
+                """ :type : str"""
+                self.watched_name = watched_name
                 """ :type : str"""
 
         class FAUserFavPage(FAPage):
