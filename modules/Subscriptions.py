@@ -672,33 +672,35 @@ class FAKey:
             if folder == self.NOTES_INBOX:
                 if self.notes_page_inbox is None or \
                         datetime.now() > (self.notes_page_inbox.retrieve_time + self.timeout):
-                    page_code = self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=inbox")
-                    self.notes_page_inbox = FAKey.FAReader.FANotesPage(page_code)
+                    code = self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=inbox")
+                    self.notes_page_inbox = FAKey.FAReader.FANotesPage(code, folder)
                 return self.notes_page_inbox
             if folder == self.NOTES_OUTBOX:
                 if self.notes_page_outbox is None or \
                         datetime.now() > (self.notes_page_outbox.retrieve_time + self.timeout):
-                    page_code = self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=outbox")
-                    self.notes_page_outbox = FAKey.FAReader.FANotesPage(page_code)
+                    code = self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=outbox")
+                    self.notes_page_outbox = FAKey.FAReader.FANotesPage(code, folder)
                 return self.notes_page_outbox
             raise ValueError("Invalid FA note folder.")
 
         def get_user_page(self, username):
             # Needs shout list, for checking own shouts
-            raise NotImplementedError()
+            code = self._get_page_code("http://www.furaffinity.net/user/{}/".format(username))
+            user_page = FAKey.FAReader.FAUserPage(code)
+            return user_page
 
         def get_user_fav_page(self, username):
             """
             :type username: str
             :rtype: FAReader.FAUserFavPage
             """
-            raise NotImplementedError()
+            raise NotImplementedError()  # TODO
 
         def get_submission_page(self, submission_id):
-            raise NotImplementedError()
+            raise NotImplementedError()  # TODO
 
         def get_journal_page(self, journal_id):
-            raise NotImplementedError()
+            raise NotImplementedError()  # TODO
 
         class FAPage:
             def __init__(self, code):
@@ -969,10 +971,101 @@ class FAKey:
                 """ :type : str"""
 
         class FANotesPage(FAPage):
-            pass
+
+            def __init__(self, code, folder):
+                super().__init__(code)
+                self.folder = folder
+                """ :type : str"""
+                self.notes = []
+                """ :type : list[FAKey.FAReader.FANote]"""
+                notes_list = self.soup.find("table", id="notes-list")
+                if notes_list is not None:
+                    for note in notes_list:
+                        note_links = note.find_all("a")
+                        note_id = note.input["value"]
+                        subject = note_links[0].string
+                        username = note_links[1]["href"].split("/")[-2]
+                        name = note_links[1].string
+                        new_note = FAKey.FAReader.FANote(note_id, subject, username, name)
+                        self.notes.append(new_note)
+
+        class FANote:
+
+            def __init__(self, note_id, subject, username, name):
+                self.note_id = note_id
+                """ :type : str"""
+                self.note_link = "https://www.furaffinity.net/viewmessage/{}/".format(note_id)
+                """ :type : str"""
+                self.subject = subject
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
 
         class FAUserPage(FAPage):
-            pass
+
+            def __init__(self, code):
+                super().__init__(code)
+                # full_name
+                # user_title
+                # registered_since
+                # current_mood
+                # artist_profile
+                self.num_page_visits = None
+                """ :type : int | None"""
+                self.num_submissions = None
+                """ :type : int | None"""
+                self.num_comments_received = None
+                """ :type : int | None"""
+                self.num_comments_given = None
+                """ :type : int | None"""
+                self.num_journals = None
+                """ :type : int | None"""
+                self.num_favourites = None
+                """ :type : int | None"""
+                try:
+                    statistics = list(self.soup.find("b", title="Once per user per 24 hours").parent.stripped_strings)
+                    self.num_page_visits = int(statistics[statistics.index("Page Visits:")+1])
+                    self.num_submissions = int(statistics[statistics.index("Submissions:")+1])
+                    self.num_comments_received = int(statistics[statistics.index("Comments Received:")+1])
+                    self.num_comments_given = int(statistics[statistics.index("Comments Given:")+1])
+                    self.num_journals = int(statistics[statistics.index("Journals:")+1])
+                    self.num_favourites = int(statistics[statistics.index("Favorites:")+1])
+                except Exception as e:
+                    print("Failed to read statistics on user page. {}".format(e))
+                # artist_info
+                # contact_info
+                # featured_submission
+                self.shouts = []
+                """ :type : list[FAKey.FAReader.FAShout]"""
+                shout_list = self.soup.find_all("table", {"id": lambda x: x and x.startswith("shout-")})
+                if shout_list is not None:
+                    for shout in shout_list:
+                        shout_id = shout["id"].replace("shout-","")
+                        username = shout.find_all("img", {"class": "avatar"})[0]["alt"]
+                        name = shout.find_all("a")[1].string
+                        avatar = "https"+shout.find_all("img", {"class": "avatar"})[0]["src"]
+                        text = shout.find_all("div")[0].string.strip()
+                        new_shout = FAKey.FAReader.FAShout(shout_id, username, name, avatar, text)
+                        self.shouts.append(new_shout)
+                watched_by = []  # TODO
+                is_watching = []  # TODO
+                pass
+
+        class FAShout:
+
+            def __init__(self, shout_id, username, name, avatar, text):
+                self.shout_id = shout_id
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.avatar = avatar
+                """ :type : str"""
+                self.text = text
+                """ :type : str"""
 
         class FAUserFavPage(FAPage):
             pass
