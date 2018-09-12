@@ -740,10 +740,10 @@ class FAKey:
                 """ :type : list[FAKey.FAReader.FANotificationWatch]"""
                 watch_list = self.soup.find("ul", id="watches")
                 if watch_list is not None:
-                    for watch_notif in watch_list.find_all("li", attrs={"class":None}):
+                    for watch_notif in watch_list.find_all("li", attrs={"class": None}):
                         try:
                             name = watch_notif.span.string
-                            username = watch_notif.a["href"].replace("/user/","")[:-1]
+                            username = watch_notif.a["href"].replace("/user/", "")[:-1]
                             avatar = "https:" + watch_notif.img["src"]
                             new_watch = FAKey.FAReader.FANotificationWatch(name, username, avatar)
                             self.watches.append(new_watch)
@@ -1042,7 +1042,7 @@ class FAKey:
                 shout_list = self.soup.find_all("table", {"id": lambda x: x and x.startswith("shout-")})
                 if shout_list is not None:
                     for shout in shout_list:
-                        shout_id = shout["id"].replace("shout-","")
+                        shout_id = shout["id"].replace("shout-", "")
                         username = shout.find_all("img", {"class": "avatar"})[0]["alt"]
                         name = shout.find_all("a")[1].string
                         avatar = "https"+shout.find_all("img", {"class": "avatar"})[0]["src"]
