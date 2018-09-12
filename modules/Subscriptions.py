@@ -1161,23 +1161,28 @@ class FAKey:
                 super().__init__(code)
                 self.submission_id = submission_id
                 """ :type : str"""
-                title = None
-                full_image = None
+                sub_info = self.soup.find_all("td", {"class", "stats-container"})
+                sub_info_stripped = list(submission_info.stripped_strings)
+                sub_titlebox = sub_info.find_parent("td").find_previous("td")
+                sub_descbox = sub_info.find_next("td")
+                self.title = sub_titlebox.find("b").string
+                self.full_image = "https:" + self.soup.find(text="Download").parent["href"]
                 copyright = None
-                username = None
-                name = None
-                description = None
-                submission_time = None
-                category = None
-                theme = None
-                species = None
-                gender = None
-                num_favourites = None
-                num_comments = None
-                num_views = None
+                self.username = sub_titlebox.find("a")["href"].split("/")[-2]
+                self.name = sub_titlebox.string
+                self.avatar_link = "https:" + sub_descbox.find("img")["src"]
+                self.description = "".join(str(s) for s in sub_descbox.contents[5:]).strip()
+                self.submission_time_str = sub_info.find("span", {"class":"popup_date"})["title"]
+                self.category = sub_info_stripped[sub_info_stripped.index("Category:")+1]
+                self.theme = sub_info_stripped[sub_info_stripped.index("Theme:")+1]
+                self.species = sub_info_stripped[sub_info_stripped.index("Species:")+1]
+                self.gender = sub_info_stripped[sub_info_stripped.index("Gender:")+1]
+                self.num_favourites = int(sub_info_stripped[sub_info_stripped.index("Favorites:")+1])
+                self.num_comments = int(sub_info_stripped[sub_info_stripped.index("Comments:")+1])
+                self.num_views = int(sub_info_stripped[sub_info_stripped.index("Views:")+1])
                 resolution_x = None
                 resolution_y = None
-                keywords = []
+                self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
                 rating = None
                 top_level_comments = []
                 all_comments = []
