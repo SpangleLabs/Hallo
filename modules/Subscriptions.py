@@ -1071,8 +1071,16 @@ class FAKey:
                         self.watched_by.append(new_watch)
                 except Exception as e:
                     print("Failed to get watched by list: {}".format(e))
-                is_watching = []  # TODO
-                pass
+                self.is_watching = []  # TODO
+                try:
+                    watching_list = self.soup.find_all("b", text="Is watching")[0].parent.parent.parent
+                    for watch in watching_list.find_all("span", {"class": "artist_name"}):
+                        watched_username = watch.parent["href"].split("/")[-2]
+                        watched_name = watch.string
+                        new_watch = FAKey.FAReader.FAWatch(self.username, self.name, watched_username, watched_name)
+                        self.is_watching.append(new_watch)
+                except Exception as e:
+                    print("Failed to get is watching list: {}".format(e))
 
         class FAShout:
 
