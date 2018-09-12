@@ -685,6 +685,7 @@ class FAKey:
 
         def get_user_page(self, username):
             # Needs shout list, for checking own shouts
+            # TODO: If spinning this out into its own project, use an expiringdict to cache things.
             code = self._get_page_code("http://www.furaffinity.net/user/{}/".format(username))
             user_page = FAKey.FAReader.FAUserPage(code)
             return user_page
