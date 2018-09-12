@@ -1184,6 +1184,9 @@ class FAKey:
                 resolution_y = None
                 self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
                 rating = None
+                comments_section = self.soup.find("comments-submission")
+                for comment in comments_section.find_all("table", {"id": lambda x: x and x.startswith("cid:")}):
+                    raise NotImplementedError(comment)  # TODO: parse comments
                 top_level_comments = []
                 all_comments = []
 
