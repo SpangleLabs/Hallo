@@ -686,21 +686,23 @@ class FAKey:
         def get_user_page(self, username):
             # Needs shout list, for checking own shouts
             # TODO: If spinning this out into its own project, use an expiringdict to cache things.
-            code = self._get_page_code("http://www.furaffinity.net/user/{}/".format(username))
+            code = self._get_page_code("https://www.furaffinity.net/user/{}/".format(username))
             user_page = FAKey.FAReader.FAUserPage(code, username)
             return user_page
 
         def get_user_fav_page(self, username):
             """
             :type username: str
-            :rtype: FAReader.FAUserFavPage
+            :rtype: FAKey.FAReader.FAUserFavouritesPage
             """
-            code = self._get_page_code("http://www.furaffinity.net/favorites/{}/".format(username))
+            code = self._get_page_code("https://www.furaffinity.net/favorites/{}/".format(username))
             fav_page = FAKey.FAReader.FAUserFavouritesPage(code, username)
             return fav_page
 
         def get_submission_page(self, submission_id):
-            raise NotImplementedError()  # TODO
+            code = self._get_page_code("https://www.furaffinity.net/view/{}/".format(submission_id))
+            sub_page = FAKey.FAReader.FAViewSubmissionPage(code, submission_id)
+            return sub_page
 
         def get_journal_page(self, journal_id):
             raise NotImplementedError()  # TODO
@@ -1154,7 +1156,31 @@ class FAKey:
                 """ :type : str"""
 
         class FAViewSubmissionPage(FAPage):
-            pass
+
+            def __init__(self, code, submission_id):
+                super().__init__(code)
+                self.submission_id = submission_id
+                """ :type : str"""
+                title = None
+                full_image = None
+                copyright = None
+                username = None
+                name = None
+                description = None
+                submission_time = None
+                category = None
+                theme = None
+                species = None
+                gender = None
+                num_favourites = None
+                num_comments = None
+                num_views = None
+                resolution_x = None
+                resolution_y = None
+                keywords = []
+                rating = None
+                top_level_comments = []
+                all_comments = []
 
         class FAViewJournalPage(FAPage):
             pass
