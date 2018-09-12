@@ -633,8 +633,10 @@ class FAKey:
             """ :type : timedelta"""
             self.notification_page = None
             """ :type : FAKey.FAReader.FANotificationsPage | None"""
+            self.submissions_page = None
+            """ :type : FAKey.FAReader.FASubmissionsPage | None"""
             self.notes_page_inbox = None
-            """ :type : FAKey.FAReader.FANotesPage | None"""
+            """ :type : FAKer.FAReader.FANotesPage | None"""
             self.notes_page_outbox = None
             """ :type : FAKey.FAReader.FANotesPage | None"""
 
@@ -649,15 +651,18 @@ class FAKey:
             :rtype: FAKey.FAReader.FANotificationsPage
             """
             if self.notification_page is None or datetime.now() > (self.notification_page.retrieve_time + self.timeout):
-                self.notification_page = FAKey.FAReader.FANotificationsPage(
-                    self._get_page_code("https://www.furaffinity.net/msg/others/"))
+                page_code = self._get_page_code("https://www.furaffinity.net/msg/others/")
+                self.notification_page = FAKey.FAReader.FANotificationsPage(page_code)
             return self.notification_page
 
         def get_submissions_page(self):
             """
             :rtype: FAReader.FASubmissionsPage
             """
-            raise NotImplementedError()
+            if self.submissions_page is None or datetime.now() > (self.submissions_page.retrieve_time + self.timeout):
+                page_code = self._get_page_code("https://www.furaffinity.net/msg/submissions/")
+                self.submissions_page = FAKey.FAReader.FASubmissionsPage(page_code)
+            return self.submissions_page
 
         def get_notes_page(self, folder):
             """
@@ -680,8 +685,9 @@ class FAKey:
 
         def get_user_page(self, username):
             # Needs shout list, for checking own shouts
+            # TODO: If spinning this out into its own project, use an expiringdict to cache things.
             code = self._get_page_code("http://www.furaffinity.net/user/{}/".format(username))
-            user_page = FAKey.FAReader.FAUserPage(code)
+            user_page = FAKey.FAReader.FAUserPage(code, username)
             return user_page
 
         def get_user_fav_page(self, username):
@@ -735,10 +741,10 @@ class FAKey:
                 """ :type : list[FAKey.FAReader.FANotificationWatch]"""
                 watch_list = self.soup.find("ul", id="watches")
                 if watch_list is not None:
-                    for watch_notif in watch_list.find_all("li", attrs={"class":None}):
+                    for watch_notif in watch_list.find_all("li", attrs={"class": None}):
                         try:
                             name = watch_notif.span.string
-                            username = watch_notif.a["href"].replace("/user/","")[:-1]
+                            username = watch_notif.a["href"].replace("/user/", "")[:-1]
                             avatar = "https:" + watch_notif.img["src"]
                             new_watch = FAKey.FAReader.FANotificationWatch(name, username, avatar)
                             self.watches.append(new_watch)
@@ -797,9 +803,38 @@ class FAKey:
                             self.shouts.append(new_shout)
                         except Exception as e:
                             print("Failed to read shout: {}".format(e))
-                favourites = []
-                journals = []
-                pass
+                self.favourites = []
+                """ :type : list[FAKey.FAReader.FANotificationFavourite]"""
+                fav_list = self.soup.find("ul", id="favorites")
+                if fav_list is not None:
+                    for fav_notif in fav_list.find_all("li", attrs={"class": None}):
+                        try:
+                            fav_links = fav_notif.find_all("a")
+                            fav_id = fav_notif.input["value"]
+                            username = fav_links[0]["href"].split("/")[-2]
+                            name = fav_links[0].string
+                            submission_id = fav_links[1]["href"].split("/")[-2]
+                            submission_name = fav_links[1].string
+                            new_fav = FAKey.FAReader.FANotificationFavourite(fav_id, username, name,
+                                                                             submission_id, submission_name)
+                            self.favourites.append(new_fav)
+                        except Exception as e:
+                            print("Failed to read favourite: {}".format(e))
+                self.journals = []
+                """ :type : list[FAKey.FAReader.FANotificationJournal]"""
+                jou_list = self.soup.find("ul", id="journals")
+                if jou_list is not None:
+                    for jou_notif in jou_list.find_all("li", attrs={"class": None}):
+                        try:
+                            jou_links = jou_notif.find_all("a")
+                            journal_id = jou_notif.input["value"]
+                            journal_name = jou_links[0].string
+                            username = jou_links[1].split("/")[-2]
+                            name = jou_links[1].string
+                            new_journal = FAKey.FAReader.FANotificationJournal(journal_id, journal_name, username, name)
+                            self.journals.append(new_journal)
+                        except Exception as e:
+                            print("Failed to read journal: {}".format(e))
 
         class FANotificationWatch:
 
@@ -841,7 +876,7 @@ class FAKey:
             def __init__(self, comment_id, username, name, comment_on, journal_yours, journal_id, journal_name):
                 self.comment_id = comment_id
                 """ :type : str"""
-                self.comment_link = "https://furaffinity.net/journal/{}/#cid:{}".format(submission_id, comment_id)
+                self.comment_link = "https://furaffinity.net/journal/{}/#cid:{}".format(journal_id, comment_id)
                 """ :type : str"""
                 self.username = username
                 """ :type : str"""
@@ -855,7 +890,7 @@ class FAKey:
                 """ :type : str"""
                 self.journal_name = journal_name
                 """ :type : str"""
-                self.journal_link = "https://furaffinity.net/journal/{}/".format(submission_id)
+                self.journal_link = "https://furaffinity.net/journal/{}/".format(journal_id)
                 """ :type : str"""
 
         class FANotificationShout:
@@ -868,8 +903,73 @@ class FAKey:
                 self.name = name
                 """ :type : str"""
 
+        class FANotificationFavourite:
+
+            def __init__(self, fav_id, username, name, submission_id, submission_name):
+                self.fav_id = fav_id
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.submission_id = submission_id
+                """ :type : str"""
+                self.submission_name = submission_name
+                """ :type : str"""
+                self.submission_link = "https://furaffinity.net/view/{}/".format(submission_id)
+                """ :type : str"""
+
+        class FANotificationJournal:
+
+            def __init__(self, journal_id, journal_name, username, name):
+                self.journal_id = journal_id
+                """ :type : str"""
+                self.journal_link = "https://furaffinity.net/journal/{}/".format(journal_id)
+                """ :type : str"""
+                self.journal_name = journal_name
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+
         class FASubmissionsPage(FAPage):
-            pass
+
+            def __init__(self, code):
+                super().__init__(code)
+                self.submissions = []
+                """ :type : list[FAKey.FAReader.FANotificationSubmission]"""
+                subs_list = self.soup.find("form", id="messages-form")  # line 181
+                if subs_list is not None:
+                    for sub_notif in subs_list.find_all("figure"):
+                        sub_links = sub_notif.find_all("a")
+                        submission_id = sub_notif.input["value"]
+                        rating = [i[2:] for i in sub_notif["class"] if i.startswith("r-")][0]
+                        preview_link = sub_notif.img["src"]
+                        title = sub_links[1].string
+                        username = sub_links[2]["href"].split("/")[-2]
+                        name = sub_links[2]
+                        new_submission = FAKey.FAReader.FANotificationSubmission(submission_id, rating, preview_link,
+                                                                                 title, username, name)
+                        self.submissions.append(new_submission)
+
+        class FANotificationSubmission:
+
+            def __init__(self, submission_id, rating, preview_link, title, username, name):
+                self.submission_id = submission_id
+                """ :type : str"""
+                self.submission_link = "https://furaffinity.net/view/{}/".format(submission_id)
+                """ :type : str"""
+                self.rating = rating
+                """ :type : str"""
+                self.preview_link = preview_link
+                """ :type : str"""
+                self.title = title
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
 
         class FANotesPage(FAPage):
 
@@ -906,12 +1006,22 @@ class FAKey:
 
         class FAUserPage(FAPage):
 
-            def __init__(self, code):
+            def __init__(self, code, username):
                 super().__init__(code)
-                # full_name
-                # user_title
-                # registered_since
-                # current_mood
+                main_panel = self.soup.find("b", string="Full Name:").parent
+                main_panel_strings = main_panel.stripped_strings
+                self.username = username
+                """ :type : str"""
+                self.name = main_panel_strings[main_panel_strings.index("Full Name:")+1]
+                """ :type : str"""
+                self.user_title = main_panel_strings[main_panel_strings.index("User Title:")+1]
+                """ :type : str"""
+                registered_since_str = main_panel_strings[main_panel_strings.index("Registered since:")+1]
+                self.registered_since = datetime.strptime(registered_since_str, "%b %dth, %Y %H:%M")
+                # TODO: fix above for other dates, check 12/24, check th/rd/st, etc
+                """ :type : datetime"""
+                self.current_mood = main_panel_strings[main_panel_strings.index("Current mood:")+1]
+                """ :type : str"""
                 # artist_profile
                 self.num_page_visits = None
                 """ :type : int | None"""
@@ -943,16 +1053,34 @@ class FAKey:
                 shout_list = self.soup.find_all("table", {"id": lambda x: x and x.startswith("shout-")})
                 if shout_list is not None:
                     for shout in shout_list:
-                        shout_id = shout["id"].replace("shout-","")
+                        shout_id = shout["id"].replace("shout-", "")
                         username = shout.find_all("img", {"class": "avatar"})[0]["alt"]
                         name = shout.find_all("a")[1].string
                         avatar = "https"+shout.find_all("img", {"class": "avatar"})[0]["src"]
                         text = shout.find_all("div")[0].string.strip()
                         new_shout = FAKey.FAReader.FAShout(shout_id, username, name, avatar, text)
                         self.shouts.append(new_shout)
-                watched_by = []  # TODO
-                is_watching = []  # TODO
-                pass
+                self.watched_by = []
+                """ :type : list[FAKey.FAReader.FAWatch]"""
+                try:
+                    watcher_list = self.soup.find_all("b", text="Watched by")[0].parent.parent.parent
+                    for watch in watcher_list.find_all("span", {"class": "artist_name"}):
+                        watcher_username = watch.parent["href"].split("/")[-2]
+                        watcher_name = watch.string
+                        new_watch = FAKey.FAReader.FAWatch(watcher_username, watcher_name, self.username, self.name)
+                        self.watched_by.append(new_watch)
+                except Exception as e:
+                    print("Failed to get watched by list: {}".format(e))
+                self.is_watching = []  # TODO
+                try:
+                    watching_list = self.soup.find_all("b", text="Is watching")[0].parent.parent.parent
+                    for watch in watching_list.find_all("span", {"class": "artist_name"}):
+                        watched_username = watch.parent["href"].split("/")[-2]
+                        watched_name = watch.string
+                        new_watch = FAKey.FAReader.FAWatch(self.username, self.name, watched_username, watched_name)
+                        self.is_watching.append(new_watch)
+                except Exception as e:
+                    print("Failed to get is watching list: {}".format(e))
 
         class FAShout:
 
@@ -968,6 +1096,18 @@ class FAKey:
                 self.text = text
                 """ :type : str"""
 
+        class FAWatch:
+
+            def __init__(self, watcher_username, watcher_name, watched_username, watched_name):
+                self.watcher_username = watcher_username
+                """ :type : str"""
+                self.watcher_name = watcher_name
+                """ :type : str"""
+                self.watched_username = watched_username
+                """ :type : str"""
+                self.watched_name = watched_name
+                """ :type : str"""
+
         class FAUserFavPage(FAPage):
             pass
 
@@ -975,6 +1115,9 @@ class FAKey:
             pass
 
         class FAViewJournalPage(FAPage):
+            pass
+
+        class FASearchPage(FAPage):
             pass
 
 
