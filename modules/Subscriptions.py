@@ -1185,27 +1185,21 @@ class FAKey:
                 self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
                 rating = None
                 comments_section = self.soup.find(id="comments-submission")
-                self.comments = FAKey.FAReader.FACommentsSection(comments_section)
-                for comment in comments_section.find_all("table", {"id": lambda x: x and x.startswith("cid:")}):
-                    raise NotImplementedError(comment)  # TODO: parse comments
-                top_level_comments = []
-                all_comments = []
+                self.top_level_comments = self.parse_comments_section(comments_section)
 
             def parse_comments_section(self, comments):
                 top_level_comments = []
                 comment_stack = []
                 for comment in comments.find_all("table", {"id": lambda x: x and x.startswith("cid:")}):
-                    # TODO: create comment
-                    username = None
-                    name = None
-                    avatar_link = None
-                    comment_id = None
-                    posted_datetime_str = None
-                    posted_datetime = None
-                    text = None
-                    parent_comment = None
-                    reply_comments = None
-                    new_comment = None
+                    comment_link = comment.find("a")
+                    username = comment_link["href"].split("/")[-2]
+                    name = comment.find("b", {"class": "replyto-name"}).string
+                    avatar_link = "https:" + comment_link.find("img")["src"]
+                    comment_id = comment["id"][4:]
+                    posted_datetime = Commons.format_unix_time(int(comment["data-timestamp"]))
+                    text = "".join(str(x) for x in comment.find("div", {"class": "message-text"}).contents)
+                    new_comment = FAKey.FAReader.FAComment(username, name, avatar_link, comment_id,
+                                                           posted_datetime, text)
                     width = int(comment["width"][:-1])
                     if comment_stack.__len__() == 0 or width < comment_stack[-1][0]:
                         comment_stack.append((width, new_comment))
@@ -1218,6 +1212,27 @@ class FAKey:
                             else:
                                 top_level_comments.append(new_comment)
                             comment_stack[index] = (width, new_comment)
+                return top_level_comments
+
+        class FAComment:
+
+            def __init__(self, username, name, avatar_link, comment_id, posted_datetime, text, parent_comment=None):
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.avatar_link = avatar_link
+                """ :type : str"""
+                self.comment_id = comment_id
+                """ :type : str"""
+                self.posted_datetime = posted_datetime
+                """ :type : datetime"""
+                self.text = text
+                """ :type : str"""
+                self.parent_comment = parent_comment
+                """ :type : FAKey.FAReader.FAComment"""
+                self.reply_comments = []
+                """ :type : list[FAKey.FAReader.FAComment]"""
 
         class FAViewJournalPage(FAPage):
             pass
