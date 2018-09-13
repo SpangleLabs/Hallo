@@ -1183,7 +1183,7 @@ class FAKey:
                 resolution_x = None
                 resolution_y = None
                 self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
-                rating = None
+                self.rating = sub_info[0].find_all("img")[-1]["alt"].split()[0]
                 comments_section = self.soup.find(id="comments-submission")
                 self.top_level_comments = self.parse_comments_section(comments_section)
 
