@@ -1172,7 +1172,7 @@ class FAKey:
                 self.name = sub_titlebox.string
                 self.avatar_link = "https:" + sub_descbox.find("img")["src"]
                 self.description = "".join(str(s) for s in sub_descbox.contents[5:]).strip()
-                self.submission_time_str = sub_info.find("span", {"class":"popup_date"})["title"]  # TODO: datetime
+                self.submission_time_str = sub_info.find("span", {"class": "popup_date"})["title"]  # TODO: datetime
                 self.category = sub_info_stripped[sub_info_stripped.index("Category:")+1]
                 self.theme = sub_info_stripped[sub_info_stripped.index("Theme:")+1]
                 self.species = sub_info_stripped[sub_info_stripped.index("Species:")+1]
@@ -1184,11 +1184,40 @@ class FAKey:
                 resolution_y = None
                 self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
                 rating = None
-                comments_section = self.soup.find("comments-submission")
+                comments_section = self.soup.find(id="comments-submission")
+                self.comments = FAKey.FAReader.FACommentsSection(comments_section)
                 for comment in comments_section.find_all("table", {"id": lambda x: x and x.startswith("cid:")}):
                     raise NotImplementedError(comment)  # TODO: parse comments
                 top_level_comments = []
                 all_comments = []
+
+            def parse_comments_section(self, comments):
+                top_level_comments = []
+                comment_stack = []
+                for comment in comments.find_all("table", {"id": lambda x: x and x.startswith("cid:")}):
+                    # TODO: create comment
+                    username = None
+                    name = None
+                    avatar_link = None
+                    comment_id = None
+                    posted_datetime_str = None
+                    posted_datetime = None
+                    text = None
+                    parent_comment = None
+                    reply_comments = None
+                    new_comment = None
+                    width = int(comment["width"][:-1])
+                    if comment_stack.__len__() == 0 or width < comment_stack[-1][0]:
+                        comment_stack.append((width, new_comment))
+                    for index in range(len(comment_stack)):
+                        if width == comment_stack[index][0]:
+                            parent_comment = None if index == 0 else comment_stack[index-1][1]
+                            new_comment.parent = parent_comment
+                            if parent_comment is not None:
+                                parent_comment.reply_comments.append(new_comment)
+                            else:
+                                top_level_comments.append(new_comment)
+                            comment_stack[index] = (width, new_comment)
 
         class FAViewJournalPage(FAPage):
             pass
