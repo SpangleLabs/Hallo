@@ -707,6 +707,9 @@ class FAKey:
         def get_journal_page(self, journal_id):
             raise NotImplementedError()  # TODO
 
+        def get_search_page(self, search_term):
+            raise NotImplementedError()  # TODO
+
         class FAPage:
             def __init__(self, code):
                 self.retrieve_time = datetime.now()
@@ -1075,7 +1078,7 @@ class FAKey:
                         self.watched_by.append(new_watch)
                 except Exception as e:
                     print("Failed to get watched by list: {}".format(e))
-                self.is_watching = []  # TODO
+                self.is_watching = []
                 try:
                     watching_list = self.soup.find_all("b", text="Is watching")[0].parent.parent.parent
                     for watch in watching_list.find_all("span", {"class": "artist_name"}):
@@ -1133,7 +1136,7 @@ class FAKey:
                         name = fav_links[2].string
                         new_fav = FAKey.FAReader.FAFavourite(submission_id, submission_type, rating, title,
                                                              preview_image, username, name)
-                        self.favourites.append(fav)
+                        self.favourites.append(new_fav)
                     except Exception as e:
                         print("Could not read favourite: {}".format(e))
 
@@ -1167,7 +1170,6 @@ class FAKey:
                 sub_descbox = sub_info.find_next("td")
                 self.title = sub_titlebox.find("b").string
                 self.full_image = "https:" + self.soup.find(text="Download").parent["href"]
-                copyright = None
                 self.username = sub_titlebox.find("a")["href"].split("/")[-2]
                 self.name = sub_titlebox.string
                 self.avatar_link = "https:" + sub_descbox.find("img")["src"]
@@ -1180,8 +1182,8 @@ class FAKey:
                 self.num_favourites = int(sub_info_stripped[sub_info_stripped.index("Favorites:")+1])
                 self.num_comments = int(sub_info_stripped[sub_info_stripped.index("Comments:")+1])
                 self.num_views = int(sub_info_stripped[sub_info_stripped.index("Views:")+1])
-                resolution_x = None
-                resolution_y = None
+                # resolution_x = None
+                # resolution_y = None
                 self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
                 self.rating = sub_info[0].find_all("img")[-1]["alt"].split()[0]
                 comments_section = self.soup.find(id="comments-submission")
