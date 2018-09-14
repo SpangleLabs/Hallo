@@ -705,7 +705,9 @@ class FAKey:
             return sub_page
 
         def get_journal_page(self, journal_id):
-            raise NotImplementedError()  # TODO
+            code = self._get_page_code("https://www.furaffinity.net/journal/{}/".format(journal_id))
+            journal_page = FAKey.FAReader.FAViewJournalPage(code, journal_id)
+            return journal_page
 
         def get_search_page(self, search_term):
             raise NotImplementedError()  # TODO
@@ -1023,8 +1025,9 @@ class FAKey:
                 """ :type : str"""
                 self.user_title = main_panel_strings[main_panel_strings.index("User Title:")+1]
                 """ :type : str"""
-                registered_since_str = main_panel_strings[main_panel_strings.index("Registered since:")+1]
-                self.registered_since = datetime.strptime(registered_since_str, "%b %dth, %Y %H:%M")
+                registered_since_str = main_panel_strings[main_panel_strings.index("Registered since:")+1]\
+                    .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
+                self.registered_since = datetime.strptime(registered_since_str, "%b %d, %Y %H:%M")
                 # TODO: fix above for other dates, check 12/24, check th/rd/st, etc
                 """ :type : datetime"""
                 self.current_mood = main_panel_strings[main_panel_strings.index("Current mood:")+1]
@@ -1237,7 +1240,29 @@ class FAKey:
                 """ :type : list[FAKey.FAReader.FAComment]"""
 
         class FAViewJournalPage(FAPage):
-            pass
+
+            def __init__(self, code, journal_id):
+                super().__init__(code)
+                self.journal_id = journal_id
+                """ :type : str"""
+                title_box = self.soup.find("td", {"class": "journal-title-box"})
+                self.username = title_box.find("a")["src"].split("/")[-2]
+                """ :type : str"""
+                self.name = title_box.find("a").string
+                """ :type : str"""
+                self.avatar_link = "https:" + self.soup.find("img", {"class": "avatar"})["src"]
+                """ :type : str"""
+                self.title = title_box.find("div").string.strip()
+                """ :type : str"""
+                posted_datetime_str = title_box.find("span", {"class": "popup_date"})["title"].replace("st", "")\
+                    .replace("nd", "").replace("rd", "").replace("th", "")
+                self.posted_datetime = datetime.strptime(posted_datetime_str, "%b %d, %Y %H:%M")
+                """ :type : datetime"""
+                journal_header = None
+                journal_text = None
+                journal_footer = None
+                top_level_comments = None
+                pass  # TODO
 
         class FASearchPage(FAPage):
             pass
