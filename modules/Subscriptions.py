@@ -710,6 +710,24 @@ class FAKey:
             return journal_page
 
         def get_search_page(self, search_term):
+            post_params = dict()
+            post_params["q"] = search_term
+            post_params["do_search"] = "Search"
+            post_params["mode"] = "extended"
+            post_params["order-by"] = "date"
+            post_params["order-direction"] = "desc"
+            post_params["page"] = 1
+            post_params["perpage"] = 72
+            post_params["range"] = "all"
+            post_params["rating-adult"] = "on"
+            post_params["rating-general"] = "on"
+            post_params["rating-mature"] = "on"
+            post_params["type-art"] = "on"
+            post_params["type-flash"] = "on"
+            post_params["type-music"] = "on"
+            post_params["type-photo"] = "on"
+            post_params["type-poetry"] = "on"
+            post_params["type-story"] = "on"
             raise NotImplementedError()  # TODO
 
         class FAPage:
