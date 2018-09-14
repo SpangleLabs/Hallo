@@ -705,6 +705,11 @@ class FAKey:
             return sub_page
 
         def get_journal_page(self, journal_id):
+            code = self._get_page_code("https://www.furaffinity.net/journal/{}/".format(journal_id))
+            journal_page = FAKey.FAReader.FAViewJournalPage(code, journal_id)
+            return journal_page
+
+        def get_search_page(self, search_term):
             raise NotImplementedError()  # TODO
 
         class FAPage:
@@ -1020,8 +1025,9 @@ class FAKey:
                 """ :type : str"""
                 self.user_title = main_panel_strings[main_panel_strings.index("User Title:")+1]
                 """ :type : str"""
-                registered_since_str = main_panel_strings[main_panel_strings.index("Registered since:")+1]
-                self.registered_since = datetime.strptime(registered_since_str, "%b %dth, %Y %H:%M")
+                registered_since_str = main_panel_strings[main_panel_strings.index("Registered since:")+1]\
+                    .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
+                self.registered_since = datetime.strptime(registered_since_str, "%b %d, %Y %H:%M")
                 # TODO: fix above for other dates, check 12/24, check th/rd/st, etc
                 """ :type : datetime"""
                 self.current_mood = main_panel_strings[main_panel_strings.index("Current mood:")+1]
@@ -1075,7 +1081,7 @@ class FAKey:
                         self.watched_by.append(new_watch)
                 except Exception as e:
                     print("Failed to get watched by list: {}".format(e))
-                self.is_watching = []  # TODO
+                self.is_watching = []
                 try:
                     watching_list = self.soup.find_all("b", text="Is watching")[0].parent.parent.parent
                     for watch in watching_list.find_all("span", {"class": "artist_name"}):
@@ -1133,7 +1139,7 @@ class FAKey:
                         name = fav_links[2].string
                         new_fav = FAKey.FAReader.FAFavourite(submission_id, submission_type, rating, title,
                                                              preview_image, username, name)
-                        self.favourites.append(fav)
+                        self.favourites.append(new_fav)
                     except Exception as e:
                         print("Could not read favourite: {}".format(e))
 
@@ -1167,7 +1173,6 @@ class FAKey:
                 sub_descbox = sub_info.find_next("td")
                 self.title = sub_titlebox.find("b").string
                 self.full_image = "https:" + self.soup.find(text="Download").parent["href"]
-                copyright = None
                 self.username = sub_titlebox.find("a")["href"].split("/")[-2]
                 self.name = sub_titlebox.string
                 self.avatar_link = "https:" + sub_descbox.find("img")["src"]
@@ -1180,8 +1185,8 @@ class FAKey:
                 self.num_favourites = int(sub_info_stripped[sub_info_stripped.index("Favorites:")+1])
                 self.num_comments = int(sub_info_stripped[sub_info_stripped.index("Comments:")+1])
                 self.num_views = int(sub_info_stripped[sub_info_stripped.index("Views:")+1])
-                resolution_x = None
-                resolution_y = None
+                # resolution_x = None
+                # resolution_y = None
                 self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
                 self.rating = sub_info[0].find_all("img")[-1]["alt"].split()[0]
                 comments_section = self.soup.find(id="comments-submission")
@@ -1235,7 +1240,29 @@ class FAKey:
                 """ :type : list[FAKey.FAReader.FAComment]"""
 
         class FAViewJournalPage(FAPage):
-            pass
+
+            def __init__(self, code, journal_id):
+                super().__init__(code)
+                self.journal_id = journal_id
+                """ :type : str"""
+                title_box = self.soup.find("td", {"class": "journal-title-box"})
+                self.username = title_box.find("a")["src"].split("/")[-2]
+                """ :type : str"""
+                self.name = title_box.find("a").string
+                """ :type : str"""
+                self.avatar_link = "https:" + self.soup.find("img", {"class": "avatar"})["src"]
+                """ :type : str"""
+                self.title = title_box.find("div").string.strip()
+                """ :type : str"""
+                posted_datetime_str = title_box.find("span", {"class": "popup_date"})["title"].replace("st", "")\
+                    .replace("nd", "").replace("rd", "").replace("th", "")
+                self.posted_datetime = datetime.strptime(posted_datetime_str, "%b %d, %Y %H:%M")
+                """ :type : datetime"""
+                journal_header = None
+                journal_text = None
+                journal_footer = None
+                top_level_comments = None
+                pass  # TODO
 
         class FASearchPage(FAPage):
             pass
