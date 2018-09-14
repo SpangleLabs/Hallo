@@ -1168,7 +1168,7 @@ class FAKey:
                 self.submission_id = submission_id
                 """ :type : str"""
                 sub_info = self.soup.find_all("td", {"class", "stats-container"})
-                sub_info_stripped = list(submission_info.stripped_strings)
+                sub_info_stripped = list(sub_info.stripped_strings)
                 sub_titlebox = sub_info.find_parent("td").find_previous("td")
                 sub_descbox = sub_info.find_next("td")
                 self.title = sub_titlebox.find("b").string
@@ -1190,10 +1190,13 @@ class FAKey:
                 self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
                 self.rating = sub_info[0].find_all("img")[-1]["alt"].split()[0]
                 comments_section = self.soup.find(id="comments-submission")
-                self.top_level_comments = self.parse_comments_section(comments_section)
+                self.top_level_comments = FAKey.FAReader.FACommentsSection(comments_section)
 
-            def parse_comments_section(self, comments):
-                top_level_comments = []
+        class FACommentsSection:
+
+            def __init__(self, comments):
+                self.top_level_comments = []
+                """ :type : list[FAKey.FAReader.FAComment]"""
                 comment_stack = []
                 for comment in comments.find_all("table", {"id": lambda x: x and x.startswith("cid:")}):
                     comment_link = comment.find("a")
@@ -1215,9 +1218,8 @@ class FAKey:
                             if parent_comment is not None:
                                 parent_comment.reply_comments.append(new_comment)
                             else:
-                                top_level_comments.append(new_comment)
+                                self.top_level_comments.append(new_comment)
                             comment_stack[index] = (width, new_comment)
-                return top_level_comments
 
         class FAComment:
 
@@ -1258,11 +1260,28 @@ class FAKey:
                     .replace("nd", "").replace("rd", "").replace("th", "")
                 self.posted_datetime = datetime.strptime(posted_datetime_str, "%b %d, %Y %H:%M")
                 """ :type : datetime"""
-                journal_header = None
-                journal_text = None
-                journal_footer = None
-                top_level_comments = None
-                pass  # TODO
+                self.journal_header = None
+                """ :type : str"""
+                try:
+                    header = self.soup.find("div", {"class": "journal-header"})
+                    header.find_all("hr")[-1].decompose()
+                    self.journal_header = "".join(str(s) for s in header).strip()
+                except Exception as e:
+                    print("Failed to read journal header. {}".format(e))
+                self.journal_text = "".join(str(s) for s in self.soup.find("div", {"class": "journal-body"}).contents)\
+                    .strip()
+                """ :type : str"""
+                self.journal_footer = None
+                """ :type : str"""
+                try:
+                    footer = self.soup.find("div", {"class": "journal-footer"})
+                    footer.find_all("hr")[0].decompose()
+                    self.journal_footer = "".join(str(s) for s in footer).strip()
+                except Exception as e:
+                    print("Failed to read journal footer. {}".format(e))
+                self.soup.find(id="comments-submission")
+                comments = self.soup.find(id="page-comments")
+                self.comments_section = FAKey.FAReader.FACommentsSection(comments)
 
         class FASearchPage(FAPage):
             pass
