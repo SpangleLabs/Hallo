@@ -728,7 +728,10 @@ class FAKey:
             post_params["type-photo"] = "on"
             post_params["type-poetry"] = "on"
             post_params["type-story"] = "on"
-            raise NotImplementedError()  # TODO
+            post_data = urllib.parse.urlencode(post_params)
+            code = self._get_page_code("https://www.furaffinity.net/search/?{}".format(post_data))
+            search_page = FAKey.FAReader.FASearchPage(code, search_term)
+            return search_page
 
         class FAPage:
             def __init__(self, code):
@@ -1302,7 +1305,10 @@ class FAKey:
                 self.comments_section = FAKey.FAReader.FACommentsSection(comments)
 
         class FASearchPage(FAPage):
-            pass
+
+            def __init__(self, code, search_term):
+                super().__init__(code)
+                raise NotImplementedError()  # TODO
 
 
 class SubscriptionFactory(object):
