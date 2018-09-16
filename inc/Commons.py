@@ -155,7 +155,7 @@ class Commons(object):
         :param url: URL to download
         :type url: str
         :param headers: List of HTTP headers to add to request
-        :type headers: list
+        :type headers: list[list[str]]
         """
         if headers is None:
             headers = []
