@@ -1308,7 +1308,42 @@ class FAKey:
 
             def __init__(self, code, search_term):
                 super().__init__(code)
-                raise NotImplementedError()  # TODO
+                self.search_term = search_term
+                """ :type : str"""
+                self.results = []
+                """ :type : list[FAKey.FAReader.FASearchResult]"""
+                results = self.soup.find_all("figure")
+                for result in results:
+                    caption_links = result.find("figcaption").find_all("a")
+                    rating = [i[2:] for i in result["class"] if i.startswith("r-")][0]
+                    submission_id = result["id"][4:]
+                    submission_type = [i[2:] for i in result["class"] if i.startswith("t-")][0]
+                    thumbnail_link = "https:" + result.find("img")["src"]
+                    username = caption_links[1]["href"].split("/")[-2]
+                    name = caption_links[1].string
+                    submission_title = caption_links[0].string
+                    new_result = FAKey.FAReader.FASearchResult(rating, submission_id, submission_type, thumbnail_link,
+                                                               username, name, submission_title)
+                    self.results.append(new_result)
+
+        class FASearchResult:
+
+            def __init__(self, rating, submission_id, submission_type, thumbnail_link,
+                         username, name, submission_title):
+                self.rating = rating
+                """ :type : str"""
+                self.submission_id = submission_id
+                """ :type : str"""
+                self.submission_type = submission_type
+                """ :type : str"""
+                self.thumbnail_link = thumbnail_link
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.submission_title = submission_title
+                """ :type : str"""
 
 
 class SubscriptionFactory(object):
