@@ -1,6 +1,5 @@
 import hashlib
 import json
-import re
 import urllib.parse
 from abc import ABCMeta
 from datetime import datetime, timedelta
@@ -1450,6 +1449,8 @@ class SubscriptionAdd(Function):
     """
     Adds a new subscription, allowing specification of server and channel.
     """
+    add_words = "add"
+    sub_words = "sub"
 
     def __init__(self):
         """
@@ -1459,20 +1460,23 @@ class SubscriptionAdd(Function):
         # Name for use in help listing
         self.help_name = "add subscription"
         # Names which can be used to address the function
-        name_templates = {"{} add", "add {}",
-                          "add {} sub", "add sub {}", "sub {} add", "{} sub add",
-                          "add {} subscription", "add subscription {}", "subscription {} add", "{} subscription add"}
-        self.names = set([template.format(name)
+        name_templates = {"{0} {1}", "{1} {0}",
+                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
+        self.names = set([template.format(name, add, sub)
                           for name in SubscriptionFactory.get_names()
-                          for template in name_templates])
+                          for template in name_templates
+                          for add in self.add_words
+                          for sub in self.sub_words])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Adds a new subscription to be checked for updates which will be posted to the current " \
                          "location." \
                          " Format: add subscription <sub type> <sub details> <update period?>"
 
     def run(self, event):
-        command_name = event.command_name
-        sub_type_name = re.sub(r"\b(add|sub|subscription)\b", "", command_name).strip()
+        # Construct type name
+        sub_type_name = " ".join([w for w in event.command_name.split()
+                                  if w not in self.sub_words + self.add_words]).strip()
+        # Get class from sub type name
         sub_class = SubscriptionFactory.get_class_by_name(sub_type_name)
         # Get current RSS feed list
         function_dispatcher = event.server.hallo.function_dispatcher
@@ -1496,6 +1500,8 @@ class SubscriptionRemove(Function):
     """
     Remove an RSS feed and no longer receive updates from it.
     """
+    remove_words = ["remove", "delete"]
+    sub_words = ["sub", "subscription"]
 
     def __init__(self):
         """
@@ -1505,16 +1511,13 @@ class SubscriptionRemove(Function):
         # Name for use in help listing
         self.help_name = "remove subscription"
         # Names which can be used to address the function
-        name_templates = {"{} remove", "remove {}",
-                          "remove {} sub", "remove sub {}", "sub {} remove", "{} sub remove",
-                          "remove sub", "remove sub", "sub remove", "sub remove",
-                          "remove {} subscription", "remove subscription {}",
-                          "remove subscription", "remove subscription",
-                          "subscription {} remove", "{} subscription remove",
-                          "subscription remove", "subscription remove"}
-        self.names = set([template.format(name)
-                         for name in SubscriptionFactory.get_names()
-                         for template in name_templates])
+        name_templates = {"{0} {1}", "{1} {0}", "{1} {2}", "{2} {1}",
+                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
+        self.names = set([template.format(name, remove, sub)
+                          for name in SubscriptionFactory.get_names()
+                          for template in name_templates
+                          for remove in self.remove_words
+                          for sub in self.sub_words])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Removes a specified subscription the current location. " \
                          " Format: remove subscription <feed type> <feed title or url>"
@@ -1557,6 +1560,8 @@ class SubscriptionCheck(Function):
     """
     Checks subscriptions for updates and returns them.
     """
+    check_words = ["check"]
+    sub_words = ["sub", "subs", "subscription", "subscriptions"]
 
     NAMES_ALL = ["*", "all"]
 
@@ -1568,19 +1573,13 @@ class SubscriptionCheck(Function):
         # Name for use in help listing
         self.help_name = "check subscription"
         # Names which can be used to address the function
-        name_templates = {"{} check", "check {}",
-                          "check {} sub", "check sub {}", "sub {} check", "{} sub check",
-                          "check {} subs", "check subs {}", "subs {} check", "{} subs check",
-                          "check subs", "check subs", "subs check", "subs check",
-                          "check {} subscription", "check subscription {}",
-                          "check {} subscriptions", "check subscriptions {}",
-                          "check subscriptions", "check subscriptions",
-                          "subscription {} check", "{} subscription check",
-                          "subscriptions {} check", "{} subscriptions check",
-                          "subscriptions check", "subscriptions check"}
-        self.names = set([template.format(name)
+        name_templates = {"{0} {1}", "{1} {0}", "{1} {2}", "{2} {1}",
+                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
+        self.names = set([template.format(name, check, sub)
                           for name in SubscriptionFactory.get_names()
-                          for template in name_templates])
+                          for template in name_templates
+                          for check in self.check_words
+                          for sub in self.sub_words])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Checks a specified feed for updates and returns them. Format: subscription check <feed name>"
         self.subscription_repo = None
@@ -1670,6 +1669,8 @@ class SubscriptionList(Function):
     """
     List the currently active subscriptions.
     """
+    list_words = ["list"]
+    sub_words = ["sub", "subs", "subscription", "subscriptions"]
 
     def __init__(self):
         """
@@ -1679,19 +1680,13 @@ class SubscriptionList(Function):
         # Name for use in help listing
         self.help_name = "list subscription"
         # Names which can be used to address the function
-        name_templates = {"{} list", "list {}",
-                          "list {} sub", "list sub {}", "sub {} list", "{} sub list",
-                          "list {} subs", "list subs {}", "subs {} list", "{} subs list",
-                          "list subs", "list subs", "subs list", "subs list",
-                          "list {} subscription", "list subscription {}",
-                          "list {} subscriptions", "list subscriptions {}",
-                          "list subscriptions", "list subscriptions",
-                          "subscription {} list", "{} subscription list",
-                          "subscriptions {} list", "{} subscriptions list",
-                          "subscriptions list", "subscriptions list"}
-        self.names = set([template.format(name)
+        name_templates = {"{0} {1}", "{1} {0}", "{1} {2}", "{2} {1}",
+                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
+        self.names = set([template.format(name, list_word, sub)
                           for name in SubscriptionFactory.get_names()
-                          for template in name_templates])
+                          for template in name_templates
+                          for list_word in self.list_words
+                          for sub in self.sub_words])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Lists subscriptions for the current channel. Format: list subscription"
 
@@ -1720,6 +1715,8 @@ class SubscriptionSetup(Function):
     """
     Sets up a user's common configuration in the subscription repository
     """
+    setup_words = ["setup"]
+    sub_words = ["sub", "subs", "subscription", "subscriptions"]
 
     def __init__(self):
         """
@@ -1729,26 +1726,22 @@ class SubscriptionSetup(Function):
         # Name for use in help listing
         self.help_name = "setup subscription"
         # Names which can be used to address the function
-        name_templates = {"{} setup", "setup {}",
-                          "setup {} sub", "setup sub {}", "sub {} setup", "{} sub setup",
-                          "setup {} subs", "setup subs {}", "subs {} setup", "{} subs setup",
-                          "setup subs", "setup subs", "subs setup", "subs setup",
-                          "setup {} subscription", "setup subscription {}",
-                          "setup {} subscriptions", "setup subscriptions {}",
-                          "setup subscriptions", "setup subscriptions",
-                          "subscription {} setup", "{} subscription setup",
-                          "subscriptions {} setup", "{} subscriptions setup",
-                          "subscriptions setup", "subscriptions setup"}
-        self.names = set([template.format(name)
+        name_templates = {"{0} {2}", "{2} {0}",
+                          "{2} {0} {1}", "{2} {1} {0}", "{1} {0} {2}", "{0} {1} {2}"}
+        self.names = set([template.format(name, sub, setup)
                           for name in SubscriptionFactory.get_common_names()
-                          for template in name_templates])
+                          for template in name_templates
+                          for sub in self.sub_words
+                          for setup in self.setup_words])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets up a subscription common configuration for the current channel. " \
                          "Format: setup subscription <type> <parameters>"
 
     def run(self, event):
-        command_name = event.command_name
-        common_type_name = re.sub(r"\b(setup|sub|subscription)\b", "", command_name).strip()
+        # Construct type name
+        common_type_name = " ".join([w for w in event.command_name.split()
+                                     if w not in self.sub_words + self.setup_words]).strip()
+        # Get class from type name
         common_class = SubscriptionFactory.get_common_class_by_name(common_type_name)
         # Get current subscription repo
         function_dispatcher = event.server.hallo.function_dispatcher
@@ -1794,11 +1787,10 @@ class SubscriptionTeardown(Function):
                          "Format: tear down subscription <type> <parameters>"
 
     def run(self, event):
-        command_name = event.command_name
-        common_type_name = command_name
-        for word in self.sub_words+self.tear_down_words:
-            common_type_name = common_type_name.replace(word, "")
-        common_type_name = common_type_name.strip()
+        # Construct type name
+        common_type_name = " ".join([w for w in event.command_name.split()
+                                     if w not in self.sub_words+self.tear_down_words]).strip()
+        # Get class from type name
         common_class = SubscriptionFactory.get_common_class_by_name(common_type_name)
         # Get current subscription repo
         function_dispatcher = event.server.hallo.function_dispatcher
@@ -1814,4 +1806,4 @@ class SubscriptionTeardown(Function):
             sub_repo.save_json()
         # Send response
         return event.create_response("Removed {} common configuration for {}".format(common_class.type_name,
-                                                                                          common_obj.get_name(event)))
+                                                                                     common_obj.get_name(event)))
