@@ -48,22 +48,6 @@ class SubscriptionRepo:
         """
         self.sub_list.remove(remove_sub)
 
-    def add_common(self, new_common):
-        """
-        Adds a new common configuration to the list.
-        :param new_common: New common configuration to add
-        :type new_common: SubscriptionCommon
-        """
-        self.common_list.append(new_common)
-
-    def remove_common(self, remove_common):
-        """
-        Removes a common configuration from the list.
-        :param remove_common: Existing common config to remove
-        :type remove_common: SubscriptionCommon
-        """
-        self.common_list.remove(remove_common)
-
     def get_subs_by_destination(self, destination):
         """
         Returns a list of subscriptions matching a specified destination.
@@ -95,6 +79,28 @@ class SubscriptionRepo:
             if sub.matches_name(name_clean):
                 matching_subs.append(sub)
         return matching_subs
+
+    def get_common_config_by_type(self, common_type):
+        """
+        Returns the common configuration object for a given type.
+        There should be only 1 common config object of each type.
+        :param common_type: The class of the common config object being searched for
+        :type common_type: type
+        :return: The object, or a new object if none was found.
+        :rtype: SubscriptionCommon
+        """
+        if not issubclass(common_type, SubscriptionCommon):
+            raise SubscriptionException("This common type, {}, is not a subclass of SubscriptionCommon"
+                                        .format(common_type.__name__))
+        matching = [obj for obj in self.common_list if isinstance(obj, common_type)]
+        if len(matching) == 0:
+            new_common = common_type()
+            self.common_list.append(new_common)
+            return new_common
+        if len(matching) == 1:
+            return matching[0]
+        raise SubscriptionException("More than one subscription common config exists for the type: {}"
+                                    .format(common_type.__name__))
 
     def save_json(self):
         """
@@ -134,7 +140,7 @@ class SubscriptionRepo:
         # Loop common objects in json file adding them to list
         for common_elem in json_obj["common"]:
             new_common_obj = SubscriptionFactory.common_from_json(common_elem, hallo)
-            new_sub_list.add_common(new_common_obj)
+            new_sub_list.common_list.append(new_common_obj)
         return new_sub_list
 
 
@@ -547,6 +553,11 @@ class ImgurSub(Subscription):
 class SubscriptionCommon:
     type_name = ""
     """ :type : str"""
+    names = []
+    """ :type : list[str]"""
+
+    def update_from_input(self, event):
+        raise NotImplementedError()
 
     def to_json(self):
         raise NotImplementedError()
@@ -559,13 +570,34 @@ class SubscriptionCommon:
 class FAKeysCommon(SubscriptionCommon):
     type_name = "FA_keys"
     """ :type : str"""
+    names = ["FA", "furaffinity", "fur affinity"]
+    """ :type : list[str]"""
 
     def __init__(self):
-        self.list_keys = []
-        """ :type : list[FAKey]"""
+        self.list_keys = dict()
+        """ :type : dict[User, FAKey]"""
+
+    def update_from_input(self, event):
+        user = event.user
+        input_clean = event.command_args.strip().lower().replace(";", " ").split()
+        if len(input_clean) != 2:
+            raise SubscriptionException("Input must include cookie a and cookie b, in the format a=value;b=value")
+        if input_clean[0].startswith("b="):
+            input_clean = list(reversed(input_clean))
+        cookie_a = input_clean[0][2:]
+        cookie_b = input_clean[1][2:]
+        if user in self.list_keys:
+            existing_key = self.list_keys[user]
+            existing_key.cookie_a = cookie_a
+            existing_key.cookie_b = cookie_b
+            existing_key.fa_reader = None
+            return
+        new_key = FAKey(user, cookie_a, cookie_b)
+        self.list_keys[user] = new_key
+        return
 
     def add_key(self, key):
-        self.list_keys.append(key)
+        self.list_keys[key.user] = key
 
     def to_json(self):
         json_obj = {"common_type": self.type_name,
@@ -1356,10 +1388,21 @@ class SubscriptionFactory(object):
         return [name for sub_class in SubscriptionFactory.sub_classes for name in sub_class.names]
 
     @staticmethod
+    def get_common_names():
+        return [name for common_class in SubscriptionFactory.common_classes for name in common_class.names]
+
+    @staticmethod
     def get_class_by_name(name):
         classes = [sub_class for sub_class in SubscriptionFactory.sub_classes if name in sub_class.names]
         if len(classes) != 1:
             raise SubscriptionException("Failed to find a subscription type matching the name {}".format(name))
+        return classes[0]
+
+    @staticmethod
+    def get_common_class_by_name(name):
+        classes = [common_class for common_class in SubscriptionFactory.common_classes if name in common_class.names]
+        if len(classes) != 1:
+            raise SubscriptionException("Failed to find a common configuration type matching the name {}".format(name))
         return classes[0]
 
     @staticmethod
@@ -1657,3 +1700,56 @@ class SubscriptionList(Function):
         for search_item in dest_searches:
             output_lines.append("{} - {}".format(search_item.type_name, search_item.get_name()))
         return event.create_response("\n".join(output_lines))
+
+
+class SubscriptionSetup(Function):
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "setup subscription"
+        # Names which can be used to address the function
+        name_templates = {"{} setup", "setup {}",
+                          "setup {} sub", "setup sub {}", "sub {} setup", "{} sub setup",
+                          "setup {} subs", "setup subs {}", "subs {} setup", "{} subs setup",
+                          "setup subs", "setup subs", "subs setup", "subs setup",
+                          "setup {} subscription", "setup subscription {}",
+                          "setup {} subscriptions", "setup subscriptions {}",
+                          "setup subscriptions", "setup subscriptions",
+                          "subscription {} setup", "{} subscription setup",
+                          "subscriptions {} setup", "{} subscriptions setup",
+                          "subscriptions setup", "subscriptions setup"}
+        self.names = set([template.format(name)
+                          for name in SubscriptionFactory.get_common_names()
+                          for template in name_templates])
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Sets up a subscription common configuration for the current channel. " \
+                         "Format: setup subscription <type> <parameters>"
+
+    def run(self, event):
+        command_name = event.command_name
+        common_type_name = re.sub(r"\b(setup|sub|subscription)\b", "", command_name).strip()
+        common_class = SubscriptionFactory.get_common_class_by_name(common_type_name)
+        # Get current subscription repo
+        function_dispatcher = event.server.hallo.function_dispatcher
+        sub_check_class = function_dispatcher.get_function_by_name("check subscription")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubscriptionCheck
+        sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
+        # Acquire lock to update the common config object
+        with sub_repo.sub_lock:
+            # Get common configuration item and update
+            common_obj = sub_repo.get_common_config_by_type(common_class)
+            common_obj.update_from_input(event)
+            # Save repo
+            sub_repo.save_json()
+        # Send response
+        return event.create_response("Set up a new {} common configuration for {}".format(common_class.type_name,
+                                                                                          common_obj.get_name()))
+
+
+class SubscriptionTeardown(Function):
+    def run(self, event):
+        raise NotImplementedError()
