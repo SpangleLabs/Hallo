@@ -559,6 +559,12 @@ class SubscriptionCommon:
     def update_from_input(self, event):
         raise NotImplementedError()
 
+    def remove_by_input(self, event):
+        raise NotImplementedError()
+
+    def get_name(self, event):
+        raise NotImplementedError()
+
     def to_json(self):
         raise NotImplementedError()
 
@@ -595,6 +601,14 @@ class FAKeysCommon(SubscriptionCommon):
         new_key = FAKey(user, cookie_a, cookie_b)
         self.list_keys[user] = new_key
         return
+
+    def remove_by_input(self, event):
+        user = event.user
+        if user in self.list_keys:
+            del self.list_keys[user]
+
+    def get_name(self, event):
+        return event.user.name + " FA login"
 
     def add_key(self, key):
         self.list_keys[key.user] = key
@@ -1703,6 +1717,9 @@ class SubscriptionList(Function):
 
 
 class SubscriptionSetup(Function):
+    """
+    Sets up a user's common configuration in the subscription repository
+    """
 
     def __init__(self):
         """
@@ -1747,9 +1764,54 @@ class SubscriptionSetup(Function):
             sub_repo.save_json()
         # Send response
         return event.create_response("Set up a new {} common configuration for {}".format(common_class.type_name,
-                                                                                          common_obj.get_name()))
+                                                                                          common_obj.get_name(event)))
 
 
 class SubscriptionTeardown(Function):
+    """
+    Tears down a user's common configuration in the subscription repository
+    """
+    tear_down_words = ["tear down", "teardown"]
+    sub_words = ["sub", "subs", "subscription", "subscriptions"]
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "tear down subscription"
+        # Names which can be used to address the function
+        name_templates = {"{0} {1}", "{1} {0}",
+                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
+        self.names = set([template.format(name, tearDown, sub)
+                          for name in SubscriptionFactory.get_common_names()
+                          for template in name_templates
+                          for tearDown in self.tear_down_words
+                          for sub in self.sub_words])
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Tears down a subscription common configuration for the current channel. " \
+                         "Format: tear down subscription <type> <parameters>"
+
     def run(self, event):
-        raise NotImplementedError()
+        command_name = event.command_name
+        common_type_name = command_name
+        for word in self.sub_words+self.tear_down_words:
+            common_type_name = common_type_name.replace(word, "")
+        common_type_name = common_type_name.strip()
+        common_class = SubscriptionFactory.get_common_class_by_name(common_type_name)
+        # Get current subscription repo
+        function_dispatcher = event.server.hallo.function_dispatcher
+        sub_check_class = function_dispatcher.get_function_by_name("check subscription")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubscriptionCheck
+        sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
+        # Acquire lock to update the common config object
+        with sub_repo.sub_lock:
+            # Get common configuration item and update
+            common_obj = sub_repo.get_common_config_by_type(common_class)
+            common_obj.remove_by_input(event)
+            # Save repo
+            sub_repo.save_json()
+        # Send response
+        return event.create_response("Removed {} common configuration for {}".format(common_class.type_name,
+                                                                                          common_obj.get_name(event)))
