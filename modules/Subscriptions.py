@@ -611,6 +611,7 @@ class FANotificationNotesSub(Subscription):
 
     def to_json(self):
         json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
         json_obj["fa_key_user_address"] = self.fa_key.user.address
         json_obj["inbox_note_ids"] = []
         for note_id in self.inbox_note_ids:
