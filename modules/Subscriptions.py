@@ -169,9 +169,10 @@ class Subscription(metaclass=ABCMeta):
         """ :type : timedelta"""
 
     @staticmethod
-    def create_from_input(input_evt):
+    def create_from_input(input_evt, sub_repo):
         """
         :type input_evt: EventMessage
+        :type sub_repo: SubscriptionRepo
         :rtype: Subscription
         """
         raise NotImplementedError()
@@ -280,7 +281,7 @@ class RssSub(Subscription):
         """ :type : str | None"""
 
     @staticmethod
-    def create_from_input(input_evt):
+    def create_from_input(input_evt, sub_repo):
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # Get user specified stuff
@@ -400,7 +401,7 @@ class E621Sub(Subscription):
         """ :type : list[int]"""
 
     @staticmethod
-    def create_from_input(input_evt):
+    def create_from_input(input_evt, sub_repo):
         """
         :type input_evt: Events.EventMessage
         :rtype: E621Sub
@@ -541,8 +542,22 @@ class FANotificationNotesSub(Subscription):
         """ :type : list[str]"""
 
     @staticmethod
-    def create_from_input(input_evt):
-        pass
+    def create_from_input(input_evt, sub_repo):
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA note notification subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if user gave us an update period
+        try:
+            search_delta = Commons.load_time_delta(input_evt.command_args)
+        except ISO8601ParseError:
+            search_delta = Commons.load_time_delta("PT300S")
+        return FANotificationNotesSub(server, destination, fa_key, update_frequency=search_delta)
 
     def matches_name(self, name_clean):
         pass
