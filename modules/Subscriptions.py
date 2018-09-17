@@ -1626,7 +1626,6 @@ class SubscriptionAdd(Function):
                           for template in name_templates
                           for add in self.add_words
                           for sub in self.sub_words])
-        print(self.names)
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Adds a new subscription to be checked for updates which will be posted to the current " \
                          "location." \
