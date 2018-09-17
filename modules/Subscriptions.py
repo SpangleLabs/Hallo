@@ -1198,7 +1198,9 @@ class FAKey:
                 self.name = sub_titlebox.string
                 self.avatar_link = "https:" + sub_descbox.find("img")["src"]
                 self.description = "".join(str(s) for s in sub_descbox.contents[5:]).strip()
-                self.submission_time_str = sub_info.find("span", {"class": "popup_date"})["title"]  # TODO: datetime
+                submission_time_str = sub_info.find("span", {"class": "popup_date"})["title"]\
+                    .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
+                self.submission_time = datetime.strptime(submission_time_str, "%b %d, %Y %H:%M")
                 self.category = sub_info_stripped[sub_info_stripped.index("Category:")+1]
                 self.theme = sub_info_stripped[sub_info_stripped.index("Theme:")+1]
                 self.species = sub_info_stripped[sub_info_stripped.index("Species:")+1]
