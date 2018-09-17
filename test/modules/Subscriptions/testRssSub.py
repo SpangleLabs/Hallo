@@ -6,7 +6,7 @@ from xml.etree import ElementTree
 from Events import EventMessage
 from Hallo import Hallo
 from inc.Commons import Commons
-from modules.Subscriptions import RssSub
+from modules.Subscriptions import RssSub, SubscriptionRepo
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
 
@@ -163,6 +163,7 @@ class TestRssFeed(TestBase, unittest.TestCase):
         test_seconds = 3600
         test_days = 0
         # Create example feed
+        sub_repo = SubscriptionRepo()
         rf = RssSub(self.server, self.test_chan, test_rss_url,
                     update_frequency=Commons.load_time_delta("P"+str(test_days)+"T"+str(test_seconds)+"S"))
         # Clear off the current items
@@ -172,7 +173,7 @@ class TestRssFeed(TestBase, unittest.TestCase):
         assert len(new_items) == 0
         # Save to XML and load up new RssFeed
         rf_xml = rf.to_json()
-        rf2 = RssSub.from_json(rf_xml, self.hallo)
+        rf2 = RssSub.from_json(rf_xml, self.hallo, sub_repo)
         # Ensure there's still no new items
         new_items = rf2.check()
         assert len(new_items) == 0

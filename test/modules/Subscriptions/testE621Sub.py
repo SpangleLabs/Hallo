@@ -5,7 +5,7 @@ import time
 from Events import EventMessage
 from Hallo import Hallo
 from inc.Commons import Commons
-from modules.Subscriptions import E621Sub
+from modules.Subscriptions import E621Sub, SubscriptionRepo
 from test.ServerMock import ServerMock
 from test.TestBase import TestBase
 
@@ -148,6 +148,7 @@ class TestE621Sub(TestBase, unittest.TestCase):
         test_seconds = 3600
         test_days = 0
         # Create example feed
+        sub_repo = SubscriptionRepo()
         rf = E621Sub(self.server, self.test_chan, test_e621_search,
                      update_frequency=Commons.load_time_delta("P"+str(test_days)+"T"+str(test_seconds)+"S"))
         # Clear off the current items
@@ -157,7 +158,7 @@ class TestE621Sub(TestBase, unittest.TestCase):
         assert len(new_items) == 0
         # Save to json and load up new E621Sub
         rf_json = rf.to_json()
-        rf2 = E621Sub.from_json(rf_json, self.hallo)
+        rf2 = E621Sub.from_json(rf_json, self.hallo, sub_repo)
         # Ensure there's still no new items
         new_items = rf2.check()
         assert len(new_items) == 0
