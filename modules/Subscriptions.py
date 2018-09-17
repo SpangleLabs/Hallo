@@ -602,8 +602,8 @@ class FAKeysCommon(SubscriptionCommon):
     def to_json(self):
         json_obj = {"common_type": self.type_name,
                     "key_list": []}
-        for key in self.list_keys:
-            json_obj["key_list"].append(key.to_json())
+        for user in self.list_keys:
+            json_obj["key_list"].append(self.list_keys[user].to_json())
         return json_obj
 
     @staticmethod
