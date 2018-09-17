@@ -120,6 +120,7 @@ class FunctionDispatcher(object):
                 print("ERROR Passive Function: {} {}".format(function_class.__module__, function_class.__name__))
                 print("ERROR Function event: {}".format(event))
                 print("ERROR Function error: {}".format(e))
+                print("Function error location: {}".format(traceback.format_exc(3)))
                 continue
 
     def get_function_by_name(self, function_name):
