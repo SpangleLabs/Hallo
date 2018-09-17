@@ -1,6 +1,5 @@
 import hashlib
 import json
-import re
 import urllib.parse
 from abc import ABCMeta
 from datetime import datetime, timedelta
@@ -48,22 +47,6 @@ class SubscriptionRepo:
         """
         self.sub_list.remove(remove_sub)
 
-    def add_common(self, new_common):
-        """
-        Adds a new common configuration to the list.
-        :param new_common: New common configuration to add
-        :type new_common: SubscriptionCommon
-        """
-        self.common_list.append(new_common)
-
-    def remove_common(self, remove_common):
-        """
-        Removes a common configuration from the list.
-        :param remove_common: Existing common config to remove
-        :type remove_common: SubscriptionCommon
-        """
-        self.common_list.remove(remove_common)
-
     def get_subs_by_destination(self, destination):
         """
         Returns a list of subscriptions matching a specified destination.
@@ -96,6 +79,28 @@ class SubscriptionRepo:
                 matching_subs.append(sub)
         return matching_subs
 
+    def get_common_config_by_type(self, common_type):
+        """
+        Returns the common configuration object for a given type.
+        There should be only 1 common config object of each type.
+        :param common_type: The class of the common config object being searched for
+        :type common_type: type
+        :return: The object, or a new object if none was found.
+        :rtype: SubscriptionCommon
+        """
+        if not issubclass(common_type, SubscriptionCommon):
+            raise SubscriptionException("This common type, {}, is not a subclass of SubscriptionCommon"
+                                        .format(common_type.__name__))
+        matching = [obj for obj in self.common_list if isinstance(obj, common_type)]
+        if len(matching) == 0:
+            new_common = common_type()
+            self.common_list.append(new_common)
+            return new_common
+        if len(matching) == 1:
+            return matching[0]
+        raise SubscriptionException("More than one subscription common config exists for the type: {}"
+                                    .format(common_type.__name__))
+
     def save_json(self):
         """
         Saves the whole subscription list to a JSON file
@@ -127,14 +132,15 @@ class SubscriptionRepo:
                 json_obj = json.load(f)
         except (OSError, IOError):
             return new_sub_list
-        # Loop subs in json file adding them to list
-        for sub_elem in json_obj["subs"]:
-            new_sub_obj = SubscriptionFactory.from_json(sub_elem, hallo)
-            new_sub_list.add_sub(new_sub_obj)
-        # Loop common objects in json file adding them to list
+        # Loop common objects in json file adding them to list.
+        # Common config must be loaded first, as subscriptions use it.
         for common_elem in json_obj["common"]:
             new_common_obj = SubscriptionFactory.common_from_json(common_elem, hallo)
-            new_sub_list.add_common(new_common_obj)
+            new_sub_list.common_list.append(new_common_obj)
+        # Loop subs in json file adding them to list
+        for sub_elem in json_obj["subs"]:
+            new_sub_obj = SubscriptionFactory.from_json(sub_elem, hallo, new_sub_list)
+            new_sub_list.add_sub(new_sub_obj)
         return new_sub_list
 
 
@@ -163,9 +169,10 @@ class Subscription(metaclass=ABCMeta):
         """ :type : timedelta"""
 
     @staticmethod
-    def create_from_input(input_evt):
+    def create_from_input(input_evt, sub_repo):
         """
         :type input_evt: EventMessage
+        :type sub_repo: SubscriptionRepo
         :rtype: Subscription
         """
         raise NotImplementedError()
@@ -231,10 +238,11 @@ class Subscription(metaclass=ABCMeta):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo):
+    def from_json(json_obj, hallo, sub_repo):
         """
         :type json_obj: dict
         :type hallo: Hallo.Hallo
+        :type sub_repo: SubscriptionRepo
         :rtype: Subscription
         """
         raise NotImplementedError()
@@ -273,7 +281,7 @@ class RssSub(Subscription):
         """ :type : str | None"""
 
     @staticmethod
-    def create_from_input(input_evt):
+    def create_from_input(input_evt, sub_repo):
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # Get user specified stuff
@@ -342,7 +350,7 @@ class RssSub(Subscription):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo):
+    def from_json(json_obj, hallo, sub_repo):
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
@@ -393,7 +401,7 @@ class E621Sub(Subscription):
         """ :type : list[int]"""
 
     @staticmethod
-    def create_from_input(input_evt):
+    def create_from_input(input_evt, sub_repo):
         """
         :type input_evt: Events.EventMessage
         :rtype: E621Sub
@@ -470,7 +478,7 @@ class E621Sub(Subscription):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo):
+    def from_json(json_obj, hallo, sub_repo):
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
@@ -508,31 +516,141 @@ class TwitterSub(Subscription):
     pass
 
 
+class FANotificationNotesSub(Subscription):
+    names = ["FA notes notifications", "FA notes", "furaffinity notes"]
+    """ :type : list[str]"""
+    type_name = "FA_notif_notes"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
+                 inbox_note_ids=None, outbox_note_ids=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :type inbox_note_ids: list[str]
+        :type outbox_note_ids: list[str]
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.inbox_note_ids = [] if inbox_note_ids is None else inbox_note_ids
+        """ :type : list[str]"""
+        self.outbox_note_ids = [] if outbox_note_ids is None else outbox_note_ids
+        """ :type : list[str]"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA note notification subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if user gave us an update period
+        try:
+            search_delta = Commons.load_time_delta(input_evt.command_args)
+        except ISO8601ParseError:
+            search_delta = Commons.load_time_delta("PT300S")
+        return FANotificationNotesSub(server, destination, fa_key, update_frequency=search_delta)
+
+    def matches_name(self, name_clean):
+        pass  #TODO
+
+    def get_name(self):
+        pass  #TODO
+
+    def check(self):
+        pass  #TODO
+
+    def format_item(self, item):
+        pass  #TODO
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["fa_key_user_address"] = self.fa_key.user.address
+        json_obj["inbox_note_ids"] = []
+        for note_id in self.inbox_note_ids:
+            json_obj["inbox_note_ids"].append(note_id)
+        json_obj["outbox_note_ids"] = []
+        for note_id in self.outbox_note_ids:
+            json_obj["outbox_note_ids"].append(note_id)
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load inbox_note_ids
+        inbox_ids = []
+        for note_id in json_obj["inbox_note_ids"]:
+            inbox_ids.append(note_id)
+        # Load outbox_note_ids
+        outbox_ids = []
+        for note_id in json_obj["outbox_note_ids"]:
+            outbox_ids.append(note_id)
+        return FANotificationNotesSub(server, destination, fa_key,
+                                      last_check=last_check, update_frequency=update_frequency,
+                                      inbox_note_ids=inbox_ids, outbox_note_ids=outbox_ids)
+
+
+class FANotificationWatchSub(Subscription):
+    pass
+
+
+class FANotificationFavSub(Subscription):
+    pass
+
+
+class FANotificationCommentsSub(Subscription):
+    pass
+
+
+class FANotificationJournalsSub(Subscription):
+    pass
+
+
+class FANotificationSubmissionsSub(Subscription):
+    pass
+
+
 class FASearchSub(Subscription):
     pass
 
 
-class FAFavSub(Subscription):
-    pass
-
-
-class FANotesSub(Subscription):
-    pass
-
-
-class FASubmissionsSub(Subscription):
-    pass
-
-
-class FAWatchSub(Subscription):
-    pass
-
-
-class FACommentsSub(Subscription):
-    pass
-
-
-class FAFavsSub(Subscription):
+class FAUserFavsSub(Subscription):
     pass
 
 
@@ -547,6 +665,17 @@ class ImgurSub(Subscription):
 class SubscriptionCommon:
     type_name = ""
     """ :type : str"""
+    names = []
+    """ :type : list[str]"""
+
+    def update_from_input(self, event):
+        raise NotImplementedError()
+
+    def remove_by_input(self, event):
+        raise NotImplementedError()
+
+    def get_name(self, event):
+        raise NotImplementedError()
 
     def to_json(self):
         raise NotImplementedError()
@@ -559,19 +688,51 @@ class SubscriptionCommon:
 class FAKeysCommon(SubscriptionCommon):
     type_name = "FA_keys"
     """ :type : str"""
+    names = ["FA", "furaffinity", "fur affinity"]
+    """ :type : list[str]"""
 
     def __init__(self):
-        self.list_keys = []
-        """ :type : list[FAKey]"""
+        self.list_keys = dict()
+        """ :type : dict[User, FAKey]"""
+
+    def update_from_input(self, event):
+        user = event.user
+        input_clean = event.command_args.strip().lower().replace(";", " ").split()
+        if len(input_clean) != 2:
+            raise SubscriptionException("Input must include cookie a and cookie b, in the format a=value;b=value")
+        if input_clean[0].startswith("b="):
+            input_clean = list(reversed(input_clean))
+        cookie_a = input_clean[0][2:]
+        cookie_b = input_clean[1][2:]
+        if user in self.list_keys:
+            existing_key = self.list_keys[user]
+            existing_key.cookie_a = cookie_a
+            existing_key.cookie_b = cookie_b
+            existing_key.fa_reader = None
+            return
+        new_key = FAKey(user, cookie_a, cookie_b)
+        self.list_keys[user] = new_key
+        return
+
+    def remove_by_input(self, event):
+        user = event.user
+        if user in self.list_keys:
+            del self.list_keys[user]
+
+    def get_key_by_user(self, user):
+        return self.list_keys[user] if user in self.list_keys else None
+
+    def get_name(self, event):
+        return event.user.name + " FA login"
 
     def add_key(self, key):
-        self.list_keys.append(key)
+        self.list_keys[key.user] = key
 
     def to_json(self):
         json_obj = {"common_type": self.type_name,
                     "key_list": []}
-        for key in self.list_keys:
-            json_obj["key_list"].append(key.to_json())
+        for user in self.list_keys:
+            json_obj["key_list"].append(self.list_keys[user].to_json())
         return json_obj
 
     @staticmethod
@@ -1049,7 +1210,6 @@ class FAKey:
                 registered_since_str = main_panel_strings[main_panel_strings.index("Registered since:")+1]\
                     .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
                 self.registered_since = datetime.strptime(registered_since_str, "%b %d, %Y %H:%M")
-                # TODO: fix above for other dates, check 12/24, check th/rd/st, etc
                 """ :type : datetime"""
                 self.current_mood = main_panel_strings[main_panel_strings.index("Current mood:")+1]
                 """ :type : str"""
@@ -1198,7 +1358,9 @@ class FAKey:
                 self.name = sub_titlebox.string
                 self.avatar_link = "https:" + sub_descbox.find("img")["src"]
                 self.description = "".join(str(s) for s in sub_descbox.contents[5:]).strip()
-                self.submission_time_str = sub_info.find("span", {"class": "popup_date"})["title"]  # TODO: datetime
+                submission_time_str = sub_info.find("span", {"class": "popup_date"})["title"]\
+                    .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
+                self.submission_time = datetime.strptime(submission_time_str, "%b %d, %Y %H:%M")
                 self.category = sub_info_stripped[sub_info_stripped.index("Category:")+1]
                 self.theme = sub_info_stripped[sub_info_stripped.index("Theme:")+1]
                 self.species = sub_info_stripped[sub_info_stripped.index("Species:")+1]
@@ -1348,11 +1510,17 @@ class FAKey:
 
 class SubscriptionFactory(object):
     sub_classes = [E621Sub, RssSub]
+    """ :type : list[type.Subscription]"""
     common_classes = [FAKeysCommon]
+    """ :type : list[type.SubscriptionCommon]"""
 
     @staticmethod
     def get_names():
         return [name for sub_class in SubscriptionFactory.sub_classes for name in sub_class.names]
+
+    @staticmethod
+    def get_common_names():
+        return [name for common_class in SubscriptionFactory.common_classes for name in common_class.names]
 
     @staticmethod
     def get_class_by_name(name):
@@ -1362,7 +1530,14 @@ class SubscriptionFactory(object):
         return classes[0]
 
     @staticmethod
-    def from_json(sub_json, hallo):
+    def get_common_class_by_name(name):
+        classes = [common_class for common_class in SubscriptionFactory.common_classes if name in common_class.names]
+        if len(classes) != 1:
+            raise SubscriptionException("Failed to find a common configuration type matching the name {}".format(name))
+        return classes[0]
+
+    @staticmethod
+    def from_json(sub_json, hallo, sub_repo):
         """
         :type sub_json: dict
         :type hallo: Hallo.Hallo
@@ -1371,7 +1546,7 @@ class SubscriptionFactory(object):
         sub_type_name = sub_json["sub_type"]
         for sub_class in SubscriptionFactory.sub_classes:
             if sub_class.type_name == sub_type_name:
-                return sub_class.from_json(sub_json, hallo)
+                return sub_class.from_json(sub_json, hallo, sub_repo)
         raise SubscriptionException("Could not load subscription of type {}".format(sub_type_name))
 
     @staticmethod
@@ -1392,6 +1567,8 @@ class SubscriptionAdd(Function):
     """
     Adds a new subscription, allowing specification of server and channel.
     """
+    add_words = "add"
+    sub_words = "sub"
 
     def __init__(self):
         """
@@ -1401,20 +1578,23 @@ class SubscriptionAdd(Function):
         # Name for use in help listing
         self.help_name = "add subscription"
         # Names which can be used to address the function
-        name_templates = {"{} add", "add {}",
-                          "add {} sub", "add sub {}", "sub {} add", "{} sub add",
-                          "add {} subscription", "add subscription {}", "subscription {} add", "{} subscription add"}
-        self.names = set([template.format(name)
+        name_templates = {"{0} {1}", "{1} {0}",
+                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
+        self.names = set([template.format(name, add, sub)
                           for name in SubscriptionFactory.get_names()
-                          for template in name_templates])
+                          for template in name_templates
+                          for add in self.add_words
+                          for sub in self.sub_words])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Adds a new subscription to be checked for updates which will be posted to the current " \
                          "location." \
                          " Format: add subscription <sub type> <sub details> <update period?>"
 
     def run(self, event):
-        command_name = event.command_name
-        sub_type_name = re.sub(r"\b(add|sub|subscription)\b", "", command_name).strip()
+        # Construct type name
+        sub_type_name = " ".join([w for w in event.command_name.split()
+                                  if w not in self.sub_words + self.add_words]).strip()
+        # Get class from sub type name
         sub_class = SubscriptionFactory.get_class_by_name(sub_type_name)
         # Get current RSS feed list
         function_dispatcher = event.server.hallo.function_dispatcher
@@ -1438,6 +1618,8 @@ class SubscriptionRemove(Function):
     """
     Remove an RSS feed and no longer receive updates from it.
     """
+    remove_words = ["remove", "delete"]
+    sub_words = ["sub", "subscription"]
 
     def __init__(self):
         """
@@ -1447,16 +1629,13 @@ class SubscriptionRemove(Function):
         # Name for use in help listing
         self.help_name = "remove subscription"
         # Names which can be used to address the function
-        name_templates = {"{} remove", "remove {}",
-                          "remove {} sub", "remove sub {}", "sub {} remove", "{} sub remove",
-                          "remove sub", "remove sub", "sub remove", "sub remove",
-                          "remove {} subscription", "remove subscription {}",
-                          "remove subscription", "remove subscription",
-                          "subscription {} remove", "{} subscription remove",
-                          "subscription remove", "subscription remove"}
-        self.names = set([template.format(name)
-                         for name in SubscriptionFactory.get_names()
-                         for template in name_templates])
+        name_templates = {"{0} {1}", "{1} {0}", "{1} {2}", "{2} {1}",
+                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
+        self.names = set([template.format(name, remove, sub)
+                          for name in SubscriptionFactory.get_names()
+                          for template in name_templates
+                          for remove in self.remove_words
+                          for sub in self.sub_words])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Removes a specified subscription the current location. " \
                          " Format: remove subscription <feed type> <feed title or url>"
@@ -1499,6 +1678,8 @@ class SubscriptionCheck(Function):
     """
     Checks subscriptions for updates and returns them.
     """
+    check_words = ["check"]
+    sub_words = ["sub", "subs", "subscription", "subscriptions"]
 
     NAMES_ALL = ["*", "all"]
 
@@ -1510,19 +1691,13 @@ class SubscriptionCheck(Function):
         # Name for use in help listing
         self.help_name = "check subscription"
         # Names which can be used to address the function
-        name_templates = {"{} check", "check {}",
-                          "check {} sub", "check sub {}", "sub {} check", "{} sub check",
-                          "check {} subs", "check subs {}", "subs {} check", "{} subs check",
-                          "check subs", "check subs", "subs check", "subs check",
-                          "check {} subscription", "check subscription {}",
-                          "check {} subscriptions", "check subscriptions {}",
-                          "check subscriptions", "check subscriptions",
-                          "subscription {} check", "{} subscription check",
-                          "subscriptions {} check", "{} subscriptions check",
-                          "subscriptions check", "subscriptions check"}
-        self.names = set([template.format(name)
+        name_templates = {"{0} {1}", "{1} {0}", "{1} {2}", "{2} {1}",
+                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
+        self.names = set([template.format(name, check, sub)
                           for name in SubscriptionFactory.get_names()
-                          for template in name_templates])
+                          for template in name_templates
+                          for check in self.check_words
+                          for sub in self.sub_words])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Checks a specified feed for updates and returns them. Format: subscription check <feed name>"
         self.subscription_repo = None
@@ -1612,6 +1787,8 @@ class SubscriptionList(Function):
     """
     List the currently active subscriptions.
     """
+    list_words = ["list"]
+    sub_words = ["sub", "subs", "subscription", "subscriptions"]
 
     def __init__(self):
         """
@@ -1621,19 +1798,13 @@ class SubscriptionList(Function):
         # Name for use in help listing
         self.help_name = "list subscription"
         # Names which can be used to address the function
-        name_templates = {"{} list", "list {}",
-                          "list {} sub", "list sub {}", "sub {} list", "{} sub list",
-                          "list {} subs", "list subs {}", "subs {} list", "{} subs list",
-                          "list subs", "list subs", "subs list", "subs list",
-                          "list {} subscription", "list subscription {}",
-                          "list {} subscriptions", "list subscriptions {}",
-                          "list subscriptions", "list subscriptions",
-                          "subscription {} list", "{} subscription list",
-                          "subscriptions {} list", "{} subscriptions list",
-                          "subscriptions list", "subscriptions list"}
-        self.names = set([template.format(name)
+        name_templates = {"{0} {1}", "{1} {0}", "{1} {2}", "{2} {1}",
+                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
+        self.names = set([template.format(name, list_word, sub)
                           for name in SubscriptionFactory.get_names()
-                          for template in name_templates])
+                          for template in name_templates
+                          for list_word in self.list_words
+                          for sub in self.sub_words])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Lists subscriptions for the current channel. Format: list subscription"
 
@@ -1656,3 +1827,101 @@ class SubscriptionList(Function):
         for search_item in dest_searches:
             output_lines.append("{} - {}".format(search_item.type_name, search_item.get_name()))
         return event.create_response("\n".join(output_lines))
+
+
+class SubscriptionSetup(Function):
+    """
+    Sets up a user's common configuration in the subscription repository
+    """
+    setup_words = ["setup"]
+    sub_words = ["sub", "subs", "subscription", "subscriptions"]
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "setup subscription"
+        # Names which can be used to address the function
+        name_templates = {"{0} {2}", "{2} {0}",
+                          "{2} {0} {1}", "{2} {1} {0}", "{1} {0} {2}", "{0} {1} {2}"}
+        self.names = set([template.format(name, sub, setup)
+                          for name in SubscriptionFactory.get_common_names()
+                          for template in name_templates
+                          for sub in self.sub_words
+                          for setup in self.setup_words])
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Sets up a subscription common configuration for the current channel. " \
+                         "Format: setup subscription <type> <parameters>"
+
+    def run(self, event):
+        # Construct type name
+        common_type_name = " ".join([w for w in event.command_name.split()
+                                     if w not in self.sub_words + self.setup_words]).strip()
+        # Get class from type name
+        common_class = SubscriptionFactory.get_common_class_by_name(common_type_name)
+        # Get current subscription repo
+        function_dispatcher = event.server.hallo.function_dispatcher
+        sub_check_class = function_dispatcher.get_function_by_name("check subscription")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubscriptionCheck
+        sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
+        # Acquire lock to update the common config object
+        with sub_repo.sub_lock:
+            # Get common configuration item and update
+            common_obj = sub_repo.get_common_config_by_type(common_class)
+            common_obj.update_from_input(event)
+            # Save repo
+            sub_repo.save_json()
+        # Send response
+        return event.create_response("Set up a new {} common configuration for {}".format(common_class.type_name,
+                                                                                          common_obj.get_name(event)))
+
+
+class SubscriptionTeardown(Function):
+    """
+    Tears down a user's common configuration in the subscription repository
+    """
+    tear_down_words = ["tear down", "teardown"]
+    sub_words = ["sub", "subs", "subscription", "subscriptions"]
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "tear down subscription"
+        # Names which can be used to address the function
+        name_templates = {"{0} {1}", "{1} {0}",
+                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
+        self.names = set([template.format(name, tearDown, sub)
+                          for name in SubscriptionFactory.get_common_names()
+                          for template in name_templates
+                          for tearDown in self.tear_down_words
+                          for sub in self.sub_words])
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Tears down a subscription common configuration for the current channel. " \
+                         "Format: tear down subscription <type> <parameters>"
+
+    def run(self, event):
+        # Construct type name
+        common_type_name = " ".join([w for w in event.command_name.split()
+                                     if w not in self.sub_words+self.tear_down_words]).strip()
+        # Get class from type name
+        common_class = SubscriptionFactory.get_common_class_by_name(common_type_name)
+        # Get current subscription repo
+        function_dispatcher = event.server.hallo.function_dispatcher
+        sub_check_class = function_dispatcher.get_function_by_name("check subscription")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubscriptionCheck
+        sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
+        # Acquire lock to update the common config object
+        with sub_repo.sub_lock:
+            # Get common configuration item and update
+            common_obj = sub_repo.get_common_config_by_type(common_class)
+            common_obj.remove_by_input(event)
+            # Save repo
+            sub_repo.save_json()
+        # Send response
+        return event.create_response("Removed {} common configuration for {}".format(common_class.type_name,
+                                                                                     common_obj.get_name(event)))
