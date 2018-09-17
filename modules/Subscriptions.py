@@ -1644,7 +1644,7 @@ class SubscriptionAdd(Function):
         sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubscriptionCheck
         sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
         # Create new subscription
-        sub_obj = sub_class.create_from_input(event)
+        sub_obj = sub_class.create_from_input(event, sub_repo)
         # Acquire lock and save sub
         with sub_repo.sub_lock:
             # Add new subscription to list
