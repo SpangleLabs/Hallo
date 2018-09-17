@@ -206,7 +206,7 @@ class Subscription(metaclass=ABCMeta):
 
     def format_item(self, item):
         """
-        :type item: object
+        :type item: Any
         :rtype: Events.EventMessage
         """
         raise NotImplementedError()
@@ -404,6 +404,7 @@ class E621Sub(Subscription):
     def create_from_input(input_evt, sub_repo):
         """
         :type input_evt: Events.EventMessage
+        :type sub_repo: SubscriptionRepo
         :rtype: E621Sub
         """
         server = input_evt.server
@@ -517,10 +518,13 @@ class TwitterSub(Subscription):
 
 
 class FANotificationNotesSub(Subscription):
-    names = ["FA notes notifications", "FA notes", "furaffinity notes"]
+    names = ["fa notes notifications", "fa notes", "furaffinity notes"]
     """ :type : list[str]"""
-    type_name = "FA_notif_notes"
+    type_name = "fa_notif_notes"
     """ :type : str"""
+
+    NEW_INBOX_NOTE = "new_note"
+    READ_OUTBOX_NOTE = "note_read"
 
     def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
                  inbox_note_ids=None, outbox_note_ids=None):
@@ -530,7 +534,9 @@ class FANotificationNotesSub(Subscription):
         :type fa_key: FAKey
         :type last_check: datetime
         :type update_frequency: timedelta
+        :param inbox_note_ids: List of id strings of notes in the inbox
         :type inbox_note_ids: list[str]
+        :param outbox_note_ids: List of id strings of unread notes in the outbox
         :type outbox_note_ids: list[str]
         """
         super().__init__(server, destination, last_check, update_frequency)
@@ -560,16 +566,47 @@ class FANotificationNotesSub(Subscription):
         return FANotificationNotesSub(server, destination, fa_key, update_frequency=search_delta)
 
     def matches_name(self, name_clean):
-        pass  #TODO
+        return name_clean in self.names + ["notes"]
 
     def get_name(self):
-        pass  #TODO
+        return "FA notes for {}".format(self.fa_key.user.name)
 
     def check(self):
-        pass  #TODO
+        fa_reader = self.fa_key.get_fa_reader()
+        results = []
+        # Check inbox and outbox
+        inbox_notes_page = fa_reader.get_notes_page(FAKey.FAReader.NOTES_INBOX)
+        outbox_notes_page = fa_reader.get_notes_page(FAKey.FAReader.NOTES_OUTBOX)
+        # Check for newly received notes in inbox
+        for inbox_note in inbox_notes_page.notes:
+            note_id = inbox_note.note_id
+            if note_id not in self.inbox_note_ids and int(note_id) > int(self.inbox_note_ids[-1]):
+                # New note
+                results.append({"type": self.NEW_INBOX_NOTE, "note": inbox_note})
+        # Check for newly read notes in outbox
+        for outbox_note in outbox_notes_page.notes:
+            if outbox_note.note_id in self.outbox_note_ids and outbox_note.is_read:
+                # Newly read note
+                results.append({"type": self.READ_OUTBOX_NOTE, "note": outbox_note})
+        # Reset inbox note ids and outbox note ids
+        self.inbox_note_ids = [note.note_id for note in inbox_notes_page.notes]
+        self.outbox_note_ids = [note.note_id for note in outbox_notes_page.notes if not note.is_read]
+        # Return results
+        return results
 
     def format_item(self, item):
-        pass  #TODO
+        # Construct output
+        output = "Err, notes did something?"
+        note = item["note"]  # type: FAKey.FAReader.FANote
+        if item["type"] == self.NEW_INBOX_NOTE:
+            output = "You have a new note. Subject: {}, From: {}, Link: https://www.furaffinity.net/viewmessage/{}/"\
+                .format(note.subject, note.name, note.note_id)
+        if item["type"] == self.READ_OUTBOX_NOTE:
+            output = "An outbox note has been read. Subject: {}, To: {}".format(note.subject, note.name)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        output_evt = EventMessage(self.server, channel, user, output, inbound=False)
+        return output_evt
 
     def to_json(self):
         json_obj = super().to_json()
@@ -1172,18 +1209,19 @@ class FAKey:
                 """ :type : list[FAKey.FAReader.FANote]"""
                 notes_list = self.soup.find("table", id="notes-list")
                 if notes_list is not None:
-                    for note in notes_list:
+                    for note in notes_list.find_all("tr", {"class": "note"}):
                         note_links = note.find_all("a")
                         note_id = note.input["value"]
                         subject = note_links[0].string
                         username = note_links[1]["href"].split("/")[-2]
                         name = note_links[1].string
-                        new_note = FAKey.FAReader.FANote(note_id, subject, username, name)
+                        is_read = note.find("img", {"class": "unread"}) is None
+                        new_note = FAKey.FAReader.FANote(note_id, subject, username, name, is_read)
                         self.notes.append(new_note)
 
         class FANote:
 
-            def __init__(self, note_id, subject, username, name):
+            def __init__(self, note_id, subject, username, name, is_read):
                 self.note_id = note_id
                 """ :type : str"""
                 self.note_link = "https://www.furaffinity.net/viewmessage/{}/".format(note_id)
@@ -1194,6 +1232,8 @@ class FAKey:
                 """ :type : str"""
                 self.name = name
                 """ :type : str"""
+                self.is_read = is_read
+                """ :type : bool"""
 
         class FAUserPage(FAPage):
 
@@ -1541,6 +1581,7 @@ class SubscriptionFactory(object):
         """
         :type sub_json: dict
         :type hallo: Hallo.Hallo
+        :type sub_repo: SubscriptionRepo
         :rtype: Subscription
         """
         sub_type_name = sub_json["sub_type"]
