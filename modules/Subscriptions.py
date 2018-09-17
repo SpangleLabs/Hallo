@@ -132,14 +132,15 @@ class SubscriptionRepo:
                 json_obj = json.load(f)
         except (OSError, IOError):
             return new_sub_list
-        # Loop subs in json file adding them to list
-        for sub_elem in json_obj["subs"]:
-            new_sub_obj = SubscriptionFactory.from_json(sub_elem, hallo)
-            new_sub_list.add_sub(new_sub_obj)
-        # Loop common objects in json file adding them to list
+        # Loop common objects in json file adding them to list.
+        # Common config must be loaded first, as subscriptions use it.
         for common_elem in json_obj["common"]:
             new_common_obj = SubscriptionFactory.common_from_json(common_elem, hallo)
             new_sub_list.common_list.append(new_common_obj)
+        # Loop subs in json file adding them to list
+        for sub_elem in json_obj["subs"]:
+            new_sub_obj = SubscriptionFactory.from_json(sub_elem, hallo, new_sub_list)
+            new_sub_list.add_sub(new_sub_obj)
         return new_sub_list
 
 
@@ -236,10 +237,11 @@ class Subscription(metaclass=ABCMeta):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo):
+    def from_json(json_obj, hallo, sub_repo):
         """
         :type json_obj: dict
         :type hallo: Hallo.Hallo
+        :type sub_repo: SubscriptionRepo
         :rtype: Subscription
         """
         raise NotImplementedError()
@@ -347,7 +349,7 @@ class RssSub(Subscription):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo):
+    def from_json(json_obj, hallo, sub_repo):
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
@@ -475,7 +477,7 @@ class E621Sub(Subscription):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo):
+    def from_json(json_obj, hallo, sub_repo):
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
@@ -513,7 +515,103 @@ class TwitterSub(Subscription):
     pass
 
 
-class FASearchSub(Subscription):
+class FANotificationNotesSub(Subscription):
+    names = ["FA notes notifications", "FA notes", "furaffinity notes"]
+    """ :type : list[str]"""
+    type_name = "FA_notif_notes"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
+                 inbox_note_ids=None, outbox_note_ids=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :type inbox_note_ids: list[str]
+        :type outbox_note_ids: list[str]
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.inbox_note_ids = [] if inbox_note_ids is None else inbox_note_ids
+        """ :type : list[str]"""
+        self.outbox_note_ids = [] if outbox_note_ids is None else outbox_note_ids
+        """ :type : list[str]"""
+
+    @staticmethod
+    def create_from_input(input_evt):
+        pass
+
+    def matches_name(self, name_clean):
+        pass
+
+    def get_name(self):
+        pass
+
+    def check(self):
+        pass
+
+    def format_item(self, item):
+        pass
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["fa_key_user_address"] = self.fa_key.user.address
+        json_obj["inbox_note_ids"] = []
+        for note_id in self.inbox_note_ids:
+            json_obj["inbox_note_ids"].append(note_id)
+        json_obj["outbox_note_ids"] = []
+        for note_id in self.outbox_note_ids:
+            json_obj["outbox_note_ids"].append(note_id)
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load inbox_note_ids
+        inbox_ids = []
+        for note_id in json_obj["inbox_note_ids"]:
+            inbox_ids.append(note_id)
+        # Load outbox_note_ids
+        outbox_ids = []
+        for note_id in json_obj["outbox_note_ids"]:
+            outbox_ids.append(note_id)
+        return FANotificationNotesSub(server, destination, fa_key,
+                                      last_check=last_check, update_frequency=update_frequency,
+                                      inbox_note_ids=inbox_ids, outbox_note_ids=outbox_ids)
+
+
+class FANotificationWatchSub(Subscription):
     pass
 
 
@@ -521,7 +619,11 @@ class FANotificationFavSub(Subscription):
     pass
 
 
-class FANotificationNotesSub(Subscription):
+class FANotificationCommentsSub(Subscription):
+    pass
+
+
+class FANotificationJournalsSub(Subscription):
     pass
 
 
@@ -529,11 +631,7 @@ class FANotificationSubmissionsSub(Subscription):
     pass
 
 
-class FANotificationWatchSub(Subscription):
-    pass
-
-
-class FANotificationCommentsSub(Subscription):
+class FASearchSub(Subscription):
     pass
 
 
@@ -605,6 +703,9 @@ class FAKeysCommon(SubscriptionCommon):
         user = event.user
         if user in self.list_keys:
             del self.list_keys[user]
+
+    def get_key_by_user(self, user):
+        return self.list_keys[user] if user in self.list_keys else None
 
     def get_name(self, event):
         return event.user.name + " FA login"
@@ -1394,7 +1495,9 @@ class FAKey:
 
 class SubscriptionFactory(object):
     sub_classes = [E621Sub, RssSub]
+    """ :type : list[type.Subscription]"""
     common_classes = [FAKeysCommon]
+    """ :type : list[type.SubscriptionCommon]"""
 
     @staticmethod
     def get_names():
@@ -1419,7 +1522,7 @@ class SubscriptionFactory(object):
         return classes[0]
 
     @staticmethod
-    def from_json(sub_json, hallo):
+    def from_json(sub_json, hallo, sub_repo):
         """
         :type sub_json: dict
         :type hallo: Hallo.Hallo
@@ -1428,7 +1531,7 @@ class SubscriptionFactory(object):
         sub_type_name = sub_json["sub_type"]
         for sub_class in SubscriptionFactory.sub_classes:
             if sub_class.type_name == sub_type_name:
-                return sub_class.from_json(sub_json, hallo)
+                return sub_class.from_json(sub_json, hallo, sub_repo)
         raise SubscriptionException("Could not load subscription of type {}".format(sub_type_name))
 
     @staticmethod
