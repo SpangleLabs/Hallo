@@ -518,27 +518,27 @@ class FASearchSub(Subscription):
     pass
 
 
-class FAFavSub(Subscription):
+class FANotificationFavSub(Subscription):
     pass
 
 
-class FANotesSub(Subscription):
+class FANotificationNotesSub(Subscription):
     pass
 
 
-class FASubmissionsSub(Subscription):
+class FANotificationSubmissionsSub(Subscription):
     pass
 
 
-class FAWatchSub(Subscription):
+class FANotificationWatchSub(Subscription):
     pass
 
 
-class FACommentsSub(Subscription):
+class FANotificationCommentsSub(Subscription):
     pass
 
 
-class FAFavsSub(Subscription):
+class FAUserFavsSub(Subscription):
     pass
 
 
