@@ -580,7 +580,8 @@ class FANotificationNotesSub(Subscription):
         # Check for newly received notes in inbox
         for inbox_note in inbox_notes_page.notes:
             note_id = inbox_note.note_id
-            if note_id not in self.inbox_note_ids and int(note_id) > int(self.inbox_note_ids[-1]):
+            if note_id not in self.inbox_note_ids and \
+                    (len(self.inbox_note_ids) == 0 or int(note_id) > int(self.inbox_note_ids[-1])):
                 # New note
                 results.append({"type": self.NEW_INBOX_NOTE, "note": inbox_note})
         # Check for newly read notes in outbox
