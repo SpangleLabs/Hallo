@@ -723,9 +723,9 @@ class SubscriptionCommon:
 
 
 class FAKeysCommon(SubscriptionCommon):
-    type_name = "FA_keys"
+    type_name = "fa_keys"
     """ :type : str"""
-    names = ["FA", "furaffinity", "fur affinity"]
+    names = ["fa", "furaffinity", "fur affinity"]
     """ :type : list[str]"""
 
     def __init__(self):
