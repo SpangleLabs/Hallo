@@ -1609,7 +1609,7 @@ class SubscriptionAdd(Function):
     Adds a new subscription, allowing specification of server and channel.
     """
     add_words = ["add"]
-    sub_words = ["sub"]
+    sub_words = ["sub", "subscription"]
 
     def __init__(self):
         """
