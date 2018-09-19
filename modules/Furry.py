@@ -24,7 +24,7 @@ class E621(Function):
         if search_result is None:
             return event.create_response("No results.")
         else:
-            link = "http://e621.net/post/show/{}".format(search_result['id'])
+            link = "https://e621.net/post/show/{}".format(search_result['id'])
             if search_result['rating'] == 'e':
                 rating = "(Explicit)"
             elif search_result['rating'] == "q":
@@ -75,7 +75,7 @@ class RandomPorn(Function):
         if search_result is None:
             return event.create_response("No results.")
         else:
-            link = "http://e621.net/post/show/{}".format(search_result['id'])
+            link = "https://e621.net/post/show/{}".format(search_result['id'])
             if search_result['rating'] == 'e':
                 rating = "(Explicit)"
             elif search_result['rating'] == "q":
@@ -113,7 +113,7 @@ class Butts(Function):
         if search_result is None:
             return event.create_response("No results.")
         else:
-            link = "http://e621.net/post/show/{}".format(search_result['id'])
+            link = "https://e621.net/post/show/{}".format(search_result['id'])
             if search_result['rating'] == 'e':
                 rating = "(Explicit)"
             elif search_result['rating'] == "q":

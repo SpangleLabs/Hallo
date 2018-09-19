@@ -436,7 +436,7 @@ class E621Sub(Subscription):
         if len(self.latest_ids) > 0:
             oldest_id = min(self.latest_ids)
             search += " id:>{}".format(oldest_id)  # Don't list anything older than the oldest of the last 10
-        url = "http://e621.net/post/index.json?tags={}&limit=50".format(urllib.parse.quote(search))
+        url = "https://e621.net/post/index.json?tags={}&limit=50".format(urllib.parse.quote(search))
         results = Commons.load_url_json(url)
         return_list = []
         new_last_ten = set(self.latest_ids)
@@ -453,7 +453,7 @@ class E621Sub(Subscription):
         return return_list
 
     def format_item(self, e621_result):
-        link = "http://e621.net/post/show/{}".format(e621_result['id'])
+        link = "https://e621.net/post/show/{}".format(e621_result['id'])
         # Create rating string
         rating = "(Unknown)"
         rating_dict = {"e": "(Explicit)", "q": "(Questionable)", "s": "(Safe)"}
