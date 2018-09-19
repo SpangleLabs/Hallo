@@ -167,6 +167,8 @@ class Subscription(metaclass=ABCMeta):
         """ :type : datetime"""
         self.update_frequency = update_frequency
         """ :type : timedelta"""
+        self.last_update = None
+        """ :type : datetime | None"""
 
     @staticmethod
     def create_from_input(input_evt, sub_repo):
@@ -201,6 +203,7 @@ class Subscription(metaclass=ABCMeta):
         :type item: object
         :rtype: None
         """
+        self.last_update = datetime.now()
         output_evt = self.format_item(item)
         self.server.send(output_evt)
 
@@ -235,6 +238,8 @@ class Subscription(metaclass=ABCMeta):
         if self.last_check is not None:
             json_obj["last_check"] = self.last_check.isoformat()
         json_obj["update_frequency"] = Commons.format_time_delta(self.update_frequency)
+        if self.last_update is not None:
+            json_obj["last_update"] = self.last_update
         return json_obj
 
     @staticmethod
@@ -370,12 +375,18 @@ class RssSub(Subscription):
             last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
         # Load update frequency
         update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
         # Type specific loading
         # Load last items
         url = json_obj["url"]
         title = json_obj["title"]
         last_hash = json_obj["last_item"]
-        return RssSub(server, destination, url, last_check, update_frequency, title, last_hash)
+        new_sub = RssSub(server, destination, url, last_check, update_frequency, title, last_hash)
+        new_sub.last_update = last_update
+        return new_sub
 
 
 class E621Sub(Subscription):
@@ -499,6 +510,10 @@ class E621Sub(Subscription):
             last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
         # Load update frequency
         update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
         # Type specific loading
         # Load last items
         latest_ids = []
@@ -506,7 +521,9 @@ class E621Sub(Subscription):
             latest_ids.append(latest_id)
         # Load search
         search = json_obj["search"]
-        return E621Sub(server, destination, search, last_check, update_frequency, latest_ids)
+        new_sub = E621Sub(server, destination, search, last_check, update_frequency, latest_ids)
+        new_sub.last_update = last_update
+        return new_sub
 
 
 class GoogleDocsSub(Subscription):
@@ -642,6 +659,10 @@ class FANotificationNotesSub(Subscription):
             last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
         # Load update frequency
         update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
         # Type specific loading
         # Load fa_key
         user_addr = json_obj["fa_key_user_address"]
@@ -660,9 +681,11 @@ class FANotificationNotesSub(Subscription):
         outbox_ids = []
         for note_id in json_obj["outbox_note_ids"]:
             outbox_ids.append(note_id)
-        return FANotificationNotesSub(server, destination, fa_key,
+        new_sub = FANotificationNotesSub(server, destination, fa_key,
                                       last_check=last_check, update_frequency=update_frequency,
                                       inbox_note_ids=inbox_ids, outbox_note_ids=outbox_ids)
+        new_sub.last_update = last_update
+        return new_sub
 
 
 class FANotificationWatchSub(Subscription):
