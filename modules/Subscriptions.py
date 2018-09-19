@@ -1890,7 +1890,10 @@ class SubscriptionList(Function):
             return event.create_response("There are no subscriptions posting to this destination.")
         output_lines = ["Subscriptions posting to this channel:"]
         for search_item in dest_searches:
-            output_lines.append("{} - {}".format(search_item.type_name, search_item.get_name()))
+            new_line = "{} - {}".format(search_item.type_name, search_item.get_name())
+            if search_item.last_update is not None:
+                new_line += " ({})".format(search_item.last_update.strftime('%Y-%m-%d %H:%M:%S'))
+            output_lines.append(new_line)
         return event.create_response("\n".join(output_lines))
 
 
