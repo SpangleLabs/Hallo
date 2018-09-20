@@ -197,6 +197,8 @@ class Subscription(metaclass=ABCMeta):
 
     def check(self):
         """
+        Checks the subscription, and returns a list of update objects, in whatever format that
+        format_item() would like to receive them.
         :rtype: list[object]
         """
         raise NotImplementedError()
@@ -717,7 +719,7 @@ class FASearchSub(Subscription):
     type_name = "fa_search"
     """ :type : str"""
 
-    def __init__(self, server, destination, fa_key, search, last_check=None, update_frequency=None):
+    def __init__(self, server, destination, fa_key, search, last_check=None, update_frequency=None, latest_ids=None):
         """
         :type server: Server.Server
         :type destination: Destination.Destination
@@ -725,12 +727,17 @@ class FASearchSub(Subscription):
         :type search: str
         :type last_check: datetime
         :type update_frequency: timedelta
+        :type latest_ids: list[str]
         """
         super().__init__(server, destination, last_check, update_frequency)
         self.fa_key = fa_key
         """ :type : FAKey"""
         self.search = search
         """ :type : str"""
+        if latest_ids is None:
+            latest_ids = []
+        self.latest_ids = latest_ids
+        """ :type : list[str]"""
 
     @staticmethod
     def create_from_input(input_evt, sub_repo):
@@ -773,7 +780,22 @@ class FASearchSub(Subscription):
         return "search for \"{}\"".format(self.search)
 
     def check(self):
-        pass  # TODO
+        fa_reader = self.fa_key.get_fa_reader()
+        results = []
+        search_page = fa_reader.get_search_page(self.search)
+        next_batch = []
+        for search_result in search_page.results:
+            result_id = search_result.submission_id
+            # Batch things that have been seen, so that the results after the last result in latest_ids aren't included
+            if result_id in self.latest_ids:
+                results += next_batch
+                next_batch = []
+            else:
+                next_batch.append(search_result)
+        # Create new list of latest ten results
+        self.latest_ids = [result.submission_id for result in search_page.results[:10]]
+        self.last_check = datetime.now()
+        return results
 
     def format_item(self, item):
         pass  # TODO
