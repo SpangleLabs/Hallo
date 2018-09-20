@@ -173,6 +173,7 @@ class Subscription(metaclass=ABCMeta):
     @staticmethod
     def create_from_input(input_evt, sub_repo):
         """
+        Creates a new subscription object from a user's input line
         :type input_evt: EventMessage
         :type sub_repo: SubscriptionRepo
         :rtype: Subscription
@@ -181,6 +182,7 @@ class Subscription(metaclass=ABCMeta):
 
     def matches_name(self, name_clean):
         """
+        Returns whether a user input string matches this subscription object
         :type name_clean: str
         :rtype: bool
         """
@@ -188,6 +190,7 @@ class Subscription(metaclass=ABCMeta):
 
     def get_name(self):
         """
+        Returns a printable name for the subscription
         :rtype: str
         """
         raise NotImplementedError()
@@ -767,7 +770,7 @@ class FASearchSub(Subscription):
         return name_clean == self.search
 
     def get_name(self):
-        pass  # TODO
+        return "search for \"{}\"".format(self.search)
 
     def check(self):
         pass  # TODO
