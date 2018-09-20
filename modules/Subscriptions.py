@@ -764,7 +764,7 @@ class FASearchSub(Subscription):
         return fa_sub
 
     def matches_name(self, name_clean):
-        pass  # TODO
+        return name_clean == self.search
 
     def get_name(self):
         pass  # TODO
