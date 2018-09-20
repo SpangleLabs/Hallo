@@ -16,6 +16,8 @@ from inc.Commons import Commons
 
 class ServerTelegram(Server):
 
+    type = Server.TYPE_TELEGRAM
+
     def __init__(self, hallo, api_key):
         super().__init__(hallo)
         """

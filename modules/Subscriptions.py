@@ -167,6 +167,8 @@ class Subscription(metaclass=ABCMeta):
         """ :type : datetime"""
         self.update_frequency = update_frequency
         """ :type : timedelta"""
+        self.last_update = None
+        """ :type : datetime | None"""
 
     @staticmethod
     def create_from_input(input_evt, sub_repo):
@@ -201,6 +203,7 @@ class Subscription(metaclass=ABCMeta):
         :type item: object
         :rtype: None
         """
+        self.last_update = datetime.now()
         output_evt = self.format_item(item)
         self.server.send(output_evt)
 
@@ -235,6 +238,8 @@ class Subscription(metaclass=ABCMeta):
         if self.last_check is not None:
             json_obj["last_check"] = self.last_check.isoformat()
         json_obj["update_frequency"] = Commons.format_time_delta(self.update_frequency)
+        if self.last_update is not None:
+            json_obj["last_update"] = self.last_update
         return json_obj
 
     @staticmethod
@@ -370,12 +375,18 @@ class RssSub(Subscription):
             last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
         # Load update frequency
         update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
         # Type specific loading
         # Load last items
         url = json_obj["url"]
         title = json_obj["title"]
         last_hash = json_obj["last_item"]
-        return RssSub(server, destination, url, last_check, update_frequency, title, last_hash)
+        new_sub = RssSub(server, destination, url, last_check, update_frequency, title, last_hash)
+        new_sub.last_update = last_update
+        return new_sub
 
 
 class E621Sub(Subscription):
@@ -436,7 +447,7 @@ class E621Sub(Subscription):
         if len(self.latest_ids) > 0:
             oldest_id = min(self.latest_ids)
             search += " id:>{}".format(oldest_id)  # Don't list anything older than the oldest of the last 10
-        url = "http://e621.net/post/index.json?tags={}&limit=50".format(urllib.parse.quote(search))
+        url = "https://e621.net/post/index.json?tags={}&limit=50".format(urllib.parse.quote(search))
         results = Commons.load_url_json(url)
         return_list = []
         new_last_ten = set(self.latest_ids)
@@ -453,7 +464,7 @@ class E621Sub(Subscription):
         return return_list
 
     def format_item(self, e621_result):
-        link = "http://e621.net/post/show/{}".format(e621_result['id'])
+        link = "https://e621.net/post/show/{}".format(e621_result['id'])
         # Create rating string
         rating = "(Unknown)"
         rating_dict = {"e": "(Explicit)", "q": "(Questionable)", "s": "(Safe)"}
@@ -499,6 +510,10 @@ class E621Sub(Subscription):
             last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
         # Load update frequency
         update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
         # Type specific loading
         # Load last items
         latest_ids = []
@@ -506,7 +521,9 @@ class E621Sub(Subscription):
             latest_ids.append(latest_id)
         # Load search
         search = json_obj["search"]
-        return E621Sub(server, destination, search, last_check, update_frequency, latest_ids)
+        new_sub = E621Sub(server, destination, search, last_check, update_frequency, latest_ids)
+        new_sub.last_update = last_update
+        return new_sub
 
 
 class GoogleDocsSub(Subscription):
@@ -642,6 +659,10 @@ class FANotificationNotesSub(Subscription):
             last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
         # Load update frequency
         update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
         # Type specific loading
         # Load fa_key
         user_addr = json_obj["fa_key_user_address"]
@@ -660,9 +681,11 @@ class FANotificationNotesSub(Subscription):
         outbox_ids = []
         for note_id in json_obj["outbox_note_ids"]:
             outbox_ids.append(note_id)
-        return FANotificationNotesSub(server, destination, fa_key,
+        new_sub = FANotificationNotesSub(server, destination, fa_key,
                                       last_check=last_check, update_frequency=update_frequency,
                                       inbox_note_ids=inbox_ids, outbox_note_ids=outbox_ids)
+        new_sub.last_update = last_update
+        return new_sub
 
 
 class FANotificationWatchSub(Subscription):
@@ -686,7 +709,49 @@ class FANotificationSubmissionsSub(Subscription):
 
 
 class FASearchSub(Subscription):
-    pass
+    names = ["fa search", "furaffinity search"]
+    """ :type : list[str]"""
+    type_name = "fa_search"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, search, last_check=None, update_frequency=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type search: str
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.search = search
+        """ :type : str"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        pass  # TODO
+
+    def matches_name(self, name_clean):
+        pass  # TODO
+
+    def get_name(self):
+        pass  # TODO
+
+    def check(self):
+        pass  # TODO
+
+    def format_item(self, item):
+        pass  # TODO
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        pass  # TODO
+
+    def to_json(self):
+        super().to_json()
+        pass  # TODO
 
 
 class FAUserFavsSub(Subscription):
@@ -885,7 +950,6 @@ class FAKey:
 
         def get_user_page(self, username):
             # Needs shout list, for checking own shouts
-            # TODO: If spinning this out into its own project, use an expiringdict to cache things.
             code = self._get_page_code("https://www.furaffinity.net/user/{}/".format(username))
             user_page = FAKey.FAReader.FAUserPage(code, username)
             return user_page
@@ -1868,7 +1932,10 @@ class SubscriptionList(Function):
             return event.create_response("There are no subscriptions posting to this destination.")
         output_lines = ["Subscriptions posting to this channel:"]
         for search_item in dest_searches:
-            output_lines.append("{} - {}".format(search_item.type_name, search_item.get_name()))
+            new_line = "{} - {}".format(search_item.type_name, search_item.get_name())
+            if search_item.last_update is not None:
+                new_line += " ({})".format(search_item.last_update.strftime('%Y-%m-%d %H:%M:%S'))
+            output_lines.append(new_line)
         return event.create_response("\n".join(output_lines))
 
 
