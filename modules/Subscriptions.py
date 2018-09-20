@@ -709,7 +709,49 @@ class FANotificationSubmissionsSub(Subscription):
 
 
 class FASearchSub(Subscription):
-    pass
+    names = ["fa search", "furaffinity search"]
+    """ :type : list[str]"""
+    type_name = "fa_search"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, search, last_check=None, update_frequency=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type search: str
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.search = search
+        """ :type : str"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        pass  # TODO
+
+    def matches_name(self, name_clean):
+        pass  # TODO
+
+    def get_name(self):
+        pass  # TODO
+
+    def check(self):
+        pass  # TODO
+
+    def format_item(self, item):
+        pass  # TODO
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        pass  # TODO
+
+    def to_json(self):
+        super().to_json()
+        pass  # TODO
 
 
 class FAUserFavsSub(Subscription):
