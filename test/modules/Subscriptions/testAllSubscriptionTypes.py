@@ -27,7 +27,6 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         def test_to_json_contains_sub_type(self):
             """
             Test that to_json() for each subscription type remembers to set sub_type in the json dict
-            :param sub_class:
             """
             for sub_obj in self.get_sub_objects():
                 with self.subTest(sub_obj.__class__.__name__):
@@ -37,7 +36,6 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         def test_check_updates_last_check(self):
             """
             Test that each subscription type updates last_check when check() is called.
-            :param sub_class:
             """
             for sub_obj in self.get_sub_objects():
                 with self.subTest(sub_obj.__class__.__name__):
