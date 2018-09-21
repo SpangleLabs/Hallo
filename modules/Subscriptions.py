@@ -1583,7 +1583,7 @@ class FAKey:
                 super().__init__(code)
                 self.submission_id = submission_id
                 """ :type : str"""
-                sub_info = self.soup.find_all("td", {"class", "stats-container"})
+                sub_info = self.soup.find("td", {"class", "stats-container"})
                 sub_info_stripped = list(sub_info.stripped_strings)
                 sub_titlebox = sub_info.find_parent("td").find_previous("td")
                 sub_descbox = sub_info.find_next("td")
