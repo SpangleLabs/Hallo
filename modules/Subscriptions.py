@@ -1588,27 +1588,46 @@ class FAKey:
                 sub_titlebox = sub_info.find_parent("td").find_previous("td")
                 sub_descbox = sub_info.find_next("td")
                 self.title = sub_titlebox.find("b").string
+                """ :type : str"""
                 self.full_image = "https:" + self.soup.find(text="Download").parent["href"]
+                """ :type : str"""
                 self.username = sub_titlebox.find("a")["href"].split("/")[-2]
+                """ :type : str"""
                 self.name = sub_titlebox.string
+                """ :type : str"""
                 self.avatar_link = "https:" + sub_descbox.find("img")["src"]
+                """ :type : str"""
                 self.description = "".join(str(s) for s in sub_descbox.contents[5:]).strip()
+                """ :type : str"""
                 submission_time_str = sub_info.find("span", {"class": "popup_date"})["title"]\
                     .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
                 self.submission_time = datetime.strptime(submission_time_str, "%b %d, %Y %H:%M %p")
+                """ :type : datetime"""
                 self.category = sub_info_stripped[sub_info_stripped.index("Category:")+1]
+                """ :type : str"""
                 self.theme = sub_info_stripped[sub_info_stripped.index("Theme:")+1]
+                """ :type : str"""
                 self.species = sub_info_stripped[sub_info_stripped.index("Species:")+1]
+                """ :type : str"""
                 self.gender = sub_info_stripped[sub_info_stripped.index("Gender:")+1]
+                """ :type : str"""
                 self.num_favourites = int(sub_info_stripped[sub_info_stripped.index("Favorites:")+1])
+                """ :type : int"""
                 self.num_comments = int(sub_info_stripped[sub_info_stripped.index("Comments:")+1])
+                """ :type : int"""
                 self.num_views = int(sub_info_stripped[sub_info_stripped.index("Views:")+1])
+                """ :type : int"""
                 # resolution_x = None
                 # resolution_y = None
-                self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
+                self.keywords = []
+                """ :type : list[str]"""
+                if sub_info.find(id="keywords") is not None:
+                    self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
                 self.rating = sub_info.find_all("img")[-1]["alt"].split()[0]
+                """ :type : str"""
                 comments_section = self.soup.find(id="comments-submission")
                 self.top_level_comments = FAKey.FAReader.FACommentsSection(comments_section)
+                """ :type : FAKey.FAReader.FACommentsSection"""
 
         class FACommentsSection:
 
