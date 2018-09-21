@@ -72,10 +72,20 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
                 with self.subTest(sub_class.__name__):
                     assert len(sub_class.names) != 0
 
+        def test_sub_class_names_lower_case(self):
+            """
+            Test that subscription class names are all lower case
+            """
+            for sub_class in SubscriptionFactory.sub_classes:
+                with self.subTest(sub_class.__name__):
+                    for name in sub_class.names:
+                        assert name == name.lower()
+
         def test_sub_class_has_type_name(self):
             """
-            Test that the type_name value has been set for each subscription class
+            Test that the type_name value has been set for each subscription class, and that it is lower case
             """
             for sub_class in SubscriptionFactory.sub_classes:
                 with self.subTest(sub_class.__name__):
                     assert len(sub_class.type_name) != 0
+                    assert sub_class.type_name == sub_class.type_name.lower()
