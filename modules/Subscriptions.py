@@ -785,14 +785,19 @@ class FASearchSub(Subscription):
         results = []
         search_page = fa_reader.get_search_page(self.search)
         next_batch = []
+        matched_ids = False
         for search_result in search_page.results:
             result_id = search_result.submission_id
             # Batch things that have been seen, so that the results after the last result in latest_ids aren't included
             if result_id in self.latest_ids:
                 results += next_batch
                 next_batch = []
+                matched_ids = True
             else:
                 next_batch.append(search_result)
+        # If no images in search matched an ID in last seen, send all results from search
+        if not matched_ids:
+            results += next_batch
         # Create new list of latest ten results
         self.latest_ids = [result.submission_id for result in search_page.results[:10]]
         self.last_check = datetime.now()
