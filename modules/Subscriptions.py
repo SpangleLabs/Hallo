@@ -1982,10 +1982,15 @@ class SubscriptionCheck(Function):
             found_items = 0
             # Loop through matching search subscriptions, getting updates
             for search_sub in matching_subs:
-                new_items = search_sub.check()
-                found_items += len(new_items)
-                for search_item in new_items:
-                    search_sub.send_item(search_item)
+                try:
+                    new_items = search_sub.check()
+                    found_items += len(new_items)
+                    for search_item in new_items:
+                        search_sub.send_item(search_item)
+                except Exception as e:
+                    print("Failed to check {} subscription, \"{}\". Exception: {}".format(search_sub.type_name,
+                                                                                          search_sub.get_name(),
+                                                                                          e))
             # Save list
             sub_repo.save_json()
         # Output response to user
@@ -2006,10 +2011,15 @@ class SubscriptionCheck(Function):
                 # Only check those which have been too long since last check
                 if search_sub.needs_check():
                     # Get new items
-                    new_items = search_sub.check()
-                    # Output all new items
-                    for search_item in new_items:
-                        search_sub.send_item(search_item)
+                    try:
+                        new_items = search_sub.check()
+                        # Output all new items
+                        for search_item in new_items:
+                            search_sub.send_item(search_item)
+                    except Exception as e:
+                        print("Failed to check {} subscription, \"{}\". Exception: {}".format(search_sub.type_name,
+                                                                                              search_sub.get_name(),
+                                                                                              e))
             # Save list
             sub_repo.save_json()
 
