@@ -1606,7 +1606,7 @@ class FAKey:
                 # resolution_x = None
                 # resolution_y = None
                 self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
-                self.rating = sub_info[0].find_all("img")[-1]["alt"].split()[0]
+                self.rating = sub_info.find_all("img")[-1]["alt"].split()[0]
                 comments_section = self.soup.find(id="comments-submission")
                 self.top_level_comments = FAKey.FAReader.FACommentsSection(comments_section)
 
