@@ -1823,7 +1823,7 @@ class SubscriptionAdd(Function):
 
     def run(self, event):
         # Construct type name
-        sub_type_name = " ".join([w for w in event.command_name.split()
+        sub_type_name = " ".join([w for w in event.command_name.lower().split()
                                   if w not in self.sub_words + self.add_words]).strip()
         # Get class from sub type name
         sub_class = SubscriptionFactory.get_class_by_name(sub_type_name)
@@ -2101,7 +2101,7 @@ class SubscriptionSetup(Function):
 
     def run(self, event):
         # Construct type name
-        common_type_name = " ".join([w for w in event.command_name.split()
+        common_type_name = " ".join([w for w in event.command_name.lower().split()
                                      if w not in self.sub_words + self.setup_words]).strip()
         # Get class from type name
         common_class = SubscriptionFactory.get_common_class_by_name(common_type_name)
