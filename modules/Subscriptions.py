@@ -1595,7 +1595,7 @@ class FAKey:
                 self.description = "".join(str(s) for s in sub_descbox.contents[5:]).strip()
                 submission_time_str = sub_info.find("span", {"class": "popup_date"})["title"]\
                     .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
-                self.submission_time = datetime.strptime(submission_time_str, "%b %d, %Y %H:%M")
+                self.submission_time = datetime.strptime(submission_time_str, "%b %d, %Y %H:%M %p")
                 self.category = sub_info_stripped[sub_info_stripped.index("Category:")+1]
                 self.theme = sub_info_stripped[sub_info_stripped.index("Theme:")+1]
                 self.species = sub_info_stripped[sub_info_stripped.index("Species:")+1]
