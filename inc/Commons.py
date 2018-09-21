@@ -344,7 +344,7 @@ class Commons(object):
         :type delta_string: str
         :return: timedelta
         """
-        if len(delta_string) > 4:
+        if len(delta_string) < 4:
             raise ISO8601ParseError("Invalid ISO-8601 period string")
         if delta_string[0] != "P" or delta_string[-1] != "S":
             raise ISO8601ParseError("Invalid ISO-8601 period string")
