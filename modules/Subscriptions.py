@@ -813,7 +813,7 @@ class FASearchSub(Subscription):
         # Get submission page and file extension
         sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
         image_url = sub_page.full_image
-        file_extension = direct_link.split(".")[-1].lower()
+        file_extension = image_url.split(".")[-1].lower()
         if file_extension in ["png", "jpg", "jpeg", "bmp", "gif"]:
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
             return output_evt
