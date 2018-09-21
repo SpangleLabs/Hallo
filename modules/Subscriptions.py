@@ -245,7 +245,7 @@ class Subscription(metaclass=ABCMeta):
             json_obj["last_check"] = self.last_check.isoformat()
         json_obj["update_frequency"] = Commons.format_time_delta(self.update_frequency)
         if self.last_update is not None:
-            json_obj["last_update"] = self.last_update
+            json_obj["last_update"] = self.last_update.isoformat()
         return json_obj
 
     @staticmethod
