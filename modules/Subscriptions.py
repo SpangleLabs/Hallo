@@ -884,7 +884,55 @@ class FASearchSub(Subscription):
 
 
 class FAUserFavsSub(Subscription):
-    pass
+    names = ["fa user favs", "furaffinity user favs", "furaffinity user favourites", "fa user favourites",
+             "furaffinity user favorites", "fa user favorites"]
+    """ :type : list[str]"""
+    type_name = "fa_user_favs"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, username, last_check=None, update_frequency=None, latest_ids=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type username: str
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :type latest_ids: list[str]
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.username = username
+        """ :type : str"""
+        if latest_ids is None:
+            latest_ids = []
+        self.latest_ids = latest_ids
+        """ :type : list[str]"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        pass  # TODO
+
+    def matches_name(self, name_clean):
+        pass  # TODO
+
+    def get_name(self):
+        pass  # TODO
+
+    def check(self):
+        pass  # TODO
+
+    def format_item(self, item):
+        pass  # TODO
+
+    def to_json(self):
+        json_obj = super().to_json()
+        pass  # TODO
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        pass  # TODO
 
 
 class YoutubeSub(Subscription):
