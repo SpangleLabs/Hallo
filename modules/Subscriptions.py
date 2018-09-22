@@ -1097,6 +1097,9 @@ class FAKeysCommon(SubscriptionCommon):
         """ :type : dict[User, FAKey]"""
 
     def update_from_input(self, event):
+        """
+        :type event: EventMessage
+        """
         user = event.user
         input_clean = event.command_args.strip().lower().replace(";", " ").split()
         if len(input_clean) != 2:
@@ -1121,12 +1124,23 @@ class FAKeysCommon(SubscriptionCommon):
             del self.list_keys[user]
 
     def get_key_by_user(self, user):
+        """
+        :type user: Destination.User
+        :return: FAKey
+        """
         return self.list_keys[user] if user in self.list_keys else None
 
     def get_name(self, event):
+        """
+        :type event: EventMessage
+        :return: str
+        """
         return event.user.name + " FA login"
 
     def add_key(self, key):
+        """
+        :type key: FAKey
+        """
         self.list_keys[key.user] = key
 
     def to_json(self):
@@ -1148,7 +1162,7 @@ class FAKey:
 
     def __init__(self, user, cookie_a, cookie_b):
         self.user = user
-        """ :type : Destination.Destination"""
+        """ :type : Destination.User"""
         self.cookie_a = cookie_a
         """ :type : str"""
         self.cookie_b = cookie_b
