@@ -976,7 +976,25 @@ class FAUserFavsSub(Subscription):
         return results
 
     def format_item(self, item):
-        pass  # TODO
+        """
+        :type item: FAKey.FAReader.FAFavourite
+        :return: EventMessage
+        """
+        link = "https://furaffinity.net/view/{}".format(item.submission_id)
+        title = item.title
+        posted_by = item.name
+        # Construct output
+        output = "{} has favourited a new image. \"{}\" by {}. {}".format(self.username, title, posted_by, link)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        # Get submission page and file extension
+        sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
+        image_url = sub_page.full_image
+        file_extension = image_url.split(".")[-1].lower()
+        if file_extension in ["png", "jpg", "jpeg", "bmp", "gif"]:
+            output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
+            return output_evt
+        return EventMessage(self.server, channel, user, output, inbound=False)
 
     def to_json(self):
         json_obj = super().to_json()
