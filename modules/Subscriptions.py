@@ -912,7 +912,39 @@ class FAUserFavsSub(Subscription):
 
     @staticmethod
     def create_from_input(input_evt, sub_repo):
-        pass  # TODO
+        """
+        :type input_evt: Events.EventMessage
+        :type sub_repo: SubscriptionRepo
+        :rtype: FAUserFavsSub
+        """
+        # Get FAKey object
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA user favourites subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+        # Get server and destination
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if last argument is check period.
+        try:
+            try_period = input_evt.command_args.split()[-1]
+            search_delta = Commons.load_time_delta(try_period)
+            username = input_evt.command_args[:-len(try_period)].strip()
+        except ISO8601ParseError:
+            username = input_evt.command_args.strip()
+            search_delta = Commons.load_time_delta("PT300S")
+        # Create FA user favs object
+        fa_sub = FAUserFavsSub(server, destination, fa_key, username, update_frequency=search_delta)
+        # Check if it's a valid user
+        try:
+            fa_key.get_fa_reader().get_user_page(username)
+        except Exception as e:
+            raise SubscriptionException("This does not appear to be a valid username.")
+        fa_sub.check()
+        return fa_sub
 
     def matches_name(self, name_clean):
         pass  # TODO
