@@ -953,7 +953,27 @@ class FAUserFavsSub(Subscription):
         return "Favourites subscription for \"{}\"".format(self.username)
 
     def check(self):
-        pass  # TODO
+        fa_reader = self.fa_key.get_fa_reader()
+        results = []
+        favs_page = fa_reader.get_user_fav_page(self.username)
+        next_batch = []
+        matched_ids = False
+        for fav_result in favs_page.favourites:
+            result_id = fav_result.submission_id
+            # Batch things that have been seen, so that the results after the last result in latest_ids aren't included
+            if result_id in self.latest_ids:
+                results += next_batch
+                next_batch = []
+                matched_ids = True
+            else:
+                next_batch.append(fav_result)
+        # If no images in search matched an ID in last seen, send all results from search
+        if not matched_ids:
+            results += next_batch
+        # Create new list of latest ten results
+        self.latest_ids = [result.submission_id for result in favs_page.favourites[:10]]
+        self.last_check = datetime.now()
+        return results
 
     def format_item(self, item):
         pass  # TODO
