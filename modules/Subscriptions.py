@@ -903,7 +903,7 @@ class FAUserFavsSub(Subscription):
         super().__init__(server, destination, last_check, update_frequency)
         self.fa_key = fa_key
         """ :type : FAKey"""
-        self.username = username
+        self.username = username.lower().strip()
         """ :type : str"""
         if latest_ids is None:
             latest_ids = []
@@ -947,10 +947,10 @@ class FAUserFavsSub(Subscription):
         return fa_sub
 
     def matches_name(self, name_clean):
-        pass  # TODO
+        return name_clean == self.username
 
     def get_name(self):
-        pass  # TODO
+        return "Favourites subscription for \"{}\"".format(self.username)
 
     def check(self):
         pass  # TODO
