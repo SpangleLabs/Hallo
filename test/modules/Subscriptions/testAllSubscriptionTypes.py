@@ -131,7 +131,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
                 with self.subTest(sub_class.__name__):
                     self.mock_method_called = False
                     sub_class.check = self.mock_method
-                    sub_obj = sub_class.create_from_input(evts_dict[sub_class], sub_repo)
+                    sub_class.create_from_input(evts_dict[sub_class], sub_repo)
                     assert self.mock_method_called
 
         def mock_method(self):
