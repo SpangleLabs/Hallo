@@ -615,6 +615,8 @@ class FANotificationNotesSub(Subscription):
         # Reset inbox note ids and outbox note ids
         self.inbox_note_ids = [note.note_id for note in inbox_notes_page.notes]
         self.outbox_note_ids = [note.note_id for note in outbox_notes_page.notes if not note.is_read]
+        # Update last check time
+        self.last_check = datetime.now()
         # Return results
         return results
 
