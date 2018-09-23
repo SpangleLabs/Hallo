@@ -586,7 +586,9 @@ class FANotificationNotesSub(Subscription):
             search_delta = Commons.load_time_delta(input_evt.command_args)
         except ISO8601ParseError:
             search_delta = Commons.load_time_delta("PT300S")
-        return FANotificationNotesSub(server, destination, fa_key, update_frequency=search_delta)
+        notes_sub = FANotificationNotesSub(server, destination, fa_key, update_frequency=search_delta)
+        notes_sub.check()
+        return notes_sub
 
     def matches_name(self, name_clean):
         return name_clean in self.names + ["notes"]
