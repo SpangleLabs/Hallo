@@ -318,7 +318,10 @@ class RssSub(Subscription):
         return "{} ({})".format(self.title, self.url)
 
     def check(self):
-        rss_data = Commons.load_url_string(self.url)
+        headers = None
+        if "tumblr.com" in self.url:
+            headers = [["User-Agent", "Hallo IRCBot hallo@dr-spangle.com (GoogleBot)"]]
+        rss_data = Commons.load_url_string(self.url, headers)
         rss_elem = ElementTree.fromstring(rss_data)
         channel_elem = rss_elem.find("channel")
         new_items = []
