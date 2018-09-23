@@ -698,10 +698,6 @@ class FANotificationNotesSub(Subscription):
         return new_sub
 
 
-class FANotificationWatchSub(Subscription):
-    pass
-
-
 class FANotificationFavSub(Subscription):
     pass
 
@@ -1216,6 +1212,120 @@ class FAUserWatchersSub(Subscription):
         new_sub = FAUserWatchersSub(server, destination, fa_key, username,
                                     last_check=last_check, update_frequency=update_frequency,
                                     newest_watchers=newest_watchers)
+        new_sub.last_update = last_update
+        return new_sub
+
+
+class FANotificationWatchSub(FAUserWatchersSub):
+    names = ["{}{}{}{}".format(fa, new, watchers, notifications)
+             for fa in ["fa ", "furaffinity "]
+             for new in ["new ", ""]
+             for watchers in ["watcher", "watchers"]
+             for notifications in ["", " notifications"]]
+    """ :type : list[str]"""
+    type_name = "fa_notif_watchers"
+
+    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
+                 newest_watchers=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :param newest_watchers: List of user's most recent new watchers' usernames
+        :type newest_watchers: list[str]
+        """
+        username = fa_key.get_fa_reader().get_notification_page().username
+        super().__init__(server, destination, fa_key, username,
+                         last_check=last_check, update_frequency=update_frequency, newest_watchers=newest_watchers)
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        """
+        :type input_evt: Events.EventMessage
+        :type sub_repo: SubscriptionRepo
+        :rtype: FAUserWatchersSub
+        """
+        # Get FAKey object
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA watcher notification subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+        # Get server and destination
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if user gave us an update period
+        try:
+            search_delta = Commons.load_time_delta(input_evt.command_args)
+        except ISO8601ParseError:
+            search_delta = Commons.load_time_delta("PT300S")
+        # Create FA user watchers object
+        try:
+            fa_sub = FANotificationWatchSub(server, destination, fa_key, update_frequency=search_delta)
+        except Exception:
+            raise SubscriptionException("Yours does not appear to be a valid username? "
+                                        "I cannot access your profile page.")
+        fa_sub.check()
+        return fa_sub
+
+    def matches_name(self, name_clean):
+        return name_clean in self.names + ["watchers"]
+
+    def get_name(self):
+        return "New watchers notifications for {}".format(self.fa_key.user.name)
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        del json_obj["username"]
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load newest watcher list
+        newest_watchers = []
+        for new_watcher in json_obj["newest_watchers"]:
+            newest_watchers.append(new_watcher)
+        new_sub = FANotificationWatchSub(server, destination, fa_key,
+                                         last_check=last_check, update_frequency=update_frequency,
+                                         newest_watchers=newest_watchers)
         new_sub.last_update = last_update
         return new_sub
 
