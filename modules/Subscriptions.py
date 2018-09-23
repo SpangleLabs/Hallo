@@ -1128,15 +1128,45 @@ class FAUserWatchersSub(Subscription):
         return "New watchers subscription for \"{}\"".format(self.username)
 
     def check(self):
-        pass
+        fa_reader = self.fa_key.get_fa_reader()
+        results = []
+        user_page = fa_reader.get_user_page(self.username)
+        next_batch = []
+        matched_ids = False
+        for new_watcher in user_page.watched_by:
+            watcher_username = new_watcher.watcher_username
+            # Batch things that have been seen, so that the results after the last result in latest_ids aren't included
+            if watcher_username in self.newest_watchers:
+                results += next_batch
+                next_batch = []
+                matched_ids = True
+            else:
+                next_batch.append(new_watcher)
+        # If no watchers in list matched an ID in last seen, send all results from list
+        if not matched_ids:
+            results += next_batch
+        # Create new list of latest ten results
+        self.newest_watchers = [new_watcher.watcher_username for new_watcher in user_page.watched_by]
+        self.last_check = datetime.now()
+        return results
 
     def format_item(self, item):
-        pass
+        """
+        :type item: FAKey.FAReader.FAWatch
+        :return: EventMessage
+        """
+        link = "https://furaffinity.net/user/{}/".format(item.watcher_username)
+        # Construct output
+        output = "{} has watched {}. Link: {}".format(item.watcher_name, self.username, link)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        return EventMessage(self.server, channel, user, output, inbound=False)
 
     def to_json(self):
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["fa_key_user_address"] = self.fa_key.user.address
+        json_obj["username"] = self.username
         json_obj["newest_watchers"] = []
         for new_watcher in self.newest_watchers:
             json_obj["newest_watchers"].append(new_watcher)
@@ -1177,11 +1207,13 @@ class FAUserWatchersSub(Subscription):
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load username
+        username = json_obj["username"]
         # Load newest watcher list
         newest_watchers = []
         for new_watcher in json_obj["newest_watchers"]:
             newest_watchers.append(new_watcher)
-        new_sub = FAUserWatchersSub(server, destination, fa_key,
+        new_sub = FAUserWatchersSub(server, destination, fa_key, username,
                                     last_check=last_check, update_frequency=update_frequency,
                                     newest_watchers=newest_watchers)
         new_sub.last_update = last_update
