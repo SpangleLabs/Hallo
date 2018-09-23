@@ -1,29 +1,33 @@
 import importlib
 import inspect
+import os
 import unittest
 
 import modules
 from Events import EventMessage
 from modules.Subscriptions import SubscriptionFactory, E621Sub, RssSub, FANotificationNotesSub, FASearchSub, FAKey, \
-    SubscriptionRepo, FAKeysCommon
+    SubscriptionRepo, FAKeysCommon, FAUserFavsSub
 
 from test.TestBase import TestBase
 
 
 class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
+    cookie_a = os.getenv("test_cookie_a")
+    cookie_b = os.getenv("test_cookie_b")
 
     def get_sub_objects(self):
-        fa_key = FAKey(self.test_user, "aaaa", "bbbb")
+        fa_key = FAKey(self.test_user, self.cookie_a, self.cookie_b)
         sub_objs = list()
         sub_objs.append(E621Sub(self.server, self.test_chan, "cabinet"))
         sub_objs.append(RssSub(self.server, self.test_chan, "http://spangle.org.uk/hallo/test_rss.xml"))
         sub_objs.append(FANotificationNotesSub(self.server, self.test_chan, fa_key))
         sub_objs.append(FASearchSub(self.server, self.test_chan, fa_key, "ych"))
+        sub_objs.append(FAUserFavsSub(self.server, self.test_chan, fa_key, "zephyr42"))
         return sub_objs
 
     def get_sub_create_events(self):
         sub_repo = SubscriptionRepo()
-        fa_key = FAKey(self.test_user, "aaaa", "bbbb")
+        fa_key = FAKey(self.test_user, self.cookie_a, self.cookie_b)
         fa_commons = sub_repo.get_common_config_by_type(modules.Subscriptions.FAKeysCommon)  # type: FAKeysCommon
         fa_commons.add_key(fa_key)
         sub_evts = dict()
@@ -36,6 +40,8 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_evts[FANotificationNotesSub].command_args = ""
         sub_evts[FASearchSub] = EventMessage(self.server, self.test_chan, self.test_user, "ych")
         sub_evts[FASearchSub].command_args = "ych"
+        sub_evts[FAUserFavsSub] = EventMessage(self.server, self.test_chan, self.test_user, "zephyr42")
+        sub_evts[FAUserFavsSub].command_args = "zephyr42"
         return sub_evts
 
     def test_all_sub_classes_in_sub_objs(self):
@@ -121,21 +127,18 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
 
     def test_sub_create_from_input_calls_check(self):
         """
-        Test that all subscription classes call the check() method when creating from input
+        Test that all subscription classes call the check() method when creating from input.
+        This prevents subscriptions giving a full page of results on the first check.
+        We can check this by seeing the last_check time is not None
         """
         sub_repo = SubscriptionRepo()
         fa_keys = sub_repo.get_common_config_by_type(modules.Subscriptions.FAKeysCommon)  # type: FAKeysCommon
-        fa_keys.add_key(FAKey(self.test_user, "aaaa", "bbbb"))
+        fa_keys.add_key(FAKey(self.test_user, self.cookie_a, self.cookie_b))
         evts_dict = self.get_sub_create_events()
         for sub_class in evts_dict:
             with self.subTest(sub_class.__name__):
-                self.mock_method_called = False
-                sub_class.check = self.mock_method
-                sub_class.create_from_input(evts_dict[sub_class], sub_repo)
-                assert self.mock_method_called
-
-    def mock_method(self):
-        self.mock_method_called = True
+                sub_obj = sub_class.create_from_input(evts_dict[sub_class], sub_repo)
+                assert sub_obj.last_check is not None
 
     def test_sub_classes_added_to_factory(self):
         """
