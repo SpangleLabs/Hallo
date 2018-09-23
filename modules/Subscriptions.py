@@ -1059,6 +1059,100 @@ class FAUserFavsSub(Subscription):
         return json_obj
 
 
+class FAUserWatchersSub(Subscription):
+    names = ["fa user watchers", "fa user new watchers", "furaffinity user watchers", "furaffinity user new watchers"]
+    """ :type : list[str]"""
+    type_name = "fa_user_watchers"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
+                 newest_watchers=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :param newest_watchers: List of user's most recent new watchers' usernames
+        :type newest_watchers: list[str]
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.newest_watchers = [] if newest_watchers is None else newest_watchers
+        """ :type : list[str]"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        pass
+
+    def matches_name(self, name_clean):
+        pass
+
+    def get_name(self):
+        pass
+
+    def check(self):
+        pass
+
+    def format_item(self, item):
+        pass
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["fa_key_user_address"] = self.fa_key.user.address
+        json_obj["newest_watchers"] = []
+        for new_watcher in self.newest_watchers:
+            json_obj["newest_watchers"].append(new_watcher)
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load newest watcher list
+        newest_watchers = []
+        for new_watcher in json_obj["newest_watchers"]:
+            newest_watchers.append(new_watcher)
+        new_sub = FAUserWatchersSub(server, destination, fa_key,
+                                    last_check=last_check, update_frequency=update_frequency,
+                                    newest_watchers=newest_watchers)
+        new_sub.last_update = last_update
+        return new_sub
+
+
 class YoutubeSub(Subscription):
     pass
 
