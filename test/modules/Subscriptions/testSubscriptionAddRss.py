@@ -55,7 +55,7 @@ class FeedAddTest(TestBase, unittest.TestCase):
         assert rss_sub.destination == self.test_chan
         assert rss_sub.last_item_hash is not None
         assert rss_sub.last_check is not None
-        assert rss_sub.update_frequency.seconds == 3600
+        assert rss_sub.update_frequency.seconds == 600
         assert rss_sub.update_frequency.days == 0
 
     def test_add_feed_user(self):
@@ -75,7 +75,7 @@ class FeedAddTest(TestBase, unittest.TestCase):
         assert rss_sub.destination == self.test_user
         assert rss_sub.last_item_hash is not None
         assert rss_sub.last_check is not None
-        assert rss_sub.update_frequency.seconds == 3600
+        assert rss_sub.update_frequency.seconds == 600
         assert rss_sub.update_frequency.days == 0
 
     def test_add_feed_period(self):
