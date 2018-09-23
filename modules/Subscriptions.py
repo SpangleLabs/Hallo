@@ -297,13 +297,13 @@ class RssSub(Subscription):
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # Get user specified stuff
         feed_url = input_evt.command_args.split()[0]
-        feed_period = "PT3600S"
+        feed_period = "PT600S"
         if len(input_evt.command_args.split()) > 1:
             feed_period = input_evt.command_args.split()[1]
         try:
             feed_delta = Commons.load_time_delta(feed_period)
         except ISO8601ParseError:
-            feed_delta = Commons.load_time_delta("PT300S")
+            feed_delta = Commons.load_time_delta("PT600S")
         try:
             rss_sub = RssSub(server, destination, feed_url, update_frequency=feed_delta)
             rss_sub.check()
@@ -769,7 +769,7 @@ class FASearchSub(Subscription):
             search = input_evt.command_args[:-len(try_period)].strip()
         except ISO8601ParseError:
             search = input_evt.command_args.strip()
-            search_delta = Commons.load_time_delta("PT300S")
+            search_delta = Commons.load_time_delta("PT600S")
         # Create FA search subscription object
         fa_sub = FASearchSub(server, destination, fa_key, search, update_frequency=search_delta)
         # Check if it's a valid search
@@ -939,7 +939,7 @@ class FAUserFavsSub(Subscription):
             username = input_evt.command_args[:-len(try_period)].strip()
         except ISO8601ParseError:
             username = input_evt.command_args.strip()
-            search_delta = Commons.load_time_delta("PT300S")
+            search_delta = Commons.load_time_delta("PT600S")
         # Create FA user favs object
         fa_sub = FAUserFavsSub(server, destination, fa_key, username, update_frequency=search_delta)
         # Check if it's a valid user
@@ -1065,12 +1065,13 @@ class FAUserWatchersSub(Subscription):
     type_name = "fa_user_watchers"
     """ :type : str"""
 
-    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
+    def __init__(self, server, destination, fa_key, username, last_check=None, update_frequency=None,
                  newest_watchers=None):
         """
         :type server: Server.Server
         :type destination: Destination.Destination
         :type fa_key: FAKey
+        :type username: str
         :type last_check: datetime
         :type update_frequency: timedelta
         :param newest_watchers: List of user's most recent new watchers' usernames
@@ -1079,12 +1080,46 @@ class FAUserWatchersSub(Subscription):
         super().__init__(server, destination, last_check, update_frequency)
         self.fa_key = fa_key
         """ :type : FAKey"""
+        self.username = username
+        """ :type : str"""
         self.newest_watchers = [] if newest_watchers is None else newest_watchers
         """ :type : list[str]"""
 
     @staticmethod
     def create_from_input(input_evt, sub_repo):
-        pass
+        """
+        :type input_evt: Events.EventMessage
+        :type sub_repo: SubscriptionRepo
+        :rtype: FAUserWatchersSub
+        """
+        # Get FAKey object
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA user watchers subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+        # Get server and destination
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if last argument is check period.
+        try:
+            try_period = input_evt.command_args.split()[-1]
+            search_delta = Commons.load_time_delta(try_period)
+            username = input_evt.command_args[:-len(try_period)].strip()
+        except ISO8601ParseError:
+            username = input_evt.command_args.strip()
+            search_delta = Commons.load_time_delta("PT600S")
+        # Create FA user favs object
+        fa_sub = FAUserWatchersSub(server, destination, fa_key, username, update_frequency=search_delta)
+        # Check if it's a valid user
+        try:
+            fa_key.get_fa_reader().get_user_page(username)
+        except Exception:
+            raise SubscriptionException("This does not appear to be a valid username.")
+        fa_sub.check()
+        return fa_sub
 
     def matches_name(self, name_clean):
         pass
