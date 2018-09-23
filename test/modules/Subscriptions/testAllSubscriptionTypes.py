@@ -6,7 +6,7 @@ import unittest
 import modules
 from Events import EventMessage
 from modules.Subscriptions import SubscriptionFactory, E621Sub, RssSub, FANotificationNotesSub, FASearchSub, FAKey, \
-    SubscriptionRepo, FAKeysCommon, FAUserFavsSub
+    SubscriptionRepo, FAKeysCommon, FAUserFavsSub, FAUserWatchersSub
 
 from test.TestBase import TestBase
 
@@ -23,6 +23,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_objs.append(FANotificationNotesSub(self.server, self.test_chan, fa_key))
         sub_objs.append(FASearchSub(self.server, self.test_chan, fa_key, "ych"))
         sub_objs.append(FAUserFavsSub(self.server, self.test_chan, fa_key, "zephyr42"))
+        sub_objs.append(FAUserWatchersSub(self.server, self.test_chan, fa_key, "zephyr42"))
         return sub_objs
 
     def get_sub_create_events(self):
@@ -42,6 +43,8 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_evts[FASearchSub].command_args = "ych"
         sub_evts[FAUserFavsSub] = EventMessage(self.server, self.test_chan, self.test_user, "zephyr42")
         sub_evts[FAUserFavsSub].command_args = "zephyr42"
+        sub_evts[FAUserWatchersSub] = EventMessage(self.server, self.test_chan, self.test_user, "zephyr42")
+        sub_evts[FAUserWatchersSub].command_args = "zephyr42"
         return sub_evts
 
     def test_all_sub_classes_in_sub_objs(self):
