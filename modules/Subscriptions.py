@@ -280,7 +280,7 @@ class RssSub(Subscription):
         self.url = url
         """ :type : str"""
         if title is None:
-            rss_data = Commons.load_url_string(self.url)
+            rss_data = self.get_rss_data()
             rss_elem = ElementTree.fromstring(rss_data)
             channel_elem = rss_elem.find("channel")
             # Update title
@@ -290,6 +290,13 @@ class RssSub(Subscription):
         """ :type : str"""
         self.last_item_hash = last_item_hash
         """ :type : str | None"""
+
+    def get_rss_data(self):
+        headers = None
+        if "tumblr.com" in self.url:
+            headers = [["User-Agent", "Hallo IRCBot hallo@dr-spangle.com (GoogleBot)"]]
+        rss_data = Commons.load_url_string(self.url, headers)
+        return rss_data
 
     @staticmethod
     def create_from_input(input_evt, sub_repo):
@@ -318,10 +325,7 @@ class RssSub(Subscription):
         return "{} ({})".format(self.title, self.url)
 
     def check(self):
-        headers = None
-        if "tumblr.com" in self.url:
-            headers = [["User-Agent", "Hallo IRCBot hallo@dr-spangle.com (GoogleBot)"]]
-        rss_data = Commons.load_url_string(self.url, headers)
+        rss_data = self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
         channel_elem = rss_elem.find("channel")
         new_items = []
