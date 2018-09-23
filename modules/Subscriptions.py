@@ -1709,7 +1709,7 @@ class FAKey:
                             jou_links = jou_notif.find_all("a")
                             journal_id = jou_notif.input["value"]
                             journal_name = jou_links[0].string
-                            username = jou_links[1].split("/")[-2]
+                            username = jou_links[1]["href"].split("/")[-2]
                             name = jou_links[1].string
                             new_journal = FAKey.FAReader.FANotificationJournal(journal_id, journal_name, username, name)
                             self.journals.append(new_journal)
