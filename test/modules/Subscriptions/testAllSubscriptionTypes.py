@@ -146,8 +146,8 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
             for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
                 function_class = function_tuple[1]
                 # Only look at subclasses of Subscription
-                if not issubclass(function_class, Subscription):
-                    pass
+                if not issubclass(function_class, modules.Subscriptions.Subscription):
+                    continue
                 # Only look at implemented classes.
                 sub_repo = SubscriptionRepo()
                 # noinspection PyBroadException
@@ -159,5 +159,6 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
                 except Exception:
                     pass
                 # Check it's in SubscriptionFactory
-                assert function_class in SubscriptionFactory.sub_classes, "{} class missing from SubscriptionFactory"\
-                    .format(function_class.__name__)
+                assert function_class.__name__ in \
+                    [sub_class.__name__ for sub_class in SubscriptionFactory.sub_classes], \
+                    "{} class missing from SubscriptionFactory".format(function_class.__name__)
