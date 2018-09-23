@@ -1157,7 +1157,7 @@ class FAUserWatchersSub(Subscription):
         """
         link = "https://furaffinity.net/user/{}/".format(item.watcher_username)
         # Construct output
-        output = "{} has watched {}. Link: {}".format(item.watcher_name, self.username, link)
+        output = "{} has watched {}. Link: {}".format(item.watcher_name, item.watched_name, link)
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         return EventMessage(self.server, channel, user, output, inbound=False)
