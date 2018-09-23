@@ -1897,8 +1897,10 @@ class FAKey:
                 """ :type : str"""
                 self.name = main_panel_strings[main_panel_strings.index("Full Name:")+1]
                 """ :type : str"""
-                self.user_title = main_panel_strings[main_panel_strings.index("User Title:")+1]
-                """ :type : str"""
+                self.user_title = None
+                """ :type : str | None"""
+                if "User Title:" in main_panel_strings:
+                    self.user_title = main_panel_strings[main_panel_strings.index("User Title:") + 1]
                 registered_since_str = main_panel_strings[main_panel_strings.index("Registered since:")+1]\
                     .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
                 self.registered_since = datetime.strptime(registered_since_str, "%b %d, %Y %H:%M")
