@@ -945,7 +945,7 @@ class FAUserFavsSub(Subscription):
         # Check if it's a valid user
         try:
             fa_key.get_fa_reader().get_user_page(username)
-        except Exception as e:
+        except Exception:
             raise SubscriptionException("This does not appear to be a valid username.")
         fa_sub.check()
         return fa_sub
