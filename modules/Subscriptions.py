@@ -1621,7 +1621,7 @@ class FAKey:
             def __init__(self, code, username):
                 super().__init__(code)
                 main_panel = self.soup.find("b", string="Full Name:").parent
-                main_panel_strings = main_panel.stripped_strings
+                main_panel_strings = list(main_panel.stripped_strings)
                 self.username = username
                 """ :type : str"""
                 self.name = main_panel_strings[main_panel_strings.index("Full Name:")+1]
@@ -1669,7 +1669,7 @@ class FAKey:
                         username = shout.find_all("img", {"class": "avatar"})[0]["alt"]
                         name = shout.find_all("a")[1].string
                         avatar = "https"+shout.find_all("img", {"class": "avatar"})[0]["src"]
-                        text = shout.find_all("div")[0].string.strip()
+                        text = "".join(str(x) for x in shout.find("div").contents)
                         new_shout = FAKey.FAReader.FAShout(shout_id, username, name, avatar, text)
                         self.shouts.append(new_shout)
                 self.watched_by = []
