@@ -2220,7 +2220,8 @@ class FAKey:
 
 
 class SubscriptionFactory(object):
-    sub_classes = [E621Sub, RssSub, FANotificationNotesSub, FASearchSub, FAUserFavsSub, FAUserWatchersSub]
+    sub_classes = [E621Sub, RssSub, FANotificationNotesSub, FASearchSub, FAUserFavsSub, FAUserWatchersSub,
+                   FANotificationWatchSub]
     """ :type : list[type.Subscription]"""
     common_classes = [FAKeysCommon]
     """ :type : list[type.SubscriptionCommon]"""
