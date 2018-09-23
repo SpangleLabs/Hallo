@@ -1122,10 +1122,10 @@ class FAUserWatchersSub(Subscription):
         return fa_sub
 
     def matches_name(self, name_clean):
-        pass
+        return name_clean == self.username
 
     def get_name(self):
-        pass
+        return "New watchers subscription for \"{}\"".format(self.username)
 
     def check(self):
         pass
