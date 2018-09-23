@@ -293,9 +293,17 @@ class RssSub(Subscription):
 
     def get_rss_data(self):
         headers = None
+        # Tumblr feeds need "GoogleBot" in the URL, or they'll give a GDPR notice
         if "tumblr.com" in self.url:
             headers = [["User-Agent", "Hallo IRCBot hallo@dr-spangle.com (GoogleBot)"]]
+        # Actually get the data
         rss_data = Commons.load_url_string(self.url, headers)
+        # PHDComics doesn't always escape ampersands correctly
+        if "phdcomics" in self.url:
+            rss_data = rss_data.replace("& ", "&amp; ")
+        # Chainsaw suit has a blank first line
+        if "chainsawsuit" in self.url and rss_data.startswith("\r\n"):
+            rss_data = rss_data[2:]
         return rss_data
 
     @staticmethod
