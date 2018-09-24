@@ -719,7 +719,51 @@ class FANotificationNotesSub(Subscription):
 
 
 class FANotificationFavSub(Subscription):
-    pass
+    names = ["fa favs notifications", "fa favs", "furaffinity favs",
+             "fa favourites notifications", "fa favourites", "furaffinity favourites"]
+    """ :type : list[str]"""
+    type_name = "fa_notif_favs"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
+                 fav_notif_count=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :param fav_notif_count: Count of how many fav notifications are currently in the header bar
+        :type fav_notif_count: int | None
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.fav_notif_count = 0 if fav_notif_count is None else fav_notif_count
+        """ :type : int | None"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        pass
+
+    def matches_name(self, name_clean):
+        pass
+
+    def get_name(self):
+        pass
+
+    def check(self):
+        pass
+
+    def format_item(self, item):
+        pass
+
+    def to_json(self):
+        pass
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        pass
 
 
 class FANotificationCommentsSub(Subscription):
