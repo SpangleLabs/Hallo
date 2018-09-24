@@ -274,7 +274,8 @@ class RssSub(Subscription):
         :type last_check: datetime | None
         :type update_frequency: timedelta | None
         :type title: str | None
-        :type last_item_hash | None
+        :param last_item_hash: GUID or md5 of latest item in rss feed
+        :type last_item_hash: str | None
         """
         super().__init__(server, destination, last_check, update_frequency)
         self.url = url
@@ -343,8 +344,12 @@ class RssSub(Subscription):
         # Loop elements, seeing when any match the last item's hash
         latest_hash = None
         for item_elem in channel_elem.findall("item"):
-            item_xml = ElementTree.tostring(item_elem)
-            item_hash = hashlib.md5(item_xml).hexdigest()
+            item_guid_elem = item_elem.find("guid")
+            if item_guid_elem is not None:
+                item_hash = item_guid_elem.text
+            else:
+                item_xml = ElementTree.tostring(item_elem)
+                item_hash = hashlib.md5(item_xml).hexdigest()
             if latest_hash is None:
                 latest_hash = item_hash
             if item_hash == self.last_item_hash:
