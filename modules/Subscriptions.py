@@ -744,13 +744,29 @@ class FANotificationFavSub(Subscription):
 
     @staticmethod
     def create_from_input(input_evt, sub_repo):
-        pass
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA favourite notification subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if user gave us an update period
+        try:
+            search_delta = Commons.load_time_delta(input_evt.command_args)
+        except ISO8601ParseError:
+            search_delta = Commons.load_time_delta("PT300S")
+        fa_sub = FANotificationFavSub(server, destination, fa_key, update_frequency=search_delta)
+        fa_sub.check()
+        return fa_sub
 
     def matches_name(self, name_clean):
-        pass
+        return name_clean in self.names + ["favs"]
 
     def get_name(self):
-        pass
+        return "FA favourites for {}".format(self.fa_key.user.name)
 
     def check(self):
         pass
@@ -759,11 +775,54 @@ class FANotificationFavSub(Subscription):
         pass
 
     def to_json(self):
-        pass
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["fa_key_user_address"] = self.fa_key.user.address
+        json_obj["fav_notif_count"] = self.fav_notif_count
+        return json_obj
 
     @staticmethod
     def from_json(json_obj, hallo, sub_repo):
-        pass
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load inbox_note_ids
+        fav_notif_count = json_obj["fav_notif_count"]
+        new_sub = FANotificationFavSub(server, destination, fa_key,
+                                       last_check=last_check, update_frequency=update_frequency,
+                                       fav_notif_count=fav_notif_count)
+        new_sub.last_update = last_update
+        return new_sub
 
 
 class FANotificationCommentsSub(Subscription):
