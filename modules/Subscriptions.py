@@ -769,10 +769,31 @@ class FANotificationFavSub(Subscription):
         return "FA favourites for {}".format(self.fa_key.user.name)
 
     def check(self):
-        pass
+        fa_reader = self.fa_key.get_fa_reader()
+        notif_page = fa_reader.get_notification_page()
+        results = []
+        if notif_page.total_favs > self.fav_notif_count:
+            new_notifs = notif_page.total_favs - self.fav_notif_count
+            results = notif_page.favourites[:new_notifs]
+        self.fav_notif_count = notif_page.total_favs
+        # Update last check time
+        self.last_check = datetime.now()
+        # Return results
+        return results
 
-    def format_item(self, item):
-        pass
+    def format_item(self, new_fav):
+        """
+        :type new_fav: FAKey.FAReader.FANotificationFavourite
+        :rtype: EventMessage
+        """
+        # Construct output
+        output = "You have a new favourite notification, {} ( http://furaffinity.net/user/{}/ ) " \
+                 "has favourited your submission \"{}\" {}".format(new_fav.name, new_fav.username,
+                                                                   new_fav.submission_name, new_fav.submission_link)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        output_evt = EventMessage(self.server, channel, user, output, inbound=False)
+        return output_evt
 
     def to_json(self):
         json_obj = super().to_json()
