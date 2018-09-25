@@ -2456,7 +2456,7 @@ class FAKey:
                     avatar_link = "https:" + comment_link.find("img")["src"]
                     comment_id = comment["id"][4:]
                     posted_datetime = Commons.format_unix_time(int(comment["data-timestamp"]))
-                    text = "".join(str(x) for x in comment.find("div", {"class": "message-text"}).contents)
+                    text = "".join(str(x) for x in comment.find("div", {"class": "message-text"}).contents).strip()
                     new_comment = FAKey.FAReader.FAComment(username, name, avatar_link, comment_id,
                                                            posted_datetime, text)
                     width = int(comment["width"][:-1])
