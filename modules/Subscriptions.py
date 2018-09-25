@@ -873,7 +873,7 @@ class FANotificationCommentsSub(Subscription):
         self.fa_key = fa_key
         """ :type : FAKey"""
         self.comment_notification_count = comment_notification_count
-        """ :type : str | None"""
+        """ :type : int | None"""
         self.latest_comment_id_journal = latest_comment_id_journal
         """ :type : str | None"""
         self.latest_comment_id_submission = latest_comment_id_submission
@@ -908,10 +908,47 @@ class FANotificationCommentsSub(Subscription):
         return "FA comments for {}".format(self.fa_key.user.name)
 
     def check(self):
-        pass
+        notif_page = self.fa_key.get_fa_reader().get_notification_page()
+        # If there's equal or less notifications than last time, skip
+        if self.comment_notification_count is not None and notif_page.total_comments <= self.comment_notification_count:
+            self.comment_notification_count = notif_page.total_comments
+            self.last_check = datetime.now()
+            return []
+        self.comment_notification_count = notif_page.total_comments
+        results = []
+        # Check submission comments
+        for submission_notif in notif_page.submission_comments:
+            if submission_notif.comment_id == self.latest_comment_id_submission:
+                break
+            results.append(submission_notif)
+        self.latest_comment_id_submission = None
+        if len(notif_page.submission_comments) > 0:
+            self.latest_comment_id_submission = notif_page.submission_comments[0].comment_id
+        # Check journal comments
+        for journal_notif in notif_page.journal_comments:
+            if journal_notif.comment_id == self.latest_comment_id_journal:
+                break
+            results.append(journal_notif)
+        self.latest_comment_id_journal = None
+        if len(notif_page.journal_comments) > 0:
+            self.latest_comment_id_journal = notif_page.journal_comments[0].comment_id
+        # Check shouts
+        for shout_notif in notif_page.shouts:
+            if shout_notif.shout_id == self.latest_shout_id:
+                break
+            results.append(shout_notif)
+        self.latest_shout_id = None
+        if len(notif_page.shouts) > 0:
+            self.latest_shout_id = notif_page.shouts[0].shout_id
+        # Update last check time
+        self.last_check = datetime.now()
+        # Return results
+        return results
 
     def format_item(self, item):
         pass
+
+    def to_json(self):
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["fa_key_user_address"] = self.fa_key.user.address
