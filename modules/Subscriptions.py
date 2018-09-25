@@ -847,9 +847,9 @@ class FANotificationFavSub(Subscription):
 
 
 class FANotificationCommentsSub(Subscription):
-    names = ["{}{}{}".format(fa, new, watchers, notifications)
+    names = ["{}{}{}".format(fa, comments, notifications)
              for fa in ["fa ", "furaffinity "]
-             for watchers in ["comments", "comment", "shouts", "shout"]
+             for comments in ["comments", "comment", "shouts", "shout"]
              for notifications in ["", " notifications"]]
     """ :type : list[str]"""
     type_name = "fa_notif_comments"
@@ -902,10 +902,10 @@ class FANotificationCommentsSub(Subscription):
         return fa_sub
 
     def matches_name(self, name_clean):
-        return name_clean in self.names + ["favs"]
+        return name_clean in self.names + ["comments"]
 
     def get_name(self):
-        return "FA favourites for {}".format(self.fa_key.user.name)
+        return "FA comments for {}".format(self.fa_key.user.name)
 
     def check(self):
         pass
