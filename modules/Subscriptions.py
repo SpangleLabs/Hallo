@@ -712,8 +712,8 @@ class FANotificationNotesSub(Subscription):
         for note_id in json_obj["outbox_note_ids"]:
             outbox_ids.append(note_id)
         new_sub = FANotificationNotesSub(server, destination, fa_key,
-                                      last_check=last_check, update_frequency=update_frequency,
-                                      inbox_note_ids=inbox_ids, outbox_note_ids=outbox_ids)
+                                         last_check=last_check, update_frequency=update_frequency,
+                                         inbox_note_ids=inbox_ids, outbox_note_ids=outbox_ids)
         new_sub.last_update = last_update
         return new_sub
 
