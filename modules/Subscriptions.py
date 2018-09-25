@@ -2012,7 +2012,7 @@ class FAKey:
                     for jou_comment_notif in jou_comment_list.find_all("li", attrs={"class": None}):
                         try:
                             jou_comment_links = jou_comment_notif.find_all("a")
-                            comment_id = jou_comment_notif.value["input"]
+                            comment_id = jou_comment_notif.find("input")["value"]
                             username = jou_comment_links[0]["href"].split("/")[2]
                             name = jou_comment_links[0].string
                             comment_on = "<em>your</em> comment on" in str(jou_comment_notif)
