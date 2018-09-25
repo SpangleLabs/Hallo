@@ -912,10 +912,67 @@ class FANotificationCommentsSub(Subscription):
 
     def format_item(self, item):
         pass
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["fa_key_user_address"] = self.fa_key.user.address
+        json_obj["comment_notification_count"] = self.comment_notification_count
+        json_obj["latest_comment_id_journal"] = self.latest_comment_id_journal
+        json_obj["latest_comment_id_submission"] = self.latest_comment_id_submission
+        json_obj["latest_shout_id"] = self.latest_shout_id
+        return json_obj
 
     @staticmethod
     def from_json(json_obj, hallo, sub_repo):
-        pass
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load comment IDs and count
+        comment_notification_count = json_obj["comment_notification_count"]
+        latest_comment_id_journal = json_obj["latest_comment_id_journal"]
+        latest_comment_id_submission = json_obj["latest_comment_id_submission"]
+        latest_shout_id = json_obj["latest_shout_id"]
+        json_obj["comment_notification_count"] = self.comment_notification_count
+        json_obj["latest_comment_id_journal"] = self.latest_comment_id_journal
+        json_obj["latest_comment_id_submission"] = self.latest_comment_id_submission
+        json_obj["latest_shout_id"] = self.latest_shout_id
+        new_sub = FANotificationCommentsSub(server, destination, fa_key,
+                                            last_check=last_check, update_frequency=update_frequency,
+                                            comment_notification_count=comment_notification_count,
+                                            latest_comment_id_journal=latest_comment_id_journal,
+                                            latest_comment_id_submission=latest_comment_id_submission,
+                                            latest_shout_id=latest_shout_id)
+        new_sub.last_update = last_update
+        return new_sub
 
 
 class FANotificationJournalsSub(Subscription):
