@@ -2299,7 +2299,7 @@ class FAKey:
                         username = shout.find_all("img", {"class": "avatar"})[0]["alt"]
                         name = shout.find_all("a")[1].string
                         avatar = "https"+shout.find_all("img", {"class": "avatar"})[0]["src"]
-                        text = "".join(str(x) for x in shout.find("div").contents)
+                        text = "".join(str(x) for x in shout.find("div").contents).strip()
                         new_shout = FAKey.FAReader.FAShout(shout_id, username, name, avatar, text)
                         self.shouts.append(new_shout)
                 self.watched_by = []
