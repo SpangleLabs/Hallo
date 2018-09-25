@@ -847,7 +847,75 @@ class FANotificationFavSub(Subscription):
 
 
 class FANotificationCommentsSub(Subscription):
-    pass
+    names = ["{}{}{}".format(fa, new, watchers, notifications)
+             for fa in ["fa ", "furaffinity "]
+             for watchers in ["comments", "comment", "shouts", "shout"]
+             for notifications in ["", " notifications"]]
+    """ :type : list[str]"""
+    type_name = "fa_notif_comments"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
+                 comment_notification_count=None, latest_comment_id_journal=None,
+                 latest_comment_id_submission=None, latest_shout_id=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :type comment_notification_count: str | None
+        :type latest_comment_id_journal: str | None
+        :type latest_comment_id_submission: str | None
+        :type latest_shout_id: str | None
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.comment_notification_count = comment_notification_count
+        """ :type : str | None"""
+        self.latest_comment_id_journal = latest_comment_id_journal
+        """ :type : str | None"""
+        self.latest_comment_id_submission = latest_comment_id_submission
+        """ :type : str | None"""
+        self.latest_shout_id = latest_shout_id
+        """ :type : str | None"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA comments notification subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if user gave us an update period
+        try:
+            search_delta = Commons.load_time_delta(input_evt.command_args)
+        except ISO8601ParseError:
+            search_delta = Commons.load_time_delta("PT300S")
+        fa_sub = FANotificationCommentsSub(server, destination, fa_key, update_frequency=search_delta)
+        fa_sub.check()
+        return fa_sub
+
+    def matches_name(self, name_clean):
+        return name_clean in self.names + ["favs"]
+
+    def get_name(self):
+        return "FA favourites for {}".format(self.fa_key.user.name)
+
+    def check(self):
+        pass
+
+    def format_item(self, item):
+        pass
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        pass
 
 
 class FANotificationJournalsSub(Subscription):
