@@ -946,7 +946,60 @@ class FANotificationCommentsSub(Subscription):
         return results
 
     def format_item(self, item):
-        pass
+        output = "Err, comments did something?"
+        fa_reader = self.fa_key.get_fa_reader()
+        if isinstance(item, FAKey.FAReader.FANotificationShout):
+            user_page = fa_reader.get_user_page(item.page_username)
+            shout = [shout for shout in user_page.shouts if shout.shout_id == item.shout_id]
+            if len(shout) == 1:
+                output = "You have a new shout, from {} " \
+                         "( http://furaffinity.net/user/{}/ ) " \
+                         "has left a shout saying: \n\n{}".format(item.name, item.username, shout[0].text)
+            else:
+                output = "You have a new shout, from {} " \
+                         "( http://furaffinity.net/user/{}/ ) " \
+                         "has left a shout but I can't find it on your user page: \n" \
+                         "https://furaffinity.net/user/{}/".format(item.name, item.username, item.page_username)
+        if isinstance(item, FAKey.FAReader.FANotificationCommentJournal):
+            journal_page = fa_reader.get_journal_page(item.journal_id)
+            comment = journal_page.comments_section.get_comment_by_id(item.comment_id)
+            if comment is None:
+                output = "You have a journal comment notification. " \
+                         "{} has made a new comment {}on {} journal " \
+                         "\"{}\" {} but I can't find " \
+                         "the comment.".format(item.name,
+                                               ("in response to your comment " if item.comment_on else ""),
+                                               ("your" if item.journal_yours else "their"),
+                                               item.journal_name, item.journal_link)
+            else:
+                output = "You have a journal comment notification. " \
+                         "{} has made a new comment {}on {} journal " \
+                         "\"{}\" {} : \n\n{}".format(item.name,
+                                                     ("in response to your comment " if item.comment_on else ""),
+                                                     ("your" if item.journal_yours else "their"),
+                                                     item.journal_name, item.journal_link,
+                                                     comment.text)
+        if isinstance(item, FAKey.FAReader.FANotificationCommentSubmission):
+            submission_page = fa_reader.get_submission_page(item.submission_id)
+            comment = submission_page.comments_section.get_comment_by_id(item.comment_id)
+            if comment is None:
+                output = "You have a submission comment notification. " \
+                         "{} has made a new comment {}on {} submission \"{}\" {} : but I can't find " \
+                         "the comment.".format(item.name,
+                                               ("in response to your comment " if item.comment_on else ""),
+                                               ("your" if item.submission_yours else "their"),
+                                               item.submission_name, item.submission_link)
+            else:
+                output = "You have a submission comment notification. " \
+                         "{} has made a new comment {}on {} submission \"{}\" {} : \n\n" \
+                         "{}".format(item.name,
+                                     ("in response to your comment " if item.comment_on else ""),
+                                     ("your" if item.submission_yours else "their"),
+                                     item.submission_name, item.submission_link, comment.text)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        output_evt = EventMessage(self.server, channel, user, output, inbound=False)
+        return output_evt
 
     def to_json(self):
         json_obj = super().to_json()
@@ -998,10 +1051,6 @@ class FANotificationCommentsSub(Subscription):
         latest_comment_id_journal = json_obj["latest_comment_id_journal"]
         latest_comment_id_submission = json_obj["latest_comment_id_submission"]
         latest_shout_id = json_obj["latest_shout_id"]
-        json_obj["comment_notification_count"] = self.comment_notification_count
-        json_obj["latest_comment_id_journal"] = self.latest_comment_id_journal
-        json_obj["latest_comment_id_submission"] = self.latest_comment_id_submission
-        json_obj["latest_shout_id"] = self.latest_shout_id
         new_sub = FANotificationCommentsSub(server, destination, fa_key,
                                             last_check=last_check, update_frequency=update_frequency,
                                             comment_notification_count=comment_notification_count,
@@ -1985,7 +2034,7 @@ class FAKey:
                             shout_id = shout_notif.input["value"]
                             username = shout_notif.a["href"].split("/")[2]
                             name = shout_notif.a.string
-                            new_shout = FAKey.FAReader.FANotificationShout(shout_id, username, name)
+                            new_shout = FAKey.FAReader.FANotificationShout(shout_id, username, name, self.username)
                             self.shouts.append(new_shout)
                         except Exception as e:
                             print("Failed to read shout: {}".format(e))
@@ -2081,12 +2130,14 @@ class FAKey:
 
         class FANotificationShout:
 
-            def __init__(self, shout_id, username, name):
+            def __init__(self, shout_id, username, name, page_username):
                 self.shout_id = shout_id
                 """ :type : str"""
                 self.username = username
                 """ :type : str"""
                 self.name = name
+                """ :type : str"""
+                self.page_username = page_username
                 """ :type : str"""
 
         class FANotificationFavourite:
@@ -2391,7 +2442,7 @@ class FAKey:
                 self.rating = sub_info.find_all("img")[-1]["alt"].split()[0]
                 """ :type : str"""
                 comments_section = self.soup.find(id="comments-submission")
-                self.top_level_comments = FAKey.FAReader.FACommentsSection(comments_section)
+                self.comments_section = FAKey.FAReader.FACommentsSection(comments_section)
                 """ :type : FAKey.FAReader.FACommentsSection"""
 
         class FACommentsSection:
@@ -2422,6 +2473,26 @@ class FAKey:
                             else:
                                 self.top_level_comments.append(new_comment)
                             comment_stack[index] = (width, new_comment)
+
+            def get_comment_by_id(self, comment_id, parent_comment=None):
+                """
+                :type comment_id: str
+                :type parent_comment: FAKey.FAReader.FAComment | None
+                :rtype: FAKey.FAReader.FAComment | None
+                """
+                if parent_comment is None:
+                    for comment in self.top_level_comments:
+                        found_comment = self.get_comment_by_id(comment_id, comment)
+                        if found_comment is not None:
+                            return found_comment
+                    return None
+                if parent_comment.comment_id == comment_id:
+                    return parent_comment
+                for comment in parent_comment.reply_comments:
+                    found_comment = self.get_comment_by_id(comment_id, comment)
+                    if found_comment is not None:
+                        return found_comment
+                return None
 
         class FAComment:
 
