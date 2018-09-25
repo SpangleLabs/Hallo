@@ -909,34 +909,32 @@ class FANotificationCommentsSub(Subscription):
 
     def check(self):
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
-        # If there's equal or less notifications than last time, skip
-        if self.comment_notification_count is not None and notif_page.total_comments <= self.comment_notification_count:
-            self.comment_notification_count = notif_page.total_comments
-            self.last_check = datetime.now()
-            return []
-        self.comment_notification_count = notif_page.total_comments
         results = []
-        # Check submission comments
-        for submission_notif in notif_page.submission_comments:
-            if submission_notif.comment_id == self.latest_comment_id_submission:
-                break
-            results.append(submission_notif)
+        # Only get notifications if there's more notifications than last time
+        if self.comment_notification_count is None or notif_page.total_comments > self.comment_notification_count:
+            # Check submission comments
+            for submission_notif in notif_page.submission_comments:
+                if submission_notif.comment_id == self.latest_comment_id_submission:
+                    break
+                results.append(submission_notif)
+            # Check journal comments
+            for journal_notif in notif_page.journal_comments:
+                if journal_notif.comment_id == self.latest_comment_id_journal:
+                    break
+                results.append(journal_notif)
+            # Check shouts
+            for shout_notif in notif_page.shouts:
+                if shout_notif.shout_id == self.latest_shout_id:
+                    break
+                results.append(shout_notif)
+        # Reset high water marks.
+        self.comment_notification_count = notif_page.total_comments
         self.latest_comment_id_submission = None
         if len(notif_page.submission_comments) > 0:
             self.latest_comment_id_submission = notif_page.submission_comments[0].comment_id
-        # Check journal comments
-        for journal_notif in notif_page.journal_comments:
-            if journal_notif.comment_id == self.latest_comment_id_journal:
-                break
-            results.append(journal_notif)
         self.latest_comment_id_journal = None
         if len(notif_page.journal_comments) > 0:
             self.latest_comment_id_journal = notif_page.journal_comments[0].comment_id
-        # Check shouts
-        for shout_notif in notif_page.shouts:
-            if shout_notif.shout_id == self.latest_shout_id:
-                break
-            results.append(shout_notif)
         self.latest_shout_id = None
         if len(notif_page.shouts) > 0:
             self.latest_shout_id = notif_page.shouts[0].shout_id
