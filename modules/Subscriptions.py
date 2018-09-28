@@ -287,7 +287,7 @@ class RssSub(Subscription):
             # Update title
             title_elem = channel_elem.find("title")
             title = title_elem.text
-        self.title = title
+        self.title = title if title is not None else "No title"
         """ :type : str"""
         self.last_item_hash = last_item_hash
         """ :type : str | None"""
@@ -340,7 +340,8 @@ class RssSub(Subscription):
         new_items = []
         # Update title
         title_elem = channel_elem.find("title")
-        self.title = title_elem.text
+        title_text = title_elem.text
+        self.title = title_text if title_text is not None else "No title"
         # Loop elements, seeing when any match the last item's hash
         latest_hash = None
         for item_elem in channel_elem.findall("item"):
