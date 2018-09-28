@@ -16,6 +16,8 @@ from inc.Commons import Commons
 
 class ServerTelegram(Server):
 
+    type = Server.TYPE_TELEGRAM
+
     def __init__(self, hallo, api_key):
         super().__init__(hallo)
         """
@@ -171,7 +173,10 @@ class ServerTelegram(Server):
     def send(self, event):
         if isinstance(event, EventMessageWithPhoto):
             destination = event.user if event.channel is None else event.channel
-            self.bot.send_photo(chat_id=destination.address, photo=event.photo_id, caption=event.text)
+            if event.photo_id.lower().endswith(".gif") or event.photo_id.lower().endswith(".mp4"):
+                self.bot.send_document(chat_id=destination.address, photo=event.photo_id, caption=event.text)
+            else:
+                self.bot.send_photo(chat_id=destination.address, photo=event.photo_id, caption=event.text)
             self.hallo.printer.output(event)
             self.hallo.logger.log(event)
             return
@@ -200,8 +205,12 @@ class ServerTelegram(Server):
         if isinstance(new_event, EventMessageWithPhoto):
             destination = new_event.user if new_event.channel is None else new_event.channel
             old_message_id = old_event.raw_data.update_obj.message.message_id
-            self.bot.send_photo(destination.address, new_event.photo_id, caption=new_event.text,
-                                reply_to_message_id=old_message_id)
+            if new_event.photo_id.lower().endswith(".gif") or new_event.photo_id.lower().endswith(".mp4"):
+                self.bot.send_document(destination.address, new_event.photo_id, caption=new_event.text,
+                                       reply_to_message_id=old_message_id)
+            else:
+                self.bot.send_photo(destination.address, new_event.photo_id, caption=new_event.text,
+                                    reply_to_message_id=old_message_id)
             self.hallo.printer.output(new_event)
             self.hallo.logger.log(new_event)
             return
@@ -217,6 +226,13 @@ class ServerTelegram(Server):
             print("This event type, {}, is not currently supported to send on Telegram servers",
                   new_event.__class__.__name__)
             raise NotImplementedError()
+
+    def get_name_by_address(self, address):
+        chat = self.bot.get_chat(address)
+        if chat.type == chat.PRIVATE:
+            return " ".join([chat.first_name, chat.last_name])
+        if chat.type in [chat.GROUP, chat.SUPERGROUP, chat.CHANNEL]:
+            return chat.title
 
     def to_json(self):
         """

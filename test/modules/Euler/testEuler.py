@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from Events import EventMessage
@@ -14,6 +15,7 @@ class EulerTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "error" not in data[0].text.lower(), "Euler function should not throw errors."
 
+    @unittest.skipIf(os.environ.get("no_euler"), "Skipping if no_euler flag given")
     def test_euler_solutions(self):
         # Spoilers
         prob_dict = {"1": "233168", "2": "4613732", "3": "6857", "4": "906609", "5": "232792560", "6": "25164150",

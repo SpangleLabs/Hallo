@@ -13,5 +13,6 @@ python:
 install:
   - pip install python-telegram-bot
   - pip install python-dateutil
+  - pip install beautifulsoup4
 script:
   - python -m unittest discover

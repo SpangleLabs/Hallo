@@ -161,29 +161,20 @@ class Server(metaclass=ABCMeta):
         """Returns boolean representing whether the server is connected or not."""
         return self.state == Server.STATE_OPEN
 
-    def get_channel_by_name(self, channel_name, address=None):
-        # TODO: fix all usages of this
+    def get_channel_by_name(self, channel_name):
         """
         Returns a Channel object with the specified channel name.
         :param channel_name: Name of the channel which is being searched for
         :type channel_name: str
-        :param address: Address of the channel
-        :type address: str
         :rtype: Optional[Destination.Channel]
         """
         channel_name = channel_name.lower()
         for channel in self.channel_list:
             if channel.name == channel_name:
                 return channel
-        new_channel = None
-        if address is not None:
-            new_channel = Channel(self, address, channel_name)
-            self.add_channel(new_channel)
-        else:
-            self.hallo.printer.print_raw("WARNING: Server.get_channel_by_name() used without address")
-        return new_channel
+        return None
 
-    def get_channel_by_address(self, address, channel_name):
+    def get_channel_by_address(self, address, channel_name=None):
         """
         Returns a Channel object with the specified channel name.
         :param address: Address of the channel
@@ -195,9 +186,19 @@ class Server(metaclass=ABCMeta):
         for channel in self.channel_list:
             if channel.address == address:
                 return channel
+        if channel_name is None:
+            channel_name = self.get_name_by_address(address)
         new_channel = Channel(self, address, channel_name)
         self.add_channel(new_channel)
         return new_channel
+
+    def get_name_by_address(self, address):
+        """
+        Returns the name of a destination, based on the address
+        :param address: str
+        :return: str
+        """
+        raise NotImplementedError()
 
     def add_channel(self, channel_obj):
         """
@@ -229,30 +230,21 @@ class Server(metaclass=ABCMeta):
         # Set not in channel
         channel_obj.set_in_channel(False)
 
-    def get_user_by_name(self, user_name, address=None):
-        # TODO: fix all usages of this
+    def get_user_by_name(self, user_name):
         """
         Returns a User object with the specified user name.
         :param user_name: Name of user which is being searched for
         :type user_name: str
-        :param address: address of the user which is being searched for or added
-        :type address: str | None
         :rtype: Destination.User | None
         """
         user_name = user_name.lower()
         for user in self.user_list:
             if user.name == user_name:
                 return user
-        # No user by that name exists, so create one, provided address is supplied
-        new_user = None
-        if address is not None:
-            new_user = User(self, address, user_name)
-            self.add_user(new_user)
-        else:
-            self.hallo.printer.print_raw("WARNING: Server.get_user_by_name() used without address")
-        return new_user
+        # No user by that name exists, return None
+        return None
 
-    def get_user_by_address(self, address, user_name):
+    def get_user_by_address(self, address, user_name=None):
         """
         Returns a User object with the specified user name.
         :param address: address of the user which is being searched for or added
@@ -264,6 +256,8 @@ class Server(metaclass=ABCMeta):
         for user in self.user_list:
             if user.address == address:
                 return user
+        if user_name is None:
+            user_name = self.get_name_by_address(address)
         # No user by that name exists, so create one
         new_user = User(self, address, user_name)
         self.add_user(new_user)
