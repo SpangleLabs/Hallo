@@ -328,7 +328,7 @@ class RssSub(Subscription):
         return rss_sub
 
     def matches_name(self, name_clean):
-        return name_clean in [self.title, self.url, self.get_name()]
+        return name_clean in [self.title.lower().strip(), self.url.lower().strip(), self.get_name().lower().strip()]
 
     def get_name(self):
         return "{} ({})".format(self.title, self.url)
@@ -463,7 +463,7 @@ class E621Sub(Subscription):
         return e6_sub
 
     def matches_name(self, name_clean):
-        return name_clean == self.search
+        return name_clean == self.search.lower().strip()
 
     def get_name(self):
         return "search for \"{}\"".format(self.search)
@@ -611,7 +611,7 @@ class FANotificationNotesSub(Subscription):
         return notes_sub
 
     def matches_name(self, name_clean):
-        return name_clean in self.names + ["notes"]
+        return name_clean in [s.lower().strip() for s in self.names + ["notes"]]
 
     def get_name(self):
         return "FA notes for {}".format(self.fa_key.user.name)
@@ -763,7 +763,7 @@ class FANotificationFavSub(Subscription):
         return fa_sub
 
     def matches_name(self, name_clean):
-        return name_clean in self.names + ["favs"]
+        return name_clean in [s.lower().strip() for s in self.names + ["favs"]]
 
     def get_name(self):
         return "FA favourites for {}".format(self.fa_key.user.name)
@@ -902,7 +902,7 @@ class FANotificationCommentsSub(Subscription):
         return fa_sub
 
     def matches_name(self, name_clean):
-        return name_clean in self.names + ["comments"]
+        return name_clean in [s.lower().strip() for s in self.names + ["comments"]]
 
     def get_name(self):
         return "FA comments for {}".format(self.fa_key.user.name)
@@ -1128,7 +1128,7 @@ class FASearchSub(Subscription):
         return fa_sub
 
     def matches_name(self, name_clean):
-        return name_clean == self.search
+        return name_clean == self.search.lower().strip()
 
     def get_name(self):
         return "search for \"{}\"".format(self.search)
@@ -1300,7 +1300,7 @@ class FAUserFavsSub(Subscription):
         return fa_sub
 
     def matches_name(self, name_clean):
-        return name_clean == self.username
+        return name_clean == self.username.lower().strip()
 
     def get_name(self):
         return "Favourites subscription for \"{}\"".format(self.username)
@@ -1471,7 +1471,7 @@ class FAUserWatchersSub(Subscription):
         return fa_sub
 
     def matches_name(self, name_clean):
-        return name_clean == self.username
+        return name_clean == self.username.lower().strip()
 
     def get_name(self):
         return "New watchers subscription for \"{}\"".format(self.username)
@@ -1626,7 +1626,7 @@ class FANotificationWatchSub(FAUserWatchersSub):
         return fa_sub
 
     def matches_name(self, name_clean):
-        return name_clean in self.names + ["watchers"]
+        return name_clean in [s.lower().strip() for s in self.names + ["watchers"]]
 
     def get_name(self):
         return "New watchers notifications for {}".format(self.fa_key.user.name)
