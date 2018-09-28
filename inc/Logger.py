@@ -1,7 +1,9 @@
 import os
 from threading import Lock
 import datetime
-from Function import Function
+
+from Events import EventSecond, EventMinute, EventHour, EventDay, EventPing, EventQuit, EventNameChange, EventJoin, \
+    EventLeave, EventKick, EventInvite, EventMode, EventNotice, EventCTCP, EventMessage, ChannelEvent
 from inc.Commons import Commons
 
 
@@ -17,158 +19,180 @@ class Logger:
         """
         self.hallo = hallo
         self.lock = Lock()
-        self.event_dict = {Function.EVENT_SECOND: self.log_second,
-                           Function.EVENT_MINUTE: self.log_minute,
-                           Function.EVENT_HOUR: self.log_hour,
-                           Function.EVENT_DAY: self.log_day,
-                           Function.EVENT_PING: self.log_ping,
-                           Function.EVENT_MESSAGE: self.log_message,
-                           Function.EVENT_JOIN: self.log_join,
-                           Function.EVENT_LEAVE: self.log_leave,
-                           Function.EVENT_QUIT: self.log_quit,
-                           Function.EVENT_CHNAME: self.log_name_change,
-                           Function.EVENT_KICK: self.log_kick,
-                           Function.EVENT_INVITE: self.log_invite,
-                           Function.EVENT_NOTICE: self.log_notice,
-                           Function.EVENT_MODE: self.log_mode_change,
-                           Function.EVENT_CTCP: self.log_ctcp}
 
-    def log(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
+    def log(self, event):
         """The function which actually writes the logs."""
         # If channel is set, check logging
-        if channel_obj is not None and not channel_obj.logging:
-            return None
+        if isinstance(event, ChannelEvent) and \
+                event.channel is not None and \
+                not event.channel.logging:
+            return
         # If channel not set, but user is set, check their logging settings.
-        if channel_obj is None and user_obj is not None and not user_obj.logging:
-            return None
-        # Check what type of event and pass to that to create line
-        if event not in self.event_dict:
-            return None
-        log_function = self.event_dict[event]
-        log_line = log_function(full_line, server_obj, user_obj, channel_obj)
-        # If log_line is null, do nothing.
-        if log_line is None:
-            return None
-        # Create file name
-        file_name = self.get_file_name(server_obj, user_obj, channel_obj)
-        # Write the log line
-        self.add_line(file_name, log_line)
-        return None
+        if isinstance(event, ChannelEvent) and \
+                event.channel is None and \
+                event.user is not None and \
+                not event.user.logging:
+            return
+        # Log the event
+        self.log_event(event)
     
-    def log_from_self(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
-        """Writes a log line for a message from hallo."""
-        # If channel is set, check logging
-        if channel_obj is not None and not channel_obj.logging:
-            return None
-        # If channel not set, but user is set, check their logging settings.
-        if channel_obj is None and user_obj is not None and not user_obj.logging:
-            return None
-        # Check what type of event and pass to that to create line
-        if event not in self.event_dict:
-            return None
-        log_function = self.event_dict[event]
-        hallo_user_obj = server_obj.get_user_by_address(server_obj.get_nick().lower(), server_obj.get_nick())
-        log_line = log_function(full_line, server_obj, hallo_user_obj, channel_obj)
-        # If log_line is null, do nothing.
-        if log_line is None:
-            return None
-        # Create file name
-        file_name = self.get_file_name(server_obj, user_obj, channel_obj)
-        # Write the log line
-        self.add_line(file_name, log_line)
-        return None
+    def log_from_self(self):
+        raise NotImplementedError()
+
+    def log_event(self, event):
+        if isinstance(event, EventSecond):
+            return self.log_second(event)
+        if isinstance(event, EventMinute):
+            return self.log_minute(event)
+        if isinstance(event, EventHour):
+            return self.log_hour(event)
+        if isinstance(event, EventDay):
+            return self.log_day(event)
+        if isinstance(event, EventPing):
+            return self.log_ping(event)
+        if isinstance(event, EventQuit):
+            return self.log_quit(event)
+        if isinstance(event, EventNameChange):
+            return self.log_name_change(event)
+        if isinstance(event, EventJoin):
+            return self.log_join(event)
+        if isinstance(event, EventLeave):
+            return self.log_leave(event)
+        if isinstance(event, EventKick):
+            return self.log_kick(event)
+        if isinstance(event, EventInvite):
+            return self.log_invite(event)
+        if isinstance(event, EventMode):
+            return self.log_mode_change(event)
+        if isinstance(event, EventNotice):
+            return self.log_notice(event)
+        if isinstance(event, EventCTCP):
+            return self.log_ctcp(event)
+        if isinstance(event, EventMessage):
+            return self.log_message(event)
+        raise NotImplementedError("Printer doesn't support this event type")
     
-    def log_second(self, full_line, server_obj, user_obj, channel_obj):
-        return None
+    def log_second(self, event):
+        return
     
-    def log_minute(self, full_line, server_obj, user_obj, channel_obj):
-        return None
+    def log_minute(self, event):
+        return
     
-    def log_hour(self, full_line, server_obj, user_obj, channel_obj):
-        return None
+    def log_hour(self, event):
+        return
     
-    def log_day(self, full_line, server_obj, user_obj, channel_obj):
-        return None
+    def log_day(self, event):
+        return
     
-    def log_ping(self, full_line, server_obj, user_obj, channel_obj):
-        return None
+    def log_ping(self, event):
+        return
+
+    def log_quit(self, event):
+        user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        output = "{} {} has quit.".format(Commons.current_timestamp(), user_name)
+        if event.quit_message.strip() != "":
+            output += " ({})".format(event.quit_message)
+        # Log to every channel user is in
+        channel_list = event.server.channel_list if event.user is None else event.user.get_channel_list()
+        for channel in channel_list:
+            self.add_log_line(output, event.server.name, user_name, channel.name)
+
+    def log_name_change(self, event):
+        output = "{} Nick change: {} -> {}".format(Commons.current_timestamp(), event.old_name, event.new_name)
+        # Log to every channel user is in
+        channel_list = event.server.channel_list if event.user is None else event.user.get_channel_list()
+        for channel in channel_list:
+            self.add_log_line(output, event.server.name, event.old_name, channel.name)
+
+    def log_join(self, event):
+        user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        output = "{} {} joined {}".format(Commons.current_timestamp(), user_name, event.channel.name)
+        self.add_log_line(output, event.server.name, user_name, event.channel.name)
+
+    def log_leave(self, event):
+        user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        output = "{} {} left {}".format(Commons.current_timestamp(), user_name, event.channel.name)
+        if event.leave_message.strip() != "":
+            output += " ({})".format(event.leave_message)
+        self.add_log_line(output, event.server.name, user_name, event.channel.name)
+
+    def log_kick(self, event):
+        kicking_user_name = event.user if event.is_inbound else event.server.get_nick()
+        output = "{} {} was kicked from {} by {}".format(Commons.current_timestamp(), event.kicked_user.name,
+                                                         event.channel.name, kicking_user_name)
+        if event.kick_message.strip() != "":
+            output += " ({})".format(event.kick_message)
+        self.add_log_line(output, event.server.name, kicking_user_name, event.channel.name)
+
+    def log_invite(self, event):
+        inviting_user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        output = "{} was invited to {} by {}".format(Commons.current_timestamp(), event.invited_user.name,
+                                                     event.channel.name, inviting_user_name)
+        self.add_log_line(output, event.server.name, inviting_user_name, event.channel.name)
+
+    def log_mode_change(self, event):
+        channel_name = event.channel.name if event.channel is not None else "??"
+        user_name = event.user.name if event.user is not None else event.server.get_nick()
+        output = "{} {} set {} on {}".format(Commons.current_timestamp(), user_name, event.mode_changes, channel_name)
+        self.add_log_line(output, event.server.name, user_name, event.channel.name)
     
-    def log_message(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} <{}> {}".format(Commons.current_timestamp(), user_obj.name, full_line)
-        return output
+    def log_message(self, event):
+        user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        chan_name = None if event.channel is None else event.channel.name
+        output = "{} <{}> {}".format(Commons.current_timestamp(), user_name, event.text)
+        self.add_log_line(output, event.server.name, user_name, chan_name)
     
-    def log_join(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} {} joined {}".format(Commons.current_timestamp(), user_obj.name, channel_obj.name)
-        return output
+    def log_notice(self, event):
+        user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        chan_name = None if event.channel is None else event.channel.name
+        output = "{} Notice from {}: {}".format(Commons.current_timestamp(), user_name, event.text)
+        self.add_log_line(output, event.server.name, event.user.name, chan_name)
     
-    def log_leave(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} {} left {}".format(Commons.current_timestamp(), user_obj.name, channel_obj.name)
-        if full_line.strip() != "":
-            output += " ({})".format(full_line)
-        return output
-    
-    def log_quit(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} {} has quit.".format(Commons.current_timestamp(), user_obj.name)
-        if full_line.strip() != "":
-            output += " ({})".format(full_line)
-        return output
-    
-    def log_name_change(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} Nick change: {} -> {}".format(Commons.current_timestamp(), full_line, user_obj.name)
-        return output
-    
-    def log_kick(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} {} was kicked from {}".format(Commons.current_timestamp(), user_obj.name, channel_obj.name)
-        if full_line.strip() != "":
-            output += " ({})".format(full_line)
-        return output
-    
-    def log_invite(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} Invite to {} from {}".format(Commons.current_timestamp(), channel_obj.name, user_obj.name)
-        return output
-    
-    def log_notice(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} Notice from {}: {}".format(Commons.current_timestamp(), user_obj.name, full_line)
-        return output
-    
-    def log_mode_change(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} {} set {} on {}".format(Commons.current_timestamp(), user_obj.name, full_line, channel_obj.name)
-        return output
-    
-    def log_ctcp(self, full_line, server_obj, user_obj, channel_obj):
-        ctcp_command = full_line.split()[0]
-        ctcp_arguments = ' '.join(full_line.split()[1:])
+    def log_ctcp(self, event):
+        ctcp_command = event.text.split()[0]
+        ctcp_arguments = ' '.join(event.text.split()[1:])
+        user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        chan_name = None if event.channel is None else event.channel.name
         if ctcp_command.lower() == "action":
-            output = "{} **{} {}**".format(Commons.current_timestamp(), user_obj.name, ctcp_arguments)
-            return output
-        output = "{} <{} (CTCP)> {}".format(Commons.current_timestamp(), user_obj.name, full_line)
-        return output
+            output = "{} **{} {}**".format(Commons.current_timestamp(), user_name, ctcp_arguments)
+        else:
+            output = "{} <{} (CTCP)> {}".format(Commons.current_timestamp(), user_name, event.text)
+        self.add_log_line(output, event.server.name, event.user.name, chan_name)
+
+    def add_log_line(self, output, server_name, user_name, channel_name):
+        file_name = self.get_file_name(server_name, user_name, channel_name)
+        self.add_line(file_name, output)
     
-    def get_file_name(self, server_obj, user_obj, channel_obj):
-        """Finds the file name of the file to write the log to."""
+    def get_file_name(self, server_name, user_name, channel_name):
+        """
+        Finds the file name of the file to write the log to.
+        :type server_name: str | None
+        :type user_name: str | None
+        :type channel_name: str | None
+        """
         file_name = "logs/"
         file_date = datetime.datetime.now().strftime("%Y-%m-%d")
         file_ext = ".txt"
         # If no server specified
-        if server_obj is None:
+        if server_name is None:
             file_name += "@/"
             file_name += file_date+file_ext
             return file_name
         # Otherwise, go into server directory
-        file_name += server_obj.name + "/"
+        file_name += server_name + "/"
         # Check if channel object is specified
-        if channel_obj is None:
-            if user_obj is None:
+        if channel_name is None:
+            if user_name is None:
                 # No channel or user
                 file_name += "@/"
                 file_name += file_date+file_ext
                 return file_name
             # No channel, but there is a user
-            file_name += user_obj.name + "/"
+            file_name += user_name + "/"
             file_name += file_date+file_ext
             return file_name
         # Channel object is set
-        file_name += channel_obj.name + "/"
+        file_name += channel_name + "/"
         file_name += file_date+file_ext
         return file_name
 

@@ -6,7 +6,7 @@ from xml.dom import minidom
 # noinspection PyDeprecation
 import imp
 
-from Destination import Channel
+from Events import ServerEvent, UserEvent, ChannelEvent, EventMessage, ChannelUserTextEvent
 from Function import Function
 
 
@@ -14,9 +14,6 @@ class FunctionDispatcher(object):
     """
     FunctionDispatcher is a class to manage functions and to send function requests to the relevant function.
     """
-
-    # Flags, can be passed as a list to function dispatcher, and will change how it operates.
-    FLAG_HIDE_ERRORS = "hide_errors"  # Hide all errors that result from running the function.
 
     def __init__(self, module_list, hallo):
         """
@@ -29,33 +26,29 @@ class FunctionDispatcher(object):
         self.function_dict = {}  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
         self.function_names = {}  # Dictionary of names -> functionClasses
         self.persistent_functions = {}  # Dictionary of persistent function objects. functionClass->functionObject
-        self.event_functions = {}  # Dictionary with events as keys and sets of function classes
+        self.event_functions = {}  # Dictionary with events classes as keys and sets of function classes
         #  (which may want to act on those events) as values
         # Load all functions
         for module_name in self.module_list:
             self.reload_module(module_name)
 
-    def dispatch(self, function_message, user_obj, destination_obj, flag_list=None):
+    # def dispatch(self, function_message, user_obj, destination_obj, flag_list=None):
+    def dispatch(self, event, flag_list=None):
         """
         Sends the function call out to whichever function, if one is found
-        :param function_message: Message (function name and arguments) which are to be dispatched
-        :type function_message: str
-        :param user_obj: User who triggered function dispatch
-        :type user_obj: Destination.User
-        :param destination_obj: Destination which triggered function dispatch
-        :type destination_obj: Destination.Destination
+        :param event: The message event which has triggered the function dispatch
+        :type event: Events.EventMessage
         :param flag_list: List of flags to apply to function call
         :type flag_list: list[str]
         """
         if flag_list is None:
             flag_list = []
-        # Get server object
-        server_obj = destination_obj.server
         # Find the function name. Try joining each amount of words in the message until you find a valid function name
-        function_message_split = function_message.split()
+        function_message_split = event.command_text.split()
         if not function_message_split:
             function_message_split = [""]
         function_class_test = None
+        function_name_test = ""
         function_args_test = ""
         for function_name_test in [' '.join(function_message_split[:x + 1]) for x in
                                    range(len(function_message_split))[::-1]]:
@@ -65,66 +58,69 @@ class FunctionDispatcher(object):
                 break
         # If function isn't found, output a not found message
         if function_class_test is None:
-            if self.FLAG_HIDE_ERRORS not in flag_list:
-                server_obj.send("Error, this is not a recognised function.", destination_obj)
+            if EventMessage.FLAG_HIDE_ERRORS not in flag_list:
+                event.reply(event.create_response("Error, this is not a recognised function."))
                 print("Error, this is not a recognised function.")
             return
         function_class = function_class_test
-        function_args = function_args_test
+        event.split_command_text(function_name_test, function_args_test)
         # Check function rights and permissions
-        if not self.check_function_permissions(function_class, server_obj, user_obj, destination_obj):
-            server_obj.send("You do not have permission to use this function.", destination_obj)
+        if not self.check_function_permissions(function_class, event.server, event.user, event.channel):
+            event.reply(event.create_response("You do not have permission to use this function."))
             print("You do not have permission to use this function.")
             return
         # If persistent, get the object, otherwise make one
         function_obj = self.get_function_object(function_class)
         # Try running the function, if it fails, return an error message
         try:
-            response = function_obj.run(function_args, user_obj, destination_obj)
+            response = function_obj.run(event)
             if response is not None:
-                server_obj.send(response, destination_obj)
+                event.reply(response)
+            else:
+                event.reply(event.create_response("The function returned no value."))
             return
         except Exception as e:
-            server_obj.send("Function failed with error message: {}".format(e), destination_obj)
+            e_str = (str(e)[:75] + '..') if len(str(e)) > 75 else str(e)
+            event.reply(event.create_response("Function failed with error message: {}".format(e_str)))
             print("Function: {} {}".format(function_class.__module__, function_class.__name__))
             print("Function error: {}".format(e))
             print("Function error location: {}".format(traceback.format_exc(3)))
             return
 
-    def dispatch_passive(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
-        """Dispatches a event call to passive functions, if any apply
-        :param event: Event which is triggering passive functions
-        :param full_line: User input line accompanying event
-        :param server_obj: Server on which the event was triggered, or None if not a server based event
-        :param user_obj: User which triggered the event, or None if not a user based event
-        :param channel_obj: Channel on which the event was triggered, or None if not a channel based event
+    def dispatch_passive(self, event):
+        """
+        Dispatches a event call to passive functions, if any apply
+        :param event: Event object which is triggering passive functions
+        :type event: Events.Event
         """
         # If this event is not used, skip this
-        if event not in self.event_functions or len(self.event_functions[event]) == 0:
+        if event.__class__ not in self.event_functions or len(self.event_functions[event.__class__]) == 0:
             return
-        # Get destination object
-        destination_obj = channel_obj
-        if destination_obj is None:
-            destination_obj = user_obj
         # Get list of functions that want things
-        function_list = self.event_functions[event]
+        function_list = self.event_functions[event.__class__]
         for function_class in function_list:
             # Check function rights and permissions
-            if not self.check_function_permissions(function_class, server_obj, user_obj, channel_obj):
+            if not self.check_function_permissions(function_class,
+                                                   event.server if isinstance(event, ServerEvent) else None,
+                                                   event.user if isinstance(event, UserEvent) else None,
+                                                   event.channel if isinstance(event, ChannelEvent) else None):
                 continue
             # If persistent, get the object, otherwise make one
             function_obj = self.get_function_object(function_class)
             # Try running the function, if it fails, return an error message
             try:
-                response = function_obj.passive_run(event, full_line, self.hallo, server_obj, user_obj, channel_obj)
+                response = function_obj.passive_run(event, self.hallo)
                 if response is not None:
-                    if destination_obj is not None and server_obj is not None:
-                        server_obj.send(response, destination_obj)
+                    if isinstance(response, ChannelUserTextEvent) and isinstance(event, ChannelUserTextEvent):
+                        event.reply(response)
+                    else:
+                        event.server.send(response)
                 continue
             except Exception as e:
                 print("ERROR Passive Function: {} {}".format(function_class.__module__, function_class.__name__))
                 print("ERROR Function event: {}".format(event))
                 print("ERROR Function error: {}".format(e))
+                print("Function error location: {}".format(traceback.format_exc(3)))
                 continue
 
     def get_function_by_name(self, function_name):
@@ -163,21 +159,21 @@ class FunctionDispatcher(object):
     def check_function_permissions(self, function_class, server_obj, user_obj, channel_obj):
         """Checks if a function can be called. Returns boolean, True if allowed
         :param function_class: Class of function to check permissions for
-        :type function_class: str
+        :type function_class: type
         :param server_obj: Server on which to check function permissions
         :type server_obj: Server.Server
         :param user_obj: User which has requested the function
         :type user_obj: Destination.User
         :param channel_obj: Channel on which the function was requested
-        :type channel_obj: Destination.Destination
+        :type channel_obj: Destination.Channel | None
         """
         # Get function name
         function_name = function_class.__name__
         right_name = "function_{}".format(function_name)
         # Check rights
         if user_obj is not None:
-            return user_obj.rights_check(right_name, channel_obj if isinstance(channel_obj, Channel) else None)
-        if channel_obj is not None and channel_obj.is_channel():
+            return user_obj.rights_check(right_name, channel_obj)
+        if channel_obj is not None:
             return channel_obj.rights_check(right_name)
         if server_obj is not None:
             return server_obj.rights_check(right_name)
@@ -190,6 +186,8 @@ class FunctionDispatcher(object):
         """
         # Check it's an allowed module
         if module_name not in self.module_list:
+            self.hallo.printer.output_raw("Module name, {}, is not in allowed list: {}."
+                                          .format(module_name, ", ".join(self.module_list)))
             return False
         # Create full name
         # TODO: allow bypass for reloading of core classes: Hallo, Server, Destination, etc
@@ -203,6 +201,7 @@ class FunctionDispatcher(object):
             try:
                 module_obj = importlib.import_module(full_module_name)
             except ImportError:
+                self.hallo.printer.output_raw("Could not import module")
                 return False
         # Unload module, if it was loaded.
         self.unload_module_functions(module_obj)
@@ -412,7 +411,7 @@ class FunctionDispatcher(object):
         json_obj = {}
         json_obj["modules"] = []
         for module_name in self.module_list:
-            json_obj["modules"].append({"name":module_name})
+            json_obj["modules"].append({"name": module_name})
         return json_obj
 
     @staticmethod

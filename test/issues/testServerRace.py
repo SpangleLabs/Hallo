@@ -3,7 +3,8 @@ import unittest
 
 import time
 
-from Server import ServerIRC, Server
+from Server import Server
+from ServerIRC import ServerIRC
 from test.TestBase import TestBase
 
 

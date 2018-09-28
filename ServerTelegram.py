@@ -8,13 +8,15 @@ from telegram.ext import MessageHandler
 from telegram.utils.request import Request
 
 from Destination import User, Channel
-from Function import Function
+from Events import EventMessage, RawDataTelegram, EventMessageWithPhoto
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
 from inc.Commons import Commons
 
 
 class ServerTelegram(Server):
+
+    type = Server.TYPE_TELEGRAM
 
     def __init__(self, hallo, api_key):
         super().__init__(hallo)
@@ -93,19 +95,24 @@ class ServerTelegram(Server):
         :param update: Update object from telegram API
         :type update: telegram.Update
         """
-        # Parse out the message text
-        message_text = update.message.text
-        # Parse out the message sender
+        # Get sender object
         message_sender_name = " ".join([update.message.chat.first_name, update.message.chat.last_name])
-        # Parser message sender address
         message_sender_addr = update.message.chat.id
-        # Get relevant objects.
         message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
+        # Create Event object
+        if update.message.photo:
+            photo_id = update.message.photo[-1]["file_id"]
+            message_text = update.message.caption or ""
+            message_evt = EventMessageWithPhoto(self, None, message_sender, message_text, photo_id)\
+                .with_raw_data(RawDataTelegram(update))
+        else:
+            message_text = update.message.text
+            message_evt = EventMessage(self, None, message_sender, message_text).with_raw_data(RawDataTelegram(update))
         # Print and Log the private message
-        self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
-        self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, None)
-        self.hallo.function_dispatcher.dispatch(message_text, message_sender, message_sender)
+        self.hallo.printer.output(message_evt)
+        self.hallo.logger.log(message_evt)
+        self.hallo.function_dispatcher.dispatch(message_evt)
 
     def parse_group_message(self, bot, update):
         """
@@ -115,62 +122,38 @@ class ServerTelegram(Server):
         :param update: Update object from telegram API
         :type update: telegram.Update
         """
-        # Parse out the message text
-        message_text = update.message.text
-        # Parse out the message sender
+        # Get sender object
         message_sender_name = " ".join([update.message.from_user.first_name, update.message.from_user.last_name])
-        # Parser message sender address
         message_sender_addr = update.message.from_user.id
-        # Test for private message or public message.
-        # Parse out where the message went to (e.g. channel or private message to Hallo)
-        message_destination_name = update.message.chat.title
-        message_destination_addr = update.message.chat.id
-        # Get relevant objects.
         message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
-        # Get function dispatcher ready
-        function_dispatcher = self.hallo.function_dispatcher
-        message_channel = self.get_channel_by_address(message_destination_addr, message_destination_name)
+        # Get channel object
+        message_channel_name = update.message.chat.title
+        message_channel_addr = update.message.chat.id
+        message_channel = self.get_channel_by_address(message_channel_addr, message_channel_name)
         message_channel.update_activity()
-        # Print and Log the public message
-        self.hallo.printer.output(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
-        self.hallo.logger.log(Function.EVENT_MESSAGE, message_text, self, message_sender, message_channel)
-        # Get acting command prefix
-        acting_prefix = message_channel.get_prefix()
-        # Figure out if the message is a command, Send to FunctionDispatcher
-        if acting_prefix is False:
-            acting_prefix = self.get_nick().lower()
-            # Check if directly addressed
-            if any(message_text.lower().startswith(acting_prefix+x) for x in [":", ","]):
-                message_text = message_text[len(acting_prefix) + 1:]
-                function_dispatcher.dispatch(message_text,
-                                             message_sender,
-                                             message_channel)
-            elif message_text.lower().startswith(acting_prefix):
-                message_text = message_text[len(acting_prefix):]
-                function_dispatcher.dispatch(message_text,
-                                             message_sender,
-                                             message_channel,
-                                             [function_dispatcher.FLAG_HIDE_ERRORS])
-            else:
-                # Pass to passive function checker
-                function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
-                                                     message_text,
-                                                     self,
-                                                     message_sender,
-                                                     message_channel)
-        elif message_text.lower().startswith(acting_prefix):
-            message_text = message_text[len(acting_prefix):]
-            function_dispatcher.dispatch(message_text,
-                                         message_sender,
-                                         message_channel)
+        # Create message event object
+        if update.message.photo:
+            photo_id = update.message.photo[-1]["file_id"]
+            message_text = update.message.caption or ""
+            message_evt = EventMessageWithPhoto(self, message_channel, message_sender, message_text, photo_id)\
+                .with_raw_data(RawDataTelegram(update))
         else:
-            # Pass to passive function checker
-            function_dispatcher.dispatch_passive(Function.EVENT_MESSAGE,
-                                                 message_text,
-                                                 self,
-                                                 message_sender,
-                                                 message_channel)
+            message_text = update.message.text
+            message_evt = EventMessage(self, message_channel, message_sender, message_text)\
+                .with_raw_data(RawDataTelegram(update))
+        # Print and log the public message
+        self.hallo.printer.output(message_evt)
+        self.hallo.logger.log(message_evt)
+        # Send event to function dispatcher or passive dispatcher
+        function_dispatcher = self.hallo.function_dispatcher
+        if message_evt.is_prefixed:
+            if message_evt.is_prefixed is True:
+                function_dispatcher.dispatch(message_evt)
+            else:
+                function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
+        else:
+            function_dispatcher.dispatch_passive(message_evt)
 
     def parse_join(self, bot, update):
         # TODO
@@ -187,12 +170,69 @@ class ServerTelegram(Server):
         # Print it to console
         print("{} [{}] Unhandled data: {}".format(Commons.current_timestamp(), self.name, update))
 
-    def send(self, data, destination_obj=None, msg_type=Server.MSG_MSG):
-        self.bot.send_message(chat_id=destination_obj.address, text=data)
-        user_obj = destination_obj if isinstance(destination_obj, User) else None
-        channel_obj = destination_obj if isinstance(destination_obj, Channel) else None
-        self.hallo.printer.output_from_self(Function.EVENT_MESSAGE, data, self, user_obj, channel_obj)
-        self.hallo.logger.log_from_self(Function.EVENT_MESSAGE, data, self, user_obj, channel_obj)
+    def send(self, event):
+        if isinstance(event, EventMessageWithPhoto):
+            destination = event.user if event.channel is None else event.channel
+            if event.photo_id.lower().endswith(".gif") or event.photo_id.lower().endswith(".mp4"):
+                self.bot.send_document(chat_id=destination.address, photo=event.photo_id, caption=event.text)
+            else:
+                self.bot.send_photo(chat_id=destination.address, photo=event.photo_id, caption=event.text)
+            self.hallo.printer.output(event)
+            self.hallo.logger.log(event)
+            return
+        if isinstance(event, EventMessage):
+            destination = event.user if event.channel is None else event.channel
+            self.bot.send_message(chat_id=destination.address, text=event.text)
+            self.hallo.printer.output(event)
+            self.hallo.logger.log(event)
+            return
+        else:
+            print("This event type, {}, is not currently supported to send on Telegram servers",
+                  event.__class__.__name__)
+            raise NotImplementedError()
+
+    def reply(self, old_event, new_event):
+        """
+        :type old_event: Events.ChannelUserTextEvent
+        :param new_event:
+        :return:
+        """
+        # Do checks
+        super().reply(old_event, new_event)
+        if old_event.raw_data is None or not isinstance(old_event.raw_data, RawDataTelegram):
+            raise ServerException("Old event has no telegram data associated with it")
+        # Send event
+        if isinstance(new_event, EventMessageWithPhoto):
+            destination = new_event.user if new_event.channel is None else new_event.channel
+            old_message_id = old_event.raw_data.update_obj.message.message_id
+            if new_event.photo_id.lower().endswith(".gif") or new_event.photo_id.lower().endswith(".mp4"):
+                self.bot.send_document(destination.address, new_event.photo_id, caption=new_event.text,
+                                       reply_to_message_id=old_message_id)
+            else:
+                self.bot.send_photo(destination.address, new_event.photo_id, caption=new_event.text,
+                                    reply_to_message_id=old_message_id)
+            self.hallo.printer.output(new_event)
+            self.hallo.logger.log(new_event)
+            return
+        if isinstance(new_event, EventMessage):
+            destination = new_event.user if new_event.channel is None else new_event.channel
+            old_message_id = old_event.raw_data.update_obj.message.message_id
+            self.bot.send_message(destination.address, new_event.text,
+                                  reply_to_message_id=old_message_id)
+            self.hallo.printer.output(new_event)
+            self.hallo.logger.log(new_event)
+            return
+        else:
+            print("This event type, {}, is not currently supported to send on Telegram servers",
+                  new_event.__class__.__name__)
+            raise NotImplementedError()
+
+    def get_name_by_address(self, address):
+        chat = self.bot.get_chat(address)
+        if chat.type == chat.PRIVATE:
+            return " ".join([chat.first_name, chat.last_name])
+        if chat.type in [chat.GROUP, chat.SUPERGROUP, chat.CHANNEL]:
+            return chat.title
 
     def to_json(self):
         """

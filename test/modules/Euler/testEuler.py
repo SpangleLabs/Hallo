@@ -1,19 +1,21 @@
+import os
 import unittest
 
-from Server import Server
+from Events import EventMessage
 from test.TestBase import TestBase
 
 
 class EulerTest(TestBase, unittest.TestCase):
 
     def test_euler_list(self):
-        self.function_dispatcher.dispatch("euler", self.test_user, self.test_user)
-        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower(), "Euler function should not throw errors."
-        self.function_dispatcher.dispatch("euler list", self.test_user, self.test_user)
-        data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-        assert "error" not in data[0][0].lower(), "Euler function should not throw errors."
+        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "euler"))
+        data = self.server.get_send_data(1, self.test_user, EventMessage)
+        assert "error" not in data[0].text.lower(), "Euler function should not throw errors."
+        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "euler list"))
+        data = self.server.get_send_data(1, self.test_user, EventMessage)
+        assert "error" not in data[0].text.lower(), "Euler function should not throw errors."
 
+    @unittest.skipIf(os.environ.get("no_euler"), "Skipping if no_euler flag given")
     def test_euler_solutions(self):
         # Spoilers
         prob_dict = {"1": "233168", "2": "4613732", "3": "6857", "4": "906609", "5": "232792560", "6": "25164150",
@@ -28,11 +30,11 @@ class EulerTest(TestBase, unittest.TestCase):
                      "52": "142857", "53": "4075", "54": "376", "55": "249", "56": "972", "57": "153", "58": "26241",
                      "59": "107359", "60": "26033", "67": "7273"}
         for prob_num, prob_ans in prob_dict.items():
-            self.function_dispatcher.dispatch("euler " + prob_num, self.test_user, self.test_user)
-            data = self.server.get_send_data(1, self.test_user, Server.MSG_MSG)
-            assert "error" not in data[0][0].lower(), "Euler problem " + prob_num + " throws an error."
-            assert "Euler project problem " + prob_num + "?" in data[0][0], "Problem name is not in output for " \
-                                                                            "problem " + prob_num
-            assert prob_ans in data[0][0].lower(), "Euler problem " + prob_num + \
-                                                   " has incorrect answer. It should return " + prob_ans + \
-                                                   " but it returns: " + data[0][0]
+            self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "euler " + prob_num))
+            data = self.server.get_send_data(1, self.test_user, EventMessage)
+            assert "error" not in data[0].text.lower(), "Euler problem " + prob_num + " throws an error."
+            assert "Euler project problem " + prob_num + "?" in data[0].text, "Problem name is not in output for " \
+                                                                              "problem " + prob_num
+            assert prob_ans in data[0].text.lower(), "Euler problem " + prob_num + \
+                                                     " has incorrect answer. It should return " + prob_ans + \
+                                                     " but it returns: " + data[0].text

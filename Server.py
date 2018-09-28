@@ -16,9 +16,6 @@ class Server(metaclass=ABCMeta):
     TYPE_IRC = "irc"
     TYPE_MOCK = "mock"
     TYPE_TELEGRAM = "telegram"
-    MSG_MSG = "message"
-    MSG_NOTICE = "notice"
-    MSG_RAW = "raw"
     STATE_CLOSED = "disconnected"
     STATE_OPEN = "connected"
     STATE_CONNECTING = "connecting"
@@ -37,6 +34,7 @@ class Server(metaclass=ABCMeta):
         self.name = None  # Server name
         self.auto_connect = True  # Whether to automatically connect to this server when hallo starts
         self.channel_list = []  # List of channels on this server (which may or may not be currently active)
+        """ :type : list[Destination.Channel]"""
         self.user_list = []  # Users on this server (not all of which are online)
         self.nick = None  # Nickname to use on this server
         self.prefix = None  # Prefix to use with functions on this server
@@ -71,17 +69,32 @@ class Server(metaclass=ABCMeta):
         self.disconnect()
         self.start()
 
-    def send(self, data, destination_obj=None, msg_type=MSG_MSG):
+    def send(self, event):
         """
         Sends a message to the server, or a specific channel in the server
-        :param data: Line of data to send to server
-        :type data: str
-        :param destination_obj: Destination to send data to
-        :type destination_obj: Destination.Destination | None
-        :param msg_type: Type of message which is being sent
-        :type msg_type: str
+        :param event: Event to send, should be outbound.
+        :type event: Events.ServerEvent
         """
         raise NotImplementedError
+
+    def reply(self, old_event, new_event):
+        """
+        Sends a message as a reply to another message, such as a response to a function call
+        :param old_event: The event which was received, to reply to
+        :type old_event: Events.ChannelUserTextEvent
+        :param new_event: The event to be sent
+        :type new_event: Events.ChannelUserTextEvent
+        """
+        # This method will just do some checks, implementations will have to actually send events
+        if not old_event.is_inbound or new_event.is_inbound:
+            raise ServerException("Cannot reply to outbound event, or send inbound one")
+        if old_event.channel != new_event.channel:
+            raise ServerException("Cannot send reply to a different channel than original message came from")
+        if new_event.user is not None and old_event.user != new_event.user:
+            raise ServerException("Cannot send reply to a different private chat than original message came from")
+        if old_event.server != new_event.server:
+            raise ServerException("Cannot send reply to a different server than the original message came from")
+        return
 
     def to_json(self):
         """
@@ -148,29 +161,20 @@ class Server(metaclass=ABCMeta):
         """Returns boolean representing whether the server is connected or not."""
         return self.state == Server.STATE_OPEN
 
-    def get_channel_by_name(self, channel_name, address=None):
-        # TODO: fix all usages of this
+    def get_channel_by_name(self, channel_name):
         """
         Returns a Channel object with the specified channel name.
         :param channel_name: Name of the channel which is being searched for
         :type channel_name: str
-        :param address: Address of the channel
-        :type address: str
         :rtype: Optional[Destination.Channel]
         """
         channel_name = channel_name.lower()
         for channel in self.channel_list:
             if channel.name == channel_name:
                 return channel
-        new_channel = None
-        if address is not None:
-            new_channel = Channel(self, address, channel_name)
-            self.add_channel(new_channel)
-        else:
-            self.hallo.printer.print_raw("WARNING: Server.get_channel_by_name() used without address")
-        return new_channel
+        return None
 
-    def get_channel_by_address(self, address, channel_name):
+    def get_channel_by_address(self, address, channel_name=None):
         """
         Returns a Channel object with the specified channel name.
         :param address: Address of the channel
@@ -182,9 +186,19 @@ class Server(metaclass=ABCMeta):
         for channel in self.channel_list:
             if channel.address == address:
                 return channel
+        if channel_name is None:
+            channel_name = self.get_name_by_address(address)
         new_channel = Channel(self, address, channel_name)
         self.add_channel(new_channel)
         return new_channel
+
+    def get_name_by_address(self, address):
+        """
+        Returns the name of a destination, based on the address
+        :param address: str
+        :return: str
+        """
+        raise NotImplementedError()
 
     def add_channel(self, channel_obj):
         """
@@ -216,30 +230,21 @@ class Server(metaclass=ABCMeta):
         # Set not in channel
         channel_obj.set_in_channel(False)
 
-    def get_user_by_name(self, user_name, address=None):
-        # TODO: fix all usages of this
+    def get_user_by_name(self, user_name):
         """
         Returns a User object with the specified user name.
         :param user_name: Name of user which is being searched for
         :type user_name: str
-        :param address: address of the user which is being searched for or added
-        :type address: str | None
         :rtype: Destination.User | None
         """
         user_name = user_name.lower()
         for user in self.user_list:
             if user.name == user_name:
                 return user
-        # No user by that name exists, so create one, provided address is supplied
-        new_user = None
-        if address is not None:
-            new_user = User(self, address, user_name)
-            self.add_user(new_user)
-        else:
-            self.hallo.printer.print_raw("WARNING: Server.get_user_by_name() used without address")
-        return new_user
+        # No user by that name exists, return None
+        return None
 
-    def get_user_by_address(self, address, user_name):
+    def get_user_by_address(self, address, user_name=None):
         """
         Returns a User object with the specified user name.
         :param address: address of the user which is being searched for or added
@@ -251,6 +256,8 @@ class Server(metaclass=ABCMeta):
         for user in self.user_list:
             if user.address == address:
                 return user
+        if user_name is None:
+            user_name = self.get_name_by_address(address)
         # No user by that name exists, so create one
         new_user = User(self, address, user_name)
         self.add_user(new_user)

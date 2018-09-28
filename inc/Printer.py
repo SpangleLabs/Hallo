@@ -1,4 +1,5 @@
-from Function import Function
+from Events import EventSecond, EventMinute, EventHour, EventDay, EventPing, EventQuit, EventNameChange, EventJoin, \
+    EventLeave, EventKick, EventInvite, EventMode, EventNotice, EventCTCP, EventMessage
 from inc.Commons import Commons
 import datetime
 
@@ -14,139 +15,148 @@ class Printer:
         Constructor
         """
         self.hallo = hallo
-        self.event_dict = {Function.EVENT_SECOND: self.print_second,
-                           Function.EVENT_MINUTE: self.print_minute,
-                           Function.EVENT_HOUR: self.print_hour,
-                           Function.EVENT_DAY: self.print_day,
-                           Function.EVENT_PING: self.print_ping,
-                           Function.EVENT_MESSAGE: self.print_message,
-                           Function.EVENT_JOIN: self.print_join,
-                           Function.EVENT_LEAVE: self.print_leave,
-                           Function.EVENT_QUIT: self.print_quit,
-                           Function.EVENT_CHNAME: self.print_name_change,
-                           Function.EVENT_KICK: self.print_kick,
-                           Function.EVENT_INVITE: self.print_invite,
-                           Function.EVENT_NOTICE: self.print_notice,
-                           Function.EVENT_MODE: self.print_mode_change,
-                           Function.EVENT_CTCP: self.print_ctcp}
 
-    def output(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
+    def output(self, event):
         """The function which actually prints the messages."""
-        # If channel or server are set to all, set to None for getting output
-        if server_obj == Commons.ALL_SERVERS:
-            server_obj = None
-        if channel_obj == Commons.ALL_CHANNELS:
-            channel_obj = None
-        # Check what type of event and pass to that to create line
-        if event not in self.event_dict:
-            return None
-        print_function = self.event_dict[event]
-        print_line = print_function(full_line, server_obj, user_obj, channel_obj)
+        print_line = self.get_print_line(event)
         # Output the log line
         print(print_line)
-        return None
-    
-    def output_from_self(self, event, full_line, server_obj=None, user_obj=None, channel_obj=None):
-        """Prints lines for messages from hallo."""
-        # Check what type of event and pass to that to create line
-        if event not in self.event_dict:
-            return None
-        print_function = self.event_dict[event]
-        hallo_user_obj = server_obj.get_user_by_address(server_obj.get_nick().lower(), server_obj.get_nick())
-        print_line = print_function(full_line, server_obj, hallo_user_obj, channel_obj)
-        # Write the log line
-        print(print_line)
-        return None
+
+    def get_print_line(self, event):
+        if isinstance(event, EventSecond):
+            return self.print_second(event)
+        if isinstance(event, EventMinute):
+            return self.print_minute(event)
+        if isinstance(event, EventHour):
+            return self.print_hour(event)
+        if isinstance(event, EventDay):
+            return self.print_day(event)
+        if isinstance(event, EventPing):
+            return self.print_ping(event)
+        if isinstance(event, EventQuit):
+            return self.print_quit(event)
+        if isinstance(event, EventNameChange):
+            return self.print_name_change(event)
+        if isinstance(event, EventJoin):
+            return self.print_join(event)
+        if isinstance(event, EventLeave):
+            return self.print_leave(event)
+        if isinstance(event, EventKick):
+            return self.print_kick(event)
+        if isinstance(event, EventInvite):
+            return self.print_invite(event)
+        if isinstance(event, EventMode):
+            return self.print_mode_change(event)
+        if isinstance(event, EventNotice):
+            return self.print_notice(event)
+        if isinstance(event, EventCTCP):
+            return self.print_ctcp(event)
+        if isinstance(event, EventMessage):
+            return self.print_message(event)
+        raise NotImplementedError("Printer doesn't support this event type")
 
     def output_raw(self, raw_text):
         print_line = self.print_raw(raw_text)
         print(print_line)
     
-    def print_second(self, full_line, server_obj, user_obj, channel_obj):
+    def print_second(self, event):
         return None
     
-    def print_minute(self, full_line, server_obj, user_obj, channel_obj):
+    def print_minute(self, event):
         return None
     
-    def print_hour(self, full_line, server_obj, user_obj, channel_obj):
+    def print_hour(self, event):
         return None
     
-    def print_day(self, full_line, server_obj, user_obj, channel_obj):
+    def print_day(self, event):
         output = "{} Day changed: {}".format(Commons.current_timestamp(), datetime.datetime.now().strftime("%Y-%m-%d"))
         return output
     
-    def print_ping(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} [{}] {}".format(Commons.current_timestamp(), server_obj.name,
-                                     "PING" if user_obj is None else "PONG")
+    def print_ping(self, event):
+        output = "{} [{}] {}".format(Commons.current_timestamp(), event.server.name,
+                                     "PONG" if event.is_inbound else "PING")
+        return output
+
+    def print_quit(self, event):
+        user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        output = "{} [{}] {} has quit.".format(Commons.current_timestamp(), event.server.name, user_name)
+        if event.quit_message.strip() != "":
+            output += " ({})".format(event.quit_message)
+        return output
+
+    def print_name_change(self, event):
+        output = "{} [{}] Nick change: {} -> {}".format(Commons.current_timestamp(), event.server.name,
+                                                        event.old_name, event.new_name)
+        return output
+
+    def print_join(self, event):
+        user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        output = "{} [{}] {} joined {}".format(Commons.current_timestamp(), event.server.name,
+                                               user_name, event.channel.name)
+        return output
+
+    def print_leave(self, event):
+        user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        output = "{} [{}] {} left {}".format(Commons.current_timestamp(), event.server.name,
+                                             user_name, event.channel)
+        if event.leave_message is not None:
+            output += " ({})".format(event.leave_message)
+        return output
+
+    def print_kick(self, event):
+        """
+        :param event: EventKick
+        :rtype: str
+        """
+        kicking_user_name = event.user if event.is_inbound else event.server.get_nick()
+        output = "{} [{}] {} was kicked from {} by {}".format(Commons.current_timestamp(), event.server.name,
+                                                              event.kicked_user.name, event.channel.name,
+                                                              kicking_user_name)
+        if event.kick_message is not None:
+            output += " ({})".format(event.kick_message)
+        return output
+
+    def print_invite(self, event):
+        inviting_user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        output = "{} [{}] {} was invited to {} by {}".format(Commons.current_timestamp(), event.server.name,
+                                                             event.invited_user.name, event.channel.name,
+                                                             inviting_user_name)
+        return output
+
+    def print_mode_change(self, event):
+        channel_name = event.channel.name if event.channel is not None else "??"
+        user_name = event.user.name if event.user is not None else event.server.get_nick()
+        output = "{} [{}] {} set {} on {}".format(Commons.current_timestamp(), event.server.name,
+                                                  user_name, event.mode_changes, channel_name)
         return output
     
-    def print_message(self, full_line, server_obj, user_obj, channel_obj):
-        destination_object = channel_obj
-        if channel_obj is None:
-            destination_object = user_obj
-        output = "{} [{}] {} <{}> {}".format(Commons.current_timestamp(), server_obj.name,
-                                             destination_object.name, user_obj.name, full_line)
+    def print_message(self, event):
+        user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        dest_name = event.channel.name if event.channel is not None else event.user.name
+        output = "{} [{}] {} <{}> {}".format(Commons.current_timestamp(), event.server.name,
+                                             dest_name, user_name, event.text)
         return output
     
-    def print_join(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} [{}] {} joined {}".format(Commons.current_timestamp(), server_obj.name,
-                                               user_obj.name, channel_obj.name)
+    def print_notice(self, event):
+        user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        dest_name = event.channel.name if event.channel is not None else event.user.name
+        output = "{} [{}] Notice in {} from {}: {}".format(Commons.current_timestamp(), event.server.name, dest_name,
+                                                           user_name, event.text)
         return output
     
-    def print_leave(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} [{}] {} left {}".format(Commons.current_timestamp(), server_obj.name,
-                                             user_obj.name, channel_obj.name)
-        if full_line.strip() != "":
-            output += " ({})".format(full_line)
-        return output
-    
-    def print_quit(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} [{}] {} has quit.".format(Commons.current_timestamp(), server_obj.name, user_obj.name)
-        if full_line.strip() != "":
-            output += " ({})".format(full_line)
-        return output
-    
-    def print_name_change(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} [{}] Nick change: {} -> {}".format(Commons.current_timestamp(), server_obj.name,
-                                                        full_line, user_obj.name)
-        return output
-    
-    def print_kick(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} [{}] {} was kicked from {}".format(Commons.current_timestamp(), server_obj.name,
-                                                        user_obj.name, channel_obj.name)
-        if full_line.strip() != "":
-            output += " ({})".format(full_line)
-        return output
-    
-    def print_invite(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} [{}] Invite to {} from {}".format(Commons.current_timestamp(), server_obj.name,
-                                                       channel_obj.name, user_obj.name)
-        return output
-    
-    def print_notice(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} [{}] Notice from {}: {}".format(Commons.current_timestamp(), server_obj.name,
-                                                     user_obj.name, full_line)
-        return output
-    
-    def print_mode_change(self, full_line, server_obj, user_obj, channel_obj):
-        output = "{} [{}] {} set {} on {}".format(Commons.current_timestamp(), server_obj.name,
-                                                  user_obj.name, full_line, channel_obj.name)
-        return output
-    
-    def print_ctcp(self, full_line, server_obj, user_obj, channel_obj):
+    def print_ctcp(self, event):
         # Get useful data and objects
-        ctcp_command = full_line.split()[0]
-        ctcp_arguments = ' '.join(full_line.split()[1:])
-        destination_obj = channel_obj
-        if channel_obj is None:
-            destination_obj = user_obj
+        ctcp_command = event.text.split()[0]
+        ctcp_arguments = ' '.join(event.text.split()[1:])
+        user_name = event.user.name if event.is_inbound else event.server.get_nick()
+        dest_name = event.channel.name if event.channel is not None else event.user.name
         # Print CTCP actions differently to other CTCP commands
         if ctcp_command.lower() == "action":
-            output = "{} [{}] {} **{} {}**".format(Commons.current_timestamp(), server_obj.name, destination_obj.name,
-                                                   user_obj.name, ctcp_arguments)
+            output = "{} [{}] {} **{} {}**".format(Commons.current_timestamp(), event.server.name, dest_name,
+                                                   user_name, ctcp_arguments)
             return output
-        output = "{} [{}] {} <{} (CTCP)> {}".format(Commons.current_timestamp(), server_obj.name, destination_obj.name,
-                                                    user_obj.name, full_line)
+        output = "{} [{}] {} <{} (CTCP)> {}".format(Commons.current_timestamp(), event.server.name, dest_name,
+                                                    user_name, event.text)
         return output
 
     def print_raw(self, raw_text):
