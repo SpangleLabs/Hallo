@@ -80,7 +80,8 @@ class FunctionDispatcher(object):
                 event.reply(event.create_response("The function returned no value."))
             return
         except Exception as e:
-            event.reply(event.create_response("Function failed with error message: {}".format(e)))
+            e_str = (str(e)[:75] + '..') if len(str(e)) > 75 else str(e)
+            event.reply(event.create_response("Function failed with error message: {}".format(e_str)))
             print("Function: {} {}".format(function_class.__module__, function_class.__name__))
             print("Function error: {}".format(e))
             print("Function error location: {}".format(traceback.format_exc(3)))
@@ -119,6 +120,7 @@ class FunctionDispatcher(object):
                 print("ERROR Passive Function: {} {}".format(function_class.__module__, function_class.__name__))
                 print("ERROR Function event: {}".format(event))
                 print("ERROR Function error: {}".format(e))
+                print("Function error location: {}".format(traceback.format_exc(3)))
                 continue
 
     def get_function_by_name(self, function_name):
@@ -184,6 +186,8 @@ class FunctionDispatcher(object):
         """
         # Check it's an allowed module
         if module_name not in self.module_list:
+            self.hallo.printer.output_raw("Module name, {}, is not in allowed list: {}."
+                                          .format(module_name, ", ".join(self.module_list)))
             return False
         # Create full name
         # TODO: allow bypass for reloading of core classes: Hallo, Server, Destination, etc
@@ -197,6 +201,7 @@ class FunctionDispatcher(object):
             try:
                 module_obj = importlib.import_module(full_module_name)
             except ImportError:
+                self.hallo.printer.output_raw("Could not import module")
                 return False
         # Unload module, if it was loaded.
         self.unload_module_functions(module_obj)

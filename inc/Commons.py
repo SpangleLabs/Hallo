@@ -1,3 +1,4 @@
+import gzip
 import time
 import datetime
 import urllib.request
@@ -154,7 +155,7 @@ class Commons(object):
         :param url: URL to download
         :type url: str
         :param headers: List of HTTP headers to add to request
-        :type headers: list
+        :type headers: list[list[str]]
         """
         if headers is None:
             headers = []
@@ -163,8 +164,12 @@ class Commons(object):
         for header in headers:
             page_request.add_header(header[0], header[1])
         page_opener = urllib.request.build_opener()
-        code = page_opener.open(page_request, timeout=60).read().decode('utf-8')
-        return code
+        resp = page_opener.open(page_request, timeout=60)
+        code = resp.read()
+        if resp.getheader("Content-Encoding") == "gzip":
+            code = gzip.decompress(code)
+        code_str = code.decode('utf-8')
+        return code_str
 
     @staticmethod
     def load_url_json(url, headers=None, json_fix=False):
@@ -339,6 +344,8 @@ class Commons(object):
         :type delta_string: str
         :return: timedelta
         """
+        if len(delta_string) < 4:
+            raise ISO8601ParseError("Invalid ISO-8601 period string")
         if delta_string[0] != "P" or delta_string[-1] != "S":
             raise ISO8601ParseError("Invalid ISO-8601 period string")
         clean_string = delta_string[1:-1]

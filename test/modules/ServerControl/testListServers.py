@@ -74,7 +74,7 @@ class ListServersTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         # Check response
         server_list_text = data[0].text.split(":")[1]
-        server_list = server_list_text.split("], ")
+        server_list = server_list_text.split("\n")
         assert len(server_list) == 2
         if serv1.name in server_list[0]:
             server_text1 = server_list[0]

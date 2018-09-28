@@ -74,7 +74,7 @@ class Printer:
     
     def print_ping(self, event):
         output = "{} [{}] {}".format(Commons.current_timestamp(), event.server.name,
-                                     "PING" if event.is_inbound is None else "PONG")
+                                     "PONG" if event.is_inbound else "PING")
         return output
 
     def print_quit(self, event):
