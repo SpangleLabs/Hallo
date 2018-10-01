@@ -948,29 +948,21 @@ class FANotificationCommentsSub(Subscription):
         output = "Err, comments did something?"
         fa_reader = self.fa_key.get_fa_reader()
         if isinstance(item, FAKey.FAReader.FANotificationShout):
-            user_page = fa_reader.get_user_page(item.page_username)
-            shout = [shout for shout in user_page.shouts if shout.shout_id == item.shout_id]
-            if len(shout) == 1:
+            try:
+                user_page = fa_reader.get_user_page(item.page_username)
+                shout = [shout for shout in user_page.shouts if shout.shout_id == item.shout_id]
                 output = "You have a new shout, from {} " \
                          "( http://furaffinity.net/user/{}/ ) " \
                          "has left a shout saying: \n\n{}".format(item.name, item.username, shout[0].text)
-            else:
+            except Exception:
                 output = "You have a new shout, from {} " \
                          "( http://furaffinity.net/user/{}/ ) " \
                          "has left a shout but I can't find it on your user page: \n" \
                          "https://furaffinity.net/user/{}/".format(item.name, item.username, item.page_username)
         if isinstance(item, FAKey.FAReader.FANotificationCommentJournal):
-            journal_page = fa_reader.get_journal_page(item.journal_id)
-            comment = journal_page.comments_section.get_comment_by_id(item.comment_id)
-            if comment is None:
-                output = "You have a journal comment notification. " \
-                         "{} has made a new comment {}on {} journal " \
-                         "\"{}\" {} but I can't find " \
-                         "the comment.".format(item.name,
-                                               ("in response to your comment " if item.comment_on else ""),
-                                               ("your" if item.journal_yours else "their"),
-                                               item.journal_name, item.journal_link)
-            else:
+            try:
+                journal_page = fa_reader.get_journal_page(item.journal_id)
+                comment = journal_page.comments_section.get_comment_by_id(item.comment_id)
                 output = "You have a journal comment notification. " \
                          "{} has made a new comment {}on {} journal " \
                          "\"{}\" {} : \n\n{}".format(item.name,
@@ -978,23 +970,31 @@ class FANotificationCommentsSub(Subscription):
                                                      ("your" if item.journal_yours else "their"),
                                                      item.journal_name, item.journal_link,
                                                      comment.text)
-        if isinstance(item, FAKey.FAReader.FANotificationCommentSubmission):
-            submission_page = fa_reader.get_submission_page(item.submission_id)
-            comment = submission_page.comments_section.get_comment_by_id(item.comment_id)
-            if comment is None:
-                output = "You have a submission comment notification. " \
-                         "{} has made a new comment {}on {} submission \"{}\" {} : but I can't find " \
+            except Exception:
+                output = "You have a journal comment notification. " \
+                         "{} has made a new comment {}on {} journal " \
+                         "\"{}\" {} but I can't find " \
                          "the comment.".format(item.name,
                                                ("in response to your comment " if item.comment_on else ""),
-                                               ("your" if item.submission_yours else "their"),
-                                               item.submission_name, item.submission_link)
-            else:
+                                               ("your" if item.journal_yours else "their"),
+                                               item.journal_name, item.journal_link)
+        if isinstance(item, FAKey.FAReader.FANotificationCommentSubmission):
+            try:
+                submission_page = fa_reader.get_submission_page(item.submission_id)
+                comment = submission_page.comments_section.get_comment_by_id(item.comment_id)
                 output = "You have a submission comment notification. " \
                          "{} has made a new comment {}on {} submission \"{}\" {} : \n\n" \
                          "{}".format(item.name,
                                      ("in response to your comment " if item.comment_on else ""),
                                      ("your" if item.submission_yours else "their"),
                                      item.submission_name, item.submission_link, comment.text)
+            except Exception:
+                output = "You have a submission comment notification. " \
+                         "{} has made a new comment {}on {} submission \"{}\" {} : but I can't find " \
+                         "the comment.".format(item.name,
+                                               ("in response to your comment " if item.comment_on else ""),
+                                               ("your" if item.submission_yours else "their"),
+                                               item.submission_name, item.submission_link)
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
@@ -1170,8 +1170,12 @@ class FASearchSub(Subscription):
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         # Get submission page and file extension
-        sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
-        image_url = sub_page.full_image
+        try:
+            sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
+            image_url = sub_page.full_image
+        except Exception:
+            print("Failed to get submission page for FASearchSubscription")
+            image_url = item.thumbnail_link
         file_extension = image_url.split(".")[-1].lower()
         if file_extension in ["png", "jpg", "jpeg", "bmp", "gif"]:
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
@@ -1342,8 +1346,12 @@ class FAUserFavsSub(Subscription):
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         # Get submission page and file extension
-        sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
-        image_url = sub_page.full_image
+        try:
+            sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
+            image_url = sub_page.full_image
+        except Exception:
+            print("Failed to get submission page for FAUserFavsSubscription.")
+            image_url = item.preview_image
         file_extension = image_url.split(".")[-1].lower()
         if file_extension in ["png", "jpg", "jpeg", "bmp", "gif"]:
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
