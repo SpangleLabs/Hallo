@@ -174,7 +174,7 @@ class ServerTelegram(Server):
         if isinstance(event, EventMessageWithPhoto):
             destination = event.user if event.channel is None else event.channel
             if event.photo_id.lower().endswith(".gif") or event.photo_id.lower().endswith(".mp4"):
-                self.bot.send_document(chat_id=destination.address, photo=event.photo_id, caption=event.text)
+                self.bot.send_document(chat_id=destination.address, document=event.photo_id, caption=event.text)
             else:
                 self.bot.send_photo(chat_id=destination.address, photo=event.photo_id, caption=event.text)
             self.hallo.printer.output(event)
