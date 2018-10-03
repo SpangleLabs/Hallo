@@ -199,6 +199,7 @@ class Subscription(metaclass=ABCMeta):
         """
         Checks the subscription, and returns a list of update objects, in whatever format that
         format_item() would like to receive them.
+        The list should be ordered from oldest to newest.
         :rtype: list[object]
         """
         raise NotImplementedError()
@@ -360,7 +361,7 @@ class RssSub(Subscription):
         self.last_item_hash = latest_hash
         self.last_check = datetime.now()
         # Return new items
-        return new_items
+        return new_items[::-1]
 
     def format_item(self, rss_item):
         # Load item xml
@@ -641,7 +642,7 @@ class FANotificationNotesSub(Subscription):
         # Update last check time
         self.last_check = datetime.now()
         # Return results
-        return results
+        return results[::-1]
 
     def format_item(self, item):
         # Construct output
@@ -780,7 +781,7 @@ class FANotificationFavSub(Subscription):
         # Update last check time
         self.last_check = datetime.now()
         # Return results
-        return results
+        return results[::-1]
 
     def format_item(self, new_fav):
         """
@@ -942,7 +943,7 @@ class FANotificationCommentsSub(Subscription):
         # Update last check time
         self.last_check = datetime.now()
         # Return results
-        return results
+        return results[::-1]
 
     def format_item(self, item):
         output = "Err, comments did something?"
@@ -1155,7 +1156,7 @@ class FASearchSub(Subscription):
         # Create new list of latest ten results
         self.latest_ids = [result.submission_id for result in search_page.results[:10]]
         self.last_check = datetime.now()
-        return results
+        return results[::-1]
 
     def format_item(self, item):
         """
@@ -1331,7 +1332,7 @@ class FAUserFavsSub(Subscription):
         # Create new list of latest ten results
         self.latest_ids = [result.submission_id for result in favs_page.favourites[:10]]
         self.last_check = datetime.now()
-        return results
+        return results[::-1]
 
     def format_item(self, item):
         """
@@ -1506,7 +1507,7 @@ class FAUserWatchersSub(Subscription):
         # Create new list of latest ten results
         self.newest_watchers = [new_watcher.watcher_username for new_watcher in user_page.watched_by]
         self.last_check = datetime.now()
-        return results
+        return results[::-1]
 
     def format_item(self, item):
         """
