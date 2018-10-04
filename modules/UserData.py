@@ -4,69 +4,111 @@ from threading import Lock
 from Function import Function
 
 
+class UserDataException(Exception):
+    pass
+
+
 class UserDataRepo:
 
     def __init__(self):
-        self.data = dict()
-        """ :type : dict[User, dict[str, UserDatum]]"""
         self.lock = Lock()
         """ :type : threading.Lock"""
 
     def get_data_by_user(self, user):
         """
         :type user: User
-        :rtype: dict[str, UserData]
+        :rtype: dict[str, UserDatum]
         """
-        return self.data[user] if user in self.data else None
+        user_data_dict = user.extra_data_dict
+        user_data = dict()
+        for key in user_data_dict:
+            user_data[key] = UserDataFactory.from_dict(key, user_data_dict[key])
+        return user_data
 
     def get_data_by_user_and_type(self, user, data_class):
         """
         :type user: User
-        :type data_class: type
+        :type data_class: class
         :rtype: UserDatum
         """
-        class_str = data_class.__name__
-        return self.data[user][class_str] if user in self.data and class_str in self.data[user] else None
+        type_name = data_class.type_name
+        user_data_dict = user.extra_data_dict
+        if type_name in user_data_dict:
+            return UserDataFactory.from_dict(type_name, user_data_dict[type_name])
+        return None
 
-    def add_data_to_user(self, user, data):
+    def set_user_data(self, user, data):
+        """
+        Adds a data object to a user, or overrides if one already exists.
+        :type user: User
+        :type data: UserDatum
+        """
+        user.extra_data_dict[data.type_name] = data.to_json()
+
+    def remove_data_by_user_and_type(self, user, data_class):
         """
         :type user: User
-        :type data: UserData
+        :type data_class: class
+        :rtype: UserDatum
         """
-        class_str = data.__class__.__name__
-        if user not in self.data:
-            self.data[user] = dict()
-        if class_str in self.data[user]:
-            raise Exception(
-                "This user \"{}\" already has an entry for that userdata type \"{}\".".format(user.name, class_str))
-        self.data[user][class_str] = data
-
-    def to_json(self):
-        pass  # TODO
-
-    def from_json(self):
-        pass  # TODO
 
 
-class UserData(metaclass=ABCMeta):
+class UserDatum(metaclass=ABCMeta):
+    type_name = ""
     names = []
 
+    @staticmethod
+    def create_from_input(event):
+        raise NotImplementedError()
+
+    def get_name(self, event):
+        raise NotImplementedError()
+
     def to_json(self):
-        raise NotImplementedError()  # TODO
+        raise NotImplementedError()
 
-    def from_json(self):
-        raise NotImplementedError()  # TODO
+    @staticmethod
+    def from_json(json_dict):
+        raise NotImplementedError()
 
 
-class FAKeyData(UserData):
+class FAKeyData(UserDatum):
+    type_name = "fa_key"
     names = ["furaffinity key", "fa key", "fa cookies", "furaffinity cookies"]
 
-    def __init__(self):
-        self.cookie_a = None
-        self.cookie_b = None
+    def __init__(self, cookie_a, cookie_b):
+        self.cookie_a = cookie_a
+        self.cookie_b = cookie_b
+
+    @staticmethod
+    def create_from_input(event):
+        input_clean = event.command_args.strip().lower().replace(";", " ").split()
+        if len(input_clean) != 2:
+            raise UserDataException("Input must include cookie a and cookie b, in the format a=value;b=value")
+        if input_clean[0].startswith("b="):
+            input_clean = list(reversed(input_clean))
+        cookie_a = input_clean[0][2:]
+        cookie_b = input_clean[1][2:]
+        new_data = FAKeyData(cookie_a, cookie_b)
+        return new_data
+
+    def get_name(self, event):
+        return event.user.name + " FA login"
+
+    def to_json(self):
+        json_obj = dict()
+        json_obj["cookie_a"] = self.cookie_a
+        json_obj["cookie_b"] = self.cookie_b
+
+    @staticmethod
+    def from_json(json_dict):
+        cookie_a = json_dict["cookie_a"]
+        cookie_b = json_dict["cookie_b"]
+        return FAKeyData(cookie_a, cookie_b)
 
 
-class WeatherLocationData(UserData):
+class WeatherLocationData(UserDatum):
+    type_name = "weather_location"
     names = ["weather location"]
 
     def __init__(self):
@@ -79,7 +121,7 @@ class WeatherLocationData(UserData):
 
 
 class UserDataFactory:
-    data_classes = [FAKeyData, WeatherLocationData]
+    data_classes = [FAKeyData]
 
     @staticmethod
     def get_data_type_names():
@@ -89,8 +131,13 @@ class UserDataFactory:
     def get_data_class_by_name(name):
         classes = [data_class for data_class in UserDataFactory.data_classes if name in data_class.names]
         if len(classes) != 1:
-            raise Exception("Failed to find a common configuration type matching the name {}".format(name))
+            raise UserDataException("Failed to find a common configuration type matching the name {}".format(name))
         return classes[0]
+
+    @staticmethod
+    def from_dict(type_name, data_dict):
+        data_class = UserDataFactory.get_data_class_by_name(type_name)
+        return data_class.from_json(data_dict)
 
 
 class UserDataSetup(Function):
@@ -113,17 +160,8 @@ class UserDataSetup(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets up user data which other functions may require. " \
                          "Format: setup user data <type> <parameters>"
-        self.user_data_repo = None
-        """ :type : UserDataRepo | None"""
-
-    def get_sub_repo(self, hallo):
-        """
-        :type hallo: Hallo.Hallo
-        :rtype: SubscriptionRepo
-        """
-        if self.user_data_repo is None:
-            self.user_data_repo = UserDataRepo.load_json(hallo)
-        return self.subscription_repo
+        self.user_data_repo = UserDataRepo()
+        """ :type : UserDataRepo"""
 
     @staticmethod
     def is_persistent():
@@ -133,39 +171,41 @@ class UserDataSetup(Function):
     @staticmethod
     def load_function():
         """Loads the function, persistent functions only."""
-        return SubscriptionCheck()
+        return UserDataSetup()
 
     def save_function(self):
         """Saves the function, persistent functions only."""
-        if self.subscription_repo is not None:
-            self.subscription_repo.save_json()
+        pass
 
     def run(self, event):
         # Construct type name
-        common_type_name = " ".join([w for w in event.command_name.lower().split()
-                                     if w not in ["setup", "user", "data", "for"]]).strip()
+        data_type_name = " ".join([w for w in event.command_name.lower().split()
+                                   if w not in ["setup", "user", "data", "for"]]).strip()
         # Get class from type name
-        common_class = UserDataFactory.get_data_class_by_name(common_type_name)
-        # Get current subscription repo
+        data_class = UserDataFactory.get_data_class_by_name(data_type_name)  # type: UserDatum
+        if data_class is None:
+            return event.create_response(
+                "Could not find a user data type called {}. "
+                "Available types are: {}".format(data_type_name,
+                                                 ", ".join([data_class.names[0]
+                                                            for data_class in UserDataFactory.data_classes])))
+        # Get current user data repo
         user_data_repo = self.user_data_repo
         # Acquire lock to update the common config object
         with user_data_repo.lock:
-            # Get common configuration item and update
-            common_obj = user_data_repo.get_common_config_by_type(common_class)
-            common_obj.update_from_input(event)
-            # Save repo
-            user_data_repo.save_json()
+            # Create user data object
+            data_obj = data_class.create_from_input(event)
+            # Save user data
+            user_data_repo.set_user_data(event.user, data_obj)
         # Send response
-        return event.create_response("Set up a new {} common configuration for {}".format(common_class.type_name,
-                                                                                          common_obj.get_name(event)))
+        return event.create_response("Set up a new user data for {}".format(data_class.get_name(event)))
 
 
 class SubscriptionTeardown(Function):
     """
-    Tears down a user's common configuration in the subscription repository
+    Tears down a user's user data of a given type
     """
-    tear_down_words = ["tear down", "teardown"]
-    sub_words = ["sub", "subs", "subscription", "subscriptions"]
+    tear_down_words = ["tear down", "teardown", "remove"]
 
     def __init__(self):
         """
@@ -173,37 +213,32 @@ class SubscriptionTeardown(Function):
         """
         super().__init__()
         # Name for use in help listing
-        self.help_name = "tear down subscription"
+        self.help_name = "tear down user data"
         # Names which can be used to address the function
-        name_templates = {"{0} {1}", "{1} {0}",
-                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
-        self.names = set([template.format(name, tearDown, sub)
-                          for name in SubscriptionFactory.get_common_names()
+        name_templates = {"{1} {0} user data", "{1} user data {0}", "{1} user data for {0}", "{0} user data {1}"}
+        self.names = set([template.format(name, tearDown)
+                          for name in UserDataFactory.get_data_type_names()
                           for template in name_templates
-                          for tearDown in self.tear_down_words
-                          for sub in self.sub_words])
+                          for tearDown in self.tear_down_words])
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Tears down a subscription common configuration for the current channel. " \
-                         "Format: tear down subscription <type> <parameters>"
+        self.help_docs = "Removes user data of a specified type. " \
+                         "Format: tear down user data <type> <parameters>"
 
     def run(self, event):
         # Construct type name
-        common_type_name = " ".join([w for w in event.command_name.split()
-                                     if w not in self.sub_words+self.tear_down_words]).strip()
+        data_type_name = " ".join([w for w in event.command_name.split()
+                                   if w not in ["user", "data", "for", "teardown", "tear", "down"]]).strip()
         # Get class from type name
-        common_class = SubscriptionFactory.get_common_class_by_name(common_type_name)
+        data_class = UserDataFactory.get_data_class_by_name(data_type_name)
         # Get current subscription repo
         function_dispatcher = event.server.hallo.function_dispatcher
-        sub_check_class = function_dispatcher.get_function_by_name("check subscription")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubscriptionCheck
-        sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
+        sub_check_class = function_dispatcher.get_function_by_name("setup user data")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: UserDataSetup
+        user_data_repo = sub_check_obj.user_data_repo
         # Acquire lock to update the common config object
-        with sub_repo.sub_lock:
-            # Get common configuration item and update
-            common_obj = sub_repo.get_common_config_by_type(common_class)
-            common_obj.remove_by_input(event)
-            # Save repo
-            sub_repo.save_json()
+        with user_data_repo.lock:
+            # Remove user data
+            common_obj = user_data_repo.get_data_by_user_and_type(event.user, data_class)
+            user_data_repo.remove_data_by_user_and_type(event.user, data_class)
         # Send response
-        return event.create_response("Removed {} common configuration for {}".format(common_class.type_name,
-                                                                                     common_obj.get_name(event)))
+        return event.create_response("Removed user data for {}".format(common_obj.get_name(event)))
