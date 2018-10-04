@@ -382,6 +382,16 @@ class User(Destination):
         # Otherwise it can be generated anew to be identical.
         return False
 
+    def get_extra_data(self, hallo):
+        """
+        :type hallo: Hallo.Hallo
+        :return:
+        """
+        func_class = hallo.function_dispatcher.get_function_by_name("setup user data")
+        func_obj = hallo.function_dispatcher.get_function_object(func_class)  # modules.UserData.UserDataSetup
+        user_data_repo = func_obj.get_repo(hallo)
+        return user_data_repo.get_data_by_user(self)
+
     def to_json(self):
         """
         Creates a dict of the user object, to serialise and store as json configuration
