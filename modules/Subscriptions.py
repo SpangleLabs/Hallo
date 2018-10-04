@@ -350,8 +350,12 @@ class RssSub(Subscription):
             if item_guid_elem is not None:
                 item_hash = item_guid_elem.text
             else:
-                item_xml = ElementTree.tostring(item_elem)
-                item_hash = hashlib.md5(item_xml).hexdigest()
+                item_link_elem = item_elem.find("link")
+                if item_link_elem is not None:
+                    item_hash = item_link_elem.text
+                else:
+                    item_xml = ElementTree.tostring(item_elem)
+                    item_hash = hashlib.md5(item_xml).hexdigest()
             if latest_hash is None:
                 latest_hash = item_hash
             if item_hash == self.last_item_hash:
