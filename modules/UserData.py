@@ -164,20 +164,6 @@ class UserDataSetup(Function):
         self.user_data_parser = UserDataParser()
         """ :type : UserDataParser"""
 
-    @staticmethod
-    def is_persistent():
-        """Returns boolean representing whether this function is supposed to be persistent or not"""
-        return True
-
-    @staticmethod
-    def load_function():
-        """Loads the function, persistent functions only."""
-        return UserDataSetup()
-
-    def save_function(self):
-        """Saves the function, persistent functions only."""
-        pass
-
     def run(self, event):
         # Construct type name
         data_type_name = " ".join([w for w in event.command_name.lower().split()
