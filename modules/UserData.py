@@ -213,11 +213,8 @@ class UserDataTeardown(Function):
                                    if w not in ["user", "data", "for", "teardown", "tear", "down"]]).strip()
         # Get class from type name
         data_class = UserDataFactory.get_data_class_by_name(data_type_name)
-        # Get current subscription repo
-        function_dispatcher = event.server.hallo.function_dispatcher
-        sub_check_class = function_dispatcher.get_function_by_name("setup user data")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: UserDataSetup
-        user_data_parser = sub_check_obj.user_data_parser
+        # Get a user data parser
+        user_data_parser = UserDataParser()
         # Remove user data
         common_obj = user_data_parser.get_data_by_user_and_type(event.user, data_class)
         user_data_parser.remove_data_by_user_and_type(event.user, data_class)
