@@ -109,16 +109,57 @@ class FAKeyData(UserDatum):
 
 
 class WeatherLocationData(UserDatum):
+
     type_name = "weather_location"
     names = ["weather location"]
 
-    def __init__(self):
+    TYPE_CITY = "city"
+    TYPE_COORDS = "coords"
+    TYPE_ZIP = "zip"
+
+    class Location(metaclass=ABCMeta):
+
+        def to_json(self):
+            raise NotImplementedError()
+
+        @staticmethod
+        def from_json(json_obj):
+            raise NotImplementedError()
+
+    class CityLocation(Location):
+
+        def __init__(self, city):
+            self.city = city
+
+    class ZipLocation(Location):
+
+        def __init__(self, zip_code):
+            self.zip_code = zip_code
+
+    class CoordLocation(Location):
+
+        def __init__(self, coord_x, coord_y):
+            self.coord_x = coord_x
+            self.coord_y = coord_y
+
+    def __init__(self, location):
+        self.location = location
+        """ :type : Location"""
         self.country_code = None
-        self.type = None
-        self.city_name = None
-        self.zip_code = None
-        self.latitude = None
-        self.longitude = None
+
+    @staticmethod
+    def create_from_input(event):
+        pass
+
+    def get_name(self, event):
+        pass
+
+    def to_json(self):
+        pass
+
+    @staticmethod
+    def from_json(json_dict):
+        pass
 
 
 class UserDataFactory:
