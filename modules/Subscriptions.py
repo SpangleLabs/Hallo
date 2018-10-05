@@ -1139,6 +1139,8 @@ class FASearchSub(Subscription):
         fa_reader = self.fa_key.get_fa_reader()
         results = []
         search_page = fa_reader.get_search_page(self.search)
+        if len(search_page.results) == 0:
+            raise SubscriptionException("Search returned no results.")
         next_batch = []
         matched_ids = False
         for search_result in search_page.results:
