@@ -1727,8 +1727,8 @@ class FAKeysCommon(SubscriptionCommon):
         hallo = user.server.hallo
         func_class = hallo.function_dispatcher.get_function_by_name("setup user data")
         func_obj = hallo.function_dispatcher.get_function_object(func_class)
-        user_data_repo = func_obj.user_data_repo
-        fa_data = user_data_repo.get_data_by_user_and_type(user, FAKeyData)  # type: FAKeyData
+        user_data_parser = func_obj.user_data_parser
+        fa_data = user_data_parser.get_data_by_user_and_type(user, FAKeyData)  # type: FAKeyData
         if fa_data is None:
             return None
         fa_key = FAKey(user, fa_data.cookie_a, fa_data.cookie_b)

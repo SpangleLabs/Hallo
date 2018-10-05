@@ -1,5 +1,4 @@
 from abc import ABCMeta
-from threading import Lock
 
 from Function import Function
 
@@ -8,11 +7,10 @@ class UserDataException(Exception):
     pass
 
 
-class UserDataRepo:
+class UserDataParser:
 
     def __init__(self):
-        self.lock = Lock()
-        """ :type : threading.Lock"""
+        pass
 
     def get_data_by_user(self, user):
         """
@@ -51,6 +49,9 @@ class UserDataRepo:
         :type data_class: class
         :rtype: UserDatum
         """
+        type_name = data_class.type_name
+        if type_name in user.extra_data_dict:
+            del user.extra_data_dict.type_name
 
 
 class UserDatum(metaclass=ABCMeta):
@@ -160,8 +161,8 @@ class UserDataSetup(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets up user data which other functions may require. " \
                          "Format: setup user data <type> <parameters>"
-        self.user_data_repo = UserDataRepo()
-        """ :type : UserDataRepo"""
+        self.user_data_parser = UserDataParser()
+        """ :type : UserDataParser"""
 
     @staticmethod
     def is_persistent():
@@ -189,19 +190,15 @@ class UserDataSetup(Function):
                 "Available types are: {}".format(data_type_name,
                                                  ", ".join([data_class.names[0]
                                                             for data_class in UserDataFactory.data_classes])))
-        # Get current user data repo
-        user_data_repo = self.user_data_repo
-        # Acquire lock to update the common config object
-        with user_data_repo.lock:
-            # Create user data object
-            data_obj = data_class.create_from_input(event)
-            # Save user data
-            user_data_repo.set_user_data(event.user, data_obj)
+        # Create user data object
+        data_obj = data_class.create_from_input(event)
+        # Save user data
+        self.user_data_parser.set_user_data(event.user, data_obj)
         # Send response
         return event.create_response("Set up a new user data for {}".format(data_class.get_name(event)))
 
 
-class SubscriptionTeardown(Function):
+class UserDataTeardown(Function):
     """
     Tears down a user's user data of a given type
     """
@@ -234,11 +231,9 @@ class SubscriptionTeardown(Function):
         function_dispatcher = event.server.hallo.function_dispatcher
         sub_check_class = function_dispatcher.get_function_by_name("setup user data")
         sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: UserDataSetup
-        user_data_repo = sub_check_obj.user_data_repo
-        # Acquire lock to update the common config object
-        with user_data_repo.lock:
-            # Remove user data
-            common_obj = user_data_repo.get_data_by_user_and_type(event.user, data_class)
-            user_data_repo.remove_data_by_user_and_type(event.user, data_class)
+        user_data_parser = sub_check_obj.user_data_parser
+        # Remove user data
+        common_obj = user_data_parser.get_data_by_user_and_type(event.user, data_class)
+        user_data_parser.remove_data_by_user_and_type(event.user, data_class)
         # Send response
         return event.create_response("Removed user data for {}".format(common_obj.get_name(event)))
