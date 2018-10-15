@@ -12,7 +12,7 @@ from Destination import Channel, User
 from Events import EventMessageWithPhoto, EventMessage, EventMinute
 from Function import Function
 from inc.Commons import Commons, ISO8601ParseError
-from modules.UserData import FAKeyData
+from modules.UserData import FAKeyData, UserDataParser
 
 
 class SubscriptionException(Exception):
@@ -1724,10 +1724,7 @@ class FAKeysCommon(SubscriptionCommon):
         """
         if user in self.list_keys:
             return self.list_keys[user]
-        hallo = user.server.hallo
-        func_class = hallo.function_dispatcher.get_function_by_name("setup user data")
-        func_obj = hallo.function_dispatcher.get_function_object(func_class)
-        user_data_parser = func_obj.user_data_parser
+        user_data_parser = UserDataParser()
         fa_data = user_data_parser.get_data_by_user_and_type(user, FAKeyData)  # type: FAKeyData
         if fa_data is None:
             return None
