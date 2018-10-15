@@ -117,6 +117,25 @@ class WeatherLocationData(UserDatum):
     TYPE_COORDS = "coords"
     TYPE_ZIP = "zip"
 
+    def __init__(self, location):
+        self.location = location
+        """ :type : Location"""
+        self.country_code = None
+
+    @staticmethod
+    def create_from_input(event):
+        pass  # TODO:
+
+    def get_name(self, event):
+        pass  # TODO
+
+    def to_json(self):
+        pass  # TODO
+
+    @staticmethod
+    def from_json(json_dict):
+        pass  # TODO
+
     class Location(metaclass=ABCMeta):
 
         def to_json(self):
@@ -131,10 +150,26 @@ class WeatherLocationData(UserDatum):
         def __init__(self, city):
             self.city = city
 
+        def to_json(self):
+            return {"type": WeatherLocationData.TYPE_CITY,
+                    "city": self.city}
+
+        @staticmethod
+        def from_json(json_obj):
+            return WeatherLocationData.CityLocation(json_obj["city"])
+
     class ZipLocation(Location):
 
         def __init__(self, zip_code):
             self.zip_code = zip_code
+
+        def to_json(self):
+            return {"type": WeatherLocationData.TYPE_ZIP,
+                    "zip_code": self.zip_code}
+
+        @staticmethod
+        def from_json(json_obj):
+            return WeatherLocationData.ZipLocation(json_obj["zip_code"])
 
     class CoordLocation(Location):
 
@@ -142,24 +177,14 @@ class WeatherLocationData(UserDatum):
             self.coord_x = coord_x
             self.coord_y = coord_y
 
-    def __init__(self, location):
-        self.location = location
-        """ :type : Location"""
-        self.country_code = None
+        def to_json(self):
+            return {"type": WeatherLocationData.TYPE_COORDS,
+                    "coord_x": self.coord_x,
+                    "coord_y": self.coord_y}
 
-    @staticmethod
-    def create_from_input(event):
-        pass
-
-    def get_name(self, event):
-        pass
-
-    def to_json(self):
-        pass
-
-    @staticmethod
-    def from_json(json_dict):
-        pass
+        @staticmethod
+        def from_json(json_obj):
+            return WeatherLocationData.CoordLocation(json_obj["coord_x"], json_obj["coord_y"])
 
 
 class UserDataFactory:
