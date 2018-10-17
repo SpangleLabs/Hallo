@@ -127,14 +127,20 @@ class WeatherLocationData(UserDatum):
         pass  # TODO:
 
     def get_name(self, event):
-        pass  # TODO
+        return event.user.name + " weather location"
 
     def to_json(self):
-        pass  # TODO
+        return self.location.to_json()
 
     @staticmethod
     def from_json(json_dict):
-        pass  # TODO
+        if json_dict["type"] == WeatherLocationData.TYPE_CITY:
+            return WeatherLocationData(WeatherLocationData.CityLocation.from_json(json_dict))
+        if json_dict["type"] == WeatherLocationData.TYPE_COORDS:
+            return WeatherLocationData(WeatherLocationData.CoordLocation.from_json(json_dict))
+        if json_dict["type"] == WeatherLocationData.TYPE_ZIP:
+            return WeatherLocationData(WeatherLocationData.ZipLocation.from_json(json_dict))
+        raise UserDataException("Unrecognised weather location type.")
 
     class Location(metaclass=ABCMeta):
 
