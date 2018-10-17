@@ -13,6 +13,8 @@ import datetime
 import html
 import html.parser
 
+from modules.UserData import UserDataParser, WeatherLocationData
+
 
 class UrbanDictionary(Function):
     """
@@ -511,47 +513,47 @@ class WeatherLocationEntry:
         return doc.toxml()
 
 
-class WeatherLocation(Function):
-    """
-    Sets the location of user for Weather functions.
-    """
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        super().__init__()
-        # Name for use in help listing
-        self.help_name = "weather location"
-        # Names which can be used to address the function
-        self.names = {"weather location", "weather location set", "set weather location", "weather set location"}
-        # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Sets a user's location for weather-related functions"
-
-    def run(self, event):
-        line_clean = event.command_args.strip().lower()
-        # Load up Weather locations repo
-        weather_repo = WeatherLocationRepo.load_from_xml()
-        user_name = event.user.address
-        server_obj = event.server
-        server_name = server_obj.name
-        # Check that an argument is provided
-        if len(line_clean.split()) == 0:
-            return event.create_response("Please specify a city, coordinates or zip code")
-        # Check if first argument is a specified user for given server
-        first_arg = line_clean.split()[0]
-        test_user = server_obj.get_user_by_name(first_arg)
-        if event.channel is not None:
-            if event.channel.is_user_in_channel(test_user):
-                user_name = test_user.address
-                line_clean = line_clean[len(first_arg):].strip()
-        # Create entry
-        new_entry = WeatherLocationEntry(server_name, user_name)
-        # Set Entry location by input
-        output = new_entry.set_from_input(line_clean)
-        weather_repo.add_entry(new_entry)
-        weather_repo.save_to_xml()
-        return event.create_response(output)
+# class WeatherLocation(Function):
+#     """
+#     Sets the location of user for Weather functions.
+#     """
+#
+#     def __init__(self):
+#         """
+#         Constructor
+#         """
+#         super().__init__()
+#         # Name for use in help listing
+#         self.help_name = "weather location"
+#         # Names which can be used to address the function
+#         self.names = {"weather location", "weather location set", "set weather location", "weather set location"}
+#         # Help documentation, if it's just a single line, can be set here
+#         self.help_docs = "Sets a user's location for weather-related functions"
+#
+#     def run(self, event):
+#         line_clean = event.command_args.strip().lower()
+#         # Load up Weather locations repo
+#         weather_repo = WeatherLocationRepo.load_from_xml()
+#         user_name = event.user.address
+#         server_obj = event.server
+#         server_name = server_obj.name
+#         # Check that an argument is provided
+#         if len(line_clean.split()) == 0:
+#             return event.create_response("Please specify a city, coordinates or zip code")
+#         # Check if first argument is a specified user for given server
+#         first_arg = line_clean.split()[0]
+#         test_user = server_obj.get_user_by_name(first_arg)
+#         if event.channel is not None:
+#             if event.channel.is_user_in_channel(test_user):
+#                 user_name = test_user.address
+#                 line_clean = line_clean[len(first_arg):].strip()
+#         # Create entry
+#         new_entry = WeatherLocationEntry(server_name, user_name)
+#         # Set Entry location by input
+#         output = new_entry.set_from_input(line_clean)
+#         weather_repo.add_entry(new_entry)
+#         weather_repo.save_to_xml()
+#         return event.create_response(output)
 
 
 class CurrentWeather(Function):
@@ -572,31 +574,27 @@ class CurrentWeather(Function):
         self.help_docs = "Returns the current weather in your location (if known) or in provided location."
 
     def run(self, event):
+        user_data_parser = UserDataParser()
         line_clean = event.command_args.strip().lower()
         if line_clean == "":
-            location_repo = WeatherLocationRepo.load_from_xml()
-            location_entry = location_repo.get_entry_by_user_obj(event.user)
+            location_entry = user_data_parser.get_data_by_user_and_type(event.user, WeatherLocationData)
             if location_entry is None:
                 return event.create_response("No location stored for this user. Please specify a location or " +
-                                             "store one with the \"weather location\" function.")
+                                             "store one with the \"setup weather location data\" function.")
         else:
             # Check if a user was specified
             test_user = event.user.server.get_user_by_name(line_clean)
             if event.channel is not None and event.channel.is_user_in_channel(test_user):
-                location_repo = WeatherLocationRepo.load_from_xml()
-                location_entry = location_repo.get_entry_by_user_obj(test_user)
+                location_entry = user_data_parser.get_data_by_user_and_type(test_user, WeatherLocationData)
                 if location_entry is None:
                     return event.create_response("No location stored for this user. Please specify a location or " +
-                                                 "store one with the \"weather location\" function.")
+                                                 "store one with the \"setup weather location data\" function.")
             else:
-                user_name = event.user.address
-                server_name = event.server.name
-                location_entry = WeatherLocationEntry(user_name, server_name)
-                location_entry.set_from_input(line_clean)
+                location_entry = WeatherLocationData.create_from_input(event)
         api_key = event.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return event.create_response("No API key loaded for openweathermap.")
-        url = "http://api.openweathermap.org/data/2.5/weather{}&APPID={}".format(location_entry.create_query_params(),
+        url = "http://api.openweathermap.org/data/2.5/weather{}&APPID={}".format(self.build_query(location_entry),
                                                                                  api_key)
         response = Commons.load_url_json(url)
         if str(response['cod']) != "200":
@@ -612,6 +610,26 @@ class CurrentWeather(Function):
                                                                           weather_temp, weather_humidity,
                                                                           weather_wind_speed)
         return event.create_response(output)
+
+    def build_query(self, weather_location):
+        """
+        Creates query parameters for API call.
+        :type weather_location: WeatherLocationData
+        :rtype: str
+        """
+        if isinstance(weather_location.location, WeatherLocationData.CityLocation):
+            query = "?q={}".format(weather_location.location.city.replace(" ", "+"))
+            if weather_location.country_code is not None:
+                query += "," + weather_location.country_code
+            return query
+        if isinstance(weather_location.location, WeatherLocationData.CoordLocation):
+            query = "?lat={}&lon={}".format(weather_location.location.latitude, weather_location.location.longitude)
+            return query
+        if isinstance(weather_location.location, WeatherLocationData.ZipLocation):
+            query = "?zip={}".format(weather_location.location.zip_code)
+            if weather_location.country_code is not None:
+                query += "," + weather_location.country_code
+            return query
 
 
 class Weather(Function):
@@ -739,6 +757,26 @@ class Weather(Function):
                                                                           weather_main, weather_desc, weather_temp,
                                                                           weather_humidity, weather_wind_speed)
         return event.create_response(output)
+
+    def build_query(self, weather_location):
+        """
+        Creates query parameters for API call.
+        :type weather_location: WeatherLocationData
+        :rtype: str
+        """
+        if isinstance(weather_location.location, WeatherLocationData.CityLocation):
+            query = "?q={}".format(weather_location.location.city.replace(" ", "+"))
+            if weather_location.country_code is not None:
+                query += "," + weather_location.country_code
+            return query
+        if isinstance(weather_location.location, WeatherLocationData.CoordLocation):
+            query = "?lat={}&lon={}".format(weather_location.location.latitude, weather_location.location.longitude)
+            return query
+        if isinstance(weather_location.location, WeatherLocationData.ZipLocation):
+            query = "?zip={}".format(weather_location.location.zip_code)
+            if weather_location.country_code is not None:
+                query += "," + weather_location.country_code
+            return query
 
     def weekday_to_number(self, weekday):
         """Converts weekday text to integer. Monday = 0"""

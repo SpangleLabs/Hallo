@@ -122,6 +122,7 @@ class WeatherLocationData(UserDatum):
         self.location = location
         """ :type : Location"""
         self.country_code = None
+        """ :type : str"""
 
     @staticmethod
     def create_from_input(event):
@@ -192,14 +193,14 @@ class WeatherLocationData(UserDatum):
 
     class CoordLocation(Location):
 
-        def __init__(self, coord_x, coord_y):
-            self.coord_x = coord_x
-            self.coord_y = coord_y
+        def __init__(self, latitude, longitude):
+            self.latitude = latitude
+            self.longitude = longitude
 
         def to_json(self):
             return {"type": WeatherLocationData.TYPE_COORDS,
-                    "coord_x": self.coord_x,
-                    "coord_y": self.coord_y}
+                    "latitude": self.latitude,
+                    "longitude": self.longitude}
 
         @staticmethod
         def from_json(json_obj):
