@@ -1,3 +1,4 @@
+import re
 from abc import ABCMeta
 
 from Function import Function
@@ -124,7 +125,19 @@ class WeatherLocationData(UserDatum):
 
     @staticmethod
     def create_from_input(event):
-        pass  # TODO:
+        input_line = event.command_args
+        # Check if zip code is given
+        if re.match(r'^\d{5}(?:[-\s]\d{4})?$', input_line):
+            return WeatherLocationData(WeatherLocationData.ZipLocation(input_line))
+        # Check if coordinates are given
+        coord_match = re.match(r'^(-?\d+(\.\d+)?)[ ,]*(-?\d+(\.\d+)?)$', input_line)
+        if coord_match:
+            new_lat = coord_match.group(1)
+            new_long = coord_match.group(3)
+            return WeatherLocationData(WeatherLocationData.CoordLocation(new_lat, new_long))
+        # Otherwise, assume it's a city
+        new_city = input_line
+        return WeatherLocationData(WeatherLocationData.CityLocation(new_city))
 
     def get_name(self, event):
         return event.user.name + " weather location"
