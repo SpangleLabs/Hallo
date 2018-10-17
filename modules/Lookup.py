@@ -286,276 +286,6 @@ class Translate(Function):
         return event.create_response("Translation: {}".format(translation_string))
 
 
-class WeatherLocationRepo:
-    """
-    Helper class to hold user's locations for weather-related functions.
-    """
-
-    def __init__(self):
-        self.list_locations = []  # type: [WeatherLocationEntry]
-
-    def add_entry(self, new_entry):
-        """
-        Add a new weather location entry to the repo
-        :param new_entry: New entry to add to repository
-        :type new_entry: WeatherLocationEntry
-        :return:
-        """
-        user_name = new_entry.user_name
-        server_name = new_entry.server_name
-        test_entry = self.get_entry_by_user_name_and_server_name(user_name, server_name)
-        if test_entry is None:
-            self.list_locations.append(new_entry)
-        else:
-            new_list = [x if x != test_entry else new_entry for x in self.list_locations]
-            self.list_locations = new_list
-
-    def get_entry_by_user_name_and_server_name(self, user_name, server_name):
-        """Returns an entry matching the given user name and server name, or None."""
-        for location_entry in self.list_locations:
-            if location_entry.user_name != user_name:
-                continue
-            if location_entry.server_name != server_name:
-                continue
-            return location_entry
-        return None
-
-    def get_entry_by_user_obj(self, user_obj):
-        """Returns an entry matching the given userObject, or None."""
-        user_name = user_obj.address
-        server_name = user_obj.server.name
-        return self.get_entry_by_user_name_and_server_name(user_name, server_name)
-
-    @staticmethod
-    def load_from_xml():
-        """Loads user locations from XML"""
-        new_repo = WeatherLocationRepo()
-        try:
-            doc = minidom.parse("store/weather_location_list.xml")
-        except (IOError, OSError):
-            return new_repo
-        for weather_location_elem in doc.getElementsByTagName("weather_location"):
-            weather_location = WeatherLocationEntry.from_xml(weather_location_elem.toxml())
-            new_repo.add_entry(weather_location)
-        return new_repo
-
-    def save_to_xml(self):
-        """Saves user locations to XML"""
-        # Create document with DTD
-        doc_imp = minidom.DOMImplementation()
-        doc_type = doc_imp.createDocumentType(
-            qualifiedName='weather_location_list',
-            publicId='',
-            systemId='weather_location_list.dtd'
-        )
-        doc = doc_imp.createDocument(None, 'weather_location_list', doc_type)
-        # Get root element
-        root = doc.getElementsByTagName("weather_location_list")[0]
-        # Add entries
-        for entry_obj in self.list_locations:
-            entry_elem = minidom.parseString(entry_obj.to_xml()).firstChild
-            root.appendChild(entry_elem)
-        # Save XML
-        doc.writexml(open("store/weather_location_list.xml", "w"), addindent="\t", newl="\n")
-
-
-class WeatherLocationEntry:
-    """
-    Helper class that stores weather location data for a given user
-    """
-
-    TYPE_CITY = "city"
-    TYPE_COORDS = "coords"
-    TYPE_ZIP = "zip"
-
-    def __init__(self, server_name, user_addr):
-        self.server_name = server_name
-        self.user_name = user_addr
-        self.country_code = None
-        self.type = None
-        self.city_name = None
-        self.zip_code = None
-        self.latitude = None
-        self.longitude = None
-
-    def get_server(self):
-        """Returns server name"""
-        return self.server_name
-
-    def get_user(self):
-        """Returns user name"""
-        return self.user_name
-
-    def get_type(self):
-        """Returns type"""
-        return self.type
-
-    def set_country_code(self, new_country_code):
-        """Sets the country code of the location entry"""
-        self.country_code = new_country_code
-
-    def set_city(self, new_city):
-        """Sets the city of the location entry"""
-        self.type = self.TYPE_CITY
-        self.city_name = new_city
-
-    def set_coords(self, latitude, longitude):
-        """Sets the coordinates of the location entry"""
-        self.type = self.TYPE_COORDS
-        self.latitude = latitude
-        self.longitude = longitude
-
-    def set_zip_code(self, new_zip):
-        """Sets the zip code of the location entry"""
-        self.type = self.TYPE_ZIP
-        self.zip_code = new_zip
-
-    def set_from_input(self, input_line):
-        # Check if zip code is given
-        if re.match(r'^\d{5}(?:[-\s]\d{4})?$', input_line):
-            self.set_zip_code(input_line)
-            return "Set location for " + self.user_name + " as zip code: " + input_line
-        # Check if coordinates are given
-        coord_match = re.match(r'^(-?\d+(\.\d+)?)[ ,]*(-?\d+(\.\d+)?)$', input_line)
-        if coord_match:
-            new_lat = coord_match.group(1)
-            new_long = coord_match.group(3)
-            self.set_coords(new_lat, new_long)
-            return "Set location for {} as coords: {}, {}".format(self.user_name, new_lat, new_long)
-        # Otherwise, assume it's a city
-        new_city = input_line
-        self.set_city(new_city)
-        return "Set location for {} as city: {}".format(self.user_name, new_city)
-
-    def create_query_params(self):
-        """Creates query parameters for API call."""
-        if self.get_type() == self.TYPE_CITY:
-            query = "?q={}".format(self.city_name.replace(" ", "+"))
-            if self.country_code is not None:
-                query += "," + self.country_code
-            return query
-        if self.get_type() == self.TYPE_COORDS:
-            query = "?lat={}&lon={}".format(self.latitude, self.longitude)
-            return query
-        if self.get_type() == self.TYPE_ZIP:
-            query = "?zip={}".format(self.zip_code)
-            if self.country_code is not None:
-                query += "," + self.country_code
-            return query
-
-    @staticmethod
-    def from_xml(xml_string):
-        # Load document
-        doc = minidom.parseString(xml_string)
-        # Get server and username and create entry
-        new_server = doc.getElementsByTagName("server")[0].firstChild.data
-        new_user = doc.getElementsByTagName("user")[0].firstChild.data
-        new_entry = WeatherLocationEntry(new_server, new_user)
-        # Get country code, if applicable
-        if len(doc.getElementsByTagName("country_code")) > 0:
-            new_country_code = doc.getElementsByTagName("country_code")[0].firstChild.data
-            new_entry.set_country_code(new_country_code)
-        # Check if entry is a city name
-        if len(doc.getElementsByTagName("city_name")) > 0:
-            new_city = doc.getElementsByTagName("city_name")[0].firstChild.data
-            new_entry.set_city(new_city)
-        # Check if entry is coordinates
-        if len(doc.getElementsByTagName("coords")) > 0:
-            new_lat = doc.getElementsByTagName("latitude")[0].firstChild.data
-            new_long = doc.getElementsByTagName("longitude")[0].firstChild.data
-            new_entry.set_coords(new_lat, new_long)
-        # Check if entry is zip code
-        if len(doc.getElementsByTagName("zip_code")) > 0:
-            new_zip = doc.getElementsByTagName("zip_code")[0].firstChild.data
-            new_entry.set_zip_code(new_zip)
-        # Return entry
-        return new_entry
-
-    def to_xml(self):
-        """Writes out Entry as XML"""
-        # Create document
-        doc = minidom.Document()
-        # Create root element
-        root = doc.createElement("weather_location")
-        doc.appendChild(root)
-        # Add server element
-        server_elem = doc.createElement("server")
-        server_elem.appendChild(doc.createTextNode(self.server_name))
-        root.appendChild(server_elem)
-        # Add user element
-        user_elem = doc.createElement("user")
-        user_elem.appendChild(doc.createTextNode(self.user_name))
-        root.appendChild(user_elem)
-        # Add country code, if set
-        if self.country_code is not None:
-            country_code_elem = doc.createElement("country_code")
-            country_code_elem.appendChild(doc.createTextNode(self.country_code))
-            root.appendChild(country_code_elem)
-        # Depending on type, add relevant elements
-        if self.type == self.TYPE_CITY:
-            city_elem = doc.createElement("city_name")
-            city_elem.appendChild(doc.createTextNode(self.city_name))
-            root.appendChild(city_elem)
-        elif self.type == self.TYPE_COORDS:
-            coords_elem = doc.createElement("coords")
-            lat_elem = doc.createElement("latitude")
-            lat_elem.appendChild(doc.createTextNode(self.latitude))
-            coords_elem.appendChild(lat_elem)
-            long_elem = doc.createElement("longitude")
-            long_elem.appendChild(doc.createTextNode(self.longitude))
-            coords_elem.appendChild(long_elem)
-            root.appendChild(coords_elem)
-        elif self.type == self.TYPE_ZIP:
-            zip_elem = doc.createElement("zip_code")
-            zip_elem.appendChild(doc.createTextNode(self.zip_code))
-            root.appendChild(zip_elem)
-        # Output XML
-        return doc.toxml()
-
-
-# class WeatherLocation(Function):
-#     """
-#     Sets the location of user for Weather functions.
-#     """
-#
-#     def __init__(self):
-#         """
-#         Constructor
-#         """
-#         super().__init__()
-#         # Name for use in help listing
-#         self.help_name = "weather location"
-#         # Names which can be used to address the function
-#         self.names = {"weather location", "weather location set", "set weather location", "weather set location"}
-#         # Help documentation, if it's just a single line, can be set here
-#         self.help_docs = "Sets a user's location for weather-related functions"
-#
-#     def run(self, event):
-#         line_clean = event.command_args.strip().lower()
-#         # Load up Weather locations repo
-#         weather_repo = WeatherLocationRepo.load_from_xml()
-#         user_name = event.user.address
-#         server_obj = event.server
-#         server_name = server_obj.name
-#         # Check that an argument is provided
-#         if len(line_clean.split()) == 0:
-#             return event.create_response("Please specify a city, coordinates or zip code")
-#         # Check if first argument is a specified user for given server
-#         first_arg = line_clean.split()[0]
-#         test_user = server_obj.get_user_by_name(first_arg)
-#         if event.channel is not None:
-#             if event.channel.is_user_in_channel(test_user):
-#                 user_name = test_user.address
-#                 line_clean = line_clean[len(first_arg):].strip()
-#         # Create entry
-#         new_entry = WeatherLocationEntry(server_name, user_name)
-#         # Set Entry location by input
-#         output = new_entry.set_from_input(line_clean)
-#         weather_repo.add_entry(new_entry)
-#         weather_repo.save_to_xml()
-#         return event.create_response(output)
-
-
 class CurrentWeather(Function):
     """
     Returns the current weather in your location, or asks for your location.
@@ -684,31 +414,27 @@ class Weather(Function):
             days_offset = 7 * int(match.group(2))
             line_clean = regex_weeks.sub("", line_clean).strip()
         # Figure out if a user or city was specified
+        user_data_parser = UserDataParser()
         if line_clean == "":
-            weather_repo = WeatherLocationRepo.load_from_xml()
-            location_entry = weather_repo.get_entry_by_user_obj(event.user)
+            location_entry = user_data_parser.get_data_by_user_and_type(event.user, WeatherLocationData)
             if location_entry is None:
                 return event.create_response("No location stored for this user. Please specify a location or " +
-                                             "store one with the \"weather location\" function.")
+                                             "store one with the \"setup weather location data\" function.")
         else:
             test_user = event.server.get_user_by_name(line_clean)
             if event.channel is not None and event.channel.is_user_in_channel(test_user):
-                weather_repo = WeatherLocationRepo.load_from_xml()
-                location_entry = weather_repo.get_entry_by_user_obj(test_user)
+                location_entry = user_data_parser.get_data_by_user_and_type(test_user, WeatherLocationData)
                 if location_entry is None:
                     return event.create_response("No location stored for this user. Please specify a location or " +
-                                                 "store one with the \"weather location\" function.")
+                                                 "store one with the \"setup weather location data\" function.")
             else:
-                user_name = event.user.address
-                server_name = event.server.name
-                location_entry = WeatherLocationEntry(user_name, server_name)
-                location_entry.set_from_input(line_clean)
+                location_entry = WeatherLocationData.create_from_input(event)
         # Get API response
         api_key = event.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return event.create_response("No API key loaded for openweathermap.")
         url = "http://api.openweathermap.org/data/2.5/forecast/daily{}" \
-              "&cnt=16&APPID={}".format(location_entry.create_query_params(), api_key)
+              "&cnt=16&APPID={}".format(self.build_query(location_entry), api_key)
         response = Commons.load_url_json(url)
         # Check API responded well
         if str(response['cod']) != "200":
