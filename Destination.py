@@ -272,6 +272,8 @@ class User(Destination):
         """:type : bool"""
         self.user_group_list = set()  # List of UserGroups this User is a member of
         """:type : set[UserGroup.UserGroup]"""
+        self.extra_data_dict = dict()  # Dictionary of extra data, in the format of str->Any
+        """:type : dict[str, Any]"""
 
     def __eq__(self, other):
         return isinstance(other, User) and self.server == other.server and self.address == other.address
@@ -379,6 +381,9 @@ class User(Destination):
         # If user has specific permissions set, save it
         if not self.permission_mask.is_empty():
             return True
+        # If they have any extra data, save it
+        if self.extra_data_dict:
+            return True
         # Otherwise it can be generated anew to be identical.
         return False
 
@@ -397,6 +402,8 @@ class User(Destination):
             json_obj["user_groups"].append(user_group.name)
         if not self.permission_mask.is_empty():
             json_obj["permission_mask"] = self.permission_mask.to_json()
+        if self.extra_data_dict:
+            json_obj["extra_data"] = self.extra_data_dict
         return json_obj
 
     @staticmethod
@@ -412,6 +419,8 @@ class User(Destination):
                 new_user.add_user_group(user_group)
         if "permission_mask" in json_obj:
             new_user.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+        if "extra_data" in json_obj:
+            new_user.extra_data_dict = json_obj["extra_data"]
         return new_user
 
 
