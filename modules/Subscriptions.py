@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import urllib.parse
 from abc import ABCMeta
 from datetime import datetime, timedelta
@@ -202,6 +203,7 @@ class Subscription(metaclass=ABCMeta):
         """
         Checks the subscription, and returns a list of update objects, in whatever format that
         format_item() would like to receive them.
+        The list should be ordered from oldest to newest.
         :rtype: list[object]
         """
         raise NotImplementedError()
@@ -352,8 +354,12 @@ class RssSub(Subscription):
             if item_guid_elem is not None:
                 item_hash = item_guid_elem.text
             else:
-                item_xml = ElementTree.tostring(item_elem)
-                item_hash = hashlib.md5(item_xml).hexdigest()
+                item_link_elem = item_elem.find("link")
+                if item_link_elem is not None:
+                    item_hash = item_link_elem.text
+                else:
+                    item_xml = ElementTree.tostring(item_elem)
+                    item_hash = hashlib.md5(item_xml).hexdigest()
             if latest_hash is None:
                 latest_hash = item_hash
             if item_hash == self.last_item_hash:
@@ -363,7 +369,7 @@ class RssSub(Subscription):
         self.last_item_hash = latest_hash
         self.last_check = datetime.now()
         # Return new items
-        return new_items
+        return new_items[::-1]
 
     def format_item(self, rss_item):
         # Load item xml
@@ -645,7 +651,7 @@ class FANotificationNotesSub(Subscription):
         # Update last check time
         self.last_check = datetime.now()
         # Return results
-        return results
+        return results[::-1]
 
     def format_item(self, item):
         # Construct output
@@ -785,7 +791,7 @@ class FANotificationFavSub(Subscription):
         # Update last check time
         self.last_check = datetime.now()
         # Return results
-        return results
+        return results[::-1]
 
     def format_item(self, new_fav):
         """
@@ -947,35 +953,27 @@ class FANotificationCommentsSub(Subscription):
         # Update last check time
         self.last_check = datetime.now()
         # Return results
-        return results
+        return results[::-1]
 
     def format_item(self, item):
         output = "Err, comments did something?"
         fa_reader = self.fa_key.get_fa_reader()
         if isinstance(item, FAKey.FAReader.FANotificationShout):
-            user_page = fa_reader.get_user_page(item.page_username)
-            shout = [shout for shout in user_page.shouts if shout.shout_id == item.shout_id]
-            if len(shout) == 1:
+            try:
+                user_page = fa_reader.get_user_page(item.page_username)
+                shout = [shout for shout in user_page.shouts if shout.shout_id == item.shout_id]
                 output = "You have a new shout, from {} " \
                          "( http://furaffinity.net/user/{}/ ) " \
                          "has left a shout saying: \n\n{}".format(item.name, item.username, shout[0].text)
-            else:
+            except Exception:
                 output = "You have a new shout, from {} " \
                          "( http://furaffinity.net/user/{}/ ) " \
                          "has left a shout but I can't find it on your user page: \n" \
                          "https://furaffinity.net/user/{}/".format(item.name, item.username, item.page_username)
         if isinstance(item, FAKey.FAReader.FANotificationCommentJournal):
-            journal_page = fa_reader.get_journal_page(item.journal_id)
-            comment = journal_page.comments_section.get_comment_by_id(item.comment_id)
-            if comment is None:
-                output = "You have a journal comment notification. " \
-                         "{} has made a new comment {}on {} journal " \
-                         "\"{}\" {} but I can't find " \
-                         "the comment.".format(item.name,
-                                               ("in response to your comment " if item.comment_on else ""),
-                                               ("your" if item.journal_yours else "their"),
-                                               item.journal_name, item.journal_link)
-            else:
+            try:
+                journal_page = fa_reader.get_journal_page(item.journal_id)
+                comment = journal_page.comments_section.get_comment_by_id(item.comment_id)
                 output = "You have a journal comment notification. " \
                          "{} has made a new comment {}on {} journal " \
                          "\"{}\" {} : \n\n{}".format(item.name,
@@ -983,23 +981,31 @@ class FANotificationCommentsSub(Subscription):
                                                      ("your" if item.journal_yours else "their"),
                                                      item.journal_name, item.journal_link,
                                                      comment.text)
-        if isinstance(item, FAKey.FAReader.FANotificationCommentSubmission):
-            submission_page = fa_reader.get_submission_page(item.submission_id)
-            comment = submission_page.comments_section.get_comment_by_id(item.comment_id)
-            if comment is None:
-                output = "You have a submission comment notification. " \
-                         "{} has made a new comment {}on {} submission \"{}\" {} : but I can't find " \
+            except Exception:
+                output = "You have a journal comment notification. " \
+                         "{} has made a new comment {}on {} journal " \
+                         "\"{}\" {} but I can't find " \
                          "the comment.".format(item.name,
                                                ("in response to your comment " if item.comment_on else ""),
-                                               ("your" if item.submission_yours else "their"),
-                                               item.submission_name, item.submission_link)
-            else:
+                                               ("your" if item.journal_yours else "their"),
+                                               item.journal_name, item.journal_link)
+        if isinstance(item, FAKey.FAReader.FANotificationCommentSubmission):
+            try:
+                submission_page = fa_reader.get_submission_page(item.submission_id)
+                comment = submission_page.comments_section.get_comment_by_id(item.comment_id)
                 output = "You have a submission comment notification. " \
                          "{} has made a new comment {}on {} submission \"{}\" {} : \n\n" \
                          "{}".format(item.name,
                                      ("in response to your comment " if item.comment_on else ""),
                                      ("your" if item.submission_yours else "their"),
                                      item.submission_name, item.submission_link, comment.text)
+            except Exception:
+                output = "You have a submission comment notification. " \
+                         "{} has made a new comment {}on {} submission \"{}\" {} : but I can't find " \
+                         "the comment.".format(item.name,
+                                               ("in response to your comment " if item.comment_on else ""),
+                                               ("your" if item.submission_yours else "their"),
+                                               item.submission_name, item.submission_link)
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
@@ -1098,6 +1104,8 @@ class FASearchSub(Subscription):
             latest_ids = []
         self.latest_ids = latest_ids
         """ :type : list[str]"""
+        self.old_code = None  # TODO: debug, remove when done.
+        """ :type : str | None"""
 
     @staticmethod
     def create_from_input(input_evt, sub_repo):
@@ -1143,6 +1151,8 @@ class FASearchSub(Subscription):
         fa_reader = self.fa_key.get_fa_reader()
         results = []
         search_page = fa_reader.get_search_page(self.search)
+        if len(search_page.results) == 0:
+            raise SubscriptionException("Search returned no results.")
         next_batch = []
         matched_ids = False
         for search_result in search_page.results:
@@ -1160,7 +1170,22 @@ class FASearchSub(Subscription):
         # Create new list of latest ten results
         self.latest_ids = [result.submission_id for result in search_page.results[:10]]
         self.last_check = datetime.now()
-        return results
+        # Debug, dumping a bunch of data to file  # TODO: debug, remove when done.
+        new_code = search_page.code
+        if len(results) > 0 and self.old_code is not None:
+            self.save_debug(results, self.old_code, new_code)
+        self.old_code = new_code
+        return results[::-1]
+
+    def save_debug(self, results, old_code, new_code):  # TODO: debug, remove when done.
+        dir_name = "fa_search_sub_{}_{}".format(self.search, datetime.now())
+        os.makedirs(dir_name)
+        with open(dir_name+"/results", "w+") as f:
+            f.write("\n".join([result.submission_id for result in results]))
+        with open(dir_name+"/old_code.html", "w+") as f:
+            f.write(old_code)
+        with open(dir_name+"/new_code.html", "w+") as f:
+            f.write(new_code)
 
     def format_item(self, item):
         """
@@ -1175,8 +1200,12 @@ class FASearchSub(Subscription):
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         # Get submission page and file extension
-        sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
-        image_url = sub_page.full_image
+        try:
+            sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
+            image_url = sub_page.full_image
+        except Exception:
+            print("Failed to get submission page for FASearchSubscription")
+            image_url = item.thumbnail_link
         file_extension = image_url.split(".")[-1].lower()
         if file_extension in ["png", "jpg", "jpeg", "bmp", "gif"]:
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
@@ -1332,7 +1361,7 @@ class FAUserFavsSub(Subscription):
         # Create new list of latest ten results
         self.latest_ids = [result.submission_id for result in favs_page.favourites[:10]]
         self.last_check = datetime.now()
-        return results
+        return results[::-1]
 
     def format_item(self, item):
         """
@@ -1347,8 +1376,12 @@ class FAUserFavsSub(Subscription):
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         # Get submission page and file extension
-        sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
-        image_url = sub_page.full_image
+        try:
+            sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
+            image_url = sub_page.full_image
+        except Exception:
+            print("Failed to get submission page for FAUserFavsSubscription.")
+            image_url = item.preview_image
         file_extension = image_url.split(".")[-1].lower()
         if file_extension in ["png", "jpg", "jpeg", "bmp", "gif"]:
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
@@ -1503,7 +1536,7 @@ class FAUserWatchersSub(Subscription):
         # Create new list of latest ten results
         self.newest_watchers = [new_watcher.watcher_username for new_watcher in user_page.watched_by]
         self.last_check = datetime.now()
-        return results
+        return results[::-1]
 
     def format_item(self, item):
         """
@@ -1885,6 +1918,8 @@ class FAKey:
             def __init__(self, code):
                 self.retrieve_time = datetime.now()
                 """ :type : datetime"""
+                self.code = code  # TODO: debug, remove when done.
+                """ :type : str"""
                 self.soup = BeautifulSoup(code, "html.parser")
                 """ :type : BeautifulSoup"""
                 login_user = self.soup.find(id="my-username")
