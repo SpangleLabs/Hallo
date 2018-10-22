@@ -1,13 +1,15 @@
 import json
-from abc import ABCMeta, ABC
-from datetime import datetime
+from abc import ABCMeta
 
 from Destination import Channel, User
-from Events import EventHour, EventDay, EventMessage
+from Events import EventDay, EventMessage
 from Function import Function
 from modules.Subscriptions import FAKey
 from modules.UserData import UserDataParser, FAKeyData
 
+
+class DailysException(Exception):
+    pass
 
 class DailysRegister(Function):
     # Register spreadsheet ID, sheet name
@@ -18,16 +20,22 @@ class DailysRegister(Function):
     pass
 
 
-class DailysRepo():
+class DailysRepo:
     # Store data on all users dailys spreadsheets
     pass
 
 
-class DailysSpreadsheet():
+class DailysSpreadsheet:
 
     def __init__(self, user, destination):
+        """
+        :type user: Destination.User
+        :type destination: Destination.Destination
+        """
         self.user = user
+        """ :type : Destination.User"""
         self.destination = destination
+        """ :type : Destination.Destination"""
 
     # Store the data on an individual user's spreadsheet, has a list of enabled fields/topics?
     def get_fields_list(self):
@@ -41,6 +49,14 @@ class DailysSpreadsheet():
     def get_current_date(self):
         # Return the current date. Not equal to calendar date, as user may be awake after midnight
         pass
+
+    def save_col(self, col, data):
+        """
+        Save given data in a specified column for the current date row.
+        :type col: str
+        :type data: str
+        """
+        raise NotImplementedError()  # TODO
 
 
 class DailysField(metaclass=ABCMeta):
@@ -68,20 +84,33 @@ class ExternalDailysField(DailysField, metaclass=ABCMeta):
 class DailysFAField(ExternalDailysField):
 
     def __init__(self, spreadsheet, col):
+        """
+        :type spreadsheet: DailysSpreadsheet
+        :type col: str
+        """
         self.spreadsheet = spreadsheet
+        """ :type : DailysSpreadsheet"""
         self.col = col
+        """ :type : str"""
 
     # Go reference FA sub perhaps? Needs those cookies at least
     # Check at midnight
 
     def passive_events(self):
+        """
+        :rtype: list[type]
+        """
         return [EventDay]
 
     def passive_trigger(self, evt):
+        """
+        :type evt: Event.Event
+        :rtype: Event.EventMessage
+        """
         user_parser = UserDataParser()
         fa_data = user_parser.get_data_by_user_and_type(self.spreadsheet.user, FAKeyData)  # type: FAKeyData
         if fa_data is None:
-            raise DailysException()
+            raise DailysException("No FA data has been set up for the FA dailys module to use.")
         fa_key = FAKey(self.spreadsheet.user, fa_data.cookie_a, fa_data.cookie_b)
         notif_page = fa_key.get_fa_reader().get_notification_page()
         notifications = dict()
