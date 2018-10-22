@@ -1,3 +1,12 @@
+import json
+from abc import ABCMeta, ABC
+from datetime import datetime
+
+from Destination import Channel, User
+from Events import EventHour, EventDay, EventMessage
+from Function import Function
+from modules.Subscriptions import FAKey
+from modules.UserData import UserDataParser, FAKeyData
 
 
 class DailysRegister(Function):
@@ -15,6 +24,11 @@ class DailysRepo():
 
 
 class DailysSpreadsheet():
+
+    def __init__(self, user, destination):
+        self.user = user
+        self.destination = destination
+
     # Store the data on an individual user's spreadsheet, has a list of enabled fields/topics?
     def get_fields_list(self):
         # Return a list of fields this spreadsheet has
@@ -39,6 +53,49 @@ class DailysField(metaclass=ABCMeta):
 
     def new_day(self):
         # Called on all fields when DailysSpreadsheet confirms a new day, animals can save at that point, some might not react
+        raise NotImplementedError()
+
+
+class ExternalDailysField(DailysField, metaclass=ABCMeta):
+
+    def passive_events(self):
+        raise NotImplementedError()
+
+    def passive_trigger(self, evt):
+        raise NotImplementedError()
+
+
+class DailysFAField(ExternalDailysField):
+
+    def __init__(self, spreadsheet, col):
+        self.spreadsheet = spreadsheet
+        self.col = col
+
+    # Go reference FA sub perhaps? Needs those cookies at least
+    # Check at midnight
+
+    def passive_events(self):
+        return [EventDay]
+
+    def passive_trigger(self, evt):
+        user_parser = UserDataParser()
+        fa_data = user_parser.get_data_by_user_and_type(self.spreadsheet.user, FAKeyData)  # type: FAKeyData
+        if fa_data is None:
+            raise DailysException()
+        fa_key = FAKey(self.spreadsheet.user, fa_data.cookie_a, fa_data.cookie_b)
+        notif_page = fa_key.get_fa_reader().get_notification_page()
+        notifications = dict()
+        notifications["submissions"] = notif_page.total_submissions
+        notifications["comments"] = notif_page.total_comments
+        notifications["journals"] = notif_page.total_journals
+        notifications["favourites"] = notif_page.total_favs
+        notifications["watches"] = notif_page.total_watches
+        notifications["notes"] = notif_page.total_notes
+        notif_str = json.dumps(notifications, indent=2)
+        self.spreadsheet.save_col(self.col, notif_str)
+        chan = self.spreadsheet.destination if isinstance(self.spreadsheet.destination, Channel) else None
+        user = self.spreadsheet.destination if isinstance(self.spreadsheet.destination, User) else None
+        return EventMessage(self.spreadsheet.destination.server, chan, user, notif_str, inbound=False)
 
 
 class DailysSleepField(DailysField):
@@ -77,12 +134,6 @@ class DailysDuolingoField(DailysField):
     def get_friends(self):
         # Return a list of friends which should be tracked?
         pass
-
-
-class DailysFAField(DailysField):
-    # Go reference FA sub perhaps? Needs those cookies at least
-    # Check at midnight
-    pass
 
 
 class DailysSplooField(DailysField):
