@@ -11,6 +11,7 @@ from modules.UserData import UserDataParser, FAKeyData
 class DailysException(Exception):
     pass
 
+
 class DailysRegister(Function):
     # Register spreadsheet ID, sheet name
     # Might be able to automatically gather sheet name? (just get first)
@@ -68,7 +69,8 @@ class DailysField(metaclass=ABCMeta):
         raise NotImplementedError()
 
     def new_day(self):
-        # Called on all fields when DailysSpreadsheet confirms a new day, animals can save at that point, some might not react
+        # Called on all fields when DailysSpreadsheet confirms a new day,
+        # animals can save at that point, some might not react
         raise NotImplementedError()
 
 
