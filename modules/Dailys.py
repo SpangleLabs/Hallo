@@ -6,6 +6,9 @@ from Events import EventDay, EventMessage
 from Function import Function
 from modules.Subscriptions import FAKey
 from modules.UserData import UserDataParser, FAKeyData
+from googleapiclient.discovery import build
+from oauth2client import file
+from httplib2 import Http
 
 
 class DailysException(Exception):
@@ -28,7 +31,7 @@ class DailysRepo:
 
 class DailysSpreadsheet:
 
-    def __init__(self, user, destination):
+    def __init__(self, user, destination, spreadsheet_id):
         """
         :type user: Destination.User
         :type destination: Destination.Destination
@@ -37,6 +40,32 @@ class DailysSpreadsheet:
         """ :type : Destination.User"""
         self.destination = destination
         """ :type : Destination.Destination"""
+        self.spreadsheet_id = spreadsheet_id
+        """ :type : str"""
+
+    def get_hallo_key_row(self):
+        store = file.Storage('store/google-oauth-token.json')
+        creds = store.get()
+        if not creds or creds.invalid:
+            raise DailysException("Google oauth token is not valid. "
+                                  "Please run store/google-oauth-import.py somewhere with a UI")
+        service = build('sheets', 'v4', http=creds.authorize(Http()))
+        # Call the Sheets API
+        test_range = 'Sheet1!A1:J10'
+        result = service.spreadsheets().values().get(spreadsheetId=self.spreadsheet_id,
+                                                     range=test_range).execute()
+        rows = result.get('values', [])
+        sub_str = "hallo key"
+        match_count = 0
+        match_row = None
+        for row_num in range(len(rows)):
+            if any([sub_str in elem.lower() for elem in rows[row_num]]):
+                match_count += 1
+                match_row = row_num
+                if match_count > 1:
+                    match_row = None
+                    break
+        return match_row
 
     # Store the data on an individual user's spreadsheet, has a list of enabled fields/topics?
     def get_fields_list(self):
