@@ -83,7 +83,10 @@ class DailysSpreadsheet:
         pass  # TODO
 
     def get_column_by_field_id(self, field_id):
-        pass  # TODO
+        hallo_row = self.find_hallo_key_row()
+        field_id_range = "{0}!A{1}:{1}".format(self.get_first_sheet_name(), hallo_row+1)
+        row = self.get_spreadsheet_range(field_id_range)[0]
+        return row.index(field_id)
 
     # Store the data on an individual user's spreadsheet, has a list of enabled fields/topics?
     def get_fields_list(self):
