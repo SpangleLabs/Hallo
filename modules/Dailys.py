@@ -43,18 +43,29 @@ class DailysSpreadsheet:
         self.spreadsheet_id = spreadsheet_id
         """ :type : str"""
 
-    def get_hallo_key_row(self):
+    def get_spreadsheet_service(self):
         store = file.Storage('store/google-oauth-token.json')
         creds = store.get()
         if not creds or creds.invalid:
             raise DailysException("Google oauth token is not valid. "
                                   "Please run store/google-oauth-import.py somewhere with a UI")
-        service = build('sheets', 'v4', http=creds.authorize(Http()))
-        # Call the Sheets API
-        test_range = 'Sheet1!A1:J10'
+        return build('sheets', 'v4', http=creds.authorize(Http()))
+
+    def get_spreadsheet_range(self, range):
+        service = self.get_spreadsheet_service()
         result = service.spreadsheets().values().get(spreadsheetId=self.spreadsheet_id,
-                                                     range=test_range).execute()
-        rows = result.get('values', [])
+                                                     range=range).execute()
+        return result.get('values', [])
+
+    def get_first_sheet_name(self):
+        service = self.get_spreadsheet_service()
+        sheet_metadata = service.spreadsheets().get(spreadsheetId=self.spreadsheet_id).execute()
+        sheets = sheet_metadata.get('sheets', '')
+        return sheets[0].get("properties", {}).get("title", "Sheet1")
+
+    def find_hallo_key_row(self):
+        test_range = 'Sheet1!A1:J10'
+        rows = self.get_spreadsheet_range(test_range)
         sub_str = "hallo key"
         match_count = 0
         match_row = None
@@ -66,6 +77,12 @@ class DailysSpreadsheet:
                     match_row = None
                     break
         return match_row
+
+    def find_column_by_names(self, names):
+        pass # TODO
+
+    def get_column_by_field_id(self, field_id):
+        pass # TODO
 
     # Store the data on an individual user's spreadsheet, has a list of enabled fields/topics?
     def get_fields_list(self):
