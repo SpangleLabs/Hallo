@@ -80,7 +80,21 @@ class DailysSpreadsheet:
         return match_row
 
     def find_column_by_names(self, names):
-        pass  # TODO
+        col_range = "{}!A1:10".format(self.get_first_sheet_name())
+        header_rows = self.get_spreadsheet_range(col_range)
+        max_cols = max([len(row) for row in header_rows])
+        match_col = None
+        match_count = 0
+        for col_num in range(max_cols):
+            for row in header_rows:
+                if col_num < len(row) and any(name in row[col_num].lower() for name in names):
+                    match_col = col_num
+            if match_col == col_num:
+                match_count += 1
+            if match_count > 1:
+                match_col = None
+                break
+        return match_col
 
     def get_column_by_field_id(self, field_id):
         hallo_row = self.find_hallo_key_row()
