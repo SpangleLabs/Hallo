@@ -61,10 +61,11 @@ class DailysSpreadsheet:
         service = self.get_spreadsheet_service()
         sheet_metadata = service.spreadsheets().get(spreadsheetId=self.spreadsheet_id).execute()
         sheets = sheet_metadata.get('sheets', '')
-        return sheets[0].get("properties", {}).get("title", "Sheet1")
+        name = sheets[0].get("properties", {}).get("title", "Sheet1")
+        return "'{}'".format(name)
 
     def find_hallo_key_row(self):
-        test_range = 'Sheet1!A1:J10'
+        test_range = '{}!A1:J10'.format(self.get_first_sheet_name())
         rows = self.get_spreadsheet_range(test_range)
         sub_str = "hallo key"
         match_count = 0
@@ -79,10 +80,10 @@ class DailysSpreadsheet:
         return match_row
 
     def find_column_by_names(self, names):
-        pass # TODO
+        pass  # TODO
 
     def get_column_by_field_id(self, field_id):
-        pass # TODO
+        pass  # TODO
 
     # Store the data on an individual user's spreadsheet, has a list of enabled fields/topics?
     def get_fields_list(self):
