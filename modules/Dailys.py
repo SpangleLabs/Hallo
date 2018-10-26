@@ -60,6 +60,14 @@ class DailysSpreadsheet:
                                                      range=range).execute()
         return result.get('values', [])
 
+    def update_spreadsheet_cell(self, cell, data):
+        service = self.get_spreadsheet_service()
+        request = service.spreadsheet().values().update(spreadsheetId=self.spreadsheet_id,
+                                                        range=cell,
+                                                        valueInputOption="RAW",
+                                                        body=data)
+        return request.execute()
+
     def get_first_sheet_name(self):
         service = self.get_spreadsheet_service()
         sheet_metadata = service.spreadsheets().get(spreadsheetId=self.spreadsheet_id).execute()
@@ -133,7 +141,7 @@ class DailysSpreadsheet:
 
     def get_current_date_row(self):
         first_date_row, first_date = self.get_first_date()
-        current_date = datetime.now()  # TODO: roman dates, need to track sleep for that?
+        current_date = self.get_current_date()
         return (current_date-first_date).days + first_date_row
 
     # Store the data on an individual user's spreadsheet, has a list of enabled fields/topics?
@@ -147,20 +155,36 @@ class DailysSpreadsheet:
 
     def get_current_date(self):
         # Return the current date. Not equal to calendar date, as user may be awake after midnight
-        pass
+        # TODO: roman dates, need to track sleep for that?
+        return datetime.now()
 
-    def save_col(self, col, data):
+    def save_col(self, dailys_field, data):
         """
         Save given data in a specified column for the current date row.
-        :type col: str
+        :type dailys_field: DailysField
         :type data: str
         """
-        raise NotImplementedError()  # TODO
+        col_num = self.get_column_by_field_id(dailys_field.hallo_key_field_id)
+        row_num = self.get_current_date_row()
+        self.update_spreadsheet_cell("{}!{}{}".format(self.get_first_sheet_name(),
+                                                      self.col_num_to_string(col_num),
+                                                      row_num+1),
+                                     data)
 
 
 class DailysField(metaclass=ABCMeta):
     # An abstract class representing an individual dailys field type.
     # A field can/will be multiple columns, maybe a varying quantity of them by configuration
+
+    def __init__(self, spreadsheet, hallo_key_field_id):
+        """
+        :type spreadsheet: DailysSpreadsheet
+        :type hallo_key_field_id: str
+        """
+        self.spreadsheet = spreadsheet
+        """ :type : DailysSpreadsheet"""
+        self.hallo_key_field_id = hallo_key_field_id
+        """ :type : str"""
 
     def list_columns(self):
         # Return a full list of the columns this field occupies
@@ -182,16 +206,6 @@ class ExternalDailysField(DailysField, metaclass=ABCMeta):
 
 
 class DailysFAField(ExternalDailysField):
-
-    def __init__(self, spreadsheet, col):
-        """
-        :type spreadsheet: DailysSpreadsheet
-        :type col: str
-        """
-        self.spreadsheet = spreadsheet
-        """ :type : DailysSpreadsheet"""
-        self.col = col
-        """ :type : str"""
 
     # Go reference FA sub perhaps? Needs those cookies at least
     # Check at midnight
@@ -221,7 +235,7 @@ class DailysFAField(ExternalDailysField):
         notifications["watches"] = notif_page.total_watches
         notifications["notes"] = notif_page.total_notes
         notif_str = json.dumps(notifications, indent=2)
-        self.spreadsheet.save_col(self.col, notif_str)
+        self.spreadsheet.save_col(self, notif_str)
         chan = self.spreadsheet.destination if isinstance(self.spreadsheet.destination, Channel) else None
         user = self.spreadsheet.destination if isinstance(self.spreadsheet.destination, User) else None
         return EventMessage(self.spreadsheet.destination.server, chan, user, notif_str, inbound=False)
