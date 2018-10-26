@@ -1,5 +1,8 @@
 import json
 from abc import ABCMeta
+from datetime import datetime
+
+import dateutil.parser
 
 from Destination import Channel, User
 from Events import EventDay, EventMessage
@@ -101,6 +104,37 @@ class DailysSpreadsheet:
         field_id_range = "{0}!A{1}:{1}".format(self.get_first_sheet_name(), hallo_row+1)
         row = self.get_spreadsheet_range(field_id_range)[0]
         return row.index(field_id)
+
+    def get_date_column(self):
+        return self.find_column_by_names(["date"])
+
+    def col_num_to_string(self, num):
+        string = ""
+        num += 1
+        while num > 0:
+            num, remainder = divmod(num - 1, 26)
+            string = chr(65 + remainder) + string
+        return string
+
+    def get_first_date(self):
+        date_col = self.get_date_column()
+        date_col_name = self.col_num_to_string(date_col)
+        date_range = self.get_spreadsheet_range("{0}!{1}1:{1}".format(self.get_first_sheet_name(), date_col_name))
+        first_date = None
+        first_date_row = None
+        for row_num in range(date_range):
+            try:
+                first_date = dateutil.parser.parse(date_range[row_num][0])
+                first_date_row = row_num
+                break
+            except ValueError:
+                continue
+        return first_date_row, first_date
+
+    def get_current_date_row(self):
+        first_date_row, first_date = self.get_first_date()
+        current_date = datetime.now()  # TODO: roman dates, need to track sleep for that?
+        return (current_date-first_date).days + first_date_row
 
     # Store the data on an individual user's spreadsheet, has a list of enabled fields/topics?
     def get_fields_list(self):
