@@ -223,8 +223,10 @@ class UserDataFactory:
 
     @staticmethod
     def from_dict(type_name, data_dict):
-        data_class = UserDataFactory.get_data_class_by_name(type_name)
-        return data_class.from_json(data_dict)
+        for data_class in UserDataFactory.data_classes:
+            if data_class.type_name == type_name:
+                return data_class.from_json(data_dict)
+        raise UserDataException("Could not load user data of type {}".format(type_name))
 
 
 class UserDataSetup(Function):
