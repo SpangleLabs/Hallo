@@ -62,10 +62,12 @@ class DailysSpreadsheet:
 
     def update_spreadsheet_cell(self, cell, data):
         service = self.get_spreadsheet_service()
-        request = service.spreadsheet().values().update(spreadsheetId=self.spreadsheet_id,
+        body = {"values": [[data]]}
+        request = service.spreadsheets().values().update(spreadsheetId=self.spreadsheet_id,
                                                         range=cell,
                                                         valueInputOption="RAW",
-                                                        body=data)
+                                                        body=body)
+        print("{}: ending update_spreadsheet_cell()".format(datetime.now()))
         return request.execute()
 
     def get_first_sheet_name(self):
@@ -130,12 +132,14 @@ class DailysSpreadsheet:
         date_range = self.get_spreadsheet_range("{0}!{1}1:{1}".format(self.get_first_sheet_name(), date_col_name))
         first_date = None
         first_date_row = None
-        for row_num in range(date_range):
+        for row_num in range(len(date_range)):
             try:
-                first_date = dateutil.parser.parse(date_range[row_num][0])
+                first_date = dateutil.parser.parse(date_range[row_num][0], dayfirst=True)
                 first_date_row = row_num
                 break
             except ValueError:
+                continue
+            except IndexError:
                 continue
         return first_date_row, first_date
 
@@ -158,7 +162,7 @@ class DailysSpreadsheet:
         # TODO: roman dates, need to track sleep for that?
         return datetime.now()
 
-    def save_col(self, dailys_field, data):
+    def save_field(self, dailys_field, data):
         """
         Save given data in a specified column for the current date row.
         :type dailys_field: DailysField
@@ -235,7 +239,7 @@ class DailysFAField(ExternalDailysField):
         notifications["watches"] = notif_page.total_watches
         notifications["notes"] = notif_page.total_notes
         notif_str = json.dumps(notifications, indent=2)
-        self.spreadsheet.save_col(self, notif_str)
+        self.spreadsheet.save_field(self, notif_str)
         chan = self.spreadsheet.destination if isinstance(self.spreadsheet.destination, Channel) else None
         user = self.spreadsheet.destination if isinstance(self.spreadsheet.destination, User) else None
         return EventMessage(self.spreadsheet.destination.server, chan, user, notif_str, inbound=False)
