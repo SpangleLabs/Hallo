@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from Destination import Channel, User
 from Events import EventMessageWithPhoto, EventMessage, EventMinute
 from Function import Function
-from inc.Commons import Commons, ISO8601ParseError
+from inc.Commons import Commons, ISO8601ParseError, CachedObject
 from modules.UserData import FAKeyData, UserDataParser
 
 
@@ -1813,14 +1813,22 @@ class FAKey:
             """ :type : str"""
             self.timeout = timedelta(seconds=60)
             """ :type : timedelta"""
-            self.notification_page = None
-            """ :type : FAKey.FAReader.FANotificationsPage | None"""
-            self.submissions_page = None
-            """ :type : FAKey.FAReader.FASubmissionsPage | None"""
-            self.notes_page_inbox = None
-            """ :type : FAKer.FAReader.FANotesPage | None"""
-            self.notes_page_outbox = None
-            """ :type : FAKey.FAReader.FANotesPage | None"""
+            self.notification_page_cache = CachedObject(lambda: FAKey.FAReader.FANotificationsPage(
+                self._get_page_code("https://www.furaffinity.net/msg/others/")),
+                                                        self.timeout)
+            """ :type : CachedObject"""
+            self.submissions_page_cache = CachedObject(lambda: FAKey.FAReader.FASubmissionsPage(
+                self._get_page_code("https://www.furaffinity.net/msg/submissions/")),
+                                                       self.timeout)
+            """ :type : CachedObject"""
+            self.notes_page_inbox_cache = CachedObject(lambda: FAKey.FAReader.FANotesPage(
+                self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=inbox"), self.NOTES_INBOX),
+                                                       self.timeout)
+            """ :type : CachedObject"""
+            self.notes_page_outbox_cache = CachedObject(lambda: FAKey.FAReader.FANotesPage(
+                self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=outbox"), self.NOTES_OUTBOX),
+                                                        self.timeout)
+            """ :type : CachedObject"""
 
         def _get_page_code(self, url, extra_cookie=""):
             if len(extra_cookie) > 0 or not extra_cookie.startswith(";"):
@@ -1832,19 +1840,13 @@ class FAKey:
             """
             :rtype: FAKey.FAReader.FANotificationsPage
             """
-            if self.notification_page is None or datetime.now() > (self.notification_page.retrieve_time + self.timeout):
-                page_code = self._get_page_code("https://www.furaffinity.net/msg/others/")
-                self.notification_page = FAKey.FAReader.FANotificationsPage(page_code)
-            return self.notification_page
+            return self.notification_page_cache.get()
 
         def get_submissions_page(self):
             """
             :rtype: FAReader.FASubmissionsPage
             """
-            if self.submissions_page is None or datetime.now() > (self.submissions_page.retrieve_time + self.timeout):
-                page_code = self._get_page_code("https://www.furaffinity.net/msg/submissions/")
-                self.submissions_page = FAKey.FAReader.FASubmissionsPage(page_code)
-            return self.submissions_page
+            return self.submissions_page_cache.get()
 
         def get_notes_page(self, folder):
             """
@@ -1852,17 +1854,9 @@ class FAKey:
             :return: FAReader.FANotesPage
             """
             if folder == self.NOTES_INBOX:
-                if self.notes_page_inbox is None or \
-                        datetime.now() > (self.notes_page_inbox.retrieve_time + self.timeout):
-                    code = self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=inbox")
-                    self.notes_page_inbox = FAKey.FAReader.FANotesPage(code, folder)
-                return self.notes_page_inbox
+                return self.notes_page_inbox_cache.get()
             if folder == self.NOTES_OUTBOX:
-                if self.notes_page_outbox is None or \
-                        datetime.now() > (self.notes_page_outbox.retrieve_time + self.timeout):
-                    code = self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=outbox")
-                    self.notes_page_outbox = FAKey.FAReader.FANotesPage(code, folder)
-                return self.notes_page_outbox
+                return self.notes_page_outbox_cache.get()
             raise ValueError("Invalid FA note folder.")
 
         def get_user_page(self, username):
