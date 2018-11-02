@@ -7,6 +7,7 @@ import dateutil.parser
 from Destination import Channel, User
 from Events import EventDay, EventMessage
 from Function import Function
+from inc.Commons import CachedObject
 from modules.Subscriptions import FAKey
 from modules.UserData import UserDataParser, FAKeyData
 from googleapiclient.discovery import build
@@ -67,8 +68,8 @@ class DailysSpreadsheet:
         """ :type : Destination.Destination"""
         self.spreadsheet_id = spreadsheet_id
         """ :type : str"""
-        self.first_sheet_name = None
-        """ :type : str | None"""
+        self.first_sheet_name = CachedObject(self.find_first_sheet_name)
+        """ :type : CachedObject"""
 
     def get_spreadsheet_service(self):
         store = file.Storage('store/google-oauth-token.json')
@@ -101,13 +102,8 @@ class DailysSpreadsheet:
         name = sheets[0].get("properties", {}).get("title", "Sheet1")
         return "'{}'".format(name)
 
-    def get_first_sheet_name(self):
-        if self.first_sheet_name is None:
-            self.first_sheet_name = self.find_first_sheet_name()
-        return self.first_sheet_name
-
     def find_hallo_key_row(self):
-        test_range = '{}!A1:J10'.format(self.get_first_sheet_name())
+        test_range = '{}!A1:J10'.format(self.first_sheet_name.get())
         rows = self.get_spreadsheet_range(test_range)
         sub_str = "hallo key"
         match_count = 0
@@ -122,7 +118,7 @@ class DailysSpreadsheet:
         return match_row
 
     def find_column_by_names(self, names):
-        col_range = "{}!A1:10".format(self.get_first_sheet_name())
+        col_range = "{}!A1:10".format(self.first_sheet_name.get())
         header_rows = self.get_spreadsheet_range(col_range)
         max_cols = max([len(row) for row in header_rows])
         match_col = None
@@ -140,7 +136,7 @@ class DailysSpreadsheet:
 
     def get_column_by_field_id(self, field_id):
         hallo_row = self.find_hallo_key_row()
-        field_id_range = "{0}!A{1}:{1}".format(self.get_first_sheet_name(), hallo_row+1)
+        field_id_range = "{0}!A{1}:{1}".format(self.first_sheet_name.get(), hallo_row+1)
         row = self.get_spreadsheet_range(field_id_range)[0]
         return row.index(field_id)
 
@@ -158,7 +154,7 @@ class DailysSpreadsheet:
     def find_first_date(self):
         date_col = self.find_date_column()
         date_col_name = self.col_num_to_string(date_col)
-        date_range = self.get_spreadsheet_range("{0}!{1}1:{1}".format(self.get_first_sheet_name(), date_col_name))
+        date_range = self.get_spreadsheet_range("{0}!{1}1:{1}".format(self.first_sheet_name.get(), date_col_name))
         first_date = None
         first_date_row = None
         for row_num in range(len(date_range)):
@@ -199,7 +195,7 @@ class DailysSpreadsheet:
         """
         col_num = self.get_column_by_field_id(dailys_field.hallo_key_field_id)
         row_num = self.get_current_date_row()
-        self.update_spreadsheet_cell("{}!{}{}".format(self.get_first_sheet_name(),
+        self.update_spreadsheet_cell("{}!{}{}".format(self.first_sheet_name.get(),
                                                       self.col_num_to_string(col_num),
                                                       row_num+1),
                                      data)
