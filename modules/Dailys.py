@@ -45,6 +45,8 @@ class DailysSpreadsheet:
         """ :type : Destination.Destination"""
         self.spreadsheet_id = spreadsheet_id
         """ :type : str"""
+        self.first_sheet_name = None
+        """ :type : str | None"""
 
     def get_spreadsheet_service(self):
         store = file.Storage('store/google-oauth-token.json')
@@ -70,12 +72,17 @@ class DailysSpreadsheet:
         print("{}: ending update_spreadsheet_cell()".format(datetime.now()))
         return request.execute()
 
-    def get_first_sheet_name(self):
+    def find_first_sheet_name(self):
         service = self.get_spreadsheet_service()
         sheet_metadata = service.spreadsheets().get(spreadsheetId=self.spreadsheet_id).execute()
         sheets = sheet_metadata.get('sheets', '')
         name = sheets[0].get("properties", {}).get("title", "Sheet1")
         return "'{}'".format(name)
+
+    def get_first_sheet_name(self):
+        if self.first_sheet_name is None:
+            self.first_sheet_name = self.find_first_sheet_name()
+        return self.first_sheet_name
 
     def find_hallo_key_row(self):
         test_range = '{}!A1:J10'.format(self.get_first_sheet_name())
