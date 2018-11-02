@@ -24,7 +24,29 @@ class DailysRegister(Function):
     # Might be able to automatically gather initial data row and date (check top 10:10 for a date? or use frozen)
     # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets#gridproperties
     # Title key row would be nice?
-    pass
+
+    def run(self, event):
+        clean_input = event.command_args.strip()
+        destination = event.channel if event.channel is not None else event.user
+        spreadsheet = DailysSpreadsheet(event.user, destination, clean_input)
+        hallo_key_row = spreadsheet.find_hallo_key_row()
+        if hallo_key_row is None:
+            return event.create_response("Could not locate hallo key row in spreadsheet. "
+                                         "Please add one (and only one) header row labelled \"hallo key\", "
+                                         "for hallo to store column references in.")
+        date_col = spreadsheet.find_date_column()
+        if hallo_key_row is None:
+            return event.create_response("Could not locate date column in spreadsheet. "
+                                         "Please add one (and only one) label column titled \"date\".")
+        date_start = spreadsheet.find_first_date()
+        if date_start is None:
+            return event.create_response("Could not find the first date in the date column of the spreadsheet. "
+                                         "Please add an initial date to the spreadsheet")
+        return event.create_response("Dailys spreadsheet found, with hallo keys in row {}, "
+                                     "dates in column {}, "
+                                     "and starting from {}".format(hallo_key_row+1,
+                                                                   spreadsheet.col_num_to_string(date_col),
+                                                                   date_start[1].date()))
 
 
 class DailysRepo:
@@ -122,7 +144,7 @@ class DailysSpreadsheet:
         row = self.get_spreadsheet_range(field_id_range)[0]
         return row.index(field_id)
 
-    def get_date_column(self):
+    def find_date_column(self):
         return self.find_column_by_names(["date"])
 
     def col_num_to_string(self, num):
@@ -133,8 +155,8 @@ class DailysSpreadsheet:
             string = chr(65 + remainder) + string
         return string
 
-    def get_first_date(self):
-        date_col = self.get_date_column()
+    def find_first_date(self):
+        date_col = self.find_date_column()
         date_col_name = self.col_num_to_string(date_col)
         date_range = self.get_spreadsheet_range("{0}!{1}1:{1}".format(self.get_first_sheet_name(), date_col_name))
         first_date = None
@@ -151,7 +173,7 @@ class DailysSpreadsheet:
         return first_date_row, first_date
 
     def get_current_date_row(self):
-        first_date_row, first_date = self.get_first_date()
+        first_date_row, first_date = self.find_first_date()
         current_date = self.get_current_date()
         return (current_date-first_date).days + first_date_row
 
@@ -281,7 +303,7 @@ class DailysAnimalsField(DailysField):
         pass
 
 
-class DailysDuolingoField(DailysField):
+class DailysDuolingoField(ExternalDailysField):
     # Measures duolingo progress of user and specified friends.
     # Checks at midnight
 
