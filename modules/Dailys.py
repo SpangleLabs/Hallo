@@ -44,6 +44,11 @@ class DailysRegister(Function):
         if date_start is None:
             return event.create_response("Could not find the first date in the date column of the spreadsheet. "
                                          "Please add an initial date to the spreadsheet")
+        # Save the spreadsheet
+        dailys_repo = DailysRepo()  # TODO
+        dailys_repo.add_spreadsheet(spreadsheet)
+        dailys_repo.save_json()
+        # Send response
         return event.create_response("Dailys spreadsheet found, with hallo keys in row {}, "
                                      "dates in column {}, "
                                      "and starting from {}".format(hallo_key_row+1,
@@ -53,7 +58,25 @@ class DailysRegister(Function):
 
 class DailysRepo:
     # Store data on all users dailys spreadsheets
-    pass
+
+    def __init__(self):
+        self.spreadsheets = []
+        """ :type : list[DailysSpreadsheet]"""
+
+    def add_spreadsheet(self, spreadsheet):
+        """
+        :type spreadsheet: DailysSpreadsheet
+        """
+        self.spreadsheets.append(spreadsheet)
+
+    def save_json(self):
+        json_obj = dict()
+        json_obj["spreadsheets"] = []
+        for spreadsheet in self.spreadsheets:
+            json_obj["spreadsheets"].append(spreadsheet.to_json())
+        # Write json to file
+        with open("store/dailys.json", "w+") as f:
+            json.dump(json_obj, f, indent=2)
 
 
 class DailysSpreadsheet:
@@ -77,6 +100,8 @@ class DailysSpreadsheet:
         """ :type : CachedObject"""
         self.first_date_pair = CachedObject(self.find_first_date)
         """ :type : CachedObject"""
+        self.fields_list = []
+        """ :type : list[DailysField]"""
 
     def get_spreadsheet_service(self):
         store = file.Storage('store/google-oauth-token.json')
@@ -213,6 +238,18 @@ class DailysSpreadsheet:
                                                       row_num+1),
                                      data)
 
+    def to_json(self):
+        json_obj = dict()
+        json_obj["user_server"] = self.user.server.name
+        json_obj["user_address"] = self.user.address
+        json_obj["dest_server"] = self.destination.server.name
+        json_obj["dest_address"] = self.destination.address
+        json_obj["spreadsheet_id"] = self.spreadsheet_id
+        json_obj["fields"] = []
+        for field in self.fields_list:
+            json_obj["fields"].append(field.to_json())
+        return json_obj
+
 
 class DailysField(metaclass=ABCMeta):
     # An abstract class representing an individual dailys field type.
@@ -235,6 +272,9 @@ class DailysField(metaclass=ABCMeta):
     def new_day(self):
         # Called on all fields when DailysSpreadsheet confirms a new day,
         # animals can save at that point, some might not react
+        raise NotImplementedError()
+
+    def to_json(self):
         raise NotImplementedError()
 
 
