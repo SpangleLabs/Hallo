@@ -5,7 +5,7 @@ from datetime import datetime
 import dateutil.parser
 
 from Destination import Channel, User
-from Events import EventDay, EventMessage
+from Events import EventDay, EventMessage, EventMinute
 from Function import Function
 from inc.Commons import CachedObject
 from modules.Subscriptions import FAKey
@@ -20,11 +20,22 @@ class DailysException(Exception):
 
 
 class DailysRegister(Function):
-    # Register spreadsheet ID, sheet name
-    # Might be able to automatically gather sheet name? (just get first)
-    # Might be able to automatically gather initial data row and date (check top 10:10 for a date? or use frozen)
-    # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets#gridproperties
-    # Title key row would be nice?
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "dailys register"
+        # Names which can be used to address the function
+        self.names = set([template.format(setup, dailys)
+                          for template in ["{0} {1}", "{1} {0}"]
+                          for setup in ["setup", "register"]
+                          for dailys in ["dailys", "dailys spreadsheet"]])
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Registers a new dailys spreadsheet to be fed from the current location." \
+                         " Format: dailys register <google spreadsheet ID>"
 
     def run(self, event):
         clean_input = event.command_args.strip()
@@ -56,8 +67,57 @@ class DailysRegister(Function):
                                                                    date_start[1].date()))
 
 
+class Dailys(Function):
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "dailys register"
+        # Names which can be used to address the function
+        self.names = set([template.format(setup, dailys)
+                          for template in ["{0} {1}", "{1} {0}"]
+                          for setup in ["setup", "register"]
+                          for dailys in ["dailys", "dailys spreadsheet"]])
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Registers a new dailys spreadsheet to be fed from the current location." \
+                         " Format: dailys register <google spreadsheet ID>"
+        self.dailys_repo = None
+        """ :type : DailysRepo | None"""
+
+    def get_dailys_repo(self, hallo):
+        if self.dailys_repo is None:
+            self.dailys_repo = DailysRepo.load_json(hallo)
+        return self.dailys_repo
+
+    @staticmethod
+    def is_persistent():
+        return True
+
+    @staticmethod
+    def load_function():
+        """Loads the function, persistent functions only."""
+        return Dailys()
+
+    def save_function(self):
+        """Saves the function, persistent functions only."""
+        if self.dailys_repo is not None:
+            self.dailys_repo.save_json()
+
+    def get_passive_events(self):
+        """Returns a list of events which this function may want to respond to in a passive way"""
+        return {EventMinute, EventMessage}
+
+    def run(self, event):
+        pass  # TODO
+
+    def passive_run(self, event, hallo_obj):
+        pass  # TODO
+
+
 class DailysRepo:
-    # Store data on all users dailys spreadsheets
 
     def __init__(self):
         self.spreadsheets = []
@@ -78,6 +138,20 @@ class DailysRepo:
         with open("store/dailys.json", "w+") as f:
             json.dump(json_obj, f, indent=2)
 
+    @staticmethod
+    def load_json(hallo):
+        new_dailys_repo = DailysRepo()
+        # Try loading json file, otherwise return blank list
+        try:
+            with open("store/dailys.json", "r") as f:
+                json_obj = json.load(f)
+        except (OSError, IOError):
+            return new_dailys_repo
+        for spreadsheet_json in json_obj["spreadsheets"]:
+            spreadsheet = DailysSpreadsheet.from_json(spreadsheet_json, hallo)
+            new_dailys_repo.add_spreadsheet(spreadsheet)
+        return new_dailys_repo
+
 
 class DailysSpreadsheet:
 
@@ -89,7 +163,7 @@ class DailysSpreadsheet:
         self.user = user
         """ :type : Destination.User"""
         self.destination = destination
-        """ :type : Destination.Destination"""
+        """ :type : Destination.Channel | None"""
         self.spreadsheet_id = spreadsheet_id
         """ :type : str"""
         self.first_sheet_name = CachedObject(self.find_first_sheet_name)
@@ -214,11 +288,14 @@ class DailysSpreadsheet:
     # Store the data on an individual user's spreadsheet, has a list of enabled fields/topics?
     def get_fields_list(self):
         # Return a list of fields this spreadsheet has
-        pass
+        pass  # TODO
+
+    def add_field(self, field):
+        pass  # TODO
 
     def list_all_columns(self):
         # List all the columns of all the fields which hallo manages in this spreadsheet
-        pass
+        pass  # TODO?
 
     def get_current_date(self):
         # Return the current date. Not equal to calendar date, as user may be awake after midnight
@@ -240,15 +317,36 @@ class DailysSpreadsheet:
 
     def to_json(self):
         json_obj = dict()
-        json_obj["user_server"] = self.user.server.name
+        json_obj["server_name"] = self.user.server.name
         json_obj["user_address"] = self.user.address
-        json_obj["dest_server"] = self.destination.server.name
-        json_obj["dest_address"] = self.destination.address
+        if self.destination is not None:
+            json_obj["dest_address"] = self.destination.address
         json_obj["spreadsheet_id"] = self.spreadsheet_id
         json_obj["fields"] = []
         for field in self.fields_list:
             json_obj["fields"].append(field.to_json())
         return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo):
+        server = hallo.get_server_by_name(json_obj["server"])
+        if server is None:
+            raise DailysException("Could not find server with name \"{}\"".format(json_obj["server"]))
+        user = server.get_user_by_address(json_obj["user_address"])
+        if user is None:
+            raise DailysException("Could not find user with address \"{}\" on server \"{}\""
+                                  .format(json_obj["user_address"], json_obj["server"]))
+        dest_chan = None
+        if "dest_address" in json_obj:
+            dest_chan = server.get_channel_by_address(json_obj["dest_address"])
+            if dest_chan is None:
+                raise DailysException("Could not find channel with address \"{}\" on server \"{}\""
+                                      .format(json_obj["dest_address"], json_obj["server"]))
+        spreadsheet_id = json_obj["spreadsheet_id"]
+        new_spreadsheet = DailysSpreadsheet(user, dest_chan, spreadsheet_id)
+        for field_json in json_obj["fields"]:
+            new_spreadsheet.add_field(DailysFieldFactory.from_json(field_json))
+        return new_spreadsheet
 
 
 class DailysField(metaclass=ABCMeta):
