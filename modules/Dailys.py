@@ -78,19 +78,19 @@ class DailysSpreadsheet:
                                   "Please run store/google-oauth-import.py somewhere with a UI")
         return build('sheets', 'v4', http=creds.authorize(Http()))
 
-    def get_spreadsheet_range(self, range):
+    def get_spreadsheet_range(self, val_range):
         service = self.get_spreadsheet_service()
         result = service.spreadsheets().values().get(spreadsheetId=self.spreadsheet_id,
-                                                     range=range).execute()
+                                                     range=val_range).execute()
         return result.get('values', [])
 
     def update_spreadsheet_cell(self, cell, data):
         service = self.get_spreadsheet_service()
         body = {"values": [[data]]}
         request = service.spreadsheets().values().update(spreadsheetId=self.spreadsheet_id,
-                                                        range=cell,
-                                                        valueInputOption="RAW",
-                                                        body=body)
+                                                         range=cell,
+                                                         valueInputOption="RAW",
+                                                         body=body)
         print("{}: ending update_spreadsheet_cell()".format(datetime.now()))
         return request.execute()
 
