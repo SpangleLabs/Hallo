@@ -56,7 +56,11 @@ class DailysRegister(Function):
             return event.create_response("Could not find the first date in the date column of the spreadsheet. "
                                          "Please add an initial date to the spreadsheet")
         # Save the spreadsheet
-        dailys_repo = DailysRepo()  # TODO
+        hallo = event.server.hallo
+        function_dispatcher = hallo.function_dispatcher
+        sub_check_function = function_dispatcher.get_function_by_name("dailys")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: Dailys
+        dailys_repo = sub_check_obj.get_dailys_repo(hallo)
         dailys_repo.add_spreadsheet(spreadsheet)
         dailys_repo.save_json()
         # Send response
@@ -75,15 +79,12 @@ class Dailys(Function):
         """
         super().__init__()
         # Name for use in help listing
-        self.help_name = "dailys register"
+        self.help_name = "dailys"
         # Names which can be used to address the function
-        self.names = set([template.format(setup, dailys)
-                          for template in ["{0} {1}", "{1} {0}"]
-                          for setup in ["setup", "register"]
-                          for dailys in ["dailys", "dailys spreadsheet"]])
+        self.names = {"dailys"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Registers a new dailys spreadsheet to be fed from the current location." \
-                         " Format: dailys register <google spreadsheet ID>"
+        self.help_docs = "Core dailys method, does .. a bunch of stuff I guess?." \
+                         " Format: dailys"  # TODO
         self.dailys_repo = None
         """ :type : DailysRepo | None"""
 
