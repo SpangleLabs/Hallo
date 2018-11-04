@@ -418,4 +418,5 @@ class CachedObject:
     def get(self):
         if self.cache_time is None or (self.cache_time + self.cache_expiry) < datetime.datetime.now():
             self.value = self.setter()
+            self.cache_time = datetime.datetime.now()
         return self.value
