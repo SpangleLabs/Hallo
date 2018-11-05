@@ -1,4 +1,5 @@
 import json
+import uuid
 from abc import ABCMeta
 from datetime import datetime
 
@@ -38,9 +39,18 @@ class DailysRegister(Function):
                          " Format: dailys register <google spreadsheet ID>"
 
     def run(self, event):
+        # Get dailys repo
+        hallo = event.server.hallo
+        function_dispatcher = hallo.function_dispatcher
+        sub_check_function = function_dispatcher.get_function_by_name("dailys")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: Dailys
+        dailys_repo = sub_check_obj.get_dailys_repo(hallo)
+        # Check if there's already a spreadsheet here
+        if dailys_repo.get_by_location(event) is None:
+            return event.create_response("There is already a spreadsheet configured in this location.")
+        # Create new spreadsheet object
         clean_input = event.command_args.strip()
-        destination = event.channel if event.channel is not None else event.user
-        spreadsheet = DailysSpreadsheet(event.user, destination, clean_input)
+        spreadsheet = DailysSpreadsheet(event.user, event.channel, clean_input)
         # Check a bunch of things can be detected, which also set the cache for them.
         hallo_key_row = spreadsheet.hallo_key_row.get()
         if hallo_key_row is None:
@@ -56,11 +66,6 @@ class DailysRegister(Function):
             return event.create_response("Could not find the first date in the date column of the spreadsheet. "
                                          "Please add an initial date to the spreadsheet")
         # Save the spreadsheet
-        hallo = event.server.hallo
-        function_dispatcher = hallo.function_dispatcher
-        sub_check_function = function_dispatcher.get_function_by_name("dailys")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: Dailys
-        dailys_repo = sub_check_obj.get_dailys_repo(hallo)
         dailys_repo.add_spreadsheet(spreadsheet)
         dailys_repo.save_json()
         # Send response
@@ -69,6 +74,54 @@ class DailysRegister(Function):
                                      "and starting from {}".format(hallo_key_row+1,
                                                                    spreadsheet.col_num_to_string(date_col),
                                                                    date_start[1].date()))
+
+
+class DailysAddField(Function):
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__()
+        # Name for use in help listing
+        self.help_name = "dailys register"
+        # Names which can be used to address the function
+        self.names = set([template.format(setup, dailys)
+                          for template in ["{0} {1}", "{1} {0}"]
+                          for setup in ["setup", "register", "add"]
+                          for dailys in ["dailys field", "field to dailys"]])
+        # Help documentation, if it's just a single line, can be set here
+        self.help_docs = "Registers a new dailys spreadsheet to be fed from the current location." \
+                         " Format: dailys register <google spreadsheet ID>"
+
+    def run(self, event):
+        # Get spreadsheet repo
+        hallo = event.server.hallo
+        function_dispatcher = hallo.function_dispatcher
+        sub_check_function = function_dispatcher.get_function_by_name("dailys")
+        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: Dailys
+        dailys_repo = sub_check_obj.get_dailys_repo(hallo)
+        # Get the active spreadsheet for this person and destination
+        spreadsheet = dailys_repo.get_by_location(event)
+        if spreadsheet is None:
+            return event.create_response("There is no spreadsheet configured in this channel. "
+                                         "Please register a spreadsheet first with `dailys register`")
+        # Get args
+        clean_input = event.command_args.strip().lower()
+        # If args are empty, list available fields
+        if clean_input == "":
+            event.create_response("Please specify a field, available fields are: {}"
+                                  .format(", ".join(field.type_name for field in DailysFieldFactory.fields)))
+        # Check that there's exactly one field matching that name
+        matching_fields = [field for field in DailysFieldFactory.fields if clean_input.startswith(field.type_name)]
+        if len(matching_fields) != 1:
+            return event.create_response("I don't understand what field you would like to add. "
+                                         "Please specify a field less ambiguously.")
+        # Try and create the field
+        matching_field = matching_fields[0]
+        new_field = matching_field.create_from_input(event, spreadsheet)
+        spreadsheet.add_field(new_field)
+        return event.create_response("Added a new field to your dailys spreadsheet.")
 
 
 class Dailys(Function):
@@ -129,6 +182,12 @@ class DailysRepo:
         :type spreadsheet: DailysSpreadsheet
         """
         self.spreadsheets.append(spreadsheet)
+
+    def get_by_location(self, event):
+        for ds in self.spreadsheets:
+            if ds.user == event.user and ds.destination == event.channel:
+                return ds
+        return None
 
     def save_json(self):
         json_obj = dict()
@@ -240,6 +299,18 @@ class DailysSpreadsheet:
                 match_col = None
                 break
         return match_col
+
+    def tag_column(self, col_title):
+        key = uuid.uuid4()
+        cell = "{}!{}{}".format(self.first_sheet_name.get(), col_title, self.hallo_key_row.get())
+        self.update_spreadsheet_cell(cell, key)
+        return key
+
+    def find_and_tag_column_by_names(self, names):
+        col = self.find_column_by_names(names)
+        if col is None:
+            return None
+        return self.tag_column(self.col_num_to_string(col))
 
     def get_column_by_field_id(self, field_id):
         hallo_row = self.hallo_key_row.get()
@@ -358,6 +429,10 @@ class DailysField(metaclass=ABCMeta):
         self.hallo_key_field_id = hallo_key_field_id
         """ :type : str"""
 
+    @staticmethod
+    def create_from_input(event, spreadsheet):
+        raise NotImplementedError()
+
     def to_json(self):
         raise NotImplementedError()
 
@@ -378,6 +453,7 @@ class ExternalDailysField(DailysField, metaclass=ABCMeta):
 
 class DailysFAField(ExternalDailysField):
     type_name = "furaffinity"
+    col_names = ["furaffinity", "fa notifications", "furaffinity notifications"]
 
     @staticmethod
     def passive_events():
@@ -409,6 +485,20 @@ class DailysFAField(ExternalDailysField):
         chan = self.spreadsheet.destination if isinstance(self.spreadsheet.destination, Channel) else None
         user = self.spreadsheet.destination if isinstance(self.spreadsheet.destination, User) else None
         return EventMessage(self.spreadsheet.destination.server, chan, user, notif_str, inbound=False)
+
+    @staticmethod
+    def create_from_input(event, spreadsheet):
+        clean_input = event.command_args[len(DailysFAField.type_name):].strip()
+        if len(clean_input) <= 3 and clean_input.isalpha():
+            key = spreadsheet.tag_column(clean_input)
+            return DailysFAField(spreadsheet, key)
+        key = spreadsheet.find_and_tag_column_by_names(DailysFAField.col_names)
+        if key is None:
+            raise DailysException("Could not find a suitable column. "
+                                  "Please ensure one and only one column is titled: {}."
+                                  "Or specify a column title."
+                                  .format(", ".join(DailysFAField.col_names)))
+        return DailysFAField(spreadsheet, key)
 
     def to_json(self):
         json_obj = dict()
