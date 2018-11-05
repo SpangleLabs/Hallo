@@ -5,7 +5,6 @@ from datetime import datetime
 
 import dateutil.parser
 
-from Destination import Channel, User
 from Events import EventDay, EventMessage
 from Function import Function
 from inc.Commons import CachedObject
@@ -168,7 +167,17 @@ class Dailys(Function):
         pass  # TODO
 
     def passive_run(self, event, hallo_obj):
-        pass  # TODO
+        repo = self.get_dailys_repo(hallo_obj)
+        spreadsheets = repo.spreadsheets
+        if isinstance(event, EventMessage):
+            spreadsheets = [repo.get_by_location(event)]
+        for spreadsheet in spreadsheets:
+            for field in spreadsheet.fields_list:
+                if event.__class__ in field.passive_events():
+                    try:
+                        field.passive_trigger(event)
+                    except Exception as e:
+                        print("Dailys failure: {}".format(e))
 
 
 class DailysRepo:
@@ -433,6 +442,13 @@ class DailysField(metaclass=ABCMeta):
     def create_from_input(event, spreadsheet):
         raise NotImplementedError()
 
+    @staticmethod
+    def passive_events():
+        raise NotImplementedError()
+
+    def passive_trigger(self, evt):
+        raise NotImplementedError()
+
     def to_json(self):
         raise NotImplementedError()
 
@@ -441,17 +457,7 @@ class DailysField(metaclass=ABCMeta):
         raise NotImplementedError()
 
 
-class ExternalDailysField(DailysField, metaclass=ABCMeta):
-
-    @staticmethod
-    def passive_events():
-        raise NotImplementedError()
-
-    def passive_trigger(self, evt):
-        raise NotImplementedError()
-
-
-class DailysFAField(ExternalDailysField):
+class DailysFAField(DailysField):
     type_name = "furaffinity"
     col_names = ["furaffinity", "fa notifications", "furaffinity notifications"]
 
@@ -482,9 +488,12 @@ class DailysFAField(ExternalDailysField):
         notifications["notes"] = notif_page.total_notes
         notif_str = json.dumps(notifications, indent=2)
         self.spreadsheet.save_field(self, notif_str)
-        chan = self.spreadsheet.destination if isinstance(self.spreadsheet.destination, Channel) else None
-        user = self.spreadsheet.destination if isinstance(self.spreadsheet.destination, User) else None
-        return EventMessage(self.spreadsheet.destination.server, chan, user, notif_str, inbound=False)
+        # Send date to destination
+        self.spreadsheet.user.server.send(EventMessage(self.spreadsheet.destination.server,
+                                                       self.spreadsheet.destination,
+                                                       self.spreadsheet.user,
+                                                       notif_str,
+                                                       inbound=False))
 
     @staticmethod
     def create_from_input(event, spreadsheet):
@@ -540,7 +549,7 @@ class DailysAnimalsField(DailysField):
         pass
 
 
-class DailysDuolingoField(ExternalDailysField):
+class DailysDuolingoField(DailysField):
     # Measures duolingo progress of user and specified friends.
     # Checks at midnight
 
