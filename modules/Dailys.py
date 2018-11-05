@@ -5,7 +5,7 @@ from datetime import datetime
 import dateutil.parser
 
 from Destination import Channel, User
-from Events import EventDay, EventMessage, EventMinute
+from Events import EventDay, EventMessage
 from Function import Function
 from inc.Commons import CachedObject
 from modules.Subscriptions import FAKey
@@ -109,7 +109,7 @@ class Dailys(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {EventMinute, EventMessage}
+        return set([event for field in DailysFieldFactory.fields for event in field.passive_events()])
 
     def run(self, event):
         pass  # TODO
@@ -286,17 +286,11 @@ class DailysSpreadsheet:
         current_date = self.get_current_date()
         return (current_date-first_date).days + first_date_row
 
-    # Store the data on an individual user's spreadsheet, has a list of enabled fields/topics?
-    def get_fields_list(self):
-        # Return a list of fields this spreadsheet has
-        pass  # TODO
-
     def add_field(self, field):
-        pass  # TODO
-
-    def list_all_columns(self):
-        # List all the columns of all the fields which hallo manages in this spreadsheet
-        pass  # TODO?
+        """
+        :type field: DailysField
+        """
+        self.fields_list.append(field)
 
     def get_current_date(self):
         # Return the current date. Not equal to calendar date, as user may be awake after midnight
@@ -364,15 +358,6 @@ class DailysField(metaclass=ABCMeta):
         self.hallo_key_field_id = hallo_key_field_id
         """ :type : str"""
 
-    def list_columns(self):
-        # Return a full list of the columns this field occupies
-        raise NotImplementedError()
-
-    def new_day(self):
-        # Called on all fields when DailysSpreadsheet confirms a new day,
-        # animals can save at that point, some might not react
-        raise NotImplementedError()
-
     def to_json(self):
         raise NotImplementedError()
 
@@ -383,7 +368,8 @@ class DailysField(metaclass=ABCMeta):
 
 class ExternalDailysField(DailysField, metaclass=ABCMeta):
 
-    def passive_events(self):
+    @staticmethod
+    def passive_events():
         raise NotImplementedError()
 
     def passive_trigger(self, evt):
@@ -393,7 +379,8 @@ class ExternalDailysField(DailysField, metaclass=ABCMeta):
 class DailysFAField(ExternalDailysField):
     type_name = "furaffinity"
 
-    def passive_events(self):
+    @staticmethod
+    def passive_events():
         """
         :rtype: list[type]
         """
