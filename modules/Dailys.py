@@ -346,7 +346,7 @@ class DailysSpreadsheet:
         spreadsheet_id = json_obj["spreadsheet_id"]
         new_spreadsheet = DailysSpreadsheet(user, dest_chan, spreadsheet_id)
         for field_json in json_obj["fields"]:
-            new_spreadsheet.add_field(DailysFieldFactory.from_json(field_json))
+            new_spreadsheet.add_field(DailysFieldFactory.from_json(field_json, new_spreadsheet))
         return new_spreadsheet
 
 
@@ -376,6 +376,10 @@ class DailysField(metaclass=ABCMeta):
     def to_json(self):
         raise NotImplementedError()
 
+    @staticmethod
+    def from_json(json_obj, spreadsheet):
+        raise NotImplementedError()
+
 
 class ExternalDailysField(DailysField, metaclass=ABCMeta):
 
@@ -387,9 +391,7 @@ class ExternalDailysField(DailysField, metaclass=ABCMeta):
 
 
 class DailysFAField(ExternalDailysField):
-
-    # Go reference FA sub perhaps? Needs those cookies at least
-    # Check at midnight
+    type_name = "furaffinity"
 
     def passive_events(self):
         """
@@ -420,6 +422,16 @@ class DailysFAField(ExternalDailysField):
         chan = self.spreadsheet.destination if isinstance(self.spreadsheet.destination, Channel) else None
         user = self.spreadsheet.destination if isinstance(self.spreadsheet.destination, User) else None
         return EventMessage(self.spreadsheet.destination.server, chan, user, notif_str, inbound=False)
+
+    def to_json(self):
+        json_obj = dict()
+        json_obj["type_name"] = self.type_name
+        json_obj["field_key"] = self.hallo_key_field_id
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, spreadsheet):
+        return DailysFAField(spreadsheet, json_obj["field_key"])
 
 
 class DailysSleepField(DailysField):
@@ -499,3 +511,15 @@ class DailysShutdownField(DailysField):
     # Night is done after shutdown.
     # new_day() triggers N, N, N entries.
     pass
+
+
+class DailysFieldFactory:
+    fields = [DailysFAField]
+
+    @staticmethod
+    def from_json(json_obj, spreadsheet):
+        type_name = json_obj["type_name"]
+        for field in DailysFieldFactory.fields:
+            if field.type_name == type_name:
+                return field.from_json(json_obj, spreadsheet)
+        raise DailysException("Could not load dailys field of type {}".format(type_name))
