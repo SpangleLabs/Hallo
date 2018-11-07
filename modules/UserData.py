@@ -269,7 +269,7 @@ class UserDataSetup(Function):
         # Save user data
         self.user_data_parser.set_user_data(event.user, data_obj)
         # Send response
-        return event.create_response("Set up a new user data for {}".format(data_class.get_name(event)))
+        return event.create_response("Set up a new user data for {}".format(data_obj.get_name(event)))
 
 
 class UserDataTeardown(Function):
