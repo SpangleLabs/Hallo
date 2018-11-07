@@ -43,6 +43,7 @@ class UserDataParser:
         :type data: UserDatum
         """
         user.extra_data_dict[data.type_name] = data.to_json()
+        user.server.hallo.save_json()
 
     def remove_data_by_user_and_type(self, user, data_class):
         """
