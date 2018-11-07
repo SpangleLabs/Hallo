@@ -120,7 +120,7 @@ class FunctionDispatcher(object):
                 print("ERROR Passive Function: {} {}".format(function_class.__module__, function_class.__name__))
                 print("ERROR Function event: {}".format(event))
                 print("ERROR Function error: {}".format(e))
-                print("Function error location: {}".format(traceback.format_exc(3)))
+                print("Function error location: {}".format(traceback.format_exc(7)))
                 continue
 
     def get_function_by_name(self, function_name):
@@ -408,7 +408,7 @@ class FunctionDispatcher(object):
         Output the function dispatcher configuration in a dict format for saving as json
         :return: dict
         """
-        json_obj = {}
+        json_obj = dict()
         json_obj["modules"] = []
         for module_name in self.module_list:
             json_obj["modules"].append({"name": module_name})
