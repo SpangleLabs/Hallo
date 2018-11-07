@@ -76,7 +76,7 @@ class UserDatum(metaclass=ABCMeta):
 
 class FAKeyData(UserDatum):
     type_name = "fa_key"
-    names = ["furaffinity key", "fa key", "fa cookies", "furaffinity cookies"]
+    names = ["furaffinity key", "fa key", "fa cookies", "furaffinity cookies", "fa", "furaffinity"]
 
     def __init__(self, cookie_a, cookie_b):
         self.cookie_a = cookie_a
