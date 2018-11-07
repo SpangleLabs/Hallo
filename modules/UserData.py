@@ -67,10 +67,16 @@ class UserDatum(metaclass=ABCMeta):
         raise NotImplementedError()
 
     def to_json(self):
+        """
+        :rtype: dict
+        """
         raise NotImplementedError()
 
     @staticmethod
     def from_json(json_dict):
+        """
+        :type json_dict: dict
+        """
         raise NotImplementedError()
 
 
@@ -101,6 +107,7 @@ class FAKeyData(UserDatum):
         json_obj = dict()
         json_obj["cookie_a"] = self.cookie_a
         json_obj["cookie_b"] = self.cookie_b
+        return json_obj
 
     @staticmethod
     def from_json(json_dict):
