@@ -72,7 +72,7 @@ class DailysRegister(Function):
                                      "dates in column {}, "
                                      "and starting from {}".format(hallo_key_row+1,
                                                                    spreadsheet.col_num_to_string(date_col),
-                                                                   date_start[1].date()))
+                                                                   date_start.date()))
 
 
 class DailysAddField(Function):
