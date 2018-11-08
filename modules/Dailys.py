@@ -404,7 +404,7 @@ class DailysSpreadsheet:
 
     @staticmethod
     def from_json(json_obj, hallo):
-        server = hallo.get_server_by_name(json_obj["server"])
+        server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise DailysException("Could not find server with name \"{}\"".format(json_obj["server"]))
         user = server.get_user_by_address(json_obj["user_address"])
