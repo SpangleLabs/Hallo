@@ -310,7 +310,7 @@ class DailysSpreadsheet:
         return match_col
 
     def tag_column(self, col_title):
-        key = uuid.uuid4()
+        key = str(uuid.uuid4())
         cell = "{}!{}{}".format(self.first_sheet_name.get(), col_title, self.hallo_key_row.get())
         self.update_spreadsheet_cell(cell, key)
         return key
