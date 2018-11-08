@@ -314,8 +314,11 @@ class FunctionDispatcher(object):
         # Add function to mFunctionNames
         for function_name in names_list:
             if function_name in self.function_names:
-                # TODO better exception
-                raise NotImplementedError
+                raise NotImplementedError("This function name \"{}\", in \"{}\" function class is "
+                                          "already taken by the \"{}\" function class."
+                                          .format(function_name,
+                                                  function_class.__name__,
+                                                  self.function_names[function_name].__name__))
             self.function_names[function_name] = function_class
         # Add function to mEventFunctions
         for function_event in events_list:

@@ -83,7 +83,7 @@ class DailysAddField(Function):
         """
         super().__init__()
         # Name for use in help listing
-        self.help_name = "dailys register"
+        self.help_name = "add dailys field"
         # Names which can be used to address the function
         self.names = set([template.format(setup, dailys)
                           for template in ["{0} {1}", "{1} {0}"]
