@@ -109,8 +109,8 @@ class DailysAddField(Function):
         clean_input = event.command_args.strip().lower()
         # If args are empty, list available fields
         if clean_input == "":
-            event.create_response("Please specify a field, available fields are: {}"
-                                  .format(", ".join(field.type_name for field in DailysFieldFactory.fields)))
+            return event.create_response("Please specify a field, available fields are: {}"
+                                         .format(", ".join(field.type_name for field in DailysFieldFactory.fields)))
         # Check that there's exactly one field matching that name
         matching_fields = [field for field in DailysFieldFactory.fields if clean_input.startswith(field.type_name)]
         if len(matching_fields) != 1:
