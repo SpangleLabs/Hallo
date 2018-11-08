@@ -98,7 +98,7 @@ class Printer:
     def print_leave(self, event):
         user_name = event.user.name if event.is_inbound else event.server.get_nick()
         output = "{} [{}] {} left {}".format(Commons.current_timestamp(), event.server.name,
-                                             user_name, event.channel)
+                                             user_name, event.channel.name)
         if event.leave_message is not None:
             output += " ({})".format(event.leave_message)
         return output
