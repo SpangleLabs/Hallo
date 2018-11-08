@@ -119,6 +119,7 @@ class DailysAddField(Function):
         # Try and create the field
         matching_field = matching_fields[0]
         new_field = matching_field.create_from_input(event, spreadsheet)
+        # TODO: check if field already assigned, or if we already have a field of that type?
         spreadsheet.add_field(new_field)
         return event.create_response("Added a new field to your dailys spreadsheet.")
 
