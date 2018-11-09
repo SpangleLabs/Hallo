@@ -486,7 +486,7 @@ class DailysFAField(DailysField):
         notifications["favourites"] = notif_page.total_favs
         notifications["watches"] = notif_page.total_watches
         notifications["notes"] = notif_page.total_notes
-        notif_str = json.dumps(notifications, indent=2)
+        notif_str = json.dumps(notifications)
         self.spreadsheet.save_field(self, notif_str)
         # Send date to destination
         self.spreadsheet.user.server.send(EventMessage(self.spreadsheet.destination.server,
