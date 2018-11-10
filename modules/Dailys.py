@@ -7,7 +7,7 @@ import dateutil.parser
 
 from Events import EventDay, EventMessage
 from Function import Function
-from inc.Commons import CachedObject
+from inc.Commons import CachedObject, Commons
 from modules.Subscriptions import FAKey
 from modules.UserData import UserDataParser, FAKeyData
 from googleapiclient.discovery import build
@@ -441,6 +441,11 @@ class DailysField(metaclass=ABCMeta):
 
     @staticmethod
     def create_from_input(event, spreadsheet):
+        """
+        :type event: EventMessage
+        :type spreadsheet: DailysSpreadsheet
+        :rtype: DailysField
+        """
         raise NotImplementedError()
 
     @staticmethod
@@ -512,7 +517,7 @@ class DailysFAField(DailysField):
         if key is None:
             raise DailysException("Could not find a suitable column. "
                                   "Please ensure one and only one column is titled: {}."
-                                  "Or specify a column title."
+                                  "Or specify a column reference."
                                   .format(", ".join(DailysFAField.col_names)))
         return DailysFAField(spreadsheet, key)
 
@@ -557,12 +562,90 @@ class DailysAnimalsField(DailysField):
 
 
 class DailysDuolingoField(DailysField):
-    # Measures duolingo progress of user and specified friends.
-    # Checks at midnight
+    type_name = "duolingo"
+    col_names = ["duolingo", "duolingo friends", "duolingo friends list"]
 
-    def get_friends(self):
-        # Return a list of friends which should be tracked?
-        pass
+    def __init__(self, spreadsheet, hallo_key_field_id, username):
+        super().__init__(spreadsheet, hallo_key_field_id)
+        self.username = username
+
+    @staticmethod
+    def passive_events():
+        """
+        :rtype: list[type]
+        """
+        return [EventDay]
+
+    def passive_trigger(self, evt):
+        """
+        :type evt: Event.Event
+        :rtype: Event.EventMessage
+        """
+        duo = Commons.load_url_json("https://www.duolingo.com/users/{}".format(self.username))
+        result = dict()
+        for lang in duo["language_data"]:
+            for friend in duo["language_data"][lang]["points_ranking_data"]:
+                result[friend["username"]] = friend["points_data"]["total"]
+        result_str = json.dumps(duo)
+        self.spreadsheet.save_field(self, result_str)
+        # Send date to destination
+        self.spreadsheet.user.server.send(EventMessage(self.spreadsheet.destination.server,
+                                                       self.spreadsheet.destination,
+                                                       self.spreadsheet.user,
+                                                       result_str,
+                                                       inbound=False))
+
+    @staticmethod
+    def _check_duo_username(username):
+        try:
+            Commons.load_url_json("https://www.duolingo.com/users/{}".format(username))
+            return True
+        except ValueError:
+            return False
+
+    @staticmethod
+    def _check_spreadsheet_col_name(col_name):
+        return len(col_name) <= 3 and col_name.isalpha()
+
+    @staticmethod
+    def create_from_input(event, spreadsheet):
+        clean_input = event.command_args[len(DailysFAField.type_name):].strip().split()
+        if len(clean_input) > 2 or len(clean_input) == 0:
+            raise DailysException("Cannot understand input. Please provide your Duolingo username, "
+                                  "and optionally, a column reference for this data in the spreadsheet.")
+        if len(clean_input) == 1:
+            if DailysDuolingoField._check_duo_username(clean_input[0]):
+                key = spreadsheet.find_and_tag_column_by_names(DailysFAField.col_names)
+                if key is None:
+                    raise DailysException("Could not find a suitable column. "
+                                          "Please ensure one and only one column is titled: {}."
+                                          "Or specify a column reference."
+                                          .format(", ".join(DailysFAField.col_names)))
+                return DailysDuolingoField(spreadsheet, key, clean_input[0])
+            else:
+                raise DailysException("Could not find a duolingo account with that username.")
+        # length of input is 2.
+        if DailysDuolingoField._check_spreadsheet_col_name(clean_input[0]):
+            if DailysDuolingoField._check_duo_username(clean_input[1]):
+                key = spreadsheet.tag_column(clean_input[0])
+                return DailysDuolingoField(spreadsheet, key, clean_input[1])
+        if DailysDuolingoField._check_duo_username(clean_input[0]):
+            if DailysDuolingoField._check_spreadsheet_col_name(clean_input[1]):
+                key = spreadsheet.tag_column(clean_input[1])
+                return DailysDuolingoField(spreadsheet, key, clean_input[0])
+        raise DailysException("Could not understand your input. Please provide a duolingo username, and optionally, "
+                              "a column reference for this data in the spreadsheet.")
+
+    def to_json(self):
+        json_obj = dict()
+        json_obj["type_name"] = self.type_name
+        json_obj["field_key"] = self.hallo_key_field_id
+        json_obj["username"] = self.username
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, spreadsheet):
+        return DailysDuolingoField(spreadsheet, json_obj["field_key"], json_obj["username"])
 
 
 class DailysSplooField(DailysField):
