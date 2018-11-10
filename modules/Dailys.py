@@ -477,7 +477,7 @@ class DailysFAField(DailysField):
         user_parser = UserDataParser()
         fa_data = user_parser.get_data_by_user_and_type(self.spreadsheet.user, FAKeyData)  # type: FAKeyData
         if fa_data is None:
-            raise DailysException("No FA data has been set up for the FA dailys module to use.")
+            raise DailysException("No FA data has been set up for the FA field module to use.")
         fa_key = FAKey(self.spreadsheet.user, fa_data.cookie_a, fa_data.cookie_b)
         notif_page = fa_key.get_fa_reader().get_notification_page()
         notifications = dict()
@@ -498,6 +498,12 @@ class DailysFAField(DailysField):
 
     @staticmethod
     def create_from_input(event, spreadsheet):
+        # Check user has an FA login
+        user_parser = UserDataParser()
+        fa_data = user_parser.get_data_by_user_and_type(spreadsheet.user, FAKeyData)  # type: FAKeyData
+        if fa_data is None:
+            raise DailysException("No FA data has been set up for the FA dailys field to use.")
+        # Get column or find it.
         clean_input = event.command_args[len(DailysFAField.type_name):].strip()
         if len(clean_input) <= 3 and clean_input.isalpha():
             key = spreadsheet.tag_column(clean_input)
