@@ -608,18 +608,18 @@ class DailysDuolingoField(DailysField):
 
     @staticmethod
     def create_from_input(event, spreadsheet):
-        clean_input = event.command_args[len(DailysFAField.type_name):].strip().split()
+        clean_input = event.command_args[len(DailysDuolingoField.type_name):].strip().split()
         if len(clean_input) > 2 or len(clean_input) == 0:
             raise DailysException("Cannot understand input. Please provide your Duolingo username, "
                                   "and optionally, a column reference for this data in the spreadsheet.")
         if len(clean_input) == 1:
             if DailysDuolingoField._check_duo_username(clean_input[0]):
-                key = spreadsheet.find_and_tag_column_by_names(DailysFAField.col_names)
+                key = spreadsheet.find_and_tag_column_by_names(DailysDuolingoField.col_names)
                 if key is None:
                     raise DailysException("Could not find a suitable column. "
                                           "Please ensure one and only one column is titled: {}."
                                           "Or specify a column reference."
-                                          .format(", ".join(DailysFAField.col_names)))
+                                          .format(", ".join(DailysDuolingoField.col_names)))
                 return DailysDuolingoField(spreadsheet, key, clean_input[0])
             else:
                 raise DailysException("Could not find a duolingo account with that username.")
