@@ -268,7 +268,6 @@ class DailysSpreadsheet:
                                                          range=cell,
                                                          valueInputOption="RAW",
                                                          body=body)
-        print("{}: ending update_spreadsheet_cell()".format(datetime.now()))
         return request.execute()
 
     def find_first_sheet_name(self):
