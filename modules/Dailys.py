@@ -586,7 +586,7 @@ class DailysDuolingoField(DailysField):
         for lang in duo["language_data"]:
             for friend in duo["language_data"][lang]["points_ranking_data"]:
                 result[friend["username"]] = friend["points_data"]["total"]
-        result_str = json.dumps(duo)
+        result_str = json.dumps(result)
         self.spreadsheet.save_field(self, result_str)
         # Send date to destination
         self.spreadsheet.user.server.send(EventMessage(self.spreadsheet.destination.server,
