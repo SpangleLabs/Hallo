@@ -473,10 +473,13 @@ class DailysField(metaclass=ABCMeta):
     def from_json(json_obj, spreadsheet):
         raise NotImplementedError()
 
-    def save_data(self, data_str):
+    def save_data(self, data):
         """
-        :type data_str: str
+        :type data: str | dict
         """
+        data_str = data
+        if isinstance(data, dict):
+            data_str = json.dumps(data)
         self.spreadsheet.save_field(self, data_str)
 
     def load_data(self):
@@ -564,9 +567,82 @@ class DailysFAField(DailysField):
 
 class DailysSleepField(DailysField):
     # Does sleep and wake times, sleep notes, dream logs, shower?
+    type_name = "sleep"
+    col_names = ["sleep", "sleep times"]
     WAKE_WORDS = ["morning", "wake", "woke"]
-    SLEEP_WORDS = ["goodnight", "sleep", "nini"]
-    pass
+    SLEEP_WORDS = ["goodnight", "sleep", "nini", "night"]
+    json_key_wake_time = "wake_time"
+    json_key_sleep_time = "sleep_time"
+    json_key_interruptions = "interruptions"
+
+    @staticmethod
+    def create_from_input(event, spreadsheet):
+        # Get column or find it.
+        clean_input = event.command_args[len(DailysSleepField.type_name):].strip()
+        if len(clean_input) <= 3 and clean_input.isalpha():
+            key = spreadsheet.tag_column(clean_input)
+            return DailysSleepField(spreadsheet, key)
+        key = spreadsheet.find_and_tag_column_by_names(DailysSleepField.col_names)
+        if key is None:
+            raise DailysException("Could not find a suitable column. "
+                                  "Please ensure one and only one column is titled: {}."
+                                  "Or specify a column reference."
+                                  .format(", ".join(DailysSleepField.col_names)))
+        return DailysSleepField(spreadsheet, key)
+
+    @staticmethod
+    def passive_events():
+        return [EventMessage]
+
+    def passive_trigger(self, evt):
+        input_clean = evt.text.strip().lower()
+        time = datetime.now().isoformat()
+        current_data = self.load_data()
+        if current_data == "":
+            current_data = {}
+        else:
+            current_data = json.loads(current_data)
+        if input_clean in DailysSleepField.WAKE_WORDS:
+            if self.json_key_wake_time in current_data:
+                self.message_channel("Didn't you already wake up?")
+                return
+            else:
+                current_data[self.json_key_wake_time] = time
+                self.save_data(current_data)
+                self.message_channel("Good morning!")
+                return
+        if input_clean in DailysSleepField.SLEEP_WORDS:
+            if self.json_key_sleep_time in current_data:
+                # Did they already wake? If not, they're updating their sleep time.
+                if self.json_key_wake_time not in current_data:
+                    current_data[self.json_key_sleep_time] = time
+                    self.save_data(current_data)
+                    self.message_channel("Good night again!")
+                # Move the last wake time to interruptions
+                interruption = dict()
+                interruption[self.json_key_wake_time] = current_data[self.json_key_wake_time]
+                interruption[self.json_key_sleep_time] = time
+                if self.json_key_interruptions not in current_data:
+                    current_data[self.json_key_interruptions] = []
+                current_data[self.json_key_interruptions].append(interruption)
+                self.save_data(current_data)
+                self.message_channel("Oh, going back to sleep? Sleep well!")
+                return
+            else:
+                current_data[self.json_key_sleep_time] = time
+                self.save_data(current_data)
+                self.message_channel("Goodnight!")
+                return
+
+    def to_json(self):
+        json_obj = dict()
+        json_obj["type_name"] = self.type_name
+        json_obj["field_key"] = self.hallo_key_field_id
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, spreadsheet):
+        return DailysFAField(spreadsheet, json_obj["field_key"])
 
 
 class DailysMoodField(DailysField):
