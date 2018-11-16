@@ -390,6 +390,18 @@ class DailysSpreadsheet:
                                                       row_num+1),
                                      data)
 
+    def read_field(self, dailys_field):
+        """
+        Save given data in a specified column for the current date row.
+        :type dailys_field: DailysField
+        :rtype: str
+        """
+        col_num = self.get_column_by_field_id(dailys_field.hallo_key_field_id)
+        row_num = self.get_current_date_row()
+        self.get_spreadsheet_range("{}!{}{}".format(self.first_sheet_name.get(),
+                                                      self.col_num_to_string(col_num),
+                                                      row_num+1))
+
     def to_json(self):
         json_obj = dict()
         json_obj["server_name"] = self.user.server.name
@@ -461,6 +473,18 @@ class DailysField(metaclass=ABCMeta):
     def from_json(json_obj, spreadsheet):
         raise NotImplementedError()
 
+    def save_data(self, data_str):
+        """
+        :type data_str: str
+        """
+        self.spreadsheet.save_field(self, data_str)
+
+    def load_data(self):
+        """
+        :rtype: str
+        """
+        self.spreadsheet.read_field(self)
+
 
 class DailysFAField(DailysField):
     type_name = "furaffinity"
@@ -492,7 +516,7 @@ class DailysFAField(DailysField):
         notifications["watches"] = notif_page.total_watches
         notifications["notes"] = notif_page.total_notes
         notif_str = json.dumps(notifications)
-        self.spreadsheet.save_field(self, notif_str)
+        self.save_data(notif_str)
         # Send date to destination
         self.spreadsheet.user.server.send(EventMessage(self.spreadsheet.destination.server,
                                                        self.spreadsheet.destination,
@@ -586,7 +610,7 @@ class DailysDuolingoField(DailysField):
             for friend in duo["language_data"][lang]["points_ranking_data"]:
                 result[friend["username"]] = friend["points_data"]["total"]
         result_str = json.dumps(result)
-        self.spreadsheet.save_field(self, result_str)
+        self.save_data(result_str)
         # Send date to destination
         self.spreadsheet.user.server.send(EventMessage(self.spreadsheet.destination.server,
                                                        self.spreadsheet.destination,
