@@ -595,6 +595,7 @@ class DailysSleepField(DailysField):
         return [EventMessage]
 
     def passive_trigger(self, evt):
+        # TODO: check the day before, if need be
         input_clean = evt.text.strip().lower()
         time = datetime.now().isoformat()
         current_data = self.load_data()
