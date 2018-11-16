@@ -485,6 +485,17 @@ class DailysField(metaclass=ABCMeta):
         """
         self.spreadsheet.read_field(self)
 
+    def message_channel(self, text):
+        """
+        :type text: str
+        """
+        self.spreadsheet.user.server.send(EventMessage(self.spreadsheet.destination.server,
+                                                       self.spreadsheet.destination,
+                                                       self.spreadsheet.user,
+                                                       text,
+                                                       inbound=False))
+
+
 
 class DailysFAField(DailysField):
     type_name = "furaffinity"
@@ -518,11 +529,7 @@ class DailysFAField(DailysField):
         notif_str = json.dumps(notifications)
         self.save_data(notif_str)
         # Send date to destination
-        self.spreadsheet.user.server.send(EventMessage(self.spreadsheet.destination.server,
-                                                       self.spreadsheet.destination,
-                                                       self.spreadsheet.user,
-                                                       notif_str,
-                                                       inbound=False))
+        self.message_channel(notif_str)
 
     @staticmethod
     def create_from_input(event, spreadsheet):
@@ -612,11 +619,7 @@ class DailysDuolingoField(DailysField):
         result_str = json.dumps(result)
         self.save_data(result_str)
         # Send date to destination
-        self.spreadsheet.user.server.send(EventMessage(self.spreadsheet.destination.server,
-                                                       self.spreadsheet.destination,
-                                                       self.spreadsheet.user,
-                                                       result_str,
-                                                       inbound=False))
+        self.message_channel(result_str)
 
     @staticmethod
     def _check_duo_username(username):
