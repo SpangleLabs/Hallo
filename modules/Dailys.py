@@ -497,9 +497,10 @@ class DailysField(metaclass=ABCMeta):
 
     def load_data(self, date_modifier=0):
         """
-        :rtype: str
+        :type date_modifier: int
+        :rtype: str | None
         """
-        self.spreadsheet.read_field(self, date_modifier=date_modifier)
+        return self.spreadsheet.read_field(self, date_modifier=date_modifier)
 
     def message_channel(self, text):
         """
