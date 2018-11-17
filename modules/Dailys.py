@@ -603,12 +603,12 @@ class DailysSleepField(DailysField):
         now = datetime.now()
         time = now.isoformat()
         current_str = self.load_data()
-        if current_str == "":
+        if current_str is None or current_str == "":
             current_data = dict()
         else:
             current_data = json.loads(current_str)
         yesterday_str = self.load_data(date_modifier=-1)
-        if yesterday_str == "":
+        if yesterday_str is None or yesterday_str == "":
             yesterday_data = dict()
         else:
             yesterday_data = json.loads(yesterday_str)
