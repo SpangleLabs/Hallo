@@ -377,27 +377,29 @@ class DailysSpreadsheet:
         # TODO: roman dates, need to track sleep for that?
         return datetime.now()
 
-    def save_field(self, dailys_field, data):
+    def save_field(self, dailys_field, data, date_modifier=0):
         """
         Save given data in a specified column for the current date row.
         :type dailys_field: DailysField
         :type data: str
+        :type date_modifier: int
         """
         col_num = self.get_column_by_field_id(dailys_field.hallo_key_field_id)
-        row_num = self.get_current_date_row()
+        row_num = self.get_current_date_row()+date_modifier
         self.update_spreadsheet_cell("{}!{}{}".format(self.first_sheet_name.get(),
                                                       self.col_num_to_string(col_num),
                                                       row_num+1),
                                      data)
 
-    def read_field(self, dailys_field):
+    def read_field(self, dailys_field, date_modifier=0):
         """
         Save given data in a specified column for the current date row.
         :type dailys_field: DailysField
+        :type date_modifier: int
         :rtype: str
         """
         col_num = self.get_column_by_field_id(dailys_field.hallo_key_field_id)
-        row_num = self.get_current_date_row()
+        row_num = self.get_current_date_row()+date_modifier
         self.get_spreadsheet_range("{}!{}{}".format(self.first_sheet_name.get(),
                                                       self.col_num_to_string(col_num),
                                                       row_num+1))
@@ -473,20 +475,21 @@ class DailysField(metaclass=ABCMeta):
     def from_json(json_obj, spreadsheet):
         raise NotImplementedError()
 
-    def save_data(self, data):
+    def save_data(self, data, date_modifier=0):
         """
         :type data: str | dict
+        :type date_modifier: int
         """
         data_str = data
         if isinstance(data, dict):
             data_str = json.dumps(data)
-        self.spreadsheet.save_field(self, data_str)
+        self.spreadsheet.save_field(self, data_str, date_modifier=date_modifier)
 
-    def load_data(self):
+    def load_data(self, date_modifier=0):
         """
         :rtype: str
         """
-        self.spreadsheet.read_field(self)
+        self.spreadsheet.read_field(self, date_modifier=date_modifier)
 
     def message_channel(self, text):
         """
@@ -597,28 +600,49 @@ class DailysSleepField(DailysField):
     def passive_trigger(self, evt):
         # TODO: check the day before, if need be
         input_clean = evt.text.strip().lower()
-        time = datetime.now().isoformat()
-        current_data = self.load_data()
-        if current_data == "":
-            current_data = {}
+        now = datetime.now()
+        time = now.isoformat()
+        current_str = self.load_data()
+        if current_str == "":
+            current_data = dict()
         else:
-            current_data = json.loads(current_data)
+            current_data = json.loads(current_str)
+        yesterday_str = self.load_data(date_modifier=-1)
+        if yesterday_str == "":
+            yesterday_data = dict()
+        else:
+            yesterday_data = json.loads(yesterday_str)
+        date_modifier = 0
+        # If user is waking up
         if input_clean in DailysSleepField.WAKE_WORDS:
+            # If today's data is blank, write in yesterday's sleep data
+            if len(current_data) == 0:
+                current_data = yesterday_data
+                date_modifier = -1
+            # If you already woke in this data, why are you waking again?
             if self.json_key_wake_time in current_data:
                 self.message_channel("Didn't you already wake up?")
                 return
+            # If not, add a wake time to sleep data
             else:
                 current_data[self.json_key_wake_time] = time
-                self.save_data(current_data)
+                self.save_data(current_data, date_modifier=date_modifier)
                 self.message_channel("Good morning!")
                 return
+        # If user is going to sleep
         if input_clean in DailysSleepField.SLEEP_WORDS:
+            # If it's before 4pm, it's probably yesterday's sleep.
+            if now.hour <= 16:
+                current_data = yesterday_data
+                date_modifier = -1
+            # Did they already go to sleep?
             if self.json_key_sleep_time in current_data:
                 # Did they already wake? If not, they're updating their sleep time.
                 if self.json_key_wake_time not in current_data:
                     current_data[self.json_key_sleep_time] = time
-                    self.save_data(current_data)
+                    self.save_data(current_data, date_modifier=date_modifier)
                     self.message_channel("Good night again!")
+                    return
                 # Move the last wake time to interruptions
                 interruption = dict()
                 interruption[self.json_key_wake_time] = current_data[self.json_key_wake_time]
@@ -626,12 +650,13 @@ class DailysSleepField(DailysField):
                 if self.json_key_interruptions not in current_data:
                     current_data[self.json_key_interruptions] = []
                 current_data[self.json_key_interruptions].append(interruption)
-                self.save_data(current_data)
+                self.save_data(current_data, date_modifier=date_modifier)
                 self.message_channel("Oh, going back to sleep? Sleep well!")
                 return
+            # Otherwise they're headed to sleep
             else:
                 current_data[self.json_key_sleep_time] = time
-                self.save_data(current_data)
+                self.save_data(current_data, date_modifier=date_modifier)
                 self.message_channel("Goodnight!")
                 return
 
