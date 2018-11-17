@@ -818,7 +818,7 @@ class DailysShutdownField(DailysField):
 
 
 class DailysFieldFactory:
-    fields = [DailysFAField, DailysDuolingoField]
+    fields = [DailysFAField, DailysDuolingoField, DailysSleepField]
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
