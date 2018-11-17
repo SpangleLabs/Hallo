@@ -256,6 +256,10 @@ class DailysSpreadsheet:
         return build('sheets', 'v4', http=creds.authorize(Http()))
 
     def get_spreadsheet_range(self, val_range):
+        """
+        :type val_range: str
+        :rtype: list[list[str]]
+        """
         service = self.get_spreadsheet_service()
         result = service.spreadsheets().values().get(spreadsheetId=self.spreadsheet_id,
                                                      range=val_range).execute()
@@ -385,7 +389,7 @@ class DailysSpreadsheet:
         :type date_modifier: int
         """
         col_num = self.get_column_by_field_id(dailys_field.hallo_key_field_id)
-        row_num = self.get_current_date_row()+date_modifier
+        row_num = self.get_current_date_row() + date_modifier
         self.update_spreadsheet_cell("{}!{}{}".format(self.first_sheet_name.get(),
                                                       self.col_num_to_string(col_num),
                                                       row_num+1),
@@ -399,10 +403,10 @@ class DailysSpreadsheet:
         :rtype: str
         """
         col_num = self.get_column_by_field_id(dailys_field.hallo_key_field_id)
-        row_num = self.get_current_date_row()+date_modifier
-        self.get_spreadsheet_range("{}!{}{}".format(self.first_sheet_name.get(),
-                                                      self.col_num_to_string(col_num),
-                                                      row_num+1))
+        row_num = self.get_current_date_row() + date_modifier
+        return self.get_spreadsheet_range("{}!{}{}".format(self.first_sheet_name.get(),
+                                                           self.col_num_to_string(col_num),
+                                                           row_num+1))[0][0]
 
     def to_json(self):
         json_obj = dict()
