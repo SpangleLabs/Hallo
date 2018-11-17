@@ -409,7 +409,7 @@ class DailysSpreadsheet:
         row_num = self.get_current_date_row() + date_modifier
         data = self.get_spreadsheet_range("{}!{}{}".format(self.first_sheet_name.get(),
                                                            self.col_num_to_string(col_num),
-                                                           row_num+1))[0][0]
+                                                           row_num+1))
         if len(data) == 0 or len(data[0]) == 0:
             return None
         return data[0][0]
