@@ -668,7 +668,7 @@ class DailysSleepField(DailysField):
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
-        return DailysFAField(spreadsheet, json_obj["field_key"])
+        return DailysSleepField(spreadsheet, json_obj["field_key"])
 
 
 class DailysMoodField(DailysField):
