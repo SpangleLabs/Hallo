@@ -403,13 +403,16 @@ class DailysSpreadsheet:
         Save given data in a specified column for the current date row.
         :type dailys_field: DailysField
         :type date_modifier: int
-        :rtype: str
+        :rtype: str | None
         """
         col_num = self.get_column_by_field_id(dailys_field.hallo_key_field_id)
         row_num = self.get_current_date_row() + date_modifier
-        return self.get_spreadsheet_range("{}!{}{}".format(self.first_sheet_name.get(),
+        data = self.get_spreadsheet_range("{}!{}{}".format(self.first_sheet_name.get(),
                                                            self.col_num_to_string(col_num),
                                                            row_num+1))[0][0]
+        if len(data) == 0 or len(data[0]) == 0:
+            return None
+        return data[0][0]
 
     def to_json(self):
         json_obj = dict()
