@@ -1,4 +1,5 @@
 import json
+import traceback
 import uuid
 from abc import ABCMeta
 from datetime import datetime
@@ -178,7 +179,9 @@ class Dailys(Function):
                     try:
                         field.passive_trigger(event)
                     except Exception as e:
+                        # TODO
                         print("Dailys failure: {}".format(e))
+                        print(traceback.format_exc())
 
 
 class DailysRepo:
