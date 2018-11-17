@@ -543,7 +543,7 @@ class DailysFAField(DailysField):
         notifications["watches"] = notif_page.total_watches
         notifications["notes"] = notif_page.total_notes
         notif_str = json.dumps(notifications)
-        self.save_data(notif_str)
+        self.save_data(notif_str, date_modifier=-1)
         # Send date to destination
         self.message_channel(notif_str)
 
@@ -729,7 +729,7 @@ class DailysDuolingoField(DailysField):
             for friend in duo["language_data"][lang]["points_ranking_data"]:
                 result[friend["username"]] = friend["points_data"]["total"]
         result_str = json.dumps(result)
-        self.save_data(result_str)
+        self.save_data(result_str, date_modifier=-1)
         # Send date to destination
         self.message_channel(result_str)
 
