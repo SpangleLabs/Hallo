@@ -172,7 +172,10 @@ class Dailys(Function):
         repo = self.get_dailys_repo(hallo_obj)
         spreadsheets = repo.spreadsheets
         if isinstance(event, EventMessage):
-            spreadsheets = [repo.get_by_location(event)]
+            msg_spreadsheet = repo.get_by_location(event)
+            if msg_spreadsheet is None:
+                return
+            spreadsheets = [msg_spreadsheet]
         for spreadsheet in spreadsheets:
             for field in spreadsheet.fields_list:
                 if event.__class__ in field.passive_events():
