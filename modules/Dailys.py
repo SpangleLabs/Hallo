@@ -513,7 +513,6 @@ class DailysField(metaclass=ABCMeta):
                                                        inbound=False))
 
 
-
 class DailysFAField(DailysField):
     type_name = "furaffinity"
     col_names = ["furaffinity", "fa notifications", "furaffinity notifications"]
@@ -656,7 +655,7 @@ class DailysSleepField(DailysField):
                     return
                 # Move the last wake time to interruptions
                 interruption = dict()
-                interruption[self.json_key_wake_time] = current_data[self.json_key_wake_time]
+                interruption[self.json_key_wake_time] = current_data.pop(self.json_key_wake_time)
                 interruption[self.json_key_sleep_time] = time
                 if self.json_key_interruptions not in current_data:
                     current_data[self.json_key_interruptions] = []
