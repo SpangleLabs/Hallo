@@ -2,7 +2,7 @@ import json
 import traceback
 import uuid
 from abc import ABCMeta
-from datetime import datetime
+from datetime import datetime, time
 
 import dateutil.parser
 
@@ -696,6 +696,47 @@ class DailysMoodField(DailysField):
     def get_dimensions(self):
         # Return a list of mood dimensions? F, H, I, S, T, M
         pass
+
+    @staticmethod
+    def create_from_input(event, spreadsheet):
+        clean_input = event.text.strip().lower()
+        input_split = clean_input.split(";")
+        if len(input_split) != 1:
+            raise DailysException("Mood setup must contain times, then a semicolon, then mood measurements.")
+        input_times = input_split[0]
+        input_moods = input_split[1]
+        # Parse times
+        times = []
+        for input_time in input_times.split():
+            # Check if it's a 24hour time
+            if len(input_time.replace(":", "")) == 4 and input_time.replace(":", "").isdigit():
+                try:
+                    times.append(time(int(input_time[:2]), int(input_time[-2:])))
+                except ValueError:
+                    raise DailysException("Please provide times as 24 hour hh:mm formatted times.")
+            # Check if it's wake or sleep
+            if input_time in DailysSleepField.WAKE_WORDS:
+                times.append(DailysMoodField.TIME_WAKE)
+            if input_time in DailysSleepField.SLEEP_WORDS:
+                times.append(DailysMoodField.TIME_SLEEP)
+            raise DailysException("I don't recognise that time. Please provide times as 24 hour hh:mm formatted times, "
+                                  "or 'wake' or 'sleep'.")
+        # Parse mood measurements
+        pass  # TODO
+
+    @staticmethod
+    def passive_events():
+        pass  # TODO
+
+    def passive_trigger(self, evt):
+        pass  # TODO
+
+    def to_json(self):
+        pass  # TODO
+
+    @staticmethod
+    def from_json(json_obj, spreadsheet):
+        pass  # TODO
 
 
 class DailysAnimalsField(DailysField):
