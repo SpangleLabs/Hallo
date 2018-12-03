@@ -689,14 +689,6 @@ class DailysMoodField(DailysField):
     TIME_WAKE = "WakeUpTime"  # Used as a time entry, to signify that it should take a mood measurement in the morning, after wakeup has been logged
     TIME_SLEEP = "SleepTime"  # Used as a time entry to signify that a mood measurement should be taken before sleep
 
-    def get_times(self):
-        # Return a list of times of day to take mood measurements
-        pass
-
-    def get_dimensions(self):
-        # Return a list of mood dimensions? F, H, I, S, T, M
-        pass
-
     @staticmethod
     def create_from_input(event, spreadsheet):
         clean_input = event.text.strip().lower()
