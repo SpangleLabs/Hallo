@@ -689,6 +689,13 @@ class DailysMoodField(DailysField):
     TIME_WAKE = "WakeUpTime"  # Used as a time entry, to signify that it should take a mood measurement in the morning, after wakeup has been logged
     TIME_SLEEP = "SleepTime"  # Used as a time entry to signify that a mood measurement should be taken before sleep
 
+    def __init__(self, spreadsheet, hallo_key_field_id, times, moods):
+        super().__init__(spreadsheet, hallo_key_field_id)
+        self.times = times
+        """ :type : list[time|str]"""
+        self.moods = moods
+        """ :type : list[str]"""
+
     @staticmethod
     def create_from_input(event, spreadsheet):
         clean_input = event.text.strip().lower()
@@ -714,6 +721,7 @@ class DailysMoodField(DailysField):
             raise DailysException("I don't recognise that time. Please provide times as 24 hour hh:mm formatted times, "
                                   "or 'wake' or 'sleep'.")
         # Parse mood measurements
+        moods = input_moods.split()
         pass  # TODO
 
     @staticmethod
