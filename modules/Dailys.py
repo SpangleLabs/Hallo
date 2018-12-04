@@ -6,7 +6,7 @@ from datetime import datetime, time
 
 import dateutil.parser
 
-from Events import EventDay, EventMessage
+from Events import EventDay, EventMessage, EventMinute
 from Function import Function
 from inc.Commons import CachedObject, Commons
 from modules.Subscriptions import FAKey
@@ -686,6 +686,7 @@ class DailysSleepField(DailysField):
 
 class DailysMoodField(DailysField):
     col_names = ["mood", "hallo mood", "mood summary"]
+    type_name = "mood"
     # Does mood measurements
     TIME_WAKE = "WakeUpTime"  # Used as a time entry, to signify that it should take a mood measurement in the morning,
     # after wakeup has been logged.
@@ -740,17 +741,30 @@ class DailysMoodField(DailysField):
 
     @staticmethod
     def passive_events():
-        pass  # TODO
+        return [EventMessage, EventMinute]
 
     def passive_trigger(self, evt):
         pass  # TODO
 
     def to_json(self):
-        pass  # TODO
+        json_obj = dict()
+        json_obj["type_name"] = self.type_name
+        json_obj["field_key"] = self.hallo_key_field_id
+        json_obj["times"] = [str(t) for t in self.times]
+        json_obj["moods"] = self.moods
+        return json_obj
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
-        pass  # TODO
+        key = json_obj["field_key"]
+        moods = json_obj["moods"]
+        times = []
+        for time_str in json_obj["times"]:
+            if time_str in [DailysMoodField.TIME_WAKE, DailysMoodField.TIME_SLEEP]:
+                times.append(time_str)
+            else:
+                times.append(datetime.strptime(time_str, "%H:%M:%S").time())
+        return DailysMoodField(spreadsheet, key, times, moods)
 
 
 class DailysAnimalsField(DailysField):
