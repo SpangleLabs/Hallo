@@ -743,7 +743,39 @@ class DailysMoodField(DailysField):
     def passive_events():
         return [EventMessage, EventMinute]
 
+    def get_current_data(self):
+        # Get today's data, unless it's empty, then get yesterday's, unless it's full, then use today's.
+        # TODO
+        pass
+
+    def has_triggered_for_time(self, time_val):
+        """
+        :type time_val: str|time
+        :return: bool
+        """
+        data = self.get_current_data() # Assume today's, for now.
+        return str(time_val) in data and "message_id" in data[str(time_val)]
+
+    class MoodData:
+        example_data = {
+            "WakeUpTime": {
+                "message_id": 1234535435,
+                "fragility": 1,
+                "happiness": 4,
+                "irritation": 1,
+                "sexual-energy": 3,
+                "tiredness": 3,
+                "motivation": 4,
+                "worry": 1
+            },
+            "13:00:00": {},
+            "18:00:00": {},
+            "SleepTime": {}
+        }
+
     def passive_trigger(self, evt):
+        if isinstance(evt, EventMinute):
+
         pass  # TODO
 
     def to_json(self):
