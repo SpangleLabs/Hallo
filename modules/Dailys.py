@@ -685,9 +685,11 @@ class DailysSleepField(DailysField):
 
 
 class DailysMoodField(DailysField):
+    col_names = ["mood", "hallo mood", "mood summary"]
     # Does mood measurements
-    TIME_WAKE = "WakeUpTime"  # Used as a time entry, to signify that it should take a mood measurement in the morning, after wakeup has been logged
-    TIME_SLEEP = "SleepTime"  # Used as a time entry to signify that a mood measurement should be taken before sleep
+    TIME_WAKE = "WakeUpTime"  # Used as a time entry, to signify that it should take a mood measurement in the morning,
+    # after wakeup has been logged.
+    TIME_SLEEP = "SleepTime"  # Used as a time entry to signify that a mood measurement should be taken before sleep.
 
     def __init__(self, spreadsheet, hallo_key_field_id, times, moods):
         super().__init__(spreadsheet, hallo_key_field_id)
@@ -700,8 +702,9 @@ class DailysMoodField(DailysField):
     def create_from_input(event, spreadsheet):
         clean_input = event.text.strip().lower()
         input_split = clean_input.split(";")
-        if len(input_split) != 1:
-            raise DailysException("Mood setup must contain times, then a semicolon, then mood measurements.")
+        if len(input_split) not in [2, 3]:
+            raise DailysException("Mood setup must contain times, then a semicolon, then mood measurements. (You can "
+                                  "optionally then provide a spreadsheet column reference.)")
         input_times = input_split[0]
         input_moods = input_split[1]
         # Parse times
@@ -722,7 +725,18 @@ class DailysMoodField(DailysField):
                                   "or 'wake' or 'sleep'.")
         # Parse mood measurements
         moods = input_moods.split()
-        pass  # TODO
+        # Check key, if provided
+        if len(input_split) == 3:
+            key = spreadsheet.tag_column(input_split[2])
+        else:
+            key = spreadsheet.find_and_tag_column_by_names(DailysMoodField.col_names)
+            if key is None:
+                raise DailysException("Could not find a suitable column. "
+                                      "Please ensure one and only one column is titled: {}."
+                                      "Or specify a column reference."
+                                      .format(", ".join(DailysMoodField.col_names)))
+        # Return new field
+        return DailysMoodField(spreadsheet, key, times, moods)
 
     @staticmethod
     def passive_events():
