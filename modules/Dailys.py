@@ -744,16 +744,29 @@ class DailysMoodField(DailysField):
         return [EventMessage, EventMinute]
 
     def get_current_data(self):
+        """
+        Returns the current mood data, and the day offset. Which might be today's or it could be yesterday's, if that is not done yet.
+        :return: (dict, int)
+        """
         # Get today's data, unless it's empty, then get yesterday's, unless it's full, then use today's.
-        # TODO
-        pass
+        today_str = self.load_data()
+        if today_str == "":
+            yesterday_str = self.load_data(-1)
+            if yesterday_str == "":
+                return dict(), 0
+            yesterday_data = json.loads(yesterday_str)
+            if len(yesterday_data) == len(self.times) and all(["message_id" in m for m in yesterday_data]):
+                return dict(), 0
+            return yesterday_data, -1
+        today_data = json.loads(today_str)
+        return today_data, 0
 
     def has_triggered_for_time(self, time_val):
         """
         :type time_val: str|time
         :return: bool
         """
-        data = self.get_current_data() # Assume today's, for now.
+        data = self.get_current_data()[0]
         return str(time_val) in data and "message_id" in data[str(time_val)]
 
     class MoodData:
