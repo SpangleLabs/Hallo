@@ -788,7 +788,11 @@ class DailysMoodField(DailysField):
 
     def passive_trigger(self, evt):
         if isinstance(evt, EventMinute):
-
+            # Get the largest time which is less than the current time. If none, do nothing.
+            pass
+        if isinstance(evt, EventMessage):
+            # Check if it's a reply to a mood message, or if there's an unanswered mood message
+            pass
         pass  # TODO
 
     def to_json(self):
