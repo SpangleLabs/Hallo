@@ -479,6 +479,10 @@ class DailysField(metaclass=ABCMeta):
         raise NotImplementedError()
 
     def passive_trigger(self, evt):
+        """
+        :type evt: Event.Event
+        :rtype: Event.EventMessage
+        """
         raise NotImplementedError()
 
     def to_json(self):
@@ -767,7 +771,7 @@ class DailysMoodField(DailysField):
         """
         # TODO: cache True values
         data = self.get_current_data()[0]
-        return str(time_val) in data and "message_id" in data[str(time_val)]
+        return self.time_triggered(data, time_val)
 
     class MoodData:
         example_data = {
@@ -787,6 +791,10 @@ class DailysMoodField(DailysField):
         }
 
     def passive_trigger(self, evt):
+        """
+        :type evt: Event.Event
+        :rtype: Event.EventMessage
+        """
         if isinstance(evt, EventMinute):
             # Get the largest time which is less than the current time. If none, do nothing.
             times = [t for t in self.times if isinstance(t, time)]
@@ -795,8 +803,7 @@ class DailysMoodField(DailysField):
                 return
             latest_time = max(past_times)
             if not self.has_triggered_for_time(latest_time):
-                self.send_mood_query(latest_time)
-                return
+                return self.send_mood_query(latest_time)
             return
         if isinstance(evt, EventMessage):
             # Check if it's a morning/night message
@@ -808,16 +815,74 @@ class DailysMoodField(DailysField):
                     not self.has_triggered_for_time(self.TIME_SLEEP):
                 return self.send_mood_query(self.TIME_SLEEP)
             # Check if it's a reply to a mood message, or if there's an unanswered mood message
-            if input_clean.isdigit():
-                # If telegram message, check if it's a reply
-                if isinstance(evt.raw_data, RawDataTelegram):
-                    if evt.raw_data.update_obj.message.reply_to_message is not None:
-                        reply_id = evt.raw_data.update_obj.message.reply_to_message.message_id
-                    pass
-            pass
+            input_split = input_clean.split()
+            if (len(input_split) == 2 and input_split[0].upper() == self.mood_acronym()) or input_clean.isdigit():
+                data = self.get_current_data()
+                unreplied = self.get_unreplied_moods()
+                # Check if telegram message, and reply to a message
+                if isinstance(evt.raw_data, RawDataTelegram) and \
+                        evt.raw_data.update_obj.message.reply_to_message is not None:
+                    reply_id = evt.raw_data.update_obj.message.reply_to_message.message_id
+                    unreplied_ids = {data[0][f]["message_id"]: f for f in unreplied}
+                    if reply_id in unreplied_ids:
+                        return self.process_mood_response(evt, input_split[-1], unreplied_ids[reply_id], data[1])
+                # Otherwise, use the most recent mood query
+                if len(unreplied) > 0:
+                    return self.process_mood_response(evt, input_split[-1], unreplied[-1], data[1])
+                return evt.create_response("Is this a mood measurement, because I can't find a mood query.")
+            # Check if it's a more complicated message
+            if len(input_split) == 3 and input_split[0].upper() == self.mood_acronym():
+                data = self.get_current_data()
+                input_time = input_split[1]
+                time_val = None
+                if input_time.lower() in DailysSleepField.WAKE_WORDS:
+                    time_val = DailysMoodField.TIME_WAKE
+                if input_time.lower() in DailysSleepField.SLEEP_WORDS:
+                    time_val = DailysMoodField.TIME_SLEEP
+                if time_val is None:
+                    try:
+                        time_val = time(int(input_time[:2]), int(input_time[-2:]))
+                    except Exception as e:
+                        evt.create_response("Could not parse the time in that mood measurement.")
+                if time_val not in self.times:
+                    evt.create_response("That time value is not being tracked for mood measurements.")
+                return self.process_mood_response(evt, input_split[-1], time_val, data[1])
+        return None
+
+    def mood_acronym(self):
+        return "".join([m[0] for m in self.moods]).upper()
+
+    def time_triggered(self, data, time_val):
+        return str(time_val) in data and "message_id" in data[str(time_val)]
+
+    def time_query_unreplied(self, data, time_val):
+        return str(time_val) in data and len(data[str(time_val)]) <= 1
+
+    def get_unreplied_moods(self):
+        data = self.get_current_data()[0]
+        unreplied = []
+        # Check for wake time
+        if DailysMoodField.TIME_WAKE in self.times:
+            # Check if time in data, message_id in time data, but mood values are not
+            if self.time_triggered(data, DailysMoodField.TIME_WAKE) and \
+                    self.time_query_unreplied(data, DailysMoodField.TIME_WAKE):
+                unreplied.append(DailysMoodField.TIME_WAKE)
+        # Check for time values
+        times = [t for t in self.times if isinstance(t, time)]
+        for time_val in times:
+            if self.time_triggered(data, time_val) and self.time_query_unreplied(data, time_val):
+                unreplied.append(time_val)
+        # Check for sleep time
+        if DailysMoodField.TIME_SLEEP in self.times:
+            if self.time_triggered(data, DailysMoodField.TIME_SLEEP) and \
+                    self.time_query_unreplied(data, DailysMoodField.TIME_SLEEP):
+                unreplied.append(DailysMoodField.TIME_SLEEP)
+        return unreplied
+
+    def send_mood_query(self, time_val):
         pass  # TODO
 
-    def send_mood_query(self, time):
+    def process_mood_response(self, evt, mood_str, time_val, date_mod):
         pass  # TODO
 
     def to_json(self):
