@@ -6,7 +6,7 @@ from datetime import datetime, time
 
 import dateutil.parser
 
-from Events import EventDay, EventMessage, EventMinute
+from Events import EventDay, EventMessage, EventMinute, RawDataTelegram
 from Function import Function
 from inc.Commons import CachedObject, Commons
 from modules.Subscriptions import FAKey
@@ -611,7 +611,6 @@ class DailysSleepField(DailysField):
         return [EventMessage]
 
     def passive_trigger(self, evt):
-        # TODO: check the day before, if need be
         input_clean = evt.text.strip().lower()
         now = datetime.now()
         time = now.isoformat()
@@ -766,6 +765,7 @@ class DailysMoodField(DailysField):
         :type time_val: str|time
         :return: bool
         """
+        # TODO: cache True values
         data = self.get_current_data()[0]
         return str(time_val) in data and "message_id" in data[str(time_val)]
 
@@ -789,10 +789,35 @@ class DailysMoodField(DailysField):
     def passive_trigger(self, evt):
         if isinstance(evt, EventMinute):
             # Get the largest time which is less than the current time. If none, do nothing.
-            pass
+            times = [t for t in self.times if isinstance(t, time)]
+            past_times = [t for t in times if t < evt.send_time.time()]
+            if len(past_times) == 0:
+                return
+            latest_time = max(past_times)
+            if not self.has_triggered_for_time(latest_time):
+                self.send_mood_query(latest_time)
+                return
+            return
         if isinstance(evt, EventMessage):
+            # Check if it's a morning/night message
+            input_clean = evt.text.strip().lower()
+            if input_clean in DailysSleepField.WAKE_WORDS and self.TIME_WAKE in self.times and \
+                    not self.has_triggered_for_time(self.TIME_WAKE):
+                return self.send_mood_query(self.TIME_WAKE)
+            if input_clean in DailysSleepField.SLEEP_WORDS and self.TIME_SLEEP in self.times and \
+                    not self.has_triggered_for_time(self.TIME_SLEEP):
+                return self.send_mood_query(self.TIME_SLEEP)
             # Check if it's a reply to a mood message, or if there's an unanswered mood message
+            if input_clean.isdigit():
+                # If telegram message, check if it's a reply
+                if isinstance(evt.raw_data, RawDataTelegram):
+                    if evt.raw_data.update_obj.message.reply_to_message is not None:
+                        reply_id = evt.raw_data.update_obj.message.reply_to_message.message_id
+                    pass
             pass
+        pass  # TODO
+
+    def send_mood_query(self, time):
         pass  # TODO
 
     def to_json(self):
