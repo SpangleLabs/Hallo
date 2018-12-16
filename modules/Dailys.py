@@ -481,7 +481,7 @@ class DailysField(metaclass=ABCMeta):
     def passive_trigger(self, evt):
         """
         :type evt: Event.Event
-        :rtype: Event.EventMessage
+        :rtype: Event.EventMessage | None
         """
         raise NotImplementedError()
 
@@ -615,9 +615,15 @@ class DailysSleepField(DailysField):
         return [EventMessage]
 
     def passive_trigger(self, evt):
+        """
+        :type evt: Event.EventMessage
+        :rtype: Event.EventMessage | None
+        """
         input_clean = evt.text.strip().lower()
         now = datetime.now()
-        time = now.isoformat()
+        if isinstance(evt.raw_data, RawDataTelegram):
+            now = evt.raw_data.update_obj.message.date
+        time_str = now.isoformat()
         current_str = self.load_data()
         if current_str is None or current_str == "":
             current_data = dict()
@@ -641,7 +647,7 @@ class DailysSleepField(DailysField):
                 return
             # If not, add a wake time to sleep data
             else:
-                current_data[self.json_key_wake_time] = time
+                current_data[self.json_key_wake_time] = time_str
                 self.save_data(current_data, date_modifier=date_modifier)
                 self.message_channel("Good morning!")
                 return
@@ -655,14 +661,14 @@ class DailysSleepField(DailysField):
             if self.json_key_sleep_time in current_data:
                 # Did they already wake? If not, they're updating their sleep time.
                 if self.json_key_wake_time not in current_data:
-                    current_data[self.json_key_sleep_time] = time
+                    current_data[self.json_key_sleep_time] = time_str
                     self.save_data(current_data, date_modifier=date_modifier)
                     self.message_channel("Good night again!")
                     return
                 # Move the last wake time to interruptions
                 interruption = dict()
                 interruption[self.json_key_wake_time] = current_data.pop(self.json_key_wake_time)
-                interruption[self.json_key_sleep_time] = time
+                interruption[self.json_key_sleep_time] = time_str
                 if self.json_key_interruptions not in current_data:
                     current_data[self.json_key_interruptions] = []
                 current_data[self.json_key_interruptions].append(interruption)
@@ -671,7 +677,7 @@ class DailysSleepField(DailysField):
                 return
             # Otherwise they're headed to sleep
             else:
-                current_data[self.json_key_sleep_time] = time
+                current_data[self.json_key_sleep_time] = time_str
                 self.save_data(current_data, date_modifier=date_modifier)
                 self.message_channel("Goodnight!")
                 return
