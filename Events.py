@@ -26,6 +26,16 @@ class RawDataTelegram(RawData):
         self.update_obj = update_obj
 
 
+class RawDataTelegramOutbound(RawData):
+
+    def __init__(self, sent_msg_object):
+        """
+        :param sent_msg_object: Sent message object returned when sending message on telegram
+        :type sent_msg_object: ??
+        """
+        self.sent_msg_object = sent_msg_object
+
+
 class Event(metaclass=ABCMeta):
 
     def __init__(self, inbound=True):
