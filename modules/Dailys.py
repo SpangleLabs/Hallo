@@ -765,9 +765,9 @@ class DailysMoodField(DailysField):
         """
         # Get today's data, unless it's empty, then get yesterday's, unless it's full, then use today's.
         today_str = self.load_data()
-        if today_str == "":
+        if today_str is None or today_str == "":
             yesterday_str = self.load_data(-1)
-            if yesterday_str == "":
+            if yesterday_str is None or yesterday_str == "":
                 return dict(), 0
             yesterday_data = json.loads(yesterday_str)
             if len(yesterday_data) == len(self.times) and all(["message_id" in m for m in yesterday_data]):
