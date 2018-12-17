@@ -713,7 +713,7 @@ class DailysMoodField(DailysField):
 
     @staticmethod
     def create_from_input(event, spreadsheet):
-        clean_input = event.text.strip().lower()
+        clean_input = event.command_args[len(DailysMoodField.type_name):].strip().lower()
         input_split = clean_input.split(";")
         if len(input_split) not in [2, 3]:
             raise DailysException("Mood setup must contain times, then a semicolon, then mood measurements. (You can "
