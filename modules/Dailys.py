@@ -6,7 +6,7 @@ from datetime import datetime, time
 
 import dateutil.parser
 
-from Events import EventDay, EventMessage, EventMinute, RawDataTelegram
+from Events import EventDay, EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound
 from Function import Function
 from inc.Commons import CachedObject, Commons
 from modules.Subscriptions import FAKey
@@ -512,12 +512,15 @@ class DailysField(metaclass=ABCMeta):
     def message_channel(self, text):
         """
         :type text: str
+        :rtype : EventMessage
         """
-        self.spreadsheet.user.server.send(EventMessage(self.spreadsheet.destination.server,
-                                                       self.spreadsheet.destination,
-                                                       self.spreadsheet.user,
-                                                       text,
-                                                       inbound=False))
+        evt = EventMessage(self.spreadsheet.destination.server,
+                           self.spreadsheet.destination,
+                           self.spreadsheet.user,
+                           text,
+                           inbound=False)
+        self.spreadsheet.user.server.send(evt)
+        return evt
 
 
 class DailysFAField(DailysField):
@@ -886,7 +889,21 @@ class DailysMoodField(DailysField):
         return unreplied
 
     def send_mood_query(self, time_val):
-        pass  # TODO
+        # Construct message
+        msg = "Hello, this is your {} mood check. How are you feeling (scale from 1-5) " \
+              "in these categories: {}".format(time_val, ", ".join(self.moods))
+        # Send message
+        evt = self.message_channel(msg)
+        # Get message_id, if telegram outbound message
+        sent_msg_id = -1
+        if isinstance(evt.raw_data, RawDataTelegramOutbound):
+            sent_msg_id = evt.raw_data.sent_msg_object.message_id
+        # Update data
+        data = self.get_current_data()
+        data[0][str(time_val)] = dict()
+        data[0][str(time_val)]["message_id"] = sent_msg_id
+        self.save_data(data[0], data[1])
+        return None
 
     def process_mood_response(self, evt, mood_str, time_val, date_mod):
         pass  # TODO
