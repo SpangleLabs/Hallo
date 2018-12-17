@@ -782,23 +782,6 @@ class DailysMoodField(DailysField):
         data = self.get_current_data()[0]
         return self.time_triggered(data, time_val)
 
-    class MoodData:
-        example_data = {
-            "WakeUpTime": {
-                "message_id": 1234535435,
-                "fragility": 1,
-                "happiness": 4,
-                "irritation": 1,
-                "sexual-energy": 3,
-                "tiredness": 3,
-                "motivation": 4,
-                "worry": 1
-            },
-            "13:00:00": {},
-            "18:00:00": {},
-            "SleepTime": {}
-        }
-
     def passive_trigger(self, evt):
         """
         :type evt: Event.Event
