@@ -3,6 +3,7 @@ import traceback
 import uuid
 from abc import ABCMeta
 from datetime import datetime, time
+from threading import RLock
 
 import dateutil.parser
 
@@ -710,6 +711,7 @@ class DailysMoodField(DailysField):
         """ :type : list[time|str]"""
         self.moods = moods
         """ :type : list[str]"""
+        self.lock = RLock()
 
     @staticmethod
     def create_from_input(event, spreadsheet):
@@ -763,18 +765,19 @@ class DailysMoodField(DailysField):
         Returns the current mood data, and the day offset. Which might be today's or it could be yesterday's, if that is not done yet.
         :return: (dict, int)
         """
-        # Get today's data, unless it's empty, then get yesterday's, unless it's full, then use today's.
-        today_str = self.load_data()
-        if today_str is None or today_str == "":
-            yesterday_str = self.load_data(-1)
-            if yesterday_str is None or yesterday_str == "":
-                return dict(), 0
-            yesterday_data = json.loads(yesterday_str)
-            if len(yesterday_data) == len(self.times) and all(["message_id" in m for m in yesterday_data]):
-                return dict(), 0
-            return yesterday_data, -1
-        today_data = json.loads(today_str)
-        return today_data, 0
+        with self.lock:
+            # Get today's data, unless it's empty, then get yesterday's, unless it's full, then use today's.
+            today_str = self.load_data()
+            if today_str is None or today_str == "":
+                yesterday_str = self.load_data(-1)
+                if yesterday_str is None or yesterday_str == "":
+                    return dict(), 0
+                yesterday_data = json.loads(yesterday_str)
+                if len(yesterday_data) == len(self.times) and all(["message_id" in m for m in yesterday_data]):
+                    return dict(), 0
+                return yesterday_data, -1
+            today_data = json.loads(today_str)
+            return today_data, 0
 
     def has_triggered_for_time(self, time_val):
         """
@@ -885,17 +888,19 @@ class DailysMoodField(DailysField):
         if isinstance(evt.raw_data, RawDataTelegramOutbound):
             sent_msg_id = evt.raw_data.sent_msg_object.message_id
         # Update data
-        data = self.get_current_data()
-        data[0][str(time_val)] = dict()
-        data[0][str(time_val)]["message_id"] = sent_msg_id
-        self.save_data(data[0], data[1])
+        with self.lock:
+            data = self.get_current_data()
+            data[0][str(time_val)] = dict()
+            data[0][str(time_val)]["message_id"] = sent_msg_id
+            self.save_data(data[0], data[1])
         return None
 
     def process_mood_response(self, evt, mood_str, time_val, date_mod):
-        data = self.get_current_data()
-        mood_dict = {x[0]: x[1] for x in zip(self.moods, [int(x) for x in mood_str])}
-        data[0][str(time_val)] = {**data[0][str(time_val)], **mood_dict}
-        self.save_data(data[0], date_mod)
+        with self.lock:
+            data = self.get_current_data()
+            mood_dict = {x[0]: x[1] for x in zip(self.moods, [int(x) for x in mood_str])}
+            data[0][str(time_val)] = {**data[0][str(time_val)], **mood_dict}
+            self.save_data(data[0], date_mod)
         return evt.create_response("Added mood stat {} for time: {}".format(mood_str, time_val))
 
     def to_json(self):
