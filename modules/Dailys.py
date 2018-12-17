@@ -727,13 +727,16 @@ class DailysMoodField(DailysField):
             if len(input_time.replace(":", "")) == 4 and input_time.replace(":", "").isdigit():
                 try:
                     times.append(time(int(input_time[:2]), int(input_time[-2:])))
+                    continue
                 except ValueError:
                     raise DailysException("Please provide times as 24 hour hh:mm formatted times.")
             # Check if it's wake or sleep
             if input_time in DailysSleepField.WAKE_WORDS:
                 times.append(DailysMoodField.TIME_WAKE)
+                continue
             if input_time in DailysSleepField.SLEEP_WORDS:
                 times.append(DailysMoodField.TIME_SLEEP)
+                continue
             raise DailysException("I don't recognise that time, \"{}\". Please provide times as 24 hour hh:mm "
                                   "formatted times, or 'wake' or 'sleep'.".format(input_time))
         # Parse mood measurements
