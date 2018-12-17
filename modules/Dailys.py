@@ -743,7 +743,7 @@ class DailysMoodField(DailysField):
         moods = input_moods.split()
         # Check key, if provided
         if len(input_split) == 3:
-            key = spreadsheet.tag_column(input_split[2])
+            key = spreadsheet.tag_column(input_split[2].strip())
         else:
             key = spreadsheet.find_and_tag_column_by_names(DailysMoodField.col_names)
             if key is None:
