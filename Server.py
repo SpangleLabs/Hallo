@@ -76,6 +76,7 @@ class Server(metaclass=ABCMeta):
         Sends a message to the server, or a specific channel in the server
         :param event: Event to send, should be outbound.
         :type event: Events.ServerEvent
+        :rtype : Events.ServerEvent | None
         """
         raise NotImplementedError
 
