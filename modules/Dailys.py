@@ -734,8 +734,8 @@ class DailysMoodField(DailysField):
                 times.append(DailysMoodField.TIME_WAKE)
             if input_time in DailysSleepField.SLEEP_WORDS:
                 times.append(DailysMoodField.TIME_SLEEP)
-            raise DailysException("I don't recognise that time. Please provide times as 24 hour hh:mm formatted times, "
-                                  "or 'wake' or 'sleep'.")
+            raise DailysException("I don't recognise that time, \"{}\". Please provide times as 24 hour hh:mm "
+                                  "formatted times, or 'wake' or 'sleep'.".format(input_time))
         # Parse mood measurements
         moods = input_moods.split()
         # Check key, if provided
