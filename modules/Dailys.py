@@ -821,7 +821,7 @@ class DailysMoodField(DailysField):
                 if isinstance(evt.raw_data, RawDataTelegram) and \
                         evt.raw_data.update_obj.message.reply_to_message is not None:
                     reply_id = evt.raw_data.update_obj.message.reply_to_message.message_id
-                    unreplied_ids = {data[0][f]["message_id"]: f for f in unreplied}
+                    unreplied_ids = {data[0][str(f)]["message_id"]: f for f in unreplied}
                     if reply_id in unreplied_ids:
                         return self.process_mood_response(evt, input_split[-1], unreplied_ids[reply_id], data[1])
                 # Otherwise, use the most recent mood query
