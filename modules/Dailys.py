@@ -898,7 +898,7 @@ class DailysMoodField(DailysField):
     def process_mood_response(self, evt, mood_str, time_val, date_mod):
         with self.lock:
             data = self.get_current_data()
-            mood_dict = {x[0]: x[1] for x in zip(self.moods, [int(x) for x in mood_str])}
+            mood_dict = {str(x[0]): x[1] for x in zip(self.moods, [int(x) for x in mood_str])}
             data[0][str(time_val)] = {**data[0][str(time_val)], **mood_dict}
             self.save_data(data[0], date_mod)
         return evt.create_response("Added mood stat {} for time: {}".format(mood_str, time_val))
