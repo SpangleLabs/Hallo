@@ -482,7 +482,7 @@ class DailysField(metaclass=ABCMeta):
     def passive_trigger(self, evt):
         """
         :type evt: Event.Event
-        :rtype: Event.EventMessage | None
+        :rtype: None
         """
         raise NotImplementedError()
 
@@ -538,7 +538,7 @@ class DailysFAField(DailysField):
     def passive_trigger(self, evt):
         """
         :type evt: Event.Event
-        :rtype: Event.EventMessage
+        :rtype: None
         """
         user_parser = UserDataParser()
         fa_data = user_parser.get_data_by_user_and_type(self.spreadsheet.user, FAKeyData)  # type: FAKeyData
@@ -621,7 +621,7 @@ class DailysSleepField(DailysField):
     def passive_trigger(self, evt):
         """
         :type evt: Event.EventMessage
-        :rtype: Event.EventMessage | None
+        :rtype: None
         """
         input_clean = evt.text.strip().lower()
         now = datetime.now()
@@ -791,7 +791,7 @@ class DailysMoodField(DailysField):
     def passive_trigger(self, evt):
         """
         :type evt: Event.Event
-        :rtype: Event.EventMessage
+        :rtype: None
         """
         if isinstance(evt, EventMinute):
             # Get the largest time which is less than the current time. If none, do nothing.
@@ -823,10 +823,10 @@ class DailysMoodField(DailysField):
                     reply_id = evt.raw_data.update_obj.message.reply_to_message.message_id
                     unreplied_ids = {data[0][str(f)]["message_id"]: f for f in unreplied}
                     if reply_id in unreplied_ids:
-                        return self.process_mood_response(evt, input_split[-1], unreplied_ids[reply_id], data[1])
+                        return self.process_mood_response(input_split[-1], unreplied_ids[reply_id], data[1])
                 # Otherwise, use the most recent mood query
                 if len(unreplied) > 0:
-                    return self.process_mood_response(evt, input_split[-1], unreplied[-1], data[1])
+                    return self.process_mood_response(input_split[-1], unreplied[-1], data[1])
                 return evt.create_response("Is this a mood measurement, because I can't find a mood query.")
             # Check if it's a more complicated message
             if len(input_split) == 3 and input_split[0].upper() == self.mood_acronym():
@@ -844,7 +844,7 @@ class DailysMoodField(DailysField):
                         evt.create_response("Could not parse the time in that mood measurement.")
                 if time_val not in self.times:
                     evt.create_response("That time value is not being tracked for mood measurements.")
-                return self.process_mood_response(evt, input_split[-1], time_val, data[1])
+                return self.process_mood_response(input_split[-1], time_val, data[1])
         return None
 
     def mood_acronym(self):
@@ -878,6 +878,10 @@ class DailysMoodField(DailysField):
         return unreplied
 
     def send_mood_query(self, time_val):
+        """
+        :type time_val: str | datetime.time
+        :rtype: None
+        """
         # Construct message
         msg = "Hello, this is your {} mood check. How are you feeling (scale from 1-5) " \
               "in these categories: {}".format(time_val, ", ".join(self.moods))
@@ -895,13 +899,19 @@ class DailysMoodField(DailysField):
             self.save_data(data[0], data[1])
         return None
 
-    def process_mood_response(self, evt, mood_str, time_val, date_mod):
+    def process_mood_response(self, mood_str, time_val, date_mod):
+        """
+        :type mood_str: str
+        :type time_val: str | datetime.time
+        :type date_mod: int
+        :rtype: None
+        """
         with self.lock:
             data = self.get_current_data()
             mood_dict = {str(x[0]): x[1] for x in zip(self.moods, [int(x) for x in mood_str])}
             data[0][str(time_val)] = {**data[0][str(time_val)], **mood_dict}
             self.save_data(data[0], date_mod)
-        return evt.create_response("Added mood stat {} for time: {}".format(mood_str, time_val))
+        self.message_channel("Added mood stat {} for time: {}".format(mood_str, time_val))
 
     def to_json(self):
         json_obj = dict()
@@ -950,7 +960,7 @@ class DailysDuolingoField(DailysField):
     def passive_trigger(self, evt):
         """
         :type evt: Event.Event
-        :rtype: Event.EventMessage
+        :rtype: None
         """
         duo = Commons.load_url_json("https://www.duolingo.com/users/{}".format(self.username))
         result = dict()
