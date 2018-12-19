@@ -1,3 +1,5 @@
+import json
+import os
 import unittest
 
 from Events import EventMessage, EventDay
@@ -22,7 +24,30 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
             assert "no fa data" in str(e).lower(), "Exception should say there's no FA data."
 
     def test_day_rollover(self):
-        assert False, "Not yet implemented"  # TODO
+        # Setup
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
+        # Setup FA key
+        udp = UserDataParser()
+        key = FAKeyData(os.getenv("test_cookie_a"), os.getenv("test_cookie_b"))
+        udp.set_user_data(self.test_user, key)
+        # Setup field
+        field = DailysFAField(spreadsheet, spreadsheet.test_column_key)
+        # Send a new day event
+        field.passive_trigger(EventDay())
+        assert 0 not in spreadsheet.saved_data
+        notif_str = spreadsheet.saved_data[-1]
+        notif_dict = json.loads(notif_str)
+        assert "submissions" in notif_dict
+        assert "comments" in notif_dict
+        assert "journals" in notif_dict
+        assert "favourites" in notif_dict
+        assert "watches" in notif_dict
+        assert "notes" in notif_dict
+        assert len(self.server.send_data) == 1
+        assert isinstance(self.server.send_data[0], EventMessage)
+        assert self.server.send_data[0].text == notif_str
+        assert self.server.send_data[0].channel == self.test_chan
+        assert self.server.send_data[0].user == self.test_user
 
     def test_create_from_input_no_fa_data(self):
         # Setup
