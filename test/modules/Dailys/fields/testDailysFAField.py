@@ -64,4 +64,42 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
         assert col in spreadsheet.tagged_columns
 
     def test_create_from_input_with_column_not_found(self):
-        assert False, "Not yet implemented"  # TODO
+        # Setup
+        cmd_name = "setup dailys field"
+        cmd_args = "furaffinity"
+        evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(cmd_name, cmd_args))
+        evt.split_command_text(cmd_name, cmd_args)
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
+                                            col_titles={"AE": "hello", "AF": "wonderful", "AG": "world"})
+        # Setup an FA key, doesn't matter if it works
+        udp = UserDataParser()
+        key = FAKeyData("cookie_a", "cookie_b")
+        udp.set_user_data(self.test_user, key)
+        # Create from input
+        try:
+            DailysFAField.create_from_input(evt, spreadsheet)
+            assert False, "Should have failed to find suitable column title."
+        except DailysException as e:
+            assert "could not find" in str(e).lower(), "Exception didn't tell me it couldn't find a column."
+
+    def test_create_from_input_with_column_not_unique(self):
+        # Setup
+        col1 = "AF"
+        col2 = "AG"
+        cmd_name = "setup dailys field"
+        cmd_args = "furaffinity"
+        evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(cmd_name, cmd_args))
+        evt.split_command_text(cmd_name, cmd_args)
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
+                                            col_titles={"AE": "hello", col1: "furaffinity",
+                                                        col2: "furaffinity", "AH": "world"})
+        # Setup an FA key, doesn't matter if it works
+        udp = UserDataParser()
+        key = FAKeyData("cookie_a", "cookie_b")
+        udp.set_user_data(self.test_user, key)
+        # Create from input
+        try:
+            DailysFAField.create_from_input(evt, spreadsheet)
+            assert False, "Should have failed to find suitable column title."
+        except DailysException as e:
+            assert "could not find" in str(e).lower(), "Exception didn't tell me it couldn't find a unique column."
