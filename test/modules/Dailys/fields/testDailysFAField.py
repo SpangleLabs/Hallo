@@ -10,7 +10,7 @@ from test.modules.Dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
 class DailysFAFieldTest(TestBase, unittest.TestCase):
 
     def test_day_rollover(self):
-        pass
+        assert False, "Not yet implemented"  # TODO
 
     def test_create_from_input_no_fa_data(self):
         # Setup
@@ -64,4 +64,4 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
         assert col in spreadsheet.tagged_columns
 
     def test_create_from_input_with_column_not_found(self):
-        pass
+        assert False, "Not yet implemented"  # TODO
