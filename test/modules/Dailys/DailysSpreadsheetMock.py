@@ -15,7 +15,7 @@ class DailysSpreadsheetMock(DailysSpreadsheet):
         return self.test_column_key
 
     def find_column_by_names(self, names):
-        matches = [n in self.col_titles for n in names]
-        if matches.count(True) != 1:
+        matches = [col for col in self.col_titles if any([n in self.col_titles[col] for n in names])]
+        if len(matches) != 1:
             return None
-        return self.col_string_to_num(self.col_titles[matches.index(True)])
+        return self.col_string_to_num(matches[0])
