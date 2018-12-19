@@ -1,6 +1,6 @@
 import unittest
 
-from Events import EventMessage
+from Events import EventMessage, EventDay
 from modules.Dailys import DailysFAField, DailysException
 from modules.UserData import UserDataParser, FAKeyData
 from test.TestBase import TestBase
@@ -8,6 +8,18 @@ from test.modules.Dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
 
 
 class DailysFAFieldTest(TestBase, unittest.TestCase):
+
+    def test_day_rollover_no_data(self):
+        # Setup
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
+        # Setup field
+        field = DailysFAField(spreadsheet, spreadsheet.test_column_key)
+        # Send a new day event
+        try:
+            field.passive_trigger(EventDay())
+            assert False, "Should have failed to check FA data."
+        except DailysException as e:
+            assert "no fa data" in str(e).lower(), "Exception should say there's no FA data."
 
     def test_day_rollover(self):
         assert False, "Not yet implemented"  # TODO
