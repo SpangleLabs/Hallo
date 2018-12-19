@@ -349,6 +349,14 @@ class DailysSpreadsheet:
             string = chr(65 + remainder) + string
         return string
 
+    def col_string_to_num(self, string):
+        num = 0
+        for char in string:
+            if num != 0:
+                num *= 26
+            num += ord(char.upper())-64
+        return num-1
+
     def find_first_date(self):
         date_col = self.date_column.get()
         date_col_name = self.col_num_to_string(date_col)
