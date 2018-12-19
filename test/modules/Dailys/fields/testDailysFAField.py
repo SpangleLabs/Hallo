@@ -28,8 +28,9 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
 
     def test_create_from_input_with_column_specified(self):
         # Setup
+        col = "AF"
         cmd_name = "setup dailys field"
-        cmd_args = "furaffinity AF"
+        cmd_args = "furaffinity {}".format(col)
         evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(cmd_name, cmd_args))
         evt.split_command_text(cmd_name, cmd_args)
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
@@ -41,6 +42,7 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
         field = DailysFAField.create_from_input(evt, spreadsheet)
         assert field.spreadsheet == spreadsheet
         assert field.hallo_key_field_id == spreadsheet.test_column_key
+        assert col in spreadsheet.tagged_columns
 
     def test_create_from_input_with_column_found(self):
         pass
