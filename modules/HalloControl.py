@@ -89,7 +89,7 @@ class Help(Function):
         # Name for use in help listing
         self.help_name = "help"
         # Names which can be used to address the Function
-        self.names = {"help", "readme", "info", "read me"}
+        self.names = {"help", "readme", "info", "read me", "/start"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Gives information about commands.  Use \"help\" for a list of commands, " \
                          "or \"help <command>\" for help on a specific command."
