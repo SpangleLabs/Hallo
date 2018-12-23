@@ -1,7 +1,7 @@
 import unittest
 
 from Events import EventMessage
-from modules.Dailys import DailysSleepField
+from modules.Dailys import DailysSleepField, DailysException
 from test.TestBase import TestBase
 from test.modules.Dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
 
@@ -38,10 +38,37 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
         assert col in spreadsheet.tagged_columns
 
     def test_create_from_input_col_not_found(self):
-        pass
+        # Setup
+        cmd_name = "setup dailys field"
+        cmd_args = "sleep"
+        evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(cmd_name, cmd_args))
+        evt.split_command_text(cmd_name, cmd_args)
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
+                                            col_titles={"AE": "hello", "AF": "wonderful", "AG": "world"})
+        # Create from input
+        try:
+            DailysSleepField.create_from_input(evt, spreadsheet)
+            assert False, "Should have failed to find suitable column title."
+        except DailysException as e:
+            assert "could not find" in str(e).lower(), "Exception didn't tell me it couldn't find a column."
 
     def test_create_from_input_col_not_unique(self):
-        pass
+        # Setup
+        col1 = "AF"
+        col2 = "AG"
+        cmd_name = "setup dailys field"
+        cmd_args = "sleep"
+        evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(cmd_name, cmd_args))
+        evt.split_command_text(cmd_name, cmd_args)
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
+                                            col_titles={"AE": "hello", col1: "sleep",
+                                                        col2: "sleep times", "AH": "world"})
+        # Create from input
+        try:
+            DailysSleepField.create_from_input(evt, spreadsheet)
+            assert False, "Should have failed to find suitable column title."
+        except DailysException as e:
+            assert "could not find" in str(e).lower(), "Exception didn't tell me it couldn't find a unique column."
 
     def test_telegram_time(self):
         pass
