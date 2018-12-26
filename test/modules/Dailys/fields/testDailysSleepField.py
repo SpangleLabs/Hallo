@@ -85,9 +85,8 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
         # Send sleep message with telegram time
         date = datetime(2018, 12, 23, 23, 44, 13)
         fake_telegram_obj = Obj()
-        fake_telegram_obj.update_obj = Obj()
-        fake_telegram_obj.update_obj.message = Obj()
-        fake_telegram_obj.update_obj.message.date = date
+        fake_telegram_obj.message = Obj()
+        fake_telegram_obj.message.date = date
         evt = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
             .with_raw_data(RawDataTelegram(fake_telegram_obj))
         field.passive_trigger(evt)
