@@ -25,3 +25,8 @@ class DailysSpreadsheetMock(DailysSpreadsheet):
 
     def save_field(self, field, data_str, date_modifier=0):
         self.saved_data[date_modifier] = data_str
+
+    def read_field(self, field, date_modifier=0):
+        if date_modifier in self.saved_data:
+            return self.saved_data[date_modifier]
+        return None
