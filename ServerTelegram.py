@@ -96,7 +96,9 @@ class ServerTelegram(Server):
         :type update: telegram.Update
         """
         # Get sender object
-        message_sender_name = " ".join([update.message.chat.first_name, update.message.chat.last_name])
+        telegram_chat = update.message.chat
+        message_sender_name = " ".join(["" if telegram_chat.first_name is None else telegram_chat.first_name,
+                                        "" if telegram_chat.last_name is None else telegram_chat.last_name])
         message_sender_addr = update.message.chat.id
         message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
