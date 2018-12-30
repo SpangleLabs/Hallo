@@ -6,7 +6,7 @@ from test.TestBase import TestBase
 from test.modules.Dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
 
 
-class DailysMoodFieldTest(unittest.TestCase, TestBase):
+class DailysMoodFieldTest(TestBase, unittest.TestCase):
 
     def test_create_from_input_no_args(self):
         # Setup stuff
