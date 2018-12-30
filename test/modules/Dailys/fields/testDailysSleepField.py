@@ -16,6 +16,13 @@ class Obj:
 
 class DailysSleepFieldTest(TestBase, unittest.TestCase):
 
+    def get_telegram_time(self, date_time_val):
+        fake_telegram_obj = Obj()
+        fake_telegram_obj.update_obj = Obj()
+        fake_telegram_obj.update_obj.message = Obj()
+        fake_telegram_obj.update_obj.message.date = date_time_val
+        return fake_telegram_obj
+
     def test_create_from_input_col_found(self):
         # Setup
         col = "AF"
@@ -102,7 +109,7 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
         now = datetime.now()
         field.passive_trigger(evt)
         # Check data is saved
-        notif_str = spreadsheet.saved_data[0]
+        notif_str = spreadsheet.saved_data[-1 if now.hour <= 16 else 0]
         notif_dict = json.loads(notif_str)
         assert "sleep_time" in notif_dict
         logged_time = dateutil.parser.parse(notif_dict["sleep_time"])
