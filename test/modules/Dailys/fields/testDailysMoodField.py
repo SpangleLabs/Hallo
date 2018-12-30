@@ -1,3 +1,5 @@
+import unittest
+
 from Events import EventMessage
 from modules.Dailys import DailysMoodField, DailysException
 from test.TestBase import TestBase
