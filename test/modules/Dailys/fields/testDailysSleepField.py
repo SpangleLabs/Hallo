@@ -94,7 +94,7 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
             .with_raw_data(RawDataTelegram(self.get_telegram_time(date)))
         field.passive_trigger(evt)
         # Check data is saved
-        notif_str = spreadsheet.saved_data[0]
+        notif_str = spreadsheet.saved_data[-1 if date.hour <= 16 else 0]
         notif_dict = json.loads(notif_str)
         assert "sleep_time" in notif_dict
         assert notif_dict["sleep_time"] == date.isoformat()
@@ -115,10 +115,34 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
         assert logged_time-now < timedelta(0, 10)
 
     def test_sleep_before_5(self):
-        pass
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
+        # Setup field
+        field = DailysSleepField(spreadsheet, spreadsheet.test_column_key)
+        # Send sleep message with telegram time
+        date = datetime(2018, 12, 23, 12, 44, 13)
+        evt = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(date)))
+        field.passive_trigger(evt)
+        # Check data is saved to yesterday
+        notif_str = spreadsheet.saved_data[-1]
+        notif_dict = json.loads(notif_str)
+        assert "sleep_time" in notif_dict
+        assert notif_dict["sleep_time"] == date.isoformat()
 
     def test_sleep_after_5(self):
-        pass
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
+        # Setup field
+        field = DailysSleepField(spreadsheet, spreadsheet.test_column_key)
+        # Send sleep message with telegram time
+        date = datetime(2018, 12, 23, 23, 44, 13)
+        evt = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(date)))
+        field.passive_trigger(evt)
+        # Check data is saved to today
+        notif_str = spreadsheet.saved_data[0]
+        notif_dict = json.loads(notif_str)
+        assert "sleep_time" in notif_dict
+        assert notif_dict["sleep_time"] == date.isoformat()
 
     def test_sleep_wake(self):
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
