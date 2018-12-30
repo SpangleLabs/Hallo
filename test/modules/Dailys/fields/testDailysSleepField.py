@@ -18,9 +18,8 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
 
     def get_telegram_time(self, date_time_val):
         fake_telegram_obj = Obj()
-        fake_telegram_obj.update_obj = Obj()
-        fake_telegram_obj.update_obj.message = Obj()
-        fake_telegram_obj.update_obj.message.date = date_time_val
+        fake_telegram_obj.message = Obj()
+        fake_telegram_obj.message.date = date_time_val
         return fake_telegram_obj
 
     def test_create_from_input_col_found(self):
@@ -137,7 +136,7 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
         assert notif_dict["sleep_time"] == date_sleep.isoformat()
         # Check response is given
         data_sleep = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert "good night" in data_sleep[0].text.lower()
+        assert "goodnight" in data_sleep[0].text.lower()
         # Send wake message with telegram time
         date_wake = datetime(2018, 12, 23, 23, 47, 34)
         evt_wake = EventMessage(self.server, self.test_chan, self.test_user, "morning")\
