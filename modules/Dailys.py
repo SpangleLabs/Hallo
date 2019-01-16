@@ -2,7 +2,7 @@ import json
 import traceback
 import uuid
 from abc import ABCMeta
-from datetime import datetime, time
+from datetime import datetime, time, date, timedelta
 from threading import RLock
 
 import dateutil.parser
@@ -380,9 +380,8 @@ class DailysSpreadsheet:
     def get_first_date(self):
         return self.first_date_pair.get()[1]
 
-    def get_current_date_row(self):
+    def get_row_for_date(self, current_date):
         first_date_row, first_date = self.first_date_pair.get()
-        current_date = self.get_current_date()
         return (current_date-first_date).days + first_date_row
 
     def add_field(self, field):
@@ -391,34 +390,29 @@ class DailysSpreadsheet:
         """
         self.fields_list.append(field)
 
-    def get_current_date(self):
-        # Return the current date. Not equal to calendar date, as user may be awake after midnight
-        # TODO: roman dates, need to track sleep for that?
-        return datetime.now()
-
-    def save_field(self, dailys_field, data, date_modifier=0):
+    def save_field(self, dailys_field, data, data_date):
         """
         Save given data in a specified column for the current date row.
         :type dailys_field: DailysField
         :type data: str
-        :type date_modifier: int
+        :type data_date: date
         """
         col_num = self.get_column_by_field_id(dailys_field.hallo_key_field_id)
-        row_num = self.get_current_date_row() + date_modifier
+        row_num = self.get_row_for_date(data_date)
         self.update_spreadsheet_cell("{}!{}{}".format(self.first_sheet_name.get(),
                                                       self.col_num_to_string(col_num),
                                                       row_num+1),
                                      data)
 
-    def read_field(self, dailys_field, date_modifier=0):
+    def read_field(self, dailys_field, data_date):
         """
         Save given data in a specified column for the current date row.
         :type dailys_field: DailysField
-        :type date_modifier: int
+        :type data_date: date
         :rtype: str | None
         """
         col_num = self.get_column_by_field_id(dailys_field.hallo_key_field_id)
-        row_num = self.get_current_date_row() + date_modifier
+        row_num = self.get_row_for_date(data_date)
         data = self.get_spreadsheet_range("{}!{}{}".format(self.first_sheet_name.get(),
                                                            self.col_num_to_string(col_num),
                                                            row_num+1))
@@ -501,22 +495,22 @@ class DailysField(metaclass=ABCMeta):
     def from_json(json_obj, spreadsheet):
         raise NotImplementedError()
 
-    def save_data(self, data, date_modifier=0):
+    def save_data(self, data, data_date):
         """
         :type data: str | dict
-        :type date_modifier: int
+        :type data_date: date
         """
         data_str = data
         if isinstance(data, dict):
             data_str = json.dumps(data)
-        self.spreadsheet.save_field(self, data_str, date_modifier=date_modifier)
+        self.spreadsheet.save_field(self, data_str, data_date=data_date)
 
-    def load_data(self, date_modifier=0):
+    def load_data(self, data_date):
         """
-        :type date_modifier: int
+        :type data_date: date
         :rtype: str | None
         """
-        return self.spreadsheet.read_field(self, date_modifier=date_modifier)
+        return self.spreadsheet.read_field(self, data_date)
 
     def message_channel(self, text):
         """
@@ -562,7 +556,8 @@ class DailysFAField(DailysField):
         notifications["watches"] = notif_page.total_watches
         notifications["notes"] = notif_page.total_notes
         notif_str = json.dumps(notifications)
-        self.save_data(notif_str, date_modifier=-1)
+        d = (evt.get_send_time() - timedelta(1)).date()
+        self.save_data(notif_str, d)
         # Send date to destination
         self.message_channel(notif_str)
 
@@ -628,31 +623,30 @@ class DailysSleepField(DailysField):
 
     def passive_trigger(self, evt):
         """
-        :type evt: Event.EventMessage
+        :type evt: EventMessage
         :rtype: None
         """
         input_clean = evt.text.strip().lower()
-        now = datetime.now()
-        if isinstance(evt.raw_data, RawDataTelegram):
-            now = evt.raw_data.update_obj.message.date
+        now = evt.get_send_time()
         time_str = now.isoformat()
-        current_str = self.load_data()
+        sleep_date = evt.get_send_time().date()
+        current_str = self.load_data(sleep_date)
         if current_str is None or current_str == "":
             current_data = dict()
         else:
             current_data = json.loads(current_str)
-        yesterday_str = self.load_data(date_modifier=-1)
+        yesterday_date = sleep_date - timedelta(1)
+        yesterday_str = self.load_data(yesterday_date)
         if yesterday_str is None or yesterday_str == "":
             yesterday_data = dict()
         else:
             yesterday_data = json.loads(yesterday_str)
-        date_modifier = 0
         # If user is waking up
         if input_clean in DailysSleepField.WAKE_WORDS:
             # If today's data is blank, write in yesterday's sleep data
             if len(current_data) == 0:
                 current_data = yesterday_data
-                date_modifier = -1
+                sleep_date = yesterday_date
             # If you already woke in this data, why are you waking again?
             if self.json_key_wake_time in current_data:
                 self.message_channel("Didn't you already wake up?")
@@ -660,7 +654,7 @@ class DailysSleepField(DailysField):
             # If not, add a wake time to sleep data
             else:
                 current_data[self.json_key_wake_time] = time_str
-                self.save_data(current_data, date_modifier=date_modifier)
+                self.save_data(current_data, sleep_date)
                 self.message_channel("Good morning!")
                 return
         # If user is going to sleep
@@ -668,13 +662,13 @@ class DailysSleepField(DailysField):
             # If it's before 4pm, it's probably yesterday's sleep.
             if now.hour <= 16:
                 current_data = yesterday_data
-                date_modifier = -1
+                sleep_date = yesterday_date
             # Did they already go to sleep?
             if self.json_key_sleep_time in current_data:
                 # Did they already wake? If not, they're updating their sleep time.
                 if self.json_key_wake_time not in current_data:
                     current_data[self.json_key_sleep_time] = time_str
-                    self.save_data(current_data, date_modifier=date_modifier)
+                    self.save_data(current_data, sleep_date)
                     self.message_channel("Good night again!")
                     return
                 # Move the last wake time to interruptions
@@ -684,13 +678,13 @@ class DailysSleepField(DailysField):
                 if self.json_key_interruptions not in current_data:
                     current_data[self.json_key_interruptions] = []
                 current_data[self.json_key_interruptions].append(interruption)
-                self.save_data(current_data, date_modifier=date_modifier)
+                self.save_data(current_data, sleep_date)
                 self.message_channel("Oh, going back to sleep? Sleep well!")
                 return
             # Otherwise they're headed to sleep
             else:
                 current_data[self.json_key_sleep_time] = time_str
-                self.save_data(current_data, date_modifier=date_modifier)
+                self.save_data(current_data, sleep_date)
                 self.message_channel("Goodnight!")
                 return
 
@@ -768,32 +762,37 @@ class DailysMoodField(DailysField):
     def passive_events():
         return [EventMessage, EventMinute]
 
-    def get_current_data(self):
+    def get_current_data(self, mood_date):
         """
-        Returns the current mood data, and the day offset. Which might be today's or it could be yesterday's, if that is not done yet.
-        :return: (dict, int)
+        Returns the current mood data, and the day offset. Which might be today's or it could be yesterday's,
+        if that is not done yet.
+        :type mood_date: date
+        :return: (dict, date)
         """
         with self.lock:
             # Get today's data, unless it's empty, then get yesterday's, unless it's full, then use today's.
-            today_str = self.load_data()
+            yesterday_date = mood_date - timedelta(1)
+            today_str = self.load_data(mood_date)
             if today_str is None or today_str == "":
-                yesterday_str = self.load_data(-1)
+                yesterday_str = self.load_data(yesterday_date)
                 if yesterday_str is None or yesterday_str == "":
-                    return dict(), 0
+                    return dict(), mood_date
                 yesterday_data = json.loads(yesterday_str)
-                if len(yesterday_data) == len(self.times) and all(["message_id" in yesterday_data[m] for m in yesterday_data]):
-                    return dict(), 0
-                return yesterday_data, -1
+                if len(yesterday_data) == len(self.times) and \
+                        all(["message_id" in yesterday_data[m] for m in yesterday_data]):
+                    return dict(), mood_date
+                return yesterday_data, yesterday_date
             today_data = json.loads(today_str)
-            return today_data, 0
+            return today_data, mood_date
 
-    def has_triggered_for_time(self, time_val):
+    def has_triggered_for_time(self, mood_date, time_val):
         """
+        :type mood_date: date
         :type time_val: str|time
         :return: bool
         """
         # TODO: cache True values
-        data = self.get_current_data()[0]
+        data = self.get_current_data(mood_date)[0]
         return self.time_triggered(data, time_val)
 
     def passive_trigger(self, evt):
@@ -801,6 +800,7 @@ class DailysMoodField(DailysField):
         :type evt: Event.Event
         :rtype: None
         """
+        mood_date = evt.get_send_time()
         if isinstance(evt, EventMinute):
             # Get the largest time which is less than the current time. If none, do nothing.
             times = [t for t in self.times if isinstance(t, time)]
@@ -808,23 +808,23 @@ class DailysMoodField(DailysField):
             if len(past_times) == 0:
                 return
             latest_time = max(past_times)
-            if not self.has_triggered_for_time(latest_time):
-                return self.send_mood_query(latest_time)
+            if not self.has_triggered_for_time(mood_date, latest_time):
+                return self.send_mood_query(mood_date, latest_time)
             return
         if isinstance(evt, EventMessage):
             # Check if it's a morning/night message
             input_clean = evt.text.strip().lower()
             if input_clean in DailysSleepField.WAKE_WORDS and self.TIME_WAKE in self.times and \
-                    not self.has_triggered_for_time(self.TIME_WAKE):
-                return self.send_mood_query(self.TIME_WAKE)
+                    not self.has_triggered_for_time(mood_date, self.TIME_WAKE):
+                return self.send_mood_query(mood_date, self.TIME_WAKE)
             if input_clean in DailysSleepField.SLEEP_WORDS and self.TIME_SLEEP in self.times and \
-                    not self.has_triggered_for_time(self.TIME_SLEEP):
-                return self.send_mood_query(self.TIME_SLEEP)
+                    not self.has_triggered_for_time(mood_date, self.TIME_SLEEP):
+                return self.send_mood_query(mood_date, self.TIME_SLEEP)
             # Check if it's a reply to a mood message, or if there's an unanswered mood message
             input_split = input_clean.split()
             if (len(input_split) == 2 and input_split[0].upper() == self.mood_acronym()) or input_clean.isdigit():
-                data = self.get_current_data()
-                unreplied = self.get_unreplied_moods()
+                data = self.get_current_data(mood_date)
+                unreplied = self.get_unreplied_moods(mood_date)
                 # Check if telegram message, and reply to a message
                 if isinstance(evt.raw_data, RawDataTelegram) and \
                         evt.raw_data.update_obj.message.reply_to_message is not None:
@@ -838,7 +838,7 @@ class DailysMoodField(DailysField):
                 return evt.create_response("Is this a mood measurement, because I can't find a mood query.")
             # Check if it's a more complicated message
             if len(input_split) == 3 and input_split[0].upper() == self.mood_acronym():
-                data = self.get_current_data()
+                data = self.get_current_data(mood_date)
                 input_time = input_split[1]
                 time_val = None
                 if input_time.lower() in DailysSleepField.WAKE_WORDS:
@@ -848,7 +848,7 @@ class DailysMoodField(DailysField):
                 if time_val is None:
                     try:
                         time_val = time(int(input_time[:2]), int(input_time[-2:]))
-                    except Exception as e:
+                    except ValueError:
                         evt.create_response("Could not parse the time in that mood measurement.")
                 if time_val not in self.times:
                     evt.create_response("That time value is not being tracked for mood measurements.")
@@ -864,8 +864,8 @@ class DailysMoodField(DailysField):
     def time_query_unreplied(self, data, time_val):
         return str(time_val) in data and len(data[str(time_val)]) <= 1
 
-    def get_unreplied_moods(self):
-        data = self.get_current_data()[0]
+    def get_unreplied_moods(self, mood_date):
+        data = self.get_current_data(mood_date)[0]
         unreplied = []
         # Check for wake time
         if DailysMoodField.TIME_WAKE in self.times:
@@ -885,8 +885,9 @@ class DailysMoodField(DailysField):
                 unreplied.append(DailysMoodField.TIME_SLEEP)
         return unreplied
 
-    def send_mood_query(self, time_val):
+    def send_mood_query(self, mood_date, time_val):
         """
+        :type mood_date: date
         :type time_val: str | datetime.time
         :rtype: None
         """
@@ -901,24 +902,24 @@ class DailysMoodField(DailysField):
             sent_msg_id = evt.raw_data.sent_msg_object.message_id
         # Update data
         with self.lock:
-            data = self.get_current_data()
+            data = self.get_current_data(mood_date)
             data[0][str(time_val)] = dict()
             data[0][str(time_val)]["message_id"] = sent_msg_id
             self.save_data(data[0], data[1])
         return None
 
-    def process_mood_response(self, mood_str, time_val, date_mod):
+    def process_mood_response(self, mood_str, time_val, mood_date):
         """
         :type mood_str: str
         :type time_val: str | datetime.time
-        :type date_mod: int
+        :type mood_date: date
         :rtype: None
         """
         with self.lock:
-            data = self.get_current_data()
+            data = self.get_current_data(mood_date)
             mood_dict = {str(x[0]): x[1] for x in zip(self.moods, [int(x) for x in mood_str])}
             data[0][str(time_val)] = {**data[0][str(time_val)], **mood_dict}
-            self.save_data(data[0], date_mod)
+            self.save_data(data[0], mood_date)
         self.message_channel("Added mood stat {} for time: {}".format(mood_str, time_val))
 
     def to_json(self):
@@ -976,7 +977,8 @@ class DailysDuolingoField(DailysField):
             for friend in duo["language_data"][lang]["points_ranking_data"]:
                 result[friend["username"]] = friend["points_data"]["total"]
         result_str = json.dumps(result)
-        self.save_data(result_str, date_modifier=-1)
+        d = (evt.get_send_time() - timedelta(1)).date()
+        self.save_data(result_str, d)
         # Send date to destination
         self.message_channel(result_str)
 
