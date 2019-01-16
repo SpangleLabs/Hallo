@@ -47,6 +47,12 @@ class Event(metaclass=ABCMeta):
         self.send_time = datetime.now()
         """ :type : datetime"""
 
+    def get_send_time(self):
+        """
+        :rtype: datetime
+        """
+        return self.send_time
+
 
 class EventSecond(Event):
     pass
@@ -83,6 +89,14 @@ class ServerEvent(Event, metaclass=ABCMeta):
         """
         self.raw_data = raw_data
         return self
+
+    def get_send_time(self):
+        """
+        :rtype: datetime
+        """
+        if isinstance(self.raw_data, RawDataTelegram):
+            return self.raw_data.update_obj.message.date
+        return super().get_send_time()
 
 
 class EventPing(ServerEvent):
