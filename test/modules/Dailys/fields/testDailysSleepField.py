@@ -271,6 +271,7 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
                 notif_dict = json.loads(notif_str)
                 assert "sleep_time" in notif_dict
                 assert "interruptions" in notif_dict
+                assert "wake_time" not in notif_dict
                 assert notif_dict["sleep_time"] == date_sleep.isoformat()
                 assert isinstance(notif_dict["interruptions"], list)
                 assert len(notif_dict["interruptions"]) == 1
@@ -280,8 +281,8 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
                 data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
                 assert "back to sleep" in data_wake[0].text.lower()
 
-                # Send interrupt end message with telegram time
-                date_wake = sleep["interrupt_end"]
+                # Send wake with telegram time
+                date_wake = sleep["wake"]
                 evt_wake = EventMessage(self.server, self.test_chan, self.test_user, "morning")\
                     .with_raw_data(RawDataTelegram(self.get_telegram_time(date_wake)))
                 field.passive_trigger(evt_wake)
@@ -302,7 +303,132 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
                 assert "good morning" in data_wake[0].text.lower()
 
     def test_two_interruptions(self):
-        pass
+        sleep_date = date(2018, 12, 23)
+        sleep = {"sleep": datetime(2018, 12, 24, 0, 44, 13),
+                 "interrupt1_start": datetime(2018, 12, 24, 2, 15, 14),
+                 "interrupt1_end": datetime(2018, 12, 24, 2, 16, 17),
+                 "interrupt2_start": datetime(2018, 12, 24, 4, 15, 14),
+                 "interrupt2_end": datetime(2018, 12, 24, 4, 16, 17),
+                 "wake": datetime(2018, 12, 24, 11, 47, 34)}
+
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
+        # Setup field
+        field = DailysSleepField(spreadsheet, spreadsheet.test_column_key)
+
+        # Send sleep message with telegram time
+        date_sleep = sleep["sleep"]
+        evt_sleep = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(date_sleep)))
+        field.passive_trigger(evt_sleep)
+        # Check sleep time is logged
+        notif_str = spreadsheet.saved_data[sleep_date]
+        notif_dict = json.loads(notif_str)
+        assert "sleep_time" in notif_dict
+        assert notif_dict["sleep_time"] == date_sleep.isoformat()
+        # Check response is given
+        data_sleep = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "goodnight" in data_sleep[0].text.lower()
+
+        # Send first interrupt start message with telegram time
+        date_interrupt1_start = sleep["interrupt1_start"]
+        evt_wake = EventMessage(self.server, self.test_chan, self.test_user, "morning")\
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(date_interrupt1_start)))
+        field.passive_trigger(evt_wake)
+        # Check wake time is logged
+        notif_str = spreadsheet.saved_data[sleep_date]
+        notif_dict = json.loads(notif_str)
+        assert "sleep_time" in notif_dict
+        assert "wake_time" in notif_dict
+        assert notif_dict["sleep_time"] == date_sleep.isoformat()
+        assert notif_dict["wake_time"] == date_interrupt1_start.isoformat()
+        # Check response is given
+        data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "good morning" in data_wake[0].text.lower()
+
+        # Send first interrupt end message with telegram time
+        date_interrupt1_end = sleep["interrupt1_end"]
+        evt_wake = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(date_interrupt1_end)))
+        field.passive_trigger(evt_wake)
+        # Check wake time is logged
+        notif_str = spreadsheet.saved_data[sleep_date]
+        notif_dict = json.loads(notif_str)
+        assert "sleep_time" in notif_dict
+        assert "interruptions" in notif_dict
+        assert "wake_time" not in notif_dict
+        assert notif_dict["sleep_time"] == date_sleep.isoformat()
+        assert isinstance(notif_dict["interruptions"], list)
+        assert len(notif_dict["interruptions"]) == 1
+        assert notif_dict["interruptions"][0]["wake_time"] == date_interrupt1_start.isoformat()
+        assert notif_dict["interruptions"][0]["sleep_time"] == date_interrupt1_end.isoformat()
+        # Check response is given
+        data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "back to sleep" in data_wake[0].text.lower()
+
+        # Send second interrupt start message with telegram time
+        date_interrupt2_start = sleep["interrupt2_start"]
+        evt_wake = EventMessage(self.server, self.test_chan, self.test_user, "morning")\
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(date_interrupt2_start)))
+        field.passive_trigger(evt_wake)
+        # Check wake time is logged
+        notif_str = spreadsheet.saved_data[sleep_date]
+        notif_dict = json.loads(notif_str)
+        assert "sleep_time" in notif_dict
+        assert "interruptions" in notif_dict
+        assert "wake_time" in notif_dict
+        assert notif_dict["sleep_time"] == date_sleep.isoformat()
+        assert len(notif_dict["interruptions"]) == 1
+        assert notif_dict["interruptions"][0]["wake_time"] == date_interrupt1_start.isoformat()
+        assert notif_dict["interruptions"][0]["sleep_time"] == date_interrupt1_end.isoformat()
+        assert notif_dict["wake_time"] == date_interrupt2_start.isoformat()
+        # Check response is given
+        data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "good morning" in data_wake[0].text.lower()
+
+        # Send second interrupt end message with telegram time
+        date_interrupt2_end = sleep["interrupt2_end"]
+        evt_wake = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(date_interrupt2_end)))
+        field.passive_trigger(evt_wake)
+        # Check wake time is logged
+        notif_str = spreadsheet.saved_data[sleep_date]
+        notif_dict = json.loads(notif_str)
+        assert "sleep_time" in notif_dict
+        assert "interruptions" in notif_dict
+        assert "wake_time" not in notif_dict
+        assert notif_dict["sleep_time"] == date_sleep.isoformat()
+        assert isinstance(notif_dict["interruptions"], list)
+        assert len(notif_dict["interruptions"]) == 2
+        assert notif_dict["interruptions"][0]["wake_time"] == date_interrupt1_start.isoformat()
+        assert notif_dict["interruptions"][0]["sleep_time"] == date_interrupt1_end.isoformat()
+        assert notif_dict["interruptions"][1]["wake_time"] == date_interrupt2_start.isoformat()
+        assert notif_dict["interruptions"][1]["sleep_time"] == date_interrupt2_end.isoformat()
+        # Check response is given
+        data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "back to sleep" in data_wake[0].text.lower()
+
+        # Send wake with telegram time
+        date_wake = sleep["wake"]
+        evt_wake = EventMessage(self.server, self.test_chan, self.test_user, "morning")\
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(date_wake)))
+        field.passive_trigger(evt_wake)
+        # Check wake time is logged
+        notif_str = spreadsheet.saved_data[sleep_date]
+        notif_dict = json.loads(notif_str)
+        assert "sleep_time" in notif_dict
+        assert "interruptions" in notif_dict
+        assert "wake_time" in notif_dict
+        assert notif_dict["sleep_time"] == date_sleep.isoformat()
+        assert isinstance(notif_dict["interruptions"], list)
+        assert len(notif_dict["interruptions"]) == 2
+        assert notif_dict["interruptions"][0]["wake_time"] == date_interrupt1_start.isoformat()
+        assert notif_dict["interruptions"][0]["sleep_time"] == date_interrupt1_end.isoformat()
+        assert notif_dict["interruptions"][1]["wake_time"] == date_interrupt2_start.isoformat()
+        assert notif_dict["interruptions"][1]["sleep_time"] == date_interrupt2_end.isoformat()
+        assert notif_dict["wake_time"] == date_wake.isoformat()
+        # Check response is given
+        data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "good morning" in data_wake[0].text.lower()
 
     def test_sleep_sleep_wake(self):
         pass
