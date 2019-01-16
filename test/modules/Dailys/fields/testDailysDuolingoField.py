@@ -1,5 +1,6 @@
 import json
 import unittest
+from datetime import timedelta
 
 from Events import EventMessage, EventDay
 from modules.Dailys import DailysException, DailysDuolingoField
@@ -17,9 +18,10 @@ class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
         # Setup field
         field = DailysDuolingoField(spreadsheet, spreadsheet.test_column_key, self.TEST_USERNAME)
         # Send a new day event
-        field.passive_trigger(EventDay())
-        assert 0 not in spreadsheet.saved_data
-        notif_str = spreadsheet.saved_data[-1]
+        evt = EventDay()
+        field.passive_trigger(evt)
+        assert evt.get_send_time().date() not in spreadsheet.saved_data
+        notif_str = spreadsheet.saved_data[evt.get_send_time().date()-timedelta(1)]
         notif_dict = json.loads(notif_str)
         assert len(notif_dict) > 0, "No results appeared in dict."
         for key in notif_dict:

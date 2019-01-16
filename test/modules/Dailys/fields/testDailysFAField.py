@@ -1,6 +1,7 @@
 import json
 import os
 import unittest
+from datetime import timedelta
 
 from Events import EventMessage, EventDay
 from modules.Dailys import DailysFAField, DailysException
@@ -33,9 +34,10 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
         # Setup field
         field = DailysFAField(spreadsheet, spreadsheet.test_column_key)
         # Send a new day event
-        field.passive_trigger(EventDay())
-        assert 0 not in spreadsheet.saved_data
-        notif_str = spreadsheet.saved_data[-1]
+        evt = EventDay()
+        field.passive_trigger(evt)
+        assert evt.get_send_time().date() not in spreadsheet.saved_data
+        notif_str = spreadsheet.saved_data[evt.get_send_time().date()-timedelta(1)]
         notif_dict = json.loads(notif_str)
         assert "submissions" in notif_dict
         assert "comments" in notif_dict

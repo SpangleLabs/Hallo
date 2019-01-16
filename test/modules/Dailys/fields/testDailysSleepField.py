@@ -90,11 +90,13 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
         field = DailysSleepField(spreadsheet, spreadsheet.test_column_key)
         # Send sleep message with telegram time
         date = datetime(2018, 12, 23, 23, 44, 13)
+        today = date.date()
+        yesterday = today - timedelta(1)
         evt = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
             .with_raw_data(RawDataTelegram(self.get_telegram_time(date)))
         field.passive_trigger(evt)
         # Check data is saved
-        notif_str = spreadsheet.saved_data[-1 if date.hour <= 16 else 0]
+        notif_str = spreadsheet.saved_data[yesterday if date.hour <= 16 else today]
         notif_dict = json.loads(notif_str)
         assert "sleep_time" in notif_dict
         assert notif_dict["sleep_time"] == date.isoformat()
@@ -106,9 +108,11 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
         # Send sleep message with telegram time
         evt = EventMessage(self.server, self.test_chan, self.test_user, "sleep")
         now = datetime.now()
+        today_date = now.date()
+        yesterday_date = today_date - timedelta(1)
         field.passive_trigger(evt)
         # Check data is saved
-        notif_str = spreadsheet.saved_data[-1 if now.hour <= 16 else 0]
+        notif_str = spreadsheet.saved_data[yesterday_date if now.hour <= 16 else today_date]
         notif_dict = json.loads(notif_str)
         assert "sleep_time" in notif_dict
         logged_time = dateutil.parser.parse(notif_dict["sleep_time"])
@@ -119,30 +123,30 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
         # Setup field
         field = DailysSleepField(spreadsheet, spreadsheet.test_column_key)
         # Send sleep message with telegram time
-        date = datetime(2018, 12, 23, 12, 44, 13)
+        sleep_time = datetime(2018, 12, 23, 12, 44, 13)
         evt = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(date)))
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_time)))
         field.passive_trigger(evt)
         # Check data is saved to yesterday
-        notif_str = spreadsheet.saved_data[-1]
+        notif_str = spreadsheet.saved_data[sleep_time.date()-timedelta(1)]
         notif_dict = json.loads(notif_str)
         assert "sleep_time" in notif_dict
-        assert notif_dict["sleep_time"] == date.isoformat()
+        assert notif_dict["sleep_time"] == sleep_time.isoformat()
 
     def test_sleep_after_5(self):
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
         # Setup field
         field = DailysSleepField(spreadsheet, spreadsheet.test_column_key)
         # Send sleep message with telegram time
-        date = datetime(2018, 12, 23, 23, 44, 13)
+        sleep_time = datetime(2018, 12, 23, 23, 44, 13)
         evt = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(date)))
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_time)))
         field.passive_trigger(evt)
         # Check data is saved to today
-        notif_str = spreadsheet.saved_data[0]
+        notif_str = spreadsheet.saved_data[sleep_time.date()]
         notif_dict = json.loads(notif_str)
         assert "sleep_time" in notif_dict
-        assert notif_dict["sleep_time"] == date.isoformat()
+        assert notif_dict["sleep_time"] == sleep_time.isoformat()
 
     def test_sleep_wake(self):
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
@@ -154,7 +158,7 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
             .with_raw_data(RawDataTelegram(self.get_telegram_time(date_sleep)))
         field.passive_trigger(evt_sleep)
         # Check sleep time is logged
-        notif_str = spreadsheet.saved_data[0]
+        notif_str = spreadsheet.saved_data[date_sleep.date()]
         notif_dict = json.loads(notif_str)
         assert "sleep_time" in notif_dict
         assert notif_dict["sleep_time"] == date_sleep.isoformat()
@@ -167,7 +171,7 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
             .with_raw_data(RawDataTelegram(self.get_telegram_time(date_wake)))
         field.passive_trigger(evt_wake)
         # Check wake time is logged
-        notif_str = spreadsheet.saved_data[0]
+        notif_str = spreadsheet.saved_data[date_sleep.date()]
         notif_dict = json.loads(notif_str)
         assert "sleep_time" in notif_dict
         assert "wake_time" in notif_dict
@@ -187,7 +191,7 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
             .with_raw_data(RawDataTelegram(self.get_telegram_time(date_sleep)))
         field.passive_trigger(evt_sleep)
         # Check sleep time is logged
-        notif_str = spreadsheet.saved_data[0]
+        notif_str = spreadsheet.saved_data[date_sleep.date()]
         notif_dict = json.loads(notif_str)
         assert "sleep_time" in notif_dict
         assert notif_dict["sleep_time"] == date_sleep.isoformat()
@@ -200,7 +204,7 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
             .with_raw_data(RawDataTelegram(self.get_telegram_time(date_wake)))
         field.passive_trigger(evt_wake)
         # Check wake time is logged
-        notif_str = spreadsheet.saved_data[0]
+        notif_str = spreadsheet.saved_data[date_sleep.date()]
         notif_dict = json.loads(notif_str)
         assert "sleep_time" in notif_dict
         assert "wake_time" in notif_dict
