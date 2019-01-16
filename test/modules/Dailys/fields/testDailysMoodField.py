@@ -24,6 +24,57 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
             assert "times" in str(e).lower()
             assert "mood measurements" in str(e).lower()
 
-    def test_create_from_input_2_args(self):
+    def test_create_from_input_no_semicolon(self):
         # Setup stuff
+        pass
+
+    def test_create_from_input_one_semicolon(self):
+        pass
+
+    def test_create_from_input_with_col_title(self):
+        pass
+
+    def test_create_from_input_col_not_found(self):
+        pass
+
+    def test_create_from_input_col_found(self):
+        pass
+
+    def test_create_from_input_invalid_time(self):
+        pass
+
+    def test_create_from_input_not_a_time(self):
+        pass
+
+    def test_trigger_morning_query(self):
+        pass
+
+    def test_trigger_sleep_query(self):
+        pass
+
+    def test_trigger_sleep_no_query_if_already_given(self):
+        pass
+
+    def test_trigger_sleep_after_midnight(self):
+        pass
+
+    def test_trigger_time_exactly_once(self):
+        pass
+
+    def test_process_reply_to_query(self):
+        pass
+
+    def test_process_most_recent_query(self):
+        pass
+
+    def test_process_most_recent_sleep_query_after_midnight(self):
+        pass
+
+    def test_process_no_mood_query(self):
+        pass
+
+    def test_process_time_specified(self):
+        pass
+
+    def test_process_wake_specified(self):
         pass
