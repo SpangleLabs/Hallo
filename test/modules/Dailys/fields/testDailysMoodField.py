@@ -220,7 +220,37 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         self.server.get_send_data(0)
 
     def test_trigger_sleep_no_query_if_already_given(self):
-        pass
+        # Setup
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
+        # Setup field
+        times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
+        moods = ["Happiness", "Anger", "Tiredness"]
+        field = DailysMoodField(spreadsheet, spreadsheet.test_column_key, times, moods)
+        # Send message
+        evt_sleep1 = EventMessage(self.server, self.test_chan, self.test_user, "night")
+        field.passive_trigger(evt_sleep1)
+        # Check mood query is sent
+        notif_str = spreadsheet.saved_data[evt_sleep1.get_send_time().date()]
+        notif_dict = json.loads(notif_str)
+        assert DailysMoodField.TIME_SLEEP in notif_dict
+        assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
+        # Check query is given
+        data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "how are you feeling" in data_wake[0].text.lower()
+        assert DailysMoodField.TIME_SLEEP in data_wake[0].text
+        assert all([mood in data_wake[0].text for mood in moods])
+        # Set message ID to something
+        msg_id = "test_message_id"
+        notif_dict[DailysMoodField.TIME_SLEEP]["message_id"] = msg_id
+        spreadsheet.saved_data[evt_sleep1.get_send_time().date()] = json.dumps(notif_dict)
+        # Send second sleep query
+        evt_sleep2 = EventMessage(self.server, self.test_chan, self.test_user, "night")
+        field.passive_trigger(evt_sleep2)
+        # Check no mood query is sent
+        notif_str = spreadsheet.saved_data[evt_sleep1.get_send_time().date()]
+        notif_dict = json.loads(notif_str)
+        assert notif_dict[DailysMoodField.TIME_SLEEP]["message_id"] == msg_id
+        self.server.get_send_data(0)
 
     def test_trigger_sleep_after_midnight(self):
         pass
