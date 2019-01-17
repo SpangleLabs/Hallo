@@ -1,3 +1,4 @@
+import json
 import unittest
 from datetime import time
 
@@ -149,7 +150,25 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
             assert "i don't recognise that time" in str(e).lower()
 
     def test_trigger_morning_query(self):
-        pass
+        # Setup
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
+        # Setup field
+        times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
+        moods = ["Happiness", "Anger", "Tiredness"]
+        field = DailysMoodField(spreadsheet, spreadsheet.test_column_key, times, moods)
+        # Send message
+        evt_wake = EventMessage(self.server, self.test_chan, self.test_user, "morning")
+        field.passive_trigger(evt_wake)
+        # Check mood query is sent
+        notif_str = spreadsheet.saved_data[evt_wake.get_send_time().date()]
+        notif_dict = json.loads(notif_str)
+        assert DailysMoodField.TIME_WAKE in notif_dict
+        assert "message_id" in notif_dict[DailysMoodField.TIME_WAKE]
+        # Check query is given
+        data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "how are you feeling" in data_wake[0].text.lower()
+        assert DailysMoodField.TIME_WAKE in data_wake[0].text
+        assert all([mood in data_wake[0].text for mood in moods])
 
     def test_trigger_sleep_query(self):
         pass

@@ -800,7 +800,7 @@ class DailysMoodField(DailysField):
         :type evt: Event.Event
         :rtype: None
         """
-        mood_date = evt.get_send_time()
+        mood_date = evt.get_send_time().date()
         if isinstance(evt, EventMinute):
             # Get the largest time which is less than the current time. If none, do nothing.
             times = [t for t in self.times if isinstance(t, time)]
