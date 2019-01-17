@@ -275,3 +275,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
 
     def test_process_wake_specified(self):
         pass
+
+    def test_no_trigger_after_processed(self):
+        pass
+
+    def test_no_trigger_sleep_after_processed_sleep_and_midnight(self):
+        pass
