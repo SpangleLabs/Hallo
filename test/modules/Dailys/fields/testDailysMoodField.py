@@ -2,7 +2,7 @@ import json
 import unittest
 from datetime import time, date, datetime
 
-from Events import EventMessage, RawDataTelegram
+from Events import EventMessage, RawDataTelegram, EventMinute
 from modules.Dailys import DailysMoodField, DailysException
 from test.TestBase import TestBase
 from test.modules.Dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
@@ -296,7 +296,48 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         assert all([mood in data_wake[0].text for mood in moods])
 
     def test_trigger_time_exactly_once(self):
-        pass
+        mood_date = date(2019, 1, 18)
+        # Setup
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
+        # Setup field
+        times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
+        moods = ["Happiness", "Anger", "Tiredness"]
+        field = DailysMoodField(spreadsheet, spreadsheet.test_column_key, times, moods)
+        # Prepare events
+        evt1 = EventMinute()
+        evt1.send_time = datetime(2019, 1, 18, 13, 59, 11)
+        evt2 = EventMinute()
+        evt2.send_time = datetime(2019, 1, 18, 14, 0, 11)
+        evt3 = EventMinute()
+        evt3.send_time = datetime(2019, 1, 18, 14, 1, 11)
+        # Send time before trigger time
+        field.passive_trigger(evt1)
+        # Check mood data not updated and query not sent
+        assert mood_date not in spreadsheet.saved_data
+        self.server.get_send_data(0)
+        # Send time after trigger time
+        field.passive_trigger(evt2)
+        # Check mood query is sent
+        notif_str = spreadsheet.saved_data[mood_date]
+        notif_dict = json.loads(notif_str)
+        assert str(time(14, 0, 0)) in notif_dict
+        assert "message_id" in notif_dict[str(time(14, 0, 0))]
+        # Check query is given
+        data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "how are you feeling" in data_wake[0].text.lower()
+        assert str(time(14, 0, 0)) in data_wake[0].text
+        assert all([mood in data_wake[0].text for mood in moods])
+        # Set message ID to something
+        msg_id = "test_message_id"
+        notif_dict[str(time(14, 0, 0))]["message_id"] = msg_id
+        spreadsheet.saved_data[mood_date] = json.dumps(notif_dict)
+        # Send another time after trigger time
+        field.passive_trigger(evt3)
+        # Check mood data not updated and query not sent
+        notif_str = spreadsheet.saved_data[mood_date]
+        notif_dict = json.loads(notif_str)
+        assert notif_dict[str(time(14, 0, 0))]["message_id"] == msg_id
+        self.server.get_send_data(0)
 
     def test_process_reply_to_query(self):
         pass
