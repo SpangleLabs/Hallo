@@ -1,14 +1,24 @@
 import json
 import unittest
-from datetime import time
+from datetime import time, date, datetime
 
-from Events import EventMessage
+from Events import EventMessage, RawDataTelegram
 from modules.Dailys import DailysMoodField, DailysException
 from test.TestBase import TestBase
 from test.modules.Dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
 
 
+class Obj:
+    pass
+
+
 class DailysMoodFieldTest(TestBase, unittest.TestCase):
+
+    def get_telegram_time(self, date_time_val):
+        fake_telegram_obj = Obj()
+        fake_telegram_obj.message = Obj()
+        fake_telegram_obj.message.date = date_time_val
+        return fake_telegram_obj
 
     def test_create_from_input_no_args(self):
         # Setup stuff
@@ -253,7 +263,37 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         self.server.get_send_data(0)
 
     def test_trigger_sleep_after_midnight(self):
-        pass
+        mood_date = date(2019, 1, 15)
+        sleep_time = datetime(2019, 1, 16, 0, 34, 15)
+        times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
+        moods = ["Happiness", "Anger", "Tiredness"]
+        # Setup
+        saved_data = dict()
+        saved_data[DailysMoodField.TIME_WAKE] = dict()
+        saved_data[DailysMoodField.TIME_WAKE]["message_id"] = 1232
+        saved_data[str(time(14, 0, 0))] = dict()
+        saved_data[str(time(14, 0, 0))]["message_id"] = 1234
+        for mood in moods:
+            saved_data[DailysMoodField.TIME_WAKE][mood] = 3
+            saved_data[str(time(14, 0, 0))][mood] = 2
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
+                                            saved_data={mood_date: json.dumps(saved_data)})
+        # Setup field
+        field = DailysMoodField(spreadsheet, spreadsheet.test_column_key, times, moods)
+        # Send message
+        evt_sleep = EventMessage(self.server, self.test_chan, self.test_user, "night")\
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_time)))
+        field.passive_trigger(evt_sleep)
+        # Check mood query is sent for previous day
+        notif_str = spreadsheet.saved_data[mood_date]
+        notif_dict = json.loads(notif_str)
+        assert DailysMoodField.TIME_SLEEP in notif_dict
+        assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
+        # Check query is given
+        data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "how are you feeling" in data_wake[0].text.lower()
+        assert DailysMoodField.TIME_SLEEP in data_wake[0].text
+        assert all([mood in data_wake[0].text for mood in moods])
 
     def test_trigger_time_exactly_once(self):
         pass
