@@ -804,7 +804,7 @@ class DailysMoodField(DailysField):
         if isinstance(evt, EventMinute):
             # Get the largest time which is less than the current time. If none, do nothing.
             times = [t for t in self.times if isinstance(t, time)]
-            past_times = [t for t in times if t < evt.send_time.time()]
+            past_times = [t for t in times if t < evt.get_send_time().time()]
             if len(past_times) == 0:
                 return
             latest_time = max(past_times)
