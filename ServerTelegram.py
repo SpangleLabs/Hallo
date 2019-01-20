@@ -97,8 +97,8 @@ class ServerTelegram(Server):
         """
         # Get sender object
         telegram_chat = update.message.chat
-        message_sender_name = " ".join(["" if telegram_chat.first_name is None else telegram_chat.first_name,
-                                        "" if telegram_chat.last_name is None else telegram_chat.last_name])
+        names_list = [telegram_chat.first_name, telegram_chat.last_name]
+        message_sender_name = " ".join([name for name in names_list if name is not None])
         message_sender_addr = update.message.chat.id
         message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
