@@ -693,13 +693,13 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Check mood query is given and stuff
         notif_str = spreadsheet.saved_data[mood_date]
         notif_dict = json.loads(notif_str)
-        assert DailysMoodField.TIME_WAKE in notif_dict
-        assert "message_id" in notif_dict[DailysMoodField.TIME_WAKE]
-        notif_dict[DailysMoodField.TIME_WAKE]["message_id"] = msg_id
+        assert DailysMoodField.TIME_SLEEP in notif_dict
+        assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
+        notif_dict[DailysMoodField.TIME_SLEEP]["message_id"] = msg_id
         spreadsheet.saved_data[mood_date] = json.dumps(notif_dict)
         data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "how are you feeling" in data_wake[0].text.lower()
-        assert DailysMoodField.TIME_WAKE in data_wake[0].text
+        assert DailysMoodField.TIME_SLEEP in data_wake[0].text
         assert all([mood in data_wake[0].text for mood in moods])
         # Then mood response
         evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "413")\
@@ -708,15 +708,15 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Check mood is recorded and response given
         notif_str = spreadsheet.saved_data[mood_date]
         notif_dict = json.loads(notif_str)
-        assert DailysMoodField.TIME_WAKE in notif_dict
-        assert "message_id" in notif_dict[DailysMoodField.TIME_WAKE]
-        assert notif_dict[DailysMoodField.TIME_WAKE]["message_id"] == msg_id
-        assert notif_dict[DailysMoodField.TIME_WAKE]["Happiness"] == 4
-        assert notif_dict[DailysMoodField.TIME_WAKE]["Anger"] == 1
-        assert notif_dict[DailysMoodField.TIME_WAKE]["Tiredness"] == 3
+        assert DailysMoodField.TIME_SLEEP in notif_dict
+        assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
+        assert notif_dict[DailysMoodField.TIME_SLEEP]["message_id"] == msg_id
+        assert notif_dict[DailysMoodField.TIME_SLEEP]["Happiness"] == 4
+        assert notif_dict[DailysMoodField.TIME_SLEEP]["Anger"] == 1
+        assert notif_dict[DailysMoodField.TIME_SLEEP]["Tiredness"] == 3
         data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "added" in data_wake[0].text.lower()
-        assert DailysMoodField.TIME_WAKE in data_wake[0].text
+        assert DailysMoodField.TIME_SLEEP in data_wake[0].text
         assert "413" in data_wake[0].text
         # Then midnight
         # Another sleep query
