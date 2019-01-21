@@ -796,6 +796,8 @@ class DailysMoodField(DailysField):
         """
         # TODO: cache True values
         data = self.get_current_data(mood_date)[0]
+        if time_val is self.TIME_SLEEP and len(self.times) > 1 and len(data) == 0:
+            return True
         return self.time_triggered(data, time_val)
 
     def passive_trigger(self, evt):
