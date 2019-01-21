@@ -191,13 +191,22 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
 
     def test_trigger_sleep_query(self):
         # Setup
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
+        moods = ["Happiness", "Anger", "Tiredness"]
+        evt_sleep = EventMessage(self.server, self.test_chan, self.test_user, "night")
+        saved_data = dict()
+        saved_data[DailysMoodField.TIME_WAKE] = dict()
+        saved_data[DailysMoodField.TIME_WAKE]["message_id"] = 1232
+        saved_data[str(time(14, 0, 0))] = dict()
+        saved_data[str(time(14, 0, 0))]["message_id"] = 1234
+        for mood in moods:
+            saved_data[DailysMoodField.TIME_WAKE][mood] = 3
+            saved_data[str(time(14, 0, 0))][mood] = 2
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
+                                            saved_data={evt_sleep.get_send_time().date(): json.dumps(saved_data)})
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
-        moods = ["Happiness", "Anger", "Tiredness"]
         field = DailysMoodField(spreadsheet, spreadsheet.test_column_key, times, moods)
         # Send message
-        evt_sleep = EventMessage(self.server, self.test_chan, self.test_user, "night")
         field.passive_trigger(evt_sleep)
         # Check mood query is sent
         notif_str = spreadsheet.saved_data[evt_sleep.get_send_time().date()]
@@ -240,10 +249,20 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
 
     def test_trigger_sleep_no_query_if_already_given(self):
         # Setup
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
+        moods = ["Happiness", "Anger", "Tiredness"]
+        evt_sleep1 = EventMessage(self.server, self.test_chan, self.test_user, "night")
+        saved_data = dict()
+        saved_data[DailysMoodField.TIME_WAKE] = dict()
+        saved_data[DailysMoodField.TIME_WAKE]["message_id"] = 1232
+        saved_data[str(time(14, 0, 0))] = dict()
+        saved_data[str(time(14, 0, 0))]["message_id"] = 1234
+        for mood in moods:
+            saved_data[DailysMoodField.TIME_WAKE][mood] = 3
+            saved_data[str(time(14, 0, 0))][mood] = 2
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
+                                            saved_data={evt_sleep1.get_send_time().date(): json.dumps(saved_data)})
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
-        moods = ["Happiness", "Anger", "Tiredness"]
         field = DailysMoodField(spreadsheet, spreadsheet.test_column_key, times, moods)
         # Send message
         evt_sleep1 = EventMessage(self.server, self.test_chan, self.test_user, "night")
