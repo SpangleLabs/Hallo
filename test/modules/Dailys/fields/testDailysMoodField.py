@@ -18,6 +18,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         fake_telegram_obj = Obj()
         fake_telegram_obj.message = Obj()
         fake_telegram_obj.message.date = date_time_val
+        fake_telegram_obj.message.reply_to_message = None
         return fake_telegram_obj
 
     def get_telegram_time_reply(self, date_time_val, message_id):
@@ -381,7 +382,37 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         assert "413" in data_wake[0].text
 
     def test_process_most_recent_query(self):
-        pass
+        # Setup
+        mood_date = date(2019, 1, 18)
+        mood_datetime = datetime.combine(mood_date, time(8, 13, 6))
+        msg_id = 41212
+        mood_data = dict()
+        mood_data[DailysMoodField.TIME_WAKE] = dict()
+        mood_data[DailysMoodField.TIME_WAKE]["message_id"] = msg_id
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
+                                            saved_data={mood_date: json.dumps(mood_data)})
+        # Setup field
+        times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
+        moods = ["Happiness", "Anger", "Tiredness"]
+        field = DailysMoodField(spreadsheet, spreadsheet.test_column_key, times, moods)
+        # Send message
+        evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "413")\
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        field.passive_trigger(evt_mood)
+        # Check mood response is logged
+        notif_str = spreadsheet.saved_data[mood_date]
+        notif_dict = json.loads(notif_str)
+        assert DailysMoodField.TIME_WAKE in notif_dict
+        assert "message_id" in notif_dict[DailysMoodField.TIME_WAKE]
+        assert notif_dict[DailysMoodField.TIME_WAKE]["message_id"] == msg_id
+        assert notif_dict[DailysMoodField.TIME_WAKE]["Happiness"] == 4
+        assert notif_dict[DailysMoodField.TIME_WAKE]["Anger"] == 1
+        assert notif_dict[DailysMoodField.TIME_WAKE]["Tiredness"] == 3
+        # Check response is given
+        data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "added" in data_wake[0].text.lower()
+        assert DailysMoodField.TIME_WAKE in data_wake[0].text
+        assert "413" in data_wake[0].text
 
     def test_process_most_recent_sleep_query_after_midnight(self):
         pass
