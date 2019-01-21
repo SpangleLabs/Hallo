@@ -301,7 +301,7 @@ class RssSub(Subscription):
         headers = None
         # Tumblr feeds need "GoogleBot" in the URL, or they'll give a GDPR notice
         if "tumblr.com" in self.url:
-            headers = [["User-Agent", "Hallo IRCBot hallo@dr-spangle.com (GoogleBot)"]]
+            headers = [["User-Agent", "Hallo IRCBot hallo@dr-spangle.com (GoogleBot/4.5.1)"]]
         # Actually get the data
         rss_data = Commons.load_url_string(self.url, headers)
         # PHDComics doesn't always escape ampersands correctly
