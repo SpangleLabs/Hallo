@@ -921,6 +921,8 @@ class DailysMoodField(DailysField):
         with self.lock:
             data = self.get_current_data(mood_date)
             mood_dict = {str(x[0]): x[1] for x in zip(self.moods, [int(x) for x in mood_str])}
+            if str(time_val) not in data[0]:
+                data[0][str(time_val)] = dict()
             data[0][str(time_val)] = {**data[0][str(time_val)], **mood_dict}
             self.save_data(data[0], mood_date)
         self.message_channel("Added mood stat {} for time: {}".format(mood_str, time_val))
