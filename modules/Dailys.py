@@ -707,6 +707,28 @@ class DailysMoodField(DailysField):
     # after wakeup has been logged.
     TIME_SLEEP = "SleepTime"  # Used as a time entry to signify that a mood measurement should be taken before sleep.
 
+    class MoodTriggeredCache:
+        def __init__(self):
+            self.cache = dict()  # Cache of time values which have triggered already on set days.
+            """ :type : dict[date, list[time|str]"""
+
+        def has_triggered(self, mood_date, time_val):
+            return mood_date in self.cache and time_val in self.cache[mood_date]
+
+        def save_triggered(self, mood_date, time_val):
+            self.clean_old_cache(mood_date)
+            if mood_date not in self.cache:
+                self.cache[mood_date] = []
+            self.cache[mood_date].append(time_val)
+
+        def clean_old_cache(self, current_date):
+            expired_dates = []
+            for mood_date in self.cache:
+                if mood_date <= current_date - timedelta(days=4):
+                    expired_dates.append(mood_date)
+            for del_date in expired_dates:
+                del self.cache[del_date]
+
     def __init__(self, spreadsheet, hallo_key_field_id, times, moods):
         super().__init__(spreadsheet, hallo_key_field_id)
         self.times = times
@@ -714,6 +736,7 @@ class DailysMoodField(DailysField):
         self.moods = moods
         """ :type : list[str]"""
         self.lock = RLock()
+        self.triggered_cache = DailysMoodField.MoodTriggeredCache()
 
     @staticmethod
     def create_from_input(event, spreadsheet):
@@ -794,11 +817,20 @@ class DailysMoodField(DailysField):
         :type time_val: str|time
         :return: bool
         """
-        # TODO: cache True values
-        data = self.get_current_data(mood_date)[0]
+        # Check cache for true values
+        if self.triggered_cache.has_triggered(mood_date, time_val):
+            return True
+        # Get the current data
+        data, adjusted_date = self.get_current_data(mood_date)
+        # If sleep message, and today hasn't got previous mood measurements, return true (don't cache)
         if time_val is self.TIME_SLEEP and len(self.times) > 1 and len(data) == 0:
             return True
-        return self.time_triggered(data, time_val)
+        # See if time has been queried or measured
+        triggered = self.time_triggered(data, time_val)
+        # Update cache
+        if triggered:
+            self.triggered_cache.save_triggered(adjusted_date, time_val)
+        return triggered
 
     def passive_trigger(self, evt):
         """
