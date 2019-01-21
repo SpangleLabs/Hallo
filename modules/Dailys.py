@@ -365,7 +365,7 @@ class DailysSpreadsheet:
         first_date_row = None
         for row_num in range(len(date_range)):
             try:
-                first_date = dateutil.parser.parse(date_range[row_num][0], dayfirst=True)
+                first_date = dateutil.parser.parse(date_range[row_num][0], dayfirst=True).date()
                 first_date_row = row_num
                 break
             except ValueError:
@@ -382,7 +382,7 @@ class DailysSpreadsheet:
 
     def get_row_for_date(self, current_date):
         first_date_row, first_date = self.first_date_pair.get()
-        return (current_date-first_date).days + first_date_row
+        return (current_date - first_date).days + first_date_row
 
     def add_field(self, field):
         """
