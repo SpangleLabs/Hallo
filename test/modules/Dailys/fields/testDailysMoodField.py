@@ -681,10 +681,19 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         mood_datetime = datetime.combine(mood_date, time(23, 15, 7))
         sleep2_datetime = datetime.combine(mood_date + timedelta(days=1), time(0, 3, 15))
         msg_id = 123123
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
+        moods = ["Happiness", "Anger", "Tiredness"]
+        saved_data = dict()
+        saved_data[DailysMoodField.TIME_WAKE] = dict()
+        saved_data[DailysMoodField.TIME_WAKE]["message_id"] = 1232
+        saved_data[str(time(14, 0, 0))] = dict()
+        saved_data[str(time(14, 0, 0))]["message_id"] = 1234
+        for mood in moods:
+            saved_data[DailysMoodField.TIME_WAKE][mood] = 3
+            saved_data[str(time(14, 0, 0))][mood] = 2
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
+                                            saved_data={mood_date: json.dumps(saved_data)})
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
-        moods = ["Happiness", "Anger", "Tiredness"]
         field = DailysMoodField(spreadsheet, spreadsheet.test_column_key, times, moods)
         # Send sleep query
         evt_sleep1 = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
@@ -721,7 +730,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Then midnight
         # Another sleep query
         evt_sleep1 = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_datetime)))
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(sleep2_datetime)))
         field.passive_trigger(evt_sleep1)
         # Check there's no response
         self.server.get_send_data(0)
