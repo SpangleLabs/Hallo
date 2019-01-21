@@ -778,12 +778,15 @@ class DailysMoodField(DailysField):
                 if yesterday_str is None or yesterday_str == "":
                     return dict(), mood_date
                 yesterday_data = json.loads(yesterday_str)
-                if len(yesterday_data) == len(self.times) and \
-                        all(["message_id" in yesterday_data[m] for m in yesterday_data]):
+                if self.mood_data_is_full(yesterday_data):
                     return dict(), mood_date
                 return yesterday_data, yesterday_date
             today_data = json.loads(today_str)
             return today_data, mood_date
+
+    def mood_data_is_full(self, date_data):
+        return len(date_data) == len(self.times) and \
+               all([m in date_data[str(t)] for t in self.times for m in self.moods])
 
     def has_triggered_for_time(self, mood_date, time_val):
         """
@@ -859,7 +862,7 @@ class DailysMoodField(DailysField):
         return "".join([m[0] for m in self.moods]).upper()
 
     def time_triggered(self, data, time_val):
-        return str(time_val) in data and "message_id" in data[str(time_val)]
+        return str(time_val) in data
 
     def time_query_unreplied(self, data, time_val):
         return str(time_val) in data and len(data[str(time_val)]) <= 1

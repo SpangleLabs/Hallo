@@ -1,6 +1,6 @@
 import json
 import unittest
-from datetime import time, date, datetime
+from datetime import time, date, datetime, timedelta
 
 from Events import EventMessage, RawDataTelegram, EventMinute
 from modules.Dailys import DailysMoodField, DailysException
@@ -415,7 +415,47 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         assert "413" in data_wake[0].text
 
     def test_process_most_recent_sleep_query_after_midnight(self):
-        pass
+        # Setup
+        mood_date = date(2019, 1, 18)
+        sleep_datetime = datetime.combine(mood_date, time(23, 55, 56))
+        mood_datetime = datetime.combine(mood_date + timedelta(days=1), time(0, 3, 2))
+        msg_id = 41212
+        mood_data = dict()
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
+                                            saved_data={mood_date: json.dumps(mood_data)})
+        # Setup field
+        times = [DailysMoodField.TIME_SLEEP]
+        moods = ["Happiness", "Anger", "Tiredness"]
+        field = DailysMoodField(spreadsheet, spreadsheet.test_column_key, times, moods)
+        # Send sleep message, check response
+        evt_sleep = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_datetime)))
+        field.passive_trigger(evt_sleep)
+        notif_str = spreadsheet.saved_data[mood_date]
+        notif_dict = json.loads(notif_str)
+        assert DailysMoodField.TIME_SLEEP in notif_dict
+        assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
+        notif_dict[DailysMoodField.TIME_SLEEP]["message_id"] = msg_id
+        spreadsheet.saved_data[mood_date] = json.dumps(notif_dict)
+        self.server.get_send_data()
+        # Send message
+        evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "413")\
+            .with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        field.passive_trigger(evt_mood)
+        # Check mood response is logged
+        notif_str = spreadsheet.saved_data[mood_date]
+        notif_dict = json.loads(notif_str)
+        assert DailysMoodField.TIME_SLEEP in notif_dict
+        assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
+        assert notif_dict[DailysMoodField.TIME_SLEEP]["message_id"] == msg_id
+        assert notif_dict[DailysMoodField.TIME_SLEEP]["Happiness"] == 4
+        assert notif_dict[DailysMoodField.TIME_SLEEP]["Anger"] == 1
+        assert notif_dict[DailysMoodField.TIME_SLEEP]["Tiredness"] == 3
+        # Check response is given
+        data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
+        assert "added" in data_wake[0].text.lower()
+        assert DailysMoodField.TIME_SLEEP in data_wake[0].text
+        assert "413" in data_wake[0].text
 
     def test_process_no_mood_query(self):
         pass
