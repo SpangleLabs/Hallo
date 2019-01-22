@@ -26,6 +26,16 @@ class RawDataTelegram(RawData):
         self.update_obj = update_obj
 
 
+class RawDataTelegramOutbound(RawData):
+
+    def __init__(self, sent_msg_object):
+        """
+        :param sent_msg_object: Sent message object returned when sending message on telegram
+        :type sent_msg_object: ??
+        """
+        self.sent_msg_object = sent_msg_object
+
+
 class Event(metaclass=ABCMeta):
 
     def __init__(self, inbound=True):
@@ -36,6 +46,12 @@ class Event(metaclass=ABCMeta):
         """ :type : bool"""
         self.send_time = datetime.now()
         """ :type : datetime"""
+
+    def get_send_time(self):
+        """
+        :rtype: datetime
+        """
+        return self.send_time
 
 
 class EventSecond(Event):
@@ -73,6 +89,14 @@ class ServerEvent(Event, metaclass=ABCMeta):
         """
         self.raw_data = raw_data
         return self
+
+    def get_send_time(self):
+        """
+        :rtype: datetime
+        """
+        if isinstance(self.raw_data, RawDataTelegram):
+            return self.raw_data.update_obj.message.date
+        return super().get_send_time()
 
 
 class EventPing(ServerEvent):

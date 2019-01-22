@@ -12,7 +12,8 @@ from bs4 import BeautifulSoup
 from Destination import Channel, User
 from Events import EventMessageWithPhoto, EventMessage, EventMinute
 from Function import Function
-from inc.Commons import Commons, ISO8601ParseError
+from inc.Commons import Commons, ISO8601ParseError, CachedObject
+from modules.UserData import FAKeyData, UserDataParser
 
 
 class SubscriptionException(Exception):
@@ -114,7 +115,9 @@ class SubscriptionRepo:
         # Add common configuration
         json_obj["common"] = []
         for common in self.common_list:
-            json_obj["common"].append(common.to_json())
+            common_json = common.to_json()
+            if common_json is not None:
+                json_obj["common"].append(common_json)
         # Write json to file
         with open("store/subscriptions.json", "w") as f:
             json.dump(json_obj, f, indent=2)
@@ -136,7 +139,7 @@ class SubscriptionRepo:
         # Loop common objects in json file adding them to list.
         # Common config must be loaded first, as subscriptions use it.
         for common_elem in json_obj["common"]:
-            new_common_obj = SubscriptionFactory.common_from_json(common_elem, hallo)
+            new_common_obj = SubscriptionFactory.common_from_json(common_elem)
             new_sub_list.common_list.append(new_common_obj)
         # Loop subs in json file adding them to list
         for sub_elem in json_obj["subs"]:
@@ -605,7 +608,8 @@ class FANotificationNotesSub(Subscription):
         if fa_key is None:
             raise SubscriptionException("Cannot create FA note notification subscription without cookie details. "
                                         "Please set up FA cookies with "
-                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` "
+                                        "and your cookie values.")
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # See if user gave us an update period
@@ -757,7 +761,8 @@ class FANotificationFavSub(Subscription):
         if fa_key is None:
             raise SubscriptionException("Cannot create FA favourite notification subscription without cookie details. "
                                         "Please set up FA cookies with "
-                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` "
+                                        "and your cookie values.")
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # See if user gave us an update period
@@ -896,7 +901,7 @@ class FANotificationCommentsSub(Subscription):
         if fa_key is None:
             raise SubscriptionException("Cannot create FA comments notification subscription without cookie details. "
                                         "Please set up FA cookies with "
-                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # See if user gave us an update period
@@ -1116,7 +1121,7 @@ class FASearchSub(Subscription):
         if fa_key is None:
             raise SubscriptionException("Cannot create FA search subscription without cookie details. "
                                         "Please set up FA cookies with "
-                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
         # Get server and destination
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
@@ -1307,7 +1312,7 @@ class FAUserFavsSub(Subscription):
         if fa_key is None:
             raise SubscriptionException("Cannot create FA user favourites subscription without cookie details. "
                                         "Please set up FA cookies with "
-                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
         # Get server and destination
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
@@ -1325,7 +1330,7 @@ class FAUserFavsSub(Subscription):
         try:
             fa_key.get_fa_reader().get_user_page(username)
         except Exception:
-            raise SubscriptionException("This does not appear to be a valid username.")
+            raise SubscriptionException("This does not appear to be a valid FA username.")
         fa_sub.check()
         return fa_sub
 
@@ -1482,7 +1487,7 @@ class FAUserWatchersSub(Subscription):
         if fa_key is None:
             raise SubscriptionException("Cannot create FA user watchers subscription without cookie details. "
                                         "Please set up FA cookies with "
-                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
         # Get server and destination
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
@@ -1641,7 +1646,7 @@ class FANotificationWatchSub(FAUserWatchersSub):
         if fa_key is None:
             raise SubscriptionException("Cannot create FA watcher notification subscription without cookie details. "
                                         "Please set up FA cookies with "
-                                        "`setup FA subscription a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
         # Get server and destination
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
@@ -1728,76 +1733,37 @@ class ImgurSub(Subscription):
 class SubscriptionCommon:
     type_name = ""
     """ :type : str"""
-    names = []
-    """ :type : list[str]"""
-
-    def update_from_input(self, event):
-        raise NotImplementedError()
-
-    def remove_by_input(self, event):
-        raise NotImplementedError()
-
-    def get_name(self, event):
-        raise NotImplementedError()
 
     def to_json(self):
         raise NotImplementedError()
 
     @staticmethod
-    def from_json(json_obj, hallo):
+    def from_json(json_obj):
         raise NotImplementedError()
 
 
 class FAKeysCommon(SubscriptionCommon):
     type_name = "fa_keys"
     """ :type : str"""
-    names = ["fa", "furaffinity", "fur affinity"]
-    """ :type : list[str]"""
 
     def __init__(self):
         self.list_keys = dict()
         """ :type : dict[User, FAKey]"""
-
-    def update_from_input(self, event):
-        """
-        :type event: EventMessage
-        """
-        user = event.user
-        input_clean = event.command_args.strip().lower().replace(";", " ").split()
-        if len(input_clean) != 2:
-            raise SubscriptionException("Input must include cookie a and cookie b, in the format a=value;b=value")
-        if input_clean[0].startswith("b="):
-            input_clean = list(reversed(input_clean))
-        cookie_a = input_clean[0][2:]
-        cookie_b = input_clean[1][2:]
-        if user in self.list_keys:
-            existing_key = self.list_keys[user]
-            existing_key.cookie_a = cookie_a
-            existing_key.cookie_b = cookie_b
-            existing_key.fa_reader = None
-            return
-        new_key = FAKey(user, cookie_a, cookie_b)
-        self.list_keys[user] = new_key
-        return
-
-    def remove_by_input(self, event):
-        user = event.user
-        if user in self.list_keys:
-            del self.list_keys[user]
 
     def get_key_by_user(self, user):
         """
         :type user: Destination.User
         :return: FAKey
         """
-        return self.list_keys[user] if user in self.list_keys else None
-
-    def get_name(self, event):
-        """
-        :type event: EventMessage
-        :return: str
-        """
-        return event.user.name + " FA login"
+        if user in self.list_keys:
+            return self.list_keys[user]
+        user_data_parser = UserDataParser()
+        fa_data = user_data_parser.get_data_by_user_and_type(user, FAKeyData)  # type: FAKeyData
+        if fa_data is None:
+            return None
+        fa_key = FAKey(user, fa_data.cookie_a, fa_data.cookie_b)
+        self.add_key(fa_key)
+        return fa_key
 
     def add_key(self, key):
         """
@@ -1806,18 +1772,11 @@ class FAKeysCommon(SubscriptionCommon):
         self.list_keys[key.user] = key
 
     def to_json(self):
-        json_obj = {"common_type": self.type_name,
-                    "key_list": []}
-        for user in self.list_keys:
-            json_obj["key_list"].append(self.list_keys[user].to_json())
-        return json_obj
+        return None
 
     @staticmethod
-    def from_json(json_obj, hallo):
-        keys_common = FAKeysCommon()
-        for key_dict in json_obj["key_list"]:
-            keys_common.add_key(FAKey.from_json(key_dict, hallo))
-        return keys_common
+    def from_json(json_obj):
+        return FAKeysCommon()
 
 
 class FAKey:
@@ -1840,21 +1799,6 @@ class FAKey:
             self.fa_reader = FAKey.FAReader(self.cookie_a, self.cookie_b)
         return self.fa_reader
 
-    def to_json(self):
-        json_obj = {"server_name": self.user.server.name,
-                    "user_address": self.user.address,
-                    "cookie_a": self.cookie_a,
-                    "cookie_b": self.cookie_b}
-        return json_obj
-
-    @staticmethod
-    def from_json(json_obj, hallo):
-        server = hallo.get_server_by_name(json_obj["server_name"])
-        user = server.get_user_by_address(json_obj["user_address"])
-        cookie_a = json_obj["cookie_a"]
-        cookie_b = json_obj["cookie_b"]
-        return FAKey(user, cookie_a, cookie_b)
-
     class FAReader:
         NOTES_INBOX = "inbox"
         NOTES_OUTBOX = "outbox"
@@ -1869,14 +1813,22 @@ class FAKey:
             """ :type : str"""
             self.timeout = timedelta(seconds=60)
             """ :type : timedelta"""
-            self.notification_page = None
-            """ :type : FAKey.FAReader.FANotificationsPage | None"""
-            self.submissions_page = None
-            """ :type : FAKey.FAReader.FASubmissionsPage | None"""
-            self.notes_page_inbox = None
-            """ :type : FAKer.FAReader.FANotesPage | None"""
-            self.notes_page_outbox = None
-            """ :type : FAKey.FAReader.FANotesPage | None"""
+            self.notification_page_cache = CachedObject(lambda: FAKey.FAReader.FANotificationsPage(
+                self._get_page_code("https://www.furaffinity.net/msg/others/")),
+                                                        self.timeout)
+            """ :type : CachedObject"""
+            self.submissions_page_cache = CachedObject(lambda: FAKey.FAReader.FASubmissionsPage(
+                self._get_page_code("https://www.furaffinity.net/msg/submissions/")),
+                                                       self.timeout)
+            """ :type : CachedObject"""
+            self.notes_page_inbox_cache = CachedObject(lambda: FAKey.FAReader.FANotesPage(
+                self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=inbox"), self.NOTES_INBOX),
+                                                       self.timeout)
+            """ :type : CachedObject"""
+            self.notes_page_outbox_cache = CachedObject(lambda: FAKey.FAReader.FANotesPage(
+                self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=outbox"), self.NOTES_OUTBOX),
+                                                        self.timeout)
+            """ :type : CachedObject"""
 
         def _get_page_code(self, url, extra_cookie=""):
             if len(extra_cookie) > 0 or not extra_cookie.startswith(";"):
@@ -1888,19 +1840,13 @@ class FAKey:
             """
             :rtype: FAKey.FAReader.FANotificationsPage
             """
-            if self.notification_page is None or datetime.now() > (self.notification_page.retrieve_time + self.timeout):
-                page_code = self._get_page_code("https://www.furaffinity.net/msg/others/")
-                self.notification_page = FAKey.FAReader.FANotificationsPage(page_code)
-            return self.notification_page
+            return self.notification_page_cache.get()
 
         def get_submissions_page(self):
             """
             :rtype: FAReader.FASubmissionsPage
             """
-            if self.submissions_page is None or datetime.now() > (self.submissions_page.retrieve_time + self.timeout):
-                page_code = self._get_page_code("https://www.furaffinity.net/msg/submissions/")
-                self.submissions_page = FAKey.FAReader.FASubmissionsPage(page_code)
-            return self.submissions_page
+            return self.submissions_page_cache.get()
 
         def get_notes_page(self, folder):
             """
@@ -1908,17 +1854,9 @@ class FAKey:
             :return: FAReader.FANotesPage
             """
             if folder == self.NOTES_INBOX:
-                if self.notes_page_inbox is None or \
-                        datetime.now() > (self.notes_page_inbox.retrieve_time + self.timeout):
-                    code = self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=inbox")
-                    self.notes_page_inbox = FAKey.FAReader.FANotesPage(code, folder)
-                return self.notes_page_inbox
+                return self.notes_page_inbox_cache.get()
             if folder == self.NOTES_OUTBOX:
-                if self.notes_page_outbox is None or \
-                        datetime.now() > (self.notes_page_outbox.retrieve_time + self.timeout):
-                    code = self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=outbox")
-                    self.notes_page_outbox = FAKey.FAReader.FANotesPage(code, folder)
-                return self.notes_page_outbox
+                return self.notes_page_outbox_cache.get()
             raise ValueError("Invalid FA note folder.")
 
         def get_user_page(self, username):
@@ -2644,21 +2582,10 @@ class SubscriptionFactory(object):
         return [name for sub_class in SubscriptionFactory.sub_classes for name in sub_class.names]
 
     @staticmethod
-    def get_common_names():
-        return [name for common_class in SubscriptionFactory.common_classes for name in common_class.names]
-
-    @staticmethod
     def get_class_by_name(name):
         classes = [sub_class for sub_class in SubscriptionFactory.sub_classes if name in sub_class.names]
         if len(classes) != 1:
             raise SubscriptionException("Failed to find a subscription type matching the name {}".format(name))
-        return classes[0]
-
-    @staticmethod
-    def get_common_class_by_name(name):
-        classes = [common_class for common_class in SubscriptionFactory.common_classes if name in common_class.names]
-        if len(classes) != 1:
-            raise SubscriptionException("Failed to find a common configuration type matching the name {}".format(name))
         return classes[0]
 
     @staticmethod
@@ -2676,16 +2603,15 @@ class SubscriptionFactory(object):
         raise SubscriptionException("Could not load subscription of type {}".format(sub_type_name))
 
     @staticmethod
-    def common_from_json(common_json, hallo):
+    def common_from_json(common_json):
         """
         :type common_json: dict
-        :type hallo: Hallo.Hallo
         :rtype: SubscriptionCommon
         """
         common_type_name = common_json["common_type"]
         for common_class in SubscriptionFactory.common_classes:
             if common_class.type_name == common_type_name:
-                return common_class.from_json(common_json, hallo)
+                return common_class.from_json(common_json)
         raise SubscriptionException("Could not load common configuration of type {}".format(common_type_name))
 
 
@@ -2966,101 +2892,3 @@ class SubscriptionList(Function):
                 new_line += " ({})".format(search_item.last_update.strftime('%Y-%m-%d %H:%M:%S'))
             output_lines.append(new_line)
         return event.create_response("\n".join(output_lines))
-
-
-class SubscriptionSetup(Function):
-    """
-    Sets up a user's common configuration in the subscription repository
-    """
-    setup_words = ["setup"]
-    sub_words = ["sub", "subs", "subscription", "subscriptions"]
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        super().__init__()
-        # Name for use in help listing
-        self.help_name = "setup subscription"
-        # Names which can be used to address the function
-        name_templates = {"{0} {2}", "{2} {0}",
-                          "{2} {0} {1}", "{2} {1} {0}", "{1} {0} {2}", "{0} {1} {2}"}
-        self.names = set([template.format(name, sub, setup)
-                          for name in SubscriptionFactory.get_common_names()
-                          for template in name_templates
-                          for sub in self.sub_words
-                          for setup in self.setup_words])
-        # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Sets up a subscription common configuration for the current channel. " \
-                         "Format: setup subscription <type> <parameters>"
-
-    def run(self, event):
-        # Construct type name
-        common_type_name = " ".join([w for w in event.command_name.lower().split()
-                                     if w not in self.sub_words + self.setup_words]).strip()
-        # Get class from type name
-        common_class = SubscriptionFactory.get_common_class_by_name(common_type_name)
-        # Get current subscription repo
-        function_dispatcher = event.server.hallo.function_dispatcher
-        sub_check_class = function_dispatcher.get_function_by_name("check subscription")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubscriptionCheck
-        sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
-        # Acquire lock to update the common config object
-        with sub_repo.sub_lock:
-            # Get common configuration item and update
-            common_obj = sub_repo.get_common_config_by_type(common_class)
-            common_obj.update_from_input(event)
-            # Save repo
-            sub_repo.save_json()
-        # Send response
-        return event.create_response("Set up a new {} common configuration for {}".format(common_class.type_name,
-                                                                                          common_obj.get_name(event)))
-
-
-class SubscriptionTeardown(Function):
-    """
-    Tears down a user's common configuration in the subscription repository
-    """
-    tear_down_words = ["tear down", "teardown"]
-    sub_words = ["sub", "subs", "subscription", "subscriptions"]
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        super().__init__()
-        # Name for use in help listing
-        self.help_name = "tear down subscription"
-        # Names which can be used to address the function
-        name_templates = {"{0} {1}", "{1} {0}",
-                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
-        self.names = set([template.format(name, tearDown, sub)
-                          for name in SubscriptionFactory.get_common_names()
-                          for template in name_templates
-                          for tearDown in self.tear_down_words
-                          for sub in self.sub_words])
-        # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Tears down a subscription common configuration for the current channel. " \
-                         "Format: tear down subscription <type> <parameters>"
-
-    def run(self, event):
-        # Construct type name
-        common_type_name = " ".join([w for w in event.command_name.split()
-                                     if w not in self.sub_words+self.tear_down_words]).strip()
-        # Get class from type name
-        common_class = SubscriptionFactory.get_common_class_by_name(common_type_name)
-        # Get current subscription repo
-        function_dispatcher = event.server.hallo.function_dispatcher
-        sub_check_class = function_dispatcher.get_function_by_name("check subscription")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_class)  # type: SubscriptionCheck
-        sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
-        # Acquire lock to update the common config object
-        with sub_repo.sub_lock:
-            # Get common configuration item and update
-            common_obj = sub_repo.get_common_config_by_type(common_class)
-            common_obj.remove_by_input(event)
-            # Save repo
-            sub_repo.save_json()
-        # Send response
-        return event.create_response("Removed {} common configuration for {}".format(common_class.type_name,
-                                                                                     common_obj.get_name(event)))
