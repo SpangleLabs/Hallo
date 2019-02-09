@@ -7,7 +7,7 @@ import modules
 from Events import EventMessage
 from modules.Subscriptions import SubscriptionFactory, E621Sub, RssSub, FANotificationNotesSub, FASearchSub, FAKey, \
     SubscriptionRepo, FAKeysCommon, FAUserFavsSub, FAUserWatchersSub, FANotificationWatchSub, FANotificationFavSub, \
-    FANotificationCommentsSub
+    FANotificationCommentsSub, RedditSub
 
 from test.TestBase import TestBase
 
@@ -28,6 +28,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_objs.append(FANotificationWatchSub(self.server, self.test_chan, fa_key))
         sub_objs.append(FANotificationFavSub(self.server, self.test_chan, fa_key))
         sub_objs.append(FANotificationCommentsSub(self.server, self.test_chan, fa_key))
+        sub_objs.append(RedditSub(self.server, self.test_chan, "deer"))
         return sub_objs
 
     def get_sub_create_events(self):
@@ -55,6 +56,8 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_evts[FANotificationFavSub].command_args = ""
         sub_evts[FANotificationCommentsSub] = EventMessage(self.server, self.test_chan, self.test_user, "")
         sub_evts[FANotificationCommentsSub].command_args = ""
+        sub_evts[RedditSub] = EventMessage(self.server, self.test_chan, self.test_user, "r/deer")
+        sub_evts[RedditSub].command_args = "r/deer"
         return sub_evts
 
     def test_all_sub_classes_in_sub_objs(self):
