@@ -402,3 +402,21 @@ class Commons(object):
             if find is not None:
                 return find
         return False
+
+
+class CachedObject:
+    def __init__(self, setter, cache_expiry=None):
+        """
+        :type setter: Callable
+        :type cache_expiry: timedelta
+        """
+        self.setter = setter
+        self.cache_expiry = cache_expiry if cache_expiry is not None else timedelta(minutes=5)
+        self.cache_time = None
+        self.value = None
+
+    def get(self):
+        if self.cache_time is None or (self.cache_time + self.cache_expiry) < datetime.datetime.now():
+            self.value = self.setter()
+            self.cache_time = datetime.datetime.now()
+        return self.value

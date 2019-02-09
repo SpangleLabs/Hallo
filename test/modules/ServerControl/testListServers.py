@@ -73,7 +73,7 @@ class ListServersTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "list servers"))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         # Check response
-        server_list_text = data[0].text.split(":")[1]
+        server_list_text = data[0].text.split(": \n")[1]
         server_list = server_list_text.split("\n")
         assert len(server_list) == 2
         if serv1.name in server_list[0]:

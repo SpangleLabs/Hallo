@@ -80,11 +80,11 @@ class FunctionDispatcher(object):
                 event.reply(event.create_response("The function returned no value."))
             return
         except Exception as e:
-            e_str = (str(e)[:75] + '..') if len(str(e)) > 75 else str(e)
+            e_str = (str(e)[:250] + '..') if len(str(e)) > 250 else str(e)
             event.reply(event.create_response("Function failed with error message: {}".format(e_str)))
             print("Function: {} {}".format(function_class.__module__, function_class.__name__))
             print("Function error: {}".format(e))
-            print("Function error location: {}".format(traceback.format_exc(3)))
+            print("Function error location: {}".format(traceback.format_exc()))
             return
 
     def dispatch_passive(self, event):
@@ -120,7 +120,7 @@ class FunctionDispatcher(object):
                 print("ERROR Passive Function: {} {}".format(function_class.__module__, function_class.__name__))
                 print("ERROR Function event: {}".format(event))
                 print("ERROR Function error: {}".format(e))
-                print("Function error location: {}".format(traceback.format_exc(3)))
+                print("Function error location: {}".format(traceback.format_exc()))
                 continue
 
     def get_function_by_name(self, function_name):
@@ -314,8 +314,11 @@ class FunctionDispatcher(object):
         # Add function to mFunctionNames
         for function_name in names_list:
             if function_name in self.function_names:
-                # TODO better exception
-                raise NotImplementedError
+                raise NotImplementedError("This function name \"{}\", in \"{}\" function class is "
+                                          "already taken by the \"{}\" function class."
+                                          .format(function_name,
+                                                  function_class.__name__,
+                                                  self.function_names[function_name].__name__))
             self.function_names[function_name] = function_class
         # Add function to mEventFunctions
         for function_event in events_list:
@@ -408,7 +411,7 @@ class FunctionDispatcher(object):
         Output the function dispatcher configuration in a dict format for saving as json
         :return: dict
         """
-        json_obj = {}
+        json_obj = dict()
         json_obj["modules"] = []
         for module_name in self.module_list:
             json_obj["modules"].append({"name": module_name})

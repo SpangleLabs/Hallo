@@ -8,7 +8,7 @@ from telegram.ext import MessageHandler
 from telegram.utils.request import Request
 
 from Destination import User, Channel
-from Events import EventMessage, RawDataTelegram, EventMessageWithPhoto
+from Events import EventMessage, RawDataTelegram, EventMessageWithPhoto, RawDataTelegramOutbound
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
 from inc.Commons import Commons
@@ -31,7 +31,9 @@ class ServerTelegram(Server):
         self.name = "Telegram"  # Server name #TODO: needs to be configurable!
         self.auto_connect = True  # Whether to automatically connect to this server when hallo starts
         self.channel_list = []  # List of channels on this server (which may or may not be currently active)
+        """ :type : list[Destination.Channel]"""
         self.user_list = []  # Users on this server (not all of which are online)
+        """ :type : list[Destination.User]"""
         self.nick = None  # Nickname to use on this server
         self.prefix = None  # Prefix to use with functions on this server
         self.full_name = None  # Full name to use on this server
@@ -176,18 +178,20 @@ class ServerTelegram(Server):
         if isinstance(event, EventMessageWithPhoto):
             destination = event.user if event.channel is None else event.channel
             if event.photo_id.lower().endswith(".gif") or event.photo_id.lower().endswith(".mp4"):
-                self.bot.send_document(chat_id=destination.address, document=event.photo_id, caption=event.text)
+                msg = self.bot.send_document(chat_id=destination.address, document=event.photo_id, caption=event.text)
             else:
-                self.bot.send_photo(chat_id=destination.address, photo=event.photo_id, caption=event.text)
+                msg = self.bot.send_photo(chat_id=destination.address, photo=event.photo_id, caption=event.text)
+            event.with_raw_data(RawDataTelegramOutbound(msg))
             self.hallo.printer.output(event)
             self.hallo.logger.log(event)
-            return
+            return event
         if isinstance(event, EventMessage):
             destination = event.user if event.channel is None else event.channel
-            self.bot.send_message(chat_id=destination.address, text=event.text)
+            msg = self.bot.send_message(chat_id=destination.address, text=event.text)
+            event.with_raw_data(RawDataTelegramOutbound(msg))
             self.hallo.printer.output(event)
             self.hallo.logger.log(event)
-            return
+            return event
         else:
             print("This event type, {}, is not currently supported to send on Telegram servers",
                   event.__class__.__name__)
