@@ -1790,7 +1790,7 @@ class RedditSub(Subscription):
         url = "https://www.reddit.com/r/{}/new.json".format(self.subreddit)
         results = Commons.load_url_json(url)
         return_list = []
-        new_last_ten = self.latest_ids
+        new_last_ten = []
         for result in results["data"]["children"]:
             result_id = result["data"]["name"]
             # If post hasn't been seen in the latest ten, add it to returned list.
@@ -1799,7 +1799,7 @@ class RedditSub(Subscription):
                 return_list.append(result)
             else:
                 break
-        self.latest_ids = new_last_ten[-10:]
+        self.latest_ids = (self.latest_ids + new_last_ten[::-1])[-10:]
         # Update check time
         self.last_check = datetime.now()
         return return_list
