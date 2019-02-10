@@ -1817,7 +1817,9 @@ class RedditSub(Subscription):
         output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
         # Create event
         file_extension = url.split(".")[-1].lower()
-        if file_extension in ["png", "jpg", "jpeg", "bmp", "gif"]:
+        if file_extension in ["png", "jpg", "jpeg", "bmp", "gif", "mp4", "gifv"]:
+            if file_extension == "gifv":
+                url = url[:-4]+"mp4"
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, url, inbound=False)
             return output_evt
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
