@@ -1823,7 +1823,7 @@ class RedditSub(Subscription):
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, url, inbound=False)
             return output_evt
         # Make output message
-        if item["data"]["seldtext"] != "":
+        if item["data"]["selftext"] != "":
             output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
         else:
             output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}\n{}".format(self.subreddit, title, author, url, link)
