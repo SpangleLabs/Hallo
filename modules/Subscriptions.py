@@ -1813,15 +1813,20 @@ class RedditSub(Subscription):
         title = item["data"]["title"]
         author = item["data"]["author"]
         url = item["data"]["url"]
-        # Make output message
-        output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
         # Create event
         file_extension = url.split(".")[-1].lower()
         if file_extension in ["png", "jpg", "jpeg", "bmp", "gif", "mp4", "gifv"]:
             if file_extension == "gifv":
                 url = url[:-4]+"mp4"
+            # Make output message
+            output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, url, inbound=False)
             return output_evt
+        # Make output message
+        if item["data"]["seldtext"] != "":
+            output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
+        else:
+            output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}\n{}".format(self.subreddit, title, author, url, link)
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
         return output_evt
 
