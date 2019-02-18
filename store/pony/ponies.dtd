@@ -1,5 +1,0 @@
-<!ELEMENT ponies (pony*)>
-<!ELEMENT pony (name,pronoun,category+)>
-<!ELEMENT name (#PCDATA)>
-<!ELEMENT pronoun (#PCDATA)>
-<!ELEMENT category (#PCDATA)>
