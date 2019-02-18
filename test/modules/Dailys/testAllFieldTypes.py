@@ -4,8 +4,7 @@ import unittest
 from datetime import time
 
 from Events import EventMessage
-from modules.Dailys import DailysDuolingoField, DailysFAField, DailysMoodField, DailysSleepField, DailysFieldFactory, \
-    DailysField
+from modules.Dailys import DailysDuolingoField, DailysMoodField, DailysSleepField, DailysFieldFactory, DailysField
 from test.TestBase import TestBase
 from test.modules.Dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
 
@@ -15,7 +14,6 @@ class TestAllFieldTypes(TestBase, unittest.TestCase):
     def get_field_objects(self):
         field_obs = list()
         field_obs.append(DailysDuolingoField(self.server, self.test_chan, "cabinet"))
-        field_obs.append(DailysFAField(self.server, self.test_chan))
         field_obs.append(DailysMoodField(self.server, self.test_chan,
                                          [DailysMoodField.TIME_SLEEP, time(14, 00), time(22, 00)],
                                          ["Happiness", "Anger", "Sleepiness"]))

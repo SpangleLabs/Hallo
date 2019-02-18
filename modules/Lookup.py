@@ -589,14 +589,8 @@ class UrlDetect(Function):
         # Get a response depending on the website
         if url_site == "amazon":
             return event.create_response(self.site_amazon(url_address, page_opener, page_request))
-        if url_site == "e621":
-            return event.create_response(self.site_e621(url_address, page_opener, page_request))
         if url_site == "ebay":
             return event.create_response(self.site_ebay(url_address, page_opener, page_request))
-        if url_site == "f-list":
-            return event.create_response(self.site_flist(url_address, page_opener, page_request))
-        if url_site == "furaffinity" or url_site == "facdn":
-            return event.create_response(self.site_furaffinity(url_address, page_opener, page_request))
         if url_site == "imdb":
             return event.create_response(self.site_imdb(url_address, page_opener, page_request))
         if url_site == "imgur":
@@ -662,11 +656,6 @@ class UrlDetect(Function):
         # TODO: write amazon link handler
         return self.url_generic(url_address, page_opener, page_request)
 
-    def site_e621(self, url_address, page_opener, page_request):
-        """Handling for e621 links"""
-        # TODO: write e621 link handler
-        return self.url_generic(url_address, page_opener, page_request)
-
     def site_ebay(self, url_address, page_opener, page_request):
         """Handling for ebay links"""
         # Get the ebay item id
@@ -698,16 +687,6 @@ class UrlDetect(Function):
             output += "Buy it now | "
         output += "Ends: {}".format(item_end_time)
         return output
-
-    def site_flist(self, url_address, page_opener, page_request):
-        """Handling for f-list links"""
-        # TODO: write f-list link handler
-        return self.url_generic(url_address, page_opener, page_request)
-
-    def site_furaffinity(self, url_address, page_opener, page_request):
-        """Handling for furaffinity links"""
-        # TODO: write furaffinity link handler
-        return self.url_generic(url_address, page_opener, page_request)
 
     def site_imdb(self, url_address, page_opener, page_request):
         """Handling for imdb links"""
