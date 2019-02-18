@@ -4,7 +4,6 @@ from datetime import timedelta
 
 from Events import EventMessage, EventDay
 from modules.Dailys import DailysException, DailysDuolingoField
-from modules.UserData import UserDataParser, FAKeyData
 from test.TestBase import TestBase
 from test.modules.Dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
 
@@ -102,10 +101,6 @@ class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
         evt.split_command_text(cmd_name, cmd_args)
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
                                             col_titles={"AE": "hello", "AF": "wonderful", "AG": "world"})
-        # Setup an FA key, doesn't matter if it works
-        udp = UserDataParser()
-        key = FAKeyData("cookie_a", "cookie_b")
-        udp.set_user_data(self.test_user, key)
         # Create from input
         try:
             DailysDuolingoField.create_from_input(evt, spreadsheet)
