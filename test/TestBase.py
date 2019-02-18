@@ -22,7 +22,7 @@ class TestBase(unittest.TestCase):
         # Todo: specify modules by test?
         self.function_dispatcher = FunctionDispatcher({"AsciiArt", "Bio", "ChannelControl", "Euler", "Furry",
                                                        "HalloControl", "Math", "PermissionControl",
-                                                       "ServerControl", "Silly", "SillyEtd", "Subscriptions"},
+                                                       "ServerControl", "Silly", "Subscriptions"},
                                                       self.hallo)
         self.hallo.function_dispatcher = self.function_dispatcher
         print("Running test: "+self.id()+". Init took: "+str(time.time()-self.start_time)+" seconds.")

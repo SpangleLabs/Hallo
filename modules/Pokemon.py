@@ -125,7 +125,7 @@ class Pokedex(Function):
         pokemon_list_elem = doc.getElementsByTagName("pokemon_list")[0]
         # Loop through pokemon, searching for the specified pokemon
         selected_pokemon_elem = None
-        for pokemon_elem in pokemon_list_elem.getElementsByTagName("pony_episode"):
+        for pokemon_elem in pokemon_list_elem.getElementsByTagName("pokemon"):
             pokemon_name = pokemon_elem.getElementsByTagName("name")[0].firstChild.data.lower()
             pokemon_number = pokemon_elem.getElementsByTagName("dex_number")[0].firstChild.data
             if line_clean == pokemon_name or line_clean == pokemon_number:
