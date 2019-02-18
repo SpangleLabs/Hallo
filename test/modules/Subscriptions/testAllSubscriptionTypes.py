@@ -5,7 +5,9 @@ import unittest
 
 import modules
 from Events import EventMessage
-from modules.Subscriptions import SubscriptionFactory, RssSub, SubscriptionRepo, RedditSub
+from modules.Subscriptions import SubscriptionFactory, E621Sub, RssSub, FANotificationNotesSub, FASearchSub, FAKey, \
+    SubscriptionRepo, FAKeysCommon, FAUserFavsSub, FAUserWatchersSub, FANotificationWatchSub, FANotificationFavSub, \
+    FANotificationCommentsSub, RedditSub
 
 from test.TestBase import TestBase
 
@@ -15,16 +17,45 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
     cookie_b = os.getenv("test_cookie_b")
 
     def get_sub_objects(self):
+        fa_key = FAKey(self.test_user, self.cookie_a, self.cookie_b)
         sub_objs = list()
+        sub_objs.append(E621Sub(self.server, self.test_chan, "cabinet"))
         sub_objs.append(RssSub(self.server, self.test_chan, "http://spangle.org.uk/hallo/test_rss.xml"))
+        sub_objs.append(FANotificationNotesSub(self.server, self.test_chan, fa_key))
+        sub_objs.append(FASearchSub(self.server, self.test_chan, fa_key, "ych"))
+        sub_objs.append(FAUserFavsSub(self.server, self.test_chan, fa_key, "zephyr42"))
+        sub_objs.append(FAUserWatchersSub(self.server, self.test_chan, fa_key, "zephyr42"))
+        sub_objs.append(FANotificationWatchSub(self.server, self.test_chan, fa_key))
+        sub_objs.append(FANotificationFavSub(self.server, self.test_chan, fa_key))
+        sub_objs.append(FANotificationCommentsSub(self.server, self.test_chan, fa_key))
         sub_objs.append(RedditSub(self.server, self.test_chan, "deer"))
         return sub_objs
 
     def get_sub_create_events(self):
+        sub_repo = SubscriptionRepo()
+        fa_key = FAKey(self.test_user, self.cookie_a, self.cookie_b)
+        fa_commons = sub_repo.get_common_config_by_type(modules.Subscriptions.FAKeysCommon)  # type: FAKeysCommon
+        fa_commons.add_key(fa_key)
         sub_evts = dict()
+        sub_evts[E621Sub] = EventMessage(self.server, self.test_chan, self.test_user, "cabinet")
+        sub_evts[E621Sub].command_args = "cabinet"
         sub_evts[RssSub] = EventMessage(self.server, self.test_chan, self.test_user,
                                         "http://spangle.org.uk/hallo/test_rss.xml")
         sub_evts[RssSub].command_args = "http://spangle.org.uk/hallo/test_rss.xml"
+        sub_evts[FANotificationNotesSub] = EventMessage(self.server, self.test_chan, self.test_user, "")
+        sub_evts[FANotificationNotesSub].command_args = ""
+        sub_evts[FASearchSub] = EventMessage(self.server, self.test_chan, self.test_user, "ych")
+        sub_evts[FASearchSub].command_args = "ych"
+        sub_evts[FAUserFavsSub] = EventMessage(self.server, self.test_chan, self.test_user, "zephyr42")
+        sub_evts[FAUserFavsSub].command_args = "zephyr42"
+        sub_evts[FAUserWatchersSub] = EventMessage(self.server, self.test_chan, self.test_user, "zephyr42")
+        sub_evts[FAUserWatchersSub].command_args = "zephyr42"
+        sub_evts[FANotificationWatchSub] = EventMessage(self.server, self.test_chan, self.test_user, "")
+        sub_evts[FANotificationWatchSub].command_args = ""
+        sub_evts[FANotificationFavSub] = EventMessage(self.server, self.test_chan, self.test_user, "")
+        sub_evts[FANotificationFavSub].command_args = ""
+        sub_evts[FANotificationCommentsSub] = EventMessage(self.server, self.test_chan, self.test_user, "")
+        sub_evts[FANotificationCommentsSub].command_args = ""
         sub_evts[RedditSub] = EventMessage(self.server, self.test_chan, self.test_user, "r/deer")
         sub_evts[RedditSub].command_args = "r/deer"
         return sub_evts
@@ -117,6 +148,8 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         We can check this by seeing the last_check time is not None
         """
         sub_repo = SubscriptionRepo()
+        fa_keys = sub_repo.get_common_config_by_type(modules.Subscriptions.FAKeysCommon)  # type: FAKeysCommon
+        fa_keys.add_key(FAKey(self.test_user, self.cookie_a, self.cookie_b))
         evts_dict = self.get_sub_create_events()
         for sub_class in evts_dict:
             with self.subTest(sub_class.__name__):

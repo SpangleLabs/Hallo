@@ -1,15 +1,20 @@
 import hashlib
 import json
+import os
 import re
+import urllib.parse
 from abc import ABCMeta
 from datetime import datetime, timedelta
 from threading import Lock
 from xml.etree import ElementTree
 
+from bs4 import BeautifulSoup
+
 from Destination import Channel, User
 from Events import EventMessageWithPhoto, EventMessage, EventMinute
 from Function import Function
-from inc.Commons import Commons, ISO8601ParseError
+from inc.Commons import Commons, ISO8601ParseError, CachedObject
+from modules.UserData import FAKeyData, UserDataParser
 
 
 class SubscriptionException(Exception):
@@ -421,12 +426,1301 @@ class RssSub(Subscription):
         return new_sub
 
 
+class E621Sub(Subscription):
+    names = ["e621", "e621 search", "search e621"]
+    """ :type : list[str]"""
+    type_name = "e621"
+    """ :type : str"""
+
+    def __init__(self, server, destination, search, last_check=None, update_frequency=None, latest_ids=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type search: str
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.search = search
+        """ :type : str"""
+        if latest_ids is None:
+            latest_ids = []
+        self.latest_ids = latest_ids
+        """ :type : list[int]"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        """
+        :type input_evt: Events.EventMessage
+        :type sub_repo: SubscriptionRepo
+        :rtype: E621Sub
+        """
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if last argument is check period.
+        try:
+            try_period = input_evt.command_args.split()[-1]
+            search_delta = Commons.load_time_delta(try_period)
+            search = input_evt.command_args[:-len(try_period)].strip()
+        except ISO8601ParseError:
+            search = input_evt.command_args.strip()
+            search_delta = Commons.load_time_delta("PT300S")
+        # Create e6 subscription object
+        e6_sub = E621Sub(server, destination, search, update_frequency=search_delta)
+        # Check if it's a valid search
+        first_results = e6_sub.check()
+        if len(first_results) == 0:
+            raise SubscriptionException("This does not appear to be a valid search, or does not have results.")
+        return e6_sub
+
+    def matches_name(self, name_clean):
+        return name_clean == self.search.lower().strip()
+
+    def get_name(self):
+        return "search for \"{}\"".format(self.search)
+
+    def check(self):
+        search = "{} order:-id".format(self.search)  # Sort by id
+        if len(self.latest_ids) > 0:
+            oldest_id = min(self.latest_ids)
+            search += " id:>{}".format(oldest_id)  # Don't list anything older than the oldest of the last 10
+        url = "https://e621.net/post/index.json?tags={}&limit=50".format(urllib.parse.quote(search))
+        results = Commons.load_url_json(url)
+        return_list = []
+        new_last_ten = set(self.latest_ids)
+        for result in results:
+            result_id = result["id"]
+            # Create new list of latest ten results
+            new_last_ten.add(result_id)
+            # If post hasn't been seen in the latest ten, add it to returned list.
+            if result_id not in self.latest_ids:
+                return_list.append(result)
+        self.latest_ids = sorted(list(new_last_ten))[::-1][:10]
+        # Update check time
+        self.last_check = datetime.now()
+        return return_list
+
+    def format_item(self, e621_result):
+        link = "https://e621.net/post/show/{}".format(e621_result['id'])
+        # Create rating string
+        rating = "(Unknown)"
+        rating_dict = {"e": "(Explicit)", "q": "(Questionable)", "s": "(Safe)"}
+        if e621_result["rating"] in rating_dict:
+            rating = rating_dict[e621_result["rating"]]
+        # Construct output
+        output = "Update on \"{}\" e621 search. {} {}".format(self.search, link, rating)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        if e621_result["file_ext"] in ["swf", "webm"]:
+            return EventMessage(self.server, channel, user, output, inbound=False)
+        image_url = e621_result["file_url"]
+        output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
+        return output_evt
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["search"] = self.search
+        json_obj["latest_ids"] = []
+        for latest_id in self.latest_ids:
+            json_obj["latest_ids"].append(latest_id)
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load last items
+        latest_ids = []
+        for latest_id in json_obj["latest_ids"]:
+            latest_ids.append(latest_id)
+        # Load search
+        search = json_obj["search"]
+        new_sub = E621Sub(server, destination, search, last_check, update_frequency, latest_ids)
+        new_sub.last_update = last_update
+        return new_sub
+
+
 class GoogleDocsSub(Subscription):
     pass
 
 
 class TwitterSub(Subscription):
     pass
+
+
+class FANotificationNotesSub(Subscription):
+    names = ["fa notes notifications", "fa notes", "furaffinity notes"]
+    """ :type : list[str]"""
+    type_name = "fa_notif_notes"
+    """ :type : str"""
+
+    NEW_INBOX_NOTE = "new_note"
+    READ_OUTBOX_NOTE = "note_read"
+
+    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
+                 inbox_note_ids=None, outbox_note_ids=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :param inbox_note_ids: List of id strings of notes in the inbox
+        :type inbox_note_ids: list[str]
+        :param outbox_note_ids: List of id strings of unread notes in the outbox
+        :type outbox_note_ids: list[str]
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.inbox_note_ids = [] if inbox_note_ids is None else inbox_note_ids
+        """ :type : list[str]"""
+        self.outbox_note_ids = [] if outbox_note_ids is None else outbox_note_ids
+        """ :type : list[str]"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA note notification subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` "
+                                        "and your cookie values.")
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if user gave us an update period
+        try:
+            search_delta = Commons.load_time_delta(input_evt.command_args)
+        except ISO8601ParseError:
+            search_delta = Commons.load_time_delta("PT300S")
+        notes_sub = FANotificationNotesSub(server, destination, fa_key, update_frequency=search_delta)
+        notes_sub.check()
+        return notes_sub
+
+    def matches_name(self, name_clean):
+        return name_clean in [s.lower().strip() for s in self.names + ["notes"]]
+
+    def get_name(self):
+        return "FA notes for {}".format(self.fa_key.user.name)
+
+    def check(self):
+        fa_reader = self.fa_key.get_fa_reader()
+        results = []
+        # Check inbox and outbox
+        inbox_notes_page = fa_reader.get_notes_page(FAKey.FAReader.NOTES_INBOX)
+        outbox_notes_page = fa_reader.get_notes_page(FAKey.FAReader.NOTES_OUTBOX)
+        # Check for newly received notes in inbox
+        for inbox_note in inbox_notes_page.notes:
+            note_id = inbox_note.note_id
+            if note_id not in self.inbox_note_ids and \
+                    (len(self.inbox_note_ids) == 0 or int(note_id) > int(self.inbox_note_ids[-1])):
+                # New note
+                results.append({"type": self.NEW_INBOX_NOTE, "note": inbox_note})
+        # Check for newly read notes in outbox
+        for outbox_note in outbox_notes_page.notes:
+            if outbox_note.note_id in self.outbox_note_ids and outbox_note.is_read:
+                # Newly read note
+                results.append({"type": self.READ_OUTBOX_NOTE, "note": outbox_note})
+        # Reset inbox note ids and outbox note ids
+        self.inbox_note_ids = [note.note_id for note in inbox_notes_page.notes]
+        self.outbox_note_ids = [note.note_id for note in outbox_notes_page.notes if not note.is_read]
+        # Update last check time
+        self.last_check = datetime.now()
+        # Return results
+        return results[::-1]
+
+    def format_item(self, item):
+        # Construct output
+        output = "Err, notes did something?"
+        note = item["note"]  # type: FAKey.FAReader.FANote
+        if item["type"] == self.NEW_INBOX_NOTE:
+            output = "You have a new note. Subject: {}, From: {}, Link: https://www.furaffinity.net/viewmessage/{}/"\
+                .format(note.subject, note.name, note.note_id)
+        if item["type"] == self.READ_OUTBOX_NOTE:
+            output = "An outbox note has been read. Subject: {}, To: {}".format(note.subject, note.name)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        output_evt = EventMessage(self.server, channel, user, output, inbound=False)
+        return output_evt
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["fa_key_user_address"] = self.fa_key.user.address
+        json_obj["inbox_note_ids"] = []
+        for note_id in self.inbox_note_ids:
+            json_obj["inbox_note_ids"].append(note_id)
+        json_obj["outbox_note_ids"] = []
+        for note_id in self.outbox_note_ids:
+            json_obj["outbox_note_ids"].append(note_id)
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load inbox_note_ids
+        inbox_ids = []
+        for note_id in json_obj["inbox_note_ids"]:
+            inbox_ids.append(note_id)
+        # Load outbox_note_ids
+        outbox_ids = []
+        for note_id in json_obj["outbox_note_ids"]:
+            outbox_ids.append(note_id)
+        new_sub = FANotificationNotesSub(server, destination, fa_key,
+                                         last_check=last_check, update_frequency=update_frequency,
+                                         inbox_note_ids=inbox_ids, outbox_note_ids=outbox_ids)
+        new_sub.last_update = last_update
+        return new_sub
+
+
+class FANotificationFavSub(Subscription):
+    names = ["fa favs notifications", "fa favs", "furaffinity favs",
+             "fa favourites notifications", "fa favourites", "furaffinity favourites"]
+    """ :type : list[str]"""
+    type_name = "fa_notif_favs"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
+                 fav_notif_count=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :param fav_notif_count: Count of how many fav notifications are currently in the header bar
+        :type fav_notif_count: int | None
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.fav_notif_count = 0 if fav_notif_count is None else fav_notif_count
+        """ :type : int | None"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA favourite notification subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` "
+                                        "and your cookie values.")
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if user gave us an update period
+        try:
+            search_delta = Commons.load_time_delta(input_evt.command_args)
+        except ISO8601ParseError:
+            search_delta = Commons.load_time_delta("PT300S")
+        fa_sub = FANotificationFavSub(server, destination, fa_key, update_frequency=search_delta)
+        fa_sub.check()
+        return fa_sub
+
+    def matches_name(self, name_clean):
+        return name_clean in [s.lower().strip() for s in self.names + ["favs"]]
+
+    def get_name(self):
+        return "FA favourites for {}".format(self.fa_key.user.name)
+
+    def check(self):
+        fa_reader = self.fa_key.get_fa_reader()
+        notif_page = fa_reader.get_notification_page()
+        results = []
+        if notif_page.total_favs > self.fav_notif_count:
+            new_notifs = notif_page.total_favs - self.fav_notif_count
+            results = notif_page.favourites[:new_notifs]
+        self.fav_notif_count = notif_page.total_favs
+        # Update last check time
+        self.last_check = datetime.now()
+        # Return results
+        return results[::-1]
+
+    def format_item(self, new_fav):
+        """
+        :type new_fav: FAKey.FAReader.FANotificationFavourite
+        :rtype: EventMessage
+        """
+        # Construct output
+        output = "You have a new favourite notification, {} ( http://furaffinity.net/user/{}/ ) " \
+                 "has favourited your submission \"{}\" {}".format(new_fav.name, new_fav.username,
+                                                                   new_fav.submission_name, new_fav.submission_link)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        output_evt = EventMessage(self.server, channel, user, output, inbound=False)
+        return output_evt
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["fa_key_user_address"] = self.fa_key.user.address
+        json_obj["fav_notif_count"] = self.fav_notif_count
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load inbox_note_ids
+        fav_notif_count = json_obj["fav_notif_count"]
+        new_sub = FANotificationFavSub(server, destination, fa_key,
+                                       last_check=last_check, update_frequency=update_frequency,
+                                       fav_notif_count=fav_notif_count)
+        new_sub.last_update = last_update
+        return new_sub
+
+
+class FANotificationCommentsSub(Subscription):
+    names = ["{}{}{}".format(fa, comments, notifications)
+             for fa in ["fa ", "furaffinity "]
+             for comments in ["comments", "comment", "shouts", "shout"]
+             for notifications in ["", " notifications"]]
+    """ :type : list[str]"""
+    type_name = "fa_notif_comments"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
+                 comment_notification_count=None, latest_comment_id_journal=None,
+                 latest_comment_id_submission=None, latest_shout_id=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :type comment_notification_count: str | None
+        :type latest_comment_id_journal: str | None
+        :type latest_comment_id_submission: str | None
+        :type latest_shout_id: str | None
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.comment_notification_count = comment_notification_count
+        """ :type : int | None"""
+        self.latest_comment_id_journal = latest_comment_id_journal
+        """ :type : str | None"""
+        self.latest_comment_id_submission = latest_comment_id_submission
+        """ :type : str | None"""
+        self.latest_shout_id = latest_shout_id
+        """ :type : str | None"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA comments notification subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if user gave us an update period
+        try:
+            search_delta = Commons.load_time_delta(input_evt.command_args)
+        except ISO8601ParseError:
+            search_delta = Commons.load_time_delta("PT300S")
+        fa_sub = FANotificationCommentsSub(server, destination, fa_key, update_frequency=search_delta)
+        fa_sub.check()
+        return fa_sub
+
+    def matches_name(self, name_clean):
+        return name_clean in [s.lower().strip() for s in self.names + ["comments"]]
+
+    def get_name(self):
+        return "FA comments for {}".format(self.fa_key.user.name)
+
+    def check(self):
+        notif_page = self.fa_key.get_fa_reader().get_notification_page()
+        results = []
+        # Only get notifications if there's more notifications than last time
+        if self.comment_notification_count is None or notif_page.total_comments > self.comment_notification_count:
+            # Check submission comments
+            for submission_notif in notif_page.submission_comments:
+                if submission_notif.comment_id == self.latest_comment_id_submission:
+                    break
+                results.append(submission_notif)
+            # Check journal comments
+            for journal_notif in notif_page.journal_comments:
+                if journal_notif.comment_id == self.latest_comment_id_journal:
+                    break
+                results.append(journal_notif)
+            # Check shouts
+            for shout_notif in notif_page.shouts:
+                if shout_notif.shout_id == self.latest_shout_id:
+                    break
+                results.append(shout_notif)
+        # Reset high water marks.
+        self.comment_notification_count = notif_page.total_comments
+        self.latest_comment_id_submission = None
+        if len(notif_page.submission_comments) > 0:
+            self.latest_comment_id_submission = notif_page.submission_comments[0].comment_id
+        self.latest_comment_id_journal = None
+        if len(notif_page.journal_comments) > 0:
+            self.latest_comment_id_journal = notif_page.journal_comments[0].comment_id
+        self.latest_shout_id = None
+        if len(notif_page.shouts) > 0:
+            self.latest_shout_id = notif_page.shouts[0].shout_id
+        # Update last check time
+        self.last_check = datetime.now()
+        # Return results
+        return results[::-1]
+
+    def format_item(self, item):
+        output = "Err, comments did something?"
+        fa_reader = self.fa_key.get_fa_reader()
+        if isinstance(item, FAKey.FAReader.FANotificationShout):
+            try:
+                user_page = fa_reader.get_user_page(item.page_username)
+                shout = [shout for shout in user_page.shouts if shout.shout_id == item.shout_id]
+                output = "You have a new shout, from {} " \
+                         "( http://furaffinity.net/user/{}/ ) " \
+                         "has left a shout saying: \n\n{}".format(item.name, item.username, shout[0].text)
+            except Exception:
+                output = "You have a new shout, from {} " \
+                         "( http://furaffinity.net/user/{}/ ) " \
+                         "has left a shout but I can't find it on your user page: \n" \
+                         "https://furaffinity.net/user/{}/".format(item.name, item.username, item.page_username)
+        if isinstance(item, FAKey.FAReader.FANotificationCommentJournal):
+            try:
+                journal_page = fa_reader.get_journal_page(item.journal_id)
+                comment = journal_page.comments_section.get_comment_by_id(item.comment_id)
+                output = "You have a journal comment notification. " \
+                         "{} has made a new comment {}on {} journal " \
+                         "\"{}\" {} : \n\n{}".format(item.name,
+                                                     ("in response to your comment " if item.comment_on else ""),
+                                                     ("your" if item.journal_yours else "their"),
+                                                     item.journal_name, item.journal_link,
+                                                     comment.text)
+            except Exception:
+                output = "You have a journal comment notification. " \
+                         "{} has made a new comment {}on {} journal " \
+                         "\"{}\" {} but I can't find " \
+                         "the comment.".format(item.name,
+                                               ("in response to your comment " if item.comment_on else ""),
+                                               ("your" if item.journal_yours else "their"),
+                                               item.journal_name, item.journal_link)
+        if isinstance(item, FAKey.FAReader.FANotificationCommentSubmission):
+            try:
+                submission_page = fa_reader.get_submission_page(item.submission_id)
+                comment = submission_page.comments_section.get_comment_by_id(item.comment_id)
+                output = "You have a submission comment notification. " \
+                         "{} has made a new comment {}on {} submission \"{}\" {} : \n\n" \
+                         "{}".format(item.name,
+                                     ("in response to your comment " if item.comment_on else ""),
+                                     ("your" if item.submission_yours else "their"),
+                                     item.submission_name, item.submission_link, comment.text)
+            except Exception:
+                output = "You have a submission comment notification. " \
+                         "{} has made a new comment {}on {} submission \"{}\" {} : but I can't find " \
+                         "the comment.".format(item.name,
+                                               ("in response to your comment " if item.comment_on else ""),
+                                               ("your" if item.submission_yours else "their"),
+                                               item.submission_name, item.submission_link)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        output_evt = EventMessage(self.server, channel, user, output, inbound=False)
+        return output_evt
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["fa_key_user_address"] = self.fa_key.user.address
+        json_obj["comment_notification_count"] = self.comment_notification_count
+        json_obj["latest_comment_id_journal"] = self.latest_comment_id_journal
+        json_obj["latest_comment_id_submission"] = self.latest_comment_id_submission
+        json_obj["latest_shout_id"] = self.latest_shout_id
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load comment IDs and count
+        comment_notification_count = json_obj["comment_notification_count"]
+        latest_comment_id_journal = json_obj["latest_comment_id_journal"]
+        latest_comment_id_submission = json_obj["latest_comment_id_submission"]
+        latest_shout_id = json_obj["latest_shout_id"]
+        new_sub = FANotificationCommentsSub(server, destination, fa_key,
+                                            last_check=last_check, update_frequency=update_frequency,
+                                            comment_notification_count=comment_notification_count,
+                                            latest_comment_id_journal=latest_comment_id_journal,
+                                            latest_comment_id_submission=latest_comment_id_submission,
+                                            latest_shout_id=latest_shout_id)
+        new_sub.last_update = last_update
+        return new_sub
+
+
+class FANotificationJournalsSub(Subscription):
+    pass
+
+
+class FANotificationSubmissionsSub(Subscription):
+    pass
+
+
+class FASearchSub(Subscription):
+    names = ["fa search", "furaffinity search"]
+    """ :type : list[str]"""
+    type_name = "fa_search"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, search, last_check=None, update_frequency=None, latest_ids=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type search: str
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :type latest_ids: list[str]
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.search = search
+        """ :type : str"""
+        if latest_ids is None:
+            latest_ids = []
+        self.latest_ids = latest_ids
+        """ :type : list[str]"""
+        self.old_code = None  # TODO: debug, remove when done.
+        """ :type : str | None"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        """
+        :type input_evt: Events.EventMessage
+        :type sub_repo: SubscriptionRepo
+        :rtype: FASearchSub
+        """
+        # Get FAKey object
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA search subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+        # Get server and destination
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if last argument is check period.
+        try:
+            try_period = input_evt.command_args.split()[-1]
+            search_delta = Commons.load_time_delta(try_period)
+            search = input_evt.command_args[:-len(try_period)].strip()
+        except ISO8601ParseError:
+            search = input_evt.command_args.strip()
+            search_delta = Commons.load_time_delta("PT600S")
+        # Create FA search subscription object
+        fa_sub = FASearchSub(server, destination, fa_key, search, update_frequency=search_delta)
+        # Check if it's a valid search
+        first_results = fa_sub.check()
+        if len(first_results) == 0:
+            raise SubscriptionException("This does not appear to be a valid search, or does not have results.")
+        return fa_sub
+
+    def matches_name(self, name_clean):
+        return name_clean == self.search.lower().strip()
+
+    def get_name(self):
+        return "search for \"{}\"".format(self.search)
+
+    def check(self):
+        fa_reader = self.fa_key.get_fa_reader()
+        results = []
+        search_page = fa_reader.get_search_page(self.search)
+        if len(search_page.results) == 0:
+            raise SubscriptionException("Search returned no results.")
+        next_batch = []
+        matched_ids = False
+        for search_result in search_page.results:
+            result_id = search_result.submission_id
+            # Batch things that have been seen, so that the results after the last result in latest_ids aren't included
+            if result_id in self.latest_ids:
+                results += next_batch
+                next_batch = []
+                matched_ids = True
+            else:
+                next_batch.append(search_result)
+        # If no images in search matched an ID in last seen, send all results from search
+        if not matched_ids:
+            results += next_batch
+        # Create new list of latest ten results
+        self.latest_ids = [result.submission_id for result in search_page.results[:10]]
+        self.last_check = datetime.now()
+        # Debug, dumping a bunch of data to file  # TODO: debug, remove when done.
+        new_code = search_page.code
+        if len(results) > 0 and self.old_code is not None:
+            self.save_debug(results, self.old_code, new_code)
+        self.old_code = new_code
+        return results[::-1]
+
+    def save_debug(self, results, old_code, new_code):  # TODO: debug, remove when done.
+        dir_name = "fa_search_sub_{}_{}".format(self.search, datetime.now())
+        os.makedirs(dir_name)
+        with open(dir_name+"/results", "w+") as f:
+            f.write("\n".join([result.submission_id for result in results]))
+        with open(dir_name+"/old_code.html", "w+") as f:
+            f.write(old_code)
+        with open(dir_name+"/new_code.html", "w+") as f:
+            f.write(new_code)
+
+    def format_item(self, item):
+        """
+        :type item: FAKey.FAReader.FASearchResult
+        :return: EventMessage
+        """
+        link = "https://furaffinity.net/view/{}".format(item.submission_id)
+        title = item.submission_title
+        posted_by = item.name
+        # Construct output
+        output = "Update on \"{}\" FA search. \"{}\" by {}. {}".format(self.search, title, posted_by, link)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        # Get submission page and file extension
+        try:
+            sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
+            image_url = sub_page.full_image
+        except Exception:
+            print("Failed to get submission page for FASearchSubscription")
+            image_url = item.thumbnail_link
+        file_extension = image_url.split(".")[-1].lower()
+        if file_extension in ["png", "jpg", "jpeg", "bmp", "gif"]:
+            output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
+            return output_evt
+        return EventMessage(self.server, channel, user, output, inbound=False)
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load last items
+        latest_ids = []
+        for latest_id in json_obj["latest_ids"]:
+            latest_ids.append(latest_id)
+        # Load search
+        search = json_obj["search"]
+        # Create FASearchSub
+        new_sub = FASearchSub(server, destination, fa_key, search,
+                              last_check=last_check, update_frequency=update_frequency,
+                              latest_ids=latest_ids)
+        new_sub.last_update = last_update
+        return new_sub
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["fa_key_user_address"] = self.fa_key.user.address
+        json_obj["search"] = self.search
+        json_obj["latest_ids"] = []
+        for latest_id in self.latest_ids:
+            json_obj["latest_ids"].append(latest_id)
+        return json_obj
+
+
+class FAUserFavsSub(Subscription):
+    names = ["fa user favs", "furaffinity user favs", "furaffinity user favourites", "fa user favourites",
+             "furaffinity user favorites", "fa user favorites"]
+    """ :type : list[str]"""
+    type_name = "fa_user_favs"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, username, last_check=None, update_frequency=None, latest_ids=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type username: str
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :type latest_ids: list[str]
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.username = username.lower().strip()
+        """ :type : str"""
+        if latest_ids is None:
+            latest_ids = []
+        self.latest_ids = latest_ids
+        """ :type : list[str]"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        """
+        :type input_evt: Events.EventMessage
+        :type sub_repo: SubscriptionRepo
+        :rtype: FAUserFavsSub
+        """
+        # Get FAKey object
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA user favourites subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+        # Get server and destination
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if last argument is check period.
+        try:
+            try_period = input_evt.command_args.split()[-1]
+            search_delta = Commons.load_time_delta(try_period)
+            username = input_evt.command_args[:-len(try_period)].strip()
+        except ISO8601ParseError:
+            username = input_evt.command_args.strip()
+            search_delta = Commons.load_time_delta("PT600S")
+        # Create FA user favs object
+        fa_sub = FAUserFavsSub(server, destination, fa_key, username, update_frequency=search_delta)
+        # Check if it's a valid user
+        try:
+            fa_key.get_fa_reader().get_user_page(username)
+        except Exception:
+            raise SubscriptionException("This does not appear to be a valid FA username.")
+        fa_sub.check()
+        return fa_sub
+
+    def matches_name(self, name_clean):
+        return name_clean == self.username.lower().strip()
+
+    def get_name(self):
+        return "Favourites subscription for \"{}\"".format(self.username)
+
+    def check(self):
+        fa_reader = self.fa_key.get_fa_reader()
+        results = []
+        favs_page = fa_reader.get_user_fav_page(self.username)
+        next_batch = []
+        matched_ids = False
+        for fav_result in favs_page.favourites:
+            result_id = fav_result.submission_id
+            # Batch things that have been seen, so that the results after the last result in latest_ids aren't included
+            if result_id in self.latest_ids:
+                results += next_batch
+                next_batch = []
+                matched_ids = True
+            else:
+                next_batch.append(fav_result)
+        # If no images in search matched an ID in last seen, send all results from search
+        if not matched_ids:
+            results += next_batch
+        # Create new list of latest ten results
+        self.latest_ids = [result.submission_id for result in favs_page.favourites[:10]]
+        self.last_check = datetime.now()
+        return results[::-1]
+
+    def format_item(self, item):
+        """
+        :type item: FAKey.FAReader.FAFavourite
+        :return: EventMessage
+        """
+        link = "https://furaffinity.net/view/{}".format(item.submission_id)
+        title = item.title
+        posted_by = item.name
+        # Construct output
+        output = "{} has favourited a new image. \"{}\" by {}. {}".format(self.username, title, posted_by, link)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        # Get submission page and file extension
+        try:
+            sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
+            image_url = sub_page.full_image
+        except Exception:
+            print("Failed to get submission page for FAUserFavsSubscription.")
+            image_url = item.preview_image
+        file_extension = image_url.split(".")[-1].lower()
+        if file_extension in ["png", "jpg", "jpeg", "bmp", "gif"]:
+            output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
+            return output_evt
+        return EventMessage(self.server, channel, user, output, inbound=False)
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load last items
+        latest_ids = []
+        for latest_id in json_obj["latest_ids"]:
+            latest_ids.append(latest_id)
+        # Load search
+        username = json_obj["username"]
+        # Create FASearchSub
+        new_sub = FAUserFavsSub(server, destination, fa_key, username,
+                                last_check=last_check, update_frequency=update_frequency,
+                                latest_ids=latest_ids)
+        new_sub.last_update = last_update
+        return new_sub
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["fa_key_user_address"] = self.fa_key.user.address
+        json_obj["username"] = self.username
+        json_obj["latest_ids"] = []
+        for latest_id in self.latest_ids:
+            json_obj["latest_ids"].append(latest_id)
+        return json_obj
+
+
+class FAUserWatchersSub(Subscription):
+    names = ["fa user watchers", "fa user new watchers", "furaffinity user watchers", "furaffinity user new watchers"]
+    """ :type : list[str]"""
+    type_name = "fa_user_watchers"
+    """ :type : str"""
+
+    def __init__(self, server, destination, fa_key, username, last_check=None, update_frequency=None,
+                 newest_watchers=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type username: str
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :param newest_watchers: List of user's most recent new watchers' usernames
+        :type newest_watchers: list[str]
+        """
+        super().__init__(server, destination, last_check, update_frequency)
+        self.fa_key = fa_key
+        """ :type : FAKey"""
+        self.username = username
+        """ :type : str"""
+        self.newest_watchers = [] if newest_watchers is None else newest_watchers
+        """ :type : list[str]"""
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        """
+        :type input_evt: Events.EventMessage
+        :type sub_repo: SubscriptionRepo
+        :rtype: FAUserWatchersSub
+        """
+        # Get FAKey object
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA user watchers subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+        # Get server and destination
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if last argument is check period.
+        try:
+            try_period = input_evt.command_args.split()[-1]
+            search_delta = Commons.load_time_delta(try_period)
+            username = input_evt.command_args[:-len(try_period)].strip()
+        except ISO8601ParseError:
+            username = input_evt.command_args.strip()
+            search_delta = Commons.load_time_delta("PT600S")
+        # Create FA user favs object
+        fa_sub = FAUserWatchersSub(server, destination, fa_key, username, update_frequency=search_delta)
+        # Check if it's a valid user
+        try:
+            fa_key.get_fa_reader().get_user_page(username)
+        except Exception:
+            raise SubscriptionException("This does not appear to be a valid username.")
+        fa_sub.check()
+        return fa_sub
+
+    def matches_name(self, name_clean):
+        return name_clean == self.username.lower().strip()
+
+    def get_name(self):
+        return "New watchers subscription for \"{}\"".format(self.username)
+
+    def check(self):
+        fa_reader = self.fa_key.get_fa_reader()
+        results = []
+        user_page = fa_reader.get_user_page(self.username)
+        next_batch = []
+        matched_ids = False
+        for new_watcher in user_page.watched_by:
+            watcher_username = new_watcher.watcher_username
+            # Batch things that have been seen, so that the results after the last result in latest_ids aren't included
+            if watcher_username in self.newest_watchers:
+                results += next_batch
+                next_batch = []
+                matched_ids = True
+            else:
+                next_batch.append(new_watcher)
+        # If no watchers in list matched an ID in last seen, send all results from list
+        if not matched_ids:
+            results += next_batch
+        # Create new list of latest ten results
+        self.newest_watchers = [new_watcher.watcher_username for new_watcher in user_page.watched_by]
+        self.last_check = datetime.now()
+        return results[::-1]
+
+    def format_item(self, item):
+        """
+        :type item: FAKey.FAReader.FAWatch
+        :return: EventMessage
+        """
+        link = "https://furaffinity.net/user/{}/".format(item.watcher_username)
+        # Construct output
+        output = "{} has watched {}. Link: {}".format(item.watcher_name, item.watched_name, link)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        return EventMessage(self.server, channel, user, output, inbound=False)
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["fa_key_user_address"] = self.fa_key.user.address
+        json_obj["username"] = self.username
+        json_obj["newest_watchers"] = []
+        for new_watcher in self.newest_watchers:
+            json_obj["newest_watchers"].append(new_watcher)
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load username
+        username = json_obj["username"]
+        # Load newest watcher list
+        newest_watchers = []
+        for new_watcher in json_obj["newest_watchers"]:
+            newest_watchers.append(new_watcher)
+        new_sub = FAUserWatchersSub(server, destination, fa_key, username,
+                                    last_check=last_check, update_frequency=update_frequency,
+                                    newest_watchers=newest_watchers)
+        new_sub.last_update = last_update
+        return new_sub
+
+
+class FANotificationWatchSub(FAUserWatchersSub):
+    names = ["{}{}{}{}".format(fa, new, watchers, notifications)
+             for fa in ["fa ", "furaffinity "]
+             for new in ["new ", ""]
+             for watchers in ["watcher", "watchers"]
+             for notifications in ["", " notifications"]]
+    """ :type : list[str]"""
+    type_name = "fa_notif_watchers"
+
+    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
+                 newest_watchers=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type fa_key: FAKey
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        :param newest_watchers: List of user's most recent new watchers' usernames
+        :type newest_watchers: list[str]
+        """
+        username = fa_key.get_fa_reader().get_notification_page().username
+        super().__init__(server, destination, fa_key, username,
+                         last_check=last_check, update_frequency=update_frequency, newest_watchers=newest_watchers)
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        """
+        :type input_evt: Events.EventMessage
+        :type sub_repo: SubscriptionRepo
+        :rtype: FAUserWatchersSub
+        """
+        # Get FAKey object
+        user = input_evt.user
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Cannot create FA watcher notification subscription without cookie details. "
+                                        "Please set up FA cookies with "
+                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+        # Get server and destination
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # See if user gave us an update period
+        try:
+            search_delta = Commons.load_time_delta(input_evt.command_args)
+        except ISO8601ParseError:
+            search_delta = Commons.load_time_delta("PT300S")
+        # Create FA user watchers object
+        try:
+            fa_sub = FANotificationWatchSub(server, destination, fa_key, update_frequency=search_delta)
+        except Exception:
+            raise SubscriptionException("Yours does not appear to be a valid username? "
+                                        "I cannot access your profile page.")
+        fa_sub.check()
+        return fa_sub
+
+    def matches_name(self, name_clean):
+        return name_clean in [s.lower().strip() for s in self.names + ["watchers"]]
+
+    def get_name(self):
+        return "New watchers notifications for {}".format(self.fa_key.user.name)
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        del json_obj["username"]
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load fa_key
+        user_addr = json_obj["fa_key_user_address"]
+        user = server.get_user_by_address(user_addr)
+        if user is None:
+            raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_key = fa_keys.get_key_by_user(user)
+        if fa_key is None:
+            raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
+        # Load newest watcher list
+        newest_watchers = []
+        for new_watcher in json_obj["newest_watchers"]:
+            newest_watchers.append(new_watcher)
+        new_sub = FANotificationWatchSub(server, destination, fa_key,
+                                         last_check=last_check, update_frequency=update_frequency,
+                                         newest_watchers=newest_watchers)
+        new_sub.last_update = last_update
+        return new_sub
 
 
 class YoutubeSub(Subscription):
@@ -594,10 +1888,839 @@ class SubscriptionCommon:
         raise NotImplementedError()
 
 
+class FAKeysCommon(SubscriptionCommon):
+    type_name = "fa_keys"
+    """ :type : str"""
+
+    def __init__(self):
+        self.list_keys = dict()
+        """ :type : dict[User, FAKey]"""
+
+    def get_key_by_user(self, user):
+        """
+        :type user: Destination.User
+        :return: FAKey
+        """
+        if user in self.list_keys:
+            return self.list_keys[user]
+        user_data_parser = UserDataParser()
+        fa_data = user_data_parser.get_data_by_user_and_type(user, FAKeyData)  # type: FAKeyData
+        if fa_data is None:
+            return None
+        fa_key = FAKey(user, fa_data.cookie_a, fa_data.cookie_b)
+        self.add_key(fa_key)
+        return fa_key
+
+    def add_key(self, key):
+        """
+        :type key: FAKey
+        """
+        self.list_keys[key.user] = key
+
+    def to_json(self):
+        return None
+
+    @staticmethod
+    def from_json(json_obj):
+        return FAKeysCommon()
+
+
+class FAKey:
+
+    def __init__(self, user, cookie_a, cookie_b):
+        self.user = user
+        """ :type : Destination.User"""
+        self.cookie_a = cookie_a
+        """ :type : str"""
+        self.cookie_b = cookie_b
+        """ :type : str"""
+        self.fa_reader = None
+        """ :type : FAReader | None"""
+
+    def get_fa_reader(self):
+        """
+        :rtype: FAKey.FAReader
+        """
+        if self.fa_reader is None:
+            self.fa_reader = FAKey.FAReader(self.cookie_a, self.cookie_b)
+        return self.fa_reader
+
+    class FAReader:
+        NOTES_INBOX = "inbox"
+        NOTES_OUTBOX = "outbox"
+
+        class FALoginFailedError(Exception):
+            pass
+
+        def __init__(self, cookie_a, cookie_b):
+            self.a = cookie_a
+            """ :type : str"""
+            self.b = cookie_b
+            """ :type : str"""
+            self.timeout = timedelta(seconds=60)
+            """ :type : timedelta"""
+            self.notification_page_cache = CachedObject(lambda: FAKey.FAReader.FANotificationsPage(
+                self._get_page_code("https://www.furaffinity.net/msg/others/")),
+                                                        self.timeout)
+            """ :type : CachedObject"""
+            self.submissions_page_cache = CachedObject(lambda: FAKey.FAReader.FASubmissionsPage(
+                self._get_page_code("https://www.furaffinity.net/msg/submissions/")),
+                                                       self.timeout)
+            """ :type : CachedObject"""
+            self.notes_page_inbox_cache = CachedObject(lambda: FAKey.FAReader.FANotesPage(
+                self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=inbox"), self.NOTES_INBOX),
+                                                       self.timeout)
+            """ :type : CachedObject"""
+            self.notes_page_outbox_cache = CachedObject(lambda: FAKey.FAReader.FANotesPage(
+                self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=outbox"), self.NOTES_OUTBOX),
+                                                        self.timeout)
+            """ :type : CachedObject"""
+
+        def _get_page_code(self, url, extra_cookie=""):
+            if len(extra_cookie) > 0 or not extra_cookie.startswith(";"):
+                extra_cookie = ";"+extra_cookie
+            cookie_string = "a="+self.a+";b="+self.b+extra_cookie
+            return Commons.load_url_string(url, [["Cookie", cookie_string]])
+
+        def get_notification_page(self):
+            """
+            :rtype: FAKey.FAReader.FANotificationsPage
+            """
+            return self.notification_page_cache.get()
+
+        def get_submissions_page(self):
+            """
+            :rtype: FAReader.FASubmissionsPage
+            """
+            return self.submissions_page_cache.get()
+
+        def get_notes_page(self, folder):
+            """
+            :type folder: str
+            :return: FAReader.FANotesPage
+            """
+            if folder == self.NOTES_INBOX:
+                return self.notes_page_inbox_cache.get()
+            if folder == self.NOTES_OUTBOX:
+                return self.notes_page_outbox_cache.get()
+            raise ValueError("Invalid FA note folder.")
+
+        def get_user_page(self, username):
+            # Needs shout list, for checking own shouts
+            code = self._get_page_code("https://www.furaffinity.net/user/{}/".format(username))
+            user_page = FAKey.FAReader.FAUserPage(code, username)
+            return user_page
+
+        def get_user_fav_page(self, username):
+            """
+            :type username: str
+            :rtype: FAKey.FAReader.FAUserFavouritesPage
+            """
+            code = self._get_page_code("https://www.furaffinity.net/favorites/{}/".format(username))
+            fav_page = FAKey.FAReader.FAUserFavouritesPage(code, username)
+            return fav_page
+
+        def get_submission_page(self, submission_id):
+            code = self._get_page_code("https://www.furaffinity.net/view/{}/".format(submission_id))
+            sub_page = FAKey.FAReader.FAViewSubmissionPage(code, submission_id)
+            return sub_page
+
+        def get_journal_page(self, journal_id):
+            code = self._get_page_code("https://www.furaffinity.net/journal/{}/".format(journal_id))
+            journal_page = FAKey.FAReader.FAViewJournalPage(code, journal_id)
+            return journal_page
+
+        def get_search_page(self, search_term):
+            post_params = dict()
+            post_params["q"] = search_term
+            post_params["do_search"] = "Search"
+            post_params["mode"] = "extended"
+            post_params["order-by"] = "date"
+            post_params["order-direction"] = "desc"
+            post_params["page"] = 1
+            post_params["perpage"] = 72
+            post_params["range"] = "all"
+            post_params["rating-adult"] = "on"
+            post_params["rating-general"] = "on"
+            post_params["rating-mature"] = "on"
+            post_params["type-art"] = "on"
+            post_params["type-flash"] = "on"
+            post_params["type-music"] = "on"
+            post_params["type-photo"] = "on"
+            post_params["type-poetry"] = "on"
+            post_params["type-story"] = "on"
+            post_data = urllib.parse.urlencode(post_params)
+            code = self._get_page_code("https://www.furaffinity.net/search/?{}".format(post_data))
+            search_page = FAKey.FAReader.FASearchPage(code, search_term)
+            return search_page
+
+        class FAPage:
+            def __init__(self, code):
+                self.retrieve_time = datetime.now()
+                """ :type : datetime"""
+                self.code = code  # TODO: debug, remove when done.
+                """ :type : str"""
+                self.soup = BeautifulSoup(code, "html.parser")
+                """ :type : BeautifulSoup"""
+                login_user = self.soup.find(id="my-username")
+                if login_user is None:
+                    raise FAKey.FAReader.FALoginFailedError("Not currently logged in")
+                self.username = login_user.string[1:]
+                """ :type : str"""
+                total_submissions = self.soup.find_all(title="Submission Notifications")
+                self.total_submissions = 0 if len(total_submissions) == 0 else int(total_submissions[0].string[:-1])
+                """ :type : int"""
+                total_comments = self.soup.find_all(title="Comment Notifications")
+                self.total_comments = 0 if len(total_comments) == 0 else int(total_comments[0].string[:-1])
+                """ :type : int"""
+                total_journals = self.soup.find_all(title="Journal Notifications")
+                self.total_journals = 0 if len(total_journals) == 0 else int(total_journals[0].string[:-1])
+                """ :type : int"""
+                total_favs = self.soup.find_all(title="Favorite Notifications")
+                self.total_favs = 0 if len(total_favs) == 0 else int(total_favs[0].string[:-1])
+                """ :type : int"""
+                total_watches = self.soup.find_all(title="Watch Notifications")
+                self.total_watches = 0 if len(total_watches) == 0 else int(total_watches[0].string[:-1])
+                """ :type : int"""
+                total_notes = self.soup.find_all(title="Note Notifications")
+                self.total_notes = 0 if len(total_notes) == 0 else int(total_notes[0].string[:-1])
+                """ :type : int"""
+
+        class FANotificationsPage(FAPage):
+
+            def __init__(self, code):
+                super().__init__(code)
+                self.watches = []
+                """ :type : list[FAKey.FAReader.FANotificationWatch]"""
+                watch_list = self.soup.find("ul", id="watches")
+                if watch_list is not None:
+                    for watch_notif in watch_list.find_all("li", attrs={"class": None}):
+                        try:
+                            name = watch_notif.span.string
+                            username = watch_notif.a["href"].replace("/user/", "")[:-1]
+                            avatar = "https:" + watch_notif.img["src"]
+                            new_watch = FAKey.FAReader.FANotificationWatch(name, username, avatar)
+                            self.watches.append(new_watch)
+                        except Exception as e:
+                            print("Failed to read watch: {}".format(e))
+                self.submission_comments = []
+                """ :type : list[FAKey.FAReader.FANotificationCommentSubmission]"""
+                sub_comment_list = self.soup.find("fieldset", id="messages-comments-submission")
+                if sub_comment_list is not None:
+                    for sub_comment_notif in sub_comment_list.find_all("li", attrs={"class": None}):
+                        try:
+                            sub_comment_notif_links = sub_comment_notif.find_all("a")
+                            comment_id = sub_comment_notif.input["value"]
+                            username = sub_comment_notif_links[0]["href"].split("/")[2]
+                            name = sub_comment_notif.a.string
+                            comment_on = "<em>your</em> comment on" in str(sub_comment_notif)
+                            submission_yours = sub_comment_notif.find_all("em")[-1].string == "your"
+                            submission_id = sub_comment_notif_links[1]["href"].split("/")[2]
+                            submission_name = sub_comment_notif_links[1].string
+                            new_comment = FAKey.FAReader.FANotificationCommentSubmission(comment_id, username, name,
+                                                                                         comment_on, submission_yours,
+                                                                                         submission_id, submission_name)
+                            self.submission_comments.append(new_comment)
+                        except Exception as e:
+                            print("Failed to read submission comment: {}".format(e))
+                self.journal_comments = []
+                """ :type : list[FAKey.FAReader.FANotificationCommentJournal]"""
+                jou_comment_list = self.soup.find("fieldset", id="messages-comments-journal")
+                if jou_comment_list is not None:
+                    for jou_comment_notif in jou_comment_list.find_all("li", attrs={"class": None}):
+                        try:
+                            jou_comment_links = jou_comment_notif.find_all("a")
+                            comment_id = jou_comment_notif.find("input")["value"]
+                            username = jou_comment_links[0]["href"].split("/")[2]
+                            name = jou_comment_links[0].string
+                            comment_on = "<em>your</em> comment on" in str(jou_comment_notif)
+                            journal_yours = jou_comment_notif.find_all("em")[-1].string == "your"
+                            journal_id = jou_comment_links[1]["href"].split("/")[2]
+                            journal_title = jou_comment_links[1].string
+                            new_comment = FAKey.FAReader.FANotificationCommentJournal(comment_id, username, name,
+                                                                                      comment_on, journal_yours,
+                                                                                      journal_id, journal_title)
+                            self.journal_comments.append(new_comment)
+                        except Exception as e:
+                            print("Failed to read journal comment: {}".format(e))
+                self.shouts = []
+                """ :type : list[FAKey.FAReader.FANotificationShout]"""
+                shout_list = self.soup.find("fieldset", id="messages-shouts")
+                if shout_list is not None:
+                    for shout_notif in shout_list.find_all("li", attrs={"class": None}):
+                        try:
+                            shout_id = shout_notif.input["value"]
+                            username = shout_notif.a["href"].split("/")[2]
+                            name = shout_notif.a.string
+                            new_shout = FAKey.FAReader.FANotificationShout(shout_id, username, name, self.username)
+                            self.shouts.append(new_shout)
+                        except Exception as e:
+                            print("Failed to read shout: {}".format(e))
+                self.favourites = []
+                """ :type : list[FAKey.FAReader.FANotificationFavourite]"""
+                fav_list = self.soup.find("ul", id="favorites")
+                if fav_list is not None:
+                    for fav_notif in fav_list.find_all("li", attrs={"class": None}):
+                        try:
+                            fav_links = fav_notif.find_all("a")
+                            fav_id = fav_notif.input["value"]
+                            username = fav_links[0]["href"].split("/")[-2]
+                            name = fav_links[0].string
+                            submission_id = fav_links[1]["href"].split("/")[-2]
+                            submission_name = fav_links[1].string
+                            new_fav = FAKey.FAReader.FANotificationFavourite(fav_id, username, name,
+                                                                             submission_id, submission_name)
+                            self.favourites.append(new_fav)
+                        except Exception as e:
+                            print("Failed to read favourite: {}".format(e))
+                self.journals = []
+                """ :type : list[FAKey.FAReader.FANotificationJournal]"""
+                jou_list = self.soup.find("ul", id="journals")
+                if jou_list is not None:
+                    for jou_notif in jou_list.find_all("li", attrs={"class": None}):
+                        try:
+                            jou_links = jou_notif.find_all("a")
+                            journal_id = jou_notif.input["value"]
+                            journal_name = jou_links[0].string
+                            username = jou_links[1]["href"].split("/")[-2]
+                            name = jou_links[1].string
+                            new_journal = FAKey.FAReader.FANotificationJournal(journal_id, journal_name, username, name)
+                            self.journals.append(new_journal)
+                        except Exception as e:
+                            print("Failed to read journal: {}".format(e))
+
+        class FANotificationWatch:
+
+            def __init__(self, name, username, avatar):
+                self.name = name
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.link = "https://furaffinity.net/user/{}/".format(username)
+                """ :type : str"""
+                self.avatar = avatar
+                """ :type : str"""
+
+        class FANotificationCommentSubmission:
+
+            def __init__(self, comment_id, username, name, comment_on,
+                         submission_yours, submission_id, submission_name):
+                self.comment_id = comment_id
+                """ :type : str"""
+                self.comment_link = "https://furaffinity.net/view/{}/#cid:{}".format(submission_id, comment_id)
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.comment_on = comment_on
+                """ :type : bool"""
+                self.submission_yours = submission_yours
+                """ :type : bool"""
+                self.submission_id = submission_id
+                """ :type : str"""
+                self.submission_name = submission_name
+                """ :type : str"""
+                self.submission_link = "https://furaffinity.net/view/{}/".format(submission_id)
+                """ :type : str"""
+
+        class FANotificationCommentJournal:
+
+            def __init__(self, comment_id, username, name, comment_on, journal_yours, journal_id, journal_name):
+                self.comment_id = comment_id
+                """ :type : str"""
+                self.comment_link = "https://furaffinity.net/journal/{}/#cid:{}".format(journal_id, comment_id)
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.comment_on = comment_on
+                """ :type : bool"""
+                self.journal_yours = journal_yours
+                """ :type : bool"""
+                self.journal_id = journal_id
+                """ :type : str"""
+                self.journal_name = journal_name
+                """ :type : str"""
+                self.journal_link = "https://furaffinity.net/journal/{}/".format(journal_id)
+                """ :type : str"""
+
+        class FANotificationShout:
+
+            def __init__(self, shout_id, username, name, page_username):
+                self.shout_id = shout_id
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.page_username = page_username
+                """ :type : str"""
+
+        class FANotificationFavourite:
+
+            def __init__(self, fav_id, username, name, submission_id, submission_name):
+                self.fav_id = fav_id
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.submission_id = submission_id
+                """ :type : str"""
+                self.submission_name = submission_name
+                """ :type : str"""
+                self.submission_link = "https://furaffinity.net/view/{}/".format(submission_id)
+                """ :type : str"""
+
+        class FANotificationJournal:
+
+            def __init__(self, journal_id, journal_name, username, name):
+                self.journal_id = journal_id
+                """ :type : str"""
+                self.journal_link = "https://furaffinity.net/journal/{}/".format(journal_id)
+                """ :type : str"""
+                self.journal_name = journal_name
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+
+        class FASubmissionsPage(FAPage):
+
+            def __init__(self, code):
+                super().__init__(code)
+                self.submissions = []
+                """ :type : list[FAKey.FAReader.FANotificationSubmission]"""
+                subs_list = self.soup.find("form", id="messages-form")  # line 181
+                if subs_list is not None:
+                    for sub_notif in subs_list.find_all("figure"):
+                        sub_links = sub_notif.find_all("a")
+                        submission_id = sub_notif.input["value"]
+                        rating = [i[2:] for i in sub_notif["class"] if i.startswith("r-")][0]
+                        preview_link = sub_notif.img["src"]
+                        title = sub_links[1].string
+                        username = sub_links[2]["href"].split("/")[-2]
+                        name = sub_links[2]
+                        new_submission = FAKey.FAReader.FANotificationSubmission(submission_id, rating, preview_link,
+                                                                                 title, username, name)
+                        self.submissions.append(new_submission)
+
+        class FANotificationSubmission:
+
+            def __init__(self, submission_id, rating, preview_link, title, username, name):
+                self.submission_id = submission_id
+                """ :type : str"""
+                self.submission_link = "https://furaffinity.net/view/{}/".format(submission_id)
+                """ :type : str"""
+                self.rating = rating
+                """ :type : str"""
+                self.preview_link = preview_link
+                """ :type : str"""
+                self.title = title
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+
+        class FANotesPage(FAPage):
+
+            def __init__(self, code, folder):
+                super().__init__(code)
+                self.folder = folder
+                """ :type : str"""
+                self.notes = []
+                """ :type : list[FAKey.FAReader.FANote]"""
+                notes_list = self.soup.find("table", id="notes-list")
+                if notes_list is not None:
+                    for note in notes_list.find_all("tr", {"class": "note"}):
+                        note_links = note.find_all("a")
+                        note_id = note.input["value"]
+                        subject = note_links[0].string
+                        username = note_links[1]["href"].split("/")[-2]
+                        name = note_links[1].string
+                        is_read = note.find("img", {"class": "unread"}) is None
+                        new_note = FAKey.FAReader.FANote(note_id, subject, username, name, is_read)
+                        self.notes.append(new_note)
+
+        class FANote:
+
+            def __init__(self, note_id, subject, username, name, is_read):
+                self.note_id = note_id
+                """ :type : str"""
+                self.note_link = "https://www.furaffinity.net/viewmessage/{}/".format(note_id)
+                """ :type : str"""
+                self.subject = subject
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.is_read = is_read
+                """ :type : bool"""
+
+        class FAUserPage(FAPage):
+
+            def __init__(self, code, username):
+                super().__init__(code)
+                main_panel = self.soup.find("b", string="Full Name:").parent
+                main_panel_strings = list(main_panel.stripped_strings)
+                self.username = username
+                """ :type : str"""
+                self.name = main_panel_strings[main_panel_strings.index("Full Name:")+1]
+                """ :type : str"""
+                self.user_title = None
+                """ :type : str | None"""
+                if "User Title:" in main_panel_strings:
+                    self.user_title = main_panel_strings[main_panel_strings.index("User Title:") + 1]
+                registered_since_str = main_panel_strings[main_panel_strings.index("Registered since:")+1]\
+                    .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
+                self.registered_since = datetime.strptime(registered_since_str, "%b %d, %Y %H:%M")
+                """ :type : datetime"""
+                self.current_mood = main_panel_strings[main_panel_strings.index("Current mood:")+1]
+                """ :type : str"""
+                # artist_profile
+                self.num_page_visits = None
+                """ :type : int | None"""
+                self.num_submissions = None
+                """ :type : int | None"""
+                self.num_comments_received = None
+                """ :type : int | None"""
+                self.num_comments_given = None
+                """ :type : int | None"""
+                self.num_journals = None
+                """ :type : int | None"""
+                self.num_favourites = None
+                """ :type : int | None"""
+                try:
+                    statistics = list(self.soup.find("b", title="Once per user per 24 hours").parent.stripped_strings)
+                    self.num_page_visits = int(statistics[statistics.index("Page Visits:")+1])
+                    self.num_submissions = int(statistics[statistics.index("Submissions:")+1])
+                    self.num_comments_received = int(statistics[statistics.index("Comments Received:")+1])
+                    self.num_comments_given = int(statistics[statistics.index("Comments Given:")+1])
+                    self.num_journals = int(statistics[statistics.index("Journals:")+1])
+                    self.num_favourites = int(statistics[statistics.index("Favorites:")+1])
+                except Exception as e:
+                    print("Failed to read statistics on user page. {}".format(e))
+                # artist_info
+                # contact_info
+                # featured_submission
+                self.shouts = []
+                """ :type : list[FAKey.FAReader.FAShout]"""
+                shout_list = self.soup.find_all("table", {"id": lambda x: x and x.startswith("shout-")})
+                if shout_list is not None:
+                    for shout in shout_list:
+                        shout_id = shout["id"].replace("shout-", "")
+                        username = shout.find_all("img", {"class": "avatar"})[0]["alt"]
+                        name = shout.find_all("a")[1].string
+                        avatar = "https"+shout.find_all("img", {"class": "avatar"})[0]["src"]
+                        text = "".join(str(x) for x in shout.find("div").contents).strip()
+                        new_shout = FAKey.FAReader.FAShout(shout_id, username, name, avatar, text)
+                        self.shouts.append(new_shout)
+                self.watched_by = []
+                """ :type : list[FAKey.FAReader.FAWatch]"""
+                try:
+                    watcher_list = self.soup.find_all("b", text="Watched by")[0].parent.parent.parent
+                    for watch in watcher_list.find_all("span", {"class": "artist_name"}):
+                        watcher_username = watch.parent["href"].split("/")[-2]
+                        watcher_name = watch.string
+                        new_watch = FAKey.FAReader.FAWatch(watcher_username, watcher_name, self.username, self.name)
+                        self.watched_by.append(new_watch)
+                except Exception as e:
+                    print("Failed to get watched by list: {}".format(e))
+                self.is_watching = []
+                try:
+                    watching_list = self.soup.find_all("b", text="Is watching")[0].parent.parent.parent
+                    for watch in watching_list.find_all("span", {"class": "artist_name"}):
+                        watched_username = watch.parent["href"].split("/")[-2]
+                        watched_name = watch.string
+                        new_watch = FAKey.FAReader.FAWatch(self.username, self.name, watched_username, watched_name)
+                        self.is_watching.append(new_watch)
+                except Exception as e:
+                    print("Failed to get is watching list: {}".format(e))
+
+        class FAShout:
+
+            def __init__(self, shout_id, username, name, avatar, text):
+                self.shout_id = shout_id
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.avatar = avatar
+                """ :type : str"""
+                self.text = text
+                """ :type : str"""
+
+        class FAWatch:
+
+            def __init__(self, watcher_username, watcher_name, watched_username, watched_name):
+                self.watcher_username = watcher_username
+                """ :type : str"""
+                self.watcher_name = watcher_name
+                """ :type : str"""
+                self.watched_username = watched_username
+                """ :type : str"""
+                self.watched_name = watched_name
+                """ :type : str"""
+
+        class FAUserFavouritesPage(FAPage):
+
+            def __init__(self, code, username):
+                super().__init__(code)
+                self.username = username
+                """ :type : str"""
+                self.favourites = []
+                """ :type : list[FAKey.FAReader.FAFavourite]"""
+                fav_gallery = self.soup.find(id="gallery-favorites")
+                for fav in fav_gallery.find_all("figure"):
+                    try:
+                        fav_links = fav.find_all("a")
+                        submission_id = fav_links[0]["href"].split("/")[-2]
+                        submission_type = [c[2:] for c in fav["class"] if c.startswith("t-")][0]
+                        rating = [c[2:] for c in fav["class"] if c.startswith("r-")][0]
+                        title = fav_links[1].string
+                        preview_image = "https:"+fav.img["src"]
+                        username = fav_links[2]["href"].split("/")[-2]
+                        name = fav_links[2].string
+                        new_fav = FAKey.FAReader.FAFavourite(submission_id, submission_type, rating, title,
+                                                             preview_image, username, name)
+                        self.favourites.append(new_fav)
+                    except Exception as e:
+                        print("Could not read favourite: {}".format(e))
+
+        class FAFavourite:
+
+            def __init__(self, submission_id, submission_type, rating, title, preview_image, username, name):
+                self.submission_id = submission_id
+                """ :type : str"""
+                self.submission_type = submission_type
+                """ :type : str"""
+                self.rating = rating
+                """ :type : str"""
+                self.title = title
+                """ :type : str"""
+                self.preview_image = preview_image
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+
+        class FAViewSubmissionPage(FAPage):
+
+            def __init__(self, code, submission_id):
+                super().__init__(code)
+                self.submission_id = submission_id
+                """ :type : str"""
+                sub_info = self.soup.find("td", {"class", "stats-container"})
+                sub_info_stripped = list(sub_info.stripped_strings)
+                sub_titlebox = sub_info.find_parent("td").find_previous("td")
+                sub_descbox = sub_info.find_next("td")
+                self.title = sub_titlebox.find("b").string
+                """ :type : str"""
+                self.full_image = "https:" + self.soup.find(text="Download").parent["href"]
+                """ :type : str"""
+                self.username = sub_titlebox.find("a")["href"].split("/")[-2]
+                """ :type : str"""
+                self.name = sub_titlebox.string
+                """ :type : str"""
+                self.avatar_link = "https:" + sub_descbox.find("img")["src"]
+                """ :type : str"""
+                self.description = "".join(str(s) for s in sub_descbox.contents[5:]).strip()
+                """ :type : str"""
+                submission_time_str = sub_info.find("span", {"class": "popup_date"})["title"]\
+                    .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
+                self.submission_time = datetime.strptime(submission_time_str, "%b %d, %Y %H:%M %p")
+                """ :type : datetime"""
+                self.category = sub_info_stripped[sub_info_stripped.index("Category:")+1]
+                """ :type : str"""
+                self.theme = sub_info_stripped[sub_info_stripped.index("Theme:")+1]
+                """ :type : str"""
+                self.species = sub_info_stripped[sub_info_stripped.index("Species:")+1]
+                """ :type : str"""
+                self.gender = sub_info_stripped[sub_info_stripped.index("Gender:")+1]
+                """ :type : str"""
+                self.num_favourites = int(sub_info_stripped[sub_info_stripped.index("Favorites:")+1])
+                """ :type : int"""
+                self.num_comments = int(sub_info_stripped[sub_info_stripped.index("Comments:")+1])
+                """ :type : int"""
+                self.num_views = int(sub_info_stripped[sub_info_stripped.index("Views:")+1])
+                """ :type : int"""
+                # resolution_x = None
+                # resolution_y = None
+                self.keywords = []
+                """ :type : list[str]"""
+                if sub_info.find(id="keywords") is not None:
+                    self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
+                self.rating = sub_info.find_all("img")[-1]["alt"].split()[0]
+                """ :type : str"""
+                comments_section = self.soup.find(id="comments-submission")
+                self.comments_section = FAKey.FAReader.FACommentsSection(comments_section)
+                """ :type : FAKey.FAReader.FACommentsSection"""
+
+        class FACommentsSection:
+
+            def __init__(self, comments):
+                self.top_level_comments = []
+                """ :type : list[FAKey.FAReader.FAComment]"""
+                comment_stack = []
+                for comment in comments.find_all("table", {"id": lambda x: x and x.startswith("cid:")}):
+                    comment_link = comment.find("a")
+                    username = comment_link["href"].split("/")[-2]
+                    name = comment.find("b", {"class": "replyto-name"}).string
+                    avatar_link = "https:" + comment_link.find("img")["src"]
+                    comment_id = comment["id"][4:]
+                    posted_datetime = Commons.format_unix_time(int(comment["data-timestamp"]))
+                    text = "".join(str(x) for x in comment.find("div", {"class": "message-text"}).contents).strip()
+                    new_comment = FAKey.FAReader.FAComment(username, name, avatar_link, comment_id,
+                                                           posted_datetime, text)
+                    width = int(comment["width"][:-1])
+                    if comment_stack.__len__() == 0 or width < comment_stack[-1][0]:
+                        comment_stack.append((width, new_comment))
+                    for index in range(len(comment_stack)):
+                        if width == comment_stack[index][0]:
+                            parent_comment = None if index == 0 else comment_stack[index-1][1]
+                            new_comment.parent = parent_comment
+                            if parent_comment is not None:
+                                parent_comment.reply_comments.append(new_comment)
+                            else:
+                                self.top_level_comments.append(new_comment)
+                            comment_stack[index] = (width, new_comment)
+
+            def get_comment_by_id(self, comment_id, parent_comment=None):
+                """
+                :type comment_id: str
+                :type parent_comment: FAKey.FAReader.FAComment | None
+                :rtype: FAKey.FAReader.FAComment | None
+                """
+                if parent_comment is None:
+                    for comment in self.top_level_comments:
+                        found_comment = self.get_comment_by_id(comment_id, comment)
+                        if found_comment is not None:
+                            return found_comment
+                    return None
+                if parent_comment.comment_id == comment_id:
+                    return parent_comment
+                for comment in parent_comment.reply_comments:
+                    found_comment = self.get_comment_by_id(comment_id, comment)
+                    if found_comment is not None:
+                        return found_comment
+                return None
+
+        class FAComment:
+
+            def __init__(self, username, name, avatar_link, comment_id, posted_datetime, text, parent_comment=None):
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.avatar_link = avatar_link
+                """ :type : str"""
+                self.comment_id = comment_id
+                """ :type : str"""
+                self.posted_datetime = posted_datetime
+                """ :type : datetime"""
+                self.text = text
+                """ :type : str"""
+                self.parent_comment = parent_comment
+                """ :type : FAKey.FAReader.FAComment"""
+                self.reply_comments = []
+                """ :type : list[FAKey.FAReader.FAComment]"""
+
+        class FAViewJournalPage(FAPage):
+
+            def __init__(self, code, journal_id):
+                super().__init__(code)
+                self.journal_id = journal_id
+                """ :type : str"""
+                title_box = self.soup.find("td", {"class": "journal-title-box"})
+                self.username = title_box.find("a")["src"].split("/")[-2]
+                """ :type : str"""
+                self.name = title_box.find("a").string
+                """ :type : str"""
+                self.avatar_link = "https:" + self.soup.find("img", {"class": "avatar"})["src"]
+                """ :type : str"""
+                self.title = title_box.find("div").string.strip()
+                """ :type : str"""
+                posted_datetime_str = title_box.find("span", {"class": "popup_date"})["title"].replace("st", "")\
+                    .replace("nd", "").replace("rd", "").replace("th", "")
+                self.posted_datetime = datetime.strptime(posted_datetime_str, "%b %d, %Y %H:%M")
+                """ :type : datetime"""
+                self.journal_header = None
+                """ :type : str"""
+                try:
+                    header = self.soup.find("div", {"class": "journal-header"})
+                    header.find_all("hr")[-1].decompose()
+                    self.journal_header = "".join(str(s) for s in header).strip()
+                except Exception as e:
+                    print("Failed to read journal header. {}".format(e))
+                self.journal_text = "".join(str(s) for s in self.soup.find("div", {"class": "journal-body"}).contents)\
+                    .strip()
+                """ :type : str"""
+                self.journal_footer = None
+                """ :type : str"""
+                try:
+                    footer = self.soup.find("div", {"class": "journal-footer"})
+                    footer.find_all("hr")[0].decompose()
+                    self.journal_footer = "".join(str(s) for s in footer).strip()
+                except Exception as e:
+                    print("Failed to read journal footer. {}".format(e))
+                self.soup.find(id="comments-submission")
+                comments = self.soup.find(id="page-comments")
+                self.comments_section = FAKey.FAReader.FACommentsSection(comments)
+
+        class FASearchPage(FAPage):
+
+            def __init__(self, code, search_term):
+                super().__init__(code)
+                self.search_term = search_term
+                """ :type : str"""
+                self.results = []
+                """ :type : list[FAKey.FAReader.FASearchResult]"""
+                results = self.soup.find_all("figure")
+                for result in results:
+                    caption_links = result.find("figcaption").find_all("a")
+                    rating = [i[2:] for i in result["class"] if i.startswith("r-")][0]
+                    submission_id = result["id"][4:]
+                    submission_type = [i[2:] for i in result["class"] if i.startswith("t-")][0]
+                    thumbnail_link = "https:" + result.find("img")["src"]
+                    username = caption_links[1]["href"].split("/")[-2]
+                    name = caption_links[1].string
+                    submission_title = caption_links[0].string
+                    new_result = FAKey.FAReader.FASearchResult(rating, submission_id, submission_type, thumbnail_link,
+                                                               username, name, submission_title)
+                    self.results.append(new_result)
+
+        class FASearchResult:
+
+            def __init__(self, rating, submission_id, submission_type, thumbnail_link,
+                         username, name, submission_title):
+                self.rating = rating
+                """ :type : str"""
+                self.submission_id = submission_id
+                """ :type : str"""
+                self.submission_type = submission_type
+                """ :type : str"""
+                self.thumbnail_link = thumbnail_link
+                """ :type : str"""
+                self.username = username
+                """ :type : str"""
+                self.name = name
+                """ :type : str"""
+                self.submission_title = submission_title
+                """ :type : str"""
+
+
 class SubscriptionFactory(object):
-    sub_classes = [RssSub, RedditSub]
+    sub_classes = [E621Sub, RssSub, FANotificationNotesSub, FASearchSub, FAUserFavsSub, FAUserWatchersSub,
+                   FANotificationWatchSub, FANotificationFavSub, FANotificationCommentsSub, RedditSub]
     """ :type : list[type.Subscription]"""
-    common_classes = []
+    common_classes = [FAKeysCommon]
     """ :type : list[type.SubscriptionCommon]"""
 
     @staticmethod

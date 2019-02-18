@@ -20,6 +20,9 @@
         "name": "Euler"
       },
       {
+        "name": "Furry"
+      },
+      {
         "name": "Games"
       },
       {
@@ -38,13 +41,22 @@
         "name": "Pokemon"
       },
       {
+        "name": "Pony"
+      },
+      {
         "name": "Random"
+      },
+      {
+        "name": "Rss"
       },
       {
         "name": "ServerControl"
       },
       {
         "name": "Silly"
+      },
+      {
+        "name": "SillyEtd"
       }
     ]
   },

@@ -81,6 +81,42 @@ class UserDatum(metaclass=ABCMeta):
         raise NotImplementedError()
 
 
+class FAKeyData(UserDatum):
+    type_name = "fa_key"
+    names = ["furaffinity key", "fa key", "fa cookies", "furaffinity cookies", "fa", "furaffinity"]
+
+    def __init__(self, cookie_a, cookie_b):
+        self.cookie_a = cookie_a
+        self.cookie_b = cookie_b
+
+    @staticmethod
+    def create_from_input(event):
+        input_clean = event.command_args.strip().lower().replace(";", " ").split()
+        if len(input_clean) != 2:
+            raise UserDataException("Input must include cookie a and cookie b, in the format a=value;b=value")
+        if input_clean[0].startswith("b="):
+            input_clean = list(reversed(input_clean))
+        cookie_a = input_clean[0][2:]
+        cookie_b = input_clean[1][2:]
+        new_data = FAKeyData(cookie_a, cookie_b)
+        return new_data
+
+    def get_name(self, event):
+        return event.user.name + " FA login"
+
+    def to_json(self):
+        json_obj = dict()
+        json_obj["cookie_a"] = self.cookie_a
+        json_obj["cookie_b"] = self.cookie_b
+        return json_obj
+
+    @staticmethod
+    def from_json(json_dict):
+        cookie_a = json_dict["cookie_a"]
+        cookie_b = json_dict["cookie_b"]
+        return FAKeyData(cookie_a, cookie_b)
+
+
 class WeatherLocationData(UserDatum):
 
     type_name = "weather_location"
@@ -180,7 +216,7 @@ class WeatherLocationData(UserDatum):
 
 
 class UserDataFactory:
-    data_classes = [WeatherLocationData]
+    data_classes = [FAKeyData]
 
     @staticmethod
     def get_data_type_names():

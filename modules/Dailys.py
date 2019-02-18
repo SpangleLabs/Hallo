@@ -10,6 +10,8 @@ import dateutil.parser
 from Events import EventDay, EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound
 from Function import Function
 from inc.Commons import CachedObject, Commons
+from modules.Subscriptions import FAKey
+from modules.UserData import UserDataParser, FAKeyData
 from googleapiclient.discovery import build
 from oauth2client import file
 from httplib2 import Http
@@ -522,6 +524,72 @@ class DailysField(metaclass=ABCMeta):
                            inbound=False)
         self.spreadsheet.user.server.send(evt)
         return evt
+
+
+class DailysFAField(DailysField):
+    type_name = "furaffinity"
+    col_names = ["furaffinity", "fa notifications", "furaffinity notifications"]
+
+    @staticmethod
+    def passive_events():
+        """
+        :rtype: list[type]
+        """
+        return [EventDay]
+
+    def passive_trigger(self, evt):
+        """
+        :type evt: Event.Event
+        :rtype: None
+        """
+        user_parser = UserDataParser()
+        fa_data = user_parser.get_data_by_user_and_type(self.spreadsheet.user, FAKeyData)  # type: FAKeyData
+        if fa_data is None:
+            raise DailysException("No FA data has been set up for the FA field module to use.")
+        fa_key = FAKey(self.spreadsheet.user, fa_data.cookie_a, fa_data.cookie_b)
+        notif_page = fa_key.get_fa_reader().get_notification_page()
+        notifications = dict()
+        notifications["submissions"] = notif_page.total_submissions
+        notifications["comments"] = notif_page.total_comments
+        notifications["journals"] = notif_page.total_journals
+        notifications["favourites"] = notif_page.total_favs
+        notifications["watches"] = notif_page.total_watches
+        notifications["notes"] = notif_page.total_notes
+        notif_str = json.dumps(notifications)
+        d = (evt.get_send_time() - timedelta(1)).date()
+        self.save_data(notif_str, d)
+        # Send date to destination
+        self.message_channel(notif_str)
+
+    @staticmethod
+    def create_from_input(event, spreadsheet):
+        # Check user has an FA login
+        user_parser = UserDataParser()
+        fa_data = user_parser.get_data_by_user_and_type(spreadsheet.user, FAKeyData)  # type: FAKeyData
+        if fa_data is None:
+            raise DailysException("No FA data has been set up for the FA dailys field to use.")
+        # Get column or find it.
+        clean_input = event.command_args[len(DailysFAField.type_name):].strip()
+        if len(clean_input) <= 3 and clean_input.isalpha():
+            key = spreadsheet.tag_column(clean_input)
+            return DailysFAField(spreadsheet, key)
+        key = spreadsheet.find_and_tag_column_by_names(DailysFAField.col_names)
+        if key is None:
+            raise DailysException("Could not find a suitable column. "
+                                  "Please ensure one and only one column is titled: {}."
+                                  "Or specify a column reference."
+                                  .format(", ".join(DailysFAField.col_names)))
+        return DailysFAField(spreadsheet, key)
+
+    def to_json(self):
+        json_obj = dict()
+        json_obj["type_name"] = self.type_name
+        json_obj["field_key"] = self.hallo_key_field_id
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, spreadsheet):
+        return DailysFAField(spreadsheet, json_obj["field_key"])
 
 
 class DailysSleepField(DailysField):
@@ -1048,7 +1116,7 @@ class DailysShutdownField(DailysField):
 
 
 class DailysFieldFactory:
-    fields = [DailysDuolingoField, DailysSleepField, DailysMoodField]
+    fields = [DailysFAField, DailysDuolingoField, DailysSleepField, DailysMoodField]
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
