@@ -1,3 +1,4 @@
+from Destination import Channel, User
 from Events import EventMessage
 from Function import Function
 import random
@@ -677,13 +678,13 @@ class Game:
     Generic Game object. Stores players and location.
     """
 
-    def __init__(self, player_list, channel_obj):
+    def __init__(self, player_list, destination_obj):
         """
         :type player_list: list[Destination.User]
-        :type channel_obj: Destination.Channel
+        :type destination_obj: Destination.Destination
         """
         self.players = set(player_list)
-        self.channel = channel_obj
+        self.destination = destination_obj
         self.start_time = time.time()
         self.last_time = time.time()
         self.lost = False
@@ -692,17 +693,9 @@ class Game:
         """Updates the time that something last happened to this game"""
         self.last_time = time.time()
 
-    def get_players(self):
-        """Returns the list of players"""
-        return self.players
-
     def contains_player(self, user_obj):
         """Whether or not this game contains a specified player"""
         return user_obj in self.players
-
-    def get_channel(self):
-        """Returns the channel (or destination) this game is happening in"""
-        return self.channel
 
     def is_lost(self):
         """Lost getter. (Avoided the getLost() joke.)"""
@@ -715,8 +708,8 @@ class HigherOrLowerGame(Game):
     """
     HIGH_SCORE_NAME = "higher_or_lower"
 
-    def __init__(self, user_obj, channel_obj):
-        super().__init__([user_obj], channel_obj)
+    def __init__(self, user_obj, destination_obj):
+        super().__init__([user_obj], destination_obj)
         self.card_list = []
         self.deck = Deck()
         self.deck.shuffle()
@@ -994,8 +987,8 @@ class BlackjackGame(Game):
     """
     HIGH_SCORE_NAME = "blackjack"
 
-    def __init__(self, user_obj, channel_obj):
-        super().__init__([user_obj], channel_obj)
+    def __init__(self, user_obj, destination_obj):
+        super().__init__([user_obj], destination_obj)
         self.deck = Deck()
         self.deck.shuffle()
         self.player_hand = Hand()
@@ -1093,7 +1086,7 @@ class Blackjack(Function):
         # Name for use in help listing
         self.help_name = "blackjack"
         # Names which can be used to address the function
-        self.names = {"blackjack", "twentyone", "twenty one", "twenty-one", "21", "hit", "stick", "stand"}
+        self.names = {"blackjack", "twentyone", "twenty one", "twenty-one", "21"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Picks a random card from a deck. Format: random_card"
         self.game_list = []
@@ -1219,16 +1212,16 @@ class DDRGame(Game):
     DIRECTION_UP = "^"
     DIRECTION_DOWN = "v"
 
-    def __init__(self, game_difficulty, user_obj, channel_obj):
+    def __init__(self, game_difficulty, user_obj, destination_obj):
         """
         :param game_difficulty: Difficulty of the game
         :type game_difficulty: str
         :param user_obj: User who started the game
         :type user_obj: Destination.User
-        :param channel_obj: Channel the game is happening in
-        :type channel_obj: Destination.Channel
+        :param destination_obj: Channel the game is happening in
+        :type destination_obj: Destination.Destination
         """
-        super().__init__([user_obj], channel_obj)
+        super().__init__([user_obj], destination_obj)
         self.players_moved = set()
         self.player_dict = {user_obj: {'hits': 0, 'lag': 0}}
         self.difficulty = game_difficulty
@@ -1246,7 +1239,9 @@ class DDRGame(Game):
 
     def run(self):
         """Launched into a new thread, this function actually plays the DDR game."""
-        server_obj = self.channel.server
+        server_obj = self.destination.server
+        chan_obj = self.destination if isinstance(self.destination, Channel) else None
+        user_obj = self.destination if isinstance(self.destination, User) else None
         if self.difficulty == self.DIFFICULTY_HARD:
             self.num_turns = 20
             time_min = 1
@@ -1262,13 +1257,13 @@ class DDRGame(Game):
         directions = [self.DIRECTION_LEFT, self.DIRECTION_RIGHT, self.DIRECTION_UP, self.DIRECTION_DOWN]
         # Send first message and wait for new players to join
         output_string = "Starting new game of DDR in 5 seconds, say 'join' to join."
-        server_obj.send(EventMessage(server_obj, self.channel, None, output_string, inbound=False))
+        server_obj.send(EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False))
         time.sleep(5)
         # Output how many players joined and begin
         self.can_join = False
         output_string = "{} players joined: {}. Starting game.".format(len(self.players),
                                                                        ", ".join([p.name for p in self.players]))
-        server_obj.send(EventMessage(server_obj, self.channel, None, output_string, inbound=False))
+        server_obj.send(EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False))
         # Do the various turns of the game
         for _ in range(self.num_turns):
             if self.is_game_over():
@@ -1277,25 +1272,25 @@ class DDRGame(Game):
             self.last_move = direction
             self.players_moved = set()
             self.update_time()
-            server_obj.send(EventMessage(server_obj, self.channel, None, direction, inbound=False))
+            server_obj.send(EventMessage(server_obj, chan_obj, user_obj, direction, inbound=False))
             time.sleep(random.uniform(time_min, time_max))
         # end game
         # Set game over
         self.game_over = True
         output_string = "Game has finished!"
-        server_obj.send(EventMessage(server_obj, self.channel, None, output_string, inbound=False))
+        server_obj.send(EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False))
         # See who wins
         winner_player = self.find_winner()
         output_string = "Winner is: " + winner_player.name
-        server_obj.send(EventMessage(server_obj, self.channel, None, output_string, inbound=False))
+        server_obj.send(EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False))
         # Output player ratings
         for player in self.players:
             output_string = self.player_rating(player)
-            server_obj.send(EventMessage(server_obj, self.channel, None, output_string, inbound=False))
+            server_obj.send(EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False))
         # Check if they have a highscore
         if self.check_high_score(winner_player):
             self.update_high_score(winner_player)
-            highscore_evt = EventMessage(server_obj, self.channel, None,
+            highscore_evt = EventMessage(server_obj, chan_obj, user_obj,
                                          "{} has set a new DDR highscore " +
                                          "with {} hits and {} lag!".format(winner_player.name,
                                                                            self.player_dict[winner_player]['hits'],
@@ -1486,7 +1481,7 @@ class DDR(Function):
     def find_game(self, destination_obj):
         """Finds the game running in a specified channel, None otherwise."""
         for game in self.game_list:
-            if game.get_channel() == destination_obj:
+            if game.destination == destination_obj:
                 if game.is_game_over():
                     self.game_list.remove(game)
                     return None
