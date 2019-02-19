@@ -467,7 +467,7 @@ class RandomPerson(Function):
         pronoun = "he" if user_dict['gender'] == "male" else "she"
         pronoun_possessive = "his" if user_dict['gender'] == "male" else "her"
         if input_clean not in ["more", "full", "verbose", "all"]:
-            output = "I have generated this person: Say hello to {}. {} was form at {}.".format(name,
+            output = "I have generated this person: Say hello to {}. {} was born at {}.".format(name,
                                                                                                 pronoun.title(),
                                                                                                 date_of_birth)
             return event.create_response(output)
