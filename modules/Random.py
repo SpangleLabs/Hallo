@@ -255,8 +255,8 @@ class Ouija(Function):
         word_list = Commons.read_file_to_list('store/ouija_wordlist.txt')
         rand_list = Commons.get_random_int(0, len(word_list) - 1, 4)
         num_words = (rand_list[0] % 3) + 1
-        rand_words = " ".join([word_list[rand_list[x + 2]] for x in range(num_words)])
-        output_string = "I'm getting a message from the other side... {}.".format(rand_words)
+        rand_words = [word_list[rand_list[x + 1]] for x in range(num_words)]
+        output_string = "I'm getting a message from the other side... {}.".format(" ".join(rand_words))
         return event.create_response(output_string)
 
 
@@ -322,8 +322,6 @@ class RandomQuote(Function):
     """
     Returns a random quote
     """
-
-    mScriptureList = []
 
     def __init__(self):
         """
@@ -521,8 +519,6 @@ class RandomColour(Function):
     Returns a random colour, hex code and name
     """
 
-    mProverbList = []
-
     def __init__(self):
         """
         Constructor
@@ -538,14 +534,10 @@ class RandomColour(Function):
     def run(self, event):
         rgb_list = Commons.get_random_int(0, 256, 3)
         hex_code = (hex(rgb_list[0])[2:] + hex(rgb_list[1])[2:] + hex(rgb_list[2])[2:]).upper()
-        url = "http://www.perbang.dk/rgb/" + hex_code + "/"
-        url_data = Commons.load_url_string(url)
-        colour_match = re.search('<meta name="Description" content="([A-Za-z ]+)#', url_data, re.M)
-        if colour_match is None or colour_match.group(1) is None:
-            output = "Randomly chosen colour is: #{} or rgb({},{},{}) {}".format(hex_code, rgb_list[0],
-                                                                                 rgb_list[1], rgb_list[2], url)
-        else:
-            colour_name = colour_match.group(1)
-            output = "Randomly chosen colour is: {} #{} or rgb({},{},{}) {}".format(colour_name, hex_code, rgb_list[0],
-                                                                                    rgb_list[1], rgb_list[2], url)
+        url = "http://www.thecolorapi.com/id?hex={}".format(hex_code)
+        human_url = "{}&format=html".format(url)
+        colour_data = Commons.load_url_json(url)
+        colour_name = colour_data["name"]["value"]
+        output = "Randomly chosen colour is: {} #{} or rgb({},{},{}) {}".format(colour_name, hex_code, rgb_list[0],
+                                                                                rgb_list[1], rgb_list[2], human_url)
         return event.create_response(output)
