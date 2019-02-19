@@ -1093,7 +1093,7 @@ class Blackjack(Function):
         # Name for use in help listing
         self.help_name = "blackjack"
         # Names which can be used to address the function
-        self.names = {"blackjack", "twentyone", "twenty one", "twenty-one", "21"}
+        self.names = {"blackjack", "twentyone", "twenty one", "twenty-one", "21", "hit", "stick", "stand"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Picks a random card from a deck. Format: random_card"
         self.game_list = []
