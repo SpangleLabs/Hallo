@@ -1813,7 +1813,7 @@ class RedditSub(Subscription):
         title = item["data"]["title"]
         author = item["data"]["author"]
         url = item["data"]["url"]
-        # Create event
+        # Check if link is direct to a media file, if so, add photo to output message
         file_extension = url.split(".")[-1].lower()
         if file_extension in ["png", "jpg", "jpeg", "bmp", "gif", "mp4", "gifv"]:
             if file_extension == "gifv":
@@ -1822,7 +1822,16 @@ class RedditSub(Subscription):
             output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, url, inbound=False)
             return output_evt
-        # Make output message
+        # Handle gfycat links as photos
+        gfycat_regex = re.compile("(?:https?://)?(?:www\.)?gfycat.com/([a-z]+)")
+        gfycat_match = gfycat_regex.match(url)
+        if gfycat_match is not None:
+            direct_url = "https://giant.gfycat.com/{}.mp4".format(gfycat_match.group(1))
+            # Make output message
+            output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
+            output_evt = EventMessageWithPhoto(self.server, channel, user, output, direct_url, inbound=False)
+            return output_evt
+        # Make output message if the link isn't direct to a media file
         if item["data"]["selftext"] != "":
             output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
         else:
