@@ -376,7 +376,7 @@ class NightValeWeather(Function):
         # Get hallo object
         self.hallo_obj = event.server.hallo
         # Get playlist data from youtube api
-        playlist_data = self.get_youtube_playlist("PL5bFd9WyHshXpZK-VPpH8UPXx6wCOIaQW")
+        playlist_data = self.get_youtube_playlist("PL1-VZZ6QMhCdx8eC4R3VlCmSn1Kq2QWGP")
         # Select a video from the playlist
         rand_video = Commons.get_random_choice(playlist_data)[0]
         # Return video information
