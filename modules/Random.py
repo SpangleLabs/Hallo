@@ -151,8 +151,8 @@ class ChosenOne(Function):
         user_set = event.channel.get_user_list()
         # Get list of users' names
         names_list = [user_obj.name for user_obj in user_set]
-        rand = Commons.get_random_int(0, len(names_list) - 1)[0]
-        return event.create_response("It should be obvious by now that {} is the chosen one.".format(names_list[rand]))
+        rand_name = Commons.get_random_choice(names_list)[0]
+        return event.create_response("It should be obvious by now that {} is the chosen one.".format(rand_name))
 
 
 class Foof(Function):
