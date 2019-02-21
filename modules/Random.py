@@ -84,8 +84,7 @@ class Choose(Function):
         if numchoices == 1:
             return event.create_response('Please present me with more than 1 thing to choose from!')
         else:
-            rand = Commons.get_random_int(0, numchoices - 1)[0]
-            choice = choices[rand]
+            choice = Commons.get_random_choice(choices)[0]
             return event.create_response("I choose \"{}\".".format(choice))
 
 
