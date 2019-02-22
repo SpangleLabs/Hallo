@@ -533,9 +533,11 @@ class RandomColour(Function):
         self.help_docs = "Returns a random colour. Format: random colour"
 
     def run(self, event):
-        rgb_list = Commons.get_random_int(0, 256, 3)
-        hex_code = (hex(rgb_list[0])[2:] + hex(rgb_list[1])[2:] + hex(rgb_list[2])[2:]).upper()
-        url = "http://www.thecolorapi.com/id?hex={}".format(hex_code)
+        rgb_list = Commons.get_random_int(0, 255, 3)
+        hex_code = "{}{}{}".format(hex(rgb_list[0])[2:].zfill(2),
+                                   hex(rgb_list[1])[2:].zfill(2),
+                                   hex(rgb_list[2])[2:].zfill(2)).upper()
+        url = "https://www.thecolorapi.com/id?hex={}".format(hex_code)
         human_url = "{}&format=html".format(url)
         colour_data = Commons.load_url_json(url)
         colour_name = colour_data["name"]["value"]
