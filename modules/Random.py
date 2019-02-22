@@ -254,9 +254,8 @@ class Ouija(Function):
 
     def run(self, event):
         word_list = Commons.read_file_to_list('store/ouija_wordlist.txt')
-        rand_list = Commons.get_random_int(0, len(word_list) - 1, 4)
-        num_words = (rand_list[0] % 3) + 1
-        rand_words = [word_list[rand_list[x + 1]] for x in range(num_words)]
+        num_words = Commons.get_random_int(1, 3)[0]
+        rand_words = Commons.get_random_choice(word_list, num_words)
         output_string = "I'm getting a message from the other side... {}.".format(" ".join(rand_words))
         return event.create_response(output_string)
 
