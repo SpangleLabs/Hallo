@@ -30,6 +30,7 @@ class NightValeWeatherTest(TestBase, unittest.TestCase):
         assert "and now, the weather" in data[0].text.lower(), "Didn't announce the weather"
         youtube_regex = re.compile(r"https?://youtu\.be/[A-Za-z0-9_\-]{11} .+")
         assert youtube_regex.search(data[0].text) is not None, "Youtube URL and title didn't appear in message"
+        assert len(self.chooser.last_choices) > 1, "One or fewer videos was on the playlist."
 
     def test_passive(self):
         # Check API key is set
@@ -43,6 +44,7 @@ class NightValeWeatherTest(TestBase, unittest.TestCase):
         assert "and now, the weather" in data[0].text.lower(), "Didn't announce the weather"
         youtube_regex = re.compile(r"https?://youtu\.be/[A-Za-z0-9_\-]{11} .+")
         assert youtube_regex.search(data[0].text) is not None, "Youtube URL and title didn't appear in message"
+        assert len(self.chooser.last_choices) > 1, "One or fewer videos was on the playlist."
 
     def test_no_api_key(self):
         # Check there's no API key
