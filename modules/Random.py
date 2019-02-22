@@ -344,7 +344,7 @@ class RandomQuote(Function):
                    ["Content-Type", "application/x-www-form-urlencoded"],
                    ["Accept", "application/json"]]
         # Get api response
-        json_dict = Commons.load_url_json(url, headers)
+        json_dict = Commons.load_url_json(url, headers)[0]
         # Construct response
         quote = json_dict['quote']
         author = json_dict['author']
