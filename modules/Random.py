@@ -202,7 +202,6 @@ class Foof(Function):
         # Check if message matches any variation of foof
         if re.search(r'foo[o]*f[!]*', event.text, re.I):
             # Return response
-            event = event.split_command_text("", event.text)
             return self.run(event)
 
     def get_passive_events(self):
