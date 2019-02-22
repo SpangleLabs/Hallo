@@ -35,7 +35,7 @@ class UrbanDictionary(Function):
 
     def run(self, event):
         url_line = event.command_args.replace(' ', '+').lower()
-        url = "http://api.urbandictionary.com/v0/define?term={}".format(url_line)
+        url = "https://api.urbandictionary.com/v0/define?term={}".format(url_line)
         urban_dict = Commons.load_url_json(url)
         if len(urban_dict['list']) > 0:
             definition = urban_dict['list'][0]['definition'].replace("\r", '').replace("\n", '')
@@ -154,7 +154,7 @@ class InSpace(Function):
         self.help_docs = "Returns the number of people in space right now, and their names. Format: in space"
 
     def run(self, event):
-        space_dict = Commons.load_url_json("http://www.howmanypeopleareinspacerightnow.com/space.json")
+        space_dict = Commons.load_url_json("https://www.howmanypeopleareinspacerightnow.com/space.json")
         space_number = str(space_dict['number'])
         space_names = ", ".join(person['name'].strip() for person in space_dict['people'])
         output_string = "There are {} people in space right now. Their names are: {}.".format(space_number, space_names)
@@ -218,7 +218,7 @@ class Wiki(Function):
 
     def run(self, event):
         line_clean = event.command_args.strip().replace(" ", "_")
-        url = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles={}" \
+        url = "https://en.wikipedia.org/w/api.php?format=json&action=query&titles={}" \
               "&prop=revisions&rvprop=content&redirects=True".format(line_clean)
         article_dict = Commons.load_url_json(url)
         page_code = list(article_dict['query']['pages'])[0]
@@ -324,7 +324,7 @@ class CurrentWeather(Function):
         api_key = event.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return event.create_response("No API key loaded for openweathermap.")
-        url = "http://api.openweathermap.org/data/2.5/weather{}&APPID={}".format(self.build_query(location_entry),
+        url = "https://api.openweathermap.org/data/2.5/weather{}&APPID={}".format(self.build_query(location_entry),
                                                                                  api_key)
         response = Commons.load_url_json(url)
         if str(response['cod']) != "200":
@@ -433,7 +433,7 @@ class Weather(Function):
         api_key = event.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return event.create_response("No API key loaded for openweathermap.")
-        url = "http://api.openweathermap.org/data/2.5/forecast/daily{}" \
+        url = "https://api.openweathermap.org/data/2.5/forecast/daily{}" \
               "&cnt=16&APPID={}".format(self.build_query(location_entry), api_key)
         response = Commons.load_url_json(url)
         # Check API responded well
@@ -720,7 +720,7 @@ class UrlDetect(Function):
             return self.url_generic(url_address, page_opener, page_request)
         movie_id = movie_id_search.group(1)
         # Download API response
-        api_url = "http://www.omdbapi.com/?i={}".format(movie_id)
+        api_url = "https://www.omdbapi.com/?i={}".format(movie_id)
         api_dict = Commons.load_url_json(api_url)
         # Get movie information from API response
         movie_title = api_dict['Title']
@@ -740,7 +740,6 @@ class UrlDetect(Function):
         if "/a/" in url_address:
             return self.site_imgur_album(url_address, page_opener, page_request)
         # Handle individual imgur image links
-        # Example imgur links: http://i.imgur.com/2XBqIIT.jpg http://imgur.com/2XBqIIT
         imgur_id = url_address.split('/')[-1].split('.')[0]
         api_url = "https://api.imgur.com/3/image/{}".format(imgur_id)
         # Load API response (in json) using Client-ID.
@@ -763,7 +762,6 @@ class UrlDetect(Function):
 
     def site_imgur_album(self, url_address, page_opener, page_request):
         """Handling imgur albums"""
-        # http://imgur.com/a/qJctj#0 example imgur album
         imgur_id = url_address.split('/')[-1].split('#')[0]
         api_url = "https://api.imgur.com/3/album/{}".format(imgur_id)
         # Load API response (in json) using Client-ID.
@@ -807,7 +805,7 @@ class UrlDetect(Function):
         """Handling speedtest links"""
         if url_address[-4:] == '.png':
             url_number = url_address[32:-4]
-            url_address = "http://www.speedtest.net/my-result/".format(url_number)
+            url_address = "https://www.speedtest.net/my-result/".format(url_number)
             page_request = urllib.request.Request(url_address)
             page_request.add_header('User-Agent', 'Mozilla/5.0 (X11; Linux i686; rv:23.0) Gecko/20100101 Firefox/23.0')
             page_opener = urllib.request.build_opener()
@@ -852,7 +850,7 @@ class UrlDetect(Function):
         from draco
         """
         # This function is from here:
-        # http://stackoverflow.com/questions/8032642/how-to-obtain-image-size-using-standard-python-class-without-using-external-lib
+        # https://stackoverflow.com/questions/8032642/how-to-obtain-image-size-using-standard-python-class-without-using-external-lib
         image_head = image_data[:24]
         if len(image_head) != 24:
             return

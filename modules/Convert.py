@@ -954,7 +954,7 @@ class UpdateCurrencies(Function):
         # Get currency ConvertType
         currency_type = repo.get_type_by_name("currency")
         # Pull xml data from european bank website
-        url = 'http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml'
+        url = 'https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml'
         xml_string = Commons.load_url_string(url)
         # Parse data
         doc = minidom.parseString(xml_string)
@@ -982,7 +982,7 @@ class UpdateCurrencies(Function):
         # Get currency ConvertType
         currency_type = repo.get_type_by_name("currency")
         # Pull xml data from forex website
-        url = 'http://rates.fxcm.com/RatesXML3'
+        url = 'https://rates.fxcm.com/RatesXML3'
         xml_string = Commons.load_url_string(url)
         # Parse data
         doc = minidom.parseString(xml_string)

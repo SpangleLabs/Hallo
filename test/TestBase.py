@@ -21,8 +21,8 @@ class TestBase(unittest.TestCase):
         # Only the required modules, only 1 (mock) server
         # Todo: specify modules by test?
         self.function_dispatcher = FunctionDispatcher({"AsciiArt", "Bio", "ChannelControl", "Euler", "Furry",
-                                                       "HalloControl", "Math", "PermissionControl",
-                                                       "ServerControl", "Silly", "Subscriptions"},
+                                                       "HalloControl", "Math", "PermissionControl", "Random",
+                                                       "ServerControl", "Silly", "SillyEtd", "Subscriptions"},
                                                       self.hallo)
         self.hallo.function_dispatcher = self.function_dispatcher
         print("Running test: "+self.id()+". Init took: "+str(time.time()-self.start_time)+" seconds.")
@@ -33,11 +33,14 @@ class TestBase(unittest.TestCase):
         # send shit in, check shit out
         self.hallo_thread = Thread(target=self.hallo.start,)
         self.hallo_thread.start()
+        self.hallo_user = self.server.get_user_by_address(self.server.get_nick().lower(), self.server.get_nick())
         self.test_user = self.server.get_user_by_address("test", "test")
         """ :type : Destination.User"""
         self.test_user.online = True
         self.test_chan = self.server.get_channel_by_address("#test", "#test")
         self.test_chan.in_channel = True
+        self.test_chan.add_user(self.hallo_user)
+        self.test_chan.add_user(self.test_user)
         # Wait until hallo is open
         count = 0
         while not self.hallo.open:

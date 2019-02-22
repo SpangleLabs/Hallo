@@ -84,8 +84,7 @@ class Choose(Function):
         if numchoices == 1:
             return event.create_response('Please present me with more than 1 thing to choose from!')
         else:
-            rand = Commons.get_random_int(0, numchoices - 1)[0]
-            choice = choices[rand]
+            choice = Commons.get_random_choice(choices)[0]
             return event.create_response("I choose \"{}\".".format(choice))
 
 
@@ -93,6 +92,13 @@ class EightBall(Function):
     """
     Magic 8 ball. Format: eightball
     """
+    RESPONSES_YES_TOTALLY = ['It is certain', 'It is decidedly so', 'Without a doubt', 'Yes definitely',
+                             'You may rely on it']
+    RESPONSES_YES_PROBABLY = ['As I see it yes', 'Most likely', 'Outlook good', 'Yes', 'Signs point to yes']
+    RESPONSES_MAYBE = ['Reply hazy try again', 'Ask again later', 'Better not tell you now', 'Cannot predict now',
+                       'Concentrate and ask again']
+    RESPONSES_NO = ["Don't count on it", 'My reply is no', 'My sources say no', 'Outlook not so good',
+                    'Very doubtful']
 
     def __init__(self):
         """
@@ -107,14 +113,10 @@ class EightBall(Function):
         self.help_docs = "Magic 8 ball. Format: eightball"
 
     def run(self, event):
-        responses = ['It is certain', 'It is decidedly so', 'Without a doubt', 'Yes definitely', 'You may rely on it']
-        responses += ['As I see it yes', 'Most likely', 'Outlook good', 'Yes', 'Signs point to yes']
-        responses += ['Reply hazy try again', 'Ask again later', 'Better not tell you now', 'Cannot predict now',
-                      'Concentrate and ask again']
-        responses += ["Don't count on it", 'My reply is no', 'My sources say no', 'Outlook not so good',
-                      'Very doubtful']
-        rand = Commons.get_random_int(0, len(responses) - 1)[0]
-        return event.create_response("{}.".format(responses[rand]))
+        responses = EightBall.RESPONSES_YES_TOTALLY + EightBall.RESPONSES_YES_PROBABLY + \
+                    EightBall.RESPONSES_MAYBE + EightBall.RESPONSES_NO
+        resp = Commons.get_random_choice(responses)[0]
+        return event.create_response("{}.".format(resp))
 
     def get_names(self):
         """Returns the list of names for directly addressing the function"""
@@ -152,8 +154,8 @@ class ChosenOne(Function):
         user_set = event.channel.get_user_list()
         # Get list of users' names
         names_list = [user_obj.name for user_obj in user_set]
-        rand = Commons.get_random_int(0, len(names_list) - 1)[0]
-        return event.create_response("It should be obvious by now that {} is the chosen one.".format(names_list[rand]))
+        rand_name = Commons.get_random_choice(names_list)[0]
+        return event.create_response("It should be obvious by now that {} is the chosen one.".format(rand_name))
 
 
 class Foof(Function):
@@ -200,7 +202,6 @@ class Foof(Function):
         # Check if message matches any variation of foof
         if re.search(r'foo[o]*f[!]*', event.text, re.I):
             # Return response
-            event = event.split_command_text("", event.text)
             return self.run(event)
 
     def get_passive_events(self):
@@ -224,14 +225,18 @@ class ThoughtForTheDay(Function):
                       "quote 40k"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "WH40K Thought for the day. Format: thought_for_the_day"
+        self.thought_list = []
+        self.load_thought_list()
+
+    def load_thought_list(self):
+        self.thought_list = Commons.read_file_to_list('store/WH40K_ToTD2.txt')
 
     def run(self, event):
         """WH40K Thought for the day. Format: thought_for_the_day"""
-        thought_list = Commons.read_file_to_list('store/WH40K_ToTD2.txt')
-        rand = Commons.get_random_int(0, len(thought_list) - 1)[0]
-        if thought_list[rand][-1] not in ['.', '!', '?']:
-            thought_list[rand] += "."
-            return event.create_response("\"{}\"".format(thought_list[rand]))
+        thought = Commons.get_random_choice(self.thought_list)[0]
+        if thought[-1] not in ['.', '!', '?']:
+            thought += "."
+        return event.create_response("\"{}\"".format(thought))
 
 
 class Ouija(Function):
@@ -253,9 +258,8 @@ class Ouija(Function):
 
     def run(self, event):
         word_list = Commons.read_file_to_list('store/ouija_wordlist.txt')
-        rand_list = Commons.get_random_int(0, len(word_list) - 1, 4)
-        num_words = (rand_list[0] % 3) + 1
-        rand_words = [word_list[rand_list[x + 1]] for x in range(num_words)]
+        num_words = Commons.get_random_int(1, 3)[0]
+        rand_words = Commons.get_random_choice(word_list, num_words)
         output_string = "I'm getting a message from the other side... {}.".format(" ".join(rand_words))
         return event.create_response(output_string)
 
@@ -286,8 +290,8 @@ class Scriptures(Function):
             self.scripture_list.append(scripture_elem.firstChild.data)
 
     def run(self, event):
-        rand = Commons.get_random_int(0, len(self.scripture_list) - 1)[0]
-        return event.create_response(self.scripture_list[rand])
+        scripture = Commons.get_random_choice(self.scripture_list)[0]
+        return event.create_response(scripture)
 
 
 class CatGif(Function):
@@ -311,10 +315,9 @@ class CatGif(Function):
         api_key = event.server.hallo.get_api_key("thecatapi")
         if api_key is None:
             return event.create_response("No API key loaded for cat api.")
-        url = "http://thecatapi.com/api/images/get?format=xml&api_key={}&type=gif".format(api_key)
-        xml_string = Commons.load_url_string(url)
-        doc = minidom.parseString(xml_string)
-        cat_url = doc.getElementsByTagName("url")[0].firstChild.data
+        url = "http://thecatapi.com/api/images/get?format=json&api_key={}&type=gif".format(api_key)
+        cat_obj = Commons.load_url_json(url)[0]
+        cat_url = cat_obj["url"]
         return event.create_response(cat_url)
 
 
@@ -345,7 +348,7 @@ class RandomQuote(Function):
                    ["Content-Type", "application/x-www-form-urlencoded"],
                    ["Accept", "application/json"]]
         # Get api response
-        json_dict = Commons.load_url_json(url, headers)
+        json_dict = Commons.load_url_json(url, headers)[0]
         # Construct response
         quote = json_dict['quote']
         author = json_dict['author']
@@ -376,12 +379,15 @@ class NightValeWeather(Function):
         # Get hallo object
         self.hallo_obj = event.server.hallo
         # Get playlist data from youtube api
-        playlist_data = self.get_youtube_playlist("PL1-VZZ6QMhCdx8eC4R3VlCmSn1Kq2QWGP")
+        try:
+            playlist_data = self.get_youtube_playlist("PL1-VZZ6QMhCdx8eC4R3VlCmSn1Kq2QWGP")
+        except Exception as e:
+            return event.create_response("No api key loaded for youtube.")
         # Select a video from the playlist
         rand_video = Commons.get_random_choice(playlist_data)[0]
         # Return video information
-        return event.create_response("And now, the weather: http://youtu.be/{} {}".format(rand_video['video_id'],
-                                                                                          rand_video['title']))
+        return event.create_response("And now, the weather: https://youtu.be/{} {}".format(rand_video['video_id'],
+                                                                                           rand_video['title']))
 
     def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
@@ -393,7 +399,6 @@ class NightValeWeather(Function):
         # Check if message matches specified patterns
         if hallo_name + " with the weather" in line_clean:
             # Return response
-            event.split_command_text("", event.text)
             return self.run(event)
 
     def get_passive_events(self):
@@ -406,7 +411,7 @@ class NightValeWeather(Function):
         # Get API key
         api_key = self.hallo_obj.get_api_key("youtube")
         if api_key is None:
-            return []
+            raise Exception("Youtube API key missing.")
         # Find API url
         api_fields = "nextPageToken,items(snippet/title,snippet/resourceId/videoId)"
         api_url = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={}" \
@@ -446,7 +451,7 @@ class RandomPerson(Function):
 
     def run(self, event):
         input_clean = event.command_args.strip().lower()
-        url = "http://api.randomuser.me/0.6/?nat=gb&format=json"
+        url = "https://api.randomuser.me/0.6/?nat=gb&format=json"
         # Get api response
         json_dict = Commons.load_url_json(url)
         user_dict = json_dict['results'][0]['user']
@@ -510,8 +515,8 @@ class NightValeProverb(Function):
             self.proverb_list.append(proverb_elem.firstChild.data)
 
     def run(self, event):
-        rand = Commons.get_random_int(0, len(self.proverb_list) - 1)[0]
-        return event.create_response(self.proverb_list[rand])
+        proverb = Commons.get_random_choice(self.proverb_list)[0]
+        return event.create_response(proverb)
 
 
 class RandomColour(Function):
@@ -532,9 +537,11 @@ class RandomColour(Function):
         self.help_docs = "Returns a random colour. Format: random colour"
 
     def run(self, event):
-        rgb_list = Commons.get_random_int(0, 256, 3)
-        hex_code = (hex(rgb_list[0])[2:] + hex(rgb_list[1])[2:] + hex(rgb_list[2])[2:]).upper()
-        url = "http://www.thecolorapi.com/id?hex={}".format(hex_code)
+        rgb_list = Commons.get_random_int(0, 255, 3)
+        hex_code = "{}{}{}".format(hex(rgb_list[0])[2:].zfill(2),
+                                   hex(rgb_list[1])[2:].zfill(2),
+                                   hex(rgb_list[2])[2:].zfill(2)).upper()
+        url = "https://www.thecolorapi.com/id?hex={}".format(hex_code)
         human_url = "{}&format=html".format(url)
         colour_data = Commons.load_url_json(url)
         colour_name = colour_data["name"]["value"]
