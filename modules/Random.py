@@ -286,8 +286,8 @@ class Scriptures(Function):
             self.scripture_list.append(scripture_elem.firstChild.data)
 
     def run(self, event):
-        rand = Commons.get_random_int(0, len(self.scripture_list) - 1)[0]
-        return event.create_response(self.scripture_list[rand])
+        scripture = Commons.get_random_choice(self.scripture_list)[0]
+        return event.create_response(scripture)
 
 
 class CatGif(Function):
