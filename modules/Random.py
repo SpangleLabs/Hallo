@@ -510,8 +510,8 @@ class NightValeProverb(Function):
             self.proverb_list.append(proverb_elem.firstChild.data)
 
     def run(self, event):
-        rand = Commons.get_random_int(0, len(self.proverb_list) - 1)[0]
-        return event.create_response(self.proverb_list[rand])
+        proverb = Commons.get_random_choice(self.proverb_list)[0]
+        return event.create_response(proverb)
 
 
 class RandomColour(Function):
