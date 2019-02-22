@@ -7,7 +7,7 @@ from test.TestBase import TestBase
 from test.modules.Random.testChoose import MockChooser
 
 
-class ChooseTest(TestBase, unittest.TestCase):
+class EightBallTest(TestBase, unittest.TestCase):
 
     def setUp(self):
         super().setUp()
