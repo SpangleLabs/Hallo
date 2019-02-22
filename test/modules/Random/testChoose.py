@@ -15,7 +15,7 @@ class MockChooser:
     def choose(self, choices, count=1):
         self.last_choices = choices
         self.last_count = count
-        return [choices[self.choice]]
+        return [choices[self.choice]] * count
 
 
 class ChooseTest(TestBase, unittest.TestCase):
