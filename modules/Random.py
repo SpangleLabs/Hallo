@@ -376,12 +376,15 @@ class NightValeWeather(Function):
         # Get hallo object
         self.hallo_obj = event.server.hallo
         # Get playlist data from youtube api
-        playlist_data = self.get_youtube_playlist("PL1-VZZ6QMhCdx8eC4R3VlCmSn1Kq2QWGP")
+        try:
+            playlist_data = self.get_youtube_playlist("PL1-VZZ6QMhCdx8eC4R3VlCmSn1Kq2QWGP")
+        except Exception as e:
+            return event.create_response("No api key loaded for youtube.")
         # Select a video from the playlist
         rand_video = Commons.get_random_choice(playlist_data)[0]
         # Return video information
-        return event.create_response("And now, the weather: http://youtu.be/{} {}".format(rand_video['video_id'],
-                                                                                          rand_video['title']))
+        return event.create_response("And now, the weather: https://youtu.be/{} {}".format(rand_video['video_id'],
+                                                                                           rand_video['title']))
 
     def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
@@ -393,7 +396,6 @@ class NightValeWeather(Function):
         # Check if message matches specified patterns
         if hallo_name + " with the weather" in line_clean:
             # Return response
-            event.split_command_text("", event.text)
             return self.run(event)
 
     def get_passive_events(self):
@@ -406,7 +408,7 @@ class NightValeWeather(Function):
         # Get API key
         api_key = self.hallo_obj.get_api_key("youtube")
         if api_key is None:
-            return []
+            raise Exception("Youtube API key missing.")
         # Find API url
         api_fields = "nextPageToken,items(snippet/title,snippet/resourceId/videoId)"
         api_url = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={}" \
