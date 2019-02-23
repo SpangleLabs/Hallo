@@ -144,19 +144,117 @@ class ConvertMeasureTest(unittest.TestCase):
         assert measure_str == "0.175 hundredname1"
 
     def test_build_list_from_user_input_start(self):
-        pass
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_repo.add_type(test_type)
+        test_unit = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        test_type.add_unit(test_unit)
+        # Run method
+        data = ConvertMeasure.build_list_from_user_input(test_repo, "15 name1")
+        # Check results
+        assert len(data) == 1
+        assert data[0].amount == 15
+        assert data[0].unit == test_unit
 
     def test_build_list_from_user_input_end(self):
-        pass
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_repo.add_type(test_type)
+        test_unit = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        test_type.add_unit(test_unit)
+        # Run method
+        data = ConvertMeasure.build_list_from_user_input(test_repo, "name2 27")
+        # Check results
+        assert len(data) == 1
+        assert data[0].amount == 27
+        assert data[0].unit == test_unit
+
+    def test_build_list_from_user_input_no_amount(self):
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_repo.add_type(test_type)
+        test_unit = ConvertUnit(test_type, ["name_a", "name_b"], 1337)
+        test_type.add_unit(test_unit)
+        # Run method
+        try:
+            ConvertMeasure.build_list_from_user_input(test_repo, "name_a")
+            assert False, "Should have failed to create convert measures."
+        except ConvertException as e:
+            assert "cannot find amount" in str(e).lower()
 
     def test_build_list_from_user_input_middle(self):
-        pass  # Will fail
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_repo.add_type(test_type)
+        test_unit = ConvertUnit(test_type, ["name_a", "name_b"], 1337)
+        test_type.add_unit(test_unit)
+        # Run method
+        try:
+            ConvertMeasure.build_list_from_user_input(test_repo, "name_b 15 name_a")
+            assert False, "Should have failed to find amount."
+        except ConvertException as e:
+            assert "cannot find amount" in str(e).lower()
 
     def test_build_list_from_user_input_no_match(self):
-        pass
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_repo.add_type(test_type)
+        test_unit = ConvertUnit(test_type, ["name_a", "name_b"], 1337)
+        test_type.add_unit(test_unit)
+        # Run method
+        try:
+            ConvertMeasure.build_list_from_user_input(test_repo, "32 name_c")
+            assert False, "Should have failed to find a valid unit."
+        except ConvertException as e:
+            assert "unrecognised unit" in str(e).lower()
 
     def test_build_list_from_user_input_multi_match(self):
-        pass
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type1 = ConvertType(test_repo, "test_type1")
+        test_type1.base_unit = ConvertUnit(test_type1, ["base_unit1"], 1)
+        test_type2 = ConvertType(test_repo, "test_type2")
+        test_type2.base_unit = ConvertUnit(test_type2, ["base_unit2"], 1)
+        test_repo.add_type(test_type1)
+        test_repo.add_type(test_type2)
+        test_unit1 = ConvertUnit(test_type1, ["name1", "name2"], 1337)
+        test_unit2 = ConvertUnit(test_type2, ["name2", "name3"], 567)
+        test_type1.add_unit(test_unit1)
+        test_type2.add_unit(test_unit2)
+        # Run method
+        data = ConvertMeasure.build_list_from_user_input(test_repo, "7 name2")
+        # Check results
+        assert len(data) == 2
+        assert data[0].amount == 7
+        assert data[1].amount == 7
+        assert test_unit1 in [data[x].unit for x in [0, 1]]
+        assert test_unit2 in [data[x].unit for x in [0, 1]]
 
     def test_build_list_from_user_input_prefix(self):
-        pass
+        # Setup test objects
+        test_repo = ConvertRepo()
+        test_type = ConvertType(test_repo, "test_type")
+        test_type.base_unit = ConvertUnit(test_type, ["base_unit"], 1)
+        test_repo.add_type(test_type)
+        test_unit = ConvertUnit(test_type, ["name1", "name2"], 1337)
+        test_type.add_unit(test_unit)
+        prefix_group = ConvertPrefixGroup(test_repo, "test_group")
+        test_prefix = ConvertPrefix(prefix_group, "ten", "10", 10)
+        prefix_group.add_prefix(test_prefix)
+        test_unit.valid_prefix_group = prefix_group
+        # Run method
+        data = ConvertMeasure.build_list_from_user_input(test_repo, "tenname2 27")
+        # Check results
+        assert len(data) == 1
+        assert data[0].amount == 270
+        assert data[0].unit == test_unit
