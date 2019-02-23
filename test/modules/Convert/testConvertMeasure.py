@@ -1,6 +1,6 @@
 import unittest
 
-from modules.Convert import ConvertRepo, ConvertType, ConvertUnit, ConvertMeasure, ConvertException, \
+from modules.Convert import ConvertRepo, ConvertType, ConvertUnit, ConvertMeasure, \
     ConvertPrefixGroup, ConvertPrefix
 
 
@@ -76,7 +76,7 @@ class ConvertMeasureTest(unittest.TestCase):
         try:
             test_result = measure1.convert_to(test_unit2)
             assert False
-        except ConvertException as e:
+        except Exception as e:
             assert "not the same unit type" in str(e)
 
     def test_convert_to_base(self):
@@ -185,7 +185,7 @@ class ConvertMeasureTest(unittest.TestCase):
         try:
             ConvertMeasure.build_list_from_user_input(test_repo, "name_a")
             assert False, "Should have failed to create convert measures."
-        except ConvertException as e:
+        except Exception as e:
             assert "cannot find amount" in str(e).lower()
 
     def test_build_list_from_user_input_middle(self):
@@ -200,7 +200,7 @@ class ConvertMeasureTest(unittest.TestCase):
         try:
             ConvertMeasure.build_list_from_user_input(test_repo, "name_b 15 name_a")
             assert False, "Should have failed to find amount."
-        except ConvertException as e:
+        except Exception as e:
             assert "cannot find amount" in str(e).lower()
 
     def test_build_list_from_user_input_no_match(self):
@@ -215,7 +215,7 @@ class ConvertMeasureTest(unittest.TestCase):
         try:
             ConvertMeasure.build_list_from_user_input(test_repo, "32 name_c")
             assert False, "Should have failed to find a valid unit."
-        except ConvertException as e:
+        except Exception as e:
             assert "unrecognised unit" in str(e).lower()
 
     def test_build_list_from_user_input_multi_match(self):
