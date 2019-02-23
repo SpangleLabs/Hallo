@@ -48,13 +48,13 @@ class Commons(object):
 
     @staticmethod
     def read_file_to_list(filename):
-        f = open(filename, "r")
-        file_list = []
-        raw_line = f.readline()
-        while raw_line != '':
-            file_list.append(raw_line.replace("\n", ''))
+        with open(filename, "r") as f:
+            file_list = []
             raw_line = f.readline()
-        return file_list
+            while raw_line != '':
+                file_list.append(raw_line.replace("\n", ''))
+                raw_line = f.readline()
+            return file_list
 
     @staticmethod
     def get_domain_name(url):
