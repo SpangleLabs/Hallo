@@ -915,9 +915,9 @@ class UpdateCurrencies(Function):
         # Update with the European Bank
         try:
             output_lines.append(self.update_from_european_bank_data(repo) or
-                                "Updated currency data from The European Bank.")
+                                "Updated currency data from the European Central Bank.")
         except Exception as e:
-            output_lines.append("Failed to update european central bank data. {}".format(e))
+            output_lines.append("Failed to update European Central Bank data. {}".format(e))
         # Update with Forex
         try:
             output_lines.append(self.update_from_forex_data(repo) or
@@ -926,10 +926,10 @@ class UpdateCurrencies(Function):
             output_lines.append("Failed to update Forex data. {}".format(e))
         # Update with Preev
         try:
-            output_lines.append(self.update_from_preev_data(repo) or
-                                "Updated currency data from Preev.")
+            output_lines.append(self.update_from_cryptonator_data(repo) or
+                                "Updated currency data from Cryptonator.")
         except Exception as e:
-            output_lines.append("Failed to update Preev data. {}".format(e))
+            output_lines.append("Failed to update Cryptonator data. {}".format(e))
         # Save repo
         repo.save_json()
         return output_lines
@@ -993,50 +993,24 @@ class UpdateCurrencies(Function):
             # Set Value
             currency_unit.update_value(currency_value)
 
-    def update_from_preev_data(self, repo):
+    def update_from_cryptonator_data(self, repo):
         """
-        Updates the value of conversion cryptocurrencies using Preev data.
+        Updates the value of conversion cryptocurrencies using cryptonator data.
         :type repo: ConvertRepo
         """
         # Get currency ConvertType
         currency_type = repo.get_type_by_name("currency")
         # Pull json data from preev website, combine into 1 dict
-        json_dict = {'ltc': Commons.load_url_json(
-                "http://preev.com/pulse/units:ltc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
-            ),
-            'btc': Commons.load_url_json(
-                "http://preev.com/pulse/units:btc+eur/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
-            ),
-            'xdg': Commons.load_url_json(
-                "http://preev.com/pulse/units:xdg+btc/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
-            )}
-        # Loop through currency codes
-        for json_key in json_dict:
-            currency_code = json_key
-            # currency_dict contains the actual information about the currency
-            currency_dict = json_dict[json_key][json_key]
-            currency_ref = list(currency_dict)[0]
-            # Add up the volume and trade from each market, to find average trade price across them all
-            total_volume = 0
-            total_trade = 0
-            for market in currency_dict[currency_ref]:
-                market_volume = float(currency_dict[currency_ref][market]['volume'])
-                market_last = float(currency_dict[currency_ref][market]['last'])
-                total_volume += market_volume
-                total_trade += market_last * market_volume
-            # Calculate currency value, compared to referenced currency, from total market average
-            currency_value_ref = total_trade / total_volume
+        currency_codes = ["LTC", "BTC", "BCH", "XDG", "XMR", "ETH", "ETC", "DASH"]
+        for code in currency_codes:
+            # Get data
+            data = Commons.load_url_json("https://api.cryptonator.com/api/ticker/{}-eur".format(code))
             # Get the ConvertUnit object for the currency reference
-            currency_ref_obj = currency_type.get_unit_by_name(currency_ref)
-            if currency_ref_obj is None:
-                continue
-            # Work out the value compared to base unit by multiplying value of each
-            currency_value = currency_value_ref * currency_ref_obj.value
-            # Get the currency unit and update the value
-            currency_unit = currency_type.get_unit_by_name(currency_code)
+            currency_unit = currency_type.get_unit_by_name(code)
             if currency_unit is None:
                 continue
-            currency_unit.update_value(currency_value)
+            # Update the value
+            currency_unit.update_value(data["ticket"]["price"])
 
 
 class ConvertViewRepo(Function):
