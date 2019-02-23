@@ -1001,7 +1001,7 @@ class UpdateCurrencies(Function):
         # Get currency ConvertType
         currency_type = repo.get_type_by_name("currency")
         # Pull json data from preev website, combine into 1 dict
-        currency_codes = ["LTC", "BTC", "BCH", "XDG", "XMR", "ETH", "ETC", "DASH"]
+        currency_codes = ["LTC", "BTC", "BCH", "DOGE", "XMR", "ETH", "ETC", "DASH"]
         for code in currency_codes:
             # Get data
             data = Commons.load_url_json("https://api.cryptonator.com/api/ticker/{}-eur".format(code))
@@ -1010,7 +1010,7 @@ class UpdateCurrencies(Function):
             if currency_unit is None:
                 continue
             # Update the value
-            currency_unit.update_value(data["ticket"]["price"])
+            currency_unit.update_value(data["ticker"]["price"])
 
 
 class ConvertViewRepo(Function):
