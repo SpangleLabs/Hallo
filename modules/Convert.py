@@ -895,6 +895,20 @@ class UpdateCurrencies(Function):
                          "central bank, forex and preev."
 
     def run(self, event):
+        output_lines = self.update_all()
+        # Return output
+        return event.create_response("\n".join(output_lines))
+
+    def get_passive_events(self):
+        return {EventHour}
+
+    def passive_run(self, event, hallo_obj):
+        output_lines = self.update_all()
+        for line in output_lines:
+            print(line)
+        return None
+
+    def update_all(self):
         output_lines = []
         # Load convert repo.
         repo = ConvertRepo.load_json()
@@ -918,33 +932,7 @@ class UpdateCurrencies(Function):
             output_lines.append("Failed to update Preev data. {}".format(e))
         # Save repo
         repo.save_json()
-        # Return output
-        return event.create_response("\n".join(output_lines))
-
-    def get_passive_events(self):
-        return {EventHour}
-
-    def passive_run(self, event, hallo_obj):
-        # Load convert repo.
-        repo = ConvertRepo.load_json()
-        # Update with the European Bank
-        try:
-            self.update_from_european_bank_data(repo)
-        except Exception as e:
-            print("Failed to update european central bank data. {}".format(e))
-        # Update with Forex
-        try:
-            self.update_from_forex_data(repo)
-        except Exception as e:
-            print("Failed to update forex data. {}".format(e))
-        # Update with Preev
-        try:
-            self.update_from_preev_data(repo)
-        except Exception as e:
-            print("Failed to update preev data. {}".format(e))
-        # Save repo
-        repo.save_json()
-        return None
+        return output_lines
 
     def update_from_european_bank_data(self, repo):
         """
@@ -1414,8 +1402,8 @@ class ConvertAddType(Function):
             except ConvertException:
                 decimals = None
         # Clean unit and type setting from the line to just get the name to remove
-        param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        multispace_regex = re.compile("\s+")
+        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
+        multispace_regex = re.compile(r"\s+")
         input_name = param_regex.sub("\1\4", line_clean).strip()
         input_name = multispace_regex.sub(" ", input_name)
         # Check that type name doesn't already exist.
@@ -1516,7 +1504,7 @@ class ConvertRemoveUnit(Function):
         if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
             type_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
         # Clean type setting from the line to just get the name to remove
-        param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_name = param_regex.sub("\1\4", event.command_args).strip()
         # Find unit
         if type_name is not None:
@@ -1581,7 +1569,7 @@ class ConvertUnitAddName(Function):
         if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
             unit_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
         # clean up the line
-        param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_name = param_regex.sub("\1\4", event.command_args).strip()
         # Get unit list
         if type_name is None:
@@ -1660,7 +1648,7 @@ class ConvertUnitAddAbbreviation(Function):
         if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
             unit_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
         # clean up the line
-        param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_abbr = param_regex.sub("\1\4", event.command_args).strip()
         # Get unit list
         if type_name is None:
@@ -1745,7 +1733,7 @@ class ConvertUnitRemoveName(Function):
             if repo.get_type_by_name(type_name) is None:
                 return event.create_response("Invalid type specified.")
         # Clean unit and type setting from the line to just get the name to remove
-        param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_name = param_regex.sub("\1\4", line_clean).strip()
         # Check if description is sufficient to narrow it to 1 and only 1 unit
         user_unit_options = []
@@ -1815,7 +1803,7 @@ class ConvertUnitSetPrefixGroup(Function):
         if Commons.find_any_parameter(self.NAMES_PREFIX_GROUP, event.command_args):
             prefix_group_name = Commons.find_any_parameter(self.NAMES_PREFIX_GROUP, event.command_args)
         # clean up the line
-        param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_name = param_regex.sub("\1\4", event.command_args).strip()
         # Get prefix group
         if prefix_group_name is None:
