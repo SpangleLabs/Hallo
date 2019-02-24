@@ -1823,7 +1823,7 @@ class RedditSub(Subscription):
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, url, inbound=False)
             return output_evt
         # Handle gfycat links as photos
-        gfycat_regex = re.compile(r"(?:https?://)?(?:www\.)?gfycat.com/([a-z]+)")
+        gfycat_regex = re.compile(r"(?:https?://)?(?:www\.)?gfycat\.com/([a-z]+)", re.IGNORECASE)
         gfycat_match = gfycat_regex.match(url)
         if gfycat_match is not None:
             direct_url = "https://giant.gfycat.com/{}.mp4".format(gfycat_match.group(1))
