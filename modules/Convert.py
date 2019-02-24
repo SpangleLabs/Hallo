@@ -1514,7 +1514,7 @@ class ConvertRemoveUnit(Function):
     Removes a specified unit from the conversion repo.
     """
 
-    NAMES_TYPE = ["type", "t"]
+    NAMES_TYPE = ["unit type", "type", "t"]
 
     def __init__(self):
         """
@@ -1534,13 +1534,12 @@ class ConvertRemoveUnit(Function):
         convert_function = function_dispatcher.get_function_by_name("convert")
         convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
         repo = convert_function_obj.convert_repo
+        # Parse input
+        parsed = ConvertInputParser(event.command_args)
         # Check if a type is specified
-        type_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
-            type_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
+        type_name = parsed.get_arg_by_names(self.NAMES_TYPE)
         # Clean type setting from the line to just get the name to remove
-        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        input_name = param_regex.sub("\1\4", event.command_args).strip()
+        input_name = parsed.remaining_text
         # Find unit
         if type_name is not None:
             type_obj = repo.get_type_by_name(type_name)
@@ -1560,7 +1559,11 @@ class ConvertRemoveUnit(Function):
                 return event.create_response("No unit by that name is found in any type.")
             # Check if results are >=2
             if len(input_unit_list) >= 2:
-                return event.create_response("")  # TODO
+                unit_outputs = []
+                for input_unit in input_unit_list:
+                    unit_outputs.append("{} (type={})".format(input_unit.name_list[0], input_unit.type.name))
+                return event.create_response("There is more than one unit matching this name: {}"
+                                             .format(", ".join(unit_outputs)))
             input_unit = input_unit_list[0]
         # Ensure it is not a base unit for its type
         if input_unit == input_unit.type.base_unit:
