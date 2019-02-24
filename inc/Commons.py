@@ -6,6 +6,7 @@ import re
 import json
 import random
 from datetime import timedelta
+from json import JSONDecodeError
 
 
 class ISO8601ParseError(SyntaxError):
@@ -188,7 +189,11 @@ class Commons(object):
         if json_fix:
             code = re.sub(',+', ',', code)
             code = code.replace('[,', '[').replace(',]', ']')
-        output_dict = json.loads(code)
+        try:
+            output_dict = json.loads(code)
+        except JSONDecodeError as e:
+            print("Failed to parse received JSON: {}".format(code))
+            raise e
         return output_dict
 
     @staticmethod
