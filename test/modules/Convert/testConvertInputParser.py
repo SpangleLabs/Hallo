@@ -94,3 +94,27 @@ class ConvertInputParserTest(unittest.TestCase):
         assert p.args_dict["arg1"] == "val1"
         assert p.args_dict["arg2"] == "val2"
         assert p.args_dict["arg3"] == "val3"
+
+    def test_parse_string_no_numbers(self):
+        p = ConvertInputParser("blah bloo blee")
+        assert p.remaining_text == "blah bloo blee"
+        assert len(p.args_dict) == 0
+        assert len(p.string_words) == 3
+        assert len(p.number_words) == 0
+        assert p.string_words == ["blah", "bloo", "blee"]
+
+    def test_parse_string_all_numbers(self):
+        p = ConvertInputParser("5 421 8916 34.5 -3")
+        assert p.remaining_text == "5 421 8916 34.5 -3"
+        assert len(p.args_dict) == 0
+        assert len(p.string_words) == 0
+        assert len(p.number_words) == 5
+        assert p.number_words == [5, 421, 8916, 34.5, -3]
+
+    def test_parse_string_mix_of_numbers_and_args(self):
+        p = ConvertInputParser("blah blah arg1=val1 arg2=val2 5")
+        assert p.remaining_text == "blah blah 5"
+        assert p.args_dict["arg1"] == "val1"
+        assert p.args_dict["arg2"] == "val2"
+        assert p.string_words == ["blah", "blah"]
+        assert p.number_words == [5]

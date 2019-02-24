@@ -22,7 +22,10 @@ class ConvertInputParser:
         """
         self.args_dict = dict()
         self.remaining_text = raw_input
+        self.number_words = []
+        self.string_words = []
         self.parse_args()
+        self.parse_words()
 
     def parse_args(self):
         regexes = [re.compile(r"([\"'])(?P<key>[^=]+?)\1=([\"'])(?P<value>.+?)\3"),  # quoted key, quoted args
@@ -35,6 +38,13 @@ class ConvertInputParser:
                 self.remaining_text = self.remaining_text.replace(match.group(0), "")
         # Clean double spaces and trailing spaces.
         self.remaining_text = " ".join(self.remaining_text.split())
+
+    def parse_words(self):
+        for word in self.remaining_text.split():
+            if Commons.is_float_string(word):
+                self.number_words.append(float(word))
+            else:
+                self.string_words.append(word)
 
     def get_arg_by_names(self, names_list):
         for name in names_list:
@@ -1472,7 +1482,7 @@ class ConvertSetTypeDecimals(Function):
         # Name for use in help listing
         self.help_name = "convert set type decimals"
         # Names which can be used to address the Function
-        self.names = {"convert set type decimals", "convert set type decimal"}
+        self.names = {"convert set type decimals", "convert set type decimal", "convert set decimals for type"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets the number of decimal places to show for a unit type."
 
@@ -1482,21 +1492,16 @@ class ConvertSetTypeDecimals(Function):
         convert_function = function_dispatcher.get_function_by_name("convert")
         convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
         repo = convert_function_obj.convert_repo
-        # Get decimals from input
-        input_decimals = Commons.get_digits_from_start_or_end(event.command_args)
+        # Parse input
+        parsed = ConvertInputParser(event.command_args)
         # If decimals is null, return error
-        if input_decimals is None:
+        if len(parsed.number_words) == 0:
             return event.create_response("Please specify a conversion type and a number of decimal places " +
                                          "it should output.")
-        # Get type name from input
-        if event.command_args.startswith(input_decimals):
-            input_name = event.command_args[len(input_decimals):].strip()
-        else:
-            input_name = event.command_args[:-len(input_decimals)].strip()
         # Convert decimals to integer
-        decimals = int(float(input_decimals))
+        decimals = int(parsed.number_words[0])
         # Get selected type
-        input_type = repo.get_type_by_name(input_name)
+        input_type = repo.get_type_by_name(" ".join(parsed.string_words))
         # If type does not exist, return error
         if input_type is None:
             return event.create_response("This is not a recognised conversion type.")
