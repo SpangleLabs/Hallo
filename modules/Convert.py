@@ -1669,6 +1669,7 @@ class ConvertUnitAddAbbreviation(Function):
 
     NAMES_UNIT = ["unit", "u"]
     NAMES_TYPE = ["type", "t"]
+    NAMES_ABBR = ["abbreviation", "abbr", "a"]
 
     def __init__(self):
         """
@@ -1688,17 +1689,19 @@ class ConvertUnitAddAbbreviation(Function):
         convert_function = function_dispatcher.get_function_by_name("convert")
         convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
         repo = convert_function_obj.convert_repo
+        # Parse input
+        parsed = ConvertInputParser(event.command_args)
         # Check for type=
-        type_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
-            type_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
+        type_name = parsed.get_arg_by_names(self.NAMES_TYPE)
         # Check for unit=
-        unit_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
-            unit_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
-        # clean up the line
-        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        input_abbr = param_regex.sub("\1\4", event.command_args).strip()
+        unit_name = parsed.get_arg_by_names(self.NAMES_UNIT)
+        # Check for abbr=
+        abbr_name = parsed.get_arg_by_names(self.NAMES_ABBR)
+        # If unit= or abbr= then remaining is the other one.
+        if unit_name is None and abbr_name is not None:
+            unit_name = parsed.remaining_text
+        if abbr_name is None and unit_name is not None:
+            abbr_name = parsed.remaining_text
         # Get unit list
         if type_name is None:
             unit_list = repo.get_full_unit_list()
@@ -1708,40 +1711,58 @@ class ConvertUnitAddAbbreviation(Function):
                 return event.create_response("Unrecognised type.")
             unit_list = type_obj.get_full_unit_list()
         # If no unit=, try splitting the line to find where the old name ends and new name begins
-        if unit_name is None:
+        input_unit_list = []
+        if unit_name is None and abbr_name is None:
             # Start splitting from shortest left-string to longest.
-            line_split = input_abbr.split()
-            input_unit_list = []
-            found_abbr = False
-            input_unit_name = ""
-            for input_unit_name in [' '.join(line_split[:x + 1]) for x in range(len(line_split))]:
+            line_split = parsed.remaining_text.split()
+            if len(line_split) == 1:
+                return event.create_response("You must specify both a unit name and an abbreviation to add.")
+            input_sections = [[" ".join(line_split[:x+1]),
+                               " ".join(line_split[x+1:])]
+                              for x in range(len(line_split)-1)]
+            abbr_options = []
+            for input_pair in input_sections:
+                # Check if the first input of the pair matches any units
+                found_abbr = False
                 for unit_obj in unit_list:
-                    if unit_obj.has_name(input_unit_name):
+                    if unit_obj.has_name(input_pair[0]):
                         input_unit_list.append(unit_obj)
                         found_abbr = True
                 if found_abbr:
-                    break
-            new_unit_abbr = input_abbr[len(input_unit_name):].strip()
+                    abbr_options.append(input_pair[1])
+                # Then check if the second input of the pair matches any units
+                found_abbr = False
+                for unit_obj in unit_list:
+                    if unit_obj.has_name(input_pair[1]):
+                        input_unit_list.append(unit_obj)
+                        found_abbr = True
+                if found_abbr:
+                    abbr_options.append(input_pair[0])
+            if len(abbr_options) != 1:
+                return event.create_response("Could not parse where unit name ends and abbreviation begins. "
+                                             "Please specify with unit=<name>")
+            abbr_name = abbr_options[0]
         else:
-            input_unit_list = []
             for unit_obj in unit_list:
                 if unit_obj.has_name(unit_name):
                     input_unit_list.append(unit_obj)
-            new_unit_abbr = input_abbr
         # If 0 units found, throw error
         if len(input_unit_list) == 0:
             return event.create_response("No unit found by that name.")
         # If 2+ units found, throw error
         if len(input_unit_list) >= 2:
-            return event.create_response("Unit name is too ambiguous, please specify with unit= and type= .")
+            return event.create_response("Unit name is too ambiguous, please specify with unit=<name> and type=<name>.")
         unit_obj = input_unit_list[0]
+        # If abbreviation name is empty, throw error
+        if len(abbr_name) == 0:
+            return event.create_response("Abbreviation name cannot be blank.")
         # Add the new name
-        unit_obj.add_abbr(new_unit_abbr)
+        unit_obj.add_abbr(abbr_name)
         # Save repo
         repo.save_json()
         # Output message
-        return event.create_response("Added \"{}\" as a new abbreviation for " +
-                                     "the \"{}\" unit.".format(new_unit_abbr, unit_obj.name_list[0]))
+        return event.create_response("Added \"{}\" as a new abbreviation for "
+                                     "the \"{}\" unit.".format(abbr_name, unit_obj.name_list[0]))
 
 
 class ConvertUnitRemoveName(Function):
