@@ -1587,6 +1587,7 @@ class ConvertUnitAddName(Function):
 
     NAMES_UNIT = ["unit", "u"]
     NAMES_TYPE = ["type", "t"]
+    NAMES_NEW = ["new name", "new", "new_name"]
 
     def __init__(self):
         """
@@ -1596,7 +1597,7 @@ class ConvertUnitAddName(Function):
         # Name for use in help listing
         self.help_name = "convert unit add name"
         # Names which can be used to address the Function
-        self.names = {"convert unit add name"}
+        self.names = {"convert unit add name", "convert unit add new name"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Adds a new name to a unit."
 
@@ -1606,17 +1607,19 @@ class ConvertUnitAddName(Function):
         convert_function = function_dispatcher.get_function_by_name("convert")
         convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
         repo = convert_function_obj.convert_repo
+        # Parse input
+        parsed = ConvertInputParser(event.command_args)
         # Check for type=
-        type_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
-            type_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
+        type_name = parsed.get_arg_by_names(self.NAMES_TYPE)
         # Check for unit=
-        unit_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
-            unit_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
-        # clean up the line
-        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        input_name = param_regex.sub("\1\4", event.command_args).strip()
+        unit_name = parsed.get_arg_by_names(self.NAMES_UNIT)
+        # Check for new name=
+        new_name = parsed.get_arg_by_names(self.NAMES_NEW)
+        # If unit= or new name= then remaining is the other one
+        if unit_name is None and new_name is not None:
+            unit_name = parsed.remaining_text
+        if new_name is None and unit_name is not None:
+            new_name = parsed.remaining_text
         # Get unit list
         if type_name is None:
             unit_list = repo.get_full_unit_list()
@@ -1626,39 +1629,57 @@ class ConvertUnitAddName(Function):
                 return event.create_response("Unrecognised type.")
             unit_list = type_obj.get_full_unit_list()
         # If no unit=, try splitting the line to find where the old name ends and new name begins
-        if unit_name is None:
+        input_unit_list = []
+        if unit_name is None and new_name is None:
             # Start splitting from shortest left-string to longest.
-            line_split = input_name.split()
-            input_unit_list = []
-            found_name = False
-            input_unit_name = ""
-            for input_unit_name in [' '.join(line_split[:x + 1]) for x in range(len(line_split))]:
+            line_split = parsed.remaining_text.split()
+            if len(line_split) == 1:
+                return event.create_response("You must specify both a unit name and a new name to add.")
+            input_sections = [[" ".join(line_split[:x+1]),
+                               " ".join(line_split[x+1:])]
+                              for x in range(len(line_split)-1)]
+            new_options = []
+            for input_pair in input_sections:
+                # Check if the first input of the pair matches any units
+                found_new = False
                 for unit_obj in unit_list:
-                    if unit_obj.has_name(input_unit_name):
+                    if unit_obj.has_name(input_pair[0]):
                         input_unit_list.append(unit_obj)
-                        found_name = True
-                if found_name:
-                    break
-            new_unit_name = input_name[len(input_unit_name):].strip()
+                        found_new = True
+                if found_new:
+                    new_options.append(input_pair[1])
+                # Then check if the second input of the pair matches any units
+                found_new = False
+                for unit_obj in unit_list:
+                    if unit_obj.has_name(input_pair[1]):
+                        input_unit_list.append(unit_obj)
+                        found_new = True
+                if found_new:
+                    new_options.append(input_pair[0])
+            if len(new_options) != 1:
+                return event.create_response("Could not parse where unit name ends and new name begins. "
+                                             "Please specify with unit=<name> new_name=<name>")
+            new_name = new_options[0]
         else:
-            input_unit_list = []
             for unit_obj in unit_list:
                 if unit_obj.has_name(unit_name):
                     input_unit_list.append(unit_obj)
-            new_unit_name = input_name
         # If 0 units found, throw error
         if len(input_unit_list) == 0:
             return event.create_response("No unit found by that name.")
         # If 2+ units found, throw error
         if len(input_unit_list) >= 2:
-            return event.create_response("Unit name is too ambiguous, please specify with unit= and type= .")
+            return event.create_response("Unit name is too ambiguous, please specify with unit=<name> and type=<name>.")
         unit_obj = input_unit_list[0]
+        # If new name is empty, throw error
+        if len(new_name) == 0:
+            return event.create_response("New name cannot be blank.")
         # Add the new name
-        unit_obj.add_name(new_unit_name)
+        unit_obj.add_name(new_name)
         # Save repo
         repo.save_json()
         # Output message
-        return event.create_response("Added \"{}\" as a new name for the \"{}\" unit.".format(new_unit_name,
+        return event.create_response("Added \"{}\" as a new name for the \"{}\" unit.".format(new_name,
                                                                                               unit_obj.name_list[0]))
 
 
