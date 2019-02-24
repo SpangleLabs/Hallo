@@ -20,9 +20,9 @@ class TestBase(unittest.TestCase):
         self.hallo.printer.output_raw = self.empty
         # Only the required modules, only 1 (mock) server
         # Todo: specify modules by test?
-        self.function_dispatcher = FunctionDispatcher({"AsciiArt", "Bio", "ChannelControl", "Euler", "Furry",
+        self.function_dispatcher = FunctionDispatcher({"AsciiArt", "Bio", "ChannelControl", "Convert", "Euler",
                                                        "HalloControl", "Math", "PermissionControl", "Random",
-                                                       "ServerControl", "Silly", "SillyEtd", "Subscriptions"},
+                                                       "ServerControl", "Silly", "Subscriptions"},
                                                       self.hallo)
         self.hallo.function_dispatcher = self.function_dispatcher
         print("Running test: "+self.id()+". Init took: "+str(time.time()-self.start_time)+" seconds.")

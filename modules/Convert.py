@@ -14,6 +14,45 @@ class ConvertException(Exception):
     pass
 
 
+class ConvertInputParser:
+
+    def __init__(self, raw_input):
+        """
+        :type raw_input: str
+        """
+        self.args_dict = dict()
+        self.remaining_text = raw_input
+        self.number_words = []
+        self.string_words = []
+        self.parse_args()
+        self.parse_words()
+
+    def parse_args(self):
+        regexes = [re.compile(r"([\"'])(?P<key>[^=]+?)\1=([\"'])(?P<value>.*?)\3"),  # quoted key, quoted args
+                   re.compile(r"(?P<key>[^\s]+)=([\"'])(?P<value>.*?)\2"),  # unquoted key, quoted args
+                   re.compile(r"([\"'])(?P<key>[^=]+?)\1=(?P<value>[^\s]*)"),  # quoted key, unquoted args
+                   re.compile(r"(?P<key>[^\s]+)=(?P<value>[^\s]*)")]  # unquoted key, unquoted args
+        for regex in regexes:
+            for match in regex.finditer(self.remaining_text):
+                self.args_dict[match.group("key")] = match.group("value")
+                self.remaining_text = self.remaining_text.replace(match.group(0), "")
+        # Clean double spaces and trailing spaces.
+        self.remaining_text = " ".join(self.remaining_text.split())
+
+    def parse_words(self):
+        for word in self.remaining_text.split():
+            if Commons.is_float_string(word):
+                self.number_words.append(float(word))
+            else:
+                self.string_words.append(word)
+
+    def get_arg_by_names(self, names_list):
+        for name in names_list:
+            if name in self.args_dict:
+                return self.args_dict[name]
+        return None
+
+
 class ConvertRepo:
     """
     Configuration repository. Stores list of ConvertTypes, ConvertPrefixGroups, etc
@@ -747,6 +786,22 @@ class Convert(Function):
         self.names = {"convert", "conversion"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "converts values from one unit to another. Format: convert <value> <old unit> to <new unit>"
+        self.convert_repo = ConvertRepo.load_json()
+        """ :type : ConvertRepo"""
+
+    @staticmethod
+    def is_persistent():
+        """Returns boolean representing whether this function is supposed to be persistent or not"""
+        return True
+
+    @staticmethod
+    def load_function():
+        """Loads the function, persistent functions only."""
+        return Convert()
+
+    def save_function(self):
+        """Saves the function, persistent functions only."""
+        self.convert_repo.save_json()
 
     def run(self, event):
         return event.create_response(self.convert_parse(event.command_args))
@@ -758,13 +813,11 @@ class Convert(Function):
         :rtype: str | None
         """
         # Create regex to find the place to split a user string.
-        split_regex = re.compile(' into | to |->| in ', re.IGNORECASE)
-        # Load ConvertRepo
-        repo = ConvertRepo.load_json()
+        split_regex = re.compile(r' into | to |->| in ', re.IGNORECASE)
         # See if the input needs splitting.
         if split_regex.search(line) is None:
             try:
-                from_measure_list = ConvertMeasure.build_list_from_user_input(repo, line)
+                from_measure_list = ConvertMeasure.build_list_from_user_input(self.convert_repo, line)
                 return self.convert_one_unit(from_measure_list, passive)
             except Exception as e:
                 if passive:
@@ -781,12 +834,12 @@ class Convert(Function):
                    "convert <value> <old unit> to <new unit>"
         # Try loading the first part as a measure
         try:
-            from_measure_list = ConvertMeasure.build_list_from_user_input(repo, line_split[0])
+            from_measure_list = ConvertMeasure.build_list_from_user_input(self.convert_repo, line_split[0])
             return self.convert_two_unit(from_measure_list, line_split[1], passive)
         except ConvertException:
             # Try loading the second part as a measure
             try:
-                from_measure_list = ConvertMeasure.build_list_from_user_input(repo, line_split[1])
+                from_measure_list = ConvertMeasure.build_list_from_user_input(self.convert_repo, line_split[1])
                 return self.convert_two_unit(from_measure_list, line_split[0], passive)
             except ConvertException as e:
                 # If both fail, send an error message
@@ -895,15 +948,39 @@ class UpdateCurrencies(Function):
                          "central bank, forex and preev."
 
     def run(self, event):
+        # Get convert repo
+        function_dispatcher = event.server.hallo.function_dispatcher
+        convert_function = function_dispatcher.get_function_by_name("convert")
+        convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
+        repo = convert_function_obj.convert_repo
+        # Update all sources
+        output_lines = self.update_all(repo)
+        # Return output
+        return event.create_response("\n".join(output_lines))
+
+    def get_passive_events(self):
+        return {EventHour}
+
+    def passive_run(self, event, hallo_obj):
+        # Get convert repo
+        function_dispatcher = hallo_obj.function_dispatcher
+        convert_function = function_dispatcher.get_function_by_name("convert")
+        convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
+        repo = convert_function_obj.convert_repo
+        # Update all sources
+        output_lines = self.update_all(repo)
+        for line in output_lines:
+            print(line)
+        return None
+
+    def update_all(self, repo):
         output_lines = []
-        # Load convert repo.
-        repo = ConvertRepo.load_json()
         # Update with the European Bank
         try:
             output_lines.append(self.update_from_european_bank_data(repo) or
-                                "Updated currency data from The European Bank.")
+                                "Updated currency data from the European Central Bank.")
         except Exception as e:
-            output_lines.append("Failed to update european central bank data. {}".format(e))
+            output_lines.append("Failed to update European Central Bank data. {}".format(e))
         # Update with Forex
         try:
             output_lines.append(self.update_from_forex_data(repo) or
@@ -912,39 +989,13 @@ class UpdateCurrencies(Function):
             output_lines.append("Failed to update Forex data. {}".format(e))
         # Update with Preev
         try:
-            output_lines.append(self.update_from_preev_data(repo) or
-                                "Updated currency data from Preev.")
+            output_lines.append(self.update_from_cryptonator_data(repo) or
+                                "Updated currency data from Cryptonator.")
         except Exception as e:
-            output_lines.append("Failed to update Preev data. {}".format(e))
+            output_lines.append("Failed to update Cryptonator data. {}".format(e))
         # Save repo
         repo.save_json()
-        # Return output
-        return event.create_response("\n".join(output_lines))
-
-    def get_passive_events(self):
-        return {EventHour}
-
-    def passive_run(self, event, hallo_obj):
-        # Load convert repo.
-        repo = ConvertRepo.load_json()
-        # Update with the European Bank
-        try:
-            self.update_from_european_bank_data(repo)
-        except Exception as e:
-            print("Failed to update european central bank data. {}".format(e))
-        # Update with Forex
-        try:
-            self.update_from_forex_data(repo)
-        except Exception as e:
-            print("Failed to update forex data. {}".format(e))
-        # Update with Preev
-        try:
-            self.update_from_preev_data(repo)
-        except Exception as e:
-            print("Failed to update preev data. {}".format(e))
-        # Save repo
-        repo.save_json()
-        return None
+        return output_lines
 
     def update_from_european_bank_data(self, repo):
         """
@@ -1005,50 +1056,24 @@ class UpdateCurrencies(Function):
             # Set Value
             currency_unit.update_value(currency_value)
 
-    def update_from_preev_data(self, repo):
+    def update_from_cryptonator_data(self, repo):
         """
-        Updates the value of conversion cryptocurrencies using Preev data.
+        Updates the value of conversion cryptocurrencies using cryptonator data.
         :type repo: ConvertRepo
         """
         # Get currency ConvertType
         currency_type = repo.get_type_by_name("currency")
         # Pull json data from preev website, combine into 1 dict
-        json_dict = {'ltc': Commons.load_url_json(
-                "http://preev.com/pulse/units:ltc+usd/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
-            ),
-            'btc': Commons.load_url_json(
-                "http://preev.com/pulse/units:btc+eur/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
-            ),
-            'xdg': Commons.load_url_json(
-                "http://preev.com/pulse/units:xdg+btc/sources:bter+cryptsy+bitfinex+bitstamp+btce+localbitcoins+kraken"
-            )}
-        # Loop through currency codes
-        for json_key in json_dict:
-            currency_code = json_key
-            # currency_dict contains the actual information about the currency
-            currency_dict = json_dict[json_key][json_key]
-            currency_ref = list(currency_dict)[0]
-            # Add up the volume and trade from each market, to find average trade price across them all
-            total_volume = 0
-            total_trade = 0
-            for market in currency_dict[currency_ref]:
-                market_volume = float(currency_dict[currency_ref][market]['volume'])
-                market_last = float(currency_dict[currency_ref][market]['last'])
-                total_volume += market_volume
-                total_trade += market_last * market_volume
-            # Calculate currency value, compared to referenced currency, from total market average
-            currency_value_ref = total_trade / total_volume
+        currency_codes = ["LTC", "BTC", "BCH", "DOGE", "XMR", "ETH", "ETC", "DASH"]
+        for code in currency_codes:
+            # Get data
+            data = Commons.load_url_json("https://api.cryptonator.com/api/ticker/{}-eur".format(code))
             # Get the ConvertUnit object for the currency reference
-            currency_ref_obj = currency_type.get_unit_by_name(currency_ref)
-            if currency_ref_obj is None:
-                continue
-            # Work out the value compared to base unit by multiplying value of each
-            currency_value = currency_value_ref * currency_ref_obj.value
-            # Get the currency unit and update the value
-            currency_unit = currency_type.get_unit_by_name(currency_code)
+            currency_unit = currency_type.get_unit_by_name(code)
             if currency_unit is None:
                 continue
-            currency_unit.update_value(currency_value)
+            # Update the value
+            currency_unit.update_value(data["ticker"]["price"])
 
 
 class ConvertViewRepo(Function):
@@ -1075,7 +1100,10 @@ class ConvertViewRepo(Function):
 
     def run(self, event):
         # Load repo
-        repo = ConvertRepo.load_json()
+        function_dispatcher = event.server.hallo.function_dispatcher
+        convert_function = function_dispatcher.get_function_by_name("convert")
+        convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
+        repo = convert_function_obj.convert_repo
         # Check if type is specified
         if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
             # Get type name and object
@@ -1234,7 +1262,10 @@ class ConvertSet(Function):
 
     def run(self, event):
         # Load Conversion Repo
-        repo = ConvertRepo.load_json()
+        function_dispatcher = event.server.hallo.function_dispatcher
+        convert_function = function_dispatcher.get_function_by_name("convert")
+        convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
+        repo = convert_function_obj.convert_repo
         # Create regex to find the place to split a user string.
         split_regex = re.compile(' into | to |->| in ', re.IGNORECASE)
         # Split input
@@ -1383,8 +1414,8 @@ class ConvertAddType(Function):
     Adds a new conversion type.
     """
 
-    NAMES_BASE_UNIT = ["baseunit", "base_unit", "base-unit", "unit", "u", "b", "bu"]
-    NAMES_DECIMALS = ["decimals", "decimal", "decimalplaces", "dp", "d"]
+    NAMES_BASE_UNIT = ["base unit", "baseunit", "base_unit", "base-unit", "unit", "u", "b", "bu"]
+    NAMES_DECIMALS = ["decimal places", "decimals", "decimal", "decimalplaces", "dp", "d"]
 
     def __init__(self):
         """
@@ -1400,24 +1431,20 @@ class ConvertAddType(Function):
 
     def run(self, event):
         # Load repo, clean line
-        repo = ConvertRepo.load_json()
+        function_dispatcher = event.server.hallo.function_dispatcher
+        convert_function = function_dispatcher.get_function_by_name("convert")
+        convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
+        repo = convert_function_obj.convert_repo
+        # Clean input
         line_clean = event.command_args.strip()
+        parsed_input = ConvertInputParser(line_clean)
         # Check if base unit is defined
-        unit_name = None
-        if Commons.find_any_parameter(self.NAMES_BASE_UNIT, line_clean):
-            unit_name = Commons.find_any_parameter(self.NAMES_BASE_UNIT, line_clean)
+        unit_name = parsed_input.get_arg_by_names(self.NAMES_BASE_UNIT)
         # Check if decimal places is defined
-        decimals = None
-        if Commons.find_any_parameter(self.NAMES_DECIMALS, line_clean):
-            try:
-                decimals = int(Commons.find_any_parameter(self.NAMES_DECIMALS, line_clean))
-            except ConvertException:
-                decimals = None
+        decimals = parsed_input.get_arg_by_names(self.NAMES_DECIMALS)
+        decimals = int(decimals) if decimals is not None else None
         # Clean unit and type setting from the line to just get the name to remove
-        param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        multispace_regex = re.compile("\s+")
-        input_name = param_regex.sub("\1\4", line_clean).strip()
-        input_name = multispace_regex.sub(" ", input_name)
+        input_name = parsed_input.remaining_text
         # Check that type name doesn't already exist.
         existing_type = repo.get_type_by_name(input_name)
         if existing_type is not None:
@@ -1455,28 +1482,26 @@ class ConvertSetTypeDecimals(Function):
         # Name for use in help listing
         self.help_name = "convert set type decimals"
         # Names which can be used to address the Function
-        self.names = {"convert set type decimals", "convert set type decimal"}
+        self.names = {"convert set type decimals", "convert set type decimal", "convert set decimals for type"}
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets the number of decimal places to show for a unit type."
 
     def run(self, event):
         # Load convert repo
-        repo = ConvertRepo.load_json()
-        # Get decimals from input
-        input_decimals = Commons.get_digits_from_start_or_end(event.command_args)
+        function_dispatcher = event.server.hallo.function_dispatcher
+        convert_function = function_dispatcher.get_function_by_name("convert")
+        convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
+        repo = convert_function_obj.convert_repo
+        # Parse input
+        parsed = ConvertInputParser(event.command_args)
         # If decimals is null, return error
-        if input_decimals is None:
+        if len(parsed.number_words) == 0:
             return event.create_response("Please specify a conversion type and a number of decimal places " +
                                          "it should output.")
-        # Get type name from input
-        if event.command_args.startswith(input_decimals):
-            input_name = event.command_args[len(input_decimals):].strip()
-        else:
-            input_name = event.command_args[:-len(input_decimals)].strip()
         # Convert decimals to integer
-        decimals = int(float(input_decimals))
+        decimals = int(parsed.number_words[0])
         # Get selected type
-        input_type = repo.get_type_by_name(input_name)
+        input_type = repo.get_type_by_name(" ".join(parsed.string_words))
         # If type does not exist, return error
         if input_type is None:
             return event.create_response("This is not a recognised conversion type.")
@@ -1494,7 +1519,7 @@ class ConvertRemoveUnit(Function):
     Removes a specified unit from the conversion repo.
     """
 
-    NAMES_TYPE = ["type", "t"]
+    NAMES_TYPE = ["unit type", "type", "t"]
 
     def __init__(self):
         """
@@ -1510,14 +1535,16 @@ class ConvertRemoveUnit(Function):
 
     def run(self, event):
         # Load convert repo
-        repo = ConvertRepo.load_json()
+        function_dispatcher = event.server.hallo.function_dispatcher
+        convert_function = function_dispatcher.get_function_by_name("convert")
+        convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
+        repo = convert_function_obj.convert_repo
+        # Parse input
+        parsed = ConvertInputParser(event.command_args)
         # Check if a type is specified
-        type_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
-            type_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
+        type_name = parsed.get_arg_by_names(self.NAMES_TYPE)
         # Clean type setting from the line to just get the name to remove
-        param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        input_name = param_regex.sub("\1\4", event.command_args).strip()
+        input_name = parsed.remaining_text
         # Find unit
         if type_name is not None:
             type_obj = repo.get_type_by_name(type_name)
@@ -1537,7 +1564,11 @@ class ConvertRemoveUnit(Function):
                 return event.create_response("No unit by that name is found in any type.")
             # Check if results are >=2
             if len(input_unit_list) >= 2:
-                return event.create_response("")  # TODO
+                unit_outputs = []
+                for input_unit in input_unit_list:
+                    unit_outputs.append("{} (type={})".format(input_unit.name_list[0], input_unit.type.name))
+                return event.create_response("There is more than one unit matching this name: {}"
+                                             .format(", ".join(unit_outputs)))
             input_unit = input_unit_list[0]
         # Ensure it is not a base unit for its type
         if input_unit == input_unit.type.base_unit:
@@ -1571,7 +1602,10 @@ class ConvertUnitAddName(Function):
 
     def run(self, event):
         # Load repository
-        repo = ConvertRepo.load_json()
+        function_dispatcher = event.server.hallo.function_dispatcher
+        convert_function = function_dispatcher.get_function_by_name("convert")
+        convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
+        repo = convert_function_obj.convert_repo
         # Check for type=
         type_name = None
         if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
@@ -1581,7 +1615,7 @@ class ConvertUnitAddName(Function):
         if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
             unit_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
         # clean up the line
-        param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_name = param_regex.sub("\1\4", event.command_args).strip()
         # Get unit list
         if type_name is None:
@@ -1635,6 +1669,7 @@ class ConvertUnitAddAbbreviation(Function):
 
     NAMES_UNIT = ["unit", "u"]
     NAMES_TYPE = ["type", "t"]
+    NAMES_ABBR = ["abbreviation", "abbr", "a"]
 
     def __init__(self):
         """
@@ -1650,18 +1685,23 @@ class ConvertUnitAddAbbreviation(Function):
 
     def run(self, event):
         # Load repository
-        repo = ConvertRepo.load_json()
+        function_dispatcher = event.server.hallo.function_dispatcher
+        convert_function = function_dispatcher.get_function_by_name("convert")
+        convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
+        repo = convert_function_obj.convert_repo
+        # Parse input
+        parsed = ConvertInputParser(event.command_args)
         # Check for type=
-        type_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
-            type_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
+        type_name = parsed.get_arg_by_names(self.NAMES_TYPE)
         # Check for unit=
-        unit_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
-            unit_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
-        # clean up the line
-        param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        input_abbr = param_regex.sub("\1\4", event.command_args).strip()
+        unit_name = parsed.get_arg_by_names(self.NAMES_UNIT)
+        # Check for abbr=
+        abbr_name = parsed.get_arg_by_names(self.NAMES_ABBR)
+        # If unit= or abbr= then remaining is the other one.
+        if unit_name is None and abbr_name is not None:
+            unit_name = parsed.remaining_text
+        if abbr_name is None and unit_name is not None:
+            abbr_name = parsed.remaining_text
         # Get unit list
         if type_name is None:
             unit_list = repo.get_full_unit_list()
@@ -1671,40 +1711,58 @@ class ConvertUnitAddAbbreviation(Function):
                 return event.create_response("Unrecognised type.")
             unit_list = type_obj.get_full_unit_list()
         # If no unit=, try splitting the line to find where the old name ends and new name begins
-        if unit_name is None:
+        input_unit_list = []
+        if unit_name is None and abbr_name is None:
             # Start splitting from shortest left-string to longest.
-            line_split = input_abbr.split()
-            input_unit_list = []
-            found_abbr = False
-            input_unit_name = ""
-            for input_unit_name in [' '.join(line_split[:x + 1]) for x in range(len(line_split))]:
+            line_split = parsed.remaining_text.split()
+            if len(line_split) == 1:
+                return event.create_response("You must specify both a unit name and an abbreviation to add.")
+            input_sections = [[" ".join(line_split[:x+1]),
+                               " ".join(line_split[x+1:])]
+                              for x in range(len(line_split)-1)]
+            abbr_options = []
+            for input_pair in input_sections:
+                # Check if the first input of the pair matches any units
+                found_abbr = False
                 for unit_obj in unit_list:
-                    if unit_obj.has_name(input_unit_name):
+                    if unit_obj.has_name(input_pair[0]):
                         input_unit_list.append(unit_obj)
                         found_abbr = True
                 if found_abbr:
-                    break
-            new_unit_abbr = input_abbr[len(input_unit_name):].strip()
+                    abbr_options.append(input_pair[1])
+                # Then check if the second input of the pair matches any units
+                found_abbr = False
+                for unit_obj in unit_list:
+                    if unit_obj.has_name(input_pair[1]):
+                        input_unit_list.append(unit_obj)
+                        found_abbr = True
+                if found_abbr:
+                    abbr_options.append(input_pair[0])
+            if len(abbr_options) != 1:
+                return event.create_response("Could not parse where unit name ends and abbreviation begins. "
+                                             "Please specify with unit=<name>")
+            abbr_name = abbr_options[0]
         else:
-            input_unit_list = []
             for unit_obj in unit_list:
                 if unit_obj.has_name(unit_name):
                     input_unit_list.append(unit_obj)
-            new_unit_abbr = input_abbr
         # If 0 units found, throw error
         if len(input_unit_list) == 0:
             return event.create_response("No unit found by that name.")
         # If 2+ units found, throw error
         if len(input_unit_list) >= 2:
-            return event.create_response("Unit name is too ambiguous, please specify with unit= and type= .")
+            return event.create_response("Unit name is too ambiguous, please specify with unit=<name> and type=<name>.")
         unit_obj = input_unit_list[0]
+        # If abbreviation name is empty, throw error
+        if len(abbr_name) == 0:
+            return event.create_response("Abbreviation name cannot be blank.")
         # Add the new name
-        unit_obj.add_abbr(new_unit_abbr)
+        unit_obj.add_abbr(abbr_name)
         # Save repo
         repo.save_json()
         # Output message
-        return event.create_response("Added \"{}\" as a new abbreviation for " +
-                                     "the \"{}\" unit.".format(new_unit_abbr, unit_obj.name_list[0]))
+        return event.create_response("Added \"{}\" as a new abbreviation for "
+                                     "the \"{}\" unit.".format(abbr_name, unit_obj.name_list[0]))
 
 
 class ConvertUnitRemoveName(Function):
@@ -1732,7 +1790,10 @@ class ConvertUnitRemoveName(Function):
 
     def run(self, event):
         # Load repo, clean line
-        repo = ConvertRepo.load_json()
+        function_dispatcher = event.server.hallo.function_dispatcher
+        convert_function = function_dispatcher.get_function_by_name("convert")
+        convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
+        repo = convert_function_obj.convert_repo
         line_clean = event.command_args.strip()
         # Check if unit is defined
         unit_name = None
@@ -1745,7 +1806,7 @@ class ConvertUnitRemoveName(Function):
             if repo.get_type_by_name(type_name) is None:
                 return event.create_response("Invalid type specified.")
         # Clean unit and type setting from the line to just get the name to remove
-        param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_name = param_regex.sub("\1\4", line_clean).strip()
         # Check if description is sufficient to narrow it to 1 and only 1 unit
         user_unit_options = []
@@ -1801,7 +1862,10 @@ class ConvertUnitSetPrefixGroup(Function):
 
     def run(self, event):
         # Load repository
-        repo = ConvertRepo.load_json()
+        function_dispatcher = event.server.hallo.function_dispatcher
+        convert_function = function_dispatcher.get_function_by_name("convert")
+        convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
+        repo = convert_function_obj.convert_repo
         # Check for type=
         type_name = None
         if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
@@ -1815,7 +1879,7 @@ class ConvertUnitSetPrefixGroup(Function):
         if Commons.find_any_parameter(self.NAMES_PREFIX_GROUP, event.command_args):
             prefix_group_name = Commons.find_any_parameter(self.NAMES_PREFIX_GROUP, event.command_args)
         # clean up the line
-        param_regex = re.compile("(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
+        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
         input_name = param_regex.sub("\1\4", event.command_args).strip()
         # Get prefix group
         if prefix_group_name is None:
