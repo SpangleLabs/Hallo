@@ -14,6 +14,35 @@ class ConvertException(Exception):
     pass
 
 
+class ConvertInputParser:
+
+    def __init__(self, raw_input):
+        """
+        :type raw_input: str
+        """
+        self.args_dict = dict()
+        self.remaining_text = raw_input
+        self.parse_args()
+
+    def parse_args(self):
+        regexes = [re.compile(r"([\"'])(?P<key>[^=]+?)\1=([\"'])(?P<value>.+?)\3"),  # quoted key, quoted args
+                   re.compile(r"(?P<key>[^\s]+)=([\"'])(?P<value>.+?)\2"),  # unquoted key, quoted args
+                   re.compile(r"([\"'])(?P<key>[^=]+?)\1=(?P<value>[^\s]+)"),  # quoted key, unquoted args
+                   re.compile(r"(?P<key>[^\s]+)=(?P<value>[^\s]+)")]  # unquoted key, unquoted args
+        for regex in regexes:
+            for match in regex.finditer(self.remaining_text):
+                self.args_dict[match.group("key")] = match.group("value")
+                self.remaining_text = self.remaining_text.replace(match.group(0), "")
+        # Clean double spaces and trailing spaces.
+        self.remaining_text = " ".join(self.remaining_text.split())
+
+    def get_arg_by_names(self, names_list):
+        for name in names_list:
+            if name in self.args_dict:
+                return self.args_dict[name]
+        return None
+
+
 class ConvertRepo:
     """
     Configuration repository. Stores list of ConvertTypes, ConvertPrefixGroups, etc
@@ -1375,8 +1404,8 @@ class ConvertAddType(Function):
     Adds a new conversion type.
     """
 
-    NAMES_BASE_UNIT = ["baseunit", "base_unit", "base-unit", "unit", "u", "b", "bu"]
-    NAMES_DECIMALS = ["decimals", "decimal", "decimalplaces", "dp", "d"]
+    NAMES_BASE_UNIT = ["base unit", "baseunit", "base_unit", "base-unit", "unit", "u", "b", "bu"]
+    NAMES_DECIMALS = ["decimal places", "decimals", "decimal", "decimalplaces", "dp", "d"]
 
     def __init__(self):
         """
@@ -1396,23 +1425,16 @@ class ConvertAddType(Function):
         convert_function = function_dispatcher.get_function_by_name("convert")
         convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
         repo = convert_function_obj.convert_repo
+        # Clean input
         line_clean = event.command_args.strip()
+        parsed_input = ConvertInputParser(line_clean)
         # Check if base unit is defined
-        unit_name = None
-        if Commons.find_any_parameter(self.NAMES_BASE_UNIT, line_clean):
-            unit_name = Commons.find_any_parameter(self.NAMES_BASE_UNIT, line_clean)
+        unit_name = parsed_input.get_arg_by_names(self.NAMES_BASE_UNIT)
         # Check if decimal places is defined
-        decimals = None
-        if Commons.find_any_parameter(self.NAMES_DECIMALS, line_clean):
-            try:
-                decimals = int(Commons.find_any_parameter(self.NAMES_DECIMALS, line_clean))
-            except ConvertException:
-                decimals = None
+        decimals = parsed_input.get_arg_by_names(self.NAMES_DECIMALS)
+        decimals = int(decimals) if decimals is not None else None
         # Clean unit and type setting from the line to just get the name to remove
-        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        multispace_regex = re.compile(r"\s+")
-        input_name = param_regex.sub(r"\1\4", line_clean).strip()
-        input_name = multispace_regex.sub(" ", input_name)
+        input_name = parsed_input.remaining_text
         # Check that type name doesn't already exist.
         existing_type = repo.get_type_by_name(input_name)
         if existing_type is not None:
