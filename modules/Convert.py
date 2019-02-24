@@ -28,10 +28,10 @@ class ConvertInputParser:
         self.parse_words()
 
     def parse_args(self):
-        regexes = [re.compile(r"([\"'])(?P<key>[^=]+?)\1=([\"'])(?P<value>.+?)\3"),  # quoted key, quoted args
-                   re.compile(r"(?P<key>[^\s]+)=([\"'])(?P<value>.+?)\2"),  # unquoted key, quoted args
-                   re.compile(r"([\"'])(?P<key>[^=]+?)\1=(?P<value>[^\s]+)"),  # quoted key, unquoted args
-                   re.compile(r"(?P<key>[^\s]+)=(?P<value>[^\s]+)")]  # unquoted key, unquoted args
+        regexes = [re.compile(r"([\"'])(?P<key>[^=]+?)\1=([\"'])(?P<value>.*?)\3"),  # quoted key, quoted args
+                   re.compile(r"(?P<key>[^\s]+)=([\"'])(?P<value>.*?)\2"),  # unquoted key, quoted args
+                   re.compile(r"([\"'])(?P<key>[^=]+?)\1=(?P<value>[^\s]*)"),  # quoted key, unquoted args
+                   re.compile(r"(?P<key>[^\s]+)=(?P<value>[^\s]*)")]  # unquoted key, unquoted args
         for regex in regexes:
             for match in regex.finditer(self.remaining_text):
                 self.args_dict[match.group("key")] = match.group("value")
