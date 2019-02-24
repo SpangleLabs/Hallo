@@ -11,19 +11,19 @@ class ConvertFunctionTestBase(TestBase, unittest.TestCase):
         super().setUp()
         # Create test repo
         self.test_repo = ConvertRepo()
-        test_type1 = ConvertType(self.test_repo, "test_type1")
-        self.test_repo.add_type(test_type1)
-        test_unit1a = ConvertUnit(test_type1, ["unit1a"], 1)
-        test_type1.base_unit = test_unit1a
-        test_unit1b = ConvertUnit(test_type1, ["unit1b", "same_name"], 2)
-        test_type1.add_unit(test_unit1b)
+        self.test_type1 = ConvertType(self.test_repo, "test_type1")
+        self.test_repo.add_type(self.test_type1)
+        self.test_unit1a = ConvertUnit(self.test_type1, ["unit1a"], 1)
+        self.test_type1.base_unit = self.test_unit1a
+        self.test_unit1b = ConvertUnit(self.test_type1, ["unit1b", "same_name"], 2)
+        self.test_type1.add_unit(self.test_unit1b)
         # Add a second type
-        test_type2 = ConvertType(self.test_repo, "test_type2")
-        self.test_repo.add_type(test_type2)
-        test_unit2a = ConvertUnit(test_type2, ["unit2a"], 1)
-        test_type2.base_unit = test_unit2a
-        test_unit2b = ConvertUnit(test_type2, ["unit2b", "same_name"], 5)
-        test_type2.add_unit(test_unit2b)
+        self.test_type2 = ConvertType(self.test_repo, "test_type2")
+        self.test_repo.add_type(self.test_type2)
+        self.test_unit2a = ConvertUnit(self.test_type2, ["unit2a"], 1)
+        self.test_type2.base_unit = self.test_unit2a
+        self.test_unit2b = ConvertUnit(self.test_type2, ["unit2b", "same_name"], 5)
+        self.test_type2.add_unit(self.test_unit2b)
         # Move current convert.json
         try:
             os.rename("store/convert.json", "store/convert.json.tmp")
