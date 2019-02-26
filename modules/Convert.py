@@ -1793,6 +1793,7 @@ class ConvertUnitRemoveName(Function):
 
     NAMES_UNIT = ["unit", "u"]
     NAMES_TYPE = ["type", "t"]
+    NAMES_DEL = ["delete name", "remove name", "del", "delete", "remove"]
 
     def __init__(self):
         """
@@ -1815,31 +1816,30 @@ class ConvertUnitRemoveName(Function):
         convert_function = function_dispatcher.get_function_by_name("convert")
         convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
         repo = convert_function_obj.convert_repo
-        line_clean = event.command_args.strip()
+        # Parse input
+        parsed = ConvertInputParser(event.command_args)
         # Check if unit is defined
-        unit_name = None
-        if Commons.find_any_parameter(self.NAMES_UNIT, line_clean):
-            unit_name = Commons.find_any_parameter(self.NAMES_UNIT, line_clean)
+        unit_name = parsed.get_arg_by_names(self.NAMES_UNIT)
         # Check if type is defined
-        type_name = None
-        if Commons.find_any_parameter(self.NAMES_TYPE, line_clean):
-            type_name = Commons.find_any_parameter(self.NAMES_TYPE, line_clean)
-            if repo.get_type_by_name(type_name) is None:
+        type_obj = None
+        type_name = parsed.get_arg_by_names(self.NAMES_TYPE)
+        if type_name is not None:
+            type_obj = repo.get_type_by_name(type_name)
+            if type_obj is None:
                 return event.create_response("Invalid type specified.")
-        # Clean unit and type setting from the line to just get the name to remove
-        param_regex = re.compile(r"(^|\s)([^\s]+)=([^\s]+)(\s|$)", re.IGNORECASE)
-        input_name = param_regex.sub("\1\4", line_clean).strip()
+        # Check if delete name is specified
+        del_name = parsed.get_arg_by_names(self.NAMES_DEL)
+        if del_name is None:
+            del_name = parsed.remaining_text
         # Check if description is sufficient to narrow it to 1 and only 1 unit
+        unit_list = repo.get_full_unit_list() if type_obj is None else type_obj.get_full_unit_list()
         user_unit_options = []
-        for unit_obj in repo.get_full_unit_list():
-            # If type is defined and not the same as current unit, skip it
-            if type_name is not None and type_name != unit_obj.type.name:
-                continue
+        for unit_obj in unit_list:
             # if unit name is defined and not a valid name for the unit, skip it.
             if unit_name is not None and not unit_obj.has_name(unit_name):
                 continue
             # If input_name is not a valid name for the unit, skip it.
-            if not unit_obj.has_name(input_name):
+            if not unit_obj.has_name(del_name):
                 continue
             # Otherwise it's the one, add it to the list
             user_unit_options.append(unit_obj)
@@ -1853,11 +1853,11 @@ class ConvertUnitRemoveName(Function):
         if len(user_unit.name_list) == 1:
             return event.create_response("This unit only has 1 name, you cannot remove its last name.")
         # Remove name
-        user_unit.remove_name(input_name)
+        user_unit.remove_name(del_name)
         # Save repo
         repo.save_json()
         # Output
-        return event.create_response("Removed name \"{}\" from \"{}\" unit.".format(input_name, user_unit.name_list[0]))
+        return event.create_response("Removed name \"{}\" from \"{}\" unit.".format(del_name, user_unit.name_list[0]))
 
 
 class ConvertUnitSetPrefixGroup(Function):
