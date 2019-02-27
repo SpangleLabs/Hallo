@@ -191,7 +191,7 @@ class Commons(object):
             code = code.replace('[,', '[').replace(',]', ']')
         try:
             output_dict = json.loads(code)
-        except JSONDecodeError as e:
+        except Exception as e:
             print("Failed to parse received JSON: {}".format(code))
             raise e
         return output_dict
