@@ -6,7 +6,6 @@ import re
 import json
 import random
 from datetime import timedelta
-from json import JSONDecodeError
 
 
 class ISO8601ParseError(SyntaxError):
