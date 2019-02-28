@@ -1067,7 +1067,15 @@ class UpdateCurrencies(Function):
         currency_codes = ["LTC", "BTC", "BCH", "DOGE", "XMR", "ETH", "ETC", "DASH"]
         for code in currency_codes:
             # Get data
-            data = Commons.load_url_json("https://api.cryptonator.com/api/ticker/{}-eur".format(code))
+            try:
+                data = Commons.load_url_json("https://api.cryptonator.com/api/ticker/{}-eur".format(code))
+            except Exception as e:
+                # If it fails, because it failed to parse the JSON, give it another go
+                # Cryptonator API returns HTML sometimes. I don't know why.
+                if "Failed to parse received JSON" in str(e):
+                    data = Commons.load_url_json("https://api.cryptonator.com/api/ticker/{}-eur".format(code))
+                else:
+                    raise e
             # Get the ConvertUnit object for the currency reference
             currency_unit = currency_type.get_unit_by_name(code)
             if currency_unit is None:
