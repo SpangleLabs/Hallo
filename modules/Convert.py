@@ -52,23 +52,18 @@ class ConvertInputParser:
                 return self.args_dict[name]
         return None
 
-    def split_remaining_into_two(self, verify_func, verify_func2=None):
+    def split_remaining_into_two(self, verify_pair_func):
         """
         Splits the remaining text, into pairs of text, where the first half matches the verify function, and the second
         half is the rest.
-        :param verify_func: Function which verifies if a text part is potentially valid
-        :type verify_func: (string) -> bool
-        :param verify_func2: Function which verifies if the second text part is potentially valid
-        :type verify_func2: (string) -> bool
+        :param verify_pair_func: Function which verifies if a text pair is potentially valid
+        :type verify_pair_func: (string, string) -> bool
         :return: List of pairs of strings
         :rtype: list[list[str]]
         """
         line_split = self.remaining_text.split()
         if len(line_split) <= 1:
             return []
-        if verify_func2 is None:
-            def verify_func2(name):
-                return True
         # Start splitting from shortest left-string to longest.
         input_sections = [[" ".join(line_split[:x + 1]),
                            " ".join(line_split[x + 1:])]
@@ -76,10 +71,10 @@ class ConvertInputParser:
         results = []
         for input_pair in input_sections:
             # Check if the first input of the pair matches any units
-            if verify_func(input_pair[0]) and verify_func2(input_pair[1]):
+            if verify_pair_func(input_pair[0], input_pair[1]):
                 results.append([input_pair[0], input_pair[1]])
             # Then check if the second input of the pair matches any units
-            if verify_func(input_pair[1]) and verify_func2(input_pair[0]):
+            if verify_pair_func(input_pair[1], input_pair[0]):
                 results.append([input_pair[1], input_pair[0]])
         return results
 
@@ -1674,7 +1669,7 @@ class ConvertUnitAddName(Function):
             if len(line_split) == 1:
                 return event.create_response("You must specify both a unit name and a new name to add.")
             # Scan remaining text for split
-            pairs = parsed.split_remaining_into_two(lambda x: any([u.has_name(x) for u in unit_list]))
+            pairs = parsed.split_remaining_into_two(lambda x, y: any([u.has_name(x) for u in unit_list]))
             # If not exactly 1 split, return an error
             if len(pairs) != 1:
                 return event.create_response("Could not parse where unit name ends and new name begins. "
@@ -1761,7 +1756,7 @@ class ConvertUnitAddAbbreviation(Function):
             if len(line_split) <= 1:
                 return event.create_response("You must specify both a unit name and an abbreviation to add.")
             # Scan remaining text for split
-            pairs = parsed.split_remaining_into_two(lambda x: any([u.has_name(x) for u in unit_list]))
+            pairs = parsed.split_remaining_into_two(lambda x, y: any([u.has_name(x) for u in unit_list]))
             # If not exactly 1 split, return an error
             if len(pairs) != 1:
                 return event.create_response("Could not parse where unit name ends and abbreviation begins. "
@@ -1925,7 +1920,6 @@ class ConvertUnitSetPrefixGroup(Function):
             line_split = parsed.remaining_text.split()
             if len(line_split) <= 1:
                 return event.create_response("You must specify both a unit name and a prefix group to set.")
-
             # Scan remaining text for split
 
             def is_unit_name_valid(name):
@@ -1934,7 +1928,7 @@ class ConvertUnitSetPrefixGroup(Function):
             def is_prefix_group_valid(name):
                 return name.lower() == "none" or repo.get_prefix_group_by_name(name) is not None
 
-            pairs = parsed.split_remaining_into_two(is_unit_name_valid, is_prefix_group_valid)
+            pairs = parsed.split_remaining_into_two(lambda x, y: is_unit_name_valid(x) and is_prefix_group_valid(y))
             # If not exactly 1 split, return an error
             if len(pairs) != 1:
                 return event.create_response("Could not parse where unit name ends and prefix group begins. "
