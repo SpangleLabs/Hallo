@@ -52,6 +52,32 @@ class ConvertInputParser:
                 return self.args_dict[name]
         return None
 
+    def split_remaining_into_two(self, verify_func):
+        """
+        Splits the remaining text, into pairs of text, where the first half matches the verify function, and the second
+        half is the rest.
+        :param verify_func: Function which verifies if a text part is potentially valid
+        :type verify_func: (string) -> bool
+        :return: List of pairs of strings
+        :rtype: list[list[str]]
+        """
+        line_split = self.remaining_text.split()
+        if len(line_split) <= 1:
+            return []
+        # Start splitting from shortest left-string to longest.
+        input_sections = [[" ".join(line_split[:x + 1]),
+                           " ".join(line_split[x + 1:])]
+                          for x in range(len(line_split) - 1)]
+        results = []
+        for input_pair in input_sections:
+            # Check if the first input of the pair matches any units
+            if verify_func(input_pair[0]):
+                results.append([input_pair[0], input_pair[1]])
+            # Then check if the second input of the pair matches any units
+            if verify_func(input_pair[1]):
+                results.append([input_pair[1], input_pair[0]])
+        return results
+
 
 class ConvertRepo:
     """
@@ -1740,41 +1766,25 @@ class ConvertUnitAddAbbreviation(Function):
                 return event.create_response("Unrecognised type.")
             unit_list = type_obj.get_full_unit_list()
         # If no unit=, try splitting the line to find where the old name ends and new name begins
-        input_unit_list = []
         if unit_name is None and abbr_name is None:
-            # Start splitting from shortest left-string to longest.
+            # Check at least 2 words are given
             line_split = parsed.remaining_text.split()
-            if len(line_split) == 1:
+            if len(line_split) <= 1:
                 return event.create_response("You must specify both a unit name and an abbreviation to add.")
-            input_sections = [[" ".join(line_split[:x+1]),
-                               " ".join(line_split[x+1:])]
-                              for x in range(len(line_split)-1)]
-            abbr_options = []
-            for input_pair in input_sections:
-                # Check if the first input of the pair matches any units
-                found_abbr = False
-                for unit_obj in unit_list:
-                    if unit_obj.has_name(input_pair[0]):
-                        input_unit_list.append(unit_obj)
-                        found_abbr = True
-                if found_abbr:
-                    abbr_options.append(input_pair[1])
-                # Then check if the second input of the pair matches any units
-                found_abbr = False
-                for unit_obj in unit_list:
-                    if unit_obj.has_name(input_pair[1]):
-                        input_unit_list.append(unit_obj)
-                        found_abbr = True
-                if found_abbr:
-                    abbr_options.append(input_pair[0])
-            if len(abbr_options) != 1:
+            # Scan remaining text for split
+            pairs = parsed.split_remaining_into_two(lambda x: any([u.has_name(x) for u in unit_list]))
+            # If not exactly 1 split, return an error
+            if len(pairs) != 1:
                 return event.create_response("Could not parse where unit name ends and abbreviation begins. "
                                              "Please specify with unit=<name>")
-            abbr_name = abbr_options[0]
-        else:
-            for unit_obj in unit_list:
-                if unit_obj.has_name(unit_name):
-                    input_unit_list.append(unit_obj)
+            # Handle the returned pair
+            unit_name = pairs[0][0]
+            abbr_name = pairs[0][1]
+        # Get the unit object from the name
+        input_unit_list = []
+        for unit_obj in unit_list:
+            if unit_obj.has_name(unit_name):
+                input_unit_list.append(unit_obj)
         # If 0 units found, throw error
         if len(input_unit_list) == 0:
             return event.create_response("No unit found by that name.")
