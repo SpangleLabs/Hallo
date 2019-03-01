@@ -67,7 +67,8 @@ class ConvertInputParser:
         if len(line_split) <= 1:
             return []
         if verify_func2 is None:
-            verify_func2 = lambda x: True
+            def verify_func2(name):
+                return True
         # Start splitting from shortest left-string to longest.
         input_sections = [[" ".join(line_split[:x + 1]),
                            " ".join(line_split[x + 1:])]
@@ -1667,41 +1668,25 @@ class ConvertUnitAddName(Function):
                 return event.create_response("Unrecognised type.")
             unit_list = type_obj.get_full_unit_list()
         # If no unit=, try splitting the line to find where the old name ends and new name begins
-        input_unit_list = []
         if unit_name is None and new_name is None:
             # Start splitting from shortest left-string to longest.
             line_split = parsed.remaining_text.split()
             if len(line_split) == 1:
                 return event.create_response("You must specify both a unit name and a new name to add.")
-            input_sections = [[" ".join(line_split[:x+1]),
-                               " ".join(line_split[x+1:])]
-                              for x in range(len(line_split)-1)]
-            new_options = []
-            for input_pair in input_sections:
-                # Check if the first input of the pair matches any units
-                found_new = False
-                for unit_obj in unit_list:
-                    if unit_obj.has_name(input_pair[0]):
-                        input_unit_list.append(unit_obj)
-                        found_new = True
-                if found_new:
-                    new_options.append(input_pair[1])
-                # Then check if the second input of the pair matches any units
-                found_new = False
-                for unit_obj in unit_list:
-                    if unit_obj.has_name(input_pair[1]):
-                        input_unit_list.append(unit_obj)
-                        found_new = True
-                if found_new:
-                    new_options.append(input_pair[0])
-            if len(new_options) != 1:
+            # Scan remaining text for split
+            pairs = parsed.split_remaining_into_two(lambda x: any([u.has_name(x) for u in unit_list]))
+            # If not exactly 1 split, return an error
+            if len(pairs) != 1:
                 return event.create_response("Could not parse where unit name ends and new name begins. "
                                              "Please specify with unit=<name> new_name=<name>")
-            new_name = new_options[0]
-        else:
-            for unit_obj in unit_list:
-                if unit_obj.has_name(unit_name):
-                    input_unit_list.append(unit_obj)
+            # Handle the returned pair
+            unit_name = pairs[0][0]
+            new_name = pairs[0][1]
+        # Get unit object
+        input_unit_list = []
+        for unit_obj in unit_list:
+            if unit_obj.has_name(unit_name):
+                input_unit_list.append(unit_obj)
         # If 0 units found, throw error
         if len(input_unit_list) == 0:
             return event.create_response("No unit found by that name.")
@@ -1940,6 +1925,7 @@ class ConvertUnitSetPrefixGroup(Function):
             line_split = parsed.remaining_text.split()
             if len(line_split) <= 1:
                 return event.create_response("You must specify both a unit name and a prefix group to set.")
+
             # Scan remaining text for split
 
             def is_unit_name_valid(name):
@@ -1947,6 +1933,7 @@ class ConvertUnitSetPrefixGroup(Function):
 
             def is_prefix_group_valid(name):
                 return name.lower() == "none" or repo.get_prefix_group_by_name(name) is not None
+
             pairs = parsed.split_remaining_into_two(is_unit_name_valid, is_prefix_group_valid)
             # If not exactly 1 split, return an error
             if len(pairs) != 1:
