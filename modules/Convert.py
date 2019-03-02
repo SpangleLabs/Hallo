@@ -1214,7 +1214,7 @@ class ConvertViewRepo(Function):
         output_string += "Unit types: " + \
                          ", ".join([type_obj.name for type_obj in repo.type_list]) + \
                          "\n"
-        output_string += "Prefix groups: " + ", ".join([type_obj.name for type_obj in repo.type_list])
+        output_string += "Prefix groups: " + ", ".join([group.name for group in repo.prefix_group_list])
         return output_string
 
     def output_type_as_string(self, type_obj):
@@ -1223,8 +1223,7 @@ class ConvertViewRepo(Function):
         :type type_obj: ConvertType
         :rtype: str
         """
-        unit_name_list = [unit_obj.name_list[0] for unit_obj in type_obj.get_full_unit_list() if
-                          unit_obj != type_obj.base_unit]
+        unit_name_list = [unit_obj.name_list[0] for unit_obj in type_obj.unit_list]
         output_string = "Conversion Type: ({})\n".format(type_obj.name)
         output_string += "Decimals: {}\n".format(type_obj.decimals)
         output_string += "Base unit: {}\n".format(type_obj.base_unit.name_list[0])
@@ -1241,7 +1240,7 @@ class ConvertViewRepo(Function):
                         "Type: {}".format(unit_obj.type.name),
                         "Name list: {}".format(", ".join(unit_obj.name_list)),
                         "Abbreviation list: {}".format(", ".join(unit_obj.abbr_list)),
-                        "Value: 1 {} - {} {}".format(unit_obj.name_list[0],
+                        "Value: 1 {} = {} {}".format(unit_obj.name_list[0],
                                                      unit_obj.value,
                                                      unit_obj.type.base_unit.name_list[0]),
                         "Offset: 0 {} = {} {}".format(unit_obj.name_list[0],
@@ -1274,7 +1273,7 @@ class ConvertViewRepo(Function):
         """
         output_string = "Prefix: ({})\n".format(prefix_obj.prefix)
         output_string += "Abbreviation: {}\n".format(prefix_obj.abbreviation)
-        output_string += "Multiplier: {}".format(prefix_obj.prefix)
+        output_string += "Multiplier: {}".format(prefix_obj.multiplier)
         return output_string
 
 

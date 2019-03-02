@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime
 
 import modules.Convert
 from Events import EventMessage
@@ -18,6 +19,7 @@ class MockMethod:
         return self.response
 
 
+# noinspection PyArgumentList
 class ConvertViewRepoTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def setUp(self):
@@ -186,3 +188,54 @@ class ConvertViewRepoTest(ConvertFunctionTestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert self.output_repo in data[0].text.lower()
         assert self.mock_view_repo.arg == self.test_repo
+
+    def test_output_repo_as_string(self):
+        output = self.view_repo(None, self.test_repo).lower()
+        assert "conversion repo" in output
+        assert "unit types" in output
+        assert self.test_type1.name in output
+        assert self.test_type2.name in output
+        assert "prefix groups" in output
+        assert self.test_group1.name in output
+        assert self.test_group2.name in output
+
+    def test_output_type_as_string(self):
+        output = self.view_type(None, self.test_type1).lower()
+        assert "conversion type" in output
+        assert self.test_type1.name in output
+        assert "decimals: {}".format(self.test_type1.decimals) in output
+        assert "base unit: {}".format(self.test_type1.base_unit.name_list[0]) in output
+        assert "other units" in output
+        assert self.test_unit1b.name_list[0] in output
+
+    def test_output_unit_as_string(self):
+        self.test_unit1b.valid_prefix_group = self.test_group2
+        self.test_unit1b.last_updated_date = datetime(2019, 3, 2, 22, 24, 15)
+        output = self.view_unit(None, self.test_unit1b).lower()
+        assert "conversion unit:" in output
+        assert "type: {}".format(self.test_type1.name) in output
+        assert all([x in output for x in self.test_unit1b.name_list])
+        assert all([x in output for x in self.test_unit1b.abbr_list])
+        assert "1 {} = {} {}".format(self.test_unit1b.name_list[0],
+                                     self.test_unit1b.value,
+                                     self.test_unit1a.name_list[0]) in output
+        assert "0 {} = {} {}".format(self.test_unit1b.name_list[0],
+                                     self.test_unit1b.offset,
+                                     self.test_unit1a.name_list[0]) in output
+        assert "last updated: 2019-03-02 22:24:15" in output
+        assert "prefix group: {}".format(self.test_group2.name) in output
+
+    def test_output_prefix_group_as_string(self):
+        output = self.view_group(None, self.test_group2).lower()
+        assert "prefix group" in output
+        assert self.test_group2.name in output
+        assert "prefix list:" in output
+        assert self.test_prefix2a.prefix in output
+        assert self.test_prefix2b.prefix in output
+
+    def test_output_prefix_as_string(self):
+        output = self.view_prefix(None, self.test_prefix2b).lower()
+        assert "prefix" in output
+        assert self.test_prefix2b.prefix in output
+        assert "abbreviation: {}".format(self.test_prefix2b.abbreviation) in output
+        assert "multiplier: {}".format(self.test_prefix2b.multiplier) in output
