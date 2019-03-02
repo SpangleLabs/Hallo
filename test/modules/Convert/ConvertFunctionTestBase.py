@@ -25,10 +25,19 @@ class ConvertFunctionTestBase(TestBase, unittest.TestCase):
         self.test_unit2b = ConvertUnit(self.test_type2, ["unit2b", "same_name"], 5)
         self.test_type2.add_unit(self.test_unit2b)
         # Add a prefix group
-        self.test_group = ConvertPrefixGroup(self.test_repo, "test_group1")
-        self.test_repo.add_prefix_group(self.test_group)
-        self.test_prefix1 = ConvertPrefix(self.test_group, "prefixa", "prefa", 5)
-        self.test_group.add_prefix(self.test_prefix1)
+        self.test_group1 = ConvertPrefixGroup(self.test_repo, "test_group1")
+        self.test_repo.add_prefix_group(self.test_group1)
+        self.test_prefix1a = ConvertPrefix(self.test_group1, "prefix1a", "pref1a", 5)
+        self.test_group1.add_prefix(self.test_prefix1a)
+        self.test_prefix1b = ConvertPrefix(self.test_group1, "prefixb", "pref1b", 15)
+        self.test_group1.add_prefix(self.test_prefix1b)
+        # Add a second prefix group
+        self.test_group2 = ConvertPrefixGroup(self.test_repo, "test_group2")
+        self.test_repo.add_prefix_group(self.test_group2)
+        self.test_prefix2a = ConvertPrefix(self.test_group2, "prefix2a", "pref2a", 7)
+        self.test_group2.add_prefix(self.test_prefix2a)
+        self.test_prefix2b = ConvertPrefix(self.test_group2, "prefixb", "pref2b", 42)
+        self.test_group2.add_prefix(self.test_prefix2b)
         # Move current convert.json
         try:
             os.rename("store/convert.json", "store/convert.json.tmp")

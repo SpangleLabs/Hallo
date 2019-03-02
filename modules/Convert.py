@@ -1117,7 +1117,7 @@ class ConvertViewRepo(Function):
 
     NAMES_TYPE = ["type", "t"]
     NAMES_UNIT = ["unit", "u"]
-    NAMES_PREFIXGROUP = ["prefixgroup", "prefix_group", "prefix-group", "group", "g", "pg"]
+    NAMES_PREFIXGROUP = ["prefix group", "prefixgroup", "prefix_group", "prefix-group", "group", "g", "pg"]
     NAMES_PREFIX = ["prefix", "p"]
 
     def __init__(self):
@@ -1130,7 +1130,8 @@ class ConvertViewRepo(Function):
         # Names which can be used to address the Function
         self.names = {"convert view repo", "convert view", "convert list"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Returns information about the conversion repository."
+        self.help_docs = "Returns information about the conversion repository. Specify type=<name>, unit=<name>, " \
+                         "prefix=<name> or prefix_group=<name> for more detail."
 
     def run(self, event):
         # Load repo
@@ -1138,44 +1139,45 @@ class ConvertViewRepo(Function):
         convert_function = function_dispatcher.get_function_by_name("convert")
         convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
         repo = convert_function_obj.convert_repo
+        # Parse input
+        parsed = ConvertInputParser(event.command_args)
         # Check if type is specified
-        if Commons.find_any_parameter(self.NAMES_TYPE, event.command_args):
+        type_name = parsed.get_arg_by_names(self.NAMES_TYPE)
+        unit_name = parsed.get_arg_by_names(self.NAMES_UNIT)
+        prefix_group_name = parsed.get_arg_by_names(self.NAMES_PREFIXGROUP)
+        prefix_name = parsed.get_arg_by_names(self.NAMES_PREFIX)
+        if type_name is not None:
             # Get type name and object
-            type_name = Commons.find_any_parameter(self.NAMES_TYPE, event.command_args)
             type_obj = repo.get_type_by_name(type_name)
             if type_obj is None:
-                return event.create_response("Unrecognised type.")
+                return event.create_response("Unrecognised type specified.")
             # Check if unit & type are specified
-            if Commons.find_any_parameter(self.NAMES_UNIT, event.command_args):
+            if unit_name is not None:
                 # Get unit name and object
-                unit_name = Commons.find_any_parameter(self.NAMES_UNIT, event.command_args)
                 unit_obj = type_obj.get_unit_by_name(unit_name)
                 if unit_obj is None:
-                    return event.create_response("Unrecognised unit.")
+                    return event.create_response("Unrecognised unit specified.")
                 return event.create_response(self.output_unit_as_string(unit_obj))
             # Type is defined, but not unit.
             return event.create_response(self.output_type_as_string(type_obj))
         # Check if prefix group is specified
-        if Commons.find_any_parameter(self.NAMES_PREFIXGROUP, event.command_args):
+        if prefix_group_name is not None:
             # Check if prefix & group are specified
-            prefix_group_name = Commons.find_any_parameter(self.NAMES_PREFIXGROUP, event.command_args)
             prefix_group_obj = repo.get_prefix_group_by_name(prefix_group_name)
             if prefix_group_obj is None:
-                return event.create_response("Unrecognised prefix group.")
+                return event.create_response("Unrecognised prefix group specified.")
             # Check if prefix group & prefix are specified
-            if Commons.find_any_parameter(self.NAMES_PREFIX, event.command_args):
+            if prefix_name is not None:
                 # Get prefix name and object
-                prefix_name = Commons.find_any_parameter(self.NAMES_PREFIX, event.command_args)
-                prefix_obj = prefix_group_obj.get_prefix_by_name(
-                    prefix_name) or prefix_group_obj.get_prefix_by_abbr(prefix_name)
-                if prefix_group_obj is None:
-                    return event.create_response("Unrecognised prefix.")
+                prefix_obj = prefix_group_obj.get_prefix_by_name(prefix_name) or \
+                             prefix_group_obj.get_prefix_by_abbr(prefix_name)
+                if prefix_obj is None:
+                    return event.create_response("Unrecognised prefix specified.")
                 return event.create_response(self.output_prefix_as_string(prefix_obj))
             # Prefix group is defined, but not prefix
             return event.create_response(self.output_prefix_group_as_string(prefix_group_obj))
         # Check if unit is specified
-        if Commons.find_any_parameter(self.NAMES_UNIT, event.command_args):
-            unit_name = Commons.find_any_parameter(self.NAMES_UNIT, event.command_args)
+        if unit_name is not None:
             output_lines = []
             # Loop through types, getting units for each type
             for type_obj in repo.type_list:
@@ -1184,20 +1186,20 @@ class ConvertViewRepo(Function):
                 if unit_obj is not None:
                     output_lines.append(self.output_unit_as_string(unit_obj))
             if len(output_lines) == 0:
-                return event.create_response("Unrecognised unit.")
+                return event.create_response("Unrecognised unit specified.")
             return event.create_response("\n".join(output_lines))
         # Check if prefix is specified
-        if Commons.find_any_parameter(self.NAMES_PREFIX, event.command_args):
-            prefix_name = Commons.find_any_parameter(self.NAMES_PREFIX, event.command_args)
+        if prefix_name is not None:
             output_lines = []
             # Loop through groups, getting prefixes for each group
             for prefix_group_obj in repo.prefix_group_list:
-                prefix_obj = prefix_group_obj.get_prefix_by_name(prefix_name)
+                prefix_obj = prefix_group_obj.get_prefix_by_name(prefix_name) or \
+                             prefix_group_obj.get_prefix_by_abbr(prefix_name)
                 # If prefix exists by that name, add the string format to output list
                 if prefix_obj is not None:
                     output_lines.append(self.output_prefix_as_string(prefix_obj))
             if len(output_lines) == 0:
-                return event.create_response("Unrecognised prefix.")
+                return event.create_response("Unrecognised prefix specified.")
             return event.create_response("\n".join(output_lines))
         # Nothing was specified, return info on the repo.
         return event.create_response(self.output_repo_as_string(repo))
