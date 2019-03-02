@@ -1869,7 +1869,8 @@ class ConvertUnitSetPrefixGroup(Function):
 
     NAMES_UNIT = ["unit", "u"]
     NAMES_TYPE = ["type", "t"]
-    NAMES_PREFIX_GROUP = ["prefix group", "prefixgroup", "prefix_group", "prefix-group", "group", "g", "pg"]
+    NAMES_PREFIX_GROUP = ["prefix group", "prefixgroup", "prefix_group", "prefix-group", "group", "prefixes", "prefix",
+                          "g", "pg"]
 
     def __init__(self):
         """
@@ -1965,5 +1966,5 @@ class ConvertUnitSetPrefixGroup(Function):
             prefix_group_name = "none"
         else:
             prefix_group_name = prefix_group.name
-        return event.create_response("Set \"{}\" as the prefix group for " +
+        return event.create_response("Set \"{}\" as the prefix group for "
                                      "the \"{}\" unit.".format(prefix_group_name, unit_obj.name_list[0]))
