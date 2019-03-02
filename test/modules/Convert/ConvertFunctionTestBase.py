@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from modules.Convert import ConvertRepo, ConvertType, ConvertUnit
+from modules.Convert import ConvertRepo, ConvertType, ConvertUnit, ConvertPrefixGroup, ConvertPrefix
 from test.TestBase import TestBase
 
 
@@ -24,6 +24,11 @@ class ConvertFunctionTestBase(TestBase, unittest.TestCase):
         self.test_type2.base_unit = self.test_unit2a
         self.test_unit2b = ConvertUnit(self.test_type2, ["unit2b", "same_name"], 5)
         self.test_type2.add_unit(self.test_unit2b)
+        # Add a prefix group
+        self.test_group = ConvertPrefixGroup(self.test_repo, "test_group1")
+        self.test_repo.add_prefix_group(self.test_group)
+        self.test_prefix1 = ConvertPrefix(self.test_group, "prefixa", "prefa", 5)
+        self.test_group.add_prefix(self.test_prefix1)
         # Move current convert.json
         try:
             os.rename("store/convert.json", "store/convert.json.tmp")
