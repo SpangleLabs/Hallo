@@ -1,5 +1,6 @@
 import datetime
 import json
+import time
 from xml.dom import minidom
 
 import dateutil.parser
@@ -1098,7 +1099,8 @@ class UpdateCurrencies(Function):
             except Exception as e:
                 # If it fails, because it failed to parse the JSON, give it another go
                 # Cryptonator API returns HTML sometimes. I don't know why.
-                if "Failed to parse received JSON" in str(e):
+                if "Expecting value:" in str(e):
+                    time.sleep(5)
                     data = Commons.load_url_json("https://api.cryptonator.com/api/ticker/{}-eur".format(code))
                 else:
                     raise e
