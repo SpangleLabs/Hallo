@@ -1831,6 +1831,15 @@ class RedditSub(Subscription):
             output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, direct_url, inbound=False)
             return output_evt
+        # Handle reddit video links
+        vreddit_regex = re.compile(r"https?://v.redd.it/[a-z0-9]+")
+        vreddit_match = vreddit_regex.match(url)
+        if vreddit_match is not None:
+            direct_url = item["data"]["secure_media"]["reddit_video"]["fallback_url"]
+            # Make output message
+            output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
+            output_evt = EventMessageWithPhoto(self.server, channel, user, output, direct_url, inbound=False)
+            return output_evt
         # Make output message if the link isn't direct to a media file
         if item["data"]["selftext"] != "":
             output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
