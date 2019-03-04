@@ -13,7 +13,7 @@ class MockMethod:
         self.arg = None
         self.args = []
 
-    def method(self, arg):
+    def method(self, *arg):
         self.arg = arg
         self.args.append(arg)
         return self.response
@@ -82,7 +82,7 @@ class ConvertViewRepoTest(ConvertFunctionTestBase, unittest.TestCase):
                                                        "convert view repo type=test_type1 unit=unit1b"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert self.output_unit in data[0].text.lower()
-        assert self.mock_view_unit.arg == self.test_unit1b
+        assert self.mock_view_unit.arg == (self.test_unit1b,)
         assert self.mock_view_type.arg is None
 
     def test_type_specified(self):
@@ -90,7 +90,7 @@ class ConvertViewRepoTest(ConvertFunctionTestBase, unittest.TestCase):
                                                        "convert view repo type=test_type1"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert self.output_type in data[0].text.lower()
-        assert self.mock_view_type.arg == self.test_type1
+        assert self.mock_view_type.arg == (self.test_type1,)
 
     def test_specified_group_invalid(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
@@ -121,7 +121,7 @@ class ConvertViewRepoTest(ConvertFunctionTestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert self.output_prefix in data[0].text.lower()
         assert self.mock_view_group.arg is None
-        assert self.mock_view_prefix.arg == self.test_prefix1a
+        assert self.mock_view_prefix.arg == (self.test_prefix1a,)
 
     def test_group_and_prefix_abbr_specified(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
@@ -129,14 +129,14 @@ class ConvertViewRepoTest(ConvertFunctionTestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert self.output_prefix in data[0].text.lower()
         assert self.mock_view_group.arg is None
-        assert self.mock_view_prefix.arg == self.test_prefix1a
+        assert self.mock_view_prefix.arg == (self.test_prefix1a,)
 
     def test_group_specified(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
                                                        "convert view repo group=test_group1"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert self.output_group in data[0].text.lower()
-        assert self.mock_view_group.arg == self.test_group1
+        assert self.mock_view_group.arg == (self.test_group1,)
 
     def test_specified_unit_incorrect(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
@@ -150,15 +150,15 @@ class ConvertViewRepoTest(ConvertFunctionTestBase, unittest.TestCase):
                                                        "convert view repo unit=same_name"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert self.output_unit in data[0].text.lower()
-        assert self.test_unit1b in self.mock_view_unit.args
-        assert self.test_unit2b in self.mock_view_unit.args
+        assert (self.test_unit1b,) in self.mock_view_unit.args
+        assert (self.test_unit2b,) in self.mock_view_unit.args
 
     def test_unit_specified(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
                                                        "convert view repo unit=unit1b"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert self.output_unit in data[0].text.lower()
-        assert self.mock_view_unit.arg == self.test_unit1b
+        assert self.mock_view_unit.arg == (self.test_unit1b,)
 
     def test_specified_prefix_incorrect(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
@@ -172,22 +172,22 @@ class ConvertViewRepoTest(ConvertFunctionTestBase, unittest.TestCase):
                                                        "convert view repo prefix=prefixb"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert self.output_prefix in data[0].text.lower()
-        assert self.test_prefix1b in self.mock_view_prefix.args
-        assert self.test_prefix2b in self.mock_view_prefix.args
+        assert (self.test_prefix1b,) in self.mock_view_prefix.args
+        assert (self.test_prefix2b,) in self.mock_view_prefix.args
 
     def test_prefix_specified(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
                                                        "convert view repo prefix=prefix1a"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert self.output_prefix in data[0].text.lower()
-        assert self.mock_view_prefix.arg == self.test_prefix1a
+        assert self.mock_view_prefix.arg == (self.test_prefix1a,)
 
     def test_nothing_specified(self):
         self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
                                                        "convert view repo"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert self.output_repo in data[0].text.lower()
-        assert self.mock_view_repo.arg == self.test_repo
+        assert self.mock_view_repo.arg == (self.test_repo,)
 
     def test_output_repo_as_string(self):
         output = self.view_repo(None, self.test_repo).lower()

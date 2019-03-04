@@ -766,10 +766,10 @@ class ConvertMeasure:
         :type user_input: str
         :rtype: list[ConvertMeasure]
         """
-        user_input_clean = user_input.strip()
+        user_input = user_input.strip()
         # Search through the line for digits, pull them amount as a preliminary amount and strip the rest of the line.
         # TODO: add calculation?
-        preliminary_amount_str = Commons.get_digits_from_start_or_end(user_input_clean)
+        preliminary_amount_str = Commons.get_digits_from_start_or_end(user_input)
         if preliminary_amount_str is None:
             raise ConvertException("Cannot find amount.")
         preliminary_amount_value = float(preliminary_amount_str)
@@ -1304,13 +1304,13 @@ class ConvertSet(Function):
         convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
         repo = convert_function_obj.convert_repo
         # Create regex to find the place to split a user string.
-        split_regex = re.compile(' into | to |->| in ', re.IGNORECASE)
+        split_regex = re.compile(r'\b(?:into|to|in|is)\b|=|->', re.IGNORECASE)
         # Split input
         line_split = split_regex.split(event.command_args)
         # If there are more than 2 parts, be confused.
-        if len(line_split) > 2:
+        if len(line_split) != 2:
             return event.create_response("I don't understand your input. (Are you specifying 3 units?) " +
-                                         "Please format like so: convert <value> <old unit> to <new unit>")
+                                         "Please format like so: convert set <value> <old unit> to <new unit>")
         # Try loading the second part (reference measure) as a measure
         try:
             ref_measure_list = ConvertMeasure.build_list_from_user_input(repo, line_split[1])
@@ -1407,15 +1407,12 @@ class ConvertSet(Function):
         base_name = base_unit.name_list[0]
         # Get amount & unit name
         # TODO: accept calculation
-        input_amount_string = Commons.get_digits_from_start_or_end(user_input)
-        if input_amount_string is None:
+        parsed = ConvertInputParser(user_input)
+        if len(parsed.number_words) != 1:
             return "Please specify an amount when setting a new unit."
-        input_amount_float = float(input_amount_string)
+        input_amount_float = float(parsed.number_words[0])
         # Remove amountString from userInput
-        if user_input.startswith(input_amount_string):
-            input_name = user_input[len(input_amount_string):]
-        else:
-            input_name = user_input[:-len(input_amount_string)]
+        input_name = " ".join(parsed.string_words)
         # Check name isn't already in use.
         if ref_type.get_unit_by_name(input_name) is not None:
             return "There's already a unit of that type by that name."
