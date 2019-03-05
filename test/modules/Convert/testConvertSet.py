@@ -149,20 +149,45 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
 class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_not_same_type(self):
-        assert False
-        pass
+        value_unit1b = self.test_unit1b.value
+        measure_from = modules.Convert.ConvertMeasure(5, self.test_unit1b)
+        measure_to = modules.Convert.ConvertMeasure(3, self.test_unit2a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "these units do not share the same type" in resp.lower()
+        assert self.test_unit1b.value == value_unit1b
 
     def test_none_same_type(self):
-        assert False
-        pass
+        value_unit1a = self.test_unit1a.value
+        value_unit1b = self.test_unit1b.value
+        measure_from1 = modules.Convert.ConvertMeasure(5, self.test_unit1b)
+        measure_from2 = modules.Convert.ConvertMeasure(5, self.test_unit1a)
+        measure_to1 = modules.Convert.ConvertMeasure(3, self.test_unit2a)
+        measure_to2 = modules.Convert.ConvertMeasure(3, self.test_unit2b)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from1, measure_from2], [measure_to1, measure_to2])
+        assert "these units do not share the same type" in resp.lower()
+        assert self.test_unit1a.value == value_unit1a
+        assert self.test_unit1b.value == value_unit1b
 
     def test_multiple_options(self):
-        assert False
-        pass
+        value_unit1a = self.test_unit1a.value
+        value_unit1b = self.test_unit1b.value
+        measure_from1 = modules.Convert.ConvertMeasure(5, self.test_unit1b)
+        measure_from2 = modules.Convert.ConvertMeasure(5, self.test_unit1a)
+        measure_to = modules.Convert.ConvertMeasure(3, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from1, measure_from2], [measure_to])
+        assert "ambiguous which units you are referring to" in resp.lower()
+        assert self.test_unit1a.value == value_unit1a
+        assert self.test_unit1b.value == value_unit1b
 
     def test_base_unit_fixed(self):
-        assert False
-        pass
+        value_unit1a = self.test_unit1a.value
+        value_unit1b = self.test_unit1b.value
+        measure_from = modules.Convert.ConvertMeasure(5, self.test_unit1a)
+        measure_to = modules.Convert.ConvertMeasure(3, self.test_unit1b)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "you cannot change values of the base unit" in resp.lower()
+        assert self.test_unit1a.value == value_unit1a
+        assert self.test_unit1b.value == value_unit1b
 
     def test_set_offset_first_measure_zero(self):
         assert False
