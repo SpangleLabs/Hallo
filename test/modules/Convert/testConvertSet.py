@@ -190,8 +190,19 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         assert self.test_unit1b.value == value_unit1b
 
     def test_set_offset_first_measure_zero(self):
-        assert False
-        pass
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 1
+        self.test_unit1b.offset = 0
+        measure_from = modules.Convert.ConvertMeasure(0, self.test_unit1b)
+        measure_to = modules.Convert.ConvertMeasure(3, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new offset for unit1b" in resp.lower()
+        assert "0 unit1b = 3 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == 3
+        assert self.test_unit1b.value == 1
 
     def test_set_offset_second_measure_zero(self):
         assert False
