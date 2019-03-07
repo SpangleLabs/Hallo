@@ -205,10 +205,70 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         assert self.test_unit1b.value == 1
 
     def test_set_offset_second_measure_zero(self):
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 1
+        self.test_unit1b.offset = 0
+        measure_from = modules.Convert.ConvertMeasure(15, self.test_unit1b)
+        measure_to = modules.Convert.ConvertMeasure(0, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new offset for unit1b" in resp.lower()
+        assert "15 unit1b = 0 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == -15
+        assert self.test_unit1b.value == 1
+
+    def test_set_offset_both_measures_zero(self):
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 1
+        self.test_unit1b.offset = 7
+        measure_from = modules.Convert.ConvertMeasure(0, self.test_unit1b)
+        measure_to = modules.Convert.ConvertMeasure(0, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new offset for unit1b" in resp.lower()
+        assert "0 unit1b = 0 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == 0
+        assert self.test_unit1b.value == 1
+
+    def test_set_offset_with_non_trivial_value(self):
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 5
+        self.test_unit1b.offset = 0
+        measure_from = modules.Convert.ConvertMeasure(15, self.test_unit1b)
+        measure_to = modules.Convert.ConvertMeasure(0, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new offset for unit1b" in resp.lower()
+        assert "15 unit1b = 0 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == -75
+        assert self.test_unit1b.value == 5
+
+    def test_remove_offset_with_non_trivial_value(self):
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 5
+        self.test_unit1b.offset = -75
+        measure_from = modules.Convert.ConvertMeasure(0, self.test_unit1b)
+        measure_to = modules.Convert.ConvertMeasure(0, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new offset for unit1b" in resp.lower()
+        assert "0 unit1b = 0 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == 0
+        assert self.test_unit1b.value == 5
+
+    def test_set_value_with_non_trivial_offset(self):
         assert False
         pass
 
-    def test_set_offset_both_measures_zero(self):
+    def test_remove_value_with_non_trivial_offset(self):
         assert False
         pass
 
