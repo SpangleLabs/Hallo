@@ -320,9 +320,9 @@ class ConvertUnit:
         """:type : ConvertType"""
         self.name_list = names
         """:type : list[str]"""
-        self.value = value
+        self.value = value  # A change of 1 of this unit, is equal to a change of how many units of base type.
         """:type : float"""
-        self.offset = 0
+        self.offset = 0  # 0 of this unit is equal to how many base unit for this type.
         """:type : float"""
         self.last_updated_date = None
         """ :type : datetime.datetime"""
