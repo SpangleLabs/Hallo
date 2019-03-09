@@ -265,36 +265,132 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         assert self.test_unit1b.value == 5
 
     def test_set_value_with_non_trivial_offset(self):
-        assert False
-        pass
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 1
+        self.test_unit1b.offset = -5
+        measure_from = modules.Convert.ConvertMeasure(3, self.test_unit1b)
+        measure_to = modules.Convert.ConvertMeasure(1, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new value for unit1b" in resp.lower()
+        assert "10 unit1b = 1 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == -5
+        assert self.test_unit1b.value == 2
 
     def test_remove_value_with_non_trivial_offset(self):
-        assert False
-        pass
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 10
+        self.test_unit1b.offset = -5
+        measure_from = modules.Convert.ConvertMeasure(6, self.test_unit1b)
+        measure_to = modules.Convert.ConvertMeasure(1, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new value for unit1b" in resp.lower()
+        assert "6 unit1b = 1 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == -5
+        assert self.test_unit1b.value == 1
 
     def test_set_value_first_measure_number(self):
-        assert False
-        pass
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 1
+        self.test_unit1b.offset = 0
+        measure_from = modules.Convert.ConvertMeasure(0.5, self.test_unit1b)
+        measure_to = modules.Convert.ConvertMeasure(1, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new value for unit1b" in resp.lower()
+        assert "0.5 unit1b = 1 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == 0
+        assert self.test_unit1b.value == 2
 
     def test_set_value_second_measure_number(self):
-        assert False
-        pass
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 1
+        self.test_unit1b.offset = 0
+        measure_from = modules.Convert.ConvertMeasure(1, self.test_unit1b)
+        measure_to = modules.Convert.ConvertMeasure(5, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new value for unit1b" in resp.lower()
+        assert "1 unit1b = 0.5 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == 0
+        assert self.test_unit1b.value == 5
 
     def test_set_value_both_measures_one(self):
-        assert False
-        pass
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 17
+        self.test_unit1b.offset = 0
+        measure_from = modules.Convert.ConvertMeasure(1, self.test_unit1b)
+        measure_to = modules.Convert.ConvertMeasure(1, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new value for unit1b" in resp.lower()
+        assert "1 unit1b = 1 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == 0
+        assert self.test_unit1b.value == 1
 
     def test_set_value_both_measures_numbers(self):
-        assert False
-        pass
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 1
+        self.test_unit1b.offset = 0
+        measure_from = modules.Convert.ConvertMeasure(2, self.test_unit1b)
+        measure_to = modules.Convert.ConvertMeasure(24, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new value for unit1b" in resp.lower()
+        assert "2 unit1b = 24 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == 0
+        assert self.test_unit1b.value == 12
 
     def test_set_value_not_from_base(self):
-        assert False
-        pass
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 2
+        self.test_unit1b.offset = 0
+        test_unit1c = modules.Convert.ConvertUnit(self.test_type1, ["unit1c"], 1)
+        self.test_type1.add_unit(test_unit1c)
+        measure_from = modules.Convert.ConvertMeasure(4, test_unit1c)
+        measure_to = modules.Convert.ConvertMeasure(12, self.test_unit1b)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new value for unit1c" in resp.lower()
+        assert "4 unit1c = 12 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == 0
+        assert self.test_unit1b.value == 2
+        assert test_unit1c.offset == 0
+        assert test_unit1c.value == 6
 
     def test_set_value_not_from_base_with_offset(self):
-        assert False
-        pass
+        self.test_unit1a.value = 1
+        self.test_unit1a.offset = 0
+        self.test_unit1b.value = 1
+        self.test_unit1b.offset = 5
+        test_unit1c = modules.Convert.ConvertUnit(self.test_type1, ["unit1c"], 1)
+        self.test_type1.add_unit(test_unit1c)
+        measure_from = modules.Convert.ConvertMeasure(4, test_unit1c)
+        measure_to = modules.Convert.ConvertMeasure(7, self.test_unit1b)
+        resp = modules.Convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        assert "set new value for unit1c" in resp.lower()
+        assert "10 unit1c = 0 unit1a"
+        assert self.test_unit1a.offset == 0
+        assert self.test_unit1a.value == 1
+        assert self.test_unit1b.offset == 5
+        assert self.test_unit1b.value == 1
+        assert test_unit1c.offset == 0
+        assert test_unit1c.value == 3
 
 
 class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
