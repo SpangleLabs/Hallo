@@ -396,41 +396,138 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_no_ref_recognised(self):
-        assert False
-        pass
+        resp = modules.Convert.ConvertSet.add_unit(None, "5 new_unit", [])
+        assert "there is no defined unit matching the reference name" in resp.lower()
 
     def test_ambiguous_ref_specified(self):
-        assert False
-        pass
+        type1_units = len(self.test_type1.get_full_unit_list())
+        type2_units = len(self.test_type2.get_full_unit_list())
+        measure1 = modules.Convert.ConvertMeasure(5, self.test_unit1b)
+        measure2 = modules.Convert.ConvertMeasure(5, self.test_unit2b)
+        resp = modules.Convert.ConvertSet.add_unit(None, "5 new_unit", [measure1, measure2])
+        assert "it is ambiguous which unit you are referring to" in resp.lower()
+        assert len(self.test_type1.get_full_unit_list()) == type1_units
+        assert len(self.test_type2.get_full_unit_list()) == type2_units
 
     def test_no_amount_given(self):
-        assert False
-        pass
+        type1_units = len(self.test_type1.get_full_unit_list())
+        measure1 = modules.Convert.ConvertMeasure(5, self.test_unit1b)
+        resp = modules.Convert.ConvertSet.add_unit(None, "new_unit", [measure1])
+        assert "please specify an amount when setting a new unit" in resp.lower()
+        assert len(self.test_type1.get_full_unit_list()) == type1_units
 
     def test_multiple_amounts_given(self):
-        assert False
-        pass
+        type1_units = len(self.test_type1.get_full_unit_list())
+        measure1 = modules.Convert.ConvertMeasure(5, self.test_unit1b)
+        resp = modules.Convert.ConvertSet.add_unit(None, "5 new_unit 7", [measure1])
+        assert "please specify an amount when setting a new unit" in resp.lower()
+        assert len(self.test_type1.get_full_unit_list()) == type1_units
 
     def test_name_in_use(self):
-        assert False
-        pass
+        type1_units = len(self.test_type1.get_full_unit_list())
+        measure1 = modules.Convert.ConvertMeasure(5, self.test_unit1b)
+        resp = modules.Convert.ConvertSet.add_unit(None, "5 unit1a", [measure1])
+        assert "there's already a unit of that type by that name" in resp.lower()
+        assert len(self.test_type1.get_full_unit_list()) == type1_units
 
     def test_name_in_use_in_different_type(self):
-        assert False
-        pass
+        type1_units = len(self.test_type1.get_full_unit_list())
+        measure1 = modules.Convert.ConvertMeasure(5, self.test_unit1b)
+        resp = modules.Convert.ConvertSet.add_unit(None, "5 unit2b", [measure1])
+        assert "created new unit unit2b with value: 1 unit2b = 2.0 unit1a" in resp.lower()
+        assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
+        new_unit = self.test_type1.get_unit_by_name("unit2b")
+        assert new_unit is not None
+        assert new_unit.offset == 0
+        assert new_unit.value == 2
+        assert new_unit.abbr_list == []
+        assert new_unit.name_list == ["unit2b"]
+        assert new_unit.type == self.test_type1
 
-    def test_add_unit_with_value(self):
-        assert False
-        pass
+    def test_add_unit_with_value_first(self):
+        type1_units = len(self.test_type1.get_full_unit_list())
+        measure1 = modules.Convert.ConvertMeasure(1, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.add_unit(None, "5 new_unit", [measure1])
+        assert "created new unit new_unit with value: 1 new_unit = 0.2 unit1a" in resp.lower()
+        assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
+        new_unit = self.test_type1.get_unit_by_name("new_unit")
+        assert new_unit is not None
+        assert new_unit.offset == 0
+        assert new_unit.value == 0.2
+        assert new_unit.abbr_list == []
+        assert new_unit.name_list == ["new_unit"]
+        assert new_unit.type == self.test_type1
 
-    def test_add_unit_with_offset(self):
-        assert False
-        pass
+    def test_add_unit_with_value_second(self):
+        type1_units = len(self.test_type1.get_full_unit_list())
+        measure1 = modules.Convert.ConvertMeasure(5, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.add_unit(None, "1 new_unit", [measure1])
+        assert "created new unit new_unit with value: 1 new_unit = 5.0 unit1a" in resp.lower()
+        assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
+        new_unit = self.test_type1.get_unit_by_name("new_unit")
+        assert new_unit is not None
+        assert new_unit.offset == 0
+        assert new_unit.value == 5
+        assert new_unit.abbr_list == []
+        assert new_unit.name_list == ["new_unit"]
+        assert new_unit.type == self.test_type1
+
+    def test_add_unit_with_offset_first_zero(self):
+        type1_units = len(self.test_type1.get_full_unit_list())
+        measure1 = modules.Convert.ConvertMeasure(5, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.add_unit(None, "0 new_unit", [measure1])
+        assert "created new unit new_unit with offset: 0 new_unit = 5.0 unit1a" in resp.lower()
+        assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
+        new_unit = self.test_type1.get_unit_by_name("new_unit")
+        assert new_unit is not None
+        assert new_unit.offset == 5
+        assert new_unit.value == 1
+        assert new_unit.abbr_list == []
+        assert new_unit.name_list == ["new_unit"]
+        assert new_unit.type == self.test_type1
+
+    def test_add_unit_with_offset_second_zero(self):
+        type1_units = len(self.test_type1.get_full_unit_list())
+        measure1 = modules.Convert.ConvertMeasure(0, self.test_unit1a)
+        resp = modules.Convert.ConvertSet.add_unit(None, "7 new_unit", [measure1])
+        assert "created new unit new_unit with offset: 0 new_unit = -7.0 unit1a" in resp.lower()
+        assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
+        new_unit = self.test_type1.get_unit_by_name("new_unit")
+        assert new_unit is not None
+        assert new_unit.offset == -7
+        assert new_unit.value == 1
+        assert new_unit.abbr_list == []
+        assert new_unit.name_list == ["new_unit"]
+        assert new_unit.type == self.test_type1
 
     def test_add_unit_not_from_base_with_value(self):
-        assert False
-        pass
+        type1_units = len(self.test_type1.get_full_unit_list())
+        self.test_unit1b.offset = 0
+        self.test_unit1b.value = 5
+        measure1 = modules.Convert.ConvertMeasure(1, self.test_unit1b)
+        resp = modules.Convert.ConvertSet.add_unit(None, "2 new_unit", [measure1])
+        assert "created new unit new_unit with value: 1 new_unit = 2.5 unit1a" in resp.lower()
+        assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
+        new_unit = self.test_type1.get_unit_by_name("new_unit")
+        assert new_unit is not None
+        assert new_unit.offset == 0
+        assert new_unit.value == 2.5
+        assert new_unit.abbr_list == []
+        assert new_unit.name_list == ["new_unit"]
+        assert new_unit.type == self.test_type1
 
     def test_add_unit_not_from_base_with_offset(self):
-        assert False
-        pass
+        type1_units = len(self.test_type1.get_full_unit_list())
+        self.test_unit1b.offset = -7
+        self.test_unit1b.value = 1
+        measure1 = modules.Convert.ConvertMeasure(5, self.test_unit1b)
+        resp = modules.Convert.ConvertSet.add_unit(None, "0 new_unit", [measure1])
+        assert "created new unit new_unit with offset: 0 new_unit = -2.0 unit1a" in resp.lower()
+        assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
+        new_unit = self.test_type1.get_unit_by_name("new_unit")
+        assert new_unit is not None
+        assert new_unit.offset == -2
+        assert new_unit.value == 1
+        assert new_unit.abbr_list == []
+        assert new_unit.name_list == ["new_unit"]
+        assert new_unit.type == self.test_type1

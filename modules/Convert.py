@@ -1423,7 +1423,7 @@ class ConvertSet(Function):
         # If either given amount are zero, set the offset of varUnit.
         if input_amount_float == 0 or ref_amount == 0:
             # Calculate the new offset
-            new_offset = (ref_amount - (input_amount_float * 1)) * ref_value + ref_offset
+            new_offset = ref_offset + ref_amount * ref_value - input_amount_float * 1
             new_unit.update_offset(new_offset)
             # Save repo
             repo = ref_unit.type.repo
@@ -1434,7 +1434,7 @@ class ConvertSet(Function):
                                                                            new_offset,
                                                                            base_name)
         # Get new value
-        new_value = (ref_amount - ((0 - ref_offset) / ref_value)) / input_amount_float
+        new_value = (ref_offset + ref_amount * ref_value - 0) / input_amount_float
         new_unit.update_value(new_value)
         # Save repo
         repo = ref_unit.type.repo
