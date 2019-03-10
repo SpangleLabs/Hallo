@@ -132,7 +132,6 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert measures_to[0].amount == 1
 
     def test_add_new_unit_not_base(self):
-        "35 unit1c = 5 unit1b"
         self.function_dispatcher.dispatch(EventMessage(
             self.server, None, self.test_user, "convert set 35 unit1c = 5 unit1b"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
@@ -146,6 +145,7 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert measures_to[0].amount == 5
 
 
+# noinspection PyTypeChecker
 class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_not_same_type(self):
@@ -393,6 +393,7 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         assert test_unit1c.value == 3
 
 
+# noinspection PyTypeChecker
 class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_no_ref_recognised(self):
