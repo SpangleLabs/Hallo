@@ -952,7 +952,7 @@ class Convert(Function):
     def passive_run(self, event, hallo_obj):
         if not isinstance(event, EventMessage):
             return
-        return self.convert_parse(event.text, True)
+        return event.create_response(self.convert_parse(event.text, True))
 
 
 class UpdateCurrencies(Function):
