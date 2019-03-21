@@ -17,6 +17,7 @@ from inc.Commons import Commons
 class ServerTelegram(Server):
 
     type = Server.TYPE_TELEGRAM
+    image_extensions = ["jpg", "jpeg", "png"]
 
     def __init__(self, hallo, api_key):
         super().__init__(hallo)
@@ -177,10 +178,10 @@ class ServerTelegram(Server):
     def send(self, event):
         if isinstance(event, EventMessageWithPhoto):
             destination = event.user if event.channel is None else event.channel
-            if event.photo_id.lower().endswith(".gif") or event.photo_id.lower().endswith(".mp4"):
-                msg = self.bot.send_document(chat_id=destination.address, document=event.photo_id, caption=event.text)
-            else:
+            if any([event.photo_id.lower().endswith("." + x) for x in ServerTelegram.image_extensions]):
                 msg = self.bot.send_photo(chat_id=destination.address, photo=event.photo_id, caption=event.text)
+            else:
+                msg = self.bot.send_document(chat_id=destination.address, document=event.photo_id, caption=event.text)
             event.with_raw_data(RawDataTelegramOutbound(msg))
             self.hallo.printer.output(event)
             self.hallo.logger.log(event)
@@ -211,12 +212,12 @@ class ServerTelegram(Server):
         if isinstance(new_event, EventMessageWithPhoto):
             destination = new_event.user if new_event.channel is None else new_event.channel
             old_message_id = old_event.raw_data.update_obj.message.message_id
-            if new_event.photo_id.lower().endswith(".gif") or new_event.photo_id.lower().endswith(".mp4"):
-                self.bot.send_document(destination.address, new_event.photo_id, caption=new_event.text,
-                                       reply_to_message_id=old_message_id)
-            else:
+            if any([new_event.photo_id.lower().endswith("." + x) for x in ServerTelegram.image_extensions]):
                 self.bot.send_photo(destination.address, new_event.photo_id, caption=new_event.text,
                                     reply_to_message_id=old_message_id)
+            else:
+                self.bot.send_document(destination.address, new_event.photo_id, caption=new_event.text,
+                                       reply_to_message_id=old_message_id)
             self.hallo.printer.output(new_event)
             self.hallo.logger.log(new_event)
             return
