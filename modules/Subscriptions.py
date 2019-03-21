@@ -541,7 +541,10 @@ class RedditSub(Subscription):
         vreddit_regex = re.compile(r"https?://v.redd.it/[a-z0-9]+")
         vreddit_match = vreddit_regex.match(url)
         if vreddit_match is not None:
-            direct_url = item["data"]["secure_media"]["reddit_video"]["fallback_url"]
+            if item["data"]["secure_media"] is None:
+                direct_url = item["data"]["crosspost_parent_list"][0]["secure_media"]["reddit_video"]["fallback_url"]
+            else:
+                direct_url = item["data"]["secure_media"]["reddit_video"]["fallback_url"]
             # Make output message
             output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, direct_url, inbound=False)
