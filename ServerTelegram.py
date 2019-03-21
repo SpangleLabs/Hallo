@@ -179,16 +179,27 @@ class ServerTelegram(Server):
         if isinstance(event, EventMessageWithPhoto):
             destination = event.user if event.channel is None else event.channel
             if any([event.photo_id.lower().endswith("." + x) for x in ServerTelegram.image_extensions]):
-                msg = self.bot.send_photo(chat_id=destination.address, photo=event.photo_id, caption=event.text)
+                msg = self.bot.send_photo(
+                    chat_id=destination.address,
+                    photo=event.photo_id,
+                    caption=event.text,
+                    parse_mode=telegram.ParseMode.MARKDOWN)
             else:
-                msg = self.bot.send_document(chat_id=destination.address, document=event.photo_id, caption=event.text)
+                msg = self.bot.send_document(
+                    chat_id=destination.address,
+                    document=event.photo_id,
+                    caption=event.text,
+                    parse_mode=telegram.ParseMode.MARKDOWN)
             event.with_raw_data(RawDataTelegramOutbound(msg))
             self.hallo.printer.output(event)
             self.hallo.logger.log(event)
             return event
         if isinstance(event, EventMessage):
             destination = event.user if event.channel is None else event.channel
-            msg = self.bot.send_message(chat_id=destination.address, text=event.text)
+            msg = self.bot.send_message(
+                chat_id=destination.address,
+                text=event.text,
+                parse_mode=telegram.ParseMode.MARKDOWN)
             event.with_raw_data(RawDataTelegramOutbound(msg))
             self.hallo.printer.output(event)
             self.hallo.logger.log(event)
@@ -213,19 +224,30 @@ class ServerTelegram(Server):
             destination = new_event.user if new_event.channel is None else new_event.channel
             old_message_id = old_event.raw_data.update_obj.message.message_id
             if any([new_event.photo_id.lower().endswith("." + x) for x in ServerTelegram.image_extensions]):
-                self.bot.send_photo(destination.address, new_event.photo_id, caption=new_event.text,
-                                    reply_to_message_id=old_message_id)
+                self.bot.send_photo(
+                    destination.address,
+                    new_event.photo_id,
+                    caption=new_event.text,
+                    reply_to_message_id=old_message_id,
+                    parse_mode=telegram.ParseMode.MARKDOWN)
             else:
-                self.bot.send_document(destination.address, new_event.photo_id, caption=new_event.text,
-                                       reply_to_message_id=old_message_id)
+                self.bot.send_document(
+                    destination.address,
+                    new_event.photo_id,
+                    caption=new_event.text,
+                    reply_to_message_id=old_message_id,
+                    parse_mode=telegram.ParseMode.MARKDOWN)
             self.hallo.printer.output(new_event)
             self.hallo.logger.log(new_event)
             return
         if isinstance(new_event, EventMessage):
             destination = new_event.user if new_event.channel is None else new_event.channel
             old_message_id = old_event.raw_data.update_obj.message.message_id
-            self.bot.send_message(destination.address, new_event.text,
-                                  reply_to_message_id=old_message_id)
+            self.bot.send_message(
+                destination.address,
+                new_event.text,
+                reply_to_message_id=old_message_id,
+                parse_mode=telegram.ParseMode.MARKDOWN)
             self.hallo.printer.output(new_event)
             self.hallo.logger.log(new_event)
             return

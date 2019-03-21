@@ -518,6 +518,7 @@ class RedditSub(Subscription):
         link = "https://reddit.com/r/{}/comments/{}/".format(self.subreddit, item["data"]["id"])
         title = item["data"]["title"]
         author = item["data"]["author"]
+        author_link = "https://www.reddit.com/user/{}".format(author)
         url = item["data"]["url"]
         # Check if link is direct to a media file, if so, add photo to output message
         file_extension = url.split(".")[-1].lower()
@@ -525,7 +526,13 @@ class RedditSub(Subscription):
             if file_extension == "gifv":
                 url = url[:-4]+"mp4"
             # Make output message
-            output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
+            output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({}) [direct image]({})".format(
+                self.subreddit,
+                title,
+                link,
+                author,
+                author_link,
+                url)
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, url, inbound=False)
             return output_evt
         # Handle gfycat links as photos
@@ -534,7 +541,13 @@ class RedditSub(Subscription):
         if gfycat_match is not None:
             direct_url = "https://giant.gfycat.com/{}.mp4".format(gfycat_match.group(1))
             # Make output message
-            output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
+            output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({}) [gfycat]({})".format(
+                self.subreddit,
+                title,
+                link,
+                author,
+                author_link,
+                url)
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, direct_url, inbound=False)
             return output_evt
         # Handle reddit video links
@@ -546,14 +559,21 @@ class RedditSub(Subscription):
             else:
                 direct_url = item["data"]["secure_media"]["reddit_video"]["fallback_url"]
             # Make output message
-            output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
+            output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({}) [vreddit]({})".format(
+                self.subreddit,
+                title,
+                link,
+                author,
+                author_link,
+                direct_url)
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, direct_url, inbound=False)
             return output_evt
         # Make output message if the link isn't direct to a media file
         if item["data"]["selftext"] != "":
             output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}".format(self.subreddit, title, author, link)
         else:
-            output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}\n{}".format(self.subreddit, title, author, url, link)
+            output = "Update on /r/{}/ subreddit. \"{}\" by u/{} {}\n{}".format(
+                self.subreddit, title, author, url, link)
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
         return output_evt
 
