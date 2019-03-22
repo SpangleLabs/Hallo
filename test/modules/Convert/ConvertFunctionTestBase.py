@@ -18,6 +18,9 @@ class ConvertFunctionTestBase(TestBase, unittest.TestCase):
         self.test_unit1b = ConvertUnit(self.test_type1, ["unit1b", "same_name"], 2)
         self.test_unit1b.abbr_list = ["abbr1b", "abbr1bz"]
         self.test_type1.add_unit(self.test_unit1b)
+        self.test_unit1c = ConvertUnit(self.test_type1, ["unit1c"], 4)
+        self.test_unit1b.abbr_list = ["abbr1c"]
+        self.test_type1.add_unit(self.test_unit1c)
         # Add a second type
         self.test_type2 = ConvertType(self.test_repo, "test_type2")
         self.test_repo.add_type(self.test_type2)

@@ -120,26 +120,26 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_add_new_unit(self):
         self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "convert set 7 unit1c = 1 unit1a"))
+            self.server, None, self.test_user, "convert set 7 new_unit = 1 unit1a"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert data[0].text == self.output_add
         assert self.mock_add.arg is not None
         assert self.mock_set.arg is None
         (input_add, measures_to) = self.mock_add.arg
-        assert input_add.strip() == "7 unit1c"
+        assert input_add.strip() == "7 new_unit"
         assert len(measures_to) == 1
         assert measures_to[0].unit == self.test_unit1a
         assert measures_to[0].amount == 1
 
     def test_add_new_unit_not_base(self):
         self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "convert set 35 unit1c = 5 unit1b"))
+            self.server, None, self.test_user, "convert set 35 new_unit = 5 unit1b"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert data[0].text == self.output_add
         assert self.mock_add.arg is not None
         assert self.mock_set.arg is None
         (input_add, measures_to) = self.mock_add.arg
-        assert input_add.strip() == "35 unit1c"
+        assert input_add.strip() == "35 new_unit"
         assert len(measures_to) == 1
         assert measures_to[0].unit == self.test_unit1b
         assert measures_to[0].amount == 5
