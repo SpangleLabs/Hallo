@@ -1,5 +1,6 @@
 import datetime
 import json
+import time
 from xml.dom import minidom
 
 import dateutil.parser
@@ -319,9 +320,9 @@ class ConvertUnit:
         """:type : ConvertType"""
         self.name_list = names
         """:type : list[str]"""
-        self.value = value
+        self.value = value  # A change of 1 of this unit, is equal to a change of how many units of base type.
         """:type : float"""
-        self.offset = 0
+        self.offset = 0  # 0 of this unit is equal to how many base unit for this type.
         """:type : float"""
         self.last_updated_date = None
         """ :type : datetime.datetime"""
@@ -765,10 +766,10 @@ class ConvertMeasure:
         :type user_input: str
         :rtype: list[ConvertMeasure]
         """
-        user_input_clean = user_input.strip()
+        user_input = user_input.strip()
         # Search through the line for digits, pull them amount as a preliminary amount and strip the rest of the line.
         # TODO: add calculation?
-        preliminary_amount_str = Commons.get_digits_from_start_or_end(user_input_clean)
+        preliminary_amount_str = Commons.get_digits_from_start_or_end(user_input)
         if preliminary_amount_str is None:
             raise ConvertException("Cannot find amount.")
         preliminary_amount_value = float(preliminary_amount_str)
@@ -951,7 +952,7 @@ class Convert(Function):
     def passive_run(self, event, hallo_obj):
         if not isinstance(event, EventMessage):
             return
-        return self.convert_parse(event.text, True)
+        return event.create_response(self.convert_parse(event.text, True))
 
 
 class UpdateCurrencies(Function):
@@ -1098,7 +1099,8 @@ class UpdateCurrencies(Function):
             except Exception as e:
                 # If it fails, because it failed to parse the JSON, give it another go
                 # Cryptonator API returns HTML sometimes. I don't know why.
-                if "Failed to parse received JSON" in str(e):
+                if "Expecting value:" in str(e):
+                    time.sleep(5)
                     data = Commons.load_url_json("https://api.cryptonator.com/api/ticker/{}-eur".format(code))
                 else:
                     raise e
@@ -1302,13 +1304,13 @@ class ConvertSet(Function):
         convert_function_obj = function_dispatcher.get_function_object(convert_function)  # type: Convert
         repo = convert_function_obj.convert_repo
         # Create regex to find the place to split a user string.
-        split_regex = re.compile(' into | to |->| in ', re.IGNORECASE)
+        split_regex = re.compile(r'\b(?:into|to|in|is)\b|=|->', re.IGNORECASE)
         # Split input
         line_split = split_regex.split(event.command_args)
         # If there are more than 2 parts, be confused.
-        if len(line_split) > 2:
+        if len(line_split) != 2:
             return event.create_response("I don't understand your input. (Are you specifying 3 units?) " +
-                                         "Please format like so: convert <value> <old unit> to <new unit>")
+                                         "Please format like so: convert set <value> <old unit> to <new unit>")
         # Try loading the second part (reference measure) as a measure
         try:
             ref_measure_list = ConvertMeasure.build_list_from_user_input(repo, line_split[1])
@@ -1367,7 +1369,7 @@ class ConvertSet(Function):
         # If either given amount are zero, set the offset of var_unit.
         if var_amount == 0 or ref_amount == 0:
             # Calculate the new offset
-            new_offset = (ref_amount - (var_amount * var_value)) * ref_value + ref_offset
+            new_offset = ref_offset + ref_amount * ref_value - var_amount * var_value
             var_unit.update_offset(new_offset)
             # Save repo
             repo = var_unit.type.repo
@@ -1375,7 +1377,7 @@ class ConvertSet(Function):
             # Output message
             return "Set new offset for {}: 0 {} = {} {}.".format(var_name, var_name, new_offset, base_name)
         # Get new value
-        new_value = (ref_amount - ((var_offset - ref_offset) / ref_value)) / var_amount
+        new_value = (ref_offset + ref_amount * ref_value - var_offset) / var_amount
         var_unit.update_value(new_value)
         # Save repo
         repo = var_unit.type.repo
@@ -1405,15 +1407,12 @@ class ConvertSet(Function):
         base_name = base_unit.name_list[0]
         # Get amount & unit name
         # TODO: accept calculation
-        input_amount_string = Commons.get_digits_from_start_or_end(user_input)
-        if input_amount_string is None:
+        parsed = ConvertInputParser(user_input)
+        if len(parsed.number_words) != 1:
             return "Please specify an amount when setting a new unit."
-        input_amount_float = float(input_amount_string)
+        input_amount_float = float(parsed.number_words[0])
         # Remove amountString from userInput
-        if user_input.startswith(input_amount_string):
-            input_name = user_input[len(input_amount_string):]
-        else:
-            input_name = user_input[:-len(input_amount_string)]
+        input_name = " ".join(parsed.string_words)
         # Check name isn't already in use.
         if ref_type.get_unit_by_name(input_name) is not None:
             return "There's already a unit of that type by that name."
@@ -1424,7 +1423,7 @@ class ConvertSet(Function):
         # If either given amount are zero, set the offset of varUnit.
         if input_amount_float == 0 or ref_amount == 0:
             # Calculate the new offset
-            new_offset = (ref_amount - (input_amount_float * 1)) * ref_value + ref_offset
+            new_offset = ref_offset + ref_amount * ref_value - input_amount_float * 1
             new_unit.update_offset(new_offset)
             # Save repo
             repo = ref_unit.type.repo
@@ -1435,7 +1434,7 @@ class ConvertSet(Function):
                                                                            new_offset,
                                                                            base_name)
         # Get new value
-        new_value = (ref_amount - ((0 - ref_offset) / ref_value)) / input_amount_float
+        new_value = (ref_offset + ref_amount * ref_value - 0) / input_amount_float
         new_unit.update_value(new_value)
         # Save repo
         repo = ref_unit.type.repo
