@@ -1342,6 +1342,10 @@ class FAUserFavsSub(Subscription):
         return "Favourites subscription for \"{}\"".format(self.username)
 
     def check(self):
+        """
+        Returns the list of FA Favourites since the last ones were seen, in oldest->newest order
+        :rtype: list[FAFavourite]
+        """
         fa_reader = self.fa_key.get_fa_reader()
         results = []
         favs_page = fa_reader.get_user_fav_page(self.username)
