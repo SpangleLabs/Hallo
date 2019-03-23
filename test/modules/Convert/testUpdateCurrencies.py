@@ -219,6 +219,7 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
             test_unit = test_type.get_unit_by_name(code)
             assert test_unit.value != 0, "Currency was not updated: {}".format(code)
 
+    @unittest.skip(reason="Cryptonator API occasionally returns HTML pages")
     def test_update_cryptonator(self):
         # Set up test repo
         test_repo = modules.Convert.ConvertRepo()
