@@ -407,6 +407,11 @@ class Commons(object):
                 return find
         return False
 
+    @staticmethod
+    def markdown_escape(string):
+        """Escapes a string to ensure it can used in markdown without issues"""
+        return string.replace("[", r"\[").replace("]", r"\]").replace("_", r"\_").replace("*", r"\*")
+
 
 class CachedObject:
     def __init__(self, setter, cache_expiry=None):

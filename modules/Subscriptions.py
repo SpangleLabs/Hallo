@@ -527,8 +527,8 @@ class RedditSub(Subscription):
                 url = url[:-4]+"mp4"
             # Make output message
             output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n[direct image]({})".format(
-                self.subreddit,
-                title,
+                Commons.markdown_escape(self.subreddit),
+                Commons.markdown_escape(title),
                 link,
                 author,
                 author_link,
@@ -542,8 +542,8 @@ class RedditSub(Subscription):
             direct_url = "https://giant.gfycat.com/{}.mp4".format(gfycat_match.group(1))
             # Make output message
             output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n[gfycat]({})".format(
-                self.subreddit,
-                title,
+                Commons.markdown_escape(self.subreddit),
+                Commons.markdown_escape(title),
                 link,
                 author,
                 author_link,
@@ -560,8 +560,8 @@ class RedditSub(Subscription):
                 direct_url = item["data"]["secure_media"]["reddit_video"]["fallback_url"]
             # Make output message
             output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n[vreddit]({})".format(
-                self.subreddit,
-                title,
+                Commons.markdown_escape(self.subreddit),
+                Commons.markdown_escape(title),
                 link,
                 author,
                 author_link,
@@ -571,15 +571,15 @@ class RedditSub(Subscription):
         # Make output message if the link isn't direct to a media file
         if item["data"]["selftext"] != "":
             output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})".format(
-                self.subreddit,
-                title,
+                Commons.markdown_escape(self.subreddit),
+                Commons.markdown_escape(title),
                 link,
                 author,
                 author_link)
         else:
             output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n{}".format(
-                self.subreddit,
-                title,
+                Commons.markdown_escape(self.subreddit),
+                Commons.markdown_escape(title),
                 link,
                 author,
                 author_link,
@@ -962,7 +962,9 @@ class SubscriptionList(Function):
             return event.create_response("There are no subscriptions posting to this destination.")
         output_lines = ["Subscriptions posting to this channel:"]
         for search_item in dest_searches:
-            new_line = "{} - {}".format(search_item.type_name, search_item.get_name())
+            new_line = "{} - {}".format(
+                Commons.markdown_escape(search_item.type_name),
+                search_item.get_name())
             if search_item.last_update is not None:
                 new_line += " ({})".format(search_item.last_update.strftime('%Y-%m-%d %H:%M:%S'))
             output_lines.append(new_line)
