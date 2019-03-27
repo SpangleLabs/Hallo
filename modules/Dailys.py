@@ -891,7 +891,8 @@ class DailysMoodField(DailysField):
             for mood_key, mood_val in zip(self.moods, [int(x) for x in mood_str]):
                 data[0][str(time_val)][mood_key] = mood_val
             self.save_data(data[0], mood_date)
-        self.message_channel("Added mood stat {} for time: {}".format(mood_str, time_val))
+        self.message_channel(
+            "Added mood stat {} for time: {} and date: {}".format(mood_str, time_val, mood_date.isoformat()))
 
     def to_json(self):
         json_obj = dict()
