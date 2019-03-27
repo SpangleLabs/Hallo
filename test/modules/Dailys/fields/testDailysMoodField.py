@@ -398,6 +398,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "added" in data_wake[0].text.lower()
         assert DailysMoodField.TIME_WAKE in data_wake[0].text
+        assert mood_date.isoformat() in data_wake[0].text
         assert "413" in data_wake[0].text
 
     def test_process_most_recent_query(self):
@@ -431,6 +432,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "added" in data_wake[0].text.lower()
         assert DailysMoodField.TIME_WAKE in data_wake[0].text
+        assert mood_date.isoformat() in data_wake[0].text
         assert "413" in data_wake[0].text
 
     def test_process_most_recent_sleep_query_after_midnight(self):
@@ -474,6 +476,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "added" in data_wake[0].text.lower()
         assert DailysMoodField.TIME_SLEEP in data_wake[0].text
+        assert mood_date.isoformat() in data_wake[0].text
         assert "413" in data_wake[0].text
 
     def test_process_no_mood_query(self):
@@ -545,6 +548,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         data_1400 = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "added" in data_1400[0].text.lower()
         assert str(time(14, 0, 0)) in data_1400[0].text
+        assert mood_date.isoformat() in data_1400[0].text
         assert "413" in data_1400[0].text
 
     def test_process_wake_specified(self):
@@ -572,6 +576,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "added" in data_wake[0].text.lower()
         assert DailysMoodField.TIME_WAKE in data_wake[0].text
+        assert mood_date.isoformat() in data_wake[0].text
         assert "413" in data_wake[0].text
 
     def test_process_sleep_specified(self):
@@ -599,6 +604,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         data_sleep = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "added" in data_sleep[0].text.lower()
         assert DailysMoodField.TIME_SLEEP in data_sleep[0].text
+        assert mood_date.isoformat() in data_sleep[0].text
         assert "413" in data_sleep[0].text
 
     def test_no_trigger_after_processed(self):
@@ -638,6 +644,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         data_1400 = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "added" in data_1400[0].text.lower()
         assert str(time(14, 0, 0)) in data_1400[0].text
+        assert mood_date.isoformat() in data_1400[0].text
         assert "413" in data_1400[0].text
         # Check that when the time happens, a query isn't sent
         evt_time = EventMinute()
@@ -680,6 +687,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "added" in data_wake[0].text.lower()
         assert DailysMoodField.TIME_WAKE in data_wake[0].text
+        assert mood_date.isoformat() in data_wake[0].text
         assert "413" in data_wake[0].text
         # Send wake message, ensure no response
         evt_wake = EventMessage(self.server, self.test_chan, self.test_user, "morning")\
@@ -745,6 +753,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         data_wake = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "added" in data_wake[0].text.lower()
         assert DailysMoodField.TIME_SLEEP in data_wake[0].text
+        assert mood_date.isoformat() in data_wake[0].text
         assert "413" in data_wake[0].text
         # Then midnight
         # Another sleep query
