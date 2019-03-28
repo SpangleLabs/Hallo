@@ -90,7 +90,7 @@ class Logger:
     def log_quit(self, event):
         user_name = event.user.name if event.is_inbound else None
         output = "{} {} has quit.".format(Commons.current_timestamp(), user_name or event.server.get_nick())
-        if event.quit_message.strip() != "":
+        if event.quit_message is not None and event.quit_message.strip() != "":
             output += " ({})".format(event.quit_message)
         # Log to every channel user is in
         channel_list = event.server.channel_list if event.user is None else event.user.get_channel_list()
@@ -114,7 +114,7 @@ class Logger:
         user_name = event.user.name if event.is_inbound else None
         output = "{} {} left {}".format(Commons.current_timestamp(), user_name or event.server.get_nick(),
                                         event.channel.name)
-        if event.leave_message.strip() != "":
+        if event.leave_message is not None and event.leave_message.strip() != "":
             output += " ({})".format(event.leave_message)
         self.add_log_line(output, event.server.name, user_name, event.channel.name)
 
@@ -122,7 +122,7 @@ class Logger:
         kicking_user_name = event.user if event.is_inbound else event.server.get_nick()
         output = "{} {} was kicked from {} by {}".format(Commons.current_timestamp(), event.kicked_user.name,
                                                          event.channel.name, kicking_user_name)
-        if event.kick_message.strip() != "":
+        if event.kick_message is not None and event.kick_message.strip() != "":
             output += " ({})".format(event.kick_message)
         self.add_log_line(output, event.server.name, kicking_user_name, event.channel.name)
 
