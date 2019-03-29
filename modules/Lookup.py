@@ -325,7 +325,7 @@ class CurrentWeather(Function):
         if api_key is None:
             return event.create_response("No API key loaded for openweathermap.")
         url = "https://api.openweathermap.org/data/2.5/weather{}&APPID={}".format(self.build_query(location_entry),
-                                                                                 api_key)
+                                                                                  api_key)
         response = Commons.load_url_json(url)
         if str(response['cod']) != "200":
             return event.create_response("Location not recognised.")
@@ -587,30 +587,21 @@ class UrlDetect(Function):
         if "image" in page_type:
             return event.create_response(self.url_image(url_address, page_opener, page_request, page_type))
         # Get a response depending on the website
-        if url_site == "amazon":
-            return event.create_response(self.site_amazon(url_address, page_opener, page_request))
-        if url_site == "e621":
-            return event.create_response(self.site_e621(url_address, page_opener, page_request))
-        if url_site == "ebay":
-            return event.create_response(self.site_ebay(url_address, page_opener, page_request))
-        if url_site == "f-list":
-            return event.create_response(self.site_flist(url_address, page_opener, page_request))
-        if url_site == "furaffinity" or url_site == "facdn":
-            return event.create_response(self.site_furaffinity(url_address, page_opener, page_request))
-        if url_site == "imdb":
-            return event.create_response(self.site_imdb(url_address, page_opener, page_request))
-        if url_site == "imgur":
-            return event.create_response(self.site_imgur(url_address, page_opener, page_request))
-        if url_site == "speedtest":
-            return event.create_response(self.site_speedtest(url_address, page_opener, page_request))
-        if url_site == "reddit" or url_site == "redd":
-            return event.create_response(self.site_reddit(url_address, page_opener, page_request))
-        if url_site == "wikipedia":
-            return event.create_response(self.site_wikipedia(url_address, page_opener, page_request))
-        if url_site == "youtube" or url_site == "youtu":
-            return event.create_response(self.site_youtube(url_address, page_opener, page_request))
+        output = None
+        site_readers = {
+            "ebay": self.site_ebay,
+            "imdb": self.site_imdb,
+            "imgur": self.site_imgur,
+            "speedtest": self.site_speedtest,
+            "youtube": self.site_youtube,
+            "youtu": self.site_youtube
+        }
+        if url_site in site_readers:
+            output = site_readers[url_site](url_address, page_opener, page_request)
         # If other url, return generic URL response
-        return event.create_response(self.url_generic(url_address, page_opener, page_request))
+        if output is None:
+            output = event.create_response(self.url_generic(url_address, page_opener, page_request))
+        return None if output is None else event.create_response(output)
 
     def url_image(self, url_address, page_opener, page_request, page_type):
         """Handling direct image links"""
@@ -633,7 +624,7 @@ class UrlDetect(Function):
         page_code = page_opener.open(page_request).read(4096).decode('utf-8', 'ignore')
         if page_code.count('</title>') == 0:
             return None
-        title_search = re.search('<title[^>]*>([^<]*)</title>', page_code, re.I)
+        title_search = re.search(r'<title[^>]*>([^<]*)</title>', page_code, re.I)
         if title_search is None:
             return None
         title_text = title_search.group(1)
@@ -655,17 +646,6 @@ class UrlDetect(Function):
             html_parser = html.parser.HTMLParser()
             # noinspection PyDeprecation
             return html_parser.unescape(html_str)
-
-    def site_amazon(self, url_address, page_opener, page_request):
-        """Handling for amazon links"""
-        # I spent ages trying to figure out the amazon API, and I gave up.
-        # TODO: write amazon link handler
-        return self.url_generic(url_address, page_opener, page_request)
-
-    def site_e621(self, url_address, page_opener, page_request):
-        """Handling for e621 links"""
-        # TODO: write e621 link handler
-        return self.url_generic(url_address, page_opener, page_request)
 
     def site_ebay(self, url_address, page_opener, page_request):
         """Handling for ebay links"""
@@ -785,21 +765,11 @@ class UrlDetect(Function):
             image_height = api_dict['data']['images'][image_number]['height']
             image_size = int(api_dict['data']['images'][image_number]['size'])
             image_size_string = self.file_size_to_string(image_size)
-            output += "Image {} of {} | Current image: {}x{}, {}.".format(image_number+1, album_count, image_width,
+            output += "Image {} of {} | Current image: {}x{}, {}.".format(image_number + 1, album_count, image_width,
                                                                           image_height, image_size_string)
             return output
         output += "{} images.".format(album_count)
         return output
-
-    def site_pastebin(self, url_address, page_opener, page_request):
-        """Handling pastebin links"""
-        # TODO: write pastebin link handler
-        return self.url_generic(url_address, page_opener, page_request)
-
-    def site_reddit(self, url_address, page_opener, page_request):
-        """Handling reddit links"""
-        # TODO: write reddit link handler
-        return self.url_generic(url_address, page_opener, page_request)
 
     def site_speedtest(self, url_address, page_opener, page_request):
         """Handling speedtest links"""
@@ -815,11 +785,6 @@ class UrlDetect(Function):
         upload = re.search('<h3>Upload</h3><p>([0-9.]*)', page_code).group(1)
         ping = re.search('<h3>Ping</h3><p>([0-9]*)', page_code).group(1)
         return "Speedtest> Download: {}Mb/s | Upload: {}Mb/s | Ping: {}ms".format(download, upload, ping)
-
-    def site_wikipedia(self, url_address, page_opener, page_request):
-        """Handling for wikipedia links"""
-        # TODO: write wikipedia link handler
-        return self.url_generic(url_address, page_opener, page_request)
 
     def site_youtube(self, url_address, page_opener, page_request):
         """Handling for youtube links"""
@@ -863,25 +828,25 @@ class UrlDetect(Function):
             width, height = struct.unpack('<HH', image_head[6:10])
         elif imghdr.what(None, image_data) == 'jpeg':
             # try:
-                byte_offset = 0
-                size = 2
-                ftype = 0
-                while not 0xc0 <= ftype <= 0xcf:
-                    byte_offset += size
+            byte_offset = 0
+            size = 2
+            ftype = 0
+            while not 0xc0 <= ftype <= 0xcf:
+                byte_offset += size
+                byte = image_data[byte_offset]
+                byte_offset += 1
+                while byte == 0xff:
                     byte = image_data[byte_offset]
                     byte_offset += 1
-                    while byte == 0xff:
-                        byte = image_data[byte_offset]
-                        byte_offset += 1
-                    ftype = byte
-                    size = struct.unpack('>H', image_data[byte_offset:byte_offset + 2])[0] - 2
-                    byte_offset += 2
-                # We are at a SOFn block
-                byte_offset += 1  # Skip `precision' byte.
-                height, width = struct.unpack('>HH', image_data[byte_offset:byte_offset + 4])
-                byte_offset += 4
-            # except Exception:  # IGNORE:W0703
-                # return
+                ftype = byte
+                size = struct.unpack('>H', image_data[byte_offset:byte_offset + 2])[0] - 2
+                byte_offset += 2
+            # We are at a SOFn block
+            byte_offset += 1  # Skip `precision' byte.
+            height, width = struct.unpack('>HH', image_data[byte_offset:byte_offset + 4])
+            byte_offset += 4
+        # except Exception:  # IGNORE:W0703
+        # return
         else:
             return
         return width, height
