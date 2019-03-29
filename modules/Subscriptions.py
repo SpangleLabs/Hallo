@@ -3095,7 +3095,7 @@ class SubscriptionList(Function):
         for search_item in dest_searches:
             new_line = "{} - {}".format(
                 Commons.markdown_escape(search_item.type_name),
-                search_item.get_name())
+                Commons.markdown_escape(search_item.get_name()))
             if search_item.last_update is not None:
                 new_line += " ({})".format(search_item.last_update.strftime('%Y-%m-%d %H:%M:%S'))
             output_lines.append(new_line)
