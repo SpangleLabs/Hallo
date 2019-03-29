@@ -679,16 +679,6 @@ class UrlDetect(Function):
         output += "Ends: {}".format(item_end_time)
         return output
 
-    def site_flist(self, url_address, page_opener, page_request):
-        """Handling for f-list links"""
-        # TODO: write f-list link handler
-        return self.url_generic(url_address, page_opener, page_request)
-
-    def site_furaffinity(self, url_address, page_opener, page_request):
-        """Handling for furaffinity links"""
-        # TODO: write furaffinity link handler
-        return self.url_generic(url_address, page_opener, page_request)
-
     def site_imdb(self, url_address, page_opener, page_request):
         """Handling for imdb links"""
         # If URL isn't to an imdb title, just do normal url handling.
