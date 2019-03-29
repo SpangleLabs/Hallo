@@ -1197,7 +1197,11 @@ class FASearchSub(Subscription):
         title = item.submission_title
         posted_by = item.name
         # Construct output
-        output = "Update on \"{}\" FA search. \"{}\" by {}. {}".format(self.search, title, posted_by, link)
+        output = "Update on \"{}\" FA search. \"{}\" by {}. {}".format(
+            Commons.markdown_escape(self.search),
+            Commons.markdown_escape(title),
+            Commons.markdown_escape(posted_by),
+            link)
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         # Get submission page and file extension
