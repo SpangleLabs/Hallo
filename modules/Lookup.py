@@ -600,7 +600,7 @@ class UrlDetect(Function):
             output = site_readers[url_site](url_address, page_opener, page_request)
         # If other url, return generic URL response
         if output is None:
-            output = event.create_response(self.url_generic(url_address, page_opener, page_request))
+            output = self.url_generic(url_address, page_opener, page_request)
         return None if output is None else event.create_response(output)
 
     def url_image(self, url_address, page_opener, page_request, page_type):
