@@ -59,6 +59,12 @@ class Event(metaclass=ABCMeta):
         """
         return None
 
+    def get_log_locations(self):
+        """
+        :rtype: list[str]
+        """
+        return []
+
 
 class EventSecond(Event):
     pass
@@ -104,6 +110,12 @@ class ServerEvent(Event, metaclass=ABCMeta):
             return self.raw_data.update_obj.message.date
         return super().get_send_time()
 
+    def get_log_locations(self):
+        return ["{}/@/{}.txt".format(
+            self.server.name,
+            self.get_send_time().strftime("%Y-%m-%d")
+        )]
+
 
 class EventPing(ServerEvent):
 
@@ -132,6 +144,17 @@ class UserEvent(ServerEvent, metaclass=ABCMeta):
         ServerEvent.__init__(self, server, inbound=inbound)
         self.user = user
         """ :type : Destination.User | None"""
+
+    def get_log_locations(self):
+        channel_list = self.user.get_channel_list() if self.is_inbound else self.server.channel_list
+        log_files = []
+        for channel in channel_list:
+            log_files.append("{}/{}/{}.txt".format(
+                self.server.name,
+                channel.name,
+                self.get_send_time().strftime("%Y-%m-%d")
+            ))
+        return log_files
 
 
 class EventQuit(UserEvent):
@@ -189,6 +212,13 @@ class ChannelEvent(ServerEvent, metaclass=ABCMeta):
         self.channel = channel
         """ :type : Destination.Channel | None"""
 
+    def get_log_locations(self):
+        return ["{}/{}/{}.txt".format(
+            self.server.name,
+            self.channel.name if self.channel is not None else "@",
+            self.get_send_time().strftime("%Y-%m-%d")
+        )]
+
 
 class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
 
@@ -201,6 +231,13 @@ class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
         """
         ChannelEvent.__init__(self, server, channel, inbound=inbound)
         UserEvent.__init__(self, server, user, inbound=inbound)
+
+    def get_log_locations(self):
+        return ["{}/{}/{}.txt".format(
+            self.server.name,
+            self.channel.name if self.channel is not None else self.user.name,
+            self.get_send_time().strftime("%Y-%m-%d")
+        )]
 
 
 class EventJoin(ChannelUserEvent):
