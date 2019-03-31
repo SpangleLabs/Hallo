@@ -1,7 +1,8 @@
 import os
 from threading import Lock
 
-from Events import ChannelEvent, UserEvent
+from Errors import Error
+from Events import ChannelEvent, UserEvent, Event
 from inc.Commons import Commons
 
 
@@ -21,27 +22,33 @@ class Logger:
         self.hallo = hallo
         self.lock = Lock()
 
-    def log(self, event):
-        """The function which actually writes the logs."""
+    def log(self, loggable):
+        """
+        The function which actually writes the logs.
+        :type loggable: Events.Event | Errors.Error
+        """
         # If channel is set, check logging
-        if isinstance(event, ChannelEvent) and \
-                event.channel is not None and \
-                not event.channel.logging:
+        if isinstance(loggable, ChannelEvent) and \
+                loggable.channel is not None and \
+                not loggable.channel.logging:
             return
         # If channel not set, but user is set, check their logging settings.
-        if isinstance(event, UserEvent) and \
-                event.user is not None and \
-                not event.user.logging:
+        if isinstance(loggable, UserEvent) and \
+                loggable.user is not None and \
+                not loggable.user.logging:
             return
         # Log the event
-        self.log_event(event)
+        if isinstance(loggable, Event):
+            self.log_event(loggable)
+        if isinstance(loggable, Error):
+            self.log_error(loggable)
 
     def log_error(self, error):
         """
         :type error: Errors.Error
         :return:
         """
-        self.add_line(ERROR_LOG, "{} {}".format(Commons.current_timestamp(), error.to_log_line()))
+        self.add_line(ERROR_LOG, "{} {}".format(Commons.current_timestamp(error.time), error.to_log_line()))
 
     def log_event(self, event):
         """
