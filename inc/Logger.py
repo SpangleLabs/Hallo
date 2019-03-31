@@ -46,9 +46,6 @@ class Logger:
         """
         self.add_line(ERROR_LOG, "{} {}".format(Commons.current_timestamp(), error.to_log_line()))
 
-    def log_from_self(self):
-        raise NotImplementedError()
-
     def log_event(self, event):
         if isinstance(event, EventSecond):
             return self.log_second(event)
@@ -80,7 +77,7 @@ class Logger:
             return self.log_ctcp(event)
         if isinstance(event, EventMessage):
             return self.log_message(event)
-        raise NotImplementedError("Printer doesn't support this event type")
+        raise NotImplementedError("Logger doesn't support this event type")
 
     def log_second(self, event):
         return
@@ -99,16 +96,14 @@ class Logger:
 
     def log_quit(self, event):
         user_name = event.user.name if event.is_inbound else None
-        output = "{} {} has quit.".format(Commons.current_timestamp(), user_name or event.server.get_nick())
-        if event.quit_message is not None and event.quit_message.strip() != "":
-            output += " ({})".format(event.quit_message)
+        output = "{} {}".format(Commons.current_timestamp(), event.get_log_line())
         # Log to every channel user is in
         channel_list = event.server.channel_list if event.user is None else event.user.get_channel_list()
         for channel in channel_list:
             self.add_log_line(output, event.server.name, user_name, channel.name)
 
     def log_name_change(self, event):
-        output = "{} Nick change: {} -> {}".format(Commons.current_timestamp(), event.old_name, event.new_name)
+        output = "{} {}".format(Commons.current_timestamp(), event.get_log_line())
         # Log to every channel user is in
         channel_list = event.server.channel_list if event.user is None else event.user.get_channel_list()
         for channel in channel_list:
@@ -116,63 +111,45 @@ class Logger:
 
     def log_join(self, event):
         user_name = event.user.name if event.is_inbound else None
-        output = "{} {} joined {}".format(Commons.current_timestamp(), user_name or event.server.get_nick(),
-                                          event.channel.name)
+        output = "{} {}".format(Commons.current_timestamp(), event.get_log_line())
         self.add_log_line(output, event.server.name, user_name, event.channel.name)
 
     def log_leave(self, event):
         user_name = event.user.name if event.is_inbound else None
-        output = "{} {} left {}".format(Commons.current_timestamp(), user_name or event.server.get_nick(),
-                                        event.channel.name)
-        if event.leave_message is not None and event.leave_message.strip() != "":
-            output += " ({})".format(event.leave_message)
+        output = "{} {}".format(Commons.current_timestamp(), event.get_log_line())
         self.add_log_line(output, event.server.name, user_name, event.channel.name)
 
     def log_kick(self, event):
         kicking_user_name = event.user if event.is_inbound else event.server.get_nick()
-        output = "{} {} was kicked from {} by {}".format(Commons.current_timestamp(), event.kicked_user.name,
-                                                         event.channel.name, kicking_user_name)
-        if event.kick_message is not None and event.kick_message.strip() != "":
-            output += " ({})".format(event.kick_message)
+        output = "{} {}".format(Commons.current_timestamp(), event.get_log_line())
         self.add_log_line(output, event.server.name, kicking_user_name, event.channel.name)
 
     def log_invite(self, event):
         inviting_user_name = event.user.name if event.is_inbound else None
-        output = "{} was invited to {} by {}".format(Commons.current_timestamp(), event.invited_user.name,
-                                                     event.channel.name, inviting_user_name or event.server.get_nick())
+        output = "{} {}".format(Commons.current_timestamp(), event.get_log_line())
         self.add_log_line(output, event.server.name, inviting_user_name, event.channel.name)
 
     def log_mode_change(self, event):
-        channel_name = event.channel.name if event.channel is not None else "??"
         user_name = event.user.name if event.user is not None else None
-        output = "{} {} set {} on {}".format(Commons.current_timestamp(), user_name or event.server.get_nick(),
-                                             event.mode_changes, channel_name)
+        output = "{} {}".format(Commons.current_timestamp(), event.get_log_line())
         self.add_log_line(output, event.server.name, user_name, event.channel.name)
 
     def log_message(self, event):
         user_name = event.user.name if event.is_inbound else None
         chan_name = None if event.channel is None else event.channel.name
-        output = "{} <{}> {}".format(Commons.current_timestamp(), user_name or event.server.get_nick(), event.text)
+        output = "{} {}".format(Commons.current_timestamp(), event.get_log_line())
         self.add_log_line(output, event.server.name, user_name, chan_name)
 
     def log_notice(self, event):
         user_name = event.user.name if event.is_inbound else None
         chan_name = None if event.channel is None else event.channel.name
-        output = "{} Notice from {}: {}".format(Commons.current_timestamp(), user_name or event.server.get_nick(),
-                                                event.text)
+        output = "{} {}".format(Commons.current_timestamp(), event.get_log_line())
         self.add_log_line(output, event.server.name, user_name, chan_name)
 
     def log_ctcp(self, event):
-        ctcp_command = event.text.split()[0]
-        ctcp_arguments = ' '.join(event.text.split()[1:])
         user_name = event.user.name if event.is_inbound else None
         chan_name = None if event.channel is None else event.channel.name
-        if ctcp_command.lower() == "action":
-            output = "{} **{} {}**".format(Commons.current_timestamp(), user_name or event.server.get_nick(),
-                                           ctcp_arguments)
-        else:
-            output = "{} <{} (CTCP)> {}".format(Commons.current_timestamp(), user_name or event.server.get_nick(),
-                                                event.text)
+        output = "{} {}".format(Commons.current_timestamp(), event.get_log_line())
         self.add_log_line(output, event.server.name, user_name, chan_name)
 
     def add_log_line(self, output, server_name, user_name, channel_name):
