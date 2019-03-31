@@ -7,6 +7,9 @@ from Events import EventSecond, EventMinute, EventHour, EventDay, EventPing, Eve
 from inc.Commons import Commons
 
 
+ERROR_LOG = "logs/error_log.txt"
+
+
 class Logger:
     """
     Logging class. This is created and stored by the Hallo object.
@@ -35,6 +38,13 @@ class Logger:
             return
         # Log the event
         self.log_event(event)
+
+    def log_error(self, error):
+        """
+        :type error: Errors.Error
+        :return:
+        """
+        self.add_line(ERROR_LOG, "{} {}".format(Commons.current_timestamp(), error.to_log_line()))
 
     def log_from_self(self):
         raise NotImplementedError()
