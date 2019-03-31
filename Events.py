@@ -65,6 +65,12 @@ class Event(metaclass=ABCMeta):
         """
         return []
 
+    def get_print_line(self):
+        """
+        :rtype: Optional[str]
+        """
+        return None
+
 
 class EventSecond(Event):
     pass
@@ -79,7 +85,9 @@ class EventHour(Event):
 
 
 class EventDay(Event):
-    pass
+
+    def get_print_line(self):
+        return "Day changed: {}".format(self.send_time.strftime("%Y-%m-%d"))
 
 
 class ServerEvent(Event, metaclass=ABCMeta):
@@ -116,6 +124,9 @@ class ServerEvent(Event, metaclass=ABCMeta):
             self.get_send_time().strftime("%Y-%m-%d")
         )]
 
+    def get_print_line(self):
+        return "[{}] {}".format(self.server.name, self.get_log_line())
+
 
 class EventPing(ServerEvent):
 
@@ -131,6 +142,12 @@ class EventPing(ServerEvent):
 
     def get_pong(self):
         return EventPing(self.server, self.ping_number, inbound=False)
+
+    def get_print_line(self):
+        return "[{}] {}".format(
+            self.server.name,
+            "PING" if self.is_inbound else "PONG"
+        )
 
 
 class UserEvent(ServerEvent, metaclass=ABCMeta):
