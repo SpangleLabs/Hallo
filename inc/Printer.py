@@ -1,7 +1,5 @@
-from Events import EventSecond, EventMinute, EventHour, EventDay, EventPing, EventQuit, EventNameChange, EventJoin, \
-    EventLeave, EventKick, EventInvite, EventMode, EventNotice, EventCTCP, EventMessage
+import Events
 from inc.Commons import Commons
-import datetime
 
 
 class Printer:
@@ -16,20 +14,25 @@ class Printer:
         """
         self.hallo = hallo
 
-    def output(self, event):
-        """The function which actually prints the messages."""
-        print_line = self.get_print_line(event)
+    def output(self, obj):
+        """
+        The function which actually prints the messages.
+        :type obj: Events.Event | str
+        """
+        # If event, treat as event
+        if isinstance(obj, Events.Event):
+            print_line = self.get_print_line(obj.get_print_line(), obj.get_send_time())
+        else:
+            # Otherwise, just use as a string
+            print_line = self.get_print_line(obj)
         # Output the log line
         print(print_line)
 
-    def get_print_line(self, event):
-        output = "{} {}".format(Commons.current_timestamp(event.get_send_time()), event.get_print_line())
-        return output
-
-    def output_raw(self, raw_text):
-        print_line = self.print_raw(raw_text)
-        print(print_line)
-
-    def print_raw(self, raw_text):
-        output = "{} {}".format(Commons.current_timestamp(), raw_text)
+    def get_print_line(self, raw_text, send_time=None):
+        """
+        :type raw_text: str
+        :type send_time: datetime.datetime | None
+        :rtype: str
+        """
+        output = "{} {}".format(Commons.current_timestamp(send_time), raw_text)
         return output

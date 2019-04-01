@@ -56,7 +56,7 @@ class Hallo:
         if len(self.server_list) == 0 or all([not server.get_auto_connect() for server in self.server_list]):
             self.manual_server_connect()
         # Connect to auto-connect servers
-        self.printer.output_raw('connecting to servers')
+        self.printer.output('connecting to servers')
         for server in self.server_list:
             if server.get_auto_connect():
                 server.start()
@@ -70,7 +70,7 @@ class Hallo:
                 break
         self.open = True
         # Main loop, sticks around throughout the running of the bot
-        self.printer.output_raw('connected to all servers.')
+        self.printer.output('connected to all servers.')
         self.core_loop_time_events()
 
     def connected_to_any_servers(self):
