@@ -48,7 +48,7 @@ class Logger:
         :type error: Errors.Error
         :return:
         """
-        self.add_line(ERROR_LOG, "{} {}".format(Commons.current_timestamp(error.time), error.to_log_line()))
+        self.add_line(ERROR_LOG, "{} {}".format(Commons.current_timestamp(error.time), error.get_log_line()))
 
     def log_event(self, event):
         """
@@ -58,7 +58,7 @@ class Logger:
         log_line = event.get_log_line()
         if log_line is None:
             return
-        output = "{} {}".format(Commons.current_timestamp(event.get_send_time()), event.get_log_line())
+        output = "{} {}".format(Commons.current_timestamp(event.get_send_time()), log_line)
         log_files = event.get_log_locations()
         for log_file in log_files:
             self.add_line("logs/" + log_file, output)

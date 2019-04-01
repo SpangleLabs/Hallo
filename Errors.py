@@ -15,8 +15,9 @@ class Error:
         self.exception = exception
         self.obj = obj
         self.time = datetime.now()
+        self.traceback = traceback.format_exc()
 
-    def to_log_line(self):
+    def get_log_line(self):
         return indent_all_but_first_line(
             "Error encountered in object: {}. Exception: {}".format(self.obj, self.exception))
 
@@ -40,7 +41,7 @@ class FunctionError(Error):
         self.function = function
         self.event = event
 
-    def to_log_line(self):
+    def get_log_line(self):
         return indent_all_but_first_line(
             "Error encountered running function {} on event with the text: {}\n"
             "in chat: {} on server: {}.\n"
