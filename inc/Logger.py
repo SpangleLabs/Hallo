@@ -5,8 +5,11 @@ from Errors import Error
 from Events import ChannelEvent, UserEvent, Event
 from inc.Commons import Commons
 
-
 ERROR_LOG = "logs/error_log.txt"
+
+
+def indent_all_but_first_line(text):
+    return text.replace("\n", "\n   ")
 
 
 class Logger:
@@ -48,7 +51,8 @@ class Logger:
         :type error: Errors.Error
         :return:
         """
-        self.add_line(ERROR_LOG, "{} {}".format(Commons.current_timestamp(error.time), error.get_log_line()))
+        log_line = indent_all_but_first_line(error.get_log_line())
+        self.add_line(ERROR_LOG, "{} {}".format(Commons.current_timestamp(error.time), log_line))
 
     def log_event(self, event):
         """

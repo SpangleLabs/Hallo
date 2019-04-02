@@ -1,3 +1,4 @@
+import Errors
 import Events
 from inc.Commons import Commons
 
@@ -22,6 +23,8 @@ class Printer:
         # If event, treat as event
         if isinstance(obj, Events.Event):
             print_line = self.get_print_line(obj.get_print_line(), obj.get_send_time())
+        elif isinstance(obj, Errors.Error):
+            print_line = self.get_print_line(obj.get_print_line(), obj.time)
         else:
             # Otherwise, just use as a string
             print_line = self.get_print_line(obj)

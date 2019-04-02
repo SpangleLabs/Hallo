@@ -1,8 +1,5 @@
+import traceback
 from datetime import datetime
-
-
-def indent_all_but_first_line(text):
-    return text.replace("\n", "\n   ")
 
 
 class Error:
@@ -18,8 +15,10 @@ class Error:
         self.traceback = traceback.format_exc()
 
     def get_log_line(self):
-        return indent_all_but_first_line(
-            "Error encountered in object: {}. Exception: {}".format(self.obj, self.exception))
+        return "Error encountered in object: {}. Exception: {}".format(self.obj, self.exception)
+
+    def get_print_line(self):
+        return self.get_log_line()
 
 
 class SubscriptionError(Error):
@@ -42,15 +41,23 @@ class FunctionError(Error):
         self.event = event
 
     def get_log_line(self):
-        return indent_all_but_first_line(
-            "Error encountered running function {} on event with the text: {}\n"
-            "in chat: {} on server: {}.\n"
-            "Exception: {}".format(
-                self.function,
-                self.event.text,
-                self.event.channel.name if self.event.channel is not None else self.event.user.name,
-                self.event.server.name,
-                self.exception))
+        output = "Error encountered running function {} on event with the text: {}\n" \
+                 "In chat: {} on server: {}.\n" \
+                 "Exception: {}".format(
+                    self.function,
+                    self.event.text,
+                    self.event.channel.name if self.event.channel is not None else self.event.user.name,
+                    self.event.server.name,
+                    self.exception)
+        return output
+
+    def get_print_line(self):
+        return "Function: {} {}\nFunction error: {}\nFunction error location: {}".format(
+            self.function.__class__.__module__,
+            self.function.__class__.__name__,
+            self.exception,
+            self.traceback
+        )
 
 
 class PassiveFunctionError(Error):
