@@ -1,11 +1,11 @@
 import importlib
 import sys
 import inspect
-import traceback
 from xml.dom import minidom
 # noinspection PyDeprecation
 import imp
 
+from Errors import FunctionError, PassiveFunctionError
 from Events import ServerEvent, UserEvent, ChannelEvent, EventMessage, ChannelUserTextEvent
 from Function import Function
 
@@ -80,11 +80,11 @@ class FunctionDispatcher(object):
                 event.reply(event.create_response("The function returned no value."))
             return
         except Exception as e:
+            error = FunctionError(e, self, function_obj, event)
             e_str = (str(e)[:250] + '..') if len(str(e)) > 250 else str(e)
             event.reply(event.create_response("Function failed with error message: {}".format(e_str)))
-            print("Function: {} {}".format(function_class.__module__, function_class.__name__))
-            print("Function error: {}".format(e))
-            print("Function error location: {}".format(traceback.format_exc()))
+            self.hallo.logger.log(error)
+            self.hallo.printer.output(error)
             return
 
     def dispatch_passive(self, event):
@@ -117,10 +117,9 @@ class FunctionDispatcher(object):
                         event.server.send(response)
                 continue
             except Exception as e:
-                print("ERROR Passive Function: {} {}".format(function_class.__module__, function_class.__name__))
-                print("ERROR Function event: {}".format(event))
-                print("ERROR Function error: {}".format(e))
-                print("Function error location: {}".format(traceback.format_exc()))
+                error = PassiveFunctionError(e, self, function_obj, event)
+                self.hallo.logger.log(error)
+                self.hallo.printer.output(error)
                 continue
 
     def get_function_by_name(self, function_name):

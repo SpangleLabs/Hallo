@@ -18,7 +18,7 @@ class Printer:
     def output(self, obj):
         """
         The function which actually prints the messages.
-        :type obj: Events.Event | str
+        :type obj: Events.Event | Errors.Error | str
         """
         # If event, treat as event
         if isinstance(obj, Events.Event):
