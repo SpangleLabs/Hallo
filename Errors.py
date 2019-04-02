@@ -34,6 +34,23 @@ class ExceptionError(Error):
         return self.get_log_line()
 
 
+class FunctionSaveError(ExceptionError):
+
+    def __init__(self, exception, obj):
+        """
+        :type exception: Exception
+        :type obj: Function.Function
+        """
+        super().__init__(exception, obj)
+        self.obj = obj
+
+    def get_log_line(self):
+        return "Error encountered while saving function: {}. Exception: {}".format(self.obj.__name__, self.exception)
+
+    def get_print_line(self):
+        return self.get_log_line()
+
+
 class SubscriptionError(ExceptionError):
 
     def __init__(self, exception, obj):

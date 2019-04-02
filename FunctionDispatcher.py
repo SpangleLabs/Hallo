@@ -5,7 +5,8 @@ from xml.dom import minidom
 # noinspection PyDeprecation
 import imp
 
-from Errors import FunctionError, PassiveFunctionError, FunctionNotFoundError, FunctionNotAllowedError
+from Errors import FunctionError, PassiveFunctionError, FunctionNotFoundError, FunctionNotAllowedError, \
+    FunctionSaveError
 from Events import ServerEvent, UserEvent, ChannelEvent, EventMessage, ChannelUserTextEvent
 from Function import Function
 
@@ -361,8 +362,9 @@ class FunctionDispatcher(object):
             try:
                 function_obj.save_function()
             except Exception as e:
-                print("Failed to save {}".format(function_class.__name__))
-                print(str(e))
+                error = FunctionSaveError(e, function_obj)
+                self.hallo.logger.log(error)
+                self.hallo.printer.output(error)
             del self.persistent_functions[function_class]
         # Remove from mFunctionDict
         del self.function_dict[module_obj][function_class]
