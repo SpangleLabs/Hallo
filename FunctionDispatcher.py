@@ -5,7 +5,7 @@ from xml.dom import minidom
 # noinspection PyDeprecation
 import imp
 
-from Errors import FunctionError, PassiveFunctionError
+from Errors import FunctionError, PassiveFunctionError, FunctionNotFoundError, FunctionNotAllowedError
 from Events import ServerEvent, UserEvent, ChannelEvent, EventMessage, ChannelUserTextEvent
 from Function import Function
 
@@ -60,14 +60,18 @@ class FunctionDispatcher(object):
         if function_class_test is None:
             if EventMessage.FLAG_HIDE_ERRORS not in flag_list:
                 event.reply(event.create_response("Error, this is not a recognised function."))
-                print("Error, this is not a recognised function.")
+                error = FunctionNotFoundError(self, event)
+                self.hallo.logger.log(error)
+                self.hallo.printer.output(error)
             return
         function_class = function_class_test
         event.split_command_text(function_name_test, function_args_test)
         # Check function rights and permissions
         if not self.check_function_permissions(function_class, event.server, event.user, event.channel):
             event.reply(event.create_response("You do not have permission to use this function."))
-            print("You do not have permission to use this function.")
+            error = FunctionNotAllowedError(self, function_class, event)
+            self.hallo.logger.log(error)
+            self.hallo.printer.output(error)
             return
         # If persistent, get the object, otherwise make one
         function_obj = self.get_function_object(function_class)
