@@ -174,7 +174,7 @@ class FunctionNotAllowedError(Error):
                     self.event.text
                 )
 
-    def get_log_line(self):
+    def get_print_line(self):
         return "Permissions forbid function {} {} being used by {} in channel {} on server {}.\n" \
                "The message was: {}".format(
                     self.function.__module__,
