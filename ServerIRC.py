@@ -75,6 +75,12 @@ class ServerIRC(Server):
             self.raw_connect()
             return
         except ServerException as e:
+            error = ExceptionError(
+                "Failed to connect to \"{}\" IRC server on first attempt. Attempting reconnect.".format(self.name),
+                e,
+                self)
+            self.hallo.logger.log(error)
+            self.hallo.printer.output(error)
             while self.state == Server.STATE_CONNECTING:
                 try:
                     self.raw_connect()
@@ -100,7 +106,7 @@ class ServerIRC(Server):
             # Connect to socket
             self._socket.connect((self.server_address, self.server_port))
         except Exception as e:
-            error = ExceptionError("Connection error on \"{}\" IRC server".format(self.name), e, obj)
+            error = ExceptionError("Connection error on \"{}\" IRC server".format(self.name), e, self)
             self.hallo.logger.log(error)
             self.hallo.printer.output(error)
             self.state = Server.STATE_CLOSED
@@ -196,7 +202,9 @@ class ServerIRC(Server):
                 try:
                     next_line = self.read_line_from_socket()
                 except ServerException as e:
-                    print("Server \"{}\" disconnected. ({}) Reconnecting.".format(self.name, e))
+                    error = ExceptionError("Server {} disconnected. Reconnecting.".format(self.name), e, self)
+                    self.hallo.logger.log(error)
+                    self.hallo.printer.output(error)
                     time.sleep(10)
                     if self.state == Server.STATE_OPEN:
                         self.disconnect()
@@ -872,7 +880,7 @@ class ServerIRC(Server):
         """
         Decodes a line of bytes, trying a couple character sets
         :param raw_bytes: Array bytes to be decoded to string.
-        :type raw_bytes: bytearray
+        :type raw_bytes: bytearray | bytes
         """
         try:
             output_line = raw_bytes.decode('utf-8')
