@@ -8,6 +8,7 @@ from telegram.ext import MessageHandler
 from telegram.utils.request import Request
 
 from Destination import User, Channel
+from Errors import MessageError
 from Events import EventMessage, RawDataTelegram, EventMessageWithPhoto, RawDataTelegramOutbound
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
@@ -173,7 +174,9 @@ class ServerTelegram(Server):
         :type update: telegram.Update
         """
         # Print it to console
-        print("{} [{}] Unhandled data: {}".format(Commons.current_timestamp(), self.name, update))
+        error = MessageError("Unhandled data received on Telegram server: {}".format(update))
+        self.hallo.logger.log(error)
+        self.hallo.printer.output(error)
 
     def send(self, event):
         if isinstance(event, EventMessageWithPhoto):
@@ -205,8 +208,9 @@ class ServerTelegram(Server):
             self.hallo.logger.log(event)
             return event
         else:
-            print("This event type, {}, is not currently supported to send on Telegram servers",
-                  event.__class__.__name__)
+            error = MessageError("Unsupported event type, {}, sent to Telegram server".format(event.__class__.__name__))
+            self.hallo.logger.log(error)
+            self.hallo.printer.output(error)
             raise NotImplementedError()
 
     def reply(self, old_event, new_event):
@@ -252,8 +256,10 @@ class ServerTelegram(Server):
             self.hallo.logger.log(new_event)
             return
         else:
-            print("This event type, {}, is not currently supported to send on Telegram servers",
-                  new_event.__class__.__name__)
+            error = MessageError("Unsupported event type, {}, sent as reply to Telegram server".format(
+                new_event.__class__.__name__))
+            self.hallo.logger.log(error)
+            self.hallo.printer.output(error)
             raise NotImplementedError()
 
     def get_name_by_address(self, address):

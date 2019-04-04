@@ -213,7 +213,3 @@ class SubscriptionCheckError(ExceptionError):
     def __init__(self, subscription, exception):
         message = "Failed to check {} subscription, \"{}\".".format(subscription.type_name, subscription.get_name())
         super().__init__(message, exception, subscription)
-
-
-class ServerError(MessageError):
-    pass

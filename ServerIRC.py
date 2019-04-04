@@ -4,6 +4,7 @@ import time
 from threading import RLock, Lock, Thread
 
 from Destination import ChannelMembership, Channel, User
+from Errors import MessageError, ExceptionError
 from Events import EventPing, EventQuit, EventNameChange, EventJoin, EventLeave, EventKick, EventInvite, EventMode, \
     EventCTCP, EventNotice, EventMessage, ChannelUserTextEvent, RawDataIRC
 from PermissionMask import PermissionMask
@@ -79,7 +80,12 @@ class ServerIRC(Server):
                     self.raw_connect()
                     return
                 except ServerException as e:
-                    print("Failed to connect. ({}) Waiting 3 seconds before reconnect.".format(e))
+                    error = ExceptionError(
+                        "Failed to connect to \"{}\" IRC server. Waiting 3 seconds to reconnect.".format(self.name),
+                        e,
+                        self)
+                    self.hallo.logger.log(error)
+                    self.hallo.printer.output(error)
                     time.sleep(3)
                     continue
 
@@ -94,7 +100,9 @@ class ServerIRC(Server):
             # Connect to socket
             self._socket.connect((self.server_address, self.server_port))
         except Exception as e:
-            print("CONNECTION ERROR: {}".format(e))
+            error = ExceptionError("Connection error on \"{}\" IRC server".format(self.name), e, obj)
+            self.hallo.logger.log(error)
+            self.hallo.printer.output(error)
             self.state = Server.STATE_CLOSED
             return
         # Wait for the first message back from the server.
@@ -159,7 +167,9 @@ class ServerIRC(Server):
                 quit_evt = EventQuit(self, None, quit_message, inbound=False)
                 self.send(quit_evt)
             except Exception as e:
-                print("Failed to send quit message. {}".format(e))
+                error = ExceptionError("Failed to send quit message on \"{}\" IRC server".format(self.name), e, self)
+                self.hallo.logger.log(error)
+                self.hallo.printer.output(error)
                 pass
         with self._connect_lock:
             if self._socket is not None:
@@ -278,7 +288,10 @@ class ServerIRC(Server):
                     self.hallo.logger.log(event_class(event.server, event.channel, event.user,
                                                       data_line_line, inbound=False))
             return
-        print("This event type, {}, is not currently supported to send on IRC servers", event.__class__.__name__)
+        error = MessageError("This event type, {}, is not currently supported to send on IRC servers".format(
+            event.__class__.__name__))
+        self.hallo.logger.log(error)
+        self.hallo.printer.output(error)
         raise NotImplementedError()
 
     def reply(self, old_event, new_event):
@@ -817,7 +830,9 @@ class ServerIRC(Server):
         :type unhandled_line: str
         """
         # Print it to console
-        print("{} [{}] Unhandled data: {}".format(Commons.current_timestamp(), self.name, unhandled_line))
+        error = MessageError("Unhandled data received on \"{}\" IRC server: {}".format(self.name, unhandled_line))
+        self.hallo.logger.log(error)
+        self.hallo.printer.output(error)
 
     def parse_line_raw(self, raw_line, line_type):
         """Handed all raw data, along with the type of message
