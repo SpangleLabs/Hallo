@@ -96,6 +96,7 @@ class ServerIRC(Server):
         except Exception as e:
             print("CONNECTION ERROR: {}".format(e))
             self.state = Server.STATE_CLOSED
+            return
         # Wait for the first message back from the server.
         print("{} Waiting for first message from server: {}".format(Commons.current_timestamp(), self.name))
         first_line = self.read_line_from_socket()

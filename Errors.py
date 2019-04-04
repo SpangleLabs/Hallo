@@ -2,6 +2,21 @@ import traceback
 from abc import ABCMeta
 from datetime import datetime
 
+# Graphviz graph of Error class relations
+# digraph G {
+#
+#     Error[shape=rectangle]
+#     ExceptionError->Error
+#     FunctionError->PassiveFunctionError
+#     FunctionNotAllowedError->Error
+#     FunctionNotFoundError->Error
+#     FunctionSaveError->ExceptionError
+#     PassiveFunctionError->ExceptionError
+#     ServerError->Error
+#     SubscriptionError->Error
+#
+# }
+
 
 class Error(metaclass=ABCMeta):
 
@@ -15,46 +30,53 @@ class Error(metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class ExceptionError(Error):
+class MessageError(Error):
+    """
+    If an Error just needs a message, and doesn't need more objects, just use this.
+    """
 
-    def __init__(self, exception, obj):
+    def __init__(self, message):
+        super().__init__()
+        self.message = message
+
+    def get_log_line(self):
+        return "Error encountered: {}".format(self.message)
+
+    get_print_line = get_log_line
+
+
+class ExceptionError(MessageError):
+
+    def __init__(self, message, exception, obj):
         """
+        :type message: str | None
         :type exception: Exception
         :type obj: Any
         """
-        super().__init__()
+        super().__init__(message)
         self.exception = exception
         self.obj = obj
         self.traceback = traceback.format_exc()
 
     def get_log_line(self):
-        return "Error encountered in object: {}. Exception: {}".format(self.obj, self.exception)
+        return "Error encountered \"{}\" in object: {}. Exception: {}.\nFunction error location: {}".format(
+            self.message,
+            self.obj,
+            self.exception,
+            self.traceback)
 
     def get_print_line(self):
-        return self.get_log_line()
+        return "Error encountered \"{}\" in object: {}. Exception: {}".format(self.message, self.obj, self.exception)
 
 
 class FunctionSaveError(ExceptionError):
 
-    def __init__(self, exception, obj):
+    def __init__(self, exception, function_obj):
         """
         :type exception: Exception
-        :type obj: Function.Function
+        :type function_obj: Function.Function
         """
-        super().__init__(exception, obj)
-        self.obj = obj
-
-    def get_log_line(self):
-        return "Error encountered while saving function: {}. Exception: {}".format(self.obj.__name__, self.exception)
-
-    def get_print_line(self):
-        return self.get_log_line()
-
-
-class SubscriptionError(ExceptionError):
-
-    def __init__(self, exception, obj):
-        super().__init__(exception, obj)
+        super().__init__("saving function", exception, function_obj)
 
 
 class PassiveFunctionError(ExceptionError):
@@ -66,7 +88,7 @@ class PassiveFunctionError(ExceptionError):
         :type function: Function.Function
         :type event: Events.Event
         """
-        super().__init__(exception, dispatcher)
+        super().__init__(None, exception, dispatcher)
         self.function = function
         self.event = event
 
@@ -186,5 +208,12 @@ class FunctionNotAllowedError(Error):
                 )
 
 
-class ServerError(Error):
+class SubscriptionCheckError(ExceptionError):
+
+    def __init__(self, subscription, exception):
+        message = "Failed to check {} subscription, \"{}\".".format(subscription.type_name, subscription.get_name())
+        super().__init__(message, exception, subscription)
+
+
+class ServerError(MessageError):
     pass

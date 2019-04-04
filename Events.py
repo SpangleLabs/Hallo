@@ -36,6 +36,44 @@ class RawDataTelegramOutbound(RawData):
         self.sent_msg_object = sent_msg_object
 
 
+# Graphviz graph of Event class relations
+# digraph G {
+#
+# Event[shape = rectangle]
+# EventSecond->Event
+# EventMinute->Event
+# EventHour->Event
+# EventDay->Event
+#
+# ServerEvent[shape = rectangle]
+# ServerEvent->Event
+# EventPing->ServerEvent
+#
+# UserEvent[shape = rectangle]
+# UserEvent->ServerEvent
+# EventQuit->UserEvent
+# EventNameChange->EventQuit
+#
+# ChannelEvent[shape = rectangle]
+# ChannelEvent->ServerEvent
+#
+# ChannelUserEvent[shape = rectangle]
+# ChannelUserEvent->ChannelEvent
+# ChannelUserEvent->UserEvent
+# EventJoin->ChannelUserEvent
+# EventLeave->ChannelUserEvent
+# EventKick->ChannelUserEvent
+# EventInvite->ChannelUserEvent
+# EventMode->ChannelUserEvent
+#
+# ChannelUserTextEvent[shape = rectangle]
+# ChannelUserTextEvent->ChannelUserEvent
+# EventMessage->ChannelUserTextEvent
+# EventNotice->ChannelUserTextEvent
+# EventCTCP->ChannelUserTextEvent
+# EventMessageWithPhoto->EventMessage
+# }
+
 class Event(metaclass=ABCMeta):
 
     def __init__(self, inbound=True):

@@ -66,7 +66,7 @@ class Euler(Function):
             output_string = "Euler project problem {}? I think the answer is: {}.".format(number_string, function_obj())
         except Exception as e:
             output_string = "Hmm, seems that one has an error... darnit."
-            print("EULER ERROR: {}".format(e))
+            print("Euler error: {}".format(e))
         return output_string
 
     def check_prime(self, input_number):

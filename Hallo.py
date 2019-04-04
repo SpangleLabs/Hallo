@@ -4,6 +4,7 @@ import time
 import re
 from datetime import datetime
 
+from Errors import MessageError
 from Events import EventSecond, EventMinute, EventDay, EventHour
 from Server import Server
 from PermissionMask import PermissionMask
@@ -66,8 +67,10 @@ class Hallo:
             count += 1
             if count > 600:
                 self.open = False
-                print("No servers managed to connect in 60 seconds.")
-                break
+                error = MessageError("No servers managed to connect in 60 seconds.")
+                self.logger.log(error)
+                self.printer.output(error)
+                return
         self.open = True
         # Main loop, sticks around throughout the running of the bot
         self.printer.output('connected to all servers.')
@@ -137,7 +140,9 @@ class Hallo:
             with open("config/config.json", "r") as f:
                 json_obj = json.load(f)
         except (OSError, IOError):
-            print("No current config, loading from default.")
+            error = MessageError("No current config, loading from default.")
+            self.logger.log(error)
+            self.printer.output(error)
             with open("config/config-default.json", "r") as f:
                 json_obj = json.load(f)
         # Create new hallo object
