@@ -42,7 +42,6 @@ class FeedAddTest(TestBase, unittest.TestCase):
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
                                                        "rss add http://spangle.org.uk/hallo/test_rss.xml"))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        print(data)
         assert "created a new rss subscription" in data[0].text.lower(), "Actual response: {}".format(data[0].text)
         # Check the rss feed was added
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
