@@ -22,16 +22,16 @@ class Printer:
         """
         # If event, treat as event
         if isinstance(obj, Events.Event):
-            print_line = self.get_print_line(obj.get_print_line(), obj.get_send_time())
+            print_line = self._get_print_line(obj.get_print_line(), obj.get_send_time())
         elif isinstance(obj, Errors.Error):
-            print_line = self.get_print_line(obj.get_print_line(), obj.time)
+            print_line = self._get_print_line(obj.get_print_line(), obj.time)
         else:
             # Otherwise, just use as a string
-            print_line = self.get_print_line(obj)
+            print_line = self._get_print_line(obj)
         # Output the log line
         print(print_line)
 
-    def get_print_line(self, raw_text, send_time=None):
+    def _get_print_line(self, raw_text, send_time=None):
         """
         :type raw_text: str
         :type send_time: datetime.datetime | None

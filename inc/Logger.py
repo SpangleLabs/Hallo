@@ -23,7 +23,7 @@ class Logger:
         Constructor
         """
         self.hallo = hallo
-        self.lock = Lock()
+        self._lock = Lock()
 
     def log(self, loggable):
         """
@@ -42,19 +42,19 @@ class Logger:
             return
         # Log the event
         if isinstance(loggable, Event):
-            self.log_event(loggable)
+            self._log_event(loggable)
         if isinstance(loggable, Error):
-            self.log_error(loggable)
+            self._log_error(loggable)
 
-    def log_error(self, error):
+    def _log_error(self, error):
         """
         :type error: Errors.Error
         :return:
         """
         log_line = indent_all_but_first_line(error.get_log_line())
-        self.add_line(ERROR_LOG, "{} {}".format(Commons.current_timestamp(error.time), log_line))
+        self._add_line(ERROR_LOG, "{} {}".format(Commons.current_timestamp(error.time), log_line))
 
-    def log_event(self, event):
+    def _log_event(self, event):
         """
         :type event: Events.Event
         :return:
@@ -65,12 +65,12 @@ class Logger:
         output = "{} {}".format(Commons.current_timestamp(event.get_send_time()), log_line)
         log_files = event.get_log_locations()
         for log_file in log_files:
-            self.add_line("logs/" + log_file, output)
+            self._add_line("logs/" + log_file, output)
 
-    def add_line(self, file_name, line):
+    def _add_line(self, file_name, line):
         """Adds a new line to a specified file."""
         # Acquire thread lock
-        with self.lock:
+        with self._lock:
             # Create directories if they don't exist.
             file_name_split = file_name.split("/")
             for file_dir in ["/".join(file_name_split[:x]) for x in range(1, len(file_name_split))]:
