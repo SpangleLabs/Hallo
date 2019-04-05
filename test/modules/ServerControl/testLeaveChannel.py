@@ -116,7 +116,6 @@ class LeaveChannelTest(TestBase, unittest.TestCase):
         # Check response data
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         self.server.get_left_channels(0)
-        print(data[0].text.lower())
         assert "error" in data[0].text.lower()
 
     def test_not_auto_join(self):

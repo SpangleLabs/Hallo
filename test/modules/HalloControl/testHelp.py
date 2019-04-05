@@ -55,7 +55,6 @@ class HelpTest(TestBase, unittest.TestCase):
         try:
             self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "help function no doc"))
             data = self.server.get_send_data(1, self.test_user, EventMessage)
-            print(data)
             assert "error" in data[0].text.lower()
             assert "no documentation exists" in data[0].text.lower()
         finally:

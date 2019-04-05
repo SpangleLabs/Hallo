@@ -37,6 +37,44 @@ class RawDataTelegramOutbound(RawData):
         self.sent_msg_object = sent_msg_object
 
 
+# Graphviz graph of Event class relations
+# digraph G {
+#
+# Event[shape = rectangle]
+# EventSecond->Event
+# EventMinute->Event
+# EventHour->Event
+# EventDay->Event
+#
+# ServerEvent[shape = rectangle]
+# ServerEvent->Event
+# EventPing->ServerEvent
+#
+# UserEvent[shape = rectangle]
+# UserEvent->ServerEvent
+# EventQuit->UserEvent
+# EventNameChange->EventQuit
+#
+# ChannelEvent[shape = rectangle]
+# ChannelEvent->ServerEvent
+#
+# ChannelUserEvent[shape = rectangle]
+# ChannelUserEvent->ChannelEvent
+# ChannelUserEvent->UserEvent
+# EventJoin->ChannelUserEvent
+# EventLeave->ChannelUserEvent
+# EventKick->ChannelUserEvent
+# EventInvite->ChannelUserEvent
+# EventMode->ChannelUserEvent
+#
+# ChannelUserTextEvent[shape = rectangle]
+# ChannelUserTextEvent->ChannelUserEvent
+# EventMessage->ChannelUserTextEvent
+# EventNotice->ChannelUserTextEvent
+# EventCTCP->ChannelUserTextEvent
+# EventMessageWithPhoto->EventMessage
+# }
+
 class Event(metaclass=ABCMeta):
 
     def __init__(self, inbound=True):
@@ -54,6 +92,24 @@ class Event(metaclass=ABCMeta):
         """
         return self.send_time
 
+    def get_log_line(self):
+        """
+        :rtype: Optional[str]
+        """
+        return None
+
+    def get_log_locations(self):
+        """
+        :rtype: list[str]
+        """
+        return []
+
+    def get_print_line(self):
+        """
+        :rtype: Optional[str]
+        """
+        return None
+
 
 class EventSecond(Event):
     pass
@@ -68,7 +124,9 @@ class EventHour(Event):
 
 
 class EventDay(Event):
-    pass
+
+    def get_print_line(self):
+        return "Day changed: {}".format(self.send_time.strftime("%Y-%m-%d"))
 
 
 class ServerEvent(Event, metaclass=ABCMeta):
@@ -99,6 +157,15 @@ class ServerEvent(Event, metaclass=ABCMeta):
             return self.raw_data.update_obj.message.date
         return super().get_send_time()
 
+    def get_log_locations(self):
+        return ["{}/@/{}.txt".format(
+            self.server.name,
+            self.get_send_time().strftime("%Y-%m-%d")
+        )]
+
+    def get_print_line(self):
+        return "[{}] {}".format(self.server.name, self.get_log_line())
+
 
 class EventPing(ServerEvent):
 
@@ -115,6 +182,12 @@ class EventPing(ServerEvent):
     def get_pong(self):
         return EventPing(self.server, self.ping_number, inbound=False)
 
+    def get_print_line(self):
+        return "[{}] {}".format(
+            self.server.name,
+            "PING" if self.is_inbound else "PONG"
+        )
+
 
 class UserEvent(ServerEvent, metaclass=ABCMeta):
 
@@ -127,6 +200,17 @@ class UserEvent(ServerEvent, metaclass=ABCMeta):
         ServerEvent.__init__(self, server, inbound=inbound)
         self.user = user
         """ :type : Destination.User | None"""
+
+    def get_log_locations(self):
+        channel_list = self.user.get_channel_list() if self.is_inbound else self.server.channel_list
+        log_files = []
+        for channel in channel_list:
+            log_files.append("{}/{}/{}.txt".format(
+                self.server.name,
+                channel.name,
+                self.get_send_time().strftime("%Y-%m-%d")
+            ))
+        return log_files
 
 
 class EventQuit(UserEvent):
@@ -142,6 +226,12 @@ class EventQuit(UserEvent):
         UserEvent.__init__(self, server, user, inbound=inbound)
         self.quit_message = message
         """ :type : str"""
+
+    def get_log_line(self):
+        output = "{} has quit.".format(self.user.name if self.is_inbound else self.server.get_nick())
+        if self.quit_message is not None and self.quit_message.strip() != "":
+            output += " ({})".format(self.quit_message)
+        return output
 
 
 class EventNameChange(UserEvent):
@@ -161,6 +251,10 @@ class EventNameChange(UserEvent):
         self.new_name = new_name
         """ :type : str"""
 
+    def get_log_line(self):
+        output = "Nick change: {} -> {}".format(self.old_name, self.new_name)
+        return output
+
 
 class ChannelEvent(ServerEvent, metaclass=ABCMeta):
 
@@ -174,6 +268,13 @@ class ChannelEvent(ServerEvent, metaclass=ABCMeta):
         self.channel = channel
         """ :type : Destination.Channel | None"""
 
+    def get_log_locations(self):
+        return ["{}/{}/{}.txt".format(
+            self.server.name,
+            self.channel.name if self.channel is not None else "@",
+            self.get_send_time().strftime("%Y-%m-%d")
+        )]
+
 
 class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
 
@@ -186,6 +287,13 @@ class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
         """
         ChannelEvent.__init__(self, server, channel, inbound=inbound)
         UserEvent.__init__(self, server, user, inbound=inbound)
+
+    def get_log_locations(self):
+        return ["{}/{}/{}.txt".format(
+            self.server.name,
+            self.channel.name if self.channel is not None else self.user.name,
+            self.get_send_time().strftime("%Y-%m-%d")
+        )]
 
 
 class EventJoin(ChannelUserEvent):
@@ -203,6 +311,12 @@ class EventJoin(ChannelUserEvent):
         self.password = password
         """ :type : str | None"""
 
+    def get_log_line(self):
+        output = "{} joined {}".format(
+            self.user.name if self.is_inbound else self.server.get_nick(),
+            self.channel.name)
+        return output
+
 
 class EventLeave(ChannelUserEvent):
 
@@ -218,6 +332,14 @@ class EventLeave(ChannelUserEvent):
         ChannelUserEvent.__init__(self, server, channel, user, inbound=inbound)
         self.leave_message = message
         """ :type : str | None"""
+
+    def get_log_line(self):
+        output = "{} left {}".format(
+            self.user.name if self.is_inbound else self.server.get_nick(),
+            self.channel.name)
+        if self.leave_message is not None and self.leave_message.strip() != "":
+            output += " ({})".format(self.leave_message)
+        return output
 
 
 class EventKick(ChannelUserEvent):
@@ -238,6 +360,15 @@ class EventKick(ChannelUserEvent):
         self.kick_message = kick_message
         """:type : str | None"""
 
+    def get_log_line(self):
+        output = "{} was kicked from {} by {}".format(
+            self.kicked_user.name,
+            self.channel.name,
+            self.user if self.is_inbound else self.server.get_nick())
+        if self.kick_message is not None and self.kick_message.strip() != "":
+            output += " ({})".format(self.kick_message)
+        return output
+
 
 class EventInvite(ChannelUserEvent):
 
@@ -254,6 +385,13 @@ class EventInvite(ChannelUserEvent):
         self.invited_user = invited_user
         """ :type : Destination.User"""
 
+    def get_log_line(self):
+        output = "{} was invited to {} by {}".format(
+            self.invited_user.name,
+            self.channel.name,
+            self.user.name if self.is_inbound else self.server.get_nick())
+        return output
+
 
 class EventMode(ChannelUserEvent):
 
@@ -268,6 +406,14 @@ class EventMode(ChannelUserEvent):
         ChannelUserEvent.__init__(self, server, channel, user, inbound=inbound)
         self.mode_changes = mode_changes  # TODO: maybe have flags, arguments/users as separate?
         """ :type : str"""
+
+    def get_log_line(self):
+        channel_name = self.channel.name if self.channel is not None else "??"
+        output = "{} set {} on {}".format(
+            self.user.name if self.user is not None else self.server.get_nick(),
+            self.mode_changes,
+            channel_name)
+        return output
 
 
 class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
@@ -365,13 +511,37 @@ class EventMessage(ChannelUserTextEvent):
         self.command_name = command_name
         self.command_args = command_args
 
+    def get_log_line(self):
+        output = "<{}> {}".format(
+            self.user.name if self.is_inbound else self.server.get_nick(),
+            self.text)
+        return output
+
 
 class EventNotice(ChannelUserTextEvent):
-    pass
+
+    def get_log_line(self):
+        output = "Notice from {}: {}".format(
+            self.user.name if self.is_inbound else self.server.get_nick(),
+            self.text)
+        return output
 
 
 class EventCTCP(ChannelUserTextEvent):
-    pass
+
+    def get_log_line(self):
+        ctcp_command = self.text.split()[0]
+        ctcp_arguments = ' '.join(self.text.split()[1:])
+        user_name = self.user.name if self.is_inbound else self.server.get_nick()
+        if ctcp_command.lower() == "action":
+            output = "**{} {}**".format(
+                user_name,
+                ctcp_arguments)
+        else:
+            output = "<{} (CTCP)> {}".format(
+                user_name,
+                self.text)
+        return output
 
 
 class EventMessageWithPhoto(EventMessage):
