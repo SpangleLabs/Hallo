@@ -1198,9 +1198,9 @@ class FASearchSub(Subscription):
         posted_by = item.name
         # Construct output
         output = "Update on \"{}\" FA search. \"{}\" by {}. {}".format(
-            Commons.markdown_escape(self.search),
-            Commons.markdown_escape(title),
-            Commons.markdown_escape(posted_by),
+            self.search,
+            title,
+            posted_by,
             link)
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
@@ -3099,7 +3099,7 @@ class SubscriptionList(Function):
         for search_item in dest_searches:
             new_line = "{} - {}".format(
                 search_item.type_name,
-                Commons.markdown_escape(search_item.get_name()))
+                search_item.get_name())
             if search_item.last_update is not None:
                 new_line += " ({})".format(search_item.last_update.strftime('%Y-%m-%d %H:%M:%S'))
             output_lines.append(new_line)
