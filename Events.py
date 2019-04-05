@@ -1,3 +1,4 @@
+import enum
 from abc import ABCMeta
 from datetime import datetime
 
@@ -306,6 +307,10 @@ class EventMessage(ChannelUserTextEvent):
     # Flags, can be passed as a list to function dispatcher, and will change how it operates.
     FLAG_HIDE_ERRORS = "hide_errors"  # Hide all errors that result from running the function.
 
+    class Formatting(enum.Enum):
+        PLAIN = 1
+        MARKDOWN = 2
+
     def __init__(self, server, channel, user, text, inbound=True):
         """
         :type server: Server.Server
@@ -325,6 +330,7 @@ class EventMessage(ChannelUserTextEvent):
         self.command_args = None
         """ :type : str | None"""
         self.check_prefix()
+        self.formatting = EventMessage.Formatting.PLAIN
 
     def check_prefix(self):
         if self.channel is None:
