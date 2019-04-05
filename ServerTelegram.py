@@ -175,6 +175,14 @@ class ServerTelegram(Server):
         # Print it to console
         print("{} [{}] Unhandled data: {}".format(Commons.current_timestamp(), self.name, update))
 
+    def formatting_to_telegram_mode(self, event_formatting):
+        """
+        :type event_formatting: EventMessage.Formatting
+        :rtype: telegram.ParseMode
+        """
+        return {EventMessage.Formatting.MARKDOWN: telegram.ParseMode.MARKDOWN,
+                EventMessage.Formatting.HTML: telegram.ParseMode.HTML}.get(event_formatting)
+
     def send(self, event):
         if isinstance(event, EventMessageWithPhoto):
             destination = event.user if event.channel is None else event.channel
@@ -183,13 +191,13 @@ class ServerTelegram(Server):
                     chat_id=destination.address,
                     photo=event.photo_id,
                     caption=event.text,
-                    parse_mode=telegram.ParseMode.MARKDOWN)
+                    parse_mode=self.formatting_to_telegram_mode(event.formatting))
             else:
                 msg = self.bot.send_document(
                     chat_id=destination.address,
                     document=event.photo_id,
                     caption=event.text,
-                    parse_mode=telegram.ParseMode.MARKDOWN)
+                    parse_mode=self.formatting_to_telegram_mode(event.formatting))
             event.with_raw_data(RawDataTelegramOutbound(msg))
             self.hallo.printer.output(event)
             self.hallo.logger.log(event)
@@ -199,7 +207,7 @@ class ServerTelegram(Server):
             msg = self.bot.send_message(
                 chat_id=destination.address,
                 text=event.text,
-                parse_mode=telegram.ParseMode.MARKDOWN)
+                parse_mode=self.formatting_to_telegram_mode(event.formatting))
             event.with_raw_data(RawDataTelegramOutbound(msg))
             self.hallo.printer.output(event)
             self.hallo.logger.log(event)
@@ -229,14 +237,14 @@ class ServerTelegram(Server):
                     new_event.photo_id,
                     caption=new_event.text,
                     reply_to_message_id=old_message_id,
-                    parse_mode=telegram.ParseMode.MARKDOWN)
+                    parse_mode=self.formatting_to_telegram_mode(new_event.formatting))
             else:
                 self.bot.send_document(
                     destination.address,
                     new_event.photo_id,
                     caption=new_event.text,
                     reply_to_message_id=old_message_id,
-                    parse_mode=telegram.ParseMode.MARKDOWN)
+                    parse_mode=self.formatting_to_telegram_mode(new_event.formatting))
             self.hallo.printer.output(new_event)
             self.hallo.logger.log(new_event)
             return
@@ -247,7 +255,7 @@ class ServerTelegram(Server):
                 destination.address,
                 new_event.text,
                 reply_to_message_id=old_message_id,
-                parse_mode=telegram.ParseMode.MARKDOWN)
+                parse_mode=self.formatting_to_telegram_mode(new_event.formatting))
             self.hallo.printer.output(new_event)
             self.hallo.logger.log(new_event)
             return

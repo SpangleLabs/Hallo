@@ -534,6 +534,7 @@ class RedditSub(Subscription):
                 author_link,
                 url)
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, url, inbound=False)
+            output_evt.formatting = EventMessage.Formatting.MARKDOWN
             return output_evt
         # Handle gfycat links as photos
         gfycat_regex = re.compile(r"(?:https?://)?(?:www\.)?gfycat\.com/([a-z]+)", re.IGNORECASE)
@@ -549,6 +550,7 @@ class RedditSub(Subscription):
                 author_link,
                 url)
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, direct_url, inbound=False)
+            output_evt.formatting = EventMessage.Formatting.MARKDOWN
             return output_evt
         # Handle reddit video links
         vreddit_regex = re.compile(r"https?://v.redd.it/[a-z0-9]+")
@@ -567,6 +569,7 @@ class RedditSub(Subscription):
                 author_link,
                 direct_url)
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, direct_url, inbound=False)
+            output_evt.formatting = EventMessage.Formatting.MARKDOWN
             return output_evt
         # Make output message if the link isn't direct to a media file
         if item["data"]["selftext"] != "":
@@ -586,6 +589,7 @@ class RedditSub(Subscription):
                 url,
                 link)
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
+        output_evt.formatting = EventMessage.Formatting.MARKDOWN
         return output_evt
 
     def to_json(self):
@@ -963,7 +967,7 @@ class SubscriptionList(Function):
         output_lines = ["Subscriptions posting to this channel:"]
         for search_item in dest_searches:
             new_line = "{} - {}".format(
-                Commons.markdown_escape(search_item.type_name),
+                search_item.type_name,
                 search_item.get_name())
             if search_item.last_update is not None:
                 new_line += " ({})".format(search_item.last_update.strftime('%Y-%m-%d %H:%M:%S'))
