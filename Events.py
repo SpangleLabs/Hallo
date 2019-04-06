@@ -456,6 +456,7 @@ class EventMessage(ChannelUserTextEvent):
     class Formatting(enum.Enum):
         PLAIN = 1
         MARKDOWN = 2
+        HTML = 3
 
     def __init__(self, server, channel, user, text, inbound=True):
         """
