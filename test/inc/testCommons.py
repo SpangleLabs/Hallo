@@ -1,7 +1,7 @@
 import re
 import unittest
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from inc.Commons import Commons, ISO8601ParseError
 
@@ -80,6 +80,11 @@ class CommonsTest(unittest.TestCase):
         assert len(stamp) == 10, "Timestamp is the wrong length"
         pattern = re.compile("^\[(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\]$")
         assert pattern.match(stamp), "Timestamp is not valid to defined format."
+
+    def test_current_timestamp_datetime_given(self):
+        dtime = datetime(2019, 4, 6, 10, 15, 3)
+        stamp = Commons.current_timestamp(dtime)
+        assert stamp == "[10:15:03]"
 
     def test_format_time_delta(self):
         delta1 = timedelta(5, 5)
@@ -248,9 +253,15 @@ class CommonsTest(unittest.TestCase):
             assert False, "String 3 should have failed to parse."
         except ISO8601ParseError:
             pass
-        string4 = "PTS"
+        string3_5 = "PTS"
+        try:
+            Commons.load_time_delta(string3_5)
+            assert False, "String 3.5 should have failed to parse."
+        except ISO8601ParseError:
+            pass
+        string4 = "PT5S"
         delta4 = Commons.load_time_delta(string4)
-        assert delta4.seconds == 0, "delta4 seconds set incorrectly."
+        assert delta4.seconds == 5, "delta4 seconds set incorrectly."
         assert delta4.days == 0, "delta4 days set incorrectly."
         string5 = "P1T1S"
         delta5 = Commons.load_time_delta(string5)

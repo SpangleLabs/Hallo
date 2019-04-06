@@ -23,11 +23,14 @@ class Commons(object):
     BOOL_STRING_DICT = {True: "True", False: "False", None: "None"}
 
     @staticmethod
-    def current_timestamp():
+    def current_timestamp(dtime=None):
         """
-        Constructor
+        :type dtime: datetime.datetime
+        :rtype: str
         """
-        return "[{:02d}:{:02d}:{:02d}]".format(*time.gmtime()[3:6])
+        if dtime is None:
+            dtime = datetime.datetime.now()
+        return dtime.strftime("[%H:%M:%S]")
 
     @staticmethod
     def chunk_string(string, length):

@@ -1,11 +1,12 @@
 import importlib
 import sys
 import inspect
-import traceback
 from xml.dom import minidom
 # noinspection PyDeprecation
 import imp
 
+from Errors import FunctionError, PassiveFunctionError, FunctionNotFoundError, FunctionNotAllowedError, \
+    FunctionSaveError
 from Events import ServerEvent, UserEvent, ChannelEvent, EventMessage, ChannelUserTextEvent
 from Function import Function
 
@@ -60,14 +61,18 @@ class FunctionDispatcher(object):
         if function_class_test is None:
             if EventMessage.FLAG_HIDE_ERRORS not in flag_list:
                 event.reply(event.create_response("Error, this is not a recognised function."))
-                print("Error, this is not a recognised function.")
+                error = FunctionNotFoundError(self, event)
+                self.hallo.logger.log(error)
+                self.hallo.printer.output(error)
             return
         function_class = function_class_test
         event.split_command_text(function_name_test, function_args_test)
         # Check function rights and permissions
         if not self.check_function_permissions(function_class, event.server, event.user, event.channel):
             event.reply(event.create_response("You do not have permission to use this function."))
-            print("You do not have permission to use this function.")
+            error = FunctionNotAllowedError(self, function_class, event)
+            self.hallo.logger.log(error)
+            self.hallo.printer.output(error)
             return
         # If persistent, get the object, otherwise make one
         function_obj = self.get_function_object(function_class)
@@ -80,11 +85,11 @@ class FunctionDispatcher(object):
                 event.reply(event.create_response("The function returned no value."))
             return
         except Exception as e:
+            error = FunctionError(e, self, function_obj, event)
             e_str = (str(e)[:250] + '..') if len(str(e)) > 250 else str(e)
             event.reply(event.create_response("Function failed with error message: {}".format(e_str)))
-            print("Function: {} {}".format(function_class.__module__, function_class.__name__))
-            print("Function error: {}".format(e))
-            print("Function error location: {}".format(traceback.format_exc()))
+            self.hallo.logger.log(error)
+            self.hallo.printer.output(error)
             return
 
     def dispatch_passive(self, event):
@@ -117,10 +122,9 @@ class FunctionDispatcher(object):
                         event.server.send(response)
                 continue
             except Exception as e:
-                print("ERROR Passive Function: {} {}".format(function_class.__module__, function_class.__name__))
-                print("ERROR Function event: {}".format(event))
-                print("ERROR Function error: {}".format(e))
-                print("Function error location: {}".format(traceback.format_exc()))
+                error = PassiveFunctionError(e, self, function_obj, event)
+                self.hallo.logger.log(error)
+                self.hallo.printer.output(error)
                 continue
 
     def get_function_by_name(self, function_name):
@@ -186,8 +190,8 @@ class FunctionDispatcher(object):
         """
         # Check it's an allowed module
         if module_name not in self.module_list:
-            self.hallo.printer.output_raw("Module name, {}, is not in allowed list: {}."
-                                          .format(module_name, ", ".join(self.module_list)))
+            self.hallo.printer.output("Module name, {}, is not in allowed list: {}."
+                                      .format(module_name, ", ".join(self.module_list)))
             return False
         # Create full name
         # TODO: allow bypass for reloading of core classes: Hallo, Server, Destination, etc
@@ -201,7 +205,7 @@ class FunctionDispatcher(object):
             try:
                 module_obj = importlib.import_module(full_module_name)
             except ImportError:
-                self.hallo.printer.output_raw("Could not import module")
+                self.hallo.printer.output("Could not import module")
                 return False
         # Unload module, if it was loaded.
         self.unload_module_functions(module_obj)
@@ -358,8 +362,9 @@ class FunctionDispatcher(object):
             try:
                 function_obj.save_function()
             except Exception as e:
-                print("Failed to save {}".format(function_class.__name__))
-                print(str(e))
+                error = FunctionSaveError(e, function_obj)
+                self.hallo.logger.log(error)
+                self.hallo.printer.output(error)
             del self.persistent_functions[function_class]
         # Remove from mFunctionDict
         del self.function_dict[module_obj][function_class]
