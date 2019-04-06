@@ -253,9 +253,15 @@ class CommonsTest(unittest.TestCase):
             assert False, "String 3 should have failed to parse."
         except ISO8601ParseError:
             pass
-        string4 = "PTS"
+        string3_5 = "PTS"
+        try:
+            Commons.load_time_delta(string3_5)
+            assert False, "String 3.5 should have failed to parse."
+        except ISO8601ParseError:
+            pass
+        string4 = "PT5S"
         delta4 = Commons.load_time_delta(string4)
-        assert delta4.seconds == 0, "delta4 seconds set incorrectly."
+        assert delta4.seconds == 5, "delta4 seconds set incorrectly."
         assert delta4.days == 0, "delta4 days set incorrectly."
         string5 = "P1T1S"
         delta5 = Commons.load_time_delta(string5)
