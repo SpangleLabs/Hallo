@@ -3024,7 +3024,7 @@ class SubscriptionCheck(Function):
                     for search_item in new_items:
                         search_sub.send_item(search_item)
                 except Exception as e:
-                    error = SubscriptionCheckError(self, e)
+                    error = SubscriptionCheckError(search_sub, e)
                     hallo.logger.log(error)
                     hallo.printer.output(error)
             # Save list
@@ -3053,7 +3053,7 @@ class SubscriptionCheck(Function):
                         for search_item in new_items:
                             search_sub.send_item(search_item)
                     except Exception as e:
-                        error = SubscriptionCheckError(self, e)
+                        error = SubscriptionCheckError(search_sub, e)
                         hallo_obj.logger.log(error)
                         hallo_obj.printer.output(error)
             # Save list
