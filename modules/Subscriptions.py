@@ -7,6 +7,7 @@ from threading import Lock
 from xml.etree import ElementTree
 
 from Destination import Channel, User
+from Errors import SubscriptionCheckError
 from Events import EventMessageWithPhoto, EventMessage, EventMinute
 from Function import Function
 from inc.Commons import Commons, ISO8601ParseError
@@ -805,6 +806,10 @@ class SubscriptionRemove(Function):
         return event.create_response("Error, there are no subscriptions in this channel matching that name.")
 
 
+class SubscriptionError(object):
+    pass
+
+
 class SubscriptionCheck(Function):
     """
     Checks subscriptions for updates and returns them.
@@ -888,9 +893,9 @@ class SubscriptionCheck(Function):
                     for search_item in new_items:
                         search_sub.send_item(search_item)
                 except Exception as e:
-                    print("Failed to check {} subscription, \"{}\". Exception: {}".format(search_sub.type_name,
-                                                                                          search_sub.get_name(),
-                                                                                          e))
+                    error = SubscriptionCheckError(self, e)
+                    hallo.logger.log(error)
+                    hallo.printer.output(error)
             # Save list
             sub_repo.save_json()
         # Output response to user
@@ -917,9 +922,9 @@ class SubscriptionCheck(Function):
                         for search_item in new_items:
                             search_sub.send_item(search_item)
                     except Exception as e:
-                        print("Failed to check {} subscription, \"{}\". Exception: {}".format(search_sub.type_name,
-                                                                                              search_sub.get_name(),
-                                                                                              e))
+                        error = SubscriptionCheckError(self, e)
+                        hallo_obj.logger.log(error)
+                        hallo_obj.printer.output(error)
             # Save list
             sub_repo.save_json()
 
