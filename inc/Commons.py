@@ -29,7 +29,7 @@ class Commons(object):
         :rtype: str
         """
         if dtime is None:
-            dtime = time.gmtime()
+            dtime = datetime.datetime.now()
         return dtime.strftime("[%H:%M:%S]")
 
     @staticmethod
