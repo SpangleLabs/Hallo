@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from threading import Lock
 from xml.etree import ElementTree
 
+import dateutil
 from bs4 import BeautifulSoup
 
 from Destination import Channel, User
@@ -2093,8 +2094,9 @@ class FAKey:
             return fav_page
 
         def get_submission_page(self, submission_id):
-            code = self._get_page_code("https://www.furaffinity.net/view/{}/".format(submission_id))
-            sub_page = FAKey.FAReader.FAViewSubmissionPage(code, submission_id)
+            data = self._get_api_data("/submission/{}.json".format(submission_id))
+            comments_data = self._get_api_data("/submission/{}/comments.json".format(submission_id))
+            sub_page = FAKey.FAReader.FAViewSubmissionPage(data, comments_data, submission_id)
             return sub_page
 
         def get_journal_page(self, journal_id):
@@ -2583,86 +2585,72 @@ class FAKey:
                 self.name = name
                 """ :type : str"""
 
-        class FAViewSubmissionPage(FAPage):
+        class FAViewSubmissionPage:
 
-            def __init__(self, code, submission_id):
-                super().__init__(code)
+            def __init__(self, data, comments_data, submission_id):
                 self.submission_id = submission_id
                 """ :type : str"""
-                sub_info = self.soup.find("td", {"class", "stats-container"})
-                sub_info_stripped = list(sub_info.stripped_strings)
-                sub_titlebox = sub_info.find_parent("td").find_previous("td")
-                sub_descbox = sub_info.find_next("td")
-                self.title = sub_titlebox.find("b").string
+                sub_descbox = BeautifulSoup(data["description"], "html.parser")
+                self.title = data["title"]
                 """ :type : str"""
-                self.full_image = "https:" + self.soup.find(text="Download").parent["href"]
+                self.full_image = data["download"]
                 """ :type : str"""
-                self.username = sub_titlebox.find("a")["href"].split("/")[-2]
+                self.username = data["profile_name"]
                 """ :type : str"""
-                self.name = sub_titlebox.string
+                self.name = data["name"]
                 """ :type : str"""
                 self.avatar_link = "https:" + sub_descbox.find("img")["src"]
                 """ :type : str"""
                 self.description = "".join(str(s) for s in sub_descbox.contents[5:]).strip()
                 """ :type : str"""
-                submission_time_str = sub_info.find("span", {"class": "popup_date"})["title"]\
-                    .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
-                self.submission_time = datetime.strptime(submission_time_str, "%b %d, %Y %H:%M %p")
+                submission_time_str = data["posted_at"]
+                self.submission_time = dateutil.parser.parse(submission_time_str)
                 """ :type : datetime"""
-                self.category = sub_info_stripped[sub_info_stripped.index("Category:")+1]
+                self.category = data["category"]
                 """ :type : str"""
-                self.theme = sub_info_stripped[sub_info_stripped.index("Theme:")+1]
+                self.theme = data["theme"]
                 """ :type : str"""
-                self.species = sub_info_stripped[sub_info_stripped.index("Species:")+1]
+                self.species = data["species"]
                 """ :type : str"""
-                self.gender = sub_info_stripped[sub_info_stripped.index("Gender:")+1]
+                self.gender = data["gender"]
                 """ :type : str"""
-                self.num_favourites = int(sub_info_stripped[sub_info_stripped.index("Favorites:")+1])
+                self.num_favourites = int(data["favorites"])
                 """ :type : int"""
-                self.num_comments = int(sub_info_stripped[sub_info_stripped.index("Comments:")+1])
+                self.num_comments = int(data["comments"])
                 """ :type : int"""
-                self.num_views = int(sub_info_stripped[sub_info_stripped.index("Views:")+1])
+                self.num_views = int(data["views"])
                 """ :type : int"""
                 # resolution_x = None
                 # resolution_y = None
-                self.keywords = []
+                self.keywords = data["keywords"]
                 """ :type : list[str]"""
-                if sub_info.find(id="keywords") is not None:
-                    self.keywords = [tag.string for tag in sub_info.find(id="keywords").find_all("a")]
-                self.rating = sub_info.find_all("img")[-1]["alt"].split()[0]
+                self.rating = data["rating"]
                 """ :type : str"""
-                comments_section = self.soup.find(id="comments-submission")
-                self.comments_section = FAKey.FAReader.FACommentsSection(comments_section)
+                self.comments_section = FAKey.FAReader.FACommentsSection(comments_data)
                 """ :type : FAKey.FAReader.FACommentsSection"""
 
         class FACommentsSection:
 
-            def __init__(self, comments):
+            def __init__(self, comments_data):
                 self.top_level_comments = []
                 """ :type : list[FAKey.FAReader.FAComment]"""
-                comment_stack = []
-                for comment in comments.find_all("table", {"id": lambda x: x and x.startswith("cid:")}):
-                    comment_link = comment.find("a")
-                    username = comment_link["href"].split("/")[-2]
-                    name = comment.find("b", {"class": "replyto-name"}).string
-                    avatar_link = "https:" + comment_link.find("img")["src"]
-                    comment_id = comment["id"][4:]
-                    posted_datetime = Commons.format_unix_time(int(comment["data-timestamp"]))
-                    text = "".join(str(x) for x in comment.find("div", {"class": "message-text"}).contents).strip()
+                for comment in comments_data:
+                    username = comment["profile_name"]
+                    name = comment["name"]
+                    avatar_link = comment["avatar"]
+                    comment_id = comment["id"]
+                    posted_datetime = dateutil.parser.parse(comment["posted_at"])
+                    text_soup = BeautifulSoup(comment["text"], "html.parser")
+                    text = "".join(str(x) for x in text_soup.find("div", {"class": "message-text"}).contents).strip()
                     new_comment = FAKey.FAReader.FAComment(username, name, avatar_link, comment_id,
                                                            posted_datetime, text)
-                    width = int(comment["width"][:-1])
-                    if comment_stack.__len__() == 0 or width < comment_stack[-1][0]:
-                        comment_stack.append((width, new_comment))
-                    for index in range(len(comment_stack)):
-                        if width == comment_stack[index][0]:
-                            parent_comment = None if index == 0 else comment_stack[index-1][1]
-                            new_comment.parent = parent_comment
-                            if parent_comment is not None:
-                                parent_comment.reply_comments.append(new_comment)
-                            else:
-                                self.top_level_comments.append(new_comment)
-                            comment_stack[index] = (width, new_comment)
+                    if comment["reply_to"] == "":
+                        self.top_level_comments.append(new_comment)
+                    else:
+                        parent_id = comment["reply_to"]
+                        parent_comment = self.get_comment_by_id(parent_id)
+                        new_comment.parent = parent_comment
+                        parent_comment.reply_comments.append(new_comment)
 
             def get_comment_by_id(self, comment_id, parent_comment=None):
                 """
