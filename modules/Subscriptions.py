@@ -5,6 +5,7 @@ import urllib.parse
 from abc import ABCMeta
 from datetime import datetime, timedelta
 from threading import Lock
+from urllib.error import HTTPError
 from xml.etree import ElementTree
 
 import dateutil
@@ -605,7 +606,8 @@ class FANotificationNotesSub(Subscription):
     @staticmethod
     def create_from_input(input_evt, sub_repo):
         user = input_evt.user
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Cannot create FA note notification subscription without cookie details. "
@@ -712,7 +714,8 @@ class FANotificationNotesSub(Subscription):
         user = server.get_user_by_address(user_addr)
         if user is None:
             raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
@@ -758,7 +761,8 @@ class FANotificationFavSub(Subscription):
     @staticmethod
     def create_from_input(input_evt, sub_repo):
         user = input_evt.user
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Cannot create FA favourite notification subscription without cookie details. "
@@ -847,7 +851,8 @@ class FANotificationFavSub(Subscription):
         user = server.get_user_by_address(user_addr)
         if user is None:
             raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
@@ -898,7 +903,8 @@ class FANotificationCommentsSub(Subscription):
     @staticmethod
     def create_from_input(input_evt, sub_repo):
         user = input_evt.user
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Cannot create FA comments notification subscription without cookie details. "
@@ -967,7 +973,7 @@ class FANotificationCommentsSub(Subscription):
                 output = "You have a new shout, from {} " \
                          "( http://furaffinity.net/user/{}/ ) " \
                          "has left a shout saying: \n\n{}".format(item.name, item.username, shout[0].text)
-            except Exception:
+            except HTTPError:
                 output = "You have a new shout, from {} " \
                          "( http://furaffinity.net/user/{}/ ) " \
                          "has left a shout but I can't find it on your user page: \n" \
@@ -983,7 +989,7 @@ class FANotificationCommentsSub(Subscription):
                                                      ("your" if item.journal_yours else "their"),
                                                      item.journal_name, item.journal_link,
                                                      comment.text)
-            except Exception:
+            except HTTPError:
                 output = "You have a journal comment notification. " \
                          "{} has made a new comment {}on {} journal " \
                          "\"{}\" {} but I can't find " \
@@ -1001,7 +1007,7 @@ class FANotificationCommentsSub(Subscription):
                                      ("in response to your comment " if item.comment_on else ""),
                                      ("your" if item.submission_yours else "their"),
                                      item.submission_name, item.submission_link, comment.text)
-            except Exception:
+            except HTTPError:
                 output = "You have a submission comment notification. " \
                          "{} has made a new comment {}on {} submission \"{}\" {} : but I can't find " \
                          "the comment.".format(item.name,
@@ -1054,7 +1060,8 @@ class FANotificationCommentsSub(Subscription):
         user = server.get_user_by_address(user_addr)
         if user is None:
             raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
@@ -1118,7 +1125,8 @@ class FASearchSub(Subscription):
         """
         # Get FAKey object
         user = input_evt.user
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Cannot create FA search subscription without cookie details. "
@@ -1233,7 +1241,8 @@ class FASearchSub(Subscription):
         user = server.get_user_by_address(user_addr)
         if user is None:
             raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
@@ -1297,7 +1306,8 @@ class FAUserFavsSub(Subscription):
         """
         # Get FAKey object
         user = input_evt.user
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Cannot create FA user favourites subscription without cookie details. "
@@ -1373,7 +1383,7 @@ class FAUserFavsSub(Subscription):
         try:
             sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
             image_url = sub_page.full_image
-        except Exception:
+        except HTTPError:
             print("Failed to get submission page for FAUserFavsSubscription.")
             image_url = item.preview_image
         file_extension = image_url.split(".")[-1].lower()
@@ -1413,7 +1423,8 @@ class FAUserFavsSub(Subscription):
         user = server.get_user_by_address(user_addr)
         if user is None:
             raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
@@ -1476,7 +1487,8 @@ class FAUserWatchersSub(Subscription):
         """
         # Get FAKey object
         user = input_evt.user
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Cannot create FA user watchers subscription without cookie details. "
@@ -1585,7 +1597,8 @@ class FAUserWatchersSub(Subscription):
         user = server.get_user_by_address(user_addr)
         if user is None:
             raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
@@ -1635,7 +1648,8 @@ class FANotificationWatchSub(FAUserWatchersSub):
         """
         # Get FAKey object
         user = input_evt.user
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Cannot create FA watcher notification subscription without cookie details. "
@@ -1701,7 +1715,8 @@ class FANotificationWatchSub(FAUserWatchersSub):
         user = server.get_user_by_address(user_addr)
         if user is None:
             raise SubscriptionException("Could not find user matching address `{}`".format(user_addr))
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+        assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
@@ -1953,7 +1968,8 @@ class FAKeysCommon(SubscriptionCommon):
         if user in self.list_keys:
             return self.list_keys[user]
         user_data_parser = UserDataParser()
-        fa_data = user_data_parser.get_data_by_user_and_type(user, FAKeyData)  # type: FAKeyData
+        fa_data = user_data_parser.get_data_by_user_and_type(user, FAKeyData)
+        assert isinstance(fa_data, FAKeyData)
         if fa_data is None:
             return None
         fa_key = FAKey(user, fa_data.cookie_a, fa_data.cookie_b)
