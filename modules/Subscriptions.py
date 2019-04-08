@@ -2047,6 +2047,13 @@ class FAKey:
             cookie_string = "a="+self.a+";b="+self.b+extra_cookie
             return Commons.load_url_string(url, [["Cookie", cookie_string]])
 
+        def _get_api_data(self, path, needs_cookie=False):
+            url = "https://faexport.boothale.net/{}".format(path)
+            if needs_cookie:
+                cookie_string = "a="+self.a+";b="+self.b
+                return Commons.load_url_json(url, [["Cookie", cookie_string]])
+            return Commons.load_url_json(url)
+
         def get_notification_page(self):
             """
             :rtype: FAKey.FAReader.FANotificationsPage
