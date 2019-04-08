@@ -1,6 +1,5 @@
 import hashlib
 import json
-import os
 import re
 import urllib.parse
 from abc import ABCMeta
@@ -1154,49 +1153,38 @@ class FASearchSub(Subscription):
         fa_reader = self.fa_key.get_fa_reader()
         results = []
         search_page = fa_reader.get_search_page(self.search)
-        if len(search_page.results) == 0:
+        if len(search_page.id_list) == 0:
             raise SubscriptionException("Search returned no results.")
         next_batch = []
         matched_ids = False
-        for search_result in search_page.results:
-            result_id = search_result.submission_id
+        for result_id in search_page.id_list:
             # Batch things that have been seen, so that the results after the last result in latest_ids aren't included
             if result_id in self.latest_ids:
                 results += next_batch
                 next_batch = []
                 matched_ids = True
             else:
-                next_batch.append(search_result)
+                next_batch.append(result_id)
         # If no images in search matched an ID in last seen, send all results from search
         if not matched_ids:
             results += next_batch
         # Create new list of latest ten results
-        self.latest_ids = [result.submission_id for result in search_page.results[:10]]
+        self.latest_ids = search_page.id_list[:10]
         self.last_check = datetime.now()
-        # Debug, dumping a bunch of data to file  # TODO: debug, remove when done.
-        new_code = search_page.code
-        if len(results) > 0 and self.old_code is not None:
-            self.save_debug(results, self.old_code, new_code)
-        self.old_code = new_code
-        return results[::-1]
-
-    def save_debug(self, results, old_code, new_code):  # TODO: debug, remove when done.
-        dir_name = "fa_search_sub_{}_{}".format(self.search, datetime.now())
-        os.makedirs(dir_name)
-        with open(dir_name+"/results", "w+") as f:
-            f.write("\n".join([result.submission_id for result in results]))
-        with open(dir_name+"/old_code.html", "w+") as f:
-            f.write(old_code)
-        with open(dir_name+"/new_code.html", "w+") as f:
-            f.write(new_code)
+        # Get submission pages for each result
+        result_pages = []
+        for result_id in results:
+            result_pages.append(fa_reader.get_submission_page(result_id))
+        # Return results
+        return result_pages[::-1]
 
     def format_item(self, item):
         """
-        :type item: FAKey.FAReader.FASearchResult
+        :type item: FAKey.FAReader.FAViewSubmissionPage
         :return: EventMessage
         """
         link = "https://furaffinity.net/view/{}".format(item.submission_id)
-        title = item.submission_title
+        title = item.title
         posted_by = item.name
         # Construct output
         output = "Update on \"{}\" FA search. \"{}\" by {}. {}".format(
@@ -1207,12 +1195,7 @@ class FASearchSub(Subscription):
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         # Get submission page and file extension
-        try:
-            sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
-            image_url = sub_page.full_image
-        except Exception:
-            print("Failed to get submission page for FASearchSubscription")
-            image_url = item.thumbnail_link
+        image_url = item.full_image
         file_extension = image_url.split(".")[-1].lower()
         if file_extension in ["png", "jpg", "jpeg", "bmp", "gif"]:
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
@@ -2105,35 +2088,15 @@ class FAKey:
             return journal_page
 
         def get_search_page(self, search_term):
-            post_params = dict()
-            post_params["q"] = search_term
-            post_params["do_search"] = "Search"
-            post_params["mode"] = "extended"
-            post_params["order-by"] = "date"
-            post_params["order-direction"] = "desc"
-            post_params["page"] = 1
-            post_params["perpage"] = 72
-            post_params["range"] = "all"
-            post_params["rating-adult"] = "on"
-            post_params["rating-general"] = "on"
-            post_params["rating-mature"] = "on"
-            post_params["type-art"] = "on"
-            post_params["type-flash"] = "on"
-            post_params["type-music"] = "on"
-            post_params["type-photo"] = "on"
-            post_params["type-poetry"] = "on"
-            post_params["type-story"] = "on"
-            post_data = urllib.parse.urlencode(post_params)
-            code = self._get_page_code("https://www.furaffinity.net/search/?{}".format(post_data))
-            search_page = FAKey.FAReader.FASearchPage(code, search_term)
+            path = "/search.json?q={}".format(search_term)
+            id_list = self._get_api_data(path)
+            search_page = FAKey.FAReader.FASearchPage(id_list, search_term)
             return search_page
 
         class FAPage:
             def __init__(self, code):
                 self.retrieve_time = datetime.now()
                 """ :type : datetime"""
-                self.code = code  # TODO: debug, remove when done.
-                """ :type : str"""
                 self.soup = BeautifulSoup(code, "html.parser")
                 """ :type : BeautifulSoup"""
                 login_user = self.soup.find(id="my-username")
@@ -2712,7 +2675,7 @@ class FAKey:
                 self.posted_datetime = datetime.strptime(posted_datetime_str, "%b %d, %Y %H:%M")
                 """ :type : datetime"""
                 self.journal_header = None
-                """ :type : str"""
+                """ :type : str | None"""
                 try:
                     header = self.soup.find("div", {"class": "journal-header"})
                     header.find_all("hr")[-1].decompose()
@@ -2723,7 +2686,7 @@ class FAKey:
                     .strip()
                 """ :type : str"""
                 self.journal_footer = None
-                """ :type : str"""
+                """ :type : str | None"""
                 try:
                     footer = self.soup.find("div", {"class": "journal-footer"})
                     footer.find_all("hr")[0].decompose()
@@ -2734,46 +2697,13 @@ class FAKey:
                 comments = self.soup.find(id="page-comments")
                 self.comments_section = FAKey.FAReader.FACommentsSection(comments)
 
-        class FASearchPage(FAPage):
+        class FASearchPage:
 
-            def __init__(self, code, search_term):
-                super().__init__(code)
+            def __init__(self, id_list, search_term):
                 self.search_term = search_term
                 """ :type : str"""
-                self.results = []
-                """ :type : list[FAKey.FAReader.FASearchResult]"""
-                results = self.soup.find_all("figure")
-                for result in results:
-                    caption_links = result.find("figcaption").find_all("a")
-                    rating = [i[2:] for i in result["class"] if i.startswith("r-")][0]
-                    submission_id = result["id"][4:]
-                    submission_type = [i[2:] for i in result["class"] if i.startswith("t-")][0]
-                    thumbnail_link = "https:" + result.find("img")["src"]
-                    username = caption_links[1]["href"].split("/")[-2]
-                    name = caption_links[1].string
-                    submission_title = caption_links[0].string
-                    new_result = FAKey.FAReader.FASearchResult(rating, submission_id, submission_type, thumbnail_link,
-                                                               username, name, submission_title)
-                    self.results.append(new_result)
-
-        class FASearchResult:
-
-            def __init__(self, rating, submission_id, submission_type, thumbnail_link,
-                         username, name, submission_title):
-                self.rating = rating
-                """ :type : str"""
-                self.submission_id = submission_id
-                """ :type : str"""
-                self.submission_type = submission_type
-                """ :type : str"""
-                self.thumbnail_link = thumbnail_link
-                """ :type : str"""
-                self.username = username
-                """ :type : str"""
-                self.name = name
-                """ :type : str"""
-                self.submission_title = submission_title
-                """ :type : str"""
+                self.id_list = id_list
+                """ :type : list[str]"""
 
 
 class SubscriptionFactory(object):
