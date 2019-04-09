@@ -2104,8 +2104,7 @@ class FAKey:
             return journal_page
 
         def get_search_page(self, search_term):
-            path = "/search.json?q={}".format(search_term)
-            id_list = self._get_api_data(path)
+            id_list = self._get_api_data("/search.json?q={}".format(search_term))
             search_page = FAKey.FAReader.FASearchPage(id_list, search_term)
             return search_page
 
