@@ -1176,13 +1176,13 @@ class FASearchSub(Subscription):
         # If no images in search matched an ID in last seen, send all results from search
         if not matched_ids:
             results += next_batch
-        # Create new list of latest ten results
-        self.latest_ids = search_page.id_list[:10]
-        self.last_check = datetime.now()
         # Get submission pages for each result
         result_pages = []
         for result_id in results:
             result_pages.append(fa_reader.get_submission_page(result_id))
+        # Create new list of latest ten results
+        self.latest_ids = search_page.id_list[:10]
+        self.last_check = datetime.now()
         # Return results
         return result_pages[::-1]
 
@@ -1350,26 +1350,29 @@ class FAUserFavsSub(Subscription):
         favs_page = fa_reader.get_user_fav_page(self.username)
         next_batch = []
         matched_ids = False
-        for fav_result in favs_page.favourites:
-            result_id = fav_result.submission_id
+        for result_id in favs_page.fav_ids:
             # Batch things that have been seen, so that the results after the last result in latest_ids aren't included
             if result_id in self.latest_ids:
                 results += next_batch
                 next_batch = []
                 matched_ids = True
             else:
-                next_batch.append(fav_result)
+                next_batch.append(result_id)
         # If no images in search matched an ID in last seen, send all results from search
         if not matched_ids:
             results += next_batch
+        # Get submission pages for each result
+        result_pages = []
+        for result_id in results:
+            result_pages.append(fa_reader.get_submission_page(result_id))
         # Create new list of latest ten results
-        self.latest_ids = [result.submission_id for result in favs_page.favourites[:10]]
+        self.latest_ids = favs_page.fav_ids[:10]
         self.last_check = datetime.now()
-        return results[::-1]
+        return result_pages[::-1]
 
     def format_item(self, item):
         """
-        :type item: FAKey.FAReader.FAFavourite
+        :type item: FAKey.FAReader.FAViewSubmissionPage
         :return: EventMessage
         """
         link = "https://furaffinity.net/view/{}".format(item.submission_id)
@@ -1380,12 +1383,7 @@ class FAUserFavsSub(Subscription):
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         # Get submission page and file extension
-        try:
-            sub_page = self.fa_key.get_fa_reader().get_submission_page(item.submission_id)
-            image_url = sub_page.full_image
-        except HTTPError:
-            print("Failed to get submission page for FAUserFavsSubscription.")
-            image_url = item.preview_image
+        image_url = item.full_image
         file_extension = image_url.split(".")[-1].lower()
         if file_extension in ["png", "jpg", "jpeg", "bmp", "gif"]:
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
@@ -2088,8 +2086,8 @@ class FAKey:
             :type username: str
             :rtype: FAKey.FAReader.FAUserFavouritesPage
             """
-            code = self._get_page_code("https://www.furaffinity.net/favorites/{}/".format(username))
-            fav_page = FAKey.FAReader.FAUserFavouritesPage(code, username)
+            id_list = self._get_api_data("/user/{}/favorites.json".format(username))
+            fav_page = FAKey.FAReader.FAUserFavouritesPage(id_list, username)
             return fav_page
 
         def get_submission_page(self, submission_id):
@@ -2521,48 +2519,13 @@ class FAKey:
                 self.watched_name = watched_name
                 """ :type : str"""
 
-        class FAUserFavouritesPage(FAPage):
+        class FAUserFavouritesPage:
 
-            def __init__(self, code, username):
-                super().__init__(code)
+            def __init__(self, id_list, username):
                 self.username = username
                 """ :type : str"""
-                self.favourites = []
-                """ :type : list[FAKey.FAReader.FAFavourite]"""
-                fav_gallery = self.soup.find(id="gallery-favorites")
-                for fav in fav_gallery.find_all("figure"):
-                    try:
-                        fav_links = fav.find_all("a")
-                        submission_id = fav_links[0]["href"].split("/")[-2]
-                        submission_type = [c[2:] for c in fav["class"] if c.startswith("t-")][0]
-                        rating = [c[2:] for c in fav["class"] if c.startswith("r-")][0]
-                        title = fav_links[1].string
-                        preview_image = "https:"+fav.img["src"]
-                        username = fav_links[2]["href"].split("/")[-2]
-                        name = fav_links[2].string
-                        new_fav = FAKey.FAReader.FAFavourite(submission_id, submission_type, rating, title,
-                                                             preview_image, username, name)
-                        self.favourites.append(new_fav)
-                    except Exception as e:
-                        print("Could not read favourite: {}".format(e))
-
-        class FAFavourite:
-
-            def __init__(self, submission_id, submission_type, rating, title, preview_image, username, name):
-                self.submission_id = submission_id
-                """ :type : str"""
-                self.submission_type = submission_type
-                """ :type : str"""
-                self.rating = rating
-                """ :type : str"""
-                self.title = title
-                """ :type : str"""
-                self.preview_image = preview_image
-                """ :type : str"""
-                self.username = username
-                """ :type : str"""
-                self.name = name
-                """ :type : str"""
+                self.fav_ids = id_list
+                """ :type : list[int]"""
 
         class FAViewSubmissionPage:
 
