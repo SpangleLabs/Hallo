@@ -968,8 +968,8 @@ class FANotificationCommentsSub(Subscription):
         fa_reader = self.fa_key.get_fa_reader()
         if isinstance(item, FAKey.FAReader.FANotificationShout):
             try:
-                user_page = fa_reader.get_user_page(item.page_username)
-                shout = [shout for shout in user_page.shouts if shout.shout_id == item.shout_id]
+                user_page_shouts = fa_reader.get_user_page(item.page_username).shouts
+                shout = [shout for shout in user_page_shouts if shout.shout_id == item.shout_id]
                 output = "You have a new shout, from {} " \
                          "( http://furaffinity.net/user/{}/ ) " \
                          "has left a shout saying: \n\n{}".format(item.name, item.username, shout[0].text)
@@ -2078,8 +2078,10 @@ class FAKey:
         def get_user_page(self, username):
             # Needs shout list, for checking own shouts
             data = self._get_api_data("/user/{}.json".format(username))
-            shout_data = self._get_api_data("/user/{}/shouts.json".format(username))
-            user_page = FAKey.FAReader.FAUserPage(data, shout_data, username)
+
+            def shout_data_getter():
+                return self._get_api_data("/user/{}/shouts.json".format(username))
+            user_page = FAKey.FAReader.FAUserPage(data, shout_data_getter, username)
             return user_page
 
         def get_user_fav_page(self, username):
@@ -2093,14 +2095,18 @@ class FAKey:
 
         def get_submission_page(self, submission_id):
             data = self._get_api_data("/submission/{}.json".format(submission_id))
-            comments_data = self._get_api_data("/submission/{}/comments.json".format(submission_id))
-            sub_page = FAKey.FAReader.FAViewSubmissionPage(data, comments_data, submission_id)
+
+            def comment_data_getter():
+                return self._get_api_data("/submission/{}/comments.json".format(submission_id))
+            sub_page = FAKey.FAReader.FAViewSubmissionPage(data, comment_data_getter, submission_id)
             return sub_page
 
         def get_journal_page(self, journal_id):
             data = self._get_api_data("/journal/{}.json".format(journal_id))
-            comments_data = self._get_api_data("/journal/{}/comments.json".format(journal_id))
-            journal_page = FAKey.FAReader.FAViewJournalPage(data, comments_data, journal_id)
+
+            def comment_data_getter():
+                return self._get_api_data("/journal/{}/comments.json".format(journal_id))
+            journal_page = FAKey.FAReader.FAViewJournalPage(data, comment_data_getter, journal_id)
             return journal_page
 
         def get_search_page(self, search_term):
@@ -2416,7 +2422,7 @@ class FAKey:
 
         class FAUserPage:
 
-            def __init__(self, data, shout_data, username):
+            def __init__(self, data, shout_data_getter, username):
                 self.username = username
                 """ :type : str"""
                 self.name = data["full_name"]
@@ -2443,16 +2449,9 @@ class FAKey:
                 # artist_info
                 # contact_info
                 # featured_submission
-                self.shouts = []
-                """ :type : list[FAKey.FAReader.FAShout]"""
-                for shout in shout_data:
-                    shout_id = shout["id"].replace("shout-", "")
-                    username = shout["profile_name"]
-                    name = shout["name"]
-                    avatar = shout["avatar"]
-                    text = shout["text"]
-                    new_shout = FAKey.FAReader.FAShout(shout_id, username, name, avatar, text)
-                    self.shouts.append(new_shout)
+                self._shout_data_getter = shout_data_getter
+                self._shout_cache = None
+                """ :type : list[FAKey.FAReader.FAShout] | None"""
                 # watcher lists
                 self.watched_by = []
                 """ :type : list[FAKey.FAReader.FAWatch]"""
@@ -2467,6 +2466,20 @@ class FAKey:
                     watched_name = watch["name"]
                     new_watch = FAKey.FAReader.FAWatch(self.username, self.name, watched_username, watched_name)
                     self.is_watching.append(new_watch)
+
+            @property
+            def shouts(self):
+                if self._shout_cache is None:
+                    shout_data = self._shout_data_getter()
+                    for shout in shout_data:
+                        shout_id = shout["id"].replace("shout-", "")
+                        username = shout["profile_name"]
+                        name = shout["name"]
+                        avatar = shout["avatar"]
+                        text = shout["text"]
+                        new_shout = FAKey.FAReader.FAShout(shout_id, username, name, avatar, text)
+                        self.shouts.append(new_shout)
+                return self._shout_cache
 
         class FAShout:
 
@@ -2504,7 +2517,7 @@ class FAKey:
 
         class FAViewSubmissionPage:
 
-            def __init__(self, data, comments_data, submission_id):
+            def __init__(self, data, comments_data_getter, submission_id):
                 self.submission_id = submission_id
                 """ :type : str"""
                 sub_descbox = BeautifulSoup(data["description"], "html.parser")
@@ -2543,8 +2556,16 @@ class FAKey:
                 """ :type : list[str]"""
                 self.rating = data["rating"]
                 """ :type : str"""
-                self.comments_section = FAKey.FAReader.FACommentsSection(comments_data)
-                """ :type : FAKey.FAReader.FACommentsSection"""
+                self._comments_section_getter = comments_data_getter
+                self._comments_section_cache = None
+                """ :type : FAKey.FAReader.FACommentsSection | None"""
+
+            @property
+            def comments_section(self):
+                if self._comments_section_cache is None:
+                    comments_data = self._comments_section_getter()
+                    self._comments_section_cache = FAKey.FAReader.FACommentsSection(comments_data)
+                return self._comments_section_cache
 
         class FACommentsSection:
 
@@ -2611,7 +2632,7 @@ class FAKey:
 
         class FAViewJournalPage:
 
-            def __init__(self, data, comments_data, journal_id):
+            def __init__(self, data, comments_data_getter, journal_id):
                 self.journal_id = journal_id
                 """ :type : str"""
                 self.username = data["profile_name"]
@@ -2645,8 +2666,16 @@ class FAKey:
                     self.journal_footer = "".join(str(s) for s in footer).strip()
                 except Exception as e:
                     print("Failed to read journal footer. {}".format(e))
-                self.comments_section = FAKey.FAReader.FACommentsSection(comments_data)
-                """ :type : FAKey.FAReader.FACommentsSection"""
+                self._comments_section_getter = comments_data_getter
+                self._comments_section_cache = None
+                """ :type : FAKey.FAReader.FACommentsSection | None"""
+
+            @property
+            def comments_section(self):
+                if self._comments_section_cache is None:
+                    comments_data = self._comments_section_getter()
+                    self._comments_section_cache = FAKey.FAReader.FACommentsSection(comments_data)
+                return self._comments_section_cache
 
         class FASearchPage:
 
