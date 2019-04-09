@@ -2097,8 +2097,9 @@ class FAKey:
             return sub_page
 
         def get_journal_page(self, journal_id):
-            code = self._get_page_code("https://www.furaffinity.net/journal/{}/".format(journal_id))
-            journal_page = FAKey.FAReader.FAViewJournalPage(code, journal_id)
+            data = self._get_api_data("/journal/{}.json".format(journal_id))
+            comments_data = self._get_api_data("/journal/{}/comments.json".format(journal_id))
+            journal_page = FAKey.FAReader.FAViewJournalPage(data, comments_data, journal_id)
             return journal_page
 
         def get_search_page(self, search_term):
@@ -2634,47 +2635,44 @@ class FAKey:
                 self.reply_comments = []
                 """ :type : list[FAKey.FAReader.FAComment]"""
 
-        class FAViewJournalPage(FAPage):
+        class FAViewJournalPage:
 
-            def __init__(self, code, journal_id):
-                super().__init__(code)
+            def __init__(self, data, comments_data, journal_id):
                 self.journal_id = journal_id
                 """ :type : str"""
-                title_box = self.soup.find("td", {"class": "journal-title-box"})
-                self.username = title_box.find("a")["src"].split("/")[-2]
+                self.username = data["profile_name"]
                 """ :type : str"""
-                self.name = title_box.find("a").string
+                self.name = data["profile_name"]  # TODO: change to profile["name"] when API is fixed
                 """ :type : str"""
-                self.avatar_link = "https:" + self.soup.find("img", {"class": "avatar"})["src"]
+                self.avatar_link = None  # TODO: Fix if API expanded
+                """ :type : str | None"""
+                self.title = data["title"]
                 """ :type : str"""
-                self.title = title_box.find("div").string.strip()
-                """ :type : str"""
-                posted_datetime_str = title_box.find("span", {"class": "popup_date"})["title"].replace("st", "")\
-                    .replace("nd", "").replace("rd", "").replace("th", "")
-                self.posted_datetime = datetime.strptime(posted_datetime_str, "%b %d, %Y %H:%M")
+                self.posted_datetime = dateutil.parser.parse(data["posted_at"])
                 """ :type : datetime"""
+                journal_soup = BeautifulSoup(data["description"], "html.parser")
                 self.journal_header = None
                 """ :type : str | None"""
                 try:
-                    header = self.soup.find("div", {"class": "journal-header"})
+                    header = journal_soup.find("div", {"class": "journal-header"})
                     header.find_all("hr")[-1].decompose()
                     self.journal_header = "".join(str(s) for s in header).strip()
                 except Exception as e:
                     print("Failed to read journal header. {}".format(e))
-                self.journal_text = "".join(str(s) for s in self.soup.find("div", {"class": "journal-body"}).contents)\
-                    .strip()
+                self.journal_text = "".join(
+                    str(s) for s in journal_soup.find("div", {"class": "journal-body"}).contents
+                ).strip()
                 """ :type : str"""
                 self.journal_footer = None
                 """ :type : str | None"""
                 try:
-                    footer = self.soup.find("div", {"class": "journal-footer"})
+                    footer = journal_soup.find("div", {"class": "journal-footer"})
                     footer.find_all("hr")[0].decompose()
                     self.journal_footer = "".join(str(s) for s in footer).strip()
                 except Exception as e:
                     print("Failed to read journal footer. {}".format(e))
-                self.soup.find(id="comments-submission")
-                comments = self.soup.find(id="page-comments")
-                self.comments_section = FAKey.FAReader.FACommentsSection(comments)
+                self.comments_section = FAKey.FAReader.FACommentsSection(comments_data)
+                """ :type : FAKey.FAReader.FACommentsSection"""
 
         class FASearchPage:
 
