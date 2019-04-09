@@ -2077,8 +2077,9 @@ class FAKey:
 
         def get_user_page(self, username):
             # Needs shout list, for checking own shouts
-            code = self._get_page_code("https://www.furaffinity.net/user/{}/".format(username))
-            user_page = FAKey.FAReader.FAUserPage(code, username)
+            data = self._get_api_data("/user/{}.json".format(username))
+            shout_data = self._get_api_data("/user/{}/shouts.json".format(username))
+            user_page = FAKey.FAReader.FAUserPage(data, shout_data, username)
             return user_page
 
         def get_user_fav_page(self, username):
@@ -2414,85 +2415,59 @@ class FAKey:
                 self.is_read = is_read
                 """ :type : bool"""
 
-        class FAUserPage(FAPage):
+        class FAUserPage:
 
-            def __init__(self, code, username):
-                super().__init__(code)
-                main_panel = self.soup.find("b", string="Full Name:").parent
-                main_panel_strings = list(main_panel.stripped_strings)
+            def __init__(self, data, shout_data, username):
                 self.username = username
                 """ :type : str"""
-                self.name = main_panel_strings[main_panel_strings.index("Full Name:")+1]
+                self.name = data["full_name"]
                 """ :type : str"""
-                self.user_title = None
+                self.user_title = data["user_title"] if len(data["user_title"]) != 0 else None
                 """ :type : str | None"""
-                if "User Title:" in main_panel_strings:
-                    self.user_title = main_panel_strings[main_panel_strings.index("User Title:") + 1]
-                registered_since_str = main_panel_strings[main_panel_strings.index("Registered since:")+1]\
-                    .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
-                self.registered_since = datetime.strptime(registered_since_str, "%b %d, %Y %H:%M")
+                self.registered_since = dateutil.parser.parse(data["registered_at"])
                 """ :type : datetime"""
-                self.current_mood = main_panel_strings[main_panel_strings.index("Current mood:")+1]
+                self.current_mood = data["current_mood"]
                 """ :type : str"""
                 # artist_profile
-                self.num_page_visits = None
-                """ :type : int | None"""
-                self.num_submissions = None
-                """ :type : int | None"""
-                self.num_comments_received = None
-                """ :type : int | None"""
-                self.num_comments_given = None
-                """ :type : int | None"""
-                self.num_journals = None
-                """ :type : int | None"""
-                self.num_favourites = None
-                """ :type : int | None"""
-                try:
-                    statistics = list(self.soup.find("b", title="Once per user per 24 hours").parent.stripped_strings)
-                    self.num_page_visits = int(statistics[statistics.index("Page Visits:")+1])
-                    self.num_submissions = int(statistics[statistics.index("Submissions:")+1])
-                    self.num_comments_received = int(statistics[statistics.index("Comments Received:")+1])
-                    self.num_comments_given = int(statistics[statistics.index("Comments Given:")+1])
-                    self.num_journals = int(statistics[statistics.index("Journals:")+1])
-                    self.num_favourites = int(statistics[statistics.index("Favorites:")+1])
-                except Exception as e:
-                    print("Failed to read statistics on user page. {}".format(e))
+                self.num_page_visits = int(data["pageviews"])
+                """ :type : int"""
+                self.num_submissions = int(data["submissions"])
+                """ :type : int"""
+                self.num_comments_received = int(data["comments_received"])
+                """ :type : int"""
+                self.num_comments_given = int(data["comments_given"])
+                """ :type : int"""
+                self.num_journals = int(data["journals"])
+                """ :type : int"""
+                self.num_favourites = int(data["favorites"])
+                """ :type : int"""
                 # artist_info
                 # contact_info
                 # featured_submission
                 self.shouts = []
                 """ :type : list[FAKey.FAReader.FAShout]"""
-                shout_list = self.soup.find_all("table", {"id": lambda x: x and x.startswith("shout-")})
-                if shout_list is not None:
-                    for shout in shout_list:
-                        shout_id = shout["id"].replace("shout-", "")
-                        username = shout.find_all("img", {"class": "avatar"})[0]["alt"]
-                        name = shout.find_all("a")[1].string
-                        avatar = "https"+shout.find_all("img", {"class": "avatar"})[0]["src"]
-                        text = "".join(str(x) for x in shout.find("div").contents).strip()
-                        new_shout = FAKey.FAReader.FAShout(shout_id, username, name, avatar, text)
-                        self.shouts.append(new_shout)
+                for shout in shout_data:
+                    shout_id = shout["id"].replace("shout-", "")
+                    username = shout["profile_name"]
+                    name = shout["name"]
+                    avatar = shout["avatar"]
+                    text = shout["text"]
+                    new_shout = FAKey.FAReader.FAShout(shout_id, username, name, avatar, text)
+                    self.shouts.append(new_shout)
+                # watcher lists
                 self.watched_by = []
                 """ :type : list[FAKey.FAReader.FAWatch]"""
-                try:
-                    watcher_list = self.soup.find_all("b", text="Watched by")[0].parent.parent.parent
-                    for watch in watcher_list.find_all("span", {"class": "artist_name"}):
-                        watcher_username = watch.parent["href"].split("/")[-2]
-                        watcher_name = watch.string
-                        new_watch = FAKey.FAReader.FAWatch(watcher_username, watcher_name, self.username, self.name)
-                        self.watched_by.append(new_watch)
-                except Exception as e:
-                    print("Failed to get watched by list: {}".format(e))
+                for watch in data["watchers"]["recent"]:
+                    watcher_username = watch["link"].split("/")[-2]
+                    watcher_name = watch["name"]
+                    new_watch = FAKey.FAReader.FAWatch(watcher_username, watcher_name, self.username, self.name)
+                    self.watched_by.append(new_watch)
                 self.is_watching = []
-                try:
-                    watching_list = self.soup.find_all("b", text="Is watching")[0].parent.parent.parent
-                    for watch in watching_list.find_all("span", {"class": "artist_name"}):
-                        watched_username = watch.parent["href"].split("/")[-2]
-                        watched_name = watch.string
-                        new_watch = FAKey.FAReader.FAWatch(self.username, self.name, watched_username, watched_name)
-                        self.is_watching.append(new_watch)
-                except Exception as e:
-                    print("Failed to get is watching list: {}".format(e))
+                for watch in data["watching"]["recent"]:
+                    watched_username = watch["link"].split("/")[-2]
+                    watched_name = watch["name"]
+                    new_watch = FAKey.FAReader.FAWatch(self.username, self.name, watched_username, watched_name)
+                    self.is_watching.append(new_watch)
 
         class FAShout:
 
