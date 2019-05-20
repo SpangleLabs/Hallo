@@ -3,6 +3,7 @@ import traceback
 from abc import ABCMeta
 from datetime import datetime, time, date, timedelta
 from threading import RLock
+from urllib.error import HTTPError
 
 from Events import EventDay, EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound
 from Function import Function
@@ -256,9 +257,9 @@ class DailysSpreadsheet:
         data = Commons.load_url_json(
             "{}/stats/{}/{}".format(self.dailys_url, dailys_field.type_name, data_date.isoformat())
         )
-        if len(data) == 0 or len(data[0]) == 0:
+        if len(data) == 0:
             return None
-        return data[0][0]
+        return data[0]
 
     def to_json(self):
         json_obj = dict()
@@ -774,7 +775,7 @@ class DailysDuolingoField(DailysField):
         try:
             Commons.load_url_json("https://www.duolingo.com/users/{}".format(username))
             return True
-        except ValueError:
+        except HTTPError:
             return False
 
     @staticmethod
