@@ -199,6 +199,25 @@ class Commons(object):
         return output_dict
 
     @staticmethod
+    def put_json_to_url(url, data, headers=None):
+        """
+        Converts data to JSON and PUT it to the specified URL
+        :param url: URL to send PUT request to
+        :param data: data to send
+        :param headers: List of HTTP headers to add to the request
+        """
+        if headers is None:
+            headers = []
+        page_request = urllib.request.Request(url, method="PUT")
+        page_request.add_header('User-Agent', 'Hallo IRCBot hallo@dr-spangle.com')
+        for header in headers:
+            page_request.add_header(header[0], header[1])
+        page_opener = urllib.request.build_opener()
+        resp = page_opener.open(page_request, data=json.dumps(data), timeout=60)
+        resp.read()
+        resp.close()
+
+    @staticmethod
     def check_numbers(message):
         """
         Checks that an argument is purely numbers
