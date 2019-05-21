@@ -19,7 +19,7 @@ class DailysSpreadsheetMock(DailysSpreadsheet):
         :type data_str: str
         :type data_date: date
         """
-        if field.type_name in self.saved_data:
+        if field.type_name not in self.saved_data:
             self.saved_data[field.type_name] = {}
         self.saved_data[field.type_name][data_date] = data_str
 
