@@ -1,18 +1,13 @@
 import json
 import traceback
-import uuid
 from abc import ABCMeta
 from datetime import datetime, time, date, timedelta
 from threading import RLock
-
-import dateutil.parser
+from urllib.error import HTTPError
 
 from Events import EventDay, EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound
 from Function import Function
-from inc.Commons import CachedObject, Commons
-from googleapiclient.discovery import build
-from oauth2client import file
-from httplib2 import Http
+from inc.Commons import Commons
 
 
 class DailysException(Exception):
@@ -32,10 +27,10 @@ class DailysRegister(Function):
         self.names = set([template.format(setup, dailys)
                           for template in ["{0} {1}", "{1} {0}"]
                           for setup in ["setup", "register"]
-                          for dailys in ["dailys", "dailys spreadsheet"]])
+                          for dailys in ["dailys", "dailys api"]])
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Registers a new dailys spreadsheet to be fed from the current location." \
-                         " Format: dailys register <google spreadsheet ID>"
+        self.help_docs = "Registers a new dailys API to be fed from the current location." \
+                         " Format: dailys register <dailys API URL>"
 
     def run(self, event):
         # Get dailys repo
@@ -46,33 +41,19 @@ class DailysRegister(Function):
         dailys_repo = sub_check_obj.get_dailys_repo(hallo)
         # Check if there's already a spreadsheet here
         if dailys_repo.get_by_location(event) is not None:
-            return event.create_response("There is already a spreadsheet configured in this location.")
+            return event.create_response("There is already a dailys API configured in this location.")
         # Create new spreadsheet object
         clean_input = event.command_args.strip()
         spreadsheet = DailysSpreadsheet(event.user, event.channel, clean_input)
-        # Check a bunch of things can be detected, which also set the cache for them.
-        hallo_key_row = spreadsheet.hallo_key_row.get()
-        if hallo_key_row is None:
-            return event.create_response("Could not locate hallo key row in spreadsheet. "
-                                         "Please add one (and only one) header row labelled \"hallo key\", "
-                                         "for hallo to store column references in.")
-        date_col = spreadsheet.date_column.get()
-        if hallo_key_row is None:
-            return event.create_response("Could not locate date column in spreadsheet. "
-                                         "Please add one (and only one) label column titled \"date\".")
-        date_start = spreadsheet.get_first_date()
-        if date_start is None:
-            return event.create_response("Could not find the first date in the date column of the spreadsheet. "
-                                         "Please add an initial date to the spreadsheet")
+        # Check the stats/ endpoint returns a list.
+        resp = Commons.load_url_json(clean_input)
+        if not isinstance(resp, list):
+            return event.create_response("Could not locate Dailys API at this URL.")
         # Save the spreadsheet
         dailys_repo.add_spreadsheet(spreadsheet)
         dailys_repo.save_json()
         # Send response
-        return event.create_response("Dailys spreadsheet found, with hallo keys in row {}, "
-                                     "dates in column {}, "
-                                     "and starting from {}".format(hallo_key_row+1,
-                                                                   spreadsheet.col_num_to_string(date_col),
-                                                                   date_start.date()))
+        return event.create_response("Dailys API found, currently with data for {}.".format(resp))
 
 
 class DailysAddField(Function):
@@ -90,8 +71,8 @@ class DailysAddField(Function):
                           for setup in ["setup", "register", "add"]
                           for dailys in ["dailys field", "field to dailys"]])
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Registers a new dailys spreadsheet to be fed from the current location." \
-                         " Format: dailys register <google spreadsheet ID>"
+        self.help_docs = "Registers a new dailys field to the spreadsheet in the current chat location." \
+                         " Format: add dailys field <field name>"
 
     def run(self, event):
         # Get spreadsheet repo
@@ -103,8 +84,8 @@ class DailysAddField(Function):
         # Get the active spreadsheet for this person and destination
         spreadsheet = dailys_repo.get_by_location(event)
         if spreadsheet is None:
-            return event.create_response("There is no spreadsheet configured in this channel. "
-                                         "Please register a spreadsheet first with `dailys register`")
+            return event.create_response("There is no dailys API configured in this channel. "
+                                         "Please register a dailys API first with `dailys register`")
         # Get args
         clean_input = event.command_args.strip().lower()
         # If args are empty, list available fields
@@ -121,7 +102,7 @@ class DailysAddField(Function):
         new_field = matching_field.create_from_input(event, spreadsheet)
         # TODO: check if field already assigned, or if we already have a field of that type?
         spreadsheet.add_field(new_field)
-        return event.create_response("Added a new field to your dailys spreadsheet.")
+        return event.create_response("Added a new field to your dailys API data.")
 
 
 class Dailys(Function):
@@ -136,8 +117,8 @@ class Dailys(Function):
         # Names which can be used to address the function
         self.names = {"dailys"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Core dailys method, does .. a bunch of stuff I guess?." \
-                         " Format: dailys"  # TODO
+        self.help_docs = "Core dailys method, does all the dailys processing passively." \
+                         " Doesn't do anything (currently) when called actively."
         self.dailys_repo = None
         """ :type : DailysRepo | None"""
 
@@ -230,7 +211,7 @@ class DailysRepo:
 
 class DailysSpreadsheet:
 
-    def __init__(self, user, destination, spreadsheet_id):
+    def __init__(self, user, destination, dailys_url):
         """
         :type user: Destination.User
         :type destination: Destination.Destination
@@ -238,149 +219,11 @@ class DailysSpreadsheet:
         self.user = user
         """ :type : Destination.User"""
         self.destination = destination
-        """ :type : Destination.Channel | None"""
-        self.spreadsheet_id = spreadsheet_id
+        """ :type : Destination.Destination | None"""
+        self.dailys_url = dailys_url
         """ :type : str"""
-        self.first_sheet_name = CachedObject(self.find_first_sheet_name)
-        """ :type : CachedObject"""
-        self.hallo_key_row = CachedObject(self.find_hallo_key_row)
-        """ :type : CachedObject"""
-        self.date_column = CachedObject(self.find_date_column)
-        """ :type : CachedObject"""
-        self.first_date_pair = CachedObject(self.find_first_date)
-        """ :type : CachedObject"""
         self.fields_list = []
         """ :type : list[DailysField]"""
-
-    def get_spreadsheet_service(self):
-        store = file.Storage('store/google-oauth-token.json')
-        creds = store.get()
-        if not creds or creds.invalid:
-            raise DailysException("Google oauth token is not valid. "
-                                  "Please run store/google-oauth-import.py somewhere with a UI")
-        return build('sheets', 'v4', http=creds.authorize(Http()))
-
-    def get_spreadsheet_range(self, val_range):
-        """
-        :type val_range: str
-        :rtype: list[list[str]]
-        """
-        service = self.get_spreadsheet_service()
-        result = service.spreadsheets().values().get(spreadsheetId=self.spreadsheet_id,
-                                                     range=val_range).execute()
-        return result.get('values', [])
-
-    def update_spreadsheet_cell(self, cell, data):
-        service = self.get_spreadsheet_service()
-        body = {"values": [[data]]}
-        request = service.spreadsheets().values().update(spreadsheetId=self.spreadsheet_id,
-                                                         range=cell,
-                                                         valueInputOption="RAW",
-                                                         body=body)
-        return request.execute()
-
-    def find_first_sheet_name(self):
-        service = self.get_spreadsheet_service()
-        sheet_metadata = service.spreadsheets().get(spreadsheetId=self.spreadsheet_id).execute()
-        sheets = sheet_metadata.get('sheets', '')
-        name = sheets[0].get("properties", {}).get("title", "Sheet1")
-        return "'{}'".format(name)
-
-    def find_hallo_key_row(self):
-        test_range = '{}!A1:J10'.format(self.first_sheet_name.get())
-        rows = self.get_spreadsheet_range(test_range)
-        sub_str = "hallo key"
-        match_count = 0
-        match_row = None
-        for row_num in range(len(rows)):
-            if any([sub_str in elem.lower() for elem in rows[row_num]]):
-                match_count += 1
-                match_row = row_num
-                if match_count > 1:
-                    match_row = None
-                    break
-        return match_row
-
-    def find_column_by_names(self, names):
-        col_range = "{}!A1:10".format(self.first_sheet_name.get())
-        header_rows = self.get_spreadsheet_range(col_range)
-        max_cols = max([len(row) for row in header_rows])
-        match_col = None
-        match_count = 0
-        for col_num in range(max_cols):
-            for row in header_rows:
-                if col_num < len(row) and any(name in row[col_num].lower() for name in names):
-                    match_col = col_num
-            if match_col == col_num:
-                match_count += 1
-            if match_count > 1:
-                match_col = None
-                break
-        return match_col
-
-    def tag_column(self, col_title):
-        key = str(uuid.uuid4())
-        cell = "{}!{}{}".format(self.first_sheet_name.get(), col_title, self.hallo_key_row.get()+1)
-        self.update_spreadsheet_cell(cell, key)
-        return key
-
-    def find_and_tag_column_by_names(self, names):
-        col = self.find_column_by_names(names)
-        if col is None:
-            return None
-        return self.tag_column(self.col_num_to_string(col))
-
-    def get_column_by_field_id(self, field_id):
-        hallo_row = self.hallo_key_row.get()
-        field_id_range = "{0}!A{1}:{1}".format(self.first_sheet_name.get(), hallo_row+1)
-        row = self.get_spreadsheet_range(field_id_range)[0]
-        return row.index(field_id)
-
-    def find_date_column(self):
-        return self.find_column_by_names(["date"])
-
-    def col_num_to_string(self, num):
-        string = ""
-        num += 1
-        while num > 0:
-            num, remainder = divmod(num - 1, 26)
-            string = chr(65 + remainder) + string
-        return string
-
-    def col_string_to_num(self, string):
-        num = 0
-        for char in string:
-            if num != 0:
-                num *= 26
-            num += ord(char.upper())-64
-        return num-1
-
-    def find_first_date(self):
-        date_col = self.date_column.get()
-        date_col_name = self.col_num_to_string(date_col)
-        date_range = self.get_spreadsheet_range("{0}!{1}1:{1}".format(self.first_sheet_name.get(), date_col_name))
-        first_date = None
-        first_date_row = None
-        for row_num in range(len(date_range)):
-            try:
-                first_date = dateutil.parser.parse(date_range[row_num][0], dayfirst=True).date()
-                first_date_row = row_num
-                break
-            except ValueError:
-                continue
-            except IndexError:
-                continue
-        return first_date_row, first_date
-
-    def get_first_date_row(self):
-        return self.first_date_pair.get()[0]
-
-    def get_first_date(self):
-        return self.first_date_pair.get()[1]
-
-    def get_row_for_date(self, current_date):
-        first_date_row, first_date = self.first_date_pair.get()
-        return (current_date - first_date).days + first_date_row
 
     def add_field(self, field):
         """
@@ -395,12 +238,12 @@ class DailysSpreadsheet:
         :type data: str
         :type data_date: date
         """
-        col_num = self.get_column_by_field_id(dailys_field.hallo_key_field_id)
-        row_num = self.get_row_for_date(data_date)
-        self.update_spreadsheet_cell("{}!{}{}".format(self.first_sheet_name.get(),
-                                                      self.col_num_to_string(col_num),
-                                                      row_num+1),
-                                     data)
+        if dailys_field.type_name is None:
+            raise DailysException("Cannot write to unassigned dailys field")
+        Commons.put_json_to_url(
+            "{}/stats/{}/{}?source=Hallo".format(self.dailys_url, dailys_field.type_name, data_date.isoformat()),
+            data
+        )
 
     def read_field(self, dailys_field, data_date):
         """
@@ -409,14 +252,14 @@ class DailysSpreadsheet:
         :type data_date: date
         :rtype: str | None
         """
-        col_num = self.get_column_by_field_id(dailys_field.hallo_key_field_id)
-        row_num = self.get_row_for_date(data_date)
-        data = self.get_spreadsheet_range("{}!{}{}".format(self.first_sheet_name.get(),
-                                                           self.col_num_to_string(col_num),
-                                                           row_num+1))
-        if len(data) == 0 or len(data[0]) == 0:
+        if dailys_field.type_name is None:
+            raise DailysException("Cannot read from unassigned dailys field")
+        data = Commons.load_url_json(
+            "{}/stats/{}/{}".format(self.dailys_url, dailys_field.type_name, data_date.isoformat())
+        )
+        if len(data) == 0:
             return None
-        return data[0][0]
+        return data[0]
 
     def to_json(self):
         json_obj = dict()
@@ -424,7 +267,7 @@ class DailysSpreadsheet:
         json_obj["user_address"] = self.user.address
         if self.destination is not None:
             json_obj["dest_address"] = self.destination.address
-        json_obj["spreadsheet_id"] = self.spreadsheet_id
+        json_obj["dailys_url"] = self.dailys_url
         json_obj["fields"] = []
         for field in self.fields_list:
             json_obj["fields"].append(field.to_json())
@@ -445,8 +288,8 @@ class DailysSpreadsheet:
             if dest_chan is None:
                 raise DailysException("Could not find channel with address \"{}\" on server \"{}\""
                                       .format(json_obj["dest_address"], json_obj["server"]))
-        spreadsheet_id = json_obj["spreadsheet_id"]
-        new_spreadsheet = DailysSpreadsheet(user, dest_chan, spreadsheet_id)
+        dailys_url = json_obj["dailys_url"]
+        new_spreadsheet = DailysSpreadsheet(user, dest_chan, dailys_url)
         for field_json in json_obj["fields"]:
             new_spreadsheet.add_field(DailysFieldFactory.from_json(field_json, new_spreadsheet))
         return new_spreadsheet
@@ -455,16 +298,14 @@ class DailysSpreadsheet:
 class DailysField(metaclass=ABCMeta):
     # An abstract class representing an individual dailys field type.
     # A field can/will be multiple columns, maybe a varying quantity of them by configuration
+    type_name = None
 
-    def __init__(self, spreadsheet, hallo_key_field_id):
+    def __init__(self, spreadsheet):
         """
         :type spreadsheet: DailysSpreadsheet
-        :type hallo_key_field_id: str
         """
         self.spreadsheet = spreadsheet
         """ :type : DailysSpreadsheet"""
-        self.hallo_key_field_id = hallo_key_field_id
-        """ :type : str"""
 
     @staticmethod
     def create_from_input(event, spreadsheet):
@@ -536,18 +377,7 @@ class DailysSleepField(DailysField):
 
     @staticmethod
     def create_from_input(event, spreadsheet):
-        # Get column or find it.
-        clean_input = event.command_args[len(DailysSleepField.type_name):].strip()
-        if len(clean_input) <= 3 and clean_input.isalpha():
-            key = spreadsheet.tag_column(clean_input)
-            return DailysSleepField(spreadsheet, key)
-        key = spreadsheet.find_and_tag_column_by_names(DailysSleepField.col_names)
-        if key is None:
-            raise DailysException("Could not find a suitable column. "
-                                  "Please ensure one and only one column is titled: {}."
-                                  "Or specify a column reference."
-                                  .format(", ".join(DailysSleepField.col_names)))
-        return DailysSleepField(spreadsheet, key)
+        return DailysSleepField(spreadsheet)
 
     @staticmethod
     def passive_events():
@@ -623,12 +453,11 @@ class DailysSleepField(DailysField):
     def to_json(self):
         json_obj = dict()
         json_obj["type_name"] = self.type_name
-        json_obj["field_key"] = self.hallo_key_field_id
         return json_obj
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
-        return DailysSleepField(spreadsheet, json_obj["field_key"])
+        return DailysSleepField(spreadsheet)
 
 
 class DailysMoodField(DailysField):
@@ -661,8 +490,8 @@ class DailysMoodField(DailysField):
             for del_date in expired_dates:
                 del self.cache[del_date]
 
-    def __init__(self, spreadsheet, hallo_key_field_id, times, moods):
-        super().__init__(spreadsheet, hallo_key_field_id)
+    def __init__(self, spreadsheet, times, moods):
+        super().__init__(spreadsheet)
         self.times = times
         """ :type : list[time|str]"""
         self.moods = moods
@@ -675,8 +504,7 @@ class DailysMoodField(DailysField):
         clean_input = event.command_args[len(DailysMoodField.type_name):].strip()
         input_split = clean_input.split(";")
         if len(input_split) not in [2, 3]:
-            raise DailysException("Mood setup must contain times, then a semicolon, then mood measurements. (You can "
-                                  "optionally then provide a spreadsheet column reference.)")
+            raise DailysException("Mood setup must contain times, then a semicolon, then mood measurements.")
         input_times = input_split[0].lower()
         input_moods = input_split[1]
         # Parse times
@@ -700,18 +528,8 @@ class DailysMoodField(DailysField):
                                   "formatted times, or 'wake' or 'sleep'.".format(input_time))
         # Parse mood measurements
         moods = input_moods.split()
-        # Check key, if provided
-        if len(input_split) == 3:
-            key = spreadsheet.tag_column(input_split[2].strip())
-        else:
-            key = spreadsheet.find_and_tag_column_by_names(DailysMoodField.col_names)
-            if key is None:
-                raise DailysException("Could not find a suitable column. "
-                                      "Please ensure one and only one column is titled: {}."
-                                      "Or specify a column reference."
-                                      .format(", ".join(DailysMoodField.col_names)))
         # Return new field
-        return DailysMoodField(spreadsheet, key, times, moods)
+        return DailysMoodField(spreadsheet, times, moods)
 
     @staticmethod
     def passive_events():
@@ -897,14 +715,12 @@ class DailysMoodField(DailysField):
     def to_json(self):
         json_obj = dict()
         json_obj["type_name"] = self.type_name
-        json_obj["field_key"] = self.hallo_key_field_id
         json_obj["times"] = [str(t) for t in self.times]
         json_obj["moods"] = self.moods
         return json_obj
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
-        key = json_obj["field_key"]
         moods = json_obj["moods"]
         times = []
         for time_str in json_obj["times"]:
@@ -912,7 +728,7 @@ class DailysMoodField(DailysField):
                 times.append(time_str)
             else:
                 times.append(datetime.strptime(time_str, "%H:%M:%S").time())
-        return DailysMoodField(spreadsheet, key, times, moods)
+        return DailysMoodField(spreadsheet, times, moods)
 
 
 class DailysAnimalsField(DailysField):
@@ -927,8 +743,8 @@ class DailysDuolingoField(DailysField):
     type_name = "duolingo"
     col_names = ["duolingo", "duolingo friends", "duolingo friends list"]
 
-    def __init__(self, spreadsheet, hallo_key_field_id, username):
-        super().__init__(spreadsheet, hallo_key_field_id)
+    def __init__(self, spreadsheet, username):
+        super().__init__(spreadsheet)
         self.username = username
 
     @staticmethod
@@ -959,7 +775,7 @@ class DailysDuolingoField(DailysField):
         try:
             Commons.load_url_json("https://www.duolingo.com/users/{}".format(username))
             return True
-        except ValueError:
+        except HTTPError:
             return False
 
     @staticmethod
@@ -968,43 +784,21 @@ class DailysDuolingoField(DailysField):
 
     @staticmethod
     def create_from_input(event, spreadsheet):
-        clean_input = event.command_args[len(DailysDuolingoField.type_name):].strip().split()
-        if len(clean_input) > 2 or len(clean_input) == 0:
-            raise DailysException("Cannot understand input. Please provide your Duolingo username, "
-                                  "and optionally, a column reference for this data in the spreadsheet.")
-        if len(clean_input) == 1:
-            if DailysDuolingoField._check_duo_username(clean_input[0]):
-                key = spreadsheet.find_and_tag_column_by_names(DailysDuolingoField.col_names)
-                if key is None:
-                    raise DailysException("Could not find a suitable column. "
-                                          "Please ensure one and only one column is titled: {}."
-                                          "Or specify a column reference."
-                                          .format(", ".join(DailysDuolingoField.col_names)))
-                return DailysDuolingoField(spreadsheet, key, clean_input[0])
-            else:
-                raise DailysException("Could not find a duolingo account with that username.")
-        # length of input is 2.
-        if DailysDuolingoField._check_spreadsheet_col_name(clean_input[0]):
-            if DailysDuolingoField._check_duo_username(clean_input[1]):
-                key = spreadsheet.tag_column(clean_input[0])
-                return DailysDuolingoField(spreadsheet, key, clean_input[1])
-        if DailysDuolingoField._check_duo_username(clean_input[0]):
-            if DailysDuolingoField._check_spreadsheet_col_name(clean_input[1]):
-                key = spreadsheet.tag_column(clean_input[1])
-                return DailysDuolingoField(spreadsheet, key, clean_input[0])
-        raise DailysException("Could not understand your input. Please provide a duolingo username, and optionally, "
-                              "a column reference for this data in the spreadsheet.")
+        clean_input = event.command_args[len(DailysDuolingoField.type_name):].strip()
+        if DailysDuolingoField._check_duo_username(clean_input):
+            return DailysDuolingoField(spreadsheet, clean_input)
+        else:
+            raise DailysException("Could not find a duolingo account with that username.")
 
     def to_json(self):
         json_obj = dict()
         json_obj["type_name"] = self.type_name
-        json_obj["field_key"] = self.hallo_key_field_id
         json_obj["username"] = self.username
         return json_obj
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
-        return DailysDuolingoField(spreadsheet, json_obj["field_key"], json_obj["username"])
+        return DailysDuolingoField(spreadsheet, json_obj["username"])
 
 
 class DailysSplooField(DailysField):
