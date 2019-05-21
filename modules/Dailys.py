@@ -238,6 +238,7 @@ class DailysSpreadsheet:
     def save_field(self, dailys_field, data, data_date):
         """
         Save given data in a specified column for the current date row.
+        # TODO: change data for dict
         :type dailys_field: DailysField
         :type data: str
         :type data_date: date
@@ -246,7 +247,7 @@ class DailysSpreadsheet:
             raise DailysException("Cannot write to unassigned dailys field")
         Commons.put_json_to_url(
             "{}/stats/{}/{}/?source=Hallo".format(self.dailys_url, dailys_field.type_name, data_date.isoformat()),
-            data
+            json.loads(data)
         )
 
     def read_field(self, dailys_field, data_date):
