@@ -213,7 +213,7 @@ class Commons(object):
         for header in headers:
             page_request.add_header(header[0], header[1])
         page_opener = urllib.request.build_opener()
-        resp = page_opener.open(page_request, data=json.dumps(data), timeout=60)
+        resp = page_opener.open(page_request, data=json.dumps(data).encode('utf-8'), timeout=60)
         resp.read()
         resp.close()
 
