@@ -238,16 +238,15 @@ class DailysSpreadsheet:
     def save_field(self, dailys_field, data, data_date):
         """
         Save given data in a specified column for the current date row.
-        # TODO: change data for dict
         :type dailys_field: DailysField
-        :type data: str
+        :type data: dict
         :type data_date: date
         """
         if dailys_field.type_name is None:
             raise DailysException("Cannot write to unassigned dailys field")
         Commons.put_json_to_url(
             "{}/stats/{}/{}/?source=Hallo".format(self.dailys_url, dailys_field.type_name, data_date.isoformat()),
-            json.loads(data)
+            data
         )
 
     def read_field(self, dailys_field, data_date):
@@ -255,7 +254,7 @@ class DailysSpreadsheet:
         Save given data in a specified column for the current date row.
         :type dailys_field: DailysField
         :type data_date: date
-        :rtype: str | None
+        :rtype: dict | None
         """
         if dailys_field.type_name is None:
             raise DailysException("Cannot read from unassigned dailys field")
@@ -264,7 +263,7 @@ class DailysSpreadsheet:
         )
         if len(data) == 0:
             return None
-        return json.dumps(data[0]['data'])
+        return data[0]['data']
 
     def to_json(self):
         json_obj = dict()
@@ -341,18 +340,15 @@ class DailysField(metaclass=ABCMeta):
 
     def save_data(self, data, data_date):
         """
-        :type data: str | dict
+        :type data: dict
         :type data_date: date
         """
-        data_str = data
-        if isinstance(data, dict):
-            data_str = json.dumps(data)
-        self.spreadsheet.save_field(self, data_str, data_date=data_date)
+        self.spreadsheet.save_field(self, data, data_date=data_date)
 
     def load_data(self, data_date):
         """
         :type data_date: date
-        :rtype: str | None
+        :rtype: dict | None
         """
         return self.spreadsheet.read_field(self, data_date)
 
@@ -451,17 +447,13 @@ class DailysSleepField(DailysField):
         now = evt.get_send_time()
         time_str = now.isoformat()
         sleep_date = evt.get_send_time().date()
-        current_str = self.load_data(sleep_date)
-        if current_str is None or current_str == "":
+        current_data = self.load_data(sleep_date)
+        if current_data is None:
             current_data = dict()
-        else:
-            current_data = json.loads(current_str)
         yesterday_date = sleep_date - timedelta(1)
-        yesterday_str = self.load_data(yesterday_date)
-        if yesterday_str is None or yesterday_str == "":
+        yesterday_data = self.load_data(yesterday_date)
+        if yesterday_data is None:
             yesterday_data = dict()
-        else:
-            yesterday_data = json.loads(yesterday_str)
         # If user is waking up
         if input_clean in DailysSleepField.WAKE_WORDS:
             # If today's data is blank, write in yesterday's sleep data
@@ -604,16 +596,14 @@ class DailysMoodField(DailysField):
         with self.lock:
             # Get today's data, unless it's empty, then get yesterday's, unless it's full, then use today's.
             yesterday_date = mood_date - timedelta(1)
-            today_str = self.load_data(mood_date)
-            if today_str is None or today_str == "":
-                yesterday_str = self.load_data(yesterday_date)
-                if yesterday_str is None or yesterday_str == "":
+            today_data = self.load_data(mood_date)
+            if today_data is None:
+                yesterday_data = self.load_data(yesterday_date)
+                if yesterday_data is None:
                     return dict(), mood_date
-                yesterday_data = json.loads(yesterday_str)
                 if self.mood_data_is_full(yesterday_data):
                     return dict(), mood_date
                 return yesterday_data, yesterday_date
-            today_data = json.loads(today_str)
             return today_data, mood_date
 
     def mood_data_is_full(self, date_data):
@@ -825,7 +815,7 @@ class DailysDuolingoField(DailysField):
                 result[friend["username"]] = friend["points_data"]["total"]
         result_str = json.dumps(result)
         d = (evt.get_send_time() - timedelta(1)).date()
-        self.save_data(result_str, d)
+        self.save_data(result, d)
         # Send date to destination
         self.message_channel(result_str)
 
