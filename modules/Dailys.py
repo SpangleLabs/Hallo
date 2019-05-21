@@ -3,8 +3,7 @@ import traceback
 from abc import ABCMeta
 from datetime import datetime, time, date, timedelta
 from threading import RLock
-
-import dateutil.parser
+from urllib.error import HTTPError
 
 from Events import EventDay, EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound
 from Function import Function
@@ -410,28 +409,16 @@ class DailysFAField(DailysField):
         fa_data = user_parser.get_data_by_user_and_type(spreadsheet.user, FAKeyData)  # type: FAKeyData
         if fa_data is None:
             raise DailysException("No FA data has been set up for the FA dailys field to use.")
-        # Get column or find it.
-        clean_input = event.command_args[len(DailysFAField.type_name):].strip()
-        if len(clean_input) <= 3 and clean_input.isalpha():
-            key = spreadsheet.tag_column(clean_input)
-            return DailysFAField(spreadsheet, key)
-        key = spreadsheet.find_and_tag_column_by_names(DailysFAField.col_names)
-        if key is None:
-            raise DailysException("Could not find a suitable column. "
-                                  "Please ensure one and only one column is titled: {}."
-                                  "Or specify a column reference."
-                                  .format(", ".join(DailysFAField.col_names)))
-        return DailysFAField(spreadsheet, key)
+        return DailysFAField(spreadsheet)
 
     def to_json(self):
         json_obj = dict()
         json_obj["type_name"] = self.type_name
-        json_obj["field_key"] = self.hallo_key_field_id
         return json_obj
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
-        return DailysFAField(spreadsheet, json_obj["field_key"])
+        return DailysFAField(spreadsheet)
 
 
 class DailysSleepField(DailysField):
