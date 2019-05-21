@@ -261,7 +261,7 @@ class DailysSpreadsheet:
         )
         if len(data) == 0:
             return None
-        return data[0]
+        return json.dumps(data[0])
 
     def to_json(self):
         json_obj = dict()
