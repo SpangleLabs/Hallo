@@ -223,6 +223,8 @@ class DailysSpreadsheet:
         self.destination = destination
         """ :type : Destination.Destination | None"""
         self.dailys_url = dailys_url
+        if self.dailys_url[-1] == "/":
+            self.dailys_url = self.dailys_url[:-1]
         """ :type : str"""
         self.fields_list = []
         """ :type : list[DailysField]"""
@@ -243,7 +245,7 @@ class DailysSpreadsheet:
         if dailys_field.type_name is None:
             raise DailysException("Cannot write to unassigned dailys field")
         Commons.put_json_to_url(
-            "{}/stats/{}/{}?source=Hallo".format(self.dailys_url, dailys_field.type_name, data_date.isoformat()),
+            "{}/stats/{}/{}/?source=Hallo".format(self.dailys_url, dailys_field.type_name, data_date.isoformat()),
             data
         )
 
@@ -257,7 +259,7 @@ class DailysSpreadsheet:
         if dailys_field.type_name is None:
             raise DailysException("Cannot read from unassigned dailys field")
         data = Commons.load_url_json(
-            "{}/stats/{}/{}".format(self.dailys_url, dailys_field.type_name, data_date.isoformat())
+            "{}/stats/{}/{}/".format(self.dailys_url, dailys_field.type_name, data_date.isoformat())
         )
         if len(data) == 0:
             return None
