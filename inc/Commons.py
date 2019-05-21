@@ -210,6 +210,7 @@ class Commons(object):
             headers = []
         page_request = urllib.request.Request(url, method="PUT")
         page_request.add_header('User-Agent', 'Hallo IRCBot hallo@dr-spangle.com')
+        page_request.add_header('Content-Type', 'application/json')
         for header in headers:
             page_request.add_header(header[0], header[1])
         page_opener = urllib.request.build_opener()
