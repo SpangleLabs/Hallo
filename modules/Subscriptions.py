@@ -1106,8 +1106,6 @@ class FASearchSub(Subscription):
             latest_ids = []
         self.latest_ids = latest_ids
         """ :type : list[str]"""
-        self.old_code = None  # TODO: debug, remove when done.
-        """ :type : str | None"""
 
     @staticmethod
     def create_from_input(input_evt, sub_repo):
@@ -1172,22 +1170,7 @@ class FASearchSub(Subscription):
         # Create new list of latest ten results
         self.latest_ids = [result.submission_id for result in search_page.results[:10]]
         self.last_check = datetime.now()
-        # Debug, dumping a bunch of data to file  # TODO: debug, remove when done.
-        new_code = search_page.code
-        if len(results) > 0 and self.old_code is not None:
-            self.save_debug(results, self.old_code, new_code)
-        self.old_code = new_code
         return results[::-1]
-
-    def save_debug(self, results, old_code, new_code):  # TODO: debug, remove when done.
-        dir_name = "fa_search_sub_{}_{}".format(self.search, datetime.now())
-        os.makedirs(dir_name)
-        with open(dir_name+"/results", "w+") as f:
-            f.write("\n".join([result.submission_id for result in results]))
-        with open(dir_name+"/old_code.html", "w+") as f:
-            f.write(old_code)
-        with open(dir_name+"/new_code.html", "w+") as f:
-            f.write(new_code)
 
     def format_item(self, item):
         """
@@ -2123,8 +2106,6 @@ class FAKey:
             def __init__(self, code):
                 self.retrieve_time = datetime.now()
                 """ :type : datetime"""
-                self.code = code  # TODO: debug, remove when done.
-                """ :type : str"""
                 self.soup = BeautifulSoup(code, "html.parser")
                 """ :type : BeautifulSoup"""
                 login_user = self.soup.find(id="my-username")
