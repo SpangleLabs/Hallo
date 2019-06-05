@@ -2431,21 +2431,21 @@ class FAKey:
 
             def __init__(self, code, username):
                 super().__init__(code)
-                main_panel = self.soup.find("b", string="Full Name:").parent
+                main_panel = self.soup.find("b", string="Registered Since:").parent
                 main_panel_strings = list(main_panel.stripped_strings)
                 self.username = username
                 """ :type : str"""
-                self.name = main_panel_strings[main_panel_strings.index("Full Name:")+1]
+                self.name = re.search(r"Userpage of (.+) --", self.soup.find("title").string).group(1)
                 """ :type : str"""
                 self.user_title = None
                 """ :type : str | None"""
                 if "User Title:" in main_panel_strings:
                     self.user_title = main_panel_strings[main_panel_strings.index("User Title:") + 1]
-                registered_since_str = main_panel_strings[main_panel_strings.index("Registered since:")+1]\
+                registered_since_str = main_panel_strings[main_panel_strings.index("Registered Since:")+1]\
                     .replace("st", "").replace("nd", "").replace("rd", "").replace("th", "")
                 self.registered_since = datetime.strptime(registered_since_str, "%b %d, %Y %H:%M")
                 """ :type : datetime"""
-                self.current_mood = main_panel_strings[main_panel_strings.index("Current mood:")+1]
+                self.current_mood = main_panel_strings[main_panel_strings.index("Current Mood:")+1]
                 """ :type : str"""
                 # artist_profile
                 self.num_page_visits = None
@@ -2488,7 +2488,7 @@ class FAKey:
                 self.watched_by = []
                 """ :type : list[FAKey.FAReader.FAWatch]"""
                 try:
-                    watcher_list = self.soup.find_all("b", text="Watched by")[0].parent.parent.parent
+                    watcher_list = self.soup.find_all("b", text="Watched By")[0].parent.parent.parent
                     for watch in watcher_list.find_all("span", {"class": "artist_name"}):
                         watcher_username = watch.parent["href"].split("/")[-2]
                         watcher_name = watch.string
@@ -2498,7 +2498,7 @@ class FAKey:
                     print("Failed to get watched by list: {}".format(e))
                 self.is_watching = []
                 try:
-                    watching_list = self.soup.find_all("b", text="Is watching")[0].parent.parent.parent
+                    watching_list = self.soup.find_all("b", text="Is Watching")[0].parent.parent.parent
                     for watch in watching_list.find_all("span", {"class": "artist_name"}):
                         watched_username = watch.parent["href"].split("/")[-2]
                         watched_name = watch.string
