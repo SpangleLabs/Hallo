@@ -2582,19 +2582,19 @@ class FAKey:
                 super().__init__(code)
                 self.submission_id = submission_id
                 """ :type : str"""
-                sub_info = self.soup.find("td", {"class", "stats-container"})
+                sub_info = self.soup.find("td", {"class": "stats-container"})
                 sub_info_stripped = list(sub_info.stripped_strings)
-                sub_titlebox = sub_info.find_parent("td").find_previous("td")
+                sub_titlebox = self.soup.find("div", {"class": ["classic-submission-title", "container"]})
                 sub_descbox = sub_info.find_next("td")
-                self.title = sub_titlebox.find("b").string
+                self.title = sub_titlebox.find("h2").string
                 """ :type : str"""
                 self.full_image = "https:" + self.soup.find(text="Download").parent["href"]
                 """ :type : str"""
                 self.username = sub_titlebox.find("a")["href"].split("/")[-2]
                 """ :type : str"""
-                self.name = sub_titlebox.string
+                self.name = sub_titlebox.find("a").string
                 """ :type : str"""
-                self.avatar_link = "https:" + sub_descbox.find("img")["src"]
+                self.avatar_link = "https:" + sub_titlebox.find("img")["src"]
                 """ :type : str"""
                 self.description = "".join(str(s) for s in sub_descbox.contents[5:]).strip()
                 """ :type : str"""
