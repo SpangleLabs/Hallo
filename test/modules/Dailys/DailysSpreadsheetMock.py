@@ -9,7 +9,7 @@ class DailysSpreadsheetMock(DailysSpreadsheet):
         :type destination: Channel | None
         :type saved_data: dict[str, dict[date, dict]]
         """
-        super().__init__(user, destination, None)
+        super().__init__(user, destination, None, None)
         self.saved_data = dict() if saved_data is None else saved_data
         """ :type : dict[str, dict[date, str]]"""
 
