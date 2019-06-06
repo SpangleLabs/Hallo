@@ -32,7 +32,7 @@ class DailysRegister(Function):
                           for dailys in ["dailys", "dailys api"]])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Registers a new dailys API to be fed from the current location." \
-                         " Format: dailys register <dailys API URL>"
+                         " Format: dailys register <dailys API URL> <dailys auth key?>"
 
     def run(self, event):
         # Get dailys repo
@@ -45,10 +45,25 @@ class DailysRegister(Function):
         if dailys_repo.get_by_location(event) is not None:
             return event.create_response("There is already a dailys API configured in this location.")
         # Create new spreadsheet object
-        clean_input = event.command_args.strip()
-        spreadsheet = DailysSpreadsheet(event.user, event.channel, clean_input)
+        clean_input = event.command_args.strip().split()
+        # Check which argument is which
+        # If no second argument, that means there is no key
+        spreadsheet = None
+        if len(clean_input) == 1:
+            spreadsheet = DailysSpreadsheet(event.user, event.channel, clean_input[0], None)
+        elif len(clean_input) == 2:
+            try:
+                resp = Commons.load_url_json(clean_input[0])
+                if isinstance(resp, list):
+                    spreadsheet = DailysSpreadsheet(event.user, event.channel, clean_input[0], clean_input[1])
+            except HTTPError:
+                pass
+            if spreadsheet is None:
+                spreadsheet = DailysSpreadsheet(event.user, event.channel, clean_input[1], clean_input[0])
+        if len(clean_input) == 0 or len(clean_input) > 2 or spreadsheet is None:
+            return event.create_response("Please specify a dailys API URL and an optional auth key.")
         # Check the stats/ endpoint returns a list.
-        resp = Commons.load_url_json(clean_input)
+        resp = Commons.load_url_json(spreadsheet.dailys_url)
         if not isinstance(resp, list):
             return event.create_response("Could not locate Dailys API at this URL.")
         # Save the spreadsheet
@@ -213,11 +228,12 @@ class DailysRepo:
 
 class DailysSpreadsheet:
 
-    def __init__(self, user, destination, dailys_url):
+    def __init__(self, user, destination, dailys_url, dailys_key):
         """
         :type user: Destination.User
         :type destination: Destination.Destination
         :type dailys_url: str
+        :type dailys_key: str | None
         """
         self.user = user
         """ :type : Destination.User"""
@@ -226,6 +242,8 @@ class DailysSpreadsheet:
         self.dailys_url = dailys_url
         if self.dailys_url is not None and self.dailys_url[-1] == "/":
             self.dailys_url = self.dailys_url[:-1]
+        """ :type : str"""
+        self.dailys_key = dailys_key
         """ :type : str"""
         self.fields_list = []
         """ :type : list[DailysField]"""
@@ -245,9 +263,13 @@ class DailysSpreadsheet:
         """
         if dailys_field.type_name is None:
             raise DailysException("Cannot write to unassigned dailys field")
+        headers = None
+        if self.dailys_key is not None:
+            headers = [["Authorization", self.dailys_key]]
         Commons.put_json_to_url(
             "{}/stats/{}/{}/?source=Hallo".format(self.dailys_url, dailys_field.type_name, data_date.isoformat()),
-            data
+            data,
+            headers
         )
 
     def read_field(self, dailys_field, data_date):
@@ -273,6 +295,8 @@ class DailysSpreadsheet:
         if self.destination is not None:
             json_obj["dest_address"] = self.destination.address
         json_obj["dailys_url"] = self.dailys_url
+        if self.dailys_key is not None:
+            json_obj["dailys_key"] = self.dailys_key
         json_obj["fields"] = []
         for field in self.fields_list:
             json_obj["fields"].append(field.to_json())
@@ -294,7 +318,8 @@ class DailysSpreadsheet:
                 raise DailysException("Could not find channel with address \"{}\" on server \"{}\""
                                       .format(json_obj["dest_address"], json_obj["server"]))
         dailys_url = json_obj["dailys_url"]
-        new_spreadsheet = DailysSpreadsheet(user, dest_chan, dailys_url)
+        dailys_key = json_obj.get("dailys_key")
+        new_spreadsheet = DailysSpreadsheet(user, dest_chan, dailys_url, dailys_key)
         for field_json in json_obj["fields"]:
             new_spreadsheet.add_field(DailysFieldFactory.from_json(field_json, new_spreadsheet))
         return new_spreadsheet
