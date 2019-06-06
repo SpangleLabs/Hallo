@@ -8,6 +8,7 @@ from test.TestBase import TestBase
 from test.modules.Dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
 
 
+@unittest.skip("Skipping Duolingo field tests, as API now requires auth")
 class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
     TEST_USERNAME = "Deer-Spangle"
 
