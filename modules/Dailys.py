@@ -421,10 +421,10 @@ class DailysFAField(DailysField):
         notifications["favourites"] = notif_page.total_favs
         notifications["watches"] = notif_page.total_watches
         notifications["notes"] = notif_page.total_notes
-        notif_str = json.dumps(notifications)
         d = (evt.get_send_time() - timedelta(1)).date()
-        self.save_data(notif_str, d)
+        self.save_data(notifications, d)
         # Send date to destination
+        notif_str = json.dumps(notifications)
         self.message_channel(notif_str)
 
     @staticmethod
