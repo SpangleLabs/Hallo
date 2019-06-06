@@ -217,13 +217,14 @@ class DailysSpreadsheet:
         """
         :type user: Destination.User
         :type destination: Destination.Destination
+        :type dailys_url: str
         """
         self.user = user
         """ :type : Destination.User"""
         self.destination = destination
         """ :type : Destination.Destination | None"""
         self.dailys_url = dailys_url
-        if self.dailys_url[-1] == "/":
+        if self.dailys_url is not None and self.dailys_url[-1] == "/":
             self.dailys_url = self.dailys_url[:-1]
         """ :type : str"""
         self.fields_list = []
