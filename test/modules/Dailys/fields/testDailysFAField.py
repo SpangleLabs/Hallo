@@ -1,4 +1,3 @@
-import json
 import os
 import unittest
 from datetime import timedelta
@@ -37,8 +36,7 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
         evt = EventDay()
         field.passive_trigger(evt)
         assert evt.get_send_time().date() not in spreadsheet.saved_data
-        notif_str = spreadsheet.saved_data["furaffinity"][evt.get_send_time().date()-timedelta(1)]
-        notif_dict = json.loads(notif_str)
+        notif_dict = spreadsheet.saved_data["furaffinity"][evt.get_send_time().date()-timedelta(1)]
         assert "submissions" in notif_dict
         assert "comments" in notif_dict
         assert "journals" in notif_dict
