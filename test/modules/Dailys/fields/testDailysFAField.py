@@ -1,3 +1,4 @@
+import json
 import os
 import unittest
 from datetime import timedelta
@@ -45,7 +46,7 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
         assert "notes" in notif_dict
         assert len(self.server.send_data) == 1
         assert isinstance(self.server.send_data[0], EventMessage)
-        assert self.server.send_data[0].text == notif_str
+        assert self.server.send_data[0].text == json.dumps(notif_dict)
         assert self.server.send_data[0].channel == self.test_chan
         assert self.server.send_data[0].user == self.test_user
 
