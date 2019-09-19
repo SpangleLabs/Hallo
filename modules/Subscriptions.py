@@ -210,11 +210,12 @@ class Subscription(metaclass=ABCMeta):
         """
         raise NotImplementedError()
 
-    def check(self):
+    def check(self, *, ignore_result=False):
         """
         Checks the subscription, and returns a list of update objects, in whatever format that
         format_item() would like to receive them.
         The list should be ordered from oldest to newest.
+        :param ignore_result: Whether the items returned will be formatted an used.
         :rtype: list[object]
         """
         raise NotImplementedError()
@@ -236,7 +237,7 @@ class Subscription(metaclass=ABCMeta):
         """
         raise NotImplementedError()
 
-    def needs_check(self):
+    def needs_check(self, *, ignore_result=False):
         """
         Returns whether a subscription check is overdue.
         :rtype: bool
@@ -349,7 +350,7 @@ class RssSub(Subscription):
     def get_name(self):
         return "{} ({})".format(self.title, self.url)
 
-    def check(self):
+    def check(self, *, ignore_result=False):
         rss_data = self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
         channel_elem = rss_elem.find("channel")
@@ -489,7 +490,7 @@ class E621Sub(Subscription):
     def get_name(self):
         return "search for \"{}\"".format(self.search)
 
-    def check(self):
+    def check(self, *, ignore_result=False):
         search = "{} order:-id".format(self.search)  # Sort by id
         if len(self.latest_ids) > 0:
             oldest_id = min(self.latest_ids)
@@ -780,7 +781,7 @@ class FANotificationNotesSub(Subscription):
     def get_name(self):
         return "FA notes for {}".format(self.fa_key.user.name)
 
-    def check(self):
+    def check(self, *, ignore_result=False):
         fa_reader = self.fa_key.get_fa_reader()
         results = []
         # Check inbox and outbox
@@ -935,7 +936,7 @@ class FANotificationFavSub(Subscription):
     def get_name(self):
         return "FA favourites for {}".format(self.fa_key.user.name)
 
-    def check(self):
+    def check(self, *, ignore_result=False):
         fa_reader = self.fa_key.get_fa_reader()
         notif_page = fa_reader.get_notification_page()
         results = []
@@ -1076,7 +1077,7 @@ class FANotificationCommentsSub(Subscription):
     def get_name(self):
         return "FA comments for {}".format(self.fa_key.user.name)
 
-    def check(self):
+    def check(self, *, ignore_result=False):
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         results = []
         # Only get notifications if there's more notifications than last time
@@ -1293,7 +1294,7 @@ class FASearchSub(Subscription):
         # Create FA search subscription object
         fa_sub = FASearchSub(server, destination, fa_key, search, update_frequency=search_delta)
         # Check if it's a valid search
-        first_results = fa_sub.check()
+        first_results = fa_sub.check(ignore_result=True)
         if len(first_results) == 0:
             raise SubscriptionException("This does not appear to be a valid search, or does not have results.")
         return fa_sub
@@ -1304,7 +1305,7 @@ class FASearchSub(Subscription):
     def get_name(self):
         return "search for \"{}\"".format(self.search)
 
-    def check(self):
+    def check(self, *, ignore_result=False):
         fa_reader = self.fa_key.get_fa_reader()
         results = []
         search_page = fa_reader.get_search_page(self.search)
@@ -1326,7 +1327,10 @@ class FASearchSub(Subscription):
         # Get submission pages for each result
         result_pages = []
         for result_id in results:
-            result_pages.append(fa_reader.get_submission_page(result_id))
+            if ignore_result:
+                result_pages.append(None)
+            else:
+                result_pages.append(fa_reader.get_submission_page(result_id))
         # Create new list of latest ten results
         self.latest_ids = search_page.id_list[:10]
         self.last_check = datetime.now()
@@ -1478,7 +1482,7 @@ class FAUserFavsSub(Subscription):
             fa_key.get_fa_reader().get_user_page(username)
         except Exception:
             raise SubscriptionException("This does not appear to be a valid FA username.")
-        fa_sub.check()
+        fa_sub.check(ignore_result=True)
         return fa_sub
 
     def matches_name(self, name_clean):
@@ -1487,7 +1491,7 @@ class FAUserFavsSub(Subscription):
     def get_name(self):
         return "Favourites subscription for \"{}\"".format(self.username)
 
-    def check(self):
+    def check(self, *, ignore_result=False):
         """
         Returns the list of FA Favourites since the last ones were seen, in oldest->newest order
         :rtype: list[FAFavourite]
@@ -1511,7 +1515,10 @@ class FAUserFavsSub(Subscription):
         # Get submission pages for each result
         result_pages = []
         for result_id in results:
-            result_pages.append(fa_reader.get_submission_page(result_id))
+            if ignore_result:
+                result_pages.append(None)
+            else:
+                result_pages.append(fa_reader.get_submission_page(result_id))
         # Create new list of latest ten results
         self.latest_ids = favs_page.fav_ids[:10]
         self.last_check = datetime.now()
@@ -1666,7 +1673,7 @@ class FAUserWatchersSub(Subscription):
     def get_name(self):
         return "New watchers subscription for \"{}\"".format(self.username)
 
-    def check(self):
+    def check(self, *, ignore_result=False):
         fa_reader = self.fa_key.get_fa_reader()
         results = []
         user_page = fa_reader.get_user_page(self.username)
@@ -1939,7 +1946,7 @@ class RedditSub(Subscription):
     def get_name(self):
         return "/r/{}".format(self.subreddit)
 
-    def check(self):
+    def check(self, *, ignore_result=False):
         url = "https://www.reddit.com/r/{}/new.json".format(self.subreddit)
         results = Commons.load_url_json(url)
         return_list = []

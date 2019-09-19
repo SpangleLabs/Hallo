@@ -95,8 +95,10 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         """
         for sub_obj in self.get_sub_objects():
             with self.subTest(sub_obj.__class__.__name__):
+                from datetime import datetime
+                print("{}: {}".format(sub_obj.__class__.__name__, datetime.now()))
                 old_check_time = sub_obj.last_check
-                sub_obj.check()
+                sub_obj.check(ignore_result=True)
                 assert sub_obj.last_check != old_check_time
 
     def test_sub_class_names_dont_overlap(self):
