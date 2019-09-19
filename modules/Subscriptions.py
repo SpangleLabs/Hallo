@@ -15,8 +15,16 @@ from Errors import SubscriptionCheckError
 from Events import EventMessageWithPhoto, EventMessage, EventMinute
 from Function import Function
 from inc.Commons import Commons, ISO8601ParseError, CachedObject
+from inc.InputParser import InputParser
 from modules.UserData import FAKeyData, UserDataParser
 
+
+def is_valid_iso8601_period(try_period):
+    try:
+        Commons.load_time_delta(try_period)
+        return True
+    except ISO8601ParseError:
+        return False
 
 class SubscriptionException(Exception):
     pass
@@ -591,16 +599,42 @@ class E621TaggingSub(E621Sub):
         """
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
-        # See if last argument is check period.
-        try:
-            try_period = input_evt.command_args.split()[-1]
-            search_delta = Commons.load_time_delta(try_period)
-            search = input_evt.command_args[:-len(try_period)].strip()
-        except ISO8601ParseError:
-            search = input_evt.command_args.strip()
-            search_delta = Commons.load_time_delta("PT300S")
+        # Parsed
+        parsed = InputParser(input_evt.command_args)
+        # See if check period is specified
+        period_arg = parsed.get_arg_by_names(["period", "update_period", "update period"])
+        if period_arg is not None:
+            search_delta = Commons.load_time_delta(period_arg)
+        else:
+            try_period = parsed.split_remaining_into_two(lambda x, y: is_valid_iso8601_period(x))
+            if len(try_period) == 1:
+                search_delta = try_period[0][0]
+                parsed = InputParser(try_period[0][1])
+            else:
+                search_delta = Commons.load_time_delta("PT300S")
+        # See if tags are specified
+        tags_arg = parsed.get_arg_by_names(["tags", "watched_tags", "to_tag", "watched tags", "to tag", "watch"])
+        search_arg = parsed.get_arg_by_names(
+            ["search", "query", "search_query", "search query", "subscription", "sub", "search_term", "search term"]
+        )
+        if tags_arg is not None:
+            tags = tags_arg.split()
+            if search_arg is not None:
+                search = search_arg
+            else:
+                search = parsed.remaining_text
+        else:
+            if search_arg is not None:
+                search = search_arg
+                tags = parsed.remaining_text.split()
+            else:
+                raise SubscriptionException(
+                    "You need to specify a search term with search=\"search term\" and "
+                    "tags to watch with tags=\"tags to watch\""
+                )
+        # See if search is specified
         # Create e6 subscription object
-        e6_sub = E621Sub(server, destination, search, update_frequency=search_delta)
+        e6_sub = E621TaggingSub(server, destination, search, tags, update_frequency=search_delta)
         # Check if it's a valid search
         first_results = e6_sub.check()
         if len(first_results) == 0:
