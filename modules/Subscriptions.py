@@ -15,8 +15,16 @@ from Errors import SubscriptionCheckError
 from Events import EventMessageWithPhoto, EventMessage, EventMinute
 from Function import Function
 from inc.Commons import Commons, ISO8601ParseError, CachedObject
+from inc.InputParser import InputParser
 from modules.UserData import FAKeyData, UserDataParser
 
+
+def is_valid_iso8601_period(try_period):
+    try:
+        Commons.load_time_delta(try_period)
+        return True
+    except ISO8601ParseError:
+        return False
 
 class SubscriptionException(Exception):
     pass
@@ -560,6 +568,147 @@ class E621Sub(Subscription):
         # Load search
         search = json_obj["search"]
         new_sub = E621Sub(server, destination, search, last_check, update_frequency, latest_ids)
+        new_sub.last_update = last_update
+        return new_sub
+
+
+class E621TaggingSub(E621Sub):
+    names = ["e621 tagging", "e621 tagging search", "tagging e621"]
+    """ :type : list[str]"""
+    type_name = "e621-tagging"
+    """ :type : str"""
+
+    def __init__(self, server, destination, search, tags, last_check=None, update_frequency=None, latest_ids=None):
+        """
+        :type server: Server.Server
+        :type destination: Destination.Destination
+        :type search: str
+        :type tags: list[str]
+        :type last_check: datetime
+        :type update_frequency: timedelta
+        """
+        super().__init__(server, destination, search, last_check=last_check, update_frequency=update_frequency, latest_ids=latest_ids)
+        self.tags = tags
+
+    @staticmethod
+    def create_from_input(input_evt, sub_repo):
+        """
+        :type input_evt: Events.EventMessage
+        :type sub_repo: SubscriptionRepo
+        :rtype: E621Sub
+        """
+        server = input_evt.server
+        destination = input_evt.channel if input_evt.channel is not None else input_evt.user
+        # Parsed
+        parsed = InputParser(input_evt.command_args)
+        # See if check period is specified
+        period_arg = parsed.get_arg_by_names(["period", "update_period", "update period"])
+        if period_arg is not None:
+            search_delta = Commons.load_time_delta(period_arg)
+        else:
+            try_period = parsed.split_remaining_into_two(lambda x, y: is_valid_iso8601_period(x))
+            if len(try_period) == 1:
+                search_delta = try_period[0][0]
+                parsed = InputParser(try_period[0][1])
+            else:
+                search_delta = Commons.load_time_delta("PT300S")
+        # See if tags are specified
+        tags_arg = parsed.get_arg_by_names(["tags", "watched_tags", "to_tag", "watched tags", "to tag", "watch"])
+        search_arg = parsed.get_arg_by_names(
+            ["search", "query", "search_query", "search query", "subscription", "sub", "search_term", "search term"]
+        )
+        if tags_arg is not None:
+            tags = tags_arg.split()
+            if search_arg is not None:
+                search = search_arg
+            else:
+                search = parsed.remaining_text
+        else:
+            if search_arg is not None:
+                search = search_arg
+                tags = parsed.remaining_text.split()
+            else:
+                raise SubscriptionException(
+                    "You need to specify a search term with search=\"search term\" and "
+                    "tags to watch with tags=\"tags to watch\""
+                )
+        # Create e6 subscription object
+        e6_sub = E621TaggingSub(server, destination, search, tags, update_frequency=search_delta)
+        # Check if it's a valid search
+        first_results = e6_sub.check()
+        if len(first_results) == 0:
+            raise SubscriptionException("This does not appear to be a valid search, or does not have results.")
+        return e6_sub
+
+    def get_name(self):
+        return "search for \"{}\" to apply tags {}".format(self.search, self.tags)
+
+    def format_item(self, e621_result):
+        link = "https://e621.net/post/show/{}".format(e621_result['id'])
+        # Create rating string
+        rating = "(Unknown)"
+        rating_dict = {"e": "(Explicit)", "q": "(Questionable)", "s": "(Safe)"}
+        if e621_result["rating"] in rating_dict:
+            rating = rating_dict[e621_result["rating"]]
+        # Check tags
+        post_tags = e621_result["tags"].split()
+        tag_results = {tag: tag in post_tags for tag in self.tags}
+        tag_output = ["{}: {}".format(tag, val) for tag, val in tag_results]
+        # Construct output
+        output = "Update on \"{}\" tagging e621 search. {} {}.\n" \
+                 "Watched tags: {}".format(self.search, link, rating, tag_output)
+        channel = self.destination if isinstance(self.destination, Channel) else None
+        user = self.destination if isinstance(self.destination, User) else None
+        if e621_result["file_ext"] in ["swf", "webm"]:
+            return EventMessage(self.server, channel, user, output, inbound=False)
+        image_url = e621_result["file_url"]
+        output_evt = EventMessageWithPhoto(self.server, channel, user, output, image_url, inbound=False)
+        return output_evt
+
+    def to_json(self):
+        json_obj = super().to_json()
+        json_obj["sub_type"] = self.type_name
+        json_obj["search"] = self.search
+        json_obj["tags"] = self.tags
+        json_obj["latest_ids"] = []
+        for latest_id in self.latest_ids:
+            json_obj["latest_ids"].append(latest_id)
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, hallo, sub_repo):
+        server = hallo.get_server_by_name(json_obj["server_name"])
+        if server is None:
+            raise SubscriptionException("Could not find server with name \"{}\"".format(json_obj["server_name"]))
+        # Load channel or user
+        if "channel_address" in json_obj:
+            destination = server.get_channel_by_address(json_obj["channel_address"])
+        else:
+            if "user_address" in json_obj:
+                destination = server.get_user_by_address(json_obj["user_address"])
+            else:
+                raise SubscriptionException("Channel or user must be defined.")
+        if destination is None:
+            raise SubscriptionException("Could not find chanel or user.")
+        # Load last check
+        last_check = None
+        if "last_check" in json_obj:
+            last_check = datetime.strptime(json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Load update frequency
+        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        # Load last update
+        last_update = None
+        if "last_update" in json_obj:
+            last_update = datetime.strptime(json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f")
+        # Type specific loading
+        # Load last items
+        latest_ids = []
+        for latest_id in json_obj["latest_ids"]:
+            latest_ids.append(latest_id)
+        # Load search
+        search = json_obj["search"]
+        tags = json_obj["tags"]
+        new_sub = E621TaggingSub(server, destination, search, tags, last_check, update_frequency, latest_ids)
         new_sub.last_update = last_update
         return new_sub
 
@@ -2763,8 +2912,9 @@ class FAKey:
 
 
 class SubscriptionFactory(object):
-    sub_classes = [E621Sub, RssSub, FANotificationNotesSub, FASearchSub, FAUserFavsSub, FAUserWatchersSub,
-                   FANotificationWatchSub, FANotificationFavSub, FANotificationCommentsSub, RedditSub]
+    sub_classes = [
+        E621Sub, E621TaggingSub, RssSub, FANotificationNotesSub, FASearchSub, FAUserFavsSub, FAUserWatchersSub,
+        FANotificationWatchSub, FANotificationFavSub, FANotificationCommentsSub, RedditSub]
     """ :type : list[type.Subscription]"""
     common_classes = [FAKeysCommon]
     """ :type : list[type.SubscriptionCommon]"""

@@ -7,7 +7,7 @@ import modules
 from Events import EventMessage
 from modules.Subscriptions import SubscriptionFactory, E621Sub, RssSub, FANotificationNotesSub, FASearchSub, FAKey, \
     SubscriptionRepo, FAKeysCommon, FAUserFavsSub, FAUserWatchersSub, FANotificationWatchSub, FANotificationFavSub, \
-    FANotificationCommentsSub, RedditSub
+    FANotificationCommentsSub, RedditSub, E621TaggingSub
 
 from test.TestBase import TestBase
 
@@ -20,6 +20,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         fa_key = FAKey(self.test_user, self.cookie_a, self.cookie_b)
         sub_objs = list()
         sub_objs.append(E621Sub(self.server, self.test_chan, "cabinet"))
+        sub_objs.append(E621TaggingSub(self.server, self.test_chan, "cabinet", ["door"]))
         sub_objs.append(RssSub(self.server, self.test_chan, "http://spangle.org.uk/hallo/test_rss.xml"))
         sub_objs.append(FANotificationNotesSub(self.server, self.test_chan, fa_key))
         sub_objs.append(FASearchSub(self.server, self.test_chan, fa_key, "ych"))
@@ -39,6 +40,8 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_evts = dict()
         sub_evts[E621Sub] = EventMessage(self.server, self.test_chan, self.test_user, "cabinet")
         sub_evts[E621Sub].command_args = "cabinet"
+        sub_evts[E621TaggingSub] = EventMessage(self.server, self.test_chan, self.test_user, "cabinet tags=door")
+        sub_evts[E621TaggingSub].command_args = "cabinet tags=door"
         sub_evts[RssSub] = EventMessage(self.server, self.test_chan, self.test_user,
                                         "http://spangle.org.uk/hallo/test_rss.xml")
         sub_evts[RssSub].command_args = "http://spangle.org.uk/hallo/test_rss.xml"
