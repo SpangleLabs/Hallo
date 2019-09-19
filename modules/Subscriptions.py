@@ -632,7 +632,6 @@ class E621TaggingSub(E621Sub):
                     "You need to specify a search term with search=\"search term\" and "
                     "tags to watch with tags=\"tags to watch\""
                 )
-        # See if search is specified
         # Create e6 subscription object
         e6_sub = E621TaggingSub(server, destination, search, tags, update_frequency=search_delta)
         # Check if it's a valid search
