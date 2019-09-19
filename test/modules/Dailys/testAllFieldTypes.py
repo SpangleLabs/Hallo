@@ -1,5 +1,6 @@
 import importlib
 import inspect
+import os
 import unittest
 from datetime import time
 
@@ -13,13 +14,14 @@ from test.modules.Dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
 class TestAllFieldTypes(TestBase, unittest.TestCase):
 
     def get_field_objects(self):
+        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
         field_obs = list()
-        field_obs.append(DailysDuolingoField(self.server, self.test_chan, "cabinet"))
-        field_obs.append(DailysFAField(self.server, self.test_chan))
-        field_obs.append(DailysMoodField(self.server, self.test_chan,
+        field_obs.append(DailysDuolingoField(spreadsheet, "cabinet", os.getenv("test_duo_jwt_token")))
+        field_obs.append(DailysFAField(spreadsheet))
+        field_obs.append(DailysMoodField(spreadsheet,
                                          [DailysMoodField.TIME_SLEEP, time(14, 00), time(22, 00)],
                                          ["Happiness", "Anger", "Sleepiness"]))
-        field_obs.append(DailysSleepField(self.server, self.test_chan))
+        field_obs.append(DailysSleepField(spreadsheet))
         return field_obs
 
     def test_all_field_classes_in_field_objs(self):
