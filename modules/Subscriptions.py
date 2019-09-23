@@ -653,7 +653,7 @@ class E621TaggingSub(E621Sub):
         # Check tags
         post_tags = e621_result["tags"].split()
         tag_results = {tag: tag in post_tags for tag in self.tags}
-        tag_output = ["{}: {}".format(tag, val) for tag, val in tag_results]
+        tag_output = ["{}: {}".format(tag, val) for tag, val in tag_results.items()]
         # Construct output
         output = "Update on \"{}\" tagging e621 search. {} {}.\n" \
                  "Watched tags: {}".format(self.search, link, rating, tag_output)
