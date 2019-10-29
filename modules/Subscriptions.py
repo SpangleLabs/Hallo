@@ -398,7 +398,15 @@ class RssSub(Subscription):
             channel = self.destination if isinstance(self.destination, Channel) else None
             user = self.destination if isinstance(self.destination, User) else None
             return EventMessage(self.server, channel, user, output, inbound=False)
-
+        if "awoocomic" in self.title:
+            item_title = rss_item.find("title").text
+            if " - " in item_title:
+                item_title = item_title.split(" - ")[0]
+            item_link = rss_item.find("link").text
+            output = "Update on \"{}\" RSS feed. \"{}\" {}".format(self.title, item_title, item_link)
+            channel = self.destination if isinstance(self.destination, Channel) else None
+            user = self.destination if isinstance(self.destination, User) else None
+            return EventMessage(self.server, channel, user, output, inbound=False)
         return None
 
     def to_json(self):
