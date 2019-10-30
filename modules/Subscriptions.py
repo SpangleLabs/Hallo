@@ -407,6 +407,31 @@ class RssSub(Subscription):
             channel = self.destination if isinstance(self.destination, Channel) else None
             user = self.destination if isinstance(self.destination, User) else None
             return EventMessage(self.server, channel, user, output, inbound=False)
+        if "smbc-comics.com" in self.url:
+            item_title = rss_item.find("title").text
+            item_link = rss_item.find("link").text
+            page_code = Commons.load_url_string(item_link)
+            soup = BeautifulSoup(page_code)
+            comic_img = soup.select_one("img#cc-comic")
+            alt_text = comic_img["title"]
+            after_comic_img = soup.select_one("#aftercomic img")
+            channel = self.destination if isinstance(self.destination, Channel) else None
+            user = self.destination if isinstance(self.destination, User) else None
+            return EventMessageWithPhoto(
+                self.server,
+                channel,
+                user,
+                "Update on \"{}\" RSS feed. \"{}\" {}\nAlt text: {}".format(
+                    self.title,
+                    item_title,
+                    item_link,
+                    alt_text
+                ),
+                [
+                    comic_img,
+                    after_comic_img
+                ]
+            )
         return None
 
     def to_json(self):
