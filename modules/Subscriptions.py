@@ -428,8 +428,8 @@ class RssSub(Subscription):
                     alt_text
                 ),
                 [
-                    comic_img,
-                    after_comic_img
+                    comic_img["src"],
+                    after_comic_img["src"]
                 ]
             )
         return None
