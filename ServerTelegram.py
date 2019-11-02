@@ -189,15 +189,16 @@ class ServerTelegram(Server):
         if isinstance(event, EventMessageWithPhoto):
             destination = event.user if event.channel is None else event.channel
             if isinstance(event.photo_id, list):
+                media = [
+                    InputMediaPhoto(
+                        x
+                    ) for x in event.photo_id
+                ]
+                media[0].caption = event.text
+                media[0].parse_mode = self.formatting_to_telegram_mode(event.formatting)
                 msg = self.bot.send_media_group(
                     chat_id=destination.address,
-                    media=[
-                        InputMediaPhoto(
-                            x,
-                            caption=event.text,
-                            parse_mode=self.formatting_to_telegram_mode(event.formatting)
-                        ) for x in event.photo_id
-                    ]
+                    media=media
                 )
             elif any([event.photo_id.lower().endswith("." + x) for x in ServerTelegram.image_extensions]):
                 msg = self.bot.send_photo(
