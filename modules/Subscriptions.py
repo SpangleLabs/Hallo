@@ -422,7 +422,7 @@ class RssSub(Subscription):
             item_title = rss_item.find("title").text
             item_link = rss_item.find("link").text
             page_code = Commons.load_url_string(item_link)
-            soup = BeautifulSoup(page_code)
+            soup = BeautifulSoup(page_code, "html.parser")
             comic_img = soup.select_one("img#cc-comic")
             alt_text = comic_img["title"]
             after_comic_img = soup.select_one("#aftercomic img")
@@ -439,8 +439,8 @@ class RssSub(Subscription):
                     alt_text
                 ),
                 [
-                    comic_img,
-                    after_comic_img
+                    comic_img["src"],
+                    after_comic_img["src"]
                 ]
             )
         return None
