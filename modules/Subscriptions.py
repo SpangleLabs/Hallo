@@ -1,10 +1,13 @@
 import hashlib
+import html
 import json
 import re
 from abc import ABCMeta
 from datetime import datetime, timedelta
 from threading import Lock
 from xml.etree import ElementTree
+
+from bs4 import BeautifulSoup
 
 from Destination import Channel, User
 from Errors import SubscriptionCheckError
@@ -369,6 +372,10 @@ class RssSub(Subscription):
         return new_items[::-1]
 
     def format_item(self, rss_item):
+        # Check custom formatting
+        custom_evt = self._format_custom_sites(rss_item)
+        if custom_evt is not None:
+            return custom_evt
         # Load item xml
         item_title = rss_item.find("title").text
         item_link = rss_item.find("link").text
@@ -378,6 +385,54 @@ class RssSub(Subscription):
         user = self.destination if isinstance(self.destination, User) else None
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
         return output_evt
+
+    def _format_custom_sites(self, rss_item):
+        if "xkcd.com" in self.url:
+            item_title = rss_item.find("title").text
+            item_link = rss_item.findbeau("link").text
+            description = html.unescape(rss_item.find("description").text)
+            description_soup = BeautifulSoup(description, "html.parser")
+            alt_text = description_soup.select_one("img")['alt']
+            output = "Update on \"{}\" RSS feed. \"{}\" {}\n" \
+                     "Alt text: {}".format(self.title, item_title, item_link, alt_text)
+            channel = self.destination if isinstance(self.destination, Channel) else None
+            user = self.destination if isinstance(self.destination, User) else None
+            return EventMessage(self.server, channel, user, output, inbound=False)
+        if "awoocomic" in self.title:
+            item_title = rss_item.find("title").text
+            if " - " in item_title:
+                item_title = item_title.split(" - ")[0]
+            item_link = rss_item.find("link").text
+            output = "Update on \"{}\" RSS feed. \"{}\" {}".format(self.title, item_title, item_link)
+            channel = self.destination if isinstance(self.destination, Channel) else None
+            user = self.destination if isinstance(self.destination, User) else None
+            return EventMessage(self.server, channel, user, output, inbound=False)
+        if "smbc-comics.com" in self.url:
+            item_title = rss_item.find("title").text
+            item_link = rss_item.find("link").text
+            page_code = Commons.load_url_string(item_link)
+            soup = BeautifulSoup(page_code, "html.parser")
+            comic_img = soup.select_one("img#cc-comic")
+            alt_text = comic_img["title"]
+            after_comic_img = soup.select_one("#aftercomic img")
+            channel = self.destination if isinstance(self.destination, Channel) else None
+            user = self.destination if isinstance(self.destination, User) else None
+            return EventMessageWithPhoto(
+                self.server,
+                channel,
+                user,
+                "Update on \"{}\" RSS feed. \"{}\" {}\nAlt text: {}".format(
+                    self.title,
+                    item_title,
+                    item_link,
+                    alt_text
+                ),
+                [
+                    comic_img["src"],
+                    after_comic_img["src"]
+                ]
+            )
+        return None
 
     def to_json(self):
         json_obj = super().to_json()

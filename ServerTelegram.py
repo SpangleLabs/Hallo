@@ -1,7 +1,7 @@
 from threading import Lock, Thread
 
 import telegram
-from telegram import Chat
+from telegram import Chat, InputMediaPhoto
 from telegram.ext import Updater, Filters, BaseFilter
 import logging
 from telegram.ext import MessageHandler
@@ -12,7 +12,6 @@ from Errors import MessageError
 from Events import EventMessage, RawDataTelegram, EventMessageWithPhoto, RawDataTelegramOutbound
 from PermissionMask import PermissionMask
 from Server import Server, ServerException
-from inc.Commons import Commons
 
 
 class ServerTelegram(Server):
@@ -189,7 +188,19 @@ class ServerTelegram(Server):
     def send(self, event):
         if isinstance(event, EventMessageWithPhoto):
             destination = event.user if event.channel is None else event.channel
-            if any([event.photo_id.lower().endswith("." + x) for x in ServerTelegram.image_extensions]):
+            if isinstance(event.photo_id, list):
+                media = [
+                    InputMediaPhoto(
+                        x
+                    ) for x in event.photo_id
+                ]
+                media[0].caption = event.text
+                media[0].parse_mode = self.formatting_to_telegram_mode(event.formatting)
+                msg = self.bot.send_media_group(
+                    chat_id=destination.address,
+                    media=media
+                )
+            elif any([event.photo_id.lower().endswith("." + x) for x in ServerTelegram.image_extensions]):
                 msg = self.bot.send_photo(
                     chat_id=destination.address,
                     photo=event.photo_id,
