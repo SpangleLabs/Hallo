@@ -297,16 +297,26 @@ class RssSub(Subscription):
         self.url = url
         """ :type : str"""
         if title is None:
-            rss_data = self.get_rss_data()
-            rss_elem = ElementTree.fromstring(rss_data)
-            channel_elem = rss_elem.find("channel")
-            # Update title
-            title_elem = channel_elem.find("title")
-            title = title_elem.text
-        self.title = title if title is not None else "No title"
+            title = self._get_feed_title()
+        self.title = title
         """ :type : str"""
         self.last_item_hash = last_item_hash
         """ :type : str | None"""
+
+    def _get_feed_title(self):
+        rss_data = self.get_rss_data()
+        rss_elem = ElementTree.fromstring(rss_data)
+        channel_elem = rss_elem.find("channel")
+        title_elem = None
+        title = None
+        if channel_elem is not None:
+            # Update title
+            title_elem = channel_elem.find("title")
+        else:
+            title_elem = rss_elem.find("{http://www.w3.org/2005/Atom}title")
+        if title_elem is not None:
+            title = title_elem.text
+        return title if title is not None else "No title"
 
     def get_rss_data(self):
         headers = None
@@ -349,28 +359,36 @@ class RssSub(Subscription):
     def get_name(self):
         return "{} ({})".format(self.title, self.url)
 
+    def _get_item_hash(self, feed_item):
+        item_guid_elem = feed_item.find("guid")
+        if item_guid_elem is not None:
+            item_hash = item_guid_elem.text
+        else:
+            item_link_elem = feed_item.find("link")
+            if item_link_elem is not None:
+                item_hash = item_link_elem.text
+            else:
+                item_xml = ElementTree.tostring(feed_item)
+                item_hash = hashlib.md5(item_xml).hexdigest()
+        return item_hash
+
+    def _get_feed_items(self, rss_elem):
+        channel_elem = rss_elem.find("channel")
+        if channel_elem is not None:
+            return channel_elem.findall("item")
+        else:
+            return rss_elem.findall("{http://www.w3.org/2005/Atom}entry")
+
     def check(self):
         rss_data = self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
-        channel_elem = rss_elem.find("channel")
         new_items = []
         # Update title
-        title_elem = channel_elem.find("title")
-        title_text = title_elem.text
-        self.title = title_text if title_text is not None else "No title"
+        self.title = self._get_feed_title()
         # Loop elements, seeing when any match the last item's hash
         latest_hash = None
-        for item_elem in channel_elem.findall("item"):
-            item_guid_elem = item_elem.find("guid")
-            if item_guid_elem is not None:
-                item_hash = item_guid_elem.text
-            else:
-                item_link_elem = item_elem.find("link")
-                if item_link_elem is not None:
-                    item_hash = item_link_elem.text
-                else:
-                    item_xml = ElementTree.tostring(item_elem)
-                    item_hash = hashlib.md5(item_xml).hexdigest()
+        for item_elem in self._get_feed_items(rss_elem):
+            item_hash = self._get_item_hash(item_elem)
             if latest_hash is None:
                 latest_hash = item_hash
             if item_hash == self.last_item_hash:
@@ -382,14 +400,26 @@ class RssSub(Subscription):
         # Return new items
         return new_items[::-1]
 
+    def _get_item_title(self, feed_item):
+        title_elem = feed_item.find("title")
+        if title_elem is not None:
+            return title_elem.text
+        return feed_item.find("{http://www.w3.org/2005/Atom}title").text
+
+    def _get_item_link(self, feed_item):
+        link_elem = feed_item.find("link")
+        if link_elem is not None:
+            return link_elem.text
+        return feed_item.find("{http://www.w3.org/2005/Atom}link").get("href")
+
     def format_item(self, rss_item):
         # Check custom formatting
         custom_evt = self._format_custom_sites(rss_item)
         if custom_evt is not None:
             return custom_evt
         # Load item xml
-        item_title = rss_item.find("title").text
-        item_link = rss_item.find("link").text
+        item_title = self._get_item_title(rss_item)
+        item_link = self._get_item_link(rss_item)
         # Construct output
         output = "Update on \"{}\" RSS feed. \"{}\" {}".format(self.title, item_title, item_link)
         channel = self.destination if isinstance(self.destination, Channel) else None
