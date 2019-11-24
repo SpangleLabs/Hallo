@@ -554,7 +554,7 @@ class EventMessageWithPhoto(EventMessage):
         :param user: User who sent the event, or None for outbound to channel
         :type user: Destination.User | None
         :type text: str
-        :type photo_id: str
+        :type photo_id: Union[str, List[str]]
         """
         super().__init__(server, channel, user, text, inbound=inbound)
         self.photo_id = photo_id
