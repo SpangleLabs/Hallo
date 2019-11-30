@@ -2267,13 +2267,15 @@ class FAKey:
                 self._get_page_code("https://www.furaffinity.net/msg/submissions/")),
                                                        self.timeout)
             """ :type : CachedObject"""
-            self.notes_page_inbox_cache = CachedObject(lambda: FAKey.FAReader.FANotesPage(
-                self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=inbox"), self.NOTES_INBOX),
-                                                       self.timeout)
+            self.notes_page_inbox_cache = CachedObject(
+                lambda: FAKey.FAReader.FANotesPage(self._get_api_data("notes/inbox"), self.NOTES_INBOX),
+                self.timeout
+            )
             """ :type : CachedObject"""
-            self.notes_page_outbox_cache = CachedObject(lambda: FAKey.FAReader.FANotesPage(
-                self._get_page_code("https://www.furaffinity.net/msg/pms/", "folder=outbox"), self.NOTES_OUTBOX),
-                                                        self.timeout)
+            self.notes_page_outbox_cache = CachedObject(
+                lambda: FAKey.FAReader.FANotesPage(self._get_api_data("notes/outbox"), self.NOTES_OUTBOX),
+                self.timeout
+            )
             """ :type : CachedObject"""
 
         def _get_page_code(self, url, extra_cookie=""):
@@ -2621,25 +2623,22 @@ class FAKey:
                 self.name = name
                 """ :type : str"""
 
-        class FANotesPage(FAPage):
+        class FANotesPage:
 
-            def __init__(self, code, folder):
-                super().__init__(code)
+            def __init__(self, data, folder):
                 self.folder = folder
                 """ :type : str"""
                 self.notes = []
                 """ :type : list[FAKey.FAReader.FANote]"""
-                notes_list = self.soup.find("table", id="notes-list")
-                if notes_list is not None:
-                    for note in notes_list.find_all("tr", {"class": "note"}):
-                        note_links = note.find_all("a")
-                        note_id = note.input["value"]
-                        subject = note_links[0].string
-                        username = note_links[1]["href"].split("/")[-2]
-                        name = note_links[1].string
-                        is_read = note.find("img", {"class": "unread"}) is None
-                        new_note = FAKey.FAReader.FANote(note_id, subject, username, name, is_read)
-                        self.notes.append(new_note)
+                for note in data:
+                    new_note = FAKey.FAReader.FANote(
+                        note['note_id'],
+                        note['subject'],
+                        note['profile_name'],
+                        note['name'],
+                        note['is_read']
+                    )
+                    self.notes.append(new_note)
 
         class FANote:
 
