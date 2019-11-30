@@ -430,7 +430,7 @@ class RssSub(Subscription):
     def _format_custom_sites(self, rss_item):
         if "xkcd.com" in self.url:
             item_title = rss_item.find("title").text
-            item_link = rss_item.findbeau("link").text
+            item_link = rss_item.find("link").text
             description = html.unescape(rss_item.find("description").text)
             description_soup = BeautifulSoup(description, "html.parser")
             alt_text = description_soup.select_one("img")['alt']
