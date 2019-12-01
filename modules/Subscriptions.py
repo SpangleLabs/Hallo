@@ -1129,19 +1129,19 @@ class FANotificationCommentsSub(Subscription):
         :type fa_key: FAKey
         :type last_check: datetime
         :type update_frequency: timedelta
-        :type latest_comment_id_journal: str | None
-        :type latest_comment_id_submission: str | None
-        :type latest_shout_id: str | None
+        :type latest_comment_id_journal: int | None
+        :type latest_comment_id_submission: int | None
+        :type latest_shout_id: int | None
         """
         super().__init__(server, destination, last_check, update_frequency)
         self.fa_key = fa_key
         """ :type : FAKey"""
         self.latest_comment_id_journal = 0 if latest_comment_id_journal is None else latest_comment_id_journal
-        """ :type : str | None"""
+        """ :type : int"""
         self.latest_comment_id_submission = 0 if latest_comment_id_submission is None else latest_comment_id_submission
-        """ :type : str | None"""
+        """ :type : int"""
         self.latest_shout_id = 0 if latest_shout_id is None else latest_shout_id
-        """ :type : str | None"""
+        """ :type : int"""
 
     @staticmethod
     def create_from_input(input_evt, sub_repo):
@@ -1187,11 +1187,11 @@ class FANotificationCommentsSub(Subscription):
                 results.append(shout_notif)
         # Reset high water marks.
         if len(notif_page.submission_comments) > 0:
-            self.latest_comment_id_submission = notif_page.submission_comments[0].comment_id
+            self.latest_comment_id_submission = int(notif_page.submission_comments[0].comment_id)
         if len(notif_page.journal_comments) > 0:
-            self.latest_comment_id_journal = notif_page.journal_comments[0].comment_id
+            self.latest_comment_id_journal = int(notif_page.journal_comments[0].comment_id)
         if len(notif_page.shouts) > 0:
-            self.latest_shout_id = notif_page.shouts[0].shout_id
+            self.latest_shout_id = int(notif_page.shouts[0].shout_id)
         # Update last check time
         self.last_check = datetime.now()
         # Return results
@@ -1299,9 +1299,9 @@ class FANotificationCommentsSub(Subscription):
         if fa_key is None:
             raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
         # Load comment IDs and count
-        latest_comment_id_journal = json_obj["latest_comment_id_journal"]
-        latest_comment_id_submission = json_obj["latest_comment_id_submission"]
-        latest_shout_id = json_obj["latest_shout_id"]
+        latest_comment_id_journal = int(json_obj["latest_comment_id_journal"])
+        latest_comment_id_submission = int(json_obj["latest_comment_id_submission"])
+        latest_shout_id = int(json_obj["latest_shout_id"])
         new_sub = FANotificationCommentsSub(server, destination, fa_key,
                                             last_check=last_check, update_frequency=update_frequency,
                                             latest_comment_id_journal=latest_comment_id_journal,
