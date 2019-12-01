@@ -1033,10 +1033,10 @@ class FANotificationFavSub(Subscription):
         notif_page = fa_reader.get_notification_page()
         results = []
         for notif in notif_page.favourites:
-            if notif.fav_id > self.highest_fav_id:
+            if int(notif.fav_id) > self.highest_fav_id:
                 results.append(notif)
         if len(notif_page.favourites) > 0:
-            self.highest_fav_id = notif_page.favourites[0].fav_id
+            self.highest_fav_id = int(notif_page.favourites[0].fav_id)
         # Update last check time
         self.last_check = datetime.now()
         # Return results
@@ -1136,11 +1136,11 @@ class FANotificationCommentsSub(Subscription):
         super().__init__(server, destination, last_check, update_frequency)
         self.fa_key = fa_key
         """ :type : FAKey"""
-        self.latest_comment_id_journal = latest_comment_id_journal
+        self.latest_comment_id_journal = 0 if latest_comment_id_journal is None else latest_comment_id_journal
         """ :type : str | None"""
-        self.latest_comment_id_submission = latest_comment_id_submission
+        self.latest_comment_id_submission = 0 if latest_comment_id_submission is None else latest_comment_id_submission
         """ :type : str | None"""
-        self.latest_shout_id = latest_shout_id
+        self.latest_shout_id = 0 if latest_shout_id is None else latest_shout_id
         """ :type : str | None"""
 
     @staticmethod
@@ -1175,15 +1175,15 @@ class FANotificationCommentsSub(Subscription):
         results = []
         # Check submission comments
         for submission_notif in notif_page.submission_comments:
-            if submission_notif.comment_id > self.latest_comment_id_submission:
+            if int(submission_notif.comment_id) > self.latest_comment_id_submission:
                 results.append(submission_notif)
         # Check journal comments
         for journal_notif in notif_page.journal_comments:
-            if journal_notif.comment_id > self.latest_comment_id_journal:
+            if int(journal_notif.comment_id) > self.latest_comment_id_journal:
                 results.append(journal_notif)
         # Check shouts
         for shout_notif in notif_page.shouts:
-            if shout_notif.shout_id > self.latest_shout_id:
+            if int(shout_notif.shout_id) > self.latest_shout_id:
                 results.append(shout_notif)
         # Reset high water marks.
         if len(notif_page.submission_comments) > 0:
@@ -2258,22 +2258,22 @@ class FAKey:
             self.timeout = timedelta(seconds=60)
             """ :type : timedelta"""
             self.notification_page_cache = CachedObject(
-                lambda: FAKey.FAReader.FANotificationsPage(self._get_api_data("notifications/others")),
+                lambda: FAKey.FAReader.FANotificationsPage(self._get_api_data("notifications/others.json", True)),
                 self.timeout
             )
             """ :type : CachedObject"""
             self.submissions_page_cache = CachedObject(
-                lambda: FAKey.FAReader.FASubmissionsPage(self._get_api_data("notifications/submissions")),
+                lambda: FAKey.FAReader.FASubmissionsPage(self._get_api_data("notifications/submissions.json", True)),
                 self.timeout
             )
             """ :type : CachedObject"""
             self.notes_page_inbox_cache = CachedObject(
-                lambda: FAKey.FAReader.FANotesPage(self._get_api_data("notes/inbox"), self.NOTES_INBOX),
+                lambda: FAKey.FAReader.FANotesPage(self._get_api_data("notes/inbox.json", True), self.NOTES_INBOX),
                 self.timeout
             )
             """ :type : CachedObject"""
             self.notes_page_outbox_cache = CachedObject(
-                lambda: FAKey.FAReader.FANotesPage(self._get_api_data("notes/outbox"), self.NOTES_OUTBOX),
+                lambda: FAKey.FAReader.FANotesPage(self._get_api_data("notes/outbox.json", True), self.NOTES_OUTBOX),
                 self.timeout
             )
             """ :type : CachedObject"""
@@ -2281,8 +2281,8 @@ class FAKey:
         def _get_api_data(self, path, needs_cookie=False):
             url = "https://faexport.boothale.net/{}".format(path)
             if needs_cookie:
-                cookie_string = "a="+self.a+";b="+self.b
-                return Commons.load_url_json(url, [["Cookie", cookie_string]])
+                cookie_string = "b="+self.b+"; a="+self.a
+                return Commons.load_url_json(url, [["FA_COOKIE", cookie_string]])
             return Commons.load_url_json(url)
 
         def get_notification_page(self):
@@ -2460,7 +2460,7 @@ class FAKey:
                 self.journals = []
                 """ :type : list[FAKey.FAReader.FANotificationJournal]"""
                 jou_list = data['new_journals']
-                for jou_notif in jou_list.find_all("li", attrs={"class": None}):
+                for jou_notif in jou_list:
                     try:
                         new_journal = FAKey.FAReader.FANotificationJournal(
                             jou_notif['journal_id'],
