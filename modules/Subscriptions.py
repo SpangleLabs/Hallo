@@ -2347,36 +2347,6 @@ class FAKey:
             search_page = FAKey.FAReader.FASearchPage(id_list, search_term)
             return search_page
 
-        class FAPage:
-            def __init__(self, code):
-                self.retrieve_time = datetime.now()
-                """ :type : datetime"""
-                self.soup = BeautifulSoup(code, "html.parser")
-                """ :type : BeautifulSoup"""
-                login_user = self.soup.find(id="my-username")
-                if login_user is None:
-                    raise FAKey.FAReader.FALoginFailedError("Not currently logged in")
-                self.username = login_user.string[1:]
-                """ :type : str"""
-                total_submissions = self.soup.find_all(title="Submission Notifications")
-                self.total_submissions = 0 if len(total_submissions) == 0 else int(total_submissions[0].string[:-1])
-                """ :type : int"""
-                total_comments = self.soup.find_all(title="Comment Notifications")
-                self.total_comments = 0 if len(total_comments) == 0 else int(total_comments[0].string[:-1])
-                """ :type : int"""
-                total_journals = self.soup.find_all(title="Journal Notifications")
-                self.total_journals = 0 if len(total_journals) == 0 else int(total_journals[0].string[:-1])
-                """ :type : int"""
-                total_favs = self.soup.find_all(title="Favorite Notifications")
-                self.total_favs = 0 if len(total_favs) == 0 else int(total_favs[0].string[:-1])
-                """ :type : int"""
-                total_watches = self.soup.find_all(title="Watch Notifications")
-                self.total_watches = 0 if len(total_watches) == 0 else int(total_watches[0].string[:-1])
-                """ :type : int"""
-                total_notes = self.soup.find_all(title="Note Notifications")
-                self.total_notes = 0 if len(total_notes) == 0 else int(total_notes[0].string[:-1])
-                """ :type : int"""
-
         class FANotificationsPage:
 
             def __init__(self, data):
