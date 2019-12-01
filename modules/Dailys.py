@@ -5,10 +5,11 @@ from datetime import datetime, time, date, timedelta
 from threading import RLock
 from urllib.error import HTTPError
 
+from bs4 import BeautifulSoup
+
 from Events import EventDay, EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound
 from Function import Function
 from inc.Commons import Commons
-from modules.Subscriptions import FAKey
 from modules.UserData import UserDataParser, FAKeyData
 
 
@@ -409,18 +410,28 @@ class DailysFAField(DailysField):
         :rtype: None
         """
         user_parser = UserDataParser()
-        fa_data = user_parser.get_data_by_user_and_type(self.spreadsheet.user, FAKeyData)  # type: FAKeyData
-        if fa_data is None:
+        fa_data = user_parser.get_data_by_user_and_type(self.spreadsheet.user, FAKeyData)
+        if not isinstance(fa_data, FAKeyData):
             raise DailysException("No FA data has been set up for the FA field module to use.")
-        fa_key = FAKey(self.spreadsheet.user, fa_data.cookie_a, fa_data.cookie_b)
-        notif_page = fa_key.get_fa_reader().get_notification_page()
+        cookie = "a="+fa_data.cookie_a+"; b="+fa_data.cookie_b
+        code = Commons.load_url_string("https://furaffinity.net/", [["Cookie", cookie]])
+        soup = BeautifulSoup(code, "html.parser")
+        login_user = soup.find(id="my-username")
+        if login_user is None:
+            raise DailysException("FA key in storage is not currently logged in to FA.")
+        total_submissions = soup.find_all(title="Submission Notifications")
+        total_comments = soup.find_all(title="Comment Notifications")
+        total_journals = soup.find_all(title="Journal Notifications")
+        total_favs = soup.find_all(title="Favorite Notifications")
+        total_watches = soup.find_all(title="Watch Notifications")
+        total_notes = soup.find_all(title="Note Notifications")
         notifications = dict()
-        notifications["submissions"] = notif_page.total_submissions
-        notifications["comments"] = notif_page.total_comments
-        notifications["journals"] = notif_page.total_journals
-        notifications["favourites"] = notif_page.total_favs
-        notifications["watches"] = notif_page.total_watches
-        notifications["notes"] = notif_page.total_notes
+        notifications["submissions"] = 0 if len(total_submissions) == 0 else int(total_submissions[0].string[:-1])
+        notifications["comments"] = 0 if len(total_comments) == 0 else int(total_comments[0].string[:-1])
+        notifications["journals"] = 0 if len(total_journals) == 0 else int(total_journals[0].string[:-1])
+        notifications["favourites"] = 0 if len(total_favs) == 0 else int(total_favs[0].string[:-1])
+        notifications["watches"] = 0 if len(total_watches) == 0 else int(total_watches[0].string[:-1])
+        notifications["notes"] = 0 if len(total_notes) == 0 else int(total_notes[0].string[:-1])
         d = (evt.get_send_time() - timedelta(1)).date()
         self.save_data(notifications, d)
         # Send date to destination
@@ -431,8 +442,8 @@ class DailysFAField(DailysField):
     def create_from_input(event, spreadsheet):
         # Check user has an FA login
         user_parser = UserDataParser()
-        fa_data = user_parser.get_data_by_user_and_type(spreadsheet.user, FAKeyData)  # type: FAKeyData
-        if fa_data is None:
+        fa_data = user_parser.get_data_by_user_and_type(spreadsheet.user, FAKeyData)
+        if not isinstance(fa_data, FAKeyData):
             raise DailysException("No FA data has been set up for the FA dailys field to use.")
         return DailysFAField(spreadsheet)
 
