@@ -2262,9 +2262,10 @@ class FAKey:
                 self.timeout
             )
             """ :type : CachedObject"""
-            self.submissions_page_cache = CachedObject(lambda: FAKey.FAReader.FASubmissionsPage(
-                self._get_page_code("https://www.furaffinity.net/msg/submissions/")),
-                                                       self.timeout)
+            self.submissions_page_cache = CachedObject(
+                lambda: FAKey.FAReader.FASubmissionsPage(self._get_api_data("notifications/submissions")),
+                self.timeout
+            )
             """ :type : CachedObject"""
             self.notes_page_inbox_cache = CachedObject(
                 lambda: FAKey.FAReader.FANotesPage(self._get_api_data("notes/inbox"), self.NOTES_INBOX),
@@ -2576,34 +2577,28 @@ class FAKey:
                 self.name = name
                 """ :type : str"""
 
-        class FASubmissionsPage(FAPage):
+        class FASubmissionsPage:
 
-            def __init__(self, code):
-                super().__init__(code)
+            def __init__(self, data):
                 self.submissions = []
                 """ :type : list[FAKey.FAReader.FANotificationSubmission]"""
-                subs_list = self.soup.find("form", id="messages-form")  # line 181
-                if subs_list is not None:
-                    for sub_notif in subs_list.find_all("figure"):
-                        sub_links = sub_notif.find_all("a")
-                        submission_id = sub_notif.input["value"]
-                        rating = [i[2:] for i in sub_notif["class"] if i.startswith("r-")][0]
-                        preview_link = sub_notif.img["src"]
-                        title = sub_links[1].string
-                        username = sub_links[2]["href"].split("/")[-2]
-                        name = sub_links[2]
-                        new_submission = FAKey.FAReader.FANotificationSubmission(submission_id, rating, preview_link,
-                                                                                 title, username, name)
-                        self.submissions.append(new_submission)
+                subs_list = data['new_submissions']
+                for sub_notif in subs_list:
+                    new_submission = FAKey.FAReader.FANotificationSubmission(
+                        sub_notif['id'],
+                        sub_notif['link'],
+                        sub_notif['title'],
+                        sub_notif['profile_name'],
+                        sub_notif['name']
+                    )
+                    self.submissions.append(new_submission)
 
         class FANotificationSubmission:
 
-            def __init__(self, submission_id, rating, preview_link, title, username, name):
+            def __init__(self, submission_id, preview_link, title, username, name):
                 self.submission_id = submission_id
                 """ :type : str"""
                 self.submission_link = "https://furaffinity.net/view/{}/".format(submission_id)
-                """ :type : str"""
-                self.rating = rating
                 """ :type : str"""
                 self.preview_link = preview_link
                 """ :type : str"""
