@@ -28,6 +28,7 @@ def is_valid_iso8601_period(try_period):
     except ISO8601ParseError:
         return False
 
+
 class SubscriptionException(Exception):
     pass
 
@@ -238,7 +239,7 @@ class Subscription(metaclass=ABCMeta):
         """
         raise NotImplementedError()
 
-    def needs_check(self, *, ignore_result=False):
+    def needs_check(self):
         """
         Returns whether a subscription check is overdue.
         :rtype: bool
@@ -309,7 +310,6 @@ class RssSub(Subscription):
         rss_data = self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
         channel_elem = rss_elem.find("channel")
-        title_elem = None
         title = None
         if channel_elem is not None:
             # Update title
@@ -672,7 +672,14 @@ class E621TaggingSub(E621Sub):
         :type last_check: datetime
         :type update_frequency: timedelta
         """
-        super().__init__(server, destination, search, last_check=last_check, update_frequency=update_frequency, latest_ids=latest_ids)
+        super().__init__(
+            server,
+            destination,
+            search,
+            last_check=last_check,
+            update_frequency=update_frequency,
+            latest_ids=latest_ids
+        )
         self.tags = tags
 
     @staticmethod
@@ -974,22 +981,24 @@ class FANotificationFavSub(Subscription):
     type_name = "fa_notif_favs"
     """ :type : str"""
 
-    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
-                 fav_notif_count=None):
+    def __init__(
+            self, server, destination, fa_key, last_check=None, update_frequency=None,
+            highest_fav_id=None
+    ):
         """
         :type server: Server.Server
         :type destination: Destination.Destination
         :type fa_key: FAKey
         :type last_check: datetime
         :type update_frequency: timedelta
-        :param fav_notif_count: Count of how many fav notifications are currently in the header bar
-        :type fav_notif_count: int | None
+        :param highest_fav_id: ID number of the highest favourite notification seen
+        :type highest_fav_id: int | None
         """
         super().__init__(server, destination, last_check, update_frequency)
         self.fa_key = fa_key
         """ :type : FAKey"""
-        self.fav_notif_count = 0 if fav_notif_count is None else fav_notif_count
-        """ :type : int | None"""
+        self.highest_fav_id = 0 if highest_fav_id is None else highest_fav_id
+        """ :type : int"""
 
     @staticmethod
     def create_from_input(input_evt, sub_repo):
@@ -1017,16 +1026,17 @@ class FANotificationFavSub(Subscription):
         return name_clean in [s.lower().strip() for s in self.names + ["favs"]]
 
     def get_name(self):
-        return "FA favourites for {}".format(self.fa_key.user.name)
+        return "FA favourite notifications for {}".format(self.fa_key.user.name)
 
     def check(self, *, ignore_result=False):
         fa_reader = self.fa_key.get_fa_reader()
         notif_page = fa_reader.get_notification_page()
         results = []
-        if notif_page.total_favs > self.fav_notif_count:
-            new_notifs = notif_page.total_favs - self.fav_notif_count
-            results = notif_page.favourites[:new_notifs]
-        self.fav_notif_count = notif_page.total_favs
+        for notif in notif_page.favourites:
+            if notif.fav_id > self.highest_fav_id:
+                results.append(notif)
+        if len(notif_page.favourites) > 0:
+            self.highest_fav_id = notif_page.favourites[0].fav_id
         # Update last check time
         self.last_check = datetime.now()
         # Return results
@@ -1050,7 +1060,7 @@ class FANotificationFavSub(Subscription):
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["fa_key_user_address"] = self.fa_key.user.address
-        json_obj["fav_notif_count"] = self.fav_notif_count
+        json_obj["highest_fav_id"] = self.highest_fav_id
         return json_obj
 
     @staticmethod
@@ -1089,11 +1099,14 @@ class FANotificationFavSub(Subscription):
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
             raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
-        # Load inbox_note_ids
-        fav_notif_count = json_obj["fav_notif_count"]
-        new_sub = FANotificationFavSub(server, destination, fa_key,
-                                       last_check=last_check, update_frequency=update_frequency,
-                                       fav_notif_count=fav_notif_count)
+        # Load highest favourite id
+        highest_fav_id = None
+        if "highest_fav_id" in json_obj:
+            highest_fav_id = json_obj["highest_fav_id"]
+        new_sub = FANotificationFavSub(
+            server, destination, fa_key,
+            last_check=last_check, update_frequency=update_frequency, highest_fav_id=highest_fav_id
+        )
         new_sub.last_update = last_update
         return new_sub
 
@@ -1108,7 +1121,7 @@ class FANotificationCommentsSub(Subscription):
     """ :type : str"""
 
     def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
-                 comment_notification_count=None, latest_comment_id_journal=None,
+                 latest_comment_id_journal=None,
                  latest_comment_id_submission=None, latest_shout_id=None):
         """
         :type server: Server.Server
@@ -1116,7 +1129,6 @@ class FANotificationCommentsSub(Subscription):
         :type fa_key: FAKey
         :type last_check: datetime
         :type update_frequency: timedelta
-        :type comment_notification_count: str | None
         :type latest_comment_id_journal: str | None
         :type latest_comment_id_submission: str | None
         :type latest_shout_id: str | None
@@ -1124,8 +1136,6 @@ class FANotificationCommentsSub(Subscription):
         super().__init__(server, destination, last_check, update_frequency)
         self.fa_key = fa_key
         """ :type : FAKey"""
-        self.comment_notification_count = comment_notification_count
-        """ :type : int | None"""
         self.latest_comment_id_journal = latest_comment_id_journal
         """ :type : str | None"""
         self.latest_comment_id_submission = latest_comment_id_submission
@@ -1163,32 +1173,23 @@ class FANotificationCommentsSub(Subscription):
     def check(self, *, ignore_result=False):
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         results = []
-        # Only get notifications if there's more notifications than last time
-        if self.comment_notification_count is None or notif_page.total_comments > self.comment_notification_count:
-            # Check submission comments
-            for submission_notif in notif_page.submission_comments:
-                if submission_notif.comment_id == self.latest_comment_id_submission:
-                    break
+        # Check submission comments
+        for submission_notif in notif_page.submission_comments:
+            if submission_notif.comment_id > self.latest_comment_id_submission:
                 results.append(submission_notif)
-            # Check journal comments
-            for journal_notif in notif_page.journal_comments:
-                if journal_notif.comment_id == self.latest_comment_id_journal:
-                    break
+        # Check journal comments
+        for journal_notif in notif_page.journal_comments:
+            if journal_notif.comment_id > self.latest_comment_id_journal:
                 results.append(journal_notif)
-            # Check shouts
-            for shout_notif in notif_page.shouts:
-                if shout_notif.shout_id == self.latest_shout_id:
-                    break
+        # Check shouts
+        for shout_notif in notif_page.shouts:
+            if shout_notif.shout_id > self.latest_shout_id:
                 results.append(shout_notif)
         # Reset high water marks.
-        self.comment_notification_count = notif_page.total_comments
-        self.latest_comment_id_submission = None
         if len(notif_page.submission_comments) > 0:
             self.latest_comment_id_submission = notif_page.submission_comments[0].comment_id
-        self.latest_comment_id_journal = None
         if len(notif_page.journal_comments) > 0:
             self.latest_comment_id_journal = notif_page.journal_comments[0].comment_id
-        self.latest_shout_id = None
         if len(notif_page.shouts) > 0:
             self.latest_shout_id = notif_page.shouts[0].shout_id
         # Update last check time
@@ -1256,7 +1257,6 @@ class FANotificationCommentsSub(Subscription):
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["fa_key_user_address"] = self.fa_key.user.address
-        json_obj["comment_notification_count"] = self.comment_notification_count
         json_obj["latest_comment_id_journal"] = self.latest_comment_id_journal
         json_obj["latest_comment_id_submission"] = self.latest_comment_id_submission
         json_obj["latest_shout_id"] = self.latest_shout_id
@@ -1299,13 +1299,11 @@ class FANotificationCommentsSub(Subscription):
         if fa_key is None:
             raise SubscriptionException("Could not find fa key for user: {}".format(user.name))
         # Load comment IDs and count
-        comment_notification_count = json_obj["comment_notification_count"]
         latest_comment_id_journal = json_obj["latest_comment_id_journal"]
         latest_comment_id_submission = json_obj["latest_comment_id_submission"]
         latest_shout_id = json_obj["latest_shout_id"]
         new_sub = FANotificationCommentsSub(server, destination, fa_key,
                                             last_check=last_check, update_frequency=update_frequency,
-                                            comment_notification_count=comment_notification_count,
                                             latest_comment_id_journal=latest_comment_id_journal,
                                             latest_comment_id_submission=latest_comment_id_submission,
                                             latest_shout_id=latest_shout_id)
@@ -2259,9 +2257,10 @@ class FAKey:
             """ :type : str"""
             self.timeout = timedelta(seconds=60)
             """ :type : timedelta"""
-            self.notification_page_cache = CachedObject(lambda: FAKey.FAReader.FANotificationsPage(
-                self._get_page_code("https://www.furaffinity.net/msg/others/")),
-                                                        self.timeout)
+            self.notification_page_cache = CachedObject(
+                lambda: FAKey.FAReader.FANotificationsPage(self._get_api_data("notifications/others")),
+                self.timeout
+            )
             """ :type : CachedObject"""
             self.submissions_page_cache = CachedObject(lambda: FAKey.FAReader.FASubmissionsPage(
                 self._get_page_code("https://www.furaffinity.net/msg/submissions/")),
@@ -2383,108 +2382,100 @@ class FAKey:
                 self.total_notes = 0 if len(total_notes) == 0 else int(total_notes[0].string[:-1])
                 """ :type : int"""
 
-        class FANotificationsPage(FAPage):
+        class FANotificationsPage:
 
-            def __init__(self, code):
-                super().__init__(code)
+            def __init__(self, data):
+                self.username = data['current_user']['profile_name']
                 self.watches = []
                 """ :type : list[FAKey.FAReader.FANotificationWatch]"""
-                watch_list = self.soup.find("ul", id="watches")
-                if watch_list is not None:
-                    for watch_notif in watch_list.find_all("li", attrs={"class": None}):
-                        try:
-                            name = watch_notif.span.string
-                            username = watch_notif.a["href"].replace("/user/", "")[:-1]
-                            avatar = "https:" + watch_notif.img["src"]
-                            new_watch = FAKey.FAReader.FANotificationWatch(name, username, avatar)
-                            self.watches.append(new_watch)
-                        except Exception as e:
-                            print("Failed to read watch: {}".format(e))
+                watch_list = data['new_watches']
+                for watch_notif in watch_list:
+                    try:
+                        new_watch = FAKey.FAReader.FANotificationWatch(
+                            watch_notif['name'],
+                            watch_notif['profile_name'],
+                            watch_notif['avatar']
+                        )
+                        self.watches.append(new_watch)
+                    except Exception as e:
+                        print("Failed to read watch: {}".format(e))
                 self.submission_comments = []
                 """ :type : list[FAKey.FAReader.FANotificationCommentSubmission]"""
-                sub_comment_list = self.soup.find("fieldset", id="messages-comments-submission")
-                if sub_comment_list is not None:
-                    for sub_comment_notif in sub_comment_list.find_all("li", attrs={"class": None}):
-                        try:
-                            sub_comment_notif_links = sub_comment_notif.find_all("a")
-                            comment_id = sub_comment_notif.input["value"]
-                            username = sub_comment_notif_links[0]["href"].split("/")[2]
-                            name = sub_comment_notif.a.string
-                            comment_on = "<em>your</em> comment on" in str(sub_comment_notif)
-                            submission_yours = sub_comment_notif.find_all("em")[-1].string == "your"
-                            submission_id = sub_comment_notif_links[1]["href"].split("/")[2]
-                            submission_name = sub_comment_notif_links[1].string
-                            new_comment = FAKey.FAReader.FANotificationCommentSubmission(comment_id, username, name,
-                                                                                         comment_on, submission_yours,
-                                                                                         submission_id, submission_name)
-                            self.submission_comments.append(new_comment)
-                        except Exception as e:
-                            print("Failed to read submission comment: {}".format(e))
+                sub_comment_list = data['new_submission_comments']
+                for sub_comment_notif in sub_comment_list:
+                    try:
+                        new_comment = FAKey.FAReader.FANotificationCommentSubmission(
+                            sub_comment_notif['comment_id'],
+                            sub_comment_notif['profile_name'],
+                            sub_comment_notif['name'],
+                            sub_comment_notif['is_reply'],
+                            sub_comment_notif['your_submission'],
+                            sub_comment_notif['submission_id'],
+                            sub_comment_notif['title']
+                        )
+                        self.submission_comments.append(new_comment)
+                    except Exception as e:
+                        print("Failed to read submission comment: {}".format(e))
                 self.journal_comments = []
                 """ :type : list[FAKey.FAReader.FANotificationCommentJournal]"""
-                jou_comment_list = self.soup.find("fieldset", id="messages-comments-journal")
-                if jou_comment_list is not None:
-                    for jou_comment_notif in jou_comment_list.find_all("li", attrs={"class": None}):
-                        try:
-                            jou_comment_links = jou_comment_notif.find_all("a")
-                            comment_id = jou_comment_notif.find("input")["value"]
-                            username = jou_comment_links[0]["href"].split("/")[2]
-                            name = jou_comment_links[0].string
-                            comment_on = "<em>your</em> comment on" in str(jou_comment_notif)
-                            journal_yours = jou_comment_notif.find_all("em")[-1].string == "your"
-                            journal_id = jou_comment_links[1]["href"].split("/")[2]
-                            journal_title = jou_comment_links[1].string
-                            new_comment = FAKey.FAReader.FANotificationCommentJournal(comment_id, username, name,
-                                                                                      comment_on, journal_yours,
-                                                                                      journal_id, journal_title)
-                            self.journal_comments.append(new_comment)
-                        except Exception as e:
-                            print("Failed to read journal comment: {}".format(e))
+                jou_comment_list = data['new_journal_comments']
+                for jou_comment_notif in jou_comment_list:
+                    try:
+                        new_comment = FAKey.FAReader.FANotificationCommentJournal(
+                            jou_comment_notif['comment_id'],
+                            jou_comment_notif['profile_name'],
+                            jou_comment_notif['name'],
+                            jou_comment_notif['is_reply'],
+                            jou_comment_notif['your_journal'],
+                            jou_comment_notif['journal_id'],
+                            jou_comment_notif['title']
+                        )
+                        self.journal_comments.append(new_comment)
+                    except Exception as e:
+                        print("Failed to read journal comment: {}".format(e))
                 self.shouts = []
                 """ :type : list[FAKey.FAReader.FANotificationShout]"""
-                shout_list = self.soup.find("fieldset", id="messages-shouts")
-                if shout_list is not None:
-                    for shout_notif in shout_list.find_all("li", attrs={"class": None}):
-                        try:
-                            shout_id = shout_notif.input["value"]
-                            username = shout_notif.a["href"].split("/")[2]
-                            name = shout_notif.a.string
-                            new_shout = FAKey.FAReader.FANotificationShout(shout_id, username, name, self.username)
-                            self.shouts.append(new_shout)
-                        except Exception as e:
-                            print("Failed to read shout: {}".format(e))
+                shout_list = data['new_shouts']
+                for shout_notif in shout_list:
+                    try:
+                        new_shout = FAKey.FAReader.FANotificationShout(
+                            shout_notif['shout_id'],
+                            shout_notif['profile_name'],
+                            shout_notif['name'],
+                            data['current_user']['profile_name']
+                        )
+                        self.shouts.append(new_shout)
+                    except Exception as e:
+                        print("Failed to read shout: {}".format(e))
                 self.favourites = []
                 """ :type : list[FAKey.FAReader.FANotificationFavourite]"""
-                fav_list = self.soup.find("ul", id="favorites")
-                if fav_list is not None:
-                    for fav_notif in fav_list.find_all("li", attrs={"class": None}):
-                        try:
-                            fav_links = fav_notif.find_all("a")
-                            fav_id = fav_notif.input["value"]
-                            username = fav_links[0]["href"].split("/")[-2]
-                            name = fav_links[0].string
-                            submission_id = fav_links[1]["href"].split("/")[-2]
-                            submission_name = fav_links[1].string
-                            new_fav = FAKey.FAReader.FANotificationFavourite(fav_id, username, name,
-                                                                             submission_id, submission_name)
-                            self.favourites.append(new_fav)
-                        except Exception as e:
-                            print("Failed to read favourite: {}".format(e))
+                fav_list = data['new_favorites']
+                for fav_notif in fav_list:
+                    try:
+                        new_fav = FAKey.FAReader.FANotificationFavourite(
+                            fav_notif['favorite_notification_id'],
+                            fav_notif['profile_name'],
+                            fav_notif['name'],
+                            fav_notif['submission_id'],
+                            fav_notif['submission_name']
+                        )
+                        self.favourites.append(new_fav)
+                    except Exception as e:
+                        print("Failed to read favourite: {}".format(e))
                 self.journals = []
                 """ :type : list[FAKey.FAReader.FANotificationJournal]"""
-                jou_list = self.soup.find("ul", id="journals")
-                if jou_list is not None:
-                    for jou_notif in jou_list.find_all("li", attrs={"class": None}):
-                        try:
-                            jou_links = jou_notif.find_all("a")
-                            journal_id = jou_notif.input["value"]
-                            journal_name = jou_links[0].string
-                            username = jou_links[1]["href"].split("/")[-2]
-                            name = jou_links[1].string
-                            new_journal = FAKey.FAReader.FANotificationJournal(journal_id, journal_name, username, name)
-                            self.journals.append(new_journal)
-                        except Exception as e:
-                            print("Failed to read journal: {}".format(e))
+                jou_list = data['new_journals']
+                for jou_notif in jou_list.find_all("li", attrs={"class": None}):
+                    try:
+                        new_journal = FAKey.FAReader.FANotificationJournal(
+                            jou_notif['journal_id'],
+                            jou_notif['title'],
+                            jou_notif['profile_name'],
+                            jou_notif['name']
+                        )
+                        self.journals.append(new_journal)
+                    except Exception as e:
+                        print("Failed to read journal: {}".format(e))
 
         class FANotificationWatch:
 
