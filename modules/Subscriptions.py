@@ -2278,12 +2278,6 @@ class FAKey:
             )
             """ :type : CachedObject"""
 
-        def _get_page_code(self, url, extra_cookie=""):
-            if len(extra_cookie) > 0 or not extra_cookie.startswith(";"):
-                extra_cookie = ";"+extra_cookie
-            cookie_string = "a="+self.a+";b="+self.b+extra_cookie
-            return Commons.load_url_string(url, [["Cookie", cookie_string]])
-
         def _get_api_data(self, path, needs_cookie=False):
             url = "https://faexport.boothale.net/{}".format(path)
             if needs_cookie:
@@ -2859,9 +2853,9 @@ class FAKey:
                 """ :type : str"""
                 self.username = data["profile_name"]
                 """ :type : str"""
-                self.name = data["profile_name"]  # TODO: change to profile["name"] when API is fixed
+                self.name = data["name"]
                 """ :type : str"""
-                self.avatar_link = None  # TODO: Fix if API expanded
+                self.avatar_link = data['avatar']
                 """ :type : str | None"""
                 self.title = data["title"]
                 """ :type : str"""
