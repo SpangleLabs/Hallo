@@ -1,10 +1,10 @@
-import gzip
 import datetime
-import urllib.request
 import re
 import json
 import random
 from datetime import timedelta
+
+import requests
 
 
 class ISO8601ParseError(SyntaxError):
@@ -133,6 +133,21 @@ class Commons(object):
         return datetime.datetime.utcfromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
 
     @staticmethod
+    def create_headers_dict(headers):
+        """
+        Creates a headers dictionary, for requests, and adds user agent
+        :param headers: List of HTTP headers to add to request
+        :type headers: list[list[str]]
+        :return: dict[str, str]
+        """
+        if headers is None:
+            headers = []
+        headers_dict = {'User-Agent': 'Hallo IRCBot hallo@dr-spangle.com'}
+        for header in headers:
+            headers_dict[header[0]] = header[1]
+        return headers_dict
+
+    @staticmethod
     def load_url_string(url, headers=None):
         """
         Takes a url to an xml resource, pulls it and returns a dictionary.
@@ -141,19 +156,9 @@ class Commons(object):
         :param headers: List of HTTP headers to add to request
         :type headers: list[list[str]]
         """
-        if headers is None:
-            headers = []
-        page_request = urllib.request.Request(url)
-        page_request.add_header('User-Agent', 'Hallo IRCBot hallo@dr-spangle.com')
-        for header in headers:
-            page_request.add_header(header[0], header[1])
-        page_opener = urllib.request.build_opener()
-        resp = page_opener.open(page_request, timeout=60)
-        code = resp.read()
-        if resp.getheader("Content-Encoding") == "gzip":
-            code = gzip.decompress(code)
-        code_str = code.decode('utf-8')
-        return code_str
+        headers_dict = Commons.create_headers_dict(headers)
+        resp = requests.get(url, headers=headers_dict)
+        return resp.text
 
     @staticmethod
     def load_url_json(url, headers=None, json_fix=False):
@@ -184,20 +189,11 @@ class Commons(object):
         """
         Converts data to JSON and PUT it to the specified URL
         :param url: URL to send PUT request to
-        :param data: data to send
+        :param data: data to send, as JSON
         :param headers: List of HTTP headers to add to the request
         """
-        if headers is None:
-            headers = []
-        page_request = urllib.request.Request(url, method="PUT")
-        page_request.add_header('User-Agent', 'Hallo IRCBot hallo@dr-spangle.com')
-        page_request.add_header('Content-Type', 'application/json')
-        for header in headers:
-            page_request.add_header(header[0], header[1])
-        page_opener = urllib.request.build_opener()
-        resp = page_opener.open(page_request, data=json.dumps(data).encode('utf-8'), timeout=60)
-        resp.read()
-        resp.close()
+        headers_dict = Commons.create_headers_dict(headers)
+        requests.put(url, headers=headers_dict, json=data)
 
     @staticmethod
     def check_numbers(message):
