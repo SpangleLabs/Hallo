@@ -17,25 +17,27 @@ class TestBase(unittest.TestCase):
         # Create a Hallo
         self.hallo = Hallo()
         # Swap out raw printer function for empty
-        self.hallo.printer.output = self.empty
+        self.hallo.printer.output = lambda *args: None
         # Only the required modules, only 1 (mock) server
         # Todo: specify modules by test?
-        self.function_dispatcher = FunctionDispatcher({"AsciiArt", "Bio", "ChannelControl", "Convert", "Euler",
-                                                       "HalloControl", "Math", "PermissionControl", "Random",
-                                                       "ServerControl", "Silly", "Subscriptions"},
-                                                      self.hallo)
+        self.function_dispatcher = FunctionDispatcher(
+            {
+                "AsciiArt", "Bio", "ChannelControl", "Convert", "Euler", "HalloControl", "Math",
+                "PermissionControl", "Random", "ServerControl", "Silly", "Subscriptions"
+            },
+            self.hallo
+        )
         self.hallo.function_dispatcher = self.function_dispatcher
         print("Running test: "+self.id()+". Init took: "+str(time.time()-self.start_time)+" seconds.")
         self.server = ServerMock(self.hallo)
         self.server.name = "mock-server"
-        # self.server = unittest.mock.Mock()
         self.hallo.add_server(self.server)
-        # send shit in, check shit out
+        # Start hallo thread
         self.hallo_thread = Thread(target=self.hallo.start,)
         self.hallo_thread.start()
+        # Create test users and channel, and configure them
         self.hallo_user = self.server.get_user_by_address(self.server.get_nick().lower(), self.server.get_nick())
         self.test_user = self.server.get_user_by_address("test", "test")
-        """ :type : Destination.User"""
         self.test_user.online = True
         self.test_chan = self.server.get_channel_by_address("#test", "#test")
         self.test_chan.in_channel = True
@@ -44,10 +46,10 @@ class TestBase(unittest.TestCase):
         # Wait until hallo is open
         count = 0
         while not self.hallo.open:
-            time.sleep(0.1)
+            time.sleep(0.01)
             count += 1
-            assert count < 100, "Hallo took too long to start."
-            if count > 100:
+            assert count < 1000, "Hallo took too long to start."
+            if count > 1000:
                 break
         # Clear any data in the server
         self.server.get_send_data()
@@ -60,9 +62,6 @@ class TestBase(unittest.TestCase):
         self.hallo.close()
         self.hallo_thread.join()
         print("Finished test: "+self.id()+". Test took: "+str(time.time()-self.start_time)+" seconds.")
-
-    def empty(self, var1=None, var2=None, var3=None, var4=None):
-        pass
 
     @classmethod
     def tearDownClass(cls):

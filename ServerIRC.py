@@ -112,14 +112,14 @@ class ServerIRC(Server):
             self.state = Server.STATE_CLOSED
             return
         # Wait for the first message back from the server.
-        print("{} Waiting for first message from server: {}".format(Commons.current_timestamp(), self.name))
+        self.hallo.printer.output("Waiting for first message from server: {}".format(self.name))
         first_line = self.read_line_from_socket()
         # If first line is null, that means connection was closed.
         if first_line is None:
             raise ServerException
         self._welcome_message = first_line + "\n"
         # Send nick and full name to server
-        print("{} Sending nick and user info to server: {}".format(Commons.current_timestamp(), self.name))
+        self.hallo.printer.output("Sending nick and user info to server: {}".format(self.name))
         self.send_raw("NICK {}".format(self.get_nick()))
         self.send_raw("USER {}".format(self.get_full_name()))
         # Wait for MOTD to end
@@ -144,7 +144,7 @@ class ServerIRC(Server):
                                      "IDENTIFY {}".format(self.nickserv_pass), inbound=False)
             self.send(ident_evt)
         # Join channels
-        print("{} Joining channels on {}, identifying.".format(Commons.current_timestamp(), self.name))
+        self.hallo.printer.output("Joining channels on {}, identifying.".format(self.name))
         # Join relevant channels
         for channel in self.channel_list:
             if channel.auto_join:
@@ -787,7 +787,7 @@ class ServerIRC(Server):
         # Parse out numeric line data
         numeric_code = numeric_line.split()[1]
         # Print to console
-        print("{} [{}] Numeric server info: {}".format(Commons.current_timestamp(), self.name, numeric_line))
+        self.hallo.printer.output("[{}] Numeric server info: {}".format(self.name, numeric_line))
         # TODO: add logging?
         # Check for a 433 "ERR_NICKNAMEINUSE"
         if numeric_code == "433":

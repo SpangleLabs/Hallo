@@ -1,5 +1,4 @@
 import gzip
-import time
 import datetime
 import urllib.request
 import re
@@ -31,10 +30,6 @@ class Commons(object):
         if dtime is None:
             dtime = datetime.datetime.now()
         return dtime.strftime("[%H:%M:%S]")
-
-    @staticmethod
-    def chunk_string(string, length):
-        return [string[0 + i:length + i] for i in range(0, len(string), length)]
 
     @staticmethod
     def chunk_string_dot(string, length):
@@ -111,20 +106,6 @@ class Commons(object):
         if string in ['0', 'false', 'off', 'disabled', 'disable', '', 'nul', 'null', 'none', 'nil']:
             return True
         return False
-
-    @staticmethod
-    def string_from_file(string):
-        """
-        Loads a string from a file. Converting booleans or null values accordingly.
-        :param string: String to load as true, false, null or original string
-        :type string: str
-        """
-        input_bool = Commons.string_to_bool(string)
-        if input_bool in [True, False]:
-            return input_bool
-        if Commons.is_string_null(string):
-            return None
-        return string
 
     @staticmethod
     def ordinal(number):
@@ -279,8 +260,6 @@ class Commons(object):
         if len(end_digits) != 0:
             return end_digits[0]
         return None
-        # return ([string[:x] for x in range(1, len(string)+1) if Commons.is_float_string(string[:x])][::-1] +
-        # [string[x:] for x in range(len(string)) if Commons.is_float_string(string[x:])] + [None])[0]
 
     @staticmethod
     def get_calc_from_start_or_end(string):
@@ -297,8 +276,6 @@ class Commons(object):
         if len(end_digits) != 0:
             return end_digits[0]
         return None
-        # return ([string[:x] for x in range(1, len(string)+1) if Commons.is_float_string(string[:x])][::-1] +
-        # [string[x:] for x in range(len(string)) if Commons.is_float_string(string[x:])] + [None])[0]
 
     @staticmethod
     def list_greater(list_one, list_two):
@@ -335,13 +312,6 @@ class Commons(object):
         # If there's no range, just return a list.
         if min_int == max_int:
             return [min_int] * count
-        # random_org_url = "https://www.random.org/integers/?num=" + str(count) + "&format=plain&min=" + \
-        #                  str(min_int) + "&max=" + str(max_int) + "&col=1&base=10"
-        # user_agent_headers = [["User-Agent", "Hallo IRCBot hallo@dr-spangle.com"]]
-        # api_response = Commons.load_url_string(random_org_url, user_agent_headers)
-        # if "Error:" not in api_response:
-        #     return [int(x) for x in api_response.split("\n") if x != ""]
-        # Otherwise, use random module
         output_list = []
         for _ in range(count):
             output_list.append(random.randint(min_int, max_int))
