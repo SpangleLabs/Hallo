@@ -1,11 +1,10 @@
-import gzip
-import time
 import datetime
-import urllib.request
 import re
 import json
 import random
 from datetime import timedelta
+
+import requests
 
 
 class ISO8601ParseError(SyntaxError):
@@ -31,10 +30,6 @@ class Commons(object):
         if dtime is None:
             dtime = datetime.datetime.now()
         return dtime.strftime("[%H:%M:%S]")
-
-    @staticmethod
-    def chunk_string(string, length):
-        return [string[0 + i:length + i] for i in range(0, len(string), length)]
 
     @staticmethod
     def chunk_string_dot(string, length):
@@ -113,20 +108,6 @@ class Commons(object):
         return False
 
     @staticmethod
-    def string_from_file(string):
-        """
-        Loads a string from a file. Converting booleans or null values accordingly.
-        :param string: String to load as true, false, null or original string
-        :type string: str
-        """
-        input_bool = Commons.string_to_bool(string)
-        if input_bool in [True, False]:
-            return input_bool
-        if Commons.is_string_null(string):
-            return None
-        return string
-
-    @staticmethod
     def ordinal(number):
         """
         Returns the ordinal of a number
@@ -152,6 +133,21 @@ class Commons(object):
         return datetime.datetime.utcfromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
 
     @staticmethod
+    def create_headers_dict(headers):
+        """
+        Creates a headers dictionary, for requests, and adds user agent
+        :param headers: List of HTTP headers to add to request
+        :type headers: list[list[str]]
+        :return: dict[str, str]
+        """
+        if headers is None:
+            headers = []
+        headers_dict = {'User-Agent': 'Hallo IRCBot hallo@dr-spangle.com'}
+        for header in headers:
+            headers_dict[header[0]] = header[1]
+        return headers_dict
+
+    @staticmethod
     def load_url_string(url, headers=None):
         """
         Takes a url to an xml resource, pulls it and returns a dictionary.
@@ -160,19 +156,9 @@ class Commons(object):
         :param headers: List of HTTP headers to add to request
         :type headers: list[list[str]]
         """
-        if headers is None:
-            headers = []
-        page_request = urllib.request.Request(url)
-        page_request.add_header('User-Agent', 'Hallo IRCBot hallo@dr-spangle.com')
-        for header in headers:
-            page_request.add_header(header[0], header[1])
-        page_opener = urllib.request.build_opener()
-        resp = page_opener.open(page_request, timeout=60)
-        code = resp.read()
-        if resp.getheader("Content-Encoding") == "gzip":
-            code = gzip.decompress(code)
-        code_str = code.decode('utf-8')
-        return code_str
+        headers_dict = Commons.create_headers_dict(headers)
+        resp = requests.get(url, headers=headers_dict)
+        return resp.text
 
     @staticmethod
     def load_url_json(url, headers=None, json_fix=False):
@@ -203,20 +189,11 @@ class Commons(object):
         """
         Converts data to JSON and PUT it to the specified URL
         :param url: URL to send PUT request to
-        :param data: data to send
+        :param data: data to send, as JSON
         :param headers: List of HTTP headers to add to the request
         """
-        if headers is None:
-            headers = []
-        page_request = urllib.request.Request(url, method="PUT")
-        page_request.add_header('User-Agent', 'Hallo IRCBot hallo@dr-spangle.com')
-        page_request.add_header('Content-Type', 'application/json')
-        for header in headers:
-            page_request.add_header(header[0], header[1])
-        page_opener = urllib.request.build_opener()
-        resp = page_opener.open(page_request, data=json.dumps(data).encode('utf-8'), timeout=60)
-        resp.read()
-        resp.close()
+        headers_dict = Commons.create_headers_dict(headers)
+        requests.put(url, headers=headers_dict, json=data)
 
     @staticmethod
     def check_numbers(message):
@@ -279,8 +256,6 @@ class Commons(object):
         if len(end_digits) != 0:
             return end_digits[0]
         return None
-        # return ([string[:x] for x in range(1, len(string)+1) if Commons.is_float_string(string[:x])][::-1] +
-        # [string[x:] for x in range(len(string)) if Commons.is_float_string(string[x:])] + [None])[0]
 
     @staticmethod
     def get_calc_from_start_or_end(string):
@@ -297,8 +272,6 @@ class Commons(object):
         if len(end_digits) != 0:
             return end_digits[0]
         return None
-        # return ([string[:x] for x in range(1, len(string)+1) if Commons.is_float_string(string[:x])][::-1] +
-        # [string[x:] for x in range(len(string)) if Commons.is_float_string(string[x:])] + [None])[0]
 
     @staticmethod
     def list_greater(list_one, list_two):
@@ -335,13 +308,6 @@ class Commons(object):
         # If there's no range, just return a list.
         if min_int == max_int:
             return [min_int] * count
-        # random_org_url = "https://www.random.org/integers/?num=" + str(count) + "&format=plain&min=" + \
-        #                  str(min_int) + "&max=" + str(max_int) + "&col=1&base=10"
-        # user_agent_headers = [["User-Agent", "Hallo IRCBot hallo@dr-spangle.com"]]
-        # api_response = Commons.load_url_string(random_org_url, user_agent_headers)
-        # if "Error:" not in api_response:
-        #     return [int(x) for x in api_response.split("\n") if x != ""]
-        # Otherwise, use random module
         output_list = []
         for _ in range(count):
             output_list.append(random.randint(min_int, max_int))

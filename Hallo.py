@@ -50,9 +50,13 @@ class Hallo:
         # If no function dispatcher, create one
         # TODO: manual FunctionDispatcher construction, user input?
         if self.function_dispatcher is None:
-            self.function_dispatcher = FunctionDispatcher({"ChannelControl", "Convert", "HalloControl", "Lookup",
-                                                           "Math", "PermissionControl", "Random", "ServerControl"},
-                                                          self)
+            self.function_dispatcher = FunctionDispatcher(
+                {
+                    "ChannelControl", "Convert", "HalloControl", "Lookup",
+                    "Math", "PermissionControl", "Random", "ServerControl"
+                },
+                self
+            )
         # If no servers, ask for a new server
         if len(self.server_list) == 0 or all([not server.get_auto_connect() for server in self.server_list]):
             self.manual_server_connect()
@@ -63,9 +67,9 @@ class Hallo:
                 server.start()
         count = 0
         while not self.connected_to_any_servers():
-            time.sleep(0.1)
+            time.sleep(0.01)
             count += 1
-            if count > 600:
+            if count > 6000:
                 self.open = False
                 error = MessageError("No servers managed to connect in 60 seconds.")
                 self.logger.log(error)

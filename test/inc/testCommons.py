@@ -25,14 +25,6 @@ class CommonsTest(unittest.TestCase):
         for invalid_str in invalid:
             assert not Commons.check_numbers(invalid_str), "Invalid string judged to be calculation, "+invalid_str
 
-    def test_chunk_string(self):
-        chunks = Commons.chunk_string("a"*500, 100)
-        assert len(chunks) == 5, "Did not return correct number of chunks"
-        for chunk in chunks:
-            assert len(chunk) <= 100, "Chunk of string is too long"
-        chunks = Commons.chunk_string("", 100)
-        assert len(chunks) == 0, "Did not handle empty string correctly."
-
     def test_chunk_string_dot(self):
         string1 = "a"*50
         chunks1 = Commons.chunk_string_dot(string1, 100)
@@ -333,20 +325,6 @@ class CommonsTest(unittest.TestCase):
         assert data[2] == "test3"
         assert data[3] == "test4"
         assert data[4] == "test5"
-
-    def test_string_from_file(self):
-        true_list = ['1', 'true', 't', 'yes', 'y', 'on', 'enabled', 'enable']
-        for true_str in true_list:
-            assert Commons.string_from_file(true_str)
-        false_list = ['0', 'false', 'f', 'no', 'n', 'off', 'disabled', 'disable']
-        for false_str in false_list:
-            assert not Commons.string_from_file(false_str)
-        null_list = ['', 'nul', 'null', 'none', 'nil']
-        for null_str in null_list:
-            assert Commons.string_from_file(null_str) is None
-        invalid_list = ["hello", "example", "test"]
-        for invalid_str in invalid_list:
-            assert Commons.string_from_file(invalid_str) == invalid_str
 
     def test_string_to_bool(self):
         true_list = ['1', 'true', 't', 'yes', 'y', 'on', 'enabled', 'enable']
