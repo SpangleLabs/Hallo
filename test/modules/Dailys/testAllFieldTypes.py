@@ -15,7 +15,7 @@ class TestAllFieldTypes(TestBase, unittest.TestCase):
     def get_field_objects(self):
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
         field_obs = list()
-        field_obs.append(DailysDuolingoField(spreadsheet, "cabinet", os.getenv("test_duo_jwt_token")))
+        field_obs.append(DailysDuolingoField(spreadsheet, "cabinet", os.getenv("test_duo_password")))
         field_obs.append(DailysMoodField(spreadsheet,
                                          [DailysMoodField.TIME_SLEEP, time(14, 00), time(22, 00)],
                                          ["Happiness", "Anger", "Sleepiness"]))
