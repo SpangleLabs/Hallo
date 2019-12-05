@@ -64,7 +64,7 @@ class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
             assert "you must specify both a duolingo username, and password" in str(e).lower(), \
                 "Exception did not prompt to specify a username and password."
 
-    def test_create_from_input_invalid_token(self):
+    def test_create_from_input_invalid_password(self):
         # Setup
         cmd_name = "setup dailys field"
         cmd_args = "duolingo {} {}".format(self.TEST_USERNAME, "NoTAreaLPasSWorD")
@@ -90,9 +90,9 @@ class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
         field = DailysDuolingoField.create_from_input(evt, spreadsheet)
         assert field.spreadsheet == spreadsheet
         assert field.username == self.TEST_USERNAME
-        assert field.jwt_token == self.TEST_PASSWORD
+        assert field.password == self.TEST_PASSWORD
 
-    def test_create_from_input_token_first(self):
+    def test_create_from_input_password_first(self):
         # Setup
         cmd_name = "setup dailys field"
         cmd_args = "duolingo {} {}".format(self.TEST_PASSWORD, self.TEST_USERNAME)
@@ -103,4 +103,4 @@ class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
         field = DailysDuolingoField.create_from_input(evt, spreadsheet)
         assert field.spreadsheet == spreadsheet
         assert field.username == self.TEST_USERNAME
-        assert field.jwt_token == self.TEST_PASSWORD
+        assert field.password == self.TEST_PASSWORD

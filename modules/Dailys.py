@@ -790,7 +790,7 @@ class DailysDuolingoField(DailysField):
             return
         result = dict()
         for friend in friends:
-            result[friend["username"]] = friend["points_data"]["total"]
+            result[friend["username"]] = friend["points"]
         result_str = json.dumps(result)
         d = (evt.get_send_time() - timedelta(1)).date()
         self.save_data(result, d)
