@@ -781,8 +781,8 @@ class DailysDuolingoField(DailysField):
         :type evt: Event.Event
         :rtype: None
         """
-        lingo = duolingo.Duolingo(self.username, password=self.password)
         try:
+            lingo = duolingo.Duolingo(self.username, password=self.password)
             friends = lingo.get_friends()
         except Exception:
             self.message_channel("It seems the password no longer works for Duolingo account {}. "
@@ -803,7 +803,7 @@ class DailysDuolingoField(DailysField):
             lingo = duolingo.Duolingo(username, password=password)
             lingo.get_friends()
             return True
-        except HTTPError:
+        except Exception:
             return False
 
     @staticmethod
