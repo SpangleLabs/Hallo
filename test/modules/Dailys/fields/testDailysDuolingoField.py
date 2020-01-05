@@ -9,7 +9,7 @@ from test.TestBase import TestBase
 from test.modules.Dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
 
 
-# @unittest.skip("Skipping Duolingo field tests, as API now requires auth")
+@unittest.skip("Skipping Duolingo field tests until we switch to API, which requires PR acceptance")
 class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
     TEST_USERNAME = "Deer-Spangle"
     TEST_TOKEN = os.getenv("test_duo_jwt_token")
