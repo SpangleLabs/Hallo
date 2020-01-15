@@ -2,7 +2,7 @@ import unittest
 
 from events import EventMessage
 from inc.commons import Commons
-from modules.random import NightValeProverb, Scriptures
+from modules.random import Scriptures
 from test.test_base import TestBase
 from test.modules.Random.mock_chooser import MockChooser
 

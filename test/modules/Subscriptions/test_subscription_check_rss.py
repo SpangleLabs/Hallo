@@ -1,6 +1,8 @@
 import os
 import unittest
 
+import pytest
+
 from events import EventMinute, EventMessage
 from inc.commons import Commons
 from modules.subscriptions import SubscriptionCheck, SubscriptionRepo, RssSub
@@ -8,6 +10,7 @@ from test.server_mock import ServerMock
 from test.test_base import TestBase
 
 
+@pytest.mark.external_integration
 class FeedCheckTest(TestBase, unittest.TestCase):
 
     def setUp(self):

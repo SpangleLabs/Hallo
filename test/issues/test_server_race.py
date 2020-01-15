@@ -3,11 +3,14 @@ import unittest
 
 import time
 
+import pytest
+
 from server import Server
 from server_irc import ServerIRC
 from test.test_base import TestBase
 
 
+@pytest.mark.external_integration
 class ServerRaceTest(TestBase, unittest.TestCase):
 
     def test_server_race_cancel_failing_connection(self):

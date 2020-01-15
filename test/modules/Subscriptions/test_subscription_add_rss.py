@@ -1,11 +1,14 @@
 import os
 import unittest
 
+import pytest
+
 from events import EventMessage
 from modules.subscriptions import SubscriptionCheck, RssSub
 from test.test_base import TestBase
 
 
+@pytest.mark.external_integration
 class FeedAddTest(TestBase, unittest.TestCase):
 
     def setUp(self):

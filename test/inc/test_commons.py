@@ -3,6 +3,8 @@ import unittest
 
 from datetime import timedelta, datetime
 
+import pytest
+
 from inc.commons import Commons, ISO8601ParseError
 
 
@@ -264,6 +266,7 @@ class CommonsTest(unittest.TestCase):
         assert delta6.seconds == 3600, "delta6 seconds set incorrectly."
         assert delta6.days == 10, "delta6 days set incorrectly."
 
+    @pytest.mark.external_integration
     def test_load_url_json(self):
         url1 = "https://httpbin.org/get"
         data1 = Commons.load_url_json(url1)
@@ -279,6 +282,7 @@ class CommonsTest(unittest.TestCase):
         assert "User-Agent" in data2["headers"], "Header missing from request."
         assert data2["headers"]["User-Agent"] == "Example data", "Header data missing from request."
 
+    @pytest.mark.external_integration
     def test_load_url_string(self):
         url1 = "https://httpbin.org/get"
         data1 = Commons.load_url_string(url1)

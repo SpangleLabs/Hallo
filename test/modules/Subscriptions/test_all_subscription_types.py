@@ -3,6 +3,8 @@ import inspect
 import os
 import unittest
 
+import pytest
+
 import modules
 from events import EventMessage
 from modules.subscriptions import SubscriptionFactory, RssSub, SubscriptionRepo, RedditSub
@@ -10,6 +12,7 @@ from modules.subscriptions import SubscriptionFactory, RssSub, SubscriptionRepo,
 from test.test_base import TestBase
 
 
+@pytest.mark.external_integration
 class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
     cookie_a = os.getenv("test_cookie_a")
     cookie_b = os.getenv("test_cookie_b")

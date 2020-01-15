@@ -3,13 +3,16 @@ import os
 import unittest
 from datetime import timedelta
 
+import pytest
+
 from events import EventMessage, EventDay
 from modules.dailys import DailysException, DailysDuolingoField
 from test.test_base import TestBase
 from test.modules.Dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
-@unittest.skip("Skipping Duolingo field tests until we switch to API, which requires PR acceptance")
+@pytest.mark.external_integration
+@pytest.mark.skip("Skipping Duolingo field tests until we switch to API, which requires PR acceptance")
 class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
     TEST_USERNAME = "Deer-Spangle"
     TEST_TOKEN = os.getenv("test_duo_jwt_token")

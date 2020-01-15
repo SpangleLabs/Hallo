@@ -1,12 +1,15 @@
 import os
 import unittest
 
+import pytest
+
 from events import EventMessage
 from test.test_base import TestBase
 
 
 class CatGifTest(TestBase, unittest.TestCase):
 
+    @pytest.mark.external_integration
     def test_cat_gif_with_key(self):
         # Check API key is set
         if self.hallo.get_api_key("thecatapi") is None:

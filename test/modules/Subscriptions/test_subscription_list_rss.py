@@ -1,12 +1,15 @@
 import os
 import unittest
 
+import pytest
+
 from events import EventMessage
 from inc.commons import Commons
 from modules.subscriptions import SubscriptionCheck, RssSub
 from test.test_base import TestBase
 
 
+@pytest.mark.external_integration
 class FeedListTest(TestBase, unittest.TestCase):
 
     def setUp(self):

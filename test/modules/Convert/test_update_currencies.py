@@ -1,5 +1,7 @@
 import unittest
 
+import pytest
+
 import modules.convert
 from events import EventMessage, EventHour
 from test.test_base import TestBase
@@ -181,6 +183,7 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
             modules.convert.UpdateCurrencies.update_from_forex_data = update_forex
             modules.convert.UpdateCurrencies.update_from_cryptonator_data = update_cryptonator
 
+    @pytest.mark.external_integration
     def test_update_ecb(self):
         # Set up test repo
         test_repo = modules.convert.ConvertRepo()
@@ -201,6 +204,7 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
             test_unit = test_type.get_unit_by_name(code)
             assert test_unit.value != 0, "Currency was not updated: {}".format(code)
 
+    @pytest.mark.external_integration
     def test_update_forex(self):
         # Set up test repo
         test_repo = modules.convert.ConvertRepo()
@@ -219,7 +223,8 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
             test_unit = test_type.get_unit_by_name(code)
             assert test_unit.value != 0, "Currency was not updated: {}".format(code)
 
-    @unittest.skip(reason="Cryptonator API occasionally returns HTML pages")
+    @pytest.mark.external_integration
+    @pytest.mark.skip(reason="Cryptonator API occasionally returns HTML pages")
     def test_update_cryptonator(self):
         # Set up test repo
         test_repo = modules.convert.ConvertRepo()

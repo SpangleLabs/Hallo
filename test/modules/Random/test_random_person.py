@@ -1,10 +1,13 @@
 import re
 import unittest
 
+import pytest
+
 from events import EventMessage
 from test.test_base import TestBase
 
 
+@pytest.mark.external_integration
 class RandomPersonTest(TestBase, unittest.TestCase):
 
     def test_person(self):

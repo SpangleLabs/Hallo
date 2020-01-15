@@ -1,12 +1,15 @@
 import os
 import unittest
 
+import pytest
+
 from inc.commons import Commons
 from modules.subscriptions import SubscriptionRepo, RssSub
 from test.server_mock import ServerMock
 from test.test_base import TestBase
 
 
+@pytest.mark.external_integration
 class TestRssFeedList(TestBase, unittest.TestCase):
 
     def test_init(self):
