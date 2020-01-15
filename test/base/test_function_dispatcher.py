@@ -12,12 +12,12 @@ class FunctionDispatcherTest(TestBase, unittest.TestCase):
         fd = FunctionDispatcher(set(), self.hallo)
         try:
             # Add modules to allowed list
-            fd.module_list = {"Euler", "Math"}
+            fd.module_list = {"euler", "math"}
             # Load up Euler module, ensure no other modules load.
-            assert fd.reload_module("Euler")
+            assert fd.reload_module("euler")
             assert len(fd.function_dict) == 1
             # Load second module, ensure all methods are there.
-            assert fd.reload_module("Math")
+            assert fd.reload_module("math")
             assert len(fd.function_dict) == 2
         finally:
             fd.close()
@@ -27,13 +27,13 @@ class FunctionDispatcherTest(TestBase, unittest.TestCase):
         fd = FunctionDispatcher(set(), self.hallo)
         try:
             # Try and load a module
-            assert not fd.reload_module("Euler")
+            assert not fd.reload_module("euler")
         finally:
             fd.close()
 
     def test_init(self):
         # Create some basic stuff
-        test_modules = {"Euler"}
+        test_modules = {"euler"}
         test_hallo = Hallo()
         # Create function dispatcher
         fd = FunctionDispatcher(test_modules, test_hallo)
@@ -51,7 +51,7 @@ class FunctionDispatcherTest(TestBase, unittest.TestCase):
 
     def test_xml(self):
         # Set up
-        test_modules = {"Euler", "Bio"}
+        test_modules = {"euler", "bio"}
         fd = FunctionDispatcher(test_modules, self.hallo)
         # Get xml output
         xml_fd = fd.to_xml()
@@ -65,7 +65,7 @@ class FunctionDispatcherTest(TestBase, unittest.TestCase):
 
     def test_open_close(self):
         # Set up
-        test_module = "Euler"
+        test_module = "euler"
         test_modules = {test_module}
         # Create function dispatcher
         fd = FunctionDispatcher(test_modules, self.hallo)

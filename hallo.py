@@ -52,8 +52,8 @@ class Hallo:
         if self.function_dispatcher is None:
             self.function_dispatcher = FunctionDispatcher(
                 {
-                    "ChannelControl", "Convert", "HalloControl", "Lookup",
-                    "Math", "PermissionControl", "Random", "ServerControl"
+                    "channel_control", "convert", "hallo_control", "lookup",
+                    "math", "permission_control", "random", "server_control"
                 },
                 self
             )
