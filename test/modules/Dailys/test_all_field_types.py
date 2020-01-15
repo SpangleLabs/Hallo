@@ -88,7 +88,7 @@ class TestAllFieldTypes(TestBase, unittest.TestCase):
         """
         Test tht all field classes which are implemented are added to DailysFieldFactory
         """
-        module_obj = importlib.import_module("modules.Dailys")
+        module_obj = importlib.import_module("modules.dailys")
         # Loop through module, searching for DailysField subclasses.
         for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
             function_class = function_tuple[1]
