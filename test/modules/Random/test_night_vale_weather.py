@@ -2,12 +2,15 @@ import os
 import re
 import unittest
 
+import pytest
+
 from events import EventMessage
 from inc.commons import Commons
 from test.test_base import TestBase
 from test.modules.Random.mock_chooser import MockChooser
 
 
+@pytest.mark.external_integration
 class NightValeWeatherTest(TestBase, unittest.TestCase):
 
     def setUp(self):
