@@ -11,5 +11,10 @@ jobs:
   include:
     - stage: tests
       script: python -m pytest -m "not external_integration"
+      python:
+        - "3.5"
+        - "3.6"
+        - "3.7"
+        - "3.8"
     - stage: external integration tests
       script: python -m pytest -m "external_integration"
