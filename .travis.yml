@@ -6,7 +6,7 @@ python:
   - "3.8"
 install: "pip install -r requirements.txt"
 script:
-  - python -m pytest -k "not external_integration and not slow"
+  - python -m pytest -m "not external_integration and not slow"
 jobs:
   include:
     - stage: external integration tests
