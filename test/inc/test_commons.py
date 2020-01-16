@@ -7,40 +7,59 @@ import pytest
 from inc.commons import Commons, ISO8601ParseError
 
 
-def test_check_calculation():
-    valid = ["23", "2.123", "cos(12.2)", "tan(sin(atan(cosh(1))))", "pie", "1+2*3/4^5%6", "gamma(17)"]
-    invalid = ["hello", "1&2", "$13.50", "1::", "cos(tan(12+t+15))"]
-    for valid_str in valid:
-        assert Commons.check_calculation(valid_str), "Valid string judged to be not calculation, " + valid_str
-    for invalid_str in invalid:
-        assert not Commons.check_calculation(invalid_str), "Invalid string judged to be calculation, " + invalid_str
+@pytest.mark.parametrize(
+    "calculation",
+    ["23", "2.123", "cos(12.2)", "tan(sin(atan(cosh(1))))", "pie", "1+2*3/4^5%6", "gamma(17)"]
+)
+def test_check_calculation__valid(calculation):
+    assert Commons.check_calculation(calculation), "Valid string judged to be not calculation, " + calculation
 
 
-def test_check_numbers():
-    valid = ["23", "2.123", " 97", "9 7"]
-    invalid = ["127.0.0.1", "cos(12.2)", "tan(sin(atan(cosh(1))))", "pie", "1+2*3/4^5%6", "gamma(17)", "hello",
-               "1&2", "$13.50", "1::", "cos(tan(12+t+15))"]
-    for valid_str in valid:
-        assert Commons.check_numbers(valid_str), "Valid string judged to be not calculation, " + valid_str
-    for invalid_str in invalid:
-        assert not Commons.check_numbers(invalid_str), "Invalid string judged to be calculation, " + invalid_str
+@pytest.mark.parametrize("calculation", ["hello", "1&2", "$13.50", "1::", "cos(tan(12+t+15))"])
+def test_check_calculation__invalid(calculation):
+    assert not Commons.check_calculation(calculation), "Invalid string judged to be calculation, " + calculation
 
 
-def test_chunk_string_dot():
+@pytest.mark.parametrize("calculation", ["23", "2.123", " 97", "9 7"])
+def test_check_numbers__valid(calculation):
+    assert Commons.check_numbers(calculation), "Valid string judged to be not calculation, " + calculation
+
+
+@pytest.mark.parametrize(
+    "calculation",
+    [
+        "127.0.0.1", "cos(12.2)", "tan(sin(atan(cosh(1))))", "pie", "1+2*3/4^5%6", "gamma(17)", "hello", "1&2",
+        "$13.50", "1::", "cos(tan(12+t+15))"
+    ]
+)
+def test_check_numbers__invalid(calculation):
+    assert not Commons.check_numbers(calculation), "Invalid string judged to be calculation, " + calculation
+
+
+def test_chunk_string_dot__under_limit():
     string1 = "a" * 50
     chunks1 = Commons.chunk_string_dot(string1, 100)
     assert len(chunks1) == 1, "Should only be one chunk when splitting " + string1
     assert chunks1[0] == string1, "Should not have changed string " + string1
+
+
+def test_chunk_string_dot__on_limit():
     string2 = "a" * 100
     chunks2 = Commons.chunk_string_dot(string2, 100)
     assert len(chunks2) == 1, "Should only be one chunk when splitting " + string2
     assert chunks2[0] == string2, "Should not have changed string " + string2
+
+
+def test_chunk_string_dot__just_over_limit():
     string3 = "a" * 101
     chunks3 = Commons.chunk_string_dot(string3, 100)
     assert len(chunks3) == 2, "Should have split string into 2 chunks: " + string3
     assert len(chunks3[0]) == 100, "First chunk should be exactly 100 characters " + chunks3[0]
     assert chunks3[0] == "a" * 97 + "...", "First chunk of string was not created correctly"
     assert chunks3[1] == "..." + "a" * (101 - 97), "Second chunk of string was not created correctly."
+
+
+def test_chunk_string_dot__just_under_double_limit():
     string4 = "a" * 97 * 2
     chunks4 = Commons.chunk_string_dot(string4, 100)
     assert len(chunks4) == 2, "Should have split string into just 2 chunks."
@@ -48,6 +67,9 @@ def test_chunk_string_dot():
     assert len(chunks4[1]) == 100, "Second chunk should be exactly 100 characters"
     assert chunks4[0] == "a" * 97 + "...", "First chunk of string was not created correctly"
     assert chunks4[1] == "..." + "a" * 97, "Second chunk of string was not created correctly."
+
+
+def test_chunk_string_dot__just_under_triple_limit():
     string5 = "a" * (97 * 3 - 3)
     chunks5 = Commons.chunk_string_dot(string5, 100)
     assert len(chunks5) == 3, "Should have split string into 3 chunks"
@@ -57,6 +79,9 @@ def test_chunk_string_dot():
     assert chunks5[0] == "a" * 97 + "...", "First chunk created incorrectly."
     assert chunks5[1] == "..." + "a" * 94 + "...", "Second chunk created incorrectly."
     assert chunks5[2] == "..." + "a" * 97, "Third chunk created incorrectly."
+
+
+def test_chunk_string_dot__just_over_triple_limit():
     string6 = "a" * (97 * 3 - 2)
     chunks6 = Commons.chunk_string_dot(string6, 100)
     assert len(chunks6) == 4, "Should have split string into 4 chunks"
@@ -72,101 +97,109 @@ def test_chunk_string_dot():
 def test_current_timestamp():
     stamp = Commons.current_timestamp()
     assert len(stamp) == 10, "Timestamp is the wrong length"
-    pattern = re.compile("^\[(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\]$")
+    pattern = re.compile(r"^\[(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\]$")
     assert pattern.match(stamp), "Timestamp is not valid to defined format."
 
 
-def test_current_timestamp_datetime_given():
+def test_current_timestamp__datetime_given():
     dtime = datetime(2019, 4, 6, 10, 15, 3)
     stamp = Commons.current_timestamp(dtime)
     assert stamp == "[10:15:03]"
 
 
-def test_format_time_delta():
-    delta1 = timedelta(5, 5)
-    assert Commons.format_time_delta(delta1) == "P5T5S"
-    delta2 = timedelta(0, 50)
-    assert Commons.format_time_delta(delta2) == "P0T50S"
-    delta3 = timedelta(3, 0, 0, 0, 1)
-    assert Commons.format_time_delta(delta3) == "P3T60S"
-    delta4 = timedelta(2, 0, 0, 0, 0, 1)
-    assert Commons.format_time_delta(delta4) == "P2T3600S"
-    delta5 = timedelta(0, 0, 0, 0, 0, 0, 1)
-    assert Commons.format_time_delta(delta5) == "P7T0S"
+@pytest.mark.parametrize(
+    "delta, iso",
+    [
+        (timedelta(5, 5), "P5T5S"),
+        (timedelta(0, 50), "P0T50S"),
+        (timedelta(3, 0, 0, 0, 1), "P3T60S"),
+        (timedelta(2, 0, 0, 0, 0, 1), "P2T3600S"),
+        (timedelta(0, 0, 0, 0, 0, 0, 1), "P7T0S")
+    ]
+)
+def test_format_time_delta(delta, iso):
+    assert Commons.format_time_delta(delta) == iso
 
 
-def test_format_unix_time():
-    unix1 = 0
-    assert Commons.format_unix_time(unix1) == "1970-01-01 00:00:00"
-    unix2 = 1000000000
-    assert Commons.format_unix_time(unix2) == "2001-09-09 01:46:40"
-    unix3 = 1234567890
-    assert Commons.format_unix_time(unix3) == "2009-02-13 23:31:30"
+@pytest.mark.parametrize(
+    "unix, iso",
+    [
+        (0, "1970-01-01 00:00:00"),
+        (1000000000, "2001-09-09 01:46:40"),
+        (1234567890, "2009-02-13 23:31:30")
+    ]
+)
+def test_format_unix_time(unix, iso):
+    assert Commons.format_unix_time(unix) == iso
 
 
-def test_get_calc_from_start_or_end():
-    string1 = "$12*17"
-    assert Commons.get_calc_from_start_or_end(string1) == "12*17", "Failed to get calculation from end"
-    string2 = "cos(tan(12+t+15))"
-    assert Commons.get_calc_from_start_or_end(string2) == "cos(tan(12+", "Failed to get calculation from start"
-    string3 = "hello"
-    assert Commons.get_calc_from_start_or_end(string3) is None, "Did not return None when no calculation found"
-    string4 = "£13.50"
-    assert Commons.get_calc_from_start_or_end(string4) == "13.50", "Failed to get number from end"
-    string5 = "23f234"
-    assert Commons.get_calc_from_start_or_end(string5) == "23", "Function should prioritise calculation at start"
-    string6 = "tasty pie"
-    assert Commons.get_calc_from_start_or_end(string6) == " pie", "Bit weird, but this should work too"
+@pytest.mark.parametrize(
+    "string, calc",
+    [
+        ("$12*17", "12*17"),
+        ("cos(tan(12+t+15))", "cos(tan(12+"),
+        ("hello", None),
+        ("£13.50", "13.50"),
+        ("23f234", "23"),  # Should prioritise getting calc at start
+        ("tasty pie", "pie")  # Bit odd, but should work
+    ]
+)
+def test_get_calc_from_start_or_end(string, calc):
+    assert Commons.get_calc_from_start_or_end(string) == calc
 
 
-def test_get_digits_from_start_or_end():
-    string1 = "$12*17"
-    assert Commons.get_digits_from_start_or_end(string1) == "17", "Failed to get digits from end"
-    string2 = "cos(tan(12+t+15))"
-    assert Commons.get_digits_from_start_or_end(string2) is None, "Should not have got any digits from string"
-    string3 = "hello"
-    assert Commons.get_digits_from_start_or_end(string3) is None, "Did not return None when no calculation found"
-    string4 = "£13.50"
-    assert Commons.get_digits_from_start_or_end(string4) == "13.50", "Failed to get number from end"
-    string5 = "23f234"
-    assert Commons.get_digits_from_start_or_end(string5) == "23", "Function should prioritise number at start"
-    string6 = "tasty pie"
-    assert Commons.get_digits_from_start_or_end(string6) is None, "Should not have got any digits from string"
-    string7 = "2e7c"
-    assert Commons.get_digits_from_start_or_end(string7) == "2e7", "Function should be able to get e notation"
+@pytest.mark.parametrize(
+    "string, digits",
+    [
+        ("$12*17", "17"),
+        ("cos(tan(12+t+15))", None),
+        ("hello", None),
+        ("£13.50", "13.50"),
+        ("23f234", "23"),  # Should prioritise getting calc at start
+        ("tasty pie", None),
+        ("2e7c", "2e7")  # Should work with e notation
+    ]
+)
+def test_get_digits_from_start_or_end(string, digits):
+    assert Commons.get_digits_from_start_or_end(string) == digits
 
 
-def test_domain_name():
-    url1 = "https://github.com/joshcoales"
-    assert Commons.get_domain_name(url1) == "github", "Failed to get domain from url1"
-    url2 = "http://spangle.org.uk/things/stuff/hallo.html.com"
-    assert Commons.get_domain_name(url2) == "spangle", "Failed to get domain from url2"
-    url3 = "irc://irc.freenode.net:6666"
-    assert Commons.get_domain_name(url3) == "freenode", "Failed to get domain from url3"
-    url4 = "http://www.longurlmaker.com/go?id=143GetShortyShrtndspread%2Bout1tprotractedlongishYepItlofty1stretch" \
-           "100RedirxMyURL1Sitelutionsspread%2Bout56706Ne1kfar%2Breachingstretchenlarged8U76SimURL01URLvi00distan" \
-           "tr1towering46URLcutNe14m3q5stringy0elongatedremote7RubyURLRubyURL0300lasting52ny54blnk.inRedirx0t0aks" \
-           "tretchedst765330DigBigf14922f8014v03121qeURl.ied99FhURL1MyURLFhURL8sustainedlingeringrunning07bYATUC6" \
-           "8yU7618farawaystretchedxlfarawaySHurlcU760stretched01drangyccmstretchkrunningrremote52ganglingMyURL81" \
-           "outstretchedTraceURL5aenduring60Is.gd5stretch69660Miniliengangling112vYATUC01drawn%2Bout29extensive1U" \
-           "RLcutc03ShredURLfspread%2Boutoutstretched1EzURLTinyURLhigh0301URL7WapURL0u7Redirx5229NutshellURLdrawn" \
-           "%2Boutwcfy68rangy4longish4SitelutionsG8LFwdURLe1stretchNanoRef56running2StartURLspun%2BoutShortURL165" \
-           "MooURL4bTightURL00URLPieprolongedWapURLw0TightURL61runningdistantShorl8951hw2MooURLelongatek8lofty1Ti" \
-           "nyURLc1qMetamark920bgelongate19n103c1dTinyLinkcontinuedlnk.in96591DecentURL0afar%2Breaching81elongish" \
-           "504zremotec0l0e0adistants11high04DecentURL2stretchYATUCSnipURLstringys7b8deepTightURL1PiURLpa7elongat" \
-           "edix0101Shim0Is.gdfar%2BreachingB65f8ctoweringNutshellURLWapURL1v9runningRubyURLURl.ie0ganglingEasyUR" \
-           "L1ShortURL161stringy0h8extensivePiURL14prolongedEzURLt710distant1100rNanoRefh5311450ShrinkURLFwdURL1m" \
-           "stretched119ganglingURLCuttera11fFhURL1b6tallFwdURLdlengthy110spun%2Bout7lastingf49Fly29loftyf5jXil0s" \
-           "pread%2Bout4lengthyrangystretch8up0URL.co.uklingeringegURLHawk48zlengthyb3prolonged58loftyg18drawn%2B" \
-           "outURLCutterURLHawk01cShortlinkshigh4remote1StartURLprolongedURLHawk0z03Shortlinks54gURLvi18elongated" \
-           "EasyURL18elongated04WapURL1lofty51spread%2Bout1Redirx1A2N5411zfar%2Breachingf001prolonged01a4dstretch" \
-           "sustainedoutstretchedShortURL612TraceURLURLvi00lasting28ec1URLcutcstringy827klengthyk1141DigBig9fcSHu" \
-           "rl1Beam.toShorl0tstretchxURLCutterYepItnblasting080stretched1FhURL15rangy1x6600continuedShredURLblnk." \
-           "inelongated00413outstretched0090146stretched589z05stringyc8sdielongatelongish6kprolongedfar%2Breachin" \
-           "gf36ubaTinyURL1TinyLink341028017EasyURLd1runningfar%2Breaching06stretching1U76spun%2Bout1cstretch"
-    assert Commons.get_domain_name(url4) == "longurlmaker", "Failed to get domain from url4"
-    url5 = "http://domains.ninja"
-    assert Commons.get_domain_name(url5) == "domains", "Failed to get domain from url5"
+@pytest.mark.parametrize(
+    "url, domain",
+    [
+        ("https://github.com/joshcoales", "github"),
+        ("http://spangle.org.uk/things/stuff/hallo.html.com", "spangle"),
+        ("irc://irc.freenode.net:6666", "freenode"),
+        (
+                "http://www.longurlmaker.com/go?id=143GetShortyShrtndspread%2Bout1tprotractedlongishYepItlofty1stre"
+                "tch100RedirxMyURL1Sitelutionsspread%2Bout56706Ne1kfar%2Breachingstretchenlarged8U76SimURL01URLvi00"
+                "distantr1towering46URLcutNe14m3q5stringy0elongatedremote7RubyURLRubyURL0300lasting52ny54blnk.inRed"
+                "irx0t0akstretchedst765330DigBigf14922f8014v03121qeURl.ied99FhURL1MyURLFhURL8sustainedlingeringrunn"
+                "ing07bYATUC68yU7618farawaystretchedxlfarawaySHurlcU760stretched01drangyccmstretchkrunningrremote52"
+                "ganglingMyURL81outstretchedTraceURL5aenduring60Is.gd5stretch69660Miniliengangling112vYATUC01drawn%"
+                "2Bout29extensive1URLcutc03ShredURLfspread%2Boutoutstretched1EzURLTinyURLhigh0301URL7WapURL0u7Redir"
+                "x5229NutshellURLdrawn%2Boutwcfy68rangy4longish4SitelutionsG8LFwdURLe1stretchNanoRef56running2Start"
+                "URLspun%2BoutShortURL165MooURL4bTightURL00URLPieprolongedWapURLw0TightURL61runningdistantShorl8951"
+                "hw2MooURLelongatek8lofty1TinyURLc1qMetamark920bgelongate19n103c1dTinyLinkcontinuedlnk.in96591Decen"
+                "tURL0afar%2Breaching81elongish504zremotec0l0e0adistants11high04DecentURL2stretchYATUCSnipURLstring"
+                "ys7b8deepTightURL1PiURLpa7elongatedix0101Shim0Is.gdfar%2BreachingB65f8ctoweringNutshellURLWapURL1v"
+                "9runningRubyURLURl.ie0ganglingEasyURL1ShortURL161stringy0h8extensivePiURL14prolongedEzURLt710dista"
+                "nt1100rNanoRefh5311450ShrinkURLFwdURL1mstretched119ganglingURLCuttera11fFhURL1b6tallFwdURLdlengthy"
+                "110spun%2Bout7lastingf49Fly29loftyf5jXil0spread%2Bout4lengthyrangystretch8up0URL.co.uklingeringegU"
+                "RLHawk48zlengthyb3prolonged58loftyg18drawn%2BoutURLCutterURLHawk01cShortlinkshigh4remote1StartURLp"
+                "rolongedURLHawk0z03Shortlinks54gURLvi18elongatedEasyURL18elongated04WapURL1lofty51spread%2Bout1Red"
+                "irx1A2N5411zfar%2Breachingf001prolonged01a4dstretchsustainedoutstretchedShortURL612TraceURLURLvi00"
+                "lasting28ec1URLcutcstringy827klengthyk1141DigBig9fcSHurl1Beam.toShorl0tstretchxURLCutterYepItnblas"
+                "ting080stretched1FhURL15rangy1x6600continuedShredURLblnk.inelongated00413outstretched0090146stretc"
+                "hed589z05stringyc8sdielongatelongish6kprolongedfar%2Breachingf36ubaTinyURL1TinyLink341028017EasyUR"
+                "Ld1runningfar%2Breaching06stretching1U76spun%2Bout1cstretch",
+                "longurlmaker"
+        ),
+        ("http://domains.ninja", "domains")
+    ]
+)
+def test_domain_name(url, domain):
+    assert Commons.get_domain_name(url) == domain
 
 
 def test_get_random_choice():
@@ -198,23 +231,30 @@ def test_get_random_int():
                     assert rand <= max_int, "Random integer was too big. " + str(rand) + " > " + str(max_int)
 
 
-def test_is_float_string():
-    valid = ["23", "2.123", " 97"]
-    invalid = ["127.0.0.1", "cos(12.2)", "tan(sin(atan(cosh(1))))", "pie", "1+2*3/4^5%6", "gamma(17)", "hello",
-               "1&2", "$13.50", "1::", "cos(tan(12+t+15))", "9 7"]
-    for valid_str in valid:
-        assert Commons.is_float_string(valid_str), "Valid string judged to be not float, " + valid_str
-    for invalid_str in invalid:
-        assert not Commons.is_float_string(invalid_str), "Invalid string judged to be float, " + invalid_str
+@pytest.mark.parametrize("calculation", ["23", "2.123", " 97"])
+def test_is_float_string__valid(calculation):
+    assert Commons.is_float_string(calculation), "Valid string judged to be not float, " + calculation
 
 
-def test_is_string_null():
-    valid = ['0', 'false', 'off', 'disabled', 'disable', '', 'nul', 'null', 'none', 'nil']
-    invalid = ["true", "enable", "hello", "example", "test"]
-    for valid_str in valid:
-        assert Commons.is_string_null(valid_str), "Valid string judged to be not null, " + valid_str
-    for invalid_str in invalid:
-        assert not Commons.is_string_null(invalid_str), "Invalid string judged to be null, " + invalid_str
+@pytest.mark.parametrize(
+    "calculation",
+    [
+        "127.0.0.1", "cos(12.2)", "tan(sin(atan(cosh(1))))", "pie", "1+2*3/4^5%6", "gamma(17)", "hello", "1&2",
+        "$13.50", "1::", "cos(tan(12+t+15))", "9 7"
+    ]
+)
+def test_is_float_string__invalid(calculation):
+    assert not Commons.is_float_string(calculation), "Invalid string judged to be float, " + calculation
+
+
+@pytest.mark.parametrize("calculation", ['0', 'false', 'off', 'disabled', 'disable', '', 'nul', 'null', 'none', 'nil'])
+def test_is_string_null__valid(calculation):
+    assert Commons.is_string_null(calculation), "Valid string judged to be not null, " + calculation
+
+
+@pytest.mark.parametrize("calculation", ["true", "enable", "hello", "example", "test"])
+def test_is_string_null__invalid(calculation):
+    assert not Commons.is_string_null(calculation), "Invalid string judged to be null, " + calculation
 
 
 def test_list_greater():
@@ -240,43 +280,24 @@ def test_list_greater():
     assert Commons.list_greater([1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9]) is None
 
 
-def test_load_time_delta():
-    string1 = "20S"
-    try:
-        Commons.load_time_delta(string1)
-        assert False, "String 1 should have failed to parse."
-    except ISO8601ParseError:
-        pass
-    string2 = "P20"
-    try:
-        Commons.load_time_delta(string2)
-        assert False, "String 2 should have failed to parse."
-    except ISO8601ParseError:
-        pass
-    string3 = "P20S"
-    try:
-        Commons.load_time_delta(string3)
-        assert False, "String 3 should have failed to parse."
-    except ISO8601ParseError:
-        pass
-    string3_5 = "PTS"
-    try:
-        Commons.load_time_delta(string3_5)
-        assert False, "String 3.5 should have failed to parse."
-    except ISO8601ParseError:
-        pass
-    string4 = "PT5S"
-    delta4 = Commons.load_time_delta(string4)
-    assert delta4.seconds == 5, "delta4 seconds set incorrectly."
-    assert delta4.days == 0, "delta4 days set incorrectly."
-    string5 = "P1T1S"
-    delta5 = Commons.load_time_delta(string5)
-    assert delta5.seconds == 1, "delta5 seconds set incorrectly."
-    assert delta5.days == 1, "delta5 days set incorrectly."
-    string6 = "P10T3600S"
-    delta6 = Commons.load_time_delta(string6)
-    assert delta6.seconds == 3600, "delta6 seconds set incorrectly."
-    assert delta6.days == 10, "delta6 days set incorrectly."
+@pytest.mark.parametrize("delta_string", ["20S, P20, P20S", "PTS"])
+def test_load_time_delta__fail(delta_string):
+    with pytest.raises(ISO8601ParseError):
+        Commons.load_time_delta(delta_string)
+
+
+@pytest.mark.parametrize(
+    "delta_string, seconds, days",
+    [
+        ("PT5S", 5, 0),
+        ("P1T1S", 1, 1),
+        ("P10T3600S", 3600, 10)
+    ]
+)
+def test_load_time_delta(delta_string, seconds, days):
+    delta4 = Commons.load_time_delta(delta_string)
+    assert delta4.seconds == seconds
+    assert delta4.days == days
 
 
 @pytest.mark.external_integration
@@ -312,29 +333,35 @@ def test_load_url_string():
     assert "\"User-Agent\": \"Example data\"" in data2, "Headers missing from request."
 
 
-def test_ordinal():
-    assert Commons.ordinal(1) == "1st", "1st ordinal incorrect."
-    assert Commons.ordinal(2) == "2nd", "2nd ordinal incorrect."
-    assert Commons.ordinal(3) == "3rd", "3rd ordinal incorrect."
-    assert Commons.ordinal(4) == "4th", "4th ordinal incorrect."
-    assert Commons.ordinal(5) == "5th", "5th ordinal incorrect."
-    assert Commons.ordinal(10) == "10th", "10th ordinal incorrect."
-    assert Commons.ordinal(11) == "11th", "11th ordinal incorrect."
-    assert Commons.ordinal(12) == "12th", "12th ordinal incorrect."
-    assert Commons.ordinal(13) == "13th", "13th ordinal incorrect."
-    assert Commons.ordinal(14) == "14th", "14th ordinal incorrect."
-    assert Commons.ordinal(20) == "20th", "20th ordinal incorrect."
-    assert Commons.ordinal(21) == "21st", "21st ordinal incorrect."
-    assert Commons.ordinal(22) == "22nd", "22nd ordinal incorrect."
-    assert Commons.ordinal(23) == "23rd", "23rd ordinal incorrect."
-    assert Commons.ordinal(24) == "24th", "24th ordinal incorrect."
-    assert Commons.ordinal(100) == "100th", "100th ordinal incorrect."
-    assert Commons.ordinal(101) == "101st", "101st ordinal incorrect."
-    assert Commons.ordinal(102) == "102nd", "102nd ordinal incorrect."
-    assert Commons.ordinal(103) == "103rd", "103rd ordinal incorrect."
-    assert Commons.ordinal(104) == "104th", "104th ordinal incorrect."
-    assert Commons.ordinal(111) == "111th", "111th ordinal incorrect."
-    assert Commons.ordinal(121) == "121st", "121st ordinal incorrect."
+@pytest.mark.parametrize(
+    "number, ordinal",
+    [
+        (1, "1st"),
+        (2, "2nd"),
+        (3, "3rd"),
+        (4, "4th"),
+        (5, "5th"),
+        (10, "10th"),
+        (11, "11th"),
+        (12, "12th"),
+        (13, "13th"),
+        (14, "14th"),
+        (20, "20th"),
+        (21, "21st"),
+        (22, "22nd"),
+        (23, "23rd"),
+        (24, "24th"),
+        (100, "100th"),
+        (101, "101st"),
+        (102, "102nd"),
+        (103, "103rd"),
+        (104, "104th"),
+        (111, "111th"),
+        (121, "121st")
+    ]
+)
+def test_ordinal(number, ordinal):
+    assert Commons.ordinal(number) == ordinal
 
 
 def test_read_file_to_list():
@@ -347,18 +374,24 @@ def test_read_file_to_list():
     assert data[4] == "test5"
 
 
-def test_string_to_bool():
-    true_list = ['1', 'true', 't', 'yes', 'y', 'on', 'enabled', 'enable']
-    for true_str in true_list:
-        assert Commons.string_to_bool(true_str)
-    false_list = ['0', 'false', 'f', 'no', 'n', 'off', 'disabled', 'disable']
-    for false_str in false_list:
-        assert not Commons.string_to_bool(false_str)
-    invalid_list = ["hello", "example", "test"]
-    for invalid_str in invalid_list:
-        assert Commons.string_to_bool(invalid_str) is None
+@pytest.mark.parametrize("string", ['1', 'true', 't', 'yes', 'y', 'on', 'enabled', 'enable'])
+def test_string_to_bool__true(string):
+    assert Commons.string_to_bool(string)
+
+
+@pytest.mark.parametrize("string", ['0', 'false', 'f', 'no', 'n', 'off', 'disabled', 'disable'])
+def test_string_to_bool__false(string):
+    assert not Commons.string_to_bool(string)
+
+
+@pytest.mark.parametrize("string", ["hello", "example", "test"])
+def test_string_to_bool__none(string):
+    assert Commons.string_to_bool(string) is None
 
 
 def test_upper():
     assert Commons.upper("test words") == "TEST WORDS"
+
+
+def test_upper__with_url():
     assert Commons.upper("test http://google.com url") == "TEST http://google.com URL"
