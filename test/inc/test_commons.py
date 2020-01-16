@@ -141,7 +141,7 @@ def test_format_unix_time(unix, iso):
         ("hello", None),
         ("£13.50", "13.50"),
         ("23f234", "23"),  # Should prioritise getting calc at start
-        ("tasty pie", "pie")  # Bit odd, but should work
+        ("tasty pie", " pie")  # Bit odd, but should work
     ]
 )
 def test_get_calc_from_start_or_end(string, calc):
