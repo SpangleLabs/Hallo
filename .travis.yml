@@ -9,7 +9,9 @@ script:
   - python -m pytest -m "not external_integration and not slow"
 jobs:
   include:
-    - stage: external integration tests
+    - stage: "Further tests"
       script: python -m pytest -m "external_integration"
-    - stage: slow tests
+      name: "External integration tests"
+    - # stage name not required, will continue to use `test`
       script: python -m pytest -m "slow"
+      name: "Slow tests"
