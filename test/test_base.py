@@ -22,8 +22,7 @@ class TestBase(unittest.TestCase):
         # Todo: specify modules by test?
         self.function_dispatcher = FunctionDispatcher(
             {
-                "ascii_art", "bio", "channel_control", "convert", "euler", "hallo_control", "math",
-                "permission_control", "random", "server_control", "silly", "subscriptions"
+                "convert", "random", "server_control", "subscriptions"
             },
             self.hallo
         )
