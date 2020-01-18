@@ -100,13 +100,15 @@ class FunctionDispatcher(object):
         if event.__class__ not in self.event_functions or len(self.event_functions[event.__class__]) == 0:
             return
         # Get list of functions that want things
-        function_list = self.event_functions[event.__class__]
+        function_list = self.event_functions[event.__class__].copy()
         for function_class in function_list:
             # Check function rights and permissions
-            if not self.check_function_permissions(function_class,
-                                                   event.server if isinstance(event, ServerEvent) else None,
-                                                   event.user if isinstance(event, UserEvent) else None,
-                                                   event.channel if isinstance(event, ChannelEvent) else None):
+            if not self.check_function_permissions(
+                    function_class,
+                    event.server if isinstance(event, ServerEvent) else None,
+                    event.user if isinstance(event, UserEvent) else None,
+                    event.channel if isinstance(event, ChannelEvent) else None
+            ):
                 continue
             # If persistent, get the object, otherwise make one
             function_obj = self.get_function_object(function_class)
