@@ -1,24 +1,20 @@
-import unittest
-
 from events import EventMessage
 from hallo import Hallo
-from test.test_base import TestBase
 
 
-class ConfigSaveTest(TestBase, unittest.TestCase):
-
-    def test_save_config(self):
-        old_hallo = self.test_user.server.hallo
-        try:
-            mock_hallo = HalloMock()
-            self.test_user.server.hallo = mock_hallo
-            self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "config save"))
-            data = self.server.get_send_data(1, self.test_user, EventMessage)
-            assert "error" not in data[0].text.lower()
-            assert "config has been saved" in data[0].text.lower()
-            assert mock_hallo.saved_to_json
-        finally:
-            self.test_user.server.hallo = old_hallo
+def test_save_config(hallo_getter):
+    hallo, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
+    old_hallo = test_user.server.hallo
+    try:
+        mock_hallo = HalloMock()
+        test_user.server.hallo = mock_hallo
+        hallo.function_dispatcher.dispatch(EventMessage(test_server, None, test_user, "config save"))
+        data = test_server.get_send_data(1, test_user, EventMessage)
+        assert "error" not in data[0].text.lower()
+        assert "config has been saved" in data[0].text.lower()
+        assert mock_hallo.saved_to_json
+    finally:
+        test_user.server.hallo = old_hallo
 
 
 class HalloMock(Hallo):
