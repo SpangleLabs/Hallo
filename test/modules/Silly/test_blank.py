@@ -1,17 +1,15 @@
-import unittest
-
 from events import EventMessage
-from test.test_base import TestBase
 
 
-class BlankTest(TestBase, unittest.TestCase):
+def test_blank_empty(hallo_getter):
+    hallo, test_server, test_channel, test_user = hallo_getter({"silly"})
+    hallo.function_dispatcher.dispatch(EventMessage(test_server, None, test_user, ""))
+    data = test_server.get_send_data(1, test_user, EventMessage)
+    assert "yes?" == data[0].text.lower(), "Blank function not working."
 
-    def test_blank_empty(self):
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, ""))
-        data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert "yes?" == data[0].text.lower(), "Blank function not working."
 
-    def test_blank_channel(self):
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, ""))
-        data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert "yes?" == data[0].text.lower(), "Blank function not working in channel."
+def test_blank_channel(hallo_getter):
+    hallo, test_server, test_channel, test_user = hallo_getter({"silly"})
+    hallo.function_dispatcher.dispatch(EventMessage(test_server, test_channel, test_user, ""))
+    data = test_server.get_send_data(1, test_channel, EventMessage)
+    assert "yes?" == data[0].text.lower(), "Blank function not working in channel."

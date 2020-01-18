@@ -1,18 +1,17 @@
-import unittest
 
 from events import EventMessage
-from test.test_base import TestBase
 
 
-class AlarmTest(TestBase, unittest.TestCase):
+def test_alarm_simple(hallo_getter):
+    hallo, test_server, test_channel, test_user = hallo_getter({"silly"})
+    hallo.function_dispatcher.dispatch(EventMessage(test_server, None, test_user, "alarm"))
+    data = test_server.get_send_data(1, test_user, EventMessage)
+    assert "wooo" in data[0].text.lower(), "Alarm function not going woo."
 
-    def test_alarm_simple(self):
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "alarm"))
-        data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert "wooo" in data[0].text.lower(), "Alarm function not going woo."
 
-    def test_alarm_word(self):
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "alarm nerd"))
-        data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert "wooo" in data[0].text.lower(), "Alarm function not going woo."
-        assert "nerd" in data[0].text.lower(), "Alarm function not going responding with word input."
+def test_alarm_word(hallo_getter):
+    hallo, test_server, test_channel, test_user = hallo_getter({"silly"})
+    hallo.function_dispatcher.dispatch(EventMessage(test_server, None, test_user, "alarm nerd"))
+    data = test_server.get_send_data(1, test_user, EventMessage)
+    assert "wooo" in data[0].text.lower(), "Alarm function not going woo."
+    assert "nerd" in data[0].text.lower(), "Alarm function not going responding with word input."
