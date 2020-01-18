@@ -1,4 +1,3 @@
-from test.modules.AsciiArt.test_deer import hallo_getter
 from events import EventMessage
 
 
