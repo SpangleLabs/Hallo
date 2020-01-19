@@ -1,5 +1,5 @@
-from Function import Function
-from inc.Commons import Commons
+from function import Function
+from inc.commons import Commons
 
 
 class E621(Function):
