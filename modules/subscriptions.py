@@ -2284,7 +2284,7 @@ class FAKey:
 
         def _get_api_data(self, path, needs_cookie=False):
             fa_api_url = os.getenv("FA_API_URL", "https://faexport.boothale.net")
-            url = "{}}/{}".format(fa_api_url, path)
+            url = "{}/{}".format(fa_api_url, path)
             if needs_cookie:
                 cookie_string = "b="+self.b+"; a="+self.a
                 return Commons.load_url_json(url, [["FA_COOKIE", cookie_string]])
