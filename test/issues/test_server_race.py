@@ -98,7 +98,9 @@ def test_server_thread_killed_after_disconnect(hallo_getter):
     time.sleep(1)
     # Disconnect a server
     server.disconnect()
+    # Delay
+    time.sleep(1)
     # Check thread count is back to the start count
-    assert threading.active_count() <= thread_count
+    assert threading.active_count() == thread_count
     # Check it's closed
     assert server.state == Server.STATE_CLOSED
