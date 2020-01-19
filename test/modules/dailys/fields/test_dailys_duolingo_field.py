@@ -12,7 +12,6 @@ from test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
 @pytest.mark.external_integration
-@pytest.mark.skip("Skipping Duolingo field tests until we switch to API, which requires PR acceptance")
 class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
     TEST_USERNAME = "Deer-Spangle"
     TEST_PASSWORD = os.getenv("test_duo_password")
