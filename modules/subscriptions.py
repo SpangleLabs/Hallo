@@ -105,8 +105,9 @@ class SubscriptionRepo:
         :rtype: SubscriptionCommon
         """
         if not issubclass(common_type, SubscriptionCommon):
-            raise SubscriptionException("This common type, {}, is not a subclass of SubscriptionCommon"
-                                        .format(common_type.__name__))
+            raise SubscriptionException(
+                "This common type, {}, is not a subclass of SubscriptionCommon".format(common_type.__name__)
+            )
         matching = [obj for obj in self.common_list if isinstance(obj, common_type)]
         if len(matching) == 0:
             new_common = common_type()
@@ -114,8 +115,9 @@ class SubscriptionRepo:
             return new_common
         if len(matching) == 1:
             return matching[0]
-        raise SubscriptionException("More than one subscription common config exists for the type: {}"
-                                    .format(common_type.__name__))
+        raise SubscriptionException(
+            "More than one subscription common config exists for the type: {}".format(common_type.__name__)
+        )
 
     def save_json(self):
         """
@@ -751,8 +753,10 @@ class E621TaggingSub(E621Sub):
         tag_results = {tag: tag in post_tags for tag in self.tags}
         tag_output = ["{}: {}".format(tag, val) for tag, val in tag_results.items()]
         # Construct output
-        output = "Update on \"{}\" tagging e621 search. {} {}.\n" \
-                 "Watched tags: {}".format(self.search, link, rating, tag_output)
+        output = \
+            "Update on \"{}\" tagging e621 search. {} {}.\nWatched tags: {}".format(
+                self.search, link, rating, tag_output
+            )
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         if e621_result["file_ext"] in ["swf", "webm"]:
@@ -826,8 +830,10 @@ class FANotificationNotesSub(Subscription):
     NEW_INBOX_NOTE = "new_note"
     READ_OUTBOX_NOTE = "note_read"
 
-    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
-                 inbox_note_ids=None, outbox_note_ids=None):
+    def __init__(
+            self, server, destination, fa_key, last_check=None, update_frequency=None,
+            inbox_note_ids=None, outbox_note_ids=None
+    ):
         """
         :type server: Server.Server
         :type destination: Destination.Destination
@@ -854,10 +860,12 @@ class FANotificationNotesSub(Subscription):
         assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
-            raise SubscriptionException("Cannot create FA note notification subscription without cookie details. "
-                                        "Please set up FA cookies with "
-                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` "
-                                        "and your cookie values.")
+            raise SubscriptionException(
+                "Cannot create FA note notification subscription without cookie details. "
+                "Please set up FA cookies with "
+                "`setup FA user data a=<cookie_a>;b=<cookie_b>` "
+                "and your cookie values."
+            )
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # See if user gave us an update period
@@ -884,8 +892,8 @@ class FANotificationNotesSub(Subscription):
         # Check for newly received notes in inbox
         for inbox_note in inbox_notes_page.notes:
             note_id = inbox_note.note_id
-            if note_id not in self.inbox_note_ids and \
-                    (len(self.inbox_note_ids) == 0 or int(note_id) > int(self.inbox_note_ids[-1])):
+            if note_id not in self.inbox_note_ids \
+                    and (len(self.inbox_note_ids) == 0 or int(note_id) > int(self.inbox_note_ids[-1])):
                 # New note
                 results.append({"type": self.NEW_INBOX_NOTE, "note": inbox_note})
         # Check for newly read notes in outbox
@@ -906,8 +914,9 @@ class FANotificationNotesSub(Subscription):
         output = "Err, notes did something?"
         note = item["note"]  # type: FAKey.FAReader.FANote
         if item["type"] == self.NEW_INBOX_NOTE:
-            output = "You have a new note. Subject: {}, From: {}, Link: https://www.furaffinity.net/viewmessage/{}/"\
-                .format(note.subject, note.name, note.note_id)
+            output = \
+                "You have a new note. Subject: {}, From: {}, Link: https://www.furaffinity.net/viewmessage/{}/" \
+                    .format(note.subject, note.name, note.note_id)
         if item["type"] == self.READ_OUTBOX_NOTE:
             output = "An outbox note has been read. Subject: {}, To: {}".format(note.subject, note.name)
         channel = self.destination if isinstance(self.destination, Channel) else None
@@ -971,16 +980,20 @@ class FANotificationNotesSub(Subscription):
         outbox_ids = []
         for note_id in json_obj["outbox_note_ids"]:
             outbox_ids.append(note_id)
-        new_sub = FANotificationNotesSub(server, destination, fa_key,
-                                         last_check=last_check, update_frequency=update_frequency,
-                                         inbox_note_ids=inbox_ids, outbox_note_ids=outbox_ids)
+        new_sub = FANotificationNotesSub(
+            server, destination, fa_key,
+            last_check=last_check, update_frequency=update_frequency,
+            inbox_note_ids=inbox_ids, outbox_note_ids=outbox_ids
+        )
         new_sub.last_update = last_update
         return new_sub
 
 
 class FANotificationFavSub(Subscription):
-    names = ["fa favs notifications", "fa favs", "furaffinity favs",
-             "fa favourites notifications", "fa favourites", "furaffinity favourites"]
+    names = [
+        "fa favs notifications", "fa favs", "furaffinity favs",
+        "fa favourites notifications", "fa favourites", "furaffinity favourites"
+    ]
     """ :type : list[str]"""
     type_name = "fa_notif_favs"
     """ :type : str"""
@@ -1011,10 +1024,12 @@ class FANotificationFavSub(Subscription):
         assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
-            raise SubscriptionException("Cannot create FA favourite notification subscription without cookie details. "
-                                        "Please set up FA cookies with "
-                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` "
-                                        "and your cookie values.")
+            raise SubscriptionException(
+                "Cannot create FA favourite notification subscription without cookie details. "
+                "Please set up FA cookies with "
+                "`setup FA user data a=<cookie_a>;b=<cookie_b>` "
+                "and your cookie values."
+            )
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # See if user gave us an update period
@@ -1052,9 +1067,12 @@ class FANotificationFavSub(Subscription):
         :rtype: EventMessage
         """
         # Construct output
-        output = "You have a new favourite notification, {} ( http://furaffinity.net/user/{}/ ) " \
-                 "has favourited your submission \"{}\" {}".format(new_fav.name, new_fav.username,
-                                                                   new_fav.submission_name, new_fav.submission_link)
+        output = \
+            "You have a new favourite notification, {} ( http://furaffinity.net/user/{}/ ) " \
+            "has favourited your submission \"{}\" {}".format(
+                new_fav.name, new_fav.username,
+                new_fav.submission_name, new_fav.submission_link
+            )
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
@@ -1116,17 +1134,21 @@ class FANotificationFavSub(Subscription):
 
 
 class FANotificationCommentsSub(Subscription):
-    names = ["{}{}{}".format(fa, comments, notifications)
-             for fa in ["fa ", "furaffinity "]
-             for comments in ["comments", "comment", "shouts", "shout"]
-             for notifications in ["", " notifications"]]
+    names = [
+        "{}{}{}".format(fa, comments, notifications)
+        for fa in ["fa ", "furaffinity "]
+        for comments in ["comments", "comment", "shouts", "shout"]
+        for notifications in ["", " notifications"]
+    ]
     """ :type : list[str]"""
     type_name = "fa_notif_comments"
     """ :type : str"""
 
-    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
-                 latest_comment_id_journal=None,
-                 latest_comment_id_submission=None, latest_shout_id=None):
+    def __init__(
+            self, server, destination, fa_key, last_check=None, update_frequency=None,
+            latest_comment_id_journal=None,
+            latest_comment_id_submission=None, latest_shout_id=None
+    ):
         """
         :type server: Server.Server
         :type destination: Destination.Destination
@@ -1154,9 +1176,11 @@ class FANotificationCommentsSub(Subscription):
         assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
-            raise SubscriptionException("Cannot create FA comments notification subscription without cookie details. "
-                                        "Please set up FA cookies with "
-                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+            raise SubscriptionException(
+                "Cannot create FA comments notification subscription without cookie details. "
+                "Please set up FA cookies with "
+                "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values."
+            )
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
         # See if user gave us an update period
@@ -1208,50 +1232,57 @@ class FANotificationCommentsSub(Subscription):
             try:
                 user_page_shouts = fa_reader.get_user_page(item.page_username).shouts
                 shout = [shout for shout in user_page_shouts if shout.shout_id == item.shout_id]
-                output = "You have a new shout, from {} " \
-                         "( http://furaffinity.net/user/{}/ ) " \
-                         "has left a shout saying: \n\n{}".format(item.name, item.username, shout[0].text)
+                output = \
+                    "You have a new shout, from {} ( http://furaffinity.net/user/{}/ ) " \
+                    "has left a shout saying: \n\n{}".format(item.name, item.username, shout[0].text)
             except HTTPError:
-                output = "You have a new shout, from {} " \
-                         "( http://furaffinity.net/user/{}/ ) " \
-                         "has left a shout but I can't find it on your user page: \n" \
-                         "https://furaffinity.net/user/{}/".format(item.name, item.username, item.page_username)
+                output = \
+                    "You have a new shout, from {} ( http://furaffinity.net/user/{}/ ) " \
+                    "has left a shout but I can't find it on your user page: \n" \
+                    "https://furaffinity.net/user/{}/".format(item.name, item.username, item.page_username)
         if isinstance(item, FAKey.FAReader.FANotificationCommentJournal):
             try:
                 journal_page = fa_reader.get_journal_page(item.journal_id)
                 comment = journal_page.comments_section.get_comment_by_id(item.comment_id)
-                output = "You have a journal comment notification. " \
-                         "{} has made a new comment {}on {} journal " \
-                         "\"{}\" {} : \n\n{}".format(item.name,
-                                                     ("in response to your comment " if item.comment_on else ""),
-                                                     ("your" if item.journal_yours else "their"),
-                                                     item.journal_name, item.journal_link,
-                                                     comment.text)
+                output = \
+                    "You have a journal comment notification. {} has made a new comment {}on {} journal " \
+                    "\"{}\" {} : \n\n{}".format(
+                        item.name,
+                        ("in response to your comment " if item.comment_on else ""),
+                        ("your" if item.journal_yours else "their"),
+                        item.journal_name, item.journal_link,
+                        comment.text
+                    )
             except HTTPError:
-                output = "You have a journal comment notification. " \
-                         "{} has made a new comment {}on {} journal " \
-                         "\"{}\" {} but I can't find " \
-                         "the comment.".format(item.name,
-                                               ("in response to your comment " if item.comment_on else ""),
-                                               ("your" if item.journal_yours else "their"),
-                                               item.journal_name, item.journal_link)
+                output = \
+                    "You have a journal comment notification. {} has made a new comment {}on {} journal " \
+                    "\"{}\" {} but I can't find the comment.".format(
+                        item.name,
+                        ("in response to your comment " if item.comment_on else ""),
+                        ("your" if item.journal_yours else "their"),
+                        item.journal_name, item.journal_link
+                    )
         if isinstance(item, FAKey.FAReader.FANotificationCommentSubmission):
             try:
                 submission_page = fa_reader.get_submission_page(item.submission_id)
                 comment = submission_page.comments_section.get_comment_by_id(item.comment_id)
-                output = "You have a submission comment notification. " \
-                         "{} has made a new comment {}on {} submission \"{}\" {} : \n\n" \
-                         "{}".format(item.name,
-                                     ("in response to your comment " if item.comment_on else ""),
-                                     ("your" if item.submission_yours else "their"),
-                                     item.submission_name, item.submission_link, comment.text)
+                output = \
+                    "You have a submission comment notification. " \
+                    "{} has made a new comment {}on {} submission \"{}\" {} : \n\n{}".format(
+                        item.name,
+                        ("in response to your comment " if item.comment_on else ""),
+                        ("your" if item.submission_yours else "their"),
+                        item.submission_name, item.submission_link, comment.text
+                    )
             except HTTPError:
-                output = "You have a submission comment notification. " \
-                         "{} has made a new comment {}on {} submission \"{}\" {} : but I can't find " \
-                         "the comment.".format(item.name,
-                                               ("in response to your comment " if item.comment_on else ""),
-                                               ("your" if item.submission_yours else "their"),
-                                               item.submission_name, item.submission_link)
+                output = \
+                    "You have a submission comment notification. " \
+                    "{} has made a new comment {}on {} submission \"{}\" {} : but I can't find the comment.".format(
+                        item.name,
+                        ("in response to your comment " if item.comment_on else ""),
+                        ("your" if item.submission_yours else "their"),
+                        item.submission_name, item.submission_link
+                    )
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
@@ -1306,11 +1337,13 @@ class FANotificationCommentsSub(Subscription):
         latest_comment_id_journal = int(json_obj["latest_comment_id_journal"])
         latest_comment_id_submission = int(json_obj["latest_comment_id_submission"])
         latest_shout_id = int(json_obj["latest_shout_id"])
-        new_sub = FANotificationCommentsSub(server, destination, fa_key,
-                                            last_check=last_check, update_frequency=update_frequency,
-                                            latest_comment_id_journal=latest_comment_id_journal,
-                                            latest_comment_id_submission=latest_comment_id_submission,
-                                            latest_shout_id=latest_shout_id)
+        new_sub = FANotificationCommentsSub(
+            server, destination, fa_key,
+            last_check=last_check, update_frequency=update_frequency,
+            latest_comment_id_journal=latest_comment_id_journal,
+            latest_comment_id_submission=latest_comment_id_submission,
+            latest_shout_id=latest_shout_id
+        )
         new_sub.last_update = last_update
         return new_sub
 
@@ -1362,9 +1395,11 @@ class FASearchSub(Subscription):
         assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
-            raise SubscriptionException("Cannot create FA search subscription without cookie details. "
-                                        "Please set up FA cookies with "
-                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+            raise SubscriptionException(
+                "Cannot create FA search subscription without cookie details. "
+                "Please set up FA cookies with "
+                "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values."
+            )
         # Get server and destination
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
@@ -1435,7 +1470,8 @@ class FASearchSub(Subscription):
             self.search,
             title,
             posted_by,
-            link)
+            link
+        )
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         # Get submission page and file extension
@@ -1489,9 +1525,11 @@ class FASearchSub(Subscription):
         # Load search
         search = json_obj["search"]
         # Create FASearchSub
-        new_sub = FASearchSub(server, destination, fa_key, search,
-                              last_check=last_check, update_frequency=update_frequency,
-                              latest_ids=latest_ids)
+        new_sub = FASearchSub(
+            server, destination, fa_key, search,
+            last_check=last_check, update_frequency=update_frequency,
+            latest_ids=latest_ids
+        )
         new_sub.last_update = last_update
         return new_sub
 
@@ -1507,8 +1545,10 @@ class FASearchSub(Subscription):
 
 
 class FAUserFavsSub(Subscription):
-    names = ["fa user favs", "furaffinity user favs", "furaffinity user favourites", "fa user favourites",
-             "furaffinity user favorites", "fa user favorites"]
+    names = [
+        "fa user favs", "furaffinity user favs", "furaffinity user favourites", "fa user favourites",
+        "furaffinity user favorites", "fa user favorites"
+    ]
     """ :type : list[str]"""
     type_name = "fa_user_favs"
     """ :type : str"""
@@ -1546,9 +1586,11 @@ class FAUserFavsSub(Subscription):
         assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
-            raise SubscriptionException("Cannot create FA user favourites subscription without cookie details. "
-                                        "Please set up FA cookies with "
-                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+            raise SubscriptionException(
+                "Cannot create FA user favourites subscription without cookie details. "
+                "Please set up FA cookies with "
+                "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values."
+            )
         # Get server and destination
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
@@ -1672,9 +1714,11 @@ class FAUserFavsSub(Subscription):
         # Load search
         username = json_obj["username"]
         # Create FASearchSub
-        new_sub = FAUserFavsSub(server, destination, fa_key, username,
-                                last_check=last_check, update_frequency=update_frequency,
-                                latest_ids=latest_ids)
+        new_sub = FAUserFavsSub(
+            server, destination, fa_key, username,
+            last_check=last_check, update_frequency=update_frequency,
+            latest_ids=latest_ids
+        )
         new_sub.last_update = last_update
         return new_sub
 
@@ -1695,8 +1739,10 @@ class FAUserWatchersSub(Subscription):
     type_name = "fa_user_watchers"
     """ :type : str"""
 
-    def __init__(self, server, destination, fa_key, username, last_check=None, update_frequency=None,
-                 newest_watchers=None):
+    def __init__(
+            self, server, destination, fa_key, username, last_check=None, update_frequency=None,
+            newest_watchers=None
+    ):
         """
         :type server: Server.Server
         :type destination: Destination.Destination
@@ -1728,9 +1774,11 @@ class FAUserWatchersSub(Subscription):
         assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
-            raise SubscriptionException("Cannot create FA user watchers subscription without cookie details. "
-                                        "Please set up FA cookies with "
-                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+            raise SubscriptionException(
+                "Cannot create FA user watchers subscription without cookie details. "
+                "Please set up FA cookies with "
+                "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values."
+            )
         # Get server and destination
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
@@ -1845,24 +1893,30 @@ class FAUserWatchersSub(Subscription):
         newest_watchers = []
         for new_watcher in json_obj["newest_watchers"]:
             newest_watchers.append(new_watcher)
-        new_sub = FAUserWatchersSub(server, destination, fa_key, username,
-                                    last_check=last_check, update_frequency=update_frequency,
-                                    newest_watchers=newest_watchers)
+        new_sub = FAUserWatchersSub(
+            server, destination, fa_key, username,
+            last_check=last_check, update_frequency=update_frequency,
+            newest_watchers=newest_watchers
+        )
         new_sub.last_update = last_update
         return new_sub
 
 
 class FANotificationWatchSub(FAUserWatchersSub):
-    names = ["{}{}{}{}".format(fa, new, watchers, notifications)
-             for fa in ["fa ", "furaffinity "]
-             for new in ["new ", ""]
-             for watchers in ["watcher", "watchers"]
-             for notifications in ["", " notifications"]]
+    names = [
+        "{}{}{}{}".format(fa, new, watchers, notifications)
+        for fa in ["fa ", "furaffinity "]
+        for new in ["new ", ""]
+        for watchers in ["watcher", "watchers"]
+        for notifications in ["", " notifications"]
+    ]
     """ :type : list[str]"""
     type_name = "fa_notif_watchers"
 
-    def __init__(self, server, destination, fa_key, last_check=None, update_frequency=None,
-                 newest_watchers=None):
+    def __init__(
+            self, server, destination, fa_key, last_check=None, update_frequency=None,
+            newest_watchers=None
+    ):
         """
         :type server: Server.Server
         :type destination: Destination.Destination
@@ -1873,8 +1927,10 @@ class FANotificationWatchSub(FAUserWatchersSub):
         :type newest_watchers: list[str]
         """
         username = fa_key.get_fa_reader().get_notification_page().username
-        super().__init__(server, destination, fa_key, username,
-                         last_check=last_check, update_frequency=update_frequency, newest_watchers=newest_watchers)
+        super().__init__(
+            server, destination, fa_key, username,
+            last_check=last_check, update_frequency=update_frequency, newest_watchers=newest_watchers
+        )
 
     @staticmethod
     def create_from_input(input_evt, sub_repo):
@@ -1889,9 +1945,11 @@ class FANotificationWatchSub(FAUserWatchersSub):
         assert isinstance(fa_keys, FAKeysCommon)
         fa_key = fa_keys.get_key_by_user(user)
         if fa_key is None:
-            raise SubscriptionException("Cannot create FA watcher notification subscription without cookie details. "
-                                        "Please set up FA cookies with "
-                                        "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values.")
+            raise SubscriptionException(
+                "Cannot create FA watcher notification subscription without cookie details. "
+                "Please set up FA cookies with "
+                "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values."
+            )
         # Get server and destination
         server = input_evt.server
         destination = input_evt.channel if input_evt.channel is not None else input_evt.user
@@ -1904,8 +1962,9 @@ class FANotificationWatchSub(FAUserWatchersSub):
         try:
             fa_sub = FANotificationWatchSub(server, destination, fa_key, update_frequency=search_delta)
         except Exception:
-            raise SubscriptionException("Yours does not appear to be a valid username? "
-                                        "I cannot access your profile page.")
+            raise SubscriptionException(
+                "Yours does not appear to be a valid username? I cannot access your profile page."
+            )
         fa_sub.check()
         return fa_sub
 
@@ -1961,9 +2020,11 @@ class FANotificationWatchSub(FAUserWatchersSub):
         newest_watchers = []
         for new_watcher in json_obj["newest_watchers"]:
             newest_watchers.append(new_watcher)
-        new_sub = FANotificationWatchSub(server, destination, fa_key,
-                                         last_check=last_check, update_frequency=update_frequency,
-                                         newest_watchers=newest_watchers)
+        new_sub = FANotificationWatchSub(
+            server, destination, fa_key,
+            last_check=last_check, update_frequency=update_frequency,
+            newest_watchers=newest_watchers
+        )
         new_sub.last_update = last_update
         return new_sub
 
@@ -2068,10 +2129,8 @@ class RedditSub(Subscription):
             output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n[direct image]({})".format(
                 Commons.markdown_escape(self.subreddit),
                 Commons.markdown_escape(title),
-                link,
-                author,
-                author_link,
-                url)
+                link, author, author_link, url
+            )
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, url, inbound=False)
             output_evt.formatting = EventMessage.Formatting.MARKDOWN
             return output_evt
@@ -2084,10 +2143,8 @@ class RedditSub(Subscription):
             output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n[gfycat]({})".format(
                 Commons.markdown_escape(self.subreddit),
                 Commons.markdown_escape(title),
-                link,
-                author,
-                author_link,
-                url)
+                link, author, author_link, url
+            )
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, direct_url, inbound=False)
             output_evt.formatting = EventMessage.Formatting.MARKDOWN
             return output_evt
@@ -2103,10 +2160,8 @@ class RedditSub(Subscription):
             output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n[vreddit]({})".format(
                 Commons.markdown_escape(self.subreddit),
                 Commons.markdown_escape(title),
-                link,
-                author,
-                author_link,
-                direct_url)
+                link, author, author_link, direct_url
+            )
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, direct_url, inbound=False)
             output_evt.formatting = EventMessage.Formatting.MARKDOWN
             return output_evt
@@ -2115,18 +2170,14 @@ class RedditSub(Subscription):
             output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})".format(
                 Commons.markdown_escape(self.subreddit),
                 Commons.markdown_escape(title),
-                link,
-                author,
-                author_link)
+                link, author, author_link
+            )
         else:
             output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n{}".format(
                 Commons.markdown_escape(self.subreddit),
                 Commons.markdown_escape(title),
-                link,
-                author,
-                author_link,
-                url,
-                link)
+                link, author, author_link, url, link
+            )
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
         output_evt.formatting = EventMessage.Formatting.MARKDOWN
         return output_evt
@@ -2286,7 +2337,7 @@ class FAKey:
             fa_api_url = os.getenv("FA_API_URL", "https://faexport.boothale.net")
             url = "{}/{}".format(fa_api_url, path)
             if needs_cookie:
-                cookie_string = "b="+self.b+"; a="+self.a
+                cookie_string = "b=" + self.b + "; a=" + self.a
                 return Commons.load_url_json(url, [["FA_COOKIE", cookie_string]])
             return Commons.load_url_json(url)
 
@@ -2319,6 +2370,7 @@ class FAKey:
 
             def shout_data_getter():
                 return self._get_api_data("/user/{}/shouts.json".format(username))
+
             user_page = FAKey.FAReader.FAUserPage(data, shout_data_getter, username)
             return user_page
 
@@ -2336,6 +2388,7 @@ class FAKey:
 
             def comment_data_getter():
                 return self._get_api_data("/submission/{}/comments.json".format(submission_id))
+
             sub_page = FAKey.FAReader.FAViewSubmissionPage(data, comment_data_getter, submission_id)
             return sub_page
 
@@ -2344,6 +2397,7 @@ class FAKey:
 
             def comment_data_getter():
                 return self._get_api_data("/journal/{}/comments.json".format(journal_id))
+
             journal_page = FAKey.FAReader.FAViewJournalPage(data, comment_data_getter, journal_id)
             return journal_page
 
@@ -2461,8 +2515,10 @@ class FAKey:
 
         class FANotificationCommentSubmission:
 
-            def __init__(self, comment_id, username, name, comment_on,
-                         submission_yours, submission_id, submission_name):
+            def __init__(
+                    self, comment_id, username, name, comment_on,
+                    submission_yours, submission_id, submission_name
+            ):
                 self.comment_id = comment_id
                 """ :type : str"""
                 self.comment_link = "https://furaffinity.net/view/{}/#cid:{}".format(submission_id, comment_id)
@@ -2771,8 +2827,10 @@ class FAKey:
                     posted_datetime = dateutil.parser.parse(comment["posted_at"])
                     text_soup = BeautifulSoup(comment["text"], "html.parser")
                     text = "".join(str(x) for x in text_soup.find("div", {"class": "message-text"}).contents).strip()
-                    new_comment = FAKey.FAReader.FAComment(username, name, avatar_link, comment_id,
-                                                           posted_datetime, text)
+                    new_comment = FAKey.FAReader.FAComment(
+                        username, name, avatar_link, comment_id,
+                        posted_datetime, text
+                    )
                     if comment["reply_to"] == "":
                         self.top_level_comments.append(new_comment)
                     else:

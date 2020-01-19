@@ -56,8 +56,9 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             e621_sub_obj = self.function_dispatcher.get_function_object(e621_sub_check)  # type: SubscriptionCheck
             e621_sub_obj.subscription_repo = rfl
             # Test running all feed updates
-            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                           "e621 sub check all"))
+            self.function_dispatcher.dispatch(EventMessage(
+                self.server, self.test_chan, self.test_user, "e621 sub check all"
+            ))
             # Check original calling channel data
             serv0_data = self.server.get_send_data(1, self.test_chan, EventMessage)
             assert "subscription updates were found" in serv0_data[0].text, \
@@ -76,8 +77,9 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             # Check test server 2 data
             serv2.get_send_data(50, chan3, EventMessage)
             # Test running with no new updates.
-            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                           "e621 sub check all"))
+            self.function_dispatcher.dispatch(EventMessage(
+                self.server, self.test_chan, self.test_user, "e621 sub check all"
+            ))
             data = self.server.get_send_data(1, self.test_chan, EventMessage)
             assert "no updates" in data[0].text, "No further updates should be found."
         finally:
@@ -110,18 +112,21 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
             rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubscriptionCheck
             rss_check_obj.subscription_repo = rfl
             # Invalid title
-            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                           "e621 sub check Not a valid search"))
+            self.function_dispatcher.dispatch(EventMessage(
+                self.server, self.test_chan, self.test_user, "e621 sub check Not a valid search"
+            ))
             data = self.server.get_send_data(1, self.test_chan, EventMessage)
             assert "error" in data[0].text.lower()
             # Correct title but wrong channel
-            self.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1,
-                                                           "e621 sub check clefable"))
+            self.function_dispatcher.dispatch(EventMessage(
+                serv1, chan1, user1, "e621 sub check clefable"
+            ))
             data = serv1.get_send_data(1, chan1, EventMessage)
             assert "error" in data[0].text.lower()
             # Correct title check update
-            self.function_dispatcher.dispatch(EventMessage(serv1, chan2, user1,
-                                                           "e621 sub check clefable"))
+            self.function_dispatcher.dispatch(EventMessage(
+                serv1, chan2, user1, "e621 sub check clefable"
+            ))
             data = serv1.get_send_data(51, chan2, EventMessage)
             for x in range(50):
                 assert "update on" in data[x].text.lower()
@@ -129,8 +134,9 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
                 assert "clefable" in data[x].text
             assert "subscription updates were found" in data[50].text.lower(), "Actual message: {}".format(data[0].text)
             # No updates
-            self.function_dispatcher.dispatch(EventMessage(serv1, chan2, user1,
-                                                           "e621 sub check clefable"))
+            self.function_dispatcher.dispatch(EventMessage(
+                serv1, chan2, user1, "e621 sub check clefable"
+            ))
             data = serv1.get_send_data(1, chan2, EventMessage)
             assert "no updates" in data[0].text, "No further updates should be found."
         finally:

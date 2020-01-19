@@ -44,8 +44,9 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf3 = E621Sub(self.server, self.test_chan, "fez", update_frequency=Commons.load_time_delta("PT3600S"))
         rfl.add_sub(rf3)
         # Remove test search
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                       "e621 sub remove cabinet"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, self.test_chan, self.test_user, "e621 sub remove cabinet"
+        ))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "removed e621 subscription to search for \"cabinet\"" in data[0].text.lower(), \
             "Response did not contain expected string. Response was {}".format(data[0].text)
@@ -67,8 +68,9 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf3 = E621Sub(self.server, self.test_chan, "cabinet", update_frequency=Commons.load_time_delta("PT3600S"))
         rfl.add_sub(rf3)
         # Remove test feed
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                       "e621 sub remove cabinet"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, self.test_chan, self.test_user, "e621 sub remove cabinet"
+        ))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "removed 2 subscriptions" in data[0].text.lower(), \
             "Response did not contain expected string. Response was {}".format(data[0].text)
@@ -94,8 +96,9 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rf3 = E621Sub(self.server, self.test_chan, "fez", update_frequency=Commons.load_time_delta("PT3600S"))
         rfl.add_sub(rf3)
         # Try to remove invalid search
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                       "e621 sub remove not_a_search"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, self.test_chan, self.test_user, "e621 sub remove not_a_search"
+        ))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "error" in data[0].text.lower()
         assert rf1 in rfl.sub_list
