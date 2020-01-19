@@ -1,6 +1,8 @@
 import os
 import unittest
 
+import pytest
+
 from events import EventMessage
 from modules.subscriptions import SubscriptionCheck, E621Sub
 from test.test_base import TestBase

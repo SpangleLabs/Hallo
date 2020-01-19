@@ -1,6 +1,8 @@
 import os
 import unittest
 
+import pytest
+
 from events import EventMessage
 from inc.commons import Commons
 from modules.subscriptions import SubscriptionCheck, E621Sub
