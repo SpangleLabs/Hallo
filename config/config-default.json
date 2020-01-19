@@ -5,46 +5,46 @@
   "function_dispatcher": {
     "modules": [
       {
-        "name": "AsciiArt"
+        "name": "ascii_art"
       },
       {
-        "name": "Bio"
+        "name": "bio"
       },
       {
-        "name": "ChannelControl"
+        "name": "channel_control"
       },
       {
-        "name": "Convert"
+        "name": "convert"
       },
       {
-        "name": "Euler"
+        "name": "euler"
       },
       {
-        "name": "Games"
+        "name": "games"
       },
       {
-        "name": "HalloControl"
+        "name": "hallo_control"
       },
       {
-        "name": "Lookup"
+        "name": "lookup"
       },
       {
-        "name": "Math"
+        "name": "math"
       },
       {
-        "name": "PermissionControl"
+        "name": "permission_control"
       },
       {
-        "name": "Pokemon"
+        "name": "pokemon"
       },
       {
-        "name": "Random"
+        "name": "random"
       },
       {
-        "name": "ServerControl"
+        "name": "server_control"
       },
       {
-        "name": "Silly"
+        "name": "silly"
       }
     ]
   },
