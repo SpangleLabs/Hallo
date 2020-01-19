@@ -6,7 +6,7 @@ import dateutil
 from events import EventMessage, RawDataTelegram
 from modules.dailys import DailysSleepField
 from test.test_base import TestBase
-from test.modules.Dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
+from test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
 class Obj:

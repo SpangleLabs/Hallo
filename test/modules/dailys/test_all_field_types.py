@@ -7,7 +7,7 @@ from datetime import time
 from events import EventMessage
 from modules.dailys import DailysDuolingoField, DailysMoodField, DailysSleepField, DailysFieldFactory, DailysField
 from test.test_base import TestBase
-from test.modules.Dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
+from test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
 class TestAllFieldTypes(TestBase, unittest.TestCase):

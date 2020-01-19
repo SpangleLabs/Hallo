@@ -4,7 +4,7 @@ from events import EventMessage
 from inc.commons import Commons
 from modules.random import ThoughtForTheDay
 from test.test_base import TestBase
-from test.modules.Random.mock_chooser import MockChooser
+from test.modules.random.mock_chooser import MockChooser
 
 
 class ThoughtForTheDayTest(TestBase, unittest.TestCase):

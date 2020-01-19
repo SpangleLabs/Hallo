@@ -1,7 +1,7 @@
 import unittest
 
 from events import EventMessage
-from test.modules.Convert.convert_function_test_base import ConvertFunctionTestBase
+from test.modules.convert.convert_function_test_base import ConvertFunctionTestBase
 
 
 class ConvertSetTypeDecimalsTest(ConvertFunctionTestBase, unittest.TestCase):

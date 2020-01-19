@@ -4,7 +4,7 @@ from datetime import datetime
 from events import EventMessage
 from inc.commons import Commons
 from test.test_base import TestBase
-from test.modules.Random.mock_roller import MockRoller
+from test.modules.random.mock_roller import MockRoller
 
 
 class FoofTest(TestBase, unittest.TestCase):

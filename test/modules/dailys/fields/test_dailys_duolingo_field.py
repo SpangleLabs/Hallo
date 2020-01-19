@@ -8,7 +8,7 @@ import pytest
 from events import EventMessage, EventDay
 from modules.dailys import DailysException, DailysDuolingoField
 from test.test_base import TestBase
-from test.modules.Dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
+from test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
 @pytest.mark.external_integration

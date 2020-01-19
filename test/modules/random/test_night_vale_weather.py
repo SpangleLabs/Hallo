@@ -7,7 +7,7 @@ import pytest
 from events import EventMessage
 from inc.commons import Commons
 from test.test_base import TestBase
-from test.modules.Random.mock_chooser import MockChooser
+from test.modules.random.mock_chooser import MockChooser
 
 
 @pytest.mark.external_integration
