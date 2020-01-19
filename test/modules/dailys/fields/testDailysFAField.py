@@ -7,7 +7,7 @@ from Events import EventMessage, EventDay
 from modules.Dailys import DailysFAField, DailysException
 from modules.UserData import UserDataParser, FAKeyData
 from test.TestBase import TestBase
-from test.modules.Dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
+from test.modules.dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
 
 
 class DailysFAFieldTest(TestBase, unittest.TestCase):
