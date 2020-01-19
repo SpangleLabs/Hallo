@@ -2767,7 +2767,6 @@ class FAKey:
             def __init__(self, data, comments_data_getter, submission_id):
                 self.submission_id = submission_id
                 """ :type : str"""
-                sub_descbox = BeautifulSoup(data["description"], "html.parser")
                 self.title = data["title"]
                 """ :type : str"""
                 self.full_image = data["download"]
@@ -2776,9 +2775,9 @@ class FAKey:
                 """ :type : str"""
                 self.name = data["name"]
                 """ :type : str"""
-                self.avatar_link = "https:" + sub_descbox.find("img")["src"]
+                self.avatar_link = data["avatar"]
                 """ :type : str"""
-                self.description = "".join(str(s) for s in sub_descbox.contents[5:]).strip()
+                self.description = data["description_body"]
                 """ :type : str"""
                 submission_time_str = data["posted_at"]
                 self.submission_time = dateutil.parser.parse(submission_time_str)
@@ -2825,8 +2824,7 @@ class FAKey:
                     avatar_link = comment["avatar"]
                     comment_id = comment["id"]
                     posted_datetime = dateutil.parser.parse(comment["posted_at"])
-                    text_soup = BeautifulSoup(comment["text"], "html.parser")
-                    text = "".join(str(x) for x in text_soup.find("div", {"class": "message-text"}).contents).strip()
+                    text = comment["text"].strip()
                     new_comment = FAKey.FAReader.FAComment(
                         username, name, avatar_link, comment_id,
                         posted_datetime, text
@@ -2894,27 +2892,12 @@ class FAKey:
                 """ :type : str"""
                 self.posted_datetime = dateutil.parser.parse(data["posted_at"])
                 """ :type : datetime"""
-                journal_soup = BeautifulSoup(data["description"], "html.parser")
-                self.journal_header = None
+                self.journal_header = data["journal_header"]
                 """ :type : str | None"""
-                try:
-                    header = journal_soup.find("div", {"class": "journal-header"})
-                    header.find_all("hr")[-1].decompose()
-                    self.journal_header = "".join(str(s) for s in header).strip()
-                except Exception as e:
-                    print("Failed to read journal header. {}".format(e))
-                self.journal_text = "".join(
-                    str(s) for s in journal_soup.find("div", {"class": "journal-body"}).contents
-                ).strip()
+                self.journal_text = data["journal_body"]
                 """ :type : str"""
-                self.journal_footer = None
+                self.journal_footer = data["journal_footer"]
                 """ :type : str | None"""
-                try:
-                    footer = journal_soup.find("div", {"class": "journal-footer"})
-                    footer.find_all("hr")[0].decompose()
-                    self.journal_footer = "".join(str(s) for s in footer).strip()
-                except Exception as e:
-                    print("Failed to read journal footer. {}".format(e))
                 self._comments_section_getter = comments_data_getter
                 self._comments_section_cache = None
                 """ :type : FAKey.FAReader.FACommentsSection | None"""
