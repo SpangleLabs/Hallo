@@ -24,8 +24,9 @@ class ConnectTest(TestBase, unittest.TestCase):
         test_server.auto_connect = False
         self.hallo.add_server(test_server)
         # Call connect function
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                       "connect "+server_name))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, self.test_chan, self.test_user, "connect " + server_name
+        ))
         # Ensure response is correct
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "error" not in data[0].text.lower(), data[0].text.lower()
@@ -45,8 +46,9 @@ class ConnectTest(TestBase, unittest.TestCase):
         test_server.state = Server.STATE_OPEN
         self.hallo.add_server(test_server)
         # Call connect function
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                       "connect "+server_name))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, self.test_chan, self.test_user, "connect " + server_name
+        ))
         # Ensure error response is given
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "error" in data[0].text.lower(), data[0].text.lower()
@@ -57,8 +59,9 @@ class ConnectTest(TestBase, unittest.TestCase):
         assert test_server.state == Server.STATE_OPEN, "Test server should not have been shut down."
 
     def test_connect_fail_unrecognised_protocol(self):
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                       "connect www.example.com"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, self.test_chan, self.test_user, "connect www.example.com"
+        ))
         # Ensure error response is given
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "error" in data[0].text.lower()
@@ -68,8 +71,9 @@ class ConnectTest(TestBase, unittest.TestCase):
         # Set up some mock methods
         self.server.type = Server.TYPE_IRC
         # Run command
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                       "connect www.example.com:80"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, self.test_chan, self.test_user, "connect www.example.com:80"
+        ))
         # Ensure correct response is given
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert "connected to new irc server" in data[0].text.lower(), "Incorrect output: "+str(data[0].text)
+        assert "connected to new irc server" in data[0].text.lower(), "Incorrect output: " + str(data[0].text)

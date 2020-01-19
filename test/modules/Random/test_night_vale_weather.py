@@ -41,8 +41,11 @@ class NightValeWeatherTest(TestBase, unittest.TestCase):
             # Read from env variable
             self.hallo.add_api_key("youtube", os.getenv("test_api_key_youtube"))
         self.function_dispatcher.dispatch_passive(
-            EventMessage(self.server, self.test_chan, self.test_user,
-                         "and now to {} with the weather".format(self.server.get_nick())))
+            EventMessage(
+                self.server, self.test_chan, self.test_user,
+                "and now to {} with the weather".format(self.server.get_nick())
+            )
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "and now, the weather" in data[0].text.lower(), "Didn't announce the weather"
         youtube_regex = re.compile(r"https?://youtu\.be/[A-Za-z0-9_\-]{11} .+")

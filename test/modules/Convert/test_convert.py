@@ -166,15 +166,19 @@ class ConvertConvertOneUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         assert resp is None
 
     def test_only_base_measures(self):
-        measures_list = [modules.convert.ConvertMeasure(5, self.test_unit1a),
-                         modules.convert.ConvertMeasure(3, self.test_unit2a)]
+        measures_list = [
+            modules.convert.ConvertMeasure(5, self.test_unit1a),
+            modules.convert.ConvertMeasure(3, self.test_unit2a)
+        ]
         resp = self.conv_obj.convert_one_unit(measures_list, False)
         assert "i don't understand your input" in resp.lower()
         assert "convert <value> <old unit> to <new unit>" in resp.lower()
 
     def test_only_base_measures_passive(self):
-        measures_list = [modules.convert.ConvertMeasure(5, self.test_unit1a),
-                         modules.convert.ConvertMeasure(3, self.test_unit2a)]
+        measures_list = [
+            modules.convert.ConvertMeasure(5, self.test_unit1a),
+            modules.convert.ConvertMeasure(3, self.test_unit2a)
+        ]
         resp = self.conv_obj.convert_one_unit(measures_list, True)
         assert resp is None
 
@@ -188,8 +192,10 @@ class ConvertConvertOneUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_two_measures(self):
         self.test_unit1b.value = 2
-        measures_list = [modules.convert.ConvertMeasure(5, self.test_unit1b),
-                         modules.convert.ConvertMeasure(3, self.test_unit1b)]
+        measures_list = [
+            modules.convert.ConvertMeasure(5, self.test_unit1b),
+            modules.convert.ConvertMeasure(3, self.test_unit1b)
+        ]
         resp = self.conv_obj.convert_one_unit(measures_list, False)
         assert len(resp.split("\n")) == 2
         assert "5.00 {}".format(self.test_unit1b.name_list[0]) in resp
@@ -261,8 +267,10 @@ class ConvertConvertTwoUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_two_measures_to_unit(self):
         self.test_unit1b.value = 2
         self.test_unit1c.value = 3
-        measures_list = [modules.convert.ConvertMeasure(2, self.test_unit1b),
-                         modules.convert.ConvertMeasure(2, self.test_unit1c)]
+        measures_list = [
+            modules.convert.ConvertMeasure(2, self.test_unit1b),
+            modules.convert.ConvertMeasure(2, self.test_unit1c)
+        ]
         resp = self.conv_obj.convert_two_unit(measures_list, "unit1a", False)
         assert len(resp.split("\n")) == 2
         assert "2.00 {} = 4.00 {}".format(self.test_unit1b.name_list[0], self.test_unit1a.name_list[0]) in resp
@@ -272,8 +280,10 @@ class ConvertConvertTwoUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.valid_prefix_group = self.test_group1
         self.test_unit1b.value = 0.5
         self.test_unit1c.value = 0.3333333
-        measures_list = [modules.convert.ConvertMeasure(60, self.test_unit1b),
-                         modules.convert.ConvertMeasure(60, self.test_unit1c)]
+        measures_list = [
+            modules.convert.ConvertMeasure(60, self.test_unit1b),
+            modules.convert.ConvertMeasure(60, self.test_unit1c)
+        ]
         resp = self.conv_obj.convert_two_unit(measures_list, "prefix1aunit1a", False)
         assert len(resp.split("\n")) == 2
         assert "60.00 {} = 6.00 prefix1aunit1a".format(self.test_unit1b.name_list[0]) in resp
@@ -282,8 +292,10 @@ class ConvertConvertTwoUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_two_measures_different_types(self):
         self.test_unit1b.value = 0.5
         self.test_unit2b.value = 0.33333333
-        measures_list = [modules.convert.ConvertMeasure(1, self.test_unit1a),
-                         modules.convert.ConvertMeasure(1, self.test_unit2a)]
+        measures_list = [
+            modules.convert.ConvertMeasure(1, self.test_unit1a),
+            modules.convert.ConvertMeasure(1, self.test_unit2a)
+        ]
         resp = self.conv_obj.convert_two_unit(measures_list, "same_name", False)
         assert len(resp.split("\n")) == 2
         assert "1.00 {} = 2.00 {}".format(self.test_unit1a.name_list[0], self.test_unit1b.name_list[0]) in resp

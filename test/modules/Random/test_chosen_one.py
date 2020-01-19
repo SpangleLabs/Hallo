@@ -40,8 +40,10 @@ class ChooseTest(TestBase, unittest.TestCase):
         # Choose user
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "chosen one"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert set(self.chooser.last_choices) == {self.test_user.name,
-                                                  self.hallo_user.name}, "User list should just be test user and hallo"
+        assert set(self.chooser.last_choices) == {
+            self.test_user.name,
+            self.hallo_user.name
+        }, "User list should just be test user and hallo"
         assert self.chooser.last_count == 1, "Should have only asked to choose 1"
         assert "{} is the chosen one".format(self.chooser.last_choices[0]) in data[0].text
         # Set chooser option
@@ -49,8 +51,10 @@ class ChooseTest(TestBase, unittest.TestCase):
         # Choose user
         self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "chosen one"))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert set(self.chooser.last_choices) == {self.test_user.name,
-                                                  self.hallo_user.name}, "User list should just be test user and hallo"
+        assert set(self.chooser.last_choices) == {
+            self.test_user.name,
+            self.hallo_user.name
+        }, "User list should just be test user and hallo"
         assert self.chooser.last_count == 1, "Should have only asked to choose 1"
         assert "{} is the chosen one".format(self.chooser.last_choices[1]) in data[0].text
 

@@ -22,8 +22,9 @@ class Roll(Function):
         self.help_name = "roll"  # Name for use in help listing
         self.names = {"roll", "dice", "random", "random number"}  # Names which can be used to address the function
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Roll X-Y returns a random number between X and Y. " \
-                         "Format: \"roll <min>-<max>\" or \"roll <num>d<sides>\""
+        self.help_docs = \
+            "Roll X-Y returns a random number between X and Y. " \
+            "Format: \"roll <min>-<max>\" or \"roll <num>d<sides>\""
 
     def run(self, event):
         """Runs the function"""
@@ -52,8 +53,10 @@ class Roll(Function):
             return "I roll {}!!!".format(rand)
         else:
             dice_rolls = Commons.get_random_int(1, num_sides, num_dice)
-            output_string = "I roll {}. The total is {}.".format(", ".join([str(x) for x in dice_rolls]),
-                                                                 sum(dice_rolls))
+            output_string = "I roll {}. The total is {}.".format(
+                ", ".join([str(x) for x in dice_rolls]),
+                sum(dice_rolls)
+            )
             return output_string
 
     def run_range_format(self, range_min, range_max):
@@ -75,8 +78,9 @@ class Choose(Function):
         self.help_name = "choose"  # Name for use in help listing
         self.names = {"choose", "pick"}  # Names which can be used to address the function
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Choose X, Y or Z or ... Returns one of the options separated by \"or\" or a comma. " \
-                         "Format: choose <first_option>, <second_option> ... <n-1th option> or <nth option>"
+        self.help_docs = \
+            "Choose X, Y or Z or ... Returns one of the options separated by \"or\" or a comma. " \
+            "Format: choose <first_option>, <second_option> ... <n-1th option> or <nth option>"
 
     def run(self, event):
         choices = re.compile(', (?:or )?| or,? ', re.IGNORECASE).split(event.command_args)
@@ -92,13 +96,17 @@ class EightBall(Function):
     """
     Magic 8 ball. Format: eightball
     """
-    RESPONSES_YES_TOTALLY = ['It is certain', 'It is decidedly so', 'Without a doubt', 'Yes definitely',
-                             'You may rely on it']
+    RESPONSES_YES_TOTALLY = [
+        'It is certain', 'It is decidedly so', 'Without a doubt', 'Yes definitely', 'You may rely on it'
+    ]
     RESPONSES_YES_PROBABLY = ['As I see it yes', 'Most likely', 'Outlook good', 'Yes', 'Signs point to yes']
-    RESPONSES_MAYBE = ['Reply hazy try again', 'Ask again later', 'Better not tell you now', 'Cannot predict now',
-                       'Concentrate and ask again']
-    RESPONSES_NO = ["Don't count on it", 'My reply is no', 'My sources say no', 'Outlook not so good',
-                    'Very doubtful']
+    RESPONSES_MAYBE = [
+        'Reply hazy try again', 'Ask again later', 'Better not tell you now', 'Cannot predict now',
+        'Concentrate and ask again'
+    ]
+    RESPONSES_NO = [
+        "Don't count on it", 'My reply is no', 'My sources say no', 'Outlook not so good', 'Very doubtful'
+    ]
 
     def __init__(self):
         """
@@ -221,8 +229,10 @@ class ThoughtForTheDay(Function):
         super().__init__()
         self.help_name = "thought for the day"  # Name for use in help listing
         # Names which can be used to address the function
-        self.names = {"thought for the day", "thoughtfortheday", "thought of the day", "40k quote", "wh40k quote",
-                      "quote 40k"}
+        self.names = {
+            "thought for the day", "thoughtfortheday", "thought of the day", "40k quote", "wh40k quote",
+            "quote 40k"
+        }
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "WH40K Thought for the day. Format: thought_for_the_day"
         self.thought_list = []
@@ -344,9 +354,11 @@ class RandomQuote(Function):
             return event.create_response("No API key loaded for mashape.")
         url = "https://andruxnet-random-famous-quotes.p.mashape.com/"
         # Construct headers
-        headers = [["X-Mashape-Key", api_key],
-                   ["Content-Type", "application/x-www-form-urlencoded"],
-                   ["Accept", "application/json"]]
+        headers = [
+            ["X-Mashape-Key", api_key],
+            ["Content-Type", "application/x-www-form-urlencoded"],
+            ["Accept", "application/json"]
+        ]
         # Get api response
         json_dict = Commons.load_url_json(url, headers)[0]
         # Construct response
@@ -371,8 +383,9 @@ class NightValeWeather(Function):
         # Names which can be used to address the function
         self.names = {"night vale weather", "nightvale weather", "nightvale"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Returns the current weather in the style of the podcast 'Welcome to Night Vale' " \
-                         "Format: nightvale weather"
+        self.help_docs = \
+            "Returns the current weather in the style of the podcast 'Welcome to Night Vale' " \
+            "Format: nightvale weather"
         self.hallo_obj = None
 
     def run(self, event):
@@ -386,8 +399,9 @@ class NightValeWeather(Function):
         # Select a video from the playlist
         rand_video = Commons.get_random_choice(playlist_data)[0]
         # Return video information
-        return event.create_response("And now, the weather: https://youtu.be/{} {}".format(rand_video['video_id'],
-                                                                                           rand_video['title']))
+        return event.create_response(
+            "And now, the weather: https://youtu.be/{} {}".format(rand_video['video_id'], rand_video['title'])
+        )
 
     def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
@@ -414,15 +428,18 @@ class NightValeWeather(Function):
             raise Exception("Youtube API key missing.")
         # Find API url
         api_fields = "nextPageToken,items(snippet/title,snippet/resourceId/videoId)"
-        api_url = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={}" \
-                  "&fields={}&key={}".format(playlist_id, urllib.parse.quote(api_fields), api_key)
+        api_url = \
+            "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={}" \
+            "&fields={}&key={}".format(playlist_id, urllib.parse.quote(api_fields), api_key)
         if page_token is not None:
             api_url += "&pageToken={}".format(page_token)
         # Load API response (in json).
         api_dict = Commons.load_url_json(api_url)
         for api_item in api_dict['items']:
-            new_video = {'title': api_item['snippet']['title'],
-                         'video_id': api_item['snippet']['resourceId']['videoId']}
+            new_video = {
+                'title': api_item['snippet']['title'],
+                'video_id': api_item['snippet']['resourceId']['videoId']
+            }
             list_videos.append(new_video)
         # Check if there's another page to add
         if "nextPageToken" in api_dict:
@@ -446,8 +463,9 @@ class RandomPerson(Function):
         # Names which can be used to address the function
         self.names = {"random person", "randomperson", "generate person", "generate user"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Generates and returns a random person's details. Specify \"full\" for more details. " \
-                         "Format: random person"
+        self.help_docs = \
+            "Generates and returns a random person's details. Specify \"full\" for more details. " \
+            "Format: random person"
 
     def run(self, event):
         input_clean = event.command_args.strip().lower()
@@ -456,13 +474,17 @@ class RandomPerson(Function):
         json_dict = Commons.load_url_json(url)
         user_dict = json_dict['results'][0]['user']
         # Construct response
-        name = "{} {} {}".format(user_dict['name']['title'],
-                                 user_dict['name']['first'],
-                                 user_dict['name']['last']).title()
+        name = "{} {} {}".format(
+            user_dict['name']['title'],
+            user_dict['name']['first'],
+            user_dict['name']['last']
+        ).title()
         email = user_dict['email']
-        address = "{}, {}, {}".format(user_dict['location']['street'].title(),
-                                      user_dict['location']['city'].title(),
-                                      user_dict['location']['postcode'])
+        address = "{}, {}, {}".format(
+            user_dict['location']['street'].title(),
+            user_dict['location']['city'].title(),
+            user_dict['location']['postcode']
+        )
         username = user_dict['username']
         password = user_dict['password']
         date_of_birth = Commons.format_unix_time(int(user_dict['dob']))
@@ -476,16 +498,19 @@ class RandomPerson(Function):
                                                                                                 pronoun.title(),
                                                                                                 date_of_birth)
             return event.create_response(output)
-        output = "I have generated this person: Say hello to {}. " \
-                 "{} was born at {} and lives at {}. " \
-                 "{} uses the email {}, the username {} and usually uses the password \"{}\". " \
-                 "{} home number is {} but {} mobile number is {}. " \
-                 "{} national insurance number is {}.".format(name,
-                                                              pronoun.title(), date_of_birth, address,
-                                                              pronoun.title(), email, username, password,
-                                                              pronoun_possessive.title(), phone_home,
-                                                              pronoun_possessive, phone_mob,
-                                                              pronoun_possessive.title(), national_insurance)
+        output = \
+            "I have generated this person: Say hello to {}. " \
+            "{} was born at {} and lives at {}. " \
+            "{} uses the email {}, the username {} and usually uses the password \"{}\". " \
+            "{} home number is {} but {} mobile number is {}. " \
+            "{} national insurance number is {}.".format(
+                name,
+                pronoun.title(), date_of_birth, address,
+                pronoun.title(), email, username, password,
+                pronoun_possessive.title(), phone_home,
+                pronoun_possessive, phone_mob,
+                pronoun_possessive.title(), national_insurance
+            )
         return event.create_response(output)
 
 
@@ -538,9 +563,11 @@ class RandomColour(Function):
 
     def run(self, event):
         rgb_list = Commons.get_random_int(0, 255, 3)
-        hex_code = "{}{}{}".format(hex(rgb_list[0])[2:].zfill(2),
-                                   hex(rgb_list[1])[2:].zfill(2),
-                                   hex(rgb_list[2])[2:].zfill(2)).upper()
+        hex_code = "{}{}{}".format(
+            hex(rgb_list[0])[2:].zfill(2),
+            hex(rgb_list[1])[2:].zfill(2),
+            hex(rgb_list[2])[2:].zfill(2)
+        ).upper()
         url = "https://www.thecolorapi.com/id?hex={}".format(hex_code)
         human_url = "{}&format=html".format(url)
         colour_data = Commons.load_url_json(url)

@@ -82,7 +82,6 @@ class UserDatum(metaclass=ABCMeta):
 
 
 class WeatherLocationData(UserDatum):
-
     type_name = "weather_location"
     names = ["weather location"]
 
@@ -215,27 +214,36 @@ class UserDataSetup(Function):
         self.help_name = "setup user data"
         # Names which can be used to address the function
         name_templates = {"setup {} user data", "setup user data {}", "setup user data for {}", "{} user data setup"}
-        self.names = set([template.format(name)
-                          for name in UserDataFactory.get_data_type_names()
-                          for template in name_templates])
+        self.names = set([
+            template.format(name)
+            for name in UserDataFactory.get_data_type_names()
+            for template in name_templates
+        ])
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Sets up user data which other functions may require. " \
-                         "Format: setup user data <type> <parameters>"
+        self.help_docs = \
+            "Sets up user data which other functions may require. " \
+            "Format: setup user data <type> <parameters>"
         self.user_data_parser = UserDataParser()
         """ :type : UserDataParser"""
 
     def run(self, event):
         # Construct type name
-        data_type_name = " ".join([w for w in event.command_name.lower().split()
-                                   if w not in ["setup", "user", "data", "for"]]).strip()
+        data_type_name = " ".join([
+            w
+            for w
+            in event.command_name.lower().split()
+            if w not in ["setup", "user", "data", "for"]
+        ]).strip()
         # Get class from type name
         data_class = UserDataFactory.get_data_class_by_name(data_type_name)  # type: UserDatum
         if data_class is None:
             return event.create_response(
                 "Could not find a user data type called {}. "
-                "Available types are: {}".format(data_type_name,
-                                                 ", ".join([data_class.names[0]
-                                                            for data_class in UserDataFactory.data_classes])))
+                "Available types are: {}".format(
+                    data_type_name,
+                    ", ".join([data_class.names[0] for data_class in UserDataFactory.data_classes])
+                )
+            )
         # Create user data object
         data_obj = data_class.create_from_input(event)
         # Save user data
@@ -259,18 +267,25 @@ class UserDataTeardown(Function):
         self.help_name = "tear down user data"
         # Names which can be used to address the function
         name_templates = {"{1} {0} user data", "{1} user data {0}", "{1} user data for {0}", "{0} user data {1}"}
-        self.names = set([template.format(name, tearDown)
-                          for name in UserDataFactory.get_data_type_names()
-                          for template in name_templates
-                          for tearDown in self.tear_down_words])
+        self.names = set([
+            template.format(name, tearDown)
+            for name in UserDataFactory.get_data_type_names()
+            for template in name_templates
+            for tearDown in self.tear_down_words
+        ])
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Removes user data of a specified type. " \
-                         "Format: tear down user data <type> <parameters>"
+        self.help_docs = \
+            "Removes user data of a specified type. " \
+            "Format: tear down user data <type> <parameters>"
 
     def run(self, event):
         # Construct type name
-        data_type_name = " ".join([w for w in event.command_name.split()
-                                   if w not in ["user", "data", "for", "teardown", "tear", "down"]]).strip()
+        data_type_name = " ".join([
+            w
+            for w
+            in event.command_name.split()
+            if w not in ["user", "data", "for", "teardown", "tear", "down"]
+        ]).strip()
         # Get class from type name
         data_class = UserDataFactory.get_data_class_by_name(data_type_name)
         # Get a user data parser

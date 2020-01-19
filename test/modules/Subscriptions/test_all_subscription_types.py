@@ -141,13 +141,13 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
             sub_repo = SubscriptionRepo()
             # noinspection PyBroadException
             try:
-                function_class.create_from_input(EventMessage(self.server, self.test_chan, self.test_user, "hello"),
-                                                 sub_repo)
+                function_class.create_from_input(EventMessage(
+                    self.server, self.test_chan, self.test_user, "hello"),
+                    sub_repo
+                )
             except NotImplementedError:
                 continue
             except Exception:
                 pass
             # Check it's in SubscriptionFactory
-            assert function_class.__name__ in \
-                [sub_class.__name__ for sub_class in SubscriptionFactory.sub_classes], \
-                "{} class missing from SubscriptionFactory".format(function_class.__name__)
+            assert function_class.__name__ in [sub_class.__name__ for sub_class in SubscriptionFactory.sub_classes]

@@ -75,7 +75,8 @@ class FoofTest(TestBase, unittest.TestCase):
 
     def test_passive_long_foof(self):
         self.roller.answer = 0
-        self.function_dispatcher.dispatch_passive(EventMessage(self.server, self.test_chan, self.test_user,
-                                                               "foooooooooooooooof"))
+        self.function_dispatcher.dispatch_passive(EventMessage(
+            self.server, self.test_chan, self.test_user, "foooooooooooooooof"
+        ))
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "doof" == data[0].text.lower(), "Should be short doof."

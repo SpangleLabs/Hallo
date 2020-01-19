@@ -95,8 +95,9 @@ class Cocktail(Function):
         # Names which can be used to address the function
         self.names = {"cocktail"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Returns ingredients and instructions for a given cocktail (or closest guess). " \
-                         "Format: cocktail <name>"
+        self.help_docs = \
+            "Returns ingredients and instructions for a given cocktail (or closest guess). " \
+            "Format: cocktail <name>"
 
     def run(self, event):
         """Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>"""
@@ -218,8 +219,9 @@ class Wiki(Function):
 
     def run(self, event):
         line_clean = event.command_args.strip().replace(" ", "_")
-        url = "https://en.wikipedia.org/w/api.php?format=json&action=query&titles={}" \
-              "&prop=revisions&rvprop=content&redirects=True".format(line_clean)
+        url = \
+            "https://en.wikipedia.org/w/api.php?format=json&action=query&titles={}" \
+            "&prop=revisions&rvprop=content&redirects=True".format(line_clean)
         article_dict = Commons.load_url_json(url)
         page_code = list(article_dict['query']['pages'])[0]
         article_text = article_dict['query']['pages'][page_code]['revisions'][0]['*']
@@ -231,8 +233,8 @@ class Wiki(Function):
         plain_text = new_scan.replace('\'\'', '')
         plain_text = re.sub(r'<ref[^<]*</ref>', '', plain_text)  # Strip out references
         old_scan = plain_text
-        new_scan = re.sub(r'(\[\[File:[^\][]+)\[\[[^\]]+]]', r'\1',
-                          old_scan)  # Repeatedly strip links from image descriptions
+        # Repeatedly strip links from image descriptions
+        new_scan = re.sub(r'(\[\[File:[^\][]+)\[\[[^\]]+]]', r'\1', old_scan)
         while new_scan != old_scan:
             old_scan = new_scan
             new_scan = re.sub(r'(\[\[File:[^\][]+)\[\[[^\]]+]]', r'\1', old_scan)
@@ -279,8 +281,9 @@ class Translate(Function):
             lang_to = lang_change.split('->')[1]
         trans_safe = urllib.parse.quote(trans_string.strip(), '')
         # This uses google's secret translate API, it's not meant to be used by robots, and often it won't work
-        url = "http://translate.google.com/translate_a/t?client=t&text={}&hl=en&sl={}&tl={}" \
-              "&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1".format(trans_safe, lang_from, lang_to)
+        url = \
+            "http://translate.google.com/translate_a/t?client=t&text={}&hl=en&sl={}&tl={}" \
+            "&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1".format(trans_safe, lang_from, lang_to)
         trans_dict = Commons.load_url_json(url, [], True)
         translation_string = " ".join([x[0] for x in trans_dict[0]])
         return event.create_response("Translation: {}".format(translation_string))
@@ -309,23 +312,28 @@ class CurrentWeather(Function):
         if line_clean == "":
             location_entry = user_data_parser.get_data_by_user_and_type(event.user, WeatherLocationData)
             if location_entry is None:
-                return event.create_response("No location stored for this user. Please specify a location or " +
-                                             "store one with the \"setup weather location data\" function.")
+                return event.create_response(
+                    "No location stored for this user. Please specify a location or " +
+                    "store one with the \"setup weather location data\" function."
+                )
         else:
             # Check if a user was specified
             test_user = event.user.server.get_user_by_name(line_clean)
             if event.channel is not None and event.channel.is_user_in_channel(test_user):
                 location_entry = user_data_parser.get_data_by_user_and_type(test_user, WeatherLocationData)
                 if location_entry is None:
-                    return event.create_response("No location stored for this user. Please specify a location or " +
-                                                 "store one with the \"setup weather location data\" function.")
+                    return event.create_response(
+                        "No location stored for this user. Please specify a location or " +
+                        "store one with the \"setup weather location data\" function."
+                    )
             else:
                 location_entry = WeatherLocationData.create_from_input(event)
         api_key = event.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return event.create_response("No API key loaded for openweathermap.")
-        url = "https://api.openweathermap.org/data/2.5/weather{}&APPID={}".format(self.build_query(location_entry),
-                                                                                  api_key)
+        url = "https://api.openweathermap.org/data/2.5/weather{}&APPID={}".format(
+            self.build_query(location_entry), api_key
+        )
         response = Commons.load_url_json(url)
         if str(response['cod']) != "200":
             return event.create_response("Location not recognised.")
@@ -335,10 +343,11 @@ class CurrentWeather(Function):
         weather_temp = response['main']['temp'] - 273.15
         weather_humidity = response['main']['humidity']
         weather_wind_speed = response['wind']['speed']
-        output = "Current weather in {} is {} ({}). " \
-                 "Temp: {:.2f}C, Humidity: {}%, Wind speed: {}m/s".format(city_name, weather_main, weather_desc,
-                                                                          weather_temp, weather_humidity,
-                                                                          weather_wind_speed)
+        output = \
+            "Current weather in {} is {} ({}). " \
+            "Temp: {:.2f}C, Humidity: {}%, Wind speed: {}m/s".format(
+                city_name, weather_main, weather_desc, weather_temp, weather_humidity, weather_wind_speed
+            )
         return event.create_response(output)
 
     def build_query(self, weather_location):
@@ -418,23 +427,28 @@ class Weather(Function):
         if line_clean == "":
             location_entry = user_data_parser.get_data_by_user_and_type(event.user, WeatherLocationData)
             if location_entry is None:
-                return event.create_response("No location stored for this user. Please specify a location or " +
-                                             "store one with the \"setup weather location data\" function.")
+                return event.create_response(
+                    "No location stored for this user. Please specify a location or " +
+                    "store one with the \"setup weather location data\" function."
+                )
         else:
             test_user = event.server.get_user_by_name(line_clean)
             if event.channel is not None and event.channel.is_user_in_channel(test_user):
                 location_entry = user_data_parser.get_data_by_user_and_type(test_user, WeatherLocationData)
                 if location_entry is None:
-                    return event.create_response("No location stored for this user. Please specify a location or " +
-                                                 "store one with the \"setup weather location data\" function.")
+                    return event.create_response(
+                        "No location stored for this user. Please specify a location or " +
+                        "store one with the \"setup weather location data\" function."
+                    )
             else:
                 location_entry = WeatherLocationData.create_from_input(event)
         # Get API response
         api_key = event.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return event.create_response("No API key loaded for openweathermap.")
-        url = "https://api.openweathermap.org/data/2.5/forecast/daily{}" \
-              "&cnt=16&APPID={}".format(self.build_query(location_entry), api_key)
+        url = \
+            "https://api.openweathermap.org/data/2.5/forecast/daily{}" \
+            "&cnt=16&APPID={}".format(self.build_query(location_entry), api_key)
         response = Commons.load_url_json(url)
         # Check API responded well
         if str(response['cod']) != "200":
@@ -442,8 +456,10 @@ class Weather(Function):
         # Check that days is within bounds for API response
         days_available = len(response['list'])
         if days_offset > days_available:
-            return event.create_response("I cannot predict the weather that far in the future. " +
-                                         "I can't predict much further than 2 weeks.")
+            return event.create_response(
+                "I cannot predict the weather that far in the future. " +
+                "I can't predict much further than 2 weeks."
+            )
         # Format and return output
         city_name = response['city']['name']
         if days_offset == 0:
@@ -462,15 +478,21 @@ class Weather(Function):
             dayaf_temp = response['list'][2]['temp']['day'] - 273.15
             dayaf_humi = response['list'][2]['humidity']
             dayaf_spee = response['list'][2]['speed']
-            output = "Weather in {} today will be {} ({}) " \
-                     "Temp: {:.2f}C, Humidity: {}%, Wind speed: {}m/s. ".format(city_name, today_main, today_desc,
-                                                                                today_temp, today_humi, today_spee)
+            output = \
+                "Weather in {} today will be {} ({}) " \
+                "Temp: {:.2f}C, Humidity: {}%, Wind speed: {}m/s. ".format(
+                    city_name, today_main, today_desc, today_temp, today_humi, today_spee
+                )
             # Add tomorrow output
-            output += "Tomorrow: {} ({}) {:.2f}C {}% {}m/s ".format(tomor_main, tomor_desc, tomor_temp,
-                                                                    tomor_humi, tomor_spee)
+            output += \
+                "Tomorrow: {} ({}) {:.2f}C {}% {}m/s ".format(
+                    tomor_main, tomor_desc, tomor_temp, tomor_humi, tomor_spee
+                )
             # Day after output
-            output += "Day after: {} ({}) {:.2f}C {}% {}m/s.".format(dayaf_main, dayaf_desc, dayaf_temp,
-                                                                     dayaf_humi, dayaf_spee)
+            output += \
+                "Day after: {} ({}) {:.2f}C {}% {}m/s.".format(
+                    dayaf_main, dayaf_desc, dayaf_temp, dayaf_humi, dayaf_spee
+                )
             return event.create_response(output)
         response_weather = response['list'][days_offset]
         weather_main = response_weather['weather'][0]['main']
@@ -478,10 +500,13 @@ class Weather(Function):
         weather_temp = response_weather['temp']['day'] - 273.15
         weather_humidity = response_weather['humidity']
         weather_wind_speed = response_weather['speed']
-        output = "Weather in {} {} will be {} ({}). " \
-                 "Temp: {:.2f}C, Humidity: {}%, Wind speed: {}m/s".format(city_name, self.number_days(days_offset),
-                                                                          weather_main, weather_desc, weather_temp,
-                                                                          weather_humidity, weather_wind_speed)
+        output = \
+            "Weather in {} {} will be {} ({}). " \
+            "Temp: {:.2f}C, Humidity: {}%, Wind speed: {}m/s".format(
+                city_name, self.number_days(days_offset),
+                weather_main, weather_desc, weather_temp,
+                weather_humidity, weather_wind_speed
+            )
         return event.create_response(output)
 
     def build_query(self, weather_location):
@@ -507,13 +532,15 @@ class Weather(Function):
     def weekday_to_number(self, weekday):
         """Converts weekday text to integer. Monday = 0"""
         weekday_clean = weekday.lower().strip()
-        weekday_regex_list = [re.compile(r'mo(n(day)?)?'),
-                              re.compile(r'tu(e(s(day)?)?)?'),
-                              re.compile(r'we(d(nesday)?)?'),
-                              re.compile(r'th(u(r(sday)?)?)?'),
-                              re.compile(r'fr(i(day)?)?'),
-                              re.compile(r'sa(t(urday)?)?'),
-                              re.compile(r'su(n(day)?)?')]
+        weekday_regex_list = [
+            re.compile(r'mo(n(day)?)?'),
+            re.compile(r'tu(e(s(day)?)?)?'),
+            re.compile(r'we(d(nesday)?)?'),
+            re.compile(r'th(u(r(sday)?)?)?'),
+            re.compile(r'fr(i(day)?)?'),
+            re.compile(r'sa(t(urday)?)?'),
+            re.compile(r'su(n(day)?)?')
+        ]
         for weekday_int in range(len(weekday_regex_list)):
             weekday_regex = weekday_regex_list[weekday_int]
             if weekday_regex.match(weekday_clean):
@@ -655,8 +682,9 @@ class UrlDetect(Function):
         if api_key is None:
             return None
         # Get API response
-        api_url = "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid={}" \
-                  "&siteid=0&version=515&ItemID={}&IncludeSelector=Details".format(api_key, item_id)
+        api_url = \
+            "http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&appid={}" \
+            "&siteid=0&version=515&ItemID={}&IncludeSelector=Details".format(api_key, item_id)
         api_dict = Commons.load_url_json(api_url)
         # Get item data from api response
         item_title = api_dict["Item"]["Title"]
@@ -699,9 +727,9 @@ class UrlDetect(Function):
         movie_rating = api_dict['imdbRating']
         movie_votes = api_dict['imdbVotes']
         # Construct output
-        output = "IMDB> Title: {} ({}) | Rating {}/10, {} votes. | Genres: {}.".format(movie_title, movie_year,
-                                                                                       movie_rating, movie_votes,
-                                                                                       movie_genre)
+        output = "IMDB> Title: {} ({}) | Rating {}/10, {} votes. | Genres: {}.".format(
+            movie_title, movie_year, movie_rating, movie_votes, movie_genre
+        )
         return output
 
     def site_imgur(self, url_address, page_opener, page_request):
@@ -725,9 +753,9 @@ class UrlDetect(Function):
         image_size_string = self.file_size_to_string(image_size)
         image_views = api_dict['data']['views']
         # Create output and return
-        output = "Imgur> Title: {} | Size: {}x{} | Filesize: {} | Views: {:,}.".format(image_title, image_width,
-                                                                                       image_height, image_size_string,
-                                                                                       image_views)
+        output = "Imgur> Title: {} | Size: {}x{} | Filesize: {} | Views: {:,}.".format(
+            image_title, image_width, image_height, image_size_string, image_views
+        )
         return output
 
     def site_imgur_album(self, url_address, page_opener, page_request):
@@ -755,8 +783,9 @@ class UrlDetect(Function):
             image_height = api_dict['data']['images'][image_number]['height']
             image_size = int(api_dict['data']['images'][image_number]['size'])
             image_size_string = self.file_size_to_string(image_size)
-            output += "Image {} of {} | Current image: {}x{}, {}.".format(image_number + 1, album_count, image_width,
-                                                                          image_height, image_size_string)
+            output += "Image {} of {} | Current image: {}x{}, {}.".format(
+                image_number + 1, album_count, image_width, image_height, image_size_string
+            )
             return output
         output += "{} images.".format(album_count)
         return output
@@ -787,8 +816,9 @@ class UrlDetect(Function):
         api_key = self.hallo_obj.get_api_key("youtube")
         if api_key is None:
             return None
-        api_url = "https://www.googleapis.com/youtube/v3/videos?id={}" \
-                  "&part=snippet,contentDetails,statistics&key={}".format(video_id, api_key)
+        api_url = \
+            "https://www.googleapis.com/youtube/v3/videos?id={}" \
+            "&part=snippet,contentDetails,statistics&key={}".format(video_id, api_key)
         # Load API response (in json).
         api_dict = Commons.load_url_json(api_url)
         # Get video data from API response.

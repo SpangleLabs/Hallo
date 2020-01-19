@@ -22,8 +22,9 @@ class Euler(Function):
         # Names which can be used to address the Function
         self.names = {"euler", "euler project", "project euler"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Project Euler functions. Format: \"euler list\" to list project euler solutions. " \
-                         "\"euler <number>\" for the solution to project euler problem of the given number."
+        self.help_docs = \
+            "Project Euler functions. Format: \"euler list\" to list project euler solutions. " \
+            "\"euler <number>\" for the solution to project euler problem of the given number."
 
     def run(self, event):
         # Some functions might need this.
@@ -36,10 +37,12 @@ class Euler(Function):
         else:
             count_solutions = len(
                 [func_name for func_name in dir(self) if func_name[:5] == 'euler' and func_name[5:].isdigit()])
-            output_string = "I'm learning to complete the project Euler programming problems. " \
-                            "I've not done many so far, I've only done {} of the 514 problems. ".format(count_solutions)
-            output_string += "But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, " \
-                             "say 'Hallo Euler {num}' for the answer to challenge number {num}."
+            output_string = \
+                "I'm learning to complete the project Euler programming problems. " \
+                "I've not done many so far, I've only done {} of the 514 problems. ".format(count_solutions)
+            output_string += \
+                "But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, " \
+                "say 'Hallo Euler {num}' for the answer to challenge number {num}."
             return event.create_response(output_string)
 
     def list_all(self):
@@ -334,8 +337,11 @@ class Euler(Function):
         # vertical checks
         for x in range(0, 20):
             for y in range(0, 17):
-                product = int(arr_box[x + 20 * y]) * int(arr_box[x + 20 * y + 20]) * int(arr_box[x + 20 * y + 40]) * \
-                          int(arr_box[x + 20 * y + 60])
+                product = \
+                    int(arr_box[x + 20 * y]) * \
+                    int(arr_box[x + 20 * y + 20]) * \
+                    int(arr_box[x + 20 * y + 40]) * \
+                    int(arr_box[x + 20 * y + 60])
                 if product > biggest_product:
                     biggest_product = product
                     answer_x = x
@@ -344,8 +350,11 @@ class Euler(Function):
         # horizontal checks
         for x in range(0, 17):
             for y in range(0, 20):
-                product = int(arr_box[x + 20 * y]) * int(arr_box[x + 20 * y + 1]) * int(arr_box[x + 20 * y + 2]) * \
-                          int(arr_box[x + 20 * y + 3])
+                product = \
+                    int(arr_box[x + 20 * y]) * \
+                    int(arr_box[x + 20 * y + 1]) * \
+                    int(arr_box[x + 20 * y + 2]) * \
+                    int(arr_box[x + 20 * y + 3])
                 if product > biggest_product:
                     biggest_product = product
                     answer_x = x
@@ -354,8 +363,11 @@ class Euler(Function):
         # diagonal check \
         for x in range(0, 17):
             for y in range(0, 17):
-                product = int(arr_box[x + 20 * y]) * int(arr_box[x + 20 * y + 21]) * int(arr_box[x + 20 * y + 42]) * \
-                          int(arr_box[x + 20 * y + 63])
+                product = \
+                    int(arr_box[x + 20 * y]) * \
+                    int(arr_box[x + 20 * y + 21]) * \
+                    int(arr_box[x + 20 * y + 42]) * \
+                    int(arr_box[x + 20 * y + 63])
                 if product > biggest_product:
                     biggest_product = product
                     answer_x = x
@@ -364,17 +376,19 @@ class Euler(Function):
         # diagonal check /
         for x in range(3, 20):
             for y in range(0, 17):
-                product = int(arr_box[x + 20 * y]) * int(arr_box[x + 20 * y + 19]) * int(arr_box[x + 20 * y + 38]) * \
-                          int(arr_box[x + 20 * y + 57])
+                product = \
+                    int(arr_box[x + 20 * y]) * \
+                    int(arr_box[x + 20 * y + 19]) * \
+                    int(arr_box[x + 20 * y + 38]) * \
+                    int(arr_box[x + 20 * y + 57])
                 if product > biggest_product:
                     biggest_product = product
                     answer_x = x
                     answer_y = y
                     direction = "diagonal /"
-        output_string = "biggest product is: {} the coords are: ({},{}) in the direction: {}".format(biggest_product,
-                                                                                                     answer_x,
-                                                                                                     answer_y,
-                                                                                                     direction)
+        output_string = "biggest product is: {} the coords are: ({},{}) in the direction: {}".format(
+            biggest_product, answer_x, answer_y, direction
+        )
         return output_string
 
     def euler12(self):
@@ -460,11 +474,13 @@ class Euler(Function):
         for row in range(len(arr_triangle_val) - 2, -1, -1):
             for col in range(len(arr_triangle_val[row])):
                 if int(arr_triangle_val[row + 1][col]) > int(arr_triangle_val[row + 1][col + 1]):
-                    arr_triangle_val[row][col] = int(arr_triangle_val[row][col]) + \
-                                                 int(arr_triangle_val[row + 1][col])
+                    arr_triangle_val[row][col] = \
+                        int(arr_triangle_val[row][col]) + \
+                        int(arr_triangle_val[row + 1][col])
                 else:
-                    arr_triangle_val[row][col] = int(arr_triangle_val[row][col]) + \
-                                                 int(arr_triangle_val[row + 1][col + 1])
+                    arr_triangle_val[row][col] = \
+                        int(arr_triangle_val[row][col]) + \
+                        int(arr_triangle_val[row + 1][col + 1])
         return arr_triangle_val[0][0]
 
     def euler19(self):
@@ -729,14 +745,18 @@ class Euler(Function):
                                         str(product_two)) or product_two < 1000 or product_two > 9999):
                                     fail_two = True
                             if not fail_one:
-                                self.mHalloObject.printer.output(str(a_digit) + str(b_digit) + "*" + str(c_digit) +
-                                                                 str(d_digit) + str(e_digit) + "=" +
-                                                                 str(product_one))
+                                self.mHalloObject.printer.output(
+                                    str(a_digit) + str(b_digit) + "*" + str(c_digit) +
+                                    str(d_digit) + str(e_digit) + "=" +
+                                    str(product_one)
+                                )
                                 products.append(product_one)
                             if not fail_two:
-                                self.mHalloObject.printer.output(str(a_digit) + "*" + str(b_digit) + str(c_digit) +
-                                                                 str(d_digit) + str(e_digit) + "=" +
-                                                                 str(product_two))
+                                self.mHalloObject.printer.output(
+                                    str(a_digit) + "*" + str(b_digit) + str(c_digit) +
+                                    str(d_digit) + str(e_digit) + "=" +
+                                    str(product_two)
+                                )
                                 products.append(product_two)
         products = list(set(products))
         return sum(products)
@@ -780,10 +800,13 @@ class Euler(Function):
                             self.mHalloObject.printer.output("found one. {}/{}".format(numerator, denominator))
                             total_numerator_factors = total_numerator_factors + numerator_factors_new
                             total_denominator_factors = total_denominator_factors + denominator_factors_new
-        total_denominator_factors_new = simp_frac_obj.list_minus(total_denominator_factors,
-                                                                 simp_frac_obj.list_intersection(
-                                                                     total_denominator_factors,
-                                                                     total_numerator_factors))
+        total_denominator_factors_new = simp_frac_obj.list_minus(
+            total_denominator_factors,
+            simp_frac_obj.list_intersection(
+                total_denominator_factors,
+                total_numerator_factors
+            )
+        )
         total_denominator_new = simp_frac_obj.list_product(total_denominator_factors_new)
         return total_denominator_new
 
@@ -934,7 +957,7 @@ class Euler(Function):
         for pandigital in pandigitals:
             if (int(str(pandigital)[1:4]) % 2 == 0 and int(str(pandigital)[2:5]) % 3 == 0 and int(
                     str(pandigital)[3:6]) % 5 == 0 and int(str(pandigital)[4:7]) % 7 == 0 and int(
-                    str(pandigital)[5:8]) % 11 == 0):
+                str(pandigital)[5:8]) % 11 == 0):
                 if int(str(pandigital)[6:9]) % 13 == 0 and int(str(pandigital)[7:10]) % 17 == 0:
                     self.mHalloObject.printer.output("found one: ".format(pandigital))
                     pandigital_sum += pandigital
@@ -1260,10 +1283,9 @@ class Euler(Function):
                         check = self.check_concat_primes(num, num_three)
                         if not check:
                             continue
-                        self.mHalloObject.printer.output("Found fourlist {}".format([num_one,
-                                                                                     num_two,
-                                                                                     num_three,
-                                                                                     num]))
+                        self.mHalloObject.printer.output("Found fourlist {}".format(
+                            [num_one, num_two, num_three, num]
+                        ))
                         big_dict[num_one][num_two][num_three][num] = {}
                         for num_four in big_dict[num_one][num_two][num_three]:
                             if num_four == num:
@@ -1271,8 +1293,10 @@ class Euler(Function):
                             check = self.check_concat_primes(num, num_four)
                             if not check:
                                 continue
-                            return "sum({}) = {}".format([num_one, num_two, num_three, num_four, num],
-                                                         sum([num_one, num_two, num_three, num_four, num]))
+                            return "sum({}) = {}".format(
+                                [num_one, num_two, num_three, num_four, num],
+                                sum([num_one, num_two, num_three, num_four, num])
+                            )
 
     def euler67(self):
         # this is the same as  problem 18, but bigger file.
@@ -1285,9 +1309,11 @@ class Euler(Function):
         for row in range(len(arr_triangle_val) - 2, -1, -1):
             for col in range(len(arr_triangle_val[row])):
                 if int(arr_triangle_val[row + 1][col]) > int(arr_triangle_val[row + 1][col + 1]):
-                    arr_triangle_val[row][col] = int(arr_triangle_val[row][col]) + \
-                                                 int(arr_triangle_val[row + 1][col])
+                    arr_triangle_val[row][col] = \
+                        int(arr_triangle_val[row][col]) + \
+                        int(arr_triangle_val[row + 1][col])
                 else:
-                    arr_triangle_val[row][col] = int(arr_triangle_val[row][col]) + \
-                                                 int(arr_triangle_val[row + 1][col + 1])
+                    arr_triangle_val[row][col] = \
+                        int(arr_triangle_val[row][col]) + \
+                        int(arr_triangle_val[row + 1][col + 1])
         return arr_triangle_val[0][0]

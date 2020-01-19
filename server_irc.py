@@ -139,9 +139,11 @@ class ServerIRC(Server):
             return
         # Identify with nickserv
         if self.nickserv_pass:
-            ident_evt = EventMessage(self, None,
-                                     self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick),
-                                     "IDENTIFY {}".format(self.nickserv_pass), inbound=False)
+            ident_evt = EventMessage(
+                self, None,
+                self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick),
+                "IDENTIFY {}".format(self.nickserv_pass), inbound=False
+            )
             self.send(ident_evt)
         # Join channels
         self.hallo.printer.output("Joining channels on {}, identifying.".format(self.name))
@@ -291,10 +293,12 @@ class ServerIRC(Server):
                         data_line_line = "\x01{}\x01".format(data_line_line)
                     self.send_raw("{} {} :{}".format(msg_type_name, dest_addr, data_line_line))
                     # Log sent data, if it's not message or notice
-                    self.hallo.printer.output(event_class(event.server, event.channel, event.user,
-                                                          data_line_line, inbound=False))
-                    self.hallo.logger.log(event_class(event.server, event.channel, event.user,
-                                                      data_line_line, inbound=False))
+                    self.hallo.printer.output(event_class(
+                        event.server, event.channel, event.user, data_line_line, inbound=False
+                    ))
+                    self.hallo.logger.log(event_class(
+                        event.server, event.channel, event.user, data_line_line, inbound=False
+                    ))
             return
         error = MessageError("This event type, {}, is not currently supported to send on IRC servers".format(
             event.__class__.__name__))
@@ -434,8 +438,10 @@ class ServerIRC(Server):
         if not message_private_bool:
             message_channel = self.get_channel_by_address(message_destination_name.lower(), message_destination_name)
         # Create message event
-        message_evt = EventMessage(self, None if message_private_bool else message_channel,
-                                   message_sender, message_text).with_raw_data(RawDataIRC(message_line))
+        message_evt = EventMessage(
+            self, None if message_private_bool else message_channel,
+            message_sender, message_text
+        ).with_raw_data(RawDataIRC(message_line))
         # Print and Log the message
         self.hallo.printer.output(message_evt)
         self.hallo.logger.log(message_evt)
@@ -485,21 +491,26 @@ class ServerIRC(Server):
         self.hallo.logger.log(ctcp_evt)
         # Reply to certain types of CTCP command
         if message_ctcp_command.lower() == 'version':
-            ctcp_evt.reply(ctcp_evt.create_response("\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01",
-                                                    event_class=EventNotice))
+            ctcp_evt.reply(ctcp_evt.create_response(
+                "\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01", event_class=EventNotice)
+            )
         elif message_ctcp_command.lower() == 'time':
-            time_text = ("\x01TIME Fribsday 15 Nov 2024 {}:{}:{} " +
-                         "GMT\x01").format(str(time.gmtime()[3] + 100).rjust(2, '0'),
-                                           str(time.gmtime()[4] + 20).rjust(2, '0'),
-                                           str(time.gmtime()[5]).rjust(2, '0'))
+            time_text = (
+                "\x01TIME Fribsday 15 Nov 2024 {}:{}:{} GMT\x01"
+            ).format(
+                str(time.gmtime()[3] + 100).rjust(2, '0'),
+                str(time.gmtime()[4] + 20).rjust(2, '0'),
+                str(time.gmtime()[5]).rjust(2, '0')
+            )
             ctcp_evt.reply(ctcp_evt.create_response(time_text, event_class=EventNotice))
         elif message_ctcp_command.lower() == 'ping':
             ctcp_evt.reply(ctcp_evt.create_response("\x01PING {}\x01".format(message_ctcp_arguments),
                                                     event_class=EventNotice))
         elif message_ctcp_command.lower() == 'userinfo':
-            hallo_info = "\x01Hello, I'm hallo, I'm a robot who does a few different things," \
-                         " mostly roll numbers and choose things," \
-                         " dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01"
+            hallo_info = \
+                "\x01Hello, I'm hallo, I'm a robot who does a few different things," \
+                " mostly roll numbers and choose things," \
+                " dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01"
             ctcp_evt.reply(ctcp_evt.create_response(hallo_info, event_class=EventNotice))
         elif message_ctcp_command.lower() == 'clientinfo':
             ctcp_evt.reply(ctcp_evt.create_response("\x01VERSION, NOTICE, TIME, USERINFO and obviously "
@@ -665,7 +676,7 @@ class ServerIRC(Server):
         notice_client = self.get_user_by_address(notice_client_name.lower(), notice_client_name)
         notice_client.update_activity()
         # Create notice event
-        notice_event = EventNotice(self, notice_channel, notice_client, notice_message)\
+        notice_event = EventNotice(self, notice_channel, notice_client, notice_message) \
             .with_raw_data(RawDataIRC(notice_line))
         # Print to console, log to file
         self.hallo.printer.output(notice_event)
@@ -709,7 +720,7 @@ class ServerIRC(Server):
         nick_client.name = nick_new_nick
         nick_client.address = nick_new_nick.lower()
         # Create name change event
-        chname_evt = EventNameChange(self, nick_client, nick_client_name, nick_new_nick)\
+        chname_evt = EventNameChange(self, nick_client, nick_client_name, nick_new_nick) \
             .with_raw_data(RawDataIRC(nick_line))
         # Printing and logging
         self.hallo.printer.output(chname_evt)
@@ -734,7 +745,7 @@ class ServerIRC(Server):
         invited_client = self.get_user_by_address(invited_client_name.lower(), invited_client_name)
         invite_channel = self.get_channel_by_address(invite_channel_name.lower(), invite_channel_name)
         # Create invite event
-        invite_evt = EventInvite(self, invite_channel, inviter_client, invited_client)\
+        invite_evt = EventInvite(self, invite_channel, inviter_client, invited_client) \
             .with_raw_data(RawDataIRC(invite_line))
         # Printing and logging
         self.hallo.printer.output(invite_evt)
@@ -762,7 +773,7 @@ class ServerIRC(Server):
         kicked_client = self.get_user_by_address(kicked_client_name.lower(), kicked_client_name)
         kicking_client = self.get_user_by_address(kicking_user_name.lower(), kicking_user_name)
         # Create kick event
-        kick_evt = EventKick(self, kick_channel, kicking_client, kicked_client, kick_message)\
+        kick_evt = EventKick(self, kick_channel, kicking_client, kicked_client, kick_message) \
             .with_raw_data(RawDataIRC(kick_line))
         # Log, if applicable
         self.hallo.printer.output(kick_evt)
@@ -970,8 +981,11 @@ class ServerIRC(Server):
             self._check_useridentity_user = user_obj.address
             self._check_useridentity_result = None
             # send whatever request
-            self.send(EventMessage(self, None, nickserv_obj,
-                                   "{} {}".format(self.nickserv_ident_command, user_obj.address), inbound=False))
+            self.send(EventMessage(
+                self, None, nickserv_obj,
+                "{} {}".format(self.nickserv_ident_command, user_obj.address),
+                inbound=False
+            ))
             # loop for 5 seconds
             for _ in range(10):
                 # if response

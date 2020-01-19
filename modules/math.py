@@ -26,14 +26,17 @@ class Hailstone(Function):
         """Returns the hailstone sequence for a given number. Format: hailstone <number>"""
         line_clean = event.command_args.strip().lower()
         if not line_clean.isdigit():
-            return event.create_response("Error, the hailstone function has to be given with a number " +
-                                         "(to generate the collatz sequence of.)")
+            return event.create_response(
+                "Error, the hailstone function has to be given with a number " +
+                "(to generate the collatz sequence of.)"
+            )
         number = int(line_clean)
         if number > Hailstone.LIMIT:
             return event.create_response("Error, this is above the limit for this function.")
         sequence = self.collatz_sequence([number])
-        output_string = "Hailstone (Collatz) sequence for {}: " \
-                        "{} ({} steps.)".format(number, "->".join(str(x) for x in sequence), len(sequence))
+        output_string = \
+            "Hailstone (Collatz) sequence for {}: " \
+            "{} ({} steps.)".format(number, "->".join(str(x) for x in sequence), len(sequence))
         return event.create_response(output_string)
 
     def collatz_sequence(self, sequence):
@@ -91,18 +94,26 @@ class NumberWord(Function):
 
     def number_word(self, number, lang="american"):
         # Set up some arrays
-        digits = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven',
-                  'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen']
+        digits = [
+            'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven',
+            'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'
+        ]
         tens = ['zero', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
-        normal_segs = ['', 'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion',
-                       'septillion', 'octillion', 'nonillion', 'decillion', 'undecillion', 'duodecillion',
-                       'tredecillion']
-        european_segs = ['', 'thousand', 'million', 'milliard', 'billion', 'billiard', 'trillion', 'trilliard',
-                         'quadrillion', 'quadrilliard', 'quintillion', 'quintilliard', 'sextillion', 'sextilliard',
-                         'septillion']
-        english_segs = ['', 'thousand', 'million', 'thousand million', 'billion', 'thousand billion', 'trillion',
-                        'thousand trillion', 'quadrillion', 'thousand quadrillion', 'quintillion',
-                        'thousand quintillion', 'sextillion', 'thousand sextillion', 'septillion']
+        normal_segs = [
+            '', 'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion',
+            'septillion', 'octillion', 'nonillion', 'decillion', 'undecillion', 'duodecillion',
+            'tredecillion'
+        ]
+        european_segs = [
+            '', 'thousand', 'million', 'milliard', 'billion', 'billiard', 'trillion', 'trilliard',
+            'quadrillion', 'quadrilliard', 'quintillion', 'quintilliard', 'sextillion', 'sextilliard',
+            'septillion'
+        ]
+        english_segs = [
+            '', 'thousand', 'million', 'thousand million', 'billion', 'thousand billion', 'trillion',
+            'thousand trillion', 'quadrillion', 'thousand quadrillion', 'quintillion',
+            'thousand quintillion', 'sextillion', 'thousand sextillion', 'septillion'
+        ]
         # Check for amount of decimal points
         if number.count('.') > 1:
             return "There's too many decimal points in that."
@@ -182,8 +193,10 @@ class PrimeFactors(Function):
         # Name for use in help listing
         self.help_name = "prime factors"
         # Names which can be used to address the Function
-        self.names = {"prime factors", "prime factor", "primefactors", "primefactor", "factors",
-                      "factorise", "factorize"}
+        self.names = {
+            "prime factors", "prime factor", "primefactors", "primefactor", "factors",
+            "factorise", "factorize"
+        }
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the prime factors of a given number. Format: prime factors <number>"
 
@@ -197,14 +210,17 @@ class PrimeFactors(Function):
             calc_obj = function_dispatcher.get_function_object(calc_func)  # type: Calculate
             number_str = calc_obj.process_calculation(line_clean)
             if "." in number_str:
-                return event.create_response("Error, this calculation does not result in an integer. " +
-                                             "The answer is: {}".format(number_str))
+                return event.create_response(
+                    "Error, this calculation does not result in an integer. " +
+                    "The answer is: {}".format(number_str)
+                )
             number = int(number_str)
         else:
             return event.create_response("Error, this is not a valid number or calculation.")
         prime_factors = self.find_prime_factors(number)
-        return event.create_response("The prime factors of {} are: {}.".format(number,
-                                                                               "x".join(str(x) for x in prime_factors)))
+        return event.create_response(
+            "The prime factors of {} are: {}.".format(number, "x".join(str(x) for x in prime_factors))
+        )
 
     def find_prime_factors(self, number):
         number = int(number)
@@ -237,8 +253,9 @@ class ChangeOptions(Function):
         # Names which can be used to address the Function
         self.names = {"change options", "changeoptions", "change", "change ways"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Returns the different ways to give change for a given amount (in pence, using british " \
-                         "coins.) Format: change_options <number>"
+        self.help_docs = \
+            "Returns the different ways to give change for a given amount (in pence, using british " \
+            "coins.) Format: change_options <number>"
 
     def run(self, event):
         """
@@ -253,8 +270,9 @@ class ChangeOptions(Function):
         if number <= 0:
             return event.create_response("Error, input must be a positive integer.")
         if number > 20:
-            return event.create_response("Error, for reasons of output length, " +
-                                         "I can't return change options for more than 20 pence.")
+            return event.create_response(
+                "Error, for reasons of output length, I can't return change options for more than 20 pence."
+            )
         coins = [200, 100, 50, 20, 10, 5, 2, 1]
         options = self.change_options(coins, 0, number)
         output_string = 'Possible ways to give that change: '
@@ -323,8 +341,9 @@ class HighestCommonFactor(Function):
         # Names which can be used to address the Function
         self.names = {"highest common factor", "highestcommonfactor", "hcf"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Returns the highest common factor of two numbers. " \
-                         "Format: highest common factor <number1> <number2>"
+        self.help_docs = \
+            "Returns the highest common factor of two numbers. " \
+            "Format: highest common factor <number1> <number2>"
 
     def run(self, event):
         # Getting function_dispatcher and required function objects
@@ -366,8 +385,10 @@ class SimplifyFraction(Function):
         # Name for use in help listing
         self.help_name = "simplify fraction"
         # Names which can be used to address the Function
-        self.names = {"simplify fraction", "simplifyfraction", "fraction", "simple fraction", "base fraction",
-                      "fraction simplify"}
+        self.names = {
+            "simplify fraction", "simplifyfraction", "fraction", "simple fraction", "base fraction",
+            "fraction simplify"
+        }
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns a fraction in its simplest form. Format: simplify fraction <numerator>/<denominator>"
 
@@ -394,14 +415,16 @@ class SimplifyFraction(Function):
         # Sort all this and get the value
         numerator_factors = prime_factors_obj.find_prime_factors(abs(numerator))
         denominator_factors = prime_factors_obj.find_prime_factors(abs(denominator))
-        numerator_factors_new = self.list_minus(numerator_factors, self.list_intersection(denominator_factors,
-                                                                                          numerator_factors))
-        denominator_factors_new = self.list_minus(denominator_factors, self.list_intersection(denominator_factors,
-                                                                                              numerator_factors))
+        numerator_factors_new = self.list_minus(
+            numerator_factors, self.list_intersection(denominator_factors, numerator_factors)
+        )
+        denominator_factors_new = self.list_minus(
+            denominator_factors, self.list_intersection(denominator_factors, numerator_factors)
+        )
         numerator_new = self.list_product(numerator_factors_new)
         denominator_new = self.list_product(denominator_factors_new)
         numerator_out = "{}/{}".format(numerator, denominator)
-        denominator_out = "{}{}/{}".format("-"*negative, numerator_new, denominator_new)
+        denominator_out = "{}{}/{}".format("-" * negative, numerator_new, denominator_new)
         if denominator_new == 1:
             denominator_out = str(numerator_new)
         return event.create_response("{} = {}.".format(numerator_out, denominator_out))
@@ -444,8 +467,9 @@ class Calculate(Function):
         # Names which can be used to address the Function
         self.names = {"calc", "calculate", "calculator"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Calculate function, calculates the answer to mathematical expressions. " \
-                         "Format: calc <calculation>"
+        self.help_docs = \
+            "Calculate function, calculates the answer to mathematical expressions. " \
+            "Format: calc <calculation>"
 
     def run(self, event):
         calc = event.command_args
@@ -565,9 +589,11 @@ class Calculate(Function):
         temp_answer = self.process_calculation(running_calc)
         running_calc = "({})".format(running_calc)
         before = calc.split(running_calc)[0]
-        trig_dict = {'acos': math.acos, 'asin': math.asin, 'atan': math.atan, 'cos': math.cos, 'sin': math.sin,
-                     'tan': math.tan, 'sqrt': math.sqrt, 'log': math.log, 'acosh': math.acosh, 'asinh': math.asinh,
-                     'atanh': math.atanh, 'cosh': math.cosh, 'sinh': math.sinh, 'tanh': math.tanh, 'gamma': math.gamma}
+        trig_dict = {
+            'acos': math.acos, 'asin': math.asin, 'atan': math.atan, 'cos': math.cos, 'sin': math.sin,
+            'tan': math.tan, 'sqrt': math.sqrt, 'log': math.log, 'acosh': math.acosh, 'asinh': math.asinh,
+            'atanh': math.atanh, 'cosh': math.cosh, 'sinh': math.sinh, 'tanh': math.tanh, 'gamma': math.gamma
+        }
         max_len = 0
         max_name = ""
         for trig_name in trig_dict:

@@ -130,8 +130,10 @@ class Boop(Function):
         """Boops people. Format: boop <name>"""
         line_clean = event.command_args.strip().lower()
         if line_clean == '':
-            return event.create_response("Error, this function boops people, as such you need to specify a person "
-                                         "for me to boop, in the form 'Hallo boop <name>' but without the <> brackets.")
+            return event.create_response(
+                "Error, this function boops people, as such you need to specify a person "
+                "for me to boop, in the form 'Hallo boop <name>' but without the <> brackets."
+            )
         # Get useful objects
         server_obj = event.server
         # Split arguments, see how many there are.
@@ -139,8 +141,10 @@ class Boop(Function):
         # If one argument, check that the user is in the current channel.
         if len(line_split) == 1:
             if event.channel is None:
-                return event.create_response("Error, please provide a username and a channel, "
-                                             "if using function from private message.")
+                return event.create_response(
+                    "Error, please provide a username and a channel, "
+                    "if using function from private message."
+                )
             dest_user_obj = server_obj.get_user_by_name(line_clean)
             if dest_user_obj is None \
                     or not dest_user_obj.online \

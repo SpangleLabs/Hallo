@@ -46,8 +46,11 @@ class Server(metaclass=ABCMeta):
         self.state = Server.STATE_CLOSED  # Current state of the server, replacing open
 
     def __eq__(self, other):
-        return isinstance(other, Server) and self.hallo == other.hallo and self.type == other.type and \
-               self.name.lower() == other.name.lower()
+        return \
+            isinstance(other, Server) \
+            and self.hallo == other.hallo \
+            and self.type == other.type \
+            and self.name.lower() == other.name.lower()
 
     def __hash__(self):
         return hash((self.hallo, self.type, self.name.lower()))

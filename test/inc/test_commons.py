@@ -213,8 +213,7 @@ def test_get_random_choice():
                 assert len(rand_list) == count, "Random choice list is the wrong length. " + str(rand_list) + \
                                                 " not " + str(count) + " elements"
                 for rand in rand_list:
-                    assert rand in input_list, "Random choice was not in the list. " + \
-                                               str(rand) + " not in " + str(input_list)
+                    assert rand in input_list
 
 
 def test_get_random_int():

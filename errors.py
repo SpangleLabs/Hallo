@@ -2,6 +2,7 @@ import traceback
 from abc import ABCMeta
 from datetime import datetime
 
+
 # Graphviz graph of Error class relations
 # digraph G {
 #
@@ -93,14 +94,16 @@ class PassiveFunctionError(ExceptionError):
         self.event = event
 
     def get_log_line(self):
-        output = "Error encountered running passive function {} {} on event type: {}\n" \
-                 "Event log line: {}\n" \
-                 "Exception: {}".format(
-                    self.function.__class__.__module__,
-                    self.function.__class__.__name__,
-                    self.event.__class__.__name__,
-                    self.event.get_log_line(),
-                    self.exception)
+        output = \
+            "Error encountered running passive function {} {} on event type: {}\n" \
+            "Event log line: {}\n" \
+            "Exception: {}".format(
+                self.function.__class__.__module__,
+                self.function.__class__.__name__,
+                self.event.__class__.__name__,
+                self.event.get_log_line(),
+                self.exception
+            )
         return output
 
     def get_print_line(self):
@@ -126,16 +129,18 @@ class FunctionError(PassiveFunctionError):
         self.event = event  # Enables type annotations to work correctly.
 
     def get_log_line(self):
-        output = "Error encountered running function {} {} on event with the text: {}\n" \
-                 "In chat: {} on server: {} by user: {}.\n" \
-                 "Exception: {}".format(
-                    self.function.__class__.__module__,
-                    self.function.__class__.__name__,
-                    self.event.text,
-                    self.event.channel.name if self.event.channel is not None else self.event.user.name,
-                    self.event.server.name,
-                    self.event.user.name if self.event.user is not None else None,
-                    self.exception)
+        output = \
+            "Error encountered running function {} {} on event with the text: {}\n" \
+            "In chat: {} on server: {} by user: {}.\n" \
+            "Exception: {}".format(
+                self.function.__class__.__module__,
+                self.function.__class__.__name__,
+                self.event.text,
+                self.event.channel.name if self.event.channel is not None else self.event.user.name,
+                self.event.server.name,
+                self.event.user.name if self.event.user is not None else None,
+                self.exception
+            )
         return output
 
     def get_print_line(self):
@@ -159,18 +164,19 @@ class FunctionNotFoundError(Error):
         self.event = event
 
     def get_log_line(self):
-        return "Failed to find a function matching the event with text: {}\n" \
-               "In chat: {} on server: {} by user {}.".format(
-                    self.event.text,
-                    self.event.channel.name if self.event.channel is not None else self.event.user.name,
-                    self.event.server.name,
-                    self.event.user.name if self.event.user is not None else None
-                )
+        return \
+            "Failed to find a function matching the event with text: {}\n" \
+            "In chat: {} on server: {} by user {}.".format(
+                self.event.text,
+                self.event.channel.name if self.event.channel is not None else self.event.user.name,
+                self.event.server.name,
+                self.event.user.name if self.event.user is not None else None
+            )
 
     def get_print_line(self):
         return "Function not found matching message: {}".format(
-                    self.event.text
-                )
+            self.event.text
+        )
 
 
 class FunctionNotAllowedError(Error):
@@ -187,25 +193,25 @@ class FunctionNotAllowedError(Error):
         self.event = event
 
     def get_log_line(self):
-        return "User {} in channel {} on server {} tried to use function: {}.\n" \
-               "The message was: {}".format(
-                    self.event.user.name if self.event.user is not None else None,
-                    self.event.channel.name if self.event.channel is not None else self.event.user.name,
-                    self.event.server.name,
-                    self.function.__name__,
-                    self.event.text
-                )
+        return "User {} in channel {} on server {} tried to use function: {}.\nThe message was: {}".format(
+            self.event.user.name if self.event.user is not None else None,
+            self.event.channel.name if self.event.channel is not None else self.event.user.name,
+            self.event.server.name,
+            self.function.__name__,
+            self.event.text
+        )
 
     def get_print_line(self):
-        return "Permissions forbid function {} {} being used by {} in channel {} on server {}.\n" \
-               "The message was: {}".format(
-                    self.function.__module__,
-                    self.function.__name__,
-                    self.event.user.name if self.event.user is not None else None,
-                    self.event.channel.name if self.event.channel is not None else self.event.user.name,
-                    self.event.server.name,
-                    self.event.text
-                )
+        return \
+            "Permissions forbid function {} {} being used by {} in channel {} on server {}.\n" \
+            "The message was: {}".format(
+                self.function.__module__,
+                self.function.__name__,
+                self.event.user.name if self.event.user is not None else None,
+                self.event.channel.name if self.event.channel is not None else self.event.user.name,
+                self.event.server.name,
+                self.event.text
+            )
 
 
 class SubscriptionCheckError(ExceptionError):

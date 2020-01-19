@@ -190,9 +190,11 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
         test_type = modules.convert.ConvertType(test_repo, "currency")
         test_type.base_unit = modules.convert.ConvertUnit(test_type, ["EUR"], 1)
         test_repo.add_type(test_type)
-        currency_codes = ["USD", "JPY", "BGN", "CZK", "DKK", "GBP", "HUF", "PLN", "RON", "SEK", "CHF", "ISK", "NOK",
-                          "HRK", "RUB", "TRY", "AUD", "BRL", "CAD", "CNY", "HKD", "IDR", "ILS", "INR", "KRW", "MXN",
-                          "NZD", "PHP", "SGD", "THB", "ZAR"]
+        currency_codes = [
+            "USD", "JPY", "BGN", "CZK", "DKK", "GBP", "HUF", "PLN", "RON", "SEK", "CHF", "ISK", "NOK",
+            "HRK", "RUB", "TRY", "AUD", "BRL", "CAD", "CNY", "HKD", "IDR", "ILS", "INR", "KRW", "MXN",
+            "NZD", "PHP", "SGD", "THB", "ZAR"
+        ]
         for code in currency_codes:
             test_unit = modules.convert.ConvertUnit(test_type, [code], 0)
             test_type.add_unit(test_unit)

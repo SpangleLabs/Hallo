@@ -70,22 +70,29 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             self.hallo.add_server(serv2)
             # Set up rss feeds
             rfl = SubscriptionRepo()
-            rf1 = RssSub(chan1.server, chan1, "http://spangle.org.uk/hallo/test_rss.xml?1",
-                         title="test_feed1", update_frequency=Commons.load_time_delta("PT3600S"))
+            rf1 = RssSub(
+                chan1.server, chan1, "http://spangle.org.uk/hallo/test_rss.xml?1",
+                title="test_feed1", update_frequency=Commons.load_time_delta("PT3600S")
+            )
             rfl.add_sub(rf1)
-            rf2 = RssSub(chan2.server, chan2, "http://spangle.org.uk/hallo/test_rss.xml?2",
-                         title="test_feed2", update_frequency=Commons.load_time_delta("PT3600S"))
+            rf2 = RssSub(
+                chan2.server, chan2, "http://spangle.org.uk/hallo/test_rss.xml?2",
+                title="test_feed2", update_frequency=Commons.load_time_delta("PT3600S")
+            )
             rfl.add_sub(rf2)
-            rf3 = RssSub(chan3.server, chan3, "http://spangle.org.uk/hallo/test_rss.xml?3",
-                         title="test_feed1", update_frequency=Commons.load_time_delta("PT3600S"))
+            rf3 = RssSub(
+                chan3.server, chan3, "http://spangle.org.uk/hallo/test_rss.xml?3",
+                title="test_feed1", update_frequency=Commons.load_time_delta("PT3600S")
+            )
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
             rss_check_class = self.function_dispatcher.get_function_by_name("check subscription")
             rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubscriptionCheck
             rss_check_obj.subscription_repo = rfl
             # Test running all feed updates
-            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                           "rss check all"))
+            self.function_dispatcher.dispatch(EventMessage(
+                self.server, self.test_chan, self.test_user, "rss check all"
+            ))
             # Check original calling channel data
             serv0_data = self.server.get_send_data(1, self.test_chan, EventMessage)
             assert "subscription updates were found" in serv0_data[0].text
@@ -103,8 +110,9 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             # Check test server 2 data
             serv2.get_send_data(3, chan3, EventMessage)
             # Test running with no new updates.
-            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                           "rss check all"))
+            self.function_dispatcher.dispatch(EventMessage(
+                self.server, self.test_chan, self.test_user, "rss check all"
+            ))
             data = self.server.get_send_data(1, self.test_chan, EventMessage)
             assert "no updates" in data[0].text, "No further updates should be found."
         finally:
@@ -126,22 +134,29 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             self.hallo.add_server(serv2)
             # Set up rss feeds
             rfl = SubscriptionRepo()
-            rf1 = RssSub(chan1.server, chan1, "http://spangle.org.uk/hallo/test_rss.xml?1",
-                         title="test_feed1", update_frequency=Commons.load_time_delta("PT3600S"))
+            rf1 = RssSub(
+                chan1.server, chan1, "http://spangle.org.uk/hallo/test_rss.xml?1",
+                title="test_feed1", update_frequency=Commons.load_time_delta("PT3600S")
+            )
             rfl.add_sub(rf1)
-            rf2 = RssSub(chan2.server, chan2, "http://spangle.org.uk/hallo/test_rss.xml?2",
-                         title="test_feed2", update_frequency=Commons.load_time_delta("PT3600S"))
+            rf2 = RssSub(
+                chan2.server, chan2, "http://spangle.org.uk/hallo/test_rss.xml?2",
+                title="test_feed2", update_frequency=Commons.load_time_delta("PT3600S")
+            )
             rfl.add_sub(rf2)
-            rf3 = RssSub(chan3.server, chan3, "http://spangle.org.uk/hallo/test_rss.xml?3",
-                         title="test_feed1", update_frequency=Commons.load_time_delta("PT3600S"))
+            rf3 = RssSub(
+                chan3.server, chan3, "http://spangle.org.uk/hallo/test_rss.xml?3",
+                title="test_feed1", update_frequency=Commons.load_time_delta("PT3600S")
+            )
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
             rss_check_class = self.function_dispatcher.get_function_by_name("check subscription")
             rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubscriptionCheck
             rss_check_obj.subscription_repo = rfl
             # Invalid title
-            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user,
-                                                           "rss check Not a valid feed"))
+            self.function_dispatcher.dispatch(EventMessage(
+                self.server, self.test_chan, self.test_user, "rss check Not a valid feed"
+            ))
             data = self.server.get_send_data(1, self.test_chan, EventMessage)
             assert "error" in data[0].text.lower()
             # Correct title but wrong channel
@@ -178,14 +193,20 @@ class FeedCheckTest(TestBase, unittest.TestCase):
             self.hallo.add_server(serv2)
             # Set up rss feeds
             rfl = SubscriptionRepo()
-            rf1 = RssSub(chan1.server, chan1, "http://spangle.org.uk/hallo/test_rss.xml?1",
-                         title="test_feed1", update_frequency=Commons.load_time_delta("PT3600S"))
+            rf1 = RssSub(
+                chan1.server, chan1, "http://spangle.org.uk/hallo/test_rss.xml?1",
+                title="test_feed1", update_frequency=Commons.load_time_delta("PT3600S")
+            )
             rfl.add_sub(rf1)
-            rf2 = RssSub(chan2.server, chan2, "http://spangle.org.uk/hallo/test_rss.xml?2",
-                         title="test_feed2", update_frequency=Commons.load_time_delta("PT3600S"))
+            rf2 = RssSub(
+                chan2.server, chan2, "http://spangle.org.uk/hallo/test_rss.xml?2",
+                title="test_feed2", update_frequency=Commons.load_time_delta("PT3600S")
+            )
             rfl.add_sub(rf2)
-            rf3 = RssSub(chan3.server, chan3, "http://spangle.org.uk/hallo/test_rss.xml?3",
-                         title="test_feed1", update_frequency=Commons.load_time_delta("PT3600S"))
+            rf3 = RssSub(
+                chan3.server, chan3, "http://spangle.org.uk/hallo/test_rss.xml?3",
+                title="test_feed1", update_frequency=Commons.load_time_delta("PT3600S")
+            )
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
             rss_check_class = self.function_dispatcher.get_function_by_name("check subscription")

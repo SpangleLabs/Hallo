@@ -8,8 +8,9 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_specify_invalid_type(self):
         names_1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add name type=new_type unit=unit1a new_name"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add name type=new_type unit=unit1a new_name"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "unrecognised type" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == names_1a, "Shouldn't have added new name"
@@ -17,9 +18,10 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_specified_unit_wrong(self):
         names_1a = len(self.test_unit1a.name_list)
         names_1b = len(self.test_unit1b.name_list)
-        self.function_dispatcher.dispatch(
-            EventMessage(self.server, None, self.test_user,
-                         "convert unit add name type=test_type1 unit=new_unit new_name"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add name type=test_type1 unit=new_unit new_name"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "no unit found by that name" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == names_1a, "Shouldn't have added new name anywhere"
@@ -28,8 +30,9 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_specified_unit_ambiguous(self):
         names_1b = len(self.test_unit1b.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add name unit=same_name new_name"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add name unit=same_name new_name"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "unit name is too ambiguous" in data[0].text.lower()
         assert len(self.test_unit1b.name_list) == names_1b, "Shouldn't have added new name anywhere"
@@ -38,9 +41,10 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_specified_unit_ambiguous_but_type_specified(self):
         names_1b = len(self.test_unit1b.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(
-            EventMessage(self.server, None, self.test_user,
-                         "convert unit add name type=test_type1 unit=same_name new_name"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add name type=test_type1 unit=same_name new_name"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"new_name\"" in data[0].text.lower()
         assert "the \"unit1b\" unit" in data[0].text.lower()
@@ -53,9 +57,10 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
         names_1b = len(self.test_unit1b.name_list)
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(
-            EventMessage(self.server, None, self.test_user,
-                         "convert unit add name unit=unit1a new_name=u1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add name unit=unit1a new_name=u1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -70,9 +75,9 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
         names_1b = len(self.test_unit1b.name_list)
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(
-            EventMessage(self.server, None, self.test_user,
-                         "convert unit add name unit1a \"new name\"=u1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add name unit1a \"new name\"=u1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -87,8 +92,9 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
         names_1b = len(self.test_unit1b.name_list)
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add name u1a unit1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add name u1a unit1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -103,13 +109,14 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
         names_1b = len(self.test_unit1b.name_list)
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add name unit1a u1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add name unit1a u1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == names_1a + 1, "Should have added new name to unit1a"
-        assert "u1a" in self.test_unit1a.name_list 
+        assert "u1a" in self.test_unit1a.name_list
         assert len(self.test_unit1b.name_list) == names_1b, "Shouldn't have added new name to unit1b"
         assert len(self.test_unit2a.name_list) == names_2a, "Shouldn't have added new name to unit2a"
         assert len(self.test_unit2b.name_list) == names_2b, "Shouldn't have added new name to unit2b"
@@ -119,8 +126,10 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
         names_1b = len(self.test_unit1b.name_list)
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add name unit1a u 1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add name unit1a u 1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u 1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -138,8 +147,10 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
         # Check it works
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add name unit 1a u1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add name unit 1a u1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -157,8 +168,10 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
         # Check it works
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add name unit 1a u 1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add name unit 1a u 1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u 1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -174,8 +187,10 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
         names_1a = len(self.test_unit1a.name_list)
         names_1b = len(self.test_unit1b.name_list)
         # Check it fails to find correct unit
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add name unit1a second new name"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add name unit1a second new name"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "could not parse where unit name ends and new name begins" in data[0].text.lower()
         assert "please specify with unit=<name>" in data[0].text.lower()
@@ -184,16 +199,20 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_no_new_name(self):
         names_1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add name unit1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add name unit1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "must specify both a unit name and a new name" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == names_1a, "Shouldn't have added any new name to unit1a"
 
     def test_no_new_name_specified(self):
         names_1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add name unit1a new="))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add name unit1a new="
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "new name cannot be blank" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == names_1a, "Shouldn't have added any new name to unit1a"

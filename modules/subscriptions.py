@@ -270,8 +270,10 @@ class RssSub(Subscription):
     type_name = "rss"
     """ :type : str"""
 
-    def __init__(self, server, destination, url, last_check=None, update_frequency=None,
-                 title=None, last_item_hash=None):
+    def __init__(
+            self, server, destination, url, last_check=None, update_frequency=None,
+            title=None, last_item_hash=None
+    ):
         """
         :type server: server.Server
         :type destination: destination.Destination
@@ -423,8 +425,9 @@ class RssSub(Subscription):
             description = html.unescape(rss_item.find("description").text)
             description_soup = BeautifulSoup(description, "html.parser")
             alt_text = description_soup.select_one("img")['alt']
-            output = "Update on \"{}\" RSS feed. \"{}\" {}\n" \
-                     "Alt text: {}".format(self.title, item_title, item_link, alt_text)
+            output = "Update on \"{}\" RSS feed. \"{}\" {}\nAlt text: {}".format(
+                self.title, item_title, item_link, alt_text
+            )
             channel = self.destination if isinstance(self.destination, Channel) else None
             user = self.destination if isinstance(self.destination, User) else None
             return EventMessage(self.server, channel, user, output, inbound=False)
@@ -610,7 +613,7 @@ class RedditSub(Subscription):
         file_extension = url.split(".")[-1].lower()
         if file_extension in ["png", "jpg", "jpeg", "bmp", "gif", "mp4", "gifv"]:
             if file_extension == "gifv":
-                url = url[:-4]+"mp4"
+                url = url[:-4] + "mp4"
             # Make output message
             output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n[direct image]({})".format(
                 Commons.markdown_escape(self.subreddit),
@@ -795,22 +798,29 @@ class SubscriptionAdd(Function):
         # Name for use in help listing
         self.help_name = "add subscription"
         # Names which can be used to address the function
-        name_templates = {"{0} {1}", "{1} {0}",
-                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
-        self.names = set([template.format(name, add, sub)
-                          for name in SubscriptionFactory.get_names()
-                          for template in name_templates
-                          for add in self.add_words
-                          for sub in self.sub_words])
+        name_templates = {
+            "{0} {1}", "{1} {0}", "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"
+        }
+        self.names = set([
+            template.format(name, add, sub)
+            for name in SubscriptionFactory.get_names()
+            for template in name_templates
+            for add in self.add_words
+            for sub in self.sub_words
+        ])
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Adds a new subscription to be checked for updates which will be posted to the current " \
-                         "location." \
-                         " Format: add subscription <sub type> <sub details> <update period?>"
+        self.help_docs = \
+            "Adds a new subscription to be checked for updates which will be posted to the current location." \
+            " Format: add subscription <sub type> <sub details> <update period?>"
 
     def run(self, event):
         # Construct type name
-        sub_type_name = " ".join([w for w in event.command_name.lower().split()
-                                  if w not in self.sub_words + self.add_words]).strip()
+        sub_type_name = " ".join([
+            w
+            for w
+            in event.command_name.lower().split()
+            if w not in self.sub_words + self.add_words
+        ]).strip()
         # Get class from sub type name
         sub_class = SubscriptionFactory.get_class_by_name(sub_type_name)
         # Get current RSS feed list
@@ -827,8 +837,9 @@ class SubscriptionAdd(Function):
             # Save list
             sub_repo.save_json()
         # Send response
-        return event.create_response("Created a new {} subscription for {}".format(sub_class.type_name,
-                                                                                   sub_obj.get_name()))
+        return event.create_response("Created a new {} subscription for {}".format(
+            sub_class.type_name, sub_obj.get_name()
+        ))
 
 
 class SubscriptionRemove(Function):
@@ -846,16 +857,20 @@ class SubscriptionRemove(Function):
         # Name for use in help listing
         self.help_name = "remove subscription"
         # Names which can be used to address the function
-        name_templates = {"{0} {1}", "{1} {0}", "{1} {2}", "{2} {1}",
-                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
-        self.names = set([template.format(name, remove, sub)
-                          for name in SubscriptionFactory.get_names()
-                          for template in name_templates
-                          for remove in self.remove_words
-                          for sub in self.sub_words])
+        name_templates = {
+            "{0} {1}", "{1} {0}", "{1} {2}", "{2} {1}", "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"
+        }
+        self.names = set([
+            template.format(name, remove, sub)
+            for name in SubscriptionFactory.get_names()
+            for template in name_templates
+            for remove in self.remove_words
+            for sub in self.sub_words
+        ])
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Removes a specified subscription the current location. " \
-                         " Format: remove subscription <feed type> <feed title or url>"
+        self.help_docs = \
+            "Removes a specified subscription the current location. " \
+            " Format: remove subscription <feed type> <feed title or url>"
 
     def run(self, event):
         # Handy variables
@@ -870,24 +885,31 @@ class SubscriptionRemove(Function):
         # Acquire lock
         with sub_repo.sub_lock:
             # Find any feeds with specified title
-            test_subs = sub_repo.get_subs_by_name(clean_input.lower(),
-                                                  event.user if event.channel is None else event.channel)
+            test_subs = sub_repo.get_subs_by_name(
+                clean_input.lower(),
+                event.user if event.channel is None else event.channel
+            )
             if len(test_subs) == 1:
                 del_sub = test_subs[0]
                 sub_repo.remove_sub(del_sub)
-                return event.create_response(("Removed {} subscription to {}. "
-                                             "Updates will no longer be sent to " +
-                                              "{}.").format(del_sub.type_name, del_sub.get_name(),
-                                                            del_sub.destination.name))
+                return event.create_response(
+                    "Removed {} subscription to {}. Updates will no longer be sent to {}.".format(
+                        del_sub.type_name, del_sub.get_name(), del_sub.destination.name
+                    )
+                )
             if len(test_subs) > 1:
                 for del_sub in test_subs:
                     sub_repo.remove_sub(del_sub)
-                return event.create_response("Removed {} subscriptions.\n{}".
-                                             format(len(test_subs),
-                                                    "\n".join(
-                                                        ["{} - {}".format(del_sub.type_name, del_sub.get_name())
-                                                         for del_sub in test_subs]
-                                                    )))
+                return event.create_response(
+                    "Removed {} subscriptions.\n{}".format(
+                        len(test_subs),
+                        "\n".join(
+                            [
+                                "{} - {}".format(del_sub.type_name, del_sub.get_name()) for del_sub in test_subs
+                            ]
+                        )
+                    )
+                )
         return event.create_response("Error, there are no subscriptions in this channel matching that name.")
 
 
@@ -912,13 +934,16 @@ class SubscriptionCheck(Function):
         # Name for use in help listing
         self.help_name = "check subscription"
         # Names which can be used to address the function
-        name_templates = {"{0} {1}", "{1} {0}", "{1} {2}", "{2} {1}",
-                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
-        self.names = set([template.format(name, check, sub)
-                          for name in SubscriptionFactory.get_names()
-                          for template in name_templates
-                          for check in self.check_words
-                          for sub in self.sub_words])
+        name_templates = {
+            "{0} {1}", "{1} {0}", "{1} {2}", "{2} {1}", "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"
+        }
+        self.names = set([
+            template.format(name, check, sub)
+            for name in SubscriptionFactory.get_names()
+            for template in name_templates
+            for check in self.check_words
+            for sub in self.sub_words
+        ])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Checks a specified feed for updates and returns them. Format: subscription check <feed name>"
         self.subscription_repo = None
@@ -1029,13 +1054,16 @@ class SubscriptionList(Function):
         # Name for use in help listing
         self.help_name = "list subscription"
         # Names which can be used to address the function
-        name_templates = {"{0} {1}", "{1} {0}", "{1} {2}", "{2} {1}",
-                          "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"}
-        self.names = set([template.format(name, list_word, sub)
-                          for name in SubscriptionFactory.get_names()
-                          for template in name_templates
-                          for list_word in self.list_words
-                          for sub in self.sub_words])
+        name_templates = {
+            "{0} {1}", "{1} {0}", "{1} {2}", "{2} {1}", "{1} {0} {2}", "{1} {2} {0}", "{2} {0} {1}", "{0} {2} {1}"
+        }
+        self.names = set([
+            template.format(name, list_word, sub)
+            for name in SubscriptionFactory.get_names()
+            for template in name_templates
+            for list_word in self.list_words
+            for sub in self.sub_words
+        ])
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Lists subscriptions for the current channel. Format: list subscription"
 
@@ -1049,9 +1077,11 @@ class SubscriptionList(Function):
         sub_repo = sub_check_obj.get_sub_repo(hallo)
         # Find list of feeds for current channel.
         with sub_repo.sub_lock:
-            dest_searches = sub_repo.get_subs_by_destination(event.user
-                                                             if event.channel is None
-                                                             else event.channel)
+            dest_searches = sub_repo.get_subs_by_destination(
+                event.user
+                if event.channel is None
+                else event.channel
+            )
         if len(dest_searches) == 0:
             return event.create_response("There are no subscriptions posting to this destination.")
         output_lines = ["Subscriptions posting to this channel:"]

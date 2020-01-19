@@ -8,8 +8,10 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
 
     def test_specify_invalid_type(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add abbreviation type=new_type unit=unit1a abbr"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add abbreviation type=new_type unit=unit1a abbr"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "unrecognised type" in data[0].text.lower()
         assert len(self.test_unit1a.abbr_list) == abbr_unit1a, "Shouldn't have added abbreviation"
@@ -17,9 +19,10 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
     def test_specified_unit_wrong(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
-        self.function_dispatcher.dispatch(
-            EventMessage(self.server, None, self.test_user,
-                         "convert unit add abbreviation type=test_type1 unit=new_unit abbr"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add abbreviation type=test_type1 unit=new_unit abbr"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "no unit found by that name" in data[0].text.lower()
         assert len(self.test_unit1a.abbr_list) == abbr_unit1a, "Shouldn't have added abbreviation anywhere"
@@ -28,8 +31,10 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
     def test_specified_unit_ambiguous(self):
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add abbreviation unit=same_name abbr"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add abbreviation unit=same_name abbr"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "unit name is too ambiguous" in data[0].text.lower()
         assert len(self.test_unit1b.abbr_list) == abbr_unit1b, "Shouldn't have added abbreviation anywhere"
@@ -38,9 +43,10 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
     def test_specified_unit_ambiguous_but_type_specified(self):
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(
-            EventMessage(self.server, None, self.test_user,
-                         "convert unit add abbreviation type=test_type1 unit=same_name abbr"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add abbreviation type=test_type1 unit=same_name abbr"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"abbr\"" in data[0].text.lower()
         assert "the \"unit1b\" unit" in data[0].text.lower()
@@ -53,9 +59,10 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(
-            EventMessage(self.server, None, self.test_user,
-                         "convert unit add abbreviation unit=unit1a abbr=u1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user,
+            "convert unit add abbreviation unit=unit1a abbr=u1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -70,9 +77,9 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(
-            EventMessage(self.server, None, self.test_user,
-                         "convert unit add abbreviation unit1a abbr=u1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add abbreviation unit1a abbr=u1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -87,8 +94,9 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add abbreviation u1a unit1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add abbreviation u1a unit1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -103,8 +111,9 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add abbreviation unit1a u1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add abbreviation unit1a u1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -119,8 +128,9 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add abbreviation unit1a u 1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add abbreviation unit1a u 1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u 1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -138,8 +148,9 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
         # Check it works
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add abbreviation unit 1a u1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add abbreviation unit 1a u1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -157,8 +168,9 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
         # Check it works
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add abbreviation unit 1a u 1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add abbreviation unit 1a u 1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "added \"u 1a\"" in data[0].text.lower()
         assert "the \"unit1a\" unit" in data[0].text.lower()
@@ -174,8 +186,9 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
         abbr_unit1a = len(self.test_unit1a.abbr_list)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         # Check it fails to find correct unit
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add abbreviation unit1a second abbr"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add abbreviation unit1a second abbr"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "could not parse where unit name ends and abbreviation begins" in data[0].text.lower()
         assert "please specify with unit=<name>" in data[0].text.lower()
@@ -184,16 +197,18 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
 
     def test_no_abbreviation(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add abbreviation unit1a"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add abbreviation unit1a"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "must specify both a unit name and an abbreviation" in data[0].text.lower()
         assert len(self.test_unit1a.abbr_list) == abbr_unit1a, "Shouldn't have added any abbreviation to unit1a"
 
     def test_no_abbreviation_specified(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "convert unit add abbreviation unit1a abbr="))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "convert unit add abbreviation unit1a abbr="
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "abbreviation name cannot be blank" in data[0].text.lower()
         assert len(self.test_unit1a.abbr_list) == abbr_unit1a, "Shouldn't have added any abbreviation to unit1a"

@@ -28,12 +28,14 @@ def test_check_feed(hallo_getter):
     assert len(new_items) == 3
     for new_item in new_items:
         format_item = rf.format_item(new_item).text
-        assert "Item 1" in format_item or \
-               "Item 2" in format_item or \
-               "Item 3" in format_item, "Item name not in formatted item: " + format_item
-        assert "example.com/item1" in format_item or \
-               "example.com/item2" in format_item or \
-               "example.com/item3" in format_item, "Item link not in formatted item: " + format_item
+        assert \
+            "Item 1" in format_item \
+            or "Item 2" in format_item \
+            or "Item 3" in format_item, "Item name not in formatted item: " + format_item
+        assert \
+            "example.com/item1" in format_item \
+            or "example.com/item2" in format_item \
+            or "example.com/item3" in format_item, "Item link not in formatted item: " + format_item
     # Check that calling twice returns no more items
     next_items = rf.check()
     assert len(next_items) == 0, "More items should not have been found."
@@ -57,15 +59,19 @@ def test_format_item(hallo_getter):
 
 def test_needs_check(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
-    rf1 = RssSub(test_server, test_channel, "http://spangle.org.uk/hallo/test_rss.xml",
-                 last_check=datetime.now(), update_frequency=Commons.load_time_delta("P1TS"))
+    rf1 = RssSub(
+        test_server, test_channel, "http://spangle.org.uk/hallo/test_rss.xml",
+        last_check=datetime.now(), update_frequency=Commons.load_time_delta("P1TS")
+    )
     assert not rf1.needs_check()
     rf1.last_check = datetime.now() - Commons.load_time_delta("P2TS")
     assert rf1.needs_check()
     rf1.update_frequency = Commons.load_time_delta("P7TS")
     assert not rf1.needs_check()
-    rf2 = RssSub(test_server, test_channel, "http://spangle.org.uk/hallo/test_rss.xml",
-                 last_check=datetime.now(), update_frequency=Commons.load_time_delta("PT5S"))
+    rf2 = RssSub(
+        test_server, test_channel, "http://spangle.org.uk/hallo/test_rss.xml",
+        last_check=datetime.now(), update_frequency=Commons.load_time_delta("PT5S")
+    )
     assert not rf2.needs_check()
     time.sleep(10)
     assert rf2.needs_check()

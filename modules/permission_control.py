@@ -27,8 +27,9 @@ class Permissions(Function):
         # Names which can be used to address the function
         self.names = {"permissions", "permissionmask", "permission mask"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Changes the permissions of a specified permission map." \
-                         " Format: permissions <location> <permission> <on/off>"
+        self.help_docs = \
+            "Changes the permissions of a specified permission map." \
+            " Format: permissions <location> <permission> <on/off>"
 
     def run(self, event):
         line_split = event.command_args.split()
@@ -45,9 +46,11 @@ class Permissions(Function):
             return event.create_response(str(e))
         # If it comes back unspecified, generic error message
         if permission_mask is None:
-            return event.create_response("Error, I can't find that permission mask. " +
-                                         "Specify which you wish to modify as user={username}, " +
-                                         "or similarly for usergroup, channel, server or hallo.")
+            return event.create_response(
+                "Error, I can't find that permission mask. " +
+                "Specify which you wish to modify as user={username}, " +
+                "or similarly for usergroup, channel, server or hallo."
+            )
         # Turn bool_input into a boolean
         bool_bool = Commons.string_to_bool(bool_input)
         # Check if boolean input is valid
@@ -71,8 +74,10 @@ class Permissions(Function):
         """
         # If locationInput is a list with more than 2 elements, I don't know how to proceed.
         if len(location_input) > 2:
-            raise PermissionControlException("Error, I'm not sure how to interpret that PermissionMask location, "
-                                             "you've provided too many filters")
+            raise PermissionControlException(
+                "Error, I'm not sure how to interpret that PermissionMask location, "
+                "you've provided too many filters"
+            )
         # If they've specified a server & channel or server & user, parse here
         if len(location_input) == 2:
             # Find server object.
@@ -83,9 +88,11 @@ class Permissions(Function):
                 server_name = location_input[1].split("=")[1]
                 location_other = location_input[0]
             else:
-                raise PermissionControlException("Error, no server name found. If specifying 2 settings, use "
-                                                 "\"server=<server> channel=<channel>\" or "
-                                                 "\"server=<server> user=<user>\"")
+                raise PermissionControlException(
+                    "Error, no server name found. If specifying 2 settings, use "
+                    "\"server=<server> channel=<channel>\" or "
+                    "\"server=<server> user=<user>\""
+                )
             server_obj = user_obj.server.hallo.get_server_by_name(server_name)
             if server_obj is None:
                 raise PermissionControlException("Error, no server exists by that name.")
@@ -101,8 +108,10 @@ class Permissions(Function):
                 user_name = location_other.split("=")[1]
                 user = server_obj.get_user_by_name(user_name)
                 return user.permission_mask
-            raise PermissionControlException("Error, input not understood. You specified a server but not channel "
-                                             "or user?")
+            raise PermissionControlException(
+                "Error, input not understood. You specified a server but not channel "
+                "or user?"
+            )
         # # All following have length location_input ==1.
         # Check if they want to set generic hallo permissions
         if location_input[0] in self.HALLO_NAMES:
@@ -149,13 +158,17 @@ class Permissions(Function):
         if destination_obj is not None:
             test_user = user_obj.server.get_user_by_name(location_input[0])
             if not destination_obj.is_user_in_channel(test_user):
-                raise PermissionControlException("Error, I can't find that permission mask. Specify which you wish to "
-                                                 "modify as user={username}, or similarly for usergroup, channel, "
-                                                 "server or hallo.")
+                raise PermissionControlException(
+                    "Error, I can't find that permission mask. Specify which you wish to "
+                    "modify as user={username}, or similarly for usergroup, channel, "
+                    "server or hallo."
+                )
             return test_user.permission_mask
         # My normal approaches failed. Generic error message
-        raise PermissionControlException("Error, I can't find that permission mask. Specify which you wish to modify "
-                                         "as user={username}, or similarly for usergroup, channel, server or hallo.")
+        raise PermissionControlException(
+            "Error, I can't find that permission mask. Specify which you wish to modify "
+            "as user={username}, or similarly for usergroup, channel, server or hallo."
+        )
 
     def is_parameter(self, parameter_names, user_input):
         """

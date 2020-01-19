@@ -33,8 +33,9 @@ class Operator(Function):
         # Names which can be used to address the function
         self.names = {"op", "operator", "give op", "gib op", "get op", "give operator", "gib operator", "get operator"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Op member in given channel, or current channel if no channel given. Or command user if no " \
-                         "member given. Format: op <name> <channel>"
+        self.help_docs = \
+            "Op member in given channel, or current channel if no channel given. Or command user if no " \
+            "member given. Format: op <name> <channel>"
 
     def run(self, event):
         # Get server object
@@ -126,11 +127,14 @@ class DeOperator(Function):
         # Name for use in help listing
         self.help_name = "deop"
         # Names which can be used to address the function
-        self.names = {"deop", "deoperator", "unoperator", "take op", "del op", "delete op", "remove op",
-                      "take operator", "del operator", "delete op", "remove operator"}
+        self.names = {
+            "deop", "deoperator", "unoperator", "take op", "del op", "delete op", "remove op",
+            "take operator", "del operator", "delete op", "remove operator"
+        }
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Deop member in given channel, or current channel if no channel given. Or command user if " \
-                         "no member given. Format: deop <name> <channel>"
+        self.help_docs = \
+            "Deop member in given channel, or current channel if no channel given. Or command user if " \
+            "no member given. Format: deop <name> <channel>"
 
     def run(self, event):
         # Get server object
@@ -224,8 +228,9 @@ class Voice(Function):
         # Names which can be used to address the function
         self.names = {"voice", "give voice", "gib voice", "get voice"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Voice member in given channel, or current channel if no channel given, or command user if " \
-                         "no member given. Format: voice <name> <channel>"
+        self.help_docs = \
+            "Voice member in given channel, or current channel if no channel given, or command user if " \
+            "no member given. Format: voice <name> <channel>"
 
     def run(self, event):
         # Get server object
@@ -320,8 +325,9 @@ class DeVoice(Function):
         # Names which can be used to address the function
         self.names = {"devoice", "unvoice", "take voice", "del voice", "delete voice", "remove voice"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "UnVoice member in given channel, or current channel if no channel given, or command user " \
-                         "if no member given. Format: devoice <name> <channel>"
+        self.help_docs = \
+            "UnVoice member in given channel, or current channel if no channel given, or command user " \
+            "if no member given. Format: devoice <name> <channel>"
 
     def run(self, event):
         # Get server object
@@ -334,8 +340,9 @@ class DeVoice(Function):
         if len(line_split) == 0:
             # Check that this is a channel
             if event.channel is None:
-                return event.create_response("Error, I can't un-voice you in a private message, " +
-                                             "please provide a channel.")
+                return event.create_response(
+                    "Error, I can't un-voice you in a private message, please provide a channel."
+                )
             # Give user voice
             return event.create_response(self.take_voice(event.channel, event.user))
         # If 1 argument, see if it's a channel or a user.
@@ -752,8 +759,9 @@ class ChannelCaps(Function):
         # Name for use in help listing
         self.help_name = "caps lock"
         # Names which can be used to address the function
-        self.names = {"caps lock", "channel caps", "channel caps lock", "chan caps", "chan caps lock",
-                      "channelcapslock"}
+        self.names = {
+            "caps lock", "channel caps", "channel caps lock", "chan caps", "chan caps lock", "channelcapslock"
+        }
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets caps lock for channel on or off."
 
@@ -779,8 +787,10 @@ class ChannelCaps(Function):
                 target_channel.use_caps_lock = not target_channel.use_caps_lock
                 return event.create_response("Caps lock toggled in {}.".format(target_channel.name))
             # Otherwise input unknown
-            return event.create_response("Error, I don't understand your input, " +
-                                         "please specify a channel and whether to turn caps lock on or off.")
+            return event.create_response(
+                "Error, I don't understand your input, " +
+                "please specify a channel and whether to turn caps lock on or off."
+            )
         # Otherwise line has 2 or more arguments.
         # Check if first argument is boolean
         input_bool = Commons.string_to_bool(line_split[0])
@@ -789,14 +799,17 @@ class ChannelCaps(Function):
             input_bool = Commons.string_to_bool(line_split[1])
             target_channel_name = line_split[0]
         if input_bool is None:
-            return event.create_response("Error, I don't understand your input, please specify a channel and " +
-                                         "whether to turn caps lock on or off.")
+            return event.create_response(
+                "Error, I don't understand your input, please specify a channel and " +
+                "whether to turn caps lock on or off."
+            )
         target_channel = server_obj.get_channel_by_name(target_channel_name)
         if target_channel is None or not target_channel.in_channel:
             return event.create_response("Error, I'm not in that channel.")
         target_channel.use_caps_lock = input_bool
-        return event.create_response("Caps lock set {} in {}.".format({False: 'off', True: 'on'}[input_bool],
-                                                                      target_channel.name))
+        return event.create_response(
+            "Caps lock set {} in {}.".format({False: 'off', True: 'on'}[input_bool], target_channel.name)
+        )
 
 
 class ChannelLogging(Function):
@@ -838,8 +851,10 @@ class ChannelLogging(Function):
                 target_channel.logging = not target_channel.logging
                 return event.create_response("Logging toggled in {}.".format(target_channel.name))
             # Otherwise input unknown
-            return event.create_response("Error, I don't understand your input, please specify a channel and " +
-                                         "whether to turn logging on or off.")
+            return event.create_response(
+                "Error, I don't understand your input, please specify a channel and " +
+                "whether to turn logging on or off."
+            )
         # Otherwise line has 2 or more arguments.
         # Check if first argument is boolean
         input_bool = Commons.string_to_bool(line_split[0])
@@ -848,8 +863,10 @@ class ChannelLogging(Function):
             input_bool = Commons.string_to_bool(line_split[1])
             target_channel_name = line_split[0]
         if input_bool is None:
-            return event.create_response("Error, I don't understand your input, please specify a channel and " +
-                                         "whether to turn logging on or off.")
+            return event.create_response(
+                "Error, I don't understand your input, please specify a channel and " +
+                "whether to turn logging on or off."
+            )
         target_channel = server_obj.get_channel_by_name(target_channel_name)
         if not target_channel.in_channel:
             return event.create_response("Error, I'm not in that channel.")
@@ -898,16 +915,19 @@ class ChannelPassiveFunctions(Function):
             input_bool = Commons.string_to_bool(line_split[0])
             if input_bool is not None:
                 event.channel.passive_enabled = input_bool
-                return event.create_response("Passive functions set {}.".format({False: 'disabled',
-                                                                                 True: 'enabled'}[input_bool]))
+                return event.create_response(
+                    "Passive functions set {}.".format({False: 'disabled', True: 'enabled'}[input_bool])
+                )
             # Check if a channel was specified
             target_channel = server_obj.get_channel_by_name(line_split[0])
             if target_channel.in_channel:
                 target_channel.passive_enabled = not target_channel.passive_enabled
                 return event.create_response("Passive functions toggled in {}.".format(target_channel.name))
             # Otherwise input unknown
-            return event.create_response("Error, I don't understand your input, please specify a channel and " +
-                                         "whether to turn passive functions on or off.")
+            return event.create_response(
+                "Error, I don't understand your input, please specify a channel and " +
+                "whether to turn passive functions on or off."
+            )
         # Otherwise line has 2 or more arguments.
         # Check if first argument is boolean
         input_bool = Commons.string_to_bool(line_split[0])
@@ -916,14 +936,17 @@ class ChannelPassiveFunctions(Function):
             input_bool = Commons.string_to_bool(line_split[1])
             target_channel_name = line_split[0]
         if input_bool is None:
-            return event.create_response("Error, I don't understand your input, please specify a channel and " +
-                                         "whether to turn passive functions on or off.")
+            return event.create_response(
+                "Error, I don't understand your input, please specify a channel and " +
+                "whether to turn passive functions on or off."
+            )
         target_channel = server_obj.get_channel_by_name(target_channel_name)
         if not target_channel.in_channel:
             return event.create_response("Error, I'm not in that channel.")
         target_channel.passive_enabled = input_bool
-        return event.create_response("Passive functions set {} in {}.".format("enabled" if input_bool else "disabled",
-                                                                              target_channel.name))
+        return event.create_response(
+            "Passive functions set {} in {}.".format("enabled" if input_bool else "disabled", target_channel.name)
+        )
 
 
 class ChannelPassword(Function):

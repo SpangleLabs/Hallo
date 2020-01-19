@@ -49,8 +49,9 @@ class FunctionDispatcher(object):
         function_class_test = None
         function_name_test = ""
         function_args_test = ""
-        for function_name_test in [' '.join(function_message_split[:x + 1]) for x in
-                                   range(len(function_message_split))[::-1]]:
+        for function_name_test in [
+            ' '.join(function_message_split[:x + 1]) for x in range(len(function_message_split))[::-1]
+        ]:
             function_class_test = self.get_function_by_name(function_name_test)
             function_args_test = ' '.join(function_message_split)[len(function_name_test):].strip()
             if function_class_test is not None:
@@ -190,8 +191,9 @@ class FunctionDispatcher(object):
         """
         # Check it's an allowed module
         if module_name not in self.module_list:
-            self.hallo.printer.output("Module name, {}, is not in allowed list: {}."
-                                      .format(module_name, ", ".join(self.module_list)))
+            self.hallo.printer.output(
+                "Module name, {}, is not in allowed list: {}.".format(module_name, ", ".join(self.module_list))
+            )
             return False
         # Create full name
         # TODO: allow bypass for reloading of core classes: Hallo, Server, Destination, etc
@@ -313,11 +315,13 @@ class FunctionDispatcher(object):
         # Add function to mFunctionNames
         for function_name in names_list:
             if function_name in self.function_names:
-                raise NotImplementedError("This function name \"{}\", in \"{}\" function class is "
-                                          "already taken by the \"{}\" function class."
-                                          .format(function_name,
-                                                  function_class.__name__,
-                                                  self.function_names[function_name].__name__))
+                raise NotImplementedError(
+                    "This function name \"{}\", in \"{}\" function class is already taken by "
+                    "the \"{}\" function class.".format(
+                        function_name,
+                        function_class.__name__,
+                        self.function_names[function_name].__name__)
+                )
             self.function_names[function_name] = function_class
         # Add function to mEventFunctions
         for function_event in events_list:

@@ -24,13 +24,16 @@ class DailysRegister(Function):
         # Name for use in help listing
         self.help_name = "dailys register"
         # Names which can be used to address the function
-        self.names = set([template.format(setup, dailys)
-                          for template in ["{0} {1}", "{1} {0}"]
-                          for setup in ["setup", "register"]
-                          for dailys in ["dailys", "dailys api"]])
+        self.names = set([
+            template.format(setup, dailys)
+            for template in ["{0} {1}", "{1} {0}"]
+            for setup in ["setup", "register"]
+            for dailys in ["dailys", "dailys api"]
+        ])
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Registers a new dailys API to be fed from the current location." \
-                         " Format: dailys register <dailys API URL> <dailys auth key?>"
+        self.help_docs = \
+            "Registers a new dailys API to be fed from the current location." \
+            " Format: dailys register <dailys API URL> <dailys auth key?>"
 
     def run(self, event):
         # Get dailys repo
@@ -81,13 +84,16 @@ class DailysAddField(Function):
         # Name for use in help listing
         self.help_name = "add dailys field"
         # Names which can be used to address the function
-        self.names = set([template.format(setup, dailys)
-                          for template in ["{0} {1}", "{1} {0}"]
-                          for setup in ["setup", "register", "add"]
-                          for dailys in ["dailys field", "field to dailys"]])
+        self.names = set([
+            template.format(setup, dailys)
+            for template in ["{0} {1}", "{1} {0}"]
+            for setup in ["setup", "register", "add"]
+            for dailys in ["dailys field", "field to dailys"]
+        ])
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Registers a new dailys field to the spreadsheet in the current chat location." \
-                         " Format: add dailys field <field name>"
+        self.help_docs = \
+            "Registers a new dailys field to the spreadsheet in the current chat location." \
+            " Format: add dailys field <field name>"
 
     def run(self, event):
         # Get spreadsheet repo
@@ -99,19 +105,26 @@ class DailysAddField(Function):
         # Get the active spreadsheet for this person and destination
         spreadsheet = dailys_repo.get_by_location(event)
         if spreadsheet is None:
-            return event.create_response("There is no dailys API configured in this channel. "
-                                         "Please register a dailys API first with `dailys register`")
+            return event.create_response(
+                "There is no dailys API configured in this channel. "
+                "Please register a dailys API first with `dailys register`"
+            )
         # Get args
         clean_input = event.command_args.strip().lower()
         # If args are empty, list available fields
         if clean_input == "":
-            return event.create_response("Please specify a field, available fields are: {}"
-                                         .format(", ".join(field.type_name for field in DailysFieldFactory.fields)))
+            return event.create_response(
+                "Please specify a field, available fields are: {}".format(
+                    ", ".join(field.type_name for field in DailysFieldFactory.fields)
+                )
+            )
         # Check that there's exactly one field matching that name
         matching_fields = [field for field in DailysFieldFactory.fields if clean_input.startswith(field.type_name)]
         if len(matching_fields) != 1:
-            return event.create_response("I don't understand what field you would like to add. "
-                                         "Please specify a field less ambiguously.")
+            return event.create_response(
+                "I don't understand what field you would like to add. "
+                "Please specify a field less ambiguously."
+            )
         # Try and create the field
         matching_field = matching_fields[0]
         new_field = matching_field.create_from_input(event, spreadsheet)
@@ -132,8 +145,9 @@ class Dailys(Function):
         # Names which can be used to address the function
         self.names = {"dailys"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Core dailys method, does all the dailys processing passively." \
-                         " Doesn't do anything (currently) when called actively."
+        self.help_docs = \
+            "Core dailys method, does all the dailys processing passively." \
+            " Doesn't do anything (currently) when called actively."
         self.dailys_repo = None
         """ :type : DailysRepo | None"""
 
@@ -307,14 +321,18 @@ class DailysSpreadsheet:
             raise DailysException("Could not find server with name \"{}\"".format(json_obj["server"]))
         user = server.get_user_by_address(json_obj["user_address"])
         if user is None:
-            raise DailysException("Could not find user with address \"{}\" on server \"{}\""
-                                  .format(json_obj["user_address"], json_obj["server"]))
+            raise DailysException(
+                "Could not find user with address \"{}\" on server \"{}\""
+                    .format(json_obj["user_address"], json_obj["server"])
+            )
         dest_chan = None
         if "dest_address" in json_obj:
             dest_chan = server.get_channel_by_address(json_obj["dest_address"])
             if dest_chan is None:
-                raise DailysException("Could not find channel with address \"{}\" on server \"{}\""
-                                      .format(json_obj["dest_address"], json_obj["server"]))
+                raise DailysException(
+                    "Could not find channel with address \"{}\" on server \"{}\""
+                        .format(json_obj["dest_address"], json_obj["server"])
+                )
         dailys_url = json_obj["dailys_url"]
         dailys_key = json_obj.get("dailys_key")
         new_spreadsheet = DailysSpreadsheet(user, dest_chan, dailys_url, dailys_key)
@@ -381,11 +399,13 @@ class DailysField(metaclass=ABCMeta):
         :type text: str
         :rtype : EventMessage
         """
-        evt = EventMessage(self.spreadsheet.destination.server,
-                           self.spreadsheet.destination,
-                           self.spreadsheet.user,
-                           text,
-                           inbound=False)
+        evt = EventMessage(
+            self.spreadsheet.destination.server,
+            self.spreadsheet.destination,
+            self.spreadsheet.user,
+            text,
+            inbound=False
+        )
         self.spreadsheet.user.server.send(evt)
         return evt
 
@@ -545,8 +565,10 @@ class DailysMoodField(DailysField):
             if input_time in DailysSleepField.SLEEP_WORDS:
                 times.append(DailysMoodField.TIME_SLEEP)
                 continue
-            raise DailysException("I don't recognise that time, \"{}\". Please provide times as 24 hour hh:mm "
-                                  "formatted times, or 'wake' or 'sleep'.".format(input_time))
+            raise DailysException(
+                "I don't recognise that time, \"{}\". Please provide times as 24 hour hh:mm "
+                "formatted times, or 'wake' or 'sleep'.".format(input_time)
+            )
         # Parse mood measurements
         moods = input_moods.split()
         # Return new field
@@ -577,8 +599,9 @@ class DailysMoodField(DailysField):
             return today_data, mood_date
 
     def mood_data_is_full(self, date_data):
-        return len(date_data) == len(self.times) and \
-               all([m in date_data[str(t)] for t in self.times for m in self.moods])
+        return \
+            len(date_data) == len(self.times) \
+            and all([m in date_data[str(t)] for t in self.times for m in self.moods])
 
     def has_triggered_for_time(self, mood_date, time_val):
         """
@@ -698,8 +721,9 @@ class DailysMoodField(DailysField):
         :rtype: None
         """
         # Construct message
-        msg = "Hello, this is your {} mood check. How are you feeling (scale from 1-5) " \
-              "in these categories: {}".format(time_val, ", ".join(self.moods))
+        msg = \
+            "Hello, this is your {} mood check. How are you feeling (scale from 1-5) " \
+            "in these categories: {}".format(time_val, ", ".join(self.moods))
         # Send message
         evt = self.message_channel(msg)
         # Get message_id, if telegram outbound message
@@ -783,8 +807,10 @@ class DailysDuolingoField(DailysField):
         try:
             duo = Commons.load_url_json("https://www.duolingo.com/users/{}".format(self.username), headers)
         except HTTPError:
-            self.message_channel("It seems the jwt_token no longer works for Duolingo account {}. "
-                                 "Please reset it.".format(self.username))
+            self.message_channel(
+                "It seems the jwt_token no longer works for Duolingo account {}. "
+                "Please reset it.".format(self.username)
+            )
             return
         result = dict()
         for lang in duo["language_data"]:

@@ -29,8 +29,9 @@ class EightBallTest(TestBase, unittest.TestCase):
     def test_eightball_with_message(self):
         all_responses = EightBall.RESPONSES_YES_TOTALLY + EightBall.RESPONSES_YES_PROBABLY + \
                         EightBall.RESPONSES_MAYBE + EightBall.RESPONSES_NO
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user,
-                                                       "magic eightball will this test pass?"))
+        self.function_dispatcher.dispatch(EventMessage(
+            self.server, None, self.test_user, "magic eightball will this test pass?"
+        ))
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert data[0].text.lower() in ["{}.".format(x.lower()) for x in all_responses], "Response isn't valid."
 

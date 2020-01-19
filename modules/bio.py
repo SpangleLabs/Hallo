@@ -23,27 +23,29 @@ class Protein(Function):
         self.help_docs = "Convert a set of nucleobases to a string of amino acids"
 
     def run(self, event):
-        codon_table = {'Ala': ['GCU', 'GCC', 'GCA', 'GCG'],
-                       'Arg': ['CGU', 'CGC', 'CGA', 'CGG', 'AGA', 'AGG'],
-                       'Asn': ['AAU', 'AAC'],
-                       'Cys': ['UGU', 'UGC'],
-                       'Gln': ['CAA', 'CAG'],
-                       'Glu': ['GAA', 'GAG'],
-                       'Gly': ['GGU', 'GGC', 'GGA', 'GGG'],
-                       'His': ['CAU', 'CAC'],
-                       'Ile': ['AUU', 'AUC', 'AUA'],
-                       Protein.START: ['AUG'],
-                       'Leu': ['UUA', 'UUG', 'CUU', 'CUC', 'CUA', 'CUG'],
-                       'Lys': ['AAA', 'AAG'],
-                       'Met': ['AUG'],
-                       'Phe': ['UUU', 'UUC'],
-                       'Pro': ['CCU', 'CCC', 'CCA', 'CCG'],
-                       'Ser': ['UCU', 'UCC', 'UCA', 'UCG', 'AGU', 'AGC'],
-                       'Thr': ['ACU', 'ACC', 'ACA', 'ACG'],
-                       'Trp': ['UGG'],
-                       'Tyr': ['UAU', 'UAC'],
-                       'Val': ['GUU', 'GUC', 'GUA', 'GUG'],
-                       Protein.STOP: ['UAA', 'UGA', 'UAG']}
+        codon_table = {
+            'Ala': ['GCU', 'GCC', 'GCA', 'GCG'],
+            'Arg': ['CGU', 'CGC', 'CGA', 'CGG', 'AGA', 'AGG'],
+            'Asn': ['AAU', 'AAC'],
+            'Cys': ['UGU', 'UGC'],
+            'Gln': ['CAA', 'CAG'],
+            'Glu': ['GAA', 'GAG'],
+            'Gly': ['GGU', 'GGC', 'GGA', 'GGG'],
+            'His': ['CAU', 'CAC'],
+            'Ile': ['AUU', 'AUC', 'AUA'],
+            Protein.START: ['AUG'],
+            'Leu': ['UUA', 'UUG', 'CUU', 'CUC', 'CUA', 'CUG'],
+            'Lys': ['AAA', 'AAG'],
+            'Met': ['AUG'],
+            'Phe': ['UUU', 'UUC'],
+            'Pro': ['CCU', 'CCC', 'CCA', 'CCG'],
+            'Ser': ['UCU', 'UCC', 'UCA', 'UCG', 'AGU', 'AGC'],
+            'Thr': ['ACU', 'ACC', 'ACA', 'ACG'],
+            'Trp': ['UGG'],
+            'Tyr': ['UAU', 'UAC'],
+            'Val': ['GUU', 'GUC', 'GUA', 'GUG'],
+            Protein.STOP: ['UAA', 'UGA', 'UAG']
+        }
         # Clean the string, replace Thymine with Uracil
         line_clean = event.command_args.upper().replace('T', 'U')
         if not all([c in 'ACGU' for c in line_clean]):

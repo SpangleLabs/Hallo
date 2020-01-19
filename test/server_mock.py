@@ -66,12 +66,14 @@ class ServerMock(Server):
         out_data = self.send_data
         self.send_data = []
         if exp_lines is not None:
-            assert len(out_data) == exp_lines, "Wrong amount of events received. Expected {}  but got {}. " \
-                                               "Full data : {}".format(exp_lines, len(out_data), out_data)
+            assert len(out_data) == exp_lines, \
+                "Wrong amount of events received. Expected {}  but got {}. " \
+                "Full data : {}".format(exp_lines, len(out_data), out_data)
         if dest_obj is not None:
-            assert all((out_data[x].user == dest_obj or out_data[x].channel == dest_obj)
-                       for x in range(len(out_data))), \
-                "Incorrect destination for data. Full data: {}".format(out_data)
+            assert all(
+                (out_data[x].user == dest_obj or out_data[x].channel == dest_obj)
+                for x in range(len(out_data))
+            ), "Incorrect destination for data. Full data: {}".format(out_data)
         if msg_type is not None:
             assert all(isinstance(out_data[x], msg_type) for x in range(len(out_data))), \
                 "Incorrect message type for data. Full data: {}".format(out_data)
@@ -81,5 +83,5 @@ class ServerMock(Server):
         left_chans = self.left_channels
         self.left_channels = []
         if exp_chans is not None:
-            assert len(left_chans) == exp_chans, "Wrong amount of channels left: "+str(left_chans)
+            assert len(left_chans) == exp_chans, "Wrong amount of channels left: " + str(left_chans)
         return left_chans

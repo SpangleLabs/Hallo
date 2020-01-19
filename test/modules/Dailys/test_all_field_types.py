@@ -16,9 +16,11 @@ class TestAllFieldTypes(TestBase, unittest.TestCase):
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
         field_obs = list()
         field_obs.append(DailysDuolingoField(spreadsheet, "cabinet", os.getenv("test_duo_jwt_token")))
-        field_obs.append(DailysMoodField(spreadsheet,
-                                         [DailysMoodField.TIME_SLEEP, time(14, 00), time(22, 00)],
-                                         ["Happiness", "Anger", "Sleepiness"]))
+        field_obs.append(DailysMoodField(
+            spreadsheet,
+            [DailysMoodField.TIME_SLEEP, time(14, 00), time(22, 00)],
+            ["Happiness", "Anger", "Sleepiness"])
+        )
         field_obs.append(DailysSleepField(spreadsheet))
         return field_obs
 
@@ -99,13 +101,13 @@ class TestAllFieldTypes(TestBase, unittest.TestCase):
             spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
             # noinspection PyBroadException
             try:
-                function_class.create_from_input(EventMessage(self.server, self.test_chan, self.test_user, "hello"),
-                                                 spreadsheet)
+                function_class.create_from_input(
+                    EventMessage(self.server, self.test_chan, self.test_user, "hello"),
+                    spreadsheet
+                )
             except NotImplementedError:
                 continue
             except Exception:
                 pass
             # Check it's in DailysFieldFactory
-            assert function_class.__name__ in \
-                [sub_class.__name__ for sub_class in DailysFieldFactory.fields], \
-                "{} class missing from DailysFieldFactory".format(function_class.__name__)
+            assert function_class.__name__ in [sub_class.__name__ for sub_class in DailysFieldFactory.fields]

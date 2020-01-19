@@ -17,10 +17,12 @@ class InputParser:
         self.parse_words()
 
     def parse_args(self):
-        regexes = [re.compile(r"([\"'])(?P<key>[^=]+?)\1=([\"'])(?P<value>.*?)\3"),  # quoted key, quoted args
-                   re.compile(r"(?P<key>[^\s]+)=([\"'])(?P<value>.*?)\2"),  # unquoted key, quoted args
-                   re.compile(r"([\"'])(?P<key>[^=]+?)\1=(?P<value>[^\s]*)"),  # quoted key, unquoted args
-                   re.compile(r"(?P<key>[^\s]+)=(?P<value>[^\s]*)")]  # unquoted key, unquoted args
+        regexes = [
+            re.compile(r"([\"'])(?P<key>[^=]+?)\1=([\"'])(?P<value>.*?)\3"),  # quoted key, quoted args
+            re.compile(r"(?P<key>[^\s]+)=([\"'])(?P<value>.*?)\2"),  # unquoted key, quoted args
+            re.compile(r"([\"'])(?P<key>[^=]+?)\1=(?P<value>[^\s]*)"),  # quoted key, unquoted args
+            re.compile(r"(?P<key>[^\s]+)=(?P<value>[^\s]*)")  # unquoted key, unquoted args
+        ]
         for regex in regexes:
             for match in regex.finditer(self.remaining_text):
                 self.args_dict[match.group("key")] = match.group("value")
@@ -54,9 +56,10 @@ class InputParser:
         if len(line_split) <= 1:
             return []
         # Start splitting from shortest left-string to longest.
-        input_sections = [[" ".join(line_split[:x + 1]),
-                           " ".join(line_split[x + 1:])]
-                          for x in range(len(line_split) - 1)]
+        input_sections = [
+            [" ".join(line_split[:x + 1]), " ".join(line_split[x + 1:])]
+            for x in range(len(line_split) - 1)
+        ]
         results = []
         for input_pair in input_sections:
             # Check if the first input of the pair matches any units

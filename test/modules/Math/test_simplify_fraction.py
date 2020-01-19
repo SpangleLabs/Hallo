@@ -40,8 +40,7 @@ def test_fraction_unsimplify(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"math"})
     hallo.function_dispatcher.dispatch(EventMessage(test_server, None, test_user, "fraction 17/3"))
     data = test_server.get_send_data(1, test_user, EventMessage)
-    assert "17/3." == data[0].text[-5:], "Simplify fraction should return original " \
-                                         "fraction if it cannot be simplified."
+    assert "17/3." == data[0].text[-5:]
 
 
 def test_factors_float(hallo_getter):
