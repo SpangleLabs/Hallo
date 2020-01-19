@@ -31,7 +31,7 @@ def test_euler_list(hallo_getter):
     }.items()
 )
 def test_euler_solutions(hallo_getter, problem, solution):
-    hallo, test_server, test_chan, test_user = hallo_getter({"euler"})
+    hallo, test_server, test_chan, test_user = hallo_getter({"euler", "math", "games"})
     # Spoilers
     hallo.function_dispatcher.dispatch(EventMessage(test_server, None, test_user, "euler " + problem))
     data = test_server.get_send_data(1, test_user, EventMessage)
