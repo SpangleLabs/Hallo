@@ -1,12 +1,13 @@
 import os
 import unittest
 
-from Events import EventMessage
-from inc.Commons import Commons
-from modules.Subscriptions import SubscriptionCheck, E621Sub
-from test.TestBase import TestBase
+from events import EventMessage
+from inc.commons import Commons
+from modules.subscriptions import SubscriptionCheck, E621Sub
+from test.test_base import TestBase
 
 
+@pytest.mark.external_integration
 class FeedRemoveTest(TestBase, unittest.TestCase):
 
     def setUp(self):

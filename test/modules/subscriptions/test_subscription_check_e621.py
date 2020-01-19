@@ -1,13 +1,14 @@
 import os
 import unittest
 
-from Events import EventMinute, EventMessage
-from inc.Commons import Commons
-from modules.Subscriptions import E621Sub, SubscriptionRepo, SubscriptionCheck
-from test.ServerMock import ServerMock
-from test.TestBase import TestBase
+from events import EventMinute, EventMessage
+from inc.commons import Commons
+from modules.subscriptions import E621Sub, SubscriptionRepo, SubscriptionCheck
+from test.server_mock import ServerMock
+from test.test_base import TestBase
 
 
+@pytest.mark.external_integration
 class SubE621CheckTest(TestBase, unittest.TestCase):
 
     def setUp(self):

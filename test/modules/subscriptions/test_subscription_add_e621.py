@@ -1,11 +1,12 @@
 import os
 import unittest
 
-from Events import EventMessage
-from modules.Subscriptions import SubscriptionCheck, E621Sub
-from test.TestBase import TestBase
+from events import EventMessage
+from modules.subscriptions import SubscriptionCheck, E621Sub
+from test.test_base import TestBase
 
 
+@pytest.mark.external_integration
 class E621SubAddTest(TestBase, unittest.TestCase):
 
     def setUp(self):
