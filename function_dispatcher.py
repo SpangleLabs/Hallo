@@ -207,7 +207,7 @@ class FunctionDispatcher(object):
             try:
                 module_obj = importlib.import_module(full_module_name)
             except ImportError:
-                self.hallo.printer.output("Could not import module")
+                self.hallo.printer.output("Could not import module: {}".format(full_module_name))
                 return False
         # Unload module, if it was loaded.
         self.unload_module_functions(module_obj)
