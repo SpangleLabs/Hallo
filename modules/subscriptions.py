@@ -2346,7 +2346,7 @@ class FAKey:
                 login_user = self.soup.find(id="my-username")
                 if login_user is None:
                     raise FAKey.FAReader.FALoginFailedError("Not currently logged in")
-                self.username = login_user.string[1:]
+                self.username = login_user.string.strip()[1:]
                 """ :type : str"""
                 total_submissions = self.soup.find_all(title="Submission Notifications")
                 self.total_submissions = 0 if len(total_submissions) == 0 else int(total_submissions[0].string[:-1])
