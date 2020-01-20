@@ -5,6 +5,8 @@ from datetime import datetime, time, date, timedelta
 from threading import RLock
 from urllib.error import HTTPError
 
+import duolingo
+
 from events import EventDay, EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound
 from function import Function
 from inc.commons import Commons
@@ -852,10 +854,10 @@ class DailysDuolingoField(DailysField):
     type_name = "duolingo"
     col_names = ["duolingo", "duolingo friends", "duolingo friends list"]
 
-    def __init__(self, spreadsheet, username, jwt_token):
+    def __init__(self, spreadsheet, username, password):
         super().__init__(spreadsheet)
         self.username = username
-        self.jwt_token = jwt_token
+        self.password = password
 
     @staticmethod
     def passive_events():
@@ -869,19 +871,18 @@ class DailysDuolingoField(DailysField):
         :type evt: Event.Event
         :rtype: None
         """
-        headers = [["Cookie", "jwt_token={}".format(self.jwt_token)]]
         try:
-            duo = Commons.load_url_json("https://www.duolingo.com/users/{}".format(self.username), headers)
-        except HTTPError:
+            lingo = duolingo.Duolingo(self.username, password=self.password)
+            friends = lingo.get_friends()
+        except Exception:
             self.message_channel(
-                "It seems the jwt_token no longer works for Duolingo account {}. "
+                "It seems the password no longer works for Duolingo account {}. "
                 "Please reset it.".format(self.username)
             )
             return
         result = dict()
-        for lang in duo["language_data"]:
-            for friend in duo["language_data"][lang]["points_ranking_data"]:
-                result[friend["username"]] = friend["points_data"]["total"]
+        for friend in friends:
+            result[friend["username"]] = friend["points"]
         result_str = json.dumps(result)
         d = (evt.get_send_time() - timedelta(1)).date()
         self.save_data(result, d)
@@ -889,38 +890,41 @@ class DailysDuolingoField(DailysField):
         self.message_channel(result_str)
 
     @staticmethod
-    def _check_duo_username(username, jwt_token):
+    def _check_duo_username(username, password):
         try:
-            headers = [["Cookie", "jwt_token={}".format(jwt_token)]]
-            Commons.load_url_json("https://www.duolingo.com/users/{}".format(username), headers)
+            lingo = duolingo.Duolingo(username, password=password)
+            lingo.get_friends()
             return True
-        except HTTPError:
+        except Exception:
             return False
 
     @staticmethod
     def create_from_input(event, spreadsheet):
         clean_input = event.command_args[len(DailysDuolingoField.type_name):].strip().split()
         if len(clean_input) != 2:
-            raise DailysException("You must specify both a duolingo username, and jwt_token.")
+            raise DailysException("You must specify both a duolingo username, and password.")
         username = clean_input[0]
-        jwt_token = clean_input[1]
-        if DailysDuolingoField._check_duo_username(username, jwt_token):
-            return DailysDuolingoField(spreadsheet, username, jwt_token)
-        elif DailysDuolingoField._check_duo_username(jwt_token, username):
-            return DailysDuolingoField(spreadsheet, jwt_token, username)
+        password = clean_input[1]
+        if DailysDuolingoField._check_duo_username(username, password):
+            return DailysDuolingoField(spreadsheet, username, password)
+        elif DailysDuolingoField._check_duo_username(password, username):
+            return DailysDuolingoField(spreadsheet, password, username)
         else:
-            raise DailysException("Could not access a duolingo account with that username and token.")
+            raise DailysException("Could not access a duolingo account with that username and password.")
 
     def to_json(self):
         json_obj = dict()
         json_obj["type_name"] = self.type_name
         json_obj["username"] = self.username
-        json_obj["jwt_token"] = self.jwt_token
+        json_obj["password"] = self.password
         return json_obj
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
-        return DailysDuolingoField(spreadsheet, json_obj["username"], json_obj["jwt_token"])
+        password = None
+        if "password" in json_obj:
+            password = json_obj["password"]
+        return DailysDuolingoField(spreadsheet, json_obj["username"], password)
 
 
 class DailysSplooField(DailysField):
