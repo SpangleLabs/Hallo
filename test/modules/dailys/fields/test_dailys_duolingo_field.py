@@ -12,16 +12,15 @@ from test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
 @pytest.mark.external_integration
-@pytest.mark.skip("Skipping Duolingo field tests until we switch to API, which requires PR acceptance")
 class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
     TEST_USERNAME = "Deer-Spangle"
-    TEST_TOKEN = os.getenv("test_duo_jwt_token")
+    TEST_PASSWORD = os.getenv("test_duo_password")
 
     def test_day_rollover(self):
         # Setup
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
         # Setup field
-        field = DailysDuolingoField(spreadsheet, self.TEST_USERNAME, self.TEST_TOKEN)
+        field = DailysDuolingoField(spreadsheet, self.TEST_USERNAME, self.TEST_PASSWORD)
         # Send a new day event
         evt = EventDay()
         field.passive_trigger(evt)
@@ -49,10 +48,10 @@ class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
             DailysDuolingoField.create_from_input(evt, spreadsheet)
             assert False, "Should have failed to create DailysDuolingoField due to missing username."
         except DailysException as e:
-            assert "you must specify both a duolingo username, and jwt_token" in str(e).lower(), \
-                "Exception did not prompt to specify a username and token."
+            assert "you must specify both a duolingo username, and password" in str(e).lower(), \
+                "Exception did not prompt to specify a username and password."
 
-    def test_create_from_input_no_token(self):
+    def test_create_from_input_no_password(self):
         # Setup
         cmd_name = "setup dailys field"
         cmd_args = "duolingo {}".format(self.TEST_USERNAME)
@@ -62,30 +61,30 @@ class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
         # Create from input
         try:
             DailysDuolingoField.create_from_input(evt, spreadsheet)
-            assert False, "Should have failed to create DailysDuolingoField due to missing token."
+            assert False, "Should have failed to create DailysDuolingoField due to missing password."
         except DailysException as e:
-            assert "you must specify both a duolingo username, and jwt_token" in str(e).lower(), \
-                "Exception did not prompt to specify a username and token."
+            assert "you must specify both a duolingo username, and password" in str(e).lower(), \
+                "Exception did not prompt to specify a username and password."
 
-    def test_create_from_input_invalid_token(self):
+    def test_create_from_input_invalid_password(self):
         # Setup
         cmd_name = "setup dailys field"
-        cmd_args = "duolingo {} {}".format(self.TEST_USERNAME, "NoTAreaLToKEN")
+        cmd_args = "duolingo {} {}".format(self.TEST_USERNAME, "NoTAreaLPasSWorD")
         evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(cmd_name, cmd_args))
         evt.split_command_text(cmd_name, cmd_args)
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
         # Create from input
         try:
             DailysDuolingoField.create_from_input(evt, spreadsheet)
-            assert False, "Should have failed to create DailysDuolingoField due to missing token."
+            assert False, "Should have failed to create DailysDuolingoField due to incorrect password."
         except DailysException as e:
-            assert "could not access a duolingo account with that username and token" in str(e).lower(), \
-                "Exception didn't clarify that token and username do not work."
+            assert "could not access a duolingo account with that username and password" in str(e).lower(), \
+                "Exception didn't clarify that password and username do not work."
 
     def test_create_from_input_username_first(self):
         # Setup
         cmd_name = "setup dailys field"
-        cmd_args = "duolingo {} {}".format(self.TEST_USERNAME, self.TEST_TOKEN)
+        cmd_args = "duolingo {} {}".format(self.TEST_USERNAME, self.TEST_PASSWORD)
         evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(cmd_name, cmd_args))
         evt.split_command_text(cmd_name, cmd_args)
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
@@ -93,12 +92,12 @@ class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
         field = DailysDuolingoField.create_from_input(evt, spreadsheet)
         assert field.spreadsheet == spreadsheet
         assert field.username == self.TEST_USERNAME
-        assert field.jwt_token == self.TEST_TOKEN
+        assert field.password == self.TEST_PASSWORD
 
-    def test_create_from_input_token_first(self):
+    def test_create_from_input_password_first(self):
         # Setup
         cmd_name = "setup dailys field"
-        cmd_args = "duolingo {} {}".format(self.TEST_TOKEN, self.TEST_USERNAME)
+        cmd_args = "duolingo {} {}".format(self.TEST_PASSWORD, self.TEST_USERNAME)
         evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(cmd_name, cmd_args))
         evt.split_command_text(cmd_name, cmd_args)
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
@@ -106,4 +105,4 @@ class DailysDuolingoFieldTest(TestBase, unittest.TestCase):
         field = DailysDuolingoField.create_from_input(evt, spreadsheet)
         assert field.spreadsheet == spreadsheet
         assert field.username == self.TEST_USERNAME
-        assert field.jwt_token == self.TEST_TOKEN
+        assert field.password == self.TEST_PASSWORD
