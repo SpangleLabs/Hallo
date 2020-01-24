@@ -2256,10 +2256,9 @@ class FAKeysCommon(SubscriptionCommon):
         if user in self.list_keys:
             return self.list_keys[user]
         user_data_parser = UserDataParser()
-        fa_data = user_data_parser.get_data_by_user_and_type(user, FAKeyData)
+        fa_data = user_data_parser.get_data_by_user_and_type(user, FAKeyData)  # type: FAKeyData
         if fa_data is None:
             return None
-        assert isinstance(fa_data, FAKeyData)
         fa_key = FAKey(user, fa_data.cookie_a, fa_data.cookie_b)
         self.add_key(fa_key)
         return fa_key
