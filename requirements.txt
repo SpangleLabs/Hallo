@@ -3,3 +3,6 @@ python-dateutil
 beautifulsoup4
 google-api-python-client
 oauth2client
+requests
+pytest
+git+https://github.com/joshcoales/Duolingo.git@fixing-tests
