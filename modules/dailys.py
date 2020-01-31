@@ -432,7 +432,7 @@ class DailysFAField(DailysField):
         """
         user_parser = UserDataParser()
         fa_data = user_parser.get_data_by_user_and_type(self.spreadsheet.user, FAKeyData)
-        if not isinstance(fa_data, FAKeyData):
+        if fa_data is None:
             raise DailysException("No FA data has been set up for the FA field module to use.")
         cookie = "b="+fa_data.cookie_b+"; a="+fa_data.cookie_a
         try:
