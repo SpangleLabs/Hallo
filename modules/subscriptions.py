@@ -2333,7 +2333,7 @@ class FAKey:
             """ :type : CachedObject"""
 
         def _get_api_data(self, path, needs_cookie=False):
-            fa_api_url = os.getenv("FA_API_URL", "https://faexport.boothale.net")
+            fa_api_url = os.getenv("FA_API_URL", "https://faexport.spangle.org.uk")
             url = "{}/{}".format(fa_api_url, path)
             if needs_cookie:
                 cookie_string = "b=" + self.b + "; a=" + self.a
