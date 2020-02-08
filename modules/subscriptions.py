@@ -2256,8 +2256,7 @@ class FAKeysCommon(SubscriptionCommon):
         if user in self.list_keys:
             return self.list_keys[user]
         user_data_parser = UserDataParser()
-        fa_data = user_data_parser.get_data_by_user_and_type(user, FAKeyData)
-        assert isinstance(fa_data, FAKeyData)
+        fa_data = user_data_parser.get_data_by_user_and_type(user, FAKeyData)  # type: FAKeyData
         if fa_data is None:
             return None
         fa_key = FAKey(user, fa_data.cookie_a, fa_data.cookie_b)
@@ -2334,7 +2333,7 @@ class FAKey:
             """ :type : CachedObject"""
 
         def _get_api_data(self, path, needs_cookie=False):
-            fa_api_url = os.getenv("FA_API_URL", "https://faexport.boothale.net")
+            fa_api_url = os.getenv("FA_API_URL", "https://faexport.spangle.org.uk")
             url = "{}/{}".format(fa_api_url, path)
             if needs_cookie:
                 cookie_string = "b=" + self.b + "; a=" + self.a

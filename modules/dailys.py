@@ -1,4 +1,5 @@
 import json
+import os
 import traceback
 from abc import ABCMeta
 from datetime import datetime, time, date, timedelta
@@ -432,11 +433,15 @@ class DailysFAField(DailysField):
         """
         user_parser = UserDataParser()
         fa_data = user_parser.get_data_by_user_and_type(self.spreadsheet.user, FAKeyData)
-        if not isinstance(fa_data, FAKeyData):
+        if fa_data is None:
             raise DailysException("No FA data has been set up for the FA field module to use.")
         cookie = "b="+fa_data.cookie_b+"; a="+fa_data.cookie_a
+        fa_api_url = os.getenv("FA_API_URL", "https://faexport.spangle.org.uk")
         try:
-            notifications_data = Commons.load_url_json("api-url/notifications/others.json", [["FA_COOKIE", cookie]])
+            notifications_data = Commons.load_url_json(
+                "{}/notifications/others.json".format(fa_api_url),
+                [["FA_COOKIE", cookie]]
+            )
         except Exception:
             raise DailysException("FA key in storage is not currently logged in to FA.")
         total_submissions = notifications_data["notification_counts"]["submissions"]
