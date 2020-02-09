@@ -3,11 +3,11 @@ import os
 import unittest
 from datetime import timedelta
 
-from Events import EventMessage, EventDay
-from modules.Dailys import DailysFAField, DailysException
-from modules.UserData import UserDataParser, FAKeyData
-from test.TestBase import TestBase
-from test.modules.dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
+from events import EventDay, EventMessage
+from modules.dailys import DailysFAField, DailysException
+from modules.user_data import UserDataParser, FAKeyData
+from test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
+from test.test_base import TestBase
 
 
 class DailysFAFieldTest(TestBase, unittest.TestCase):
