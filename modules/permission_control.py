@@ -27,38 +27,47 @@ class Permissions(Function):
         # Names which can be used to address the function
         self.names = {"permissions", "permissionmask", "permission mask"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = \
-            "Changes the permissions of a specified permission map." \
+        self.help_docs = (
+            "Changes the permissions of a specified permission map."
             " Format: permissions <location> <permission> <on/off>"
+        )
 
     def run(self, event):
         line_split = event.command_args.split()
         if len(line_split) < 3:
-            return event.create_response("Error, you need to specify a location, a right and the value")
+            return event.create_response(
+                "Error, you need to specify a location, a right and the value"
+            )
         bool_input = line_split[-1]
         right_input = line_split[-2]
         location_input = line_split[:-2]
         # Search for the permission_mask they want.
         try:
-            permission_mask = self.find_permission_mask(location_input, event.user, event.channel)
+            permission_mask = self.find_permission_mask(
+                location_input, event.user, event.channel
+            )
         # If it comes back with an error message, return that error
         except PermissionControlException as e:
             return event.create_response(str(e))
         # If it comes back unspecified, generic error message
         if permission_mask is None:
             return event.create_response(
-                "Error, I can't find that permission mask. " +
-                "Specify which you wish to modify as user={username}, " +
-                "or similarly for usergroup, channel, server or hallo."
+                "Error, I can't find that permission mask. "
+                + "Specify which you wish to modify as user={username}, "
+                + "or similarly for usergroup, channel, server or hallo."
             )
         # Turn bool_input into a boolean
         bool_bool = Commons.string_to_bool(bool_input)
         # Check if boolean input is valid
         if bool_bool is None:
-            return event.create_response("Error, I don't understand your boolean value. Please use true or false.")
+            return event.create_response(
+                "Error, I don't understand your boolean value. Please use true or false."
+            )
         # Set the right
         permission_mask.set_right(right_input, bool_bool)
-        return event.create_response("Set {} to {}.".format(right_input, "true" if bool_bool else "false"))
+        return event.create_response(
+            "Set {} to {}.".format(right_input, "true" if bool_bool else "false")
+        )
 
     def find_permission_mask(self, location_input, user_obj, destination_obj):
         """
@@ -90,12 +99,14 @@ class Permissions(Function):
             else:
                 raise PermissionControlException(
                     "Error, no server name found. If specifying 2 settings, use "
-                    "\"server=<server> channel=<channel>\" or "
-                    "\"server=<server> user=<user>\""
+                    '"server=<server> channel=<channel>" or '
+                    '"server=<server> user=<user>"'
                 )
             server_obj = user_obj.server.hallo.get_server_by_name(server_name)
             if server_obj is None:
-                raise PermissionControlException("Error, no server exists by that name.")
+                raise PermissionControlException(
+                    "Error, no server exists by that name."
+                )
             # Check if they have specified a channel
             if self.is_parameter(self.CHANNEL_NAMES, location_other):
                 # Get channel by that name
@@ -124,13 +135,17 @@ class Permissions(Function):
             server_name = location_input[0].split("=")[1]
             server_obj = user_obj.server.hallo.get_server_by_name(server_name)
             if server_obj is None:
-                raise PermissionControlException("Error, no server exists by that name.")
+                raise PermissionControlException(
+                    "Error, no server exists by that name."
+                )
             return server_obj.permission_mask
         # Check if they've asked for current channel
         if location_input[0] in self.CHANNEL_NAMES:
             # Check if this is a channel, and not privmsg.
             if destination_obj is None:
-                raise PermissionControlException("Error, you can't set generic channel permissions in a privmsg.")
+                raise PermissionControlException(
+                    "Error, you can't set generic channel permissions in a privmsg."
+                )
             return destination_obj.permission_mask
         # Check if they have specified a channel
         if self.is_parameter(self.CHANNEL_NAMES, location_input[0]):
@@ -145,7 +160,9 @@ class Permissions(Function):
             hallo_obj = user_obj.server.hallo
             user_group_obj = hallo_obj.get_user_group_by_name(user_group_name)
             if user_group_obj is None:
-                raise PermissionControlException("Error, no user group exists by that name.")
+                raise PermissionControlException(
+                    "Error, no user group exists by that name."
+                )
             # get permission mask and output
             return user_group_obj.permission_mask
         # Check if they've specified a user
@@ -180,4 +197,9 @@ class Permissions(Function):
         :return: Whether or not it's one of the parameters specified
         :rtype: bool
         """
-        return any([user_input.startswith(parameter_name + "=") for parameter_name in parameter_names])
+        return any(
+            [
+                user_input.startswith(parameter_name + "=")
+                for parameter_name in parameter_names
+            ]
+        )

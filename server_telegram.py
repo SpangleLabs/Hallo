@@ -9,7 +9,12 @@ from telegram.utils.request import Request
 
 from destination import User, Channel
 from errors import MessageError
-from events import EventMessage, RawDataTelegram, EventMessageWithPhoto, RawDataTelegramOutbound
+from events import (
+    EventMessage,
+    RawDataTelegram,
+    EventMessageWithPhoto,
+    RawDataTelegramOutbound,
+)
 from permission_mask import PermissionMask
 from server import Server, ServerException
 
@@ -30,8 +35,12 @@ class ServerTelegram(Server):
         # Persistent/saved class variables
         self.api_key = api_key
         self.name = "Telegram"  # Server name #TODO: needs to be configurable!
-        self.auto_connect = True  # Whether to automatically connect to this server when hallo starts
-        self.channel_list = []  # List of channels on this server (which may or may not be currently active)
+        self.auto_connect = (
+            True  # Whether to automatically connect to this server when hallo starts
+        )
+        self.channel_list = (
+            []
+        )  # List of channels on this server (which may or may not be currently active)
         """ :type : list[Destination.Channel]"""
         self.user_list = []  # Users on this server (not all of which are online)
         """ :type : list[Destination.User]"""
@@ -47,14 +56,21 @@ class ServerTelegram(Server):
         self.bot.logger.setLevel(logging.INFO)
         self.updater = Updater(bot=self.bot)
         self.dispatcher = self.updater.dispatcher
-        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.ERROR)
+        logging.basicConfig(
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            level=logging.ERROR,
+        )
         # Message handlers
-        self.private_msg_handler = MessageHandler(Filters.private, self.parse_private_message)
+        self.private_msg_handler = MessageHandler(
+            Filters.private, self.parse_private_message
+        )
         self.dispatcher.add_handler(self.private_msg_handler)
         self.group_msg_handler = MessageHandler(Filters.group, self.parse_group_message)
         self.dispatcher.add_handler(self.group_msg_handler)
         # Catch-all message handler for anything not already handled.
-        self.core_msg_handler = MessageHandler(Filters.all, self.parse_unhandled, channel_post_updates=True)
+        self.core_msg_handler = MessageHandler(
+            Filters.all, self.parse_unhandled, channel_post_updates=True
+        )
         self.dispatcher.add_handler(self.core_msg_handler)
 
     class ChannelFilter(BaseFilter):
@@ -101,19 +117,26 @@ class ServerTelegram(Server):
         # Get sender object
         telegram_chat = update.message.chat
         names_list = [telegram_chat.first_name, telegram_chat.last_name]
-        message_sender_name = " ".join([name for name in names_list if name is not None])
+        message_sender_name = " ".join(
+            [name for name in names_list if name is not None]
+        )
         message_sender_addr = update.message.chat.id
-        message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
+        message_sender = self.get_user_by_address(
+            message_sender_addr, message_sender_name
+        )
         message_sender.update_activity()
         # Create Event object
         if update.message.photo:
             photo_id = update.message.photo[-1]["file_id"]
             message_text = update.message.caption or ""
-            message_evt = EventMessageWithPhoto(self, None, message_sender, message_text, photo_id)\
-                .with_raw_data(RawDataTelegram(update))
+            message_evt = EventMessageWithPhoto(
+                self, None, message_sender, message_text, photo_id
+            ).with_raw_data(RawDataTelegram(update))
         else:
             message_text = update.message.text
-            message_evt = EventMessage(self, None, message_sender, message_text).with_raw_data(RawDataTelegram(update))
+            message_evt = EventMessage(
+                self, None, message_sender, message_text
+            ).with_raw_data(RawDataTelegram(update))
         # Print and Log the private message
         self.hallo.printer.output(message_evt)
         self.hallo.logger.log(message_evt)
@@ -128,25 +151,33 @@ class ServerTelegram(Server):
         :type update: telegram.Update
         """
         # Get sender object
-        message_sender_name = " ".join([update.message.from_user.first_name, update.message.from_user.last_name])
+        message_sender_name = " ".join(
+            [update.message.from_user.first_name, update.message.from_user.last_name]
+        )
         message_sender_addr = update.message.from_user.id
-        message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
+        message_sender = self.get_user_by_address(
+            message_sender_addr, message_sender_name
+        )
         message_sender.update_activity()
         # Get channel object
         message_channel_name = update.message.chat.title
         message_channel_addr = update.message.chat.id
-        message_channel = self.get_channel_by_address(message_channel_addr, message_channel_name)
+        message_channel = self.get_channel_by_address(
+            message_channel_addr, message_channel_name
+        )
         message_channel.update_activity()
         # Create message event object
         if update.message.photo:
             photo_id = update.message.photo[-1]["file_id"]
             message_text = update.message.caption or ""
-            message_evt = EventMessageWithPhoto(self, message_channel, message_sender, message_text, photo_id)\
-                .with_raw_data(RawDataTelegram(update))
+            message_evt = EventMessageWithPhoto(
+                self, message_channel, message_sender, message_text, photo_id
+            ).with_raw_data(RawDataTelegram(update))
         else:
             message_text = update.message.text
-            message_evt = EventMessage(self, message_channel, message_sender, message_text)\
-                .with_raw_data(RawDataTelegram(update))
+            message_evt = EventMessage(
+                self, message_channel, message_sender, message_text
+            ).with_raw_data(RawDataTelegram(update))
         # Print and log the public message
         self.hallo.printer.output(message_evt)
         self.hallo.logger.log(message_evt)
@@ -173,7 +204,9 @@ class ServerTelegram(Server):
         :type update: telegram.Update
         """
         # Print it to console
-        error = MessageError("Unhandled data received on Telegram server: {}".format(update))
+        error = MessageError(
+            "Unhandled data received on Telegram server: {}".format(update)
+        )
         self.hallo.logger.log(error)
         self.hallo.printer.output(error)
 
@@ -184,36 +217,38 @@ class ServerTelegram(Server):
         """
         return {
             EventMessage.Formatting.MARKDOWN: telegram.ParseMode.MARKDOWN,
-            EventMessage.Formatting.HTML: telegram.ParseMode.HTML
+            EventMessage.Formatting.HTML: telegram.ParseMode.HTML,
         }.get(event_formatting)
 
     def send(self, event):
         if isinstance(event, EventMessageWithPhoto):
             destination = event.user if event.channel is None else event.channel
             if isinstance(event.photo_id, list):
-                media = [
-                    InputMediaPhoto(
-                        x
-                    ) for x in event.photo_id
-                ]
+                media = [InputMediaPhoto(x) for x in event.photo_id]
                 media[0].caption = event.text
                 media[0].parse_mode = self.formatting_to_telegram_mode(event.formatting)
                 msg = self.bot.send_media_group(
-                    chat_id=destination.address,
-                    media=media
+                    chat_id=destination.address, media=media
                 )
-            elif any([event.photo_id.lower().endswith("." + x) for x in ServerTelegram.image_extensions]):
+            elif any(
+                [
+                    event.photo_id.lower().endswith("." + x)
+                    for x in ServerTelegram.image_extensions
+                ]
+            ):
                 msg = self.bot.send_photo(
                     chat_id=destination.address,
                     photo=event.photo_id,
                     caption=event.text,
-                    parse_mode=self.formatting_to_telegram_mode(event.formatting))
+                    parse_mode=self.formatting_to_telegram_mode(event.formatting),
+                )
             else:
                 msg = self.bot.send_document(
                     chat_id=destination.address,
                     document=event.photo_id,
                     caption=event.text,
-                    parse_mode=self.formatting_to_telegram_mode(event.formatting))
+                    parse_mode=self.formatting_to_telegram_mode(event.formatting),
+                )
             event.with_raw_data(RawDataTelegramOutbound(msg))
             self.hallo.printer.output(event)
             self.hallo.logger.log(event)
@@ -223,13 +258,18 @@ class ServerTelegram(Server):
             msg = self.bot.send_message(
                 chat_id=destination.address,
                 text=event.text,
-                parse_mode=self.formatting_to_telegram_mode(event.formatting))
+                parse_mode=self.formatting_to_telegram_mode(event.formatting),
+            )
             event.with_raw_data(RawDataTelegramOutbound(msg))
             self.hallo.printer.output(event)
             self.hallo.logger.log(event)
             return event
         else:
-            error = MessageError("Unsupported event type, {}, sent to Telegram server".format(event.__class__.__name__))
+            error = MessageError(
+                "Unsupported event type, {}, sent to Telegram server".format(
+                    event.__class__.__name__
+                )
+            )
             self.hallo.logger.log(error)
             self.hallo.printer.output(error)
             raise NotImplementedError()
@@ -242,43 +282,60 @@ class ServerTelegram(Server):
         """
         # Do checks
         super().reply(old_event, new_event)
-        if old_event.raw_data is None or not isinstance(old_event.raw_data, RawDataTelegram):
+        if old_event.raw_data is None or not isinstance(
+            old_event.raw_data, RawDataTelegram
+        ):
             raise ServerException("Old event has no telegram data associated with it")
         # Send event
         if isinstance(new_event, EventMessageWithPhoto):
-            destination = new_event.user if new_event.channel is None else new_event.channel
+            destination = (
+                new_event.user if new_event.channel is None else new_event.channel
+            )
             old_message_id = old_event.raw_data.update_obj.message.message_id
-            if any([new_event.photo_id.lower().endswith("." + x) for x in ServerTelegram.image_extensions]):
+            if any(
+                [
+                    new_event.photo_id.lower().endswith("." + x)
+                    for x in ServerTelegram.image_extensions
+                ]
+            ):
                 self.bot.send_photo(
                     destination.address,
                     new_event.photo_id,
                     caption=new_event.text,
                     reply_to_message_id=old_message_id,
-                    parse_mode=self.formatting_to_telegram_mode(new_event.formatting))
+                    parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
+                )
             else:
                 self.bot.send_document(
                     destination.address,
                     new_event.photo_id,
                     caption=new_event.text,
                     reply_to_message_id=old_message_id,
-                    parse_mode=self.formatting_to_telegram_mode(new_event.formatting))
+                    parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
+                )
             self.hallo.printer.output(new_event)
             self.hallo.logger.log(new_event)
             return
         if isinstance(new_event, EventMessage):
-            destination = new_event.user if new_event.channel is None else new_event.channel
+            destination = (
+                new_event.user if new_event.channel is None else new_event.channel
+            )
             old_message_id = old_event.raw_data.update_obj.message.message_id
             self.bot.send_message(
                 destination.address,
                 new_event.text,
                 reply_to_message_id=old_message_id,
-                parse_mode=self.formatting_to_telegram_mode(new_event.formatting))
+                parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
+            )
             self.hallo.printer.output(new_event)
             self.hallo.logger.log(new_event)
             return
         else:
-            error = MessageError("Unsupported event type, {}, sent as reply to Telegram server".format(
-                new_event.__class__.__name__))
+            error = MessageError(
+                "Unsupported event type, {}, sent as reply to Telegram server".format(
+                    new_event.__class__.__name__
+                )
+            )
             self.hallo.logger.log(error)
             self.hallo.printer.output(error)
             raise NotImplementedError()
@@ -325,7 +382,9 @@ class ServerTelegram(Server):
         if "prefix" in json_obj:
             new_server.prefix = json_obj["prefix"]
         if "permission_mask" in json_obj:
-            new_server.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+            new_server.permission_mask = PermissionMask.from_json(
+                json_obj["permission_mask"]
+            )
         for channel in json_obj["channels"]:
             new_server.add_channel(Channel.from_json(channel, new_server))
         for user in json_obj["users"]:

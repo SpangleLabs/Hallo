@@ -1,5 +1,4 @@
 class MockRoller:
-
     def __init__(self):
         self.answer = 0
         self.last_min = None

@@ -10,4 +10,5 @@ class Obj:
 class DailysSpreadsheetTest(unittest.TestCase):
     pass
 
+
 # TODO

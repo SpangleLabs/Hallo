@@ -4,7 +4,6 @@ from modules.convert import ConvertRepo, ConvertType, ConvertUnit
 
 
 class ConvertTypeTest(unittest.TestCase):
-
     def test_init(self):
         # Set up test objects
         test_repo = ConvertRepo()

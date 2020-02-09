@@ -101,5 +101,7 @@ class UserGroup:
         """
         new_group = UserGroup(json_obj["name"], hallo)
         if "permission_mask" in json_obj:
-            new_group.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+            new_group.permission_mask = PermissionMask.from_json(
+                json_obj["permission_mask"]
+            )
         return new_group

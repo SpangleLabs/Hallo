@@ -10,9 +10,8 @@ import time
 
 
 class TestBase(unittest.TestCase):
-
     def setUp(self):
-        print("Starting test: "+self.id())
+        print("Starting test: " + self.id())
         self.start_time = time.time()
         # Create a Hallo
         self.hallo = Hallo()
@@ -21,13 +20,16 @@ class TestBase(unittest.TestCase):
         # Only the required modules, only 1 (mock) server
         # Todo: specify modules by test?
         self.function_dispatcher = FunctionDispatcher(
-            {
-                "convert", "random", "server_control", "subscriptions"
-            },
-            self.hallo
+            {"convert", "random", "server_control", "subscriptions"}, self.hallo
         )
         self.hallo.function_dispatcher = self.function_dispatcher
-        print("Running test: "+self.id()+". Init took: "+str(time.time()-self.start_time)+" seconds.")
+        print(
+            "Running test: "
+            + self.id()
+            + ". Init took: "
+            + str(time.time() - self.start_time)
+            + " seconds."
+        )
         self.server = ServerMock(self.hallo)
         self.server.name = "mock-server"
         self.hallo.add_server(self.server)
@@ -35,7 +37,9 @@ class TestBase(unittest.TestCase):
         self.hallo_thread = Thread(target=self.hallo.start,)
         self.hallo_thread.start()
         # Create test users and channel, and configure them
-        self.hallo_user = self.server.get_user_by_address(self.server.get_nick().lower(), self.server.get_nick())
+        self.hallo_user = self.server.get_user_by_address(
+            self.server.get_nick().lower(), self.server.get_nick()
+        )
         self.test_user = self.server.get_user_by_address("test", "test")
         self.test_user.online = True
         self.test_chan = self.server.get_channel_by_address("#test", "#test")
@@ -53,14 +57,32 @@ class TestBase(unittest.TestCase):
         # Clear any data in the server
         self.server.get_send_data()
         # Print test startup time
-        print("Running test: "+self.id()+". Startup took: "+str(time.time()-self.start_time)+" seconds.")
+        print(
+            "Running test: "
+            + self.id()
+            + ". Startup took: "
+            + str(time.time() - self.start_time)
+            + " seconds."
+        )
         self.start_time = time.time()
 
     def tearDown(self):
-        print("Finishing test: "+self.id()+". Test took: "+str(time.time()-self.start_time)+" seconds.")
+        print(
+            "Finishing test: "
+            + self.id()
+            + ". Test took: "
+            + str(time.time() - self.start_time)
+            + " seconds."
+        )
         self.hallo.close()
         self.hallo_thread.join()
-        print("Finished test: "+self.id()+". Test took: "+str(time.time()-self.start_time)+" seconds.")
+        print(
+            "Finished test: "
+            + self.id()
+            + ". Test took: "
+            + str(time.time() - self.start_time)
+            + " seconds."
+        )
 
     @classmethod
     def tearDownClass(cls):

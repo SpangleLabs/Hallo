@@ -7,7 +7,6 @@ from test.modules.convert.test_convert_view_repo import MockMethod
 
 
 class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
-
     def setUp(self):
         super().setUp()
         self.output_add = "{added unit}"
@@ -25,8 +24,14 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         modules.convert.ConvertSet.set_unit = self.unit_set
 
     def test_more_than_two(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "convert set 5 unit1b is 3 unit1a = 5 unit1b"))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server,
+                None,
+                self.test_user,
+                "convert set 5 unit1b is 3 unit1a = 5 unit1b",
+            )
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "are you specifying 3 units?" in data[0].text.lower()
         assert "convert set <value> <old unit> to <new unit>" in data[0].text.lower()
@@ -34,8 +39,9 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert self.mock_set.arg is None
 
     def test_only_one_unit(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "convert set 3 unit1b"))
+        self.function_dispatcher.dispatch(
+            EventMessage(self.server, None, self.test_user, "convert set 3 unit1b")
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "are you specifying 3 units?" in data[0].text.lower()
         assert "convert set <value> <old unit> to <new unit>" in data[0].text.lower()
@@ -43,24 +49,37 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert self.mock_set.arg is None
 
     def test_second_part_invalid_1(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "convert set 5 unit1b is 15 no_unit"))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server, None, self.test_user, "convert set 5 unit1b is 15 no_unit"
+            )
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert "i don't understand the second half of your input" in data[0].text.lower()
+        assert (
+            "i don't understand the second half of your input" in data[0].text.lower()
+        )
         assert self.mock_add.arg is None
         assert self.mock_set.arg is None
 
     def test_second_part_invalid_2(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "convert set 5 unit1b is no_unit"))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server, None, self.test_user, "convert set 5 unit1b is no_unit"
+            )
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert "i don't understand the second half of your input" in data[0].text.lower()
+        assert (
+            "i don't understand the second half of your input" in data[0].text.lower()
+        )
         assert self.mock_add.arg is None
         assert self.mock_set.arg is None
 
     def test_second_part_no_value(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "convert set 5 unit1b is unit1a"))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server, None, self.test_user, "convert set 5 unit1b is unit1a"
+            )
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert data[0].text == self.output_set
         assert self.mock_add.arg is None
@@ -74,8 +93,11 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert measures_to[0].amount == 1
 
     def test_first_part_no_value(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "convert set unit1b is 5 unit1a"))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server, None, self.test_user, "convert set unit1b is 5 unit1a"
+            )
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert data[0].text == self.output_set
         assert self.mock_add.arg is None
@@ -89,8 +111,11 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert measures_to[0].amount == 5
 
     def test_neither_have_value(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "convert set unit1a = unit1b"))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server, None, self.test_user, "convert set unit1a = unit1b"
+            )
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert data[0].text == self.output_set
         assert self.mock_add.arg is None
@@ -104,8 +129,11 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert measures_to[0].amount == 1
 
     def test_both_have_value(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "convert set 15 unit1a = 5 unit1b"))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server, None, self.test_user, "convert set 15 unit1a = 5 unit1b"
+            )
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert data[0].text == self.output_set
         assert self.mock_add.arg is None
@@ -119,8 +147,11 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert measures_to[0].amount == 5
 
     def test_add_new_unit(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "convert set 7 new_unit = 1 unit1a"))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server, None, self.test_user, "convert set 7 new_unit = 1 unit1a"
+            )
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert data[0].text == self.output_add
         assert self.mock_add.arg is not None
@@ -132,8 +163,11 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert measures_to[0].amount == 1
 
     def test_add_new_unit_not_base(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "convert set 35 new_unit = 5 unit1b"))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server, None, self.test_user, "convert set 35 new_unit = 5 unit1b"
+            )
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert data[0].text == self.output_add
         assert self.mock_add.arg is not None
@@ -147,7 +181,6 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
 
 # noinspection PyTypeChecker
 class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
-
     def test_not_same_type(self):
         value_unit1b = self.test_unit1b.value
         measure_from = modules.convert.ConvertMeasure(5, self.test_unit1b)
@@ -163,7 +196,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         measure_from2 = modules.convert.ConvertMeasure(5, self.test_unit1a)
         measure_to1 = modules.convert.ConvertMeasure(3, self.test_unit2a)
         measure_to2 = modules.convert.ConvertMeasure(3, self.test_unit2b)
-        resp = modules.convert.ConvertSet.set_unit(None, [measure_from1, measure_from2], [measure_to1, measure_to2])
+        resp = modules.convert.ConvertSet.set_unit(
+            None, [measure_from1, measure_from2], [measure_to1, measure_to2]
+        )
         assert "these units do not share the same type" in resp.lower()
         assert self.test_unit1a.value == value_unit1a
         assert self.test_unit1b.value == value_unit1b
@@ -174,7 +209,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         measure_from1 = modules.convert.ConvertMeasure(5, self.test_unit1b)
         measure_from2 = modules.convert.ConvertMeasure(5, self.test_unit1a)
         measure_to = modules.convert.ConvertMeasure(3, self.test_unit1a)
-        resp = modules.convert.ConvertSet.set_unit(None, [measure_from1, measure_from2], [measure_to])
+        resp = modules.convert.ConvertSet.set_unit(
+            None, [measure_from1, measure_from2], [measure_to]
+        )
         assert "ambiguous which units you are referring to" in resp.lower()
         assert self.test_unit1a.value == value_unit1a
         assert self.test_unit1b.value == value_unit1b
@@ -395,7 +432,6 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
 # noinspection PyTypeChecker
 class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
-
     def test_no_ref_recognised(self):
         resp = modules.convert.ConvertSet.add_unit(None, "5 new_unit", [])
         assert "there is no defined unit matching the reference name" in resp.lower()
@@ -405,7 +441,9 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         type2_units = len(self.test_type2.get_full_unit_list())
         measure1 = modules.convert.ConvertMeasure(5, self.test_unit1b)
         measure2 = modules.convert.ConvertMeasure(5, self.test_unit2b)
-        resp = modules.convert.ConvertSet.add_unit(None, "5 new_unit", [measure1, measure2])
+        resp = modules.convert.ConvertSet.add_unit(
+            None, "5 new_unit", [measure1, measure2]
+        )
         assert "it is ambiguous which unit you are referring to" in resp.lower()
         assert len(self.test_type1.get_full_unit_list()) == type1_units
         assert len(self.test_type2.get_full_unit_list()) == type2_units
@@ -435,7 +473,9 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         type1_units = len(self.test_type1.get_full_unit_list())
         measure1 = modules.convert.ConvertMeasure(5, self.test_unit1b)
         resp = modules.convert.ConvertSet.add_unit(None, "5 unit2b", [measure1])
-        assert "created new unit unit2b with value: 1 unit2b = 2.0 unit1a" in resp.lower()
+        assert (
+            "created new unit unit2b with value: 1 unit2b = 2.0 unit1a" in resp.lower()
+        )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("unit2b")
         assert new_unit is not None
@@ -449,7 +489,10 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         type1_units = len(self.test_type1.get_full_unit_list())
         measure1 = modules.convert.ConvertMeasure(1, self.test_unit1a)
         resp = modules.convert.ConvertSet.add_unit(None, "5 new_unit", [measure1])
-        assert "created new unit new_unit with value: 1 new_unit = 0.2 unit1a" in resp.lower()
+        assert (
+            "created new unit new_unit with value: 1 new_unit = 0.2 unit1a"
+            in resp.lower()
+        )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("new_unit")
         assert new_unit is not None
@@ -463,7 +506,10 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         type1_units = len(self.test_type1.get_full_unit_list())
         measure1 = modules.convert.ConvertMeasure(5, self.test_unit1a)
         resp = modules.convert.ConvertSet.add_unit(None, "1 new_unit", [measure1])
-        assert "created new unit new_unit with value: 1 new_unit = 5.0 unit1a" in resp.lower()
+        assert (
+            "created new unit new_unit with value: 1 new_unit = 5.0 unit1a"
+            in resp.lower()
+        )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("new_unit")
         assert new_unit is not None
@@ -477,7 +523,10 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         type1_units = len(self.test_type1.get_full_unit_list())
         measure1 = modules.convert.ConvertMeasure(5, self.test_unit1a)
         resp = modules.convert.ConvertSet.add_unit(None, "0 new_unit", [measure1])
-        assert "created new unit new_unit with offset: 0 new_unit = 5.0 unit1a" in resp.lower()
+        assert (
+            "created new unit new_unit with offset: 0 new_unit = 5.0 unit1a"
+            in resp.lower()
+        )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("new_unit")
         assert new_unit is not None
@@ -491,7 +540,10 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         type1_units = len(self.test_type1.get_full_unit_list())
         measure1 = modules.convert.ConvertMeasure(0, self.test_unit1a)
         resp = modules.convert.ConvertSet.add_unit(None, "7 new_unit", [measure1])
-        assert "created new unit new_unit with offset: 0 new_unit = -7.0 unit1a" in resp.lower()
+        assert (
+            "created new unit new_unit with offset: 0 new_unit = -7.0 unit1a"
+            in resp.lower()
+        )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("new_unit")
         assert new_unit is not None
@@ -507,7 +559,10 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1b.value = 5
         measure1 = modules.convert.ConvertMeasure(1, self.test_unit1b)
         resp = modules.convert.ConvertSet.add_unit(None, "2 new_unit", [measure1])
-        assert "created new unit new_unit with value: 1 new_unit = 2.5 unit1a" in resp.lower()
+        assert (
+            "created new unit new_unit with value: 1 new_unit = 2.5 unit1a"
+            in resp.lower()
+        )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("new_unit")
         assert new_unit is not None
@@ -523,7 +578,10 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1b.value = 1
         measure1 = modules.convert.ConvertMeasure(5, self.test_unit1b)
         resp = modules.convert.ConvertSet.add_unit(None, "0 new_unit", [measure1])
-        assert "created new unit new_unit with offset: 0 new_unit = -2.0 unit1a" in resp.lower()
+        assert (
+            "created new unit new_unit with offset: 0 new_unit = -2.0 unit1a"
+            in resp.lower()
+        )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("new_unit")
         assert new_unit is not None

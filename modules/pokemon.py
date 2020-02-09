@@ -27,10 +27,12 @@ class RandomPokemon(Function):
         pokemon_list = []
         # Loop through pokemon, adding to pokemon_list
         for pokemon_elem in pokemon_list_elem.getElementsByTagName("pokemon"):
-            pokemon_dict = {'name': pokemon_elem.getElementsByTagName("name")[0].firstChild.data}
+            pokemon_dict = {
+                "name": pokemon_elem.getElementsByTagName("name")[0].firstChild.data
+            }
             pokemon_list.append(pokemon_dict)
         random_pokemon = Commons.get_random_choice(pokemon_list)[0]
-        return event.create_response("I choose you, {}!".format(random_pokemon['name']))
+        return event.create_response("I choose you, {}!".format(random_pokemon["name"]))
 
 
 class PickATeam(Function):
@@ -57,13 +59,15 @@ class PickATeam(Function):
         pokemon_list = []
         # Loop through pokemon, adding to pokemon_list
         for pokemon_elem in pokemon_list_elem.getElementsByTagName("pokemon"):
-            pokemon_dict = {'name': pokemon_elem.getElementsByTagName("name")[0].firstChild.data}
+            pokemon_dict = {
+                "name": pokemon_elem.getElementsByTagName("name")[0].firstChild.data
+            }
             pokemon_list.append(pokemon_dict)
         random_pokemon_team = Commons.get_random_choice(pokemon_list, 6)
         return event.create_response(
             "Your team is: {} and {}.".format(
-                ", ".join([pokemon['name'] for pokemon in random_pokemon_team[:5]]),
-                random_pokemon_team[5]['name']
+                ", ".join([pokemon["name"] for pokemon in random_pokemon_team[:5]]),
+                random_pokemon_team[5]["name"],
             )
         )
 
@@ -81,7 +85,11 @@ class FullyEvolvedTeam(Function):
         # Name for use in help listing
         self.help_name = "fully evolved team"
         # Names which can be used to address the function
-        self.names = {"pick a fully evolved team", "fully evolved team", "fullyevolvedteam"}
+        self.names = {
+            "pick a fully evolved team",
+            "fully evolved team",
+            "fullyevolvedteam",
+        }
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Pick a fully evolved pokemon team."
 
@@ -92,15 +100,17 @@ class FullyEvolvedTeam(Function):
         pokemon_list = []
         # Loop through pokemon, adding to pokemon_list if they cannot evolve.
         for pokemon_elem in pokemon_list_elem.getElementsByTagName("pokemon"):
-            pokemon_dict = {'name': pokemon_elem.getElementsByTagName("name")[0].firstChild.data}
+            pokemon_dict = {
+                "name": pokemon_elem.getElementsByTagName("name")[0].firstChild.data
+            }
             evolution_choices = len(pokemon_elem.getElementsByTagName("evolve_to"))
             if evolution_choices == 0:
                 pokemon_list.append(pokemon_dict)
         random_pokemon_team = Commons.get_random_choice(pokemon_list, 6)
         return event.create_response(
             "Your team is: {} and {}.".format(
-                ", ".join([pokemon['name'] for pokemon in random_pokemon_team[:5]]),
-                random_pokemon_team[5]['name']
+                ", ".join([pokemon["name"] for pokemon in random_pokemon_team[:5]]),
+                random_pokemon_team[5]["name"],
             )
         )
 
@@ -130,8 +140,12 @@ class Pokedex(Function):
         # Loop through pokemon, searching for the specified pokemon
         selected_pokemon_elem = None
         for pokemon_elem in pokemon_list_elem.getElementsByTagName("pokemon"):
-            pokemon_name = pokemon_elem.getElementsByTagName("name")[0].firstChild.data.lower()
-            pokemon_number = pokemon_elem.getElementsByTagName("dex_number")[0].firstChild.data
+            pokemon_name = pokemon_elem.getElementsByTagName("name")[
+                0
+            ].firstChild.data.lower()
+            pokemon_number = pokemon_elem.getElementsByTagName("dex_number")[
+                0
+            ].firstChild.data
             if line_clean == pokemon_name or line_clean == pokemon_number:
                 selected_pokemon_elem = pokemon_elem
                 break
@@ -139,7 +153,11 @@ class Pokedex(Function):
         if selected_pokemon_elem is None:
             return event.create_response("No available pokedex data.")
         # Select a random pokedex entry
-        pokedex_entry_list_elem = selected_pokemon_elem.getElementsByTagName("dex_entry_list")
-        pokedex_entry_elem = Commons.get_random_choice(pokedex_entry_list_elem.getElementsByTagName("dex_entry"))[0]
+        pokedex_entry_list_elem = selected_pokemon_elem.getElementsByTagName(
+            "dex_entry_list"
+        )
+        pokedex_entry_elem = Commons.get_random_choice(
+            pokedex_entry_list_elem.getElementsByTagName("dex_entry")
+        )[0]
         pokedex_entry_text = pokedex_entry_elem.firstChild.data
         return event.create_response(pokedex_entry_text)

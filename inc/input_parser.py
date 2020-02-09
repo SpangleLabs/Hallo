@@ -4,7 +4,6 @@ from inc.commons import Commons
 
 
 class InputParser:
-
     def __init__(self, raw_input):
         """
         :type raw_input: str
@@ -18,10 +17,18 @@ class InputParser:
 
     def parse_args(self):
         regexes = [
-            re.compile(r"([\"'])(?P<key>[^=]+?)\1=([\"'])(?P<value>.*?)\3"),  # quoted key, quoted args
-            re.compile(r"(?P<key>[^\s]+)=([\"'])(?P<value>.*?)\2"),  # unquoted key, quoted args
-            re.compile(r"([\"'])(?P<key>[^=]+?)\1=(?P<value>[^\s]*)"),  # quoted key, unquoted args
-            re.compile(r"(?P<key>[^\s]+)=(?P<value>[^\s]*)")  # unquoted key, unquoted args
+            re.compile(
+                r"([\"'])(?P<key>[^=]+?)\1=([\"'])(?P<value>.*?)\3"
+            ),  # quoted key, quoted args
+            re.compile(
+                r"(?P<key>[^\s]+)=([\"'])(?P<value>.*?)\2"
+            ),  # unquoted key, quoted args
+            re.compile(
+                r"([\"'])(?P<key>[^=]+?)\1=(?P<value>[^\s]*)"
+            ),  # quoted key, unquoted args
+            re.compile(
+                r"(?P<key>[^\s]+)=(?P<value>[^\s]*)"
+            ),  # unquoted key, unquoted args
         ]
         for regex in regexes:
             for match in regex.finditer(self.remaining_text):
@@ -57,7 +64,7 @@ class InputParser:
             return []
         # Start splitting from shortest left-string to longest.
         input_sections = [
-            [" ".join(line_split[:x + 1]), " ".join(line_split[x + 1:])]
+            [" ".join(line_split[: x + 1]), " ".join(line_split[x + 1 :])]
             for x in range(len(line_split) - 1)
         ]
         results = []

@@ -20,9 +20,13 @@ class Destination(metaclass=ABCMeta):
         """:type : bool"""
         self.last_active = None  # Timestamp of when they were last active
         """:type : float | None"""
-        self.use_caps_lock = False  # Whether to use caps lock when communicating to this destination
+        self.use_caps_lock = (
+            False  # Whether to use caps lock when communicating to this destination
+        )
         """:type : bool"""
-        self.permission_mask = PermissionMask()  # PermissionMask for the destination object
+        self.permission_mask = (
+            PermissionMask()
+        )  # PermissionMask for the destination object
         """:type : PermissionMask.PermissionMask"""
         self.memberships_list = set()  # Set of ChannelMemberships for User or Channel
         """:type : set[ChannelMembership]"""
@@ -64,7 +68,6 @@ class Destination(metaclass=ABCMeta):
 
 
 class Channel(Destination):
-
     def __init__(self, server, address, name):
         """
         Constructor for channel object
@@ -78,13 +81,19 @@ class Channel(Destination):
         """:type : bool"""
         self.passive_enabled = True  # Whether to use passive functions in the channel
         """:type : bool"""
-        self.auto_join = False  # Whether hallo should automatically join this channel when loading
+        self.auto_join = (
+            False  # Whether hallo should automatically join this channel when loading
+        )
         """:type : bool"""
         self.prefix = None  # Prefix for calling functions. None means inherit from Server. False means use nick.
         """:type : bool | None | str"""
 
     def __eq__(self, other):
-        return isinstance(other, Channel) and self.server == other.server and self.address == other.address
+        return (
+            isinstance(other, Channel)
+            and self.server == other.server
+            and self.address == other.address
+        )
 
     def __hash__(self):
         return hash(self.address)
@@ -250,12 +259,13 @@ class Channel(Destination):
         if "password" in json_obj:
             new_channel.password = json_obj["password"]
         if "permission_mask" in json_obj:
-            new_channel.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+            new_channel.permission_mask = PermissionMask.from_json(
+                json_obj["permission_mask"]
+            )
         return new_channel
 
 
 class User(Destination):
-
     def __init__(self, server, address, name):
         """
         Constructor for user object
@@ -272,11 +282,17 @@ class User(Destination):
         """:type : bool"""
         self.user_group_list = set()  # List of UserGroups this User is a member of
         """:type : set[UserGroup.UserGroup]"""
-        self.extra_data_dict = dict()  # Dictionary of extra data, in the format of str->Any
+        self.extra_data_dict = (
+            dict()
+        )  # Dictionary of extra data, in the format of str->Any
         """:type : dict[str, Any]"""
 
     def __eq__(self, other):
-        return isinstance(other, User) and self.server == other.server and self.address == other.address
+        return (
+            isinstance(other, User)
+            and self.server == other.server
+            and self.address == other.address
+        )
 
     def __hash__(self):
         return hash(self.address)
@@ -360,7 +376,12 @@ class User(Destination):
                 return right_value
         # Check UserGroup rights, if any apply
         if len(self.user_group_list) != 0:
-            return any([user_group.rights_check(right_name, self, channel_obj) for user_group in self.user_group_list])
+            return any(
+                [
+                    user_group.rights_check(right_name, self, channel_obj)
+                    for user_group in self.user_group_list
+                ]
+            )
         # Fall back to channel, if defined
         if channel_obj is not None:
             return channel_obj.rights_check(right_name)
@@ -418,14 +439,15 @@ class User(Destination):
             if user_group is not None:
                 new_user.add_user_group(user_group)
         if "permission_mask" in json_obj:
-            new_user.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+            new_user.permission_mask = PermissionMask.from_json(
+                json_obj["permission_mask"]
+            )
         if "extra_data" in json_obj:
             new_user.extra_data_dict = json_obj["extra_data"]
         return new_user
 
 
 class ChannelMembership:
-
     def __init__(self, channel, user):
         """
         Constructor for ChannelMembership
@@ -441,7 +463,10 @@ class ChannelMembership:
         self.join_time = time.time()
 
     def __eq__(self, other):
-        return isinstance(other, ChannelMembership) and (self.channel, self.user) == (other.channel, other.user)
+        return isinstance(other, ChannelMembership) and (self.channel, self.user) == (
+            other.channel,
+            other.user,
+        )
 
     def __hash__(self):
         return (self.channel, self.user).__hash__()

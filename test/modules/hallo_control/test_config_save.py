@@ -8,7 +8,9 @@ def test_save_config(hallo_getter):
     try:
         mock_hallo = HalloMock()
         test_user.server.hallo = mock_hallo
-        hallo.function_dispatcher.dispatch(EventMessage(test_server, None, test_user, "config save"))
+        hallo.function_dispatcher.dispatch(
+            EventMessage(test_server, None, test_user, "config save")
+        )
         data = test_server.get_send_data(1, test_user, EventMessage)
         assert "error" not in data[0].text.lower()
         assert "config has been saved" in data[0].text.lower()

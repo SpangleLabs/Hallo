@@ -28,7 +28,7 @@ def test_quoted_args_unquoted_values():
 
 
 def test_unquoted_args_quoted_values():
-    p = InputParser("yo base unit=\"hello world\"")
+    p = InputParser('yo base unit="hello world"')
     assert p.remaining_text == "yo base"
     assert p.args_dict["unit"] == "hello world"
 
@@ -40,16 +40,18 @@ def test_unquoted_args_unquoted_values():
 
 
 def test_mismatched_quotes():
-    p = InputParser("yo 'base unit\"=\"hello world\"")
+    p = InputParser('yo \'base unit"="hello world"')
     assert p.remaining_text == "yo 'base"
-    assert p.args_dict["unit\""] == "hello world"
+    assert p.args_dict['unit"'] == "hello world"
     p = InputParser("yo 'base unit'=\"hello's world\"")
     assert p.remaining_text == "yo"
     assert p.args_dict["base unit"] == "hello's world"
 
 
 def test_all_types():
-    p = InputParser("yo 'base unit'=\"hello world\" arg1='value 1' 'arg 2'=val2 arg3=val3")
+    p = InputParser(
+        "yo 'base unit'=\"hello world\" arg1='value 1' 'arg 2'=val2 arg3=val3"
+    )
     assert p.remaining_text == "yo"
     assert p.args_dict["base unit"] == "hello world"
     assert p.args_dict["arg1"] == "value 1"

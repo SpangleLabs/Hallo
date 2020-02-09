@@ -1,9 +1,8 @@
-
-
 class PermissionMask(object):
     """
     Permission mask object, stores which rights are enabled or disabled by level
     """
+
     rights_map = None
 
     def __init__(self):
@@ -29,9 +28,9 @@ class PermissionMask(object):
             value = value.lower()
         except AttributeError:
             pass
-        if value == 'true' or value == '1' or value == 1:
+        if value == "true" or value == "1" or value == 1:
             value = True
-        if value == 'false' or value == '0' or value == 0:
+        if value == "false" or value == "0" or value == 0:
             value = False
         if value in [True, False]:
             self.rights_map[right] = value

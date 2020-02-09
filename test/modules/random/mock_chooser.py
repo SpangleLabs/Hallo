@@ -1,5 +1,4 @@
 class MockChooser:
-
     def __init__(self):
         self.choice = 0
         self.last_choices = None

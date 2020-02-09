@@ -8,7 +8,6 @@ from test.test_base import TestBase
 
 
 class MockUpdate:
-
     def __init__(self, answer):
         self.answer = answer
         self.was_called = False
@@ -23,13 +22,14 @@ class MockUpdate:
 
 
 class UpdateCurrenciesTest(TestBase, unittest.TestCase):
-
     def test_run(self):
         update_all = modules.convert.UpdateCurrencies.update_all
         mock_update_all = MockUpdate(["Check method called"])
         modules.convert.UpdateCurrencies.update_all = mock_update_all.method
         try:
-            self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "update currencies"))
+            self.function_dispatcher.dispatch(
+                EventMessage(self.server, None, self.test_user, "update currencies")
+            )
             data = self.server.get_send_data(1, self.test_user, EventMessage)
             assert data[0].text == "Check method called"
             assert mock_update_all.was_called, "update_all() wasn't called."
@@ -54,24 +54,40 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
         mock_cryptonator = MockUpdate(None)
         update_ecb = modules.convert.UpdateCurrencies.update_from_european_bank_data
         update_forex = modules.convert.UpdateCurrencies.update_from_forex_data
-        update_cryptonator = modules.convert.UpdateCurrencies.update_from_cryptonator_data
-        modules.convert.UpdateCurrencies.update_from_european_bank_data = mock_ecb.method
+        update_cryptonator = (
+            modules.convert.UpdateCurrencies.update_from_cryptonator_data
+        )
+        modules.convert.UpdateCurrencies.update_from_european_bank_data = (
+            mock_ecb.method
+        )
         modules.convert.UpdateCurrencies.update_from_forex_data = mock_forex.method
-        modules.convert.UpdateCurrencies.update_from_cryptonator_data = mock_cryptonator.method
+        modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+            mock_cryptonator.method
+        )
         try:
             # Test update_all calls all 3, and gives reply
-            self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "update currencies"))
+            self.function_dispatcher.dispatch(
+                EventMessage(self.server, None, self.test_user, "update currencies")
+            )
             data = self.server.get_send_data(1, self.test_user, EventMessage)
-            assert "Updated currency data from the European Central Bank" in data[0].text
+            assert (
+                "Updated currency data from the European Central Bank" in data[0].text
+            )
             assert "Updated currency data from Forex" in data[0].text
             assert "Updated currency data from Cryptonator" in data[0].text
-            assert mock_ecb.was_called, "update_from_european_bank_data() wasn't called."
+            assert (
+                mock_ecb.was_called
+            ), "update_from_european_bank_data() wasn't called."
             assert mock_forex.was_called, "update_from_forex_data() wasn't called."
-            assert mock_cryptonator.was_called, "update_from_cryptonator_data() wasn't called."
+            assert (
+                mock_cryptonator.was_called
+            ), "update_from_cryptonator_data() wasn't called."
         finally:
             modules.convert.UpdateCurrencies.update_from_european_bank_data = update_ecb
             modules.convert.UpdateCurrencies.update_from_forex_data = update_forex
-            modules.convert.UpdateCurrencies.update_from_cryptonator_data = update_cryptonator
+            modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+                update_cryptonator
+            )
 
     def test_update_all_fail_ecb(self):
         # Mock out methods
@@ -80,25 +96,39 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
         mock_cryptonator = MockUpdate(None)
         update_ecb = modules.convert.UpdateCurrencies.update_from_european_bank_data
         update_forex = modules.convert.UpdateCurrencies.update_from_forex_data
-        update_cryptonator = modules.convert.UpdateCurrencies.update_from_cryptonator_data
-        modules.convert.UpdateCurrencies.update_from_european_bank_data = mock_ecb.method_throws
+        update_cryptonator = (
+            modules.convert.UpdateCurrencies.update_from_cryptonator_data
+        )
+        modules.convert.UpdateCurrencies.update_from_european_bank_data = (
+            mock_ecb.method_throws
+        )
         modules.convert.UpdateCurrencies.update_from_forex_data = mock_forex.method
-        modules.convert.UpdateCurrencies.update_from_cryptonator_data = mock_cryptonator.method
+        modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+            mock_cryptonator.method
+        )
         try:
             # Test update_all calls all 3, and gives reply
-            self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "update currencies"))
+            self.function_dispatcher.dispatch(
+                EventMessage(self.server, None, self.test_user, "update currencies")
+            )
             data = self.server.get_send_data(1, self.test_user, EventMessage)
             assert "Failed to update European Central Bank data" in data[0].text
             assert "HTTPException: 403" in data[0].text
             assert "Updated currency data from Forex" in data[0].text
             assert "Updated currency data from Cryptonator" in data[0].text
-            assert mock_ecb.was_called, "update_from_european_bank_data() wasn't called."
+            assert (
+                mock_ecb.was_called
+            ), "update_from_european_bank_data() wasn't called."
             assert mock_forex.was_called, "update_from_forex_data() wasn't called."
-            assert mock_cryptonator.was_called, "update_from_cryptonator_data() wasn't called."
+            assert (
+                mock_cryptonator.was_called
+            ), "update_from_cryptonator_data() wasn't called."
         finally:
             modules.convert.UpdateCurrencies.update_from_european_bank_data = update_ecb
             modules.convert.UpdateCurrencies.update_from_forex_data = update_forex
-            modules.convert.UpdateCurrencies.update_from_cryptonator_data = update_cryptonator
+            modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+                update_cryptonator
+            )
 
     def test_update_all_fail_forex(self):
         # Mock out methods
@@ -107,25 +137,43 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
         mock_cryptonator = MockUpdate(None)
         update_ecb = modules.convert.UpdateCurrencies.update_from_european_bank_data
         update_forex = modules.convert.UpdateCurrencies.update_from_forex_data
-        update_cryptonator = modules.convert.UpdateCurrencies.update_from_cryptonator_data
-        modules.convert.UpdateCurrencies.update_from_european_bank_data = mock_ecb.method
-        modules.convert.UpdateCurrencies.update_from_forex_data = mock_forex.method_throws
-        modules.convert.UpdateCurrencies.update_from_cryptonator_data = mock_cryptonator.method
+        update_cryptonator = (
+            modules.convert.UpdateCurrencies.update_from_cryptonator_data
+        )
+        modules.convert.UpdateCurrencies.update_from_european_bank_data = (
+            mock_ecb.method
+        )
+        modules.convert.UpdateCurrencies.update_from_forex_data = (
+            mock_forex.method_throws
+        )
+        modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+            mock_cryptonator.method
+        )
         try:
             # Test update_all calls all 3, and gives reply
-            self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "update currencies"))
+            self.function_dispatcher.dispatch(
+                EventMessage(self.server, None, self.test_user, "update currencies")
+            )
             data = self.server.get_send_data(1, self.test_user, EventMessage)
-            assert "Updated currency data from the European Central Bank" in data[0].text
+            assert (
+                "Updated currency data from the European Central Bank" in data[0].text
+            )
             assert "Failed to update Forex data" in data[0].text
             assert "HTTPException: 403" in data[0].text
             assert "Updated currency data from Cryptonator" in data[0].text
-            assert mock_ecb.was_called, "update_from_european_bank_data() wasn't called."
+            assert (
+                mock_ecb.was_called
+            ), "update_from_european_bank_data() wasn't called."
             assert mock_forex.was_called, "update_from_forex_data() wasn't called."
-            assert mock_cryptonator.was_called, "update_from_cryptonator_data() wasn't called."
+            assert (
+                mock_cryptonator.was_called
+            ), "update_from_cryptonator_data() wasn't called."
         finally:
             modules.convert.UpdateCurrencies.update_from_european_bank_data = update_ecb
             modules.convert.UpdateCurrencies.update_from_forex_data = update_forex
-            modules.convert.UpdateCurrencies.update_from_cryptonator_data = update_cryptonator
+            modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+                update_cryptonator
+            )
 
     def test_update_all_fail_cryptonator(self):
         # Mock out methods
@@ -134,25 +182,41 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
         mock_cryptonator = MockUpdate("HTTPException: 403")
         update_ecb = modules.convert.UpdateCurrencies.update_from_european_bank_data
         update_forex = modules.convert.UpdateCurrencies.update_from_forex_data
-        update_cryptonator = modules.convert.UpdateCurrencies.update_from_cryptonator_data
-        modules.convert.UpdateCurrencies.update_from_european_bank_data = mock_ecb.method
+        update_cryptonator = (
+            modules.convert.UpdateCurrencies.update_from_cryptonator_data
+        )
+        modules.convert.UpdateCurrencies.update_from_european_bank_data = (
+            mock_ecb.method
+        )
         modules.convert.UpdateCurrencies.update_from_forex_data = mock_forex.method
-        modules.convert.UpdateCurrencies.update_from_cryptonator_data = mock_cryptonator.method_throws
+        modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+            mock_cryptonator.method_throws
+        )
         try:
             # Test update_all calls all 3, and gives reply
-            self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "update currencies"))
+            self.function_dispatcher.dispatch(
+                EventMessage(self.server, None, self.test_user, "update currencies")
+            )
             data = self.server.get_send_data(1, self.test_user, EventMessage)
-            assert "Updated currency data from the European Central Bank" in data[0].text
+            assert (
+                "Updated currency data from the European Central Bank" in data[0].text
+            )
             assert "Updated currency data from Forex" in data[0].text
             assert "Failed to update Cryptonator data" in data[0].text
             assert "HTTPException: 403" in data[0].text
-            assert mock_ecb.was_called, "update_from_european_bank_data() wasn't called."
+            assert (
+                mock_ecb.was_called
+            ), "update_from_european_bank_data() wasn't called."
             assert mock_forex.was_called, "update_from_forex_data() wasn't called."
-            assert mock_cryptonator.was_called, "update_from_cryptonator_data() wasn't called."
+            assert (
+                mock_cryptonator.was_called
+            ), "update_from_cryptonator_data() wasn't called."
         finally:
             modules.convert.UpdateCurrencies.update_from_european_bank_data = update_ecb
             modules.convert.UpdateCurrencies.update_from_forex_data = update_forex
-            modules.convert.UpdateCurrencies.update_from_cryptonator_data = update_cryptonator
+            modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+                update_cryptonator
+            )
 
     def test_update_all_fail_all(self):
         # Mock out methods
@@ -161,13 +225,23 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
         mock_cryptonator = MockUpdate("HTTPException: 404")
         update_ecb = modules.convert.UpdateCurrencies.update_from_european_bank_data
         update_forex = modules.convert.UpdateCurrencies.update_from_forex_data
-        update_cryptonator = modules.convert.UpdateCurrencies.update_from_cryptonator_data
-        modules.convert.UpdateCurrencies.update_from_european_bank_data = mock_ecb.method_throws
-        modules.convert.UpdateCurrencies.update_from_forex_data = mock_forex.method_throws
-        modules.convert.UpdateCurrencies.update_from_cryptonator_data = mock_cryptonator.method_throws
+        update_cryptonator = (
+            modules.convert.UpdateCurrencies.update_from_cryptonator_data
+        )
+        modules.convert.UpdateCurrencies.update_from_european_bank_data = (
+            mock_ecb.method_throws
+        )
+        modules.convert.UpdateCurrencies.update_from_forex_data = (
+            mock_forex.method_throws
+        )
+        modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+            mock_cryptonator.method_throws
+        )
         try:
             # Test update_all calls all 3, and gives reply
-            self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "update currencies"))
+            self.function_dispatcher.dispatch(
+                EventMessage(self.server, None, self.test_user, "update currencies")
+            )
             data = self.server.get_send_data(1, self.test_user, EventMessage)
             assert "Failed to update European Central Bank data" in data[0].text
             assert "HTTPException: 403" in data[0].text
@@ -175,13 +249,19 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
             assert "HTTPException: 500" in data[0].text
             assert "Failed to update Cryptonator data" in data[0].text
             assert "HTTPException: 404" in data[0].text
-            assert mock_ecb.was_called, "update_from_european_bank_data() wasn't called."
+            assert (
+                mock_ecb.was_called
+            ), "update_from_european_bank_data() wasn't called."
             assert mock_forex.was_called, "update_from_forex_data() wasn't called."
-            assert mock_cryptonator.was_called, "update_from_cryptonator_data() wasn't called."
+            assert (
+                mock_cryptonator.was_called
+            ), "update_from_cryptonator_data() wasn't called."
         finally:
             modules.convert.UpdateCurrencies.update_from_european_bank_data = update_ecb
             modules.convert.UpdateCurrencies.update_from_forex_data = update_forex
-            modules.convert.UpdateCurrencies.update_from_cryptonator_data = update_cryptonator
+            modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+                update_cryptonator
+            )
 
     @pytest.mark.external_integration
     def test_update_ecb(self):
@@ -191,9 +271,37 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
         test_type.base_unit = modules.convert.ConvertUnit(test_type, ["EUR"], 1)
         test_repo.add_type(test_type)
         currency_codes = [
-            "USD", "JPY", "BGN", "CZK", "DKK", "GBP", "HUF", "PLN", "RON", "SEK", "CHF", "ISK", "NOK",
-            "HRK", "RUB", "TRY", "AUD", "BRL", "CAD", "CNY", "HKD", "IDR", "ILS", "INR", "KRW", "MXN",
-            "NZD", "PHP", "SGD", "THB", "ZAR"
+            "USD",
+            "JPY",
+            "BGN",
+            "CZK",
+            "DKK",
+            "GBP",
+            "HUF",
+            "PLN",
+            "RON",
+            "SEK",
+            "CHF",
+            "ISK",
+            "NOK",
+            "HRK",
+            "RUB",
+            "TRY",
+            "AUD",
+            "BRL",
+            "CAD",
+            "CNY",
+            "HKD",
+            "IDR",
+            "ILS",
+            "INR",
+            "KRW",
+            "MXN",
+            "NZD",
+            "PHP",
+            "SGD",
+            "THB",
+            "ZAR",
         ]
         for code in currency_codes:
             test_unit = modules.convert.ConvertUnit(test_type, [code], 0)
@@ -213,7 +321,18 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
         test_type = modules.convert.ConvertType(test_repo, "currency")
         test_type.base_unit = modules.convert.ConvertUnit(test_type, ["EUR"], 1)
         test_repo.add_type(test_type)
-        currency_codes = ["USD", "CHF", "GBP", "JPY", "AUD", "CAD", "SEK", "NOK", "NZD", "TRY"]
+        currency_codes = [
+            "USD",
+            "CHF",
+            "GBP",
+            "JPY",
+            "AUD",
+            "CAD",
+            "SEK",
+            "NOK",
+            "NZD",
+            "TRY",
+        ]
         for code in currency_codes:
             test_unit = modules.convert.ConvertUnit(test_type, [code], 0)
             test_type.add_unit(test_unit)

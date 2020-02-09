@@ -66,7 +66,9 @@ class Alarm(Function):
         self.help_docs = "Alarm. Format: alarm <subject>"
 
     def run(self, event):
-        return event.create_response("woo woooooo woooooo {} wooo wooo!".format(event.command_args))
+        return event.create_response(
+            "woo woooooo woooooo {} wooo wooo!".format(event.command_args)
+        )
 
 
 class SlowClap(Function):
@@ -91,21 +93,35 @@ class SlowClap(Function):
         server_obj = event.server
         if line_clean == "":
             if event.channel is not None:
-                server_obj.send(EventMessage(server_obj, event.channel, None, "*clap*", inbound=False))
+                server_obj.send(
+                    EventMessage(
+                        server_obj, event.channel, None, "*clap*", inbound=False
+                    )
+                )
                 time.sleep(0.5)
-                server_obj.send(EventMessage(server_obj, event.channel, None, "*clap*", inbound=False))
+                server_obj.send(
+                    EventMessage(
+                        server_obj, event.channel, None, "*clap*", inbound=False
+                    )
+                )
                 time.sleep(2)
-                return event.create_response('*clap.*')
+                return event.create_response("*clap.*")
             else:
                 return event.create_response("Error, you want me to slowclap yourself?")
         channel_obj = server_obj.get_channel_by_name(line_clean)
         if not channel_obj.in_channel:
             return event.create_response("Error, I'm not in that channel.")
-        server_obj.send(EventMessage(server_obj, channel_obj, None, "*clap*", inbound=False))
+        server_obj.send(
+            EventMessage(server_obj, channel_obj, None, "*clap*", inbound=False)
+        )
         time.sleep(0.5)
-        server_obj.send(EventMessage(server_obj, channel_obj, None, "*clap*", inbound=False))
+        server_obj.send(
+            EventMessage(server_obj, channel_obj, None, "*clap*", inbound=False)
+        )
         time.sleep(2)
-        server_obj.send(EventMessage(server_obj, channel_obj, None, "*clap.*", inbound=False))
+        server_obj.send(
+            EventMessage(server_obj, channel_obj, None, "*clap.*", inbound=False)
+        )
         return event.create_response("done. :)")
 
 
@@ -129,7 +145,7 @@ class Boop(Function):
     def run(self, event):
         """Boops people. Format: boop <name>"""
         line_clean = event.command_args.strip().lower()
-        if line_clean == '':
+        if line_clean == "":
             return event.create_response(
                 "Error, this function boops people, as such you need to specify a person "
                 "for me to boop, in the form 'Hallo boop <name>' but without the <> brackets."
@@ -146,11 +162,22 @@ class Boop(Function):
                     "if using function from private message."
                 )
             dest_user_obj = server_obj.get_user_by_name(line_clean)
-            if dest_user_obj is None \
-                    or not dest_user_obj.online \
-                    or dest_user_obj not in event.channel.get_user_list():
-                return event.create_response("Error, No one by that name is online or in channel.")
-            server_obj.send(EventCTCP(server_obj, event.channel, None, "ACTION boops {}.".format(dest_user_obj.name)))
+            if (
+                dest_user_obj is None
+                or not dest_user_obj.online
+                or dest_user_obj not in event.channel.get_user_list()
+            ):
+                return event.create_response(
+                    "Error, No one by that name is online or in channel."
+                )
+            server_obj.send(
+                EventCTCP(
+                    server_obj,
+                    event.channel,
+                    None,
+                    "ACTION boops {}.".format(dest_user_obj.name),
+                )
+            )
             return event.create_response("Done.")
         # If two arguments, see if one is a channel and the other a user.
         channel_test_1 = server_obj.get_channel_by_name(line_split[0])
@@ -163,12 +190,24 @@ class Boop(Function):
                 dest_channel = channel_test_2
                 dest_user = server_obj.get_user_by_name(line_split[0])
             else:
-                return event.create_response("Error, I'm not in any channel by that name.")
+                return event.create_response(
+                    "Error, I'm not in any channel by that name."
+                )
         # If user by that name is not online, return a message saying that.
-        if dest_user is None or not dest_user.online or dest_user not in dest_channel.get_user_list():
-            return event.create_response("Error, No user by that name is known and/or online.")
+        if (
+            dest_user is None
+            or not dest_user.online
+            or dest_user not in dest_channel.get_user_list()
+        ):
+            return event.create_response(
+                "Error, No user by that name is known and/or online."
+            )
         # Send boop, then return done.
-        server_obj.send(EventCTCP(server_obj, dest_channel, None, "ACTION boops {}".format(dest_user.name)))
+        server_obj.send(
+            EventCTCP(
+                server_obj, dest_channel, None, "ACTION boops {}".format(dest_user.name)
+            )
+        )
         return event.create_response("Done.")
 
 
@@ -189,11 +228,17 @@ class ReplyMessage:
         channel_name = destination_obj.name.lower()
         # If a whitelist is set, check that
         if len(self.whitelist) != 0:
-            if server_name in self.whitelist and channel_name in self.whitelist[server_name]:
+            if (
+                server_name in self.whitelist
+                and channel_name in self.whitelist[server_name]
+            ):
                 return True
             return False
         # Otherwise check blacklist
-        if server_name in self.blacklist and channel_name in self.blacklist[server_name]:
+        if (
+            server_name in self.blacklist
+            and channel_name in self.blacklist[server_name]
+        ):
             return False
         return True
 
@@ -280,14 +325,22 @@ class ReplyMessage:
         # Get blacklists
         blacklist_elem_list = doc.getElementsByTagName("blacklist")
         for blacklist_elem in blacklist_elem_list:
-            new_server = blacklist_elem.getElementsByTagName("server")[0].firstChild.data
-            new_channel = blacklist_elem.getElementsByTagName("channel")[0].firstChild.data
+            new_server = blacklist_elem.getElementsByTagName("server")[
+                0
+            ].firstChild.data
+            new_channel = blacklist_elem.getElementsByTagName("channel")[
+                0
+            ].firstChild.data
             new_reply_message.add_blacklist(new_server, new_channel)
         # Get whitelists
         whitelist_elem_list = doc.getElementsByTagName("whitelist")
         for whitelist_elem in whitelist_elem_list:
-            new_server = whitelist_elem.getElementsByTagName("server")[0].firstChild.data
-            new_channel = whitelist_elem.getElementsByTagName("channel")[0].firstChild.data
+            new_server = whitelist_elem.getElementsByTagName("server")[
+                0
+            ].firstChild.data
+            new_channel = whitelist_elem.getElementsByTagName("channel")[
+                0
+            ].firstChild.data
             new_reply_message.add_whitelist(new_server, new_channel)
         # Returned the newly built ReplyMessage
         return new_reply_message
@@ -310,7 +363,9 @@ class ReplyMessageList:
         for reply_message in self.reply_message_list:
             if not reply_message.check_destination(channel_obj):
                 continue
-            response = response or reply_message.check_response(full_line, user_obj, channel_obj)
+            response = response or reply_message.check_response(
+                full_line, user_obj, channel_obj
+            )
         return response
 
     @staticmethod
@@ -331,11 +386,9 @@ class ReplyMessageList:
         # Create document, with DTD
         doc_imp = minidom.DOMImplementation()
         doc_type = doc_imp.createDocumentType(
-            qualifiedName='reply_list',
-            publicId='',
-            systemId='reply_list.dtd',
+            qualifiedName="reply_list", publicId="", systemId="reply_list.dtd",
         )
-        doc = doc_imp.createDocument(None, 'reply_list', doc_type)
+        doc = doc_imp.createDocument(None, "reply_list", doc_type)
         # get root element
         root = doc.getElementsByTagName("reply_list")[0]
         # Add reply message objects
@@ -361,7 +414,9 @@ class Reply(Function):
         # Names which can be used to address the function
         self.names = {"reply"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Make hallo reply to a detected phrase with a specified response."
+        self.help_docs = (
+            "Make hallo reply to a detected phrase with a specified response."
+        )
 
     def run(self, event):
         return event.create_response("Error, Not yet handled.")
@@ -376,7 +431,9 @@ class Reply(Function):
         if not isinstance(event, EventMessage):
             return
         reply_message_list = ReplyMessageList.load_from_xml()
-        response = reply_message_list.get_response(event.text, event.user, event.channel)
+        response = reply_message_list.get_response(
+            event.text, event.user, event.channel
+        )
         if response is None:
             return None
         return event.create_response(response)

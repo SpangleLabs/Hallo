@@ -11,6 +11,7 @@ class ISO8601ParseError(SyntaxError):
     """
     ISO-8601 parsing error
     """
+
     pass
 
 
@@ -18,7 +19,8 @@ class Commons(object):
     """
     Class of commons methods, useful anywhere, but all static.
     """
-    END_LINE = '\r\n'
+
+    END_LINE = "\r\n"
     BOOL_STRING_DICT = {True: "True", False: "False", None: "None"}
 
     @staticmethod
@@ -36,12 +38,12 @@ class Commons(object):
         if len(string) <= length:
             return [string]
         else:
-            list_of_strings = [string[:length - 3] + '...']
-            rest_of_string = string[length - 3:]
+            list_of_strings = [string[: length - 3] + "..."]
+            rest_of_string = string[length - 3 :]
             while len(rest_of_string) > length - 3:
-                list_of_strings += ['...' + rest_of_string[:length - 6] + '...']
-                rest_of_string = rest_of_string[length - 6:]
-            list_of_strings += ['...' + rest_of_string]
+                list_of_strings += ["..." + rest_of_string[: length - 6] + "..."]
+                rest_of_string = rest_of_string[length - 6 :]
+            list_of_strings += ["..." + rest_of_string]
             return list_of_strings
 
     @staticmethod
@@ -49,8 +51,8 @@ class Commons(object):
         with open(filename, "r") as f:
             file_list = []
             raw_line = f.readline()
-            while raw_line != '':
-                file_list.append(raw_line.replace("\n", ''))
+            while raw_line != "":
+                file_list.append(raw_line.replace("\n", ""))
                 raw_line = f.readline()
             return file_list
 
@@ -70,7 +72,7 @@ class Commons(object):
             tld_list = [x.strip() for x in f.read().decode("utf-8").split("\n")]
         url_split = url.split(".")
         url_tld = None
-        for tld_test in ['.'.join(url_split[x:]) for x in range(len(url_split))]:
+        for tld_test in [".".join(url_split[x:]) for x in range(len(url_split))]:
             if tld_test in tld_list:
                 url_tld = tld_test
                 break
@@ -79,7 +81,7 @@ class Commons(object):
             # noinspection PyTypeChecker
             return url_split.sort(key=len)[-1]
         # Else return the last part before the TLD
-        return url[:-len(url_tld) - 1].split('.')[-1]
+        return url[: -len(url_tld) - 1].split(".")[-1]
 
     @staticmethod
     def string_to_bool(string):
@@ -89,9 +91,9 @@ class Commons(object):
         :type string: str
         """
         string = string.lower()
-        if string in ['1', 'true', 't', 'yes', 'y', 'on', 'enabled', 'enable']:
+        if string in ["1", "true", "t", "yes", "y", "on", "enabled", "enable"]:
             return True
-        if string in ['0', 'false', 'f', 'no', 'n', 'off', 'disabled', 'disable']:
+        if string in ["0", "false", "f", "no", "n", "off", "disabled", "disable"]:
             return False
         return None
 
@@ -103,7 +105,18 @@ class Commons(object):
         :type string: str
         """
         string = string.lower()
-        if string in ['0', 'false', 'off', 'disabled', 'disable', '', 'nul', 'null', 'none', 'nil']:
+        if string in [
+            "0",
+            "false",
+            "off",
+            "disabled",
+            "disable",
+            "",
+            "nul",
+            "null",
+            "none",
+            "nil",
+        ]:
             return True
         return False
 
@@ -130,7 +143,9 @@ class Commons(object):
         :param time_stamp: unix timestamp
         :type time_stamp: float
         """
-        return datetime.datetime.utcfromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
+        return datetime.datetime.utcfromtimestamp(time_stamp).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
 
     @staticmethod
     def create_headers_dict(headers):
@@ -142,7 +157,7 @@ class Commons(object):
         """
         if headers is None:
             headers = []
-        headers_dict = {'User-Agent': 'Hallo IRCBot hallo@dr-spangle.com'}
+        headers_dict = {"User-Agent": "Hallo IRCBot hallo@dr-spangle.com"}
         for header in headers:
             headers_dict[header[0]] = header[1]
         return headers_dict
@@ -175,8 +190,8 @@ class Commons(object):
             headers = []
         code = Commons.load_url_string(url, headers)
         if json_fix:
-            code = re.sub(',+', ',', code)
-            code = code.replace('[,', '[').replace(',]', ']')
+            code = re.sub(",+", ",", code)
+            code = code.replace("[,", "[").replace(",]", "]")
         try:
             output_dict = json.loads(code)
         except Exception as e:
@@ -219,8 +234,26 @@ class Commons(object):
         message = message.strip().lower()
         valid_chars = [str(x) for x in range(10)]
         valid_chars += [".", ")", "^", "*", "x", "/", "%", "+", "-", "pi", "e", " "]
-        valid_chars += ["acos(", "asin(", "atan(", "cos(", "sin(", "tan(", "sqrt(", "log("]
-        valid_chars += ["acosh(", "asinh(", "atanh(", "cosh(", "sinh(", "tanh(", "gamma(", "("]
+        valid_chars += [
+            "acos(",
+            "asin(",
+            "atan(",
+            "cos(",
+            "sin(",
+            "tan(",
+            "sqrt(",
+            "log(",
+        ]
+        valid_chars += [
+            "acosh(",
+            "asinh(",
+            "atanh(",
+            "cosh(",
+            "sinh(",
+            "tanh(",
+            "gamma(",
+            "(",
+        ]
         for char in valid_chars:
             message = message.replace(char, "")
         if message == "":
@@ -249,10 +282,18 @@ class Commons(object):
         :type string: str
         :return: str | None
         """
-        start_digits = [string[:x] for x in range(1, len(string) + 1) if Commons.is_float_string(string[:x])]
+        start_digits = [
+            string[:x]
+            for x in range(1, len(string) + 1)
+            if Commons.is_float_string(string[:x])
+        ]
         if len(start_digits) != 0:
             return start_digits[-1]
-        end_digits = [string[x:] for x in range(len(string)) if Commons.is_float_string(string[x:])]
+        end_digits = [
+            string[x:]
+            for x in range(len(string))
+            if Commons.is_float_string(string[x:])
+        ]
         if len(end_digits) != 0:
             return end_digits[0]
         return None
@@ -265,10 +306,18 @@ class Commons(object):
         :type string: str
         :return: str | None
         """
-        start_digits = [string[:x] for x in range(1, len(string) + 1) if Commons.check_calculation(string[:x])]
+        start_digits = [
+            string[:x]
+            for x in range(1, len(string) + 1)
+            if Commons.check_calculation(string[:x])
+        ]
         if len(start_digits) != 0:
             return start_digits[-1]
-        end_digits = [string[x:] for x in range(len(string)) if Commons.check_calculation(string[x:])]
+        end_digits = [
+            string[x:]
+            for x in range(len(string))
+            if Commons.check_calculation(string[x:])
+        ]
         if len(end_digits) != 0:
             return end_digits[0]
         return None
@@ -371,7 +420,10 @@ class Commons(object):
         :return: str
         """
         # Find any URLs, convert line to uppercase, then convert URLs back to original
-        urls = re.findall("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", data)
+        urls = re.findall(
+            "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+            data,
+        )
         data = data.upper()
         for url in urls:
             data = data.replace(url.upper(), url)
@@ -381,7 +433,9 @@ class Commons(object):
     def find_parameter(param_name, line):
         """Finds a parameter value in a line, if the format parameter=value exists in the line"""
         param_value = None
-        param_regex = re.compile("(^|\s){}=([^\s]+)(\s|$)".format(param_name), re.IGNORECASE)
+        param_regex = re.compile(
+            "(^|\s){}=([^\s]+)(\s|$)".format(param_name), re.IGNORECASE
+        )
         param_search = param_regex.search(line)
         if param_search is not None:
             param_value = param_search.group(2)
@@ -399,7 +453,12 @@ class Commons(object):
     @staticmethod
     def markdown_escape(string):
         """Escapes a string to ensure it can used in markdown without issues"""
-        return string.replace("[", r"\[").replace("]", r"\]").replace("_", r"\_").replace("*", r"\*")
+        return (
+            string.replace("[", r"\[")
+            .replace("]", r"\]")
+            .replace("_", r"\_")
+            .replace("*", r"\*")
+        )
 
     @staticmethod
     def html_escape(string):
@@ -414,12 +473,17 @@ class CachedObject:
         :type cache_expiry: timedelta
         """
         self.setter = setter
-        self.cache_expiry = cache_expiry if cache_expiry is not None else timedelta(minutes=5)
+        self.cache_expiry = (
+            cache_expiry if cache_expiry is not None else timedelta(minutes=5)
+        )
         self.cache_time = None
         self.value = None
 
     def get(self):
-        if self.cache_time is None or (self.cache_time + self.cache_expiry) < datetime.datetime.now():
+        if (
+            self.cache_time is None
+            or (self.cache_time + self.cache_expiry) < datetime.datetime.now()
+        ):
             self.value = self.setter()
             self.cache_time = datetime.datetime.now()
         return self.value

@@ -31,14 +31,18 @@ class Logger:
         :type loggable: events.Event | errors.Error
         """
         # If channel is set, check logging
-        if isinstance(loggable, ChannelEvent) and \
-                loggable.channel is not None and \
-                not loggable.channel.logging:
+        if (
+            isinstance(loggable, ChannelEvent)
+            and loggable.channel is not None
+            and not loggable.channel.logging
+        ):
             return
         # If channel not set, but user is set, check their logging settings.
-        if isinstance(loggable, UserEvent) and \
-                loggable.user is not None and \
-                not loggable.user.logging:
+        if (
+            isinstance(loggable, UserEvent)
+            and loggable.user is not None
+            and not loggable.user.logging
+        ):
             return
         # Log the event
         if isinstance(loggable, Event):
@@ -52,7 +56,9 @@ class Logger:
         :return:
         """
         log_line = indent_all_but_first_line(error.get_log_line())
-        self._add_line(ERROR_LOG, "{} {}".format(Commons.current_timestamp(error.time), log_line))
+        self._add_line(
+            ERROR_LOG, "{} {}".format(Commons.current_timestamp(error.time), log_line)
+        )
 
     def _log_event(self, event):
         """
@@ -62,7 +68,9 @@ class Logger:
         log_line = event.get_log_line()
         if log_line is None:
             return
-        output = "{} {}".format(Commons.current_timestamp(event.get_send_time()), log_line)
+        output = "{} {}".format(
+            Commons.current_timestamp(event.get_send_time()), log_line
+        )
         log_files = event.get_log_locations()
         for log_file in log_files:
             self._add_line("logs/" + log_file, output)
@@ -73,7 +81,9 @@ class Logger:
         with self._lock:
             # Create directories if they don't exist.
             file_name_split = file_name.split("/")
-            for file_dir in ["/".join(file_name_split[:x]) for x in range(1, len(file_name_split))]:
+            for file_dir in [
+                "/".join(file_name_split[:x]) for x in range(1, len(file_name_split))
+            ]:
                 try:
                     os.mkdir(file_dir)
                 except OSError:

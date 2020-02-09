@@ -39,10 +39,16 @@ def test_init():
     test_hallo.function_dispatcher = fd
     try:
         # Check basic class variable setting
-        assert fd.hallo == test_hallo, "Hallo object was not set correctly in FunctionDispatcher."
-        assert fd.module_list == test_modules, "Module list was not imported correctly by FunctionDispatcher."
+        assert (
+            fd.hallo == test_hallo
+        ), "Hallo object was not set correctly in FunctionDispatcher."
+        assert (
+            fd.module_list == test_modules
+        ), "Module list was not imported correctly by FunctionDispatcher."
         # Check that module reloading has done things
-        assert len(fd.function_dict) == len(test_modules), "Modules were not loaded to function dictionary."
+        assert len(fd.function_dict) == len(
+            test_modules
+        ), "Modules were not loaded to function dictionary."
         assert len(fd.function_names) != 0, "Functions were not added to function_names"
     finally:
         fd.close()
@@ -82,6 +88,7 @@ def test_open_close(hallo_getter):
     # Check test module unloaded
     assert len(fd.function_dict) == 0
     assert len(fd.function_names) == 0
+
 
 # TODO: write tests for each method:
 # Test init loads function from xml, test close saves it

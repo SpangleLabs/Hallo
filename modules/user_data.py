@@ -9,7 +9,6 @@ class UserDataException(Exception):
 
 
 class UserDataParser:
-
     def __init__(self):
         pass
 
@@ -99,14 +98,16 @@ class WeatherLocationData(UserDatum):
     def create_from_input(event):
         input_line = event.command_args
         # Check if zip code is given
-        if re.match(r'^\d{5}(?:[-\s]\d{4})?$', input_line):
+        if re.match(r"^\d{5}(?:[-\s]\d{4})?$", input_line):
             return WeatherLocationData(WeatherLocationData.ZipLocation(input_line))
         # Check if coordinates are given
-        coord_match = re.match(r'^(-?\d+(\.\d+)?)[ ,]*(-?\d+(\.\d+)?)$', input_line)
+        coord_match = re.match(r"^(-?\d+(\.\d+)?)[ ,]*(-?\d+(\.\d+)?)$", input_line)
         if coord_match:
             new_lat = coord_match.group(1)
             new_long = coord_match.group(3)
-            return WeatherLocationData(WeatherLocationData.CoordLocation(new_lat, new_long))
+            return WeatherLocationData(
+                WeatherLocationData.CoordLocation(new_lat, new_long)
+            )
         # Otherwise, assume it's a city
         new_city = input_line
         return WeatherLocationData(WeatherLocationData.CityLocation(new_city))
@@ -120,15 +121,20 @@ class WeatherLocationData(UserDatum):
     @staticmethod
     def from_json(json_dict):
         if json_dict["type"] == WeatherLocationData.TYPE_CITY:
-            return WeatherLocationData(WeatherLocationData.CityLocation.from_json(json_dict))
+            return WeatherLocationData(
+                WeatherLocationData.CityLocation.from_json(json_dict)
+            )
         if json_dict["type"] == WeatherLocationData.TYPE_COORDS:
-            return WeatherLocationData(WeatherLocationData.CoordLocation.from_json(json_dict))
+            return WeatherLocationData(
+                WeatherLocationData.CoordLocation.from_json(json_dict)
+            )
         if json_dict["type"] == WeatherLocationData.TYPE_ZIP:
-            return WeatherLocationData(WeatherLocationData.ZipLocation.from_json(json_dict))
+            return WeatherLocationData(
+                WeatherLocationData.ZipLocation.from_json(json_dict)
+            )
         raise UserDataException("Unrecognised weather location type.")
 
     class Location(metaclass=ABCMeta):
-
         def to_json(self):
             raise NotImplementedError()
 
@@ -137,45 +143,44 @@ class WeatherLocationData(UserDatum):
             raise NotImplementedError()
 
     class CityLocation(Location):
-
         def __init__(self, city):
             self.city = city
 
         def to_json(self):
-            return {"type": WeatherLocationData.TYPE_CITY,
-                    "city": self.city}
+            return {"type": WeatherLocationData.TYPE_CITY, "city": self.city}
 
         @staticmethod
         def from_json(json_obj):
             return WeatherLocationData.CityLocation(json_obj["city"])
 
     class ZipLocation(Location):
-
         def __init__(self, zip_code):
             self.zip_code = zip_code
 
         def to_json(self):
-            return {"type": WeatherLocationData.TYPE_ZIP,
-                    "zip_code": self.zip_code}
+            return {"type": WeatherLocationData.TYPE_ZIP, "zip_code": self.zip_code}
 
         @staticmethod
         def from_json(json_obj):
             return WeatherLocationData.ZipLocation(json_obj["zip_code"])
 
     class CoordLocation(Location):
-
         def __init__(self, latitude, longitude):
             self.latitude = latitude
             self.longitude = longitude
 
         def to_json(self):
-            return {"type": WeatherLocationData.TYPE_COORDS,
-                    "latitude": self.latitude,
-                    "longitude": self.longitude}
+            return {
+                "type": WeatherLocationData.TYPE_COORDS,
+                "latitude": self.latitude,
+                "longitude": self.longitude,
+            }
 
         @staticmethod
         def from_json(json_obj):
-            return WeatherLocationData.CoordLocation(json_obj["coord_x"], json_obj["coord_y"])
+            return WeatherLocationData.CoordLocation(
+                json_obj["coord_x"], json_obj["coord_y"]
+            )
 
 
 class UserDataFactory:
@@ -183,13 +188,25 @@ class UserDataFactory:
 
     @staticmethod
     def get_data_type_names():
-        return [name for common_class in UserDataFactory.data_classes for name in common_class.names]
+        return [
+            name
+            for common_class in UserDataFactory.data_classes
+            for name in common_class.names
+        ]
 
     @staticmethod
     def get_data_class_by_name(name):
-        classes = [data_class for data_class in UserDataFactory.data_classes if name in data_class.names]
+        classes = [
+            data_class
+            for data_class in UserDataFactory.data_classes
+            if name in data_class.names
+        ]
         if len(classes) != 1:
-            raise UserDataException("Failed to find a common configuration type matching the name {}".format(name))
+            raise UserDataException(
+                "Failed to find a common configuration type matching the name {}".format(
+                    name
+                )
+            )
         return classes[0]
 
     @staticmethod
@@ -213,35 +230,51 @@ class UserDataSetup(Function):
         # Name for use in help listing
         self.help_name = "setup user data"
         # Names which can be used to address the function
-        name_templates = {"setup {} user data", "setup user data {}", "setup user data for {}", "{} user data setup"}
-        self.names = set([
-            template.format(name)
-            for name in UserDataFactory.get_data_type_names()
-            for template in name_templates
-        ])
+        name_templates = {
+            "setup {} user data",
+            "setup user data {}",
+            "setup user data for {}",
+            "{} user data setup",
+        }
+        self.names = set(
+            [
+                template.format(name)
+                for name in UserDataFactory.get_data_type_names()
+                for template in name_templates
+            ]
+        )
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = \
-            "Sets up user data which other functions may require. " \
+        self.help_docs = (
+            "Sets up user data which other functions may require. "
             "Format: setup user data <type> <parameters>"
+        )
         self.user_data_parser = UserDataParser()
         """ :type : UserDataParser"""
 
     def run(self, event):
         # Construct type name
-        data_type_name = " ".join([
-            w
-            for w
-            in event.command_name.lower().split()
-            if w not in ["setup", "user", "data", "for"]
-        ]).strip()
+        data_type_name = " ".join(
+            [
+                w
+                for w in event.command_name.lower().split()
+                if w not in ["setup", "user", "data", "for"]
+            ]
+        ).strip()
         # Get class from type name
-        data_class = UserDataFactory.get_data_class_by_name(data_type_name)  # type: UserDatum
+        data_class = UserDataFactory.get_data_class_by_name(
+            data_type_name
+        )  # type: UserDatum
         if data_class is None:
             return event.create_response(
                 "Could not find a user data type called {}. "
                 "Available types are: {}".format(
                     data_type_name,
-                    ", ".join([data_class.names[0] for data_class in UserDataFactory.data_classes])
+                    ", ".join(
+                        [
+                            data_class.names[0]
+                            for data_class in UserDataFactory.data_classes
+                        ]
+                    ),
                 )
             )
         # Create user data object
@@ -249,13 +282,16 @@ class UserDataSetup(Function):
         # Save user data
         self.user_data_parser.set_user_data(event.user, data_obj)
         # Send response
-        return event.create_response("Set up a new user data for {}".format(data_obj.get_name(event)))
+        return event.create_response(
+            "Set up a new user data for {}".format(data_obj.get_name(event))
+        )
 
 
 class UserDataTeardown(Function):
     """
     Tears down a user's user data of a given type
     """
+
     tear_down_words = ["tear down", "teardown", "remove"]
 
     def __init__(self):
@@ -266,26 +302,35 @@ class UserDataTeardown(Function):
         # Name for use in help listing
         self.help_name = "tear down user data"
         # Names which can be used to address the function
-        name_templates = {"{1} {0} user data", "{1} user data {0}", "{1} user data for {0}", "{0} user data {1}"}
-        self.names = set([
-            template.format(name, tearDown)
-            for name in UserDataFactory.get_data_type_names()
-            for template in name_templates
-            for tearDown in self.tear_down_words
-        ])
+        name_templates = {
+            "{1} {0} user data",
+            "{1} user data {0}",
+            "{1} user data for {0}",
+            "{0} user data {1}",
+        }
+        self.names = set(
+            [
+                template.format(name, tearDown)
+                for name in UserDataFactory.get_data_type_names()
+                for template in name_templates
+                for tearDown in self.tear_down_words
+            ]
+        )
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = \
-            "Removes user data of a specified type. " \
+        self.help_docs = (
+            "Removes user data of a specified type. "
             "Format: tear down user data <type> <parameters>"
+        )
 
     def run(self, event):
         # Construct type name
-        data_type_name = " ".join([
-            w
-            for w
-            in event.command_name.split()
-            if w not in ["user", "data", "for", "teardown", "tear", "down"]
-        ]).strip()
+        data_type_name = " ".join(
+            [
+                w
+                for w in event.command_name.split()
+                if w not in ["user", "data", "for", "teardown", "tear", "down"]
+            ]
+        ).strip()
         # Get class from type name
         data_class = UserDataFactory.get_data_class_by_name(data_type_name)
         # Get a user data parser
@@ -294,4 +339,6 @@ class UserDataTeardown(Function):
         common_obj = user_data_parser.get_data_by_user_and_type(event.user, data_class)
         user_data_parser.remove_data_by_user_and_type(event.user, data_class)
         # Send response
-        return event.create_response("Removed user data for {}".format(common_obj.get_name(event)))
+        return event.create_response(
+            "Removed user data for {}".format(common_obj.get_name(event))
+        )

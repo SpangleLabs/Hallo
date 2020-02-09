@@ -4,7 +4,6 @@ from modules.convert import ConvertPrefix, ConvertPrefixGroup, ConvertRepo
 
 
 class ConvertPrefixTest(unittest.TestCase):
-
     def test_init(self):
         test_repo = ConvertRepo()
         prefix_group = ConvertPrefixGroup(test_repo, "test_group")

@@ -9,7 +9,11 @@ from function import Function
 
 
 def list_modules():
-    return ["modules." + modname for _, modname, is_pkg in pkgutil.iter_modules(modules.__path__) if not is_pkg]
+    return [
+        "modules." + modname
+        for _, modname, is_pkg in pkgutil.iter_modules(modules.__path__)
+        if not is_pkg
+    ]
 
 
 def list_functions_in_module(module_obj, module_name):
@@ -30,10 +34,7 @@ def list_functions_in_module(module_obj, module_name):
     return funcs
 
 
-@pytest.mark.parametrize(
-    "mod",
-    list_modules()
-)
+@pytest.mark.parametrize("mod", list_modules())
 def test_each_modules_import(mod):
     importlib.import_module(mod)
 

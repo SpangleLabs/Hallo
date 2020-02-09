@@ -21,7 +21,9 @@ def test_2_no_server(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"permission_control"})
     perm_cont = Permissions()
     try:
-        perm_cont.find_permission_mask(["channel=chan1", "user=user1"], test_user, test_channel)
+        perm_cont.find_permission_mask(
+            ["channel=chan1", "user=user1"], test_user, test_channel
+        )
         assert False, "Exception should be thrown if 2 arguments and neither is server."
     except modules.permission_control.PermissionControlException as e:
         assert "error" in str(e).lower()
@@ -33,8 +35,7 @@ def test_2_no_server_by_name(hallo_getter):
     perm_cont = Permissions()
     try:
         perm_cont.find_permission_mask(
-            ["server=no_server_by_name", "chan=test_chan1"],
-            test_user, test_user
+            ["server=no_server_by_name", "chan=test_chan1"], test_user, test_user
         )
         assert False, "Exception should be thrown if server does not exist."
     except modules.permission_control.PermissionControlException as e:
@@ -54,8 +55,7 @@ def test_2_server_chan(hallo_getter):
     chan1.permission_mask = perm1
     # Get permission mask of given channel
     data = perm_cont.find_permission_mask(
-        ["server=test_serv1", "channel=test_chan1"],
-        test_user, test_channel
+        ["server=test_serv1", "channel=test_chan1"], test_user, test_channel
     )
     assert perm1 == data, "Did not find the correct permission mask."
 
@@ -72,8 +72,7 @@ def test_2_server_user(hallo_getter):
     user1.permission_mask = perm1
     # Get permission mask of given channel
     data = perm_cont.find_permission_mask(
-        ["server=test_serv1", "user=test_user1"],
-        test_user, test_channel
+        ["server=test_serv1", "user=test_user1"], test_user, test_channel
     )
     assert perm1 == data, "Did not find the correct permission mask."
 
@@ -93,10 +92,7 @@ def test_2_server_no_chan_user(hallo_getter):
     user1.permission_mask = perm2
     # Get permission mask of given channel
     try:
-        perm_cont.find_permission_mask(
-            ["server=test_serv1", "core"],
-            user1, chan1
-        )
+        perm_cont.find_permission_mask(["server=test_serv1", "core"], user1, chan1)
         assert False, "Should have failed to find any permission mask."
     except modules.permission_control.PermissionControlException as e:
         assert "error" in str(e).lower()
