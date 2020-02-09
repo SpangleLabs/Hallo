@@ -2,6 +2,8 @@ from datetime import datetime
 import time
 from xml.etree import ElementTree
 
+import isodate
+
 from events import EventMessage
 from hallo import Hallo
 from inc.commons import Commons
@@ -85,19 +87,19 @@ def test_needs_check(hallo_getter):
         test_channel,
         "http://spangle.org.uk/hallo/test_rss.xml",
         last_check=datetime.now(),
-        update_frequency=Commons.load_time_delta("P1TS"),
+        update_frequency=isodate.parse_duration("P1D"),
     )
     assert not rf1.needs_check()
-    rf1.last_check = datetime.now() - Commons.load_time_delta("P2TS")
+    rf1.last_check = datetime.now() - isodate.parse_duration("P2D")
     assert rf1.needs_check()
-    rf1.update_frequency = Commons.load_time_delta("P7TS")
+    rf1.update_frequency = isodate.parse_duration("P7D")
     assert not rf1.needs_check()
     rf2 = RssSub(
         test_server,
         test_channel,
         "http://spangle.org.uk/hallo/test_rss.xml",
         last_check=datetime.now(),
-        update_frequency=Commons.load_time_delta("PT5S"),
+        update_frequency=isodate.parse_duration("PT5S"),
     )
     assert not rf2.needs_check()
     time.sleep(10)
@@ -130,7 +132,7 @@ def test_output_item(hallo_getter):
         chan1,
         example_url,
         title=feed_title,
-        update_frequency=Commons.load_time_delta("P1TS"),
+        update_frequency=isodate.parse_duration("P1D"),
     )
     rf1.send_item(item_elem)
     data = serv1.get_send_data(1, chan1, EventMessage)
@@ -147,7 +149,7 @@ def test_output_item(hallo_getter):
         chan2,
         example_url,
         title=feed_title,
-        update_frequency=Commons.load_time_delta("P1TS"),
+        update_frequency=isodate.parse_duration("P1D"),
     )
     rf2.send_item(item_elem)
     data = serv2.get_send_data(1, chan2, EventMessage)
@@ -164,7 +166,7 @@ def test_output_item(hallo_getter):
         user3,
         example_url,
         title=feed_title,
-        update_frequency=Commons.load_time_delta("P1TS"),
+        update_frequency=isodate.parse_duration("P1D"),
     )
     rf3.send_item(item_elem)
     data = serv3.get_send_data(1, user3, EventMessage)
@@ -182,7 +184,7 @@ def test_output_item(hallo_getter):
         chan4,
         example_url,
         title=feed_title,
-        update_frequency=Commons.load_time_delta("P1TS"),
+        update_frequency=isodate.parse_duration("P1D"),
     )
     rf4.send_item(item_elem)
     data = serv4.get_send_data(1, chan4, EventMessage)
@@ -200,7 +202,7 @@ def test_output_item(hallo_getter):
         chan5,
         example_url,
         title=feed_title,
-        update_frequency=Commons.load_time_delta("P1TS"),
+        update_frequency=isodate.parse_duration("P1D"),
     )
     rf5.send_item(item_elem)
     data = serv5.get_send_data(1, chan5, EventMessage)
@@ -218,7 +220,7 @@ def test_output_item(hallo_getter):
         chan6,
         example_url,
         title=feed_title,
-        update_frequency=Commons.load_time_delta("P1TS"),
+        update_frequency=isodate.parse_duration("P1D"),
     )
     rf6.send_item(item_elem)
     data = serv6.get_send_data(1, chan6, EventMessage)
@@ -236,7 +238,7 @@ def test_output_item(hallo_getter):
         user7,
         example_url,
         title=feed_title,
-        update_frequency=Commons.load_time_delta("P1TS"),
+        update_frequency=isodate.parse_duration("P1D"),
     )
     rf7.send_item(item_elem)
     data = serv7.get_send_data(1, user7, EventMessage)
@@ -256,8 +258,8 @@ def test_xml(hallo_getter):
         test_server,
         test_channel,
         test_rss_url,
-        update_frequency=Commons.load_time_delta(
-            "P" + str(test_days) + "T" + str(test_seconds) + "S"
+        update_frequency=isodate.parse_duration(
+            "P" + str(test_days) + "DT" + str(test_seconds) + "S"
         ),
     )
     # Clear off the current items

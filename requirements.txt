@@ -7,3 +7,4 @@ requests
 pytest
 duolingo-api
 publicsuffixlist
+isodate
