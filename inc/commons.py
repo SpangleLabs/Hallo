@@ -8,14 +8,6 @@ import requests
 from publicsuffixlist import PublicSuffixList
 
 
-class ISO8601ParseError(SyntaxError):
-    """
-    ISO-8601 parsing error
-    """
-
-    pass
-
-
 class Commons(object):
     """
     Class of commons methods, useful anywhere, but all static.
