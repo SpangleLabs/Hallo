@@ -41,19 +41,19 @@ class DailysSleepFieldTest(TestBase, unittest.TestCase):
         # Setup field
         field = DailysSleepField(spreadsheet)
         # Send sleep message with telegram time
-        date = datetime(2018, 12, 23, 23, 44, 13)
-        today = date.date()
+        msg_date = datetime(2018, 12, 23, 23, 44, 13)
+        today = msg_date.date()
         yesterday = today - timedelta(1)
         evt = EventMessage(
             self.server, self.test_chan, self.test_user, "sleep"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(date)))
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(msg_date)))
         field.passive_trigger(evt)
         # Check data is saved
         notif_dict = spreadsheet.saved_data["sleep"][
-            yesterday if date.hour <= 16 else today
+            yesterday if msg_date.hour <= 16 else today
         ]
         assert "sleep_time" in notif_dict
-        assert notif_dict["sleep_time"] == date.isoformat()
+        assert notif_dict["sleep_time"] == msg_date.isoformat()
 
     def test_now_time(self):
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)

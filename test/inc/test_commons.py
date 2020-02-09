@@ -2,9 +2,10 @@ import re
 
 from datetime import timedelta, datetime
 
+import isodate
 import pytest
 
-from inc.commons import Commons, ISO8601ParseError
+from inc.commons import Commons
 
 
 @pytest.mark.parametrize(
@@ -144,20 +145,6 @@ def test_current_timestamp__datetime_given():
     dtime = datetime(2019, 4, 6, 10, 15, 3)
     stamp = Commons.current_timestamp(dtime)
     assert stamp == "[10:15:03]"
-
-
-@pytest.mark.parametrize(
-    "delta, iso",
-    [
-        (timedelta(5, 5), "P5T5S"),
-        (timedelta(0, 50), "P0T50S"),
-        (timedelta(3, 0, 0, 0, 1), "P3T60S"),
-        (timedelta(2, 0, 0, 0, 0, 1), "P2T3600S"),
-        (timedelta(0, 0, 0, 0, 0, 0, 1), "P7T0S"),
-    ],
-)
-def test_format_time_delta(delta, iso):
-    assert Commons.format_time_delta(delta) == iso
 
 
 @pytest.mark.parametrize(
@@ -366,22 +353,6 @@ def test_list_greater():
         Commons.list_greater([1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9])
         is None
     )
-
-
-@pytest.mark.parametrize("delta_string", ["20S, P20, P20S", "PTS"])
-def test_load_time_delta__fail(delta_string):
-    with pytest.raises(ISO8601ParseError):
-        Commons.load_time_delta(delta_string)
-
-
-@pytest.mark.parametrize(
-    "delta_string, seconds, days",
-    [("PT5S", 5, 0), ("P1T1S", 1, 1), ("P10T3600S", 3600, 10)],
-)
-def test_load_time_delta(delta_string, seconds, days):
-    delta4 = Commons.load_time_delta(delta_string)
-    assert delta4.seconds == seconds
-    assert delta4.days == days
 
 
 @pytest.mark.external_integration

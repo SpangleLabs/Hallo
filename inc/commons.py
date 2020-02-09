@@ -370,40 +370,6 @@ class Commons(object):
         return output_list
 
     @staticmethod
-    def load_time_delta(delta_string):
-        """
-        Loads a timedelta object from an ISO8601 period string
-        :param delta_string: ISO8601 period to convert to timedelta
-        :type delta_string: str
-        :return: timedelta
-        """
-        if len(delta_string) < 4:
-            raise ISO8601ParseError("Invalid ISO-8601 period string")
-        if delta_string[0] != "P" or delta_string[-1] != "S":
-            raise ISO8601ParseError("Invalid ISO-8601 period string")
-        clean_string = delta_string[1:-1]
-        split_string = clean_string.split("T")
-        if len(split_string) != 2:
-            raise ISO8601ParseError("Invalid ISO-8601 period string")
-        if split_string[0] == "":
-            split_string[0] = "0"
-        if split_string[1] == "":
-            split_string[1] = "0"
-        new_delta = timedelta(int(split_string[0]), int(split_string[1]))
-        return new_delta
-
-    @staticmethod
-    def format_time_delta(delta):
-        """
-        Exports a timedelta into an ISO806 format string
-        :param delta: timedelta
-        :type delta: timedelta
-        :return: string
-        """
-        output = "P{}T{}S".format(delta.days, delta.seconds)
-        return output
-
-    @staticmethod
     def upper(data):
         """
         Converts a string to upper case, except for the URL

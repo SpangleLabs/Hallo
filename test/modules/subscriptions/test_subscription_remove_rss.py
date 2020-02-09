@@ -1,10 +1,10 @@
 import os
 import unittest
 
+import isodate
 import pytest
 
 from events import EventMessage
-from inc.commons import Commons
 from modules.subscriptions import SubscriptionCheck, RssSub
 from test.test_base import TestBase
 
@@ -45,7 +45,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.test_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?1",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf1)
         rf2 = RssSub(
@@ -53,7 +53,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             another_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?2",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf2)
         rf3 = RssSub(
@@ -61,7 +61,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.test_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?3",
             title="test_feed3",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf3)
         # Remove test feed
@@ -96,7 +96,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.test_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?1",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf1)
         rf2 = RssSub(
@@ -104,7 +104,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             another_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?2",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf2)
         rf3 = RssSub(
@@ -112,7 +112,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.test_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?3",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf3)
         # Remove test feed
@@ -145,7 +145,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.test_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?1",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf1)
         rf2 = RssSub(
@@ -153,7 +153,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             another_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?2",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf2)
         rf3 = RssSub(
@@ -161,7 +161,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.test_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?3",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf3)
         # Remove test feed
@@ -192,7 +192,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.test_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?1",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf1)
         rf2 = RssSub(
@@ -200,7 +200,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             another_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?1",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf2)
         rf3 = RssSub(
@@ -208,7 +208,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.test_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?3",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf3)
         # Remove test feed
@@ -243,7 +243,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.test_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?1",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf1)
         rf2 = RssSub(
@@ -251,7 +251,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             another_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?1",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf2)
         rf3 = RssSub(
@@ -259,7 +259,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.test_chan,
             "http://spangle.org.uk/hallo/test_rss.xml?1",
             title="test_feed1",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf3)
         # Remove test feed

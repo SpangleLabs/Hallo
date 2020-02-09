@@ -1,6 +1,7 @@
 import os
 
-from inc.commons import Commons
+import isodate
+
 from modules.subscriptions import SubscriptionRepo, RssSub
 from test.server_mock import ServerMock
 
@@ -19,7 +20,7 @@ def test_add_feed(hallo_getter):
         test_server,
         test_channel,
         "http://spangle.org.uk/hallo/test_rss.xml",
-        update_frequency=Commons.load_time_delta("P0T3600S"),
+        update_frequency=isodate.parse_duration("P0DT3600S"),
     )
     rfl.add_sub(rf)
     assert len(rfl.sub_list) == 1
@@ -196,7 +197,7 @@ def test_json(hallo_getter):
         test_channel,
         "http://spangle.org.uk/hallo/test_rss.xml?1",
         title="test_feed1",
-        update_frequency=Commons.load_time_delta("P0T3600S"),
+        update_frequency=isodate.parse_duration("P0DT3600S"),
     )
     rfl.add_sub(rf1)
     rf2 = RssSub(
@@ -204,7 +205,7 @@ def test_json(hallo_getter):
         test_channel,
         "http://spangle.org.uk/hallo/test_rss.xml?2",
         title="test_feed2",
-        update_frequency=Commons.load_time_delta("P1TS"),
+        update_frequency=isodate.parse_duration("P1D"),
     )
     rfl.add_sub(rf2)
     rf3 = RssSub(
@@ -212,7 +213,7 @@ def test_json(hallo_getter):
         test_channel,
         "http://spangle.org.uk/hallo/test_rss.xml?3",
         title="test_feed3",
-        update_frequency=Commons.load_time_delta("PT60S"),
+        update_frequency=isodate.parse_duration("PT60S"),
     )
     rfl.add_sub(rf3)
     # Save to JSON and load

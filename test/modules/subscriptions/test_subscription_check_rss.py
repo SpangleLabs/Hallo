@@ -1,6 +1,7 @@
 import os
 import unittest
 
+import isodate
 import pytest
 
 from events import EventMinute, EventMessage
@@ -74,7 +75,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
                 chan1,
                 "http://spangle.org.uk/hallo/test_rss.xml?1",
                 title="test_feed1",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf1)
             rf2 = RssSub(
@@ -82,7 +83,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
                 chan2,
                 "http://spangle.org.uk/hallo/test_rss.xml?2",
                 title="test_feed2",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf2)
             rf3 = RssSub(
@@ -90,7 +91,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
                 chan3,
                 "http://spangle.org.uk/hallo/test_rss.xml?3",
                 title="test_feed1",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
@@ -155,7 +156,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
                 chan1,
                 "http://spangle.org.uk/hallo/test_rss.xml?1",
                 title="test_feed1",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf1)
             rf2 = RssSub(
@@ -163,7 +164,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
                 chan2,
                 "http://spangle.org.uk/hallo/test_rss.xml?2",
                 title="test_feed2",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf2)
             rf3 = RssSub(
@@ -171,7 +172,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
                 chan3,
                 "http://spangle.org.uk/hallo/test_rss.xml?3",
                 title="test_feed1",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
@@ -240,7 +241,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
                 chan1,
                 "http://spangle.org.uk/hallo/test_rss.xml?1",
                 title="test_feed1",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf1)
             rf2 = RssSub(
@@ -248,7 +249,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
                 chan2,
                 "http://spangle.org.uk/hallo/test_rss.xml?2",
                 title="test_feed2",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf2)
             rf3 = RssSub(
@@ -256,7 +257,7 @@ class FeedCheckTest(TestBase, unittest.TestCase):
                 chan3,
                 "http://spangle.org.uk/hallo/test_rss.xml?3",
                 title="test_feed1",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object

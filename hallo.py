@@ -122,7 +122,7 @@ class Hallo:
         Saves the whole hallo config to a JSON file
         :return: None
         """
-        json_obj = {}
+        json_obj = dict()
         json_obj["default_nick"] = self.default_nick
         json_obj["default_prefix"] = self.default_prefix
         json_obj["default_full_name"] = self.default_full_name
