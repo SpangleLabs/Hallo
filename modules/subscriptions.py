@@ -18,7 +18,7 @@ from destination import Channel, User
 from errors import SubscriptionCheckError
 from events import EventMessageWithPhoto, EventMessage, EventMinute
 from function import Function
-from inc.commons import Commons, ISO8601ParseError, CachedObject
+from inc.commons import Commons, CachedObject
 from inc.input_parser import InputParser
 from modules.user_data import FAKeyData, UserDataParser
 
@@ -603,7 +603,7 @@ class E621Sub(Subscription):
             try_period = input_evt.command_args.split()[-1]
             search_delta = isodate.parse_duration(try_period)
             search = input_evt.command_args[: -len(try_period)].strip()
-        except ISO8601ParseError:
+        except isodate.isoerror.ISO8601Error:
             search = input_evt.command_args.strip()
             search_delta = isodate.parse_duration("PT300S")
         # Create e6 subscription object
@@ -975,7 +975,7 @@ class FANotificationNotesSub(Subscription):
         # See if user gave us an update period
         try:
             search_delta = isodate.parse_duration(input_evt.command_args)
-        except ISO8601ParseError:
+        except isodate.isoerror.ISO8601Error:
             search_delta = isodate.parse_duration("PT300S")
         notes_sub = FANotificationNotesSub(
             server, destination, fa_key, update_frequency=search_delta
@@ -1172,7 +1172,7 @@ class FANotificationFavSub(Subscription):
         # See if user gave us an update period
         try:
             search_delta = isodate.parse_duration(input_evt.command_args)
-        except ISO8601ParseError:
+        except isodate.isoerror.ISO8601Error:
             search_delta = isodate.parse_duration("PT300S")
         fa_sub = FANotificationFavSub(
             server, destination, fa_key, update_frequency=search_delta
@@ -1354,7 +1354,7 @@ class FANotificationCommentsSub(Subscription):
         # See if user gave us an update period
         try:
             search_delta = isodate.parse_duration(input_evt.command_args)
-        except ISO8601ParseError:
+        except isodate.isoerror.ISO8601Error:
             search_delta = isodate.parse_duration("PT300S")
         fa_sub = FANotificationCommentsSub(
             server, destination, fa_key, update_frequency=search_delta
@@ -1629,7 +1629,7 @@ class FASearchSub(Subscription):
             try_period = input_evt.command_args.split()[-1]
             search_delta = isodate.parse_duration(try_period)
             search = input_evt.command_args[: -len(try_period)].strip()
-        except ISO8601ParseError:
+        except isodate.isoerror.ISO8601Error:
             search = input_evt.command_args.strip()
             search_delta = isodate.parse_duration("PT600S")
         # Create FA search subscription object
@@ -1852,7 +1852,7 @@ class FAUserFavsSub(Subscription):
             try_period = input_evt.command_args.split()[-1]
             search_delta = isodate.parse_duration(try_period)
             username = input_evt.command_args[: -len(try_period)].strip()
-        except ISO8601ParseError:
+        except isodate.isoerror.ISO8601Error:
             username = input_evt.command_args.strip()
             search_delta = isodate.parse_duration("PT600S")
         # Create FA user favs object
@@ -2075,7 +2075,7 @@ class FAUserWatchersSub(Subscription):
             try_period = input_evt.command_args.split()[-1]
             search_delta = isodate.parse_duration(try_period)
             username = input_evt.command_args[: -len(try_period)].strip()
-        except ISO8601ParseError:
+        except isodate.isoerror.ISO8601Error:
             username = input_evt.command_args.strip()
             search_delta = isodate.parse_duration("PT600S")
         # Create FA user favs object
@@ -2276,7 +2276,7 @@ class FANotificationWatchSub(FAUserWatchersSub):
         # See if user gave us an update period
         try:
             search_delta = isodate.parse_duration(input_evt.command_args)
-        except ISO8601ParseError:
+        except isodate.isoerror.ISO8601Error:
             search_delta = isodate.parse_duration("PT300S")
         # Create FA user watchers object
         try:
