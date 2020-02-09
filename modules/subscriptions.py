@@ -7,13 +7,14 @@ from datetime import datetime, timedelta
 from threading import Lock
 from xml.etree import ElementTree
 
+import isodate
 from bs4 import BeautifulSoup
 
 from destination import Channel, User
 from errors import SubscriptionCheckError
 from events import EventMessageWithPhoto, EventMessage, EventMinute
 from function import Function
-from inc.commons import Commons, ISO8601ParseError
+from inc.commons import Commons
 
 
 class SubscriptionException(Exception):
@@ -168,7 +169,7 @@ class Subscription(metaclass=ABCMeta):
         :type update_frequency: timedelta
         """
         if update_frequency is None:
-            update_frequency = Commons.load_time_delta("PT300S")
+            update_frequency = isodate.parse_duration("PT5M")
         self.server = server
         """ :type : Server.Server"""
         self.destination = destination
@@ -254,7 +255,7 @@ class Subscription(metaclass=ABCMeta):
             json_obj["user_address"] = self.destination.address
         if self.last_check is not None:
             json_obj["last_check"] = self.last_check.isoformat()
-        json_obj["update_frequency"] = Commons.format_time_delta(self.update_frequency)
+        json_obj["update_frequency"] = isodate.duration_isoformat(self.update_frequency)
         if self.last_update is not None:
             json_obj["last_update"] = self.last_update.isoformat()
         return json_obj
@@ -350,9 +351,9 @@ class RssSub(Subscription):
         if len(input_evt.command_args.split()) > 1:
             feed_period = input_evt.command_args.split()[1]
         try:
-            feed_delta = Commons.load_time_delta(feed_period)
-        except ISO8601ParseError:
-            feed_delta = Commons.load_time_delta("PT600S")
+            feed_delta = isodate.parse_duration(feed_period)
+        except isodate.isoerror.ISO8601Error:
+            feed_delta = isodate.parse_duration("PT10M")
         try:
             rss_sub = RssSub(server, destination, feed_url, update_frequency=feed_delta)
             rss_sub.check()
@@ -523,7 +524,7 @@ class RssSub(Subscription):
                 json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f"
             )
         # Load update frequency
-        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        update_frequency = isodate.parse_duration(json_obj["update_frequency"])
         # Load last update
         last_update = None
         if "last_update" in json_obj:
@@ -613,11 +614,11 @@ class RedditSub(Subscription):
                 "Too many arguments. Please give a subreddit, and optionally, a check period."
             )
         try:
-            search_delta = Commons.load_time_delta(text_split[0])
+            search_delta = isodate.parse_duration(text_split[0])
             subreddit = text_split[1]
-        except ISO8601ParseError:
+        except isodate.isoerror.ISO8601Error:
             subreddit = text_split[0]
-            search_delta = Commons.load_time_delta(text_split[1])
+            search_delta = isodate.parse_duration(text_split[1])
         sub_name = (
             clean_text
             if sub_regex.search(subreddit) is None
@@ -808,7 +809,7 @@ class RedditSub(Subscription):
                 json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f"
             )
         # Load update frequency
-        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        update_frequency = isodate.parse_duration(json_obj["update_frequency"])
         # Load last update
         last_update = None
         if "last_update" in json_obj:
