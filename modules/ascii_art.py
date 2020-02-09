@@ -25,7 +25,7 @@ class Longcat(Function):
             segments = int(event.command_args)
         except ValueError:
             segments = 5
-        long_cat_head = r'''    /\___/\
+        long_cat_head = r"""    /\___/\
    /       \
   |  #    # |
   \     @   |
@@ -34,16 +34,16 @@ class Longcat(Function):
   / _______ ___   \
   |_____   \   \__/
   |    \__/
-'''
-        long_cat_segment = '   |       |\n'
-        long_cat_tail = r'''   /        \
+"""
+        long_cat_segment = "   |       |\n"
+        long_cat_tail = r"""   /        \
   /   ____   \
   |  /    \  |
   | |      | |
  /  |      |  \ 
- \__/      \__/'''
+ \__/      \__/"""
         longcat = long_cat_head + long_cat_segment * segments + long_cat_tail
-        longcat += "\n Longcat is L{}ng!".format("o"*segments)
+        longcat += "\n Longcat is L{}ng!".format("o" * segments)
         return event.create_response(longcat)
 
 
@@ -51,7 +51,7 @@ class Deer(Function):
     """
     Draws an ascii deer
     """
-    
+
     def __init__(self):
         """
         Constructor
@@ -66,7 +66,7 @@ class Deer(Function):
 
     def run(self, event):
         """ascii art deer. Format: deer"""
-        deer = r'''   /|       |\
+        deer = r"""   /|       |\
 `__\\       //__'
    ||      ||
  \__`\     |'__/
@@ -89,7 +89,7 @@ class Deer(Function):
            | || |           | |   | |
            | || |           | |   | |
            |_||_|           |_|   |_|
-          /_//_/           /_/   /_/'''
+          /_//_/           /_/   /_/"""
         return event.create_response(deer)
 
 
@@ -97,7 +97,7 @@ class Dragon(Function):
     """
     Draws an ascii dragon
     """
-    
+
     def __init__(self):
         """
         Constructor
@@ -112,7 +112,7 @@ class Dragon(Function):
 
     def run(self, event):
         """Prints ascii dragon. Format: dragon"""
-        dragon_deer = r'''hmm.. nah. have another deer.
+        dragon_deer = r"""hmm.. nah. have another deer.
        ""\/ \/""
          "\__/"
           (oo)
@@ -120,8 +120,8 @@ class Dragon(Function):
   ,'        |
   |.____..  /
   \\      /A\
-  |A      |//'''
-        dragon_one = r'''                     _ _
+  |A      |//"""
+        dragon_one = r"""                     _ _
               _     //` `\
           _,-"\%   // /``\`\
      ~^~ >__^  |% // /  } `\`\
@@ -131,15 +131,15 @@ class Dragon(Function):
            \   ,     (  \   _`-.__.-;%>
           /_`\ \      `\ \." `-..-'`
          ``` /_/`"-=-'`/_/
-    jgs     ```       ```'''
-        dragon_two = r'''           ____ __
+    jgs     ```       ```"""
+        dragon_two = r"""           ____ __
           { --.\  |          .)%%%)%%
            '-._\\ | (\___   %)%%(%%(%%%
                `\\|{/ ^ _)-%(%%%%)%%;%%%
            .'^^^^^^^  /`    %%)%%%%)%%%'
   jgs     //\   ) ,  /       '%%%%(%%'
     ,  _.'/  `\<-- \<
-     `^^^`     ^^   ^^'''
+     `^^^`     ^^   ^^"""
         rand = Commons.get_random_int(0, 100)[0]
         if rand == 15:
             dragon = dragon_deer
@@ -154,7 +154,7 @@ class Train(Function):
     """
     Draws an ascii train
     """
-    
+
     def __init__(self):
         """
         Constructor

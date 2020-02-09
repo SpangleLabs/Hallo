@@ -5,7 +5,9 @@ from test.server_mock import ServerMock
 def test_init():
     # Create reply message list
     rml = ReplyMessageList()
-    assert rml.reply_message_list == set(), "Reply message list did not initialise with empty list."
+    assert (
+        rml.reply_message_list == set()
+    ), "Reply message list did not initialise with empty list."
 
 
 def test_add_reply_message():
@@ -65,4 +67,7 @@ def test_get_response(hallo_getter):
     rm1 = ReplyMessage("test")
     rm1.add_response("response {USER} {CHANNEL} {SERVER}")
     rml4.add_reply_message(rm1)
-    assert rml4.get_response("test", user1, chan1) == "response test_user1 test_chan1 test_serv1"
+    assert (
+        rml4.get_response("test", user1, chan1)
+        == "response test_user1 test_chan1 test_serv1"
+    )

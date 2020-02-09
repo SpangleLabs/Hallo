@@ -17,7 +17,6 @@ from inc.printer import Printer
 
 
 class Hallo:
-
     def __init__(self):
         self.default_nick = "Hallo"
         """:type : str"""
@@ -52,16 +51,24 @@ class Hallo:
         if self.function_dispatcher is None:
             self.function_dispatcher = FunctionDispatcher(
                 {
-                    "channel_control", "convert", "hallo_control", "lookup",
-                    "math", "permission_control", "random", "server_control"
+                    "channel_control",
+                    "convert",
+                    "hallo_control",
+                    "lookup",
+                    "math",
+                    "permission_control",
+                    "random",
+                    "server_control",
                 },
-                self
+                self,
             )
         # If no servers, ask for a new server
-        if len(self.server_list) == 0 or all([not server.get_auto_connect() for server in self.server_list]):
+        if len(self.server_list) == 0 or all(
+            [not server.get_auto_connect() for server in self.server_list]
+        ):
             self.manual_server_connect()
         # Connect to auto-connect servers
-        self.printer.output('connecting to servers')
+        self.printer.output("connecting to servers")
         for server in self.server_list:
             if server.get_auto_connect():
                 server.start()
@@ -77,11 +84,13 @@ class Hallo:
                 return
         self.open = True
         # Main loop, sticks around throughout the running of the bot
-        self.printer.output('connected to all servers.')
+        self.printer.output("connected to all servers.")
         self.core_loop_time_events()
 
     def connected_to_any_servers(self):
-        auto_connecting_servers = [server for server in self.server_list if server.auto_connect]
+        auto_connecting_servers = [
+            server for server in self.server_list if server.auto_connect
+        ]
         connected_list = [server.is_connected() for server in auto_connecting_servers]
         return any(connected_list)
 
@@ -154,7 +163,9 @@ class Hallo:
         new_hallo.default_nick = json_obj["default_nick"]
         new_hallo.default_prefix = json_obj["default_prefix"]
         new_hallo.default_full_name = json_obj["default_full_name"]
-        new_hallo.function_dispatcher = FunctionDispatcher.from_json(json_obj["function_dispatcher"], new_hallo)
+        new_hallo.function_dispatcher = FunctionDispatcher.from_json(
+            json_obj["function_dispatcher"], new_hallo
+        )
         # User groups must be done before servers, as users will try and look up and add user groups!
         for user_group in json_obj["user_groups"]:
             new_hallo.add_user_group(UserGroup.from_json(user_group, new_hallo))
@@ -162,7 +173,9 @@ class Hallo:
             new_server = new_hallo.server_factory.new_server_from_json(server)
             new_hallo.add_server(new_server)
         if "permission_mask" in json_obj:
-            new_hallo.permission_mask = PermissionMask.from_json(json_obj["permission_mask"])
+            new_hallo.permission_mask = PermissionMask.from_json(
+                json_obj["permission_mask"]
+            )
         for api_key in json_obj["api_keys"]:
             new_hallo.add_api_key(api_key, json_obj["api_keys"][api_key])
         return new_hallo
@@ -287,20 +300,27 @@ class Hallo:
 
     def manual_server_connect(self):
         # TODO: add ability to connect to non-IRC servers
-        print("No servers have been loaded or connected to. Please connect to an IRC server.")
+        print(
+            "No servers have been loaded or connected to. Please connect to an IRC server."
+        )
         # godNick = input("What nickname is the bot operator using? [deer-spangle] ")
         # godNick = godNick.replace(' ', '')
         # if godNick == '':
         #     godNick = 'deer-spangle'
         # TODO: do something with godNick
-        server_addr = input("What server should the bot connect to? [irc.freenode.net:6667] ")
-        server_addr = server_addr.replace(' ', '')
-        if server_addr == '':
-            server_addr = 'irc.freenode.net:6667'
-        server_url = server_addr.split(':')[0]
-        server_port = int(server_addr.split(':')[1])
-        server_match = re.match(r'([a-z\d.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})', server_url,
-                                re.I)
+        server_addr = input(
+            "What server should the bot connect to? [irc.freenode.net:6667] "
+        )
+        server_addr = server_addr.replace(" ", "")
+        if server_addr == "":
+            server_addr = "irc.freenode.net:6667"
+        server_url = server_addr.split(":")[0]
+        server_port = int(server_addr.split(":")[1])
+        server_match = re.match(
+            r"([a-z\d.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})",
+            server_url,
+            re.I,
+        )
         server_name = server_match.group(2)
         # Create the server object
         new_server = ServerIRC(self, server_name, server_url, server_port)
@@ -311,6 +331,6 @@ class Hallo:
         print("Config file saved.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     hallo = Hallo.load_json()
     hallo.start()

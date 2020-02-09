@@ -8,10 +8,14 @@ from test.server_mock import ServerMock
 
 def test_help_all(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
-    hallo.function_dispatcher.dispatch(EventMessage(test_server, None, test_user, "help"))
+    hallo.function_dispatcher.dispatch(
+        EventMessage(test_server, None, test_user, "help")
+    )
     data = test_server.get_send_data(1, test_user, EventMessage)
     assert "list of available functions:" in data[0].text.lower()
-    num_funcs = len(data[0].text.lower().replace("list of available functions: ", "").split(","))
+    num_funcs = len(
+        data[0].text.lower().replace("list of available functions: ", "").split(",")
+    )
     assert num_funcs > 4, "Not enough functions listed."
 
 
@@ -37,15 +41,19 @@ def test_help_mock_func_disp():
 
 def test_help_func(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
-    hallo.function_dispatcher.dispatch(EventMessage(test_server, None, test_user, "help help"))
+    hallo.function_dispatcher.dispatch(
+        EventMessage(test_server, None, test_user, "help help")
+    )
     data = test_server.get_send_data(1, test_user, EventMessage)
     assert "error" not in data[0].text.lower()
-    assert "documentation for \"help\":" in data[0].text.lower()
+    assert 'documentation for "help":' in data[0].text.lower()
 
 
 def test_help_no_func(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
-    hallo.function_dispatcher.dispatch(EventMessage(test_server, None, test_user, "help not a real function"))
+    hallo.function_dispatcher.dispatch(
+        EventMessage(test_server, None, test_user, "help not a real function")
+    )
     data = test_server.get_send_data(1, test_user, EventMessage)
     assert "error" in data[0].text.lower()
     assert "no function by that name exists" in data[0].text.lower()
@@ -56,7 +64,9 @@ def test_help_no_doc(hallo_getter):
     # Manually add FunctionMock to function dispatcher
     hallo.function_dispatcher.load_function(FunctionMockNoDoc)
     try:
-        hallo.function_dispatcher.dispatch(EventMessage(test_server, None, test_user, "help function no doc"))
+        hallo.function_dispatcher.dispatch(
+            EventMessage(test_server, None, test_user, "help function no doc")
+        )
         data = test_server.get_send_data(1, test_user, EventMessage)
         assert "error" in data[0].text.lower()
         assert "no documentation exists" in data[0].text.lower()
@@ -69,7 +79,9 @@ def test_help_mock_func(hallo_getter):
     # Manually add FunctionMock to function dispatcher
     hallo.function_dispatcher.load_function(FunctionMock)
     try:
-        hallo.function_dispatcher.dispatch(EventMessage(test_server, None, test_user, "help function mock"))
+        hallo.function_dispatcher.dispatch(
+            EventMessage(test_server, None, test_user, "help function mock")
+        )
         data = test_server.get_send_data(1, test_user, EventMessage)
         assert "error" not in data[0].text.lower()
         assert "example help, please ignore" in data[0].text.lower()
@@ -78,7 +90,6 @@ def test_help_mock_func(hallo_getter):
 
 
 class FunctionMock(Function):
-
     def __init__(self):
         super().__init__()
         self.help_name = "function mock"
@@ -90,7 +101,6 @@ class FunctionMock(Function):
 
 
 class FunctionMockNoDoc(Function):
-
     def __init__(self):
         super().__init__()
         self.help_name = "function no doc"

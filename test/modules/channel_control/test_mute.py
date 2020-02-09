@@ -12,7 +12,9 @@ def test_mute_not_irc(hallo_getter):
     chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
     chan1.add_user(user1)
-    chan1.add_user(serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick()))
+    chan1.add_user(
+        serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
+    )
     try:
         hallo.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "mute"))
         data = serv1.get_send_data(1, chan1, EventMessage)
@@ -110,7 +112,9 @@ def test_mute_1_not_known(hallo_getter):
     chan1_hallo = chan1.get_membership_by_user(user_hallo)
     chan1_hallo.is_op = True
     try:
-        hallo.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "mute test_chan2"))
+        hallo.function_dispatcher.dispatch(
+            EventMessage(serv1, None, user1, "mute test_chan2")
+        )
         data = serv1.get_send_data(1, user1, EventMessage)
         assert "error" in data[0].text.lower()
         assert "test_chan2 is not known" in data[0].text.lower()
@@ -137,7 +141,9 @@ def test_mute_1_not_in_channel(hallo_getter):
     chan1_hallo = chan1.get_membership_by_user(user_hallo)
     chan1_hallo.is_op = True
     try:
-        hallo.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "mute test_chan2"))
+        hallo.function_dispatcher.dispatch(
+            EventMessage(serv1, None, user1, "mute test_chan2")
+        )
         data = serv1.get_send_data(1, user1, EventMessage)
         assert "error" in data[0].text.lower()
         assert "not in that channel" in data[0].text.lower()
@@ -162,7 +168,9 @@ def test_mute_1_no_power(hallo_getter):
     chan1_hallo = chan1.get_membership_by_user(user_hallo)
     chan1_hallo.is_op = False
     try:
-        hallo.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "mute test_chan1"))
+        hallo.function_dispatcher.dispatch(
+            EventMessage(serv1, None, user1, "mute test_chan1")
+        )
         data = serv1.get_send_data(1, user1, EventMessage)
         assert "error" in data[0].text.lower()
         assert "don't have power" in data[0].text.lower()
@@ -187,7 +195,9 @@ def test_mute_1(hallo_getter):
     chan1_hallo = chan1.get_membership_by_user(user_hallo)
     chan1_hallo.is_op = True
     try:
-        hallo.function_dispatcher.dispatch(EventMessage(serv1, None, user1, "mute test_chan1"))
+        hallo.function_dispatcher.dispatch(
+            EventMessage(serv1, None, user1, "mute test_chan1")
+        )
         data = serv1.get_send_data(2)
         assert "error" not in data[1].text.lower()
         assert data[0].channel == chan1

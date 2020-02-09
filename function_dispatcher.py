@@ -3,9 +3,20 @@ import sys
 import inspect
 from xml.dom import minidom
 
-from errors import FunctionError, PassiveFunctionError, FunctionNotFoundError, FunctionNotAllowedError, \
-    FunctionSaveError
-from events import ServerEvent, UserEvent, ChannelEvent, EventMessage, ChannelUserTextEvent
+from errors import (
+    FunctionError,
+    PassiveFunctionError,
+    FunctionNotFoundError,
+    FunctionNotAllowedError,
+    FunctionSaveError,
+)
+from events import (
+    ServerEvent,
+    UserEvent,
+    ChannelEvent,
+    EventMessage,
+    ChannelUserTextEvent,
+)
 from function import Function
 
 
@@ -22,10 +33,16 @@ class FunctionDispatcher(object):
         """
         self.hallo = hallo  # Hallo object which owns this
         self.module_list = module_list  # List of available module names
-        self.function_dict = {}  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
+        self.function_dict = (
+            {}
+        )  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
         self.function_names = {}  # Dictionary of names -> functionClasses
-        self.persistent_functions = {}  # Dictionary of persistent function objects. functionClass->functionObject
-        self.event_functions = {}  # Dictionary with events classes as keys and sets of function classes
+        self.persistent_functions = (
+            {}
+        )  # Dictionary of persistent function objects. functionClass->functionObject
+        self.event_functions = (
+            {}
+        )  # Dictionary with events classes as keys and sets of function classes
         #  (which may want to act on those events) as values
         # Load all functions
         for module_name in self.module_list:
@@ -50,16 +67,21 @@ class FunctionDispatcher(object):
         function_name_test = ""
         function_args_test = ""
         for function_name_test in [
-            ' '.join(function_message_split[:x + 1]) for x in range(len(function_message_split))[::-1]
+            " ".join(function_message_split[: x + 1])
+            for x in range(len(function_message_split))[::-1]
         ]:
             function_class_test = self.get_function_by_name(function_name_test)
-            function_args_test = ' '.join(function_message_split)[len(function_name_test):].strip()
+            function_args_test = " ".join(function_message_split)[
+                len(function_name_test) :
+            ].strip()
             if function_class_test is not None:
                 break
         # If function isn't found, output a not found message
         if function_class_test is None:
             if EventMessage.FLAG_HIDE_ERRORS not in flag_list:
-                event.reply(event.create_response("Error, this is not a recognised function."))
+                event.reply(
+                    event.create_response("Error, this is not a recognised function.")
+                )
                 error = FunctionNotFoundError(self, event)
                 self.hallo.logger.log(error)
                 self.hallo.printer.output(error)
@@ -67,8 +89,14 @@ class FunctionDispatcher(object):
         function_class = function_class_test
         event.split_command_text(function_name_test, function_args_test)
         # Check function rights and permissions
-        if not self.check_function_permissions(function_class, event.server, event.user, event.channel):
-            event.reply(event.create_response("You do not have permission to use this function."))
+        if not self.check_function_permissions(
+            function_class, event.server, event.user, event.channel
+        ):
+            event.reply(
+                event.create_response(
+                    "You do not have permission to use this function."
+                )
+            )
             error = FunctionNotAllowedError(self, function_class, event)
             self.hallo.logger.log(error)
             self.hallo.printer.output(error)
@@ -85,8 +113,12 @@ class FunctionDispatcher(object):
             return
         except Exception as e:
             error = FunctionError(e, self, function_obj, event)
-            e_str = (str(e)[:250] + '..') if len(str(e)) > 250 else str(e)
-            event.reply(event.create_response("Function failed with error message: {}".format(e_str)))
+            e_str = (str(e)[:250] + "..") if len(str(e)) > 250 else str(e)
+            event.reply(
+                event.create_response(
+                    "Function failed with error message: {}".format(e_str)
+                )
+            )
             self.hallo.logger.log(error)
             self.hallo.printer.output(error)
             return
@@ -98,17 +130,20 @@ class FunctionDispatcher(object):
         :type event: events.Event
         """
         # If this event is not used, skip this
-        if event.__class__ not in self.event_functions or len(self.event_functions[event.__class__]) == 0:
+        if (
+            event.__class__ not in self.event_functions
+            or len(self.event_functions[event.__class__]) == 0
+        ):
             return
         # Get list of functions that want things
         function_list = self.event_functions[event.__class__].copy()
         for function_class in function_list:
             # Check function rights and permissions
             if not self.check_function_permissions(
-                    function_class,
-                    event.server if isinstance(event, ServerEvent) else None,
-                    event.user if isinstance(event, UserEvent) else None,
-                    event.channel if isinstance(event, ChannelEvent) else None
+                function_class,
+                event.server if isinstance(event, ServerEvent) else None,
+                event.user if isinstance(event, UserEvent) else None,
+                event.channel if isinstance(event, ChannelEvent) else None,
             ):
                 continue
             # If persistent, get the object, otherwise make one
@@ -117,7 +152,9 @@ class FunctionDispatcher(object):
             try:
                 response = function_obj.passive_run(event, self.hallo)
                 if response is not None:
-                    if isinstance(response, ChannelUserTextEvent) and isinstance(event, ChannelUserTextEvent):
+                    if isinstance(response, ChannelUserTextEvent) and isinstance(
+                        event, ChannelUserTextEvent
+                    ):
                         event.reply(response)
                     else:
                         event.server.send(response)
@@ -138,7 +175,7 @@ class FunctionDispatcher(object):
         if function_name in self.function_names:
             return self.function_names[function_name]
         # Check without underscores. People might still use underscores to separate words in a function name
-        function_name = function_name.replace('_', ' ')
+        function_name = function_name.replace("_", " ")
         if function_name in self.function_names:
             return self.function_names[function_name]
         return None
@@ -161,7 +198,9 @@ class FunctionDispatcher(object):
             function_obj = function_class()
         return function_obj
 
-    def check_function_permissions(self, function_class, server_obj, user_obj, channel_obj):
+    def check_function_permissions(
+        self, function_class, server_obj, user_obj, channel_obj
+    ):
         """Checks if a function can be called. Returns boolean, True if allowed
         :param function_class: Class of function to check permissions for
         :type function_class: type
@@ -192,7 +231,9 @@ class FunctionDispatcher(object):
         # Check it's an allowed module
         if module_name not in self.module_list:
             self.hallo.printer.output(
-                "Module name, {}, is not in allowed list: {}.".format(module_name, ", ".join(self.module_list))
+                "Module name, {}, is not in allowed list: {}.".format(
+                    module_name, ", ".join(self.module_list)
+                )
             )
             return False
         # Create full name
@@ -207,7 +248,9 @@ class FunctionDispatcher(object):
             try:
                 module_obj = importlib.import_module(full_module_name)
             except ImportError:
-                self.hallo.printer.output("Could not import module: {}".format(full_module_name))
+                self.hallo.printer.output(
+                    "Could not import module: {}".format(full_module_name)
+                )
                 return False
         # Unload module, if it was loaded.
         self.unload_module_functions(module_obj)
@@ -310,17 +353,18 @@ class FunctionDispatcher(object):
         if module_obj not in self.function_dict:
             self.function_dict[module_obj] = {}
         self.function_dict[module_obj][function_class] = {}
-        self.function_dict[module_obj][function_class]['names'] = names_list
-        self.function_dict[module_obj][function_class]['events'] = events_list
+        self.function_dict[module_obj][function_class]["names"] = names_list
+        self.function_dict[module_obj][function_class]["events"] = events_list
         # Add function to mFunctionNames
         for function_name in names_list:
             if function_name in self.function_names:
                 raise NotImplementedError(
-                    "This function name \"{}\", in \"{}\" function class is already taken by "
-                    "the \"{}\" function class.".format(
+                    'This function name "{}", in "{}" function class is already taken by '
+                    'the "{}" function class.'.format(
                         function_name,
                         function_class.__name__,
-                        self.function_names[function_name].__name__)
+                        self.function_names[function_name].__name__,
+                    )
                 )
             self.function_names[function_name] = function_class
         # Add function to mEventFunctions
@@ -343,8 +387,8 @@ class FunctionDispatcher(object):
         if function_class not in self.function_dict[module_obj]:
             return
         # Get list of function names and list of events functions respond to
-        names_list = self.function_dict[module_obj][function_class]['names']
-        events_list = self.function_dict[module_obj][function_class]['events']
+        names_list = self.function_dict[module_obj][function_class]["names"]
+        events_list = self.function_dict[module_obj][function_class]["events"]
         # Remove names from mFunctionNames
         for function_name in names_list:
             del self.function_names[function_name]

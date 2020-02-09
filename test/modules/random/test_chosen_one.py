@@ -7,7 +7,6 @@ from test.modules.random.mock_chooser import MockChooser
 
 
 class ChooseTest(TestBase, unittest.TestCase):
-
     def setUp(self):
         super().setUp()
         self.chooser = MockChooser()
@@ -19,18 +18,29 @@ class ChooseTest(TestBase, unittest.TestCase):
         Commons.get_random_choice = self.old_choice_method
 
     def test_not_a_channel(self):
-        self.function_dispatcher.dispatch(EventMessage(self.server, None, self.test_user, "chosen one"))
+        self.function_dispatcher.dispatch(
+            EventMessage(self.server, None, self.test_user, "chosen one")
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert "can only be used in a channel" in data[0].text.lower(), "Not warning about using in private message."
+        assert (
+            "can only be used in a channel" in data[0].text.lower()
+        ), "Not warning about using in private message."
 
     def test_one_person_in_channel(self):
         self.test_chan.remove_user(self.hallo_user)
         try:
-            self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "chosen one"))
+            self.function_dispatcher.dispatch(
+                EventMessage(self.server, self.test_chan, self.test_user, "chosen one")
+            )
             data = self.server.get_send_data(1, self.test_user, EventMessage)
-            assert self.chooser.last_choices == [self.test_user.name], "User list should just be test user"
+            assert self.chooser.last_choices == [
+                self.test_user.name
+            ], "User list should just be test user"
             assert self.chooser.last_count == 1, "Should have only asked to choose 1"
-            assert "{} is the chosen one".format(self.test_user.name) in data[0].text.lower(), "Should have chosen user"
+            assert (
+                "{} is the chosen one".format(self.test_user.name)
+                in data[0].text.lower()
+            ), "Should have chosen user"
         finally:
             self.test_chan.add_user(self.hallo_user)
 
@@ -38,25 +48,33 @@ class ChooseTest(TestBase, unittest.TestCase):
         # Set chooser option
         self.chooser.choice = 0
         # Choose user
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "chosen one"))
+        self.function_dispatcher.dispatch(
+            EventMessage(self.server, self.test_chan, self.test_user, "chosen one")
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert set(self.chooser.last_choices) == {
             self.test_user.name,
-            self.hallo_user.name
+            self.hallo_user.name,
         }, "User list should just be test user and hallo"
         assert self.chooser.last_count == 1, "Should have only asked to choose 1"
-        assert "{} is the chosen one".format(self.chooser.last_choices[0]) in data[0].text
+        assert (
+            "{} is the chosen one".format(self.chooser.last_choices[0]) in data[0].text
+        )
         # Set chooser option
         self.chooser.choice = 1
         # Choose user
-        self.function_dispatcher.dispatch(EventMessage(self.server, self.test_chan, self.test_user, "chosen one"))
+        self.function_dispatcher.dispatch(
+            EventMessage(self.server, self.test_chan, self.test_user, "chosen one")
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert set(self.chooser.last_choices) == {
             self.test_user.name,
-            self.hallo_user.name
+            self.hallo_user.name,
         }, "User list should just be test user and hallo"
         assert self.chooser.last_count == 1, "Should have only asked to choose 1"
-        assert "{} is the chosen one".format(self.chooser.last_choices[1]) in data[0].text
+        assert (
+            "{} is the chosen one".format(self.chooser.last_choices[1]) in data[0].text
+        )
 
     def test_five_in_channel(self):
         chan = self.server.get_channel_by_address("test_chan", "test_chan")
@@ -71,40 +89,70 @@ class ChooseTest(TestBase, unittest.TestCase):
         # Set chooser option
         self.chooser.choice = 0
         # Choose user
-        self.function_dispatcher.dispatch(EventMessage(self.server, chan, self.test_user, "chosen one"))
+        self.function_dispatcher.dispatch(
+            EventMessage(self.server, chan, self.test_user, "chosen one")
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert set(self.chooser.last_choices) == set([x.name for x in users]), "User list wrong"
+        assert set(self.chooser.last_choices) == set(
+            [x.name for x in users]
+        ), "User list wrong"
         assert self.chooser.last_count == 1, "Should have only asked to choose 1"
-        assert "{} is the chosen one".format(self.chooser.last_choices[0]) in data[0].text
+        assert (
+            "{} is the chosen one".format(self.chooser.last_choices[0]) in data[0].text
+        )
         # Set chooser option
         self.chooser.choice = 1
         # Choose user
-        self.function_dispatcher.dispatch(EventMessage(self.server, chan, self.test_user, "chosen one"))
+        self.function_dispatcher.dispatch(
+            EventMessage(self.server, chan, self.test_user, "chosen one")
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert set(self.chooser.last_choices) == set([x.name for x in users]), "User list wrong"
+        assert set(self.chooser.last_choices) == set(
+            [x.name for x in users]
+        ), "User list wrong"
         assert self.chooser.last_count == 1, "Should have only asked to choose 1"
-        assert "{} is the chosen one".format(self.chooser.last_choices[1]) in data[0].text
+        assert (
+            "{} is the chosen one".format(self.chooser.last_choices[1]) in data[0].text
+        )
         # Set chooser option
         self.chooser.choice = 2
         # Choose user
-        self.function_dispatcher.dispatch(EventMessage(self.server, chan, self.test_user, "chosen one"))
+        self.function_dispatcher.dispatch(
+            EventMessage(self.server, chan, self.test_user, "chosen one")
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert set(self.chooser.last_choices) == set([x.name for x in users]), "User list wrong"
+        assert set(self.chooser.last_choices) == set(
+            [x.name for x in users]
+        ), "User list wrong"
         assert self.chooser.last_count == 1, "Should have only asked to choose 1"
-        assert "{} is the chosen one".format(self.chooser.last_choices[2]) in data[0].text
+        assert (
+            "{} is the chosen one".format(self.chooser.last_choices[2]) in data[0].text
+        )
         # Set chooser option
         self.chooser.choice = 3
         # Choose user
-        self.function_dispatcher.dispatch(EventMessage(self.server, chan, self.test_user, "chosen one"))
+        self.function_dispatcher.dispatch(
+            EventMessage(self.server, chan, self.test_user, "chosen one")
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert set(self.chooser.last_choices) == set([x.name for x in users]), "User list wrong"
+        assert set(self.chooser.last_choices) == set(
+            [x.name for x in users]
+        ), "User list wrong"
         assert self.chooser.last_count == 1, "Should have only asked to choose 1"
-        assert "{} is the chosen one".format(self.chooser.last_choices[3]) in data[0].text
+        assert (
+            "{} is the chosen one".format(self.chooser.last_choices[3]) in data[0].text
+        )
         # Set chooser option
         self.chooser.choice = 4
         # Choose user
-        self.function_dispatcher.dispatch(EventMessage(self.server, chan, self.test_user, "chosen one"))
+        self.function_dispatcher.dispatch(
+            EventMessage(self.server, chan, self.test_user, "chosen one")
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert set(self.chooser.last_choices) == set([x.name for x in users]), "User list wrong"
+        assert set(self.chooser.last_choices) == set(
+            [x.name for x in users]
+        ), "User list wrong"
         assert self.chooser.last_count == 1, "Should have only asked to choose 1"
-        assert "{} is the chosen one".format(self.chooser.last_choices[4]) in data[0].text
+        assert (
+            "{} is the chosen one".format(self.chooser.last_choices[4]) in data[0].text
+        )

@@ -1,10 +1,15 @@
 import unittest
 
-from modules.convert import ConvertRepo, ConvertType, ConvertUnit, ConvertPrefixGroup, ConvertPrefix
+from modules.convert import (
+    ConvertRepo,
+    ConvertType,
+    ConvertUnit,
+    ConvertPrefixGroup,
+    ConvertPrefix,
+)
 
 
 class ConvertUnitTest(unittest.TestCase):
-
     def test_init(self):
         # Set up test objects
         test_repo = ConvertRepo()
@@ -192,11 +197,15 @@ class ConvertUnitTest(unittest.TestCase):
         prefix_name1 = "test_name1"
         prefix_abbr1 = "test_abbr1"
         prefix_mult1 = 1001
-        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        test_prefix1 = ConvertPrefix(
+            prefix_group, prefix_name1, prefix_abbr1, prefix_mult1
+        )
         prefix_name2 = "test_name2"
         prefix_abbr2 = "test_abbr2"
         prefix_mult2 = 1002
-        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        test_prefix2 = ConvertPrefix(
+            prefix_group, prefix_name2, prefix_abbr2, prefix_mult2
+        )
         prefix_group.add_prefix(test_prefix1)
         prefix_group.add_prefix(test_prefix2)
         # Set up test object
@@ -224,11 +233,15 @@ class ConvertUnitTest(unittest.TestCase):
         prefix_name1 = "test_name1"
         prefix_abbr1 = "test_abbr1"
         prefix_mult1 = 1001
-        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        test_prefix1 = ConvertPrefix(
+            prefix_group, prefix_name1, prefix_abbr1, prefix_mult1
+        )
         prefix_name2 = "test_name2"
         prefix_abbr2 = "test_abbr2"
         prefix_mult2 = 1002
-        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        test_prefix2 = ConvertPrefix(
+            prefix_group, prefix_name2, prefix_abbr2, prefix_mult2
+        )
         prefix_group.add_prefix(test_prefix1)
         prefix_group.add_prefix(test_prefix2)
         # Set up test object
@@ -256,11 +269,15 @@ class ConvertUnitTest(unittest.TestCase):
         prefix_name1 = "test_name1"
         prefix_abbr1 = "test_abbr1"
         prefix_mult1 = 1001
-        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        test_prefix1 = ConvertPrefix(
+            prefix_group, prefix_name1, prefix_abbr1, prefix_mult1
+        )
         prefix_name2 = "test_name2"
         prefix_abbr2 = "test_abbr2"
         prefix_mult2 = 1002
-        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        test_prefix2 = ConvertPrefix(
+            prefix_group, prefix_name2, prefix_abbr2, prefix_mult2
+        )
         prefix_group.add_prefix(test_prefix1)
         prefix_group.add_prefix(test_prefix2)
         # Set up test object
@@ -273,8 +290,13 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit.add_abbr("abbr2")
         test_unit.valid_prefix_group = prefix_group
         # Get prefix from input
-        assert test_unit.get_prefix_from_user_input("cubic test_name1name2") == test_prefix1
-        assert test_unit.get_prefix_from_user_input("cubic test_name1not_a_unit") is False
+        assert (
+            test_unit.get_prefix_from_user_input("cubic test_name1name2")
+            == test_prefix1
+        )
+        assert (
+            test_unit.get_prefix_from_user_input("cubic test_name1not_a_unit") is False
+        )
         assert test_unit.get_prefix_from_user_input("cubic not_a_prefixname2") is False
         assert test_unit.get_prefix_from_user_input("cubic name2") is None
         # Remove prefix group and see what happens
@@ -288,11 +310,15 @@ class ConvertUnitTest(unittest.TestCase):
         prefix_name1 = "test_name1"
         prefix_abbr1 = "test_abbr1"
         prefix_mult1 = 1001
-        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        test_prefix1 = ConvertPrefix(
+            prefix_group, prefix_name1, prefix_abbr1, prefix_mult1
+        )
         prefix_name2 = "test_name2"
         prefix_abbr2 = "test_abbr2"
         prefix_mult2 = 1002
-        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        test_prefix2 = ConvertPrefix(
+            prefix_group, prefix_name2, prefix_abbr2, prefix_mult2
+        )
         prefix_group.add_prefix(test_prefix1)
         prefix_group.add_prefix(test_prefix2)
         # Set up test object
@@ -305,8 +331,13 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit.add_abbr("cubic {X}abbr2")
         test_unit.valid_prefix_group = prefix_group
         # Get prefix from input
-        assert test_unit.get_prefix_from_user_input("cubic test_abbr1abbr2") == test_prefix1
-        assert test_unit.get_prefix_from_user_input("cubic test_abbr1not_a_unit") is False
+        assert (
+            test_unit.get_prefix_from_user_input("cubic test_abbr1abbr2")
+            == test_prefix1
+        )
+        assert (
+            test_unit.get_prefix_from_user_input("cubic test_abbr1not_a_unit") is False
+        )
         assert test_unit.get_prefix_from_user_input("cubic not_a_prefixabbr2") is False
         assert test_unit.get_prefix_from_user_input("cubic abbr2") is None
         # Remove prefix group and see what happens

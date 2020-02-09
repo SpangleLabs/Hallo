@@ -22,9 +22,10 @@ class Euler(Function):
         # Names which can be used to address the Function
         self.names = {"euler", "euler project", "project euler"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = \
-            "Project Euler functions. Format: \"euler list\" to list project euler solutions. " \
-            "\"euler <number>\" for the solution to project euler problem of the given number."
+        self.help_docs = (
+            'Project Euler functions. Format: "euler list" to list project euler solutions. '
+            '"euler <number>" for the solution to project euler problem of the given number.'
+        )
 
     def run(self, event):
         # Some functions might need this.
@@ -36,37 +37,54 @@ class Euler(Function):
             return event.create_response(self.run_function(line_clean))
         else:
             count_solutions = len(
-                [func_name for func_name in dir(self) if func_name[:5] == 'euler' and func_name[5:].isdigit()])
-            output_string = \
-                "I'm learning to complete the project Euler programming problems. " \
-                "I've not done many so far, I've only done {} of the 514 problems. ".format(count_solutions)
-            output_string += \
-                "But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, " \
+                [
+                    func_name
+                    for func_name in dir(self)
+                    if func_name[:5] == "euler" and func_name[5:].isdigit()
+                ]
+            )
+            output_string = (
+                "I'm learning to complete the project Euler programming problems. "
+                "I've not done many so far, I've only done {} of the 514 problems. ".format(
+                    count_solutions
+                )
+            )
+            output_string += (
+                "But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, "
                 "say 'Hallo Euler {num}' for the answer to challenge number {num}."
+            )
             return event.create_response(output_string)
 
     def list_all(self):
         # list all available project Euler answers
         problem_func_names = []
         for func_name in dir(self):
-            if func_name[:5] == 'euler' and func_name[5:].isdigit():
+            if func_name[:5] == "euler" and func_name[5:].isdigit():
                 problem_func_names.append(func_name[5:])
         problem_func_names = sorted(problem_func_names, key=int)
-        output_string = "Currently I can do {} Project Euler problems ".format(len(problem_func_names))
-        output_string += ', '.join(problem_func_names[:-1])
+        output_string = "Currently I can do {} Project Euler problems ".format(
+            len(problem_func_names)
+        )
+        output_string += ", ".join(problem_func_names[:-1])
         output_string += " and " + problem_func_names[-1] + "."
         return output_string
 
     def run_function(self, number_string):
         function_name = "euler" + number_string
-        function_names = [func_name for func_name in dir(self) if func_name[:5] == 'euler' and func_name[5:].isdigit()]
+        function_names = [
+            func_name
+            for func_name in dir(self)
+            if func_name[:5] == "euler" and func_name[5:].isdigit()
+        ]
         if function_name not in function_names:
             return "Error, I don't think I've solved that one yet."
         function_obj = getattr(self, function_name)
         if not hasattr(function_obj, "__call__"):
             return "Error, That doesn't seem to work."
         try:
-            output_string = "Euler project problem {}? I think the answer is: {}.".format(number_string, function_obj())
+            output_string = "Euler project problem {}? I think the answer is: {}.".format(
+                number_string, function_obj()
+            )
         except Exception as e:
             output_string = "Hmm, seems that one has an error... darnit."
             print("Euler error: {}".format(e))
@@ -178,16 +196,17 @@ class Euler(Function):
                                             del idigits[i]
                                             jdigit = idigits[0]
                                             pandigitals.append(
-                                                1000000000 * adigit +
-                                                100000000 * bdigit +
-                                                10000000 * cdigit +
-                                                1000000 * ddigit +
-                                                100000 * edigit +
-                                                10000 * fdigit +
-                                                1000 * gdigit +
-                                                100 * hdigit +
-                                                10 * idigit +
-                                                jdigit)
+                                                1000000000 * adigit
+                                                + 100000000 * bdigit
+                                                + 10000000 * cdigit
+                                                + 1000000 * ddigit
+                                                + 100000 * edigit
+                                                + 10000 * fdigit
+                                                + 1000 * gdigit
+                                                + 100 * hdigit
+                                                + 10 * idigit
+                                                + jdigit
+                                            )
         return pandigitals
 
     def euler1(self):
@@ -244,7 +263,9 @@ class Euler(Function):
                     biggest_palandrome_x = x
                     biggest_palandrome_y = y
                     stop_loop = int(math.floor(biggest_palandrome / 999))
-        return "answer is: {} = {}x{}".format(biggest_palandrome, biggest_palandrome_x, biggest_palandrome_y)
+        return "answer is: {} = {}x{}".format(
+            biggest_palandrome, biggest_palandrome_x, biggest_palandrome_y
+        )
 
     def euler5(self):
         factors = {}
@@ -287,7 +308,9 @@ class Euler(Function):
         # Get SimplifyFraction function
         function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("simplify fraction")
-        function_obj = function_dispatcher.get_function_object(function_class)  # type: SimplifyFraction
+        function_obj = function_dispatcher.get_function_object(
+            function_class
+        )  # type: SimplifyFraction
         # Calculate
         string_file = open("store/euler/euler_8_string.txt", "r")
         string = string_file.read()[:-1]
@@ -313,7 +336,9 @@ class Euler(Function):
                     answer_b = b
                     answer_c = int(c)
                     answer = a * b * int(c)
-        return "a = {}, b = {}, c = {} and a*b*c = {}".format(answer_a, answer_b, answer_c, answer)
+        return "a = {}, b = {}, c = {} and a*b*c = {}".format(
+            answer_a, answer_b, answer_c, answer
+        )
 
     def euler10(self):
         numbers = [0] * 2000000
@@ -333,15 +358,16 @@ class Euler(Function):
         biggest_product = 0
         answer_x = 0
         answer_y = 0
-        direction = ''
+        direction = ""
         # vertical checks
         for x in range(0, 20):
             for y in range(0, 17):
-                product = \
-                    int(arr_box[x + 20 * y]) * \
-                    int(arr_box[x + 20 * y + 20]) * \
-                    int(arr_box[x + 20 * y + 40]) * \
-                    int(arr_box[x + 20 * y + 60])
+                product = (
+                    int(arr_box[x + 20 * y])
+                    * int(arr_box[x + 20 * y + 20])
+                    * int(arr_box[x + 20 * y + 40])
+                    * int(arr_box[x + 20 * y + 60])
+                )
                 if product > biggest_product:
                     biggest_product = product
                     answer_x = x
@@ -350,11 +376,12 @@ class Euler(Function):
         # horizontal checks
         for x in range(0, 17):
             for y in range(0, 20):
-                product = \
-                    int(arr_box[x + 20 * y]) * \
-                    int(arr_box[x + 20 * y + 1]) * \
-                    int(arr_box[x + 20 * y + 2]) * \
-                    int(arr_box[x + 20 * y + 3])
+                product = (
+                    int(arr_box[x + 20 * y])
+                    * int(arr_box[x + 20 * y + 1])
+                    * int(arr_box[x + 20 * y + 2])
+                    * int(arr_box[x + 20 * y + 3])
+                )
                 if product > biggest_product:
                     biggest_product = product
                     answer_x = x
@@ -363,11 +390,12 @@ class Euler(Function):
         # diagonal check \
         for x in range(0, 17):
             for y in range(0, 17):
-                product = \
-                    int(arr_box[x + 20 * y]) * \
-                    int(arr_box[x + 20 * y + 21]) * \
-                    int(arr_box[x + 20 * y + 42]) * \
-                    int(arr_box[x + 20 * y + 63])
+                product = (
+                    int(arr_box[x + 20 * y])
+                    * int(arr_box[x + 20 * y + 21])
+                    * int(arr_box[x + 20 * y + 42])
+                    * int(arr_box[x + 20 * y + 63])
+                )
                 if product > biggest_product:
                     biggest_product = product
                     answer_x = x
@@ -376,11 +404,12 @@ class Euler(Function):
         # diagonal check /
         for x in range(3, 20):
             for y in range(0, 17):
-                product = \
-                    int(arr_box[x + 20 * y]) * \
-                    int(arr_box[x + 20 * y + 19]) * \
-                    int(arr_box[x + 20 * y + 38]) * \
-                    int(arr_box[x + 20 * y + 57])
+                product = (
+                    int(arr_box[x + 20 * y])
+                    * int(arr_box[x + 20 * y + 19])
+                    * int(arr_box[x + 20 * y + 38])
+                    * int(arr_box[x + 20 * y + 57])
+                )
                 if product > biggest_product:
                     biggest_product = product
                     answer_x = x
@@ -397,9 +426,13 @@ class Euler(Function):
         while num_factors < 500:
             number += 1
             if number % 2 == 0:
-                num_factors = self.find_number_of_factors(number + 1) * self.find_number_of_factors(number / 2)
+                num_factors = self.find_number_of_factors(
+                    number + 1
+                ) * self.find_number_of_factors(number / 2)
             else:
-                num_factors = self.find_number_of_factors((number + 1) / 2) * self.find_number_of_factors(number)
+                num_factors = self.find_number_of_factors(
+                    (number + 1) / 2
+                ) * self.find_number_of_factors(number)
         triangle = ((number + 1) * number) / 2
         return triangle
 
@@ -457,11 +490,15 @@ class Euler(Function):
         # Get Number function
         function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("number")
-        function_obj = function_dispatcher.get_function_object(function_class)  # type: NumberWord
+        function_obj = function_dispatcher.get_function_object(
+            function_class
+        )  # type: NumberWord
         # Do processing
         total = 0
         for x in range(1, 1001):
-            total += len(function_obj.number_word(str(x)).replace(' ', '').replace('-', ''))
+            total += len(
+                function_obj.number_word(str(x)).replace(" ", "").replace("-", "")
+            )
         return total
 
     def euler18(self):
@@ -473,14 +510,16 @@ class Euler(Function):
             arr_triangle_val[x] = arr_triangle[x].split()
         for row in range(len(arr_triangle_val) - 2, -1, -1):
             for col in range(len(arr_triangle_val[row])):
-                if int(arr_triangle_val[row + 1][col]) > int(arr_triangle_val[row + 1][col + 1]):
-                    arr_triangle_val[row][col] = \
-                        int(arr_triangle_val[row][col]) + \
-                        int(arr_triangle_val[row + 1][col])
+                if int(arr_triangle_val[row + 1][col]) > int(
+                    arr_triangle_val[row + 1][col + 1]
+                ):
+                    arr_triangle_val[row][col] = int(arr_triangle_val[row][col]) + int(
+                        arr_triangle_val[row + 1][col]
+                    )
                 else:
-                    arr_triangle_val[row][col] = \
-                        int(arr_triangle_val[row][col]) + \
-                        int(arr_triangle_val[row + 1][col + 1])
+                    arr_triangle_val[row][col] = int(arr_triangle_val[row][col]) + int(
+                        arr_triangle_val[row + 1][col + 1]
+                    )
         return arr_triangle_val[0][0]
 
     def euler19(self):
@@ -526,7 +565,9 @@ class Euler(Function):
                 for other_factor in other_factors:
                     other_factor_total = other_factor_total + other_factor
                 if other_factor_total - other_number == x and other_number != x:
-                    self.mHalloObject.printer.output("found a pair: {} and {}".format(x, factor_total - x))
+                    self.mHalloObject.printer.output(
+                        "found a pair: {} and {}".format(x, factor_total - x)
+                    )
                     amicable.append(x)
                     amicable.append(factor_total - x)
                     total = total + x + other_number
@@ -536,7 +577,7 @@ class Euler(Function):
         raw_names_file = open("store/euler/euler_22_names.txt", "r")
         raw_names = raw_names_file.read()[:-1]
         raw_names_file.close()
-        arr_names = sorted(raw_names.replace('"', '').split(','))
+        arr_names = sorted(raw_names.replace('"', "").split(","))
         total = 0
         name_name = 0
         for name in arr_names:
@@ -573,7 +614,7 @@ class Euler(Function):
     def euler24(self):
         digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         permutation = 1000000 - 1
-        string = ''
+        string = ""
         while len(digits) != 1:
             number = int(math.floor(permutation / math.factorial(len(digits) - 1)))
             string += str(digits[number])
@@ -599,7 +640,9 @@ class Euler(Function):
         # Get PrimeFactors function
         function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("prime factors")
-        function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
+        function_obj = function_dispatcher.get_function_object(
+            function_class
+        )  # type: PrimeFactors
         # Do processing
         max_nines = 0
         max_d = 0
@@ -668,7 +711,9 @@ class Euler(Function):
         # Get PrimeFactors function
         function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("prime factors")
-        function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
+        function_obj = function_dispatcher.get_function_object(
+            function_class
+        )  # type: PrimeFactors
         # Do processing
         answers = []
         for a in range(2, 101):
@@ -702,7 +747,9 @@ class Euler(Function):
         # Get ChangeOptions function
         function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("change options")
-        function_obj = function_dispatcher.get_function_object(function_class)  # type: ChangeOptions
+        function_obj = function_dispatcher.get_function_object(
+            function_class
+        )  # type: ChangeOptions
         # Do processing
         coins = [200, 100, 50, 20, 10, 5, 2, 1]
         options = function_obj.change_options(coins, 0, 200)
@@ -733,29 +780,49 @@ class Euler(Function):
                             e_digit = d_digits[e]
                             e_digits = list(d_digits)
                             e_digits.remove(e_digit)
-                            product_one = (a_digit * 10 + b_digit) * (c_digit * 100 + d_digit * 10 + e_digit)
-                            product_two = a_digit * (b_digit * 1000 + c_digit * 100 + d_digit * 10 + e_digit)
+                            product_one = (a_digit * 10 + b_digit) * (
+                                c_digit * 100 + d_digit * 10 + e_digit
+                            )
+                            product_two = a_digit * (
+                                b_digit * 1000 + c_digit * 100 + d_digit * 10 + e_digit
+                            )
                             fail_one = False
                             fail_two = False
                             for f in range(4):
-                                if str(e_digits[f]) not in list(str(product_one)) or product_one > 9999:
+                                if (
+                                    str(e_digits[f]) not in list(str(product_one))
+                                    or product_one > 9999
+                                ):
                                     fail_one = True
                             for g in range(4):
-                                if (str(e_digits[g]) not in list(
-                                        str(product_two)) or product_two < 1000 or product_two > 9999):
+                                if (
+                                    str(e_digits[g]) not in list(str(product_two))
+                                    or product_two < 1000
+                                    or product_two > 9999
+                                ):
                                     fail_two = True
                             if not fail_one:
                                 self.mHalloObject.printer.output(
-                                    str(a_digit) + str(b_digit) + "*" + str(c_digit) +
-                                    str(d_digit) + str(e_digit) + "=" +
-                                    str(product_one)
+                                    str(a_digit)
+                                    + str(b_digit)
+                                    + "*"
+                                    + str(c_digit)
+                                    + str(d_digit)
+                                    + str(e_digit)
+                                    + "="
+                                    + str(product_one)
                                 )
                                 products.append(product_one)
                             if not fail_two:
                                 self.mHalloObject.printer.output(
-                                    str(a_digit) + "*" + str(b_digit) + str(c_digit) +
-                                    str(d_digit) + str(e_digit) + "=" +
-                                    str(product_two)
+                                    str(a_digit)
+                                    + "*"
+                                    + str(b_digit)
+                                    + str(c_digit)
+                                    + str(d_digit)
+                                    + str(e_digit)
+                                    + "="
+                                    + str(product_two)
                                 )
                                 products.append(product_two)
         products = list(set(products))
@@ -765,9 +832,13 @@ class Euler(Function):
         # Get PrimeFactors function
         function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("prime factors")
-        function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
+        function_obj = function_dispatcher.get_function_object(
+            function_class
+        )  # type: PrimeFactors
         simp_frac_class = function_dispatcher.get_function_by_name("simplify fraction")
-        simp_frac_obj = function_dispatcher.get_function_object(simp_frac_class)  # type: SimplifyFraction
+        simp_frac_obj = function_dispatcher.get_function_object(
+            simp_frac_class
+        )  # type: SimplifyFraction
         # Do processing
         epsilon = 0.0000001
         total_numerator_factors = []
@@ -778,36 +849,61 @@ class Euler(Function):
                     if str(denominator)[0] == str(denominator)[1]:
                         denominator_new = int(str(denominator)[1])
                     else:
-                        denominator_new = int(str(denominator).replace(str(numerator)[0], ''))
+                        denominator_new = int(
+                            str(denominator).replace(str(numerator)[0], "")
+                        )
                     numerator_new = int(str(numerator)[1])
-                    numerator_factors_new = function_obj.find_prime_factors(numerator_new)
-                    denominator_factors_new = function_obj.find_prime_factors(denominator_new)
+                    numerator_factors_new = function_obj.find_prime_factors(
+                        numerator_new
+                    )
+                    denominator_factors_new = function_obj.find_prime_factors(
+                        denominator_new
+                    )
                     if denominator_new != 0:
-                        if (numerator / denominator - numerator_new / denominator_new) ** 2 < epsilon:
-                            self.mHalloObject.printer.output("found one. {}/{}".format(numerator, denominator))
+                        if (
+                            numerator / denominator - numerator_new / denominator_new
+                        ) ** 2 < epsilon:
+                            self.mHalloObject.printer.output(
+                                "found one. {}/{}".format(numerator, denominator)
+                            )
                             total_numerator_factors += numerator_factors_new
                             total_denominator_factors += denominator_factors_new
                 elif str(numerator)[1] in str(denominator) and str(numerator)[1] != "0":
                     if str(denominator)[0] == str(denominator)[1]:
                         denominator_new = int(str(denominator)[1])
                     else:
-                        denominator_new = int(str(denominator).replace(str(numerator)[1], ''))
+                        denominator_new = int(
+                            str(denominator).replace(str(numerator)[1], "")
+                        )
                     numerator_new = int(str(numerator)[0])
-                    numerator_factors_new = function_obj.find_prime_factors(numerator_new)
-                    denominator_factors_new = function_obj.find_prime_factors(denominator_new)
+                    numerator_factors_new = function_obj.find_prime_factors(
+                        numerator_new
+                    )
+                    denominator_factors_new = function_obj.find_prime_factors(
+                        denominator_new
+                    )
                     if denominator_new != 0:
-                        if (numerator / denominator - numerator_new / denominator_new) ** 2 < epsilon:
-                            self.mHalloObject.printer.output("found one. {}/{}".format(numerator, denominator))
-                            total_numerator_factors = total_numerator_factors + numerator_factors_new
-                            total_denominator_factors = total_denominator_factors + denominator_factors_new
+                        if (
+                            numerator / denominator - numerator_new / denominator_new
+                        ) ** 2 < epsilon:
+                            self.mHalloObject.printer.output(
+                                "found one. {}/{}".format(numerator, denominator)
+                            )
+                            total_numerator_factors = (
+                                total_numerator_factors + numerator_factors_new
+                            )
+                            total_denominator_factors = (
+                                total_denominator_factors + denominator_factors_new
+                            )
         total_denominator_factors_new = simp_frac_obj.list_minus(
             total_denominator_factors,
             simp_frac_obj.list_intersection(
-                total_denominator_factors,
-                total_numerator_factors
-            )
+                total_denominator_factors, total_numerator_factors
+            ),
         )
-        total_denominator_new = simp_frac_obj.list_product(total_denominator_factors_new)
+        total_denominator_new = simp_frac_obj.list_product(
+            total_denominator_factors_new
+        )
         return total_denominator_new
 
     def euler34(self):
@@ -853,7 +949,9 @@ class Euler(Function):
             truncatable = True
             for x in range(len(str_number)):
                 truncatable = truncatable and self.check_prime(int(str_number[x:]))
-                truncatable = truncatable and self.check_prime(int(str_number[:len(str_number) - x]))
+                truncatable = truncatable and self.check_prime(
+                    int(str_number[: len(str_number) - x])
+                )
             if truncatable:
                 self.mHalloObject.printer.output("found one. {}".format(str_number))
                 num_found += 1
@@ -864,13 +962,15 @@ class Euler(Function):
     def euler38(self):
         max_constr = 0
         for x in range(10 ** 5):
-            constr = ''
+            constr = ""
             n = 1
             while len(constr) < 9:
                 constr += str(x * n)
                 n += 1
             if len(constr) == 9 and int(constr) > max_constr:
-                if self.check_list_in_list([str(x) for x in list(range(1, 10))], list(constr)):
+                if self.check_list_in_list(
+                    [str(x) for x in list(range(1, 10))], list(constr)
+                ):
                     self.mHalloObject.printer.output("new max: {}".format(constr))
                     max_constr = int(constr)
         return max_constr
@@ -891,7 +991,9 @@ class Euler(Function):
             if p_count > max_p_count:
                 max_p = p
                 max_p_count = p_count
-        return "Maximum triangles for given perimeter is {} for the perimeter of {}.".format(max_p_count, max_p)
+        return "Maximum triangles for given perimeter is {} for the perimeter of {}.".format(
+            max_p_count, max_p
+        )
 
     def euler40(self):
         string_length = 0
@@ -899,25 +1001,39 @@ class Euler(Function):
         for number in range(1, 10 ** 6):
             add_length = len(str(number))
             if string_length < 1 <= string_length + add_length:
-                self.mHalloObject.printer.output("digit is {}".format(str(number)[1 - string_length - 1]))
+                self.mHalloObject.printer.output(
+                    "digit is {}".format(str(number)[1 - string_length - 1])
+                )
                 product *= int(str(number)[1 - string_length - 1])
             if string_length < 10 <= string_length + add_length:
-                self.mHalloObject.printer.output("digit is {}".format(str(number)[10 - string_length - 1]))
+                self.mHalloObject.printer.output(
+                    "digit is {}".format(str(number)[10 - string_length - 1])
+                )
                 product *= int(str(number)[10 - string_length - 1])
             if string_length < 100 <= string_length + add_length:
-                self.mHalloObject.printer.output("digit is {}".format(str(number)[100 - string_length - 1]))
+                self.mHalloObject.printer.output(
+                    "digit is {}".format(str(number)[100 - string_length - 1])
+                )
                 product *= int(str(number)[100 - string_length - 1])
             if string_length < 1000 <= string_length + add_length:
-                self.mHalloObject.printer.output("digit is {}".format(str(number)[1000 - string_length - 1]))
+                self.mHalloObject.printer.output(
+                    "digit is {}".format(str(number)[1000 - string_length - 1])
+                )
                 product *= int(str(number)[1000 - string_length - 1])
             if string_length < 10000 <= string_length + add_length:
-                self.mHalloObject.printer.output("digit is {}".format(str(number)[10000 - string_length - 1]))
+                self.mHalloObject.printer.output(
+                    "digit is {}".format(str(number)[10000 - string_length - 1])
+                )
                 product *= int(str(number)[10000 - string_length - 1])
             if string_length < 100000 <= string_length + add_length:
-                self.mHalloObject.printer.output("digit is {}".format(str(number)[100000 - string_length - 1]))
+                self.mHalloObject.printer.output(
+                    "digit is {}".format(str(number)[100000 - string_length - 1])
+                )
                 product *= int(str(number)[100000 - string_length - 1])
             if string_length < 1000000 <= string_length + add_length:
-                self.mHalloObject.printer.output("digit is {}".format(str(number)[1000000 - string_length - 1]))
+                self.mHalloObject.printer.output(
+                    "digit is {}".format(str(number)[1000000 - string_length - 1])
+                )
                 product *= int(str(number)[1000000 - string_length - 1])
             string_length += add_length
         return product
@@ -927,7 +1043,9 @@ class Euler(Function):
         for x in range(2, 8 * 10 ** 6):
             digits = len(str(x))
             if x % 2 != 0 and x % 3 != 0 and x % 5 != 0:
-                if self.check_list_in_list([str(x) for x in range(1, digits + 1)], list(str(x))):
+                if self.check_list_in_list(
+                    [str(x) for x in range(1, digits + 1)], list(str(x))
+                ):
                     if self.check_prime(x):
                         self.mHalloObject.printer.output("this is one. {}".format(x))
                         max_pandigital_prime = x
@@ -937,7 +1055,7 @@ class Euler(Function):
         file_string_file = open("store/euler/euler_42_words.txt", "r")
         file_string = file_string_file.read()[:-1]
         file_string_file.close()
-        words = [word.replace('"', '') for word in file_string.split(',')]
+        words = [word.replace('"', "") for word in file_string.split(",")]
         longest_word = max(words, key=len)
         triangles = []
         count = 0
@@ -947,7 +1065,9 @@ class Euler(Function):
             x += 1
         for word in words:
             if self.find_word_value(word) in triangles:
-                self.mHalloObject.printer.output("found a triangle word: {}".format(word))
+                self.mHalloObject.printer.output(
+                    "found a triangle word: {}".format(word)
+                )
                 count += 1
         return count
 
@@ -955,10 +1075,17 @@ class Euler(Function):
         pandigitals = self.get_list_pandigitals()
         pandigital_sum = 0
         for pandigital in pandigitals:
-            if (int(str(pandigital)[1:4]) % 2 == 0 and int(str(pandigital)[2:5]) % 3 == 0 and int(
-                    str(pandigital)[3:6]) % 5 == 0 and int(str(pandigital)[4:7]) % 7 == 0 and int(
-                str(pandigital)[5:8]) % 11 == 0):
-                if int(str(pandigital)[6:9]) % 13 == 0 and int(str(pandigital)[7:10]) % 17 == 0:
+            if (
+                int(str(pandigital)[1:4]) % 2 == 0
+                and int(str(pandigital)[2:5]) % 3 == 0
+                and int(str(pandigital)[3:6]) % 5 == 0
+                and int(str(pandigital)[4:7]) % 7 == 0
+                and int(str(pandigital)[5:8]) % 11 == 0
+            ):
+                if (
+                    int(str(pandigital)[6:9]) % 13 == 0
+                    and int(str(pandigital)[7:10]) % 17 == 0
+                ):
                     self.mHalloObject.printer.output("found one: ".format(pandigital))
                     pandigital_sum += pandigital
         return pandigital_sum
@@ -975,7 +1102,7 @@ class Euler(Function):
                 sum_pent = (1 + (1 + 24 * pentagonal_sum) ** 0.5) / 6
                 diff_pent = (1 + (1 + 24 * diff) ** 0.5) / 6
                 if sum_pent % 1 < epsilon and diff_pent % 1 < epsilon:
-                    self.mHalloObject.printer.output('found one.')
+                    self.mHalloObject.printer.output("found one.")
                     if diff < smallest_diff:
                         smallest_diff = diff
         return smallest_diff
@@ -989,7 +1116,7 @@ class Euler(Function):
             if abs(x_tri - round(x_tri)) % 1 < epsilon:
                 x_pent = (1 + (1 + 24 * x) ** 0.5) / 6
                 if abs(x_pent - round(x_pent)) % 1 < epsilon:
-                    self.mHalloObject.printer.output('found it.')
+                    self.mHalloObject.printer.output("found it.")
                     tri_pent_hex = x
                     break
         return tri_pent_hex
@@ -1015,7 +1142,9 @@ class Euler(Function):
         # Get PrimeFactors function
         function_dispatcher = self.mHalloObject.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("prime factors")
-        function_obj = function_dispatcher.get_function_object(function_class)  # type: PrimeFactors
+        function_obj = function_dispatcher.get_function_object(
+            function_class
+        )  # type: PrimeFactors
         # Solve
         num = 1
         streak = 4
@@ -1047,7 +1176,7 @@ class Euler(Function):
                 continue
             if not self.check_prime(x):
                 continue
-            perms_x = [int(''.join(p)) for p in itertools.permutations(str(x))]
+            perms_x = [int("".join(p)) for p in itertools.permutations(str(x))]
             for perm_x in perms_x:
                 if perm_x == x:
                     continue
@@ -1101,7 +1230,9 @@ class Euler(Function):
                 failures = 0
                 for x in range(10):
                     temp_num = int(str(num).replace(str(num)[digit], str(x)))
-                    if len(str(temp_num)) != len(str(num)) or not self.check_prime(temp_num):
+                    if len(str(temp_num)) != len(str(num)) or not self.check_prime(
+                        temp_num
+                    ):
                         failures += 1
                 if failures <= 2:
                     self.mHalloObject.printer.output(num)
@@ -1115,21 +1246,33 @@ class Euler(Function):
         # Get SimplifyFraction function
         function_dispatcher = self.mHalloObject.function_dispatcher
         simp_frac_class = function_dispatcher.get_function_by_name("simplify fraction")
-        simp_frac_obj = function_dispatcher.get_function_object(simp_frac_class)  # type: SimplifyFraction
+        simp_frac_obj = function_dispatcher.get_function_object(
+            simp_frac_class
+        )  # type: SimplifyFraction
         # Do processing
         num = 0
         while True:
             num += 1
             num_list = list(str(num))
-            if num_list != simp_frac_obj.list_intersection(num_list, list(str(2 * num))):
+            if num_list != simp_frac_obj.list_intersection(
+                num_list, list(str(2 * num))
+            ):
                 continue
-            if num_list != simp_frac_obj.list_intersection(num_list, list(str(3 * num))):
+            if num_list != simp_frac_obj.list_intersection(
+                num_list, list(str(3 * num))
+            ):
                 continue
-            if num_list != simp_frac_obj.list_intersection(num_list, list(str(4 * num))):
+            if num_list != simp_frac_obj.list_intersection(
+                num_list, list(str(4 * num))
+            ):
                 continue
-            if num_list != simp_frac_obj.list_intersection(num_list, list(str(5 * num))):
+            if num_list != simp_frac_obj.list_intersection(
+                num_list, list(str(5 * num))
+            ):
                 continue
-            if num_list != simp_frac_obj.list_intersection(num_list, list(str(6 * num))):
+            if num_list != simp_frac_obj.list_intersection(
+                num_list, list(str(6 * num))
+            ):
                 continue
             self.mHalloObject.printer.output(num)
             break
@@ -1139,7 +1282,9 @@ class Euler(Function):
         num = 0
         for n in range(23, 101):
             for r in range(n):
-                ncr_value = math.factorial(n) / (math.factorial(r) * math.factorial(n - r))
+                ncr_value = math.factorial(n) / (
+                    math.factorial(r) * math.factorial(n - r)
+                )
                 if ncr_value > 10 ** 6:
                     num += 1
         return num
@@ -1283,9 +1428,11 @@ class Euler(Function):
                         check = self.check_concat_primes(num, num_three)
                         if not check:
                             continue
-                        self.mHalloObject.printer.output("Found fourlist {}".format(
-                            [num_one, num_two, num_three, num]
-                        ))
+                        self.mHalloObject.printer.output(
+                            "Found fourlist {}".format(
+                                [num_one, num_two, num_three, num]
+                            )
+                        )
                         big_dict[num_one][num_two][num_three][num] = {}
                         for num_four in big_dict[num_one][num_two][num_three]:
                             if num_four == num:
@@ -1295,7 +1442,7 @@ class Euler(Function):
                                 continue
                             return "sum({}) = {}".format(
                                 [num_one, num_two, num_three, num_four, num],
-                                sum([num_one, num_two, num_three, num_four, num])
+                                sum([num_one, num_two, num_three, num_four, num]),
                             )
 
     def euler67(self):
@@ -1308,12 +1455,14 @@ class Euler(Function):
             arr_triangle_val[x] = arr_triangle[x].split()
         for row in range(len(arr_triangle_val) - 2, -1, -1):
             for col in range(len(arr_triangle_val[row])):
-                if int(arr_triangle_val[row + 1][col]) > int(arr_triangle_val[row + 1][col + 1]):
-                    arr_triangle_val[row][col] = \
-                        int(arr_triangle_val[row][col]) + \
-                        int(arr_triangle_val[row + 1][col])
+                if int(arr_triangle_val[row + 1][col]) > int(
+                    arr_triangle_val[row + 1][col + 1]
+                ):
+                    arr_triangle_val[row][col] = int(arr_triangle_val[row][col]) + int(
+                        arr_triangle_val[row + 1][col]
+                    )
                 else:
-                    arr_triangle_val[row][col] = \
-                        int(arr_triangle_val[row][col]) + \
-                        int(arr_triangle_val[row + 1][col + 1])
+                    arr_triangle_val[row][col] = int(arr_triangle_val[row][col]) + int(
+                        arr_triangle_val[row + 1][col + 1]
+                    )
         return arr_triangle_val[0][0]

@@ -8,7 +8,13 @@ from urllib.error import HTTPError
 
 import duolingo
 
-from events import EventDay, EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound
+from events import (
+    EventDay,
+    EventMessage,
+    EventMinute,
+    RawDataTelegram,
+    RawDataTelegramOutbound,
+)
 from function import Function
 from inc.commons import Commons
 from modules.subscriptions import FAKey
@@ -20,7 +26,6 @@ class DailysException(Exception):
 
 
 class DailysRegister(Function):
-
     def __init__(self):
         """
         Constructor
@@ -29,45 +34,60 @@ class DailysRegister(Function):
         # Name for use in help listing
         self.help_name = "dailys register"
         # Names which can be used to address the function
-        self.names = set([
-            template.format(setup, dailys)
-            for template in ["{0} {1}", "{1} {0}"]
-            for setup in ["setup", "register"]
-            for dailys in ["dailys", "dailys api"]
-        ])
+        self.names = set(
+            [
+                template.format(setup, dailys)
+                for template in ["{0} {1}", "{1} {0}"]
+                for setup in ["setup", "register"]
+                for dailys in ["dailys", "dailys api"]
+            ]
+        )
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = \
-            "Registers a new dailys API to be fed from the current location." \
+        self.help_docs = (
+            "Registers a new dailys API to be fed from the current location."
             " Format: dailys register <dailys API URL> <dailys auth key?>"
+        )
 
     def run(self, event):
         # Get dailys repo
         hallo = event.server.hallo
         function_dispatcher = hallo.function_dispatcher
         sub_check_function = function_dispatcher.get_function_by_name("dailys")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: Dailys
+        sub_check_obj = function_dispatcher.get_function_object(
+            sub_check_function
+        )  # type: Dailys
         dailys_repo = sub_check_obj.get_dailys_repo(hallo)
         # Check if there's already a spreadsheet here
         if dailys_repo.get_by_location(event) is not None:
-            return event.create_response("There is already a dailys API configured in this location.")
+            return event.create_response(
+                "There is already a dailys API configured in this location."
+            )
         # Create new spreadsheet object
         clean_input = event.command_args.strip().split()
         # Check which argument is which
         # If no second argument, that means there is no key
         spreadsheet = None
         if len(clean_input) == 1:
-            spreadsheet = DailysSpreadsheet(event.user, event.channel, clean_input[0], None)
+            spreadsheet = DailysSpreadsheet(
+                event.user, event.channel, clean_input[0], None
+            )
         elif len(clean_input) == 2:
             try:
                 resp = Commons.load_url_json(clean_input[0])
                 if isinstance(resp, list):
-                    spreadsheet = DailysSpreadsheet(event.user, event.channel, clean_input[0], clean_input[1])
+                    spreadsheet = DailysSpreadsheet(
+                        event.user, event.channel, clean_input[0], clean_input[1]
+                    )
             except HTTPError:
                 pass
             if spreadsheet is None:
-                spreadsheet = DailysSpreadsheet(event.user, event.channel, clean_input[1], clean_input[0])
+                spreadsheet = DailysSpreadsheet(
+                    event.user, event.channel, clean_input[1], clean_input[0]
+                )
         if len(clean_input) == 0 or len(clean_input) > 2 or spreadsheet is None:
-            return event.create_response("Please specify a dailys API URL and an optional auth key.")
+            return event.create_response(
+                "Please specify a dailys API URL and an optional auth key."
+            )
         # Check the stats/ endpoint returns a list.
         resp = Commons.load_url_json(spreadsheet.dailys_url)
         if not isinstance(resp, list):
@@ -76,11 +96,12 @@ class DailysRegister(Function):
         dailys_repo.add_spreadsheet(spreadsheet)
         dailys_repo.save_json()
         # Send response
-        return event.create_response("Dailys API found, currently with data for {}.".format(resp))
+        return event.create_response(
+            "Dailys API found, currently with data for {}.".format(resp)
+        )
 
 
 class DailysAddField(Function):
-
     def __init__(self):
         """
         Constructor
@@ -89,23 +110,28 @@ class DailysAddField(Function):
         # Name for use in help listing
         self.help_name = "add dailys field"
         # Names which can be used to address the function
-        self.names = set([
-            template.format(setup, dailys)
-            for template in ["{0} {1}", "{1} {0}"]
-            for setup in ["setup", "register", "add"]
-            for dailys in ["dailys field", "field to dailys"]
-        ])
+        self.names = set(
+            [
+                template.format(setup, dailys)
+                for template in ["{0} {1}", "{1} {0}"]
+                for setup in ["setup", "register", "add"]
+                for dailys in ["dailys field", "field to dailys"]
+            ]
+        )
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = \
-            "Registers a new dailys field to the spreadsheet in the current chat location." \
+        self.help_docs = (
+            "Registers a new dailys field to the spreadsheet in the current chat location."
             " Format: add dailys field <field name>"
+        )
 
     def run(self, event):
         # Get spreadsheet repo
         hallo = event.server.hallo
         function_dispatcher = hallo.function_dispatcher
         sub_check_function = function_dispatcher.get_function_by_name("dailys")
-        sub_check_obj = function_dispatcher.get_function_object(sub_check_function)  # type: Dailys
+        sub_check_obj = function_dispatcher.get_function_object(
+            sub_check_function
+        )  # type: Dailys
         dailys_repo = sub_check_obj.get_dailys_repo(hallo)
         # Get the active spreadsheet for this person and destination
         spreadsheet = dailys_repo.get_by_location(event)
@@ -124,7 +150,11 @@ class DailysAddField(Function):
                 )
             )
         # Check that there's exactly one field matching that name
-        matching_fields = [field for field in DailysFieldFactory.fields if clean_input.startswith(field.type_name)]
+        matching_fields = [
+            field
+            for field in DailysFieldFactory.fields
+            if clean_input.startswith(field.type_name)
+        ]
         if len(matching_fields) != 1:
             return event.create_response(
                 "I don't understand what field you would like to add. "
@@ -139,7 +169,6 @@ class DailysAddField(Function):
 
 
 class Dailys(Function):
-
     def __init__(self):
         """
         Constructor
@@ -150,9 +179,10 @@ class Dailys(Function):
         # Names which can be used to address the function
         self.names = {"dailys"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = \
-            "Core dailys method, does all the dailys processing passively." \
+        self.help_docs = (
+            "Core dailys method, does all the dailys processing passively."
             " Doesn't do anything (currently) when called actively."
+        )
         self.dailys_repo = None
         """ :type : DailysRepo | None"""
 
@@ -177,7 +207,13 @@ class Dailys(Function):
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return set([event for field in DailysFieldFactory.fields for event in field.passive_events()])
+        return set(
+            [
+                event
+                for field in DailysFieldFactory.fields
+                for event in field.passive_events()
+            ]
+        )
 
     def run(self, event):
         pass  # TODO
@@ -202,7 +238,6 @@ class Dailys(Function):
 
 
 class DailysRepo:
-
     def __init__(self):
         self.spreadsheets = []
         """ :type : list[DailysSpreadsheet]"""
@@ -244,7 +279,6 @@ class DailysRepo:
 
 
 class DailysSpreadsheet:
-
     def __init__(self, user, destination, dailys_url, dailys_key):
         """
         :type user: destination.User
@@ -284,9 +318,11 @@ class DailysSpreadsheet:
         if self.dailys_key is not None:
             headers = [["Authorization", self.dailys_key]]
         Commons.put_json_to_url(
-            "{}/stats/{}/{}/?source=Hallo".format(self.dailys_url, dailys_field.type_name, data_date.isoformat()),
+            "{}/stats/{}/{}/?source=Hallo".format(
+                self.dailys_url, dailys_field.type_name, data_date.isoformat()
+            ),
             data,
-            headers
+            headers,
         )
 
     def read_field(self, dailys_field, data_date):
@@ -299,11 +335,13 @@ class DailysSpreadsheet:
         if dailys_field.type_name is None:
             raise DailysException("Cannot read from unassigned dailys field")
         data = Commons.load_url_json(
-            "{}/stats/{}/{}/".format(self.dailys_url, dailys_field.type_name, data_date.isoformat())
+            "{}/stats/{}/{}/".format(
+                self.dailys_url, dailys_field.type_name, data_date.isoformat()
+            )
         )
         if len(data) == 0:
             return None
-        return data[0]['data']
+        return data[0]["data"]
 
     def to_json(self):
         json_obj = dict()
@@ -323,26 +361,32 @@ class DailysSpreadsheet:
     def from_json(json_obj, hallo):
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
-            raise DailysException("Could not find server with name \"{}\"".format(json_obj["server"]))
+            raise DailysException(
+                'Could not find server with name "{}"'.format(json_obj["server"])
+            )
         user = server.get_user_by_address(json_obj["user_address"])
         if user is None:
             raise DailysException(
-                "Could not find user with address \"{}\" on server \"{}\""
-                    .format(json_obj["user_address"], json_obj["server"])
+                'Could not find user with address "{}" on server "{}"'.format(
+                    json_obj["user_address"], json_obj["server"]
+                )
             )
         dest_chan = None
         if "dest_address" in json_obj:
             dest_chan = server.get_channel_by_address(json_obj["dest_address"])
             if dest_chan is None:
                 raise DailysException(
-                    "Could not find channel with address \"{}\" on server \"{}\""
-                        .format(json_obj["dest_address"], json_obj["server"])
+                    'Could not find channel with address "{}" on server "{}"'.format(
+                        json_obj["dest_address"], json_obj["server"]
+                    )
                 )
         dailys_url = json_obj["dailys_url"]
         dailys_key = json_obj.get("dailys_key")
         new_spreadsheet = DailysSpreadsheet(user, dest_chan, dailys_url, dailys_key)
         for field_json in json_obj["fields"]:
-            new_spreadsheet.add_field(DailysFieldFactory.from_json(field_json, new_spreadsheet))
+            new_spreadsheet.add_field(
+                DailysFieldFactory.from_json(field_json, new_spreadsheet)
+            )
         return new_spreadsheet
 
 
@@ -409,7 +453,7 @@ class DailysField(metaclass=ABCMeta):
             self.spreadsheet.destination,
             self.spreadsheet.user,
             text,
-            inbound=False
+            inbound=False,
         )
         self.spreadsheet.user.server.send(evt)
         return evt
@@ -549,7 +593,9 @@ class DailysSleepField(DailysField):
                     return
                 # Move the last wake time to interruptions
                 interruption = dict()
-                interruption[self.json_key_wake_time] = current_data.pop(self.json_key_wake_time)
+                interruption[self.json_key_wake_time] = current_data.pop(
+                    self.json_key_wake_time
+                )
                 interruption[self.json_key_sleep_time] = time_str
                 if self.json_key_interruptions not in current_data:
                     current_data[self.json_key_interruptions] = []
@@ -584,7 +630,9 @@ class DailysMoodField(DailysField):
 
     class MoodTriggeredCache:
         def __init__(self):
-            self.cache = dict()  # Cache of time values which have triggered already on set days.
+            self.cache = (
+                dict()
+            )  # Cache of time values which have triggered already on set days.
             """ :type : dict[date, list[time|str]"""
 
         def has_triggered(self, mood_date, time_val):
@@ -615,22 +663,29 @@ class DailysMoodField(DailysField):
 
     @staticmethod
     def create_from_input(event, spreadsheet):
-        clean_input = event.command_args[len(DailysMoodField.type_name):].strip()
+        clean_input = event.command_args[len(DailysMoodField.type_name) :].strip()
         input_split = clean_input.split(";")
         if len(input_split) not in [2, 3]:
-            raise DailysException("Mood setup must contain times, then a semicolon, then mood measurements.")
+            raise DailysException(
+                "Mood setup must contain times, then a semicolon, then mood measurements."
+            )
         input_times = input_split[0].lower()
         input_moods = input_split[1]
         # Parse times
         times = []
         for input_time in input_times.split():
             # Check if it's a 24hour time
-            if len(input_time.replace(":", "")) == 4 and input_time.replace(":", "").isdigit():
+            if (
+                len(input_time.replace(":", "")) == 4
+                and input_time.replace(":", "").isdigit()
+            ):
                 try:
                     times.append(time(int(input_time[:2]), int(input_time[-2:])))
                     continue
                 except ValueError:
-                    raise DailysException("Please provide times as 24 hour hh:mm formatted times.")
+                    raise DailysException(
+                        "Please provide times as 24 hour hh:mm formatted times."
+                    )
             # Check if it's wake or sleep
             if input_time in DailysSleepField.WAKE_WORDS:
                 times.append(DailysMoodField.TIME_WAKE)
@@ -639,7 +694,7 @@ class DailysMoodField(DailysField):
                 times.append(DailysMoodField.TIME_SLEEP)
                 continue
             raise DailysException(
-                "I don't recognise that time, \"{}\". Please provide times as 24 hour hh:mm "
+                'I don\'t recognise that time, "{}". Please provide times as 24 hour hh:mm '
                 "formatted times, or 'wake' or 'sleep'.".format(input_time)
             )
         # Parse mood measurements
@@ -672,9 +727,9 @@ class DailysMoodField(DailysField):
             return today_data, mood_date
 
     def mood_data_is_full(self, date_data):
-        return \
-            len(date_data) == len(self.times) \
-            and all([m in date_data[str(t)] for t in self.times for m in self.moods])
+        return len(date_data) == len(self.times) and all(
+            [m in date_data[str(t)] for t in self.times for m in self.moods]
+        )
 
     def has_triggered_for_time(self, mood_date, time_val):
         """
@@ -716,28 +771,48 @@ class DailysMoodField(DailysField):
         if isinstance(evt, EventMessage):
             # Check if it's a morning/night message
             input_clean = evt.text.strip().lower()
-            if input_clean in DailysSleepField.WAKE_WORDS and self.TIME_WAKE in self.times and \
-                    not self.has_triggered_for_time(mood_date, self.TIME_WAKE):
+            if (
+                input_clean in DailysSleepField.WAKE_WORDS
+                and self.TIME_WAKE in self.times
+                and not self.has_triggered_for_time(mood_date, self.TIME_WAKE)
+            ):
                 return self.send_mood_query(mood_date, self.TIME_WAKE)
-            if input_clean in DailysSleepField.SLEEP_WORDS and self.TIME_SLEEP in self.times and \
-                    not self.has_triggered_for_time(mood_date, self.TIME_SLEEP):
+            if (
+                input_clean in DailysSleepField.SLEEP_WORDS
+                and self.TIME_SLEEP in self.times
+                and not self.has_triggered_for_time(mood_date, self.TIME_SLEEP)
+            ):
                 return self.send_mood_query(mood_date, self.TIME_SLEEP)
             # Check if it's a reply to a mood message, or if there's an unanswered mood message
             input_split = input_clean.split()
-            if (len(input_split) == 2 and input_split[0].upper() == self.mood_acronym()) or input_clean.isdigit():
+            if (
+                len(input_split) == 2 and input_split[0].upper() == self.mood_acronym()
+            ) or input_clean.isdigit():
                 data = self.get_current_data(mood_date)
                 unreplied = self.get_unreplied_moods(mood_date)
                 # Check if telegram message, and reply to a message
-                if isinstance(evt.raw_data, RawDataTelegram) and \
-                        evt.raw_data.update_obj.message.reply_to_message is not None:
-                    reply_id = evt.raw_data.update_obj.message.reply_to_message.message_id
-                    unreplied_ids = {data[0][str(f)]["message_id"]: f for f in unreplied}
+                if (
+                    isinstance(evt.raw_data, RawDataTelegram)
+                    and evt.raw_data.update_obj.message.reply_to_message is not None
+                ):
+                    reply_id = (
+                        evt.raw_data.update_obj.message.reply_to_message.message_id
+                    )
+                    unreplied_ids = {
+                        data[0][str(f)]["message_id"]: f for f in unreplied
+                    }
                     if reply_id in unreplied_ids:
-                        return self.process_mood_response(input_split[-1], unreplied_ids[reply_id], data[1])
+                        return self.process_mood_response(
+                            input_split[-1], unreplied_ids[reply_id], data[1]
+                        )
                 # Otherwise, use the most recent mood query
                 if len(unreplied) > 0:
-                    return self.process_mood_response(input_split[-1], unreplied[-1], data[1])
-                return evt.create_response("Is this a mood measurement, because I can't find a mood query.")
+                    return self.process_mood_response(
+                        input_split[-1], unreplied[-1], data[1]
+                    )
+                return evt.create_response(
+                    "Is this a mood measurement, because I can't find a mood query."
+                )
             # Check if it's a more complicated message
             if len(input_split) == 3 and input_split[0].upper() == self.mood_acronym():
                 data = self.get_current_data(mood_date)
@@ -751,9 +826,13 @@ class DailysMoodField(DailysField):
                     try:
                         time_val = time(int(input_time[:2]), int(input_time[-2:]))
                     except ValueError:
-                        evt.create_response("Could not parse the time in that mood measurement.")
+                        evt.create_response(
+                            "Could not parse the time in that mood measurement."
+                        )
                 if time_val not in self.times:
-                    evt.create_response("That time value is not being tracked for mood measurements.")
+                    evt.create_response(
+                        "That time value is not being tracked for mood measurements."
+                    )
                 return self.process_mood_response(input_split[-1], time_val, data[1])
         return None
 
@@ -772,18 +851,22 @@ class DailysMoodField(DailysField):
         # Check for wake time
         if DailysMoodField.TIME_WAKE in self.times:
             # Check if time in data, message_id in time data, but mood values are not
-            if self.time_triggered(data, DailysMoodField.TIME_WAKE) and \
-                    self.time_query_unreplied(data, DailysMoodField.TIME_WAKE):
+            if self.time_triggered(
+                data, DailysMoodField.TIME_WAKE
+            ) and self.time_query_unreplied(data, DailysMoodField.TIME_WAKE):
                 unreplied.append(DailysMoodField.TIME_WAKE)
         # Check for time values
         times = [t for t in self.times if isinstance(t, time)]
         for time_val in times:
-            if self.time_triggered(data, time_val) and self.time_query_unreplied(data, time_val):
+            if self.time_triggered(data, time_val) and self.time_query_unreplied(
+                data, time_val
+            ):
                 unreplied.append(time_val)
         # Check for sleep time
         if DailysMoodField.TIME_SLEEP in self.times:
-            if self.time_triggered(data, DailysMoodField.TIME_SLEEP) and \
-                    self.time_query_unreplied(data, DailysMoodField.TIME_SLEEP):
+            if self.time_triggered(
+                data, DailysMoodField.TIME_SLEEP
+            ) and self.time_query_unreplied(data, DailysMoodField.TIME_SLEEP):
                 unreplied.append(DailysMoodField.TIME_SLEEP)
         return unreplied
 
@@ -794,9 +877,10 @@ class DailysMoodField(DailysField):
         :rtype: None
         """
         # Construct message
-        msg = \
-            "Hello, this is your {} mood check. How are you feeling (scale from 1-5) " \
+        msg = (
+            "Hello, this is your {} mood check. How are you feeling (scale from 1-5) "
             "in these categories: {}".format(time_val, ", ".join(self.moods))
+        )
         # Send message
         evt = self.message_channel(msg)
         # Get message_id, if telegram outbound message
@@ -826,7 +910,10 @@ class DailysMoodField(DailysField):
                 data[0][str(time_val)][mood_key] = mood_val
             self.save_data(data[0], mood_date)
         self.message_channel(
-            "Added mood stat {} for time: {} and date: {}".format(mood_str, time_val, mood_date.isoformat()))
+            "Added mood stat {} for time: {} and date: {}".format(
+                mood_str, time_val, mood_date.isoformat()
+            )
+        )
 
     def to_json(self):
         json_obj = dict()
@@ -905,9 +992,13 @@ class DailysDuolingoField(DailysField):
 
     @staticmethod
     def create_from_input(event, spreadsheet):
-        clean_input = event.command_args[len(DailysDuolingoField.type_name):].strip().split()
+        clean_input = (
+            event.command_args[len(DailysDuolingoField.type_name) :].strip().split()
+        )
         if len(clean_input) != 2:
-            raise DailysException("You must specify both a duolingo username, and password.")
+            raise DailysException(
+                "You must specify both a duolingo username, and password."
+            )
         username = clean_input[0]
         password = clean_input[1]
         if DailysDuolingoField._check_duo_username(username, password):
@@ -915,7 +1006,9 @@ class DailysDuolingoField(DailysField):
         elif DailysDuolingoField._check_duo_username(password, username):
             return DailysDuolingoField(spreadsheet, password, username)
         else:
-            raise DailysException("Could not access a duolingo account with that username and password.")
+            raise DailysException(
+                "Could not access a duolingo account with that username and password."
+            )
 
     def to_json(self):
         json_obj = dict()
@@ -982,4 +1075,6 @@ class DailysFieldFactory:
         for field in DailysFieldFactory.fields:
             if field.type_name == type_name:
                 return field.from_json(json_obj, spreadsheet)
-        raise DailysException("Could not load dailys field of type {}".format(type_name))
+        raise DailysException(
+            "Could not load dailys field of type {}".format(type_name)
+        )

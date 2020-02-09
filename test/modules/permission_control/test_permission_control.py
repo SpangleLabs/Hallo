@@ -23,9 +23,14 @@ def test_run_add_on(hallo_getter):
     user1.permission_mask = perm3
     # Get permission mask of given channel
     test_right = "test_right"
-    hallo.function_dispatcher.dispatch(EventMessage(
-        serv1, chan1, user1, "permissions server=test_serv1 channel=test_chan1 " + test_right + " on"
-    ))
+    hallo.function_dispatcher.dispatch(
+        EventMessage(
+            serv1,
+            chan1,
+            user1,
+            "permissions server=test_serv1 channel=test_chan1 " + test_right + " on",
+        )
+    )
     data = serv1.get_send_data(1, chan1, EventMessage)
     assert "error" not in data[0].text.lower()
     assert "set " + test_right + " to true" in data[0].text.lower()
@@ -53,9 +58,14 @@ def test_run_set_on(hallo_getter):
     # Get permission mask of given channel
     test_right = "test_right"
     perm2.set_right(test_right, False)
-    hallo.function_dispatcher.dispatch(EventMessage(
-        serv1, chan1, user1, "permissions server=test_serv1 channel=test_chan1 " + test_right + " on"
-    ))
+    hallo.function_dispatcher.dispatch(
+        EventMessage(
+            serv1,
+            chan1,
+            user1,
+            "permissions server=test_serv1 channel=test_chan1 " + test_right + " on",
+        )
+    )
     data = serv1.get_send_data(1, chan1, EventMessage)
     assert "error" not in data[0].text.lower()
     assert "set " + test_right + " to true" in data[0].text.lower()
@@ -82,9 +92,14 @@ def test_run_add_off(hallo_getter):
     user1.permission_mask = perm3
     # Get permission mask of given channel
     test_right = "test_right"
-    hallo.function_dispatcher.dispatch(EventMessage(
-        serv1, chan1, user1, "permissions server=test_serv1 channel=test_chan1 " + test_right + " off"
-    ))
+    hallo.function_dispatcher.dispatch(
+        EventMessage(
+            serv1,
+            chan1,
+            user1,
+            "permissions server=test_serv1 channel=test_chan1 " + test_right + " off",
+        )
+    )
     data = serv1.get_send_data(1, chan1, EventMessage)
     assert "error" not in data[0].text.lower()
     assert "set " + test_right + " to false" in data[0].text.lower()
@@ -112,9 +127,14 @@ def test_run_set_off(hallo_getter):
     # Get permission mask of given channel
     test_right = "test_right"
     perm2.set_right(test_right, True)
-    hallo.function_dispatcher.dispatch(EventMessage(
-        serv1, chan1, user1, "permissions server=test_serv1 channel=test_chan1 " + test_right + " off"
-    ))
+    hallo.function_dispatcher.dispatch(
+        EventMessage(
+            serv1,
+            chan1,
+            user1,
+            "permissions server=test_serv1 channel=test_chan1 " + test_right + " off",
+        )
+    )
     data = serv1.get_send_data(1, chan1, EventMessage)
     assert "error" not in data[0].text.lower()
     assert "set " + test_right + " to false" in data[0].text.lower()
@@ -142,9 +162,9 @@ def test_run_fail_args(hallo_getter):
     # Get permission mask of given channel
     test_right = "test_right"
     perm1.set_right(test_right, True)
-    hallo.function_dispatcher.dispatch(EventMessage(
-        serv1, chan1, user1, "permissions server=test_serv1 " + test_right
-    ))
+    hallo.function_dispatcher.dispatch(
+        EventMessage(serv1, chan1, user1, "permissions server=test_serv1 " + test_right)
+    )
     data = serv1.get_send_data(1, chan1, EventMessage)
     assert "error" in data[0].text.lower()
     assert "a location, a right and the value" in data[0].text.lower()
@@ -172,9 +192,14 @@ def test_run_fail_not_bool(hallo_getter):
     # Get permission mask of given channel
     test_right = "test_right"
     perm1.set_right(test_right, True)
-    hallo.function_dispatcher.dispatch(EventMessage(
-        serv1, chan1, user1, "permissions server=test_serv1 " + test_right + " yellow"
-    ))
+    hallo.function_dispatcher.dispatch(
+        EventMessage(
+            serv1,
+            chan1,
+            user1,
+            "permissions server=test_serv1 " + test_right + " yellow",
+        )
+    )
     data = serv1.get_send_data(1, chan1, EventMessage)
     assert "error" in data[0].text.lower()
     assert "don't understand your boolean value" in data[0].text.lower()

@@ -12,6 +12,7 @@ class Server(metaclass=ABCMeta):
     """
     Generic server object. An interface for ServerIRC or ServerSkype or whatever objects.
     """
+
     # Constants
     TYPE_IRC = "irc"
     TYPE_MOCK = "mock"
@@ -32,8 +33,12 @@ class Server(metaclass=ABCMeta):
         self.hallo = hallo  # The hallo object that created this server
         # Persistent/saved class variables
         self.name = None  # Server name
-        self.auto_connect = True  # Whether to automatically connect to this server when hallo starts
-        self.channel_list = []  # List of channels on this server (which may or may not be currently active)
+        self.auto_connect = (
+            True  # Whether to automatically connect to this server when hallo starts
+        )
+        self.channel_list = (
+            []
+        )  # List of channels on this server (which may or may not be currently active)
         """ :type : list[Destination.Channel]"""
         self.user_list = []  # Users on this server (not all of which are online)
         """ :type : list[Destination.User]"""
@@ -46,11 +51,12 @@ class Server(metaclass=ABCMeta):
         self.state = Server.STATE_CLOSED  # Current state of the server, replacing open
 
     def __eq__(self, other):
-        return \
-            isinstance(other, Server) \
-            and self.hallo == other.hallo \
-            and self.type == other.type \
+        return (
+            isinstance(other, Server)
+            and self.hallo == other.hallo
+            and self.type == other.type
             and self.name.lower() == other.name.lower()
+        )
 
     def __hash__(self):
         return hash((self.hallo, self.type, self.name.lower()))
@@ -95,11 +101,17 @@ class Server(metaclass=ABCMeta):
         if not old_event.is_inbound or new_event.is_inbound:
             raise ServerException("Cannot reply to outbound event, or send inbound one")
         if old_event.channel != new_event.channel:
-            raise ServerException("Cannot send reply to a different channel than original message came from")
+            raise ServerException(
+                "Cannot send reply to a different channel than original message came from"
+            )
         if new_event.user is not None and old_event.user != new_event.user:
-            raise ServerException("Cannot send reply to a different private chat than original message came from")
+            raise ServerException(
+                "Cannot send reply to a different private chat than original message came from"
+            )
         if old_event.server != new_event.server:
-            raise ServerException("Cannot send reply to a different server than the original message came from")
+            raise ServerException(
+                "Cannot send reply to a different server than the original message came from"
+            )
         return
 
     def to_json(self):

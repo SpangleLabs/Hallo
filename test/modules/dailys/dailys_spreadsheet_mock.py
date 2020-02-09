@@ -2,7 +2,6 @@ from modules.dailys import DailysSpreadsheet
 
 
 class DailysSpreadsheetMock(DailysSpreadsheet):
-
     def __init__(self, user, destination, saved_data=None):
         """
         :type user: User

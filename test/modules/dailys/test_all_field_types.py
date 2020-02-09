@@ -5,24 +5,33 @@ import unittest
 from datetime import time
 
 from events import EventMessage
-from modules.dailys import DailysDuolingoField, DailysFAField, DailysMoodField, DailysSleepField, DailysFieldFactory, \
-    DailysField
+from modules.dailys import (
+    DailysDuolingoField,
+    DailysFAField,
+    DailysMoodField,
+    DailysSleepField,
+    DailysFieldFactory,
+    DailysField,
+)
 from test.test_base import TestBase
 from test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
 class TestAllFieldTypes(TestBase, unittest.TestCase):
-
     def get_field_objects(self):
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
         field_obs = list()
-        field_obs.append(DailysDuolingoField(spreadsheet, "cabinet", os.getenv("test_duo_password")))
+        field_obs.append(
+            DailysDuolingoField(spreadsheet, "cabinet", os.getenv("test_duo_password"))
+        )
         field_obs.append(DailysFAField(spreadsheet))
-        field_obs.append(DailysMoodField(
-            spreadsheet,
-            [DailysMoodField.TIME_SLEEP, time(14, 00), time(22, 00)],
-            ["Happiness", "Anger", "Sleepiness"]
-        ))
+        field_obs.append(
+            DailysMoodField(
+                spreadsheet,
+                [DailysMoodField.TIME_SLEEP, time(14, 00), time(22, 00)],
+                ["Happiness", "Anger", "Sleepiness"],
+            )
+        )
         field_obs.append(DailysSleepField(spreadsheet))
         return field_obs
 
@@ -32,7 +41,9 @@ class TestAllFieldTypes(TestBase, unittest.TestCase):
         """
         for field_class in DailysFieldFactory.fields:
             with self.subTest(field_class.__name__):
-                assert field_class in [field_obj.__class__ for field_obj in self.get_field_objects()]
+                assert field_class in [
+                    field_obj.__class__ for field_obj in self.get_field_objects()
+                ]
 
     def test_to_json_contains_field_type(self):
         """
@@ -105,11 +116,13 @@ class TestAllFieldTypes(TestBase, unittest.TestCase):
             try:
                 function_class.create_from_input(
                     EventMessage(self.server, self.test_chan, self.test_user, "hello"),
-                    spreadsheet
+                    spreadsheet,
                 )
             except NotImplementedError:
                 continue
             except Exception:
                 pass
             # Check it's in DailysFieldFactory
-            assert function_class.__name__ in [sub_class.__name__ for sub_class in DailysFieldFactory.fields]
+            assert function_class.__name__ in [
+                sub_class.__name__ for sub_class in DailysFieldFactory.fields
+            ]

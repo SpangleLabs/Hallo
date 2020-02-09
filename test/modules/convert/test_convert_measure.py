@@ -1,11 +1,16 @@
 import unittest
 
-from modules.convert import ConvertRepo, ConvertType, ConvertUnit, ConvertMeasure, \
-    ConvertPrefixGroup, ConvertPrefix
+from modules.convert import (
+    ConvertRepo,
+    ConvertType,
+    ConvertUnit,
+    ConvertMeasure,
+    ConvertPrefixGroup,
+    ConvertPrefix,
+)
 
 
 class ConvertMeasureTest(unittest.TestCase):
-
     def test_init(self):
         # Setup test objects
         test_repo = ConvertRepo()
@@ -44,7 +49,7 @@ class ConvertMeasureTest(unittest.TestCase):
         test_result = measure1.convert_to(test_unit2)
         # Check
         assert test_result.unit.name_list[0] == "name3"
-        assert test_result.amount == 17.5*1337/505
+        assert test_result.amount == 17.5 * 1337 / 505
 
     def test_convert_to_offset(self):
         # Setup test objects
@@ -60,7 +65,7 @@ class ConvertMeasureTest(unittest.TestCase):
         test_result = measure1.convert_to(test_unit2)
         # Check
         assert test_result.unit.name_list[0] == "name3"
-        assert test_result.amount == ((17.5*1337)+54-10)/505
+        assert test_result.amount == ((17.5 * 1337) + 54 - 10) / 505
 
     def test_convert_to_different_types(self):
         # Setup test objects
@@ -90,7 +95,7 @@ class ConvertMeasureTest(unittest.TestCase):
         test_result = measure1.convert_to_base()
         # Check
         assert test_result.unit.name_list[0] == "base_unit"
-        assert test_result.amount == 17.5*1337
+        assert test_result.amount == 17.5 * 1337
 
     def test_to_string_no_prefix(self):
         # Setup test objects

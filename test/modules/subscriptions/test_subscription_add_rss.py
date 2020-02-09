@@ -10,7 +10,6 @@ from test.test_base import TestBase
 
 @pytest.mark.external_integration
 class FeedAddTest(TestBase, unittest.TestCase):
-
     def setUp(self):
         super().setUp()
         try:
@@ -30,28 +29,44 @@ class FeedAddTest(TestBase, unittest.TestCase):
             pass
 
     def test_invalid_url(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, self.test_chan, self.test_user, "rss add not_a_url"
-        ))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server, self.test_chan, self.test_user, "rss add not_a_url"
+            )
+        )
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "error" in data[0].text.lower()
 
     def test_invalid_rss(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, self.test_chan, self.test_user, "rss add http://example.com"
-        ))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server,
+                self.test_chan,
+                self.test_user,
+                "rss add http://example.com",
+            )
+        )
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "error" in data[0].text.lower()
 
     def test_add_feed(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, self.test_chan, self.test_user, "rss add http://spangle.org.uk/hallo/test_rss.xml"
-        ))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server,
+                self.test_chan,
+                self.test_user,
+                "rss add http://spangle.org.uk/hallo/test_rss.xml",
+            )
+        )
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert "created a new rss subscription" in data[0].text.lower(), "Actual response: {}".format(data[0].text)
+        assert (
+            "created a new rss subscription" in data[0].text.lower()
+        ), "Actual response: {}".format(data[0].text)
         # Check the rss feed was added
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubscriptionCheck
+        rss_check_obj = self.function_dispatcher.get_function_object(
+            rss_check_class
+        )  # type: SubscriptionCheck
         rfl = rss_check_obj.get_sub_repo(self.hallo).sub_list
         assert len(rfl) == 1
         rss_sub = rfl[0]  # type: RssSub
@@ -64,14 +79,23 @@ class FeedAddTest(TestBase, unittest.TestCase):
         assert rss_sub.update_frequency.days == 0
 
     def test_add_feed_user(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, None, self.test_user, "rss add http://spangle.org.uk/hallo/test_rss.xml"
-        ))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server,
+                None,
+                self.test_user,
+                "rss add http://spangle.org.uk/hallo/test_rss.xml",
+            )
+        )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert "created a new rss subscription" in data[0].text.lower(), "Actual response: {}".format(data[0].text)
+        assert (
+            "created a new rss subscription" in data[0].text.lower()
+        ), "Actual response: {}".format(data[0].text)
         # Check the rss feed was added
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubscriptionCheck
+        rss_check_obj = self.function_dispatcher.get_function_object(
+            rss_check_class
+        )  # type: SubscriptionCheck
         rfl = rss_check_obj.get_sub_repo(self.hallo).sub_list
         assert len(rfl) == 1
         rss_sub = rfl[0]  # type: RssSub
@@ -84,14 +108,23 @@ class FeedAddTest(TestBase, unittest.TestCase):
         assert rss_sub.update_frequency.days == 0
 
     def test_add_feed_period(self):
-        self.function_dispatcher.dispatch(EventMessage(
-            self.server, self.test_chan, self.test_user, "rss add http://spangle.org.uk/hallo/test_rss.xml PT300S"
-        ))
+        self.function_dispatcher.dispatch(
+            EventMessage(
+                self.server,
+                self.test_chan,
+                self.test_user,
+                "rss add http://spangle.org.uk/hallo/test_rss.xml PT300S",
+            )
+        )
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert "created a new rss subscription" in data[0].text.lower(), "Actual response: {}".format(data[0].text)
+        assert (
+            "created a new rss subscription" in data[0].text.lower()
+        ), "Actual response: {}".format(data[0].text)
         # Check the rss feed was added
         rss_check_class = self.function_dispatcher.get_function_by_name("rss check")
-        rss_check_obj = self.function_dispatcher.get_function_object(rss_check_class)  # type: SubscriptionCheck
+        rss_check_obj = self.function_dispatcher.get_function_object(
+            rss_check_class
+        )  # type: SubscriptionCheck
         rfl = rss_check_obj.get_sub_repo(self.hallo).sub_list
         assert len(rfl) == 1
         rss_sub = rfl[0]  # type: RssSub

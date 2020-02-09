@@ -67,13 +67,19 @@ class ActiveThreads(Function):
         # Names which can be used to address the function
         self.names = {"active threads", "activethreads", "threads"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Returns current number of active threads. Format: active thread"
+        self.help_docs = (
+            "Returns current number of active threads. Format: active thread"
+        )
 
     def run(self, event):
         """
         Returns current number of active threads.. should probably be gods only, but it is not. Format: active_thread
         """
-        return event.create_response("I think I have {} active threads right now.".format(threading.active_count()))
+        return event.create_response(
+            "I think I have {} active threads right now.".format(
+                threading.active_count()
+            )
+        )
 
 
 class Help(Function):
@@ -91,15 +97,18 @@ class Help(Function):
         # Names which can be used to address the Function
         self.names = {"help", "readme", "info", "read me", "/start"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = \
-            "Gives information about commands.  Use \"help\" for a list of commands, " \
-            "or \"help <command>\" for help on a specific command."
+        self.help_docs = (
+            'Gives information about commands.  Use "help" for a list of commands, '
+            'or "help <command>" for help on a specific command.'
+        )
         self.hallo_obj = None  # Hallo object containing everything.
 
     def run(self, event):
         self.hallo_obj = event.server.hallo
         if event.command_args.strip() == "":
-            return event.create_response(self.list_all_functions(event.user, event.channel))
+            return event.create_response(
+                self.list_all_functions(event.user, event.channel)
+            )
         else:
             function_name = event.command_args.strip().lower()
             return event.create_response(self.get_help_on_function(function_name))
@@ -117,9 +126,9 @@ class Help(Function):
             function_obj = function_dispatcher.get_function_object(function_class)
             function_help_name = function_obj.get_help_name()
             # Check permissions allow user to use this function
-            if (function_dispatcher.check_function_permissions(
-                    function_class, server_obj, user_obj, channel_obj
-            )):
+            if function_dispatcher.check_function_permissions(
+                function_class, server_obj, user_obj, channel_obj
+            ):
                 output_list.append(function_help_name)
         # Construct the output string
         output_string = "List of available functions: " + ", ".join(output_list)
@@ -137,7 +146,7 @@ class Help(Function):
         function_obj = function_dispatcher.get_function_object(function_class)
         # Try and output help message, throwing an error if the function hasn't defined it
         try:
-            help_message = "Documentation for \"{}\": {}".format(
+            help_message = 'Documentation for "{}": {}'.format(
                 function_obj.get_help_name(), function_obj.get_help_docs()
             )
             return help_message

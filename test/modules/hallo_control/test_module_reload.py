@@ -8,9 +8,9 @@ def test_module_reload(hallo_getter):
     mock_func_disp.module_reload_resp = True
     try:
         hallo.function_dispatcher = mock_func_disp
-        old_func_disp.dispatch(EventMessage(
-            test_server, None, test_user, "module reload hallo_control"
-        ))
+        old_func_disp.dispatch(
+            EventMessage(test_server, None, test_user, "module reload hallo_control")
+        )
         data = test_server.get_send_data(1, test_user, EventMessage)
         assert "error" not in data[0].text.lower()
         assert "module reloaded" in data[0].text.lower()
@@ -26,9 +26,9 @@ def test_module_fail(hallo_getter):
     mock_func_disp.module_reload_resp = False
     try:
         hallo.function_dispatcher = mock_func_disp
-        old_func_disp.dispatch(EventMessage(
-            test_server, None, test_user, "module reload hallo_control"
-        ))
+        old_func_disp.dispatch(
+            EventMessage(test_server, None, test_user, "module reload hallo_control")
+        )
         data = test_server.get_send_data(1, test_user, EventMessage)
         assert "error" in data[0].text.lower()
         assert "module reloaded" not in data[0].text.lower()

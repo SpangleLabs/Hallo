@@ -17,7 +17,9 @@ def test_init():
     # Another, invalid regex
     try:
         ReplyMessage("hello ((((")
-        assert False, "Invalid regex should not be able to create a valid ReplyMessage object"
+        assert (
+            False
+        ), "Invalid regex should not be able to create a valid ReplyMessage object"
     except re.error:
         pass
 
@@ -116,7 +118,10 @@ def test_check_response(hallo_getter):
     # Test replacements
     rm4 = ReplyMessage("test")
     rm4.add_response("response {USER} {CHANNEL} {SERVER}")
-    assert rm4.check_response("test", user1, chan1) == "response test_user1 test_chan1 test_serv1"
+    assert (
+        rm4.check_response("test", user1, chan1)
+        == "response test_user1 test_chan1 test_serv1"
+    )
 
 
 def test_check_destination(hallo_getter):
@@ -150,17 +155,27 @@ def test_check_destination(hallo_getter):
     assert rm.check_destination(chan5), "check_destination() not working without list"
     # Add a blacklist for a specific channel on a specific server
     rm.add_blacklist(serv_name1, chan_name1)
-    assert not rm.check_destination(chan1), "check_destination() not working with blacklist"
+    assert not rm.check_destination(
+        chan1
+    ), "check_destination() not working with blacklist"
     assert rm.check_destination(chan2), "check_destination() not working with blacklist"
     assert rm.check_destination(chan3), "check_destination() not working with blacklist"
     assert rm.check_destination(chan4), "check_destination() not working with blacklist"
     assert rm.check_destination(chan5), "check_destination() not working with blacklist"
     # Add a whitelist for a specific channel on a specific server
     rm.add_whitelist(serv_name3, chan_name5)
-    assert not rm.check_destination(chan1), "check_destination() not working with blacklist"
-    assert not rm.check_destination(chan2), "check_destination() not working with blacklist"
-    assert not rm.check_destination(chan3), "check_destination() not working with blacklist"
-    assert not rm.check_destination(chan4), "check_destination() not working with blacklist"
+    assert not rm.check_destination(
+        chan1
+    ), "check_destination() not working with blacklist"
+    assert not rm.check_destination(
+        chan2
+    ), "check_destination() not working with blacklist"
+    assert not rm.check_destination(
+        chan3
+    ), "check_destination() not working with blacklist"
+    assert not rm.check_destination(
+        chan4
+    ), "check_destination() not working with blacklist"
     assert rm.check_destination(chan5), "check_destination() not working with blacklist"
 
 

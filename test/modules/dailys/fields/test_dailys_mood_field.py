@@ -12,7 +12,6 @@ class Obj:
 
 
 class DailysMoodFieldTest(TestBase, unittest.TestCase):
-
     def get_telegram_time(self, date_time_val):
         fake_telegram_obj = Obj()
         fake_telegram_obj.message = Obj()
@@ -32,7 +31,12 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Setup stuff
         command_name = "setup dailys field"
         command_args = "mood"
-        evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(command_name, command_args))
+        evt = EventMessage(
+            self.server,
+            self.test_chan,
+            self.test_user,
+            "{} {}".format(command_name, command_args),
+        )
         evt.split_command_text(command_name, command_args)
         spreadsheet = DailysSpreadsheetMock(self.test_chan, self.test_user)
         # Try and create dailys field
@@ -50,7 +54,12 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         command_times = "wake 12:00 sleep"
         command_moods = "happiness anger tiredness"
         command_args = "mood {} {}".format(command_times, command_moods)
-        evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(command_name, command_args))
+        evt = EventMessage(
+            self.server,
+            self.test_chan,
+            self.test_user,
+            "{} {}".format(command_name, command_args),
+        )
         evt.split_command_text(command_name, command_args)
         spreadsheet = DailysSpreadsheetMock(self.test_chan, self.test_user)
         # Try and create dailys field
@@ -69,7 +78,12 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         command_times = "wake 12:00 sleep"
         command_moods = "happiness anger tiredness boisterousness"
         command_args = "mood {};{}".format(command_times, command_moods)
-        evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(command_name, command_args))
+        evt = EventMessage(
+            self.server,
+            self.test_chan,
+            self.test_user,
+            "{} {}".format(command_name, command_args),
+        )
         evt.split_command_text(command_name, command_args)
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
         # Try and create dailys field
@@ -90,8 +104,15 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         command_times = "wake 12:99 sleep"
         command_moods = "happiness anger tiredness boisterousness"
         command_column = "AJ"
-        command_args = "mood {};{};{}".format(command_times, command_moods, command_column)
-        evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(command_name, command_args))
+        command_args = "mood {};{};{}".format(
+            command_times, command_moods, command_column
+        )
+        evt = EventMessage(
+            self.server,
+            self.test_chan,
+            self.test_user,
+            "{} {}".format(command_name, command_args),
+        )
         evt.split_command_text(command_name, command_args)
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
         # Try and create dailys field
@@ -108,8 +129,15 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         command_times = "wake noon sleep"
         command_moods = "happiness anger tiredness boisterousness"
         command_column = "AJ"
-        command_args = "mood {};{};{}".format(command_times, command_moods, command_column)
-        evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(command_name, command_args))
+        command_args = "mood {};{};{}".format(
+            command_times, command_moods, command_column
+        )
+        evt = EventMessage(
+            self.server,
+            self.test_chan,
+            self.test_user,
+            "{} {}".format(command_name, command_args),
+        )
         evt.split_command_text(command_name, command_args)
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
         # Try and create dailys field
@@ -154,8 +182,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
             saved_data[DailysMoodField.TIME_WAKE][mood] = 3
             saved_data[str(time(14, 0, 0))][mood] = 2
         spreadsheet = DailysSpreadsheetMock(
-            self.test_user, self.test_chan,
-            saved_data={"mood": {evt_sleep.get_send_time().date(): saved_data}}
+            self.test_user,
+            self.test_chan,
+            saved_data={"mood": {evt_sleep.get_send_time().date(): saved_data}},
         )
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
@@ -174,7 +203,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
 
     def test_trigger_morning_no_query_if_not_in_times(self):
         # Setup
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan, saved_data={"mood": {}})
+        spreadsheet = DailysSpreadsheetMock(
+            self.test_user, self.test_chan, saved_data={"mood": {}}
+        )
         # Setup field
         times = [time(14, 0, 0), DailysMoodField.TIME_SLEEP]
         moods = ["Happiness", "Anger", "Tiredness"]
@@ -188,7 +219,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
 
     def test_trigger_sleep_no_query_if_not_in_times(self):
         # Setup
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan, saved_data={"mood": {}})
+        spreadsheet = DailysSpreadsheetMock(
+            self.test_user, self.test_chan, saved_data={"mood": {}}
+        )
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
         moods = ["Happiness", "Anger", "Tiredness"]
@@ -213,8 +246,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
             saved_data[DailysMoodField.TIME_WAKE][mood] = 3
             saved_data[str(time(14, 0, 0))][mood] = 2
         spreadsheet = DailysSpreadsheetMock(
-            self.test_user, self.test_chan,
-            saved_data={"mood": {evt_sleep1.get_send_time().date(): saved_data}}
+            self.test_user,
+            self.test_chan,
+            saved_data={"mood": {evt_sleep1.get_send_time().date(): saved_data}},
         )
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
@@ -257,13 +291,15 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         for mood in moods:
             saved_data[DailysMoodField.TIME_WAKE][mood] = 3
             saved_data[str(time(14, 0, 0))][mood] = 2
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
-                                            saved_data={"mood": {mood_date: saved_data}})
+        spreadsheet = DailysSpreadsheetMock(
+            self.test_user, self.test_chan, saved_data={"mood": {mood_date: saved_data}}
+        )
         # Setup field
         field = DailysMoodField(spreadsheet, times, moods)
         # Send message
-        evt_sleep = EventMessage(self.server, self.test_chan, self.test_user, "night")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_time)))
+        evt_sleep = EventMessage(
+            self.server, self.test_chan, self.test_user, "night"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_time)))
         field.passive_trigger(evt_sleep)
         # Check mood query is sent for previous day
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -278,7 +314,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
     def test_trigger_time_exactly_once(self):
         mood_date = date(2019, 1, 18)
         # Setup
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan, saved_data={"mood": {}})
+        spreadsheet = DailysSpreadsheetMock(
+            self.test_user, self.test_chan, saved_data={"mood": {}}
+        )
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
         moods = ["Happiness", "Anger", "Tiredness"]
@@ -325,15 +363,19 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         mood_data = dict()
         mood_data[DailysMoodField.TIME_WAKE] = dict()
         mood_data[DailysMoodField.TIME_WAKE]["message_id"] = msg_id
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
-                                            saved_data={"mood": {mood_date: mood_data}})
+        spreadsheet = DailysSpreadsheetMock(
+            self.test_user, self.test_chan, saved_data={"mood": {mood_date: mood_data}}
+        )
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
         moods = ["Happiness", "Anger", "Tiredness"]
         field = DailysMoodField(spreadsheet, times, moods)
         # Send message
-        evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "413")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time_reply(mood_datetime, msg_id)))
+        evt_mood = EventMessage(
+            self.server, self.test_chan, self.test_user, "413"
+        ).with_raw_data(
+            RawDataTelegram(self.get_telegram_time_reply(mood_datetime, msg_id))
+        )
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -358,15 +400,17 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         mood_data = dict()
         mood_data[DailysMoodField.TIME_WAKE] = dict()
         mood_data[DailysMoodField.TIME_WAKE]["message_id"] = msg_id
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
-                                            saved_data={"mood": {mood_date: mood_data}})
+        spreadsheet = DailysSpreadsheetMock(
+            self.test_user, self.test_chan, saved_data={"mood": {mood_date: mood_data}}
+        )
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
         moods = ["Happiness", "Anger", "Tiredness"]
         field = DailysMoodField(spreadsheet, times, moods)
         # Send message
-        evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "413")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        evt_mood = EventMessage(
+            self.server, self.test_chan, self.test_user, "413"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -390,15 +434,17 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         mood_datetime = datetime.combine(mood_date + timedelta(days=1), time(0, 3, 2))
         msg_id = 41212
         mood_data = dict()
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
-                                            saved_data={"mood": {mood_date: mood_data}})
+        spreadsheet = DailysSpreadsheetMock(
+            self.test_user, self.test_chan, saved_data={"mood": {mood_date: mood_data}}
+        )
         # Setup field
         times = [DailysMoodField.TIME_SLEEP]
         moods = ["Happiness", "Anger", "Tiredness"]
         field = DailysMoodField(spreadsheet, times, moods)
         # Send sleep message, check response
-        evt_sleep = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_datetime)))
+        evt_sleep = EventMessage(
+            self.server, self.test_chan, self.test_user, "sleep"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_datetime)))
         field.passive_trigger(evt_sleep)
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
         assert DailysMoodField.TIME_SLEEP in notif_dict
@@ -407,8 +453,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         spreadsheet.saved_data["mood"][mood_date] = notif_dict
         self.server.get_send_data()
         # Send message
-        evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "413")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        evt_mood = EventMessage(
+            self.server, self.test_chan, self.test_user, "413"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -436,14 +483,16 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         mood_data[DailysMoodField.TIME_WAKE]["message_id"] = msg_id
         for mood in moods:
             mood_data[DailysMoodField.TIME_WAKE][mood] = 3
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
-                                            saved_data={"mood": {mood_date: mood_data}})
+        spreadsheet = DailysSpreadsheetMock(
+            self.test_user, self.test_chan, saved_data={"mood": {mood_date: mood_data}}
+        )
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
         field = DailysMoodField(spreadsheet, times, moods)
         # Send message
-        evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "413")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        evt_mood = EventMessage(
+            self.server, self.test_chan, self.test_user, "413"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is not logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -467,14 +516,16 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         mood_data[DailysMoodField.TIME_WAKE]["message_id"] = msg_id
         for mood in moods:
             mood_data[DailysMoodField.TIME_WAKE][mood] = 3
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
-                                            saved_data={"mood": {mood_date: mood_data}})
+        spreadsheet = DailysSpreadsheetMock(
+            self.test_user, self.test_chan, saved_data={"mood": {mood_date: mood_data}}
+        )
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
         field = DailysMoodField(spreadsheet, times, moods)
         # Send message
-        evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "HAT 1400 413")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        evt_mood = EventMessage(
+            self.server, self.test_chan, self.test_user, "HAT 1400 413"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -505,8 +556,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
         field = DailysMoodField(spreadsheet, times, moods)
         # Send message
-        evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "HAT wake 413")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        evt_mood = EventMessage(
+            self.server, self.test_chan, self.test_user, "HAT wake 413"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -532,8 +584,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
         field = DailysMoodField(spreadsheet, times, moods)
         # Send message
-        evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "HAT sleep 413")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        evt_mood = EventMessage(
+            self.server, self.test_chan, self.test_user, "HAT sleep 413"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -560,14 +613,16 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         mood_data[DailysMoodField.TIME_WAKE]["message_id"] = msg_id
         for mood in moods:
             mood_data[DailysMoodField.TIME_WAKE][mood] = 3
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
-                                            saved_data={"mood": {mood_date: mood_data}})
+        spreadsheet = DailysSpreadsheetMock(
+            self.test_user, self.test_chan, saved_data={"mood": {mood_date: mood_data}}
+        )
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
         field = DailysMoodField(spreadsheet, times, moods)
         # Send message
-        evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "HAT 1400 413")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        evt_mood = EventMessage(
+            self.server, self.test_chan, self.test_user, "HAT 1400 413"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -612,8 +667,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
         field = DailysMoodField(spreadsheet, times, moods)
         # Send message
-        evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "HAT wake 413")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        evt_mood = EventMessage(
+            self.server, self.test_chan, self.test_user, "HAT wake 413"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -629,8 +685,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         assert mood_date.isoformat() in data_wake[0].text
         assert "413" in data_wake[0].text
         # Send wake message, ensure no response
-        evt_wake = EventMessage(self.server, self.test_chan, self.test_user, "morning")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(wake_datetime)))
+        evt_wake = EventMessage(
+            self.server, self.test_chan, self.test_user, "morning"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(wake_datetime)))
         field.passive_trigger(evt_wake)
         # Check query isn't logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -644,7 +701,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         mood_date = date(2019, 1, 18)
         sleep_datetime = datetime.combine(mood_date, time(23, 13, 6))
         mood_datetime = datetime.combine(mood_date, time(23, 15, 7))
-        sleep2_datetime = datetime.combine(mood_date + timedelta(days=1), time(0, 3, 15))
+        sleep2_datetime = datetime.combine(
+            mood_date + timedelta(days=1), time(0, 3, 15)
+        )
         msg_id = 123123
         moods = ["Happiness", "Anger", "Tiredness"]
         saved_data = dict()
@@ -655,14 +714,16 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         for mood in moods:
             saved_data[DailysMoodField.TIME_WAKE][mood] = 3
             saved_data[str(time(14, 0, 0))][mood] = 2
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan,
-                                            saved_data={"mood": {mood_date: saved_data}})
+        spreadsheet = DailysSpreadsheetMock(
+            self.test_user, self.test_chan, saved_data={"mood": {mood_date: saved_data}}
+        )
         # Setup field
         times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
         field = DailysMoodField(spreadsheet, times, moods)
         # Send sleep query
-        evt_sleep1 = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_datetime)))
+        evt_sleep1 = EventMessage(
+            self.server, self.test_chan, self.test_user, "sleep"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_datetime)))
         field.passive_trigger(evt_sleep1)
         # Check mood query is given and stuff
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -675,8 +736,11 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         assert DailysMoodField.TIME_SLEEP in data_wake[0].text
         assert all([mood in data_wake[0].text for mood in moods])
         # Then mood response
-        evt_mood = EventMessage(self.server, self.test_chan, self.test_user, "413")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time_reply(mood_datetime, msg_id)))
+        evt_mood = EventMessage(
+            self.server, self.test_chan, self.test_user, "413"
+        ).with_raw_data(
+            RawDataTelegram(self.get_telegram_time_reply(mood_datetime, msg_id))
+        )
         field.passive_trigger(evt_mood)
         # Check mood is recorded and response given
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -693,8 +757,9 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         assert "413" in data_wake[0].text
         # Then midnight
         # Another sleep query
-        evt_sleep1 = EventMessage(self.server, self.test_chan, self.test_user, "sleep")\
-            .with_raw_data(RawDataTelegram(self.get_telegram_time(sleep2_datetime)))
+        evt_sleep1 = EventMessage(
+            self.server, self.test_chan, self.test_user, "sleep"
+        ).with_raw_data(RawDataTelegram(self.get_telegram_time(sleep2_datetime)))
         field.passive_trigger(evt_sleep1)
         # Check there's no response
         self.server.get_send_data(0)

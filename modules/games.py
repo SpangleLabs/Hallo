@@ -13,6 +13,7 @@ class Card:
     """
     Card object, for use by higher or lower, blackjack, and any other card games.
     """
+
     # Constants
     SUIT_DIAMONDS = "diamonds"
     SUIT_HEARTS = "hearts"
@@ -49,8 +50,19 @@ class Card:
         else:
             raise Exception("Invalid suit")
         if value in [
-            self.CARD_ACE, self.CARD_2, self.CARD_3, self.CARD_4, self.CARD_5, self.CARD_6, self.CARD_7,
-            self.CARD_8, self.CARD_9, self.CARD_10, self.CARD_JACK, self.CARD_QUEEN, self.CARD_KING
+            self.CARD_ACE,
+            self.CARD_2,
+            self.CARD_3,
+            self.CARD_4,
+            self.CARD_5,
+            self.CARD_6,
+            self.CARD_7,
+            self.CARD_8,
+            self.CARD_9,
+            self.CARD_10,
+            self.CARD_JACK,
+            self.CARD_QUEEN,
+            self.CARD_KING,
         ]:
             self.value = value
         else:
@@ -98,7 +110,7 @@ class Card:
             self.CARD_4: 4,
             self.CARD_3: 3,
             self.CARD_2: 2,
-            self.CARD_ACE: 1
+            self.CARD_ACE: 1,
         }
         if self.value in black_jack_dict:
             return black_jack_dict[self.value]
@@ -119,7 +131,7 @@ class Card:
             self.CARD_5: 5,
             self.CARD_4: 4,
             self.CARD_3: 3,
-            self.CARD_2: 2
+            self.CARD_2: 2,
         }
         if self.value in poker_dict:
             return poker_dict[self.value]
@@ -130,19 +142,21 @@ class Card:
 
     def to_int(self):
         """Converts the card value to integer, for higher or lower and similar"""
-        int_dict = {self.CARD_KING: 13,
-                    self.CARD_QUEEN: 12,
-                    self.CARD_JACK: 11,
-                    self.CARD_10: 10,
-                    self.CARD_9: 9,
-                    self.CARD_8: 8,
-                    self.CARD_7: 7,
-                    self.CARD_6: 6,
-                    self.CARD_5: 5,
-                    self.CARD_4: 4,
-                    self.CARD_3: 3,
-                    self.CARD_2: 2,
-                    self.CARD_ACE: 1}
+        int_dict = {
+            self.CARD_KING: 13,
+            self.CARD_QUEEN: 12,
+            self.CARD_JACK: 11,
+            self.CARD_10: 10,
+            self.CARD_9: 9,
+            self.CARD_8: 8,
+            self.CARD_7: 7,
+            self.CARD_6: 6,
+            self.CARD_5: 5,
+            self.CARD_4: 4,
+            self.CARD_3: 3,
+            self.CARD_2: 2,
+            self.CARD_ACE: 1,
+        }
         if self.value in int_dict:
             return int_dict[self.value]
         return None
@@ -179,12 +193,27 @@ class Deck:
         self.card_list = []  # List of cards in the deck.
         self.all_cards = []  # All the cards which were originally in the deck.
         card_list = []
-        for card_suit in [Card.SUIT_HEARTS, Card.SUIT_CLUBS, Card.SUIT_DIAMONDS, Card.SUIT_SPADES]:
+        for card_suit in [
+            Card.SUIT_HEARTS,
+            Card.SUIT_CLUBS,
+            Card.SUIT_DIAMONDS,
+            Card.SUIT_SPADES,
+        ]:
             suit_list = []
             for card_value in [
-                Card.CARD_ACE, Card.CARD_2, Card.CARD_3, Card.CARD_4, Card.CARD_5, Card.CARD_6,
-                Card.CARD_7, Card.CARD_8, Card.CARD_9, Card.CARD_10, Card.CARD_JACK, Card.CARD_QUEEN,
-                Card.CARD_KING
+                Card.CARD_ACE,
+                Card.CARD_2,
+                Card.CARD_3,
+                Card.CARD_4,
+                Card.CARD_5,
+                Card.CARD_6,
+                Card.CARD_7,
+                Card.CARD_8,
+                Card.CARD_9,
+                Card.CARD_10,
+                Card.CARD_JACK,
+                Card.CARD_QUEEN,
+                Card.CARD_KING,
             ]:
                 new_card = Card(self, card_suit, card_value)
                 suit_list.append(new_card)
@@ -497,25 +526,25 @@ class Hand:
     def from_two_letter_code_list(deck, two_letter_code_list):
         """Creates a hand from a deck and a list of 2 letter codes."""
         suit_dict = {
-            'C': Card.SUIT_CLUBS,
-            'S': Card.SUIT_SPADES,
-            'H': Card.SUIT_HEARTS,
-            'D': Card.SUIT_DIAMONDS
+            "C": Card.SUIT_CLUBS,
+            "S": Card.SUIT_SPADES,
+            "H": Card.SUIT_HEARTS,
+            "D": Card.SUIT_DIAMONDS,
         }
         value_dict = {
-            'A': Card.CARD_ACE,
-            '2': Card.CARD_2,
-            '3': Card.CARD_3,
-            '4': Card.CARD_4,
-            '5': Card.CARD_5,
-            '6': Card.CARD_6,
-            '7': Card.CARD_7,
-            '8': Card.CARD_8,
-            '9': Card.CARD_9,
-            'T': Card.CARD_10,
-            'J': Card.CARD_JACK,
-            'Q': Card.CARD_QUEEN,
-            'K': Card.CARD_KING
+            "A": Card.CARD_ACE,
+            "2": Card.CARD_2,
+            "3": Card.CARD_3,
+            "4": Card.CARD_4,
+            "5": Card.CARD_5,
+            "6": Card.CARD_6,
+            "7": Card.CARD_7,
+            "8": Card.CARD_8,
+            "9": Card.CARD_9,
+            "T": Card.CARD_10,
+            "J": Card.CARD_JACK,
+            "Q": Card.CARD_QUEEN,
+            "K": Card.CARD_KING,
         }
         new_hand = Hand(None)
         for letter_code in two_letter_code_list:
@@ -548,7 +577,9 @@ class RandomCard(Function):
         new_deck = Deck()
         new_deck.shuffle()
         random_card = new_deck.get_next_card()
-        return event.create_response("I have chosen the {}.".format(random_card.to_string()))
+        return event.create_response(
+            "I have chosen the {}.".format(random_card.to_string())
+        )
 
 
 class HighScores(Function):
@@ -564,7 +595,14 @@ class HighScores(Function):
         # Name for use in help listing
         self.help_name = "highscores"
         # Names which can be used to address the function
-        self.names = {"highscores", "high scores", "highscore", "high score", "hiscore", "hiscores"}
+        self.names = {
+            "highscores",
+            "high scores",
+            "highscore",
+            "high score",
+            "hiscore",
+            "hiscores",
+        }
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "View the highscores for all games. Format: highscores"
         self.high_scores = {}
@@ -584,23 +622,33 @@ class HighScores(Function):
             for high_score_elem in doc.getElementsByTagName("high_score"):
                 game_dict = {}
                 # Get name
-                game_name = high_score_elem.getElementsByTagName("game_name")[0].firstChild.data
+                game_name = high_score_elem.getElementsByTagName("game_name")[
+                    0
+                ].firstChild.data
                 # Get date, add to dict
-                game_date = high_score_elem.getElementsByTagName("date")[0].firstChild.data
-                game_dict['date'] = float(game_date)
+                game_date = high_score_elem.getElementsByTagName("date")[
+                    0
+                ].firstChild.data
+                game_dict["date"] = float(game_date)
                 # Get player name, add to dict
-                player_name = high_score_elem.getElementsByTagName("player_name")[0].firstChild.data
-                game_dict['player'] = player_name
+                player_name = high_score_elem.getElementsByTagName("player_name")[
+                    0
+                ].firstChild.data
+                game_dict["player"] = player_name
                 # Get score, add to dict
-                game_score = high_score_elem.getElementsByTagName("score")[0].firstChild.data
-                game_dict['score'] = game_score
+                game_score = high_score_elem.getElementsByTagName("score")[
+                    0
+                ].firstChild.data
+                game_dict["score"] = game_score
                 # Get extra data
                 game_data = {}
                 for data_elem in high_score_elem.getElementsByTagName("data"):
                     data_var = data_elem.getElementsByTagName("var")[0].firstChild.data
-                    data_value = data_elem.getElementsByTagName("value")[0].firstChild.data
+                    data_value = data_elem.getElementsByTagName("value")[
+                        0
+                    ].firstChild.data
                     game_data[data_var] = data_value
-                game_dict['data'] = game_data
+                game_dict["data"] = game_data
                 # Add game to list
                 high_score_dict[game_name] = game_dict
             # Create new object, set the highscore list and return it
@@ -615,11 +663,11 @@ class HighScores(Function):
         # Create document, with DTD
         doc_imp = minidom.DOMImplementation()
         doc_type = doc_imp.createDocumentType(
-            qualifiedName='high_score_list',
-            publicId='',
-            systemId='high_score_list.dtd',
+            qualifiedName="high_score_list",
+            publicId="",
+            systemId="high_score_list.dtd",
         )
-        doc = doc_imp.createDocument(None, 'high_score_list', doc_type)
+        doc = doc_imp.createDocument(None, "high_score_list", doc_type)
         # get root element
         root = doc.getElementsByTagName("high_score_list")[0]
         # Loop through games
@@ -631,18 +679,24 @@ class HighScores(Function):
             high_score_elem.appendChild(game_name_elem)
             # Add date element
             date_elem = doc.createElement("date")
-            date_elem.appendChild(doc.createTextNode(str(self.high_scores[game_name]['date'])))
+            date_elem.appendChild(
+                doc.createTextNode(str(self.high_scores[game_name]["date"]))
+            )
             high_score_elem.appendChild(date_elem)
             # add player_name element
             player_name_elem = doc.createElement("player_name")
-            player_name_elem.appendChild(doc.createTextNode(self.high_scores[game_name]['player']))
+            player_name_elem.appendChild(
+                doc.createTextNode(self.high_scores[game_name]["player"])
+            )
             high_score_elem.appendChild(player_name_elem)
             # add score element
             score_elem = doc.createElement("score")
-            score_elem.appendChild(doc.createTextNode(self.high_scores[game_name]['score']))
+            score_elem.appendChild(
+                doc.createTextNode(self.high_scores[game_name]["score"])
+            )
             high_score_elem.appendChild(score_elem)
             # Loop through extra data, adding that.
-            for data_var in self.high_scores[game_name]['data']:
+            for data_var in self.high_scores[game_name]["data"]:
                 data_elem = doc.createElement("data")
                 # Add variable name element
                 var_elem = doc.createElement("var")
@@ -650,32 +704,41 @@ class HighScores(Function):
                 data_elem.appendChild(var_elem)
                 # Add value name element
                 value_elem = doc.createElement("value")
-                value_elem.appendChild(doc.createTextNode(self.high_scores[game_name]['data'][data_var]))
+                value_elem.appendChild(
+                    doc.createTextNode(self.high_scores[game_name]["data"][data_var])
+                )
                 data_elem.appendChild(value_elem)
                 # Add the data element to the high score
                 high_score_elem.appendChild(data_elem)
             root.appendChild(high_score_elem)
         # save XML
-        doc.writexml(open("store/high_score_list.xml", "w"), addindent="\t", newl="\r\n")
+        doc.writexml(
+            open("store/high_score_list.xml", "w"), addindent="\t", newl="\r\n"
+        )
 
     def run(self, event):
         output_lines = ["High scores:"]
         for game_name in self.high_scores:
-            score = self.high_scores[game_name]['score']
-            player = self.high_scores[game_name]['player']
-            date = self.high_scores[game_name]['date']
-            output_lines.append("{}> Score: {}, Player: {}, Date: {}".format(
-                game_name, score, player, Commons.format_unix_time(date)))
+            score = self.high_scores[game_name]["score"]
+            player = self.high_scores[game_name]["player"]
+            date = self.high_scores[game_name]["date"]
+            output_lines.append(
+                "{}> Score: {}, Player: {}, Date: {}".format(
+                    game_name, score, player, Commons.format_unix_time(date)
+                )
+            )
         return event.create_response("\n".join(output_lines))
 
     def add_high_score(self, game_name, score, user_name, data=None):
         """Adds a new highscore to the list. Overwriting the old high score for that game if it exists"""
         if data is None:
             data = {}
-        new_dict = {'score': score,
-                    'player': user_name,
-                    'date': time.time(),
-                    'data': data}
+        new_dict = {
+            "score": score,
+            "player": user_name,
+            "date": time.time(),
+            "data": data,
+        }
         self.high_scores[game_name] = new_dict
 
     def get_high_score(self, game_name):
@@ -718,6 +781,7 @@ class HigherOrLowerGame(Game):
     """
     Game of Higher or Lower.
     """
+
     HIGH_SCORE_NAME = "higher_or_lower"
 
     def __init__(self, user_obj, destination_obj):
@@ -727,7 +791,9 @@ class HigherOrLowerGame(Game):
         self.deck.shuffle()
         function_dispatcher = user_obj.server.hallo.function_dispatcher
         high_scores_class = function_dispatcher.get_function_by_name("highscores")
-        self.high_scores_obj = function_dispatcher.get_function_object(high_scores_class)  # type: HighScores
+        self.high_scores_obj = function_dispatcher.get_function_object(
+            high_scores_class
+        )  # type: HighScores
         self.last_card = None
         self.turns = 0
 
@@ -749,7 +815,7 @@ class HigherOrLowerGame(Game):
         high_score = self.high_scores_obj.get_high_score(self.HIGH_SCORE_NAME)
         if high_score is None:
             return True
-        last_score = int(high_score['data']['cards'])
+        last_score = int(high_score["data"]["cards"])
         current_score = self.turns
         if self.lost:
             current_score = self.turns - 1
@@ -760,7 +826,9 @@ class HigherOrLowerGame(Game):
     def start_game(self):
         """Starts the new game"""
         first_card = self.get_next_card()
-        return "You have started a game of higher or lower. Your first card is: {}.".format(first_card.to_string())
+        return "You have started a game of higher or lower. Your first card is: {}.".format(
+            first_card.to_string()
+        )
 
     def update_high_score(self):
         """Updates the high score with current game. Checks that it is high score first."""
@@ -771,8 +839,10 @@ class HigherOrLowerGame(Game):
             current_score = self.turns - 1
         user_name = list(self.players)[0].name
         score = "{} cards".format(current_score)
-        game_data = {'cards': current_score}
-        self.high_scores_obj.add_high_score(self.HIGH_SCORE_NAME, score, user_name, game_data)
+        game_data = {"cards": current_score}
+        self.high_scores_obj.add_high_score(
+            self.HIGH_SCORE_NAME, score, user_name, game_data
+        )
         return True
 
     def guess_higher(self):
@@ -780,12 +850,20 @@ class HigherOrLowerGame(Game):
         last_card = self.last_card
         next_card = self.get_next_card()
         if next_card.to_int() > last_card.to_int():
-            output_string = "Your {} card is {}, which is higher! Congrats! Do you think the next card will be " \
-                            "higher or lower?".format(Commons.ordinal(self.turns), next_card.to_string())
+            output_string = (
+                "Your {} card is {}, which is higher! Congrats! Do you think the next card will be "
+                "higher or lower?".format(
+                    Commons.ordinal(self.turns), next_card.to_string()
+                )
+            )
             return output_string
         if next_card.to_int() == last_card.to_int():
-            output_string = "Your {} card is {}, which is the same (that's fine.) Do you think the next card will " \
-                            "be higher or lower?".format(Commons.ordinal(self.turns), next_card.to_string())
+            output_string = (
+                "Your {} card is {}, which is the same (that's fine.) Do you think the next card will "
+                "be higher or lower?".format(
+                    Commons.ordinal(self.turns), next_card.to_string()
+                )
+            )
             return output_string
         if next_card.to_int() < last_card.to_int():
             self.lost = True
@@ -793,9 +871,14 @@ class HigherOrLowerGame(Game):
             is_high_score = self.check_high_score()
             previous_score_text = ""
             if is_high_score:
-                previous_score = self.high_scores_obj.get_high_score(self.HIGH_SCORE_NAME)
+                previous_score = self.high_scores_obj.get_high_score(
+                    self.HIGH_SCORE_NAME
+                )
                 previous_score_text = "(previous highscore was: {}, set by {} .)".format(
-                    previous_score['score'], previous_score['player'], Commons.format_unix_time(previous_score['date']))
+                    previous_score["score"],
+                    previous_score["player"],
+                    Commons.format_unix_time(previous_score["date"]),
+                )
                 self.update_high_score()
             # Output message
             output_string = "Your {} card is {}. Sorry, that's lower, you lose.".format(
@@ -814,12 +897,20 @@ class HigherOrLowerGame(Game):
         last_card = self.last_card
         next_card = self.get_next_card()
         if next_card.to_int() < last_card.to_int():
-            output_string = "Your {} card is {}, which is lower! Congrats! Do you think the next card will " \
-                            "be higher or lower?".format(Commons.ordinal(self.turns), next_card.to_string())
+            output_string = (
+                "Your {} card is {}, which is lower! Congrats! Do you think the next card will "
+                "be higher or lower?".format(
+                    Commons.ordinal(self.turns), next_card.to_string()
+                )
+            )
             return output_string
         if next_card.to_int() == last_card.to_int():
-            output_string = "Your {} card is {}, which is the same (that's fine.) Do you think the next card will " \
-                            "be higher or lower?".format(Commons.ordinal(self.turns), next_card.to_string())
+            output_string = (
+                "Your {} card is {}, which is the same (that's fine.) Do you think the next card will "
+                "be higher or lower?".format(
+                    Commons.ordinal(self.turns), next_card.to_string()
+                )
+            )
             return output_string
         if next_card.to_int() > last_card.to_int():
             self.lost = True
@@ -827,11 +918,13 @@ class HigherOrLowerGame(Game):
             is_high_score = self.check_high_score()
             previous_score_text = ""
             if is_high_score:
-                previous_score = self.high_scores_obj.get_high_score(self.HIGH_SCORE_NAME)
+                previous_score = self.high_scores_obj.get_high_score(
+                    self.HIGH_SCORE_NAME
+                )
                 previous_score_text = "(previous highscore was: {}, set by {} {}.)".format(
-                    previous_score['score'],
-                    previous_score['player'],
-                    Commons.format_unix_time(previous_score['date'])
+                    previous_score["score"],
+                    previous_score["player"],
+                    Commons.format_unix_time(previous_score["date"]),
                 )
                 self.update_high_score()
             # Output message
@@ -843,7 +936,9 @@ class HigherOrLowerGame(Game):
                     self.turns - 1, previous_score_text
                 )
             else:
-                output_string += " You managed {} cards though.".format(str(self.turns - 1))
+                output_string += " You managed {} cards though.".format(
+                    str(self.turns - 1)
+                )
             return output_string
 
     def quit_game(self):
@@ -853,17 +948,22 @@ class HigherOrLowerGame(Game):
         if is_high_score:
             previous_score = self.high_scores_obj.get_high_score(self.HIGH_SCORE_NAME)
             previous_score_text = "(previous highscore was: {}, set by {} {}.)".format(
-                previous_score['score'],
-                previous_score['player'],
-                Commons.format_unix_time(previous_score['date'])
+                previous_score["score"],
+                previous_score["player"],
+                Commons.format_unix_time(previous_score["date"]),
             )
             self.update_high_score()
             # Create output
-            return \
-                "Sorry to see you quit, you had managed {} cards, " \
-                "which is a new highscore!{}".format(self.turns - 1, previous_score_text)
+            return (
+                "Sorry to see you quit, you had managed {} cards, "
+                "which is a new highscore!{}".format(
+                    self.turns - 1, previous_score_text
+                )
+            )
         else:
-            return "Sorry to see you quit, you had managed {} cards.".format(self.turns - 1)
+            return "Sorry to see you quit, you had managed {} cards.".format(
+                self.turns - 1
+            )
 
 
 class HigherOrLower(Function):
@@ -914,24 +1014,36 @@ class HigherOrLower(Function):
         line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
             return event.create_response(
-                self.new_game(event.user, event.user if event.channel is None else event.channel)
+                self.new_game(
+                    event.user, event.user if event.channel is None else event.channel
+                )
             )
         elif any(cmd in line_clean for cmd in self.END_CMDS):
             return event.create_response(
-                self.quit_game(event.user, event.user if event.channel is None else event.channel)
+                self.quit_game(
+                    event.user, event.user if event.channel is None else event.channel
+                )
             )
         elif any(cmd in line_clean for cmd in self.HIGH_CMDS):
             return event.create_response(
-                self.guess_higher(event.user, event.user if event.channel is None else event.channel)
+                self.guess_higher(
+                    event.user, event.user if event.channel is None else event.channel
+                )
             )
         elif any(cmd in line_clean for cmd in self.LOW_CMDS):
             return event.create_response(
-                self.guess_lower(event.user, event.user if event.channel is None else event.channel)
+                self.guess_lower(
+                    event.user, event.user if event.channel is None else event.channel
+                )
             )
         output_string = "I don't understand this input."
         output_string += ' Syntax: "higher_or_lower start" to start a game, '
-        output_string += '"higher_or_lower higher" to guess the next card will be higher, '
-        output_string += '"higher_or_lower lower" to guess the next card will be lower, '
+        output_string += (
+            '"higher_or_lower higher" to guess the next card will be higher, '
+        )
+        output_string += (
+            '"higher_or_lower lower" to guess the next card will be lower, '
+        )
         output_string += '"higher_or_lower end" to quit the game.'
         return event.create_response(output_string)
 
@@ -941,11 +1053,17 @@ class HigherOrLower(Function):
             return
         clean_line = event.text.strip().lower()
         if any(cmd in clean_line for cmd in self.END_CMDS):
-            return event.create_response(self.quit_game(event.user, event.channel, True))
+            return event.create_response(
+                self.quit_game(event.user, event.channel, True)
+            )
         elif any(cmd in clean_line for cmd in self.HIGH_CMDS):
-            return event.create_response(self.guess_higher(event.user, event.channel, True))
+            return event.create_response(
+                self.guess_higher(event.user, event.channel, True)
+            )
         elif any(cmd in clean_line for cmd in self.LOW_CMDS):
-            return event.create_response(self.guess_lower(event.user, event.channel, True))
+            return event.create_response(
+                self.guess_lower(event.user, event.channel, True)
+            )
         pass
 
     def find_game(self, user_obj):
@@ -1008,6 +1126,7 @@ class BlackjackGame(Game):
     """
     Game of Blackjack.
     """
+
     HIGH_SCORE_NAME = "blackjack"
 
     def __init__(self, user_obj, destination_obj):
@@ -1031,19 +1150,30 @@ class BlackjackGame(Game):
         forth_card = self.deck.get_next_card()
         self.dealer_hand.add_card(forth_card)
         # Write the first half of output
-        output_string = "You have started a game of Blackjack (H17), " \
-                        "you have been dealt a {} and a {}.".format(first_card.to_string(), third_card.to_string())
+        output_string = (
+            "You have started a game of Blackjack (H17), "
+            "you have been dealt a {} and a {}.".format(
+                first_card.to_string(), third_card.to_string()
+            )
+        )
         # Check if they have been dealt a blackjack
-        if self.player_hand.contains_value(Card.CARD_ACE) and any([
-            self.player_hand.contains_value(value)
-            for value
-            in [Card.CARD_10, Card.CARD_JACK, Card.CARD_QUEEN, Card.CARD_KING]
-        ]):
+        if self.player_hand.contains_value(Card.CARD_ACE) and any(
+            [
+                self.player_hand.contains_value(value)
+                for value in [
+                    Card.CARD_10,
+                    Card.CARD_JACK,
+                    Card.CARD_QUEEN,
+                    Card.CARD_KING,
+                ]
+            ]
+        ):
             return output_string + "Congratulations! That's a blackjack! You win."
         # Write the rest of the output
-        output_string += \
-            " The dealer has a {} and another, covered, card. " \
+        output_string += (
+            " The dealer has a {} and another, covered, card. "
             "Would you like to hit or stick?".format(second_card.to_string())
+        )
         return output_string
 
     def hit(self):
@@ -1053,10 +1183,12 @@ class BlackjackGame(Game):
         output_string = "You have been dealt a {},".format(new_card.to_string())
         if self.player_hand.sum_total() > 21:
             self.lost = True
-            return \
-                output_string + \
-                " which means your hand sums to {}. " \
-                "You've gone bust. You lose, sorry.".format(self.player_hand.sum_total())
+            return (
+                output_string + " which means your hand sums to {}. "
+                "You've gone bust. You lose, sorry.".format(
+                    self.player_hand.sum_total()
+                )
+            )
         return output_string + " would you like to hit or stick?"
 
     def stick(self):
@@ -1066,17 +1198,23 @@ class BlackjackGame(Game):
         output_string = "Your hand is: {}\n".format(self.player_hand.to_string())
         # Dealer continues to deal himself cards, in accordance with H17 rules
         dealer_new_cards = 0
-        if (self.dealer_hand.blackjack_total() < 17 or (
-                self.dealer_hand.blackjack_total() == 17 and self.dealer_hand.contains_value(Card.CARD_ACE))):
+        if self.dealer_hand.blackjack_total() < 17 or (
+            self.dealer_hand.blackjack_total() == 17
+            and self.dealer_hand.contains_value(Card.CARD_ACE)
+        ):
             dealer_new_cards += 1
             dealer_new_card = self.deck.get_next_card()
             self.dealer_hand.add_card(dealer_new_card)
         # if dealer has dealt himself more cards, say that.
         if dealer_new_cards != 0:
-            card_plural = 'card' if dealer_new_cards == 1 else 'cards'
-            output_string += "The dealer deals himself {} more {}.\n".format(dealer_new_cards, card_plural)
+            card_plural = "card" if dealer_new_cards == 1 else "cards"
+            output_string += "The dealer deals himself {} more {}.\n".format(
+                dealer_new_cards, card_plural
+            )
         # Say the dealer's hand
-        output_string += "The dealer's hand is: {}\n".format(self.dealer_hand.to_string())
+        output_string += "The dealer's hand is: {}\n".format(
+            self.dealer_hand.to_string()
+        )
         # Check if dealer is bust
         if self.dealer_hand.blackjack_total() > 21:
             output_string += "Dealer busts.\n"
@@ -1144,19 +1282,27 @@ class Blackjack(Function):
         line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
             return event.create_response(
-                self.new_game(event.user, event.user if event.channel is None else event.channel)
+                self.new_game(
+                    event.user, event.user if event.channel is None else event.channel
+                )
             )
         elif any(cmd in line_clean for cmd in self.END_CMDS):
             return event.create_response(
-                self.quit_game(event.user, event.user if event.channel is None else event.channel)
+                self.quit_game(
+                    event.user, event.user if event.channel is None else event.channel
+                )
             )
         elif any(cmd in line_clean for cmd in self.HIT_CMDS):
             return event.create_response(
-                self.hit(event.user, event.user if event.channel is None else event.channel)
+                self.hit(
+                    event.user, event.user if event.channel is None else event.channel
+                )
             )
         elif any(cmd in line_clean for cmd in self.STICK_CMDS):
             return event.create_response(
-                self.stick(event.user, event.user if event.channel is None else event.channel)
+                self.stick(
+                    event.user, event.user if event.channel is None else event.channel
+                )
             )
         output_string = "I don't understand this input."
         output_string += ' Syntax: "blackjack start" to start a game, '
@@ -1170,7 +1316,9 @@ class Blackjack(Function):
             return
         clean_line = event.text.strip().lower()
         if any(cmd in clean_line for cmd in self.END_CMDS):
-            return event.create_response(self.quit_game(event.user, event.channel, True))
+            return event.create_response(
+                self.quit_game(event.user, event.channel, True)
+            )
         elif any(cmd in clean_line for cmd in self.HIT_CMDS):
             return event.create_response(self.hit(event.user, event.channel, True))
         elif any(cmd in clean_line for cmd in self.STICK_CMDS):
@@ -1236,6 +1384,7 @@ class DDRGame(Game):
     """
     Game of DDR.
     """
+
     DIFFICULTY_EASY = "easy"
     DIFFICULTY_MEDIUM = "medium"
     DIFFICULTY_HARD = "hard"
@@ -1256,11 +1405,13 @@ class DDRGame(Game):
         """
         super().__init__([user_obj], destination_obj)
         self.players_moved = set()
-        self.player_dict = {user_obj: {'hits': 0, 'lag': 0}}
+        self.player_dict = {user_obj: {"hits": 0, "lag": 0}}
         self.difficulty = game_difficulty
         function_dispatcher = user_obj.server.hallo.function_dispatcher
         high_scores_class = function_dispatcher.get_function_by_name("highscores")
-        self.high_scores_obj = function_dispatcher.get_function_object(high_scores_class)  # type: HighScores
+        self.high_scores_obj = function_dispatcher.get_function_object(
+            high_scores_class
+        )  # type: HighScores
         self.last_move = None
         self.can_join = True
         self.game_over = False
@@ -1287,19 +1438,26 @@ class DDRGame(Game):
             self.num_turns = 10
             time_min = 5
             time_max = 8
-        directions = [self.DIRECTION_LEFT, self.DIRECTION_RIGHT, self.DIRECTION_UP, self.DIRECTION_DOWN]
+        directions = [
+            self.DIRECTION_LEFT,
+            self.DIRECTION_RIGHT,
+            self.DIRECTION_UP,
+            self.DIRECTION_DOWN,
+        ]
         # Send first message and wait for new players to join
         output_string = "Starting new game of DDR in 5 seconds, say 'join' to join."
-        server_obj.send(EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False))
+        server_obj.send(
+            EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False)
+        )
         time.sleep(5)
         # Output how many players joined and begin
         self.can_join = False
-        output_string = \
-            "{} players joined: {}. Starting game.".format(
-                len(self.players),
-                ", ".join([p.name for p in self.players])
-            )
-        server_obj.send(EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False))
+        output_string = "{} players joined: {}. Starting game.".format(
+            len(self.players), ", ".join([p.name for p in self.players])
+        )
+        server_obj.send(
+            EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False)
+        )
         # Do the various turns of the game
         for _ in range(self.num_turns):
             if self.is_game_over():
@@ -1308,32 +1466,45 @@ class DDRGame(Game):
             self.last_move = direction
             self.players_moved = set()
             self.update_time()
-            server_obj.send(EventMessage(server_obj, chan_obj, user_obj, direction, inbound=False))
+            server_obj.send(
+                EventMessage(server_obj, chan_obj, user_obj, direction, inbound=False)
+            )
             time.sleep(random.uniform(time_min, time_max))
         # end game
         # Set game over
         self.game_over = True
         output_string = "Game has finished!"
-        server_obj.send(EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False))
+        server_obj.send(
+            EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False)
+        )
         # See who wins
         winner_player = self.find_winner()
         output_string = "Winner is: " + winner_player.name
-        server_obj.send(EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False))
+        server_obj.send(
+            EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False)
+        )
         # Output player ratings
         for player in self.players:
             output_string = self.player_rating(player)
-            server_obj.send(EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False))
+            server_obj.send(
+                EventMessage(
+                    server_obj, chan_obj, user_obj, output_string, inbound=False
+                )
+            )
         # Check if they have a highscore
         if self.check_high_score(winner_player):
             self.update_high_score(winner_player)
             highscore_evt = EventMessage(
-                server_obj, chan_obj, user_obj,
+                server_obj,
+                chan_obj,
+                user_obj,
                 "{} has set a new DDR highscore with {} hits and {} lag!".format(
                     winner_player.name,
-                    self.player_dict[winner_player]['hits'],
-                    self.player_dict[winner_player]['lag']
+                    self.player_dict[winner_player]["hits"],
+                    self.player_dict[winner_player]["lag"],
                 ),
-                inbound=False)
+                inbound=False,
+            )
             server_obj.send(highscore_evt)
             # Game ended
 
@@ -1343,21 +1514,21 @@ class DDRGame(Game):
         winner_hits = 0
         winner_lag = 0
         for player in self.player_dict:
-            if self.player_dict[player]['hits'] > winner_hits:
+            if self.player_dict[player]["hits"] > winner_hits:
                 winner = player
-                winner_hits = self.player_dict[player]['hits']
-                winner_lag = self.player_dict[player]['lag']
-            elif self.player_dict[player]['hits'] == winner_hits:
-                if self.player_dict[player]['lag'] < winner_lag:
+                winner_hits = self.player_dict[player]["hits"]
+                winner_lag = self.player_dict[player]["lag"]
+            elif self.player_dict[player]["hits"] == winner_hits:
+                if self.player_dict[player]["lag"] < winner_lag:
                     winner = player
-                    winner_hits = self.player_dict[player]['hits']
-                    winner_lag = self.player_dict[player]['lag']
+                    winner_hits = self.player_dict[player]["hits"]
+                    winner_lag = self.player_dict[player]["lag"]
         return winner
 
     def player_rating(self, player_obj):
         """Determines rating for a specified player"""
-        hits = self.player_dict[player_obj]['hits']
-        lag = self.player_dict[player_obj]['lag']
+        hits = self.player_dict[player_obj]["hits"]
+        lag = self.player_dict[player_obj]["lag"]
         if hits == self.num_turns:
             if lag < 5:
                 return "Marvelous!! ({} hits, {}s lag.)".format(hits, lag)
@@ -1377,10 +1548,10 @@ class DDRGame(Game):
         high_score = self.high_scores_obj.get_high_score(self.HIGH_SCORE_NAME)
         if high_score is None:
             return True
-        last_hits = int(high_score['data']['hits'])
-        last_lag = float(high_score['data']['lag'])
-        winner_hits = self.player_dict[winner_player]['hits']
-        winner_lag = self.player_dict[winner_player]['lag']
+        last_hits = int(high_score["data"]["hits"])
+        last_lag = float(high_score["data"]["lag"])
+        winner_hits = self.player_dict[winner_player]["hits"]
+        winner_lag = self.player_dict[winner_player]["lag"]
         if winner_hits > last_hits:
             return True
         if winner_hits == last_hits and winner_lag < last_lag:
@@ -1391,11 +1562,13 @@ class DDRGame(Game):
         """Updates the high score with current game. Checks that it is high score first."""
         if not self.check_high_score(winner_player):
             return False
-        winner_hits = self.player_dict[winner_player]['hits']
-        winner_lag = self.player_dict[winner_player]['lag']
+        winner_hits = self.player_dict[winner_player]["hits"]
+        winner_lag = self.player_dict[winner_player]["lag"]
         winner_score = "{0} hits, {1:.3f}s lag".format(winner_hits, winner_lag)
-        game_data = {'hits': winner_hits, 'lag': winner_lag}
-        self.high_scores_obj.add_high_score(self.HIGH_SCORE_NAME, winner_score, winner_player.name, game_data)
+        game_data = {"hits": winner_hits, "lag": winner_lag}
+        self.high_scores_obj.add_high_score(
+            self.HIGH_SCORE_NAME, winner_score, winner_player.name, game_data
+        )
         return True
 
     def can_join(self):
@@ -1409,7 +1582,7 @@ class DDRGame(Game):
     def join_game(self, user_obj):
         if self.can_join:
             self.players.add(user_obj)
-            self.player_dict[user_obj] = {'hits': 0, 'lag': 0}
+            self.player_dict[user_obj] = {"hits": 0, "lag": 0}
             return "{} has joined.".format(user_obj.name)
         else:
             return "This game cannot be joined now."
@@ -1422,8 +1595,8 @@ class DDRGame(Game):
         self.players_moved.add(user_obj)
         if direction == self.last_move:
             lag = time.time() - self.last_time
-            self.player_dict[user_obj]['hits'] += 1
-            self.player_dict[user_obj]['lag'] += lag
+            self.player_dict[user_obj]["hits"] += 1
+            self.player_dict[user_obj]["lag"] += lag
         return
 
     def quit_game(self, user_obj):
@@ -1459,9 +1632,10 @@ class DDR(Function):
         # Names which can be used to address the function
         self.names = {"ddr", "dance dance revolution", "dansu dansu", "dancing stage"}
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = \
-            "Plays dance dance revolution. Hallo says directions and users must respond to them " \
+        self.help_docs = (
+            "Plays dance dance revolution. Hallo says directions and users must respond to them "
             "correctly and in the fastest time they can"
+        )
         self.game_list = []
 
     @staticmethod
@@ -1488,19 +1662,35 @@ class DDR(Function):
         line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
             return event.create_response(
-                self.new_game(line_clean, event.user, event.user if event.channel is None else event.channel)
+                self.new_game(
+                    line_clean,
+                    event.user,
+                    event.user if event.channel is None else event.channel,
+                )
             )
         elif any(cmd in line_clean for cmd in self.JOIN_CMDS):
             return event.create_response(
-                self.join_game(line_clean, event.user, event.user if event.channel is None else event.channel)
+                self.join_game(
+                    line_clean,
+                    event.user,
+                    event.user if event.channel is None else event.channel,
+                )
             )
         elif any(cmd in line_clean for cmd in self.END_CMDS):
             return event.create_response(
-                self.quit_game(line_clean, event.user, event.user if event.channel is None else event.channel)
+                self.quit_game(
+                    line_clean,
+                    event.user,
+                    event.user if event.channel is None else event.channel,
+                )
             )
         elif any(cmd in line_clean for cmd in self.MOVE_CMDS):
             return event.create_response(
-                self.make_move(line_clean, event.user, event.user if event.channel is None else event.channel)
+                self.make_move(
+                    line_clean,
+                    event.user,
+                    event.user if event.channel is None else event.channel,
+                )
             )
         output_string = "Invalid difficulty mode. Please specify easy, medium or hard."
         return event.create_response(output_string)

@@ -7,9 +7,23 @@ import pytest
 
 import modules
 from events import EventMessage
-from modules.subscriptions import SubscriptionFactory, E621Sub, RssSub, FANotificationNotesSub, FASearchSub, FAKey, \
-    SubscriptionRepo, FAKeysCommon, FAUserFavsSub, FAUserWatchersSub, FANotificationWatchSub, FANotificationFavSub, \
-    FANotificationCommentsSub, RedditSub, E621TaggingSub
+from modules.subscriptions import (
+    SubscriptionFactory,
+    E621Sub,
+    RssSub,
+    FANotificationNotesSub,
+    FASearchSub,
+    FAKey,
+    SubscriptionRepo,
+    FAKeysCommon,
+    FAUserFavsSub,
+    FAUserWatchersSub,
+    FANotificationWatchSub,
+    FANotificationFavSub,
+    FANotificationCommentsSub,
+    RedditSub,
+    E621TaggingSub
+)
 
 from test.test_base import TestBase
 
@@ -24,7 +38,11 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_objs = list()
         sub_objs.append(E621Sub(self.server, self.test_chan, "cabinet"))
         sub_objs.append(E621TaggingSub(self.server, self.test_chan, "cabinet", ["door"]))
-        sub_objs.append(RssSub(self.server, self.test_chan, "http://spangle.org.uk/hallo/test_rss.xml"))
+        sub_objs.append(
+            RssSub(
+                self.server, self.test_chan, "http://spangle.org.uk/hallo/test_rss.xml"
+            )
+        )
         sub_objs.append(FANotificationNotesSub(self.server, self.test_chan, fa_key))
         sub_objs.append(FASearchSub(self.server, self.test_chan, fa_key, "ych"))
         sub_objs.append(FAUserFavsSub(self.server, self.test_chan, fa_key, "zephyr42"))
@@ -32,7 +50,8 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_objs.append(FANotificationWatchSub(self.server, self.test_chan, fa_key))
         sub_objs.append(FANotificationFavSub(self.server, self.test_chan, fa_key))
         sub_objs.append(FANotificationCommentsSub(self.server, self.test_chan, fa_key))
-        sub_objs.append(RedditSub(self.server, self.test_chan, "deer"))
+
+    sub_objs.append(RedditSub(self.server, self.test_chan, "deer"))
         return sub_objs
 
     def get_sub_create_events(self):
@@ -45,8 +64,12 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_evts[E621Sub].command_args = "cabinet"
         sub_evts[E621TaggingSub] = EventMessage(self.server, self.test_chan, self.test_user, "cabinet tags=door")
         sub_evts[E621TaggingSub].command_args = "cabinet tags=door"
-        sub_evts[RssSub] = EventMessage(self.server, self.test_chan, self.test_user,
-                                        "http://spangle.org.uk/hallo/test_rss.xml")
+        sub_evts[RssSub] = EventMessage(
+            self.server,
+            self.test_chan,
+            self.test_user,
+            "http://spangle.org.uk/hallo/test_rss.xml",
+        )
         sub_evts[RssSub].command_args = "http://spangle.org.uk/hallo/test_rss.xml"
         sub_evts[FANotificationNotesSub] = EventMessage(self.server, self.test_chan, self.test_user, "")
         sub_evts[FANotificationNotesSub].command_args = ""
@@ -62,7 +85,9 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_evts[FANotificationFavSub].command_args = ""
         sub_evts[FANotificationCommentsSub] = EventMessage(self.server, self.test_chan, self.test_user, "")
         sub_evts[FANotificationCommentsSub].command_args = ""
-        sub_evts[RedditSub] = EventMessage(self.server, self.test_chan, self.test_user, "r/deer")
+        sub_evts[RedditSub] = EventMessage(
+            self.server, self.test_chan, self.test_user, "r/deer"
+        )
         sub_evts[RedditSub].command_args = "r/deer"
         return sub_evts
 
@@ -72,7 +97,9 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         """
         for sub_class in SubscriptionFactory.sub_classes:
             with self.subTest(sub_class.__name__):
-                assert sub_class in [sub_obj.__class__ for sub_obj in self.get_sub_objects()]
+                assert sub_class in [
+                    sub_obj.__class__ for sub_obj in self.get_sub_objects()
+                ]
 
     def test_all_sub_classes_in_sub_create_events(self):
         """
@@ -179,13 +206,15 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
             sub_repo = SubscriptionRepo()
             # noinspection PyBroadException
             try:
-                function_class.create_from_input(EventMessage(
-                    self.server, self.test_chan, self.test_user, "hello"),
-                    sub_repo
+                function_class.create_from_input(
+                    EventMessage(self.server, self.test_chan, self.test_user, "hello"),
+                    sub_repo,
                 )
             except NotImplementedError:
                 continue
             except Exception:
                 pass
             # Check it's in SubscriptionFactory
-            assert function_class.__name__ in [sub_class.__name__ for sub_class in SubscriptionFactory.sub_classes]
+            assert function_class.__name__ in [
+                sub_class.__name__ for sub_class in SubscriptionFactory.sub_classes
+            ]

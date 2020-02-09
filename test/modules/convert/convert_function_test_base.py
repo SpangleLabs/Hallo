@@ -1,12 +1,17 @@
 import os
 import unittest
 
-from modules.convert import ConvertRepo, ConvertType, ConvertUnit, ConvertPrefixGroup, ConvertPrefix
+from modules.convert import (
+    ConvertRepo,
+    ConvertType,
+    ConvertUnit,
+    ConvertPrefixGroup,
+    ConvertPrefix,
+)
 from test.test_base import TestBase
 
 
 class ConvertFunctionTestBase(TestBase, unittest.TestCase):
-
     def setUp(self):
         super().setUp()
         # Create test repo
@@ -49,7 +54,9 @@ class ConvertFunctionTestBase(TestBase, unittest.TestCase):
             pass
         # Put this test repo into the Convert object
         convert_function = self.function_dispatcher.get_function_by_name("convert")
-        convert_function_obj = self.function_dispatcher.get_function_object(convert_function)  # type: Convert
+        convert_function_obj = self.function_dispatcher.get_function_object(
+            convert_function
+        )  # type: Convert
         convert_function_obj.convert_repo = self.test_repo
 
     def tearDown(self):

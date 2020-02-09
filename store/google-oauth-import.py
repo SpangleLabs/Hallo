@@ -3,7 +3,7 @@
 from oauth2client import file, client, tools
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
+SCOPES = "https://www.googleapis.com/auth/spreadsheets"
 
 # The ID and range of a sample spreadsheet.
 # SAMPLE_SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
@@ -14,10 +14,10 @@ def main():
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
     """
-    store = file.Storage('google-oauth-token.json')
+    store = file.Storage("google-oauth-token.json")
     creds = store.get()
     if not creds or creds.invalid:
-        flow = client.flow_from_clientsecrets('google-oauth-credentials.json', SCOPES)
+        flow = client.flow_from_clientsecrets("google-oauth-credentials.json", SCOPES)
         creds = tools.run_flow(flow, store)
         print("Token updated.")
     else:
@@ -42,5 +42,5 @@ def main():
     #         # print('%s, %s' % (row[0], row[4]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -4,7 +4,6 @@ from modules.convert import ConvertPrefix, ConvertPrefixGroup, ConvertRepo
 
 
 class ConvertPrefixGroupTest(unittest.TestCase):
-
     def test_init(self):
         test_repo = ConvertRepo()
         prefix_group = ConvertPrefixGroup(test_repo, "test_group")
@@ -30,12 +29,16 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         prefix_name1 = "test_name1"
         prefix_abbr1 = "test_abbr1"
         prefix_mult1 = 1001
-        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        test_prefix1 = ConvertPrefix(
+            prefix_group, prefix_name1, prefix_abbr1, prefix_mult1
+        )
         prefix_group.add_prefix(test_prefix1)
         prefix_name2 = "test_name2"
         prefix_abbr2 = "test_abbr2"
         prefix_mult2 = 1002
-        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        test_prefix2 = ConvertPrefix(
+            prefix_group, prefix_name2, prefix_abbr2, prefix_mult2
+        )
         prefix_group.add_prefix(test_prefix2)
         # Collapse to XML and rebuild
         test_json = prefix_group.to_json()
@@ -62,11 +65,15 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         prefix_name1 = "test_name1"
         prefix_abbr1 = "test_abbr1"
         prefix_mult1 = 1001
-        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        test_prefix1 = ConvertPrefix(
+            prefix_group, prefix_name1, prefix_abbr1, prefix_mult1
+        )
         prefix_name2 = "test_name2"
         prefix_abbr2 = "test_abbr2"
         prefix_mult2 = 1002
-        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        test_prefix2 = ConvertPrefix(
+            prefix_group, prefix_name2, prefix_abbr2, prefix_mult2
+        )
         # Add some prefixes and test
         assert len(prefix_group.prefix_list) == 0
         prefix_group.add_prefix(test_prefix1)
@@ -83,11 +90,15 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         prefix_name1 = "test_name1"
         prefix_abbr1 = "test_abbr1"
         prefix_mult1 = 1001
-        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        test_prefix1 = ConvertPrefix(
+            prefix_group, prefix_name1, prefix_abbr1, prefix_mult1
+        )
         prefix_name2 = "test_name2"
         prefix_abbr2 = "test_abbr2"
         prefix_mult2 = 1002
-        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        test_prefix2 = ConvertPrefix(
+            prefix_group, prefix_name2, prefix_abbr2, prefix_mult2
+        )
         prefix_group.add_prefix(test_prefix1)
         prefix_group.add_prefix(test_prefix2)
         assert test_prefix1 in prefix_group.prefix_list
@@ -107,11 +118,15 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         prefix_name1 = "test_name1"
         prefix_abbr1 = "test_abbr1"
         prefix_mult1 = 1001
-        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        test_prefix1 = ConvertPrefix(
+            prefix_group, prefix_name1, prefix_abbr1, prefix_mult1
+        )
         prefix_name2 = "test_name2"
         prefix_abbr2 = "test_abbr2"
         prefix_mult2 = 1002
-        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        test_prefix2 = ConvertPrefix(
+            prefix_group, prefix_name2, prefix_abbr2, prefix_mult2
+        )
         prefix_group.add_prefix(test_prefix1)
         prefix_group.add_prefix(test_prefix2)
         # Test things
@@ -119,8 +134,12 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         assert prefix_group.get_prefix_by_name(prefix_name2) == test_prefix2
         assert prefix_group.get_prefix_by_name(prefix_name1.upper()) == test_prefix1
         assert prefix_group.get_prefix_by_name(prefix_name2.upper()) == test_prefix2
-        assert prefix_group.get_prefix_by_name(prefix_name1.capitalize()) == test_prefix1
-        assert prefix_group.get_prefix_by_name(prefix_name2.capitalize()) == test_prefix2
+        assert (
+            prefix_group.get_prefix_by_name(prefix_name1.capitalize()) == test_prefix1
+        )
+        assert (
+            prefix_group.get_prefix_by_name(prefix_name2.capitalize()) == test_prefix2
+        )
 
     def test_get_prefix_by_abbr(self):
         # Set up stuff
@@ -129,11 +148,15 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         prefix_name1 = "test_name1"
         prefix_abbr1 = "test_abbr1"
         prefix_mult1 = 1001
-        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        test_prefix1 = ConvertPrefix(
+            prefix_group, prefix_name1, prefix_abbr1, prefix_mult1
+        )
         prefix_name2 = "test_name2"
         prefix_abbr2 = "test_abbr2"
         prefix_mult2 = 1002
-        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        test_prefix2 = ConvertPrefix(
+            prefix_group, prefix_name2, prefix_abbr2, prefix_mult2
+        )
         prefix_group.add_prefix(test_prefix1)
         prefix_group.add_prefix(test_prefix2)
         # Test things
@@ -141,8 +164,12 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         assert prefix_group.get_prefix_by_abbr(prefix_abbr2) == test_prefix2
         assert prefix_group.get_prefix_by_abbr(prefix_abbr1.upper()) == test_prefix1
         assert prefix_group.get_prefix_by_abbr(prefix_abbr2.upper()) == test_prefix2
-        assert prefix_group.get_prefix_by_abbr(prefix_abbr1.capitalize()) == test_prefix1
-        assert prefix_group.get_prefix_by_abbr(prefix_abbr2.capitalize()) == test_prefix2
+        assert (
+            prefix_group.get_prefix_by_abbr(prefix_abbr1.capitalize()) == test_prefix1
+        )
+        assert (
+            prefix_group.get_prefix_by_abbr(prefix_abbr2.capitalize()) == test_prefix2
+        )
 
     def test_get_appropriate_prefix(self):
         # Set up stuff
@@ -151,15 +178,21 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         prefix_name1 = "test_name1"
         prefix_abbr1 = "test_abbr1"
         prefix_mult1 = 1000
-        test_prefix1 = ConvertPrefix(prefix_group, prefix_name1, prefix_abbr1, prefix_mult1)
+        test_prefix1 = ConvertPrefix(
+            prefix_group, prefix_name1, prefix_abbr1, prefix_mult1
+        )
         prefix_name2 = "test_name2"
         prefix_abbr2 = "test_abbr2"
         prefix_mult2 = 10
-        test_prefix2 = ConvertPrefix(prefix_group, prefix_name2, prefix_abbr2, prefix_mult2)
+        test_prefix2 = ConvertPrefix(
+            prefix_group, prefix_name2, prefix_abbr2, prefix_mult2
+        )
         prefix_name3 = "test_name3"
         prefix_abbr3 = "test_abbr3"
         prefix_mult3 = 0.01
-        test_prefix3 = ConvertPrefix(prefix_group, prefix_name3, prefix_abbr3, prefix_mult3)
+        test_prefix3 = ConvertPrefix(
+            prefix_group, prefix_name3, prefix_abbr3, prefix_mult3
+        )
         prefix_group.add_prefix(test_prefix1)
         prefix_group.add_prefix(test_prefix2)
         prefix_group.add_prefix(test_prefix3)
