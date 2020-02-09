@@ -14,7 +14,12 @@ def test_init(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     rf = E621Sub(test_server, test_channel, "cabinet")
     keys = [
-        "search", "server", "destination", "latest_ids", "last_check", "update_frequency"
+        "search",
+        "server",
+        "destination",
+        "latest_ids",
+        "last_check",
+        "update_frequency",
     ]
     for key in keys:
         assert key in rf.__dict__, "Key is missing from E621Sub object: " + key
@@ -30,14 +35,17 @@ def test_check_search(hallo_getter):
     assert len(new_items) == 50
     for new_item in new_items:
         format_item = rf.format_item(new_item).text
-        assert \
-            "(Explicit)" in format_item \
-            or "(Questionable)" in format_item \
-            or "(Safe)" in format_item, "Rating not in formatted item: " + format_item
+        assert (
+            "(Explicit)" in format_item
+            or "(Questionable)" in format_item
+            or "(Safe)" in format_item
+        ), ("Rating not in formatted item: " + format_item)
         assert "e621.net/post/show/", "E621 link not in formatted item: " + format_item
     # Check that calling twice returns no more items
     next_items = rf.check()
-    assert len(next_items) == 0, "More items should not have been found. Found " + str(len(next_items))
+    assert len(next_items) == 0, "More items should not have been found. Found " + str(
+        len(next_items)
+    )
 
 
 def test_format_item(hallo_getter):
@@ -59,8 +67,11 @@ def test_format_item(hallo_getter):
 def test_needs_check(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     rf1 = E621Sub(
-        test_server, test_channel, "cabinet",
-        last_check=datetime.now(), update_frequency=Commons.load_time_delta("P1TS")
+        test_server,
+        test_channel,
+        "cabinet",
+        last_check=datetime.now(),
+        update_frequency=Commons.load_time_delta("P1TS"),
     )
     assert not rf1.needs_check()
     rf1.last_check = datetime.now() - Commons.load_time_delta("P2TS")
@@ -68,8 +79,11 @@ def test_needs_check(hallo_getter):
     rf1.update_frequency = Commons.load_time_delta("P7TS")
     assert not rf1.needs_check()
     rf2 = E621Sub(
-        test_server, test_channel, "cabinet",
-        last_check=datetime.now(), update_frequency=Commons.load_time_delta("PT5S")
+        test_server,
+        test_channel,
+        "cabinet",
+        last_check=datetime.now(),
+        update_frequency=Commons.load_time_delta("PT5S"),
     )
     assert not rf2.needs_check()
     time.sleep(10)
@@ -82,7 +96,12 @@ def test_output_item(hallo_getter):
     item_id = "652362"
     item_rate = "q"
     item_rating = "(Questionable)"
-    item_elem = {"id": item_id, "rating": item_rate, "file_url": "12345", "file_ext": "png"}
+    item_elem = {
+        "id": item_id,
+        "rating": item_rate,
+        "file_url": "12345",
+        "file_ext": "png",
+    }
     # Check output works with given server and channel
     rf1 = E621Sub(test_server, test_channel, "cabinet")
     rf1.update_frequency = Commons.load_time_delta("P1TS")
@@ -95,7 +114,9 @@ def test_output_item(hallo_getter):
     serv2.name = "test_serv2"
     hallo.add_server(serv2)
     chan2 = serv2.get_channel_by_address("test_chan2".lower(), "test_chan2")
-    rf2 = E621Sub(serv2, chan2, "clefable", update_frequency=Commons.load_time_delta("P1TS"))
+    rf2 = E621Sub(
+        serv2, chan2, "clefable", update_frequency=Commons.load_time_delta("P1TS")
+    )
     rf2.send_item(item_elem)
     data = serv2.get_send_data(1, chan2, EventMessage)
     assert item_id in data[0].text
@@ -116,7 +137,9 @@ def test_output_item(hallo_getter):
     serv4.name = "test_serv4"
     hallo4.add_server(serv4)
     chan4 = serv4.get_channel_by_address("test_chan4".lower(), "test_chan4")
-    rf4 = E621Sub(serv4, chan4, "cabinet", update_frequency=Commons.load_time_delta("P1TS"))
+    rf4 = E621Sub(
+        serv4, chan4, "cabinet", update_frequency=Commons.load_time_delta("P1TS")
+    )
     rf4.send_item(item_elem)
     data = serv4.get_send_data(1, chan4, EventMessage)
     assert item_id in data[0].text
@@ -127,7 +150,9 @@ def test_output_item(hallo_getter):
     serv5.name = "test_serv5"
     hallo5.add_server(serv5)
     chan5 = serv5.get_channel_by_address("test_chan5".lower(), "test_chan5")
-    rf5 = E621Sub(serv5, chan5, "clefable", update_frequency=Commons.load_time_delta("P1TS"))
+    rf5 = E621Sub(
+        serv5, chan5, "clefable", update_frequency=Commons.load_time_delta("P1TS")
+    )
     rf5.send_item(item_elem)
     data = serv5.get_send_data(1, chan5, EventMessage)
     assert item_id in data[0].text
@@ -151,7 +176,9 @@ def test_output_item(hallo_getter):
     serv7.name = "test_serv7"
     hallo7.add_server(serv7)
     user7 = serv7.get_user_by_address("test_user7".lower(), "test_user7")
-    rf7 = E621Sub(serv7, user7, "clefable", update_frequency=Commons.load_time_delta("P1TS"))
+    rf7 = E621Sub(
+        serv7, user7, "clefable", update_frequency=Commons.load_time_delta("P1TS")
+    )
     rf7.send_item(item_elem)
     data = serv7.get_send_data(1, user7, EventMessage)
     assert item_id in data[0].text
@@ -167,8 +194,12 @@ def test_json(hallo_getter):
     # Create example feed
     sub_repo = SubscriptionRepo()
     rf = E621Sub(
-        test_server, test_channel, test_e621_search,
-        update_frequency=Commons.load_time_delta("P" + str(test_days) + "T" + str(test_seconds) + "S")
+        test_server,
+        test_channel,
+        test_e621_search,
+        update_frequency=Commons.load_time_delta(
+            "P" + str(test_days) + "T" + str(test_seconds) + "S"
+        ),
     )
     # Clear off the current items
     rf.check()

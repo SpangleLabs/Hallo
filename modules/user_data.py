@@ -82,7 +82,14 @@ class UserDatum(metaclass=ABCMeta):
 
 class FAKeyData(UserDatum):
     type_name = "fa_key"
-    names = ["furaffinity key", "fa key", "fa cookies", "furaffinity cookies", "fa", "furaffinity"]
+    names = [
+        "furaffinity key",
+        "fa key",
+        "fa cookies",
+        "furaffinity cookies",
+        "fa",
+        "furaffinity",
+    ]
 
     def __init__(self, cookie_a, cookie_b):
         self.cookie_a = cookie_a
@@ -92,7 +99,9 @@ class FAKeyData(UserDatum):
     def create_from_input(event):
         input_clean = event.command_args.strip().lower().replace(";", " ").split()
         if len(input_clean) != 2:
-            raise UserDataException("Input must include cookie a and cookie b, in the format a=value;b=value")
+            raise UserDataException(
+                "Input must include cookie a and cookie b, in the format a=value;b=value"
+            )
         if input_clean[0].startswith("b="):
             input_clean = list(reversed(input_clean))
         cookie_a = input_clean[0][2:]

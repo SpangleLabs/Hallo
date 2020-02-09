@@ -11,7 +11,6 @@ from test.modules.dailys.DailysSpreadsheetMock import DailysSpreadsheetMock
 
 
 class DailysFAFieldTest(TestBase, unittest.TestCase):
-
     def test_day_rollover_no_data(self):
         # Setup
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
@@ -22,7 +21,9 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
             field.passive_trigger(EventDay())
             assert False, "Should have failed to check FA data."
         except DailysException as e:
-            assert "no fa data" in str(e).lower(), "Exception should say there's no FA data."
+            assert (
+                "no fa data" in str(e).lower()
+            ), "Exception should say there's no FA data."
 
     def test_day_rollover(self):
         # Setup
@@ -37,7 +38,9 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
         evt = EventDay()
         field.passive_trigger(evt)
         assert evt.get_send_time().date() not in spreadsheet.saved_data
-        notif_dict = spreadsheet.saved_data["furaffinity"][evt.get_send_time().date()-timedelta(1)]
+        notif_dict = spreadsheet.saved_data["furaffinity"][
+            evt.get_send_time().date() - timedelta(1)
+        ]
         assert "submissions" in notif_dict
         assert "comments" in notif_dict
         assert "journals" in notif_dict
@@ -54,21 +57,35 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
         # Setup
         cmd_name = "setup dailys field"
         cmd_args = "furaffinity"
-        evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(cmd_name, cmd_args))
+        evt = EventMessage(
+            self.server,
+            self.test_chan,
+            self.test_user,
+            "{} {}".format(cmd_name, cmd_args),
+        )
         evt.split_command_text(cmd_name, cmd_args)
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
         # Create from input
         try:
             DailysFAField.create_from_input(evt, spreadsheet)
-            assert False, "Should have failed to create DailysFAField due to missing FA login info."
+            assert (
+                False
+            ), "Should have failed to create DailysFAField due to missing FA login info."
         except DailysException as e:
-            assert "no fa data" in str(e).lower(), "Exception did not mention that there was no FA data set up."
+            assert (
+                "no fa data" in str(e).lower()
+            ), "Exception did not mention that there was no FA data set up."
 
     def test_create_from_input(self):
         # Setup
         cmd_name = "setup dailys field"
         cmd_args = "furaffinity"
-        evt = EventMessage(self.server, self.test_chan, self.test_user, "{} {}".format(cmd_name, cmd_args))
+        evt = EventMessage(
+            self.server,
+            self.test_chan,
+            self.test_user,
+            "{} {}".format(cmd_name, cmd_args),
+        )
         evt.split_command_text(cmd_name, cmd_args)
         spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
         # Setup an FA key, doesn't matter if it works

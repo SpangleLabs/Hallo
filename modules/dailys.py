@@ -476,15 +476,19 @@ class DailysFAField(DailysField):
         :rtype: None
         """
         user_parser = UserDataParser()
-        fa_data = user_parser.get_data_by_user_and_type(self.spreadsheet.user, FAKeyData)
+        fa_data = user_parser.get_data_by_user_and_type(
+            self.spreadsheet.user, FAKeyData
+        )
         if fa_data is None:
-            raise DailysException("No FA data has been set up for the FA field module to use.")
-        cookie = "b="+fa_data.cookie_b+"; a="+fa_data.cookie_a
+            raise DailysException(
+                "No FA data has been set up for the FA field module to use."
+            )
+        cookie = "b=" + fa_data.cookie_b + "; a=" + fa_data.cookie_a
         fa_api_url = os.getenv("FA_API_URL", "https://faexport.spangle.org.uk")
         try:
             notifications_data = Commons.load_url_json(
                 "{}/notifications/others.json".format(fa_api_url),
-                [["FA_COOKIE", cookie]]
+                [["FA_COOKIE", cookie]],
             )
         except Exception:
             raise DailysException("FA key in storage is not currently logged in to FA.")
@@ -500,7 +504,7 @@ class DailysFAField(DailysField):
             "journals": total_journals,
             "favourites": total_favs,
             "watches": total_watches,
-            "notes": total_notes
+            "notes": total_notes,
         }
         d = (evt.get_send_time() - timedelta(1)).date()
         self.save_data(notifications, d)
@@ -514,7 +518,9 @@ class DailysFAField(DailysField):
         user_parser = UserDataParser()
         fa_data = user_parser.get_data_by_user_and_type(spreadsheet.user, FAKeyData)
         if not isinstance(fa_data, FAKeyData):
-            raise DailysException("No FA data has been set up for the FA dailys field to use.")
+            raise DailysException(
+                "No FA data has been set up for the FA dailys field to use."
+            )
         return DailysFAField(spreadsheet)
 
     def to_json(self):
