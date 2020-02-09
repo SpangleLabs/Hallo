@@ -1,10 +1,10 @@
 import os
 import unittest
 
+import isodate
 import pytest
 
 from events import EventMessage
-from inc.commons import Commons
 from modules.subscriptions import SubscriptionCheck, E621Sub
 from test.test_base import TestBase
 
@@ -44,21 +44,21 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.server,
             self.test_chan,
             "cabinet",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf1)
         rf2 = E621Sub(
             self.server,
             another_chan,
             "clefable",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf2)
         rf3 = E621Sub(
             self.server,
             self.test_chan,
             "fez",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf3)
         # Remove test search
@@ -92,21 +92,21 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.server,
             self.test_chan,
             "cabinet",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf1)
         rf2 = E621Sub(
             self.server,
             another_chan,
             "clefable",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf2)
         rf3 = E621Sub(
             self.server,
             self.test_chan,
             "cabinet",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf3)
         # Remove test feed
@@ -150,21 +150,21 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
             self.server,
             self.test_chan,
             "cabinet",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf1)
         rf2 = E621Sub(
             self.server,
             another_chan,
             "clefable",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf2)
         rf3 = E621Sub(
             self.server,
             self.test_chan,
             "fez",
-            update_frequency=Commons.load_time_delta("PT3600S"),
+            update_frequency=isodate.parse_duration("PT3600S"),
         )
         rfl.add_sub(rf3)
         # Try to remove invalid search

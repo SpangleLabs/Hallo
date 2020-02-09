@@ -25,9 +25,9 @@ from modules.user_data import FAKeyData, UserDataParser
 
 def is_valid_iso8601_period(try_period):
     try:
-        Commons.load_time_delta(try_period)
+        isodate.parse_duration(try_period)
         return True
-    except ISO8601ParseError:
+    except isodate.isoerror.ISO8601Error:
         return False
 
 
@@ -601,11 +601,11 @@ class E621Sub(Subscription):
         # See if last argument is check period.
         try:
             try_period = input_evt.command_args.split()[-1]
-            search_delta = Commons.load_time_delta(try_period)
+            search_delta = isodate.parse_duration(try_period)
             search = input_evt.command_args[: -len(try_period)].strip()
         except ISO8601ParseError:
             search = input_evt.command_args.strip()
-            search_delta = Commons.load_time_delta("PT300S")
+            search_delta = isodate.parse_duration("PT300S")
         # Create e6 subscription object
         e6_sub = E621Sub(server, destination, search, update_frequency=search_delta)
         # Check if it's a valid search
@@ -699,7 +699,7 @@ class E621Sub(Subscription):
                 json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f"
             )
         # Load update frequency
-        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        update_frequency = isodate.parse_duration(json_obj["update_frequency"])
         # Load last update
         last_update = None
         if "last_update" in json_obj:
@@ -772,7 +772,7 @@ class E621TaggingSub(E621Sub):
             ["period", "update_period", "update period"]
         )
         if period_arg is not None:
-            search_delta = Commons.load_time_delta(period_arg)
+            search_delta = isodate.parse_duration(period_arg)
         else:
             try_period = parsed.split_remaining_into_two(
                 lambda x, y: is_valid_iso8601_period(x)
@@ -781,7 +781,7 @@ class E621TaggingSub(E621Sub):
                 search_delta = try_period[0][0]
                 parsed = InputParser(try_period[0][1])
             else:
-                search_delta = Commons.load_time_delta("PT300S")
+                search_delta = isodate.parse_duration("PT300S")
         # See if tags are specified
         tags_arg = parsed.get_arg_by_names(
             ["tags", "watched_tags", "to_tag", "watched tags", "to tag", "watch"]
@@ -887,7 +887,7 @@ class E621TaggingSub(E621Sub):
                 json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f"
             )
         # Load update frequency
-        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        update_frequency = isodate.parse_duration(json_obj["update_frequency"])
         # Load last update
         last_update = None
         if "last_update" in json_obj:
@@ -974,9 +974,9 @@ class FANotificationNotesSub(Subscription):
         )
         # See if user gave us an update period
         try:
-            search_delta = Commons.load_time_delta(input_evt.command_args)
+            search_delta = isodate.parse_duration(input_evt.command_args)
         except ISO8601ParseError:
-            search_delta = Commons.load_time_delta("PT300S")
+            search_delta = isodate.parse_duration("PT300S")
         notes_sub = FANotificationNotesSub(
             server, destination, fa_key, update_frequency=search_delta
         )
@@ -1072,7 +1072,7 @@ class FANotificationNotesSub(Subscription):
                 json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f"
             )
         # Load update frequency
-        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        update_frequency = isodate.parse_duration(json_obj["update_frequency"])
         # Load last update
         last_update = None
         if "last_update" in json_obj:
@@ -1171,9 +1171,9 @@ class FANotificationFavSub(Subscription):
         )
         # See if user gave us an update period
         try:
-            search_delta = Commons.load_time_delta(input_evt.command_args)
+            search_delta = isodate.parse_duration(input_evt.command_args)
         except ISO8601ParseError:
-            search_delta = Commons.load_time_delta("PT300S")
+            search_delta = isodate.parse_duration("PT300S")
         fa_sub = FANotificationFavSub(
             server, destination, fa_key, update_frequency=search_delta
         )
@@ -1251,7 +1251,7 @@ class FANotificationFavSub(Subscription):
                 json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f"
             )
         # Load update frequency
-        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        update_frequency = isodate.parse_duration(json_obj["update_frequency"])
         # Load last update
         last_update = None
         if "last_update" in json_obj:
@@ -1353,9 +1353,9 @@ class FANotificationCommentsSub(Subscription):
         )
         # See if user gave us an update period
         try:
-            search_delta = Commons.load_time_delta(input_evt.command_args)
+            search_delta = isodate.parse_duration(input_evt.command_args)
         except ISO8601ParseError:
-            search_delta = Commons.load_time_delta("PT300S")
+            search_delta = isodate.parse_duration("PT300S")
         fa_sub = FANotificationCommentsSub(
             server, destination, fa_key, update_frequency=search_delta
         )
@@ -1518,7 +1518,7 @@ class FANotificationCommentsSub(Subscription):
                 json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f"
             )
         # Load update frequency
-        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        update_frequency = isodate.parse_duration(json_obj["update_frequency"])
         # Load last update
         last_update = None
         if "last_update" in json_obj:
@@ -1627,11 +1627,11 @@ class FASearchSub(Subscription):
         # See if last argument is check period.
         try:
             try_period = input_evt.command_args.split()[-1]
-            search_delta = Commons.load_time_delta(try_period)
+            search_delta = isodate.parse_duration(try_period)
             search = input_evt.command_args[: -len(try_period)].strip()
         except ISO8601ParseError:
             search = input_evt.command_args.strip()
-            search_delta = Commons.load_time_delta("PT600S")
+            search_delta = isodate.parse_duration("PT600S")
         # Create FA search subscription object
         fa_sub = FASearchSub(
             server, destination, fa_key, search, update_frequency=search_delta
@@ -1730,7 +1730,7 @@ class FASearchSub(Subscription):
                 json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f"
             )
         # Load update frequency
-        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        update_frequency = isodate.parse_duration(json_obj["update_frequency"])
         # Load last update
         last_update = None
         if "last_update" in json_obj:
@@ -1850,11 +1850,11 @@ class FAUserFavsSub(Subscription):
         # See if last argument is check period.
         try:
             try_period = input_evt.command_args.split()[-1]
-            search_delta = Commons.load_time_delta(try_period)
+            search_delta = isodate.parse_duration(try_period)
             username = input_evt.command_args[: -len(try_period)].strip()
         except ISO8601ParseError:
             username = input_evt.command_args.strip()
-            search_delta = Commons.load_time_delta("PT600S")
+            search_delta = isodate.parse_duration("PT600S")
         # Create FA user favs object
         fa_sub = FAUserFavsSub(
             server, destination, fa_key, username, update_frequency=search_delta
@@ -1956,7 +1956,7 @@ class FAUserFavsSub(Subscription):
                 json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f"
             )
         # Load update frequency
-        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        update_frequency = isodate.parse_duration(json_obj["update_frequency"])
         # Load last update
         last_update = None
         if "last_update" in json_obj:
@@ -2073,11 +2073,11 @@ class FAUserWatchersSub(Subscription):
         # See if last argument is check period.
         try:
             try_period = input_evt.command_args.split()[-1]
-            search_delta = Commons.load_time_delta(try_period)
+            search_delta = isodate.parse_duration(try_period)
             username = input_evt.command_args[: -len(try_period)].strip()
         except ISO8601ParseError:
             username = input_evt.command_args.strip()
-            search_delta = Commons.load_time_delta("PT600S")
+            search_delta = isodate.parse_duration("PT600S")
         # Create FA user favs object
         fa_sub = FAUserWatchersSub(
             server, destination, fa_key, username, update_frequency=search_delta
@@ -2169,7 +2169,7 @@ class FAUserWatchersSub(Subscription):
                 json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f"
             )
         # Load update frequency
-        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        update_frequency = isodate.parse_duration(json_obj["update_frequency"])
         # Load last update
         last_update = None
         if "last_update" in json_obj:
@@ -2275,9 +2275,9 @@ class FANotificationWatchSub(FAUserWatchersSub):
         )
         # See if user gave us an update period
         try:
-            search_delta = Commons.load_time_delta(input_evt.command_args)
+            search_delta = isodate.parse_duration(input_evt.command_args)
         except ISO8601ParseError:
-            search_delta = Commons.load_time_delta("PT300S")
+            search_delta = isodate.parse_duration("PT300S")
         # Create FA user watchers object
         try:
             fa_sub = FANotificationWatchSub(
@@ -2326,7 +2326,7 @@ class FANotificationWatchSub(FAUserWatchersSub):
                 json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f"
             )
         # Load update frequency
-        update_frequency = Commons.load_time_delta(json_obj["update_frequency"])
+        update_frequency = isodate.parse_duration(json_obj["update_frequency"])
         # Load last update
         last_update = None
         if "last_update" in json_obj:

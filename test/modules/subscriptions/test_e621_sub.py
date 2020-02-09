@@ -1,11 +1,11 @@
 from datetime import datetime
 import time
 
+import isodate
 import pytest
 
 from events import EventMessage
 from hallo import Hallo
-from inc.commons import Commons
 from modules.subscriptions import E621Sub, SubscriptionRepo
 from test.server_mock import ServerMock
 
@@ -71,19 +71,19 @@ def test_needs_check(hallo_getter):
         test_channel,
         "cabinet",
         last_check=datetime.now(),
-        update_frequency=Commons.load_time_delta("P1TS"),
+        update_frequency=isodate.parse_duration("P1D"),
     )
     assert not rf1.needs_check()
-    rf1.last_check = datetime.now() - Commons.load_time_delta("P2TS")
+    rf1.last_check = datetime.now() - isodate.parse_duration("P2D")
     assert rf1.needs_check()
-    rf1.update_frequency = Commons.load_time_delta("P7TS")
+    rf1.update_frequency = isodate.parse_duration("P7D")
     assert not rf1.needs_check()
     rf2 = E621Sub(
         test_server,
         test_channel,
         "cabinet",
         last_check=datetime.now(),
-        update_frequency=Commons.load_time_delta("PT5S"),
+        update_frequency=isodate.parse_duration("PT5S"),
     )
     assert not rf2.needs_check()
     time.sleep(10)
@@ -104,7 +104,7 @@ def test_output_item(hallo_getter):
     }
     # Check output works with given server and channel
     rf1 = E621Sub(test_server, test_channel, "cabinet")
-    rf1.update_frequency = Commons.load_time_delta("P1TS")
+    rf1.update_frequency = isodate.parse_duration("P1D")
     rf1.send_item(item_elem)
     data = test_server.get_send_data(1, test_channel, EventMessage)
     assert item_id in data[0].text
@@ -115,7 +115,7 @@ def test_output_item(hallo_getter):
     hallo.add_server(serv2)
     chan2 = serv2.get_channel_by_address("test_chan2".lower(), "test_chan2")
     rf2 = E621Sub(
-        serv2, chan2, "clefable", update_frequency=Commons.load_time_delta("P1TS")
+        serv2, chan2, "clefable", update_frequency=isodate.parse_duration("P1D")
     )
     rf2.send_item(item_elem)
     data = serv2.get_send_data(1, chan2, EventMessage)
@@ -126,7 +126,7 @@ def test_output_item(hallo_getter):
     serv3.name = "test_serv3"
     hallo.add_server(serv3)
     user3 = serv3.get_user_by_address("test_user3".lower(), "test_user3")
-    rf3 = E621Sub(serv3, user3, "fez", update_frequency=Commons.load_time_delta("P1TS"))
+    rf3 = E621Sub(serv3, user3, "fez", update_frequency=isodate.parse_duration("P1D"))
     rf3.send_item(item_elem)
     data = serv3.get_send_data(1, user3, EventMessage)
     assert item_id in data[0].text
@@ -138,7 +138,7 @@ def test_output_item(hallo_getter):
     hallo4.add_server(serv4)
     chan4 = serv4.get_channel_by_address("test_chan4".lower(), "test_chan4")
     rf4 = E621Sub(
-        serv4, chan4, "cabinet", update_frequency=Commons.load_time_delta("P1TS")
+        serv4, chan4, "cabinet", update_frequency=isodate.parse_duration("P1D")
     )
     rf4.send_item(item_elem)
     data = serv4.get_send_data(1, chan4, EventMessage)
@@ -151,7 +151,7 @@ def test_output_item(hallo_getter):
     hallo5.add_server(serv5)
     chan5 = serv5.get_channel_by_address("test_chan5".lower(), "test_chan5")
     rf5 = E621Sub(
-        serv5, chan5, "clefable", update_frequency=Commons.load_time_delta("P1TS")
+        serv5, chan5, "clefable", update_frequency=isodate.parse_duration("P1D")
     )
     rf5.send_item(item_elem)
     data = serv5.get_send_data(1, chan5, EventMessage)
@@ -163,7 +163,7 @@ def test_output_item(hallo_getter):
     serv6.name = "test_serv6"
     hallo6.add_server(serv6)
     chan6 = serv6.get_channel_by_address("test_chan6".lower(), "test_chan6")
-    rf6 = E621Sub(serv6, chan6, "fez", update_frequency=Commons.load_time_delta("P1TS"))
+    rf6 = E621Sub(serv6, chan6, "fez", update_frequency=isodate.parse_duration("P1D"))
     rf6.server_name = "test_serv6"
     rf6.channel_address = "test_chan6"
     rf6.send_item(item_elem)
@@ -177,7 +177,7 @@ def test_output_item(hallo_getter):
     hallo7.add_server(serv7)
     user7 = serv7.get_user_by_address("test_user7".lower(), "test_user7")
     rf7 = E621Sub(
-        serv7, user7, "clefable", update_frequency=Commons.load_time_delta("P1TS")
+        serv7, user7, "clefable", update_frequency=isodate.parse_duration("P1D")
     )
     rf7.send_item(item_elem)
     data = serv7.get_send_data(1, user7, EventMessage)
@@ -197,9 +197,7 @@ def test_json(hallo_getter):
         test_server,
         test_channel,
         test_e621_search,
-        update_frequency=Commons.load_time_delta(
-            "P" + str(test_days) + "T" + str(test_seconds) + "S"
-        ),
+        update_frequency=isodate.parse_duration("P{}DT{}S".format(test_days, test_seconds)),
     )
     # Clear off the current items
     rf.check()

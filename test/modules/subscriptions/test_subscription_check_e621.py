@@ -1,10 +1,10 @@
 import os
 import unittest
 
+import isodate
 import pytest
 
 from events import EventMinute, EventMessage
-from inc.commons import Commons
 from modules.subscriptions import E621Sub, SubscriptionRepo, SubscriptionCheck
 from test.server_mock import ServerMock
 from test.test_base import TestBase
@@ -48,21 +48,21 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
                 chan1.server,
                 chan1,
                 "cabinet",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf1)
             rf2 = E621Sub(
                 chan2.server,
                 chan2,
                 "clefable",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf2)
             rf3 = E621Sub(
                 chan3.server,
                 chan3,
                 "fez",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
@@ -128,21 +128,21 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
                 chan1.server,
                 chan1,
                 "cabinet",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf1)
             rf2 = E621Sub(
                 chan2.server,
                 chan2,
                 "clefable",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf2)
             rf3 = E621Sub(
                 chan3.server,
                 chan3,
                 "fez",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
@@ -210,21 +210,21 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
                 chan1.server,
                 chan1,
                 "cabinet",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf1)
             rf2 = E621Sub(
                 chan2.server,
                 chan2,
                 "clefable",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf2)
             rf3 = E621Sub(
                 chan3.server,
                 chan3,
                 "fez",
-                update_frequency=Commons.load_time_delta("PT3600S"),
+                update_frequency=isodate.parse_duration("PT3600S"),
             )
             rfl.add_sub(rf3)
             # Splice this rss feed list into the function dispatcher's rss check object
