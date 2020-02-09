@@ -5,6 +5,7 @@ import random
 from datetime import timedelta
 
 import requests
+from publicsuffixlist import PublicSuffixList
 
 
 class ISO8601ParseError(SyntaxError):
@@ -67,19 +68,9 @@ class Commons(object):
         url = url.split("://")[-1]
         url = url.split("/")[0]
         url = url.split(":")[0]
-        # Get the list of TLDs, from mozilla's http://publicsuffix.org
-        with open("store/tld_list.txt", "rb") as f:
-            tld_list = [x.strip() for x in f.read().decode("utf-8").split("\n")]
-        url_split = url.split(".")
-        url_tld = None
-        for tld_test in [".".join(url_split[x:]) for x in range(len(url_split))]:
-            if tld_test in tld_list:
-                url_tld = tld_test
-                break
-        # If you didn't find the TLD, just return the longest bit.
-        if url_tld is None:
-            # noinspection PyTypeChecker
-            return url_split.sort(key=len)[-1]
+        # Get the public suffix
+        public_suffix = PublicSuffixList()
+        url_tld = public_suffix.publicsuffix(url)
         # Else return the last part before the TLD
         return url[: -len(url_tld) - 1].split(".")[-1]
 
