@@ -2490,7 +2490,7 @@ class RedditSub(Subscription):
             output = (
                 "Update on /r/{}/ subreddit. "
                 '<a href="{}">{}</a> by "<a href="{}">u/{}</a>"\n'
-                '<a href "{}">direct image</a>'.format(
+                '<a href="{}">direct image</a>'.format(
                     Commons.html_escape(self.subreddit),
                     link,
                     Commons.html_escape(title),
