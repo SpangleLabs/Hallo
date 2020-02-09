@@ -401,6 +401,11 @@ class Commons(object):
         """Escapes a string to ensure it can used in markdown without issues"""
         return string.replace("[", r"\[").replace("]", r"\]").replace("_", r"\_").replace("*", r"\*")
 
+    @staticmethod
+    def html_escape(string):
+        """Escapes a string to ensure it can be used in html without issues"""
+        return string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
 
 class CachedObject:
     def __init__(self, setter, cache_expiry=None):

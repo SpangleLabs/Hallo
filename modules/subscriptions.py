@@ -2126,13 +2126,19 @@ class RedditSub(Subscription):
             if file_extension == "gifv":
                 url = url[:-4] + "mp4"
             # Make output message
-            output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n[direct image]({})".format(
-                Commons.markdown_escape(self.subreddit),
-                Commons.markdown_escape(title),
-                link, author, author_link, url
-            )
+            output = \
+                "Update on /r/{}/ subreddit. " \
+                "<a href=\"{}\">{}</a> by \"<a href=\"{}\">u/{}</a>\"\n" \
+                "<a href \"{}\">direct image</a>".format(
+                    Commons.html_escape(self.subreddit),
+                    link,
+                    Commons.html_escape(title),
+                    author_link,
+                    Commons.html_escape(author),
+                    url
+                )
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, url, inbound=False)
-            output_evt.formatting = EventMessage.Formatting.MARKDOWN
+            output_evt.formatting = EventMessage.Formatting.HTML
             return output_evt
         # Handle gfycat links as photos
         gfycat_regex = re.compile(r"(?:https?://)?(?:www\.)?gfycat\.com/([a-z]+)", re.IGNORECASE)
@@ -2140,13 +2146,19 @@ class RedditSub(Subscription):
         if gfycat_match is not None:
             direct_url = "https://giant.gfycat.com/{}.mp4".format(gfycat_match.group(1))
             # Make output message
-            output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n[gfycat]({})".format(
-                Commons.markdown_escape(self.subreddit),
-                Commons.markdown_escape(title),
-                link, author, author_link, url
-            )
+            output = \
+                "Update on /r/{}/ subreddit. " \
+                "\"<a href=\"{}\">{}</a>\" by <a href=\"{}\">u/{}</a>\n" \
+                "<a href=\"{}\">gfycat</a>".format(
+                    Commons.html_escape(self.subreddit),
+                    link,
+                    Commons.html_escape(title),
+                    author_link,
+                    Commons.html_escape(author),
+                    url
+                )
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, direct_url, inbound=False)
-            output_evt.formatting = EventMessage.Formatting.MARKDOWN
+            output_evt.formatting = EventMessage.Formatting.HTML
             return output_evt
         # Handle reddit video links
         vreddit_regex = re.compile(r"https?://v.redd.it/[a-z0-9]+")
@@ -2157,29 +2169,46 @@ class RedditSub(Subscription):
             else:
                 direct_url = item["data"]["secure_media"]["reddit_video"]["fallback_url"]
             # Make output message
-            output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n[vreddit]({})".format(
-                Commons.markdown_escape(self.subreddit),
-                Commons.markdown_escape(title),
-                link, author, author_link, direct_url
-            )
+            output = \
+                "Update on /r/{}/ subreddit. " \
+                "\"<a href=\"{}\">{}</a>\" by <a href=\"{}\">u/{}</a>\n" \
+                "<a href=\"{}\">vreddit</a>".format(
+                    Commons.html_escape(self.subreddit),
+                    link,
+                    Commons.html_escape(title),
+                    author_link,
+                    Commons.html_escape(author),
+                    direct_url
+                )
             output_evt = EventMessageWithPhoto(self.server, channel, user, output, direct_url, inbound=False)
-            output_evt.formatting = EventMessage.Formatting.MARKDOWN
+            output_evt.formatting = EventMessage.Formatting.HTML
             return output_evt
         # Make output message if the link isn't direct to a media file
         if item["data"]["selftext"] != "":
-            output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})".format(
-                Commons.markdown_escape(self.subreddit),
-                Commons.markdown_escape(title),
-                link, author, author_link
-            )
+            output = \
+                "Update on /r/{}/ subreddit. " \
+                "\"<a href=\"{}\">{}</a>\" by <a href=\"{}\">u/{}</a>\n".format(
+                    Commons.html_escape(self.subreddit),
+                    link,
+                    Commons.html_escape(title),
+                    author_link,
+                    Commons.html_escape(author)
+                )
         else:
-            output = "Update on /r/{}/ subreddit. \"[{}]({})\" by [u/{}]({})\n{}".format(
-                Commons.markdown_escape(self.subreddit),
-                Commons.markdown_escape(title),
-                link, author, author_link, url, link
-            )
+            output = \
+                "Update on /r/{}/ subreddit. " \
+                "\"<a href=\"{}\">{}</a>\" by <a href=\"{}\">u/{}</a>\n" \
+                "<a href=\"{}\">{}</a>".format(
+                    Commons.html_escape(self.subreddit),
+                    link,
+                    Commons.html_escape(title),
+                    author_link,
+                    Commons.html_escape(author),
+                    url,
+                    Commons.html_escape(url)
+                )
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
-        output_evt.formatting = EventMessage.Formatting.MARKDOWN
+        output_evt.formatting = EventMessage.Formatting.HTML
         return output_evt
 
     def to_json(self):

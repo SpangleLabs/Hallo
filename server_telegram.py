@@ -182,8 +182,10 @@ class ServerTelegram(Server):
         :type event_formatting: EventMessage.Formatting
         :rtype: telegram.ParseMode
         """
-        return {EventMessage.Formatting.MARKDOWN: telegram.ParseMode.MARKDOWN,
-                EventMessage.Formatting.HTML: telegram.ParseMode.HTML}.get(event_formatting)
+        return {
+            EventMessage.Formatting.MARKDOWN: telegram.ParseMode.MARKDOWN,
+            EventMessage.Formatting.HTML: telegram.ParseMode.HTML
+        }.get(event_formatting)
 
     def send(self, event):
         if isinstance(event, EventMessageWithPhoto):
