@@ -629,13 +629,13 @@ class E621Sub(Subscription):
             search += " id:>{}".format(
                 oldest_id
             )  # Don't list anything older than the oldest of the last 10
-        url = "https://e621.net/post/index.json?tags={}&limit=50".format(
+        url = "https://e621.net/posts.json?tags={}&limit=50".format(
             urllib.parse.quote(search)
         )
         results = Commons.load_url_json(url)
         return_list = []
         new_last_ten = set(self.latest_ids)
-        for result in results:
+        for result in results["posts"]:
             result_id = result["id"]
             # Create new list of latest ten results
             new_last_ten.add(result_id)
@@ -648,19 +648,17 @@ class E621Sub(Subscription):
         return return_list
 
     def format_item(self, e621_result):
-        link = "https://e621.net/post/show/{}".format(e621_result["id"])
+        link = "https://e621.net/posts/{}".format(e621_result["id"])
         # Create rating string
-        rating = "(Unknown)"
         rating_dict = {"e": "(Explicit)", "q": "(Questionable)", "s": "(Safe)"}
-        if e621_result["rating"] in rating_dict:
-            rating = rating_dict[e621_result["rating"]]
+        rating = rating_dict.get(e621_result["rating"], "(Unknown)")
         # Construct output
         output = 'Update on "{}" e621 search. {} {}'.format(self.search, link, rating)
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
-        if e621_result["file_ext"] in ["swf", "webm"]:
+        if e621_result["file"]["ext"] in ["swf", "webm"]:
             return EventMessage(self.server, channel, user, output, inbound=False)
-        image_url = e621_result["file_url"]
+        image_url = e621_result["file"]["url"]
         output_evt = EventMessageWithPhoto(
             self.server, channel, user, output, image_url, inbound=False
         )
@@ -829,14 +827,12 @@ class E621TaggingSub(E621Sub):
         return 'search for "{}" to apply tags {}'.format(self.search, self.tags)
 
     def format_item(self, e621_result):
-        link = "https://e621.net/post/show/{}".format(e621_result["id"])
+        link = "https://e621.net/posts/{}".format(e621_result["id"])
         # Create rating string
-        rating = "(Unknown)"
         rating_dict = {"e": "(Explicit)", "q": "(Questionable)", "s": "(Safe)"}
-        if e621_result["rating"] in rating_dict:
-            rating = rating_dict[e621_result["rating"]]
+        rating = rating_dict.get(e621_result["rating"], "(Unknown)")
         # Check tags
-        post_tags = e621_result["tags"].split()
+        post_tags = [tag for tag_list in e621_result["tags"].values() for tag in tag_list]
         tag_results = {tag: tag in post_tags for tag in self.tags}
         tag_output = ["{}: {}".format(tag, val) for tag, val in tag_results.items()]
         # Construct output
@@ -845,9 +841,9 @@ class E621TaggingSub(E621Sub):
         )
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
-        if e621_result["file_ext"] in ["swf", "webm"]:
+        if e621_result["file"]["ext"] in ["swf", "webm"]:
             return EventMessage(self.server, channel, user, output, inbound=False)
-        image_url = e621_result["file_url"]
+        image_url = e621_result["file"]["url"]
         output_evt = EventMessageWithPhoto(
             self.server, channel, user, output, image_url, inbound=False
         )

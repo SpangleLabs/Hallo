@@ -24,12 +24,12 @@ class E621(Function):
         if search_result is None:
             return event.create_response("No results.")
         else:
-            link = "https://e621.net/post/show/{}".format(search_result["id"])
-            if search_result["rating"] == "e":
+            link = "https://e621.net/posts/{}".format(search_result["id"])
+            if search_result["post"]["rating"] == "e":
                 rating = "(Explicit)"
-            elif search_result["rating"] == "q":
+            elif search_result["post"]["rating"] == "q":
                 rating = "(Questionable)"
-            elif search_result["rating"] == "s":
+            elif search_result["post"]["rating"] == "s":
                 rating = "(Safe)"
             else:
                 rating = "(Unknown)"
@@ -43,14 +43,14 @@ class E621(Function):
     def get_random_link_result(self, search):
         """Gets a random link from the e621 api."""
         line_clean = search.replace(" ", "%20")
-        url = "https://e621.net/post/index.json?tags=order:random%20score:%3E0%20{}%20&limit=1".format(
+        url = "https://e621.net/posts.json?tags=order:random%20score:%3E0%20{}%20&limit=1".format(
             line_clean
         )
         return_list = Commons.load_url_json(url)
-        if len(return_list) == 0:
+        if len(return_list["posts"]) == 0:
             return None
         else:
-            result = return_list[0]
+            result = return_list["posts"][0]
             return result
 
 
@@ -83,12 +83,12 @@ class RandomPorn(Function):
         if search_result is None:
             return event.create_response("No results.")
         else:
-            link = "https://e621.net/post/show/{}".format(search_result["id"])
-            if search_result["rating"] == "e":
+            link = "https://e621.net/posts/{}".format(search_result["id"])
+            if search_result["post"]["rating"] == "e":
                 rating = "(Explicit)"
-            elif search_result["rating"] == "q":
+            elif search_result["post"]["rating"] == "q":
                 rating = "(Questionable)"
-            elif search_result["rating"] == "s":
+            elif search_result["post"]["rating"] == "s":
                 rating = "(Safe)"
             else:
                 rating = "(Unknown)"
@@ -127,12 +127,12 @@ class Butts(Function):
         if search_result is None:
             return event.create_response("No results.")
         else:
-            link = "https://e621.net/post/show/{}".format(search_result["id"])
-            if search_result["rating"] == "e":
+            link = "https://e621.net/posts/{}".format(search_result["id"])
+            if search_result["post"]["rating"] == "e":
                 rating = "(Explicit)"
-            elif search_result["rating"] == "q":
+            elif search_result["post"]["rating"] == "q":
                 rating = "(Questionable)"
-            elif search_result["rating"] == "s":
+            elif search_result["post"]["rating"] == "s":
                 rating = "(Safe)"
             else:
                 rating = "(Unknown)"

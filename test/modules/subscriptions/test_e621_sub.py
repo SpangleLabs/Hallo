@@ -40,7 +40,7 @@ def test_check_search(hallo_getter):
             or "(Questionable)" in format_item
             or "(Safe)" in format_item
         ), ("Rating not in formatted item: " + format_item)
-        assert "e621.net/post/show/", "E621 link not in formatted item: " + format_item
+        assert "e621.net/posts/", "E621 link not in formatted item: " + format_item
     # Check that calling twice returns no more items
     next_items = rf.check()
     assert len(next_items) == 0, "More items should not have been found. Found " + str(
