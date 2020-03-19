@@ -492,19 +492,17 @@ class DailysFAField(DailysField):
             )
         except Exception:
             raise DailysException("FA key in storage is not currently logged in to FA.")
-        total_submissions = notifications_data["notification_counts"]["submissions"]
-        total_comments = notifications_data["notification_counts"]["comments"]
-        total_journals = notifications_data["notification_counts"]["journals"]
-        total_favs = notifications_data["notification_counts"]["favorites"]
-        total_watches = notifications_data["notification_counts"]["watchers"]
-        total_notes = notifications_data["notification_counts"]["notes"]
+        profile_name = notifications_data["current_user"]["profile_name"]
+        profile_data = Commons.load_url_json("{}/user/{}.json".format(fa_api_url, profile_name))
         notifications = {
-            "submissions": total_submissions,
-            "comments": total_comments,
-            "journals": total_journals,
-            "favourites": total_favs,
-            "watches": total_watches,
-            "notes": total_notes,
+            "submissions": notifications_data["notification_counts"]["submissions"],
+            "comments": notifications_data["notification_counts"]["comments"],
+            "journals": notifications_data["notification_counts"]["journals"],
+            "favourites": notifications_data["notification_counts"]["favorites"],
+            "watches": notifications_data["notification_counts"]["watchers"],
+            "notes": notifications_data["notification_counts"]["notes"],
+            "watchers_count": profile_data["watchers"]["count"],
+            "watching_count": profile_data["watching"]["count"]
         }
         d = (evt.get_send_time() - timedelta(1)).date()
         self.save_data(notifications, d)

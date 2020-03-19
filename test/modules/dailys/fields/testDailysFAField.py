@@ -47,6 +47,8 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
         assert "favourites" in notif_dict
         assert "watches" in notif_dict
         assert "notes" in notif_dict
+        assert "watchers_count" in notif_dict
+        assert "watching_count" in notif_dict
         assert len(self.server.send_data) == 1
         assert isinstance(self.server.send_data[0], EventMessage)
         assert self.server.send_data[0].text == json.dumps(notif_dict)
