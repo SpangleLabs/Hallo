@@ -8,3 +8,4 @@ pytest
 duolingo-api
 publicsuffixlist
 isodate
+simple-heartbeat
