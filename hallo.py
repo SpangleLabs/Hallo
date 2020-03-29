@@ -3,6 +3,7 @@ import json
 import time
 import re
 from datetime import datetime
+import heartbeat
 
 from errors import MessageError
 from events import EventSecond, EventMinute, EventDay, EventHour
@@ -14,6 +15,9 @@ from user_group import UserGroup
 from function_dispatcher import FunctionDispatcher
 from inc.logger import Logger
 from inc.printer import Printer
+
+heartbeat.heartbeat_app_url = "https://heartbeat.spangle.org.uk/"
+heartbeat_app_name = "Hallo"
 
 
 class Hallo:
@@ -105,6 +109,7 @@ class Hallo:
                 second = EventSecond()
                 self.function_dispatcher.dispatch_passive(second)
             if now_date_time.minute != last_date_time.minute:
+                heartbeat.update_heartbeat(heartbeat_app_name)
                 minute = EventMinute()
                 self.function_dispatcher.dispatch_passive(minute)
             if now_date_time.hour != last_date_time.hour:
