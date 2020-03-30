@@ -445,9 +445,10 @@ class RssSub(Subscription):
         if "xkcd.com" in self.url:
             item_title = rss_item.find("title").text
             item_link = rss_item.find("link").text
-            description = html.unescape(rss_item.find("description").text)
-            description_soup = BeautifulSoup(description, "html.parser")
-            alt_text = description_soup.select_one("img")["alt"]
+            comic_number = item_link.strip("/").split("/")[-1]
+            json_link = "https://xkcd.com/{}/info.0.json".format(comic_number)
+            comic_json = Commons.load_url_json(json_link)
+            alt_text = comic_json["alt"]
             output = 'Update on "{}" RSS feed. "{}" {}\nAlt text: {}'.format(
                 self.title, item_title, item_link, alt_text
             )
