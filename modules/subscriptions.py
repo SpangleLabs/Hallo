@@ -459,9 +459,10 @@ class RssSub(Subscription):
         if "xkcd.com" in self.url:
             item_title = rss_item.find("title").text
             item_link = rss_item.find("link").text
-            description = html.unescape(rss_item.find("description").text)
-            description_soup = BeautifulSoup(description, "html.parser")
-            alt_text = description_soup.select_one("img")["alt"]
+            comic_number = item_link.strip("/").split("/")[-1]
+            json_link = "https://xkcd.com/{}/info.0.json".format(comic_number)
+            comic_json = Commons.load_url_json(json_link)
+            alt_text = comic_json["alt"]
             output = 'Update on "{}" RSS feed. "{}" {}\nAlt text: {}'.format(
                 self.title, item_title, item_link, alt_text
             )
@@ -504,6 +505,24 @@ class RssSub(Subscription):
                 ),
                 [comic_img["src"], after_comic_img["src"]],
             )
+        if "rss.app" in self.title:
+            item_title = self._get_item_title(rss_item)
+            item_link = self._get_item_link(rss_item)
+            page_code = Commons.load_url_string(item_link)
+            soup = BeautifulSoup(page_code, "html.parser")
+            head_script = soup.select_one("head script")
+            if head_script is None:
+                return None
+            url_regex = re.compile(r"var url = \"([^\"]+)\";", re.IGNORECASE)
+            url_result = url_regex.search(head_script.text)
+            if url_result is None:
+                return None
+            output = 'Update on "{}" RSS feed. "{}" {}'.format(
+                self.title, item_title, item_link
+            )
+            channel = self.destination if isinstance(self.destination, Channel) else None
+            user = self.destination if isinstance(self.destination, User) else None
+            return EventMessage(self.server, channel, user, output, inbound=False)
         return None
 
     def to_json(self):
