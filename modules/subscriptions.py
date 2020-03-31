@@ -505,7 +505,7 @@ class RssSub(Subscription):
                 ),
                 [comic_img["src"], after_comic_img["src"]],
             )
-        if "rss.app" in self.title:
+        if "rss.app" in self.url:
             item_title = self._get_item_title(rss_item)
             item_link = self._get_item_link(rss_item)
             page_code = Commons.load_url_string(item_link)
@@ -518,7 +518,7 @@ class RssSub(Subscription):
             if url_result is None:
                 return None
             output = 'Update on "{}" RSS feed. "{}" {}'.format(
-                self.title, item_title, item_link
+                self.title, item_title, url_result.group(1)
             )
             channel = self.destination if isinstance(self.destination, Channel) else None
             user = self.destination if isinstance(self.destination, User) else None
