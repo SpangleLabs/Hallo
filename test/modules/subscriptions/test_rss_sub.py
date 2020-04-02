@@ -3,6 +3,7 @@ import time
 from xml.etree import ElementTree
 
 import isodate
+import pytest
 
 from events import EventMessage
 from hallo import Hallo
@@ -11,6 +12,7 @@ from modules.subscriptions import RssSub, SubscriptionRepo
 from test.server_mock import ServerMock
 
 
+@pytest.mark.external_integration
 def test_init(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     rf = RssSub(test_server, test_channel, "http://spangle.org.uk/hallo/test_rss.xml")
@@ -27,6 +29,7 @@ def test_init(hallo_getter):
         assert key in rf.__dict__, "Key is missing from RssFeed object: " + key
 
 
+@pytest.mark.external_integration
 def test_check_feed(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     # Check loading up an example feed
@@ -80,6 +83,7 @@ def test_format_item(hallo_getter):
     assert item_link in output
 
 
+@pytest.mark.external_integration
 def test_needs_check(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     rf1 = RssSub(
@@ -247,6 +251,7 @@ def test_output_item(hallo_getter):
     assert item_link in data[0].text
 
 
+@pytest.mark.external_integration
 def test_xml(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     test_rss_url = "http://spangle.org.uk/hallo/test_rss.xml"

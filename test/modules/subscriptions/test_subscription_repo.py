@@ -1,6 +1,7 @@
 import os
 
 import isodate
+import pytest
 
 from modules.subscriptions import SubscriptionRepo, RssSub
 from test.server_mock import ServerMock
@@ -11,6 +12,7 @@ def test_init():
     assert rfl.sub_list == []
 
 
+@pytest.mark.external_integration
 def test_add_feed(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     rfl = SubscriptionRepo()
@@ -27,6 +29,7 @@ def test_add_feed(hallo_getter):
     assert rfl.sub_list[0] == rf
 
 
+@pytest.mark.external_integration
 def test_get_feeds_by_destination(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     serv1 = ServerMock(hallo)
@@ -169,6 +172,7 @@ def test_get_feeds_by_url(hallo_getter):
     assert rf5 in feed_list
 
 
+@pytest.mark.external_integration
 def test_remove_feed(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     # Setup a feed list
