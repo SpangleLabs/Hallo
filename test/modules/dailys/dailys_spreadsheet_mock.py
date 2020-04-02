@@ -9,8 +9,8 @@ class DailysSpreadsheetMock(DailysSpreadsheet):
         :type saved_data: dict[str, dict[date, dict]]
         """
         super().__init__(user, destination, "mock_dailys_url", "")
-        self.saved_data = dict() if saved_data is None else saved_data
-        """ :type : dict[str, dict[date, str]]"""
+        self.saved_data = saved_data or {}
+        """ :type : dict[str, dict[date, dict]]"""
 
     def save_field(self, field, data, data_date):
         """
