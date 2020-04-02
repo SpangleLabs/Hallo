@@ -592,42 +592,20 @@ class DailysMoodField(DailysField):
 
     @staticmethod
     def create_from_input(event, spreadsheet):
-        clean_input = event.command_args[len(DailysMoodField.type_name) :].strip()
-        input_split = clean_input.split(";")
-        if len(input_split) not in [2, 3]:
-            raise DailysException(
-                "Mood setup must contain times, then a semicolon, then mood measurements."
+        static_data = Commons.load_url_json(
+            "{}/stats/{}/{}/".format(
+                spreadsheet.dailys_url, "mood", "static"
             )
-        input_times = input_split[0].lower()
-        input_moods = input_split[1]
-        # Parse times
+        )
+        if len(static_data) == 0:
+            raise DailysException("Mood field static data has not been set up on dailys system.")
+        moods = static_data[0]["data"]["moods"]
         times = []
-        for input_time in input_times.split():
-            # Check if it's a 24hour time
-            if (
-                len(input_time.replace(":", "")) == 4
-                and input_time.replace(":", "").isdigit()
-            ):
-                try:
-                    times.append(time(int(input_time[:2]), int(input_time[-2:])))
-                    continue
-                except ValueError:
-                    raise DailysException(
-                        "Please provide times as 24 hour hh:mm formatted times."
-                    )
-            # Check if it's wake or sleep
-            if input_time in DailysSleepField.WAKE_WORDS:
-                times.append(DailysMoodField.TIME_WAKE)
-                continue
-            if input_time in DailysSleepField.SLEEP_WORDS:
-                times.append(DailysMoodField.TIME_SLEEP)
-                continue
-            raise DailysException(
-                'I don\'t recognise that time, "{}". Please provide times as 24 hour hh:mm '
-                "formatted times, or 'wake' or 'sleep'.".format(input_time)
-            )
-        # Parse mood measurements
-        moods = input_moods.split()
+        for time_str in static_data[0]["data"]["times"]:
+            if time_str in [DailysMoodField.TIME_WAKE, DailysMoodField.TIME_SLEEP]:
+                times.append(time_str)
+            else:
+                times.append(datetime.strptime(time_str, "%H:%M:%S").time())
         # Return new field
         return DailysMoodField(spreadsheet, times, moods)
 
@@ -853,9 +831,16 @@ class DailysMoodField(DailysField):
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
-        moods = json_obj["moods"]
+        static_data = Commons.load_url_json(
+            "{}/stats/{}/{}/".format(
+                spreadsheet.dailys_url, "mood", "static"
+            )
+        )
+        if len(static_data) == 0:
+            raise DailysException("Mood field static data has not been set up.")
+        moods = static_data[0]["data"]["moods"]
         times = []
-        for time_str in json_obj["times"]:
+        for time_str in static_data[0]["data"]["times"]:
             if time_str in [DailysMoodField.TIME_WAKE, DailysMoodField.TIME_SLEEP]:
                 times.append(time_str)
             else:
