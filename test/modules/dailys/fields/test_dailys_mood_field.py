@@ -11,143 +11,95 @@ class Obj:
     pass
 
 
+def get_telegram_time(date_time_val):
+    fake_telegram_obj = Obj()
+    fake_telegram_obj.message = Obj()
+    fake_telegram_obj.message.date = date_time_val
+    fake_telegram_obj.message.reply_to_message = None
+    return fake_telegram_obj
+
+
+def get_telegram_time_reply(date_time_val, message_id):
+    fake_telegram_obj = Obj()
+    fake_telegram_obj.message = Obj()
+    fake_telegram_obj.message.date = date_time_val
+    fake_telegram_obj.message.reply_to_message = Obj()
+    fake_telegram_obj.message.reply_to_message.message_id = message_id
+    return fake_telegram_obj
+
+
+@requests_mock.mock()
+def test_create_from_input(hallo_getter, r):
+    dailys_times = ["wake", "12:00:00", "sleep"]
+    dailys_moods = ["happiness", "anger", "tiredness", "boisterousness"]
+    # Setup stuff
+    command_name = "setup dailys field"
+    command_args = "mood"
+    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    evt = EventMessage(
+        test_server,
+        test_chan,
+        test_user,
+        "{} {}".format(command_name, command_args),
+    )
+    evt.split_command_text(command_name, command_args)
+    spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
+    r.get(
+        "{}/stats/mood/static".format(spreadsheet.dailys_url),
+        json=[
+            {
+                "date": "static",
+                "source": "Mock test data",
+                "stat_name": "mood",
+                "data": {
+                    "moods": dailys_moods,
+                    "times": dailys_times
+                }
+            }
+        ]
+    )
+
+    # Try and create dailys field
+    field = DailysMoodField.create_from_input(evt, spreadsheet)
+
+    assert field.spreadsheet == spreadsheet
+    assert isinstance(field.times, list)
+    assert len(field.times) == 3
+    assert DailysMoodField.TIME_WAKE in field.times
+    assert DailysMoodField.TIME_SLEEP in field.times
+    assert time(12, 0, 0) in field.times
+    assert isinstance(field.moods, list)
+    assert len(field.moods) == 4
+    assert field.moods == dailys_moods
+
+
+def test_create_from_input__no_static_data(hallo_getter):
+    # Setup stuff
+    command_name = "setup dailys field"
+    command_args = "mood"
+    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    evt = EventMessage(
+        test_server,
+        test_chan,
+        test_user,
+        "{} {}".format(command_name, command_args),
+    )
+    evt.split_command_text(command_name, command_args)
+    spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
+    r.get(
+        "{}/stats/mood/static".format(spreadsheet.dailys_url),
+        json=[]
+    )
+
+    # Try and create dailys field
+    try:
+        DailysMoodField.create_from_input(evt, spreadsheet)
+        assert False, "Should have failed to create DailysMoodField"
+    except DailysException as e:
+        assert "mood field static data has not been set up on dailys system" in str(e).lower()
+
+
 class DailysMoodFieldTest(TestBase, unittest.TestCase):
-    def get_telegram_time(self, date_time_val):
-        fake_telegram_obj = Obj()
-        fake_telegram_obj.message = Obj()
-        fake_telegram_obj.message.date = date_time_val
-        fake_telegram_obj.message.reply_to_message = None
-        return fake_telegram_obj
-
-    def get_telegram_time_reply(self, date_time_val, message_id):
-        fake_telegram_obj = Obj()
-        fake_telegram_obj.message = Obj()
-        fake_telegram_obj.message.date = date_time_val
-        fake_telegram_obj.message.reply_to_message = Obj()
-        fake_telegram_obj.message.reply_to_message.message_id = message_id
-        return fake_telegram_obj
-
-    def test_create_from_input_no_args(self):
-        # Setup stuff
-        command_name = "setup dailys field"
-        command_args = "mood"
-        evt = EventMessage(
-            self.server,
-            self.test_chan,
-            self.test_user,
-            "{} {}".format(command_name, command_args),
-        )
-        evt.split_command_text(command_name, command_args)
-        spreadsheet = DailysSpreadsheetMock(self.test_chan, self.test_user)
-        # Try and create dailys field
-        try:
-            DailysMoodField.create_from_input(evt, spreadsheet)
-            assert False, "Should have failed to create DailysMoodField"
-        except DailysException as e:
-            assert "must contain" in str(e).lower()
-            assert "times" in str(e).lower()
-            assert "mood measurements" in str(e).lower()
-
-    def test_create_from_input_no_semicolon(self):
-        # Setup stuff
-        command_name = "setup dailys field"
-        command_times = "wake 12:00 sleep"
-        command_moods = "happiness anger tiredness"
-        command_args = "mood {} {}".format(command_times, command_moods)
-        evt = EventMessage(
-            self.server,
-            self.test_chan,
-            self.test_user,
-            "{} {}".format(command_name, command_args),
-        )
-        evt.split_command_text(command_name, command_args)
-        spreadsheet = DailysSpreadsheetMock(self.test_chan, self.test_user)
-        # Try and create dailys field
-        try:
-            DailysMoodField.create_from_input(evt, spreadsheet)
-            assert False, "Should have failed to create DailysMoodField"
-        except DailysException as e:
-            assert "must contain" in str(e).lower()
-            assert "times" in str(e).lower()
-            assert "semicolon" in str(e).lower()
-            assert "mood measurements" in str(e).lower()
-
-    def test_create_from_input(self):
-        # Setup stuff
-        command_name = "setup dailys field"
-        command_times = "wake 12:00 sleep"
-        command_moods = "happiness anger tiredness boisterousness"
-        command_args = "mood {};{}".format(command_times, command_moods)
-        evt = EventMessage(
-            self.server,
-            self.test_chan,
-            self.test_user,
-            "{} {}".format(command_name, command_args),
-        )
-        evt.split_command_text(command_name, command_args)
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
-        # Try and create dailys field
-        field = DailysMoodField.create_from_input(evt, spreadsheet)
-        assert field.spreadsheet == spreadsheet
-        assert isinstance(field.times, list)
-        assert len(field.times) == 3
-        assert DailysMoodField.TIME_WAKE in field.times
-        assert DailysMoodField.TIME_SLEEP in field.times
-        assert time(12, 0, 0) in field.times
-        assert isinstance(field.moods, list)
-        assert len(field.moods) == 4
-        assert field.moods == command_moods.split()
-
-    def test_create_from_input_invalid_time(self):
-        # Setup stuff
-        command_name = "setup dailys field"
-        command_times = "wake 12:99 sleep"
-        command_moods = "happiness anger tiredness boisterousness"
-        command_column = "AJ"
-        command_args = "mood {};{};{}".format(
-            command_times, command_moods, command_column
-        )
-        evt = EventMessage(
-            self.server,
-            self.test_chan,
-            self.test_user,
-            "{} {}".format(command_name, command_args),
-        )
-        evt.split_command_text(command_name, command_args)
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
-        # Try and create dailys field
-        try:
-            DailysMoodField.create_from_input(evt, spreadsheet)
-            assert False, "Should have failed to create DailysMoodField"
-        except DailysException as e:
-            assert "provide times as 24 hour" in str(e).lower()
-            assert "hh:mm" in str(e).lower()
-
-    def test_create_from_input_not_a_time(self):
-        # Setup stuff
-        command_name = "setup dailys field"
-        command_times = "wake noon sleep"
-        command_moods = "happiness anger tiredness boisterousness"
-        command_column = "AJ"
-        command_args = "mood {};{};{}".format(
-            command_times, command_moods, command_column
-        )
-        evt = EventMessage(
-            self.server,
-            self.test_chan,
-            self.test_user,
-            "{} {}".format(command_name, command_args),
-        )
-        evt.split_command_text(command_name, command_args)
-        spreadsheet = DailysSpreadsheetMock(self.test_user, self.test_chan)
-        # Try and create dailys field
-        try:
-            DailysMoodField.create_from_input(evt, spreadsheet)
-            assert False, "Should have failed to create DailysMoodField"
-        except DailysException as e:
-            assert "provide times as 24 hour" in str(e).lower()
-            assert "hh:mm" in str(e).lower()
-            assert "i don't recognise that time" in str(e).lower()
 
     def test_trigger_morning_query(self):
         # Setup
@@ -299,7 +251,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Send message
         evt_sleep = EventMessage(
             self.server, self.test_chan, self.test_user, "night"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_time)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(sleep_time)))
         field.passive_trigger(evt_sleep)
         # Check mood query is sent for previous day
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -374,7 +326,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         evt_mood = EventMessage(
             self.server, self.test_chan, self.test_user, "413"
         ).with_raw_data(
-            RawDataTelegram(self.get_telegram_time_reply(mood_datetime, msg_id))
+            RawDataTelegram(get_telegram_time_reply(mood_datetime, msg_id))
         )
         field.passive_trigger(evt_mood)
         # Check mood response is logged
@@ -410,7 +362,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Send message
         evt_mood = EventMessage(
             self.server, self.test_chan, self.test_user, "413"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -444,7 +396,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Send sleep message, check response
         evt_sleep = EventMessage(
             self.server, self.test_chan, self.test_user, "sleep"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_datetime)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(sleep_datetime)))
         field.passive_trigger(evt_sleep)
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
         assert DailysMoodField.TIME_SLEEP in notif_dict
@@ -455,7 +407,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Send message
         evt_mood = EventMessage(
             self.server, self.test_chan, self.test_user, "413"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -492,7 +444,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Send message
         evt_mood = EventMessage(
             self.server, self.test_chan, self.test_user, "413"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is not logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -525,7 +477,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Send message
         evt_mood = EventMessage(
             self.server, self.test_chan, self.test_user, "HAT 1400 413"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -558,7 +510,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Send message
         evt_mood = EventMessage(
             self.server, self.test_chan, self.test_user, "HAT wake 413"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -586,7 +538,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Send message
         evt_mood = EventMessage(
             self.server, self.test_chan, self.test_user, "HAT sleep 413"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -622,7 +574,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Send message
         evt_mood = EventMessage(
             self.server, self.test_chan, self.test_user, "HAT 1400 413"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -669,7 +621,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Send message
         evt_mood = EventMessage(
             self.server, self.test_chan, self.test_user, "HAT wake 413"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(mood_datetime)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
         field.passive_trigger(evt_mood)
         # Check mood response is logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -687,7 +639,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Send wake message, ensure no response
         evt_wake = EventMessage(
             self.server, self.test_chan, self.test_user, "morning"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(wake_datetime)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(wake_datetime)))
         field.passive_trigger(evt_wake)
         # Check query isn't logged
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -723,7 +675,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Send sleep query
         evt_sleep1 = EventMessage(
             self.server, self.test_chan, self.test_user, "sleep"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(sleep_datetime)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(sleep_datetime)))
         field.passive_trigger(evt_sleep1)
         # Check mood query is given and stuff
         notif_dict = spreadsheet.saved_data["mood"][mood_date]
@@ -739,7 +691,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         evt_mood = EventMessage(
             self.server, self.test_chan, self.test_user, "413"
         ).with_raw_data(
-            RawDataTelegram(self.get_telegram_time_reply(mood_datetime, msg_id))
+            RawDataTelegram(get_telegram_time_reply(mood_datetime, msg_id))
         )
         field.passive_trigger(evt_mood)
         # Check mood is recorded and response given
@@ -759,7 +711,7 @@ class DailysMoodFieldTest(TestBase, unittest.TestCase):
         # Another sleep query
         evt_sleep1 = EventMessage(
             self.server, self.test_chan, self.test_user, "sleep"
-        ).with_raw_data(RawDataTelegram(self.get_telegram_time(sleep2_datetime)))
+        ).with_raw_data(RawDataTelegram(get_telegram_time(sleep2_datetime)))
         field.passive_trigger(evt_sleep1)
         # Check there's no response
         self.server.get_send_data(0)
