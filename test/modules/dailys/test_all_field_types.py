@@ -4,6 +4,8 @@ import os
 import unittest
 from datetime import time
 
+import pytest
+
 from events import EventMessage
 from modules.dailys import (
     DailysDuolingoField,
@@ -84,17 +86,52 @@ def test_field_classes_added_to_factory(hallo_getter):
         ]
 
 
-class TestAllFieldTypes(TestBase, unittest.TestCase):
+@pytest.mark.parametrize(
+    "field_class", DailysFieldFactory.fields
+)
+def test_all_field_classes_in_field_objs(field_class, hallo_getter):
+    """
+    Tests that all field classes have an object in the get_field_objects method here.
+    """
+    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    assert field_class in [
+        field_obj.__class__ for field_obj in get_field_objects(test_user, test_chan)
+    ]
 
-    def test_all_field_classes_in_field_objs(self):
-        """
-        Tests that all field classes have an object in the get_field_objects method here.
-        """
-        for field_class in DailysFieldFactory.fields:
-            with self.subTest(field_class.__name__):
-                assert field_class in [
-                    field_obj.__class__ for field_obj in get_field_objects(self.test_user, self.test_chan)
-                ]
+
+@pytest.mark.parametrize(
+    "field_class", DailysFieldFactory.fields
+)
+def test_sub_class_has_names(field_class):
+    """
+    Test that each field class has a non-empty list of column names
+    """
+    assert len(field_class.col_names) != 0
+
+
+@pytest.mark.parametrize(
+    "field_class", DailysFieldFactory.fields
+)
+def test_sub_class_names_lower_case(field_class):
+    """
+    Test that field class names are all lower case
+    """
+    for name in field_class.col_names:
+        assert name == name.lower()
+
+
+@pytest.mark.parametrize(
+    "field_class", DailysFieldFactory.fields
+)
+def test_sub_class_has_type_name(field_class):
+    """
+    Test that the type_name value has been set for each field class, and that it is lower case
+    """
+    assert len(field_class.type_name) != 0
+    assert field_class.type_name == field_class.type_name.lower()
+
+
+class TestAllFieldTypes(TestBase, unittest.TestCase):
 
     def test_to_json_contains_field_type(self):
         """
@@ -104,29 +141,3 @@ class TestAllFieldTypes(TestBase, unittest.TestCase):
             with self.subTest(field_obj.__class__.__name__):
                 json_obj = field_obj.to_json()
                 assert "type_name" in json_obj
-
-    def test_sub_class_has_names(self):
-        """
-        Test that each field class has a non-empty list of column names
-        """
-        for field_class in DailysFieldFactory.fields:
-            with self.subTest(field_class.__name__):
-                assert len(field_class.col_names) != 0
-
-    def test_sub_class_names_lower_case(self):
-        """
-        Test that field class names are all lower case
-        """
-        for field_class in DailysFieldFactory.fields:
-            with self.subTest(field_class.__name__):
-                for name in field_class.col_names:
-                    assert name == name.lower()
-
-    def test_sub_class_has_type_name(self):
-        """
-        Test that the type_name value has been set for each field class, and that it is lower case
-        """
-        for field_class in DailysFieldFactory.fields:
-            with self.subTest(field_class.__name__):
-                assert len(field_class.type_name) != 0
-                assert field_class.type_name == field_class.type_name.lower()
