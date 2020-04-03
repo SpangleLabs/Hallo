@@ -30,7 +30,7 @@ def get_telegram_time_reply(date_time_val, message_id):
 
 
 def test_create_from_input(hallo_getter, requests_mock):
-    dailys_times = ["wake", "12:00:00", "sleep"]
+    dailys_times = ["WakeUpTime", "12:00:00", "SleepTime"]
     dailys_moods = ["happiness", "anger", "tiredness", "boisterousness"]
     # Setup stuff
     command_name = "setup dailys field"
