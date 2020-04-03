@@ -1,5 +1,7 @@
 from datetime import time, date, datetime, timedelta
 
+import requests_mock
+
 from events import EventMessage, RawDataTelegram, EventMinute
 from modules.dailys import DailysMoodField, DailysException
 from test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
