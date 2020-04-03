@@ -1,7 +1,8 @@
 from datetime import time, date, datetime, timedelta
 
-import requests_mock
+import pytest
 
+import modules
 from events import EventMessage, RawDataTelegram, EventMinute
 from modules.dailys import DailysMoodField, DailysException
 from test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
@@ -28,8 +29,7 @@ def get_telegram_time_reply(date_time_val, message_id):
     return fake_telegram_obj
 
 
-@requests_mock.mock()
-def test_create_from_input(hallo_getter, r):
+def test_create_from_input(hallo_getter, requests_mock):
     dailys_times = ["wake", "12:00:00", "sleep"]
     dailys_moods = ["happiness", "anger", "tiredness", "boisterousness"]
     # Setup stuff
@@ -44,8 +44,8 @@ def test_create_from_input(hallo_getter, r):
     )
     evt.split_command_text(command_name, command_args)
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
-    r.get(
-        "{}/stats/mood/static".format(spreadsheet.dailys_url),
+    requests_mock.get(
+        "{}/stats/mood/static/".format(spreadsheet.dailys_url),
         json=[
             {
                 "date": "static",
@@ -73,7 +73,7 @@ def test_create_from_input(hallo_getter, r):
     assert field.moods == dailys_moods
 
 
-def test_create_from_input__no_static_data(hallo_getter):
+def test_create_from_input__no_static_data(hallo_getter, requests_mock):
     # Setup stuff
     command_name = "setup dailys field"
     command_args = "mood"
@@ -86,17 +86,15 @@ def test_create_from_input__no_static_data(hallo_getter):
     )
     evt.split_command_text(command_name, command_args)
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
-    r.get(
-        "{}/stats/mood/static".format(spreadsheet.dailys_url),
+    requests_mock.get(
+        "{}/stats/mood/static/".format(spreadsheet.dailys_url),
         json=[]
     )
 
     # Try and create dailys field
-    try:
+    with pytest.raises(modules.dailys.DailysException) as e:
         DailysMoodField.create_from_input(evt, spreadsheet)
-        assert False, "Should have failed to create DailysMoodField"
-    except DailysException as e:
-        assert "mood field static data has not been set up on dailys system" in str(e).lower()
+    assert "mood field static data has not been set up on dailys system" in str(e).lower()
 
 
 def test_trigger_morning_query(hallo_getter):
