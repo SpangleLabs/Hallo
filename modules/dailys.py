@@ -459,7 +459,6 @@ class DailysField(metaclass=ABCMeta):
 class DailysSleepField(DailysField):
     # Does sleep and wake times, sleep notes, dream logs, shower?
     type_name = "sleep"
-    col_names = ["sleep", "sleep times"]
     WAKE_WORDS = ["morning", "wake", "woke"]
     SLEEP_WORDS = ["goodnight", "sleep", "nini", "night"]
     json_key_wake_time = "wake_time"
@@ -550,7 +549,6 @@ class DailysSleepField(DailysField):
 
 
 class DailysMoodField(DailysField):
-    col_names = ["mood", "hallo mood", "mood summary"]
     type_name = "mood"
     # Does mood measurements
     TIME_WAKE = "WakeUpTime"  # Used as a time entry, to signify that it should take a mood measurement in the morning,
@@ -858,7 +856,6 @@ class DailysAnimalsField(DailysField):
 
 class DailysDuolingoField(DailysField):
     type_name = "duolingo"
-    col_names = ["duolingo", "duolingo friends", "duolingo friends list"]
 
     def __init__(self, spreadsheet, username, password):
         super().__init__(spreadsheet)

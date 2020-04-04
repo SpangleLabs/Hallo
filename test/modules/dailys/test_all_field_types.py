@@ -33,17 +33,6 @@ def get_field_objects(test_user, test_chan):
     return field_obs
 
 
-def test_field_col_names_dont_overlap():
-    """
-    Test that field classes don't have names values which overlap each other
-    """
-    all_names = []
-    for field_class in DailysFieldFactory.fields:
-        for name in field_class.col_names:
-            assert name not in all_names
-            all_names.append(name)
-
-
 def test_field_type_name_doesnt_overlap():
     """
     Test that field classes don't have type_name values which overlap each other
