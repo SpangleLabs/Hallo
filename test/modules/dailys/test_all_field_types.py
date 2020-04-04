@@ -1,7 +1,6 @@
 import importlib
 import inspect
 import os
-import unittest
 from datetime import time
 
 import pytest
@@ -14,7 +13,6 @@ from modules.dailys import (
     DailysFieldFactory,
     DailysField,
 )
-from test.test_base import TestBase
 from test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
@@ -131,13 +129,10 @@ def test_sub_class_has_type_name(field_class):
     assert field_class.type_name == field_class.type_name.lower()
 
 
-class TestAllFieldTypes(TestBase, unittest.TestCase):
-
-    def test_to_json_contains_field_type(self):
-        """
-        Test that to_json() for each field type remembers to set field_type in the json dict
-        """
-        for field_obj in get_field_objects(self.test_user, self.test_chan):
-            with self.subTest(field_obj.__class__.__name__):
-                json_obj = field_obj.to_json()
-                assert "type_name" in json_obj
+@pytest.mark.parametrize("field_object", get_field_objects(None, None))
+def test_to_json_contains_field_type(field_object):
+    """
+    Test that to_json() for each field type remembers to set field_type in the json dict
+    """
+    json_obj = field_object.to_json()
+    assert "type_name" in json_obj
