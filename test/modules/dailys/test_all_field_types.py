@@ -5,14 +5,14 @@ from datetime import time
 
 import pytest
 
+import modules
 from events import EventMessage
 from modules.dailys import (
     DailysDuolingoField,
     DailysMoodField,
     DailysSleepField,
     DailysFieldFactory,
-    DailysField,
-)
+    DailysDreamField)
 from test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
@@ -30,6 +30,7 @@ def get_field_objects(test_user, test_chan):
         )
     )
     field_obs.append(DailysSleepField(spreadsheet))
+    field_obs.append(DailysDreamField(spreadsheet))
     return field_obs
 
 
@@ -53,7 +54,7 @@ def test_field_classes_added_to_factory(hallo_getter):
     for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
         function_class = function_tuple[1]
         # Only look at subclasses of DailysField
-        if not issubclass(function_class, DailysField):
+        if not issubclass(function_class, modules.dailys.DailysField):
             continue
         # Only look at implemented classes.
         spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
