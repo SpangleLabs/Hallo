@@ -89,27 +89,6 @@ def test_all_field_classes_in_field_objs(field_class, hallo_getter):
 @pytest.mark.parametrize(
     "field_class", DailysFieldFactory.fields
 )
-def test_sub_class_has_names(field_class):
-    """
-    Test that each field class has a non-empty list of column names
-    """
-    assert len(field_class.col_names) != 0
-
-
-@pytest.mark.parametrize(
-    "field_class", DailysFieldFactory.fields
-)
-def test_sub_class_names_lower_case(field_class):
-    """
-    Test that field class names are all lower case
-    """
-    for name in field_class.col_names:
-        assert name == name.lower()
-
-
-@pytest.mark.parametrize(
-    "field_class", DailysFieldFactory.fields
-)
 def test_sub_class_has_type_name(field_class):
     """
     Test that the type_name value has been set for each field class, and that it is lower case
