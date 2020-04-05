@@ -1,5 +1,7 @@
 import urllib.request
 
+import pytest
+
 from events import EventMessage
 from inc.commons import Commons
 from modules.silly import Reply
@@ -58,6 +60,7 @@ def test_reply_pew(hallo_getter):
     assert response is None
 
 
+@pytest.mark.external_integration
 def test_reply_haskell(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"silly"})
     reply_func = hallo.function_dispatcher.get_function_by_name("reply")
@@ -129,6 +132,7 @@ def test_reply_who_hallo(hallo_getter):
     assert "built by dr-spangle" in response.text
 
 
+@pytest.mark.external_integration
 def test_reply_mfw(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"silly"})
     reply_func = hallo.function_dispatcher.get_function_by_name("reply")

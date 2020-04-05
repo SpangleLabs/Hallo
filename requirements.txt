@@ -5,6 +5,7 @@ google-api-python-client
 oauth2client
 requests
 pytest
+requests-mock
 duolingo-api
 publicsuffixlist
 isodate

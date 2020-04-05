@@ -461,7 +461,6 @@ class DailysField(metaclass=ABCMeta):
 
 class DailysFAField(DailysField):
     type_name = "furaffinity"
-    col_names = ["furaffinity", "fa notifications", "furaffinity notifications"]
 
     @staticmethod
     def passive_events():
@@ -534,7 +533,6 @@ class DailysFAField(DailysField):
 class DailysSleepField(DailysField):
     # Does sleep and wake times, sleep notes, dream logs, shower?
     type_name = "sleep"
-    col_names = ["sleep", "sleep times"]
     WAKE_WORDS = ["morning", "wake", "woke"]
     SLEEP_WORDS = ["goodnight", "sleep", "nini", "night"]
     json_key_wake_time = "wake_time"
@@ -625,7 +623,6 @@ class DailysSleepField(DailysField):
 
 
 class DailysMoodField(DailysField):
-    col_names = ["mood", "hallo mood", "mood summary"]
     type_name = "mood"
     # Does mood measurements
     TIME_WAKE = "WakeUpTime"  # Used as a time entry, to signify that it should take a mood measurement in the morning,
@@ -667,42 +664,20 @@ class DailysMoodField(DailysField):
 
     @staticmethod
     def create_from_input(event, spreadsheet):
-        clean_input = event.command_args[len(DailysMoodField.type_name) :].strip()
-        input_split = clean_input.split(";")
-        if len(input_split) not in [2, 3]:
-            raise DailysException(
-                "Mood setup must contain times, then a semicolon, then mood measurements."
+        static_data = Commons.load_url_json(
+            "{}/stats/{}/{}/".format(
+                spreadsheet.dailys_url, "mood", "static"
             )
-        input_times = input_split[0].lower()
-        input_moods = input_split[1]
-        # Parse times
+        )
+        if len(static_data) == 0:
+            raise DailysException("Mood field static data has not been set up on dailys system.")
+        moods = static_data[0]["data"]["moods"]
         times = []
-        for input_time in input_times.split():
-            # Check if it's a 24hour time
-            if (
-                len(input_time.replace(":", "")) == 4
-                and input_time.replace(":", "").isdigit()
-            ):
-                try:
-                    times.append(time(int(input_time[:2]), int(input_time[-2:])))
-                    continue
-                except ValueError:
-                    raise DailysException(
-                        "Please provide times as 24 hour hh:mm formatted times."
-                    )
-            # Check if it's wake or sleep
-            if input_time in DailysSleepField.WAKE_WORDS:
-                times.append(DailysMoodField.TIME_WAKE)
-                continue
-            if input_time in DailysSleepField.SLEEP_WORDS:
-                times.append(DailysMoodField.TIME_SLEEP)
-                continue
-            raise DailysException(
-                'I don\'t recognise that time, "{}". Please provide times as 24 hour hh:mm '
-                "formatted times, or 'wake' or 'sleep'.".format(input_time)
-            )
-        # Parse mood measurements
-        moods = input_moods.split()
+        for time_str in static_data[0]["data"]["times"]:
+            if time_str in [DailysMoodField.TIME_WAKE, DailysMoodField.TIME_SLEEP]:
+                times.append(time_str)
+            else:
+                times.append(datetime.strptime(time_str, "%H:%M:%S").time())
         # Return new field
         return DailysMoodField(spreadsheet, times, moods)
 
@@ -928,9 +903,16 @@ class DailysMoodField(DailysField):
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
-        moods = json_obj["moods"]
+        static_data = Commons.load_url_json(
+            "{}/stats/{}/{}/".format(
+                spreadsheet.dailys_url, "mood", "static"
+            )
+        )
+        if len(static_data) == 0:
+            raise DailysException("Mood field static data has not been set up.")
+        moods = static_data[0]["data"]["moods"]
         times = []
-        for time_str in json_obj["times"]:
+        for time_str in static_data[0]["data"]["times"]:
             if time_str in [DailysMoodField.TIME_WAKE, DailysMoodField.TIME_SLEEP]:
                 times.append(time_str)
             else:
@@ -948,7 +930,6 @@ class DailysAnimalsField(DailysField):
 
 class DailysDuolingoField(DailysField):
     type_name = "duolingo"
-    col_names = ["duolingo", "duolingo friends", "duolingo friends list"]
 
     def __init__(self, spreadsheet, username, password):
         super().__init__(spreadsheet)
@@ -1029,6 +1010,45 @@ class DailysDuolingoField(DailysField):
         return DailysDuolingoField(spreadsheet, json_obj["username"], password)
 
 
+class DailysDreamField(DailysField):
+    type_name = "dreams"
+
+    @staticmethod
+    def create_from_input(event, spreadsheet):
+        return DailysDreamField(spreadsheet)
+
+    @staticmethod
+    def passive_events():
+        return [EventMessage]
+
+    def passive_trigger(self, evt):
+        if not isinstance(evt, EventMessage):
+            return
+        if not evt.text.lower().startswith("dream"):
+            return
+        data_date = evt.get_send_time().date()
+        dream_text = evt.text
+        new_dream = {"text": dream_text}
+        dream_data = self.load_data(data_date)
+        if dream_data is None:
+            dream_data = {"dreams": []}
+        dream_data["dreams"].append(new_dream)
+        dream_count = len(dream_data["dreams"])
+        self.save_data(dream_data, data_date)
+        # Send date to destination
+        dream_ordinal = Commons.ordinal(dream_count)
+        self.message_channel("Logged dream. {} of the day.".format(dream_ordinal))
+
+    def to_json(self):
+        json_obj = dict()
+        json_obj["type_name"] = self.type_name
+        return json_obj
+
+    @staticmethod
+    def from_json(json_obj, spreadsheet):
+        return DailysDreamField(spreadsheet)
+
+
 class DailysSplooField(DailysField):
     pass
 
@@ -1071,7 +1091,7 @@ class DailysShutdownField(DailysField):
 
 
 class DailysFieldFactory:
-    fields = [DailysFAField, DailysDuolingoField, DailysSleepField, DailysMoodField]
+    fields = [DailysFAField, DailysDuolingoField, DailysSleepField, DailysMoodField, DailysDreamField]
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
