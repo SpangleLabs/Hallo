@@ -94,7 +94,7 @@ def test_create_from_input__no_static_data(hallo_getter, requests_mock):
     # Try and create dailys field
     with pytest.raises(modules.dailys.DailysException) as e:
         DailysMoodField.create_from_input(evt, spreadsheet)
-    assert "mood field static data has not been set up on dailys system" in str(e).lower()
+    assert "mood field static data has not been set up on dailys system" in str(e.value).lower()
 
 
 def test_trigger_morning_query(hallo_getter):
