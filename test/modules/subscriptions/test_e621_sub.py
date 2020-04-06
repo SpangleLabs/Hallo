@@ -56,8 +56,9 @@ def test_format_item(hallo_getter):
     json_data = dict()
     json_data["id"] = item_id
     json_data["rating"] = item_rating
-    json_data["file_url"] = "http://spangle.org.uk/haskell.jpg"
-    json_data["file_ext"] = "jpg"
+    json_data["file"] = {}
+    json_data["file"]["url"] = "http://spangle.org.uk/haskell.jpg"
+    json_data["file"]["ext"] = "jpg"
     # Get output and check it
     output = rf.format_item(json_data).text
     assert item_id in output
@@ -99,8 +100,10 @@ def test_output_item(hallo_getter):
     item_elem = {
         "id": item_id,
         "rating": item_rate,
-        "file_url": "12345",
-        "file_ext": "png",
+        "file": {
+            "url": "12345",
+            "ext": "png"
+        }
     }
     # Check output works with given server and channel
     rf1 = E621Sub(test_server, test_channel, "cabinet")
