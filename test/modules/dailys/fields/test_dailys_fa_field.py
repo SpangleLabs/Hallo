@@ -3,8 +3,9 @@ import os
 import unittest
 from datetime import timedelta
 
+import modules
 from events import EventDay, EventMessage
-from modules.dailys import DailysFAField, DailysException
+from modules.dailys import DailysFAField
 from modules.user_data import UserDataParser, FAKeyData
 from test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 from test.test_base import TestBase
@@ -20,7 +21,7 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
         try:
             field.passive_trigger(EventDay())
             assert False, "Should have failed to check FA data."
-        except DailysException as e:
+        except modules.dailys.DailysException as e:
             assert (
                 "no fa data" in str(e).lower()
             ), "Exception should say there's no FA data."
@@ -73,7 +74,7 @@ class DailysFAFieldTest(TestBase, unittest.TestCase):
             assert (
                 False
             ), "Should have failed to create DailysFAField due to missing FA login info."
-        except DailysException as e:
+        except modules.dailys.DailysException as e:
             assert (
                 "no fa data" in str(e).lower()
             ), "Exception did not mention that there was no FA data set up."
