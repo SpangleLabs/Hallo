@@ -214,7 +214,12 @@ class Dailys(Function):
         )
 
     def run(self, event):
-        pass  # TODO
+        if event.text.strip().lower() in ["reload", "redeploy", "refresh"]:
+            self.dailys_repo.save_json()
+            self.dailys_repo = None
+            self.get_dailys_repo(event.server.hallo)
+            return event.reply(event.create_response("Dailys repository reloaded."))
+        return event.reply(event.create_response("Dailys system does not understand this command."))
 
     def passive_run(self, event, hallo_obj):
         repo = self.get_dailys_repo(hallo_obj)
