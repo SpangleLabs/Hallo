@@ -73,11 +73,12 @@ class DailysRegister(Function):
             )
         elif len(clean_input) == 2:
             try:
-                resp = Commons.load_url_json(clean_input[0])
+                spreadsheet = DailysSpreadsheet(
+                    event.user, event.channel, clean_input[0], clean_input[1]
+                )
+                resp = spreadsheet.read_path("stats/")
                 if isinstance(resp, list):
-                    spreadsheet = DailysSpreadsheet(
-                        event.user, event.channel, clean_input[0], clean_input[1]
-                    )
+                    spreadsheet = None
             except HTTPError:
                 pass
             if spreadsheet is None:
@@ -89,7 +90,7 @@ class DailysRegister(Function):
                 "Please specify a dailys API URL and an optional auth key."
             )
         # Check the stats/ endpoint returns a list.
-        resp = Commons.load_url_json(spreadsheet.dailys_url)
+        resp = spreadsheet.read_path("stats/")
         if not isinstance(resp, list):
             return event.create_response("Could not locate Dailys API at this URL.")
         # Save the spreadsheet
@@ -165,6 +166,7 @@ class DailysAddField(Function):
         new_field = matching_field.create_from_input(event, spreadsheet)
         # TODO: check if field already assigned, or if we already have a field of that type?
         spreadsheet.add_field(new_field)
+        dailys_repo.save_json()
         return event.create_response("Added a new field to your dailys API data.")
 
 
@@ -216,7 +218,12 @@ class Dailys(Function):
         )
 
     def run(self, event):
-        pass  # TODO
+        if event.text.strip().lower() in ["reload", "redeploy", "refresh"]:
+            self.dailys_repo.save_json()
+            self.dailys_repo = None
+            self.get_dailys_repo(event.server.hallo)
+            return event.reply(event.create_response("Dailys repository reloaded."))
+        return event.reply(event.create_response("Dailys system does not understand this command."))
 
     def passive_run(self, event, hallo_obj):
         repo = self.get_dailys_repo(hallo_obj)
@@ -325,6 +332,22 @@ class DailysSpreadsheet:
             headers,
         )
 
+    def read_path(self, path):
+        """
+        Save given data in a specified column for the current date row.
+        :type path: str
+        :rtype: list | dict
+        """
+        headers = None
+        if self.dailys_key is not None:
+            headers = [["Authorization", self.dailys_key]]
+        return Commons.load_url_json(
+            "{}/{}".format(
+                self.dailys_url, path
+            ),
+            headers
+        )
+
     def read_field(self, dailys_field, data_date):
         """
         Save given data in a specified column for the current date row.
@@ -334,11 +357,7 @@ class DailysSpreadsheet:
         """
         if dailys_field.type_name is None:
             raise DailysException("Cannot read from unassigned dailys field")
-        data = Commons.load_url_json(
-            "{}/stats/{}/{}/".format(
-                self.dailys_url, dailys_field.type_name, data_date.isoformat()
-            )
-        )
+        data = self.read_path("stats/{}/{}/".format(dailys_field.type_name, data_date.isoformat()))
         if len(data) == 0:
             return None
         return data[0]["data"]
@@ -664,11 +683,7 @@ class DailysMoodField(DailysField):
 
     @staticmethod
     def create_from_input(event, spreadsheet):
-        static_data = Commons.load_url_json(
-            "{}/stats/{}/{}/".format(
-                spreadsheet.dailys_url, "mood", "static"
-            )
-        )
+        static_data = spreadsheet.read_path("stats/mood/static/")
         if len(static_data) == 0:
             raise DailysException("Mood field static data has not been set up on dailys system.")
         moods = static_data[0]["data"]["moods"]
@@ -903,11 +918,7 @@ class DailysMoodField(DailysField):
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
-        static_data = Commons.load_url_json(
-            "{}/stats/{}/{}/".format(
-                spreadsheet.dailys_url, "mood", "static"
-            )
-        )
+        static_data = spreadsheet.read_path("stats/mood/static/")
         if len(static_data) == 0:
             raise DailysException("Mood field static data has not been set up.")
         moods = static_data[0]["data"]["moods"]
