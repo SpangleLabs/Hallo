@@ -162,6 +162,7 @@ class DailysAddField(Function):
         new_field = matching_field.create_from_input(event, spreadsheet)
         # TODO: check if field already assigned, or if we already have a field of that type?
         spreadsheet.add_field(new_field)
+        dailys_repo.save_json()
         return event.create_response("Added a new field to your dailys API data.")
 
 
