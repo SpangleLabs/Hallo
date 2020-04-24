@@ -414,22 +414,15 @@ class RandomQuote(Function):
         self.help_docs = "Returns a quote. Format: random quote"
 
     def run(self, event):
-        api_key = event.server.hallo.get_api_key("mashape")
-        if api_key is None:
-            return event.create_response("No API key loaded for mashape.")
-        url = "https://andruxnet-random-famous-quotes.p.mashape.com/"
-        # Construct headers
-        headers = [
-            ["X-Mashape-Key", api_key],
-            ["Content-Type", "application/x-www-form-urlencoded"],
-            ["Accept", "application/json"],
-        ]
+        url = "https://type.fit/api/quotes"
         # Get api response
-        json_dict = Commons.load_url_json(url, headers)[0]
+        json_dict = Commons.load_url_json(url)
+        # Select a random quote from response
+        quote = Commons.get_random_choice(json_dict)[0]
         # Construct response
-        quote = json_dict["quote"]
-        author = json_dict["author"]
-        output = '"{}" - {}'.format(quote, author)
+        quote_text = quote["text"]
+        author = quote["author"]
+        output = '"{}" - {}'.format(quote_text, author)
         return event.create_response(output)
 
 
