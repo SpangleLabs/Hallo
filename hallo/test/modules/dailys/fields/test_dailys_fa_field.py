@@ -10,7 +10,7 @@ from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetM
 
 
 def test_day_rollover_no_data(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
     # Setup field
@@ -58,7 +58,7 @@ def test_day_rollover(hallo_getter):
 
 
 def test_create_from_input_no_fa_data(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "furaffinity"
