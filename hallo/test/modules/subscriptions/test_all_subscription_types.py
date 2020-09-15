@@ -146,7 +146,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         """
         Test tht all subscription classes which are implemented are added to SubscriptionFactory
         """
-        module_obj = importlib.import_module("modules.subscriptions")
+        module_obj = importlib.import_module("hallo.modules.subscriptions")
         # Loop through module, searching for Subscriptions subclasses.
         for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
             function_class = function_tuple[1]
