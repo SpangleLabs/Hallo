@@ -5,6 +5,7 @@ import unittest
 
 import pytest
 
+import hallo.modules.subscriptions
 from hallo.events import EventMessage
 from hallo.modules.subscriptions import (
     SubscriptionFactory,
