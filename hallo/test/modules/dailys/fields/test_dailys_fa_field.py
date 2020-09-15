@@ -2,7 +2,7 @@ import json
 import os
 from datetime import timedelta
 
-import hallo.modules
+import hallo.modules.dailys
 from hallo.events import EventDay, EventMessage
 from hallo.modules.dailys import DailysFAField
 from hallo.modules.user_data import UserDataParser, FAKeyData
@@ -19,7 +19,7 @@ def test_day_rollover_no_data(hallo_getter):
     try:
         field.passive_trigger(EventDay())
         assert False, "Should have failed to check FA data."
-    except modules.dailys.DailysException as e:
+    except hallo.modules.dailys.DailysException as e:
         assert (
                 "no fa data" in str(e).lower()
         ), "Exception should say there's no FA data."
@@ -76,7 +76,7 @@ def test_create_from_input_no_fa_data(hallo_getter):
         assert (
             False
         ), "Should have failed to create DailysFAField due to missing FA login info."
-    except modules.dailys.DailysException as e:
+    except hallo.modules.dailys.DailysException as e:
         assert (
             "no fa data" in str(e).lower()
         ), "Exception did not mention that there was no FA data set up."
