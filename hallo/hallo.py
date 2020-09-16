@@ -3,6 +3,8 @@ import json
 import time
 import re
 from datetime import datetime
+from typing import Union, Set, Dict, Optional
+
 import heartbeat
 
 from hallo.errors import MessageError
@@ -22,34 +24,21 @@ heartbeat_app_name = "Hallo"
 
 class Hallo:
     def __init__(self):
-        self.default_nick = "Hallo"
-        """:type : str"""
-        self.default_prefix = False
-        """:type : bool | str"""
-        self.default_full_name = "HalloBot HalloHost HalloServer :an irc bot by spangle"
-        """:type : str"""
-        self.open = False
-        """:type : bool"""
-        self.user_group_list = set()
-        """:type : set[UserGroup]"""
-        self.server_list = set()
-        """:type : set[Server]"""
-        self.logger = Logger(self)
-        """:type : Logger"""
-        self.printer = Printer(self)
-        """:type : Printer"""
-        self.api_key_list = {}
-        """:type : dict[str,str]"""
-        # Create ServerFactory
-        self.server_factory = ServerFactory(self)
-        """:type : ServerFactory"""
-        self.permission_mask = PermissionMask()
-        """:type : PermissionMask"""
+        self.default_nick: str = "Hallo"
+        self.default_prefix: Union[bool, str] = False
+        self.default_full_name: str = "HalloBot HalloHost HalloServer :an irc bot by spangle"
+        self.open: bool = False
+        self.user_group_list: Set[UserGroup] = set()
+        self.server_list: Set[Server] = set()
+        self.logger: Logger = Logger(self)
+        self.printer: Printer = Printer(self)
+        self.api_key_list: Dict[str, str] = {}
+        self.server_factory: ServerFactory = ServerFactory(self)
+        self.permission_mask: PermissionMask = PermissionMask()
         # TODO: manual FunctionDispatcher construction, user input?
-        self.function_dispatcher = None
-        """:type : FunctionDispatcher"""
+        self.function_dispatcher: FunctionDispatcher = None
 
-    def start(self):
+    def start(self) -> None:
         # If no function dispatcher, create one
         # TODO: manual FunctionDispatcher construction, user input?
         if self.function_dispatcher is None:
@@ -91,14 +80,14 @@ class Hallo:
         self.printer.output("connected to all servers.")
         self.core_loop_time_events()
 
-    def connected_to_any_servers(self):
+    def connected_to_any_servers(self) -> bool:
         auto_connecting_servers = [
             server for server in self.server_list if server.auto_connect
         ]
         connected_list = [server.is_connected() for server in auto_connecting_servers]
         return any(connected_list)
 
-    def core_loop_time_events(self):
+    def core_loop_time_events(self) -> None:
         """
         Runs a loop to keep hallo running, while calling time events with the FunctionDispatcher passive dispatcher
         """
@@ -122,7 +111,7 @@ class Hallo:
             time.sleep(0.1)
         self.close()
 
-    def save_json(self):
+    def save_json(self) -> None:
         """
         Saves the whole hallo config to a JSON file
         :return: None
@@ -148,7 +137,7 @@ class Hallo:
             json.dump(json_obj, f, indent=2)
 
     @staticmethod
-    def load_json():
+    def load_json() -> 'Hallo':
         """
         Loads up the json configuration and creates a new Hallo object
         :return: new Hallo object
@@ -185,28 +174,25 @@ class Hallo:
             new_hallo.add_api_key(api_key, json_obj["api_keys"][api_key])
         return new_hallo
 
-    def add_user_group(self, user_group):
+    def add_user_group(self, user_group: UserGroup) -> None:
         """
         Adds a new UserGroup to the UserGroup list
         :param user_group: UserGroup to add to the hallo object's list of user groups
-        :type user_group: UserGroup
         """
         self.user_group_list.add(user_group)
 
-    def get_user_group_by_name(self, user_group_name):
+    def get_user_group_by_name(self, user_group_name: str) -> Optional[UserGroup]:
         """
         Returns the UserGroup with the specified name
         :param user_group_name: Name of user group to search for
-        :type user_group_name: str
         :return: User Group matching specified name, or None
-        :rtype: UserGroup | None
         """
         for user_group in self.user_group_list:
             if user_group_name == user_group.name:
                 return user_group
         return None
 
-    def remove_user_group(self, user_group):
+    def remove_user_group(self, user_group: UserGroup) -> None:
         """
         Removes a user group specified by name
         :param user_group: Name of the user group to remove from list
@@ -214,7 +200,7 @@ class Hallo:
         """
         self.user_group_list.remove(user_group)
 
-    def add_server(self, server):
+    def add_server(self, server: Server) -> None:
         """
         Adds a new server to the server list
         :param server: Server to add to Hallo's list of servers
@@ -222,20 +208,18 @@ class Hallo:
         """
         self.server_list.add(server)
 
-    def get_server_by_name(self, server_name):
+    def get_server_by_name(self, server_name: str) -> Optional[Server]:
         """
         Returns a server matching the given name
         :param server_name: name of the server to search for
-        :type server_name: str
         :return: Server matching specified name of None
-        :rtype: Server | None
         """
         for server in self.server_list:
             if server.name.lower() == server_name.lower():
                 return server
         return None
 
-    def remove_server(self, server):
+    def remove_server(self, server: Server) -> None:
         """
         Removes a server from the list of servers
         :param server: The server to remove
@@ -243,17 +227,16 @@ class Hallo:
         """
         self.server_list.remove(server)
 
-    def remove_server_by_name(self, server_name):
+    def remove_server_by_name(self, server_name: str) -> None:
         """
         Removes a server, specified by name, from the list of servers
         :param server_name: Name of the server to remove
-        :type server_name: str
         """
         for server in self.server_list:
             if server.name.lower() == server_name.lower():
                 self.server_list.remove(server)
 
-    def close(self):
+    def close(self) -> None:
         """Shuts down the entire program"""
         for server in self.server_list:
             if server.state != Server.STATE_CLOSED:
@@ -262,7 +245,7 @@ class Hallo:
         self.save_json()
         self.open = False
 
-    def rights_check(self, right_name):
+    def rights_check(self, right_name: str) -> bool:
         """
         Checks the value of the right with the specified name. Returns boolean
         :param right_name: name of the user right to search for
@@ -284,7 +267,7 @@ class Hallo:
             self.permission_mask.set_right(right_name, False)
             return False
 
-    def add_api_key(self, name, key):
+    def add_api_key(self, name: str, key: str) -> None:
         """
         Adds an api key to the list, or overwrites one.
         :param name: Name of the API to add
@@ -294,7 +277,7 @@ class Hallo:
         """
         self.api_key_list[name] = key
 
-    def get_api_key(self, name):
+    def get_api_key(self, name: str) -> Optional[str]:
         """
         Returns a specified api key.
         :param name: Name of the API key to retrieve
@@ -303,7 +286,7 @@ class Hallo:
             return self.api_key_list[name]
         return None
 
-    def manual_server_connect(self):
+    def manual_server_connect(self) -> None:
         # TODO: add ability to connect to non-IRC servers
         print(
             "No servers have been loaded or connected to. Please connect to an IRC server."

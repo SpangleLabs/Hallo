@@ -1,6 +1,7 @@
 import importlib
 import sys
 import inspect
+from typing import Set
 from xml.dom import minidom
 
 from hallo.errors import (
@@ -25,7 +26,7 @@ class FunctionDispatcher(object):
     FunctionDispatcher is a class to manage functions and to send function requests to the relevant function.
     """
 
-    def __init__(self, module_list, hallo):
+    def __init__(self, module_list: Set[str], hallo):
         """
         Constructor
         :type module_list: set[str]
