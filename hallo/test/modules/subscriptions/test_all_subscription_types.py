@@ -56,7 +56,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
     def get_sub_create_events(self):
         sub_repo = SubscriptionRepo()
         fa_key = FAKey(self.test_user, self.cookie_a, self.cookie_b)
-        fa_commons = sub_repo.get_common_config_by_type(modules.subscriptions.FAKeysCommon)  # type: FAKeysCommon
+        fa_commons = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.FAKeysCommon)  # type: FAKeysCommon
         fa_commons.add_key(fa_key)
         sub_evts = dict()
         sub_evts[E621Sub] = EventMessage(self.server, self.test_chan, self.test_user, "cabinet")
@@ -182,7 +182,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         We can check this by seeing the last_check time is not None
         """
         sub_repo = SubscriptionRepo()
-        fa_keys = sub_repo.get_common_config_by_type(modules.subscriptions.FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.FAKeysCommon)  # type: FAKeysCommon
         fa_keys.add_key(FAKey(self.test_user, self.cookie_a, self.cookie_b))
         evts_dict = self.get_sub_create_events()
         for sub_class in evts_dict:
