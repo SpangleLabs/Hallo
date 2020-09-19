@@ -3,12 +3,9 @@ import logging
 import os
 import sys
 from logging import FileHandler
-from threading import Lock
 from typing import Dict, Optional
 
 from hallo.destination import Destination
-from hallo.errors import Error
-from hallo.events import Event
 from hallo.server import Server
 
 
@@ -85,21 +82,24 @@ class ChatLogHandler(logging.Handler):
 def setup_logging() -> None:
     log_dir = "logs"
     os.makedirs(log_dir, exist_ok=True)
-    formatter = logging.Formatter("{asctime}:{levelname}:{name}:{message}", style="{")
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(formatter)
 
     # Set up chat logging
     chat_logger = logging.getLogger("chat")
     chat_logger.setLevel(logging.DEBUG)
-    chat_logger.addHandler(console_handler)
+    chat_console_formatter = logging.Formatter("[{asctime}] {server} {message}", style="{", datefmt="%H:%M:%S")
+    chat_console_handler = logging.StreamHandler(sys.stdout)
+    chat_console_handler.setFormatter(chat_console_formatter)
+    chat_logger.addHandler(chat_console_handler)
     chat_formatter = logging.Formatter("[{asctime}] {message}", style="{", datefmt="%H:%M:%S")
     chat_log_handler = ChatLogHandler(log_dir)
     chat_log_handler.setFormatter(chat_formatter)
     chat_logger.addHandler(chat_log_handler)
 
     # Set up core logger, for errors and such
+    formatter = logging.Formatter("{asctime}:{levelname}:{name}:{message}", style="{")
     hallo_logger = logging.getLogger("hallo")
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
     hallo_logger.addHandler(console_handler)
     log_handler = FileHandler(f"{log_dir}/hallo.log")
     log_handler.setFormatter(formatter)
@@ -111,35 +111,3 @@ def setup_logging() -> None:
     usage_handler = FileHandler(f"{log_dir}/usage.log")
     usage_handler.setFormatter(formatter)
     usage_logger.addHandler(usage_handler)
-
-
-def indent_all_but_first_line(text):
-    return text.replace("\n", "\n   ")
-
-
-logger = logging.getLogger(__name__)
-
-
-class Logger:
-    """
-    Logging class. This is created and stored by the Hallo object.
-    It exists in order to provide a single entry point to all logging.
-    """
-
-    def __init__(self, hallo):
-        """
-        Constructor
-        """
-        self.hallo = hallo
-        self._lock = Lock()
-
-    def log(self, loggable):
-        """
-        The function which actually writes the logs.
-        :type loggable: events.Event | errors.Error
-        """
-        # Log the event
-        if isinstance(loggable, Event):
-            loggable.log()
-        if isinstance(loggable, Error):
-            logger.error(loggable.get_log_line())

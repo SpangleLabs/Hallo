@@ -1,5 +1,6 @@
 import hashlib
 import json
+import logging
 import os
 import re
 import urllib.parse
@@ -20,6 +21,9 @@ from hallo.function import Function
 from hallo.inc.commons import Commons, CachedObject
 from hallo.inc.input_parser import InputParser
 from hallo.modules.user_data import FAKeyData, UserDataParser
+
+
+logger = logging.getLogger(__name__)
 
 
 def is_valid_iso8601_period(try_period):
@@ -3729,8 +3733,7 @@ class SubscriptionCheck(Function):
                         search_sub.send_item(search_item)
                 except Exception as e:
                     error = SubscriptionCheckError(search_sub, e)
-                    hallo.logger.log(error)
-                    hallo.printer.output(error)
+                    logger.error(error.get_log_line())
             # Save list
             sub_repo.save_json()
         # Output response to user
@@ -3762,8 +3765,7 @@ class SubscriptionCheck(Function):
                             search_sub.send_item(search_item)
                     except Exception as e:
                         error = SubscriptionCheckError(search_sub, e)
-                        hallo_obj.logger.log(error)
-                        hallo_obj.printer.output(error)
+                        logger.error(error.get_log_line())
             # Save list
             sub_repo.save_json()
 

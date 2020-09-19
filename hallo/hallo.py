@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import logging
 import time
 import re
 from datetime import datetime
@@ -15,11 +16,13 @@ from hallo.server_factory import ServerFactory
 from hallo.server_irc import ServerIRC
 from hallo.user_group import UserGroup
 from hallo.function_dispatcher import FunctionDispatcher
-from hallo.inc.logger import Logger
 from hallo.inc.printer import Printer
 
 heartbeat.heartbeat_app_url = "https://heartbeat.spangle.org.uk/"
 heartbeat_app_name = "Hallo"
+
+logger = logging.getLogger(__name__)
+usage_logger = logging.getLogger("usage")
 
 
 class Hallo:
@@ -30,7 +33,6 @@ class Hallo:
         self.open: bool = False
         self.user_group_list: Set[UserGroup] = set()
         self.server_list: Set[Server] = set()
-        self.logger: Logger = Logger(self)
         self.printer: Printer = Printer(self)
         self.api_key_list: Dict[str, str] = {}
         self.server_factory: ServerFactory = ServerFactory(self)
@@ -72,8 +74,7 @@ class Hallo:
             if count > 6000:
                 self.open = False
                 error = MessageError("No servers managed to connect in 60 seconds.")
-                self.logger.log(error)
-                self.printer.output(error)
+                logger.error(error.get_log_line())
                 return
         self.open = True
         # Main loop, sticks around throughout the running of the bot
@@ -148,8 +149,7 @@ class Hallo:
                 json_obj = json.load(f)
         except (OSError, IOError):
             error = MessageError("No current config, loading from default.")
-            self.logger.log(error)
-            self.printer.output(error)
+            logger.error(error.get_log_line())
             with open("config/config-default.json", "r") as f:
                 json_obj = json.load(f)
         # Create new hallo object
