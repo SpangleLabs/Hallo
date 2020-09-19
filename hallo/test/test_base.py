@@ -15,8 +15,6 @@ class TestBase(unittest.TestCase):
         self.start_time = time.time()
         # Create a Hallo
         self.hallo = Hallo()
-        # Swap out raw printer function for empty
-        self.hallo.printer.output = lambda *args: None
         # Only the required modules, only 1 (mock) server
         # Todo: specify modules by test?
         self.function_dispatcher = FunctionDispatcher(

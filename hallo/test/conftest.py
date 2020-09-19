@@ -12,7 +12,6 @@ from hallo.test.server_mock import ServerMock
 def hallo_getter():
     # Create a Hallo
     hallo = Hallo()
-    hallo.printer.output = lambda *args: None
     hallo_thread = Thread(target=hallo.start,)
 
     def function(modules=None):

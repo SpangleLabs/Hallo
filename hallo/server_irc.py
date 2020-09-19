@@ -148,7 +148,7 @@ class ServerIRC(Server):
             self.state = Server.STATE_CLOSED
             return
         # Wait for the first message back from the server.
-        self.hallo.printer.output(
+        logger.info(
             "Waiting for first message from server: {}".format(self.name)
         )
         first_line = self.read_line_from_socket()
@@ -157,7 +157,7 @@ class ServerIRC(Server):
             raise ServerException
         self._welcome_message = first_line + "\n"
         # Send nick and full name to server
-        self.hallo.printer.output(
+        logger.info(
             "Sending nick and user info to server: {}".format(self.name)
         )
         self.send_raw("NICK {}".format(self.get_nick()))
@@ -196,7 +196,7 @@ class ServerIRC(Server):
             )
             self.send(ident_evt)
         # Join channels
-        self.hallo.printer.output(
+        logger.info(
             "Joining channels on {}, identifying.".format(self.name)
         )
         # Join relevant channels
@@ -958,7 +958,7 @@ class ServerIRC(Server):
         # Parse out numeric line data
         numeric_code = numeric_line.split()[1]
         # Print to console
-        self.hallo.printer.output(
+        logger.info(
             "[{}] Numeric server info: {}".format(self.name, numeric_line)
         )
         # TODO: add logging?

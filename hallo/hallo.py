@@ -16,7 +16,6 @@ from hallo.server_factory import ServerFactory
 from hallo.server_irc import ServerIRC
 from hallo.user_group import UserGroup
 from hallo.function_dispatcher import FunctionDispatcher
-from hallo.inc.printer import Printer
 
 heartbeat.heartbeat_app_url = "https://heartbeat.spangle.org.uk/"
 heartbeat_app_name = "Hallo"
@@ -33,7 +32,6 @@ class Hallo:
         self.open: bool = False
         self.user_group_list: Set[UserGroup] = set()
         self.server_list: Set[Server] = set()
-        self.printer: Printer = Printer(self)
         self.api_key_list: Dict[str, str] = {}
         self.server_factory: ServerFactory = ServerFactory(self)
         self.permission_mask: PermissionMask = PermissionMask()
@@ -63,7 +61,7 @@ class Hallo:
         ):
             self.manual_server_connect()
         # Connect to auto-connect servers
-        self.printer.output("connecting to servers")
+        logger.info("Connecting to servers")
         for server in self.server_list:
             if server.get_auto_connect():
                 server.start()
@@ -78,7 +76,7 @@ class Hallo:
                 return
         self.open = True
         # Main loop, sticks around throughout the running of the bot
-        self.printer.output("connected to all servers.")
+        logger.info("Connected to all servers.")
         self.core_loop_time_events()
 
     def connected_to_any_servers(self) -> bool:

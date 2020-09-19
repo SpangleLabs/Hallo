@@ -230,7 +230,7 @@ class FunctionDispatcher(object):
         """
         # Check it's an allowed module
         if module_name not in self.module_list:
-            self.hallo.printer.output(
+            logger.warning(
                 "Module name, {}, is not in allowed list: {}.".format(
                     module_name, ", ".join(self.module_list)
                 )
@@ -248,7 +248,7 @@ class FunctionDispatcher(object):
             try:
                 module_obj = importlib.import_module(full_module_name)
             except ImportError:
-                self.hallo.printer.output(
+                logger.warning(
                     "Could not import module: {}".format(full_module_name)
                 )
                 return False
