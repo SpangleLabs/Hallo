@@ -1,6 +1,10 @@
 import enum
+import logging
 from abc import ABCMeta
 from datetime import datetime
+from typing import List, Dict, Any
+
+from hallo.destination import Destination
 
 
 class RawData(metaclass=ABCMeta):
@@ -95,11 +99,15 @@ class Event(metaclass=ABCMeta):
         """
         return None
 
-    def get_log_locations(self):
-        """
-        :rtype: list[str]
-        """
+    def _get_log_extras(self) -> List[Dict[str, Any]]:
         return []
+
+    def log(self):
+        if self.get_log_line() is None:
+            return
+        chat_logger = logging.getLogger("chat")
+        for extra in self._get_log_extras():
+            chat_logger.info(self.get_log_line(), extra=extra)
 
     def get_print_line(self):
         """
@@ -152,11 +160,11 @@ class ServerEvent(Event, metaclass=ABCMeta):
             return self.raw_data.update_obj.message.date
         return super().get_send_time()
 
-    def get_log_locations(self):
+    def _get_log_extras(self) -> List[Dict[str, Any]]:
         return [
-            "{}/@/{}.txt".format(
-                self.server.name, self.get_send_time().strftime("%Y-%m-%d")
-            )
+            {
+                "server": self.server
+            }
         ]
 
     def get_print_line(self):
@@ -192,22 +200,19 @@ class UserEvent(ServerEvent, metaclass=ABCMeta):
         self.user = user
         """ :type : Destination.User | None"""
 
-    def get_log_locations(self):
+    def _get_log_extras(self) -> List[Dict[str, Any]]:
         channel_list = (
             self.user.get_channel_list()
             if self.is_inbound
             else self.server.channel_list
         )
-        log_files = []
-        for channel in channel_list:
-            log_files.append(
-                "{}/{}/{}.txt".format(
-                    self.server.name,
-                    channel.name,
-                    self.get_send_time().strftime("%Y-%m-%d"),
-                )
-            )
-        return log_files
+        return [
+            {
+                "server": self.server,
+                "destination": channel
+            }
+            for channel in channel_list
+        ]
 
 
 class EventQuit(UserEvent):
@@ -264,13 +269,12 @@ class ChannelEvent(ServerEvent, metaclass=ABCMeta):
         self.channel = channel
         """ :type : Destination.Channel | None"""
 
-    def get_log_locations(self):
+    def _get_log_extras(self) -> List[Dict[str, Any]]:
         return [
-            "{}/{}/{}.txt".format(
-                self.server.name,
-                self.channel.name if self.channel is not None else "@",
-                self.get_send_time().strftime("%Y-%m-%d"),
-            )
+            {
+                "server": self.server,
+                "destination": self.channel
+            }
         ]
 
 
@@ -285,13 +289,12 @@ class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
         ChannelEvent.__init__(self, server, channel, inbound=inbound)
         UserEvent.__init__(self, server, user, inbound=inbound)
 
-    def get_log_locations(self):
+    def _get_log_extras(self) -> List[Dict[str, Any]]:
         return [
-            "{}/{}/{}.txt".format(
-                self.server.name,
-                self.channel.name if self.channel is not None else self.user.name,
-                self.get_send_time().strftime("%Y-%m-%d"),
-            )
+            {
+                "server": self.server,
+                "destination": self.channel if self.channel is not None else self.user
+            }
         ]
 
 
