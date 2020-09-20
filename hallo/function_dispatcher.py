@@ -151,7 +151,9 @@ class FunctionDispatcher(object):
             function_obj = self.get_function_object(function_class)
             # Try running the function, if it fails, return an error message
             try:
+                logger.debug("Calling passive function: %s with event %s", function_obj.__class__.__name__, event)
                 response = function_obj.passive_run(event, self.hallo)
+                logger.debug("Got passive function response: %s", response)
                 if response is not None:
                     if isinstance(response, ChannelUserTextEvent) and isinstance(
                         event, ChannelUserTextEvent

@@ -3151,14 +3151,18 @@ class SubscriptionCheck(Function):
         # Check through all feeds to see which need updates
         sub_repo = self.get_sub_repo(hallo_obj)
         with sub_repo.sub_lock:
+            logger.debug("SubCheck - Got lock")
             for search_sub in sub_repo.sub_list:
                 # Only check those which have been too long since last check
                 if search_sub.needs_check():
                     # Get new items
                     try:
+                        logger.debug("SubCheck - Checking %s", search_sub)
                         new_items = search_sub.check()
+                        logger.debug("SubCheck - Got %s new items", len(new_items))
                         # Output all new items
                         for search_item in new_items:
+                            logger.debug("SubCheck - Sending")
                             search_sub.send_item(search_item)
                     except Exception as e:
                         error = SubscriptionCheckError(search_sub, e)

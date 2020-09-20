@@ -97,6 +97,7 @@ class Hallo:
                 second = EventSecond()
                 self.function_dispatcher.dispatch_passive(second)
             if now_date_time.minute != last_date_time.minute:
+                logger.debug("Core heartbeat")
                 heartbeat.update_heartbeat(heartbeat_app_name)
                 minute = EventMinute()
                 self.function_dispatcher.dispatch_passive(minute)
