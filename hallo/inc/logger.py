@@ -16,7 +16,7 @@ class ChatLogFileHandler(FileHandler):
 
     def _calculate_path(self) -> str:
         now = datetime.datetime.now()
-        return os.path.abspath(f"{self.dir_path}/{now.year}-{now.month}-{now.day}.txt")
+        return os.path.abspath(f"{self.dir_path}/{now.year:04}-{now.month:02}-{now.day:02}.txt")
 
     def _swap_stream(self, new_path: str) -> None:
         self.acquire()
@@ -57,7 +57,9 @@ class ChatLogHandler(logging.Handler):
         if dest_name not in self._handlers[server_name]:
             path = f"{self.root_dir}/{server_name}/{dest_name}/"
             os.makedirs(path, exist_ok=True)
-            self._handlers[server_name][dest_name] = ChatLogFileHandler(path)
+            handler = ChatLogFileHandler(path)
+            handler.setFormatter(self.formatter)
+            self._handlers[server_name][dest_name] = handler
         return self._handlers[server_name][dest_name]
 
     def emit(self, record: logging.LogRecord) -> None:
@@ -85,8 +87,9 @@ def setup_logging() -> None:
 
     # Set up chat logging
     chat_logger = logging.getLogger("chat")
+    chat_logger.propagate = False
     chat_logger.setLevel(logging.DEBUG)
-    chat_console_formatter = logging.Formatter("[{asctime}] {server} {message}", style="{", datefmt="%H:%M:%S")
+    chat_console_formatter = logging.Formatter("[{asctime}] [{server.name}] {message}", style="{", datefmt="%H:%M:%S")
     chat_console_handler = logging.StreamHandler(sys.stdout)
     chat_console_handler.setFormatter(chat_console_formatter)
     chat_logger.addHandler(chat_console_handler)
@@ -95,12 +98,16 @@ def setup_logging() -> None:
     chat_log_handler.setFormatter(chat_formatter)
     chat_logger.addHandler(chat_log_handler)
 
-    # Set up core logger, for errors and such
+    # Set up root logger
+    core_logger = logging.getLogger("")
     formatter = logging.Formatter("{asctime}:{levelname}:{name}:{message}", style="{")
-    hallo_logger = logging.getLogger("hallo")
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
-    hallo_logger.addHandler(console_handler)
+    core_logger.addHandler(console_handler)
+
+    # Set up hallo logger, for errors and such, to file
+    hallo_logger = logging.getLogger("hallo")
+    hallo_logger.setLevel(logging.DEBUG)
     log_handler = FileHandler(f"{log_dir}/hallo.log")
     log_handler.setFormatter(formatter)
     hallo_logger.addHandler(log_handler)
