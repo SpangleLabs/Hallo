@@ -25,7 +25,7 @@ from hallo.permission_mask import PermissionMask
 from hallo.server import Server, ServerException
 from hallo.inc.commons import Commons
 
-endl = Commons.END_LINE
+endl = "\r\n"
 logger = logging.getLogger(__name__)
 
 

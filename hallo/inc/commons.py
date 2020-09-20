@@ -16,29 +16,16 @@ class Commons(object):
     Class of commons methods, useful anywhere, but all static.
     """
 
-    END_LINE = "\r\n"
-    BOOL_STRING_DICT = {True: "True", False: "False", None: "None"}
-
-    @staticmethod
-    def current_timestamp(dtime=None):
-        """
-        :type dtime: datetime.datetime
-        :rtype: str
-        """
-        if dtime is None:
-            dtime = datetime.datetime.now()
-        return dtime.strftime("[%H:%M:%S]")
-
     @staticmethod
     def chunk_string_dot(string, length):
         if len(string) <= length:
             return [string]
         else:
             list_of_strings = [string[: length - 3] + "..."]
-            rest_of_string = string[length - 3 :]
+            rest_of_string = string[length - 3:]
             while len(rest_of_string) > length - 3:
                 list_of_strings += ["..." + rest_of_string[: length - 6] + "..."]
-                rest_of_string = rest_of_string[length - 6 :]
+                rest_of_string = rest_of_string[length - 6:]
             list_of_strings += ["..." + rest_of_string]
             return list_of_strings
 
