@@ -2870,7 +2870,7 @@ class FAKey:
                         )
                         self.watches.append(new_watch)
                     except Exception as e:
-                        print("Failed to read watch: {}".format(e))
+                        logger.error("Failed to read watch: ", exc_info=e)
                 self.submission_comments = []
                 """ :type : list[FAKey.FAReader.FANotificationCommentSubmission]"""
                 sub_comment_list = data["new_submission_comments"]
@@ -2887,7 +2887,7 @@ class FAKey:
                         )
                         self.submission_comments.append(new_comment)
                     except Exception as e:
-                        print("Failed to read submission comment: {}".format(e))
+                        logger.error("Failed to read submission comment: ", exc_info=e)
                 self.journal_comments = []
                 """ :type : list[FAKey.FAReader.FANotificationCommentJournal]"""
                 jou_comment_list = data["new_journal_comments"]
@@ -2904,7 +2904,7 @@ class FAKey:
                         )
                         self.journal_comments.append(new_comment)
                     except Exception as e:
-                        print("Failed to read journal comment: {}".format(e))
+                        logger.error("Failed to read journal comment: ", exc_info=e)
                 self.shouts = []
                 """ :type : list[FAKey.FAReader.FANotificationShout]"""
                 shout_list = data["new_shouts"]
@@ -2918,7 +2918,7 @@ class FAKey:
                         )
                         self.shouts.append(new_shout)
                     except Exception as e:
-                        print("Failed to read shout: {}".format(e))
+                        logger.error("Failed to read shout: ", exc_info=e)
                 self.favourites = []
                 """ :type : list[FAKey.FAReader.FANotificationFavourite]"""
                 fav_list = data["new_favorites"]
@@ -2933,7 +2933,7 @@ class FAKey:
                         )
                         self.favourites.append(new_fav)
                     except Exception as e:
-                        print("Failed to read favourite: {}".format(e))
+                        logger.error("Failed to read favourite: ", exc_info=e)
                 self.journals = []
                 """ :type : list[FAKey.FAReader.FANotificationJournal]"""
                 jou_list = data["new_journals"]
@@ -2947,7 +2947,7 @@ class FAKey:
                         )
                         self.journals.append(new_journal)
                     except Exception as e:
-                        print("Failed to read journal: {}".format(e))
+                        logger.error("Failed to read journal: ", exc_info=e)
 
         class FANotificationWatch:
             def __init__(self, name, username, avatar):

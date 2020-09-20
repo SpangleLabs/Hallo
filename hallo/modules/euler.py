@@ -91,7 +91,7 @@ class Euler(Function):
             )
         except Exception as e:
             output_string = "Hmm, seems that one has an error... darnit."
-            print("Euler error: {}".format(e))
+            logger.error("Euler error: ", exc_info=e)
         return output_string
 
     def check_prime(self, input_number):

@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import time
 from xml.dom import minidom
 
@@ -11,6 +12,9 @@ from hallo.function import Function
 import re
 
 from hallo.inc.input_parser import InputParser
+
+
+logger = logging.getLogger(__name__)
 
 
 class ConvertException(Exception):
@@ -998,7 +1002,7 @@ class UpdateCurrencies(Function):
         # Update all sources
         output_lines = self.update_all(repo)
         for line in output_lines:
-            print(line)
+            logger.info(line)
         return None
 
     def update_all(self, repo):

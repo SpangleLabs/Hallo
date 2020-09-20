@@ -1,7 +1,11 @@
+import logging
+
 from hallo.events import EventMessage
 from hallo.function import Function
 from hallo.inc.commons import Commons
 import math
+
+logger = logging.getLogger(__name__)
 
 
 class Hailstone(Function):
@@ -601,7 +605,7 @@ class Calculate(Function):
                     number_answers.append(ans_part)
                     num_calcs += 1
                 except Exception as e:
-                    print(str(e))
+                    logger.error("Calc error", exc_info=e)
                     ans_parts.append(calc_part)
             answer = "=".join(ans_parts)
             # Check if all number results are equal.
@@ -646,7 +650,7 @@ class Calculate(Function):
             answer = self.process_calculation(calc)
             return event.create_response(answer)
         except Exception as e:
-            print("Passive calc failed: {}".format(e))
+            logger.error("Passive calc failed: ", exc_info=e)
             return None
 
     def after_infix(self, calc, sub_str):

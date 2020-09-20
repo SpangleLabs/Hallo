@@ -214,11 +214,7 @@ class ServerIRC(Server):
         else:
             quit_message = "Will I dream?"
             if self.state in [Server.STATE_DISCONNECTING, Server.STATE_CLOSED]:
-                print(
-                    "Cannot disconnect {} server as it is not connected.".format(
-                        self.name
-                    )
-                )
+                logger.warning("Cannot disconnect %s server as it is not connected.", self.name)
                 return
             self.state = Server.STATE_DISCONNECTING
             # Logging
@@ -273,7 +269,7 @@ class ServerIRC(Server):
                     if self.state == Server.STATE_OPEN:
                         self.disconnect()
                         self.connect()
-                        print("Reconnected.")
+                        logger.info("Reconnected.")
                     continue
                 if next_line is None:
                     if self.state == Server.STATE_OPEN:

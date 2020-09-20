@@ -1,4 +1,5 @@
 import datetime
+import logging
 import re
 import json
 import random
@@ -6,6 +7,8 @@ from datetime import timedelta
 
 import requests
 from publicsuffixlist import PublicSuffixList
+
+logger = logging.getLogger(__name__)
 
 
 class Commons(object):
@@ -178,7 +181,7 @@ class Commons(object):
         try:
             output_dict = json.loads(code)
         except Exception as e:
-            print("Failed to parse received JSON: {}".format(code))
+            logger.error("Failed to parse received JSON: %s", code, exc_info=e)
             raise e
         return output_dict
 

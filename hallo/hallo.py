@@ -286,7 +286,7 @@ class Hallo:
 
     def manual_server_connect(self) -> None:
         # TODO: add ability to connect to non-IRC servers
-        print(
+        logger.error(
             "No servers have been loaded or connected to. Please connect to an IRC server."
         )
         # godNick = input("What nickname is the bot operator using? [deer-spangle] ")
@@ -314,7 +314,7 @@ class Hallo:
         self.add_server(new_server)
         # Save XML
         self.save_json()
-        print("Config file saved.")
+        logger.info("Config file saved.")
 
 
 if __name__ == "__main__":
