@@ -7,6 +7,7 @@ import urllib.parse
 from abc import ABCMeta
 from datetime import datetime, timedelta
 from threading import Lock
+from typing import List, Type, Generic, TypeVar, Dict, Optional
 from urllib.error import HTTPError
 from xml.etree import ElementTree
 
@@ -14,19 +15,21 @@ import dateutil
 import isodate
 from bs4 import BeautifulSoup
 
-from hallo.destination import Channel, User
+from hallo.destination import Channel, User, Destination
 from hallo.errors import SubscriptionCheckError
 from hallo.events import EventMessageWithPhoto, EventMessage, EventMinute
 from hallo.function import Function
+from hallo.hallo import Hallo
 from hallo.inc.commons import Commons, CachedObject
 from hallo.inc.input_parser import InputParser
 from hallo.modules.user_data import FAKeyData, UserDataParser
-
+from hallo.server import Server
 
 logger = logging.getLogger(__name__)
+T = TypeVar("T")
 
 
-def is_valid_iso8601_period(try_period):
+def is_valid_iso8601_period(try_period: str) -> bool:
     try:
         isodate.parse_duration(try_period)
         return True
@@ -44,36 +47,29 @@ class SubscriptionRepo:
     """
 
     def __init__(self):
-        self.sub_list = []
-        """ :type : list[Subscription]"""
-        self.common_list = []
-        """ :type : list[SubscriptionCommon]"""
-        self.sub_lock = Lock()
-        """ :type : threading.Lock"""
+        self.sub_list: List[Subscription] = []
+        self.common_list: List[SubscriptionCommon] = []
+        self.sub_lock: Lock = Lock()
 
-    def add_sub(self, new_sub):
+    def add_sub(self, new_sub: 'Subscription') -> None:
         """
         Adds a new Subscription to the list.
         :param new_sub: New subscription to add
-        :type new_sub: Subscription
         """
         self.sub_list.append(new_sub)
 
-    def remove_sub(self, remove_sub):
+    def remove_sub(self, remove_sub: 'Subscription') -> None:
         """
         Removes a Subscription from the list.
         :param remove_sub: Existing subscription to remove
-        :type remove_sub: Subscription
         """
         self.sub_list.remove(remove_sub)
 
-    def get_subs_by_destination(self, destination):
+    def get_subs_by_destination(self, destination: Destination) -> List['Subscription']:
         """
         Returns a list of subscriptions matching a specified destination.
         :param destination: Channel or User which E621Sub is posting to
-        :type destination: destination.Destination
         :return: list of Subscription objects matching destination
-        :rtype: list [Subscription]
         """
         matching_subs = []
         for sub in self.sub_list:
@@ -82,15 +78,12 @@ class SubscriptionRepo:
             matching_subs.append(sub)
         return matching_subs
 
-    def get_subs_by_name(self, name, destination):
+    def get_subs_by_name(self, name: str, destination: Destination) -> List['Subscription']:
         """
         Returns a list of subscriptions matching a specified name, be that a type and search, or just a type
         :param name: Search of the Subscription being searched for
-        :type name: str
         :param destination: Channel or User which Subscription is posting to
-        :type destination: destination.Destination
         :return: List of matching subscriptions
-        :rtype: list [Subscription]
         """
         name_clean = name.lower().strip()
         matching_subs = []
@@ -99,14 +92,12 @@ class SubscriptionRepo:
                 matching_subs.append(sub)
         return matching_subs
 
-    def get_common_config_by_type(self, common_type):
+    def get_common_config_by_type(self, common_type: Type) -> 'SubscriptionCommon':
         """
         Returns the common configuration object for a given type.
         There should be only 1 common config object of each type.
         :param common_type: The class of the common config object being searched for
-        :type common_type: type
         :return: The object, or a new object if none was found.
-        :rtype: SubscriptionCommon
         """
         if not issubclass(common_type, SubscriptionCommon):
             raise SubscriptionException(
@@ -127,7 +118,7 @@ class SubscriptionRepo:
             )
         )
 
-    def save_json(self):
+    def save_json(self) -> None:
         """
         Saves the whole subscription list to a JSON file
         :return: None
@@ -147,11 +138,10 @@ class SubscriptionRepo:
             json.dump(json_obj, f, indent=2)
 
     @staticmethod
-    def load_json(hallo):
+    def load_json(hallo) -> 'SubscriptionRepo':
         """
         Constructs a new SubscriptionRepo from the JSON file
         :return: Newly constructed list of subscriptions
-        :rtype: SubscriptionRepo
         """
         new_sub_list = SubscriptionRepo()
         # Try loading json file, otherwise return blank list
@@ -172,19 +162,17 @@ class SubscriptionRepo:
         return new_sub_list
 
 
-class Subscription(metaclass=ABCMeta):
-    names = []
-    """ :type : list[str]"""
-    type_name = ""
-    """ :type : str"""
+class Subscription(Generic[T], metaclass=ABCMeta):
+    names: List[str] = []
+    type_name: str = ""
 
-    def __init__(self, server, destination, last_check=None, update_frequency=None):
-        """
-        :type server: server.Server
-        :type destination: destination.Destination
-        :type last_check: datetime
-        :type update_frequency: timedelta
-        """
+    def __init__(
+            self,
+            server: Server,
+            destination: Destination,
+            last_check: datetime = None,
+            update_frequency: timedelta = None
+    ) -> None:
         if update_frequency is None:
             update_frequency = isodate.parse_duration("PT5M")
         self.server = server
@@ -199,61 +187,48 @@ class Subscription(metaclass=ABCMeta):
         """ :type : datetime | None"""
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'Subscription':
         """
         Creates a new subscription object from a user's input line
-        :type input_evt: EventMessage
-        :type sub_repo: SubscriptionRepo
-        :rtype: Subscription
         """
         raise NotImplementedError()
 
-    def matches_name(self, name_clean):
+    def matches_name(self, name_clean: str) -> bool:
         """
         Returns whether a user input string matches this subscription object
-        :type name_clean: str
-        :rtype: bool
         """
         raise NotImplementedError()
 
-    def get_name(self):
+    def get_name(self) -> None:
         """
         Returns a printable name for the subscription
         :rtype: str
         """
         raise NotImplementedError()
 
-    def check(self, *, ignore_result=False):
+    def check(self, *, ignore_result: bool = False) -> List[T]:
         """
         Checks the subscription, and returns a list of update objects, in whatever format that
         format_item() would like to receive them.
         The list should be ordered from oldest to newest.
         :param ignore_result: Whether the items returned will be formatted an used.
-        :rtype: list[object]
         """
         raise NotImplementedError()
 
-    def send_item(self, item):
-        """
-        :type item: object
-        :rtype: None
-        """
+    def send_item(self, item: T) -> None:
         self.last_update = datetime.now()
         output_evt = self.format_item(item)
         self.server.send(output_evt)
 
-    def format_item(self, item):
+    def format_item(self, item: T) -> EventMessage:
         """
         Formats an item, as returned from check(), into an event that can be sent out
-        :type item: Any
-        :rtype: events.EventMessage
         """
         raise NotImplementedError()
 
-    def needs_check(self):
+    def needs_check(self) -> bool:
         """
         Returns whether a subscription check is overdue.
-        :rtype: bool
         """
         if self.last_check is None:
             return True
@@ -261,10 +236,7 @@ class Subscription(metaclass=ABCMeta):
             return True
         return False
 
-    def to_json(self):
-        """
-        :rtype: dict
-        """
+    def to_json(self) -> Dict:
         json_obj = dict()
         json_obj["server_name"] = self.server.name
         if isinstance(self.destination, Channel):
@@ -279,53 +251,35 @@ class Subscription(metaclass=ABCMeta):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
-        """
-        :type json_obj: dict
-        :type hallo: hallo.Hallo
-        :type sub_repo: SubscriptionRepo
-        :rtype: Subscription
-        """
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'Subscription':
         raise NotImplementedError()
 
 
 class RssSub(Subscription):
-    names = ["rss", "rss feed"]
-    """ :type : list[str]"""
-    type_name = "rss"
-    """ :type : str"""
+    names: List[str] = ["rss", "rss feed"]
+    type_name: str = "rss"
 
     def __init__(
         self,
-        server,
-        destination,
-        url,
-        last_check=None,
-        update_frequency=None,
-        title=None,
-        last_item_hash=None,
+        server: Server,
+        destination: Destination,
+        url: str,
+        last_check: Optional[datetime] = None,
+        update_frequency: Optional[timedelta] = None,
+        title: Optional[str] = None,
+        last_item_hash: Optional[str] = None,
     ):
         """
-        :type server: server.Server
-        :type destination: destination.Destination
-        :type url: str
-        :type last_check: datetime | None
-        :type update_frequency: timedelta | None
-        :type title: str | None
         :param last_item_hash: GUID or md5 of latest item in rss feed
-        :type last_item_hash: str | None
         """
         super().__init__(server, destination, last_check, update_frequency)
-        self.url = url
-        """ :type : str"""
+        self.url: str = url
         if title is None:
             title = self._get_feed_title()
-        self.title = title
-        """ :type : str"""
-        self.last_item_hash = last_item_hash
-        """ :type : str | None"""
+        self.title: str = title
+        self.last_item_hash: Optional[str] = last_item_hash
 
-    def _get_feed_title(self):
+    def _get_feed_title(self) -> str:
         rss_data = self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
         channel_elem = rss_elem.find("channel")
@@ -339,7 +293,7 @@ class RssSub(Subscription):
             title = title_elem.text
         return title if title is not None else "No title"
 
-    def get_rss_data(self):
+    def get_rss_data(self) -> str:
         headers = None
         # Tumblr feeds need "GoogleBot" in the URL, or they'll give a GDPR notice
         if "tumblr.com" in self.url:
@@ -357,7 +311,7 @@ class RssSub(Subscription):
         return rss_data
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'RssSub':
         server = input_evt.server
         destination = (
             input_evt.channel if input_evt.channel is not None else input_evt.user
@@ -378,17 +332,17 @@ class RssSub(Subscription):
             raise SubscriptionException("Failed to create RSS subscription", e)
         return rss_sub
 
-    def matches_name(self, name_clean):
+    def matches_name(self, name_clean: str) -> bool:
         return name_clean in [
             self.title.lower().strip(),
             self.url.lower().strip(),
             self.get_name().lower().strip(),
         ]
 
-    def get_name(self):
+    def get_name(self) -> str:
         return "{} ({})".format(self.title, self.url)
 
-    def _get_item_hash(self, feed_item):
+    def _get_item_hash(self, feed_item) -> str:
         item_guid_elem = feed_item.find("guid")
         if item_guid_elem is not None:
             item_hash = item_guid_elem.text
@@ -401,14 +355,14 @@ class RssSub(Subscription):
                 item_hash = hashlib.md5(item_xml).hexdigest()
         return item_hash
 
-    def _get_feed_items(self, rss_elem):
+    def _get_feed_items(self, rss_elem: ElementTree.Element) -> List[ElementTree.Element]:
         channel_elem = rss_elem.find("channel")
         if channel_elem is not None:
             return channel_elem.findall("item")
         else:
             return rss_elem.findall("{http://www.w3.org/2005/Atom}entry")
 
-    def check(self, *, ignore_result=False):
+    def check(self, *, ignore_result: bool = False) -> List[ElementTree.Element]:
         rss_data = self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
         new_items = []
@@ -429,19 +383,19 @@ class RssSub(Subscription):
         # Return new items
         return new_items[::-1]
 
-    def _get_item_title(self, feed_item):
+    def _get_item_title(self, feed_item: ElementTree.Element) -> str:
         title_elem = feed_item.find("title")
         if title_elem is not None:
             return title_elem.text
         return feed_item.find("{http://www.w3.org/2005/Atom}title").text
 
-    def _get_item_link(self, feed_item):
+    def _get_item_link(self, feed_item: ElementTree.Element) -> str:
         link_elem = feed_item.find("link")
         if link_elem is not None:
             return link_elem.text
         return feed_item.find("{http://www.w3.org/2005/Atom}link").get("href")
 
-    def format_item(self, rss_item):
+    def format_item(self, rss_item: ElementTree.Element) -> EventMessage:
         # Check custom formatting
         custom_evt = self._format_custom_sites(rss_item)
         if custom_evt is not None:
@@ -458,7 +412,7 @@ class RssSub(Subscription):
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
         return output_evt
 
-    def _format_custom_sites(self, rss_item):
+    def _format_custom_sites(self, rss_item: ElementTree.Element) -> Optional[EventMessage]:
         if "xkcd.com" in self.url:
             item_title = rss_item.find("title").text
             item_link = rss_item.find("link").text
@@ -528,7 +482,7 @@ class RssSub(Subscription):
             return EventMessage(self.server, channel, user, output, inbound=False)
         return None
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["title"] = self.title
@@ -537,7 +491,7 @@ class RssSub(Subscription):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'RssSub':
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
