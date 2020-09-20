@@ -1636,7 +1636,7 @@ class FAUserFavsSub(Subscription[Optional['FAKey.FAReader.FAViewSubmissionPage']
             latest_ids.append(latest_id)
         # Load search
         username = json_obj["username"]
-        # Create FASearchSub
+        # Create FAUserFavsSub
         new_sub = FAUserFavsSub(
             server,
             destination,
