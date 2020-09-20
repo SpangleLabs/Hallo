@@ -386,7 +386,7 @@ class Commons(object):
         """Finds a parameter value in a line, if the format parameter=value exists in the line"""
         param_value = None
         param_regex = re.compile(
-            "(^|\s){}=([^\s]+)(\s|$)".format(param_name), re.IGNORECASE
+            r"(^|\s){}=([^\s]+)(\s|$)".format(param_name), re.IGNORECASE
         )
         param_search = param_regex.search(line)
         if param_search is not None:
