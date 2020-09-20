@@ -1,4 +1,5 @@
-from abc import ABCMeta
+from abc import ABC, abstractmethod
+from typing import Set, Type, Optional
 
 from hallo.events import (
     EventSecond,
@@ -15,11 +16,12 @@ from hallo.events import (
     EventInvite,
     EventNotice,
     EventMode,
-    EventCTCP,
+    EventCTCP, Event, ServerEvent,
 )
+from hallo.hallo import Hallo
 
 
-class Function(metaclass=ABCMeta):
+class Function(ABC):
     """
     Generic function object. All functions inherit from this.
     """
@@ -55,55 +57,51 @@ class Function(metaclass=ABCMeta):
 
     def __init__(self):
         self.help_name = None  # Name for use in help listing
-        self.names = set()  # Set of names which can be used to address the function
+        self.names: Set[str] = set()  # Set of names which can be used to address the function
         self.help_docs = (
             None  # Help documentation, if it's just a single line, can be set here
         )
 
-    def run(self, event):
+    @abstractmethod
+    def run(self, event: EventMessage) -> EventMessage:
         """Runs the function when it is called directly
         :param event: Event which function wants running on, for which, this should be true:
         (is_prefixed is not false and command_args is not None)
-        :type event: EventMessage
-        :rtype: EventMessage
         """
         raise NotImplementedError
 
     @staticmethod
-    def is_persistent():
+    def is_persistent() -> bool:
         """Returns boolean representing whether this function is supposed to be persistent or not"""
         return False
 
     @staticmethod
-    def load_function():
+    def load_function() -> 'Function':
         """Loads the function, persistent functions only."""
         return Function()
 
-    def save_function(self):
+    def save_function(self) -> None:
         """Saves the function, persistent functions only."""
         return None
 
-    def get_passive_events(self):
+    def get_passive_events(self) -> Set[Type[Event]]:
         """Returns a list of events which this function may want to respond to in a passive way"""
         return set()
 
-    def passive_run(self, event, hallo_obj):
+    def passive_run(self, event: Event, hallo_obj: Hallo) -> Optional[ServerEvent]:
         """Replies to an event not directly addressed to the bot.
         :param event: Event which has called the function
-        :type event: events.Event
         :param hallo_obj: Hallo object which fired the event.
-        :type hallo_obj: hallo.Hallo
-        :rtype : ServerEvent | None
         """
         pass
 
-    def get_help_name(self):
+    def get_help_name(self) -> str:
         """Returns the name to be printed for help documentation"""
         if self.help_name is None:
             raise NotImplementedError
         return self.help_name
 
-    def get_help_docs(self):
+    def get_help_docs(self) -> str:
         """
         Returns the help documentation, specific to given arguments, if supplied
         """
@@ -111,7 +109,7 @@ class Function(metaclass=ABCMeta):
             raise NotImplementedError
         return self.help_docs
 
-    def get_names(self):
+    def get_names(self) -> Set[str]:
         """Returns the list of names for directly addressing the function"""
         self.names.add(self.help_name)
         return self.names
