@@ -41,7 +41,7 @@ class FunctionDispatcher(object):
         self.module_list: Set[str] = module_list  # List of available module names
         self.function_dict = (
             {}
-        )  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
+        )  # Dictionary of moduleObjects->functionClasses->namesList/eventsList
         self.function_names: Dict[str, Type[Function]] = {}  # Dictionary of names -> functionClasses
         self.persistent_functions: Dict[Type[Function], Function] = (
             {}
@@ -75,7 +75,7 @@ class FunctionDispatcher(object):
         ]:
             function_class_test = self.get_function_by_name(function_name_test)
             function_args_test = " ".join(function_message_split)[
-                len(function_name_test) :
+                len(function_name_test):
             ].strip()
             if function_class_test is not None:
                 break
@@ -238,7 +238,7 @@ class FunctionDispatcher(object):
         # Check if module has already been imported
         if full_module_name in sys.modules:
             module_obj = sys.modules[full_module_name]
-            self._reload(module_obj)
+            importlib.reload(module_obj)
         else:
             # Try and load new module, return False if it doesn't exist
             try:
@@ -266,15 +266,6 @@ class FunctionDispatcher(object):
             except NotImplementedError:
                 self.unload_function(function_class)
         return True
-
-    def _reload(self, module_obj) -> None:
-        """
-        Actually reloads the module
-        :param module_obj: Module to reload
-        :type module_obj: module
-        :return: None
-        """
-        importlib.reload(module_obj)
 
     def unload_module_functions(self, module_obj) -> None:
         """
