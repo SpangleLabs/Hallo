@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import traceback
 from abc import ABCMeta
@@ -19,6 +20,9 @@ from hallo.function import Function
 from hallo.inc.commons import Commons
 from hallo.modules.subscriptions import FAKey
 from hallo.modules.user_data import UserDataParser, FAKeyData
+
+
+logger = logging.getLogger(__name__)
 
 
 class DailysException(Exception):
@@ -239,9 +243,7 @@ class Dailys(Function):
                     try:
                         field.passive_trigger(event)
                     except Exception as e:
-                        # TODO
-                        print("Dailys failure: {}".format(e))
-                        print(traceback.format_exc())
+                        logger.error("Dailys failure: ", exc_info=e)
 
 
 class DailysRepo:

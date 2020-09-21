@@ -12,7 +12,6 @@ from hallo.modules.subscriptions import (
     E621Sub,
     RssSub,
     FANotificationNotesSub,
-    FASearchSub,
     FAKey,
     SubscriptionRepo,
     FAKeysCommon,
@@ -44,7 +43,6 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
             )
         )
         sub_objs.append(FANotificationNotesSub(self.server, self.test_chan, fa_key))
-        sub_objs.append(FASearchSub(self.server, self.test_chan, fa_key, "ych"))
         sub_objs.append(FAUserFavsSub(self.server, self.test_chan, fa_key, "zephyr42"))
         sub_objs.append(FAUserWatchersSub(self.server, self.test_chan, fa_key, "zephyr42"))
         sub_objs.append(FANotificationWatchSub(self.server, self.test_chan, fa_key))
@@ -72,8 +70,6 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_evts[RssSub].command_args = "http://spangle.org.uk/hallo/test_rss.xml"
         sub_evts[FANotificationNotesSub] = EventMessage(self.server, self.test_chan, self.test_user, "")
         sub_evts[FANotificationNotesSub].command_args = ""
-        sub_evts[FASearchSub] = EventMessage(self.server, self.test_chan, self.test_user, "ych")
-        sub_evts[FASearchSub].command_args = "ych"
         sub_evts[FAUserFavsSub] = EventMessage(self.server, self.test_chan, self.test_user, "zephyr42")
         sub_evts[FAUserFavsSub].command_args = "zephyr42"
         sub_evts[FAUserWatchersSub] = EventMessage(self.server, self.test_chan, self.test_user, "zephyr42")

@@ -19,6 +19,9 @@ from hallo.permission_mask import PermissionMask
 from hallo.server import Server, ServerException
 
 
+logger = logging.getLogger(__name__)
+
+
 class ServerTelegram(Server):
 
     type = Server.TYPE_TELEGRAM
@@ -138,8 +141,7 @@ class ServerTelegram(Server):
                 self, None, message_sender, message_text
             ).with_raw_data(RawDataTelegram(update))
         # Print and Log the private message
-        self.hallo.printer.output(message_evt)
-        self.hallo.logger.log(message_evt)
+        message_evt.log()
         self.hallo.function_dispatcher.dispatch(message_evt)
 
     def parse_group_message(self, bot, update):
@@ -179,8 +181,7 @@ class ServerTelegram(Server):
                 self, message_channel, message_sender, message_text
             ).with_raw_data(RawDataTelegram(update))
         # Print and log the public message
-        self.hallo.printer.output(message_evt)
-        self.hallo.logger.log(message_evt)
+        message_evt.log()
         # Send event to function dispatcher or passive dispatcher
         function_dispatcher = self.hallo.function_dispatcher
         if message_evt.is_prefixed:
@@ -207,8 +208,7 @@ class ServerTelegram(Server):
         error = MessageError(
             "Unhandled data received on Telegram server: {}".format(update)
         )
-        self.hallo.logger.log(error)
-        self.hallo.printer.output(error)
+        logger.error(error.get_log_line())
 
     def formatting_to_telegram_mode(self, event_formatting):
         """
@@ -250,8 +250,7 @@ class ServerTelegram(Server):
                     parse_mode=self.formatting_to_telegram_mode(event.formatting),
                 )
             event.with_raw_data(RawDataTelegramOutbound(msg))
-            self.hallo.printer.output(event)
-            self.hallo.logger.log(event)
+            event.log()
             return event
         if isinstance(event, EventMessage):
             destination = event.user if event.channel is None else event.channel
@@ -261,8 +260,7 @@ class ServerTelegram(Server):
                 parse_mode=self.formatting_to_telegram_mode(event.formatting),
             )
             event.with_raw_data(RawDataTelegramOutbound(msg))
-            self.hallo.printer.output(event)
-            self.hallo.logger.log(event)
+            event.log()
             return event
         else:
             error = MessageError(
@@ -270,8 +268,7 @@ class ServerTelegram(Server):
                     event.__class__.__name__
                 )
             )
-            self.hallo.logger.log(error)
-            self.hallo.printer.output(error)
+            logger.error(error.get_log_line())
             raise NotImplementedError()
 
     def reply(self, old_event, new_event):
@@ -313,8 +310,7 @@ class ServerTelegram(Server):
                     reply_to_message_id=old_message_id,
                     parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
                 )
-            self.hallo.printer.output(new_event)
-            self.hallo.logger.log(new_event)
+            new_event.log()
             return
         if isinstance(new_event, EventMessage):
             destination = (
@@ -327,8 +323,7 @@ class ServerTelegram(Server):
                 reply_to_message_id=old_message_id,
                 parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
             )
-            self.hallo.printer.output(new_event)
-            self.hallo.logger.log(new_event)
+            new_event.log()
             return
         else:
             error = MessageError(
@@ -336,8 +331,7 @@ class ServerTelegram(Server):
                     new_event.__class__.__name__
                 )
             )
-            self.hallo.logger.log(error)
-            self.hallo.printer.output(error)
+            logger.error(error.get_log_line())
             raise NotImplementedError()
 
     def get_name_by_address(self, address):

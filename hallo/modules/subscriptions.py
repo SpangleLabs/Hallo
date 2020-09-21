@@ -1,28 +1,36 @@
 import hashlib
 import json
+import logging
 import os
 import re
 import urllib.parse
-from abc import ABCMeta
+from abc import ABCMeta, ABC
 from datetime import datetime, timedelta
 from threading import Lock
+from typing import List, Type, Generic, TypeVar, Dict, Optional, Union, Callable, Set
 from urllib.error import HTTPError
 from xml.etree import ElementTree
 
-import dateutil
+import dateutil.parser
 import isodate
 from bs4 import BeautifulSoup
 
-from hallo.destination import Channel, User
+from hallo.destination import Channel, User, Destination
 from hallo.errors import SubscriptionCheckError
-from hallo.events import EventMessageWithPhoto, EventMessage, EventMinute
+from hallo.events import EventMessageWithPhoto, EventMessage, EventMinute, Event, ServerEvent
 from hallo.function import Function
+from hallo.hallo import Hallo
 from hallo.inc.commons import Commons, CachedObject
 from hallo.inc.input_parser import InputParser
 from hallo.modules.user_data import FAKeyData, UserDataParser
+from hallo.server import Server
+
+logger = logging.getLogger(__name__)
+T = TypeVar("T")
+# TODO: Subscriptions inheriting from Subscription[Dict] could do with actual classes or types
 
 
-def is_valid_iso8601_period(try_period):
+def is_valid_iso8601_period(try_period: str) -> bool:
     try:
         isodate.parse_duration(try_period)
         return True
@@ -40,36 +48,29 @@ class SubscriptionRepo:
     """
 
     def __init__(self):
-        self.sub_list = []
-        """ :type : list[Subscription]"""
-        self.common_list = []
-        """ :type : list[SubscriptionCommon]"""
-        self.sub_lock = Lock()
-        """ :type : threading.Lock"""
+        self.sub_list: List[Subscription] = []
+        self.common_list: List[SubscriptionCommon] = []
+        self.sub_lock: Lock = Lock()
 
-    def add_sub(self, new_sub):
+    def add_sub(self, new_sub: 'Subscription') -> None:
         """
         Adds a new Subscription to the list.
         :param new_sub: New subscription to add
-        :type new_sub: Subscription
         """
         self.sub_list.append(new_sub)
 
-    def remove_sub(self, remove_sub):
+    def remove_sub(self, remove_sub: 'Subscription') -> None:
         """
         Removes a Subscription from the list.
         :param remove_sub: Existing subscription to remove
-        :type remove_sub: Subscription
         """
         self.sub_list.remove(remove_sub)
 
-    def get_subs_by_destination(self, destination):
+    def get_subs_by_destination(self, destination: Destination) -> List['Subscription']:
         """
         Returns a list of subscriptions matching a specified destination.
         :param destination: Channel or User which E621Sub is posting to
-        :type destination: destination.Destination
         :return: list of Subscription objects matching destination
-        :rtype: list [Subscription]
         """
         matching_subs = []
         for sub in self.sub_list:
@@ -78,15 +79,12 @@ class SubscriptionRepo:
             matching_subs.append(sub)
         return matching_subs
 
-    def get_subs_by_name(self, name, destination):
+    def get_subs_by_name(self, name: str, destination: Destination) -> List['Subscription']:
         """
         Returns a list of subscriptions matching a specified name, be that a type and search, or just a type
         :param name: Search of the Subscription being searched for
-        :type name: str
         :param destination: Channel or User which Subscription is posting to
-        :type destination: destination.Destination
         :return: List of matching subscriptions
-        :rtype: list [Subscription]
         """
         name_clean = name.lower().strip()
         matching_subs = []
@@ -95,14 +93,12 @@ class SubscriptionRepo:
                 matching_subs.append(sub)
         return matching_subs
 
-    def get_common_config_by_type(self, common_type):
+    def get_common_config_by_type(self, common_type: Type) -> 'SubscriptionCommon':
         """
         Returns the common configuration object for a given type.
         There should be only 1 common config object of each type.
         :param common_type: The class of the common config object being searched for
-        :type common_type: type
         :return: The object, or a new object if none was found.
-        :rtype: SubscriptionCommon
         """
         if not issubclass(common_type, SubscriptionCommon):
             raise SubscriptionException(
@@ -123,7 +119,7 @@ class SubscriptionRepo:
             )
         )
 
-    def save_json(self):
+    def save_json(self) -> None:
         """
         Saves the whole subscription list to a JSON file
         :return: None
@@ -143,11 +139,10 @@ class SubscriptionRepo:
             json.dump(json_obj, f, indent=2)
 
     @staticmethod
-    def load_json(hallo):
+    def load_json(hallo) -> 'SubscriptionRepo':
         """
         Constructs a new SubscriptionRepo from the JSON file
         :return: Newly constructed list of subscriptions
-        :rtype: SubscriptionRepo
         """
         new_sub_list = SubscriptionRepo()
         # Try loading json file, otherwise return blank list
@@ -168,19 +163,17 @@ class SubscriptionRepo:
         return new_sub_list
 
 
-class Subscription(metaclass=ABCMeta):
-    names = []
-    """ :type : list[str]"""
-    type_name = ""
-    """ :type : str"""
+class Subscription(Generic[T], ABC):
+    names: List[str] = []
+    type_name: str = ""
 
-    def __init__(self, server, destination, last_check=None, update_frequency=None):
-        """
-        :type server: server.Server
-        :type destination: destination.Destination
-        :type last_check: datetime
-        :type update_frequency: timedelta
-        """
+    def __init__(
+            self,
+            server: Server,
+            destination: Destination,
+            last_check: datetime = None,
+            update_frequency: timedelta = None
+    ) -> None:
         if update_frequency is None:
             update_frequency = isodate.parse_duration("PT5M")
         self.server = server
@@ -195,61 +188,48 @@ class Subscription(metaclass=ABCMeta):
         """ :type : datetime | None"""
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'Subscription':
         """
         Creates a new subscription object from a user's input line
-        :type input_evt: EventMessage
-        :type sub_repo: SubscriptionRepo
-        :rtype: Subscription
         """
         raise NotImplementedError()
 
-    def matches_name(self, name_clean):
+    def matches_name(self, name_clean: str) -> bool:
         """
         Returns whether a user input string matches this subscription object
-        :type name_clean: str
-        :rtype: bool
         """
         raise NotImplementedError()
 
-    def get_name(self):
+    def get_name(self) -> None:
         """
         Returns a printable name for the subscription
         :rtype: str
         """
         raise NotImplementedError()
 
-    def check(self, *, ignore_result=False):
+    def check(self, *, ignore_result: bool = False) -> List[T]:
         """
         Checks the subscription, and returns a list of update objects, in whatever format that
         format_item() would like to receive them.
         The list should be ordered from oldest to newest.
         :param ignore_result: Whether the items returned will be formatted an used.
-        :rtype: list[object]
         """
         raise NotImplementedError()
 
-    def send_item(self, item):
-        """
-        :type item: object
-        :rtype: None
-        """
+    def send_item(self, item: T) -> None:
         self.last_update = datetime.now()
         output_evt = self.format_item(item)
         self.server.send(output_evt)
 
-    def format_item(self, item):
+    def format_item(self, item: T) -> EventMessage:
         """
         Formats an item, as returned from check(), into an event that can be sent out
-        :type item: Any
-        :rtype: events.EventMessage
         """
         raise NotImplementedError()
 
-    def needs_check(self):
+    def needs_check(self) -> bool:
         """
         Returns whether a subscription check is overdue.
-        :rtype: bool
         """
         if self.last_check is None:
             return True
@@ -257,10 +237,7 @@ class Subscription(metaclass=ABCMeta):
             return True
         return False
 
-    def to_json(self):
-        """
-        :rtype: dict
-        """
+    def to_json(self) -> Dict:
         json_obj = dict()
         json_obj["server_name"] = self.server.name
         if isinstance(self.destination, Channel):
@@ -275,53 +252,35 @@ class Subscription(metaclass=ABCMeta):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
-        """
-        :type json_obj: dict
-        :type hallo: hallo.Hallo
-        :type sub_repo: SubscriptionRepo
-        :rtype: Subscription
-        """
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'Subscription':
         raise NotImplementedError()
 
 
-class RssSub(Subscription):
-    names = ["rss", "rss feed"]
-    """ :type : list[str]"""
-    type_name = "rss"
-    """ :type : str"""
+class RssSub(Subscription[ElementTree.Element]):
+    names: List[str] = ["rss", "rss feed"]
+    type_name: str = "rss"
 
     def __init__(
         self,
-        server,
-        destination,
-        url,
-        last_check=None,
-        update_frequency=None,
-        title=None,
-        last_item_hash=None,
+        server: Server,
+        destination: Destination,
+        url: str,
+        last_check: Optional[datetime] = None,
+        update_frequency: Optional[timedelta] = None,
+        title: Optional[str] = None,
+        last_item_hash: Optional[str] = None,
     ):
         """
-        :type server: server.Server
-        :type destination: destination.Destination
-        :type url: str
-        :type last_check: datetime | None
-        :type update_frequency: timedelta | None
-        :type title: str | None
         :param last_item_hash: GUID or md5 of latest item in rss feed
-        :type last_item_hash: str | None
         """
         super().__init__(server, destination, last_check, update_frequency)
-        self.url = url
-        """ :type : str"""
+        self.url: str = url
         if title is None:
             title = self._get_feed_title()
-        self.title = title
-        """ :type : str"""
-        self.last_item_hash = last_item_hash
-        """ :type : str | None"""
+        self.title: str = title
+        self.last_item_hash: Optional[str] = last_item_hash
 
-    def _get_feed_title(self):
+    def _get_feed_title(self) -> str:
         rss_data = self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
         channel_elem = rss_elem.find("channel")
@@ -335,7 +294,7 @@ class RssSub(Subscription):
             title = title_elem.text
         return title if title is not None else "No title"
 
-    def get_rss_data(self):
+    def get_rss_data(self) -> str:
         headers = None
         # Tumblr feeds need "GoogleBot" in the URL, or they'll give a GDPR notice
         if "tumblr.com" in self.url:
@@ -353,7 +312,7 @@ class RssSub(Subscription):
         return rss_data
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'RssSub':
         server = input_evt.server
         destination = (
             input_evt.channel if input_evt.channel is not None else input_evt.user
@@ -374,17 +333,17 @@ class RssSub(Subscription):
             raise SubscriptionException("Failed to create RSS subscription", e)
         return rss_sub
 
-    def matches_name(self, name_clean):
+    def matches_name(self, name_clean: str) -> bool:
         return name_clean in [
             self.title.lower().strip(),
             self.url.lower().strip(),
             self.get_name().lower().strip(),
         ]
 
-    def get_name(self):
+    def get_name(self) -> str:
         return "{} ({})".format(self.title, self.url)
 
-    def _get_item_hash(self, feed_item):
+    def _get_item_hash(self, feed_item) -> str:
         item_guid_elem = feed_item.find("guid")
         if item_guid_elem is not None:
             item_hash = item_guid_elem.text
@@ -397,14 +356,14 @@ class RssSub(Subscription):
                 item_hash = hashlib.md5(item_xml).hexdigest()
         return item_hash
 
-    def _get_feed_items(self, rss_elem):
+    def _get_feed_items(self, rss_elem: ElementTree.Element) -> List[ElementTree.Element]:
         channel_elem = rss_elem.find("channel")
         if channel_elem is not None:
             return channel_elem.findall("item")
         else:
             return rss_elem.findall("{http://www.w3.org/2005/Atom}entry")
 
-    def check(self, *, ignore_result=False):
+    def check(self, *, ignore_result: bool = False) -> List[ElementTree.Element]:
         rss_data = self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
         new_items = []
@@ -425,19 +384,19 @@ class RssSub(Subscription):
         # Return new items
         return new_items[::-1]
 
-    def _get_item_title(self, feed_item):
+    def _get_item_title(self, feed_item: ElementTree.Element) -> str:
         title_elem = feed_item.find("title")
         if title_elem is not None:
             return title_elem.text
         return feed_item.find("{http://www.w3.org/2005/Atom}title").text
 
-    def _get_item_link(self, feed_item):
+    def _get_item_link(self, feed_item: ElementTree.Element) -> str:
         link_elem = feed_item.find("link")
         if link_elem is not None:
             return link_elem.text
         return feed_item.find("{http://www.w3.org/2005/Atom}link").get("href")
 
-    def format_item(self, rss_item):
+    def format_item(self, rss_item: ElementTree.Element) -> EventMessage:
         # Check custom formatting
         custom_evt = self._format_custom_sites(rss_item)
         if custom_evt is not None:
@@ -454,7 +413,7 @@ class RssSub(Subscription):
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
         return output_evt
 
-    def _format_custom_sites(self, rss_item):
+    def _format_custom_sites(self, rss_item: ElementTree.Element) -> Optional[EventMessage]:
         if "xkcd.com" in self.url:
             item_title = rss_item.find("title").text
             item_link = rss_item.find("link").text
@@ -524,7 +483,7 @@ class RssSub(Subscription):
             return EventMessage(self.server, channel, user, output, inbound=False)
         return None
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["title"] = self.title
@@ -533,7 +492,7 @@ class RssSub(Subscription):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'RssSub':
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
@@ -575,43 +534,27 @@ class RssSub(Subscription):
         return new_sub
 
 
-class E621Sub(Subscription):
-    names = ["e621", "e621 search", "search e621"]
-    """ :type : list[str]"""
-    type_name = "e621"
-    """ :type : str"""
+class E621Sub(Subscription[Dict]):
+    names: List[str] = ["e621", "e621 search", "search e621"]
+    type_name: str = "e621"
 
     def __init__(
         self,
-        server,
-        destination,
-        search,
-        last_check=None,
-        update_frequency=None,
-        latest_ids=None,
+        server: Server,
+        destination: Destination,
+        search: str,
+        last_check: Optional[datetime] = None,
+        update_frequency: Optional[timedelta] = None,
+        latest_ids: Optional[List[int]] = None,
     ):
-        """
-        :type server: Server.Server
-        :type destination: Destination.Destination
-        :type search: str
-        :type last_check: datetime
-        :type update_frequency: timedelta
-        """
         super().__init__(server, destination, last_check, update_frequency)
-        self.search = search
-        """ :type : str"""
+        self.search: str = search
         if latest_ids is None:
             latest_ids = []
-        self.latest_ids = latest_ids
-        """ :type : list[int]"""
+        self.latest_ids: List[int] = latest_ids
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
-        """
-        :type input_evt: Events.EventMessage
-        :type sub_repo: SubscriptionRepo
-        :rtype: E621Sub
-        """
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'E621Sub':
         server = input_evt.server
         destination = (
             input_evt.channel if input_evt.channel is not None else input_evt.user
@@ -634,13 +577,13 @@ class E621Sub(Subscription):
             )
         return e6_sub
 
-    def matches_name(self, name_clean):
+    def matches_name(self, name_clean: str) -> bool:
         return name_clean == self.search.lower().strip()
 
-    def get_name(self):
+    def get_name(self) -> str:
         return 'search for "{}"'.format(self.search)
 
-    def check(self, *, ignore_result=False):
+    def check(self, *, ignore_result: bool = False) -> List[Dict]:
         search = "{} order:-id".format(self.search)  # Sort by id
         if len(self.latest_ids) > 0:
             oldest_id = min(self.latest_ids)
@@ -665,7 +608,7 @@ class E621Sub(Subscription):
         self.last_check = datetime.now()
         return return_list
 
-    def format_item(self, e621_result):
+    def format_item(self, e621_result: Dict) -> EventMessage:
         link = "https://e621.net/posts/{}".format(e621_result["id"])
         # Create rating string
         rating_dict = {"e": "(Explicit)", "q": "(Questionable)", "s": "(Safe)"}
@@ -677,12 +620,15 @@ class E621Sub(Subscription):
         if e621_result["file"]["ext"] in ["swf", "webm"]:
             return EventMessage(self.server, channel, user, output, inbound=False)
         image_url = e621_result["file"]["url"]
-        output_evt = EventMessageWithPhoto(
+        if image_url is None:
+            return EventMessage(
+                self.server, channel, user, output, inbound=False
+            )
+        return EventMessageWithPhoto(
             self.server, channel, user, output, image_url, inbound=False
         )
-        return output_evt
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["search"] = self.search
@@ -692,7 +638,7 @@ class E621Sub(Subscription):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'E621Sub':
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
@@ -737,29 +683,19 @@ class E621Sub(Subscription):
 
 
 class E621TaggingSub(E621Sub):
-    names = ["e621 tagging", "e621 tagging search", "tagging e621"]
-    """ :type : list[str]"""
-    type_name = "e621-tagging"
-    """ :type : str"""
+    names: List[str] = ["e621 tagging", "e621 tagging search", "tagging e621"]
+    type_name: str = "e621-tagging"
 
     def __init__(
         self,
-        server,
-        destination,
-        search,
-        tags,
-        last_check=None,
-        update_frequency=None,
-        latest_ids=None,
+        server: Server,
+        destination: Destination,
+        search: str,
+        tags: List[str],
+        last_check: Optional[datetime] = None,
+        update_frequency: Optional[timedelta] = None,
+        latest_ids: Optional[List[int]] = None,
     ):
-        """
-        :type server: Server.Server
-        :type destination: Destination.Destination
-        :type search: str
-        :type tags: list[str]
-        :type last_check: datetime
-        :type update_frequency: timedelta
-        """
         super().__init__(
             server,
             destination,
@@ -768,10 +704,10 @@ class E621TaggingSub(E621Sub):
             update_frequency=update_frequency,
             latest_ids=latest_ids,
         )
-        self.tags = tags
+        self.tags: List[str] = tags
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'E621TaggingSub':
         """
         :type input_evt: Events.EventMessage
         :type sub_repo: SubscriptionRepo
@@ -841,10 +777,10 @@ class E621TaggingSub(E621Sub):
             )
         return e6_sub
 
-    def get_name(self):
+    def get_name(self) -> str:
         return 'search for "{}" to apply tags {}'.format(self.search, self.tags)
 
-    def format_item(self, e621_result):
+    def format_item(self, e621_result: Dict) -> EventMessage:
         link = "https://e621.net/posts/{}".format(e621_result["id"])
         # Create rating string
         rating_dict = {"e": "(Explicit)", "q": "(Questionable)", "s": "(Safe)"}
@@ -862,12 +798,13 @@ class E621TaggingSub(E621Sub):
         if e621_result["file"]["ext"] in ["swf", "webm"]:
             return EventMessage(self.server, channel, user, output, inbound=False)
         image_url = e621_result["file"]["url"]
-        output_evt = EventMessageWithPhoto(
+        if image_url is None:
+            return EventMessage(self.server, channel, user, output, inbound=False)
+        return EventMessageWithPhoto(
             self.server, channel, user, output, image_url, inbound=False
         )
-        return output_evt
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["search"] = self.search
@@ -878,7 +815,7 @@ class E621TaggingSub(E621Sub):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'E621TaggingSub':
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
@@ -923,54 +860,34 @@ class E621TaggingSub(E621Sub):
         return new_sub
 
 
-class GoogleDocsSub(Subscription):
-    pass
-
-
-class TwitterSub(Subscription):
-    pass
-
-
-class FANotificationNotesSub(Subscription):
-    names = ["fa notes notifications", "fa notes", "furaffinity notes"]
-    """ :type : list[str]"""
-    type_name = "fa_notif_notes"
-    """ :type : str"""
+class FANotificationNotesSub(Subscription[Dict]):
+    names: List[str] = ["fa notes notifications", "fa notes", "furaffinity notes"]
+    type_name: str = "fa_notif_notes"
 
     NEW_INBOX_NOTE = "new_note"
     READ_OUTBOX_NOTE = "note_read"
 
     def __init__(
         self,
-        server,
-        destination,
-        fa_key,
-        last_check=None,
-        update_frequency=None,
-        inbox_note_ids=None,
-        outbox_note_ids=None,
+        server: Server,
+        destination: Destination,
+        fa_key: 'FAKey',
+        last_check: Optional[datetime] = None,
+        update_frequency: Optional[timedelta] = None,
+        inbox_note_ids: Optional[List[str]] = None,
+        outbox_note_ids: Optional[List[str]] = None,
     ):
         """
-        :type server: Server.Server
-        :type destination: Destination.Destination
-        :type fa_key: FAKey
-        :type last_check: datetime
-        :type update_frequency: timedelta
         :param inbox_note_ids: List of id strings of notes in the inbox
-        :type inbox_note_ids: list[str]
         :param outbox_note_ids: List of id strings of unread notes in the outbox
-        :type outbox_note_ids: list[str]
         """
         super().__init__(server, destination, last_check, update_frequency)
-        self.fa_key = fa_key
-        """ :type : FAKey"""
-        self.inbox_note_ids = [] if inbox_note_ids is None else inbox_note_ids
-        """ :type : list[str]"""
-        self.outbox_note_ids = [] if outbox_note_ids is None else outbox_note_ids
-        """ :type : list[str]"""
+        self.fa_key: FAKey = fa_key
+        self.inbox_note_ids: List[str] = [] if inbox_note_ids is None else inbox_note_ids
+        self.outbox_note_ids: List[str] = [] if outbox_note_ids is None else outbox_note_ids
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'FANotificationNotesSub':
         user = input_evt.user
         fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
         assert isinstance(fa_keys, FAKeysCommon)
@@ -997,13 +914,13 @@ class FANotificationNotesSub(Subscription):
         notes_sub.check()
         return notes_sub
 
-    def matches_name(self, name_clean):
+    def matches_name(self, name_clean: str) -> bool:
         return name_clean in [s.lower().strip() for s in self.names + ["notes"]]
 
-    def get_name(self):
+    def get_name(self) -> str:
         return "FA notes for {}".format(self.fa_key.user.name)
 
-    def check(self, *, ignore_result=False):
+    def check(self, *, ignore_result: bool = False) -> List[Dict]:
         fa_reader = self.fa_key.get_fa_reader()
         results = []
         # Check inbox and outbox
@@ -1033,7 +950,7 @@ class FANotificationNotesSub(Subscription):
         # Return results
         return results[::-1]
 
-    def format_item(self, item):
+    def format_item(self, item: Dict) -> EventMessage:
         # Construct output
         output = "Err, notes did something?"
         note = item["note"]  # type: FAKey.FAReader.FANote
@@ -1050,7 +967,7 @@ class FANotificationNotesSub(Subscription):
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
         return output_evt
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["fa_key_user_address"] = self.fa_key.user.address
@@ -1063,7 +980,7 @@ class FANotificationNotesSub(Subscription):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'FANotificationNotesSub':
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
@@ -1129,8 +1046,8 @@ class FANotificationNotesSub(Subscription):
         return new_sub
 
 
-class FANotificationFavSub(Subscription):
-    names = [
+class FANotificationFavSub(Subscription['FAKey.FAReader.FANotificationFavourite']):
+    names: List[str] = [
         "fa favs notifications",
         "fa favs",
         "furaffinity favs",
@@ -1138,36 +1055,26 @@ class FANotificationFavSub(Subscription):
         "fa favourites",
         "furaffinity favourites",
     ]
-    """ :type : list[str]"""
-    type_name = "fa_notif_favs"
-    """ :type : str"""
+    type_name: str = "fa_notif_favs"
 
     def __init__(
         self,
-        server,
-        destination,
-        fa_key,
-        last_check=None,
-        update_frequency=None,
-        highest_fav_id=None,
+        server: Server,
+        destination: Destination,
+        fa_key: 'FAKey',
+        last_check: Optional[datetime] = None,
+        update_frequency: Optional[timedelta] = None,
+        highest_fav_id: Optional[int] = None,
     ):
         """
-        :type server: Server.Server
-        :type destination: Destination.Destination
-        :type fa_key: FAKey
-        :type last_check: datetime
-        :type update_frequency: timedelta
         :param highest_fav_id: ID number of the highest favourite notification seen
-        :type highest_fav_id: int | None
         """
         super().__init__(server, destination, last_check, update_frequency)
-        self.fa_key = fa_key
-        """ :type : FAKey"""
-        self.highest_fav_id = 0 if highest_fav_id is None else highest_fav_id
-        """ :type : int"""
+        self.fa_key: FAKey = fa_key
+        self.highest_fav_id: int = 0 if highest_fav_id is None else highest_fav_id
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'FANotificationFavSub':
         user = input_evt.user
         fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
         assert isinstance(fa_keys, FAKeysCommon)
@@ -1194,13 +1101,13 @@ class FANotificationFavSub(Subscription):
         fa_sub.check()
         return fa_sub
 
-    def matches_name(self, name_clean):
+    def matches_name(self, name_clean: str) -> bool:
         return name_clean in [s.lower().strip() for s in self.names + ["favs"]]
 
-    def get_name(self):
+    def get_name(self) -> str:
         return "FA favourite notifications for {}".format(self.fa_key.user.name)
 
-    def check(self, *, ignore_result=False):
+    def check(self, *, ignore_result: bool = False) -> List['FAKey.FAReader.FANotificationFavourite']:
         fa_reader = self.fa_key.get_fa_reader()
         notif_page = fa_reader.get_notification_page()
         results = []
@@ -1214,12 +1121,7 @@ class FANotificationFavSub(Subscription):
         # Return results
         return results[::-1]
 
-    def format_item(self, new_fav):
-        """
-        :type new_fav: FAKey.FAReader.FANotificationFavourite
-        :rtype: EventMessage
-        """
-        # Construct output
+    def format_item(self, new_fav: 'FAKey.FAReader.FANotificationFavourite') -> EventMessage:
         output = (
             "You have a new favourite notification, {} ( http://furaffinity.net/user/{}/ ) "
             'has favourited your submission "{}" {}'.format(
@@ -1234,7 +1136,7 @@ class FANotificationFavSub(Subscription):
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
         return output_evt
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["fa_key_user_address"] = self.fa_key.user.address
@@ -1242,7 +1144,7 @@ class FANotificationFavSub(Subscription):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'FANotificationFavSub':
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
@@ -1303,54 +1205,38 @@ class FANotificationFavSub(Subscription):
         return new_sub
 
 
-class FANotificationCommentsSub(Subscription):
-    names = [
+class FANotificationCommentsSub(Subscription[Union['FAKey.FAReader.FANotificationCommentSubmission', 'FAKey.FAReader.FANotificationCommentJournal', 'FAKey.FAReader.FANotificationShout']]):
+    names: List[str] = [
         "{}{}{}".format(fa, comments, notifications)
         for fa in ["fa ", "furaffinity "]
         for comments in ["comments", "comment", "shouts", "shout"]
         for notifications in ["", " notifications"]
     ]
-    """ :type : list[str]"""
-    type_name = "fa_notif_comments"
-    """ :type : str"""
+    type_name: str = "fa_notif_comments"
 
     def __init__(
         self,
-        server,
-        destination,
-        fa_key,
-        last_check=None,
-        update_frequency=None,
-        latest_comment_id_journal=None,
-        latest_comment_id_submission=None,
-        latest_shout_id=None,
+        server: Server,
+        destination: Destination,
+        fa_key: 'FAKey',
+        last_check: Optional[datetime] = None,
+        update_frequency: Optional[timedelta] = None,
+        latest_comment_id_journal: Optional[int] = None,
+        latest_comment_id_submission: Optional[int] = None,
+        latest_shout_id: Optional[int] = None,
     ):
-        """
-        :type server: Server.Server
-        :type destination: Destination.Destination
-        :type fa_key: FAKey
-        :type last_check: datetime
-        :type update_frequency: timedelta
-        :type latest_comment_id_journal: int | None
-        :type latest_comment_id_submission: int | None
-        :type latest_shout_id: int | None
-        """
         super().__init__(server, destination, last_check, update_frequency)
-        self.fa_key = fa_key
-        """ :type : FAKey"""
-        self.latest_comment_id_journal = (
+        self.fa_key: FAKey = fa_key
+        self.latest_comment_id_journal: int = (
             0 if latest_comment_id_journal is None else latest_comment_id_journal
         )
-        """ :type : int"""
-        self.latest_comment_id_submission = (
+        self.latest_comment_id_submission: int = (
             0 if latest_comment_id_submission is None else latest_comment_id_submission
         )
-        """ :type : int"""
-        self.latest_shout_id = 0 if latest_shout_id is None else latest_shout_id
-        """ :type : int"""
+        self.latest_shout_id: int = 0 if latest_shout_id is None else latest_shout_id
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'FANotificationCommentsSub':
         user = input_evt.user
         fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
         assert isinstance(fa_keys, FAKeysCommon)
@@ -1376,13 +1262,13 @@ class FANotificationCommentsSub(Subscription):
         fa_sub.check()
         return fa_sub
 
-    def matches_name(self, name_clean):
+    def matches_name(self, name_clean: str) -> bool:
         return name_clean in [s.lower().strip() for s in self.names + ["comments"]]
 
-    def get_name(self):
+    def get_name(self) -> str:
         return "FA comments for {}".format(self.fa_key.user.name)
 
-    def check(self, *, ignore_result=False):
+    def check(self, *, ignore_result: bool = False) -> List[Union['FAKey.FAReader.FANotificationCommentSubmission', 'FAKey.FAReader.FANotificationCommentJournal', 'FAKey.FAReader.FANotificationShout']]:
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         results = []
         # Check submission comments
@@ -1413,7 +1299,7 @@ class FANotificationCommentsSub(Subscription):
         # Return results
         return results[::-1]
 
-    def format_item(self, item):
+    def format_item(self, item: Union['FAKey.FAReader.FANotificationCommentSubmission', 'FAKey.FAReader.FANotificationCommentJournal', 'FAKey.FAReader.FANotificationShout']) -> EventMessage:
         output = "Err, comments did something?"
         fa_reader = self.fa_key.get_fa_reader()
         if isinstance(item, FAKey.FAReader.FANotificationShout):
@@ -1499,7 +1385,7 @@ class FANotificationCommentsSub(Subscription):
         output_evt = EventMessage(self.server, channel, user, output, inbound=False)
         return output_evt
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["fa_key_user_address"] = self.fa_key.user.address
@@ -1509,7 +1395,7 @@ class FANotificationCommentsSub(Subscription):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'FANotificationCommentsSub':
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
@@ -1572,232 +1458,8 @@ class FANotificationCommentsSub(Subscription):
         return new_sub
 
 
-class FANotificationJournalsSub(Subscription):
-    pass
-
-
-class FANotificationSubmissionsSub(Subscription):
-    pass
-
-
-class FASearchSub(Subscription):
-    names = ["fa search", "furaffinity search"]
-    """ :type : list[str]"""
-    type_name = "fa_search"
-    """ :type : str"""
-
-    def __init__(
-        self,
-        server,
-        destination,
-        fa_key,
-        search,
-        last_check=None,
-        update_frequency=None,
-        latest_ids=None,
-    ):
-        """
-        :type server: Server.Server
-        :type destination: Destination.Destination
-        :type fa_key: FAKey
-        :type search: str
-        :type last_check: datetime
-        :type update_frequency: timedelta
-        :type latest_ids: list[str]
-        """
-        super().__init__(server, destination, last_check, update_frequency)
-        self.fa_key = fa_key
-        """ :type : FAKey"""
-        self.search = search
-        """ :type : str"""
-        if latest_ids is None:
-            latest_ids = []
-        self.latest_ids = latest_ids
-        """ :type : list[str]"""
-
-    @staticmethod
-    def create_from_input(input_evt, sub_repo):
-        """
-        :type input_evt: Events.EventMessage
-        :type sub_repo: SubscriptionRepo
-        :rtype: FASearchSub
-        """
-        # Get FAKey object
-        user = input_evt.user
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
-        assert isinstance(fa_keys, FAKeysCommon)
-        fa_key = fa_keys.get_key_by_user(user)
-        if fa_key is None:
-            raise SubscriptionException(
-                "Cannot create FA search subscription without cookie details. "
-                "Please set up FA cookies with "
-                "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values."
-            )
-        # Get server and destination
-        server = input_evt.server
-        destination = (
-            input_evt.channel if input_evt.channel is not None else input_evt.user
-        )
-        # See if last argument is check period.
-        try:
-            try_period = input_evt.command_args.split()[-1]
-            search_delta = isodate.parse_duration(try_period)
-            search = input_evt.command_args[: -len(try_period)].strip()
-        except isodate.isoerror.ISO8601Error:
-            search = input_evt.command_args.strip()
-            search_delta = isodate.parse_duration("PT600S")
-        # Create FA search subscription object
-        fa_sub = FASearchSub(
-            server, destination, fa_key, search, update_frequency=search_delta
-        )
-        # Check if it's a valid search
-        first_results = fa_sub.check(ignore_result=True)
-        if len(first_results) == 0:
-            raise SubscriptionException(
-                "This does not appear to be a valid search, or does not have results."
-            )
-        return fa_sub
-
-    def matches_name(self, name_clean):
-        return name_clean == self.search.lower().strip()
-
-    def get_name(self):
-        return 'search for "{}"'.format(self.search)
-
-    def check(self, *, ignore_result=False):
-        fa_reader = self.fa_key.get_fa_reader()
-        results = []
-        search_page = fa_reader.get_search_page(self.search)
-        if len(search_page.id_list) == 0:
-            raise SubscriptionException("Search returned no results.")
-        next_batch = []
-        matched_ids = False
-        for result_id in search_page.id_list:
-            # Batch things that have been seen, so that the results after the last result in latest_ids aren't included
-            if result_id in self.latest_ids:
-                results += next_batch
-                next_batch = []
-                matched_ids = True
-            else:
-                next_batch.append(result_id)
-        # If no images in search matched an ID in last seen, send all results from search
-        if not matched_ids:
-            results += next_batch
-        # Get submission pages for each result
-        result_pages = []
-        for result_id in results:
-            if ignore_result:
-                result_pages.append(None)
-            else:
-                result_pages.append(fa_reader.get_submission_page(result_id))
-        # Create new list of latest ten results
-        self.latest_ids = search_page.id_list[:10]
-        self.last_check = datetime.now()
-        # Return results
-        return result_pages[::-1]
-
-    def format_item(self, item):
-        """
-        :type item: FAKey.FAReader.FAViewSubmissionPage
-        :return: EventMessage
-        """
-        link = "https://furaffinity.net/view/{}".format(item.submission_id)
-        title = item.title
-        posted_by = item.name
-        # Construct output
-        output = 'Update on "{}" FA search. "{}" by {}. {}'.format(
-            self.search, title, posted_by, link
-        )
-        channel = self.destination if isinstance(self.destination, Channel) else None
-        user = self.destination if isinstance(self.destination, User) else None
-        # Get submission page and file extension
-        image_url = item.full_image
-        file_extension = image_url.split(".")[-1].lower()
-        if file_extension in ["png", "jpg", "jpeg", "bmp", "gif"]:
-            output_evt = EventMessageWithPhoto(
-                self.server, channel, user, output, image_url, inbound=False
-            )
-            return output_evt
-        return EventMessage(self.server, channel, user, output, inbound=False)
-
-    @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
-        server = hallo.get_server_by_name(json_obj["server_name"])
-        if server is None:
-            raise SubscriptionException(
-                'Could not find server with name "{}"'.format(json_obj["server_name"])
-            )
-        # Load channel or user
-        if "channel_address" in json_obj:
-            destination = server.get_channel_by_address(json_obj["channel_address"])
-        else:
-            if "user_address" in json_obj:
-                destination = server.get_user_by_address(json_obj["user_address"])
-            else:
-                raise SubscriptionException("Channel or user must be defined.")
-        if destination is None:
-            raise SubscriptionException("Could not find chanel or user.")
-        # Load last check
-        last_check = None
-        if "last_check" in json_obj:
-            last_check = datetime.strptime(
-                json_obj["last_check"], "%Y-%m-%dT%H:%M:%S.%f"
-            )
-        # Load update frequency
-        update_frequency = isodate.parse_duration(json_obj["update_frequency"])
-        # Load last update
-        last_update = None
-        if "last_update" in json_obj:
-            last_update = datetime.strptime(
-                json_obj["last_update"], "%Y-%m-%dT%H:%M:%S.%f"
-            )
-        # Type specific loading
-        # Load fa_key
-        user_addr = json_obj["fa_key_user_address"]
-        user = server.get_user_by_address(user_addr)
-        if user is None:
-            raise SubscriptionException(
-                "Could not find user matching address `{}`".format(user_addr)
-            )
-        fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
-        assert isinstance(fa_keys, FAKeysCommon)
-        fa_key = fa_keys.get_key_by_user(user)
-        if fa_key is None:
-            raise SubscriptionException(
-                "Could not find fa key for user: {}".format(user.name)
-            )
-        # Load last items
-        latest_ids = []
-        for latest_id in json_obj["latest_ids"]:
-            latest_ids.append(latest_id)
-        # Load search
-        search = json_obj["search"]
-        # Create FASearchSub
-        new_sub = FASearchSub(
-            server,
-            destination,
-            fa_key,
-            search,
-            last_check=last_check,
-            update_frequency=update_frequency,
-            latest_ids=latest_ids,
-        )
-        new_sub.last_update = last_update
-        return new_sub
-
-    def to_json(self):
-        json_obj = super().to_json()
-        json_obj["sub_type"] = self.type_name
-        json_obj["fa_key_user_address"] = self.fa_key.user.address
-        json_obj["search"] = self.search
-        json_obj["latest_ids"] = []
-        for latest_id in self.latest_ids:
-            json_obj["latest_ids"].append(latest_id)
-        return json_obj
-
-
-class FAUserFavsSub(Subscription):
-    names = [
+class FAUserFavsSub(Subscription[Optional['FAKey.FAReader.FAViewSubmissionPage']]):
+    names: List[str] = [
         "fa user favs",
         "furaffinity user favs",
         "furaffinity user favourites",
@@ -1805,46 +1467,27 @@ class FAUserFavsSub(Subscription):
         "furaffinity user favorites",
         "fa user favorites",
     ]
-    """ :type : list[str]"""
-    type_name = "fa_user_favs"
-    """ :type : str"""
+    type_name: str = "fa_user_favs"
 
     def __init__(
         self,
-        server,
-        destination,
-        fa_key,
-        username,
-        last_check=None,
-        update_frequency=None,
-        latest_ids=None,
+        server: Server,
+        destination: Destination,
+        fa_key: 'FAKey',
+        username: str,
+        last_check: Optional[datetime] = None,
+        update_frequency: Optional[timedelta] = None,
+        latest_ids: Optional[List[str]] = None,
     ):
-        """
-        :type server: Server.Server
-        :type destination: Destination.Destination
-        :type fa_key: FAKey
-        :type username: str
-        :type last_check: datetime
-        :type update_frequency: timedelta
-        :type latest_ids: list[str]
-        """
         super().__init__(server, destination, last_check, update_frequency)
-        self.fa_key = fa_key
-        """ :type : FAKey"""
-        self.username = username.lower().strip()
-        """ :type : str"""
+        self.fa_key: FAKey = fa_key
+        self.username: str = username.lower().strip()
         if latest_ids is None:
             latest_ids = []
-        self.latest_ids = latest_ids
-        """ :type : list[str]"""
+        self.latest_ids: List[str] = latest_ids
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
-        """
-        :type input_evt: Events.EventMessage
-        :type sub_repo: SubscriptionRepo
-        :rtype: FAUserFavsSub
-        """
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'FAUserFavsSub':
         # Get FAKey object
         user = input_evt.user
         fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
@@ -1883,16 +1526,15 @@ class FAUserFavsSub(Subscription):
         fa_sub.check(ignore_result=True)
         return fa_sub
 
-    def matches_name(self, name_clean):
+    def matches_name(self, name_clean: str) -> bool:
         return name_clean == self.username.lower().strip()
 
-    def get_name(self):
+    def get_name(self) -> str:
         return 'Favourites subscription for "{}"'.format(self.username)
 
-    def check(self, *, ignore_result=False):
+    def check(self, *, ignore_result: bool = False) -> List[Optional['FAKey.FAReader.FAViewSubmissionPage']]:
         """
         Returns the list of FA Favourites since the last ones were seen, in oldest->newest order
-        :rtype: list[FAFavourite]
         """
         fa_reader = self.fa_key.get_fa_reader()
         results = []
@@ -1922,11 +1564,7 @@ class FAUserFavsSub(Subscription):
         self.last_check = datetime.now()
         return result_pages[::-1]
 
-    def format_item(self, item):
-        """
-        :type item: FAKey.FAReader.FAViewSubmissionPage
-        :return: EventMessage
-        """
+    def format_item(self, item: Optional['FAKey.FAReader.FAViewSubmissionPage']) -> EventMessage:
         link = "https://furaffinity.net/view/{}".format(item.submission_id)
         title = item.title
         posted_by = item.name
@@ -1947,7 +1585,7 @@ class FAUserFavsSub(Subscription):
         return EventMessage(self.server, channel, user, output, inbound=False)
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'FAUserFavsSub':
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
@@ -1998,7 +1636,7 @@ class FAUserFavsSub(Subscription):
             latest_ids.append(latest_id)
         # Load search
         username = json_obj["username"]
-        # Create FASearchSub
+        # Create FAUserFavsSub
         new_sub = FAUserFavsSub(
             server,
             destination,
@@ -2011,7 +1649,7 @@ class FAUserFavsSub(Subscription):
         new_sub.last_update = last_update
         return new_sub
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["fa_key_user_address"] = self.fa_key.user.address
@@ -2022,52 +1660,35 @@ class FAUserFavsSub(Subscription):
         return json_obj
 
 
-class FAUserWatchersSub(Subscription):
-    names = [
+class FAUserWatchersSub(Subscription['FAKey.FAReader.FAWatch']):
+    names: List[str] = [
         "fa user watchers",
         "fa user new watchers",
         "furaffinity user watchers",
         "furaffinity user new watchers",
     ]
-    """ :type : list[str]"""
-    type_name = "fa_user_watchers"
-    """ :type : str"""
+    type_name: str = "fa_user_watchers"
 
     def __init__(
         self,
-        server,
-        destination,
-        fa_key,
-        username,
-        last_check=None,
-        update_frequency=None,
-        newest_watchers=None,
+        server: Server,
+        destination: Destination,
+        fa_key: 'FAKey',
+        username: str,
+        last_check: Optional[datetime] = None,
+        update_frequency: Optional[timedelta] = None,
+        newest_watchers: Optional[List[str]] = None,
     ):
         """
-        :type server: Server.Server
-        :type destination: Destination.Destination
-        :type fa_key: FAKey
-        :type username: str
-        :type last_check: datetime
-        :type update_frequency: timedelta
         :param newest_watchers: List of user's most recent new watchers' usernames
-        :type newest_watchers: list[str]
         """
         super().__init__(server, destination, last_check, update_frequency)
-        self.fa_key = fa_key
-        """ :type : FAKey"""
-        self.username = username
-        """ :type : str"""
-        self.newest_watchers = [] if newest_watchers is None else newest_watchers
-        """ :type : list[str]"""
+        self.fa_key: FAKey = fa_key
+        self.username: str = username
+        self.newest_watchers: List[str] = [] if newest_watchers is None else newest_watchers
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
-        """
-        :type input_evt: Events.EventMessage
-        :type sub_repo: SubscriptionRepo
-        :rtype: FAUserWatchersSub
-        """
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'FAUserWatchersSub':
         # Get FAKey object
         user = input_evt.user
         fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
@@ -2104,13 +1725,13 @@ class FAUserWatchersSub(Subscription):
         fa_sub.check()
         return fa_sub
 
-    def matches_name(self, name_clean):
+    def matches_name(self, name_clean: str) -> bool:
         return name_clean == self.username.lower().strip()
 
-    def get_name(self):
+    def get_name(self) -> str:
         return 'New watchers subscription for "{}"'.format(self.username)
 
-    def check(self, *, ignore_result=False):
+    def check(self, *, ignore_result: bool = False) -> List['FAKey.FAReader.FAWatch']:
         fa_reader = self.fa_key.get_fa_reader()
         results = []
         user_page = fa_reader.get_user_page(self.username)
@@ -2135,11 +1756,7 @@ class FAUserWatchersSub(Subscription):
         self.last_check = datetime.now()
         return results[::-1]
 
-    def format_item(self, item):
-        """
-        :type item: FAKey.FAReader.FAWatch
-        :return: EventMessage
-        """
+    def format_item(self, item: 'FAKey.FAReader.FAWatch') -> EventMessage:
         link = "https://furaffinity.net/user/{}/".format(item.watcher_username)
         # Construct output
         output = "{} has watched {}. Link: {}".format(
@@ -2149,7 +1766,7 @@ class FAUserWatchersSub(Subscription):
         user = self.destination if isinstance(self.destination, User) else None
         return EventMessage(self.server, channel, user, output, inbound=False)
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["fa_key_user_address"] = self.fa_key.user.address
@@ -2160,7 +1777,7 @@ class FAUserWatchersSub(Subscription):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'FAUserWatchersSub':
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
@@ -2225,35 +1842,28 @@ class FAUserWatchersSub(Subscription):
 
 
 class FANotificationWatchSub(FAUserWatchersSub):
-    names = [
+    names: List[str] = [
         "{}{}{}{}".format(fa, new, watchers, notifications)
         for fa in ["fa ", "furaffinity "]
         for new in ["new ", ""]
         for watchers in ["watcher", "watchers"]
         for notifications in ["", " notifications"]
     ]
-    """ :type : list[str]"""
-    type_name = "fa_notif_watchers"
+    type_name: str = "fa_notif_watchers"
 
     def __init__(
         self,
-        server,
-        destination,
-        fa_key,
-        last_check=None,
-        update_frequency=None,
-        newest_watchers=None,
+        server: Server,
+        destination: Destination,
+        fa_key: 'FAKey',
+        last_check: Optional[datetime] = None,
+        update_frequency: Optional[timedelta] = None,
+        newest_watchers: Optional[str] = None,
     ):
         """
-        :type server: Server.Server
-        :type destination: Destination.Destination
-        :type fa_key: FAKey
-        :type last_check: datetime
-        :type update_frequency: timedelta
         :param newest_watchers: List of user's most recent new watchers' usernames
-        :type newest_watchers: list[str]
         """
-        username = fa_key.get_fa_reader().get_notification_page().username
+        username: str = fa_key.get_fa_reader().get_notification_page().username
         super().__init__(
             server,
             destination,
@@ -2265,12 +1875,7 @@ class FANotificationWatchSub(FAUserWatchersSub):
         )
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
-        """
-        :type input_evt: Events.EventMessage
-        :type sub_repo: SubscriptionRepo
-        :rtype: FAUserWatchersSub
-        """
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'FANotificationWatchSub':
         # Get FAKey object
         user = input_evt.user
         fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
@@ -2304,20 +1909,20 @@ class FANotificationWatchSub(FAUserWatchersSub):
         fa_sub.check()
         return fa_sub
 
-    def matches_name(self, name_clean):
+    def matches_name(self, name_clean: str) -> bool:
         return name_clean in [s.lower().strip() for s in self.names + ["watchers"]]
 
-    def get_name(self):
+    def get_name(self) -> str:
         return "New watchers notifications for {}".format(self.fa_key.user.name)
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         del json_obj["username"]
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'FANotificationWatchSub':
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
@@ -2378,46 +1983,27 @@ class FANotificationWatchSub(FAUserWatchersSub):
         return new_sub
 
 
-class YoutubeSub(Subscription):
-    pass
-
-
-class ImgurSub(Subscription):
-    pass
-
-
-class RedditSub(Subscription):
-    names = ["reddit", "subreddit"]
-    """ :type : list[str]"""
-    type_name = "subreddit"
+class RedditSub(Subscription[Dict]):
+    names: List[str] = ["reddit", "subreddit"]
+    type_name: str = "subreddit"
 
     def __init__(
         self,
-        server,
-        destination,
-        subreddit,
-        last_check=None,
-        update_frequency=None,
-        latest_ids=None,
+        server: Server,
+        destination: Destination,
+        subreddit: str,
+        last_check: Optional[datetime] = None,
+        update_frequency: Optional[timedelta] = None,
+        latest_ids: Optional[List[str]] = None,
     ):
-        """
-        :type server: server.Server
-        :type destination: destination.Destination
-        :type subreddit: str
-        :type last_check: datetime
-        :type update_frequency: timedelta
-        :type latest_ids: list[str]
-        """
         super().__init__(server, destination, last_check, update_frequency)
-        self.subreddit = subreddit
-        """ :type : str"""
+        self.subreddit: str = subreddit
         if latest_ids is None:
             latest_ids = []
-        self.latest_ids = latest_ids
-        """ :type : list[int]"""
+        self.latest_ids: List[str] = latest_ids
 
     @staticmethod
-    def create_from_input(input_evt, sub_repo):
+    def create_from_input(input_evt: EventMessage, sub_repo: SubscriptionRepo) -> 'RedditSub':
         # Get event data
         server = input_evt.server
         destination = (
@@ -2457,15 +2043,15 @@ class RedditSub(Subscription):
         reddit_sub.check()
         return reddit_sub
 
-    def matches_name(self, name_clean):
+    def matches_name(self, name_clean: str) -> bool:
         return (
             self.subreddit == name_clean or "r/{}".format(self.subreddit) in name_clean
         )
 
-    def get_name(self):
+    def get_name(self) -> str:
         return "/r/{}".format(self.subreddit)
 
-    def check(self, *, ignore_result=False):
+    def check(self, *, ignore_result: bool = False) -> List[Dict]:
         url = "https://www.reddit.com/r/{}/new.json".format(self.subreddit)
         results = Commons.load_url_json(url)
         return_list = []
@@ -2483,7 +2069,7 @@ class RedditSub(Subscription):
         self.last_check = datetime.now()
         return return_list
 
-    def format_item(self, item):
+    def format_item(self, item: Dict) -> EventMessage:
         # Event destination
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
@@ -2603,7 +2189,7 @@ class RedditSub(Subscription):
         output_evt.formatting = EventMessage.Formatting.HTML
         return output_evt
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         json_obj = super().to_json()
         json_obj["sub_type"] = self.type_name
         json_obj["subreddit"] = self.subreddit
@@ -2613,7 +2199,7 @@ class RedditSub(Subscription):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo, sub_repo):
+    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'RedditSub':
         server = hallo.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
@@ -2657,72 +2243,55 @@ class RedditSub(Subscription):
         return new_sub
 
 
-class SubscriptionCommon:
-    type_name = ""
-    """ :type : str"""
+class SubscriptionCommon(ABC):
+    type_name: str = ""
 
-    def to_json(self):
+    def to_json(self) -> Optional[Dict]:
         raise NotImplementedError()
 
     @staticmethod
-    def from_json(json_obj):
+    def from_json(json_obj: Optional[Dict]) -> 'SubscriptionCommon':
         raise NotImplementedError()
 
 
 class FAKeysCommon(SubscriptionCommon):
-    type_name = "fa_keys"
-    """ :type : str"""
+    type_name: str = "fa_keys"
 
     def __init__(self):
-        self.list_keys = dict()
-        """ :type : dict[User, FAKey]"""
+        self.list_keys: Dict[User, FAKey] = dict()
 
-    def get_key_by_user(self, user):
-        """
-        :type user: Destination.User
-        :return: FAKey
-        """
+    def get_key_by_user(self, user: User) -> Optional['FAKey']:
         if user in self.list_keys:
             return self.list_keys[user]
         user_data_parser = UserDataParser()
-        fa_data = user_data_parser.get_data_by_user_and_type(
+        fa_data: FAKeyData = user_data_parser.get_data_by_user_and_type(
             user, FAKeyData
-        )  # type: FAKeyData
+        )
         if fa_data is None:
             return None
         fa_key = FAKey(user, fa_data.cookie_a, fa_data.cookie_b)
         self.add_key(fa_key)
         return fa_key
 
-    def add_key(self, key):
-        """
-        :type key: FAKey
-        """
+    def add_key(self, key: 'FAKey') -> None:
         self.list_keys[key.user] = key
 
-    def to_json(self):
+    def to_json(self) -> Optional[Dict]:
         return None
 
     @staticmethod
-    def from_json(json_obj):
+    def from_json(json_obj: Optional[Dict]) -> 'FAKeysCommon':
         return FAKeysCommon()
 
 
 class FAKey:
-    def __init__(self, user, cookie_a, cookie_b):
+    def __init__(self, user: User, cookie_a: str, cookie_b: str) -> None:
         self.user = user
-        """ :type : Destination.User"""
         self.cookie_a = cookie_a
-        """ :type : str"""
         self.cookie_b = cookie_b
-        """ :type : str"""
-        self.fa_reader = None
-        """ :type : FAReader | None"""
+        self.fa_reader: Optional[FAKey.FAReader] = None
 
-    def get_fa_reader(self):
-        """
-        :rtype: FAKey.FAReader
-        """
+    def get_fa_reader(self) -> 'FAKey.FAReader':
         if self.fa_reader is None:
             self.fa_reader = FAKey.FAReader(self.cookie_a, self.cookie_b)
         return self.fa_reader
@@ -2734,43 +2303,36 @@ class FAKey:
         class FALoginFailedError(Exception):
             pass
 
-        def __init__(self, cookie_a, cookie_b):
+        def __init__(self, cookie_a: str, cookie_b: str):
             self.a = cookie_a
-            """ :type : str"""
             self.b = cookie_b
-            """ :type : str"""
-            self.timeout = timedelta(seconds=60)
-            """ :type : timedelta"""
+            self.timeout: timedelta = timedelta(seconds=60)
             self.notification_page_cache = CachedObject(
                 lambda: FAKey.FAReader.FANotificationsPage(
                     self._get_api_data("notifications/others.json", True)
                 ),
                 self.timeout,
             )
-            """ :type : CachedObject"""
             self.submissions_page_cache = CachedObject(
                 lambda: FAKey.FAReader.FASubmissionsPage(
                     self._get_api_data("notifications/submissions.json", True)
                 ),
                 self.timeout,
             )
-            """ :type : CachedObject"""
             self.notes_page_inbox_cache = CachedObject(
                 lambda: FAKey.FAReader.FANotesPage(
                     self._get_api_data("notes/inbox.json", True), self.NOTES_INBOX
                 ),
                 self.timeout,
             )
-            """ :type : CachedObject"""
             self.notes_page_outbox_cache = CachedObject(
                 lambda: FAKey.FAReader.FANotesPage(
                     self._get_api_data("notes/outbox.json", True), self.NOTES_OUTBOX
                 ),
                 self.timeout,
             )
-            """ :type : CachedObject"""
 
-        def _get_api_data(self, path, needs_cookie=False):
+        def _get_api_data(self, path: str, needs_cookie: bool = False) -> Dict:
             fa_api_url = os.getenv("FA_API_URL", "https://faexport.spangle.org.uk")
             url = "{}/{}".format(fa_api_url, path)
             if needs_cookie:
@@ -2778,30 +2340,20 @@ class FAKey:
                 return Commons.load_url_json(url, [["FA_COOKIE", cookie_string]])
             return Commons.load_url_json(url)
 
-        def get_notification_page(self):
-            """
-            :rtype: FAKey.FAReader.FANotificationsPage
-            """
+        def get_notification_page(self) -> 'FAKey.FAReader.FANotificationsPage':
             return self.notification_page_cache.get()
 
-        def get_submissions_page(self):
-            """
-            :rtype: FAReader.FASubmissionsPage
-            """
+        def get_submissions_page(self) -> 'FAKey.FAReader.FASubmissionsPage':
             return self.submissions_page_cache.get()
 
-        def get_notes_page(self, folder):
-            """
-            :type folder: str
-            :return: FAReader.FANotesPage
-            """
+        def get_notes_page(self, folder: str) -> 'FAKey.FAReader.FANotesPage':
             if folder == self.NOTES_INBOX:
                 return self.notes_page_inbox_cache.get()
             if folder == self.NOTES_OUTBOX:
                 return self.notes_page_outbox_cache.get()
             raise ValueError("Invalid FA note folder.")
 
-        def get_user_page(self, username):
+        def get_user_page(self, username: str) -> 'FAKey.FAReader.FAUserPage':
             # Needs shout list, for checking own shouts
             data = self._get_api_data("/user/{}.json".format(username))
 
@@ -2811,16 +2363,12 @@ class FAKey:
             user_page = FAKey.FAReader.FAUserPage(data, shout_data_getter, username)
             return user_page
 
-        def get_user_fav_page(self, username):
-            """
-            :type username: str
-            :rtype: FAKey.FAReader.FAUserFavouritesPage
-            """
+        def get_user_fav_page(self, username: str) -> 'FAKey.FAReader.FAUserFavouritesPage':
             id_list = self._get_api_data("/user/{}/favorites.json".format(username))
             fav_page = FAKey.FAReader.FAUserFavouritesPage(id_list, username)
             return fav_page
 
-        def get_submission_page(self, submission_id):
+        def get_submission_page(self, submission_id: Union[int, str]) -> 'FAKey.FAReader.FAViewSubmissionPage':
             data = self._get_api_data("/submission/{}.json".format(submission_id))
 
             def comment_data_getter():
@@ -2833,7 +2381,7 @@ class FAKey:
             )
             return sub_page
 
-        def get_journal_page(self, journal_id):
+        def get_journal_page(self, journal_id: Union[int, str]) -> 'FAKey.FAReader.FAViewJournalPage':
             data = self._get_api_data("/journal/{}.json".format(journal_id))
 
             def comment_data_getter():
@@ -2846,16 +2394,15 @@ class FAKey:
             )
             return journal_page
 
-        def get_search_page(self, search_term):
+        def get_search_page(self, search_term: str) -> 'FAKey.FAReader.FASearchPage':
             id_list = self._get_api_data("/search.json?q={}".format(search_term))
             search_page = FAKey.FAReader.FASearchPage(id_list, search_term)
             return search_page
 
         class FANotificationsPage:
-            def __init__(self, data):
-                self.username = data["current_user"]["profile_name"]
-                self.watches = []
-                """ :type : list[FAKey.FAReader.FANotificationWatch]"""
+            def __init__(self, data: Dict):
+                self.username: str = data["current_user"]["profile_name"]
+                self.watches: List[FAKey.FAReader.FANotificationWatch] = []
                 watch_list = data["new_watches"]
                 for watch_notif in watch_list:
                     try:
@@ -2866,9 +2413,8 @@ class FAKey:
                         )
                         self.watches.append(new_watch)
                     except Exception as e:
-                        print("Failed to read watch: {}".format(e))
-                self.submission_comments = []
-                """ :type : list[FAKey.FAReader.FANotificationCommentSubmission]"""
+                        logger.error("Failed to read watch: ", exc_info=e)
+                self.submission_comments: List[FAKey.FAReader.FANotificationCommentSubmission] = []
                 sub_comment_list = data["new_submission_comments"]
                 for sub_comment_notif in sub_comment_list:
                     try:
@@ -2883,9 +2429,8 @@ class FAKey:
                         )
                         self.submission_comments.append(new_comment)
                     except Exception as e:
-                        print("Failed to read submission comment: {}".format(e))
-                self.journal_comments = []
-                """ :type : list[FAKey.FAReader.FANotificationCommentJournal]"""
+                        logger.error("Failed to read submission comment: ", exc_info=e)
+                self.journal_comments: List[FAKey.FAReader.FANotificationCommentJournal] = []
                 jou_comment_list = data["new_journal_comments"]
                 for jou_comment_notif in jou_comment_list:
                     try:
@@ -2900,9 +2445,8 @@ class FAKey:
                         )
                         self.journal_comments.append(new_comment)
                     except Exception as e:
-                        print("Failed to read journal comment: {}".format(e))
-                self.shouts = []
-                """ :type : list[FAKey.FAReader.FANotificationShout]"""
+                        logger.error("Failed to read journal comment: ", exc_info=e)
+                self.shouts: List[FAKey.FAReader.FANotificationShout] = []
                 shout_list = data["new_shouts"]
                 for shout_notif in shout_list:
                     try:
@@ -2914,9 +2458,8 @@ class FAKey:
                         )
                         self.shouts.append(new_shout)
                     except Exception as e:
-                        print("Failed to read shout: {}".format(e))
-                self.favourites = []
-                """ :type : list[FAKey.FAReader.FANotificationFavourite]"""
+                        logger.error("Failed to read shout: ", exc_info=e)
+                self.favourites: List[FAKey.FAReader.FANotificationFavourite] = []
                 fav_list = data["new_favorites"]
                 for fav_notif in fav_list:
                     try:
@@ -2929,9 +2472,8 @@ class FAKey:
                         )
                         self.favourites.append(new_fav)
                     except Exception as e:
-                        print("Failed to read favourite: {}".format(e))
-                self.journals = []
-                """ :type : list[FAKey.FAReader.FANotificationJournal]"""
+                        logger.error("Failed to read favourite: ", exc_info=e)
+                self.journals: List[FAKey.FAReader.FANotificationJournal] = []
                 jou_list = data["new_journals"]
                 for jou_notif in jou_list:
                     try:
@@ -2943,134 +2485,96 @@ class FAKey:
                         )
                         self.journals.append(new_journal)
                     except Exception as e:
-                        print("Failed to read journal: {}".format(e))
+                        logger.error("Failed to read journal: ", exc_info=e)
 
         class FANotificationWatch:
-            def __init__(self, name, username, avatar):
-                self.name = name
-                """ :type : str"""
-                self.username = username
-                """ :type : str"""
-                self.link = "https://furaffinity.net/user/{}/".format(username)
-                """ :type : str"""
-                self.avatar = avatar
-                """ :type : str"""
+            def __init__(self, name: str, username: str, avatar: str):
+                self.name: str = name
+                self.username: str = username
+                self.link: str = "https://furaffinity.net/user/{}/".format(username)
+                self.avatar: str = avatar
 
         class FANotificationCommentSubmission:
             def __init__(
                 self,
-                comment_id,
-                username,
-                name,
-                comment_on,
-                submission_yours,
-                submission_id,
-                submission_name,
+                comment_id: str,
+                username: str,
+                name: str,
+                comment_on: bool,
+                submission_yours: bool,
+                submission_id: str,
+                submission_name: str,
             ):
-                self.comment_id = comment_id
-                """ :type : str"""
-                self.comment_link = "https://furaffinity.net/view/{}/#cid:{}".format(
+                self.comment_id: str = comment_id
+                self.comment_link: str = "https://furaffinity.net/view/{}/#cid:{}".format(
                     submission_id, comment_id
                 )
-                """ :type : str"""
-                self.username = username
-                """ :type : str"""
-                self.name = name
-                """ :type : str"""
-                self.comment_on = comment_on
-                """ :type : bool"""
-                self.submission_yours = submission_yours
-                """ :type : bool"""
+                self.username: str = username
+                self.name: str = name
+                self.comment_on: bool = comment_on
+                self.submission_yours: bool = submission_yours
                 self.submission_id = submission_id
-                """ :type : str"""
                 self.submission_name = submission_name
-                """ :type : str"""
-                self.submission_link = "https://furaffinity.net/view/{}/".format(
+                self.submission_link: str = "https://furaffinity.net/view/{}/".format(
                     submission_id
                 )
-                """ :type : str"""
 
         class FANotificationCommentJournal:
             def __init__(
                 self,
-                comment_id,
-                username,
-                name,
-                comment_on,
-                journal_yours,
-                journal_id,
-                journal_name,
+                comment_id: str,
+                username: str,
+                name: str,
+                comment_on: bool,
+                journal_yours: bool,
+                journal_id: str,
+                journal_name: str,
             ):
-                self.comment_id = comment_id
-                """ :type : str"""
-                self.comment_link = "https://furaffinity.net/journal/{}/#cid:{}".format(
+                self.comment_id: str = comment_id
+                self.comment_link: str = "https://furaffinity.net/journal/{}/#cid:{}".format(
                     journal_id, comment_id
                 )
-                """ :type : str"""
-                self.username = username
-                """ :type : str"""
-                self.name = name
-                """ :type : str"""
-                self.comment_on = comment_on
-                """ :type : bool"""
-                self.journal_yours = journal_yours
-                """ :type : bool"""
-                self.journal_id = journal_id
-                """ :type : str"""
-                self.journal_name = journal_name
-                """ :type : str"""
-                self.journal_link = "https://furaffinity.net/journal/{}/".format(
+                self.username: str = username
+                self.name: str = name
+                self.comment_on: bool = comment_on
+                self.journal_yours: bool = journal_yours
+                self.journal_id: str = journal_id
+                self.journal_name: str = journal_name
+                self.journal_link: str = "https://furaffinity.net/journal/{}/".format(
                     journal_id
                 )
-                """ :type : str"""
 
         class FANotificationShout:
-            def __init__(self, shout_id, username, name, page_username):
-                self.shout_id = shout_id
-                """ :type : str"""
-                self.username = username
-                """ :type : str"""
-                self.name = name
-                """ :type : str"""
-                self.page_username = page_username
-                """ :type : str"""
+            def __init__(self, shout_id: str, username: str, name: str, page_username: str):
+                self.shout_id: str = shout_id
+                self.username: str = username
+                self.name: str = name
+                self.page_username: str = page_username
 
         class FANotificationFavourite:
-            def __init__(self, fav_id, username, name, submission_id, submission_name):
-                self.fav_id = fav_id
-                """ :type : str"""
-                self.username = username
-                """ :type : str"""
-                self.name = name
-                """ :type : str"""
-                self.submission_id = submission_id
-                """ :type : str"""
-                self.submission_name = submission_name
-                """ :type : str"""
-                self.submission_link = "https://furaffinity.net/view/{}/".format(
+            def __init__(self, fav_id: str, username: str, name: str, submission_id: str, submission_name: str):
+                self.fav_id: str = fav_id
+                self.username: str = username
+                self.name: str = name
+                self.submission_id: str = submission_id
+                self.submission_name: str = submission_name
+                self.submission_link: str = "https://furaffinity.net/view/{}/".format(
                     submission_id
                 )
-                """ :type : str"""
 
         class FANotificationJournal:
-            def __init__(self, journal_id, journal_name, username, name):
-                self.journal_id = journal_id
-                """ :type : str"""
-                self.journal_link = "https://furaffinity.net/journal/{}/".format(
+            def __init__(self, journal_id: str, journal_name: str, username: str, name: str):
+                self.journal_id: str = journal_id
+                self.journal_link: str = "https://furaffinity.net/journal/{}/".format(
                     journal_id
                 )
-                """ :type : str"""
-                self.journal_name = journal_name
-                """ :type : str"""
-                self.username = username
-                """ :type : str"""
-                self.name = name
-                """ :type : str"""
+                self.journal_name: str = journal_name
+                self.username: str = username
+                self.name: str = name
 
         class FASubmissionsPage:
-            def __init__(self, data):
-                self.submissions = []
-                """ :type : list[FAKey.FAReader.FANotificationSubmission]"""
+            def __init__(self, data: Dict):
+                self.submissions: List[FAKey.FAReader.FANotificationSubmission] = []
                 subs_list = data["new_submissions"]
                 for sub_notif in subs_list:
                     new_submission = FAKey.FAReader.FANotificationSubmission(
@@ -3083,28 +2587,20 @@ class FAKey:
                     self.submissions.append(new_submission)
 
         class FANotificationSubmission:
-            def __init__(self, submission_id, preview_link, title, username, name):
-                self.submission_id = submission_id
-                """ :type : str"""
-                self.submission_link = "https://furaffinity.net/view/{}/".format(
+            def __init__(self, submission_id: str, preview_link: str, title: str, username: str, name: str):
+                self.submission_id: str = submission_id
+                self.submission_link: str = "https://furaffinity.net/view/{}/".format(
                     submission_id
                 )
-                """ :type : str"""
-                self.preview_link = preview_link
-                """ :type : str"""
-                self.title = title
-                """ :type : str"""
-                self.username = username
-                """ :type : str"""
-                self.name = name
-                """ :type : str"""
+                self.preview_link: str = preview_link
+                self.title: str = title
+                self.username: str = username
+                self.name: str = name
 
         class FANotesPage:
-            def __init__(self, data, folder):
-                self.folder = folder
-                """ :type : str"""
-                self.notes = []
-                """ :type : list[FAKey.FAReader.FANote]"""
+            def __init__(self, data: Dict, folder: str):
+                self.folder: str = folder
+                self.notes: List[FAKey.FAReader.FANote] = []
                 for note in data:
                     new_note = FAKey.FAReader.FANote(
                         note["note_id"],
@@ -3116,58 +2612,39 @@ class FAKey:
                     self.notes.append(new_note)
 
         class FANote:
-            def __init__(self, note_id, subject, username, name, is_read):
-                self.note_id = note_id
-                """ :type : str"""
-                self.note_link = "https://www.furaffinity.net/viewmessage/{}/".format(
+            def __init__(self, note_id: str, subject: str, username: str, name: str, is_read: bool):
+                self.note_id: str = note_id
+                self.note_link: str = "https://www.furaffinity.net/viewmessage/{}/".format(
                     note_id
                 )
-                """ :type : str"""
-                self.subject = subject
-                """ :type : str"""
-                self.username = username
-                """ :type : str"""
-                self.name = name
-                """ :type : str"""
-                self.is_read = is_read
-                """ :type : bool"""
+                self.subject: str = subject
+                self.username: str = username
+                self.name: str = name
+                self.is_read: bool = is_read
 
         class FAUserPage:
-            def __init__(self, data, shout_data_getter, username):
-                self.username = username
-                """ :type : str"""
-                self.name = data["full_name"]
-                """ :type : str"""
-                self.user_title = (
+            def __init__(self, data: Dict, shout_data_getter: Callable[[], Dict], username: str):
+                self.username: str = username
+                self.name: str = data["full_name"]
+                self.user_title: Optional[str] = (
                     data["user_title"] if len(data["user_title"]) != 0 else None
                 )
-                """ :type : str | None"""
-                self.registered_since = dateutil.parser.parse(data["registered_at"])
-                """ :type : datetime"""
-                self.current_mood = data["current_mood"]
-                """ :type : str"""
+                self.registered_since: datetime = dateutil.parser.parse(data["registered_at"])
+                self.current_mood: str = data["current_mood"]
                 # artist_profile
-                self.num_page_visits = int(data["pageviews"])
-                """ :type : int"""
-                self.num_submissions = int(data["submissions"])
-                """ :type : int"""
-                self.num_comments_received = int(data["comments_received"])
-                """ :type : int"""
-                self.num_comments_given = int(data["comments_given"])
-                """ :type : int"""
-                self.num_journals = int(data["journals"])
-                """ :type : int"""
-                self.num_favourites = int(data["favorites"])
-                """ :type : int"""
+                self.num_page_visits: int = int(data["pageviews"])
+                self.num_submissions: int = int(data["submissions"])
+                self.num_comments_received: int = int(data["comments_received"])
+                self.num_comments_given: int = int(data["comments_given"])
+                self.num_journals: int = int(data["journals"])
+                self.num_favourites: int = int(data["favorites"])
                 # artist_info
                 # contact_info
                 # featured_submission
-                self._shout_data_getter = shout_data_getter
-                self._shout_cache = None
-                """ :type : list[FAKey.FAReader.FAShout] | None"""
+                self._shout_data_getter: Callable[[], Dict] = shout_data_getter
+                self._shout_cache: Optional[List[FAKey.FAReader.FAShout]] = None
                 # watcher lists
-                self.watched_by = []
-                """ :type : list[FAKey.FAReader.FAWatch]"""
+                self.watched_by: List[FAKey.FAReader.FAWatch] = []
                 for watch in data["watchers"]["recent"]:
                     watcher_username = watch["link"].split("/")[-2]
                     watcher_name = watch["name"]
@@ -3175,7 +2652,7 @@ class FAKey:
                         watcher_username, watcher_name, self.username, self.name
                     )
                     self.watched_by.append(new_watch)
-                self.is_watching = []
+                self.is_watching: List[FAKey.FAReader.FAWatch] = []
                 for watch in data["watching"]["recent"]:
                     watched_username = watch["link"].split("/")[-2]
                     watched_name = watch["name"]
@@ -3185,7 +2662,7 @@ class FAKey:
                     self.is_watching.append(new_watch)
 
             @property
-            def shouts(self):
+            def shouts(self) -> List['FAKey.FAReader.FAShout']:
                 if self._shout_cache is None:
                     shout_data = self._shout_data_getter()
                     for shout in shout_data:
@@ -3201,83 +2678,54 @@ class FAKey:
                 return self._shout_cache
 
         class FAShout:
-            def __init__(self, shout_id, username, name, avatar, text):
-                self.shout_id = shout_id
-                """ :type : str"""
-                self.username = username
-                """ :type : str"""
-                self.name = name
-                """ :type : str"""
-                self.avatar = avatar
-                """ :type : str"""
-                self.text = text
-                """ :type : str"""
+            def __init__(self, shout_id: str, username: str, name: str, avatar: str, text: str):
+                self.shout_id: str = shout_id
+                self.username: str = username
+                self.name: str = name
+                self.avatar: str = avatar
+                self.text: str = text
 
         class FAWatch:
             def __init__(
-                self, watcher_username, watcher_name, watched_username, watched_name
+                self, watcher_username: str, watcher_name: str, watched_username: str, watched_name: str
             ):
-                self.watcher_username = watcher_username
-                """ :type : str"""
-                self.watcher_name = watcher_name
-                """ :type : str"""
-                self.watched_username = watched_username
-                """ :type : str"""
-                self.watched_name = watched_name
-                """ :type : str"""
+                self.watcher_username: str = watcher_username
+                self.watcher_name: str = watcher_name
+                self.watched_username: str = watched_username
+                self.watched_name: str = watched_name
 
         class FAUserFavouritesPage:
-            def __init__(self, id_list, username):
-                self.username = username
-                """ :type : str"""
-                self.fav_ids = id_list
-                """ :type : list[int]"""
+            def __init__(self, id_list: List[int], username: str):
+                self.username: str = username
+                self.fav_ids: List[int] = id_list
 
         class FAViewSubmissionPage:
-            def __init__(self, data, comments_data_getter, submission_id):
-                self.submission_id = submission_id
-                """ :type : str"""
-                self.title = data["title"]
-                """ :type : str"""
-                self.full_image = data["download"]
-                """ :type : str"""
-                self.username = data["profile_name"]
-                """ :type : str"""
-                self.name = data["name"]
-                """ :type : str"""
-                self.avatar_link = data["avatar"]
-                """ :type : str"""
-                self.description = data["description_body"]
-                """ :type : str"""
+            def __init__(self, data: Dict, comments_data_getter: Callable[[], Dict], submission_id: str):
+                self.submission_id: str = submission_id
+                self.title: str = data["title"]
+                self.full_image: str = data["download"]
+                self.username: str = data["profile_name"]
+                self.name: str = data["name"]
+                self.avatar_link: str = data["avatar"]
+                self.description: str = data["description_body"]
                 submission_time_str = data["posted_at"]
-                self.submission_time = dateutil.parser.parse(submission_time_str)
-                """ :type : datetime"""
-                self.category = data["category"]
-                """ :type : str"""
-                self.theme = data["theme"]
-                """ :type : str"""
-                self.species = data["species"]
-                """ :type : str"""
-                self.gender = data["gender"]
-                """ :type : str"""
-                self.num_favourites = int(data["favorites"])
-                """ :type : int"""
-                self.num_comments = int(data["comments"])
-                """ :type : int"""
-                self.num_views = int(data["views"])
-                """ :type : int"""
+                self.submission_time: datetime = dateutil.parser.parse(submission_time_str)
+                self.category: str = data["category"]
+                self.theme: str = data["theme"]
+                self.species: str = data["species"]
+                self.gender: str = data["gender"]
+                self.num_favourites: int = int(data["favorites"])
+                self.num_comments: int = int(data["comments"])
+                self.num_views: int = int(data["views"])
                 # resolution_x = None
                 # resolution_y = None
-                self.keywords = data["keywords"]
-                """ :type : list[str]"""
-                self.rating = data["rating"]
-                """ :type : str"""
-                self._comments_section_getter = comments_data_getter
-                self._comments_section_cache = None
-                """ :type : FAKey.FAReader.FACommentsSection | None"""
+                self.keywords: List[str] = data["keywords"]
+                self.rating: str = data["rating"]
+                self._comments_section_getter: Callable[[], Dict] = comments_data_getter
+                self._comments_section_cache: Optional[FAKey.FAReader.FACommentsSection] = None
 
             @property
-            def comments_section(self):
+            def comments_section(self) -> 'FAKey.FAReader.FACommentsSection':
                 if self._comments_section_cache is None:
                     comments_data = self._comments_section_getter()
                     self._comments_section_cache = FAKey.FAReader.FACommentsSection(
@@ -3286,9 +2734,8 @@ class FAKey:
                 return self._comments_section_cache
 
         class FACommentsSection:
-            def __init__(self, comments_data):
-                self.top_level_comments = []
-                """ :type : list[FAKey.FAReader.FAComment]"""
+            def __init__(self, comments_data: Dict):
+                self.top_level_comments: List[FAKey.FAReader.FAComment] = []
                 for comment in comments_data:
                     username = comment["profile_name"]
                     name = comment["name"]
@@ -3307,12 +2754,7 @@ class FAKey:
                         new_comment.parent = parent_comment
                         parent_comment.reply_comments.append(new_comment)
 
-            def get_comment_by_id(self, comment_id, parent_comment=None):
-                """
-                :type comment_id: str
-                :type parent_comment: FAKey.FAReader.FAComment | None
-                :rtype: FAKey.FAReader.FAComment | None
-                """
+            def get_comment_by_id(self, comment_id: str, parent_comment: Optional['FAKey.FAReader.FAComment'] = None) -> Optional['FAKey.FAReader.FAComment']:
                 if parent_comment is None:
                     for comment in self.top_level_comments:
                         found_comment = self.get_comment_by_id(comment_id, comment)
@@ -3330,57 +2772,39 @@ class FAKey:
         class FAComment:
             def __init__(
                 self,
-                username,
-                name,
-                avatar_link,
-                comment_id,
-                posted_datetime,
-                text,
-                parent_comment=None,
+                username: str,
+                name: str,
+                avatar_link: str,
+                comment_id: str,
+                posted_datetime: datetime,
+                text: str,
+                parent_comment: Optional['FAKey.FAReader.FAComment'] = None,
             ):
-                self.username = username
-                """ :type : str"""
-                self.name = name
-                """ :type : str"""
-                self.avatar_link = avatar_link
-                """ :type : str"""
-                self.comment_id = comment_id
-                """ :type : str"""
-                self.posted_datetime = posted_datetime
-                """ :type : datetime"""
-                self.text = text
-                """ :type : str"""
-                self.parent_comment = parent_comment
-                """ :type : FAKey.FAReader.FAComment"""
-                self.reply_comments = []
-                """ :type : list[FAKey.FAReader.FAComment]"""
+                self.username: str = username
+                self.name: str = name
+                self.avatar_link: str = avatar_link
+                self.comment_id: str = comment_id
+                self.posted_datetime: datetime = posted_datetime
+                self.text: str = text
+                self.parent_comment: Optional[FAKey.FAReader.FAComment] = parent_comment
+                self.reply_comments: List[FAKey.FAReader.FAComment] = []
 
         class FAViewJournalPage:
-            def __init__(self, data, comments_data_getter, journal_id):
-                self.journal_id = journal_id
-                """ :type : str"""
-                self.username = data["profile_name"]
-                """ :type : str"""
-                self.name = data["name"]
-                """ :type : str"""
-                self.avatar_link = data["avatar"]
-                """ :type : str | None"""
-                self.title = data["title"]
-                """ :type : str"""
-                self.posted_datetime = dateutil.parser.parse(data["posted_at"])
-                """ :type : datetime"""
-                self.journal_header = data["journal_header"]
-                """ :type : str | None"""
-                self.journal_text = data["journal_body"]
-                """ :type : str"""
-                self.journal_footer = data["journal_footer"]
-                """ :type : str | None"""
-                self._comments_section_getter = comments_data_getter
-                self._comments_section_cache = None
-                """ :type : FAKey.FAReader.FACommentsSection | None"""
+            def __init__(self, data: Dict, comments_data_getter: Callable[[], Dict], journal_id: str):
+                self.journal_id: str = journal_id
+                self.username: str = data["profile_name"]
+                self.name: str = data["name"]
+                self.avatar_link: Optional[str] = data["avatar"]
+                self.title: str = data["title"]
+                self.posted_datetime: datetime = dateutil.parser.parse(data["posted_at"])
+                self.journal_header: Optional[str] = data["journal_header"]
+                self.journal_text: str = data["journal_body"]
+                self.journal_footer: Optional[str] = data["journal_footer"]
+                self._comments_section_getter: Callable[[], Dict] = comments_data_getter
+                self._comments_section_cache: Optional[FAKey.FAReader.FACommentsSection] = None
 
             @property
-            def comments_section(self):
+            def comments_section(self) -> 'FAKey.FAReader.FACommentsSection':
                 if self._comments_section_cache is None:
                     comments_data = self._comments_section_getter()
                     self._comments_section_cache = FAKey.FAReader.FACommentsSection(
@@ -3389,20 +2813,17 @@ class FAKey:
                 return self._comments_section_cache
 
         class FASearchPage:
-            def __init__(self, id_list, search_term):
-                self.search_term = search_term
-                """ :type : str"""
-                self.id_list = id_list
-                """ :type : list[str]"""
+            def __init__(self, id_list: List[str], search_term: str):
+                self.search_term: str = search_term
+                self.id_list: List[str] = id_list
 
 
 class SubscriptionFactory(object):
-    sub_classes = [
+    sub_classes: List[Type[Subscription]] = [
         E621Sub,
         E621TaggingSub,
         RssSub,
         FANotificationNotesSub,
-        FASearchSub,
         FAUserFavsSub,
         FAUserWatchersSub,
         FANotificationWatchSub,
@@ -3410,12 +2831,10 @@ class SubscriptionFactory(object):
         FANotificationCommentsSub,
         RedditSub,
     ]
-    """ :type : list[type.Subscription]"""
-    common_classes = [FAKeysCommon]
-    """ :type : list[type.SubscriptionCommon]"""
+    common_classes: List[Type[SubscriptionCommon]] = [FAKeysCommon]
 
     @staticmethod
-    def get_names():
+    def get_names() -> List[str]:
         return [
             name
             for sub_class in SubscriptionFactory.sub_classes
@@ -3423,7 +2842,7 @@ class SubscriptionFactory(object):
         ]
 
     @staticmethod
-    def get_class_by_name(name):
+    def get_class_by_name(name: str) -> Type[Subscription]:
         classes = [
             sub_class
             for sub_class in SubscriptionFactory.sub_classes
@@ -3436,13 +2855,7 @@ class SubscriptionFactory(object):
         return classes[0]
 
     @staticmethod
-    def from_json(sub_json, hallo, sub_repo):
-        """
-        :type sub_json: dict
-        :type hallo: hallo.Hallo
-        :type sub_repo: SubscriptionRepo
-        :rtype: Subscription
-        """
+    def from_json(sub_json: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> Subscription:
         sub_type_name = sub_json["sub_type"]
         for sub_class in SubscriptionFactory.sub_classes:
             if sub_class.type_name == sub_type_name:
@@ -3452,11 +2865,7 @@ class SubscriptionFactory(object):
         )
 
     @staticmethod
-    def common_from_json(common_json):
-        """
-        :type common_json: dict
-        :rtype: SubscriptionCommon
-        """
+    def common_from_json(common_json: Dict) -> SubscriptionCommon:
         common_type_name = common_json["common_type"]
         for common_class in SubscriptionFactory.common_classes:
             if common_class.type_name == common_type_name:
@@ -3505,7 +2914,7 @@ class SubscriptionAdd(Function):
             " Format: add subscription <sub type> <sub details> <update period?>"
         )
 
-    def run(self, event):
+    def run(self, event: EventMessage) -> EventMessage:
         # Construct type name
         sub_type_name = " ".join(
             [
@@ -3580,7 +2989,7 @@ class SubscriptionRemove(Function):
             " Format: remove subscription <feed type> <feed title or url>"
         )
 
-    def run(self, event):
+    def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
         server = event.server
         hallo = server.hallo
@@ -3628,10 +3037,6 @@ class SubscriptionRemove(Function):
         )
 
 
-class SubscriptionError(object):
-    pass
-
-
 class SubscriptionCheck(Function):
     """
     Checks subscriptions for updates and returns them.
@@ -3674,35 +3079,31 @@ class SubscriptionCheck(Function):
         self.subscription_repo = None
         """ :type : SubscriptionRepo | None"""
 
-    def get_sub_repo(self, hallo):
-        """
-        :type hallo: hallo.Hallo
-        :rtype: SubscriptionRepo
-        """
+    def get_sub_repo(self, hallo: Hallo) -> SubscriptionRepo:
         if self.subscription_repo is None:
             self.subscription_repo = SubscriptionRepo.load_json(hallo)
         return self.subscription_repo
 
     @staticmethod
-    def is_persistent():
+    def is_persistent() -> bool:
         """Returns boolean representing whether this function is supposed to be persistent or not"""
         return True
 
     @staticmethod
-    def load_function():
+    def load_function() -> 'SubscriptionCheck':
         """Loads the function, persistent functions only."""
         return SubscriptionCheck()
 
-    def save_function(self):
+    def save_function(self) -> None:
         """Saves the function, persistent functions only."""
         if self.subscription_repo is not None:
             self.subscription_repo.save_json()
 
-    def get_passive_events(self):
+    def get_passive_events(self) -> Set[Type[Event]]:
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {EventMinute}
 
-    def run(self, event):
+    def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
         hallo = event.server.hallo
         destination = event.user if event.channel is None else event.channel
@@ -3729,8 +3130,7 @@ class SubscriptionCheck(Function):
                         search_sub.send_item(search_item)
                 except Exception as e:
                     error = SubscriptionCheckError(search_sub, e)
-                    hallo.logger.log(error)
-                    hallo.printer.output(error)
+                    logger.error(error.get_log_line())
             # Save list
             sub_repo.save_json()
         # Output response to user
@@ -3742,7 +3142,7 @@ class SubscriptionCheck(Function):
             "{} subscription updates were found.".format(found_items)
         )
 
-    def passive_run(self, event, hallo_obj):
+    def passive_run(self, event: Event, hallo_obj: Hallo) -> Optional[ServerEvent]:
         """
         Replies to an event not directly addressed to the bot.
         :type event: events.Event
@@ -3751,19 +3151,22 @@ class SubscriptionCheck(Function):
         # Check through all feeds to see which need updates
         sub_repo = self.get_sub_repo(hallo_obj)
         with sub_repo.sub_lock:
+            logger.debug("SubCheck - Got lock")
             for search_sub in sub_repo.sub_list:
                 # Only check those which have been too long since last check
                 if search_sub.needs_check():
                     # Get new items
                     try:
+                        logger.debug("SubCheck - Checking %s", search_sub)
                         new_items = search_sub.check()
+                        logger.debug("SubCheck - Got %s new items", len(new_items))
                         # Output all new items
                         for search_item in new_items:
+                            logger.debug("SubCheck - Sending")
                             search_sub.send_item(search_item)
                     except Exception as e:
                         error = SubscriptionCheckError(search_sub, e)
-                        hallo_obj.logger.log(error)
-                        hallo_obj.printer.output(error)
+                        logger.error(error.get_log_line())
             # Save list
             sub_repo.save_json()
 
@@ -3808,7 +3211,7 @@ class SubscriptionList(Function):
             "Lists subscriptions for the current channel. Format: list subscription"
         )
 
-    def run(self, event):
+    def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
         server = event.server
         hallo = server.hallo
@@ -3838,3 +3241,19 @@ class SubscriptionList(Function):
                 )
             output_lines.append(new_line)
         return event.create_response("\n".join(output_lines))
+
+
+class GoogleDocsSub(Subscription):
+    pass
+
+
+class TwitterSub(Subscription):
+    pass
+
+
+class YoutubeSub(Subscription):
+    pass
+
+
+class ImgurSub(Subscription):
+    pass

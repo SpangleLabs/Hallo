@@ -175,10 +175,13 @@ class SubE621CheckTest(TestBase, unittest.TestCase):
                 EventMessage(serv1, chan2, user1, "e621 sub check clefable")
             )
             data = serv1.get_send_data(51, chan2, EventMessage)
+            has_photo_id = 0
             for x in range(50):
                 assert "update on" in data[x].text.lower()
-                assert data[x].photo_id
+                if hasattr(data[x], "photo_id") and data[x].photo_id is not None:
+                    has_photo_id += 1
                 assert "clefable" in data[x].text
+            assert has_photo_id > 40, "Almost all subscription updates should have a photo"
             assert (
                 "subscription updates were found" in data[50].text.lower()
             ), "Actual message: {}".format(data[0].text)

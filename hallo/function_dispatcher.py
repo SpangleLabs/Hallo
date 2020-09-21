@@ -1,6 +1,8 @@
 import importlib
+import logging
 import sys
 import inspect
+from typing import Set
 from xml.dom import minidom
 
 from hallo.errors import (
@@ -19,13 +21,15 @@ from hallo.events import (
 )
 from hallo.function import Function
 
+logger = logging.getLogger(__name__)
+
 
 class FunctionDispatcher(object):
     """
     FunctionDispatcher is a class to manage functions and to send function requests to the relevant function.
     """
 
-    def __init__(self, module_list, hallo):
+    def __init__(self, module_list: Set[str], hallo):
         """
         Constructor
         :type module_list: set[str]
@@ -83,8 +87,7 @@ class FunctionDispatcher(object):
                     event.create_response("Error, this is not a recognised function.")
                 )
                 error = FunctionNotFoundError(self, event)
-                self.hallo.logger.log(error)
-                self.hallo.printer.output(error)
+                logger.error(error.get_log_line())
             return
         function_class = function_class_test
         event.split_command_text(function_name_test, function_args_test)
@@ -98,8 +101,7 @@ class FunctionDispatcher(object):
                 )
             )
             error = FunctionNotAllowedError(self, function_class, event)
-            self.hallo.logger.log(error)
-            self.hallo.printer.output(error)
+            logger.error(error.get_log_line())
             return
         # If persistent, get the object, otherwise make one
         function_obj = self.get_function_object(function_class)
@@ -119,8 +121,7 @@ class FunctionDispatcher(object):
                     "Function failed with error message: {}".format(e_str)
                 )
             )
-            self.hallo.logger.log(error)
-            self.hallo.printer.output(error)
+            logger.error(error.get_log_line())
             return
 
     def dispatch_passive(self, event):
@@ -150,7 +151,9 @@ class FunctionDispatcher(object):
             function_obj = self.get_function_object(function_class)
             # Try running the function, if it fails, return an error message
             try:
+                logger.debug("Calling passive function: %s with event %s", function_obj.__class__.__name__, event)
                 response = function_obj.passive_run(event, self.hallo)
+                logger.debug("Got passive function response: %s", response)
                 if response is not None:
                     if isinstance(response, ChannelUserTextEvent) and isinstance(
                         event, ChannelUserTextEvent
@@ -161,8 +164,7 @@ class FunctionDispatcher(object):
                 continue
             except Exception as e:
                 error = PassiveFunctionError(e, self, function_obj, event)
-                self.hallo.logger.log(error)
-                self.hallo.printer.output(error)
+                logger.error(error.get_log_line())
                 continue
 
     def get_function_by_name(self, function_name):
@@ -230,7 +232,7 @@ class FunctionDispatcher(object):
         """
         # Check it's an allowed module
         if module_name not in self.module_list:
-            self.hallo.printer.output(
+            logger.warning(
                 "Module name, {}, is not in allowed list: {}.".format(
                     module_name, ", ".join(self.module_list)
                 )
@@ -248,7 +250,7 @@ class FunctionDispatcher(object):
             try:
                 module_obj = importlib.import_module(full_module_name)
             except ImportError:
-                self.hallo.printer.output(
+                logger.warning(
                     "Could not import module: {}".format(full_module_name)
                 )
                 return False
@@ -406,8 +408,7 @@ class FunctionDispatcher(object):
                 function_obj.save_function()
             except Exception as e:
                 error = FunctionSaveError(e, function_obj)
-                self.hallo.logger.log(error)
-                self.hallo.printer.output(error)
+                logger.error(error.get_log_line())
             del self.persistent_functions[function_class]
         # Remove from mFunctionDict
         del self.function_dict[module_obj][function_class]

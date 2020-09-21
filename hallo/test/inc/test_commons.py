@@ -133,19 +133,6 @@ def test_chunk_string_dot__just_over_triple_limit():
     ), "Forth chunk created incorrectly"
 
 
-def test_current_timestamp():
-    stamp = Commons.current_timestamp()
-    assert len(stamp) == 10, "Timestamp is the wrong length"
-    pattern = re.compile(r"^\[(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\]$")
-    assert pattern.match(stamp), "Timestamp is not valid to defined format."
-
-
-def test_current_timestamp__datetime_given():
-    dtime = datetime(2019, 4, 6, 10, 15, 3)
-    stamp = Commons.current_timestamp(dtime)
-    assert stamp == "[10:15:03]"
-
-
 @pytest.mark.parametrize(
     "unix, iso",
     [
