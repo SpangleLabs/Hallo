@@ -293,7 +293,7 @@ class Server(metaclass=ABCMeta):
         """
         self.user_list.append(user_obj)
 
-    def rights_check(self, right_name):
+    def rights_check(self, right_name: str) -> bool:
         """
         Checks the value of the right with the specified name. Returns boolean
         :param right_name: Name of the right to check default server value for

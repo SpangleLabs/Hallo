@@ -55,22 +55,6 @@ def test_init():
         test_hallo.close()
 
 
-def test_xml(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({})
-    # Set up
-    test_modules = {"euler", "bio"}
-    fd = FunctionDispatcher(test_modules, hallo)
-    # Get xml output
-    xml_fd = fd.to_xml()
-    # Create new function dispatcher from the xml
-    fd2 = FunctionDispatcher.from_xml(xml_fd, hallo)
-    # Check it's the same
-    assert len(fd.module_list) == len(fd2.module_list)
-    for module in fd2.module_list:
-        assert module in fd.module_list
-    assert fd2.hallo == hallo
-
-
 def test_open_close(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({})
     # Set up

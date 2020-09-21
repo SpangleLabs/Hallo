@@ -2,9 +2,9 @@ import importlib
 import logging
 import sys
 import inspect
-from typing import Set
-from xml.dom import minidom
+from typing import Set, Type, Dict, Optional, List, TypeVar
 
+from hallo.destination import User, Channel
 from hallo.errors import (
     FunctionError,
     PassiveFunctionError,
@@ -17,11 +17,13 @@ from hallo.events import (
     UserEvent,
     ChannelEvent,
     EventMessage,
-    ChannelUserTextEvent,
+    ChannelUserTextEvent, Event,
 )
 from hallo.function import Function
+from hallo.server import Server
 
 logger = logging.getLogger(__name__)
+FuncT = TypeVar("FuncT", bound=Function)
 
 
 class FunctionDispatcher(object):
@@ -36,15 +38,15 @@ class FunctionDispatcher(object):
         :type hallo: hallo.Hallo
         """
         self.hallo = hallo  # Hallo object which owns this
-        self.module_list = module_list  # List of available module names
+        self.module_list: Set[str] = module_list  # List of available module names
         self.function_dict = (
             {}
         )  # Dictionary of moduleObjects->functionClasses->nameslist/eventslist
-        self.function_names = {}  # Dictionary of names -> functionClasses
-        self.persistent_functions = (
+        self.function_names: Dict[str, Type[Function]] = {}  # Dictionary of names -> functionClasses
+        self.persistent_functions: Dict[Type[Function], Function] = (
             {}
         )  # Dictionary of persistent function objects. functionClass->functionObject
-        self.event_functions = (
+        self.event_functions: Dict[Type[Event], Set[Type[Function]]] = (
             {}
         )  # Dictionary with events classes as keys and sets of function classes
         #  (which may want to act on those events) as values
@@ -52,14 +54,11 @@ class FunctionDispatcher(object):
         for module_name in self.module_list:
             self.reload_module(module_name)
 
-    # def dispatch(self, function_message, user_obj, destination_obj, flag_list=None):
-    def dispatch(self, event, flag_list=None):
+    def dispatch(self, event: EventMessage, flag_list: List[str] = None) -> None:
         """
         Sends the function call out to whichever function, if one is found
         :param event: The message event which has triggered the function dispatch
-        :type event: events.EventMessage
         :param flag_list: List of flags to apply to function call
-        :type flag_list: list[str]
         """
         if flag_list is None:
             flag_list = []
@@ -124,11 +123,10 @@ class FunctionDispatcher(object):
             logger.error(error.get_log_line())
             return
 
-    def dispatch_passive(self, event):
+    def dispatch_passive(self, event: Event) -> None:
         """
         Dispatches a event call to passive functions, if any apply
         :param event: Event object which is triggering passive functions
-        :type event: events.Event
         """
         # If this event is not used, skip this
         if (
@@ -167,7 +165,7 @@ class FunctionDispatcher(object):
                 logger.error(error.get_log_line())
                 continue
 
-    def get_function_by_name(self, function_name):
+    def get_function_by_name(self, function_name: str) -> Optional[Type[Function]]:
         """
         Find a functionClass by a name specified by a user. Not functionClass.__name__
         :param function_name: Name of the function to search for
@@ -182,14 +180,14 @@ class FunctionDispatcher(object):
             return self.function_names[function_name]
         return None
 
-    def get_function_class_list(self):
+    def get_function_class_list(self) -> List[Type[Function]]:
         """Returns a simple flat list of all function classes."""
         function_class_list = []
         for module_object in self.function_dict:
             function_class_list += list(self.function_dict[module_object])
         return function_class_list
 
-    def get_function_object(self, function_class):
+    def get_function_object(self, function_class: Type[FuncT]) -> FuncT:
         """
         If persistent, gets an object from dictionary. Otherwise creates a new object.
         :param function_class: Class of function to retrieve or create function object for
@@ -201,17 +199,13 @@ class FunctionDispatcher(object):
         return function_obj
 
     def check_function_permissions(
-        self, function_class, server_obj, user_obj, channel_obj
-    ):
+        self, function_class: Type[Function], server_obj: Server, user_obj: User, channel_obj: Optional[Channel]
+    ) -> bool:
         """Checks if a function can be called. Returns boolean, True if allowed
         :param function_class: Class of function to check permissions for
-        :type function_class: type
         :param server_obj: Server on which to check function permissions
-        :type server_obj: server.Server
         :param user_obj: User which has requested the function
-        :type user_obj: destination.User
         :param channel_obj: Channel on which the function was requested
-        :type channel_obj: destination.Channel | None
         """
         # Get function name
         function_name = function_class.__name__
@@ -225,7 +219,7 @@ class FunctionDispatcher(object):
             return server_obj.rights_check(right_name)
         return self.hallo.rights_check(right_name)
 
-    def reload_module(self, module_name):
+    def reload_module(self, module_name: str) -> bool:
         """
         Reloads a function module, or loads it if it is not already loaded. Returns True on success, False on failure
         :param module_name: Name of the module to reload
@@ -273,7 +267,7 @@ class FunctionDispatcher(object):
                 self.unload_function(function_class)
         return True
 
-    def _reload(self, module_obj):
+    def _reload(self, module_obj) -> None:
         """
         Actually reloads the module
         :param module_obj: Module to reload
@@ -282,7 +276,7 @@ class FunctionDispatcher(object):
         """
         importlib.reload(module_obj)
 
-    def unload_module_functions(self, module_obj):
+    def unload_module_functions(self, module_obj) -> None:
         """
         Unloads a module, unloading all the functions it contains
         :param module_obj: Module to unload
@@ -296,7 +290,7 @@ class FunctionDispatcher(object):
         del self.function_dict[module_obj]
 
     @staticmethod
-    def check_function_class(function_class):
+    def check_function_class(function_class: Type[Function]) -> bool:
         """
         Checks a potential class to see if it is a valid Function subclass class
         :param function_class: Class of the function to check for ability to load
@@ -334,7 +328,7 @@ class FunctionDispatcher(object):
         # If it passed all those tests, it's valid, probably
         return True
 
-    def load_function(self, function_class):
+    def load_function(self, function_class: Type[Function]) -> None:
         """
         Loads a function class into all the relevant dictionaries
         :param function_class: Class of the function to load into dispatcher
@@ -375,7 +369,7 @@ class FunctionDispatcher(object):
                 self.event_functions[function_event] = set()
             self.event_functions[function_event].add(function_class)
 
-    def unload_function(self, function_class):
+    def unload_function(self, function_class: Type[Function]) -> None:
         """
         Unloads a function class from all the relevant dictionaries
         :param function_class: Class of the function which is being unloaded
@@ -413,52 +407,14 @@ class FunctionDispatcher(object):
         # Remove from mFunctionDict
         del self.function_dict[module_obj][function_class]
 
-    def close(self):
+    def close(self) -> None:
         """Shut down FunctionDispatcher, save all functions, etc"""
         for module_object in list(self.function_dict):
             self.unload_module_functions(module_object)
 
-    def to_xml(self):
-        """Output the FunctionDispatcher in XML"""
-        # create document
-        doc = minidom.Document()
-        # create root element
-        root = doc.createElement("function_dispatcher")
-        doc.appendChild(root)
-        # create name element
-        module_list_elem = doc.createElement("module_list")
-        for module_name in self.module_list:
-            module_elem = doc.createElement("module")
-            module_name_elem = doc.createElement("name")
-            module_name_elem.appendChild(doc.createTextNode(module_name))
-            module_elem.appendChild(module_name_elem)
-            module_list_elem.appendChild(module_elem)
-        root.appendChild(module_list_elem)
-        # output XML string
-        return doc.toxml()
-
-    @staticmethod
-    def from_xml(xml_string, hallo):
-        """Loads a new FunctionDispatcher from XML
-        :param xml_string: XML string which can be parsed to build function dispatcher
-        :param hallo: Hallo object which owns this FunctionDispatcher
-        """
-        doc = minidom.parseString(xml_string)
-        # Create module list from XML
-        module_list = set()
-        module_list_elem = doc.getElementsByTagName("module_list")[0]
-        for module_elem in module_list_elem.getElementsByTagName("module"):
-            module_name_elem = module_elem.getElementsByTagName("name")[0]
-            module_name = module_name_elem.firstChild.data
-            module_list.add(module_name)
-        # Create new FunctionDispatcher
-        new_function_dispatcher = FunctionDispatcher(module_list, hallo)
-        return new_function_dispatcher
-
-    def to_json(self):
+    def to_json(self) -> Dict:
         """
         Output the function dispatcher configuration in a dict format for saving as json
-        :return: dict
         """
         json_obj = dict()
         json_obj["modules"] = []
@@ -467,12 +423,9 @@ class FunctionDispatcher(object):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo):
+    def from_json(json_obj: Dict, hallo) -> 'FunctionDispatcher':
         """
         Creates a function dispatcher from json object dict
-        :param json_obj: dict
-        :param hallo: Hallo
-        :return: FunctionDispatcher
         """
         module_list = set()
         for module in json_obj["modules"]:

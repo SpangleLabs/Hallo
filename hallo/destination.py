@@ -1,4 +1,5 @@
 import time
+from typing import Optional
 
 from hallo.permission_mask import PermissionMask
 from abc import ABCMeta
@@ -192,11 +193,10 @@ class Channel(Destination):
                 membership.user.memberships_list.discard(membership)
             self.memberships_list = set()
 
-    def rights_check(self, right_name):
+    def rights_check(self, right_name: str) -> bool:
         """
         Checks the value of the right with the specified name. Returns boolean
         :param right_name: Name of the user right to check
-        :type right_name: str
         """
         if self.permission_mask is not None:
             right_value = self.permission_mask.get_right(right_name)
@@ -361,13 +361,11 @@ class User(Destination):
             self.memberships_list = set()
             """:type : set[ChannelMembership]"""
 
-    def rights_check(self, right_name, channel_obj=None):
+    def rights_check(self, right_name: str, channel_obj: Optional[Channel] = None) -> bool:
         """
         Checks the value of the right with the specified name. Returns boolean
         :param right_name: Name of the user right to check
-        :type right_name: str
         :param channel_obj: Channel in which the right is being checked
-        :type channel_obj: Channel | None
         """
         if self.permission_mask is not None:
             right_value = self.permission_mask.get_right(right_name)
