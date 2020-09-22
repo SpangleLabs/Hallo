@@ -13,7 +13,7 @@ import datetime
 import html
 import html.parser
 
-from hallo.modules.user_data import UserDataParser, WeatherLocationData
+import hallo.modules.user_data
 
 
 class UrbanDictionary(Function):
@@ -367,11 +367,11 @@ class CurrentWeather(Function):
         self.help_docs = "Returns the current weather in your location (if known) or in provided location."
 
     def run(self, event):
-        user_data_parser = UserDataParser()
+        user_data_parser = hallo.modules.user_data.UserDataParser()
         line_clean = event.command_args.strip().lower()
         if line_clean == "":
             location_entry = user_data_parser.get_data_by_user_and_type(
-                event.user, WeatherLocationData
+                event.user, hallo.modules.user_data.WeatherLocationData
             )
             if location_entry is None:
                 return event.create_response(
@@ -385,7 +385,7 @@ class CurrentWeather(Function):
                 test_user
             ):
                 location_entry = user_data_parser.get_data_by_user_and_type(
-                    test_user, WeatherLocationData
+                    test_user, hallo.modules.user_data.WeatherLocationData
                 )
                 if location_entry is None:
                     return event.create_response(
@@ -393,7 +393,7 @@ class CurrentWeather(Function):
                         + 'store one with the "setup weather location data" function.'
                     )
             else:
-                location_entry = WeatherLocationData.create_from_input(event)
+                location_entry = hallo.modules.user_data.WeatherLocationData.create_from_input(event)
         api_key = event.server.hallo.get_api_key("openweathermap")
         if api_key is None:
             return event.create_response("No API key loaded for openweathermap.")
@@ -428,17 +428,17 @@ class CurrentWeather(Function):
         :type weather_location: WeatherLocationData
         :rtype: str
         """
-        if isinstance(weather_location.location, WeatherLocationData.CityLocation):
+        if isinstance(weather_location.location, hallo.modules.user_data.WeatherLocationData.CityLocation):
             query = "?q={}".format(weather_location.location.city.replace(" ", "+"))
             if weather_location.country_code is not None:
                 query += "," + weather_location.country_code
             return query
-        if isinstance(weather_location.location, WeatherLocationData.CoordLocation):
+        if isinstance(weather_location.location, hallo.modules.user_data.WeatherLocationData.CoordLocation):
             query = "?lat={}&lon={}".format(
                 weather_location.location.latitude, weather_location.location.longitude
             )
             return query
-        if isinstance(weather_location.location, WeatherLocationData.ZipLocation):
+        if isinstance(weather_location.location, hallo.modules.user_data.WeatherLocationData.ZipLocation):
             query = "?zip={}".format(weather_location.location.zip_code)
             if weather_location.country_code is not None:
                 query += "," + weather_location.country_code
@@ -498,10 +498,10 @@ class Weather(Function):
             days_offset = 7 * int(match.group(2))
             line_clean = regex_weeks.sub("", line_clean).strip()
         # Figure out if a user or city was specified
-        user_data_parser = UserDataParser()
+        user_data_parser = hallo.modules.user_data.UserDataParser()
         if line_clean == "":
             location_entry = user_data_parser.get_data_by_user_and_type(
-                event.user, WeatherLocationData
+                event.user, hallo.modules.user_data.WeatherLocationData
             )
             if location_entry is None:
                 return event.create_response(
@@ -514,7 +514,7 @@ class Weather(Function):
                 test_user
             ):
                 location_entry = user_data_parser.get_data_by_user_and_type(
-                    test_user, WeatherLocationData
+                    test_user, hallo.modules.user_data.WeatherLocationData
                 )
                 if location_entry is None:
                     return event.create_response(
@@ -522,7 +522,7 @@ class Weather(Function):
                         + 'store one with the "setup weather location data" function.'
                     )
             else:
-                location_entry = WeatherLocationData.create_from_input(event)
+                location_entry = hallo.modules.user_data.WeatherLocationData.create_from_input(event)
         # Get API response
         api_key = event.server.hallo.get_api_key("openweathermap")
         if api_key is None:
@@ -606,17 +606,17 @@ class Weather(Function):
         :type weather_location: WeatherLocationData
         :rtype: str
         """
-        if isinstance(weather_location.location, WeatherLocationData.CityLocation):
+        if isinstance(weather_location.location, hallo.modules.user_data.WeatherLocationData.CityLocation):
             query = "?q={}".format(weather_location.location.city.replace(" ", "+"))
             if weather_location.country_code is not None:
                 query += "," + weather_location.country_code
             return query
-        if isinstance(weather_location.location, WeatherLocationData.CoordLocation):
+        if isinstance(weather_location.location, hallo.modules.user_data.WeatherLocationData.CoordLocation):
             query = "?lat={}&lon={}".format(
                 weather_location.location.latitude, weather_location.location.longitude
             )
             return query
-        if isinstance(weather_location.location, WeatherLocationData.ZipLocation):
+        if isinstance(weather_location.location, hallo.modules.user_data.WeatherLocationData.ZipLocation):
             query = "?zip={}".format(weather_location.location.zip_code)
             if weather_location.country_code is not None:
                 query += "," + weather_location.country_code

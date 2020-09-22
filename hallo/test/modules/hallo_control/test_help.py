@@ -1,3 +1,4 @@
+import hallo.modules.hallo_control
 from hallo.events import EventMessage
 from hallo.function import Function
 from hallo.function_dispatcher import FunctionDispatcher
@@ -24,9 +25,9 @@ def test_help_mock_func_disp():
     mock_hallo = Hallo()
     mock_func_disp = FunctionDispatcher(set(), mock_hallo)
     mock_hallo.function_dispatcher = mock_func_disp
-    mock_func_disp.load_function(FunctionMock)
-    mock_func_disp.load_function(FunctionMockNoDoc)
-    mock_func_disp.load_function(Help)
+    mock_func_disp.load_function(None, FunctionMock)
+    mock_func_disp.load_function(None, FunctionMockNoDoc)
+    mock_func_disp.load_function(None, Help)
     mock_server = ServerMock(mock_hallo)
     mock_server.name = "test_serv1"
     mock_user = mock_server.get_user_by_address("test_user1".lower(), "test_user1")
@@ -62,7 +63,7 @@ def test_help_no_func(hallo_getter):
 def test_help_no_doc(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
     # Manually add FunctionMock to function dispatcher
-    hallo.function_dispatcher.load_function(FunctionMockNoDoc)
+    hallo.function_dispatcher.load_function(None, FunctionMockNoDoc)
     try:
         hallo.function_dispatcher.dispatch(
             EventMessage(test_server, None, test_user, "help function no doc")
@@ -71,13 +72,13 @@ def test_help_no_doc(hallo_getter):
         assert "error" in data[0].text.lower()
         assert "no documentation exists" in data[0].text.lower()
     finally:
-        hallo.function_dispatcher.unload_function(FunctionMockNoDoc)
+        hallo.function_dispatcher.unload_function(None, FunctionMockNoDoc)
 
 
 def test_help_mock_func(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
     # Manually add FunctionMock to function dispatcher
-    hallo.function_dispatcher.load_function(FunctionMock)
+    hallo.function_dispatcher.load_function(None, FunctionMock)
     try:
         hallo.function_dispatcher.dispatch(
             EventMessage(test_server, None, test_user, "help function mock")
@@ -86,7 +87,7 @@ def test_help_mock_func(hallo_getter):
         assert "error" not in data[0].text.lower()
         assert "example help, please ignore" in data[0].text.lower()
     finally:
-        hallo.function_dispatcher.unload_function(FunctionMock)
+        hallo.function_dispatcher.unload_function(None, FunctionMock)
 
 
 class FunctionMock(Function):

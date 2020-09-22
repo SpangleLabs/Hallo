@@ -22,7 +22,7 @@ from hallo.function import Function
 from hallo.hallo import Hallo
 from hallo.inc.commons import Commons, CachedObject
 from hallo.inc.input_parser import InputParser
-from hallo.modules.user_data import FAKeyData, UserDataParser
+import hallo.modules.user_data
 from hallo.server import Server
 
 logger = logging.getLogger(__name__)
@@ -2263,9 +2263,9 @@ class FAKeysCommon(SubscriptionCommon):
     def get_key_by_user(self, user: User) -> Optional['FAKey']:
         if user in self.list_keys:
             return self.list_keys[user]
-        user_data_parser = UserDataParser()
-        fa_data: FAKeyData = user_data_parser.get_data_by_user_and_type(
-            user, FAKeyData
+        user_data_parser = hallo.modules.user_data.UserDataParser()
+        fa_data: hallo.modules.user_data.FAKeyData = user_data_parser.get_data_by_user_and_type(
+            user, hallo.modules.user_data.FAKeyData
         )
         if fa_data is None:
             return None

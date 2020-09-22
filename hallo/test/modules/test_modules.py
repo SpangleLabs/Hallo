@@ -1,6 +1,9 @@
+import glob
 import importlib
 import inspect
+import os
 import pkgutil
+import re
 
 import pytest
 
@@ -49,3 +52,17 @@ def test_no_function_name_collisions():
             for name in func_obj.get_names():
                 assert name not in func_names
                 func_names.append(name)
+
+
+def test_no_import_from_modules():
+    bad_import_from_pattern = re.compile(r"from hallo\.modules\.")
+    module_files = glob.glob("hallo/modules/**/*.py", recursive=True)
+    bad_files = []
+    for module_file in module_files:
+        with open(module_file, "r") as f:
+            file_content = f.read()
+            if bad_import_from_pattern.search(file_content) is not None:
+                bad_files.append(module_file)
+    assert not bad_files, \
+        f"Module to module imports cannot use \"from\" imports. It breaks module reloading. " \
+        f"These modules need fixing: {bad_files}"

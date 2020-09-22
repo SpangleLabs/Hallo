@@ -2,7 +2,7 @@ import unittest
 
 from hallo.events import EventMessage
 from hallo.inc.commons import Commons
-from hallo.modules.random import EightBall
+from hallo.modules.random.random import EightBall
 from hallo.test.test_base import TestBase
 from hallo.test.modules.random.mock_chooser import MockChooser
 

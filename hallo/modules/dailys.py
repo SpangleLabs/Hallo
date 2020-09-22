@@ -18,8 +18,8 @@ from hallo.events import (
 )
 from hallo.function import Function
 from hallo.inc.commons import Commons
-from hallo.modules.subscriptions import FAKey
-from hallo.modules.user_data import UserDataParser, FAKeyData
+import hallo.modules.subscriptions
+import hallo.modules.user_data
 
 
 logger = logging.getLogger(__name__)
@@ -495,9 +495,9 @@ class DailysFAField(DailysField):
         :type evt: Event.Event
         :rtype: None
         """
-        user_parser = UserDataParser()
+        user_parser = hallo.modules.user_data.UserDataParser()
         fa_data = user_parser.get_data_by_user_and_type(
-            self.spreadsheet.user, FAKeyData
+            self.spreadsheet.user, hallo.modules.user_data.FAKeyData
         )
         if fa_data is None:
             raise DailysException(
@@ -533,9 +533,9 @@ class DailysFAField(DailysField):
     @staticmethod
     def create_from_input(event, spreadsheet):
         # Check user has an FA login
-        user_parser = UserDataParser()
-        fa_data = user_parser.get_data_by_user_and_type(spreadsheet.user, FAKeyData)
-        if not isinstance(fa_data, FAKeyData):
+        user_parser = hallo.modules.user_data.UserDataParser()
+        fa_data = user_parser.get_data_by_user_and_type(spreadsheet.user, hallo.modules.user_data.FAKeyData)
+        if not isinstance(fa_data, hallo.modules.user_data.FAKeyData):
             raise DailysException(
                 "No FA data has been set up for the FA dailys field to use."
             )
