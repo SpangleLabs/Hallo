@@ -1,7 +1,9 @@
 import importlib
 import logging
+import os
 import sys
 import inspect
+from types import ModuleType
 from typing import Set, Type, Dict, Optional, List, TypeVar
 
 from hallo.destination import User, Channel
@@ -30,6 +32,7 @@ class FunctionDispatcher(object):
     """
     FunctionDispatcher is a class to manage functions and to send function requests to the relevant function.
     """
+    MODULE_DIR = "hallo/modules"
 
     def __init__(self, module_list: Set[str], hallo):
         """
@@ -232,13 +235,37 @@ class FunctionDispatcher(object):
                 )
             )
             return False
-        # Create full name
-        # TODO: allow bypass for reloading of core classes: Hallo, Server, Destination, etc
-        full_module_name = "hallo.modules.{}".format(module_name)
+        # Check if it is a module or a package
+        if os.path.isfile(f"{self.MODULE_DIR}/{module_name}.py"):
+            # It's a module
+            logger.debug("Reloading module")
+            full_module_name = f"hallo.modules.{module_name}"
+            return self.reload_python_module(full_module_name)
+        if os.path.isdir(f"{self.MODULE_DIR}/{module_name}/"):
+            # It's a package
+            logger.debug("Reloading package")
+            modules = self.list_modules_in_package(module_name)
+            if not modules:
+                logger.error("Specified package to reload, %s, is empty", module_name)
+            success = True
+            for module in modules:
+                full_module_name = f"hallo.modules.{module_name}.{module}"
+                success = success and self.reload_python_module(full_module_name)
+            return success
+        logger.error("Specified module to reload does not exist: %s", module_name)
+        return False
+
+    def list_modules_in_package(self, package_name: str) -> List[str]:
+        return [
+            x[:-3] for x in os.listdir(f"{self.MODULE_DIR}/{package_name}")
+            if x.endswith(".py") and not x.startswith("__")
+        ]
+
+    def reload_python_module(self, full_module_name: str) -> bool:
         # Check if module has already been imported
         if full_module_name in sys.modules:
             module_obj = sys.modules[full_module_name]
-            importlib.reload(module_obj)
+            module_obj = importlib.reload(module_obj)
         else:
             # Try and load new module, return False if it doesn't exist
             try:
@@ -262,9 +289,10 @@ class FunctionDispatcher(object):
                 continue
             # Try and load function, if it fails, try and unload it.
             try:
-                self.load_function(function_class)
-            except NotImplementedError:
-                self.unload_function(function_class)
+                self.load_function(module_obj, function_class)
+            except NotImplementedError as e:
+                logger.warning("Failed to load function %s. ", function_class, exc_info=e)
+                self.unload_function(module_obj, function_class)
         return True
 
     def unload_module_functions(self, module_obj) -> None:
@@ -277,7 +305,7 @@ class FunctionDispatcher(object):
             return
         function_list = list(self.function_dict[module_obj])
         for function_class in function_list:
-            self.unload_function(function_class)
+            self.unload_function(module_obj, function_class)
         del self.function_dict[module_obj]
 
     @staticmethod
@@ -319,14 +347,12 @@ class FunctionDispatcher(object):
         # If it passed all those tests, it's valid, probably
         return True
 
-    def load_function(self, function_class: Type[Function]) -> None:
+    def load_function(self, module_obj: ModuleType, function_class: Type[Function]) -> None:
         """
         Loads a function class into all the relevant dictionaries
+        :param module_obj: The module of the function
         :param function_class: Class of the function to load into dispatcher
         """
-        # Get module of function
-        module_name = function_class.__module__
-        module_obj = sys.modules[module_name]
         # If function is persistent, load it up and add to mPersistentFunctions
         if function_class.is_persistent():
             function_obj = function_class.load_function()
@@ -360,14 +386,12 @@ class FunctionDispatcher(object):
                 self.event_functions[function_event] = set()
             self.event_functions[function_event].add(function_class)
 
-    def unload_function(self, function_class: Type[Function]) -> None:
+    def unload_function(self, module_obj: ModuleType, function_class: Type[Function]) -> None:
         """
         Unloads a function class from all the relevant dictionaries
+        :param module_obj: The module that the function belongs to
         :param function_class: Class of the function which is being unloaded
         """
-        # Get module of function
-        module_name = function_class.__module__
-        module_obj = sys.modules[module_name]
         # Check that function is loaded
         if module_obj not in self.function_dict:
             return
