@@ -1,6 +1,7 @@
 import importlib
 import logging
 import os
+import re
 import sys
 import inspect
 from types import ModuleType
@@ -26,6 +27,10 @@ from hallo.server import Server
 
 logger = logging.getLogger(__name__)
 FuncT = TypeVar("FuncT", bound=Function)
+
+
+def module_name_to_file_name(full_module_name: str) -> str:
+    return full_module_name.replace(".", "/") + ".py"
 
 
 class FunctionDispatcher(object):
@@ -235,25 +240,15 @@ class FunctionDispatcher(object):
                 )
             )
             return False
-        # Check if it is a module or a package
-        if os.path.isfile(f"{self.MODULE_DIR}/{module_name}.py"):
-            # It's a module
-            logger.debug("Reloading module")
-            full_module_name = f"hallo.modules.{module_name}"
-            return self.reload_python_module(full_module_name)
-        if os.path.isdir(f"{self.MODULE_DIR}/{module_name}/"):
-            # It's a package
-            logger.debug("Reloading package")
-            modules = self.list_modules_in_package(module_name)
-            if not modules:
-                logger.error("Specified package to reload, %s, is empty", module_name)
-            success = True
-            for module in modules:
-                full_module_name = f"hallo.modules.{module_name}.{module}"
-                success = success and self.reload_python_module(full_module_name)
-            return success
-        logger.error("Specified module to reload does not exist: %s", module_name)
-        return False
+        # Get the full module names
+        full_module_names = self.full_module_names_for_module(module_name)
+        if not full_module_names:
+            logger.error("Specified module to reload does not exist: %s", module_name)
+            return False
+        success = True
+        for full_module_name in full_module_names:
+            success = success and self.reload_python_module(full_module_name)
+        return success
 
     def list_modules_in_package(self, package_name: str) -> List[str]:
         return [
@@ -421,6 +416,32 @@ class FunctionDispatcher(object):
             del self.persistent_functions[function_class]
         # Remove from mFunctionDict
         del self.function_dict[module_obj][function_class]
+
+    def list_cross_module_imports(self, module_name: str) -> List[str]:
+        full_module_names = self.full_module_names_for_module(module_name)
+        cross_module_import = re.compile(f"import hallo\.modules\.([^.\s]+)")
+        other_modules = set()
+        for full_module_name in full_module_names:
+            file_name = module_name_to_file_name(full_module_name)
+            with open(file_name, "r") as f:
+                file_contents = f.read()
+            for match in cross_module_import.findall(file_contents, re.MULTILINE):
+                other_modules.add(match)
+        return list(other_modules)
+
+    def full_module_names_for_module(self, module_name: str) -> List[str]:
+        if os.path.isfile(f"{self.MODULE_DIR}/{module_name}.py"):
+            # It's a python module
+            logger.debug("Reloading module")
+            return [f"hallo.modules.{module_name}"]
+        if os.path.isdir(f"{self.MODULE_DIR}/{module_name}/"):
+            # It's a python package
+            logger.debug("Reloading package")
+            modules = self.list_modules_in_package(module_name)
+            if not modules:
+                logger.error("Specified package to reload, %s, is empty", module_name)
+            return [f"hallo.modules.{module_name}.{module}" for module in modules]
+        return []
 
     def close(self) -> None:
         """Shut down FunctionDispatcher, save all functions, etc"""

@@ -1,6 +1,8 @@
 from hallo.function import Function
 import threading
 
+from hallo.function_dispatcher import FunctionDispatcher
+
 
 class ConfigSave(Function):
     """
@@ -44,9 +46,16 @@ class ModuleReload(Function):
 
     def run(self, event):
         hallo_obj = event.server.hallo
-        function_dispatcher = hallo_obj.function_dispatcher
-        reload_result = function_dispatcher.reload_module(event.command_args)
+        function_dispatcher: FunctionDispatcher = hallo_obj.function_dispatcher
+        module_name = event.command_args
+        reload_result = function_dispatcher.reload_module(module_name)
+        other_modules = function_dispatcher.list_cross_module_imports(module_name)
         if reload_result:
+            if other_modules:
+                return event.create_response(
+                    f"Module reloaded, but as it imports from other modules ({other_modules}), "
+                    f"you may need to reload those also to get the new functionality."
+                )
             return event.create_response("Module reloaded.")
         else:
             return event.create_response("Error, failed to reload module.")
