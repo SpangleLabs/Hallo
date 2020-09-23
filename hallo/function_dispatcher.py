@@ -427,7 +427,7 @@ class FunctionDispatcher(object):
                 file_contents = f.read()
             for match in cross_module_import.findall(file_contents, re.MULTILINE):
                 other_modules.add(match)
-        other_modules.remove(module_name)
+        other_modules.discard(module_name)
         return list(other_modules)
 
     def full_module_names_for_module(self, module_name: str) -> List[str]:
