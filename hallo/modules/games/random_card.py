@@ -1,3 +1,4 @@
+import hallo.modules.games.cards
 from hallo.function import Function
 import hallo.modules.games.games
 
@@ -20,7 +21,7 @@ class RandomCard(Function):
         self.help_docs = "Picks a random card from a deck. Format: random_card"
 
     def run(self, event):
-        new_deck = hallo.modules.games.games.Deck()
+        new_deck = hallo.modules.games.cards.Deck()
         new_deck.shuffle()
         random_card = new_deck.get_next_card()
         return event.create_response(
