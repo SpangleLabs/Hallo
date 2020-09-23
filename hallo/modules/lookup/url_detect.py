@@ -124,24 +124,10 @@ class UrlDetect(Function):
         if title_search is None:
             return None
         title_text = title_search.group(1)
-        title_clean = self.html_unescape(title_text).replace("\n", "").strip()
+        title_clean = html.unescape(title_text).replace("\n", "").strip()
         if title_clean != "":
             return "URL title: {}".format(title_clean.replace("\n", ""))
         return None
-
-    def html_unescape(self, html_str):
-        """
-        :param html_str: HTML string to parse
-        :type html_str: str
-        :return: str
-        """
-        try:
-            # noinspection PyUnresolvedReferences
-            return html.unescape(html_str)
-        except AttributeError:
-            html_parser = html.parser.HTMLParser()
-            # noinspection PyDeprecation
-            return html_parser.unescape(html_str)
 
     def site_ebay(self, url_address, page_opener, page_request):
         """Handling for ebay links"""
@@ -348,14 +334,14 @@ class UrlDetect(Function):
                     byte_offset += 1
                 ftype = byte
                 size = (
-                    struct.unpack(">H", image_data[byte_offset : byte_offset + 2])[0]
+                    struct.unpack(">H", image_data[byte_offset: byte_offset + 2])[0]
                     - 2
                 )
                 byte_offset += 2
             # We are at a SOFn block
             byte_offset += 1  # Skip `precision' byte.
             height, width = struct.unpack(
-                ">HH", image_data[byte_offset : byte_offset + 4]
+                ">HH", image_data[byte_offset: byte_offset + 4]
             )
             byte_offset += 4
         # except Exception:  # IGNORE:W0703

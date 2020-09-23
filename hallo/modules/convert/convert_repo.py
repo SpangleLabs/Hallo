@@ -342,7 +342,7 @@ class ConvertUnit:
                     name_start
                 ) or not user_input.lower().endswith(name_end):
                     continue
-                user_prefix = user_input[len(name_start) : -len(name_end)]
+                user_prefix = user_input[len(name_start): -len(name_end)]
                 # If user prefix is blank, return None
                 if user_prefix == "":
                     return None
@@ -381,7 +381,7 @@ class ConvertUnit:
                 ) or not user_input.lower().endswith(abbreviation_end):
                     continue
                 user_prefix = user_input[
-                    len(abbreviation_start) : -len(abbreviation_end)
+                    len(abbreviation_start): -len(abbreviation_end)
                 ]
                 # If user prefix is blank, return None
                 if user_prefix == "":
@@ -726,7 +726,7 @@ class ConvertMeasure:
         preliminary_amount_value = float(preliminary_amount_str)
         # Remove amountString from userInput
         if user_input.startswith(preliminary_amount_str):
-            user_input = user_input[len(preliminary_amount_str) :]
+            user_input = user_input[len(preliminary_amount_str):]
         else:
             user_input = user_input[: -len(preliminary_amount_str)]
         # Loop all units, see which might match userInput with prefixes. Building a list of valid measures for input.

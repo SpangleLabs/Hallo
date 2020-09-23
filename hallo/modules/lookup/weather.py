@@ -1,7 +1,7 @@
 import datetime
 import re
 
-import hallo.modules
+import hallo.modules.user_data
 from hallo.function import Function
 from hallo.inc.commons import Commons
 

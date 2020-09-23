@@ -1,6 +1,7 @@
 import hallo.modules
 from hallo.function import Function
 from hallo.inc.commons import Commons
+import hallo.modules.user_data
 
 
 class CurrentWeather(Function):

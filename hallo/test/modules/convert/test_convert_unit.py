@@ -45,7 +45,7 @@ class ConvertUnitTest(unittest.TestCase):
         test_unit.valid_prefix_group = prefix_group
         # Convert to json and back
         test_json = test_unit.to_json()
-        json_unit = ConvertUnit.from_json(test_type, test_json)
+        json_unit = ConvertUnit.from_json(test_type, test_json, )
         assert len(test_unit.abbr_list) == 1
         assert "abbr1" in json_unit.abbr_list
         assert json_unit.type == test_type

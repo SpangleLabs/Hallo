@@ -92,7 +92,7 @@ class ConvertTypeTest(unittest.TestCase):
         test_type.add_unit(test_unit2)
         # Collapse to XML and rebuild
         test_json = test_type.to_json()
-        rebuild_type = ConvertType.from_json(test_repo, test_json)
+        rebuild_type = ConvertType.from_json(test_repo, test_json, )
         # Test the type
         assert rebuild_type.repo == test_repo
         assert len(rebuild_type.unit_list) == 2

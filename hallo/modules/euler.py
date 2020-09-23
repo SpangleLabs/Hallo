@@ -3,7 +3,7 @@ import logging
 from hallo.function import Function
 import math
 import itertools
-import hallo.modules.games
+import hallo.modules.games.cards
 import hallo.modules.math
 
 logger = logging.getLogger(__name__)
@@ -1299,9 +1299,9 @@ class Euler(Function):
         list_poker_games_file.close()
         total_wins = 0
         for poker_game in list_poker_games:
-            deck = hallo.modules.games.Deck()
-            hand_one = hallo.modules.games.Hand.from_two_letter_code_list(deck, poker_game.split()[:5])
-            hand_two = hallo.modules.games.Hand.from_two_letter_code_list(deck, poker_game.split()[5:])
+            deck = hallo.modules.games.cards.Deck()
+            hand_one = hallo.modules.games.cards.Hand.from_two_letter_code_list(deck, poker_game.split()[:5])
+            hand_two = hallo.modules.games.cards.Hand.from_two_letter_code_list(deck, poker_game.split()[5:])
             if hand_one.poker_beats(hand_two):
                 total_wins += 1
         return total_wins

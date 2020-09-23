@@ -17,7 +17,7 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         prefix_group = ConvertPrefixGroup(test_repo, "test_group")
         # Collapse to XML and rebuild
         test_json = prefix_group.to_json()
-        rebuild_group = ConvertPrefixGroup.from_json(test_repo, test_json)
+        rebuild_group = ConvertPrefixGroup.from_json(test_repo, test_json, )
         assert rebuild_group.repo == test_repo
         assert len(rebuild_group.prefix_list) == 0
         assert rebuild_group.name == "test_group"
@@ -42,7 +42,7 @@ class ConvertPrefixGroupTest(unittest.TestCase):
         prefix_group.add_prefix(test_prefix2)
         # Collapse to XML and rebuild
         test_json = prefix_group.to_json()
-        rebuild_group = ConvertPrefixGroup.from_json(test_repo, test_json)
+        rebuild_group = ConvertPrefixGroup.from_json(test_repo, test_json, )
         assert rebuild_group.repo == test_repo
         assert len(rebuild_group.prefix_list) == 2
         assert rebuild_group.name == "test_group"

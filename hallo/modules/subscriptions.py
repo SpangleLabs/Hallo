@@ -4,7 +4,7 @@ import logging
 import os
 import re
 import urllib.parse
-from abc import ABCMeta, ABC
+from abc import ABC
 from datetime import datetime, timedelta
 from threading import Lock
 from typing import List, Type, Generic, TypeVar, Dict, Optional, Union, Callable, Set
@@ -139,7 +139,7 @@ class SubscriptionRepo:
             json.dump(json_obj, f, indent=2)
 
     @staticmethod
-    def load_json(hallo) -> 'SubscriptionRepo':
+    def load_json(hallo_obj) -> 'SubscriptionRepo':
         """
         Constructs a new SubscriptionRepo from the JSON file
         :return: Newly constructed list of subscriptions
@@ -158,7 +158,7 @@ class SubscriptionRepo:
             new_sub_list.common_list.append(new_common_obj)
         # Loop subs in json file adding them to list
         for sub_elem in json_obj["subs"]:
-            new_sub_obj = SubscriptionFactory.from_json(sub_elem, hallo, new_sub_list)
+            new_sub_obj = SubscriptionFactory.from_json(sub_elem, hallo_obj, new_sub_list)
             new_sub_list.add_sub(new_sub_obj)
         return new_sub_list
 
@@ -252,7 +252,7 @@ class Subscription(Generic[T], ABC):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'Subscription':
+    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo: SubscriptionRepo) -> 'Subscription':
         raise NotImplementedError()
 
 
@@ -492,8 +492,8 @@ class RssSub(Subscription[ElementTree.Element]):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'RssSub':
-        server = hallo.get_server_by_name(json_obj["server_name"])
+    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo: SubscriptionRepo) -> 'RssSub':
+        server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
                 'Could not find server with name "{}"'.format(json_obj["server_name"])
@@ -638,8 +638,8 @@ class E621Sub(Subscription[Dict]):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'E621Sub':
-        server = hallo.get_server_by_name(json_obj["server_name"])
+    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo: SubscriptionRepo) -> 'E621Sub':
+        server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
                 'Could not find server with name "{}"'.format(json_obj["server_name"])
@@ -815,8 +815,8 @@ class E621TaggingSub(E621Sub):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'E621TaggingSub':
-        server = hallo.get_server_by_name(json_obj["server_name"])
+    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo: SubscriptionRepo) -> 'E621TaggingSub':
+        server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
                 'Could not find server with name "{}"'.format(json_obj["server_name"])
@@ -955,9 +955,9 @@ class FANotificationNotesSub(Subscription[Dict]):
         output = "Err, notes did something?"
         note = item["note"]  # type: FAKey.FAReader.FANote
         if item["type"] == self.NEW_INBOX_NOTE:
-            output = "You have a new note. Subject: {}, From: {}, Link: https://www.furaffinity.net/viewmessage/{}/".format(
-                note.subject, note.name, note.note_id
-            )
+            output = \
+                f"You have a new note. Subject: {note.subject}, From: {note.name}, " \
+                f"Link: https://www.furaffinity.net/viewmessage/{note.note_id}/"
         if item["type"] == self.READ_OUTBOX_NOTE:
             output = "An outbox note has been read. Subject: {}, To: {}".format(
                 note.subject, note.name
@@ -980,8 +980,8 @@ class FANotificationNotesSub(Subscription[Dict]):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'FANotificationNotesSub':
-        server = hallo.get_server_by_name(json_obj["server_name"])
+    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo: SubscriptionRepo) -> 'FANotificationNotesSub':
+        server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
                 'Could not find server with name "{}"'.format(json_obj["server_name"])
@@ -1144,8 +1144,8 @@ class FANotificationFavSub(Subscription['FAKey.FAReader.FANotificationFavourite'
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'FANotificationFavSub':
-        server = hallo.get_server_by_name(json_obj["server_name"])
+    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo: SubscriptionRepo) -> 'FANotificationFavSub':
+        server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
                 'Could not find server with name "{}"'.format(json_obj["server_name"])
@@ -1205,7 +1205,13 @@ class FANotificationFavSub(Subscription['FAKey.FAReader.FANotificationFavourite'
         return new_sub
 
 
-class FANotificationCommentsSub(Subscription[Union['FAKey.FAReader.FANotificationCommentSubmission', 'FAKey.FAReader.FANotificationCommentJournal', 'FAKey.FAReader.FANotificationShout']]):
+class FANotificationCommentsSub(
+    Subscription[Union[
+        'FAKey.FAReader.FANotificationCommentSubmission',
+        'FAKey.FAReader.FANotificationCommentJournal',
+        'FAKey.FAReader.FANotificationShout'
+    ]]
+):
     names: List[str] = [
         "{}{}{}".format(fa, comments, notifications)
         for fa in ["fa ", "furaffinity "]
@@ -1268,7 +1274,13 @@ class FANotificationCommentsSub(Subscription[Union['FAKey.FAReader.FANotificatio
     def get_name(self) -> str:
         return "FA comments for {}".format(self.fa_key.user.name)
 
-    def check(self, *, ignore_result: bool = False) -> List[Union['FAKey.FAReader.FANotificationCommentSubmission', 'FAKey.FAReader.FANotificationCommentJournal', 'FAKey.FAReader.FANotificationShout']]:
+    def check(
+            self, *, ignore_result: bool = False
+    ) -> List[Union[
+        'FAKey.FAReader.FANotificationCommentSubmission',
+        'FAKey.FAReader.FANotificationCommentJournal',
+        'FAKey.FAReader.FANotificationShout'
+    ]]:
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         results = []
         # Check submission comments
@@ -1299,7 +1311,13 @@ class FANotificationCommentsSub(Subscription[Union['FAKey.FAReader.FANotificatio
         # Return results
         return results[::-1]
 
-    def format_item(self, item: Union['FAKey.FAReader.FANotificationCommentSubmission', 'FAKey.FAReader.FANotificationCommentJournal', 'FAKey.FAReader.FANotificationShout']) -> EventMessage:
+    def format_item(
+            self, item: Union[
+                'FAKey.FAReader.FANotificationCommentSubmission',
+                'FAKey.FAReader.FANotificationCommentJournal',
+                'FAKey.FAReader.FANotificationShout'
+            ]
+    ) -> EventMessage:
         output = "Err, comments did something?"
         fa_reader = self.fa_key.get_fa_reader()
         if isinstance(item, FAKey.FAReader.FANotificationShout):
@@ -1395,8 +1413,8 @@ class FANotificationCommentsSub(Subscription[Union['FAKey.FAReader.FANotificatio
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'FANotificationCommentsSub':
-        server = hallo.get_server_by_name(json_obj["server_name"])
+    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo: SubscriptionRepo) -> 'FANotificationCommentsSub':
+        server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
                 'Could not find server with name "{}"'.format(json_obj["server_name"])
@@ -1585,8 +1603,8 @@ class FAUserFavsSub(Subscription[Optional['FAKey.FAReader.FAViewSubmissionPage']
         return EventMessage(self.server, channel, user, output, inbound=False)
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'FAUserFavsSub':
-        server = hallo.get_server_by_name(json_obj["server_name"])
+    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo: SubscriptionRepo) -> 'FAUserFavsSub':
+        server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
                 'Could not find server with name "{}"'.format(json_obj["server_name"])
@@ -1777,8 +1795,8 @@ class FAUserWatchersSub(Subscription['FAKey.FAReader.FAWatch']):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'FAUserWatchersSub':
-        server = hallo.get_server_by_name(json_obj["server_name"])
+    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo: SubscriptionRepo) -> 'FAUserWatchersSub':
+        server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
                 'Could not find server with name "{}"'.format(json_obj["server_name"])
@@ -1922,8 +1940,8 @@ class FANotificationWatchSub(FAUserWatchersSub):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'FANotificationWatchSub':
-        server = hallo.get_server_by_name(json_obj["server_name"])
+    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo: SubscriptionRepo) -> 'FANotificationWatchSub':
+        server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
                 'Could not find server with name "{}"'.format(json_obj["server_name"])
@@ -2199,8 +2217,8 @@ class RedditSub(Subscription[Dict]):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> 'RedditSub':
-        server = hallo.get_server_by_name(json_obj["server_name"])
+    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo: SubscriptionRepo) -> 'RedditSub':
+        server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise SubscriptionException(
                 'Could not find server with name "{}"'.format(json_obj["server_name"])
@@ -2754,7 +2772,9 @@ class FAKey:
                         new_comment.parent = parent_comment
                         parent_comment.reply_comments.append(new_comment)
 
-            def get_comment_by_id(self, comment_id: str, parent_comment: Optional['FAKey.FAReader.FAComment'] = None) -> Optional['FAKey.FAReader.FAComment']:
+            def get_comment_by_id(
+                    self, comment_id: str, parent_comment: Optional['FAKey.FAReader.FAComment'] = None
+            ) -> Optional['FAKey.FAReader.FAComment']:
                 if parent_comment is None:
                     for comment in self.top_level_comments:
                         found_comment = self.get_comment_by_id(comment_id, comment)
@@ -2855,11 +2875,11 @@ class SubscriptionFactory(object):
         return classes[0]
 
     @staticmethod
-    def from_json(sub_json: Dict, hallo: Hallo, sub_repo: SubscriptionRepo) -> Subscription:
+    def from_json(sub_json: Dict, hallo_obj: Hallo, sub_repo: SubscriptionRepo) -> Subscription:
         sub_type_name = sub_json["sub_type"]
         for sub_class in SubscriptionFactory.sub_classes:
             if sub_class.type_name == sub_type_name:
-                return sub_class.from_json(sub_json, hallo, sub_repo)
+                return sub_class.from_json(sub_json, hallo_obj, sub_repo)
         raise SubscriptionException(
             "Could not load subscription of type {}".format(sub_type_name)
         )
@@ -2992,15 +3012,15 @@ class SubscriptionRemove(Function):
     def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
         server = event.server
-        hallo = server.hallo
-        function_dispatcher = hallo.function_dispatcher
+        hallo_obj = server.hallo
+        function_dispatcher = hallo_obj.function_dispatcher
         sub_check_function = function_dispatcher.get_function_by_name(
             "check subscription"
         )
         sub_check_obj = function_dispatcher.get_function_object(
             sub_check_function
         )  # type: SubscriptionCheck
-        sub_repo = sub_check_obj.get_sub_repo(hallo)
+        sub_repo = sub_check_obj.get_sub_repo(hallo_obj)
         # Clean up input
         clean_input = event.command_args.strip()
         # Acquire lock
@@ -3079,9 +3099,9 @@ class SubscriptionCheck(Function):
         self.subscription_repo = None
         """ :type : SubscriptionRepo | None"""
 
-    def get_sub_repo(self, hallo: Hallo) -> SubscriptionRepo:
+    def get_sub_repo(self, hallo_obj: Hallo) -> SubscriptionRepo:
         if self.subscription_repo is None:
-            self.subscription_repo = SubscriptionRepo.load_json(hallo)
+            self.subscription_repo = SubscriptionRepo.load_json(hallo_obj)
         return self.subscription_repo
 
     @staticmethod
@@ -3105,12 +3125,12 @@ class SubscriptionCheck(Function):
 
     def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
-        hallo = event.server.hallo
+        hallo_obj = event.server.hallo
         destination = event.user if event.channel is None else event.channel
         # Clean up input
         clean_input = event.command_args.strip().lower()
         # Acquire lock
-        sub_repo = self.get_sub_repo(hallo)
+        sub_repo = self.get_sub_repo(hallo_obj)
         with sub_repo.sub_lock:
             # Check whether input is asking to update all e621 subscriptions
             if clean_input in self.NAMES_ALL or clean_input == "":
@@ -3214,15 +3234,15 @@ class SubscriptionList(Function):
     def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
         server = event.server
-        hallo = server.hallo
-        function_dispatcher = hallo.function_dispatcher
+        hallo_obj = server.hallo
+        function_dispatcher = hallo_obj.function_dispatcher
         sub_check_function = function_dispatcher.get_function_by_name(
             "check subscription"
         )
         sub_check_obj = function_dispatcher.get_function_object(
             sub_check_function
         )  # type: SubscriptionCheck
-        sub_repo = sub_check_obj.get_sub_repo(hallo)
+        sub_repo = sub_check_obj.get_sub_repo(hallo_obj)
         # Find list of feeds for current channel.
         with sub_repo.sub_lock:
             dest_searches = sub_repo.get_subs_by_destination(

@@ -249,7 +249,7 @@ class NumberWord(Function):
                     string = string + " " + european_segs[segments - seg - 1]
                 else:
                     string = string + " " + normal_segs[segments - seg - 1]
-            if seg != (segments - 1) and int(number[end : end + 3]) != 0:
+            if seg != (segments - 1) and int(number[end: end + 3]) != 0:
                 string += ", "
         # Put string together and output
         string += decimal
@@ -659,7 +659,7 @@ class Calculate(Function):
             return ""
         # Find position and get the calculation after that position.
         pos = calc.find(str(sub_str))
-        post_calc = calc[pos + len(sub_str) :]
+        post_calc = calc[pos + len(sub_str):]
         # Check each substring of post_calc for whether it's a valid float, starting from longest.
         for sub_post_calc in [
             post_calc[: len(post_calc) - x] for x in range(len(post_calc))
@@ -731,7 +731,7 @@ class Calculate(Function):
         max_len = 0
         max_name = ""
         for trig_name in trig_dict:
-            if before[-len(trig_name) :] == trig_name:
+            if before[-len(trig_name):] == trig_name:
                 if len(trig_name) > max_len:
                     max_len = len(trig_name)
                     max_name = trig_name
@@ -768,7 +768,7 @@ class Calculate(Function):
         if calc.count(")-") != 0:
             calc = calc.replace(")-", ")+-")
         while calc.count("(") != 0:
-            temp_calc = calc[calc.find("(") + 1 :]
+            temp_calc = calc[calc.find("(") + 1:]
             bracket = 1
             running_calc = ""
             # Loop through the string

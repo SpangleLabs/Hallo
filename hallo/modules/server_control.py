@@ -44,7 +44,7 @@ class JoinChannel(Function):
         # Check for channel password
         channel_password = None
         if channel_name != line:
-            channel_password = line[len(channel_name) :]
+            channel_password = line[len(channel_name):]
         # Get channel object, set password
         channel_obj = server_obj.get_channel_by_name(channel_name)
         channel_obj.password = channel_password
@@ -363,7 +363,7 @@ class Say(Function):
         # If channel_name is not found as a parameter, see if server/channel is given as a first argument pair.
         if channel_name is None:
             destination_pair = line.split()[0]
-            line = line[len(destination_pair) :].strip()
+            line = line[len(destination_pair):].strip()
             destination_separators = ["->", ">", ",", ".", "/", ":"]
             for destination_separator in destination_separators:
                 if destination_pair.count(destination_separator) != 0:
