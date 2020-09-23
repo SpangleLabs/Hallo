@@ -4,10 +4,10 @@ from datetime import timedelta
 import duolingo
 
 from hallo.events import EventDay
-from hallo.modules.dailys.dailys_field import DailysField, DailysException
+import hallo.modules.dailys.dailys_field
 
 
-class DailysDuolingoField(DailysField):
+class DailysDuolingoField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "duolingo"
 
     def __init__(self, spreadsheet, username, password):
@@ -57,10 +57,10 @@ class DailysDuolingoField(DailysField):
     @staticmethod
     def create_from_input(event, spreadsheet):
         clean_input = (
-            event.command_args[len(DailysDuolingoField.type_name) :].strip().split()
+            event.command_args[len(DailysDuolingoField.type_name):].strip().split()
         )
         if len(clean_input) != 2:
-            raise DailysException(
+            raise hallo.modules.dailys.dailys_field.DailysException(
                 "You must specify both a duolingo username, and password."
             )
         username = clean_input[0]
@@ -70,7 +70,7 @@ class DailysDuolingoField(DailysField):
         elif DailysDuolingoField._check_duo_username(password, username):
             return DailysDuolingoField(spreadsheet, password, username)
         else:
-            raise DailysException(
+            raise hallo.modules.dailys.dailys_field.DailysException(
                 "Could not access a duolingo account with that username and password."
             )
 

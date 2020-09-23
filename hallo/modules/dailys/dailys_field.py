@@ -5,11 +5,11 @@ from datetime import date
 from hallo.events import (
     EventMessage,
 )
-from hallo.modules.dailys.field_dream import DailysDreamField
-from hallo.modules.dailys.field_duolingo import DailysDuolingoField
-from hallo.modules.dailys.field_fa import DailysFAField
-from hallo.modules.dailys.field_mood import DailysMoodField
-from hallo.modules.dailys.field_sleep import DailysSleepField
+import hallo.modules.dailys.field_dream
+import hallo.modules.dailys.field_duolingo
+import hallo.modules.dailys.field_fa
+import hallo.modules.dailys.field_mood
+import hallo.modules.dailys.field_sleep
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +88,13 @@ class DailysField(metaclass=ABCMeta):
 
 
 class DailysFieldFactory:
-    fields = [DailysFAField, DailysDuolingoField, DailysSleepField, DailysMoodField, DailysDreamField]
+    fields = [
+        hallo.modules.dailys.field_fa.DailysFAField,
+        hallo.modules.dailys.field_duolingo.DailysDuolingoField,
+        hallo.modules.dailys.field_sleep.DailysSleepField,
+        hallo.modules.dailys.field_mood.DailysMoodField,
+        hallo.modules.dailys.field_dream.DailysDreamField
+    ]
 
     @staticmethod
     def from_json(json_obj, spreadsheet):

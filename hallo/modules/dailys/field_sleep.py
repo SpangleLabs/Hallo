@@ -1,10 +1,10 @@
 from datetime import timedelta
 
 from hallo.events import EventMessage
-from hallo.modules.dailys.dailys_field import DailysField
+import hallo.modules.dailys.dailys_field
 
 
-class DailysSleepField(DailysField):
+class DailysSleepField(hallo.modules.dailys.dailys_field.DailysField):
     # Does sleep and wake times, sleep notes, dream logs, shower?
     type_name = "sleep"
     WAKE_WORDS = ["morning", "wake", "woke"]

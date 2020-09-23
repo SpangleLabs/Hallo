@@ -1,5 +1,5 @@
 from hallo.function import Function
-from hallo.modules.dailys.dailys_field import DailysFieldFactory
+import hallo.modules.dailys.dailys_field
 
 
 class DailysAddField(Function):
@@ -27,13 +27,13 @@ class DailysAddField(Function):
 
     def run(self, event):
         # Get spreadsheet repo
-        hallo = event.server.hallo
-        function_dispatcher = hallo.function_dispatcher
+        hallo_obj = event.server.hallo
+        function_dispatcher = hallo_obj.function_dispatcher
         sub_check_function = function_dispatcher.get_function_by_name("dailys")
         sub_check_obj = function_dispatcher.get_function_object(
             sub_check_function
-        )  # type: Dailys
-        dailys_repo = sub_check_obj.get_dailys_repo(hallo)
+        )
+        dailys_repo = sub_check_obj.get_dailys_repo(hallo_obj)
         # Get the active spreadsheet for this person and destination
         spreadsheet = dailys_repo.get_by_location(event)
         if spreadsheet is None:
@@ -47,13 +47,13 @@ class DailysAddField(Function):
         if clean_input == "":
             return event.create_response(
                 "Please specify a field, available fields are: {}".format(
-                    ", ".join(field.type_name for field in DailysFieldFactory.fields)
+                    ", ".join(field.type_name for field in hallo.modules.dailys.dailys_field.DailysFieldFactory.fields)
                 )
             )
         # Check that there's exactly one field matching that name
         matching_fields = [
             field
-            for field in DailysFieldFactory.fields
+            for field in hallo.modules.dailys.dailys_field.DailysFieldFactory.fields
             if clean_input.startswith(field.type_name)
         ]
         if len(matching_fields) != 1:

@@ -2,13 +2,13 @@ import json
 import os
 from datetime import timedelta
 
-import hallo.modules
+import hallo.modules.user_data
+import hallo.modules.dailys.dailys_field
 from hallo.events import EventDay
 from hallo.inc.commons import Commons
-from hallo.modules.dailys.dailys_field import DailysField, DailysException
 
 
-class DailysFAField(DailysField):
+class DailysFAField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "furaffinity"
 
     @staticmethod
@@ -24,11 +24,11 @@ class DailysFAField(DailysField):
         :rtype: None
         """
         user_parser = hallo.modules.user_data.UserDataParser()
-        fa_data = user_parser.get_data_by_user_and_type(
+        fa_data: hallo.modules.user_data.FAKeyData = user_parser.get_data_by_user_and_type(
             self.spreadsheet.user, hallo.modules.user_data.FAKeyData
         )
         if fa_data is None:
-            raise DailysException(
+            raise hallo.modules.dailys.dailys_field.DailysException(
                 "No FA data has been set up for the FA field module to use."
             )
         cookie = "b=" + fa_data.cookie_b + "; a=" + fa_data.cookie_a
@@ -39,7 +39,9 @@ class DailysFAField(DailysField):
                 [["FA_COOKIE", cookie]],
             )
         except Exception:
-            raise DailysException("FA key in storage is not currently logged in to FA.")
+            raise hallo.modules.dailys.dailys_field.DailysException(
+                "FA key in storage is not currently logged in to FA."
+            )
         profile_name = notifications_data["current_user"]["profile_name"]
         profile_data = Commons.load_url_json("{}/user/{}.json".format(fa_api_url, profile_name))
         notifications = {
@@ -64,7 +66,7 @@ class DailysFAField(DailysField):
         user_parser = hallo.modules.user_data.UserDataParser()
         fa_data = user_parser.get_data_by_user_and_type(spreadsheet.user, hallo.modules.user_data.FAKeyData)
         if not isinstance(fa_data, hallo.modules.user_data.FAKeyData):
-            raise DailysException(
+            raise hallo.modules.dailys.dailys_field.DailysException(
                 "No FA data has been set up for the FA dailys field to use."
             )
         return DailysFAField(spreadsheet)

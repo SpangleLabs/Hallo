@@ -1,9 +1,9 @@
 from hallo.events import EventMessage
 from hallo.inc.commons import Commons
-from hallo.modules.dailys.dailys_field import DailysField
+import hallo.modules.dailys.dailys_field
 
 
-class DailysDreamField(DailysField):
+class DailysDreamField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "dreams"
 
     @staticmethod

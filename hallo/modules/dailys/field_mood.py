@@ -2,11 +2,11 @@ from datetime import timedelta, datetime, time
 from threading import RLock
 
 from hallo.events import EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound
-from hallo.modules.dailys.dailys_field import DailysField, DailysException
-from hallo.modules.dailys.field_sleep import DailysSleepField
+import hallo.modules.dailys.dailys_field
+import hallo.modules.dailys.field_sleep
 
 
-class DailysMoodField(DailysField):
+class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "mood"
     # Does mood measurements
     TIME_WAKE = "WakeUpTime"  # Used as a time entry, to signify that it should take a mood measurement in the morning,
@@ -50,7 +50,9 @@ class DailysMoodField(DailysField):
     def create_from_input(event, spreadsheet):
         static_data = spreadsheet.read_path("stats/mood/static/")
         if len(static_data) == 0:
-            raise DailysException("Mood field static data has not been set up on dailys system.")
+            raise hallo.modules.dailys.dailys_field.DailysException(
+                "Mood field static data has not been set up on dailys system."
+            )
         moods = static_data[0]["data"]["moods"]
         times = []
         for time_str in static_data[0]["data"]["times"]:
@@ -131,13 +133,13 @@ class DailysMoodField(DailysField):
             # Check if it's a morning/night message
             input_clean = evt.text.strip().lower()
             if (
-                input_clean in DailysSleepField.WAKE_WORDS
+                input_clean in hallo.modules.dailys.field_sleep.DailysSleepField.WAKE_WORDS
                 and self.TIME_WAKE in self.times
                 and not self.has_triggered_for_time(mood_date, self.TIME_WAKE)
             ):
                 return self.send_mood_query(mood_date, self.TIME_WAKE)
             if (
-                input_clean in DailysSleepField.SLEEP_WORDS
+                input_clean in hallo.modules.dailys.field_sleep.DailysSleepField.SLEEP_WORDS
                 and self.TIME_SLEEP in self.times
                 and not self.has_triggered_for_time(mood_date, self.TIME_SLEEP)
             ):
@@ -177,9 +179,9 @@ class DailysMoodField(DailysField):
                 data = self.get_current_data(mood_date)
                 input_time = input_split[1]
                 time_val = None
-                if input_time.lower() in DailysSleepField.WAKE_WORDS:
+                if input_time.lower() in hallo.modules.dailys.field_sleep.DailysSleepField.WAKE_WORDS:
                     time_val = DailysMoodField.TIME_WAKE
-                if input_time.lower() in DailysSleepField.SLEEP_WORDS:
+                if input_time.lower() in hallo.modules.dailys.field_sleep.DailysSleepField.SLEEP_WORDS:
                     time_val = DailysMoodField.TIME_SLEEP
                 if time_val is None:
                     try:
@@ -285,7 +287,7 @@ class DailysMoodField(DailysField):
     def from_json(json_obj, spreadsheet):
         static_data = spreadsheet.read_path("stats/mood/static/")
         if len(static_data) == 0:
-            raise DailysException("Mood field static data has not been set up.")
+            raise hallo.modules.dailys.dailys_field.DailysException("Mood field static data has not been set up.")
         moods = static_data[0]["data"]["moods"]
         times = []
         for time_str in static_data[0]["data"]["times"]:

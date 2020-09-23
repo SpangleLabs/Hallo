@@ -1,17 +1,14 @@
 import json
+from typing import List
 
-from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
+import hallo.modules.dailys.dailys_spreadsheet
 
 
 class DailysRepo:
     def __init__(self):
-        self.spreadsheets = []
-        """ :type : list[DailysSpreadsheet]"""
+        self.spreadsheets: List[hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet] = []
 
-    def add_spreadsheet(self, spreadsheet):
-        """
-        :type spreadsheet: DailysSpreadsheet
-        """
+    def add_spreadsheet(self, spreadsheet: hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet):
         self.spreadsheets.append(spreadsheet)
 
     def get_by_location(self, event):
@@ -30,7 +27,7 @@ class DailysRepo:
             json.dump(json_obj, f, indent=2)
 
     @staticmethod
-    def load_json(hallo):
+    def load_json(hallo_obj):
         new_dailys_repo = DailysRepo()
         # Try loading json file, otherwise return blank list
         try:
@@ -39,6 +36,6 @@ class DailysRepo:
         except (OSError, IOError):
             return new_dailys_repo
         for spreadsheet_json in json_obj["spreadsheets"]:
-            spreadsheet = DailysSpreadsheet.from_json(spreadsheet_json, hallo)
+            spreadsheet = hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet.from_json(spreadsheet_json, hallo)
             new_dailys_repo.add_spreadsheet(spreadsheet)
         return new_dailys_repo

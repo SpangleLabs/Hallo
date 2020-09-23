@@ -1,7 +1,7 @@
 from hallo.events import EventMessage
 from hallo.function import Function
-from hallo.modules.dailys.dailys_field import DailysFieldFactory, logger
-from hallo.modules.dailys.dailys_repo import DailysRepo
+import hallo.modules.dailys.dailys_field
+import hallo.modules.dailys.dailys_repo
 
 
 class Dailys(Function):
@@ -22,9 +22,9 @@ class Dailys(Function):
         self.dailys_repo = None
         """ :type : DailysRepo | None"""
 
-    def get_dailys_repo(self, hallo):
+    def get_dailys_repo(self, hallo_obj):
         if self.dailys_repo is None:
-            self.dailys_repo = DailysRepo.load_json(hallo)
+            self.dailys_repo = hallo.modules.dailys.dailys_repo.DailysRepo.load_json(hallo_obj)
         return self.dailys_repo
 
     @staticmethod
@@ -46,7 +46,7 @@ class Dailys(Function):
         return set(
             [
                 event
-                for field in DailysFieldFactory.fields
+                for field in hallo.modules.dailys.dailys_field.DailysFieldFactory.fields
                 for event in field.passive_events()
             ]
         )
@@ -73,4 +73,4 @@ class Dailys(Function):
                     try:
                         field.passive_trigger(event)
                     except Exception as e:
-                        logger.error("Dailys failure: ", exc_info=e)
+                        hallo.modules.dailys.dailys_field.logger.error("Dailys failure: ", exc_info=e)

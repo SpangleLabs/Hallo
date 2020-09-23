@@ -1,7 +1,7 @@
 from urllib.error import HTTPError
 
 from hallo.function import Function
-from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
+import hallo.modules.dailys.dailys_spreadsheet
 
 
 class DailysRegister(Function):
@@ -29,8 +29,8 @@ class DailysRegister(Function):
 
     def run(self, event):
         # Get dailys repo
-        hallo = event.server.hallo
-        function_dispatcher = hallo.function_dispatcher
+        hallo_obj = event.server.hallo
+        function_dispatcher = hallo_obj.function_dispatcher
         sub_check_function = function_dispatcher.get_function_by_name("dailys")
         sub_check_obj = function_dispatcher.get_function_object(
             sub_check_function
@@ -47,12 +47,12 @@ class DailysRegister(Function):
         # If no second argument, that means there is no key
         spreadsheet = None
         if len(clean_input) == 1:
-            spreadsheet = DailysSpreadsheet(
+            spreadsheet = hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet(
                 event.user, event.channel, clean_input[0], None
             )
         elif len(clean_input) == 2:
             try:
-                spreadsheet = DailysSpreadsheet(
+                spreadsheet = hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet(
                     event.user, event.channel, clean_input[0], clean_input[1]
                 )
                 resp = spreadsheet.read_path("stats/")
@@ -61,7 +61,7 @@ class DailysRegister(Function):
             except HTTPError:
                 pass
             if spreadsheet is None:
-                spreadsheet = DailysSpreadsheet(
+                spreadsheet = hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet(
                     event.user, event.channel, clean_input[1], clean_input[0]
                 )
         if len(clean_input) == 0 or len(clean_input) > 2 or spreadsheet is None:
