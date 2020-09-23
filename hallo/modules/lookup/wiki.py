@@ -41,16 +41,16 @@ class Wiki(Function):
         plain_text = re.sub(r"<ref[^<]*</ref>", "", plain_text)  # Strip out references
         old_scan = plain_text
         # Repeatedly strip links from image descriptions
-        new_scan = re.sub(r"(\[\[File:[^\][]+)\[\[[^\]]+]]", r"\1", old_scan)
+        new_scan = re.sub(r"(\[\[File:[^][]+)\[\[[^]]+]]", r"\1", old_scan)
         while new_scan != old_scan:
             old_scan = new_scan
-            new_scan = re.sub(r"(\[\[File:[^\][]+)\[\[[^\]]+]]", r"\1", old_scan)
+            new_scan = re.sub(r"(\[\[File:[^][]+)\[\[[^]]+]]", r"\1", old_scan)
         plain_text = new_scan
-        plain_text = re.sub(r"\[\[File:[^\]]+]]", "", plain_text)  # Strip out images
+        plain_text = re.sub(r"\[\[File:[^]]+]]", "", plain_text)  # Strip out images
         plain_text = re.sub(
-            r"\[\[[^\]^|]*\|([^\]]*)]]", r"\1", plain_text
+            r"\[\[[^]^|]*\|([^]]*)]]", r"\1", plain_text
         )  # Strip out links with specified names
-        plain_text = re.sub(r"\[\[([^\]]*)]]", r"\1", plain_text)  # Strip out links
+        plain_text = re.sub(r"\[\[([^]]*)]]", r"\1", plain_text)  # Strip out links
         plain_text = re.sub(r"<!--[^>]*-->", "", plain_text)  # Strip out comments
         plain_text = re.sub(
             r"<ref[^>]*/>", "", plain_text
