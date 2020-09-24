@@ -244,6 +244,17 @@ class RssSub(hallo.modules.subscriptions.subscriptions.Subscription[ElementTree.
             channel = self.destination if isinstance(self.destination, Channel) else None
             user = self.destination if isinstance(self.destination, User) else None
             return EventMessage(self.server, channel, user, output, inbound=False)
+        if "nitter.net" in self.url:
+            item_title = self._get_item_title(rss_item)
+            item_link = self._get_item_link(rss_item).replace("nitter.net", "twitter.com")
+            # Construct output
+            output = 'Update on "{}" RSS feed. "{}" {}'.format(
+                self.title, item_title, item_link
+            )
+            channel = self.destination if isinstance(self.destination, Channel) else None
+            user = self.destination if isinstance(self.destination, User) else None
+            output_evt = EventMessage(self.server, channel, user, output, inbound=False)
+            return output_evt
         return None
 
     def to_json(self) -> Dict:
