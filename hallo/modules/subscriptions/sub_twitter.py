@@ -18,7 +18,7 @@ class TwitterSub(hallo.modules.subscriptions.sub_rss.RssSub):
     type_name: str = "twitter"
 
     profile_regex = re.compile(
-        r"^(?:(?:(?:https://)?www.)?(?:twitter.com|nitter.net)/|@)?([^/]+)(?:/?$|/?(with_replies|media)$)",
+        r"^(?:(?:https://)?(?:www.)?(?:twitter.com|nitter.net)/|@)?([^/]+)(?:/?$|/?(with_replies|media)$)",
         re.IGNORECASE
     )
 
