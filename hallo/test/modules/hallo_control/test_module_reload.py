@@ -41,6 +41,9 @@ class FunctionDispatcherMock:
     module_reloaded = False
     module_reload_resp = True
 
-    def reload_module(self, name):
+    def reload_module(self, *_):
         self.module_reloaded = self.module_reload_resp
         return self.module_reload_resp
+
+    def list_cross_module_imports(self, *_):
+        return []
