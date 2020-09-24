@@ -6,8 +6,8 @@ from datetime import timedelta
 import pytest
 
 from hallo.events import EventMessage, EventDay
-from hallo.modules.dailys import DailysException, DailysDuolingoField
-from hallo.modules.user_data import UserDataParser, FAKeyData
+from hallo.modules.dailys.dailys_field import DailysException
+from hallo.modules.dailys.field_duolingo import DailysDuolingoField
 from hallo.test.test_base import TestBase
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 

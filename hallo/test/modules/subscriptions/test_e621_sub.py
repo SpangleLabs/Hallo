@@ -6,7 +6,8 @@ import pytest
 
 from hallo.events import EventMessage
 from hallo.hallo import Hallo
-from hallo.modules.subscriptions import E621Sub, SubscriptionRepo
+from hallo.modules.subscriptions.sub_e621 import E621Sub
+from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.server_mock import ServerMock
 
 

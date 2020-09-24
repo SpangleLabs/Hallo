@@ -5,7 +5,8 @@ import isodate
 import pytest
 
 from hallo.events import EventMessage
-from hallo.modules.subscriptions import SubscriptionCheck, E621Sub
+from hallo.modules.subscriptions.sub_e621 import E621Sub
+from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
 from hallo.test.test_base import TestBase
 
 

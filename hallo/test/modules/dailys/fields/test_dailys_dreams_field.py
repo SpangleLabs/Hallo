@@ -1,5 +1,5 @@
 from hallo.events import EventMessage
-from hallo.modules.dailys import DailysDreamField
+from hallo.modules.dailys.field_dream import DailysDreamField
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 

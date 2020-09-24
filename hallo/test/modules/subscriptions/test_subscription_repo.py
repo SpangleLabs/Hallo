@@ -3,7 +3,8 @@ import os
 import isodate
 import pytest
 
-from hallo.modules.subscriptions import SubscriptionRepo, RssSub
+from hallo.modules.subscriptions.sub_rss import RssSub
+from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.server_mock import ServerMock
 
 

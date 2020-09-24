@@ -1,10 +1,10 @@
 import unittest
 from datetime import datetime, timedelta, date
 
-import dateutil
+import dateutil.parser
 
 from hallo.events import EventMessage, RawDataTelegram
-from hallo.modules.dailys import DailysSleepField
+from hallo.modules.dailys.field_sleep import DailysSleepField
 from hallo.test.test_base import TestBase
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 

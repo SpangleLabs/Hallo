@@ -1,4 +1,3 @@
-import hallo.modules.hallo_control
 from hallo.events import EventMessage
 from hallo.function import Function
 from hallo.function_dispatcher import FunctionDispatcher
@@ -8,8 +7,8 @@ from hallo.test.server_mock import ServerMock
 
 
 def test_help_all(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
-    hallo.function_dispatcher.dispatch(
+    hallo_obj, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
+    hallo_obj.function_dispatcher.dispatch(
         EventMessage(test_server, None, test_user, "help")
     )
     data = test_server.get_send_data(1, test_user, EventMessage)

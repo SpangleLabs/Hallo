@@ -5,24 +5,20 @@ import unittest
 
 import pytest
 
-import hallo.modules.subscriptions
+import hallo.modules.subscriptions.subscriptions
 from hallo.events import EventMessage
-from hallo.modules.subscriptions import (
-    SubscriptionFactory,
-    E621Sub,
-    RssSub,
-    FANotificationNotesSub,
-    FAKey,
-    SubscriptionRepo,
-    FAKeysCommon,
-    FAUserFavsSub,
-    FAUserWatchersSub,
-    FANotificationWatchSub,
-    FANotificationFavSub,
-    FANotificationCommentsSub,
-    RedditSub,
-    E621TaggingSub
-)
+from hallo.modules.subscriptions.common_fa_key import FAKey
+from hallo.modules.subscriptions.sub_e621 import E621Sub
+from hallo.modules.subscriptions.sub_e621_tagging import E621TaggingSub
+from hallo.modules.subscriptions.sub_fa_favs import FAUserFavsSub
+from hallo.modules.subscriptions.sub_fa_notes import FANotificationNotesSub
+from hallo.modules.subscriptions.sub_fa_notif_comments import FANotificationCommentsSub
+from hallo.modules.subscriptions.sub_fa_notif_favs import FANotificationFavSub
+from hallo.modules.subscriptions.sub_fa_watchers import FAUserWatchersSub, FANotificationWatchSub
+from hallo.modules.subscriptions.sub_reddit import RedditSub
+from hallo.modules.subscriptions.sub_rss import RssSub
+from hallo.modules.subscriptions.subscription_factory import SubscriptionFactory
+from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 
 from hallo.test.test_base import TestBase
 
@@ -54,7 +50,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
     def get_sub_create_events(self):
         sub_repo = SubscriptionRepo()
         fa_key = FAKey(self.test_user, self.cookie_a, self.cookie_b)
-        fa_commons = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.FAKeysCommon)  # type: FAKeysCommon
+        fa_commons = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
         fa_commons.add_key(fa_key)
         sub_evts = dict()
         sub_evts[E621Sub] = EventMessage(self.server, self.test_chan, self.test_user, "cabinet")
@@ -178,7 +174,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         We can check this by seeing the last_check time is not None
         """
         sub_repo = SubscriptionRepo()
-        fa_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.FAKeysCommon)  # type: FAKeysCommon
+        fa_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
         fa_keys.add_key(FAKey(self.test_user, self.cookie_a, self.cookie_b))
         evts_dict = self.get_sub_create_events()
         for sub_class in evts_dict:
@@ -195,7 +191,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
             function_class = function_tuple[1]
             # Only look at subclasses of Subscription
-            if not issubclass(function_class, hallo.modules.subscriptions.Subscription):
+            if not issubclass(function_class, hallo.modules.subscriptions.subscriptions.Subscription):
                 continue
             # Only look at implemented classes.
             sub_repo = SubscriptionRepo()

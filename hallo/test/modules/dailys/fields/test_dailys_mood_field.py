@@ -2,9 +2,9 @@ from datetime import time, date, datetime, timedelta
 
 import pytest
 
-import hallo.modules.dailys
+import hallo.modules.dailys.dailys_field
 from hallo.events import EventMessage, RawDataTelegram, EventMinute
-from hallo.modules.dailys import DailysMoodField
+from hallo.modules.dailys.field_mood import DailysMoodField
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
@@ -35,7 +35,7 @@ def test_create_from_input(hallo_getter, requests_mock):
     # Setup stuff
     command_name = "setup dailys field"
     command_args = "mood"
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     evt = EventMessage(
         test_server,
         test_chan,
@@ -92,13 +92,13 @@ def test_create_from_input__no_static_data(hallo_getter, requests_mock):
     )
 
     # Try and create dailys field
-    with pytest.raises(hallo.modules.dailys.DailysException) as e:
+    with pytest.raises(hallo.modules.dailys.dailys_field.DailysException) as e:
         DailysMoodField.create_from_input(evt, spreadsheet)
     assert "mood field static data has not been set up on dailys system" in str(e.value).lower()
 
 
 def test_trigger_morning_query(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
     # Setup field
@@ -120,7 +120,7 @@ def test_trigger_morning_query(hallo_getter):
 
 
 def test_trigger_sleep_query(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     moods = ["Happiness", "Anger", "Tiredness"]
     evt_sleep = EventMessage(test_server, test_chan, test_user, "night")
@@ -154,7 +154,7 @@ def test_trigger_sleep_query(hallo_getter):
 
 
 def test_trigger_morning_no_query_if_not_in_times(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     spreadsheet = DailysSpreadsheetMock(
         test_user, test_chan, saved_data={"mood": {}}
@@ -172,7 +172,7 @@ def test_trigger_morning_no_query_if_not_in_times(hallo_getter):
 
 
 def test_trigger_sleep_no_query_if_not_in_times(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     spreadsheet = DailysSpreadsheetMock(
         test_user, test_chan, saved_data={"mood": {}}
@@ -190,7 +190,7 @@ def test_trigger_sleep_no_query_if_not_in_times(hallo_getter):
 
 
 def test_trigger_sleep_no_query_if_already_given(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     moods = ["Happiness", "Anger", "Tiredness"]
     evt_sleep1 = EventMessage(test_server, test_chan, test_user, "night")
@@ -236,7 +236,7 @@ def test_trigger_sleep_no_query_if_already_given(hallo_getter):
 
 
 def test_trigger_sleep_after_midnight(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     mood_date = date(2019, 1, 15)
     sleep_time = datetime(2019, 1, 16, 0, 34, 15)
     times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
@@ -272,7 +272,7 @@ def test_trigger_sleep_after_midnight(hallo_getter):
 
 
 def test_trigger_time_exactly_once(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     mood_date = date(2019, 1, 18)
     # Setup
     spreadsheet = DailysSpreadsheetMock(
@@ -318,7 +318,7 @@ def test_trigger_time_exactly_once(hallo_getter):
 
 
 def test_process_reply_to_query(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     mood_date = date(2019, 1, 18)
     mood_datetime = datetime.combine(mood_date, time(8, 13, 6))
@@ -357,7 +357,7 @@ def test_process_reply_to_query(hallo_getter):
 
 
 def test_process_most_recent_query(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     mood_date = date(2019, 1, 18)
     mood_datetime = datetime.combine(mood_date, time(8, 13, 6))
@@ -394,7 +394,7 @@ def test_process_most_recent_query(hallo_getter):
 
 
 def test_process_most_recent_sleep_query_after_midnight(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     mood_date = date(2019, 1, 18)
     sleep_datetime = datetime.combine(mood_date, time(23, 55, 56))
@@ -441,7 +441,7 @@ def test_process_most_recent_sleep_query_after_midnight(hallo_getter):
 
 
 def test_process_no_mood_query(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     mood_date = date(2019, 1, 18)
     mood_datetime = datetime.combine(mood_date, time(13, 13, 6))
@@ -476,7 +476,7 @@ def test_process_no_mood_query(hallo_getter):
 
 
 def test_process_time_specified(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     mood_date = date(2019, 1, 18)
     mood_datetime = datetime.combine(mood_date, time(13, 13, 6))
@@ -519,7 +519,7 @@ def test_process_time_specified(hallo_getter):
 
 
 def test_process_wake_specified(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     mood_date = date(2019, 1, 18)
     mood_datetime = datetime.combine(mood_date, time(13, 13, 6))
@@ -579,7 +579,7 @@ def test_process_sleep_specified(hallo_getter):
 
 
 def test_no_trigger_after_processed(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     mood_date = date(2019, 1, 18)
     mood_datetime = datetime.combine(mood_date, time(13, 13, 6))
@@ -635,7 +635,7 @@ def test_no_trigger_after_processed(hallo_getter):
 
 
 def test_no_trigger_wake_after_processed(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     mood_date = date(2019, 1, 18)
     mood_datetime = datetime.combine(mood_date, time(13, 13, 6))
@@ -677,7 +677,7 @@ def test_no_trigger_wake_after_processed(hallo_getter):
 
 
 def test_no_trigger_sleep_after_processed_sleep_and_midnight(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     mood_date = date(2019, 1, 18)
     sleep_datetime = datetime.combine(mood_date, time(23, 13, 6))

@@ -5,7 +5,9 @@ import isodate
 import pytest
 
 from hallo.events import EventMinute, EventMessage
-from hallo.modules.subscriptions import SubscriptionCheck, SubscriptionRepo, RssSub
+from hallo.modules.subscriptions.sub_rss import RssSub
+from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
+from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.server_mock import ServerMock
 from hallo.test.test_base import TestBase
 

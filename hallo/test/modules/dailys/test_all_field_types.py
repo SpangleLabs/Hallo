@@ -7,13 +7,12 @@ import pytest
 
 import hallo.modules.dailys
 from hallo.events import EventMessage
-from hallo.modules.dailys import (
-    DailysDuolingoField,
-    DailysFAField,
-    DailysMoodField,
-    DailysSleepField,
-    DailysFieldFactory,
-    DailysDreamField)
+from hallo.modules.dailys.dailys_field import DailysFieldFactory
+from hallo.modules.dailys.field_dream import DailysDreamField
+from hallo.modules.dailys.field_duolingo import DailysDuolingoField
+from hallo.modules.dailys.field_fa import DailysFAField
+from hallo.modules.dailys.field_mood import DailysMoodField
+from hallo.modules.dailys.field_sleep import DailysSleepField
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
@@ -56,7 +55,7 @@ def test_field_classes_added_to_factory(hallo_getter):
     for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
         function_class = function_tuple[1]
         # Only look at subclasses of DailysField
-        if not issubclass(function_class, hallo.modules.dailys.DailysField):
+        if not issubclass(function_class, hallo.modules.dailys.dailys_field.DailysField):
             continue
         # Only look at implemented classes.
         spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
@@ -83,7 +82,7 @@ def test_all_field_classes_in_field_objs(field_class, hallo_getter):
     """
     Tests that all field classes have an object in the get_field_objects method here.
     """
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     assert field_class in [
         field_obj.__class__ for field_obj in get_field_objects(test_user, test_chan)
     ]

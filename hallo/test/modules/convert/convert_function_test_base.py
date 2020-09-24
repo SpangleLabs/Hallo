@@ -1,13 +1,8 @@
 import os
 import unittest
 
-from hallo.modules.convert import (
-    ConvertRepo,
-    ConvertType,
-    ConvertUnit,
-    ConvertPrefixGroup,
-    ConvertPrefix,
-)
+from hallo.modules.convert.convert import Convert
+from hallo.modules.convert.convert_repo import ConvertRepo, ConvertType, ConvertUnit, ConvertPrefixGroup, ConvertPrefix
 from hallo.test.test_base import TestBase
 
 

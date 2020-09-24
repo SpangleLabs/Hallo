@@ -1,4 +1,4 @@
-from hallo.modules.dailys import DailysSpreadsheet
+from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
 
 
 class DailysSpreadsheetMock(DailysSpreadsheet):

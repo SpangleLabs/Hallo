@@ -2,7 +2,8 @@ import unittest
 
 import pytest
 
-import hallo.modules.convert
+import hallo.modules.convert.update_currencies
+import hallo.modules.convert.convert_repo
 from hallo.events import EventMessage, EventHour
 from hallo.test.test_base import TestBase
 
@@ -23,9 +24,9 @@ class MockUpdate:
 
 class UpdateCurrenciesTest(TestBase, unittest.TestCase):
     def test_run(self):
-        update_all = hallo.modules.convert.UpdateCurrencies.update_all
+        update_all = hallo.modules.convert.update_currencies.UpdateCurrencies.update_all
         mock_update_all = MockUpdate(["Check method called"])
-        hallo.modules.convert.UpdateCurrencies.update_all = mock_update_all.method
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = mock_update_all.method
         try:
             self.function_dispatcher.dispatch(
                 EventMessage(self.server, None, self.test_user, "update currencies")
@@ -34,34 +35,34 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
             assert data[0].text == "Check method called"
             assert mock_update_all.was_called, "update_all() wasn't called."
         finally:
-            hallo.modules.convert.UpdateCurrencies.update_all = update_all
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = update_all
 
     def test_passive_run(self):
-        update_all = hallo.modules.convert.UpdateCurrencies.update_all
+        update_all = hallo.modules.convert.update_currencies.UpdateCurrencies.update_all
         mock_update_all = MockUpdate(["Check method called"])
-        hallo.modules.convert.UpdateCurrencies.update_all = mock_update_all.method
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = mock_update_all.method
         try:
             self.function_dispatcher.dispatch_passive(EventHour())
             self.server.get_send_data(0)
             assert mock_update_all.was_called, "update_all() wasn't called."
         finally:
-            hallo.modules.convert.UpdateCurrencies.update_all = update_all
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = update_all
 
     def test_update_all(self):
         # Mock out methods
         mock_ecb = MockUpdate(None)
         mock_forex = MockUpdate(None)
         mock_cryptonator = MockUpdate(None)
-        update_ecb = hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data
-        update_forex = hallo.modules.convert.UpdateCurrencies.update_from_forex_data
+        update_ecb = hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data
+        update_forex = hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data
         update_cryptonator = (
-            hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data
         )
-        hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data = (
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data = (
             mock_ecb.method
         )
-        hallo.modules.convert.UpdateCurrencies.update_from_forex_data = mock_forex.method
-        hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data = mock_forex.method
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data = (
             mock_cryptonator.method
         )
         try:
@@ -83,9 +84,9 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
                 mock_cryptonator.was_called
             ), "update_from_cryptonator_data() wasn't called."
         finally:
-            hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data = update_ecb
-            hallo.modules.convert.UpdateCurrencies.update_from_forex_data = update_forex
-            hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data = update_ecb
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data = update_forex
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data = (
                 update_cryptonator
             )
 
@@ -94,16 +95,16 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
         mock_ecb = MockUpdate("HTTPException: 403")
         mock_forex = MockUpdate(None)
         mock_cryptonator = MockUpdate(None)
-        update_ecb = hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data
-        update_forex = hallo.modules.convert.UpdateCurrencies.update_from_forex_data
+        update_ecb = hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data
+        update_forex = hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data
         update_cryptonator = (
-            hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data
         )
-        hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data = (
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data = (
             mock_ecb.method_throws
         )
-        hallo.modules.convert.UpdateCurrencies.update_from_forex_data = mock_forex.method
-        hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data = mock_forex.method
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data = (
             mock_cryptonator.method
         )
         try:
@@ -124,9 +125,9 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
                 mock_cryptonator.was_called
             ), "update_from_cryptonator_data() wasn't called."
         finally:
-            hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data = update_ecb
-            hallo.modules.convert.UpdateCurrencies.update_from_forex_data = update_forex
-            hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data = update_ecb
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data = update_forex
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data = (
                 update_cryptonator
             )
 
@@ -135,18 +136,18 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
         mock_ecb = MockUpdate(None)
         mock_forex = MockUpdate("HTTPException: 403")
         mock_cryptonator = MockUpdate(None)
-        update_ecb = hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data
-        update_forex = hallo.modules.convert.UpdateCurrencies.update_from_forex_data
+        update_ecb = hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data
+        update_forex = hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data
         update_cryptonator = (
-            hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data
         )
-        hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data = (
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data = (
             mock_ecb.method
         )
-        hallo.modules.convert.UpdateCurrencies.update_from_forex_data = (
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data = (
             mock_forex.method_throws
         )
-        hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data = (
             mock_cryptonator.method
         )
         try:
@@ -169,9 +170,9 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
                 mock_cryptonator.was_called
             ), "update_from_cryptonator_data() wasn't called."
         finally:
-            hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data = update_ecb
-            hallo.modules.convert.UpdateCurrencies.update_from_forex_data = update_forex
-            hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data = update_ecb
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data = update_forex
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data = (
                 update_cryptonator
             )
 
@@ -180,16 +181,16 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
         mock_ecb = MockUpdate(None)
         mock_forex = MockUpdate(None)
         mock_cryptonator = MockUpdate("HTTPException: 403")
-        update_ecb = hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data
-        update_forex = hallo.modules.convert.UpdateCurrencies.update_from_forex_data
+        update_ecb = hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data
+        update_forex = hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data
         update_cryptonator = (
-            hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data
         )
-        hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data = (
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data = (
             mock_ecb.method
         )
-        hallo.modules.convert.UpdateCurrencies.update_from_forex_data = mock_forex.method
-        hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data = mock_forex.method
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data = (
             mock_cryptonator.method_throws
         )
         try:
@@ -212,9 +213,9 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
                 mock_cryptonator.was_called
             ), "update_from_cryptonator_data() wasn't called."
         finally:
-            hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data = update_ecb
-            hallo.modules.convert.UpdateCurrencies.update_from_forex_data = update_forex
-            hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data = update_ecb
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data = update_forex
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data = (
                 update_cryptonator
             )
 
@@ -223,18 +224,18 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
         mock_ecb = MockUpdate("HTTPException: 403")
         mock_forex = MockUpdate("HTTPException: 500")
         mock_cryptonator = MockUpdate("HTTPException: 404")
-        update_ecb = hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data
-        update_forex = hallo.modules.convert.UpdateCurrencies.update_from_forex_data
+        update_ecb = hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data
+        update_forex = hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data
         update_cryptonator = (
-            hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data
         )
-        hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data = (
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data = (
             mock_ecb.method_throws
         )
-        hallo.modules.convert.UpdateCurrencies.update_from_forex_data = (
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data = (
             mock_forex.method_throws
         )
-        hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+        hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data = (
             mock_cryptonator.method_throws
         )
         try:
@@ -257,18 +258,18 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
                 mock_cryptonator.was_called
             ), "update_from_cryptonator_data() wasn't called."
         finally:
-            hallo.modules.convert.UpdateCurrencies.update_from_european_bank_data = update_ecb
-            hallo.modules.convert.UpdateCurrencies.update_from_forex_data = update_forex
-            hallo.modules.convert.UpdateCurrencies.update_from_cryptonator_data = (
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_european_bank_data = update_ecb
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_forex_data = update_forex
+            hallo.modules.convert.update_currencies.UpdateCurrencies.update_from_cryptonator_data = (
                 update_cryptonator
             )
 
     @pytest.mark.external_integration
     def test_update_ecb(self):
         # Set up test repo
-        test_repo = hallo.modules.convert.ConvertRepo()
-        test_type = hallo.modules.convert.ConvertType(test_repo, "currency")
-        test_type.base_unit = hallo.modules.convert.ConvertUnit(test_type, ["EUR"], 1)
+        test_repo = hallo.modules.convert.convert_repo.ConvertRepo()
+        test_type = hallo.modules.convert.convert_repo.ConvertType(test_repo, "currency")
+        test_type.base_unit = hallo.modules.convert.convert_repo.ConvertUnit(test_type, ["EUR"], 1)
         test_repo.add_type(test_type)
         currency_codes = [
             "USD",
@@ -304,10 +305,10 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
             "ZAR",
         ]
         for code in currency_codes:
-            test_unit = hallo.modules.convert.ConvertUnit(test_type, [code], 0)
+            test_unit = hallo.modules.convert.convert_repo.ConvertUnit(test_type, [code], 0)
             test_type.add_unit(test_unit)
         # Run update_from_european_bank_data
-        c = hallo.modules.convert.UpdateCurrencies()
+        c = hallo.modules.convert.update_currencies.UpdateCurrencies()
         c.update_from_european_bank_data(test_repo)
         # Check results
         for code in currency_codes:
@@ -317,9 +318,9 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
     @pytest.mark.external_integration
     def test_update_forex(self):
         # Set up test repo
-        test_repo = hallo.modules.convert.ConvertRepo()
-        test_type = hallo.modules.convert.ConvertType(test_repo, "currency")
-        test_type.base_unit = hallo.modules.convert.ConvertUnit(test_type, ["EUR"], 1)
+        test_repo = hallo.modules.convert.convert_repo.ConvertRepo()
+        test_type = hallo.modules.convert.convert_repo.ConvertType(test_repo, "currency")
+        test_type.base_unit = hallo.modules.convert.convert_repo.ConvertUnit(test_type, ["EUR"], 1)
         test_repo.add_type(test_type)
         currency_codes = [
             "USD",
@@ -334,10 +335,10 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
             "TRY",
         ]
         for code in currency_codes:
-            test_unit = hallo.modules.convert.ConvertUnit(test_type, [code], 0)
+            test_unit = hallo.modules.convert.convert_repo.ConvertUnit(test_type, [code], 0)
             test_type.add_unit(test_unit)
         # Run update_from_forex_data
-        c = hallo.modules.convert.UpdateCurrencies()
+        c = hallo.modules.convert.update_currencies.UpdateCurrencies()
         c.update_from_forex_data(test_repo)
         # Check results
         for code in currency_codes:
@@ -348,16 +349,16 @@ class UpdateCurrenciesTest(TestBase, unittest.TestCase):
     @pytest.mark.skip(reason="Cryptonator API occasionally returns HTML pages")
     def test_update_cryptonator(self):
         # Set up test repo
-        test_repo = hallo.modules.convert.ConvertRepo()
-        test_type = hallo.modules.convert.ConvertType(test_repo, "currency")
-        test_type.base_unit = hallo.modules.convert.ConvertUnit(test_type, ["EUR"], 1)
+        test_repo = hallo.modules.convert.convert_repo.ConvertRepo()
+        test_type = hallo.modules.convert.convert_repo.ConvertType(test_repo, "currency")
+        test_type.base_unit = hallo.modules.convert.convert_repo.ConvertUnit(test_type, ["EUR"], 1)
         test_repo.add_type(test_type)
         currency_codes = ["LTC", "BTC", "BCH", "DOGE", "XMR", "ETH", "ETC", "DASH"]
         for code in currency_codes:
-            test_unit = hallo.modules.convert.ConvertUnit(test_type, [code], 0)
+            test_unit = hallo.modules.convert.convert_repo.ConvertUnit(test_type, [code], 0)
             test_type.add_unit(test_unit)
         # Run update_from_cryptonator_data
-        c = hallo.modules.convert.UpdateCurrencies()
+        c = hallo.modules.convert.update_currencies.UpdateCurrencies()
         c.update_from_cryptonator_data(test_repo)
         # Check results
         for code in currency_codes:

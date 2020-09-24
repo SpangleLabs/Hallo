@@ -7,7 +7,8 @@ import pytest
 
 from hallo.events import EventMessage
 from hallo.hallo import Hallo
-from hallo.modules.subscriptions import RssSub, SubscriptionRepo
+from hallo.modules.subscriptions.sub_rss import RssSub
+from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.server_mock import ServerMock
 
 

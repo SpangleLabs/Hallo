@@ -2,9 +2,9 @@ import json
 import os
 from datetime import timedelta
 
-import hallo.modules.dailys
+import hallo.modules.dailys.dailys_field
 from hallo.events import EventDay, EventMessage
-from hallo.modules.dailys import DailysFAField
+from hallo.modules.dailys.field_fa import DailysFAField
 from hallo.modules.user_data import UserDataParser, FAKeyData
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
@@ -19,14 +19,14 @@ def test_day_rollover_no_data(hallo_getter):
     try:
         field.passive_trigger(EventDay())
         assert False, "Should have failed to check FA data."
-    except hallo.modules.dailys.DailysException as e:
+    except hallo.modules.dailys.dailys_field.DailysException as e:
         assert (
                 "no fa data" in str(e).lower()
         ), "Exception should say there's no FA data."
 
 
 def test_day_rollover(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
     # Setup FA key
@@ -76,14 +76,14 @@ def test_create_from_input_no_fa_data(hallo_getter):
         assert (
             False
         ), "Should have failed to create DailysFAField due to missing FA login info."
-    except hallo.modules.dailys.DailysException as e:
+    except hallo.modules.dailys.dailys_field.DailysException as e:
         assert (
             "no fa data" in str(e).lower()
         ), "Exception did not mention that there was no FA data set up."
 
 
 def test_create_from_input(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "furaffinity"

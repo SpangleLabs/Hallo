@@ -1,6 +1,7 @@
 import unittest
 
-import hallo.modules.convert
+import hallo.modules.convert.convert_set
+import hallo.modules.convert.convert_repo
 from hallo.events import EventMessage
 from hallo.test.modules.convert.convert_function_test_base import ConvertFunctionTestBase
 from hallo.test.modules.convert.test_convert_view_repo import MockMethod
@@ -13,15 +14,15 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         self.output_set = "{updated unit}"
         self.mock_add = MockMethod(self.output_add)
         self.mock_set = MockMethod(self.output_set)
-        self.unit_add = hallo.modules.convert.ConvertSet.add_unit
-        self.unit_set = hallo.modules.convert.ConvertSet.set_unit
-        hallo.modules.convert.ConvertSet.add_unit = self.mock_add.method
-        hallo.modules.convert.ConvertSet.set_unit = self.mock_set.method
+        self.unit_add = hallo.modules.convert.convert_set.ConvertSet.add_unit
+        self.unit_set = hallo.modules.convert.convert_set.ConvertSet.set_unit
+        hallo.modules.convert.convert_set.ConvertSet.add_unit = self.mock_add.method
+        hallo.modules.convert.convert_set.ConvertSet.set_unit = self.mock_set.method
 
     def tearDown(self):
         super().tearDown()
-        hallo.modules.convert.ConvertSet.add_unit = self.unit_add
-        hallo.modules.convert.ConvertSet.set_unit = self.unit_set
+        hallo.modules.convert.convert_set.ConvertSet.add_unit = self.unit_add
+        hallo.modules.convert.convert_set.ConvertSet.set_unit = self.unit_set
 
     def test_more_than_two(self):
         self.function_dispatcher.dispatch(
@@ -56,7 +57,7 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert (
-            "i don't understand the second half of your input" in data[0].text.lower()
+                "i don't understand the second half of your input" in data[0].text.lower()
         )
         assert self.mock_add.arg is None
         assert self.mock_set.arg is None
@@ -69,7 +70,7 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert (
-            "i don't understand the second half of your input" in data[0].text.lower()
+                "i don't understand the second half of your input" in data[0].text.lower()
         )
         assert self.mock_add.arg is None
         assert self.mock_set.arg is None
@@ -183,20 +184,20 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
 class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_not_same_type(self):
         value_unit1b = self.test_unit1b.value
-        measure_from = hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)
-        measure_to = hallo.modules.convert.ConvertMeasure(3, self.test_unit2a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(3, self.test_unit2a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "these units do not share the same type" in resp.lower()
         assert self.test_unit1b.value == value_unit1b
 
     def test_none_same_type(self):
         value_unit1a = self.test_unit1a.value
         value_unit1b = self.test_unit1b.value
-        measure_from1 = hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)
-        measure_from2 = hallo.modules.convert.ConvertMeasure(5, self.test_unit1a)
-        measure_to1 = hallo.modules.convert.ConvertMeasure(3, self.test_unit2a)
-        measure_to2 = hallo.modules.convert.ConvertMeasure(3, self.test_unit2b)
-        resp = hallo.modules.convert.ConvertSet.set_unit(
+        measure_from1 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)
+        measure_from2 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1a)
+        measure_to1 = hallo.modules.convert.convert_repo.ConvertMeasure(3, self.test_unit2a)
+        measure_to2 = hallo.modules.convert.convert_repo.ConvertMeasure(3, self.test_unit2b)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(
             None, [measure_from1, measure_from2], [measure_to1, measure_to2]
         )
         assert "these units do not share the same type" in resp.lower()
@@ -206,10 +207,10 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_multiple_options(self):
         value_unit1a = self.test_unit1a.value
         value_unit1b = self.test_unit1b.value
-        measure_from1 = hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)
-        measure_from2 = hallo.modules.convert.ConvertMeasure(5, self.test_unit1a)
-        measure_to = hallo.modules.convert.ConvertMeasure(3, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(
+        measure_from1 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)
+        measure_from2 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1a)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(3, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(
             None, [measure_from1, measure_from2], [measure_to]
         )
         assert "ambiguous which units you are referring to" in resp.lower()
@@ -219,9 +220,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_base_unit_fixed(self):
         value_unit1a = self.test_unit1a.value
         value_unit1b = self.test_unit1b.value
-        measure_from = hallo.modules.convert.ConvertMeasure(5, self.test_unit1a)
-        measure_to = hallo.modules.convert.ConvertMeasure(3, self.test_unit1b)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1a)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(3, self.test_unit1b)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "you cannot change values of the base unit" in resp.lower()
         assert self.test_unit1a.value == value_unit1a
         assert self.test_unit1b.value == value_unit1b
@@ -231,9 +232,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 1
         self.test_unit1b.offset = 0
-        measure_from = hallo.modules.convert.ConvertMeasure(0, self.test_unit1b)
-        measure_to = hallo.modules.convert.ConvertMeasure(3, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(0, self.test_unit1b)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(3, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new offset for unit1b" in resp.lower()
         assert "0 unit1b = 3 unit1a"
         assert self.test_unit1a.offset == 0
@@ -246,9 +247,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 1
         self.test_unit1b.offset = 0
-        measure_from = hallo.modules.convert.ConvertMeasure(15, self.test_unit1b)
-        measure_to = hallo.modules.convert.ConvertMeasure(0, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(15, self.test_unit1b)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(0, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new offset for unit1b" in resp.lower()
         assert "15 unit1b = 0 unit1a"
         assert self.test_unit1a.offset == 0
@@ -261,9 +262,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 1
         self.test_unit1b.offset = 7
-        measure_from = hallo.modules.convert.ConvertMeasure(0, self.test_unit1b)
-        measure_to = hallo.modules.convert.ConvertMeasure(0, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(0, self.test_unit1b)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(0, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new offset for unit1b" in resp.lower()
         assert "0 unit1b = 0 unit1a"
         assert self.test_unit1a.offset == 0
@@ -276,9 +277,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 5
         self.test_unit1b.offset = 0
-        measure_from = hallo.modules.convert.ConvertMeasure(15, self.test_unit1b)
-        measure_to = hallo.modules.convert.ConvertMeasure(0, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(15, self.test_unit1b)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(0, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new offset for unit1b" in resp.lower()
         assert "15 unit1b = 0 unit1a"
         assert self.test_unit1a.offset == 0
@@ -291,9 +292,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 5
         self.test_unit1b.offset = -75
-        measure_from = hallo.modules.convert.ConvertMeasure(0, self.test_unit1b)
-        measure_to = hallo.modules.convert.ConvertMeasure(0, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(0, self.test_unit1b)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(0, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new offset for unit1b" in resp.lower()
         assert "0 unit1b = 0 unit1a"
         assert self.test_unit1a.offset == 0
@@ -306,9 +307,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 1
         self.test_unit1b.offset = -5
-        measure_from = hallo.modules.convert.ConvertMeasure(3, self.test_unit1b)
-        measure_to = hallo.modules.convert.ConvertMeasure(1, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(3, self.test_unit1b)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(1, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new value for unit1b" in resp.lower()
         assert "10 unit1b = 1 unit1a"
         assert self.test_unit1a.offset == 0
@@ -321,9 +322,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 10
         self.test_unit1b.offset = -5
-        measure_from = hallo.modules.convert.ConvertMeasure(6, self.test_unit1b)
-        measure_to = hallo.modules.convert.ConvertMeasure(1, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(6, self.test_unit1b)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(1, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new value for unit1b" in resp.lower()
         assert "6 unit1b = 1 unit1a"
         assert self.test_unit1a.offset == 0
@@ -336,9 +337,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 1
         self.test_unit1b.offset = 0
-        measure_from = hallo.modules.convert.ConvertMeasure(0.5, self.test_unit1b)
-        measure_to = hallo.modules.convert.ConvertMeasure(1, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(0.5, self.test_unit1b)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(1, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new value for unit1b" in resp.lower()
         assert "0.5 unit1b = 1 unit1a"
         assert self.test_unit1a.offset == 0
@@ -351,9 +352,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 1
         self.test_unit1b.offset = 0
-        measure_from = hallo.modules.convert.ConvertMeasure(1, self.test_unit1b)
-        measure_to = hallo.modules.convert.ConvertMeasure(5, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(1, self.test_unit1b)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new value for unit1b" in resp.lower()
         assert "1 unit1b = 0.5 unit1a"
         assert self.test_unit1a.offset == 0
@@ -366,9 +367,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 17
         self.test_unit1b.offset = 0
-        measure_from = hallo.modules.convert.ConvertMeasure(1, self.test_unit1b)
-        measure_to = hallo.modules.convert.ConvertMeasure(1, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(1, self.test_unit1b)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(1, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new value for unit1b" in resp.lower()
         assert "1 unit1b = 1 unit1a"
         assert self.test_unit1a.offset == 0
@@ -381,9 +382,9 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 1
         self.test_unit1b.offset = 0
-        measure_from = hallo.modules.convert.ConvertMeasure(2, self.test_unit1b)
-        measure_to = hallo.modules.convert.ConvertMeasure(24, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(2, self.test_unit1b)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(24, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new value for unit1b" in resp.lower()
         assert "2 unit1b = 24 unit1a"
         assert self.test_unit1a.offset == 0
@@ -396,11 +397,11 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 2
         self.test_unit1b.offset = 0
-        test_unit1c = hallo.modules.convert.ConvertUnit(self.test_type1, ["unit1c"], 1)
+        test_unit1c = hallo.modules.convert.convert_repo.ConvertUnit(self.test_type1, ["unit1c"], 1)
         self.test_type1.add_unit(test_unit1c)
-        measure_from = hallo.modules.convert.ConvertMeasure(4, test_unit1c)
-        measure_to = hallo.modules.convert.ConvertMeasure(12, self.test_unit1b)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(4, test_unit1c)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(12, self.test_unit1b)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new value for unit1c" in resp.lower()
         assert "4 unit1c = 12 unit1a"
         assert self.test_unit1a.offset == 0
@@ -415,11 +416,11 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1a.offset = 0
         self.test_unit1b.value = 1
         self.test_unit1b.offset = 5
-        test_unit1c = hallo.modules.convert.ConvertUnit(self.test_type1, ["unit1c"], 1)
+        test_unit1c = hallo.modules.convert.convert_repo.ConvertUnit(self.test_type1, ["unit1c"], 1)
         self.test_type1.add_unit(test_unit1c)
-        measure_from = hallo.modules.convert.ConvertMeasure(4, test_unit1c)
-        measure_to = hallo.modules.convert.ConvertMeasure(7, self.test_unit1b)
-        resp = hallo.modules.convert.ConvertSet.set_unit(None, [measure_from], [measure_to])
+        measure_from = hallo.modules.convert.convert_repo.ConvertMeasure(4, test_unit1c)
+        measure_to = hallo.modules.convert.convert_repo.ConvertMeasure(7, self.test_unit1b)
+        resp = hallo.modules.convert.convert_set.ConvertSet.set_unit(None, [measure_from], [measure_to])
         assert "set new value for unit1c" in resp.lower()
         assert "10 unit1c = 0 unit1a"
         assert self.test_unit1a.offset == 0
@@ -433,15 +434,15 @@ class ConvertSetSetUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 # noinspection PyTypeChecker
 class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_no_ref_recognised(self):
-        resp = hallo.modules.convert.ConvertSet.add_unit(None, "5 new_unit", [])
+        resp = hallo.modules.convert.convert_set.ConvertSet.add_unit(None, "5 new_unit", [])
         assert "there is no defined unit matching the reference name" in resp.lower()
 
     def test_ambiguous_ref_specified(self):
         type1_units = len(self.test_type1.get_full_unit_list())
         type2_units = len(self.test_type2.get_full_unit_list())
-        measure1 = hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)
-        measure2 = hallo.modules.convert.ConvertMeasure(5, self.test_unit2b)
-        resp = hallo.modules.convert.ConvertSet.add_unit(
+        measure1 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)
+        measure2 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit2b)
+        resp = hallo.modules.convert.convert_set.ConvertSet.add_unit(
             None, "5 new_unit", [measure1, measure2]
         )
         assert "it is ambiguous which unit you are referring to" in resp.lower()
@@ -450,31 +451,31 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_no_amount_given(self):
         type1_units = len(self.test_type1.get_full_unit_list())
-        measure1 = hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)
-        resp = hallo.modules.convert.ConvertSet.add_unit(None, "new_unit", [measure1])
+        measure1 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)
+        resp = hallo.modules.convert.convert_set.ConvertSet.add_unit(None, "new_unit", [measure1])
         assert "please specify an amount when setting a new unit" in resp.lower()
         assert len(self.test_type1.get_full_unit_list()) == type1_units
 
     def test_multiple_amounts_given(self):
         type1_units = len(self.test_type1.get_full_unit_list())
-        measure1 = hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)
-        resp = hallo.modules.convert.ConvertSet.add_unit(None, "5 new_unit 7", [measure1])
+        measure1 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)
+        resp = hallo.modules.convert.convert_set.ConvertSet.add_unit(None, "5 new_unit 7", [measure1])
         assert "please specify an amount when setting a new unit" in resp.lower()
         assert len(self.test_type1.get_full_unit_list()) == type1_units
 
     def test_name_in_use(self):
         type1_units = len(self.test_type1.get_full_unit_list())
-        measure1 = hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)
-        resp = hallo.modules.convert.ConvertSet.add_unit(None, "5 unit1a", [measure1])
+        measure1 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)
+        resp = hallo.modules.convert.convert_set.ConvertSet.add_unit(None, "5 unit1a", [measure1])
         assert "there's already a unit of that type by that name" in resp.lower()
         assert len(self.test_type1.get_full_unit_list()) == type1_units
 
     def test_name_in_use_in_different_type(self):
         type1_units = len(self.test_type1.get_full_unit_list())
-        measure1 = hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)
-        resp = hallo.modules.convert.ConvertSet.add_unit(None, "5 unit2b", [measure1])
+        measure1 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)
+        resp = hallo.modules.convert.convert_set.ConvertSet.add_unit(None, "5 unit2b", [measure1])
         assert (
-            "created new unit unit2b with value: 1 unit2b = 2.0 unit1a" in resp.lower()
+                "created new unit unit2b with value: 1 unit2b = 2.0 unit1a" in resp.lower()
         )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("unit2b")
@@ -487,11 +488,11 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_add_unit_with_value_first(self):
         type1_units = len(self.test_type1.get_full_unit_list())
-        measure1 = hallo.modules.convert.ConvertMeasure(1, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.add_unit(None, "5 new_unit", [measure1])
+        measure1 = hallo.modules.convert.convert_repo.ConvertMeasure(1, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.add_unit(None, "5 new_unit", [measure1])
         assert (
-            "created new unit new_unit with value: 1 new_unit = 0.2 unit1a"
-            in resp.lower()
+                "created new unit new_unit with value: 1 new_unit = 0.2 unit1a"
+                in resp.lower()
         )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("new_unit")
@@ -504,11 +505,11 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_add_unit_with_value_second(self):
         type1_units = len(self.test_type1.get_full_unit_list())
-        measure1 = hallo.modules.convert.ConvertMeasure(5, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.add_unit(None, "1 new_unit", [measure1])
+        measure1 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.add_unit(None, "1 new_unit", [measure1])
         assert (
-            "created new unit new_unit with value: 1 new_unit = 5.0 unit1a"
-            in resp.lower()
+                "created new unit new_unit with value: 1 new_unit = 5.0 unit1a"
+                in resp.lower()
         )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("new_unit")
@@ -521,11 +522,11 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_add_unit_with_offset_first_zero(self):
         type1_units = len(self.test_type1.get_full_unit_list())
-        measure1 = hallo.modules.convert.ConvertMeasure(5, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.add_unit(None, "0 new_unit", [measure1])
+        measure1 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.add_unit(None, "0 new_unit", [measure1])
         assert (
-            "created new unit new_unit with offset: 0 new_unit = 5.0 unit1a"
-            in resp.lower()
+                "created new unit new_unit with offset: 0 new_unit = 5.0 unit1a"
+                in resp.lower()
         )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("new_unit")
@@ -538,11 +539,11 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_add_unit_with_offset_second_zero(self):
         type1_units = len(self.test_type1.get_full_unit_list())
-        measure1 = hallo.modules.convert.ConvertMeasure(0, self.test_unit1a)
-        resp = hallo.modules.convert.ConvertSet.add_unit(None, "7 new_unit", [measure1])
+        measure1 = hallo.modules.convert.convert_repo.ConvertMeasure(0, self.test_unit1a)
+        resp = hallo.modules.convert.convert_set.ConvertSet.add_unit(None, "7 new_unit", [measure1])
         assert (
-            "created new unit new_unit with offset: 0 new_unit = -7.0 unit1a"
-            in resp.lower()
+                "created new unit new_unit with offset: 0 new_unit = -7.0 unit1a"
+                in resp.lower()
         )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("new_unit")
@@ -557,11 +558,11 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         type1_units = len(self.test_type1.get_full_unit_list())
         self.test_unit1b.offset = 0
         self.test_unit1b.value = 5
-        measure1 = hallo.modules.convert.ConvertMeasure(1, self.test_unit1b)
-        resp = hallo.modules.convert.ConvertSet.add_unit(None, "2 new_unit", [measure1])
+        measure1 = hallo.modules.convert.convert_repo.ConvertMeasure(1, self.test_unit1b)
+        resp = hallo.modules.convert.convert_set.ConvertSet.add_unit(None, "2 new_unit", [measure1])
         assert (
-            "created new unit new_unit with value: 1 new_unit = 2.5 unit1a"
-            in resp.lower()
+                "created new unit new_unit with value: 1 new_unit = 2.5 unit1a"
+                in resp.lower()
         )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("new_unit")
@@ -576,11 +577,11 @@ class ConvertSetAddUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         type1_units = len(self.test_type1.get_full_unit_list())
         self.test_unit1b.offset = -7
         self.test_unit1b.value = 1
-        measure1 = hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)
-        resp = hallo.modules.convert.ConvertSet.add_unit(None, "0 new_unit", [measure1])
+        measure1 = hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)
+        resp = hallo.modules.convert.convert_set.ConvertSet.add_unit(None, "0 new_unit", [measure1])
         assert (
-            "created new unit new_unit with offset: 0 new_unit = -2.0 unit1a"
-            in resp.lower()
+                "created new unit new_unit with offset: 0 new_unit = -2.0 unit1a"
+                in resp.lower()
         )
         assert len(self.test_type1.get_full_unit_list()) == type1_units + 1
         new_unit = self.test_type1.get_unit_by_name("new_unit")

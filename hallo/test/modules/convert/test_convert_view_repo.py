@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime
 
-import hallo.modules.convert
+import hallo.modules.convert.convert_view_repo
 from hallo.events import EventMessage
 from hallo.test.modules.convert.convert_function_test_base import ConvertFunctionTestBase
 
@@ -33,34 +33,34 @@ class ConvertViewRepoTest(ConvertFunctionTestBase, unittest.TestCase):
         self.mock_view_unit = MockMethod(self.output_unit)
         self.mock_view_group = MockMethod(self.output_group)
         self.mock_view_prefix = MockMethod(self.output_prefix)
-        self.view_repo = hallo.modules.convert.ConvertViewRepo.output_repo_as_string
-        self.view_type = hallo.modules.convert.ConvertViewRepo.output_type_as_string
-        self.view_unit = hallo.modules.convert.ConvertViewRepo.output_unit_as_string
-        self.view_group = hallo.modules.convert.ConvertViewRepo.output_prefix_group_as_string
-        self.view_prefix = hallo.modules.convert.ConvertViewRepo.output_prefix_as_string
-        hallo.modules.convert.ConvertViewRepo.output_repo_as_string = (
+        self.view_repo = hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_repo_as_string
+        self.view_type = hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_type_as_string
+        self.view_unit = hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_unit_as_string
+        self.view_group = hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_prefix_group_as_string
+        self.view_prefix = hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_prefix_as_string
+        hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_repo_as_string = (
             self.mock_view_repo.method
         )
-        hallo.modules.convert.ConvertViewRepo.output_type_as_string = (
+        hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_type_as_string = (
             self.mock_view_type.method
         )
-        hallo.modules.convert.ConvertViewRepo.output_unit_as_string = (
+        hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_unit_as_string = (
             self.mock_view_unit.method
         )
-        hallo.modules.convert.ConvertViewRepo.output_prefix_group_as_string = (
+        hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_prefix_group_as_string = (
             self.mock_view_group.method
         )
-        hallo.modules.convert.ConvertViewRepo.output_prefix_as_string = (
+        hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_prefix_as_string = (
             self.mock_view_prefix.method
         )
 
     def tearDown(self):
         super().tearDown()
-        hallo.modules.convert.ConvertViewRepo.output_repo_as_string = self.view_repo
-        hallo.modules.convert.ConvertViewRepo.output_type_as_string = self.view_type
-        hallo.modules.convert.ConvertViewRepo.output_unit_as_string = self.view_unit
-        hallo.modules.convert.ConvertViewRepo.output_prefix_group_as_string = self.view_group
-        hallo.modules.convert.ConvertViewRepo.output_prefix_as_string = self.view_prefix
+        hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_repo_as_string = self.view_repo
+        hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_type_as_string = self.view_type
+        hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_unit_as_string = self.view_unit
+        hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_prefix_group_as_string = self.view_group
+        hallo.modules.convert.convert_view_repo.ConvertViewRepo.output_prefix_as_string = self.view_prefix
 
     def test_specified_type_invalid(self):
         self.function_dispatcher.dispatch(

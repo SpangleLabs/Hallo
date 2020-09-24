@@ -1,7 +1,8 @@
 import unittest
 from datetime import datetime
 
-import hallo.modules.convert
+import hallo.modules.convert.convert
+import hallo.modules.convert.convert_repo
 from hallo.events import EventMessage
 from hallo.test.test_base import TestBase
 from hallo.test.modules.convert.convert_function_test_base import ConvertFunctionTestBase
@@ -13,11 +14,11 @@ class ConvertTest(TestBase, unittest.TestCase):
         super().setUp()
         self.output_parse = "{parse called}"
         self.mock_parse = MockMethod(self.output_parse)
-        self.conv_parse = hallo.modules.convert.Convert.convert_parse
-        hallo.modules.convert.Convert.convert_parse = self.mock_parse.method
+        self.conv_parse = hallo.modules.convert.convert.Convert.convert_parse
+        hallo.modules.convert.convert.Convert.convert_parse = self.mock_parse.method
 
     def tearDown(self):
-        hallo.modules.convert.Convert.convert_parse = self.conv_parse
+        hallo.modules.convert.convert.Convert.convert_parse = self.conv_parse
         super().tearDown()
 
     def test_passive_run(self):
@@ -44,7 +45,7 @@ class ConvertTest(TestBase, unittest.TestCase):
         conv_cls = self.function_dispatcher.get_function_by_name("convert")
         conv_obj = self.function_dispatcher.get_function_object(conv_cls)
         assert conv_obj.convert_repo is not None
-        assert isinstance(conv_obj.convert_repo, hallo.modules.convert.ConvertRepo)
+        assert isinstance(conv_obj.convert_repo, hallo.modules.convert.convert_repo.ConvertRepo)
         assert len(conv_obj.convert_repo.type_list) > 0
 
 
@@ -56,17 +57,17 @@ class ConvertConvertParseTest(ConvertFunctionTestBase, unittest.TestCase):
         self.output_two = "{convert two called}"
         self.mock_one = MockMethod(self.output_one)
         self.mock_two = MockMethod(self.output_two)
-        self.conv_one = hallo.modules.convert.Convert.convert_one_unit
-        self.conv_two = hallo.modules.convert.Convert.convert_two_unit
-        hallo.modules.convert.Convert.convert_one_unit = self.mock_one.method
-        hallo.modules.convert.Convert.convert_two_unit = self.mock_two.method
+        self.conv_one = hallo.modules.convert.convert.Convert.convert_one_unit
+        self.conv_two = hallo.modules.convert.convert.Convert.convert_two_unit
+        hallo.modules.convert.convert.Convert.convert_one_unit = self.mock_one.method
+        hallo.modules.convert.convert.Convert.convert_two_unit = self.mock_two.method
         # Get the Convert function object
         conv_cls = self.function_dispatcher.get_function_by_name("convert")
         self.conv_obj = self.function_dispatcher.get_function_object(conv_cls)
 
     def tearDown(self):
-        hallo.modules.convert.Convert.convert_one_unit = self.conv_one
-        hallo.modules.convert.Convert.convert_two_unit = self.conv_two
+        hallo.modules.convert.convert.Convert.convert_one_unit = self.conv_one
+        hallo.modules.convert.convert.Convert.convert_two_unit = self.conv_two
         super().tearDown()
 
     def test_no_split_words(self):
@@ -76,7 +77,7 @@ class ConvertConvertParseTest(ConvertFunctionTestBase, unittest.TestCase):
         assert isinstance(self.mock_one.arg[0], list)
         assert len(self.mock_one.arg[0]) == 1
         measure = self.mock_one.arg[0][0]
-        assert isinstance(measure, hallo.modules.convert.ConvertMeasure)
+        assert isinstance(measure, hallo.modules.convert.convert_repo.ConvertMeasure)
         assert measure.amount == 5
         assert measure.unit == self.test_unit1b
 
@@ -113,7 +114,7 @@ class ConvertConvertParseTest(ConvertFunctionTestBase, unittest.TestCase):
         assert isinstance(self.mock_two.arg[2], bool)
         assert len(self.mock_two.arg[0]) == 1
         measure = self.mock_two.arg[0][0]
-        assert isinstance(measure, hallo.modules.convert.ConvertMeasure)
+        assert isinstance(measure, hallo.modules.convert.convert_repo.ConvertMeasure)
         assert measure.amount == 3
         assert measure.unit == self.test_unit1b
         assert self.mock_two.arg[1].strip() == "unit1a"
@@ -129,7 +130,7 @@ class ConvertConvertParseTest(ConvertFunctionTestBase, unittest.TestCase):
         assert isinstance(self.mock_two.arg[2], bool)
         assert len(self.mock_two.arg[0]) == 1
         measure = self.mock_two.arg[0][0]
-        assert isinstance(measure, hallo.modules.convert.ConvertMeasure)
+        assert isinstance(measure, hallo.modules.convert.convert_repo.ConvertMeasure)
         assert measure.amount == 3
         assert measure.unit == self.test_unit1b
         assert self.mock_two.arg[1].strip() == "unit1a"
@@ -170,8 +171,8 @@ class ConvertConvertOneUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_only_base_measures(self):
         measures_list = [
-            hallo.modules.convert.ConvertMeasure(5, self.test_unit1a),
-            hallo.modules.convert.ConvertMeasure(3, self.test_unit2a),
+            hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1a),
+            hallo.modules.convert.convert_repo.ConvertMeasure(3, self.test_unit2a),
         ]
         resp = self.conv_obj.convert_one_unit(measures_list, False)
         assert "i don't understand your input" in resp.lower()
@@ -179,15 +180,15 @@ class ConvertConvertOneUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_only_base_measures_passive(self):
         measures_list = [
-            hallo.modules.convert.ConvertMeasure(5, self.test_unit1a),
-            hallo.modules.convert.ConvertMeasure(3, self.test_unit2a),
+            hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1a),
+            hallo.modules.convert.convert_repo.ConvertMeasure(3, self.test_unit2a),
         ]
         resp = self.conv_obj.convert_one_unit(measures_list, True)
         assert resp is None
 
     def test_one_measure(self):
         self.test_unit1b.value = 2
-        measures_list = [hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)]
+        measures_list = [hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)]
         resp = self.conv_obj.convert_one_unit(measures_list, False)
         assert len(resp.split("\n")) == 1
         assert "5.00 {}".format(self.test_unit1b.name_list[0]) in resp
@@ -196,8 +197,8 @@ class ConvertConvertOneUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_two_measures(self):
         self.test_unit1b.value = 2
         measures_list = [
-            hallo.modules.convert.ConvertMeasure(5, self.test_unit1b),
-            hallo.modules.convert.ConvertMeasure(3, self.test_unit1b),
+            hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b),
+            hallo.modules.convert.convert_repo.ConvertMeasure(3, self.test_unit1b),
         ]
         resp = self.conv_obj.convert_one_unit(measures_list, False)
         assert len(resp.split("\n")) == 2
@@ -209,7 +210,7 @@ class ConvertConvertOneUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_one_measure_first_has_date(self):
         self.test_unit1b.value = 2
         self.test_unit1b.last_updated_date = datetime(2019, 3, 20, 0, 15, 46)
-        measures_list = [hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)]
+        measures_list = [hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)]
         resp = self.conv_obj.convert_one_unit(measures_list, False)
         assert len(resp.split("\n")) == 1
         assert "5.00 {}".format(self.test_unit1b.name_list[0]) in resp
@@ -219,7 +220,7 @@ class ConvertConvertOneUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_one_measure_second_has_date(self):
         self.test_unit1b.value = 2
         self.test_unit1a.last_updated_date = datetime(2019, 3, 20, 0, 16, 26)
-        measures_list = [hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)]
+        measures_list = [hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)]
         resp = self.conv_obj.convert_one_unit(measures_list, False)
         assert len(resp.split("\n")) == 1
         assert "5.00 {}".format(self.test_unit1b.name_list[0]) in resp
@@ -239,7 +240,7 @@ class ConvertConvertTwoUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_one_measure_to_unit(self):
         self.test_unit1b.value = 2
-        measures_list = [hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)]
+        measures_list = [hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)]
         resp = self.conv_obj.convert_two_unit(measures_list, "unit1a", False)
         assert len(resp.split("\n")) == 1
         assert "5.00 {}".format(self.test_unit1b.name_list[0]) in resp
@@ -248,21 +249,21 @@ class ConvertConvertTwoUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_one_measure_to_non_base_unit(self):
         self.test_unit1b.value = 2
         self.test_unit1c.value = 4
-        measures_list = [hallo.modules.convert.ConvertMeasure(6, self.test_unit1b)]
+        measures_list = [hallo.modules.convert.convert_repo.ConvertMeasure(6, self.test_unit1b)]
         resp = self.conv_obj.convert_two_unit(measures_list, "unit1c", False)
         assert len(resp.split("\n")) == 1
         assert "6.00 {}".format(self.test_unit1b.name_list[0]) in resp
         assert "3.00 {}".format(self.test_unit1c.name_list[0]) in resp
 
     def test_measure_to_invalid_unit(self):
-        measures_list = [hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)]
+        measures_list = [hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)]
         resp = self.conv_obj.convert_two_unit(measures_list, "new_unit", False)
         assert "i don't understand your input" in resp.lower()
         assert "no units specified or found" in resp.lower()
         assert "convert <value> <old unit> to <new unit>" in resp.lower()
 
     def test_measure_to_invalid_unit_passive(self):
-        measures_list = [hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)]
+        measures_list = [hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)]
         resp = self.conv_obj.convert_two_unit(measures_list, "new_unit", True)
         assert resp is None
 
@@ -270,8 +271,8 @@ class ConvertConvertTwoUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1b.value = 2
         self.test_unit1c.value = 3
         measures_list = [
-            hallo.modules.convert.ConvertMeasure(2, self.test_unit1b),
-            hallo.modules.convert.ConvertMeasure(2, self.test_unit1c),
+            hallo.modules.convert.convert_repo.ConvertMeasure(2, self.test_unit1b),
+            hallo.modules.convert.convert_repo.ConvertMeasure(2, self.test_unit1c),
         ]
         resp = self.conv_obj.convert_two_unit(measures_list, "unit1a", False)
         assert len(resp.split("\n")) == 2
@@ -293,8 +294,8 @@ class ConvertConvertTwoUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1b.value = 0.5
         self.test_unit1c.value = 0.3333333
         measures_list = [
-            hallo.modules.convert.ConvertMeasure(60, self.test_unit1b),
-            hallo.modules.convert.ConvertMeasure(60, self.test_unit1c),
+            hallo.modules.convert.convert_repo.ConvertMeasure(60, self.test_unit1b),
+            hallo.modules.convert.convert_repo.ConvertMeasure(60, self.test_unit1c),
         ]
         resp = self.conv_obj.convert_two_unit(measures_list, "prefix1aunit1a", False)
         assert len(resp.split("\n")) == 2
@@ -311,8 +312,8 @@ class ConvertConvertTwoUnitTest(ConvertFunctionTestBase, unittest.TestCase):
         self.test_unit1b.value = 0.5
         self.test_unit2b.value = 0.33333333
         measures_list = [
-            hallo.modules.convert.ConvertMeasure(1, self.test_unit1a),
-            hallo.modules.convert.ConvertMeasure(1, self.test_unit2a),
+            hallo.modules.convert.convert_repo.ConvertMeasure(1, self.test_unit1a),
+            hallo.modules.convert.convert_repo.ConvertMeasure(1, self.test_unit2a),
         ]
         resp = self.conv_obj.convert_two_unit(measures_list, "same_name", False)
         assert len(resp.split("\n")) == 2
@@ -332,7 +333,7 @@ class ConvertConvertTwoUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_measure_with_date_to_unit(self):
         self.test_unit1b.value = 2
         self.test_unit1b.last_updated_date = datetime(2019, 3, 20, 0, 15, 46)
-        measures_list = [hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)]
+        measures_list = [hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)]
         resp = self.conv_obj.convert_two_unit(measures_list, "unit1a", False)
         assert len(resp.split("\n")) == 1
         assert (
@@ -346,7 +347,7 @@ class ConvertConvertTwoUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_measure_to_unit_with_date(self):
         self.test_unit1b.value = 2
         self.test_unit1a.last_updated_date = datetime(2019, 3, 20, 0, 16, 26)
-        measures_list = [hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)]
+        measures_list = [hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)]
         resp = self.conv_obj.convert_two_unit(measures_list, "unit1a", False)
         assert len(resp.split("\n")) == 1
         assert (
@@ -371,7 +372,7 @@ class ConvertConvertTwoUnitTest(ConvertFunctionTestBase, unittest.TestCase):
 
     def test_measure_to_same_unit(self):
         self.test_unit1b.value = 2
-        measures_list = [hallo.modules.convert.ConvertMeasure(6, self.test_unit1b)]
+        measures_list = [hallo.modules.convert.convert_repo.ConvertMeasure(6, self.test_unit1b)]
         resp = self.conv_obj.convert_two_unit(measures_list, "unit1b", False)
         assert len(resp.split("\n")) == 1
         assert (
@@ -384,7 +385,7 @@ class ConvertConvertTwoUnitTest(ConvertFunctionTestBase, unittest.TestCase):
     def test_measure_to_same_unit_but_with_prefix(self):
         self.test_unit1b.value = 2
         self.test_unit1b.valid_prefix_group = self.test_group1
-        measures_list = [hallo.modules.convert.ConvertMeasure(5, self.test_unit1b)]
+        measures_list = [hallo.modules.convert.convert_repo.ConvertMeasure(5, self.test_unit1b)]
         resp = self.conv_obj.convert_two_unit(measures_list, "prefix1aunit1b", False)
         assert len(resp.split("\n")) == 1
         assert (
