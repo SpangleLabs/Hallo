@@ -126,10 +126,6 @@ class GoogleDocsSub(Subscription):
     pass
 
 
-class TwitterSub(Subscription):
-    pass
-
-
 class YoutubeSub(Subscription):
     pass
 

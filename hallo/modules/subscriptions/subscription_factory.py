@@ -13,6 +13,7 @@ import hallo.modules.subscriptions.sub_fa_notes
 import hallo.modules.subscriptions.sub_e621_tagging
 import hallo.modules.subscriptions.sub_e621
 import hallo.modules.subscriptions.sub_rss
+import hallo.modules.subscriptions.sub_twitter
 
 
 class SubscriptionFactory:
@@ -27,6 +28,7 @@ class SubscriptionFactory:
         hallo.modules.subscriptions.sub_fa_notif_favs.FANotificationFavSub,
         hallo.modules.subscriptions.sub_fa_notif_comments.FANotificationCommentsSub,
         hallo.modules.subscriptions.sub_reddit.RedditSub,
+        hallo.modules.subscriptions.sub_twitter.TwitterSub
     ]
     common_classes: List[Type[hallo.modules.subscriptions.subscription_common.SubscriptionCommon]] = [
         hallo.modules.subscriptions.common_fa_key.FAKeysCommon
