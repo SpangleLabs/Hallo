@@ -36,6 +36,8 @@ class DailysRepo:
         except (OSError, IOError):
             return new_dailys_repo
         for spreadsheet_json in json_obj["spreadsheets"]:
-            spreadsheet = hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet.from_json(spreadsheet_json, hallo)
+            spreadsheet = hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet.from_json(
+                spreadsheet_json, hallo_obj
+            )
             new_dailys_repo.add_spreadsheet(spreadsheet)
         return new_dailys_repo
