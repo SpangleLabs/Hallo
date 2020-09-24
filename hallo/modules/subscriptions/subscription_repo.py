@@ -1,11 +1,13 @@
 import json
 from threading import Lock
-from typing import List, Type
+from typing import List, Type, TypeVar
 
 from hallo.destination import Destination
 from hallo.modules.subscriptions.subscription_common import SubscriptionCommon
 from hallo.modules.subscriptions.subscriptions import Subscription, SubscriptionException
 from hallo.modules.subscriptions.subscription_factory import SubscriptionFactory
+
+T = TypeVar("T", bound=SubscriptionCommon)
 
 
 class SubscriptionRepo:
@@ -59,7 +61,7 @@ class SubscriptionRepo:
                 matching_subs.append(sub)
         return matching_subs
 
-    def get_common_config_by_type(self, common_type: Type) -> 'SubscriptionCommon':
+    def get_common_config_by_type(self, common_type: Type[T]) -> T:
         """
         Returns the common configuration object for a given type.
         There should be only 1 common config object of each type.

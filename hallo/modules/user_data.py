@@ -1,58 +1,13 @@
 import re
 from abc import ABCMeta
+from typing import Dict, TypeVar, Type, Optional, List
 
+from hallo.destination import User
 from hallo.function import Function
 
 
 class UserDataException(Exception):
     pass
-
-
-class UserDataParser:
-    def __init__(self):
-        pass
-
-    def get_data_by_user(self, user):
-        """
-        :type user: User
-        :rtype: dict[str, UserDatum]
-        """
-        user_data_dict = user.extra_data_dict
-        user_data = dict()
-        for key in user_data_dict:
-            user_data[key] = UserDataFactory.from_dict(key, user_data_dict[key])
-        return user_data
-
-    def get_data_by_user_and_type(self, user, data_class):
-        """
-        :type user: User
-        :type data_class: class
-        :rtype: UserDatum
-        """
-        type_name = data_class.type_name
-        user_data_dict = user.extra_data_dict
-        if type_name in user_data_dict:
-            return UserDataFactory.from_dict(type_name, user_data_dict[type_name])
-        return None
-
-    def set_user_data(self, user, data):
-        """
-        Adds a data object to a user, or overrides if one already exists.
-        :type user: User
-        :type data: UserDatum
-        """
-        user.extra_data_dict[data.type_name] = data.to_json()
-        user.server.hallo.save_json()
-
-    def remove_data_by_user_and_type(self, user, data_class):
-        """
-        :type user: User
-        :type data_class: class
-        :rtype: UserDatum
-        """
-        type_name = data_class.type_name
-        if type_name in user.extra_data_dict:
-            del user.extra_data_dict.type_name
 
 
 class UserDatum(metaclass=ABCMeta):
@@ -78,6 +33,42 @@ class UserDatum(metaclass=ABCMeta):
         :type json_dict: dict
         """
         raise NotImplementedError()
+
+
+T = TypeVar("T", bound=UserDatum)
+
+
+class UserDataParser:
+    def __init__(self):
+        pass
+
+    def get_data_by_user(self, user: User) -> Dict[str, 'UserDatum']:
+        user_data_dict = user.extra_data_dict
+        user_data = dict()
+        for key in user_data_dict:
+            user_data[key] = UserDataFactory.from_dict(key, user_data_dict[key])
+        return user_data
+
+    def get_data_by_user_and_type(self, user: User, data_class: Type[T]) -> Optional[T]:
+        """
+        :type user: User
+        :type data_class: class
+        :rtype: UserDatum
+        """
+        type_name = data_class.type_name
+        user_data_dict = user.extra_data_dict
+        if type_name in user_data_dict:
+            return UserDataFactory.from_dict(type_name, user_data_dict[type_name])
+        return None
+
+    def set_user_data(self, user: User, data: 'UserDatum'):
+        user.extra_data_dict[data.type_name] = data.to_json()
+        user.server.hallo.save_json()
+
+    def remove_data_by_user_and_type(self, user: User, data_class: Type[T]):
+        type_name = data_class.type_name
+        if type_name in user.extra_data_dict:
+            del user.extra_data_dict['type_name']
 
 
 class FAKeyData(UserDatum):
@@ -133,9 +124,8 @@ class WeatherLocationData(UserDatum):
     TYPE_COORDS = "coords"
     TYPE_ZIP = "zip"
 
-    def __init__(self, location):
+    def __init__(self, location: 'Location'):
         self.location = location
-        """ :type : Location"""
         self.country_code = None
         """ :type : str"""
 
@@ -232,7 +222,7 @@ class UserDataFactory:
     data_classes = [FAKeyData]
 
     @staticmethod
-    def get_data_type_names():
+    def get_data_type_names() -> List[str]:
         return [
             name
             for common_class in UserDataFactory.data_classes
@@ -240,7 +230,7 @@ class UserDataFactory:
         ]
 
     @staticmethod
-    def get_data_class_by_name(name):
+    def get_data_class_by_name(name: str) -> Type[UserDatum]:
         classes = [
             data_class
             for data_class in UserDataFactory.data_classes
@@ -308,7 +298,7 @@ class UserDataSetup(Function):
         # Get class from type name
         data_class = UserDataFactory.get_data_class_by_name(
             data_type_name
-        )  # type: UserDatum
+        )
         if data_class is None:
             return event.create_response(
                 "Could not find a user data type called {}. "
