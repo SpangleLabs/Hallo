@@ -3,11 +3,11 @@ from threading import Lock
 from typing import List, Type, TypeVar
 
 from hallo.destination import Destination
-from hallo.modules.subscriptions.subscription_common import SubscriptionCommon
-from hallo.modules.subscriptions.subscriptions import Subscription, SubscriptionException
-from hallo.modules.subscriptions.subscription_factory import SubscriptionFactory
+import hallo.modules.subscriptions.subscription_common
+import hallo.modules.subscriptions.subscriptions
+import hallo.modules.subscriptions.subscription_factory
 
-T = TypeVar("T", bound=SubscriptionCommon)
+T = TypeVar("T", bound=hallo.modules.subscriptions.subscription_common.SubscriptionCommon)
 
 
 class SubscriptionRepo:
@@ -16,25 +16,27 @@ class SubscriptionRepo:
     """
 
     def __init__(self):
-        self.sub_list: List[Subscription] = []
-        self.common_list: List[SubscriptionCommon] = []
+        self.sub_list: List[hallo.modules.subscriptions.subscriptions.Subscription] = []
+        self.common_list: List[hallo.modules.subscriptions.subscription_common.SubscriptionCommon] = []
         self.sub_lock: Lock = Lock()
 
-    def add_sub(self, new_sub: 'Subscription') -> None:
+    def add_sub(self, new_sub: hallo.modules.subscriptions.subscriptions.Subscription) -> None:
         """
         Adds a new Subscription to the list.
         :param new_sub: New subscription to add
         """
         self.sub_list.append(new_sub)
 
-    def remove_sub(self, remove_sub: 'Subscription') -> None:
+    def remove_sub(self, remove_sub: hallo.modules.subscriptions.subscriptions.Subscription) -> None:
         """
         Removes a Subscription from the list.
         :param remove_sub: Existing subscription to remove
         """
         self.sub_list.remove(remove_sub)
 
-    def get_subs_by_destination(self, destination: Destination) -> List['Subscription']:
+    def get_subs_by_destination(
+            self, destination: Destination
+    ) -> List[hallo.modules.subscriptions.subscriptions.Subscription]:
         """
         Returns a list of subscriptions matching a specified destination.
         :param destination: Channel or User which E621Sub is posting to
@@ -47,7 +49,9 @@ class SubscriptionRepo:
             matching_subs.append(sub)
         return matching_subs
 
-    def get_subs_by_name(self, name: str, destination: Destination) -> List['Subscription']:
+    def get_subs_by_name(
+            self, name: str, destination: Destination
+    ) -> List[hallo.modules.subscriptions.subscriptions.Subscription]:
         """
         Returns a list of subscriptions matching a specified name, be that a type and search, or just a type
         :param name: Search of the Subscription being searched for
@@ -68,8 +72,8 @@ class SubscriptionRepo:
         :param common_type: The class of the common config object being searched for
         :return: The object, or a new object if none was found.
         """
-        if not issubclass(common_type, SubscriptionCommon):
-            raise SubscriptionException(
+        if not issubclass(common_type, hallo.modules.subscriptions.subscription_common.SubscriptionCommon):
+            raise hallo.modules.subscriptions.subscriptions.SubscriptionException(
                 "This common type, {}, is not a subclass of SubscriptionCommon".format(
                     common_type.__name__
                 )
@@ -81,7 +85,7 @@ class SubscriptionRepo:
             return new_common
         if len(matching) == 1:
             return matching[0]
-        raise SubscriptionException(
+        raise hallo.modules.subscriptions.subscriptions.SubscriptionException(
             "More than one subscription common config exists for the type: {}".format(
                 common_type.__name__
             )
@@ -122,10 +126,14 @@ class SubscriptionRepo:
         # Loop common objects in json file adding them to list.
         # Common config must be loaded first, as subscriptions use it.
         for common_elem in json_obj["common"]:
-            new_common_obj = SubscriptionFactory.common_from_json(common_elem)
+            new_common_obj = hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.common_from_json(
+                common_elem
+            )
             new_sub_list.common_list.append(new_common_obj)
         # Loop subs in json file adding them to list
         for sub_elem in json_obj["subs"]:
-            new_sub_obj = SubscriptionFactory.from_json(sub_elem, hallo_obj, new_sub_list)
+            new_sub_obj = hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.from_json(
+                sub_elem, hallo_obj, new_sub_list
+            )
             new_sub_list.add_sub(new_sub_obj)
         return new_sub_list

@@ -1,3 +1,4 @@
+import hallo.modules.dailys.dailys_field_factory
 from hallo.function import Function
 import hallo.modules.dailys.dailys_field
 
@@ -47,13 +48,13 @@ class DailysAddField(Function):
         if clean_input == "":
             return event.create_response(
                 "Please specify a field, available fields are: {}".format(
-                    ", ".join(field.type_name for field in hallo.modules.dailys.dailys_field.DailysFieldFactory.fields)
+                    ", ".join(field.type_name for field in hallo.modules.dailys.dailys_field_factory.DailysFieldFactory.fields)
                 )
             )
         # Check that there's exactly one field matching that name
         matching_fields = [
             field
-            for field in hallo.modules.dailys.dailys_field.DailysFieldFactory.fields
+            for field in hallo.modules.dailys.dailys_field_factory.DailysFieldFactory.fields
             if clean_input.startswith(field.type_name)
         ]
         if len(matching_fields) != 1:

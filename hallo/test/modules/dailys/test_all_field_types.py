@@ -5,9 +5,9 @@ from datetime import time
 
 import pytest
 
-import hallo.modules.dailys
+import hallo.modules.dailys.dailys_field
 from hallo.events import EventMessage
-from hallo.modules.dailys.dailys_field import DailysFieldFactory
+from hallo.modules.dailys.dailys_field_factory import DailysFieldFactory
 from hallo.modules.dailys.field_dream import DailysDreamField
 from hallo.modules.dailys.field_duolingo import DailysDuolingoField
 from hallo.modules.dailys.field_fa import DailysFAField

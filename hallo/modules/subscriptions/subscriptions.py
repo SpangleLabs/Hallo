@@ -8,7 +8,6 @@ import isodate
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage
 from hallo.hallo import Hallo
-import hallo.modules.subscriptions.subscription_repo
 from hallo.server import Server
 
 logger = logging.getLogger(__name__)
@@ -54,7 +53,7 @@ class Subscription(Generic[T], ABC):
 
     @staticmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo: hallo.modules.subscriptions.subscription_repo.SubscriptionRepo
+            input_evt: EventMessage, sub_repo
     ) -> 'Subscription':
         """
         Creates a new subscription object from a user's input line
@@ -119,7 +118,7 @@ class Subscription(Generic[T], ABC):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo: hallo.modules.subscriptions.subscription_repo.SubscriptionRepo) -> 'Subscription':
+    def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo) -> 'Subscription':
         raise NotImplementedError()
 
 

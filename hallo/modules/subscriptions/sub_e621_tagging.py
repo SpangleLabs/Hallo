@@ -8,7 +8,6 @@ from hallo.events import EventMessage, EventMessageWithPhoto
 from hallo.hallo import Hallo
 from hallo.inc.input_parser import InputParser
 import hallo.modules.subscriptions.sub_e621
-import hallo.modules.subscriptions.subscription_repo
 import hallo.modules.subscriptions.subscriptions
 from hallo.server import Server
 
@@ -39,13 +38,8 @@ class E621TaggingSub(hallo.modules.subscriptions.sub_e621.E621Sub):
 
     @staticmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo: hallo.modules.subscriptions.subscription_repo.SubscriptionRepo
+            input_evt: EventMessage, sub_repo
     ) -> 'E621TaggingSub':
-        """
-        :type input_evt: Events.EventMessage
-        :type sub_repo: hallo.modules.subscriptions.subscription_repo.SubscriptionRepo
-        :rtype: E621Sub
-        """
         server = input_evt.server
         destination = (
             input_evt.channel if input_evt.channel is not None else input_evt.user
@@ -149,7 +143,7 @@ class E621TaggingSub(hallo.modules.subscriptions.sub_e621.E621Sub):
 
     @staticmethod
     def from_json(
-            json_obj: Dict, hallo_obj: Hallo, sub_repo: hallo.modules.subscriptions.subscription_repo.SubscriptionRepo
+            json_obj: Dict, hallo_obj: Hallo, sub_repo
     ) -> 'E621TaggingSub':
         server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:

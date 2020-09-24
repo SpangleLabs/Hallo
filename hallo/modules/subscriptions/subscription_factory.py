@@ -3,7 +3,6 @@ from typing import List, Type, Dict
 from hallo.hallo import Hallo
 import hallo.modules.subscriptions.common_fa_key
 import hallo.modules.subscriptions.subscription_common
-import hallo.modules.subscriptions.subscription_repo
 import hallo.modules.subscriptions.subscriptions
 import hallo.modules.subscriptions.sub_reddit
 import hallo.modules.subscriptions.sub_fa_watchers
@@ -56,7 +55,7 @@ class SubscriptionFactory:
 
     @staticmethod
     def from_json(
-            sub_json: Dict, hallo_obj: Hallo, sub_repo: hallo.modules.subscriptions.subscription_repo.SubscriptionRepo
+            sub_json: Dict, hallo_obj: Hallo, sub_repo
     ) -> hallo.modules.subscriptions.subscriptions.Subscription:
         sub_type_name = sub_json["sub_type"]
         for sub_class in SubscriptionFactory.sub_classes:

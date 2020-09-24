@@ -1,3 +1,4 @@
+import hallo.modules.dailys.dailys_field_factory
 from hallo.inc.commons import Commons
 import hallo.modules.dailys.dailys_field
 
@@ -121,6 +122,6 @@ class DailysSpreadsheet:
         new_spreadsheet = DailysSpreadsheet(user, dest_chan, dailys_url, dailys_key)
         for field_json in json_obj["fields"]:
             new_spreadsheet.add_field(
-                hallo.modules.dailys.dailys_field.DailysFieldFactory.from_json(field_json, new_spreadsheet)
+                hallo.modules.dailys.dailys_field_factory.DailysFieldFactory.from_json(field_json, new_spreadsheet)
             )
         return new_spreadsheet

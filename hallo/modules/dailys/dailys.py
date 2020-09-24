@@ -1,3 +1,4 @@
+import hallo.modules.dailys.dailys_field_factory
 from hallo.events import EventMessage
 from hallo.function import Function
 import hallo.modules.dailys.dailys_field
@@ -46,7 +47,7 @@ class Dailys(Function):
         return set(
             [
                 event
-                for field in hallo.modules.dailys.dailys_field.DailysFieldFactory.fields
+                for field in hallo.modules.dailys.dailys_field_factory.DailysFieldFactory.fields
                 for event in field.passive_events()
             ]
         )

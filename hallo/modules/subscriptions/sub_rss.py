@@ -11,7 +11,6 @@ from hallo.destination import Destination, Channel, User
 from hallo.events import EventMessage, EventMessageWithPhoto
 from hallo.hallo import Hallo
 from hallo.inc.commons import Commons
-import hallo.modules.subscriptions.subscription_repo
 import hallo.modules.subscriptions.subscriptions
 from hallo.server import Server
 
@@ -73,7 +72,7 @@ class RssSub(hallo.modules.subscriptions.subscriptions.Subscription[ElementTree.
 
     @staticmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo: hallo.modules.subscriptions.subscription_repo.SubscriptionRepo
+            input_evt: EventMessage, sub_repo
     ) -> 'RssSub':
         server = input_evt.server
         destination = (
@@ -257,7 +256,7 @@ class RssSub(hallo.modules.subscriptions.subscriptions.Subscription[ElementTree.
 
     @staticmethod
     def from_json(
-            json_obj: Dict, hallo_obj: Hallo, sub_repo: hallo.modules.subscriptions.subscription_repo.SubscriptionRepo
+            json_obj: Dict, hallo_obj: Hallo, sub_repo
     ) -> 'RssSub':
         server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:

@@ -7,7 +7,6 @@ from hallo.destination import Destination, Channel, User
 from hallo.events import EventMessage
 from hallo.hallo import Hallo
 import hallo.modules.subscriptions.common_fa_key
-import hallo.modules.subscriptions.subscription_repo
 import hallo.modules.subscriptions.subscriptions
 from hallo.server import Server
 
@@ -40,7 +39,7 @@ class FANotificationNotesSub(hallo.modules.subscriptions.subscriptions.Subscript
 
     @staticmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo: hallo.modules.subscriptions.subscription_repo.SubscriptionRepo
+            input_evt: EventMessage, sub_repo
     ) -> 'FANotificationNotesSub':
         user = input_evt.user
         fa_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
@@ -139,7 +138,7 @@ class FANotificationNotesSub(hallo.modules.subscriptions.subscriptions.Subscript
 
     @staticmethod
     def from_json(
-            json_obj: Dict, hallo_obj: Hallo, sub_repo: hallo.modules.subscriptions.subscription_repo.SubscriptionRepo
+            json_obj: Dict, hallo_obj: Hallo, sub_repo
     ) -> 'FANotificationNotesSub':
         server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
