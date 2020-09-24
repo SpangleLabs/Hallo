@@ -45,7 +45,7 @@ class ConvertTest(TestBase, unittest.TestCase):
         conv_cls = self.function_dispatcher.get_function_by_name("convert")
         conv_obj = self.function_dispatcher.get_function_object(conv_cls)
         assert conv_obj.convert_repo is not None
-        assert isinstance(conv_obj.convert_repo, hallo.modules.convert.convert_repo.ConvertRepo)
+        assert conv_obj.convert_repo.__class__.__name__ == "ConvertRepo"
         assert len(conv_obj.convert_repo.type_list) > 0
 
 
