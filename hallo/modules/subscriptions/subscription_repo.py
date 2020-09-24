@@ -6,6 +6,7 @@ from hallo.destination import Destination
 import hallo.modules.subscriptions.subscription_common
 import hallo.modules.subscriptions.subscriptions
 import hallo.modules.subscriptions.subscription_factory
+from hallo.inc.commons import inherits_from
 
 T = TypeVar("T", bound=hallo.modules.subscriptions.subscription_common.SubscriptionCommon)
 
@@ -72,7 +73,7 @@ class SubscriptionRepo:
         :param common_type: The class of the common config object being searched for
         :return: The object, or a new object if none was found.
         """
-        if not issubclass(common_type, hallo.modules.subscriptions.subscription_common.SubscriptionCommon):
+        if not inherits_from(common_type, "SubscriptionCommon"):
             raise hallo.modules.subscriptions.subscriptions.SubscriptionException(
                 "This common type, {}, is not a subclass of SubscriptionCommon".format(
                     common_type.__name__

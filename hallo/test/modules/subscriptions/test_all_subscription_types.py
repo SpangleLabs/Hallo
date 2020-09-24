@@ -7,6 +7,7 @@ import pytest
 
 import hallo.modules.subscriptions.subscriptions
 from hallo.events import EventMessage
+from hallo.inc.commons import inherits_from
 from hallo.modules.subscriptions.common_fa_key import FAKey
 from hallo.modules.subscriptions.sub_e621 import E621Sub
 from hallo.modules.subscriptions.sub_e621_tagging import E621TaggingSub
@@ -191,7 +192,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
             function_class = function_tuple[1]
             # Only look at subclasses of Subscription
-            if not issubclass(function_class, hallo.modules.subscriptions.subscriptions.Subscription):
+            if not inherits_from(function_class, "Subscription"):
                 continue
             # Only look at implemented classes.
             sub_repo = SubscriptionRepo()

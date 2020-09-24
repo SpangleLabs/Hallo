@@ -23,6 +23,7 @@ from hallo.events import (
     ChannelUserTextEvent, Event,
 )
 from hallo.function import Function
+from hallo.inc.commons import inherits_from
 from hallo.server import Server
 
 logger = logging.getLogger(__name__)
@@ -313,7 +314,7 @@ class FunctionDispatcher(object):
         if function_class == Function:
             return False
         # Make sure it is a subclass of Function
-        if not issubclass(function_class, Function):
+        if not inherits_from(function_class, "Function"):
             return False
         # Create function object
         function_obj = function_class()

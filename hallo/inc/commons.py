@@ -1,10 +1,11 @@
+import inspect
 import datetime
 import logging
 import re
 import json
 import random
 from datetime import timedelta
-from typing import List, Optional, Dict, TypeVar, Union, Callable, Generic
+from typing import List, Optional, Dict, TypeVar, Union, Callable, Generic, Type
 
 import requests
 from publicsuffixlist import PublicSuffixList
@@ -396,3 +397,10 @@ class CachedObject(Generic[S]):
             self.value = self.setter()
             self.cache_time = datetime.datetime.now()
         return self.value
+
+
+def inherits_from(child: Type, parent_name: str) -> bool:
+    if inspect.isclass(child):
+        if parent_name in [c.__name__ for c in inspect.getmro(child)[1:]]:
+            return True
+    return False

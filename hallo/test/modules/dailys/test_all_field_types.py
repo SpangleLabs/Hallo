@@ -5,8 +5,8 @@ from datetime import time
 
 import pytest
 
-import hallo.modules.dailys.dailys_field
 from hallo.events import EventMessage
+from hallo.inc.commons import inherits_from
 from hallo.modules.dailys.dailys_field_factory import DailysFieldFactory
 from hallo.modules.dailys.field_dream import DailysDreamField
 from hallo.modules.dailys.field_duolingo import DailysDuolingoField
@@ -55,7 +55,7 @@ def test_field_classes_added_to_factory(hallo_getter):
     for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
         function_class = function_tuple[1]
         # Only look at subclasses of DailysField
-        if not issubclass(function_class, hallo.modules.dailys.dailys_field.DailysField):
+        if not inherits_from(function_class, "DailysField"):
             continue
         # Only look at implemented classes.
         spreadsheet = DailysSpreadsheetMock(test_user, test_chan)

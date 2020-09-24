@@ -8,6 +8,7 @@ import pytest
 
 from hallo import modules
 from hallo.function import Function
+from hallo.inc.commons import inherits_from
 
 
 def list_modules():
@@ -30,7 +31,7 @@ def list_functions_in_module(module_obj, module_name):
         if function_class == Function:
             continue
         # Make sure it is a subclass of Function
-        if not issubclass(function_class, Function):
+        if not inherits_from(function_class, "Function"):
             continue
         funcs.append(function_class)
     return funcs
