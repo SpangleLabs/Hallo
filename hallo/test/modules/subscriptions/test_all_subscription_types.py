@@ -57,36 +57,27 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         fa_commons.add_key(fa_key)
         sub_evts = dict()
         sub_evts[E621Sub] = EventMessage(self.server, self.test_chan, self.test_user, "cabinet")
-        sub_evts[E621Sub].command_args = "cabinet"
         sub_evts[E621TaggingSub] = EventMessage(self.server, self.test_chan, self.test_user, "cabinet tags=door")
-        sub_evts[E621TaggingSub].command_args = "cabinet tags=door"
         sub_evts[RssSub] = EventMessage(
             self.server,
             self.test_chan,
             self.test_user,
             "http://spangle.org.uk/hallo/test_rss.xml",
         )
-        sub_evts[RssSub].command_args = "http://spangle.org.uk/hallo/test_rss.xml"
         sub_evts[FANotificationNotesSub] = EventMessage(self.server, self.test_chan, self.test_user, "")
-        sub_evts[FANotificationNotesSub].command_args = ""
         sub_evts[FAUserFavsSub] = EventMessage(self.server, self.test_chan, self.test_user, "zephyr42")
-        sub_evts[FAUserFavsSub].command_args = "zephyr42"
         sub_evts[FAUserWatchersSub] = EventMessage(self.server, self.test_chan, self.test_user, "zephyr42")
-        sub_evts[FAUserWatchersSub].command_args = "zephyr42"
         sub_evts[FANotificationWatchSub] = EventMessage(self.server, self.test_chan, self.test_user, "")
-        sub_evts[FANotificationWatchSub].command_args = ""
         sub_evts[FANotificationFavSub] = EventMessage(self.server, self.test_chan, self.test_user, "")
-        sub_evts[FANotificationFavSub].command_args = ""
         sub_evts[FANotificationCommentsSub] = EventMessage(self.server, self.test_chan, self.test_user, "")
-        sub_evts[FANotificationCommentsSub].command_args = ""
         sub_evts[RedditSub] = EventMessage(
             self.server, self.test_chan, self.test_user, "r/deer"
         )
-        sub_evts[RedditSub].command_args = "r/deer"
         sub_evts[TwitterSub] = EventMessage(
             self.server, self.test_chan, self.test_user, "telegram"
         )
-        sub_evts[TwitterSub].command_args = "telegram"
+        for cls, event in sub_evts.items():
+            sub_evts[cls].command_args = event.text
         return sub_evts
 
     def test_all_sub_classes_in_sub_objs(self):
