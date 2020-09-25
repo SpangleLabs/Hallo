@@ -47,7 +47,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_objs.append(FANotificationFavSub(self.server, self.test_chan, fa_key))
         sub_objs.append(FANotificationCommentsSub(self.server, self.test_chan, fa_key))
         sub_objs.append(RedditSub(self.server, self.test_chan, "deer"))
-        sub_objs.append(TwitterSub(self.server, self.test_chan, "telegram"))
+        sub_objs.append(TwitterSub(self.server, self.test_chan, "telegram", None))
         return sub_objs
 
     def get_sub_create_events(self):
