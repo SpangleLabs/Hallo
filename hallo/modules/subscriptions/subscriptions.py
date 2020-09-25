@@ -127,6 +127,7 @@ class GoogleDocsSub(Subscription):
 
 
 class YoutubeSub(Subscription):
+    # https://webapps.stackexchange.com/questions/111680/how-to-find-channel-rss-feed-on-youtube
     pass
 
 
