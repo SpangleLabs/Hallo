@@ -18,6 +18,7 @@ from hallo.modules.subscriptions.sub_fa_notif_favs import FANotificationFavSub
 from hallo.modules.subscriptions.sub_fa_watchers import FAUserWatchersSub, FANotificationWatchSub
 from hallo.modules.subscriptions.sub_reddit import RedditSub
 from hallo.modules.subscriptions.sub_rss import RssSub
+from hallo.modules.subscriptions.sub_twitter import TwitterSub
 from hallo.modules.subscriptions.subscription_factory import SubscriptionFactory
 from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 
@@ -46,6 +47,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_objs.append(FANotificationFavSub(self.server, self.test_chan, fa_key))
         sub_objs.append(FANotificationCommentsSub(self.server, self.test_chan, fa_key))
         sub_objs.append(RedditSub(self.server, self.test_chan, "deer"))
+        sub_objs.append(TwitterSub(self.server, self.test_chan, "telegram"))
         return sub_objs
 
     def get_sub_create_events(self):
@@ -81,6 +83,10 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
             self.server, self.test_chan, self.test_user, "r/deer"
         )
         sub_evts[RedditSub].command_args = "r/deer"
+        sub_evts[TwitterSub] = EventMessage(
+            self.server, self.test_chan, self.test_user, "telegram"
+        )
+        sub_evts[TwitterSub].command_args = "telegram"
         return sub_evts
 
     def test_all_sub_classes_in_sub_objs(self):
