@@ -46,9 +46,12 @@ class Subscription(Generic[T], ABC):
         self.update_frequency: timedelta = update_frequency
         self.last_update: Optional[datetime] = None
 
-    @staticmethod
+    @classmethod
+    @abstractmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo
+            cls,
+            input_evt: EventMessage,
+            sub_repo
     ) -> 'Subscription':
         """
         Creates a new subscription object from a user's input line

@@ -48,9 +48,11 @@ class FANotificationCommentsSub(
         )
         self.latest_shout_id: int = 0 if latest_shout_id is None else latest_shout_id
 
-    @staticmethod
+    @classmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo
+            cls,
+            input_evt: EventMessage,
+            sub_repo
     ) -> 'FANotificationCommentsSub':
         user = input_evt.user
         fa_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)

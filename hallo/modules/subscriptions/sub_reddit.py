@@ -31,9 +31,11 @@ class RedditSub(hallo.modules.subscriptions.subscriptions.Subscription[Dict]):
             latest_ids = []
         self.latest_ids: List[str] = latest_ids
 
-    @staticmethod
+    @classmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo
+            cls,
+            input_evt: EventMessage,
+            sub_repo
     ) -> 'RedditSub':
         # Get event data
         server = input_evt.server

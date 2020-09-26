@@ -42,9 +42,11 @@ class FAUserWatchersSub(
         self.username: str = username
         self.newest_watchers: List[str] = [] if newest_watchers is None else newest_watchers
 
-    @staticmethod
+    @classmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo
+            cls,
+            input_evt: EventMessage,
+            sub_repo
     ) -> 'FAUserWatchersSub':
         # Get FAKey object
         user = input_evt.user
@@ -239,9 +241,11 @@ class FANotificationWatchSub(FAUserWatchersSub):
             newest_watchers=newest_watchers,
         )
 
-    @staticmethod
+    @classmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo
+            cls,
+            input_evt: EventMessage,
+            sub_repo
     ) -> 'FANotificationWatchSub':
         # Get FAKey object
         user = input_evt.user

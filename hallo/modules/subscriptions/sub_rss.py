@@ -70,9 +70,11 @@ class RssSub(hallo.modules.subscriptions.subscriptions.Subscription[ElementTree.
             rss_data = rss_data[2:]
         return rss_data
 
-    @staticmethod
+    @classmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo
+            cls,
+            input_evt: EventMessage,
+            sub_repo
     ) -> 'RssSub':
         server = input_evt.server
         destination = (

@@ -37,9 +37,11 @@ class FANotificationNotesSub(hallo.modules.subscriptions.subscriptions.Subscript
         self.inbox_note_ids: List[str] = [] if inbox_note_ids is None else inbox_note_ids
         self.outbox_note_ids: List[str] = [] if outbox_note_ids is None else outbox_note_ids
 
-    @staticmethod
+    @classmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo
+            cls,
+            input_evt: EventMessage,
+            sub_repo
     ) -> 'FANotificationNotesSub':
         user = input_evt.user
         fa_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)

@@ -31,9 +31,11 @@ class E621Sub(hallo.modules.subscriptions.subscriptions.Subscription[Dict]):
             latest_ids = []
         self.latest_ids: List[int] = latest_ids
 
-    @staticmethod
+    @classmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo
+            cls,
+            input_evt: EventMessage,
+            sub_repo
     ) -> 'E621Sub':
         server = input_evt.server
         destination = (

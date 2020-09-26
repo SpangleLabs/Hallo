@@ -39,9 +39,11 @@ class TwitterSub(hallo.modules.subscriptions.sub_rss.RssSub):
         self.handle = handle
         self.extra = extra
 
-    @staticmethod
+    @classmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo
+            cls,
+            input_evt: EventMessage,
+            sub_repo
     ) -> 'TwitterSub':
         server = input_evt.server
         destination = (

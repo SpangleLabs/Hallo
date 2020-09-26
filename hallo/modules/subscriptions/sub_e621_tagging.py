@@ -36,9 +36,11 @@ class E621TaggingSub(hallo.modules.subscriptions.sub_e621.E621Sub):
         )
         self.tags: List[str] = tags
 
-    @staticmethod
+    @classmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo
+            cls,
+            input_evt: EventMessage,
+            sub_repo
     ) -> 'E621TaggingSub':
         server = input_evt.server
         destination = (

@@ -40,9 +40,11 @@ class FANotificationFavSub(
         self.fa_key: hallo.modules.subscriptions.common_fa_key.FAKey = fa_key
         self.highest_fav_id: int = 0 if highest_fav_id is None else highest_fav_id
 
-    @staticmethod
+    @classmethod
     def create_from_input(
-            input_evt: EventMessage, sub_repo
+            cls,
+            input_evt: EventMessage,
+            sub_repo
     ) -> 'FANotificationFavSub':
         user = input_evt.user
         fa_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
