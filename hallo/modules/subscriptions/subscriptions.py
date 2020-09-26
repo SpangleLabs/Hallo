@@ -1,5 +1,5 @@
 import logging
-from abc import ABC
+from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from typing import List, Generic, TypeVar, Dict, Type, Optional, Union
 
@@ -55,12 +55,14 @@ class Subscription(Generic[T], ABC):
         """
         raise NotImplementedError()
 
+    @abstractmethod
     def matches_name(self, name_clean: str) -> bool:
         """
         Returns whether a user input string matches this subscription object
         """
         raise NotImplementedError()
 
+    @abstractmethod
     def get_name(self) -> str:
         """
         Returns a printable name for the subscription
@@ -81,6 +83,7 @@ class Subscription(Generic[T], ABC):
         output_evt = self.format_item(item)
         self.server.send(output_evt)
 
+    @abstractmethod
     def format_item(self, item: T) -> EventMessage:
         """
         Formats an item, as returned from check(), into an event that can be sent out
@@ -97,6 +100,7 @@ class Subscription(Generic[T], ABC):
             return True
         return False
 
+    @abstractmethod
     def to_json(self) -> Dict:
         json_obj = dict()
         json_obj["server_name"] = self.server.name
@@ -112,6 +116,7 @@ class Subscription(Generic[T], ABC):
         return json_obj
 
     @staticmethod
+    @abstractmethod
     def from_json(json_obj: Dict, hallo_obj: Hallo, sub_repo) -> 'Subscription':
         raise NotImplementedError()
 
