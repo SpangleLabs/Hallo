@@ -39,17 +39,12 @@ class Subscription(Generic[T], ABC):
             update_frequency: timedelta = None
     ) -> None:
         if update_frequency is None:
-            update_frequency = isodate.parse_duration("PT5M")
-        self.server = server
-        """ :type : Server.Server"""
-        self.destination = destination
-        """ :type : Destination.Destination"""
-        self.last_check = last_check
-        """ :type : datetime"""
-        self.update_frequency = update_frequency
-        """ :type : timedelta"""
-        self.last_update = None
-        """ :type : datetime | None"""
+            update_frequency = timedelta(minutes=5)
+        self.server: Server = server
+        self.destination: Destination = destination
+        self.last_check: Optional[datetime] = last_check
+        self.update_frequency: timedelta = update_frequency
+        self.last_update: Optional[datetime] = None
 
     @staticmethod
     def create_from_input(
@@ -66,10 +61,9 @@ class Subscription(Generic[T], ABC):
         """
         raise NotImplementedError()
 
-    def get_name(self) -> None:
+    def get_name(self) -> str:
         """
         Returns a printable name for the subscription
-        :rtype: str
         """
         raise NotImplementedError()
 
