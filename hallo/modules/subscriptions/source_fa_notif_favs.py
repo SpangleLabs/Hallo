@@ -13,7 +13,8 @@ class FAFavNotificationsSource(
         hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationFavourite
     ]
 ):
-    names: List[str] = [
+    type_name: str = "fa_notif_favs"
+    type_names: List[str] = [
         "fa favs notifications",
         "fa favs",
         "furaffinity favs",
@@ -21,7 +22,6 @@ class FAFavNotificationsSource(
         "fa favourites",
         "furaffinity favourites",
     ]
-    type_name: str = "fa_notif_favs"
 
     def __init__(
             self,

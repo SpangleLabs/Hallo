@@ -35,8 +35,8 @@ def _get_feed_items(rss_elem: ElementTree.Element) -> List[ElementTree.Element]:
 
 
 class RssSource(hallo.modules.subscriptions.stream_source.StreamSource[ElementTree.Element]):
-    names: List[str] = ["rss", "rss feed"]
     type_name: str = "rss"
+    type_names: List[str] = ["rss", "rss feed"]
 
     def __init__(
             self,

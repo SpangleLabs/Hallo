@@ -11,8 +11,8 @@ from hallo.server import Server
 
 
 class TwitterSource(hallo.modules.subscriptions.source_rss.RssSource):
-    names: List[str] = ["twitter", "tweets", "twitter account"]
     type_name: str = "twitter"
+    type_names: List[str] = ["twitter", "tweets", "twitter account"]
 
     profile_regex = re.compile(
         r"^(?:(?:https://)?(?:www.)?(?:twitter.com|nitter.net)/|@)?([^/]+)(?:/?$|/?(with_replies|media)$)",

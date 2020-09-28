@@ -14,13 +14,13 @@ class FAUserWatchersSource(
         hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FAWatch
     ]
 ):
-    names: List[str] = [
+    type_name: str = "fa_user_watchers"
+    type_names: List[str] = [
         "fa user watchers",
         "fa user new watchers",
         "furaffinity user watchers",
         "furaffinity user new watchers",
     ]
-    type_name: str = "fa_user_watchers"
 
     def __init__(self, fa_key: hallo.modules.subscriptions.common_fa_key.FAKey, username: str,
                  last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None):
@@ -90,14 +90,14 @@ class FAUserWatchersSource(
 
 
 class FAWatchersSource(FAUserWatchersSource):
-    names: List[str] = [
+    type_name: str = "fa_notif_watchers"
+    type_names: List[str] = [
         "{}{}{}{}".format(fa, new, watchers, notifications)
         for fa in ["fa ", "furaffinity "]
         for new in ["new ", ""]
         for watchers in ["watcher", "watchers"]
         for notifications in ["", " notifications"]
     ]
-    type_name: str = "fa_notif_watchers"
 
     def __init__(
             self,

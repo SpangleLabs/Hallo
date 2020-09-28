@@ -250,13 +250,13 @@ class FAShoutSource(
 
 
 class FACommentNotificationsSource(hallo.modules.subscriptions.source.Source[Dict, Dict]):
-    names: List[str] = [
+    type_name: str = "fa_notif_comments"
+    type_names: List[str] = [
         "{}{}{}".format(fa, comments, notifications)
         for fa in ["fa ", "furaffinity "]
         for comments in ["comments", "comment", "shouts", "shout"]
         for notifications in ["", " notifications"]
     ]
-    type_name: str = "fa_notif_comments"
 
     def __init__(
             self,

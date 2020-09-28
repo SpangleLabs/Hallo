@@ -143,8 +143,8 @@ class FANotesOutboxSource(hallo.modules.subscriptions.stream_source.StreamSource
 
 
 class FANotesSource(hallo.modules.subscriptions.source.Source[Dict, Dict]):
-    names: List[str] = ["fa notes notifications", "fa notes", "furaffinity notes"]
     type_name: str = "fa_notif_notes"
+    type_names: List[str] = ["fa notes notifications", "fa notes", "furaffinity notes"]
 
     def __init__(self, fa_key: hallo.modules.subscriptions.common_fa_key.FAKey, inbox_source: FANotesInboxSource,
                  outbox_source: FANotesOutboxSource):

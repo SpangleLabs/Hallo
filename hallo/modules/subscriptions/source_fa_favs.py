@@ -40,7 +40,8 @@ def fa_key_from_input(user: User, sub_repo) -> hallo.modules.subscriptions.commo
 
 
 class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[SubmissionId]):
-    names: List[str] = [
+    type_name: str = "fa_user_favs"
+    type_names: List[str] = [
         "fa user favs",
         "furaffinity user favs",
         "furaffinity user favourites",
@@ -48,7 +49,6 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
         "furaffinity user favorites",
         "fa user favorites",
     ]
-    type_name: str = "fa_user_favs"
 
     def __init__(
             self,

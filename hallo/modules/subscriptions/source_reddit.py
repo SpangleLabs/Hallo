@@ -9,8 +9,8 @@ from hallo.server import Server
 
 
 class RedditSource(hallo.modules.subscriptions.stream_source.StreamSource[Dict]):
-    names: List[str] = ["reddit", "subreddit"]
     type_name: str = "subreddit"
+    type_names: List[str] = ["reddit", "subreddit"]
 
     def __init__(
             self, subreddit: str,
