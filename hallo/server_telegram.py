@@ -251,8 +251,14 @@ class ServerTelegram(Server):
                         parse_mode=self.formatting_to_telegram_mode(event.formatting),
                     )
             except Exception as e:
-                logger.error("Failed to send message with picture. Picture path %s", event.photo_id, exc_info=e)
-                raise e
+                logger.warning(
+                    "Failed to send message with picture. Sending without. Picture path %s", event.photo_id, exc_info=e
+                )
+                msg = self.bot.send_message(
+                    chat_id=destination.address,
+                    text=event.text,
+                    parse_mode=self.formatting_to_telegram_mode(event.formatting)
+                )
             event.with_raw_data(RawDataTelegramOutbound(msg))
             event.log()
             return event
