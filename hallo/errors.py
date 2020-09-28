@@ -223,7 +223,5 @@ class SubscriptionCheckError(ExceptionError):
         :type subscription: modules.subscriptions.Subscription
         :type exception: Exception
         """
-        message = 'Failed to check {} subscription, "{}".'.format(
-            subscription.type_name, subscription.get_name()
-        )
+        message = f'Failed to check {subscription.source.type_name} subscription, "{subscription.source.title}".'
         super().__init__(message, exception, subscription)
