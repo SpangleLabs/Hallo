@@ -103,7 +103,7 @@ class SubscriptionCheck(Function):
                     update = search_sub.update() or update
                 except Exception as e:
                     error = SubscriptionCheckError(search_sub, e)
-                    logger.error(error.get_log_line())
+                    logger.error(error.get_log_line(), exc_info=e)
             # Save list
             sub_repo.save_json()
         # Output response to user
@@ -129,7 +129,7 @@ class SubscriptionCheck(Function):
                         search_sub.update()
                     except Exception as e:
                         error = SubscriptionCheckError(search_sub, e)
-                        logger.error(error.get_log_line())
+                        logger.error(error.get_log_line(), exc_info=e)
             # Save list
             sub_repo.save_json()
         return
