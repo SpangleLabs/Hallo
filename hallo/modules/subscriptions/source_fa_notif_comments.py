@@ -71,7 +71,7 @@ class FASubmissionCommentSource(
         return f"FA submission comments for {self.fa_key.user.name}"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo) -> 'FASubmissionCommentSource':
+    def from_input(cls, argument: str, Fauser: User, sub_repo) -> 'FASubmissionCommentSource':
         fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_input(user, sub_repo)
         return FASubmissionCommentSource(fa_key)
 
@@ -272,11 +272,11 @@ class FACommentNotificationsSource(hallo.modules.subscriptions.source.Source[Dic
         self.shout_source = shout_source
 
     def matches_name(self, name_clean: str) -> bool:
-        return name_clean in [s.lower().strip() for s in self.names + ["comments"]]
+        return name_clean in [s.lower().strip() for s in self.type_names + ["comments"]]
 
     @property
     def title(self) -> str:
-        return "FA comments for {}".format(self.fa_key.user.name)
+        return f"FA comments for {self.fa_key.user.name}"
 
     @classmethod
     def from_input(cls, argument: str, user: User, sub_repo) -> 'FACommentNotificationsSource':
