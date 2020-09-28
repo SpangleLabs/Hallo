@@ -207,9 +207,10 @@ class FANotesSource(hallo.modules.subscriptions.source.Source[Dict, Dict]):
         return FANotesSource(fa_key, inbox_source, outbox_source)
 
     def to_json(self) -> Dict:
-        json_data = super().to_json()
-        json_data["type"] = self.type_name
-        json_data["fa_key_user_address"] = self.fa_key.user.address
-        json_data["inbox"] = self.inbox_source.to_json()
-        json_data["outbox"] = self.outbox_source.to_json()
+        json_data = {
+            "type": self.type_name,
+            "fa_key_user_address": self.fa_key.user.address,
+            "inbox": self.inbox_source.to_json(),
+            "outbox": self.outbox_source.to_json()
+        }
         return json_data

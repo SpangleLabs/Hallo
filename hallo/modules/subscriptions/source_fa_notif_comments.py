@@ -332,10 +332,11 @@ class FACommentNotificationsSource(hallo.modules.subscriptions.source.Source[Dic
         return FACommentNotificationsSource(fa_key, submission_source, journal_source, shout_source)
 
     def to_json(self) -> Dict:
-        json_data = super().to_json()
-        json_data["type"] = self.type_name
-        json_data["fa_key_user_address"] = self.fa_key.user.address
-        json_data["submissions"] = self.submission_source.to_json()
-        json_data["journals"] = self.journal_source.to_json()
-        json_data["shouts"] = self.shout_source.to_json()
+        json_data = {
+            "type": self.type_name,
+            "fa_key_user_address": self.fa_key.user.address,
+            "submissions": self.submission_source.to_json(),
+            "journals": self.journal_source.to_json(),
+            "shouts": self.shout_source.to_json()
+        }
         return json_data
