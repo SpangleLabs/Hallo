@@ -50,6 +50,9 @@ class Source(ABC, Generic[State, Update]):
             user: Optional[User],
             update: Update
     ) -> List[EventMessage]:
+        """
+        Creates a list of events to represent a given update. This should have the oldest update first.
+        """
         pass
 
     @classmethod

@@ -41,7 +41,7 @@ class StreamSource(hallo.modules.subscriptions.source.Source[List[Item], List[It
             user: Optional[User],
             update: List[Item]
     ) -> List[EventMessage]:
-        return [self.item_to_event(server, channel, user, item) for item in update]
+        return [self.item_to_event(server, channel, user, item) for item in update[::-1]]
 
     @abstractmethod
     def item_to_key(self, item: Item) -> Key:
