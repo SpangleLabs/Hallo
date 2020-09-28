@@ -5,8 +5,8 @@ from hallo.errors import SubscriptionCheckError
 from hallo.events import Event, EventMinute, EventMessage, ServerEvent
 from hallo.function import Function
 from hallo.hallo import Hallo
-import hallo.modules.new_subscriptions.subscription_factory
-import hallo.modules.new_subscriptions.subscription_repo
+import hallo.modules.subscriptions.subscription_factory
+import hallo.modules.subscriptions.subscription_repo
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ class SubscriptionCheck(Function):
         self.names = set(
             [
                 template.format(name, check, sub)
-                for name in hallo.modules.new_subscriptions.subscription_factory.SubscriptionFactory.get_source_names()
+                for name in hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.get_source_names()
                 for template in name_templates
                 for check in self.check_words
                 for sub in self.sub_words
@@ -53,9 +53,9 @@ class SubscriptionCheck(Function):
         self.subscription_repo = None
         """ :type : hallo.modules.subscriptions.subscription_repo.SubscriptionRepo | None"""
 
-    def get_sub_repo(self, hallo_obj: Hallo) -> hallo.modules.new_subscriptions.subscription_repo.SubscriptionRepo:
+    def get_sub_repo(self, hallo_obj: Hallo) -> hallo.modules.subscriptions.subscription_repo.SubscriptionRepo:
         if self.subscription_repo is None:
-            self.subscription_repo = hallo.modules.new_subscriptions.subscription_repo.SubscriptionRepo.load_json(
+            self.subscription_repo = hallo.modules.subscriptions.subscription_repo.SubscriptionRepo.load_json(
                 hallo_obj
             )
         return self.subscription_repo

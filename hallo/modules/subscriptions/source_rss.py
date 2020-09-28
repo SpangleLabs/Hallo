@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from hallo.destination import Destination, User, Channel
 from hallo.events import EventMessage, EventMessageWithPhoto
 from hallo.inc.commons import Commons
-import hallo.modules.new_subscriptions.stream_source
+import hallo.modules.subscriptions.stream_source
 from hallo.server import Server
 
 
@@ -34,7 +34,7 @@ def _get_feed_items(rss_elem: ElementTree.Element) -> List[ElementTree.Element]:
         return rss_elem.findall("{http://www.w3.org/2005/Atom}entry")
 
 
-class RssSource(hallo.modules.new_subscriptions.stream_source.StreamSource[ElementTree.Element]):
+class RssSource(hallo.modules.subscriptions.stream_source.StreamSource[ElementTree.Element]):
     names: List[str] = ["rss", "rss feed"]
     type_name: str = "rss"
 
@@ -42,7 +42,7 @@ class RssSource(hallo.modules.new_subscriptions.stream_source.StreamSource[Eleme
             self,
             url: str,
             feed_title: Optional[str] = None,
-            last_keys: Optional[List[hallo.modules.new_subscriptions.stream_source.Key]] = None
+            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
         self.url = url
@@ -88,7 +88,7 @@ class RssSource(hallo.modules.new_subscriptions.stream_source.StreamSource[Eleme
         self.feed_title = self._get_feed_title()
         return _get_feed_items(rss_elem)
 
-    def item_to_key(self, item: ElementTree.Element) -> hallo.modules.new_subscriptions.stream_source.Key:
+    def item_to_key(self, item: ElementTree.Element) -> hallo.modules.subscriptions.stream_source.Key:
         item_guid_elem = item.find("guid")
         if item_guid_elem is not None:
             item_hash = item_guid_elem.text

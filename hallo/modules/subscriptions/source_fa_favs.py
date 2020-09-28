@@ -3,36 +3,36 @@ from typing import Dict, Optional, List, NewType
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage, EventMessageWithPhoto
 
-import hallo.modules.new_subscriptions.stream_source
-import hallo.modules.new_subscriptions.common_fa_key
-import hallo.modules.new_subscriptions.subscription
+import hallo.modules.subscriptions.stream_source
+import hallo.modules.subscriptions.common_fa_key
+import hallo.modules.subscriptions.subscription
 from hallo.server import Server
 
 SubmissionId = NewType("SubmissionId", int)
 
 
-def fa_key_from_json(user_addr: str, server: Server, sub_repo) -> hallo.modules.new_subscriptions.common_fa_key.FAKey:
+def fa_key_from_json(user_addr: str, server: Server, sub_repo) -> hallo.modules.subscriptions.common_fa_key.FAKey:
     user = server.get_user_by_address(user_addr)
     if user is None:
-        raise hallo.modules.new_subscriptions.subscription.SubscriptionException(
+        raise hallo.modules.subscriptions.subscription.SubscriptionException(
             "Could not find user matching address `{}`".format(user_addr)
         )
-    fa_keys = sub_repo.get_common_config_by_type(hallo.modules.new_subscriptions.common_fa_key.FAKeysCommon)
-    assert isinstance(fa_keys, hallo.modules.new_subscriptions.common_fa_key.FAKeysCommon)
+    fa_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
+    assert isinstance(fa_keys, hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
     fa_key = fa_keys.get_key_by_user(user)
     if fa_key is None:
-        raise hallo.modules.new_subscriptions.subscription.SubscriptionException(
+        raise hallo.modules.subscriptions.subscription.SubscriptionException(
             "Could not find fa key for user: {}".format(user.name)
         )
     return fa_key
 
 
-def fa_key_from_input(user: User, sub_repo) -> hallo.modules.new_subscriptions.common_fa_key.FAKey:
-    fa_keys = sub_repo.get_common_config_by_type(hallo.modules.new_subscriptions.common_fa_key.FAKeysCommon)
-    assert isinstance(fa_keys, hallo.modules.new_subscriptions.common_fa_key.FAKeysCommon)
+def fa_key_from_input(user: User, sub_repo) -> hallo.modules.subscriptions.common_fa_key.FAKey:
+    fa_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
+    assert isinstance(fa_keys, hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
     fa_key = fa_keys.get_key_by_user(user)
     if fa_key is None:
-        raise hallo.modules.new_subscriptions.subscription.SubscriptionException(
+        raise hallo.modules.subscriptions.subscription.SubscriptionException(
             "Cannot create FA user favourites subscription without cookie details. "
             "Please set up FA cookies with "
             "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values."
@@ -40,7 +40,7 @@ def fa_key_from_input(user: User, sub_repo) -> hallo.modules.new_subscriptions.c
     return fa_key
 
 
-class FAFavsSource(hallo.modules.new_subscriptions.stream_source.StreamSource[SubmissionId]):
+class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[SubmissionId]):
     names: List[str] = [
         "fa user favs",
         "furaffinity user favs",
@@ -54,14 +54,14 @@ class FAFavsSource(hallo.modules.new_subscriptions.stream_source.StreamSource[Su
     def __init__(
             self,
             username: str,
-            fa_key: hallo.modules.new_subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[List[hallo.modules.new_subscriptions.stream_source.Key]] = None
+            fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
+            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
         self.username = username
         self.fa_key = fa_key
 
-    def item_to_key(self, item: SubmissionId) -> hallo.modules.new_subscriptions.stream_source.Key:
+    def item_to_key(self, item: SubmissionId) -> hallo.modules.subscriptions.stream_source.Key:
         return item
 
     def item_to_event(

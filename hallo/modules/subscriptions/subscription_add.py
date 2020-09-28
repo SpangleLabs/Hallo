@@ -1,8 +1,8 @@
 from hallo.events import EventMessage
 from hallo.function import Function
-import hallo.modules.new_subscriptions.subscription_factory
-import hallo.modules.new_subscriptions.subscription_check
-import hallo.modules.new_subscriptions.subscription
+import hallo.modules.subscriptions.subscription_factory
+import hallo.modules.subscriptions.subscription_check
+import hallo.modules.subscriptions.subscription
 
 
 class SubscriptionAdd(Function):
@@ -32,7 +32,7 @@ class SubscriptionAdd(Function):
         self.names = set(
             [
                 template.format(name, add, sub)
-                for name in hallo.modules.new_subscriptions.subscription_factory.SubscriptionFactory.get_source_names()
+                for name in hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.get_source_names()
                 for template in name_templates
                 for add in self.add_words
                 for sub in self.sub_words
@@ -54,7 +54,7 @@ class SubscriptionAdd(Function):
             ]
         ).strip()
         # Get class from sub type name
-        source_class = hallo.modules.new_subscriptions.subscription_factory.SubscriptionFactory.get_source_class_by_name(
+        source_class = hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.get_source_class_by_name(
             sub_type_name
         )
         # Get subscription repo
@@ -66,7 +66,7 @@ class SubscriptionAdd(Function):
         )  # type: hallo.modules.new_subscriptions.subscription_check.SubscriptionCheck
         sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
         # Create new subscription
-        sub_obj = hallo.modules.new_subscriptions.subscription.Subscription.create_from_input(
+        sub_obj = hallo.modules.subscriptions.subscription.Subscription.create_from_input(
             event, source_class, sub_repo
         )
         # Acquire lock and save sub

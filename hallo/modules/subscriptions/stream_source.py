@@ -3,14 +3,14 @@ from typing import TypeVar, Union, List, Generic, Optional
 
 from hallo.destination import Channel, User
 from hallo.events import EventMessage
-import hallo.modules.new_subscriptions.source
+import hallo.modules.subscriptions.source
 from hallo.server import Server
 
 Item = TypeVar("Item")
 Key = Union[str, int]
 
 
-class StreamSource(hallo.modules.new_subscriptions.source.Source[List[Item], List[Item]], Generic[Item]):
+class StreamSource(hallo.modules.subscriptions.source.Source[List[Item], List[Item]], Generic[Item]):
     def __init__(self, last_keys: Optional[List[Key]]):
         super().__init__()
         self.last_keys: List[Key] = last_keys or []

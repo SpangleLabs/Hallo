@@ -8,12 +8,12 @@ import dateutil.parser
 import hallo.modules.user_data
 from hallo.destination import User
 from hallo.inc.commons import CachedObject, Commons
-import hallo.modules.new_subscriptions.subscription_common
+import hallo.modules.subscriptions.subscription_common
 
 logger = logging.getLogger(__name__)
 
 
-class FAKeysCommon(hallo.modules.new_subscriptions.subscription_common.SubscriptionCommon):
+class FAKeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionCommon):
     type_name: str = "fa_keys"
 
     def __init__(self):

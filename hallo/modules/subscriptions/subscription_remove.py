@@ -2,9 +2,9 @@ from typing import List
 
 from hallo.events import EventMessage
 from hallo.function import Function
-import hallo.modules.new_subscriptions.subscription_factory
-import hallo.modules.new_subscriptions.subscription_check
-import hallo.modules.new_subscriptions.subscription
+import hallo.modules.subscriptions.subscription_factory
+import hallo.modules.subscriptions.subscription_check
+import hallo.modules.subscriptions.subscription
 
 
 class SubscriptionRemove(Function):
@@ -36,7 +36,7 @@ class SubscriptionRemove(Function):
         self.names = set(
             [
                 template.format(name, remove, sub)
-                for name in hallo.modules.new_subscriptions.subscription_factory.SubscriptionFactory.get_source_names()
+                for name in hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.get_source_names()
                 for template in name_templates
                 for remove in self.remove_words
                 for sub in self.sub_words
@@ -56,7 +56,7 @@ class SubscriptionRemove(Function):
         sub_check_function = function_dispatcher.get_function_by_name(
             "check subscription"
         )
-        sub_check_obj: hallo.modules.new_subscriptions.subscription_check.SubscriptionCheck = \
+        sub_check_obj: hallo.modules.subscriptions.subscription_check.SubscriptionCheck = \
             function_dispatcher.get_function_object(
                 sub_check_function
             )
@@ -66,7 +66,7 @@ class SubscriptionRemove(Function):
         # Acquire lock
         with sub_repo.sub_lock:
             # Find any feeds with specified title
-            test_subs: List[hallo.modules.new_subscriptions.subscription.Subscription] = sub_repo.get_subs_by_name(
+            test_subs: List[hallo.modules.subscriptions.subscription.Subscription] = sub_repo.get_subs_by_name(
                 clean_input.lower(),
                 event.user if event.channel is None else event.channel,
             )

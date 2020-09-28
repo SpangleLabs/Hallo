@@ -7,8 +7,8 @@ import isodate
 from hallo.destination import Destination, Channel, User
 from hallo.events import EventMessage
 from hallo.hallo import Hallo
-import hallo.modules.new_subscriptions.source
-import hallo.modules.new_subscriptions.subscription_factory
+import hallo.modules.subscriptions.source
+import hallo.modules.subscriptions.subscription_factory
 from hallo.server import Server
 
 
@@ -28,7 +28,7 @@ class Subscription:
     ):
         self.server: Server = server
         self.destination: Destination = destination
-        self.source: hallo.modules.new_subscriptions.source.Source = source
+        self.source: hallo.modules.subscriptions.source.Source = source
         self.period: timedelta = period
         self.last_check: Optional[datetime] = last_check
         self.last_update: Optional[datetime] = last_update
@@ -137,7 +137,7 @@ class Subscription:
         if "last_update" in json_data:
             last_update = dateutil.parser.parse(json_data["last_update"])
         # Load source
-        source = hallo.modules.new_subscriptions.subscription_factory.SubscriptionFactory.source_from_json(
+        source = hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.source_from_json(
             json_data["source"], destination, sub_repo
         )
         subscription = Subscription(

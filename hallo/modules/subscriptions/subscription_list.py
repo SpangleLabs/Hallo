@@ -2,9 +2,9 @@ from typing import List
 
 from hallo.events import EventMessage
 from hallo.function import Function
-import hallo.modules.new_subscriptions.subscription_factory
-import hallo.modules.new_subscriptions.subscription_check
-import hallo.modules.new_subscriptions.subscription
+import hallo.modules.subscriptions.subscription_factory
+import hallo.modules.subscriptions.subscription_check
+import hallo.modules.subscriptions.subscription
 
 
 class SubscriptionList(Function):
@@ -36,7 +36,7 @@ class SubscriptionList(Function):
         self.names = set(
             [
                 template.format(name, list_word, sub)
-                for name in hallo.modules.new_subscriptions.subscription_factory.SubscriptionFactory.get_source_names()
+                for name in hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.get_source_names()
                 for template in name_templates
                 for list_word in self.list_words
                 for sub in self.sub_words
@@ -61,7 +61,7 @@ class SubscriptionList(Function):
         sub_repo = sub_check_obj.get_sub_repo(hallo_obj)
         # Find list of feeds for current channel.
         with sub_repo.sub_lock:
-            dest_searches: List[hallo.modules.new_subscriptions.subscription.Subscription] = \
+            dest_searches: List[hallo.modules.subscriptions.subscription.Subscription] = \
                 sub_repo.get_subs_by_destination(
                     event.user if event.channel is None else event.channel
                 )

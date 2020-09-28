@@ -3,13 +3,13 @@ from typing import List, Optional, Dict
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage, EventMessageWithPhoto
 from hallo.inc.input_parser import InputParser
-import hallo.modules.new_subscriptions.source_e621
-import hallo.modules.new_subscriptions.stream_source
-import hallo.modules.new_subscriptions.subscription
+import hallo.modules.subscriptions.source_e621
+import hallo.modules.subscriptions.stream_source
+import hallo.modules.subscriptions.subscription
 from hallo.server import Server
 
 
-class E621TaggingSource(hallo.modules.new_subscriptions.source_e621.E621Source):
+class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
     type_name = "e621_tagging"
     type_names: List[str] = ["e621 tagging", "e621 tagging search", "tagging e621"]
 
@@ -17,7 +17,7 @@ class E621TaggingSource(hallo.modules.new_subscriptions.source_e621.E621Source):
             self,
             search: str,
             tags: List[str],
-            last_keys: Optional[List[hallo.modules.new_subscriptions.stream_source.Key]] = None
+            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(search, last_keys)
         self.tags: List[str] = tags
@@ -51,7 +51,7 @@ class E621TaggingSource(hallo.modules.new_subscriptions.source_e621.E621Source):
                 search = search_arg
                 tags = parsed.remaining_text.split()
             else:
-                raise hallo.modules.new_subscriptions.subscription.SubscriptionException(
+                raise hallo.modules.subscriptions.subscription.SubscriptionException(
                     'You need to specify a search term with search="search term" and '
                     'tags to watch with tags="tags to watch"'
                 )

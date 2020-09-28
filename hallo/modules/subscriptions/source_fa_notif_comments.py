@@ -3,16 +3,16 @@ from urllib.error import HTTPError
 
 from hallo.destination import Destination, User, Channel
 from hallo.events import EventMessage
-import hallo.modules.new_subscriptions.source_fa_favs
-import hallo.modules.new_subscriptions.stream_source
-import hallo.modules.new_subscriptions.common_fa_key
-import hallo.modules.new_subscriptions.source
+import hallo.modules.subscriptions.source_fa_favs
+import hallo.modules.subscriptions.stream_source
+import hallo.modules.subscriptions.common_fa_key
+import hallo.modules.subscriptions.source
 from hallo.server import Server
 
 
 class FASubmissionCommentSource(
-    hallo.modules.new_subscriptions.stream_source.StreamSource[
-        hallo.modules.new_subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentSubmission
+    hallo.modules.subscriptions.stream_source.StreamSource[
+        hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentSubmission
     ]
 ):
     type_name = "fa_submission_comments"
@@ -20,26 +20,26 @@ class FASubmissionCommentSource(
 
     def __init__(
             self,
-            fa_key: hallo.modules.new_subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[List[hallo.modules.new_subscriptions.stream_source.Key]] = None
+            fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
+            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
 
     def current_state(
             self
-    ) -> List[hallo.modules.new_subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentSubmission]:
+    ) -> List[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentSubmission]:
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         return notif_page.submission_comments
 
     def item_to_key(
-            self, item: hallo.modules.new_subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentSubmission
-    ) -> hallo.modules.new_subscriptions.stream_source.Key:
+            self, item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentSubmission
+    ) -> hallo.modules.subscriptions.stream_source.Key:
         return item.comment_id
 
     def item_to_event(
             self, server: Server, channel: Optional[Channel], user: Optional[User],
-            item: hallo.modules.new_subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentSubmission
+            item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentSubmission
     ) -> EventMessage:
         fa_reader = self.fa_key.get_fa_reader()
         response_str = "in response to your comment " if item.comment_on else ""
@@ -72,12 +72,12 @@ class FASubmissionCommentSource(
 
     @classmethod
     def from_input(cls, argument: str, user: User, sub_repo) -> 'FASubmissionCommentSource':
-        fa_key = hallo.modules.new_subscriptions.source_fa_favs.fa_key_from_input(user, sub_repo)
+        fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_input(user, sub_repo)
         return FASubmissionCommentSource(fa_key)
 
     @classmethod
     def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FASubmissionCommentSource':
-        fa_key = hallo.modules.new_subscriptions.source_fa_favs.fa_key_from_json(
+        fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             json_data["fa_key_user_address"], destination.server, sub_repo
         )
         return FASubmissionCommentSource(fa_key, json_data["last_keys"])
@@ -91,8 +91,8 @@ class FASubmissionCommentSource(
 
 
 class FAJournalCommentSource(
-    hallo.modules.new_subscriptions.stream_source.StreamSource[
-        hallo.modules.new_subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentJournal
+    hallo.modules.subscriptions.stream_source.StreamSource[
+        hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentJournal
     ]
 ):
     type_name = "fa_journal_comments"
@@ -100,27 +100,27 @@ class FAJournalCommentSource(
 
     def __init__(
             self,
-            fa_key: hallo.modules.new_subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[List[hallo.modules.new_subscriptions.stream_source.Key]] = None
+            fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
+            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
 
     def current_state(
             self
-    ) -> List[hallo.modules.new_subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentJournal]:
+    ) -> List[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentJournal]:
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         return notif_page.journal_comments
 
     def item_to_key(
             self,
-            item: hallo.modules.new_subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentJournal
-    ) -> hallo.modules.new_subscriptions.stream_source.Key:
+            item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentJournal
+    ) -> hallo.modules.subscriptions.stream_source.Key:
         return item.comment_id
 
     def item_to_event(
             self, server: Server, channel: Optional[Channel], user: Optional[User],
-            item: hallo.modules.new_subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentJournal
+            item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentJournal
     ) -> EventMessage:
         fa_reader = self.fa_key.get_fa_reader()
         response_str = "in response to your comment " if item.comment_on else ""
@@ -153,12 +153,12 @@ class FAJournalCommentSource(
 
     @classmethod
     def from_input(cls, argument: str, user: User, sub_repo) -> 'FAJournalCommentSource':
-        fa_key = hallo.modules.new_subscriptions.source_fa_favs.fa_key_from_input(user, sub_repo)
+        fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_input(user, sub_repo)
         return FAJournalCommentSource(fa_key)
 
     @classmethod
     def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FAJournalCommentSource':
-        fa_key = hallo.modules.new_subscriptions.source_fa_favs.fa_key_from_json(
+        fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             json_data["fa_key_user_address"], destination.server, sub_repo
         )
         return FAJournalCommentSource(fa_key, json_data["last_keys"])
@@ -172,33 +172,33 @@ class FAJournalCommentSource(
 
 
 class FAShoutSource(
-    hallo.modules.new_subscriptions.stream_source.StreamSource[
-        hallo.modules.new_subscriptions.common_fa_key.FAKey.FAReader.FANotificationShout
+    hallo.modules.subscriptions.stream_source.StreamSource[
+        hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationShout
     ]
 ):
     type_name = "fa_shouts"
     type_names = ["fa shouts"]
 
     def __init__(
-            self, fa_key: hallo.modules.new_subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[List[hallo.modules.new_subscriptions.stream_source.Key]] = None
+            self, fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
+            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
 
-    def current_state(self) -> List[hallo.modules.new_subscriptions.common_fa_key.FAKey.FAReader.FANotificationShout]:
+    def current_state(self) -> List[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationShout]:
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         return notif_page.shouts
 
     def item_to_key(
             self,
-            item: hallo.modules.new_subscriptions.common_fa_key.FAKey.FAReader.FANotificationShout
-    ) -> hallo.modules.new_subscriptions.stream_source.Key:
+            item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationShout
+    ) -> hallo.modules.subscriptions.stream_source.Key:
         return item.shout_id
 
     def item_to_event(
             self, server: Server, channel: Optional[Channel], user: Optional[User],
-            item: hallo.modules.new_subscriptions.common_fa_key.FAKey.FAReader.FANotificationShout
+            item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationShout
     ) -> EventMessage:
         fa_reader = self.fa_key.get_fa_reader()
         try:
@@ -230,12 +230,12 @@ class FAShoutSource(
 
     @classmethod
     def from_input(cls, argument: str, user: User, sub_repo) -> 'FAShoutSource':
-        fa_key = hallo.modules.new_subscriptions.source_fa_favs.fa_key_from_input(user, sub_repo)
+        fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_input(user, sub_repo)
         return FAShoutSource(fa_key)
 
     @classmethod
     def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FAShoutSource':
-        fa_key = hallo.modules.new_subscriptions.source_fa_favs.fa_key_from_json(
+        fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             json_data["fa_key_user_address"],
             destination.server, sub_repo
         )
@@ -249,7 +249,7 @@ class FAShoutSource(
         }
 
 
-class FACommentNotificationsSource(hallo.modules.new_subscriptions.source.Source[Dict, Dict]):
+class FACommentNotificationsSource(hallo.modules.subscriptions.source.Source[Dict, Dict]):
     names: List[str] = [
         "{}{}{}".format(fa, comments, notifications)
         for fa in ["fa ", "furaffinity "]
@@ -260,7 +260,7 @@ class FACommentNotificationsSource(hallo.modules.new_subscriptions.source.Source
 
     def __init__(
             self,
-            fa_key: hallo.modules.new_subscriptions.common_fa_key.FAKey,
+            fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
             submission_source: FASubmissionCommentSource,
             journal_source: FAJournalCommentSource,
             shout_source: FAShoutSource,
@@ -280,7 +280,7 @@ class FACommentNotificationsSource(hallo.modules.new_subscriptions.source.Source
 
     @classmethod
     def from_input(cls, argument: str, user: User, sub_repo) -> 'FACommentNotificationsSource':
-        fa_key = hallo.modules.new_subscriptions.source_fa_favs.fa_key_from_input(user, sub_repo)
+        fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_input(user, sub_repo)
         submission_source = FASubmissionCommentSource(fa_key)
         journal_source = FAJournalCommentSource(fa_key)
         shout_source = FAShoutSource(fa_key)
@@ -322,7 +322,7 @@ class FACommentNotificationsSource(hallo.modules.new_subscriptions.source.Source
     @classmethod
     def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FACommentNotificationsSource':
         user_addr = json_data["fa_key_user_address"]
-        fa_key = hallo.modules.new_subscriptions.source_fa_favs.fa_key_from_json(
+        fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             user_addr, destination.server,
             sub_repo
         )

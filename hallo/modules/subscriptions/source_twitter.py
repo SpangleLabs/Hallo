@@ -4,13 +4,13 @@ from xml.etree import ElementTree
 
 from hallo.destination import User, Channel, Destination
 from hallo.events import EventMessage
-import hallo.modules.new_subscriptions.source_rss
-import hallo.modules.new_subscriptions.stream_source
-import hallo.modules.new_subscriptions.subscription
+import hallo.modules.subscriptions.source_rss
+import hallo.modules.subscriptions.stream_source
+import hallo.modules.subscriptions.subscription
 from hallo.server import Server
 
 
-class TwitterSource(hallo.modules.new_subscriptions.source_rss.RssSource):
+class TwitterSource(hallo.modules.subscriptions.source_rss.RssSource):
     names: List[str] = ["twitter", "tweets", "twitter account"]
     type_name: str = "twitter"
 
@@ -23,7 +23,7 @@ class TwitterSource(hallo.modules.new_subscriptions.source_rss.RssSource):
             self,
             handle: str,
             extra: Optional[str],
-            last_keys: Optional[List[hallo.modules.new_subscriptions.stream_source.Key]] = None
+            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         url = f"https://nitter.net/{handle}/rss"
         if extra is not None:
@@ -36,7 +36,7 @@ class TwitterSource(hallo.modules.new_subscriptions.source_rss.RssSource):
     def from_input(cls, argument: str, user: User, sub_repo) -> 'TwitterSource':
         match = TwitterSource.profile_regex.match(argument)
         if match is None:
-            raise hallo.modules.new_subscriptions.subscription.SubscriptionException(
+            raise hallo.modules.subscriptions.subscription.SubscriptionException(
                 "Argument does not match pattern for twitter account"
             )
         handle = match.group(1)
@@ -60,7 +60,7 @@ class TwitterSource(hallo.modules.new_subscriptions.source_rss.RssSource):
             self, server: Server, channel: Optional[Channel], user: Optional[User],
             item: ElementTree.Element
     ) -> EventMessage:
-        item_link = hallo.modules.new_subscriptions.source_rss.get_rss_item_link(item).replace(
+        item_link = hallo.modules.subscriptions.source_rss.get_rss_item_link(item).replace(
             "nitter.net", "twitter.com"
         )
         # Construct output
