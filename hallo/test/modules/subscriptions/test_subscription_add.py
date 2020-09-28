@@ -4,13 +4,13 @@ import unittest
 import pytest
 
 from hallo.events import EventMessage
-from hallo.modules.subscriptions.sub_e621 import E621Sub
+from hallo.modules.subscriptions.source_e621 import E621Source
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
 from hallo.test.test_base import TestBase
 
 
 @pytest.mark.external_integration
-class E621SubAddTest(TestBase, unittest.TestCase):
+class SubscriptionAddTest(TestBase, unittest.TestCase):
     def setUp(self):
         try:
             os.rename("store/subscriptions.json", "store/subscriptions.json.tmp")
@@ -57,7 +57,7 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         )  # type: SubscriptionCheck
         rfl = e621_check_obj.get_sub_repo(self.hallo).sub_list
         assert len(rfl) == 1, "Actual length: " + str(len(rfl))
-        e6_sub = rfl[0]  # type: E621Sub
+        e6_sub: E621Source = rfl[0]
         assert e6_sub.search == "cabinet"
         assert e6_sub.server == self.server
         assert e6_sub.destination == self.test_chan
@@ -84,7 +84,7 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         )  # type: SubscriptionCheck
         rfl = e621_check_obj.get_sub_repo(self.hallo).sub_list
         assert len(rfl) == 1, "Actual length: " + str(len(rfl))
-        e6_sub = rfl[0]  # type: E621Sub
+        e6_sub: E621Source = rfl[0]
         assert e6_sub.search == "cabinet"
         assert e6_sub.server == self.server
         assert e6_sub.destination == self.test_user
@@ -116,7 +116,7 @@ class E621SubAddTest(TestBase, unittest.TestCase):
         )  # type: SubscriptionCheck
         rfl = e621_check_obj.get_sub_repo(self.hallo).sub_list
         assert len(rfl) == 1, "Actual length: " + str(len(rfl))
-        e6_sub = rfl[0]  # type: E621Sub
+        e6_sub: E621Source = rfl[0]
         assert e6_sub.search == "cabinet"
         assert e6_sub.server == self.server
         assert e6_sub.destination == self.test_chan

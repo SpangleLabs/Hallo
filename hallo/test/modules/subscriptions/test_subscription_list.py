@@ -1,11 +1,10 @@
 import os
 import unittest
 
-import isodate
 import pytest
 
 from hallo.events import EventMessage
-from hallo.modules.subscriptions.sub_e621 import E621Sub
+from hallo.modules.subscriptions.source_e621 import E621Source
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
 from hallo.test.test_base import TestBase
 
@@ -50,26 +49,11 @@ class SubE621ListTest(TestBase, unittest.TestCase):
         )  # type: SubscriptionCheck
         rfl = rss_check_obj.get_sub_repo(self.hallo)
         # Add RSS feeds to feed list
-        rf1 = E621Sub(
-            self.server,
-            self.test_chan,
-            "cabinet",
-            update_frequency=isodate.parse_duration("PT3600S"),
-        )
+        rf1 = E621Source("cabinet")
         rfl.add_sub(rf1)
-        rf2 = E621Sub(
-            self.server,
-            another_chan,
-            "clefable",
-            update_frequency=isodate.parse_duration("PT3600S"),
-        )
+        rf2 = E621Source("clefable")
         rfl.add_sub(rf2)
-        rf3 = E621Sub(
-            self.server,
-            self.test_chan,
-            "fez",
-            update_frequency=isodate.parse_duration("PT3600S"),
-        )
+        rf3 = E621Source("fez")
         rfl.add_sub(rf3)
         # Run FeedList and check output
         self.function_dispatcher.dispatch(
@@ -78,11 +62,11 @@ class SubE621ListTest(TestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         data_split = data[0].text.split("\n")
         assert (
-            "subscriptions posting" in data_split[0].lower()
+                "subscriptions posting" in data_split[0].lower()
         ), "Missing title. Response data: " + str(data[0].text)
         assert "cabinet" in data_split[1].lower() or "cabinet" in data_split[2].lower()
         assert (
-            "clefable" not in data_split[1].lower()
-            and "clefable" not in data_split[2].lower()
+                "clefable" not in data_split[1].lower()
+                and "clefable" not in data_split[2].lower()
         )
         assert "fez" in data_split[1].lower() or "fez" in data_split[2].lower()

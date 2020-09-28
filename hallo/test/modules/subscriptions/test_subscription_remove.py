@@ -5,7 +5,7 @@ import isodate
 import pytest
 
 from hallo.events import EventMessage
-from hallo.modules.subscriptions.sub_e621 import E621Sub
+from hallo.modules.subscriptions.source_e621 import E621Source
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
 from hallo.test.test_base import TestBase
 
@@ -41,26 +41,11 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         )  # type: SubscriptionCheck
         rfl = e621_check_obj.get_sub_repo(self.hallo)
         # Add E621 searches to subscription list
-        rf1 = E621Sub(
-            self.server,
-            self.test_chan,
-            "cabinet",
-            update_frequency=isodate.parse_duration("PT3600S"),
-        )
+        rf1 = E621Source("cabinet")
         rfl.add_sub(rf1)
-        rf2 = E621Sub(
-            self.server,
-            another_chan,
-            "clefable",
-            update_frequency=isodate.parse_duration("PT3600S"),
-        )
+        rf2 = E621Source("clefable")
         rfl.add_sub(rf2)
-        rf3 = E621Sub(
-            self.server,
-            self.test_chan,
-            "fez",
-            update_frequency=isodate.parse_duration("PT3600S"),
-        )
+        rf3 = E621Source("fez")
         rfl.add_sub(rf3)
         # Remove test search
         self.function_dispatcher.dispatch(
@@ -70,7 +55,7 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         )
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert (
-            'removed e621 subscription to search for "cabinet"' in data[0].text.lower()
+                'removed e621 subscription to search for "cabinet"' in data[0].text.lower()
         ), "Response did not contain expected string. Response was {}".format(
             data[0].text
         )
@@ -89,26 +74,11 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         )  # type: SubscriptionCheck
         rfl = e621_check_obj.get_sub_repo(self.hallo)
         # Add E621 searches to subscription list
-        rf1 = E621Sub(
-            self.server,
-            self.test_chan,
-            "cabinet",
-            update_frequency=isodate.parse_duration("PT3600S"),
-        )
+        rf1 = E621Source("cabinet")
         rfl.add_sub(rf1)
-        rf2 = E621Sub(
-            self.server,
-            another_chan,
-            "clefable",
-            update_frequency=isodate.parse_duration("PT3600S"),
-        )
+        rf2 = E621Source("clefable")
         rfl.add_sub(rf2)
-        rf3 = E621Sub(
-            self.server,
-            self.test_chan,
-            "cabinet",
-            update_frequency=isodate.parse_duration("PT3600S"),
-        )
+        rf3 = E621Source("cabinet")
         rfl.add_sub(rf3)
         # Remove test feed
         self.function_dispatcher.dispatch(
@@ -118,17 +88,17 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         )
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert (
-            "removed 2 subscriptions" in data[0].text.lower()
+                "removed 2 subscriptions" in data[0].text.lower()
         ), "Response did not contain expected string. Response was {}".format(
             data[0].text
         )
         assert (
-            "cabinet" in data[0].text.lower()
+                "cabinet" in data[0].text.lower()
         ), "Response did not contain expected string. Response was {}".format(
             data[0].text
         )
         assert (
-            "e621" in data[0].text.lower()
+                "e621" in data[0].text.lower()
         ), "Response did not contain expected string. Response was {}".format(
             data[0].text
         )
@@ -147,26 +117,11 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         )  # type: SubscriptionCheck
         rfl = e621_check_obj.get_sub_repo(self.hallo)
         # Add E621 searches to subscription list
-        rf1 = E621Sub(
-            self.server,
-            self.test_chan,
-            "cabinet",
-            update_frequency=isodate.parse_duration("PT3600S"),
-        )
+        rf1 = E621Source("cabinet")
         rfl.add_sub(rf1)
-        rf2 = E621Sub(
-            self.server,
-            another_chan,
-            "clefable",
-            update_frequency=isodate.parse_duration("PT3600S"),
-        )
+        rf2 = E621Source("clefable")
         rfl.add_sub(rf2)
-        rf3 = E621Sub(
-            self.server,
-            self.test_chan,
-            "fez",
-            update_frequency=isodate.parse_duration("PT3600S"),
-        )
+        rf3 = E621Source("fez")
         rfl.add_sub(rf3)
         # Try to remove invalid search
         self.function_dispatcher.dispatch(
