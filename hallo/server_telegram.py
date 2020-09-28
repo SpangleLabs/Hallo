@@ -223,32 +223,36 @@ class ServerTelegram(Server):
     def send(self, event):
         if isinstance(event, EventMessageWithPhoto):
             destination = event.user if event.channel is None else event.channel
-            if isinstance(event.photo_id, list):
-                media = [InputMediaPhoto(x) for x in event.photo_id]
-                media[0].caption = event.text
-                media[0].parse_mode = self.formatting_to_telegram_mode(event.formatting)
-                msg = self.bot.send_media_group(
-                    chat_id=destination.address, media=media
-                )
-            elif any(
-                [
-                    event.photo_id.lower().endswith("." + x)
-                    for x in ServerTelegram.image_extensions
-                ]
-            ):
-                msg = self.bot.send_photo(
-                    chat_id=destination.address,
-                    photo=event.photo_id,
-                    caption=event.text,
-                    parse_mode=self.formatting_to_telegram_mode(event.formatting),
-                )
-            else:
-                msg = self.bot.send_document(
-                    chat_id=destination.address,
-                    document=event.photo_id,
-                    caption=event.text,
-                    parse_mode=self.formatting_to_telegram_mode(event.formatting),
-                )
+            try:
+                if isinstance(event.photo_id, list):
+                    media = [InputMediaPhoto(x) for x in event.photo_id]
+                    media[0].caption = event.text
+                    media[0].parse_mode = self.formatting_to_telegram_mode(event.formatting)
+                    msg = self.bot.send_media_group(
+                        chat_id=destination.address, media=media
+                    )
+                elif any(
+                    [
+                        event.photo_id.lower().endswith("." + x)
+                        for x in ServerTelegram.image_extensions
+                    ]
+                ):
+                    msg = self.bot.send_photo(
+                        chat_id=destination.address,
+                        photo=event.photo_id,
+                        caption=event.text,
+                        parse_mode=self.formatting_to_telegram_mode(event.formatting),
+                    )
+                else:
+                    msg = self.bot.send_document(
+                        chat_id=destination.address,
+                        document=event.photo_id,
+                        caption=event.text,
+                        parse_mode=self.formatting_to_telegram_mode(event.formatting),
+                    )
+            except Exception as e:
+                logger.error("Failed to send message with picture. Picture path %s", event.photo_id, exc_info=e)
+                raise e
             event.with_raw_data(RawDataTelegramOutbound(msg))
             event.log()
             return event
