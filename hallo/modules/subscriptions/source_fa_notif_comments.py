@@ -53,14 +53,16 @@ class FASubmissionCommentSource(
                 server, channel, user,
                 "You have a submission comment notification. "
                 f'{item.name} has made a new comment {response_str}on {owner_str} submission '
-                f'"{item.submission_name}" {item.submission_link} : \n\n{comment.text}'
+                f'"{item.submission_name}" {item.submission_link} : \n\n{comment.text}',
+                inbound=False
             )
         except HTTPError:
             return EventMessage(
                 server, channel, user,
                 "You have a submission comment notification. "
                 f'{item.name} has made a new comment {response_str}on {owner_str} submission '
-                f'"{item.submission_name}" {item.submission_link} : but I can\'t find the comment.'
+                f'"{item.submission_name}" {item.submission_link} : but I can\'t find the comment.',
+                inbound=False
             )
 
     def matches_name(self, name_clean: str) -> bool:
@@ -134,14 +136,16 @@ class FAJournalCommentSource(
                 server, channel, user,
                 f"You have a journal comment notification. {item.name} has made a new comment "
                 f"{response_str}on {owner_str} journal "
-                f'"{item.journal_name}" {item.journal_link} : \n\n{comment.text}'
+                f'"{item.journal_name}" {item.journal_link} : \n\n{comment.text}',
+                inbound=False
             )
         except HTTPError:
             return EventMessage(
                 server, channel, user,
                 f"You have a journal comment notification. {item.name} has made a new comment "
                 f"{response_str}on {owner_str} journal "
-                f'"{item.journal_name}" {item.journal_link} but I can\'t find the comment.'
+                f'"{item.journal_name}" {item.journal_link} but I can\'t find the comment.',
+                inbound=False
             )
 
     def matches_name(self, name_clean: str) -> bool:
@@ -211,14 +215,16 @@ class FAShoutSource(
             return EventMessage(
                 server, channel, user,
                 f"You have a new shout, from {item.name} ( http://furaffinity.net/user/{item.username}/ ) "
-                f"has left a shout saying: \n\n{shout[0].text}"
+                f"has left a shout saying: \n\n{shout[0].text}",
+                inbound=False
             )
         except HTTPError:
             return EventMessage(
                 server, channel, user,
                 f"You have a new shout, from {item.name} ( http://furaffinity.net/user/{item.username}/ ) "
                 "has left a shout but I can't find it on your user page: \n"
-                f"https://furaffinity.net/user/{item.page_username}/"
+                f"https://furaffinity.net/user/{item.page_username}/",
+                inbound=False
             )
 
     def matches_name(self, name_clean: str) -> bool:
