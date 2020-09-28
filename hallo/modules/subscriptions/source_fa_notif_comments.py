@@ -71,7 +71,7 @@ class FASubmissionCommentSource(
         return f"FA submission comments for {self.fa_key.user.name}"
 
     @classmethod
-    def from_input(cls, argument: str, Fauser: User, sub_repo) -> 'FASubmissionCommentSource':
+    def from_input(cls, argument: str, user: User, sub_repo) -> 'FASubmissionCommentSource':
         fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_input(user, sub_repo)
         return FASubmissionCommentSource(fa_key)
 
