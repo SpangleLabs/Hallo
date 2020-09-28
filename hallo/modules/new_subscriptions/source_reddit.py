@@ -4,15 +4,18 @@ from typing import Dict, List, Optional
 from hallo.destination import Destination, User, Channel
 from hallo.events import EventMessage, EventMessageWithPhoto
 from hallo.inc.commons import Commons
-from hallo.modules.new_subscriptions.stream_source import StreamSource, Key
+import hallo.modules.new_subscriptions.stream_source
 from hallo.server import Server
 
 
-class RedditSource(StreamSource[Dict]):
+class RedditSource(hallo.modules.new_subscriptions.stream_source.StreamSource[Dict]):
     names: List[str] = ["reddit", "subreddit"]
     type_name: str = "subreddit"
 
-    def __init__(self, subreddit: str, last_keys: Optional[List[Key]] = None):
+    def __init__(
+            self, subreddit: str,
+            last_keys: Optional[List[hallo.modules.new_subscriptions.stream_source.Key]] = None
+    ):
         super().__init__(last_keys)
         self.subreddit = subreddit
 
@@ -21,7 +24,7 @@ class RedditSource(StreamSource[Dict]):
         results = Commons.load_url_json(url)
         return results["data"]["children"]
 
-    def item_to_key(self, item: Dict) -> Key:
+    def item_to_key(self, item: Dict) -> hallo.modules.new_subscriptions.stream_source.Key:
         return item["data"]["name"]
 
     def item_to_event(

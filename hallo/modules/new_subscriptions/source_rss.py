@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from hallo.destination import Destination, User, Channel
 from hallo.events import EventMessage, EventMessageWithPhoto
 from hallo.inc.commons import Commons
-from hallo.modules.new_subscriptions.stream_source import StreamSource, Key
+import hallo.modules.new_subscriptions.stream_source
 from hallo.server import Server
 
 
@@ -19,7 +19,7 @@ def _get_item_title(feed_item: ElementTree.Element) -> str:
     return feed_item.find("{http://www.w3.org/2005/Atom}title").text
 
 
-def _get_item_link(feed_item: ElementTree.Element) -> str:
+def get_rss_item_link(feed_item: ElementTree.Element) -> str:
     link_elem = feed_item.find("link")
     if link_elem is not None:
         return link_elem.text
@@ -34,11 +34,16 @@ def _get_feed_items(rss_elem: ElementTree.Element) -> List[ElementTree.Element]:
         return rss_elem.findall("{http://www.w3.org/2005/Atom}entry")
 
 
-class RssSource(StreamSource[ElementTree.Element]):
+class RssSource(hallo.modules.new_subscriptions.stream_source.StreamSource[ElementTree.Element]):
     names: List[str] = ["rss", "rss feed"]
     type_name: str = "rss"
 
-    def __init__(self, url: str, feed_title: Optional[str] = None, last_keys: Optional[List[Key]] = None):
+    def __init__(
+            self,
+            url: str,
+            feed_title: Optional[str] = None,
+            last_keys: Optional[List[hallo.modules.new_subscriptions.stream_source.Key]] = None
+    ):
         super().__init__(last_keys)
         self.url = url
         if feed_title is None:
@@ -83,7 +88,7 @@ class RssSource(StreamSource[ElementTree.Element]):
         self.feed_title = self._get_feed_title()
         return _get_feed_items(rss_elem)
 
-    def item_to_key(self, item: ElementTree.Element) -> Key:
+    def item_to_key(self, item: ElementTree.Element) -> hallo.modules.new_subscriptions.stream_source.Key:
         item_guid_elem = item.find("guid")
         if item_guid_elem is not None:
             item_hash = item_guid_elem.text
@@ -106,7 +111,7 @@ class RssSource(StreamSource[ElementTree.Element]):
             return custom_evt
         # Load item xml
         item_title = _get_item_title(item)
-        item_link = _get_item_link(item)
+        item_link = get_rss_item_link(item)
         # Construct output
         output = f'Update on "{self.feed_title}" RSS feed. "{item_title}" {item_link}'
         output_evt = EventMessage(server, channel, user, output, inbound=False)
@@ -150,7 +155,7 @@ class RssSource(StreamSource[ElementTree.Element]):
             )
         if "rss.app" in self.url:
             item_title = _get_item_title(item)
-            item_link = _get_item_link(item)
+            item_link = get_rss_item_link(item)
             page_code = Commons.load_url_string(item_link)
             soup = BeautifulSoup(page_code, "html.parser")
             head_script = soup.select_one("head script")
@@ -164,7 +169,7 @@ class RssSource(StreamSource[ElementTree.Element]):
             return EventMessage(server, channel, user, output, inbound=False)
         if "nitter.net" in self.url:
             item_title = _get_item_title(item)
-            item_link = _get_item_link(item).replace("nitter.net", "twitter.com")
+            item_link = get_rss_item_link(item).replace("nitter.net", "twitter.com")
             # Construct output
             output = f'Update on "{self.feed_title}" RSS feed. "{item_title}" {item_link}'
             output_evt = EventMessage(server, channel, user, output, inbound=False)

@@ -1,7 +1,6 @@
 from typing import List, Type, Dict
 
 from hallo.destination import Destination
-from hallo.hallo import Hallo
 import hallo.modules.new_subscriptions.common_fa_key
 import hallo.modules.new_subscriptions.subscription_common
 import hallo.modules.new_subscriptions.subscription

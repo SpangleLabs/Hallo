@@ -4,15 +4,15 @@ from typing import Dict, List, Optional
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage, EventMessageWithPhoto
 from hallo.inc.commons import Commons
-from hallo.modules.new_subscriptions.stream_source import StreamSource, Key
+import hallo.modules.new_subscriptions.stream_source
 from hallo.server import Server
 
 
-class E621Source(StreamSource[Dict]):
+class E621Source(hallo.modules.new_subscriptions.stream_source.StreamSource[Dict]):
     type_name: str = "e621"
     type_names: List[str] = ["e621", "e621 search", "search e621"]
 
-    def __init__(self, search: str, last_keys: List[Key] = None):
+    def __init__(self, search: str, last_keys: List[hallo.modules.new_subscriptions.stream_source.Key] = None):
         super().__init__(last_keys)
         self.search: str = search
 
@@ -37,7 +37,7 @@ class E621Source(StreamSource[Dict]):
         results = Commons.load_url_json(url)
         return results["posts"]
 
-    def item_to_key(self, item: Dict) -> Key:
+    def item_to_key(self, item: Dict) -> hallo.modules.new_subscriptions.stream_source.Key:
         return item["id"]
 
     def item_to_event(
