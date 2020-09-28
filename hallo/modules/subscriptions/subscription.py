@@ -92,7 +92,7 @@ class Subscription:
             if update:
                 was_update = True
                 self.last_update = datetime.now()
-            self.send(update)
+                self.send(update)
         self.source.save_state(new_state)
         self.last_check = datetime.now()
         return was_update
