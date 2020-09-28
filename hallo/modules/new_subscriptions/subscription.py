@@ -8,7 +8,7 @@ from hallo.destination import Destination, Channel, User
 from hallo.events import EventMessage
 from hallo.hallo import Hallo
 from hallo.modules.new_subscriptions.source import Source
-from hallo.modules.subscriptions.subscription_factory import SubscriptionFactory
+from hallo.modules.new_subscriptions.subscription_factory import SubscriptionFactory
 from hallo.server import Server
 
 
@@ -82,15 +82,23 @@ class Subscription:
             return True
         return False
 
-    def update(self, send: bool = True):
+    def update(self, send: bool = True) -> bool:
+        """
+        Update subscriptions, get new state, find the change, send messages, and save state
+        :param send: Whether to send messages
+        :return: Whether messages were sent
+        """
         new_state = self.source.current_state()
+        was_update = False
         if send:
             update = self.source.state_change(new_state)
             if update:
+                was_update = True
                 self.last_update = datetime.now()
             self.send(update)
         self.source.save_state(new_state)
         self.last_check = datetime.now()
+        return was_update
 
     def send(self, update):
         channel = self.destination if isinstance(self.destination, Channel) else None
