@@ -11,7 +11,7 @@ from hallo.server import Server
 
 
 class FASubmissionCommentSource(StreamSource[FAKey.FAReader.FANotificationCommentSubmission]):
-    type_name = "fa submission comments"
+    type_name = "fa_submission_comments"
     type_names = ["fa submission comments"]
 
     def __init__(self, fa_key: FAKey, last_keys: Optional[List[Key]] = None):
@@ -77,7 +77,7 @@ class FASubmissionCommentSource(StreamSource[FAKey.FAReader.FANotificationCommen
 
 
 class FAJournalCommentSource(StreamSource[FAKey.FAReader.FANotificationCommentJournal]):
-    type_name = "fa journal comments"
+    type_name = "fa_journal_comments"
     type_names = ["fa journal comments"]
 
     def __init__(self, fa_key: FAKey, last_keys: Optional[List[Key]] = None):
@@ -143,7 +143,7 @@ class FAJournalCommentSource(StreamSource[FAKey.FAReader.FANotificationCommentJo
 
 
 class FAShoutSource(StreamSource[FAKey.FAReader.FANotificationShout]):
-    type_name = "fa shouts"
+    type_name = "fa_shouts"
     type_names = ["fa shouts"]
 
     def __init__(self, fa_key: FAKey, last_keys: Optional[List[Key]] = None):

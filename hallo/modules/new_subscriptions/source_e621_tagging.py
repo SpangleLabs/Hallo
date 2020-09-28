@@ -10,6 +10,9 @@ from hallo.server import Server
 
 
 class E621TaggingSource(E621Source):
+    type_name = "e621_tagging"
+    type_names: List[str] = ["e621 tagging", "e621 tagging search", "tagging e621"]
+
     def __init__(self, search: str, tags: List[str], last_keys: Optional[List[Key]] = None):
         super().__init__(search, last_keys)
         self.tags: List[str] = tags

@@ -112,5 +112,6 @@ class FAWatchersSource(FAUserWatchersSource):
     def to_json(self) -> Dict:
         return {
             "type": self.type_name,
+            "fa_key_user_address": self.fa_key.user.address,
             "last_keys": self.last_keys
         }
