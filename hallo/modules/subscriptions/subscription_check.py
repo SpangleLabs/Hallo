@@ -125,7 +125,7 @@ class SubscriptionCheck(Function):
                 if search_sub.needs_check():
                     # Get new items
                     try:
-                        logger.debug("SubCheck - Checking %s", search_sub)
+                        logger.debug("SubCheck - Checking %s", search_sub.source.title)
                         search_sub.update()
                     except Exception as e:
                         error = SubscriptionCheckError(search_sub, e)
