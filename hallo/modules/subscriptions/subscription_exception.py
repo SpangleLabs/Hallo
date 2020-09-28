@@ -1,0 +1,2 @@
+class SubscriptionException(Exception):
+    pass

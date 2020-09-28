@@ -1,5 +1,6 @@
 from typing import List, Type, Dict
 
+import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import Destination
 import hallo.modules.subscriptions.common_fa_key
 import hallo.modules.subscriptions.subscription_common
@@ -51,7 +52,7 @@ class SubscriptionFactory:
             if name in sub_class.type_names
         ]
         if len(classes) != 1:
-            raise hallo.modules.subscriptions.subscription.SubscriptionException(
+            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
                 "Failed to find a subscription type matching the name {}".format(name)
             )
         return classes[0]
@@ -69,7 +70,7 @@ class SubscriptionFactory:
             if name == sub_class.type_name
         ]
         if len(classes) != 1:
-            raise hallo.modules.subscriptions.subscription.SubscriptionException(
+            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
                 f"Failed to find a subscription source type matching the name {name}"
             )
         return classes[0].from_json(json_data, destination, sub_repo)
@@ -80,6 +81,6 @@ class SubscriptionFactory:
         for common_class in SubscriptionFactory.common_classes:
             if common_class.type_name == common_type_name:
                 return common_class.from_json(common_json)
-        raise hallo.modules.subscriptions.subscription.SubscriptionException(
+        raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
             f"Could not load common configuration of type {common_type_name}"
         )

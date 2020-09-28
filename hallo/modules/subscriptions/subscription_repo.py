@@ -2,6 +2,7 @@ import json
 from threading import Lock
 from typing import List, Type, TypeVar
 
+import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import Destination
 import hallo.modules.subscriptions.subscription_common
 import hallo.modules.subscriptions.subscription
@@ -74,7 +75,7 @@ class SubscriptionRepo:
         :return: The object, or a new object if none was found.
         """
         if not inherits_from(common_type, "SubscriptionCommon"):
-            raise hallo.modules.subscriptions.subscription.SubscriptionException(
+            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
                 "This common type, {}, is not a subclass of SubscriptionCommon".format(
                     common_type.__name__
                 )
@@ -86,7 +87,7 @@ class SubscriptionRepo:
             return new_common
         if len(matching) == 1:
             return matching[0]
-        raise hallo.modules.subscriptions.subscription.SubscriptionException(
+        raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
             "More than one subscription common config exists for the type: {}".format(
                 common_type.__name__
             )

@@ -1,11 +1,11 @@
 from typing import Dict, Optional, List
 
+import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import Destination, User, Channel
 from hallo.events import EventMessage
 import hallo.modules.subscriptions.source_fa_favs
 import hallo.modules.subscriptions.stream_source
 import hallo.modules.subscriptions.common_fa_key
-import hallo.modules.subscriptions.subscription
 from hallo.server import Server
 
 
@@ -63,7 +63,7 @@ class FAUserWatchersSource(
         try:
             fa_key.get_fa_reader().get_user_page(argument)
         except Exception:
-            raise hallo.modules.subscriptions.subscription.SubscriptionException(
+            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
                 "This does not appear to be a valid username."
             )
         return FAUserWatchersSource(fa_key, argument)

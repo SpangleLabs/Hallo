@@ -1,11 +1,10 @@
 from typing import Dict, Optional, List, NewType
 
+import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage, EventMessageWithPhoto
-
 import hallo.modules.subscriptions.stream_source
 import hallo.modules.subscriptions.common_fa_key
-import hallo.modules.subscriptions.subscription
 from hallo.server import Server
 
 SubmissionId = NewType("SubmissionId", int)
@@ -14,14 +13,14 @@ SubmissionId = NewType("SubmissionId", int)
 def fa_key_from_json(user_addr: str, server: Server, sub_repo) -> hallo.modules.subscriptions.common_fa_key.FAKey:
     user = server.get_user_by_address(user_addr)
     if user is None:
-        raise hallo.modules.subscriptions.subscription.SubscriptionException(
+        raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
             "Could not find user matching address `{}`".format(user_addr)
         )
     fa_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
     assert isinstance(fa_keys, hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
     fa_key = fa_keys.get_key_by_user(user)
     if fa_key is None:
-        raise hallo.modules.subscriptions.subscription.SubscriptionException(
+        raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
             "Could not find fa key for user: {}".format(user.name)
         )
     return fa_key
@@ -32,7 +31,7 @@ def fa_key_from_input(user: User, sub_repo) -> hallo.modules.subscriptions.commo
     assert isinstance(fa_keys, hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
     fa_key = fa_keys.get_key_by_user(user)
     if fa_key is None:
-        raise hallo.modules.subscriptions.subscription.SubscriptionException(
+        raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
             "Cannot create FA user favourites subscription without cookie details. "
             "Please set up FA cookies with "
             "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values."

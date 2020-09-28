@@ -1,11 +1,11 @@
 from typing import List, Optional, Dict
 
+import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage, EventMessageWithPhoto
 from hallo.inc.input_parser import InputParser
 import hallo.modules.subscriptions.source_e621
 import hallo.modules.subscriptions.stream_source
-import hallo.modules.subscriptions.subscription
 from hallo.server import Server
 
 
@@ -51,7 +51,7 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
                 search = search_arg
                 tags = parsed.remaining_text.split()
             else:
-                raise hallo.modules.subscriptions.subscription.SubscriptionException(
+                raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
                     'You need to specify a search term with search="search term" and '
                     'tags to watch with tags="tags to watch"'
                 )

@@ -9,11 +9,8 @@ from hallo.events import EventMessage
 from hallo.hallo import Hallo
 import hallo.modules.subscriptions.source
 import hallo.modules.subscriptions.subscription_factory
+import hallo.modules.subscriptions.subscription_exception
 from hallo.server import Server
-
-
-class SubscriptionException(Exception):
-    pass
 
 
 class Subscription:
@@ -70,7 +67,7 @@ class Subscription:
             )
             subscription.update(False)
         except Exception as e:
-            raise SubscriptionException(
+            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
                 f"Failed to create {source_class.type_name} subscription", e
             )
         return subscription
@@ -111,7 +108,7 @@ class Subscription:
     def from_json(cls, json_data: Dict, hallo_obj: Hallo, sub_repo) -> 'Subscription':
         server = hallo_obj.get_server_by_name(json_data["server_name"])
         if server is None:
-            raise SubscriptionException(
+            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
                 'Could not find server with name "{}"'.format(json_data["server_name"])
             )
         # Load channel or user
@@ -121,11 +118,13 @@ class Subscription:
             if "user_address" in json_data:
                 destination = server.get_user_by_address(json_data["user_address"])
             else:
-                raise SubscriptionException(
+                raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
                     "Channel or user must be defined."
                 )
         if destination is None:
-            raise SubscriptionException("Could not find channel or user.")
+            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
+                "Could not find channel or user."
+            )
         # Load update frequency
         period = isodate.parse_duration(json_data["period"])
         # Load last check

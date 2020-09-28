@@ -2,11 +2,11 @@ import re
 from typing import Optional, List, Dict
 from xml.etree import ElementTree
 
+import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import User, Channel, Destination
 from hallo.events import EventMessage
 import hallo.modules.subscriptions.source_rss
 import hallo.modules.subscriptions.stream_source
-import hallo.modules.subscriptions.subscription
 from hallo.server import Server
 
 
@@ -36,7 +36,7 @@ class TwitterSource(hallo.modules.subscriptions.source_rss.RssSource):
     def from_input(cls, argument: str, user: User, sub_repo) -> 'TwitterSource':
         match = TwitterSource.profile_regex.match(argument)
         if match is None:
-            raise hallo.modules.subscriptions.subscription.SubscriptionException(
+            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
                 "Argument does not match pattern for twitter account"
             )
         handle = match.group(1)
