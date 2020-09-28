@@ -52,8 +52,8 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
 
     def __init__(
             self,
-            username: str,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
+            username: str,
             last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
@@ -97,7 +97,7 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
     @classmethod
     def from_input(cls, argument: str, user: User, sub_repo) -> 'FAFavsSource':
         fa_key = fa_key_from_input(user, sub_repo)
-        return FAFavsSource(argument, fa_key)
+        return FAFavsSource(fa_key, argument)
 
     def current_state(self) -> List[SubmissionId]:
         fa_reader = self.fa_key.get_fa_reader()
@@ -109,8 +109,8 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
         user_addr = json_data["fa_key_user_address"]
         fa_key = fa_key_from_json(user_addr, destination.server, sub_repo)
         return FAFavsSource(
-            json_data["username"],
             fa_key,
+            json_data["username"],
             json_data["last_keys"]
         )
 
