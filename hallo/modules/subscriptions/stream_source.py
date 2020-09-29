@@ -20,6 +20,10 @@ class StreamSource(hallo.modules.subscriptions.source.Source[List[Item], List[It
         pass
 
     def state_change(self, state: List[Item]) -> List[Item]:
+        # If no last keys, All state is update
+        if not self.last_keys:
+            return state
+        # Otherwise, get all the items before the last of the previously-seen keys.
         new_items = []
         batch = []
         for item in state:
