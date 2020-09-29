@@ -55,7 +55,7 @@ class FAFavNotificationsSource(
         )
 
     def matches_name(self, name_clean: str) -> bool:
-        return name_clean in [s.lower().strip() for s in self.names + ["favs"]]
+        return name_clean in [s.lower().strip() for s in self.type_names + ["favs"]]
 
     @property
     def title(self) -> str:

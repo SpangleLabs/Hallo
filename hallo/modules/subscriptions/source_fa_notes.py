@@ -154,7 +154,7 @@ class FANotesSource(hallo.modules.subscriptions.source.Source[Dict, Dict]):
         self.outbox_source = outbox_source
 
     def matches_name(self, name_clean: str) -> bool:
-        return name_clean in [s.lower().strip() for s in self.names + ["notes"]]
+        return name_clean in [s.lower().strip() for s in self.type_names + ["notes"]]
 
     @property
     def title(self) -> str:
