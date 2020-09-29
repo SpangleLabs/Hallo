@@ -46,7 +46,8 @@ class FAUserWatchersSource(
         link = "https://furaffinity.net/user/{}/".format(item.watcher_username)
         return EventMessage(
             server, channel, user,
-            f"{item.watcher_name} has watched {item.watched_name}. Link: {link}"
+            f"{item.watcher_name} has watched {item.watched_name}. Link: {link}",
+            inbound=False
         )
 
     def matches_name(self, name_clean: str) -> bool:
