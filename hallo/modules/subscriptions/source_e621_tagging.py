@@ -59,7 +59,7 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
 
     @property
     def title(self) -> str:
-        return 'search for "{}" to apply tags {}'.format(self.search, self.tags)
+        return f'search for "{self.search}" to apply tags {self.tags}'
 
     def item_to_event(
             self,
@@ -68,19 +68,17 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
             user: Optional[User],
             item: Dict
     ) -> EventMessage:
-        link = "https://e621.net/posts/{}".format(item["id"])
+        link = f"https://e621.net/posts/{item['id']}"
         # Create rating string
         rating_dict = {"e": "(Explicit)", "q": "(Questionable)", "s": "(Safe)"}
         rating = rating_dict.get(item["rating"], "(Unknown)")
         # Check tags
         post_tags = [tag for tag_list in item["tags"].values() for tag in tag_list]
         tag_results = {tag: tag in post_tags for tag in self.tags}
-        tag_output = ["{}: {}".format(tag, val) for tag, val in tag_results.items()]
+        tag_output = [f"{tag}: {val}" for tag, val in tag_results.items()]
         # Construct output
-        output = 'Update on "{}" tagging e621 search. {} {}.\nWatched tags: {}'.format(
-            self.search, link, rating, tag_output
-        )
-        if item["file"]["ext"] in ["swf", "webm"] or item["file"]["url"]:
+        output = f'Update on "{self.search}" tagging e621 search. {link} {rating}.\nWatched tags: {tag_output}'
+        if item["file"]["ext"] in ["swf", "webm"] or item["file"]["url"] is None:
             return EventMessage(server, channel, user, output, inbound=False)
         image_url = item["file"]["url"]
         return EventMessageWithPhoto(

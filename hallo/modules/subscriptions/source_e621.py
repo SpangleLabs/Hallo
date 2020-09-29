@@ -47,12 +47,12 @@ class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Dict]):
             user: Optional[User],
             item: Dict
     ) -> EventMessage:
-        link = "https://e621.net/posts/{}".format(item["id"])
+        link = f"https://e621.net/posts/{item['id']}"
         # Create rating string
         rating_dict = {"e": "(Explicit)", "q": "(Questionable)", "s": "(Safe)"}
         rating = rating_dict.get(item["rating"], "(Unknown)")
         # Construct output
-        output = 'Update on "{}" e621 search. {} {}'.format(self.search, link, rating)
+        output = f'Update on "{self.search}" e621 search. {link} {rating}'
         if item["file"]["ext"] in ["swf", "webm"] or item["file"]["url"] is None:
             return EventMessage(server, channel, user, output, inbound=False)
         image_url = item["file"]["url"]
