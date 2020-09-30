@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta, datetime
 from typing import Dict, Optional, Type
 
@@ -11,6 +12,9 @@ import hallo.modules.subscriptions.source
 import hallo.modules.subscriptions.subscription_factory
 import hallo.modules.subscriptions.subscription_exception
 from hallo.server import Server
+
+
+logger = logging.getLogger(__name__)
 
 
 class Subscription:
@@ -102,7 +106,15 @@ class Subscription:
         user = self.destination if isinstance(self.destination, User) else None
         events = self.source.events(self.server, channel, user, update)
         for event in events:
-            self.server.send(event)
+            try:
+                self.server.send(event)
+            except Exception as e:
+                logger.error(
+                    "Failed to send subscription (%s) event with message (%s)",
+                    self.source.title,
+                    event.text,
+                    exc_info=e
+                )
 
     @classmethod
     def from_json(cls, json_data: Dict, hallo_obj: Hallo, sub_repo) -> 'Subscription':
