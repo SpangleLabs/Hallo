@@ -59,14 +59,12 @@ class SubscriptionRemoveTest(TestBase, unittest.TestCase):
             )
         )
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert (
-                'removed e621 subscription to search for "cabinet"' in data[0].text.lower()
-        ), "Response did not contain expected string. Response was {}".format(
-            data[0].text
-        )
-        assert rf1 not in sub_repo.sub_list
-        assert rf2 in sub_repo.sub_list
-        assert rf3 in sub_repo.sub_list
+        assert "removed subscription" in data[0].text.lower()
+        assert "e621" in data[0].text.lower()
+        assert "\"cabinet\"" in data[0].text.lower()
+        assert sub1 not in sub_repo.sub_list
+        assert sub2 in sub_repo.sub_list
+        assert sub3 in sub_repo.sub_list
 
     def test_remove_multiple_matching_searches(self):
         another_chan = self.server.get_channel_by_address("another_channel")
@@ -110,9 +108,9 @@ class SubscriptionRemoveTest(TestBase, unittest.TestCase):
         ), "Response did not contain expected string. Response was {}".format(
             data[0].text
         )
-        assert rf1 not in rfl.sub_list
-        assert rf2 in rfl.sub_list
-        assert rf3 not in rfl.sub_list
+        assert sub1 not in rfl.sub_list
+        assert sub2 in rfl.sub_list
+        assert sub3 not in rfl.sub_list
 
     def test_remove_no_match(self):
         another_chan = self.server.get_channel_by_address("another_channel")
@@ -123,14 +121,17 @@ class SubscriptionRemoveTest(TestBase, unittest.TestCase):
         e621_check_obj = self.function_dispatcher.get_function_object(
             e621_check_class
         )  # type: SubscriptionCheck
-        rfl = e621_check_obj.get_sub_repo(self.hallo)
+        sub_repo = e621_check_obj.get_sub_repo(self.hallo)
         # Add E621 searches to subscription list
         rf1 = E621Source("cabinet")
-        rfl.add_sub(rf1)
+        sub1 = Subscription(self.server, self.test_chan, rf1, timedelta(days=1), None, None)
+        sub_repo.add_sub(sub1)
         rf2 = E621Source("clefable")
-        rfl.add_sub(rf2)
+        sub2 = Subscription(self.server, another_chan, rf2, timedelta(days=1), None, None)
+        sub_repo.add_sub(sub2)
         rf3 = E621Source("fez")
-        rfl.add_sub(rf3)
+        sub3 = Subscription(self.server, self.test_chan, rf3, timedelta(days=1), None, None)
+        sub_repo.add_sub(sub3)
         # Try to remove invalid search
         self.function_dispatcher.dispatch(
             EventMessage(
@@ -142,6 +143,6 @@ class SubscriptionRemoveTest(TestBase, unittest.TestCase):
         )
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert "error" in data[0].text.lower()
-        assert rf1 in rfl.sub_list
-        assert rf2 in rfl.sub_list
-        assert rf3 in rfl.sub_list
+        assert sub1 in sub_repo.sub_list
+        assert sub2 in sub_repo.sub_list
+        assert sub3 in sub_repo.sub_list

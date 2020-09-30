@@ -73,7 +73,7 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
             # Check original calling channel data
             serv0_data = self.server.get_send_data(1, self.test_chan, EventMessage)
             assert (
-                    "subscription updates were found" in serv0_data[0].text
+                    "subscription updates were found" in serv0_data[0].text.lower()
             ), "Actual message: {}".format(serv0_data[0].text)
             # Check test server 1 data
             serv1_data = serv1.get_send_data(100)

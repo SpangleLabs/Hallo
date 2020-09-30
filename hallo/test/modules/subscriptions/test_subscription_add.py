@@ -30,9 +30,9 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         except OSError:
             pass
 
-    def test_invalid_search(self):
+    def test_invalid_subscription(self):
         self.function_dispatcher.dispatch(
-            EventMessage(self.server, self.test_chan, self.test_user, "e621 sub add ::")
+            EventMessage(self.server, self.test_chan, self.test_user, "rss sub add ::")
         )
         data = self.server.get_send_data(1, self.test_chan, EventMessage)
         assert (
@@ -62,7 +62,7 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         assert e6_sub.server == self.server
         assert e6_sub.destination == self.test_chan
         assert e6_sub.last_check is not None
-        assert e6_sub.last_update is not None
+        assert e6_sub.last_update is None
         assert e6_sub.period.seconds == 300
         assert e6_sub.period.days == 0
         assert isinstance(e6_sub.source, E621Source)
@@ -91,7 +91,7 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         assert e6_sub.server == self.server
         assert e6_sub.destination == self.test_user
         assert e6_sub.last_check is not None
-        assert e6_sub.last_update is not None
+        assert e6_sub.last_update is None
         assert e6_sub.period.seconds == 300
         assert e6_sub.period.days == 0
         assert isinstance(e6_sub.source, E621Source)
@@ -125,7 +125,7 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         assert e6_sub.server == self.server
         assert e6_sub.destination == self.test_chan
         assert e6_sub.last_check is not None
-        assert e6_sub.last_update is not None
+        assert e6_sub.last_update is None
         assert e6_sub.period.seconds == 3600
         assert e6_sub.period.days == 0
         assert isinstance(e6_sub.source, E621Source)
