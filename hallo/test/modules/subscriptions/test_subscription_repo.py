@@ -1,8 +1,10 @@
 import os
+from datetime import timedelta
 
 import pytest
 
 from hallo.modules.subscriptions.source_rss import RssSource
+from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.server_mock import ServerMock
 
@@ -12,19 +14,18 @@ def test_init():
     assert rfl.sub_list == []
 
 
-@pytest.mark.external_integration
 def test_add_feed(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
-    rfl = SubscriptionRepo()
-    assert rfl.sub_list == []
+    sub_repo = SubscriptionRepo()
+    assert sub_repo.sub_list == []
     # Create example rss feed
-    rf = RssSource("http://spangle.org.uk/hallo/test_rss.xml")
-    rfl.add_sub(rf)
-    assert len(rfl.sub_list) == 1
-    assert rfl.sub_list[0] == rf
+    rf = RssSource("http://spangle.org.uk/hallo/test_rss.xml", "feed title")
+    sub = Subscription(test_server, test_channel, rf, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub)
+    assert len(sub_repo.sub_list) == 1
+    assert sub_repo.sub_list[0] == sub
 
 
-@pytest.mark.external_integration
 def test_get_feeds_by_destination(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     serv1 = ServerMock(hallo)
@@ -36,25 +37,30 @@ def test_get_feeds_by_destination(hallo_getter):
     chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
     # Setup a feed list
     rfl = SubscriptionRepo()
-    rf1 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?1")
-    rfl.add_sub(rf1)
-    rf2 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?2")
-    rfl.add_sub(rf2)
-    rf3 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?3")
-    rfl.add_sub(rf3)
-    rf4 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?4")
-    rfl.add_sub(rf4)
+    rf1 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?1", "feed 1")
+    sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
+    rfl.add_sub(sub1)
+    rf2 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?2", "feed 2")
+    sub2 = Subscription(serv1, user2, rf2, timedelta(days=1), None, None)
+    rfl.add_sub(sub2)
+    rf3 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?3", "feed 3")
+    sub3 = Subscription(serv2, chan3, rf3, timedelta(days=1), None, None)
+    rfl.add_sub(sub3)
+    rf4 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?4", "feed 4")
+    sub4 = Subscription(serv2, chan3, rf4, timedelta(days=1), None, None)
+    rfl.add_sub(sub4)
     rf5 = RssSource(
         "http://spangle.org.uk/hallo/test_rss.xml?5",
-        feed_title="test_feed3",
+        feed_title="feed 5",
     )
-    rfl.add_sub(rf5)
+    sub5 = Subscription(serv2, chan3, rf5, timedelta(days=1), None, None)
+    rfl.add_sub(sub5)
     # Check function
     feed_list = rfl.get_subs_by_destination(chan3)
     assert len(feed_list) == 3
-    assert rf4 in feed_list
-    assert rf3 in feed_list
-    assert rf5 in feed_list
+    assert sub4 in feed_list
+    assert sub3 in feed_list
+    assert sub5 in feed_list
 
 
 def test_get_feeds_by_title(hallo_getter):
@@ -67,37 +73,42 @@ def test_get_feeds_by_title(hallo_getter):
     user2 = serv1.get_user_by_address("test_user2", "test_user2")
     chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
     # Setup a feed list
-    rfl = SubscriptionRepo()
+    sub_repo = SubscriptionRepo()
     rf1 = RssSource(
         "http://spangle.org.uk/hallo/test_feed.xml?1",
         feed_title="test_feed1",
     )
-    rfl.add_sub(rf1)
+    sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub1)
     rf2 = RssSource(
         "http://spangle.org.uk/hallo/test_feed.xml?2",
         feed_title="test_feed2",
     )
-    rfl.add_sub(rf2)
+    sub2 = Subscription(serv1, user2, rf2, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub2)
     rf3 = RssSource(
         "http://spangle.org.uk/hallo/test_feed.xml?3",
         feed_title="test_feed3",
     )
-    rfl.add_sub(rf3)
+    sub3 = Subscription(serv2, chan3, rf3, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub3)
     rf4 = RssSource(
         "http://spangle.org.uk/hallo/test_feed.xml?4",
         feed_title="test_feed4",
     )
-    rfl.add_sub(rf4)
+    sub4 = Subscription(serv2, chan3, rf4, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub4)
     rf5 = RssSource(
         "http://spangle.org.uk/hallo/test_feed.xml?5",
         feed_title="test_feed3",
     )
-    rfl.add_sub(rf5)
+    sub5 = Subscription(serv2, chan3, rf5, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub5)
     # Check function
-    feed_list = rfl.get_subs_by_name("test_feed3", chan3)
+    feed_list = sub_repo.get_subs_by_name("test_feed3", chan3)
     assert len(feed_list) == 2
-    assert rf3 in feed_list
-    assert rf5 in feed_list
+    assert sub3 in feed_list
+    assert sub5 in feed_list
 
 
 def test_get_feeds_by_url(hallo_getter):
@@ -110,87 +121,96 @@ def test_get_feeds_by_url(hallo_getter):
     user2 = serv1.get_user_by_address("test_user2", "test_user2")
     chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
     # Setup a feed list
-    rfl = SubscriptionRepo()
+    sub_repo = SubscriptionRepo()
     rf1 = RssSource(
         "http://spangle.org.uk/hallo/test_feed.xml?1",
         feed_title="test_feed1",
     )
-    rfl.add_sub(rf1)
+    sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub1)
     rf2 = RssSource(
         "http://spangle.org.uk/hallo/test_feed.xml?2",
         feed_title="test_feed2",
     )
-    rfl.add_sub(rf2)
+    sub2 = Subscription(serv1, user2, rf2, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub2)
     rf3 = RssSource(
         "http://spangle.org.uk/hallo/test_feed.xml?3",
         feed_title="test_feed3",
     )
-    rfl.add_sub(rf3)
+    sub3 = Subscription(serv2, chan3, rf3, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub3)
     rf4 = RssSource(
         "http://spangle.org.uk/hallo/test_feed.xml?4",
         feed_title="test_feed4",
     )
-    rfl.add_sub(rf4)
+    sub4 = Subscription(serv2, chan3, rf4, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub4)
     rf5 = RssSource(
         "http://spangle.org.uk/hallo/test_feed.xml?4",
         feed_title="test_feed3",
     )
-    rfl.add_sub(rf5)
+    sub5 = Subscription(serv2, chan3, rf5, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub5)
     # Check function
-    feed_list = rfl.get_subs_by_name(
+    feed_list = sub_repo.get_subs_by_name(
         "http://spangle.org.uk/hallo/test_feed.xml?4", chan3
     )
     assert len(feed_list) == 2
-    assert rf4 in feed_list
-    assert rf5 in feed_list
+    assert sub4 in feed_list
+    assert sub5 in feed_list
 
 
-@pytest.mark.external_integration
 def test_remove_feed(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     # Setup a feed list
-    rfl = SubscriptionRepo()
+    sub_repo = SubscriptionRepo()
     rf1 = RssSource(
-        "http://spangle.org.uk/hallo/test_rss.xml?1"
+        "http://spangle.org.uk/hallo/test_rss.xml?1", "title1"
     )
-    rfl.add_sub(rf1)
+    sub1 = Subscription(test_server, test_channel, rf1, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub1)
     rf2 = RssSource(
-        "http://spangle.org.uk/hallo/test_rss.xml?2"
+        "http://spangle.org.uk/hallo/test_rss.xml?2", "title2"
     )
-    rfl.add_sub(rf2)
-    assert len(rfl.sub_list) == 2
+    sub2 = Subscription(test_server, test_channel, rf2, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub2)
+    assert len(sub_repo.sub_list) == 2
     # Remove an item from the feed list
-    rfl.remove_sub(rf1)
-    assert len(rfl.sub_list) == 1
-    assert rfl.sub_list[0] == rf2
+    sub_repo.remove_sub(sub1)
+    assert len(sub_repo.sub_list) == 1
+    assert sub_repo.sub_list[0] == sub2
 
 
 def test_json(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     # Setup a feed list
-    rfl = SubscriptionRepo()
+    sub_repo = SubscriptionRepo()
     rf1 = RssSource(
         "http://spangle.org.uk/hallo/test_rss.xml?1",
         feed_title="test_feed1",
     )
-    rfl.add_sub(rf1)
+    sub1 = Subscription(test_server, test_channel, rf1, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub1)
     rf2 = RssSource(
         "http://spangle.org.uk/hallo/test_rss.xml?2",
         feed_title="test_feed2",
     )
-    rfl.add_sub(rf2)
+    sub2 = Subscription(test_server, test_user, rf2, timedelta(days=1), None, None)
+    sub_repo.add_sub(sub2)
     rf3 = RssSource(
         "http://spangle.org.uk/hallo/test_rss.xml?3",
         feed_title="test_feed3",
     )
-    rfl.add_sub(rf3)
+    sub3 = Subscription(test_server, test_channel, rf3, timedelta(hours=1), None, None)
+    sub_repo.add_sub(sub3)
     # Save to JSON and load
     try:
         try:
             os.rename("store/subscriptions.json", "store/subscriptions.json.tmp")
         except OSError:
             pass
-        rfl.save_json()
+        sub_repo.save_json()
         new_rfl = SubscriptionRepo.load_json(hallo)
         assert len(new_rfl.sub_list) == 3
     finally:
