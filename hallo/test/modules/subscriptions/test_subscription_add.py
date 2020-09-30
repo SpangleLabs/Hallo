@@ -4,6 +4,7 @@ import unittest
 import pytest
 
 from hallo.events import EventMessage
+from hallo.inc import commons
 from hallo.modules.subscriptions.source_e621 import E621Source
 from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
@@ -63,9 +64,9 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         assert e6_sub.destination == self.test_chan
         assert e6_sub.last_check is not None
         assert e6_sub.last_update is None
-        assert e6_sub.period.seconds == 300
+        assert e6_sub.period.seconds == 600
         assert e6_sub.period.days == 0
-        assert isinstance(e6_sub.source, E621Source)
+        assert commons.inherits_from(e6_sub.source, 'E621Source')
         assert e6_sub.source.search == "cabinet"
         assert e6_sub.source.last_keys is not None
         assert len(e6_sub.source.last_keys) >= 50
@@ -92,9 +93,9 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         assert e6_sub.destination == self.test_user
         assert e6_sub.last_check is not None
         assert e6_sub.last_update is None
-        assert e6_sub.period.seconds == 300
+        assert e6_sub.period.seconds == 600
         assert e6_sub.period.days == 0
-        assert isinstance(e6_sub.source, E621Source)
+        assert commons.inherits_from(e6_sub.source, 'E621Source')
         assert e6_sub.source.search == "cabinet"
         assert e6_sub.source.last_keys is not None
         assert len(e6_sub.source.last_keys) >= 50
@@ -128,7 +129,7 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         assert e6_sub.last_update is None
         assert e6_sub.period.seconds == 3600
         assert e6_sub.period.days == 0
-        assert isinstance(e6_sub.source, E621Source)
+        assert commons.inherits_from(e6_sub.source, 'E621Source')
         assert e6_sub.source.search == "cabinet"
         assert e6_sub.source.last_keys is not None
         assert len(e6_sub.source.last_keys) >= 50
