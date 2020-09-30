@@ -5,6 +5,7 @@ import pytest
 
 from hallo.events import EventMessage
 from hallo.modules.subscriptions.source_e621 import E621Source
+from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
 from hallo.test.test_base import TestBase
 
@@ -55,17 +56,19 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         e621_check_obj = self.function_dispatcher.get_function_object(
             e621_check_class
         )  # type: SubscriptionCheck
-        rfl = e621_check_obj.get_sub_repo(self.hallo).sub_list
-        assert len(rfl) == 1, "Actual length: " + str(len(rfl))
-        e6_sub: E621Source = rfl[0]
-        assert e6_sub.search == "cabinet"
+        sub_repo = e621_check_obj.get_sub_repo(self.hallo).sub_list
+        assert len(sub_repo) == 1, "Actual length: " + str(len(sub_repo))
+        e6_sub: Subscription = sub_repo[0]
         assert e6_sub.server == self.server
         assert e6_sub.destination == self.test_chan
-        assert e6_sub.latest_ids is not None
-        assert len(e6_sub.latest_ids) == 10
         assert e6_sub.last_check is not None
-        assert e6_sub.update_frequency.seconds == 300
-        assert e6_sub.update_frequency.days == 0
+        assert e6_sub.last_update is not None
+        assert e6_sub.period.seconds == 300
+        assert e6_sub.period.days == 0
+        assert isinstance(e6_sub.source, E621Source)
+        assert e6_sub.source.search == "cabinet"
+        assert e6_sub.source.last_keys is not None
+        assert len(e6_sub.source.last_keys) >= 50
 
     def test_add_search_user(self):
         self.function_dispatcher.dispatch(
@@ -82,17 +85,19 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         e621_check_obj = self.function_dispatcher.get_function_object(
             e621_check_class
         )  # type: SubscriptionCheck
-        rfl = e621_check_obj.get_sub_repo(self.hallo).sub_list
-        assert len(rfl) == 1, "Actual length: " + str(len(rfl))
-        e6_sub: E621Source = rfl[0]
-        assert e6_sub.search == "cabinet"
+        sub_repo = e621_check_obj.get_sub_repo(self.hallo).sub_list
+        assert len(sub_repo) == 1, "Actual length: " + str(len(sub_repo))
+        e6_sub: Subscription = sub_repo[0]
         assert e6_sub.server == self.server
         assert e6_sub.destination == self.test_user
-        assert e6_sub.latest_ids is not None
-        assert len(e6_sub.latest_ids) == 10
         assert e6_sub.last_check is not None
-        assert e6_sub.update_frequency.seconds == 300
-        assert e6_sub.update_frequency.days == 0
+        assert e6_sub.last_update is not None
+        assert e6_sub.period.seconds == 300
+        assert e6_sub.period.days == 0
+        assert isinstance(e6_sub.source, E621Source)
+        assert e6_sub.source.search == "cabinet"
+        assert e6_sub.source.last_keys is not None
+        assert len(e6_sub.source.last_keys) >= 50
 
     def test_add_search_period(self):
         self.function_dispatcher.dispatch(
@@ -114,14 +119,16 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         e621_check_obj = self.function_dispatcher.get_function_object(
             e621_check_class
         )  # type: SubscriptionCheck
-        rfl = e621_check_obj.get_sub_repo(self.hallo).sub_list
-        assert len(rfl) == 1, "Actual length: " + str(len(rfl))
-        e6_sub: E621Source = rfl[0]
-        assert e6_sub.search == "cabinet"
+        sub_repo = e621_check_obj.get_sub_repo(self.hallo).sub_list
+        assert len(sub_repo) == 1, "Actual length: " + str(len(sub_repo))
+        e6_sub: Subscription = sub_repo[0]
         assert e6_sub.server == self.server
         assert e6_sub.destination == self.test_chan
-        assert e6_sub.latest_ids is not None
-        assert len(e6_sub.latest_ids) == 10
         assert e6_sub.last_check is not None
-        assert e6_sub.update_frequency.seconds == 3600
-        assert e6_sub.update_frequency.days == 0
+        assert e6_sub.last_update is not None
+        assert e6_sub.period.seconds == 3600
+        assert e6_sub.period.days == 0
+        assert isinstance(e6_sub.source, E621Source)
+        assert e6_sub.source.search == "cabinet"
+        assert e6_sub.source.last_keys is not None
+        assert len(e6_sub.source.last_keys) >= 50

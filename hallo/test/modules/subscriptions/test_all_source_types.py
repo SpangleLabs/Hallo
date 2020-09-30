@@ -29,11 +29,11 @@ from hallo.test.test_base import TestBase
 
 
 @pytest.mark.external_integration
-class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
+class TestAllSourceClasses(TestBase, unittest.TestCase):
     cookie_a = os.getenv("test_cookie_a")
     cookie_b = os.getenv("test_cookie_b")
 
-    def get_sub_objects(self) -> List[Source]:
+    def get_source_objects(self) -> List[Source]:
         fa_key = FAKey(self.test_user, self.cookie_a, self.cookie_b)
         sub_objs = list()
         sub_objs.append(E621Source("cabinet"))
@@ -54,7 +54,7 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_objs.append(TwitterSource("telegram", None))
         return sub_objs
 
-    def get_sub_create_events(self) -> Dict[Type[Source], str]:
+    def get_source_create_arguments(self) -> Dict[Type[Source], str]:
         sub_repo = SubscriptionRepo()
         fa_key = FAKey(self.test_user, self.cookie_a, self.cookie_b)
         fa_commons = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
@@ -73,30 +73,30 @@ class TestAllSubscriptionClasses(TestBase, unittest.TestCase):
         sub_evts[TwitterSource] = "telegram"
         return sub_evts
 
-    def test_all_sub_classes_in_sub_objs(self):
+    def test_all_source_classes_in_sub_objs(self):
         """
         Tests that all subscription classes have an object in the get_sub_objects method here.
         """
         for sub_class in SubscriptionFactory.sub_sources:
             with self.subTest(sub_class.__name__):
                 assert sub_class in [
-                    sub_obj.__class__ for sub_obj in self.get_sub_objects()
+                    sub_obj.__class__ for sub_obj in self.get_source_objects()
                 ]
 
-    def test_all_sub_classes_in_sub_create_events(self):
+    def test_all_source_classes_in_sub_create_arguments(self):
         """
         Tests that all subscription classes have an EventMessage object in the get_sub_create_events method here.
         """
         for sub_class in SubscriptionFactory.sub_sources:
             with self.subTest(sub_class.__name__):
-                assert sub_class in self.get_sub_create_events()
-                assert isinstance(self.get_sub_create_events()[sub_class], EventMessage)
+                assert sub_class in self.get_source_create_arguments()
+                assert isinstance(self.get_source_create_arguments()[sub_class], str)
 
     def test_to_json_contains_sub_type(self):
         """
         Test that to_json() for each source type remembers to set "type" in the json dict
         """
-        for sub_obj in self.get_sub_objects():
+        for sub_obj in self.get_source_objects():
             with self.subTest(sub_obj.__class__.__name__):
                 json_obj = sub_obj.to_json()
                 assert "type" in json_obj

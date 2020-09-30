@@ -1,17 +1,19 @@
 import os
 import unittest
+from datetime import timedelta
 
 import isodate
 import pytest
 
 from hallo.events import EventMessage
 from hallo.modules.subscriptions.source_e621 import E621Source
+from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
 from hallo.test.test_base import TestBase
 
 
 @pytest.mark.external_integration
-class FeedRemoveTest(TestBase, unittest.TestCase):
+class SubscriptionRemoveTest(TestBase, unittest.TestCase):
     def setUp(self):
         try:
             os.rename("store/subscriptions.json", "store/subscriptions.json.tmp")
@@ -39,14 +41,17 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         e621_check_obj = self.function_dispatcher.get_function_object(
             e621_check_class
         )  # type: SubscriptionCheck
-        rfl = e621_check_obj.get_sub_repo(self.hallo)
+        sub_repo = e621_check_obj.get_sub_repo(self.hallo)
         # Add E621 searches to subscription list
         rf1 = E621Source("cabinet")
-        rfl.add_sub(rf1)
+        sub1 = Subscription(self.server, self.test_chan, rf1, timedelta(days=1), None, None)
+        sub_repo.add_sub(sub1)
         rf2 = E621Source("clefable")
-        rfl.add_sub(rf2)
+        sub2 = Subscription(self.server, another_chan, rf2, timedelta(days=1), None, None)
+        sub_repo.add_sub(sub2)
         rf3 = E621Source("fez")
-        rfl.add_sub(rf3)
+        sub3 = Subscription(self.server, self.test_chan, rf3, timedelta(days=1), None, None)
+        sub_repo.add_sub(sub3)
         # Remove test search
         self.function_dispatcher.dispatch(
             EventMessage(
@@ -59,9 +64,9 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         ), "Response did not contain expected string. Response was {}".format(
             data[0].text
         )
-        assert rf1 not in rfl.sub_list
-        assert rf2 in rfl.sub_list
-        assert rf3 in rfl.sub_list
+        assert rf1 not in sub_repo.sub_list
+        assert rf2 in sub_repo.sub_list
+        assert rf3 in sub_repo.sub_list
 
     def test_remove_multiple_matching_searches(self):
         another_chan = self.server.get_channel_by_address("another_channel")
@@ -75,11 +80,14 @@ class FeedRemoveTest(TestBase, unittest.TestCase):
         rfl = e621_check_obj.get_sub_repo(self.hallo)
         # Add E621 searches to subscription list
         rf1 = E621Source("cabinet")
-        rfl.add_sub(rf1)
+        sub1 = Subscription(self.server, self.test_chan, rf1, timedelta(days=1), None, None)
+        rfl.add_sub(sub1)
         rf2 = E621Source("clefable")
-        rfl.add_sub(rf2)
+        sub2 = Subscription(self.server, another_chan, rf2, timedelta(days=1), None, None)
+        rfl.add_sub(sub2)
         rf3 = E621Source("cabinet")
-        rfl.add_sub(rf3)
+        sub3 = Subscription(self.server, self.test_chan, rf3, timedelta(days=1), None, None)
+        rfl.add_sub(sub3)
         # Remove test feed
         self.function_dispatcher.dispatch(
             EventMessage(

@@ -1,10 +1,12 @@
 import os
 import unittest
+from datetime import timedelta
 
 import pytest
 
 from hallo.events import EventMinute, EventMessage
 from hallo.modules.subscriptions.source_e621 import E621Source
+from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
 from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.server_mock import ServerMock
@@ -44,13 +46,16 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
             self.hallo.add_server(serv1)
             self.hallo.add_server(serv2)
             # Set up rss feeds
-            rfl = SubscriptionRepo()
+            sub_repo = SubscriptionRepo()
             rf1 = E621Source("cabinet")
-            rfl.add_sub(rf1)
+            sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
+            sub_repo.add_sub(sub1)
             rf2 = E621Source("clefable")
-            rfl.add_sub(rf2)
+            sub2 = Subscription(serv1, chan2, rf2, timedelta(days=1), None, None)
+            sub_repo.add_sub(sub2)
             rf3 = E621Source("fez")
-            rfl.add_sub(rf3)
+            sub3 = Subscription(serv2, chan3, rf3, timedelta(days=1), None, None)
+            sub_repo.add_sub(sub3)
             # Splice this rss feed list into the function dispatcher's rss check object
             e621_sub_check = self.function_dispatcher.get_function_by_name(
                 "check subscription"
@@ -58,7 +63,7 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
             e621_sub_obj = self.function_dispatcher.get_function_object(
                 e621_sub_check
             )  # type: SubscriptionCheck
-            e621_sub_obj.subscription_repo = rfl
+            e621_sub_obj.subscription_repo = sub_repo
             # Test running all feed updates
             self.function_dispatcher.dispatch(
                 EventMessage(
@@ -109,13 +114,16 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
             self.hallo.add_server(serv1)
             self.hallo.add_server(serv2)
             # Set up rss feeds
-            rfl = SubscriptionRepo()
+            sub_repo = SubscriptionRepo()
             rf1 = E621Source("cabinet")
-            rfl.add_sub(rf1)
+            sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
+            sub_repo.add_sub(sub1)
             rf2 = E621Source("clefable")
-            rfl.add_sub(rf2)
+            sub2 = Subscription(serv1, chan2, rf2, timedelta(days=1), None, None)
+            sub_repo.add_sub(sub2)
             rf3 = E621Source("fez")
-            rfl.add_sub(rf3)
+            sub3 = Subscription(serv2, chan3, rf3, timedelta(days=1), None, None)
+            sub_repo.add_sub(sub3)
             # Splice this rss feed list into the function dispatcher's rss check object
             rss_check_class = self.function_dispatcher.get_function_by_name(
                 "check subscription"
@@ -123,7 +131,7 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
             rss_check_obj = self.function_dispatcher.get_function_object(
                 rss_check_class
             )  # type: SubscriptionCheck
-            rss_check_obj.subscription_repo = rfl
+            rss_check_obj.subscription_repo = sub_repo
             # Invalid title
             self.function_dispatcher.dispatch(
                 EventMessage(
@@ -179,13 +187,16 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
             self.hallo.add_server(serv1)
             self.hallo.add_server(serv2)
             # Set up rss feeds
-            rfl = SubscriptionRepo()
+            sub_repo = SubscriptionRepo()
             rf1 = E621Source("cabinet")
-            rfl.add_sub(rf1)
+            sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
+            sub_repo.add_sub(sub1)
             rf2 = E621Source("clefable")
-            rfl.add_sub(rf2)
+            sub2 = Subscription(serv1, chan2, rf2, timedelta(days=1), None, None)
+            sub_repo.add_sub(sub2)
             rf3 = E621Source("fez")
-            rfl.add_sub(rf3)
+            sub3 = Subscription(serv2, chan3, rf3, timedelta(days=1), None, None)
+            sub_repo.add_sub(sub3)
             # Splice this rss feed list into the function dispatcher's rss check object
             rss_check_class = self.function_dispatcher.get_function_by_name(
                 "check subscription"
@@ -193,7 +204,7 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
             rss_check_obj = self.function_dispatcher.get_function_object(
                 rss_check_class
             )  # type: SubscriptionCheck
-            rss_check_obj.subscription_repo = rfl
+            rss_check_obj.subscription_repo = sub_repo
             # Test passive feed updates
             self.function_dispatcher.dispatch_passive(EventMinute())
             # Check test server 1 data

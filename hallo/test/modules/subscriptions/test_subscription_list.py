@@ -1,16 +1,18 @@
 import os
 import unittest
+from datetime import timedelta
 
 import pytest
 
 from hallo.events import EventMessage
 from hallo.modules.subscriptions.source_e621 import E621Source
+from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
 from hallo.test.test_base import TestBase
 
 
 @pytest.mark.external_integration
-class SubE621ListTest(TestBase, unittest.TestCase):
+class SubscriptionListTest(TestBase, unittest.TestCase):
     def setUp(self):
         try:
             os.rename("store/subscriptions.json", "store/subscriptions.json.tmp")
@@ -50,11 +52,14 @@ class SubE621ListTest(TestBase, unittest.TestCase):
         rfl = rss_check_obj.get_sub_repo(self.hallo)
         # Add RSS feeds to feed list
         rf1 = E621Source("cabinet")
-        rfl.add_sub(rf1)
+        sub1 = Subscription(self.server, self.test_chan, rf1, timedelta(days=1), None, None)
+        rfl.add_sub(sub1)
         rf2 = E621Source("clefable")
-        rfl.add_sub(rf2)
+        sub2 = Subscription(self.server, another_chan, rf2, timedelta(days=1), None, None)
+        rfl.add_sub(sub2)
         rf3 = E621Source("fez")
-        rfl.add_sub(rf3)
+        sub3 = Subscription(self.server, self.test_chan, rf3, timedelta(days=1), None, None)
+        rfl.add_sub(sub3)
         # Run FeedList and check output
         self.function_dispatcher.dispatch(
             EventMessage(self.server, self.test_chan, self.test_user, "e621 sub list")

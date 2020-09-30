@@ -56,7 +56,6 @@ def test_from_input(hallo_getter):
     assert rf.feed_title == "Example rss feed"
 
 
-# noinspection PyUnresolvedReferences
 @pytest.mark.external_integration
 def test_current_state():
     rf = RssSource(TEST_RSS)
@@ -66,8 +65,8 @@ def test_current_state():
     assert isinstance(state, list)
     assert len(state) == 3
     assert isinstance(state[0], ElementTree.Element)
-    assert state[0].title == "Item 3"
-    assert state[0].link == "http://example.com/item3"
+    assert state[0].find("title").text == "Item 3"
+    assert state[0].find("link").text == "http://example.com/item3"
 
 
 def test_item_to_key():

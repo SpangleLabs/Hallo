@@ -69,6 +69,8 @@ class SubscriptionAdd(Function):
         sub_obj = hallo.modules.subscriptions.subscription.Subscription.create_from_input(
             event, source_class, sub_repo
         )
+        # Test subscription
+        sub_obj.update(send=False)
         # Acquire lock and save sub
         with sub_repo.sub_lock:
             # Add new subscription to list
