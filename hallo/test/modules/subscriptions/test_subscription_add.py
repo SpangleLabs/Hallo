@@ -66,7 +66,7 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         assert e6_sub.last_update is None
         assert e6_sub.period.seconds == 600
         assert e6_sub.period.days == 0
-        assert commons.inherits_from(e6_sub.source, 'E621Source')
+        assert e6_sub.source.type_name == E621Source.type_name
         assert e6_sub.source.search == "cabinet"
         assert e6_sub.source.last_keys is not None
         assert len(e6_sub.source.last_keys) >= 50
@@ -95,7 +95,7 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         assert e6_sub.last_update is None
         assert e6_sub.period.seconds == 600
         assert e6_sub.period.days == 0
-        assert commons.inherits_from(e6_sub.source, 'E621Source')
+        assert e6_sub.source.type_name == E621Source.type_name
         assert e6_sub.source.search == "cabinet"
         assert e6_sub.source.last_keys is not None
         assert len(e6_sub.source.last_keys) >= 50
@@ -129,7 +129,7 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
         assert e6_sub.last_update is None
         assert e6_sub.period.seconds == 3600
         assert e6_sub.period.days == 0
-        assert commons.inherits_from(e6_sub.source, 'E621Source')
+        assert e6_sub.source.type_name == E621Source.type_name
         assert e6_sub.source.search == "cabinet"
         assert e6_sub.source.last_keys is not None
         assert len(e6_sub.source.last_keys) >= 50
