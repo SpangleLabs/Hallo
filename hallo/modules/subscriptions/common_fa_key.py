@@ -146,7 +146,7 @@ class FAKey:
 
             def comment_data_getter():
                 return self._get_api_data(
-                    "/journal/{}/comments.json".format(journal_id)
+                    "/journal/{}/comments.json?include_hidden=1".format(journal_id)
                 )
 
             journal_page = FAKey.FAReader.FAViewJournalPage(
@@ -424,6 +424,7 @@ class FAKey:
             @property
             def shouts(self) -> List['FAKey.FAReader.FAShout']:
                 if self._shout_cache is None:
+                    self._shout_cache = []
                     shout_data = self._shout_data_getter()
                     for shout in shout_data:
                         shout_id = shout["id"].replace("shout-", "")
@@ -434,7 +435,7 @@ class FAKey:
                         new_shout = FAKey.FAReader.FAShout(
                             shout_id, username, name, avatar, text
                         )
-                        self.shouts.append(new_shout)
+                        self._shout_cache.append(new_shout)
                 return self._shout_cache
 
         class FAShout:
@@ -497,22 +498,27 @@ class FAKey:
             def __init__(self, comments_data: Dict):
                 self.top_level_comments: List[FAKey.FAReader.FAComment] = []
                 for comment in comments_data:
-                    username = comment["profile_name"]
-                    name = comment["name"]
-                    avatar_link = comment["avatar"]
                     comment_id = comment["id"]
-                    posted_datetime = dateutil.parser.parse(comment["posted_at"])
                     text = comment["text"].strip()
-                    new_comment = FAKey.FAReader.FAComment(
-                        username, name, avatar_link, comment_id, posted_datetime, text
-                    )
-                    if comment["reply_to"] == "":
-                        self.top_level_comments.append(new_comment)
+                    if comment["is_deleted"]:
+                        new_comment = FAKey.FAReader.FAComment(
+                            None, None, None, comment_id, None, text, True
+                        )
                     else:
+                        username = comment["profile_name"]
+                        name = comment["name"]
+                        avatar_link = comment["avatar"]
+                        posted_datetime = dateutil.parser.parse(comment["posted_at"])
+                        new_comment = FAKey.FAReader.FAComment(
+                            username, name, avatar_link, comment_id, posted_datetime, text, False
+                        )
+                    if comment["reply_to"]:
                         parent_id = comment["reply_to"]
                         parent_comment = self.get_comment_by_id(parent_id)
                         new_comment.parent = parent_comment
                         parent_comment.reply_comments.append(new_comment)
+                    else:
+                        self.top_level_comments.append(new_comment)
 
             def get_comment_by_id(
                     self, comment_id: str, parent_comment: Optional['FAKey.FAReader.FAComment'] = None
@@ -534,12 +540,13 @@ class FAKey:
         class FAComment:
             def __init__(
                     self,
-                    username: str,
-                    name: str,
-                    avatar_link: str,
+                    username: Optional[str],
+                    name: Optional[str],
+                    avatar_link: Optional[str],
                     comment_id: str,
-                    posted_datetime: datetime,
+                    posted_datetime: Optional[datetime],
                     text: str,
+                    is_deleted: bool,
                     parent_comment: Optional['FAKey.FAReader.FAComment'] = None,
             ):
                 self.username: str = username
@@ -548,6 +555,7 @@ class FAKey:
                 self.comment_id: str = comment_id
                 self.posted_datetime: datetime = posted_datetime
                 self.text: str = text
+                self.is_deleted = is_deleted
                 self.parent_comment: Optional[FAKey.FAReader.FAComment] = parent_comment
                 self.reply_comments: List[FAKey.FAReader.FAComment] = []
 
