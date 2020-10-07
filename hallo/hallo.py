@@ -93,20 +93,23 @@ class Hallo:
         last_date_time = datetime.now()
         while self.open:
             now_date_time = datetime.now()
-            if now_date_time.second != last_date_time.second:
-                second = EventSecond()
-                self.function_dispatcher.dispatch_passive(second)
-            if now_date_time.minute != last_date_time.minute:
-                logger.debug("Core heartbeat")
-                heartbeat.update_heartbeat(heartbeat_app_name)
-                minute = EventMinute()
-                self.function_dispatcher.dispatch_passive(minute)
-            if now_date_time.hour != last_date_time.hour:
-                hour = EventHour()
-                self.function_dispatcher.dispatch_passive(hour)
-            if now_date_time.day != last_date_time.day:
-                day = EventDay()
-                self.function_dispatcher.dispatch_passive(day)
+            try:
+                if now_date_time.second != last_date_time.second:
+                    second = EventSecond()
+                    self.function_dispatcher.dispatch_passive(second)
+                if now_date_time.minute != last_date_time.minute:
+                    logger.debug("Core heartbeat")
+                    heartbeat.update_heartbeat(heartbeat_app_name)
+                    minute = EventMinute()
+                    self.function_dispatcher.dispatch_passive(minute)
+                if now_date_time.hour != last_date_time.hour:
+                    hour = EventHour()
+                    self.function_dispatcher.dispatch_passive(hour)
+                if now_date_time.day != last_date_time.day:
+                    day = EventDay()
+                    self.function_dispatcher.dispatch_passive(day)
+            except Exception as e:
+                logger.error("Error sending core time loop event.", exc_info=e)
             last_date_time = now_date_time
             time.sleep(0.1)
         self.close()
