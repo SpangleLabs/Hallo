@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import Dict, List, Optional
 
@@ -9,6 +10,7 @@ from hallo.inc.commons import Commons
 import hallo.modules.subscriptions.stream_source
 from hallo.server import Server
 
+logger = logging.getLogger(__name__)
 
 def _direct_url_gfycat(url: str) -> Optional[str]:
     gfycat_regex = re.compile(
@@ -25,9 +27,13 @@ def _direct_url_vreddit(url: str, item: Dict) -> Optional[str]:
     vreddit_match = vreddit_regex.match(url)
     if vreddit_match is None:
         return None
-    if item["data"]["secure_media"] is None:
-        return item["data"]["crosspost_parent_list"][0]["secure_media"]["reddit_video"]["fallback_url"]
-    return item["data"]["secure_media"]["reddit_video"]["fallback_url"]
+    try:
+        if item["data"]["secure_media"] is None:
+            return item["data"]["crosspost_parent_list"][0]["secure_media"]["reddit_video"]["fallback_url"]
+        return item["data"]["secure_media"]["reddit_video"]["fallback_url"]
+    except KeyError as e:
+        logger.warning("KeyError in vreddit parsing: ", exc_info=e)
+        return None
 
 
 def _direct_url_red(url: str) -> Optional[str]:
@@ -178,3 +184,10 @@ class RedditSource(hallo.modules.subscriptions.stream_source.StreamSource[Dict])
             "subreddit": self.subreddit,
             "last_keys": self.last_keys
         }
+
+
+if __name__ == "__main__":
+    s = RedditSource("happycowgifs")
+    state = s.current_state()
+    for item in state:
+        s.item_to_event(None, None, None, item)
