@@ -109,13 +109,13 @@ class ServerTelegram(Server):
     def reconnect(self):
         super().reconnect()
 
-    def parse_private_message(self, bot, update):
+    def parse_private_message(self, update, context):
         """
         Handles a new private message
-        :param bot: telegram bot object
-        :type bot: telegram.Bot
         :param update: Update object from telegram API
         :type update: telegram.Update
+        :param context: Callback Context from the telegram API
+        :type context: telegram.CallbackContext
         """
         # Get sender object
         telegram_chat = update.message.chat
@@ -144,13 +144,13 @@ class ServerTelegram(Server):
         message_evt.log()
         self.hallo.function_dispatcher.dispatch(message_evt)
 
-    def parse_group_message(self, bot, update):
+    def parse_group_message(self, update, context):
         """
         Handles a new group or supergroup message (does not handle channel posts)
-        :param bot: telegram bot object
-        :type bot: telegram.Bot
         :param update: Update object from telegram API
         :type update: telegram.Update
+        :param context: Callback Context from the telegram API
+        :type context: telegram.CallbackContext
         """
         # Get sender object
         message_sender_name = " ".join(
@@ -192,17 +192,17 @@ class ServerTelegram(Server):
         else:
             function_dispatcher.dispatch_passive(message_evt)
 
-    def parse_join(self, bot, update):
+    def parse_join(self, update, context):
         # TODO
         pass
 
-    def parse_unhandled(self, bot, update):
+    def parse_unhandled(self, update, context):
         """
         Parses an unhandled message from the server
-        :param bot: telegram bot object
-        :type bot: telegram.Bot
         :param update: Update object from telegram API
         :type update: telegram.Update
+        :param context: Callback Context from the telegram API
+        :type context: telegram.CallbackContext
         """
         # Print it to console
         error = MessageError(
