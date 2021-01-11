@@ -93,8 +93,11 @@ class FANotesOutboxSource(hallo.modules.subscriptions.stream_source.StreamSource
 
     def current_state(self) -> List[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANote]:
         fa_reader = self.fa_key.get_fa_reader()
-        return [note for note in fa_reader.get_notes_page(
-            hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.NOTES_OUTBOX).notes if not note.is_read]
+        return [
+            note for note in
+            fa_reader.get_notes_page(hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.NOTES_OUTBOX).notes
+            if note.is_read
+        ]
 
     def item_to_key(
             self,
@@ -111,7 +114,7 @@ class FANotesOutboxSource(hallo.modules.subscriptions.stream_source.StreamSource
     ) -> EventMessage:
         return EventMessage(
             server, channel, user,
-            "An outbox note has been read. Subject: {item.subject}, To: {item.name}"
+            f"An outbox note has been read. Subject: {item.subject}, To: {item.name}"
         )
 
     def matches_name(self, name_clean: str) -> bool:
