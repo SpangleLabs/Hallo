@@ -33,6 +33,6 @@ jobs:
           test_api_key_youtube: ${{ secrets.API_KEY_YOUTUBE }}
           test_cookie_a: ${{ secrets.FA_API_COOKIE_A }}
           test_cookie_b: ${{ secrets.FA_API_COOKIE_B }}
-          test_duo_password: ${{ secrets.DUO_JWT_TOKEN }}
+          test_duo_password: ${{ secrets.DUO_PASSWORD }}
       - name: Slow tests
         run: python -m pytest -m "slow"
