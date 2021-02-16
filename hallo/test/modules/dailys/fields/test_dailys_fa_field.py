@@ -2,6 +2,8 @@ import json
 import os
 from datetime import timedelta
 
+import pytest
+
 import hallo.modules.dailys.dailys_field
 from hallo.events import EventDay, EventMessage
 from hallo.modules.dailys.field_fa import DailysFAField
@@ -25,6 +27,7 @@ def test_day_rollover_no_data(hallo_getter):
         ), "Exception should say there's no FA data."
 
 
+@pytest.mark.external_integration
 def test_day_rollover(hallo_getter):
     hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
