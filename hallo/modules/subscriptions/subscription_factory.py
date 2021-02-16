@@ -30,7 +30,6 @@ class SubscriptionFactory:
         hallo.modules.subscriptions.source_fa_watchers.FAUserWatchersSource,
         hallo.modules.subscriptions.source_reddit.RedditSource,
         hallo.modules.subscriptions.source_rss.RssSource,
-        hallo.modules.subscriptions.source_twitter.TwitterSource
     ]
     common_classes: List[Type[hallo.modules.subscriptions.subscription_common.SubscriptionCommon]] = [
         hallo.modules.subscriptions.common_fa_key.FAKeysCommon

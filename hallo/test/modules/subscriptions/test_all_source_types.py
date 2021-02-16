@@ -21,7 +21,7 @@ from hallo.modules.subscriptions.source_fa_notif_favs import FAFavNotificationsS
 from hallo.modules.subscriptions.source_fa_watchers import FAUserWatchersSource, FAWatchersSource
 from hallo.modules.subscriptions.source_reddit import RedditSource
 from hallo.modules.subscriptions.source_rss import RssSource
-from hallo.modules.subscriptions.source_twitter import TwitterSource
+# from hallo.modules.subscriptions.source_twitter import TwitterSource
 from hallo.modules.subscriptions.subscription_factory import SubscriptionFactory
 from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 
@@ -51,7 +51,7 @@ class TestAllSourceClasses(TestBase, unittest.TestCase):
             FAShoutSource(fa_key)
         ))
         sub_objs.append(RedditSource("deer"))
-        sub_objs.append(TwitterSource("telegram", None))
+        # sub_objs.append(TwitterSource("telegram", None))
         return sub_objs
 
     def get_source_create_arguments(self) -> Dict[Type[Source], str]:
@@ -70,7 +70,7 @@ class TestAllSourceClasses(TestBase, unittest.TestCase):
         sub_evts[FAFavNotificationsSource] = ""
         sub_evts[FACommentNotificationsSource] = ""
         sub_evts[RedditSource] = "r/deer"
-        sub_evts[TwitterSource] = "telegram"
+        # sub_evts[TwitterSource] = "telegram"
         return sub_evts
 
     def test_all_source_classes_in_sub_objs(self):
