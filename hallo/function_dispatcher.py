@@ -420,7 +420,7 @@ class FunctionDispatcher(object):
 
     def list_cross_module_imports(self, module_name: str) -> List[str]:
         full_module_names = self.full_module_names_for_module(module_name)
-        cross_module_import = re.compile(f"import hallo\.modules\.([^.\s]+)")
+        cross_module_import = re.compile(r"import hallo\.modules\.([^.\s]+)")
         other_modules = set()
         for full_module_name in full_module_names:
             file_name = module_name_to_file_name(full_module_name)
