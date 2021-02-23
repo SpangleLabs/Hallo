@@ -133,7 +133,7 @@ class FAKey:
 
             def comment_data_getter():
                 return self._get_api_data(
-                    "/submission/{}/comments.json".format(submission_id)
+                    "/submission/{}/comments.json?include_hidden=1".format(submission_id)
                 )
 
             sub_page = FAKey.FAReader.FAViewSubmissionPage(
