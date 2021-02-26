@@ -8,6 +8,7 @@ import urllib.request
 from hallo.events import EventMessage
 from hallo.function import Function
 from hallo.inc.commons import Commons
+from hallo.server import Server
 
 
 class UrlDetect(Function):
@@ -38,6 +39,8 @@ class UrlDetect(Function):
     def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
         if not isinstance(event, EventMessage):
+            return
+        if event.server.type == Server.TYPE_TELEGRAM:
             return
         # Get hallo object for stuff to use
         self.hallo_obj = hallo_obj
