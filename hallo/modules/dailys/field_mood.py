@@ -48,6 +48,10 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
 
     @staticmethod
     def create_from_input(event, spreadsheet):
+        return DailysMoodField.create_from_spreadsheet(spreadsheet)
+
+    @staticmethod
+    def create_from_spreadsheet(spreadsheet) -> 'DailysMoodField':
         static_data = spreadsheet.read_path("stats/mood/static/")
         if len(static_data) == 0:
             raise hallo.modules.dailys.dailys_field.DailysException(
@@ -285,14 +289,4 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
-        static_data = spreadsheet.read_path("stats/mood/static/")
-        if len(static_data) == 0:
-            raise hallo.modules.dailys.dailys_field.DailysException("Mood field static data has not been set up.")
-        moods = static_data[0]["data"]["moods"]
-        times = []
-        for time_str in static_data[0]["data"]["times"]:
-            if time_str in [DailysMoodField.TIME_WAKE, DailysMoodField.TIME_SLEEP]:
-                times.append(time_str)
-            else:
-                times.append(datetime.strptime(time_str, "%H:%M:%S").time())
-        return DailysMoodField(spreadsheet, times, moods)
+        return DailysMoodField.create_from_spreadsheet(spreadsheet)
