@@ -254,10 +254,10 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             sent_msg_id = evt.raw_data.sent_msg_object.message_id
         # Update data
         with self.lock:
-            data = self.get_current_data(mood_date)
-            data[0][str(time_val)] = dict()
-            data[0][str(time_val)]["message_id"] = sent_msg_id
-            self.save_data(data[0], data[1])
+            data, data_date = self.get_current_data(mood_date)
+            data[str(time_val)] = dict()
+            data[str(time_val)]["message_id"] = sent_msg_id
+            self.save_data(data, data_date)
         return None
 
     def process_mood_response(self, mood_str, time_val, mood_date):
