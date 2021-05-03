@@ -7,7 +7,7 @@ import isodate
 
 import hallo.modules.dailys.dailys_field
 from hallo.events import EventMessage, EventMinute, Event, RawDataTelegramOutbound, RawDataTelegram
-from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
+import hallo.modules.dailys.dailys_spreadsheet
 
 
 class AnswerOption:
@@ -213,7 +213,7 @@ class Answer:
 
 
 class AnswersData:
-    def __init__(self, spreadsheet: DailysSpreadsheet):
+    def __init__(self, spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet'):
         self.spreadsheet = spreadsheet
 
     def get_answer_for_question_at_time(
@@ -301,7 +301,11 @@ class AnswerCache:
 class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "questions"
 
-    def __init__(self, spreadsheet: DailysSpreadsheet, questions: List[Question]):
+    def __init__(
+            self,
+            spreadsheet: hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet,
+            questions: List[Question]
+    ):
         super().__init__(spreadsheet)
         self.questions = questions
         self.data = AnswersData(spreadsheet)
