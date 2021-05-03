@@ -385,7 +385,9 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             return None
         reply_answer.add_answer(answer)
         self.data.save_answer(reply_answer)
-        evt.create_response(f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}")
+        evt.create_response(
+            f"Answer saved for question ID \"{reply_answer.question_id}\", at {reply_answer.asked_time.isoformat()}"
+        )
 
     def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> None:
         latest_time = question.time_pattern.last_time()
