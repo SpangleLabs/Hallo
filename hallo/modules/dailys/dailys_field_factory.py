@@ -5,6 +5,7 @@ import hallo.modules.dailys.field_duolingo
 import hallo.modules.dailys.field_fa
 import hallo.modules.dailys.field_mood
 import hallo.modules.dailys.field_sleep
+import hallo.modules.dailys.field_question
 
 
 class DailysFieldFactory:
@@ -13,7 +14,8 @@ class DailysFieldFactory:
         hallo.modules.dailys.field_duolingo.DailysDuolingoField,
         hallo.modules.dailys.field_sleep.DailysSleepField,
         hallo.modules.dailys.field_mood.DailysMoodField,
-        hallo.modules.dailys.field_dream.DailysDreamField
+        hallo.modules.dailys.field_dream.DailysDreamField,
+        hallo.modules.dailys.field_question.QuestionsField,
     ]
 
     @staticmethod
