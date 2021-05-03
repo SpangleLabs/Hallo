@@ -13,6 +13,7 @@ from hallo.modules.dailys.field_duolingo import DailysDuolingoField
 from hallo.modules.dailys.field_fa import DailysFAField
 from hallo.modules.dailys.field_mood import DailysMoodField
 from hallo.modules.dailys.field_sleep import DailysSleepField
+from hallo.modules.dailys.field_question import QuestionsField, Question, RepeatingInterval
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
@@ -32,6 +33,14 @@ def get_field_objects(test_user, test_chan):
     field_obs.append(DailysFAField(spreadsheet))
     field_obs.append(DailysSleepField(spreadsheet))
     field_obs.append(DailysDreamField(spreadsheet))
+    field_obs.append(QuestionsField(
+        spreadsheet,
+        [Question(
+            "test_question",
+            "Is this question a test?",
+            RepeatingInterval("R/2021-05-03T21:00:00/P1D")
+        )]
+    ))
     return field_obs
 
 
