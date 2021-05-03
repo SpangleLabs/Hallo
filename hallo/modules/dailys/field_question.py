@@ -6,7 +6,7 @@ import dateutil.parser
 import isodate
 
 import hallo.modules.dailys.dailys_field
-from hallo.events import EventMessage, EventMinute, Event, RawDataTelegramOutbound
+from hallo.events import EventMessage, EventMinute, Event, RawDataTelegramOutbound, RawDataTelegram
 from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
 
 
@@ -83,6 +83,24 @@ class Question:
         now = datetime.datetime.now(datetime.timezone.utc)
         return now < self.deprecation
 
+    def create_answer_for_time(
+            self,
+            asked_time: datetime.datetime,
+            *,
+            answer: Optional[str] = None,
+            answer_time: Optional[datetime.datetime] = None,
+            question_msg_id: Optional[int] = None
+    ) -> 'Answer':
+        if answer_time is None:
+            answer_time = datetime.datetime.now(tz=datetime.timezone.utc)
+        return Answer(
+            self.id,
+            asked_time,
+            answer=answer,
+            answer_time=answer_time,
+            question_msg_id=question_msg_id
+        )
+
     @classmethod
     def from_dict(cls, json_dict: Dict) -> 'Question':
         deprecation = None
@@ -106,6 +124,29 @@ class Question:
         )
 
 
+class AnswerEdit:
+    def __init__(
+            self,
+            answer: str,
+            answer_time: datetime.datetime
+    ):
+        self.answer = answer
+        self.answer_time = answer_time
+
+    def to_dict(self) -> Dict:
+        return {
+            "answer": self.answer,
+            "answer_time": self.answer_time.isoformat()
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, str]) -> 'AnswerEdit':
+        return cls(
+            data["answer"],
+            dateutil.parser.parse(data["answer_edit"])
+        )
+
+
 class Answer:
     def __init__(
             self,
@@ -114,6 +155,7 @@ class Answer:
             *,
             answer: Optional[str] = None,
             answer_time: Optional[datetime.datetime] = None,
+            edit_history: Optional[List[AnswerEdit]] = None,
             question_msg_id: Optional[int] = None,
     ):
         self.answer = answer
@@ -121,13 +163,24 @@ class Answer:
         self.asked_time = asked_time
         self.question_id = question_id
         self.question_msg_id = question_msg_id
+        self.edit_history = edit_history or []
 
     @property
     def answered(self) -> bool:
         return self.answer is not None
 
+    def for_question(self, question: 'Question') -> bool:
+        return self.question_id == question.id
+
     def same_answer(self, other: 'Answer') -> bool:
         return self.question_id == other.question_id and self.asked_time == other.asked_time
+
+    def add_answer(self, answer: str) -> None:
+        if self.answer is not None:
+            new_edit = AnswerEdit(self.answer, self.answer_time)
+            self.edit_history.append(new_edit)
+        self.answer = answer
+        self.answer_time = datetime.datetime.now(datetime.timezone.utc)
 
     @classmethod
     def from_dict(cls, json_dict: Dict) -> 'Answer':
@@ -139,6 +192,7 @@ class Answer:
             dateutil.parser.parse(json_dict["asked_time"]),
             answer=json_dict.get("answer"),
             answer_time=answer_time,
+            edit_history=json_dict.get("edit_history", []),
             question_msg_id=json_dict.get("q_message_id")
         )
 
@@ -151,6 +205,8 @@ class Answer:
             d["answer"] = self.answer
         if self.answer_time:
             d["answer_time"] = self.answer_time.isoformat()
+        if self.edit_history:
+            d["edit_history"] = [e.to_dict() for e in self.edit_history]
         if self.question_msg_id:
             d["q_message_id"] = self.question_msg_id
         return d
@@ -159,6 +215,17 @@ class Answer:
 class AnswersData:
     def __init__(self, spreadsheet: DailysSpreadsheet):
         self.spreadsheet = spreadsheet
+
+    def get_answer_for_question_at_time(
+            self,
+            question: Question,
+            answer_datetime: datetime.datetime
+    ) -> Optional[Answer]:
+        date_answers = self.get_answers_for_date(answer_datetime.date())
+        for answer in date_answers:
+            if answer.for_question(question) and answer.asked_time == answer_datetime:
+                return answer
+        return None
 
     def get_answers_for_date(self, answer_date: datetime.date) -> List[Answer]:
         date_data = self.spreadsheet.read_path("stats/questions/"+answer_date.isoformat())
@@ -262,8 +329,39 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         with self.lock:
             self.data.save_answer(answer)
 
-    def _msg_trigger(self, evt: EventMessage) -> Optional[Event]:
+    def _msg_trigger(self, evt: EventMessage) -> None:
+        # Check if it's a reply to a question
+        if (
+            isinstance(evt.raw_data, RawDataTelegram)
+            and evt.raw_data.update_obj.message.reply_to_message is not None
+        ):
+            reply_id = (
+                evt.raw_data.update_obj.message.reply_to_message.message_id
+            )
+            return None  # TODO
+        # Handle manual answers
+        text_split = evt.text.split(maxsplit=2)
+        question_dict = {q.id: q for q in self.questions}
+        if text_split[0].lower() == "answer" and text_split[1] in question_dict:
+            return self._handle_answer_manual(evt, question_dict[text_split[1]], text_split[2])
+
+    def _handle_answer_reply(self, evt: EventMessage) -> None:
         pass  # TODO
+
+    def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> None:
+        latest_time = question.time_pattern.last_time()
+        current_answer = self.data.get_answer_for_question_at_time(question, latest_time)
+        if current_answer is None:
+            new_answer = question.create_answer_for_time(
+                latest_time,
+                answer=answer
+            )
+            self.data.save_answer(new_answer)
+            evt.create_response(f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}")
+            return
+        current_answer.add_answer(answer)
+        self.data.save_answer(current_answer)
+        evt.create_response(f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}")
 
     def to_json(self):
         return {
