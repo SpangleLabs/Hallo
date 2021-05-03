@@ -28,7 +28,7 @@ class RepeatingInterval:
         self.count = None
         if repeat != "R":
             self.count = int(repeat[1:])
-        self.start = dateutil.parser.parse(start)
+        self.start: datetime.datetime = dateutil.parser.parse(start)
         self.period = isodate.parse_duration(period)
 
     def last_time(self) -> Optional[datetime.datetime]:
@@ -264,6 +264,39 @@ class AnswerCache:
             self._populate_answers_for_date(answer_time.date())
         return self._cache.get(answer_time.date(), {}).get(question.id, {}).get(answer_time)
 
+    def answer_for_question_msg_id(
+            self,
+            question_msg_id: int,
+            questions: List[Question],
+            *,
+            assume_incremental_id: bool = True
+    ) -> Optional[Answer]:
+        if not questions:
+            return None
+        oldest_date = min([q.time_pattern.start.date() for q in questions])
+        test_date = datetime.datetime.now(datetime.timezone.utc).date()
+        while test_date > oldest_date:
+            self._populate_answers_for_date(test_date)
+            lowest_msg_id = None
+            for question_id, answer_dict in self._cache.get(test_date, {}):
+                for answer_time, answer in answer_dict:
+                    if answer.question_msg_id is None:
+                        continue
+                    # If message ID matches, that's the right one
+                    if answer.question_msg_id == question_msg_id:
+                        return answer
+                    # Update lowest message id for the day
+                    if lowest_msg_id is None:
+                        lowest_msg_id = answer.question_msg_id
+                    else:
+                        lowest_msg_id = min(answer.question_msg_id)
+            # If chat has incremental message IDs, then we can end early if IDs are lower than the one we're looking for
+            if assume_incremental_id:
+                if lowest_msg_id < question_msg_id:
+                    return None
+        # Ran out of dates, return None
+        return None
+
 
 class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "questions"
@@ -338,15 +371,21 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             reply_id = (
                 evt.raw_data.update_obj.message.reply_to_message.message_id
             )
-            return None  # TODO
+            return self._handle_answer_reply(evt, reply_id, evt.text)
         # Handle manual answers
         text_split = evt.text.split(maxsplit=2)
         question_dict = {q.id: q for q in self.questions}
         if text_split[0].lower() == "answer" and text_split[1] in question_dict:
             return self._handle_answer_manual(evt, question_dict[text_split[1]], text_split[2])
 
-    def _handle_answer_reply(self, evt: EventMessage) -> None:
-        pass  # TODO
+    def _handle_answer_reply(self, evt: EventMessage, reply_id: int, answer: str) -> None:
+        cache = AnswerCache(self.data)
+        reply_answer = cache.answer_for_question_msg_id(reply_id, self.questions)
+        if reply_answer is None:
+            return None
+        reply_answer.add_answer(answer)
+        self.data.save_answer(reply_answer)
+        evt.create_response(f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}")
 
     def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> None:
         latest_time = question.time_pattern.last_time()
