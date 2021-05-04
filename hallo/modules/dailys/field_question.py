@@ -1,13 +1,15 @@
 import datetime
 from threading import RLock
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, TYPE_CHECKING
 
 import dateutil.parser
 import isodate
 
 import hallo.modules.dailys.dailys_field
 from hallo.events import EventMessage, EventMinute, Event, RawDataTelegramOutbound, RawDataTelegram
-import hallo.modules.dailys.dailys_spreadsheet
+
+if TYPE_CHECKING:
+    import hallo.modules.dailys.dailys_spreadsheet
 
 
 class AnswerOption:
