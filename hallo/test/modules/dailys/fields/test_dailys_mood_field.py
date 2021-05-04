@@ -67,7 +67,7 @@ def test_create_from_input(hallo_getter, requests_mock):
     assert len(field.times) == 3
     assert MoodTime(MoodTime.WAKE) in field.times
     assert MoodTime(MoodTime.SLEEP) in field.times
-    assert time(12, 0, 0) in field.times
+    assert MoodTime(time(12, 0, 0)) in field.times
     assert isinstance(field.moods, list)
     assert len(field.moods) == 4
     assert field.moods == dailys_moods
@@ -279,7 +279,7 @@ def test_trigger_time_exactly_once(hallo_getter):
         test_user, test_chan, saved_data={"mood": {}}
     )
     # Setup field
-    times = [MoodTime(MoodTime.WAKE), time(14, 0, 0), MoodTime(MoodTime.SLEEP)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0)), MoodTime(MoodTime.SLEEP)]
     moods = ["Happiness", "Anger", "Tiredness"]
     field = DailysMoodField(spreadsheet, times, moods)
     # Prepare events
@@ -330,7 +330,7 @@ def test_process_reply_to_query(hallo_getter):
         test_user, test_chan, saved_data={"mood": {mood_date: mood_data}}
     )
     # Setup field
-    times = [MoodTime(MoodTime.WAKE), time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     moods = ["Happiness", "Anger", "Tiredness"]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
@@ -369,7 +369,7 @@ def test_process_most_recent_query(hallo_getter):
         test_user, test_chan, saved_data={"mood": {mood_date: mood_data}}
     )
     # Setup field
-    times = [MoodTime(MoodTime.WAKE), time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     moods = ["Happiness", "Anger", "Tiredness"]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
@@ -456,7 +456,7 @@ def test_process_no_mood_query(hallo_getter):
         test_user, test_chan, saved_data={"mood": {mood_date: mood_data}}
     )
     # Setup field
-    times = [MoodTime(MoodTime.WAKE), time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_mood = EventMessage(
@@ -491,7 +491,7 @@ def test_process_time_specified(hallo_getter):
         test_user, test_chan, saved_data={"mood": {mood_date: mood_data}}
     )
     # Setup field
-    times = [MoodTime(MoodTime.WAKE), time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_mood = EventMessage(
@@ -526,7 +526,7 @@ def test_process_wake_specified(hallo_getter):
     moods = ["Happiness", "Anger", "Tiredness"]
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
     # Setup field
-    times = [MoodTime(MoodTime.WAKE), time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_mood = EventMessage(
@@ -556,7 +556,7 @@ def test_process_sleep_specified(hallo_getter):
     moods = ["Happiness", "Anger", "Tiredness"]
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
     # Setup field
-    times = [MoodTime(MoodTime.WAKE), time(14, 0, 0), MoodTime(MoodTime.SLEEP)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0)), MoodTime(MoodTime.SLEEP)]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_mood = EventMessage(
@@ -594,7 +594,7 @@ def test_no_trigger_after_processed(hallo_getter):
         test_user, test_chan, saved_data={"mood": {mood_date: mood_data}}
     )
     # Setup field
-    times = [MoodTime(MoodTime.WAKE), time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_mood = EventMessage(
@@ -643,7 +643,7 @@ def test_no_trigger_wake_after_processed(hallo_getter):
     moods = ["Happiness", "Anger", "Tiredness"]
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
     # Setup field
-    times = [MoodTime(MoodTime.WAKE), time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_mood = EventMessage(
@@ -699,7 +699,7 @@ def test_no_trigger_sleep_after_processed_sleep_and_midnight(hallo_getter):
         test_user, test_chan, saved_data={"mood": {mood_date: saved_data}}
     )
     # Setup field
-    times = [MoodTime(MoodTime.WAKE), time(14, 0, 0), MoodTime(MoodTime.SLEEP)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0)), MoodTime(MoodTime.SLEEP)]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send sleep query
     evt_sleep1 = EventMessage(
