@@ -305,7 +305,7 @@ class AnswerCache:
                     if lowest_msg_id is None:
                         lowest_msg_id = answer.question_msg_id
                     else:
-                        lowest_msg_id = min(answer.question_msg_id)
+                        lowest_msg_id = min([lowest_msg_id, answer.question_msg_id])
             # If chat has incremental message IDs, then we can end early if IDs are lower than the one we're looking for
             if assume_incremental_id:
                 if lowest_msg_id is not None and lowest_msg_id < question_msg_id:
