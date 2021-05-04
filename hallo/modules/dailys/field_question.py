@@ -305,7 +305,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
 
     def __init__(
             self,
-            spreadsheet: hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet,
+            spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet',
             questions: List[Question]
     ):
         super().__init__(spreadsheet)
