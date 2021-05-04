@@ -219,6 +219,7 @@ class Answer:
 class AnswersData:
     def __init__(self, spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet'):
         self.spreadsheet = spreadsheet
+        self.lock = RLock()
 
     def get_answer_for_question_at_time(
             self,
@@ -233,23 +234,27 @@ class AnswersData:
 
     def get_answers_for_date(self, answer_date: datetime.date) -> List[Answer]:
         date_data = self.spreadsheet.read_path("stats/questions/"+answer_date.isoformat())
+        if not date_data:
+            return []
         answer_data = date_data[0]["data"]["answers"]
         return [Answer.from_dict(d) for d in answer_data]
 
     def save_answers_for_date(self, answer_date: datetime.date, answers: List[Answer]):
-        date_data = {"answers": [a.to_dict() for a in answers]}
-        self.spreadsheet.save_field(QuestionsField, date_data, answer_date)
+        with self.lock:
+            date_data = {"answers": [a.to_dict() for a in answers]}
+            self.spreadsheet.save_field(QuestionsField, date_data, answer_date)
 
     def save_answer(self, answer: Answer) -> None:
-        answer_date = answer.asked_time.date()
-        date_answers = self.get_answers_for_date(answer_date)
-        matching_answer = next([a for a in date_answers if a.same_answer(answer)], None)
-        if matching_answer is not None:
-            date_answers.remove(matching_answer)
-            date_answers.append(answer)
-        else:
-            date_answers.append(answer)
-        self.save_answers_for_date(answer_date, date_answers)
+        with self.lock:
+            answer_date = answer.asked_time.date()
+            date_answers = self.get_answers_for_date(answer_date)
+            matching_answer = next([a for a in date_answers if a.same_answer(answer)], None)
+            if matching_answer is not None:
+                date_answers.remove(matching_answer)
+                date_answers.append(answer)
+            else:
+                date_answers.append(answer)
+            self.save_answers_for_date(answer_date, date_answers)
 
 
 class AnswerCache:
@@ -313,7 +318,6 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         super().__init__(spreadsheet)
         self.questions = questions
         self.data = AnswersData(spreadsheet)
-        self.lock = RLock()
 
     @staticmethod
     def create_from_input(event, spreadsheet):
@@ -367,8 +371,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             sent_msg_id = evt.raw_data.sent_msg_object.message_id
         # Create answer object
         answer = Answer(question.id, ask_time, question_msg_id=sent_msg_id)
-        with self.lock:
-            self.data.save_answer(answer)
+        self.data.save_answer(answer)
 
     def _msg_trigger(self, evt: EventMessage) -> None:
         # Check if it's a reply to a question
