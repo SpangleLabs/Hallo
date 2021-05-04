@@ -281,11 +281,9 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
         )
 
     def to_json(self):
-        json_obj = dict()
-        json_obj["type_name"] = self.type_name
-        json_obj["times"] = [str(t) for t in self.times]
-        json_obj["moods"] = self.moods
-        return json_obj
+        return {
+            "type_name": self.type_name
+        }
 
     @staticmethod
     def from_json(json_obj, spreadsheet):
