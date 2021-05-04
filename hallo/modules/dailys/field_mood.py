@@ -1,57 +1,152 @@
-from datetime import timedelta, datetime, time
+from datetime import timedelta, datetime, time, date
 from threading import RLock
+from typing import List, Union, Dict, Optional, TYPE_CHECKING
 
 from hallo.events import EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound
 import hallo.modules.dailys.dailys_field
 import hallo.modules.dailys.field_sleep
 
+if TYPE_CHECKING:
+    import hallo.modules.dailys.dailys_spreadsheet
+
+
+class MoodTime:
+    WAKE = "WakeUpTime"
+    SLEEP = "SleepTime"
+
+    def __init__(self, mood_time: Union[str, time]):
+        self.mood_time = mood_time
+        self.is_time = True
+        if mood_time in [self.WAKE, self.SLEEP]:
+            self.is_time = False
+
+    @classmethod
+    def from_str(cls, time_str: str) -> 'MoodTime':
+        if time_str in [cls.WAKE, cls.SLEEP]:
+            return MoodTime(time_str)
+        else:
+            return MoodTime(datetime.strptime(time_str, "%H:%M:%S").time())
+
+    def __eq__(self, other):
+        return isinstance(other, MoodTime) and self.mood_time == other.mood_time
+
+    def __hash__(self):
+        return hash(self.mood_time)
+
+
+class MoodDay:
+    def __init__(self, mood_date: date, mood_entries: List['MoodEntry']):
+        self.mood_date = mood_date
+        self.mood_entries = mood_entries or []
+
+    @classmethod
+    def from_dict(cls, data: Dict, mood_date: date) -> 'MoodDay':
+        mood_entries = []
+        for key, val in data.items():
+            mood_time = MoodTime.from_str(key)
+            mood_entries.append(MoodEntry.from_data(val, mood_time))
+        return MoodDay(
+            mood_date,
+            mood_entries
+        )
+
+
+class MoodEntry:
+    def __init__(self, mood_time: MoodTime):
+        self.mood_time = mood_time
+
+    @classmethod
+    def from_data(cls, data: Dict, mood_time: MoodTime) -> 'MoodEntry':
+        if {"message_id"} == set(data.keys()):
+            return MoodRequest.from_data(data, mood_time)
+        return MoodMeasurement.from_data(data, mood_time)
+
+
+class MoodRequest(MoodEntry):
+    def __init__(self, mood_time: MoodTime, message_id: int):
+        super().__init__(mood_time)
+        self.message_id = message_id
+
+    @classmethod
+    def from_data(cls, data: Dict, mood_time: MoodTime) -> 'MoodRequest':
+        return MoodRequest(
+            mood_time,
+            data["message_id"]
+        )
+
+
+class MoodMeasurement(MoodEntry):
+    def __init__(self, mood_time: MoodTime, mood_dict: Dict[str, int], message_id: Optional[int] = None):
+        super().__init__(mood_time)
+        self.mood_dict = mood_dict
+        self.message_id = message_id
+
+    @classmethod
+    def from_data(cls, data: Dict, mood_time: MoodTime) -> 'MoodEntry':
+        mood_data = data.copy()
+        message_id = None
+        if "message_id" in mood_data:
+            message_id = mood_data["message_id"]
+            del mood_data["message_id"]
+        return MoodMeasurement(mood_time, mood_data, message_id=message_id)
+
+
+class MoodTriggeredCache:
+    def __init__(self):
+        self.cache = (
+            dict()
+        )  # Cache of time values which have triggered already on set days.
+        """ :type : dict[date, list[time|str]"""
+
+    def has_triggered(self, mood_date, time_val):
+        return mood_date in self.cache and time_val in self.cache[mood_date]
+
+    def save_triggered(self, mood_date, time_val):
+        self.clean_old_cache(mood_date)
+        if mood_date not in self.cache:
+            self.cache[mood_date] = []
+        self.cache[mood_date].append(time_val)
+
+    def clean_old_cache(self, current_date):
+        expired_dates = []
+        for mood_date in self.cache:
+            if mood_date <= current_date - timedelta(days=4):
+                expired_dates.append(mood_date)
+        for del_date in expired_dates:
+            del self.cache[del_date]
+
 
 class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "mood"
     # Does mood measurements
-    TIME_WAKE = "WakeUpTime"  # Used as a time entry, to signify that it should take a mood measurement in the morning,
+    TIME_WAKE = MoodTime.WAKE  # Used as a time entry, to signify that it should take a mood measurement in the morning,
     # after wakeup has been logged.
-    TIME_SLEEP = "SleepTime"  # Used as a time entry to signify that a mood measurement should be taken before sleep.
+    TIME_SLEEP = MoodTime.SLEEP  # Used as a time entry to signify that a mood measurement should be taken before sleep.
+    # TODO: Move those to MoodTime
 
-    class MoodTriggeredCache:
-        def __init__(self):
-            self.cache = (
-                dict()
-            )  # Cache of time values which have triggered already on set days.
-            """ :type : dict[date, list[time|str]"""
-
-        def has_triggered(self, mood_date, time_val):
-            return mood_date in self.cache and time_val in self.cache[mood_date]
-
-        def save_triggered(self, mood_date, time_val):
-            self.clean_old_cache(mood_date)
-            if mood_date not in self.cache:
-                self.cache[mood_date] = []
-            self.cache[mood_date].append(time_val)
-
-        def clean_old_cache(self, current_date):
-            expired_dates = []
-            for mood_date in self.cache:
-                if mood_date <= current_date - timedelta(days=4):
-                    expired_dates.append(mood_date)
-            for del_date in expired_dates:
-                del self.cache[del_date]
-
-    def __init__(self, spreadsheet, times, moods):
+    def __init__(
+            self,
+            spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet',
+            times: List[MoodTime],
+            moods: List[str]
+    ):
         super().__init__(spreadsheet)
         self.times = times
-        """ :type : list[time|str]"""
         self.moods = moods
-        """ :type : list[str]"""
         self.lock = RLock()
-        self.triggered_cache = DailysMoodField.MoodTriggeredCache()
+        self.triggered_cache = MoodTriggeredCache()
 
     @staticmethod
-    def create_from_input(event, spreadsheet):
+    def create_from_input(
+            event: EventMessage,
+            spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet'
+    ) -> 'DailysMoodField':
         return DailysMoodField.create_from_spreadsheet(spreadsheet)
 
     @staticmethod
-    def create_from_spreadsheet(spreadsheet) -> 'DailysMoodField':
+    def create_from_spreadsheet(
+            spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet'
+    ) -> 'DailysMoodField':
         static_data = spreadsheet.read_path("stats/mood/static/")
         if len(static_data) == 0:
             raise hallo.modules.dailys.dailys_field.DailysException(
@@ -60,10 +155,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
         moods = static_data[0]["data"]["moods"]
         times = []
         for time_str in static_data[0]["data"]["times"]:
-            if time_str in [DailysMoodField.TIME_WAKE, DailysMoodField.TIME_SLEEP]:
-                times.append(time_str)
-            else:
-                times.append(datetime.strptime(time_str, "%H:%M:%S").time())
+            times.append(MoodTime.from_str(time_str))
         # Return new field
         return DailysMoodField(spreadsheet, times, moods)
 
@@ -96,10 +188,10 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             [m in date_data[str(t)] for t in self.times for m in self.moods]
         )
 
-    def has_triggered_for_time(self, mood_date, time_val):
+    def has_triggered_for_time(self, mood_date: date, time_val):
         """
         :type mood_date: date
-        :type time_val: str|time
+        :type time_val: str|time  # TODO: change to MoodTime
         :return: bool
         """
         # Check cache for true values
