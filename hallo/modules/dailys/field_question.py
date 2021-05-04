@@ -399,9 +399,9 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             return None
         reply_answer.add_answer(answer)
         self.data.save_answer(reply_answer)
-        return evt.create_response(
+        return evt.server.send(evt.create_response(
             f"Answer saved for question ID \"{reply_answer.question_id}\", at {reply_answer.asked_time.isoformat()}"
-        )
+        ))
 
     def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> Optional[EventMessage]:
         latest_time = question.time_pattern.last_time()
@@ -412,10 +412,14 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
                 answer=answer
             )
             self.data.save_answer(new_answer)
-            return evt.create_response(f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}")
+            return evt.server.send(evt.create_response(
+                f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}"
+            ))
         current_answer.add_answer(answer)
         self.data.save_answer(current_answer)
-        return evt.create_response(f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}")
+        return evt.server.send(evt.create_response(
+            f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}"
+        ))
 
     def to_json(self):
         return {
