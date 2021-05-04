@@ -83,6 +83,8 @@ class Question:
 
     def is_active(self):
         now = datetime.datetime.now(datetime.timezone.utc)
+        if self.deprecation is None:
+            return True
         return now < self.deprecation
 
     def create_answer_for_time(
