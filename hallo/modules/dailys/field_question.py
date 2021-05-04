@@ -33,13 +33,18 @@ class RepeatingInterval:
         self.start: datetime.datetime = dateutil.parser.parse(start)
         self.period = isodate.parse_duration(period)
 
+    def allows_count(self, count: int) -> bool:
+        if self.count is None:
+            return True
+        return count <= self.count
+
     def last_time(self) -> Optional[datetime.datetime]:
         now = datetime.datetime.now(datetime.timezone.utc)
         if now < self.start:
             return None
         check = self.start
         count = 1
-        while (check + self.period < now) and count <= self.count:
+        while (check + self.period < now) and self.allows_count(count):
             check += self.period
             count += 1
         return check
@@ -51,7 +56,7 @@ class RepeatingInterval:
         check = self.start + self.period
         count = 1
         while check < now:
-            if count >= self.count:
+            if self.count is not None and count >= self.count:
                 return None
             # increment
             check += self.period
