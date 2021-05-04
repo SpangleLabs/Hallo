@@ -147,7 +147,7 @@ class AnswerEdit:
     def from_dict(cls, data: Dict[str, str]) -> 'AnswerEdit':
         return cls(
             data["answer"],
-            dateutil.parser.parse(data["answer_edit"])
+            dateutil.parser.parse(data["answer_time"])
         )
 
 
@@ -196,7 +196,7 @@ class Answer:
             dateutil.parser.parse(json_dict["asked_time"]),
             answer=json_dict.get("answer"),
             answer_time=answer_time,
-            edit_history=json_dict.get("edit_history", []),
+            edit_history=[AnswerEdit.from_dict(e) for e in json_dict.get("edit_history", [])],
             question_msg_id=json_dict.get("q_message_id")
         )
 
