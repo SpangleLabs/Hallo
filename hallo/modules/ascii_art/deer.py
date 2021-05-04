@@ -8,7 +8,6 @@ class Deer(Function):
     """
 
     def __init__(self):
-        print("Deer init")
         """
         Constructor
         """
