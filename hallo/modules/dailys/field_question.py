@@ -248,7 +248,7 @@ class AnswersData:
         with self.lock:
             answer_date = answer.asked_time.date()
             date_answers = self.get_answers_for_date(answer_date)
-            matching_answer = next([a for a in date_answers if a.same_answer(answer)], None)
+            matching_answer = next(iter([a for a in date_answers if a.same_answer(answer)]), None)
             if matching_answer is not None:
                 date_answers.remove(matching_answer)
                 date_answers.append(answer)
@@ -266,7 +266,9 @@ class AnswerCache:
         answers = self.data.get_answers_for_date(answer_date)
         self._cache[answer_date] = {}
         for answer in answers:
-            self._cache[answer_date][answer.question_id][answer.asked_time] = Answer
+            if answer.question_id not in self._cache[answer_date]:
+                self._cache[answer_date][answer.question_id] = {}
+            self._cache[answer_date][answer.question_id][answer.asked_time] = answer
 
     def answer_for_question_at_time(self, question: Question, answer_time: datetime.datetime) -> Optional[Answer]:
         if answer_time.date() not in self._cache:
@@ -287,8 +289,8 @@ class AnswerCache:
         while test_date > oldest_date:
             self._populate_answers_for_date(test_date)
             lowest_msg_id = None
-            for question_id, answer_dict in self._cache.get(test_date, {}):
-                for answer_time, answer in answer_dict:
+            for question_id, answer_dict in self._cache.get(test_date, {}).items():
+                for answer_time, answer in answer_dict.items():
                     if answer.question_msg_id is None:
                         continue
                     # If message ID matches, that's the right one
@@ -303,6 +305,7 @@ class AnswerCache:
             if assume_incremental_id:
                 if lowest_msg_id is not None and lowest_msg_id < question_msg_id:
                     return None
+            test_date -= datetime.timedelta(days=1)
         # Ran out of dates, return None
         return None
 
@@ -373,7 +376,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         answer = Answer(question.id, ask_time, question_msg_id=sent_msg_id)
         self.data.save_answer(answer)
 
-    def _msg_trigger(self, evt: EventMessage) -> None:
+    def _msg_trigger(self, evt: EventMessage) -> Optional[EventMessage]:
         # Check if it's a reply to a question
         if (
             isinstance(evt.raw_data, RawDataTelegram)
@@ -389,18 +392,18 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         if text_split[0].lower() == "answer" and text_split[1] in question_dict:
             return self._handle_answer_manual(evt, question_dict[text_split[1]], text_split[2])
 
-    def _handle_answer_reply(self, evt: EventMessage, reply_id: int, answer: str) -> None:
+    def _handle_answer_reply(self, evt: EventMessage, reply_id: int, answer: str) -> Optional[EventMessage]:
         cache = AnswerCache(self.data)
         reply_answer = cache.answer_for_question_msg_id(reply_id, self.questions)
         if reply_answer is None:
             return None
         reply_answer.add_answer(answer)
         self.data.save_answer(reply_answer)
-        evt.create_response(
+        return evt.create_response(
             f"Answer saved for question ID \"{reply_answer.question_id}\", at {reply_answer.asked_time.isoformat()}"
         )
 
-    def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> None:
+    def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> Optional[EventMessage]:
         latest_time = question.time_pattern.last_time()
         current_answer = self.data.get_answer_for_question_at_time(question, latest_time)
         if current_answer is None:
@@ -409,11 +412,10 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
                 answer=answer
             )
             self.data.save_answer(new_answer)
-            evt.create_response(f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}")
-            return
+            return evt.create_response(f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}")
         current_answer.add_answer(answer)
         self.data.save_answer(current_answer)
-        evt.create_response(f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}")
+        return evt.create_response(f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}")
 
     def to_json(self):
         return {
