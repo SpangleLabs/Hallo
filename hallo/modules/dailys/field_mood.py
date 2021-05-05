@@ -1,8 +1,10 @@
+import functools
+from abc import ABC, abstractmethod
 from datetime import timedelta, datetime, time, date
 from threading import RLock
 from typing import List, Union, Dict, Optional, TYPE_CHECKING
 
-from hallo.events import EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound
+from hallo.events import EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound, Event
 import hallo.modules.dailys.dailys_field
 import hallo.modules.dailys.field_sleep
 
@@ -10,15 +12,15 @@ if TYPE_CHECKING:
     import hallo.modules.dailys.dailys_spreadsheet
 
 
+@functools.total_ordering
 class MoodTime:
     WAKE = "WakeUpTime"
     SLEEP = "SleepTime"
 
     def __init__(self, mood_time: Union[str, time]):
         self.mood_time = mood_time
-        self.is_time = True
-        if mood_time in [self.WAKE, self.SLEEP]:
-            self.is_time = False
+        if mood_time not in [self.WAKE, self.SLEEP] and not isinstance(mood_time, time):
+            raise TypeError("Invalid type for MoodTime")
 
     @classmethod
     def from_str(cls, time_str: str) -> 'MoodTime':
@@ -33,27 +35,92 @@ class MoodTime:
     def __hash__(self):
         return hash(self.mood_time)
 
+    def __str__(self):
+        return str(self.mood_time)
+
+    def __lt__(self, other) -> bool:
+        if not isinstance(other, MoodTime):
+            return NotImplemented
+        if self.is_wake():
+            return not other.is_wake()
+        if self.is_sleep():
+            return False
+        return self.mood_time < other.mood_time
+
+    @property
+    def is_time(self) -> bool:
+        return self.mood_time not in [self.WAKE, self.SLEEP]
+
+    def is_wake(self) -> bool:
+        return self.mood_time == self.WAKE
+
+    def is_sleep(self) -> bool:
+        return self.mood_time == self.SLEEP
+
 
 class MoodDay:
-    def __init__(self, mood_date: date, mood_entries: List['MoodEntry']):
+    def __init__(self, mood_date: date, mood_entries: Dict[MoodTime, 'MoodEntry']):
         self.mood_date = mood_date
-        self.mood_entries = mood_entries or []
+        self.mood_entries = mood_entries or {}
+
+    def to_dict(self) -> Dict:
+        result = {}
+        for time_val, entry in self.mood_entries.items():
+            result[str(time_val)] = entry.to_dict()
+        return result
 
     @classmethod
-    def from_dict(cls, data: Dict, mood_date: date) -> 'MoodDay':
-        mood_entries = []
+    def from_dict(cls, data: Optional[Dict], mood_date: date) -> 'MoodDay':
+        if data is None:
+            return MoodDay(mood_date, {})
+        mood_entries = {}
         for key, val in data.items():
             mood_time = MoodTime.from_str(key)
-            mood_entries.append(MoodEntry.from_data(val, mood_time))
+            mood_entries[mood_time] = MoodEntry.from_data(val, mood_time)
         return MoodDay(
             mood_date,
             mood_entries
         )
 
+    def is_full(self, mood_times: List[MoodTime]) -> bool:
+        return all(
+            self.mood_entries.get(mood_time) is not None and isinstance(self.mood_entries[mood_time], MoodMeasurement)
+            for mood_time in mood_times
+        )
 
-class MoodEntry:
-    def __init__(self, mood_time: MoodTime):
+    def is_empty(self) -> bool:
+        return len(self.mood_entries) == 0
+
+    def has_time(self, time_val: MoodTime) -> bool:
+        return time_val in self.mood_entries
+
+    def has_wake_time(self) -> bool:
+        return self.has_time(MoodTime(MoodTime.WAKE))
+
+    def has_sleep_time(self) -> bool:
+        return self.has_time(MoodTime(MoodTime.SLEEP))
+
+    def list_unanswered_requests(self) -> List['MoodRequest']:
+        return sorted([m for m in self.mood_entries if isinstance(m, MoodRequest)], key=lambda x: x.mood_time)
+
+    def add_request(self, mood_time: MoodTime, message_id: Optional[int]) -> None:
+        if message_id is None:
+            return None
+        request = MoodRequest(mood_time, message_id)
+        self.mood_entries[mood_time] = request
+
+    def set_measurement(self, time_val: MoodTime, measurement_data: Dict[str, int]) -> None:
+        if self.has_time(time_val):
+            current = self.mood_entries[time_val]
+            self.mood_entries[time_val] = current.to_measurement(measurement_data)
+            return
+        self.mood_entries[time_val] = MoodMeasurement(time_val, measurement_data)
+
+
+class MoodEntry(ABC):
+    def __init__(self, mood_time: MoodTime, *, message_id: Optional[int] = None):
         self.mood_time = mood_time
+        self.message_id = message_id
 
     @classmethod
     def from_data(cls, data: Dict, mood_time: MoodTime) -> 'MoodEntry':
@@ -61,11 +128,17 @@ class MoodEntry:
             return MoodRequest.from_data(data, mood_time)
         return MoodMeasurement.from_data(data, mood_time)
 
+    @abstractmethod
+    def to_dict(self) -> Dict:
+        pass
+
+    def to_measurement(self, measurement_data: Dict[str, int]) -> 'MoodMeasurement':
+        return MoodMeasurement(self.mood_time, measurement_data, self.message_id)
+
 
 class MoodRequest(MoodEntry):
     def __init__(self, mood_time: MoodTime, message_id: int):
-        super().__init__(mood_time)
-        self.message_id = message_id
+        super().__init__(mood_time, message_id=message_id)
 
     @classmethod
     def from_data(cls, data: Dict, mood_time: MoodTime) -> 'MoodRequest':
@@ -74,12 +147,16 @@ class MoodRequest(MoodEntry):
             data["message_id"]
         )
 
+    def to_dict(self) -> Dict:
+        return {
+            "message_id": self.message_id
+        }
+
 
 class MoodMeasurement(MoodEntry):
     def __init__(self, mood_time: MoodTime, mood_dict: Dict[str, int], message_id: Optional[int] = None):
-        super().__init__(mood_time)
+        super().__init__(mood_time, message_id=message_id)
         self.mood_dict = mood_dict
-        self.message_id = message_id
 
     @classmethod
     def from_data(cls, data: Dict, mood_time: MoodTime) -> 'MoodEntry':
@@ -90,6 +167,12 @@ class MoodMeasurement(MoodEntry):
             del mood_data["message_id"]
         return MoodMeasurement(mood_time, mood_data, message_id=message_id)
 
+    def to_dict(self) -> Dict:
+        result = self.mood_dict.copy()
+        if self.message_id:
+            result["message_id"] = self.message_id
+        return result
+
 
 class MoodTriggeredCache:
     def __init__(self):
@@ -98,8 +181,8 @@ class MoodTriggeredCache:
         )  # Cache of time values which have triggered already on set days.
         """ :type : dict[date, list[time|str]"""
 
-    def has_triggered(self, mood_date, time_val):
-        return mood_date in self.cache and time_val in self.cache[mood_date]
+    def has_triggered(self, mood_date: date, time_val: MoodTime):
+        return mood_date in self.cache and time_val.mood_time in self.cache[mood_date]
 
     def save_triggered(self, mood_date, time_val):
         self.clean_old_cache(mood_date)
@@ -116,13 +199,32 @@ class MoodTriggeredCache:
             del self.cache[del_date]
 
 
+class MoodTimeList:
+    def __init__(self, mood_times: List[MoodTime]):
+        self.times = mood_times
+
+    def has_wake(self):
+        return MoodTime(MoodTime.WAKE) in self.times
+
+    def has_sleep(self):
+        return MoodTime(MoodTime.SLEEP) in self.times
+
+    def most_recent_time(self, current_time: time) -> Optional[MoodTime]:
+        times = [t for t in self.times if t.is_time]
+        past_times = [t for t in times if t.mood_time < current_time]
+        if len(past_times) == 0:
+            return None
+        return max(past_times, key=lambda t: t.mood_time)
+
+    def contains_time(self, mood_time: Union[MoodTime, str, time]) -> bool:
+        if isinstance(mood_time, MoodTime):
+            return mood_time in self.times
+        return MoodTime(mood_time) in self.times
+
+
 class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "mood"
     # Does mood measurements
-    TIME_WAKE = MoodTime.WAKE  # Used as a time entry, to signify that it should take a mood measurement in the morning,
-    # after wakeup has been logged.
-    TIME_SLEEP = MoodTime.SLEEP  # Used as a time entry to signify that a mood measurement should be taken before sleep.
-    # TODO: Move those to MoodTime
 
     def __init__(
             self,
@@ -132,6 +234,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
     ):
         super().__init__(spreadsheet)
         self.times = times
+        self.time_list = MoodTimeList(times)
         self.moods = moods
         self.lock = RLock()
         self.triggered_cache = MoodTriggeredCache()
@@ -163,90 +266,71 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
     def passive_events():
         return [EventMessage, EventMinute]
 
-    def get_current_data(self, mood_date):
+    def get_current_mood_data(self, mood_date: date) -> MoodDay:
         """
         Returns the current mood data, and the day offset. Which might be today's or it could be yesterday's,
         if that is not done yet.
-        :type mood_date: date
-        :return: (dict, date)
         """
         with self.lock:
             # Get today's data, unless it's empty, then get yesterday's, unless it's full, then use today's.
             yesterday_date = mood_date - timedelta(1)
-            today_data = self.load_data(mood_date)
-            if today_data is None:
-                yesterday_data = self.load_data(yesterday_date)
-                if yesterday_data is None:
-                    return dict(), mood_date
-                if self.mood_data_is_full(yesterday_data):
-                    return dict(), mood_date
-                return yesterday_data, yesterday_date
-            return today_data, mood_date
+            today_raw = self.load_data(mood_date)
+            today_data = MoodDay.from_dict(today_raw, mood_date)
+            if today_data.is_empty():
+                yesterday_raw = self.load_data(yesterday_date)
+                yesterday_data = MoodDay.from_dict(yesterday_raw, yesterday_date)
+                if yesterday_data.is_full(self.times):
+                    return today_data
+                return yesterday_data
+            return today_data
 
-    def mood_data_is_full(self, date_data):
-        return len(date_data) == len(self.times) and all(
-            [m in date_data[str(t)] for t in self.times for m in self.moods]
-        )
-
-    def has_triggered_for_time(self, mood_date: date, time_val):
-        """
-        :type mood_date: date
-        :type time_val: str|time  # TODO: change to MoodTime
-        :return: bool
-        """
+    def has_triggered_for_time(self, mood_date: date, time_val: MoodTime):
         # Check cache for true values
         if self.triggered_cache.has_triggered(mood_date, time_val):
             return True
         # Get the current data
-        data, adjusted_date = self.get_current_data(mood_date)
+        mood_day = self.get_current_mood_data(mood_date)
         # If sleep message, and today hasn't got previous mood measurements, return true (don't cache)
-        if time_val is self.TIME_SLEEP and len(self.times) > 1 and len(data) == 0:
+        if time_val.is_sleep() and len(self.times) > 1 and mood_day.is_empty():
             return True
         # See if time has been queried or measured
-        triggered = self.time_triggered(data, time_val)
+        triggered = mood_day.has_time(time_val)
         # Update cache
         if triggered:
-            self.triggered_cache.save_triggered(adjusted_date, time_val)
+            self.triggered_cache.save_triggered(mood_day.mood_date, time_val)
         return triggered
 
-    def passive_trigger(self, evt):
-        """
-        :type evt: Event.Event
-        :rtype: None
-        """
-        mood_date = evt.get_send_time().date()
+    def passive_trigger(self, evt: Event) -> None:
+        msg_date = evt.get_send_time().date()
+        mood_day = self.get_current_mood_data(msg_date)
         if isinstance(evt, EventMinute):
-            # Get the largest time which is less than the current time. If none, do nothing.
-            times = [t for t in self.times if isinstance(t, time)]
-            past_times = [t for t in times if t < evt.get_send_time().time()]
-            if len(past_times) == 0:
-                return
-            latest_time = max(past_times)
-            if not self.has_triggered_for_time(mood_date, latest_time):
-                return self.send_mood_query(mood_date, latest_time)
-            return
+            latest_time = self.time_list.most_recent_time(evt.get_send_time().time())
+            if latest_time is None:
+                return None
+            if not mood_day.has_time(latest_time):
+                return self.send_mood_query(mood_day, latest_time)
+            return None
         if isinstance(evt, EventMessage):
             # Check if it's a morning/night message
             input_clean = evt.text.strip().lower()
             if (
                 input_clean in hallo.modules.dailys.field_sleep.DailysSleepField.WAKE_WORDS
-                and self.TIME_WAKE in self.times
-                and not self.has_triggered_for_time(mood_date, self.TIME_WAKE)
             ):
-                return self.send_mood_query(mood_date, self.TIME_WAKE)
+                if self.time_list.has_wake() and not mood_day.has_wake_time():
+                    return self.send_mood_query(mood_day, MoodTime(MoodTime.WAKE))
+                return None
             if (
                 input_clean in hallo.modules.dailys.field_sleep.DailysSleepField.SLEEP_WORDS
-                and self.TIME_SLEEP in self.times
-                and not self.has_triggered_for_time(mood_date, self.TIME_SLEEP)
             ):
-                return self.send_mood_query(mood_date, self.TIME_SLEEP)
+                if self.time_list.has_sleep() and not mood_day.has_sleep_time():
+                    return self.send_mood_query(mood_day, MoodTime(MoodTime.SLEEP))
+                return None
             # Check if it's a reply to a mood message, or if there's an unanswered mood message
             input_split = input_clean.split()
             if (
                 len(input_split) == 2 and input_split[0].upper() == self.mood_acronym()
             ) or input_clean.isdigit():
-                data = self.get_current_data(mood_date)
-                unreplied = self.get_unreplied_moods(mood_date)
+                unanswered_requests = mood_day.list_unanswered_requests()
                 # Check if telegram message, and reply to a message
                 if (
                     isinstance(evt.raw_data, RawDataTelegram)
@@ -254,85 +338,48 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
                 ):
                     reply_id = (
                         evt.raw_data.update_obj.message.reply_to_message.message_id
-                    )
-                    unreplied_ids = {
-                        data[0][str(f)]["message_id"]: f for f in unreplied
+                    )  # TODO: This should just be a method in event.
+                    unanswered_ids = {
+                        request.message_id: request for request in unanswered_requests
                     }
-                    if reply_id in unreplied_ids:
+                    if reply_id in unanswered_ids:
                         return self.process_mood_response(
-                            input_split[-1], unreplied_ids[reply_id], data[1]
+                            input_split[-1], unanswered_ids[reply_id].mood_time, mood_day
                         )
                 # Otherwise, use the most recent mood query
-                if len(unreplied) > 0:
+                if len(unanswered_requests) > 0:
                     return self.process_mood_response(
-                        input_split[-1], unreplied[-1], data[1]
+                        input_split[-1], unanswered_requests[-1].mood_time, mood_day
                     )
                 return evt.create_response(
                     "Is this a mood measurement, because I can't find a mood query."
                 )
             # Check if it's a more complicated message
             if len(input_split) == 3 and input_split[0].upper() == self.mood_acronym():
-                data = self.get_current_data(mood_date)
                 input_time = input_split[1]
                 time_val = None
                 if input_time.lower() in hallo.modules.dailys.field_sleep.DailysSleepField.WAKE_WORDS:
-                    time_val = DailysMoodField.TIME_WAKE
+                    time_val = MoodTime(MoodTime.WAKE)
                 if input_time.lower() in hallo.modules.dailys.field_sleep.DailysSleepField.SLEEP_WORDS:
-                    time_val = DailysMoodField.TIME_SLEEP
+                    time_val = MoodTime(MoodTime.SLEEP)
                 if time_val is None:
                     try:
-                        time_val = time(int(input_time[:2]), int(input_time[-2:]))
+                        time_val = MoodTime(time(int(input_time[:2]), int(input_time[-2:])))
                     except ValueError:
                         evt.create_response(
                             "Could not parse the time in that mood measurement."
                         )
-                if time_val not in self.times:
+                if not self.time_list.contains_time(time_val):
                     evt.create_response(
                         "That time value is not being tracked for mood measurements."
                     )
-                return self.process_mood_response(input_split[-1], time_val, data[1])
+                return self.process_mood_response(input_split[-1], time_val, mood_day)
         return None
 
-    def mood_acronym(self):
+    def mood_acronym(self) -> str:
         return "".join([m[0] for m in self.moods]).upper()
 
-    def time_triggered(self, data, time_val):
-        return str(time_val) in data
-
-    def time_query_unreplied(self, data, time_val):
-        return str(time_val) in data and len(data[str(time_val)]) <= 1
-
-    def get_unreplied_moods(self, mood_date):
-        data = self.get_current_data(mood_date)[0]
-        unreplied = []
-        # Check for wake time
-        if DailysMoodField.TIME_WAKE in self.times:
-            # Check if time in data, message_id in time data, but mood values are not
-            if self.time_triggered(
-                data, DailysMoodField.TIME_WAKE
-            ) and self.time_query_unreplied(data, DailysMoodField.TIME_WAKE):
-                unreplied.append(DailysMoodField.TIME_WAKE)
-        # Check for time values
-        times = [t for t in self.times if isinstance(t, time)]
-        for time_val in times:
-            if self.time_triggered(data, time_val) and self.time_query_unreplied(
-                data, time_val
-            ):
-                unreplied.append(time_val)
-        # Check for sleep time
-        if DailysMoodField.TIME_SLEEP in self.times:
-            if self.time_triggered(
-                data, DailysMoodField.TIME_SLEEP
-            ) and self.time_query_unreplied(data, DailysMoodField.TIME_SLEEP):
-                unreplied.append(DailysMoodField.TIME_SLEEP)
-        return unreplied
-
-    def send_mood_query(self, mood_date, time_val):
-        """
-        :type mood_date: date
-        :type time_val: str | datetime.time
-        :rtype: None
-        """
+    def send_mood_query(self, mood_day: MoodDay, time_val: MoodTime) -> None:
         # Construct message
         msg = (
             "Hello, this is your {} mood check. How are you feeling (scale from 1-5) "
@@ -346,31 +393,27 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             sent_msg_id = evt.raw_data.sent_msg_object.message_id
         # Update data
         with self.lock:
-            data, data_date = self.get_current_data(mood_date)
-            data[str(time_val)] = dict()
-            data[str(time_val)]["message_id"] = sent_msg_id
-            self.save_data(data, data_date)
+            mood_day.add_request(time_val, sent_msg_id)
+            self.save_day(mood_day)
         return None
 
-    def process_mood_response(self, mood_str, time_val, mood_date):
-        """
-        :type mood_str: str
-        :type time_val: str | datetime.time
-        :type mood_date: date
-        :rtype: None
-        """
+    def process_mood_response(self, mood_str: str, time_val: MoodTime, mood_day: MoodDay) -> None:
+        if len(mood_str) != len(self.moods):
+            self.message_channel("This mood measurement doesn't seem to have the right number of datapoints")
+            return
         with self.lock:
-            data = self.get_current_data(mood_date)
-            if str(time_val) not in data[0]:
-                data[0][str(time_val)] = dict()
-            for mood_key, mood_val in zip(self.moods, [int(x) for x in mood_str]):
-                data[0][str(time_val)][mood_key] = mood_val
-            self.save_data(data[0], mood_date)
+            measurement_data = {
+                mood_key: mood_val for mood_key, mood_val in zip(self.moods, [int(x) for x in mood_str])
+            }
+            mood_day.set_measurement(time_val, measurement_data)
+            self.save_day(mood_day)
         self.message_channel(
-            "Added mood stat {} for time: {} and date: {}".format(
-                mood_str, time_val, mood_date.isoformat()
-            )
+            f"Added mood stat {mood_str} for time: {time_val} and date: {mood_day.mood_date.isoformat()}"
         )
+
+    def save_day(self, mood_day: MoodDay) -> None:
+        data = mood_day.to_dict()
+        self.save_data(data, mood_day.mood_date)
 
     def to_json(self):
         return {
