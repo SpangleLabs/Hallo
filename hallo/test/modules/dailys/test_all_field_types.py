@@ -26,7 +26,7 @@ def get_field_objects(test_user, test_chan):
     field_obs.append(
         DailysMoodField(
             spreadsheet,
-            [MoodTime.from_str(MoodTime.SLEEP), MoodTime(time(14, 00)), MoodTime((22, 00))],
+            [MoodTime(MoodTime.SLEEP), MoodTime(time(14, 00)), MoodTime(time(22, 00))],
             ["Happiness", "Anger", "Sleepiness"],
         )
     )
