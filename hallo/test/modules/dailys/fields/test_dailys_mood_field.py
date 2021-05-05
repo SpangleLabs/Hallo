@@ -102,7 +102,7 @@ def test_trigger_morning_query(hallo_getter):
     # Setup
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
     # Setup field
-    times = [MoodTime(MoodTime.SLEEP), MoodTime(time(14, 0, 0))]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     moods = ["Happiness", "Anger", "Tiredness"]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message

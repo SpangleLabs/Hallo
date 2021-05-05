@@ -12,6 +12,10 @@ if TYPE_CHECKING:
     import hallo.modules.dailys.dailys_spreadsheet
 
 
+def probably_instance(obj, cls) -> bool:
+    return obj.__class__.__name__ == cls.__name__
+
+
 @functools.total_ordering
 class MoodTime:
     WAKE = "WakeUpTime"
@@ -19,7 +23,7 @@ class MoodTime:
 
     def __init__(self, mood_time: Union[str, time]):
         self.mood_time = mood_time
-        if mood_time not in [self.WAKE, self.SLEEP] and not isinstance(mood_time, time):
+        if mood_time not in [self.WAKE, self.SLEEP] and not probably_instance(mood_time, time):
             raise TypeError("Invalid type for MoodTime")
 
     @classmethod
@@ -30,7 +34,7 @@ class MoodTime:
             return MoodTime(datetime.strptime(time_str, "%H:%M:%S").time())
 
     def __eq__(self, other):
-        return isinstance(other, MoodTime) and self.mood_time == other.mood_time
+        return probably_instance(other, MoodTime) and self.mood_time == other.mood_time
 
     def __hash__(self):
         return hash(self.mood_time)
@@ -39,7 +43,7 @@ class MoodTime:
         return str(self.mood_time)
 
     def __lt__(self, other) -> bool:
-        if not isinstance(other, MoodTime):
+        if not probably_instance(other, MoodTime):
             return NotImplemented
         if self.is_wake():
             return not other.is_wake()
@@ -84,7 +88,7 @@ class MoodDay:
 
     def is_full(self, mood_times: List[MoodTime]) -> bool:
         return all(
-            self.mood_entries.get(mood_time) is not None and isinstance(self.mood_entries[mood_time], MoodMeasurement)
+            mood_time in self.mood_entries and probably_instance(self.mood_entries[mood_time], MoodMeasurement)
             for mood_time in mood_times
         )
 
@@ -100,8 +104,28 @@ class MoodDay:
     def has_sleep_time(self) -> bool:
         return self.has_time(MoodTime(MoodTime.SLEEP))
 
+    def has_all_but_sleep(self, time_list: 'MoodTimeList') -> bool:
+        for mood_time in time_list.times:
+            if mood_time == MoodTime(MoodTime.SLEEP):
+                continue
+            if not self.has_time(mood_time):
+                return False
+        return True
+
+    def awaiting_sleep(self, time_list: 'MoodTimeList') -> bool:
+        if not time_list.has_sleep():
+            return False
+        if self.has_sleep_time():
+            return False
+        if not time_list.has_non_sleep():
+            return True
+        return self.has_all_but_sleep(time_list)
+
     def list_unanswered_requests(self) -> List['MoodRequest']:
-        return sorted([m for m in self.mood_entries if isinstance(m, MoodRequest)], key=lambda x: x.mood_time)
+        return sorted(
+            [m for m in self.mood_entries.values() if probably_instance(m, MoodRequest)],
+            key=lambda x: x.mood_time
+        )
 
     def add_request(self, mood_time: MoodTime, message_id: Optional[int]) -> None:
         if message_id is None:
@@ -209,6 +233,9 @@ class MoodTimeList:
     def has_sleep(self):
         return MoodTime(MoodTime.SLEEP) in self.times
 
+    def has_non_sleep(self):
+        return self.times != [MoodTime(MoodTime.SLEEP)]
+
     def most_recent_time(self, current_time: time) -> Optional[MoodTime]:
         times = [t for t in self.times if t.is_time]
         past_times = [t for t in times if t.mood_time < current_time]
@@ -217,7 +244,7 @@ class MoodTimeList:
         return max(past_times, key=lambda t: t.mood_time)
 
     def contains_time(self, mood_time: Union[MoodTime, str, time]) -> bool:
-        if isinstance(mood_time, MoodTime):
+        if probably_instance(mood_time, MoodTime):
             return mood_time in self.times
         return MoodTime(mood_time) in self.times
 
@@ -279,7 +306,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             if today_data.is_empty():
                 yesterday_raw = self.load_data(yesterday_date)
                 yesterday_data = MoodDay.from_dict(yesterday_raw, yesterday_date)
-                if yesterday_data.is_full(self.times):
+                if yesterday_data.is_empty() or yesterday_data.is_full(self.times):
                     return today_data
                 return yesterday_data
             return today_data
@@ -322,7 +349,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             if (
                 input_clean in hallo.modules.dailys.field_sleep.DailysSleepField.SLEEP_WORDS
             ):
-                if self.time_list.has_sleep() and not mood_day.has_sleep_time():
+                if self.time_list.has_sleep() and mood_day.awaiting_sleep(self.time_list):
                     return self.send_mood_query(mood_day, MoodTime(MoodTime.SLEEP))
                 return None
             # Check if it's a reply to a mood message, or if there's an unanswered mood message
