@@ -4,7 +4,7 @@ import pytest
 
 import hallo.modules.dailys.dailys_field
 from hallo.events import EventMessage, RawDataTelegram, EventMinute
-from hallo.modules.dailys.field_mood import DailysMoodField
+from hallo.modules.dailys.field_mood import DailysMoodField, MoodTime
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
@@ -65,9 +65,9 @@ def test_create_from_input(hallo_getter, requests_mock):
     assert field.spreadsheet == spreadsheet
     assert isinstance(field.times, list)
     assert len(field.times) == 3
-    assert DailysMoodField.TIME_WAKE in field.times
-    assert DailysMoodField.TIME_SLEEP in field.times
-    assert time(12, 0, 0) in field.times
+    assert MoodTime(MoodTime.WAKE) in field.times
+    assert MoodTime(MoodTime.SLEEP) in field.times
+    assert MoodTime(time(12, 0, 0)) in field.times
     assert isinstance(field.moods, list)
     assert len(field.moods) == 4
     assert field.moods == dailys_moods
@@ -102,7 +102,7 @@ def test_trigger_morning_query(hallo_getter):
     # Setup
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     moods = ["Happiness", "Anger", "Tiredness"]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
@@ -110,12 +110,12 @@ def test_trigger_morning_query(hallo_getter):
     field.passive_trigger(evt_wake)
     # Check mood query is sent
     notif_dict = spreadsheet.saved_data["mood"][evt_wake.get_send_time().date()]
-    assert DailysMoodField.TIME_WAKE in notif_dict
-    assert "message_id" in notif_dict[DailysMoodField.TIME_WAKE]
+    assert MoodTime.WAKE in notif_dict
+    assert "message_id" in notif_dict[MoodTime.WAKE]
     # Check query is given
     data_wake = test_server.get_send_data(1, test_chan, EventMessage)
     assert "how are you feeling" in data_wake[0].text.lower()
-    assert DailysMoodField.TIME_WAKE in data_wake[0].text
+    assert MoodTime.WAKE in data_wake[0].text
     assert all([mood in data_wake[0].text for mood in moods])
 
 
@@ -125,12 +125,12 @@ def test_trigger_sleep_query(hallo_getter):
     moods = ["Happiness", "Anger", "Tiredness"]
     evt_sleep = EventMessage(test_server, test_chan, test_user, "night")
     saved_data = dict()
-    saved_data[DailysMoodField.TIME_WAKE] = dict()
-    saved_data[DailysMoodField.TIME_WAKE]["message_id"] = 1232
+    saved_data[MoodTime.WAKE] = dict()
+    saved_data[MoodTime.WAKE]["message_id"] = 1232
     saved_data[str(time(14, 0, 0))] = dict()
     saved_data[str(time(14, 0, 0))]["message_id"] = 1234
     for mood in moods:
-        saved_data[DailysMoodField.TIME_WAKE][mood] = 3
+        saved_data[MoodTime.WAKE][mood] = 3
         saved_data[str(time(14, 0, 0))][mood] = 2
     spreadsheet = DailysSpreadsheetMock(
         test_user,
@@ -138,18 +138,18 @@ def test_trigger_sleep_query(hallo_getter):
         saved_data={"mood": {evt_sleep.get_send_time().date(): saved_data}},
     )
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0)), MoodTime(MoodTime.SLEEP)]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     field.passive_trigger(evt_sleep)
     # Check mood query is sent
     notif_dict = spreadsheet.saved_data["mood"][evt_sleep.get_send_time().date()]
-    assert DailysMoodField.TIME_SLEEP in notif_dict
-    assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
+    assert MoodTime.SLEEP in notif_dict
+    assert "message_id" in notif_dict[MoodTime.SLEEP]
     # Check query is given
     data_wake = test_server.get_send_data(1, test_chan, EventMessage)
     assert "how are you feeling" in data_wake[0].text.lower()
-    assert DailysMoodField.TIME_SLEEP in data_wake[0].text
+    assert MoodTime.SLEEP in data_wake[0].text
     assert all([mood in data_wake[0].text for mood in moods])
 
 
@@ -160,7 +160,7 @@ def test_trigger_morning_no_query_if_not_in_times(hallo_getter):
         test_user, test_chan, saved_data={"mood": {}}
     )
     # Setup field
-    times = [time(14, 0, 0), DailysMoodField.TIME_SLEEP]
+    times = [MoodTime(time(14, 0)), MoodTime(MoodTime.SLEEP)]
     moods = ["Happiness", "Anger", "Tiredness"]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
@@ -178,7 +178,7 @@ def test_trigger_sleep_no_query_if_not_in_times(hallo_getter):
         test_user, test_chan, saved_data={"mood": {}}
     )
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0))]
     moods = ["Happiness", "Anger", "Tiredness"]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
@@ -195,12 +195,12 @@ def test_trigger_sleep_no_query_if_already_given(hallo_getter):
     moods = ["Happiness", "Anger", "Tiredness"]
     evt_sleep1 = EventMessage(test_server, test_chan, test_user, "night")
     saved_data = dict()
-    saved_data[DailysMoodField.TIME_WAKE] = dict()
-    saved_data[DailysMoodField.TIME_WAKE]["message_id"] = 1232
+    saved_data[MoodTime.WAKE] = dict()
+    saved_data[MoodTime.WAKE]["message_id"] = 1232
     saved_data[str(time(14, 0, 0))] = dict()
     saved_data[str(time(14, 0, 0))]["message_id"] = 1234
     for mood in moods:
-        saved_data[DailysMoodField.TIME_WAKE][mood] = 3
+        saved_data[MoodTime.WAKE][mood] = 3
         saved_data[str(time(14, 0, 0))][mood] = 2
     spreadsheet = DailysSpreadsheetMock(
         test_user,
@@ -208,30 +208,30 @@ def test_trigger_sleep_no_query_if_already_given(hallo_getter):
         saved_data={"mood": {evt_sleep1.get_send_time().date(): saved_data}},
     )
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0)), MoodTime(MoodTime.SLEEP)]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_sleep1 = EventMessage(test_server, test_chan, test_user, "night")
     field.passive_trigger(evt_sleep1)
     # Check mood query is sent
     notif_dict = spreadsheet.saved_data["mood"][evt_sleep1.get_send_time().date()]
-    assert DailysMoodField.TIME_SLEEP in notif_dict
-    assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
+    assert MoodTime.SLEEP in notif_dict
+    assert "message_id" in notif_dict[MoodTime.SLEEP]
     # Check query is given
     data_wake = test_server.get_send_data(1, test_chan, EventMessage)
     assert "how are you feeling" in data_wake[0].text.lower()
-    assert DailysMoodField.TIME_SLEEP in data_wake[0].text
+    assert MoodTime.SLEEP in data_wake[0].text
     assert all([mood in data_wake[0].text for mood in moods])
     # Set message ID to something
     msg_id = "test_message_id"
-    notif_dict[DailysMoodField.TIME_SLEEP]["message_id"] = msg_id
+    notif_dict[MoodTime.SLEEP]["message_id"] = msg_id
     spreadsheet.saved_data["mood"][evt_sleep1.get_send_time().date()] = notif_dict
     # Send second sleep query
     evt_sleep2 = EventMessage(test_server, test_chan, test_user, "night")
     field.passive_trigger(evt_sleep2)
     # Check no mood query is sent
     notif_dict = spreadsheet.saved_data["mood"][evt_sleep1.get_send_time().date()]
-    assert notif_dict[DailysMoodField.TIME_SLEEP]["message_id"] == msg_id
+    assert notif_dict[MoodTime.SLEEP]["message_id"] == msg_id
     test_server.get_send_data(0)
 
 
@@ -239,16 +239,16 @@ def test_trigger_sleep_after_midnight(hallo_getter):
     hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     mood_date = date(2019, 1, 15)
     sleep_time = datetime(2019, 1, 16, 0, 34, 15)
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0)), MoodTime(MoodTime.SLEEP)]
     moods = ["Happiness", "Anger", "Tiredness"]
     # Setup
     saved_data = dict()
-    saved_data[DailysMoodField.TIME_WAKE] = dict()
-    saved_data[DailysMoodField.TIME_WAKE]["message_id"] = 1232
+    saved_data[MoodTime.WAKE] = dict()
+    saved_data[MoodTime.WAKE]["message_id"] = 1232
     saved_data[str(time(14, 0, 0))] = dict()
     saved_data[str(time(14, 0, 0))]["message_id"] = 1234
     for mood in moods:
-        saved_data[DailysMoodField.TIME_WAKE][mood] = 3
+        saved_data[MoodTime.WAKE][mood] = 3
         saved_data[str(time(14, 0, 0))][mood] = 2
     spreadsheet = DailysSpreadsheetMock(
         test_user, test_chan, saved_data={"mood": {mood_date: saved_data}}
@@ -262,12 +262,12 @@ def test_trigger_sleep_after_midnight(hallo_getter):
     field.passive_trigger(evt_sleep)
     # Check mood query is sent for previous day
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_SLEEP in notif_dict
-    assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
+    assert MoodTime.SLEEP in notif_dict
+    assert "message_id" in notif_dict[MoodTime.SLEEP]
     # Check query is given
     data_wake = test_server.get_send_data(1, test_chan, EventMessage)
     assert "how are you feeling" in data_wake[0].text.lower()
-    assert DailysMoodField.TIME_SLEEP in data_wake[0].text
+    assert MoodTime.SLEEP in data_wake[0].text
     assert all([mood in data_wake[0].text for mood in moods])
 
 
@@ -279,7 +279,7 @@ def test_trigger_time_exactly_once(hallo_getter):
         test_user, test_chan, saved_data={"mood": {}}
     )
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0)), MoodTime(MoodTime.SLEEP)]
     moods = ["Happiness", "Anger", "Tiredness"]
     field = DailysMoodField(spreadsheet, times, moods)
     # Prepare events
@@ -324,13 +324,13 @@ def test_process_reply_to_query(hallo_getter):
     mood_datetime = datetime.combine(mood_date, time(8, 13, 6))
     msg_id = 41212
     mood_data = dict()
-    mood_data[DailysMoodField.TIME_WAKE] = dict()
-    mood_data[DailysMoodField.TIME_WAKE]["message_id"] = msg_id
+    mood_data[MoodTime.WAKE] = dict()
+    mood_data[MoodTime.WAKE]["message_id"] = msg_id
     spreadsheet = DailysSpreadsheetMock(
         test_user, test_chan, saved_data={"mood": {mood_date: mood_data}}
     )
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     moods = ["Happiness", "Anger", "Tiredness"]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
@@ -342,16 +342,16 @@ def test_process_reply_to_query(hallo_getter):
     field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_WAKE in notif_dict
-    assert "message_id" in notif_dict[DailysMoodField.TIME_WAKE]
-    assert notif_dict[DailysMoodField.TIME_WAKE]["message_id"] == msg_id
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Happiness"] == 4
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Anger"] == 1
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Tiredness"] == 3
+    assert MoodTime.WAKE in notif_dict
+    assert "message_id" in notif_dict[MoodTime.WAKE]
+    assert notif_dict[MoodTime.WAKE]["message_id"] == msg_id
+    assert notif_dict[MoodTime.WAKE]["Happiness"] == 4
+    assert notif_dict[MoodTime.WAKE]["Anger"] == 1
+    assert notif_dict[MoodTime.WAKE]["Tiredness"] == 3
     # Check response is given
     data_wake = test_server.get_send_data(1, test_chan, EventMessage)
     assert "added" in data_wake[0].text.lower()
-    assert DailysMoodField.TIME_WAKE in data_wake[0].text
+    assert MoodTime.WAKE in data_wake[0].text
     assert mood_date.isoformat() in data_wake[0].text
     assert "413" in data_wake[0].text
 
@@ -363,13 +363,13 @@ def test_process_most_recent_query(hallo_getter):
     mood_datetime = datetime.combine(mood_date, time(8, 13, 6))
     msg_id = 41212
     mood_data = dict()
-    mood_data[DailysMoodField.TIME_WAKE] = dict()
-    mood_data[DailysMoodField.TIME_WAKE]["message_id"] = msg_id
+    mood_data[MoodTime.WAKE] = dict()
+    mood_data[MoodTime.WAKE]["message_id"] = msg_id
     spreadsheet = DailysSpreadsheetMock(
         test_user, test_chan, saved_data={"mood": {mood_date: mood_data}}
     )
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     moods = ["Happiness", "Anger", "Tiredness"]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
@@ -379,16 +379,16 @@ def test_process_most_recent_query(hallo_getter):
     field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_WAKE in notif_dict
-    assert "message_id" in notif_dict[DailysMoodField.TIME_WAKE]
-    assert notif_dict[DailysMoodField.TIME_WAKE]["message_id"] == msg_id
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Happiness"] == 4
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Anger"] == 1
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Tiredness"] == 3
+    assert MoodTime.WAKE in notif_dict
+    assert "message_id" in notif_dict[MoodTime.WAKE]
+    assert notif_dict[MoodTime.WAKE]["message_id"] == msg_id
+    assert notif_dict[MoodTime.WAKE]["Happiness"] == 4
+    assert notif_dict[MoodTime.WAKE]["Anger"] == 1
+    assert notif_dict[MoodTime.WAKE]["Tiredness"] == 3
     # Check response is given
     data_wake = test_server.get_send_data(1, test_chan, EventMessage)
     assert "added" in data_wake[0].text.lower()
-    assert DailysMoodField.TIME_WAKE in data_wake[0].text
+    assert MoodTime.WAKE in data_wake[0].text
     assert mood_date.isoformat() in data_wake[0].text
     assert "413" in data_wake[0].text
 
@@ -405,7 +405,7 @@ def test_process_most_recent_sleep_query_after_midnight(hallo_getter):
         test_user, test_chan, saved_data={"mood": {mood_date: mood_data}}
     )
     # Setup field
-    times = [DailysMoodField.TIME_SLEEP]
+    times = [MoodTime(MoodTime.SLEEP)]
     moods = ["Happiness", "Anger", "Tiredness"]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send sleep message, check response
@@ -414,9 +414,9 @@ def test_process_most_recent_sleep_query_after_midnight(hallo_getter):
     ).with_raw_data(RawDataTelegram(get_telegram_time(sleep_datetime)))
     field.passive_trigger(evt_sleep)
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_SLEEP in notif_dict
-    assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
-    notif_dict[DailysMoodField.TIME_SLEEP]["message_id"] = msg_id
+    assert MoodTime.SLEEP in notif_dict
+    assert "message_id" in notif_dict[MoodTime.SLEEP]
+    notif_dict[MoodTime.SLEEP]["message_id"] = msg_id
     spreadsheet.saved_data["mood"][mood_date] = notif_dict
     test_server.get_send_data()
     # Send message
@@ -426,16 +426,16 @@ def test_process_most_recent_sleep_query_after_midnight(hallo_getter):
     field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_SLEEP in notif_dict
-    assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
-    assert notif_dict[DailysMoodField.TIME_SLEEP]["message_id"] == msg_id
-    assert notif_dict[DailysMoodField.TIME_SLEEP]["Happiness"] == 4
-    assert notif_dict[DailysMoodField.TIME_SLEEP]["Anger"] == 1
-    assert notif_dict[DailysMoodField.TIME_SLEEP]["Tiredness"] == 3
+    assert MoodTime.SLEEP in notif_dict
+    assert "message_id" in notif_dict[MoodTime.SLEEP]
+    assert notif_dict[MoodTime.SLEEP]["message_id"] == msg_id
+    assert notif_dict[MoodTime.SLEEP]["Happiness"] == 4
+    assert notif_dict[MoodTime.SLEEP]["Anger"] == 1
+    assert notif_dict[MoodTime.SLEEP]["Tiredness"] == 3
     # Check response is given
     data_wake = test_server.get_send_data(1, test_chan, EventMessage)
     assert "added" in data_wake[0].text.lower()
-    assert DailysMoodField.TIME_SLEEP in data_wake[0].text
+    assert MoodTime.SLEEP in data_wake[0].text
     assert mood_date.isoformat() in data_wake[0].text
     assert "413" in data_wake[0].text
 
@@ -448,15 +448,15 @@ def test_process_no_mood_query(hallo_getter):
     moods = ["Happiness", "Anger", "Tiredness"]
     msg_id = 41212
     mood_data = dict()
-    mood_data[DailysMoodField.TIME_WAKE] = dict()
-    mood_data[DailysMoodField.TIME_WAKE]["message_id"] = msg_id
+    mood_data[MoodTime.WAKE] = dict()
+    mood_data[MoodTime.WAKE]["message_id"] = msg_id
     for mood in moods:
-        mood_data[DailysMoodField.TIME_WAKE][mood] = 3
+        mood_data[MoodTime.WAKE][mood] = 3
     spreadsheet = DailysSpreadsheetMock(
         test_user, test_chan, saved_data={"mood": {mood_date: mood_data}}
     )
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_mood = EventMessage(
@@ -465,11 +465,11 @@ def test_process_no_mood_query(hallo_getter):
     field.passive_trigger(evt_mood)
     # Check mood response is not logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_WAKE in notif_dict
-    assert notif_dict[DailysMoodField.TIME_WAKE]["message_id"] == msg_id
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Happiness"] == 3
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Anger"] == 3
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Tiredness"] == 3
+    assert MoodTime.WAKE in notif_dict
+    assert notif_dict[MoodTime.WAKE]["message_id"] == msg_id
+    assert notif_dict[MoodTime.WAKE]["Happiness"] == 3
+    assert notif_dict[MoodTime.WAKE]["Anger"] == 3
+    assert notif_dict[MoodTime.WAKE]["Tiredness"] == 3
     assert str(time(14, 0, 0)) not in notif_dict
     # Check no response is given
     test_server.get_send_data(0)
@@ -483,15 +483,15 @@ def test_process_time_specified(hallo_getter):
     moods = ["Happiness", "Anger", "Tiredness"]
     msg_id = 41212
     mood_data = dict()
-    mood_data[DailysMoodField.TIME_WAKE] = dict()
-    mood_data[DailysMoodField.TIME_WAKE]["message_id"] = msg_id
+    mood_data[MoodTime.WAKE] = dict()
+    mood_data[MoodTime.WAKE]["message_id"] = msg_id
     for mood in moods:
-        mood_data[DailysMoodField.TIME_WAKE][mood] = 3
+        mood_data[MoodTime.WAKE][mood] = 3
     spreadsheet = DailysSpreadsheetMock(
         test_user, test_chan, saved_data={"mood": {mood_date: mood_data}}
     )
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_mood = EventMessage(
@@ -500,11 +500,11 @@ def test_process_time_specified(hallo_getter):
     field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_WAKE in notif_dict
-    assert notif_dict[DailysMoodField.TIME_WAKE]["message_id"] == msg_id
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Happiness"] == 3
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Anger"] == 3
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Tiredness"] == 3
+    assert MoodTime.WAKE in notif_dict
+    assert notif_dict[MoodTime.WAKE]["message_id"] == msg_id
+    assert notif_dict[MoodTime.WAKE]["Happiness"] == 3
+    assert notif_dict[MoodTime.WAKE]["Anger"] == 3
+    assert notif_dict[MoodTime.WAKE]["Tiredness"] == 3
     assert str(time(14, 0, 0)) in notif_dict
     assert "message_id" not in notif_dict[str(time(14, 0, 0))]
     assert notif_dict[str(time(14, 0, 0))]["Happiness"] == 4
@@ -526,7 +526,7 @@ def test_process_wake_specified(hallo_getter):
     moods = ["Happiness", "Anger", "Tiredness"]
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_mood = EventMessage(
@@ -535,28 +535,28 @@ def test_process_wake_specified(hallo_getter):
     field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_WAKE in notif_dict
-    assert "message_id" not in notif_dict[DailysMoodField.TIME_WAKE]
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Happiness"] == 4
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Anger"] == 1
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Tiredness"] == 3
+    assert MoodTime.WAKE in notif_dict
+    assert "message_id" not in notif_dict[MoodTime.WAKE]
+    assert notif_dict[MoodTime.WAKE]["Happiness"] == 4
+    assert notif_dict[MoodTime.WAKE]["Anger"] == 1
+    assert notif_dict[MoodTime.WAKE]["Tiredness"] == 3
     # Check response is given
     data_wake = test_server.get_send_data(1, test_chan, EventMessage)
     assert "added" in data_wake[0].text.lower()
-    assert DailysMoodField.TIME_WAKE in data_wake[0].text
+    assert MoodTime.WAKE in data_wake[0].text
     assert mood_date.isoformat() in data_wake[0].text
     assert "413" in data_wake[0].text
 
 
 def test_process_sleep_specified(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
     # Setup
     mood_date = date(2019, 1, 18)
     mood_datetime = datetime.combine(mood_date, time(13, 13, 6))
     moods = ["Happiness", "Anger", "Tiredness"]
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0)), MoodTime(MoodTime.SLEEP)]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_mood = EventMessage(
@@ -565,15 +565,15 @@ def test_process_sleep_specified(hallo_getter):
     field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_SLEEP in notif_dict
-    assert "message_id" not in notif_dict[DailysMoodField.TIME_SLEEP]
-    assert notif_dict[DailysMoodField.TIME_SLEEP]["Happiness"] == 4
-    assert notif_dict[DailysMoodField.TIME_SLEEP]["Anger"] == 1
-    assert notif_dict[DailysMoodField.TIME_SLEEP]["Tiredness"] == 3
+    assert MoodTime.SLEEP in notif_dict
+    assert "message_id" not in notif_dict[MoodTime.SLEEP]
+    assert notif_dict[MoodTime.SLEEP]["Happiness"] == 4
+    assert notif_dict[MoodTime.SLEEP]["Anger"] == 1
+    assert notif_dict[MoodTime.SLEEP]["Tiredness"] == 3
     # Check response is given
     data_sleep = test_server.get_send_data(1, test_chan, EventMessage)
     assert "added" in data_sleep[0].text.lower()
-    assert DailysMoodField.TIME_SLEEP in data_sleep[0].text
+    assert MoodTime.SLEEP in data_sleep[0].text
     assert mood_date.isoformat() in data_sleep[0].text
     assert "413" in data_sleep[0].text
 
@@ -586,15 +586,15 @@ def test_no_trigger_after_processed(hallo_getter):
     moods = ["Happiness", "Anger", "Tiredness"]
     msg_id = 41212
     mood_data = dict()
-    mood_data[DailysMoodField.TIME_WAKE] = dict()
-    mood_data[DailysMoodField.TIME_WAKE]["message_id"] = msg_id
+    mood_data[MoodTime.WAKE] = dict()
+    mood_data[MoodTime.WAKE]["message_id"] = msg_id
     for mood in moods:
-        mood_data[DailysMoodField.TIME_WAKE][mood] = 3
+        mood_data[MoodTime.WAKE][mood] = 3
     spreadsheet = DailysSpreadsheetMock(
         test_user, test_chan, saved_data={"mood": {mood_date: mood_data}}
     )
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_mood = EventMessage(
@@ -603,11 +603,11 @@ def test_no_trigger_after_processed(hallo_getter):
     field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_WAKE in notif_dict
-    assert notif_dict[DailysMoodField.TIME_WAKE]["message_id"] == msg_id
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Happiness"] == 3
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Anger"] == 3
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Tiredness"] == 3
+    assert MoodTime.WAKE in notif_dict
+    assert notif_dict[MoodTime.WAKE]["message_id"] == msg_id
+    assert notif_dict[MoodTime.WAKE]["Happiness"] == 3
+    assert notif_dict[MoodTime.WAKE]["Anger"] == 3
+    assert notif_dict[MoodTime.WAKE]["Tiredness"] == 3
     assert str(time(14, 0, 0)) in notif_dict
     assert "message_id" not in notif_dict[str(time(14, 0, 0))]
     assert notif_dict[str(time(14, 0, 0))]["Happiness"] == 4
@@ -643,7 +643,7 @@ def test_no_trigger_wake_after_processed(hallo_getter):
     moods = ["Happiness", "Anger", "Tiredness"]
     spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0)]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0))]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_mood = EventMessage(
@@ -652,15 +652,15 @@ def test_no_trigger_wake_after_processed(hallo_getter):
     field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_WAKE in notif_dict
-    assert "message_id" not in notif_dict[DailysMoodField.TIME_WAKE]
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Happiness"] == 4
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Anger"] == 1
-    assert notif_dict[DailysMoodField.TIME_WAKE]["Tiredness"] == 3
+    assert MoodTime.WAKE in notif_dict
+    assert "message_id" not in notif_dict[MoodTime.WAKE]
+    assert notif_dict[MoodTime.WAKE]["Happiness"] == 4
+    assert notif_dict[MoodTime.WAKE]["Anger"] == 1
+    assert notif_dict[MoodTime.WAKE]["Tiredness"] == 3
     # Check response is given
     data_wake = test_server.get_send_data(1, test_chan, EventMessage)
     assert "added" in data_wake[0].text.lower()
-    assert DailysMoodField.TIME_WAKE in data_wake[0].text
+    assert MoodTime.WAKE in data_wake[0].text
     assert mood_date.isoformat() in data_wake[0].text
     assert "413" in data_wake[0].text
     # Send wake message, ensure no response
@@ -670,8 +670,8 @@ def test_no_trigger_wake_after_processed(hallo_getter):
     field.passive_trigger(evt_wake)
     # Check query isn't logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_WAKE in notif_dict
-    assert "message_id" not in notif_dict[DailysMoodField.TIME_WAKE]
+    assert MoodTime.WAKE in notif_dict
+    assert "message_id" not in notif_dict[MoodTime.WAKE]
     # Check response wasn't given
     test_server.get_send_data(0)
 
@@ -688,18 +688,18 @@ def test_no_trigger_sleep_after_processed_sleep_and_midnight(hallo_getter):
     msg_id = 123123
     moods = ["Happiness", "Anger", "Tiredness"]
     saved_data = dict()
-    saved_data[DailysMoodField.TIME_WAKE] = dict()
-    saved_data[DailysMoodField.TIME_WAKE]["message_id"] = 1232
+    saved_data[MoodTime.WAKE] = dict()
+    saved_data[MoodTime.WAKE]["message_id"] = 1232
     saved_data[str(time(14, 0, 0))] = dict()
     saved_data[str(time(14, 0, 0))]["message_id"] = 1234
     for mood in moods:
-        saved_data[DailysMoodField.TIME_WAKE][mood] = 3
+        saved_data[MoodTime.WAKE][mood] = 3
         saved_data[str(time(14, 0, 0))][mood] = 2
     spreadsheet = DailysSpreadsheetMock(
         test_user, test_chan, saved_data={"mood": {mood_date: saved_data}}
     )
     # Setup field
-    times = [DailysMoodField.TIME_WAKE, time(14, 0, 0), DailysMoodField.TIME_SLEEP]
+    times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0, 0)), MoodTime(MoodTime.SLEEP)]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send sleep query
     evt_sleep1 = EventMessage(
@@ -708,13 +708,13 @@ def test_no_trigger_sleep_after_processed_sleep_and_midnight(hallo_getter):
     field.passive_trigger(evt_sleep1)
     # Check mood query is given and stuff
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_SLEEP in notif_dict
-    assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
-    notif_dict[DailysMoodField.TIME_SLEEP]["message_id"] = msg_id
+    assert MoodTime.SLEEP in notif_dict
+    assert "message_id" in notif_dict[MoodTime.SLEEP]
+    notif_dict[MoodTime.SLEEP]["message_id"] = msg_id
     spreadsheet.saved_data["mood"][mood_date] = notif_dict
     data_wake = test_server.get_send_data(1, test_chan, EventMessage)
     assert "how are you feeling" in data_wake[0].text.lower()
-    assert DailysMoodField.TIME_SLEEP in data_wake[0].text
+    assert MoodTime.SLEEP in data_wake[0].text
     assert all([mood in data_wake[0].text for mood in moods])
     # Then mood response
     evt_mood = EventMessage(
@@ -725,15 +725,15 @@ def test_no_trigger_sleep_after_processed_sleep_and_midnight(hallo_getter):
     field.passive_trigger(evt_mood)
     # Check mood is recorded and response given
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
-    assert DailysMoodField.TIME_SLEEP in notif_dict
-    assert "message_id" in notif_dict[DailysMoodField.TIME_SLEEP]
-    assert notif_dict[DailysMoodField.TIME_SLEEP]["message_id"] == msg_id
-    assert notif_dict[DailysMoodField.TIME_SLEEP]["Happiness"] == 4
-    assert notif_dict[DailysMoodField.TIME_SLEEP]["Anger"] == 1
-    assert notif_dict[DailysMoodField.TIME_SLEEP]["Tiredness"] == 3
+    assert MoodTime.SLEEP in notif_dict
+    assert "message_id" in notif_dict[MoodTime.SLEEP]
+    assert notif_dict[MoodTime.SLEEP]["message_id"] == msg_id
+    assert notif_dict[MoodTime.SLEEP]["Happiness"] == 4
+    assert notif_dict[MoodTime.SLEEP]["Anger"] == 1
+    assert notif_dict[MoodTime.SLEEP]["Tiredness"] == 3
     data_wake = test_server.get_send_data(1, test_chan, EventMessage)
     assert "added" in data_wake[0].text.lower()
-    assert DailysMoodField.TIME_SLEEP in data_wake[0].text
+    assert MoodTime.SLEEP in data_wake[0].text
     assert mood_date.isoformat() in data_wake[0].text
     assert "413" in data_wake[0].text
     # Then midnight
