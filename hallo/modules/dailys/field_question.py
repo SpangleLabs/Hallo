@@ -314,6 +314,32 @@ class AnswerCache:
         # Ran out of dates, return None
         return None
 
+    def latest_answers(self, questions: List[Question]) -> List[Answer]:
+        if not questions:
+            return []
+        unanswered_ids = [q.id for q in questions]
+        latest_answers = []
+        oldest_date = min([q.time_pattern.start.date() for q in questions])
+        test_date = datetime.datetime.now(datetime.timezone.utc).date()
+        while test_date > oldest_date and unanswered_ids:
+            self._populate_answers_for_date(test_date)
+            for question_id, answer_dict in self._cache.get(test_date, {}).items():
+                if question_id not in unanswered_ids:
+                    continue
+                latest_answers.append(max(answer_dict.values(), key=lambda a: a.asked_time))
+                unanswered_ids.remove(question_id)
+            test_date -= datetime.timedelta(days=1)
+        # Ran out of dates, return None
+        return latest_answers
+
+    def list_unanswered_questions(self, questions: List[Question]) -> List[Question]:
+        questions_dict = {q.id: q for q in questions}
+        unanswered = []
+        for answer in self.latest_answers(questions):
+            if answer.answer is None:
+                unanswered.append(questions_dict[answer.question_id])
+        return unanswered
+
 
 class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "questions"
@@ -382,6 +408,9 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         self.data.save_answer(answer)
 
     def _msg_trigger(self, evt: EventMessage) -> Optional[EventMessage]:
+        # Check if it's asking about open questions
+        if evt.text.strip().lower() in ["questions", "open questions", "unanswered question"]:
+            return self._handle_questions_list_request(evt)
         # Check if it's a reply to a question
         if (
             isinstance(evt.raw_data, RawDataTelegram)
@@ -424,6 +453,18 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         self.data.save_answer(current_answer)
         return evt.reply(evt.create_response(
             f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}"
+        ))
+
+    def _handle_questions_list_request(self, evt: EventMessage):
+        cache = AnswerCache(self.data)
+        questions = cache.list_unanswered_questions(self.questions)
+        if not questions:
+            return evt.reply(evt.create_response(
+                "There are no unanswered questions here at the moment."
+            ))
+        questions_str = "\n---\n".join(q.question for q in questions)
+        return evt.reply(evt.create_response(
+            f"There are {len(questions)} unanswered questions:" + questions_str
         ))
 
     def to_json(self):
