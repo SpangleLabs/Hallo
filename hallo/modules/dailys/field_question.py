@@ -384,6 +384,8 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             if not question.is_active():
                 continue
             last_time = question.time_pattern.last_time()
+            if last_time is None:
+                continue
             answer = answer_cache.answer_for_question_at_time(question, last_time)
             if answer is None:
                 self._ask_question(question, last_time)
