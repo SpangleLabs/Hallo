@@ -483,8 +483,11 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
                 "There are no unanswered questions here at the moment."
             ))
         questions_str = "\n".join(f"---\nid={q.id}:\n{q.question}" for q in questions)
+        header_str = f"There are {len(questions)} unanswered questions:"
+        if len(questions) == 1:
+            header_str = "There is 1 unanswered question:"
         return evt.reply(evt.create_response(
-            f"There are {len(questions)} unanswered questions:\n" + questions_str
+            f"{header_str}\n{questions_str}"
         ))
 
     def to_json(self):
