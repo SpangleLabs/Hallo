@@ -33,7 +33,7 @@ class RepeatingInterval:
         self.start: datetime.datetime = dateutil.parser.parse(start)
         self.period = isodate.parse_duration(period)
 
-    def allows_count(self, count: int) -> bool:
+    def _allows_count(self, count: int) -> bool:
         if self.count is None:
             return True
         return count <= self.count
@@ -44,7 +44,7 @@ class RepeatingInterval:
             return None
         check = self.start
         count = 1
-        while (check + self.period < now) and self.allows_count(count):
+        while (check + self.period < now) and self._allows_count(count):
             check += self.period
             count += 1
         return check
@@ -73,6 +73,7 @@ class Question:
             *,
             allow_custom_answers: bool = True,
             answer_options: Optional[List[AnswerOption]] = None,
+            creation: Optional[datetime.datetime] = None,
             deprecation: Optional[datetime.datetime] = None,
             must_answer: bool = False,
             remind_period: Optional[datetime.timedelta] = None,
@@ -82,6 +83,7 @@ class Question:
         self.time_pattern = time_pattern
         self.allow_custom_answers = allow_custom_answers
         self.answer_options = answer_options or []
+        self.creation = creation
         self.deprecation = deprecation
         self.must_answer = must_answer  # TODO
         self.remind_period = remind_period  # TODO
@@ -91,6 +93,18 @@ class Question:
         if self.deprecation is None:
             return True
         return now < self.deprecation
+    
+    def last_time(self) -> Optional[datetime.datetime]:
+        last_time = self.time_pattern.last_time()
+        if last_time is not None and last_time < self.creation:
+            return None
+        return last_time
+    
+    def next_time(self) -> Optional[datetime.datetime]:
+        next_time = self.time_pattern.next_time()
+        if next_time is not None and next_time > self.deprecation:
+            return None
+        return next_time
 
     def create_answer_for_time(
             self,
@@ -112,6 +126,9 @@ class Question:
 
     @classmethod
     def from_dict(cls, json_dict: Dict) -> 'Question':
+        creation = None
+        if "creation" in json_dict:
+            creation = dateutil.parser.parse(json_dict["creation"])
         deprecation = None
         if "deprecation" in json_dict:
             deprecation = dateutil.parser.parse(json_dict["deprecation"])
@@ -127,6 +144,7 @@ class Question:
             RepeatingInterval(json_dict["time_pattern"]),
             allow_custom_answers=json_dict.get("allow_custom_answers", True),
             answer_options=answer_options,
+            creation=creation,
             deprecation=deprecation,
             must_answer=json_dict.get("must_answer", False),
             remind_period=remind_period
@@ -383,7 +401,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         for question in self.questions:
             if not question.is_active():
                 continue
-            last_time = question.time_pattern.last_time()
+            last_time = question.last_time()
             if last_time is None:
                 continue
             answer = answer_cache.answer_for_question_at_time(question, last_time)
@@ -440,7 +458,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         ))
 
     def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> Optional[EventMessage]:
-        latest_time = question.time_pattern.last_time()
+        latest_time = question.last_time()
         current_answer = self.data.get_answer_for_question_at_time(question, latest_time)
         if current_answer is None:
             new_answer = question.create_answer_for_time(
