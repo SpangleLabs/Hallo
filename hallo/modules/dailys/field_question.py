@@ -464,9 +464,9 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             return evt.reply(evt.create_response(
                 "There are no unanswered questions here at the moment."
             ))
-        questions_str = "\n---\n".join(q.question for q in questions)
+        questions_str = "\n".join(f"---\nid={q.id}:\n{q.question}" for q in questions)
         return evt.reply(evt.create_response(
-            f"There are {len(questions)} unanswered questions:" + questions_str
+            f"There are {len(questions)} unanswered questions:\n" + questions_str
         ))
 
     def to_json(self):
