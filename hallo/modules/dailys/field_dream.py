@@ -30,7 +30,9 @@ class DailysDreamField(hallo.modules.dailys.dailys_field.DailysField):
         self.save_data(dream_data, data_date)
         # Send date to destination
         dream_ordinal = Commons.ordinal(dream_count)
-        self.message_channel("Logged dream. {} of the day.".format(dream_ordinal))
+        return evt.reply(evt.create_response(
+            f"Logged dream. {dream_ordinal} of the day."
+        ))
 
     def to_json(self):
         json_obj = dict()
