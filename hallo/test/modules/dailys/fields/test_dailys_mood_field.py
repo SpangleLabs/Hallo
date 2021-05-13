@@ -473,7 +473,7 @@ def test_process_no_mood_query(hallo_getter):
     assert str(time(14, 0, 0)) not in notif_dict
     # Check error response is given
     data_err = test_server.get_send_data(1, test_chan, EventMessage)
-    assert "is this a mood measurement, because I can't find a mood query" in data_err[0].text
+    assert "is this a mood measurement, because i can't find a mood query" in data_err[0].text.lower()
 
 
 def test_process_time_specified(hallo_getter):
