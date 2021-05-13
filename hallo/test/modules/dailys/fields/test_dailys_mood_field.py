@@ -471,8 +471,9 @@ def test_process_no_mood_query(hallo_getter):
     assert notif_dict[MoodTime.WAKE]["Anger"] == 3
     assert notif_dict[MoodTime.WAKE]["Tiredness"] == 3
     assert str(time(14, 0, 0)) not in notif_dict
-    # Check no response is given
-    test_server.get_send_data(0)
+    # Check error response is given
+    data_err = test_server.get_send_data(1, test_chan, EventMessage)
+    assert "is this a mood measurement, because I can't find a mood query" in data_err[0].text
 
 
 def test_process_time_specified(hallo_getter):
