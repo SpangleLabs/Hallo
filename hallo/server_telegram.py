@@ -223,7 +223,7 @@ class ServerTelegram(Server):
         message_channel_name = update.effective_chat.title
         message_channel_addr = update.effective_chat.id
         if message_channel_addr == message_sender_addr:
-            message_channel = message_sender
+            message_channel = None
         else:
             message_channel = self.get_channel_by_address(
                 message_channel_addr, message_channel_name
