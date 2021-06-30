@@ -1,8 +1,9 @@
 from threading import Lock, Thread
+from typing import List, Optional
 
 import telegram
-from telegram import Chat, InputMediaPhoto
-from telegram.ext import Updater, Filters, BaseFilter
+from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import Updater, Filters, BaseFilter, CallbackQueryHandler
 import logging
 from telegram.ext import MessageHandler
 from telegram.utils.request import Request
@@ -13,13 +14,25 @@ from hallo.events import (
     EventMessage,
     RawDataTelegram,
     EventMessageWithPhoto,
-    RawDataTelegramOutbound,
+    RawDataTelegramOutbound, EventMenuCallback,
 )
 from hallo.permission_mask import PermissionMask
 from hallo.server import Server, ServerException
 
 
 logger = logging.getLogger(__name__)
+
+
+def event_menu_for_telegram(event: EventMessage) -> Optional[InlineKeyboardMarkup]:
+    if not event.menu_buttons:
+        return None
+    menu = []
+    for row in event.menu_buttons:
+        menu.append([
+            InlineKeyboardButton(button.text, callback_data=button.data)
+            for button in row
+        ])
+    return InlineKeyboardMarkup(menu)
 
 
 class ServerTelegram(Server):
@@ -241,6 +254,7 @@ class ServerTelegram(Server):
                         chat_id=destination.address,
                         photo=event.photo_id,
                         caption=event.text,
+                        reply_markup=event_menu_for_telegram(event),
                         parse_mode=self.formatting_to_telegram_mode(event.formatting),
                     )
                 else:
@@ -248,6 +262,7 @@ class ServerTelegram(Server):
                         chat_id=destination.address,
                         document=event.photo_id,
                         caption=event.text,
+                        reply_markup=event_menu_for_telegram(event),
                         parse_mode=self.formatting_to_telegram_mode(event.formatting),
                     )
             except Exception as e:
@@ -257,6 +272,7 @@ class ServerTelegram(Server):
                 msg = self.bot.send_message(
                     chat_id=destination.address,
                     text=event.text,
+                    reply_markup=event_menu_for_telegram(event),
                     parse_mode=self.formatting_to_telegram_mode(event.formatting)
                 )
             event.with_raw_data(RawDataTelegramOutbound(msg))
@@ -268,6 +284,7 @@ class ServerTelegram(Server):
                 chat_id=destination.address,
                 text=event.text,
                 parse_mode=self.formatting_to_telegram_mode(event.formatting),
+                reply_markup=event_menu_for_telegram(event)
             )
             event.with_raw_data(RawDataTelegramOutbound(msg))
             event.log()
@@ -310,6 +327,7 @@ class ServerTelegram(Server):
                     new_event.photo_id,
                     caption=new_event.text,
                     reply_to_message_id=old_message_id,
+                    reply_markup=event_menu_for_telegram(new_event),
                     parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
                 )
             else:
@@ -318,6 +336,7 @@ class ServerTelegram(Server):
                     new_event.photo_id,
                     caption=new_event.text,
                     reply_to_message_id=old_message_id,
+                    reply_markup=event_menu_for_telegram(new_event),
                     parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
                 )
             new_event.with_raw_data(msg)
@@ -332,6 +351,7 @@ class ServerTelegram(Server):
                 destination.address,
                 new_event.text,
                 reply_to_message_id=old_message_id,
+                reply_markup=event_menu_for_telegram(new_event),
                 parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
             )
             new_event.with_raw_data(msg)

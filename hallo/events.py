@@ -2,7 +2,7 @@ import enum
 import logging
 from abc import ABCMeta
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 
 from hallo.destination import Destination
 
@@ -453,6 +453,12 @@ class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
         self.server.reply(self, event)
 
 
+class MenuButton:
+    def __init__(self, text: str, data: str) -> None:
+        self.text = text
+        self.data = data
+
+
 class EventMessage(ChannelUserTextEvent):
 
     # Flags, can be passed as a list to function dispatcher, and will change how it operates.
@@ -465,7 +471,7 @@ class EventMessage(ChannelUserTextEvent):
         MARKDOWN = 2
         HTML = 3
 
-    def __init__(self, server, channel, user, text, inbound=True):
+    def __init__(self, server, channel, user, text, inbound=True, *, menu_buttons: List[List['MenuButton']] = None):
         """
         :type server: server.Server
         :type channel: destination.Channel | None
@@ -487,6 +493,8 @@ class EventMessage(ChannelUserTextEvent):
         """ :type : str | None"""
         self.check_prefix()
         self.formatting = EventMessage.Formatting.PLAIN
+        self.menu_buttons = menu_buttons
+        self.message_id = None  # Message ID will be set when the message is sent, if applicable for the server
 
     def check_prefix(self):
         if self.channel is None:
@@ -527,6 +535,12 @@ class EventMessage(ChannelUserTextEvent):
         )
         return output
 
+    def create_response(self, text, event_class=None, menu_buttons: List[List[MenuButton]] = None) -> 'EventMessage':
+        if event_class is None:
+            event_class = self.__class__
+        resp = event_class(self.server, self.channel, self.user, text, inbound=False, menu_buttons=menu_buttons)
+        return resp
+
 
 class EventNotice(ChannelUserTextEvent):
     def get_log_line(self):
@@ -549,7 +563,17 @@ class EventCTCP(ChannelUserTextEvent):
 
 
 class EventMessageWithPhoto(EventMessage):
-    def __init__(self, server, channel, user, text, photo_id, inbound=True):
+    def __init__(
+            self,
+            server,
+            channel,
+            user,
+            text,
+            photo_id,
+            inbound=True,
+            *,
+            menu_buttons: List[List[MenuButton]] = None
+    ):
         """
         :type server: server.Server
         :type channel: destination.Channel | None
@@ -558,6 +582,6 @@ class EventMessageWithPhoto(EventMessage):
         :type text: str
         :type photo_id: Union[str, List[str]]
         """
-        super().__init__(server, channel, user, text, inbound=inbound)
+        super().__init__(server, channel, user, text, inbound=inbound, menu_buttons=menu_buttons)
         self.photo_id = photo_id
         """ :type : str"""
