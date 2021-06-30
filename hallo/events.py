@@ -585,3 +585,11 @@ class EventMessageWithPhoto(EventMessage):
         super().__init__(server, channel, user, text, inbound=inbound, menu_buttons=menu_buttons)
         self.photo_id = photo_id
         """ :type : str"""
+
+
+class EventMenuCallback(ChannelUserEvent):
+
+    def __init__(self, server, channel, user, message_id: int, callback_data: bytes):
+        super().__init__(server, channel, user)
+        self.message_id = message_id
+        self.callback_data = callback_data

@@ -83,6 +83,8 @@ class ServerTelegram(Server):
         self.dispatcher.add_handler(self.private_msg_handler)
         self.group_msg_handler = MessageHandler(Filters.group, self.parse_group_message)
         self.dispatcher.add_handler(self.group_msg_handler)
+        callback_handler = CallbackQueryHandler(self.parse_menu_callback)
+        self.dispatcher.add_handler(callback_handler)
         # Catch-all message handler for anything not already handled.
         self.core_msg_handler = MessageHandler(
             Filters.all, self.parse_unhandled, channel_post_updates=True
@@ -208,6 +210,36 @@ class ServerTelegram(Server):
     def parse_join(self, update, context):
         # TODO
         pass
+
+    def parse_menu_callback(self, update: Update, context):
+        # Get sender object
+        message_sender_name = update.effective_user.full_name
+        message_sender_addr = update.effective_user.id
+        message_sender = self.get_user_by_address(
+            message_sender_addr, message_sender_name
+        )
+        message_sender.update_activity()
+        # Get channel object
+        message_channel_name = update.effective_chat.title
+        message_channel_addr = update.effective_chat.id
+        if message_channel_addr == message_sender_addr:
+            message_channel = message_sender
+        else:
+            message_channel = self.get_channel_by_address(
+                message_channel_addr, message_channel_name
+            )
+            message_channel.update_activity()
+        # Create message event object
+        message_id = update.effective_message.message_id
+        callback_data = update.callback_query.data
+        callback_evt = EventMenuCallback(
+            self, message_channel, message_sender, message_id, callback_data
+        ).with_raw_data(RawDataTelegram(update))
+        # Print and log the public message
+        callback_evt.log()
+        # Send event to function dispatcher or passive dispatcher
+        function_dispatcher = self.hallo.function_dispatcher
+        function_dispatcher.dispatch_passive(callback_evt)
 
     def parse_unhandled(self, update, context):
         """
