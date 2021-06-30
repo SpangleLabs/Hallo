@@ -305,7 +305,7 @@ class ServerTelegram(Server):
                     for x in ServerTelegram.image_extensions
                 ]
             ):
-                self.bot.send_photo(
+                msg = self.bot.send_photo(
                     destination.address,
                     new_event.photo_id,
                     caption=new_event.text,
@@ -313,28 +313,30 @@ class ServerTelegram(Server):
                     parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
                 )
             else:
-                self.bot.send_document(
+                msg = self.bot.send_document(
                     destination.address,
                     new_event.photo_id,
                     caption=new_event.text,
                     reply_to_message_id=old_message_id,
                     parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
                 )
+            new_event.with_raw_data(msg)
             new_event.log()
-            return
+            return new_event
         if isinstance(new_event, EventMessage):
             destination = (
                 new_event.user if new_event.channel is None else new_event.channel
             )
             old_message_id = old_event.raw_data.update_obj.message.message_id
-            self.bot.send_message(
+            msg = self.bot.send_message(
                 destination.address,
                 new_event.text,
                 reply_to_message_id=old_message_id,
                 parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
             )
+            new_event.with_raw_data(msg)
             new_event.log()
-            return
+            return new_event
         else:
             error = MessageError(
                 "Unsupported event type, {}, sent as reply to Telegram server".format(
