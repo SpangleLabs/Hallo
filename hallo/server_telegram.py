@@ -330,7 +330,7 @@ class ServerTelegram(Server):
             logger.error(error.get_log_line())
             raise NotImplementedError()
 
-    def reply(self, old_event, new_event):
+    def reply(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage:
         """
         :type old_event: events.ChannelUserTextEvent
         :param new_event:
@@ -397,6 +397,40 @@ class ServerTelegram(Server):
             )
             logger.error(error.get_log_line())
             raise NotImplementedError()
+
+    def edit(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage:
+        # Do checks
+        super().edit(old_event, new_event)
+        if old_event.raw_data is None or not isinstance(
+            old_event.raw_data, RawDataTelegram
+        ):
+            raise ServerException("Old event has no telegram data associated with it")
+        # Edit event
+        if isinstance(old_event, EventMessageWithPhoto) != isinstance(new_event, EventMessageWithPhoto):
+            raise ServerException("Can't change whether a message has a photo when editing.")
+        destination = (
+            new_event.user if new_event.channel is None else new_event.channel
+        )
+        message_id = old_event.raw_data.update_obj.message.message_id
+        if isinstance(new_event, EventMessageWithPhoto):
+            msg = self.bot.edit_message_caption(
+                chat_id=destination.address,
+                message_id=message_id,
+                caption=new_event.text,
+                reply_markup=event_menu_for_telegram(new_event),
+                parse_mode=self.formatting_to_telegram_mode(new_event.formatting)
+            )
+        else:
+            msg = self.bot.edit_message_text(
+                chat_id=destination.address,
+                message_id=message_id,
+                text=new_event.text,
+                reply_markup=event_menu_for_telegram(new_event),
+                parse_mode=self.formatting_to_telegram_mode(new_event.formatting)
+            )
+        new_event.with_raw_data(msg)
+        new_event.log()
+        return new_event
 
     def get_name_by_address(self, address):
         chat = self.bot.get_chat(address)

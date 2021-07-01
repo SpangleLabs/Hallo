@@ -1,6 +1,7 @@
 from abc import ABCMeta
 
 from hallo.destination import Channel, User
+from hallo.events import EventMessage
 from hallo.permission_mask import PermissionMask
 
 
@@ -111,6 +112,31 @@ class Server(metaclass=ABCMeta):
         if old_event.server != new_event.server:
             raise ServerException(
                 "Cannot send reply to a different server than the original message came from"
+            )
+        return
+
+    def edit(self, old_event: EventMessage, new_event: EventMessage):
+        """
+        Edits a message
+        :param old_event: The old event, to edit
+        :type old_event: events.ChannelUserTextEvent
+        :param new_event: The new event to replace it with
+        :type new_event: events.ChannelUserTextEvent
+        """
+        # This method will just do some checks, implementations will have to actually send events
+        if not old_event.is_inbound or new_event.is_inbound:
+            raise ServerException("Cannot edit outbound event, or send inbound one")
+        if old_event.channel != new_event.channel:
+            raise ServerException(
+                "Cannot edit a message into a different channel than it was originally sent"
+            )
+        if new_event.user is not None and old_event.user != new_event.user:
+            raise ServerException(
+                "Cannot edit a message into a different private chat than it was originally sent"
+            )
+        if old_event.server != new_event.server:
+            raise ServerException(
+                "Cannot edit a message into a different server than the original message came from"
             )
         return
 
