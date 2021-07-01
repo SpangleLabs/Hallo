@@ -2,7 +2,7 @@ import enum
 import logging
 from abc import ABCMeta
 from datetime import datetime
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Optional
 
 from hallo.destination import Destination
 
@@ -432,7 +432,7 @@ class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
         :type inbound: bool
         """
         ChannelUserEvent.__init__(self, server, channel, user, inbound=inbound)
-        self.text = text
+        self.text = text or ""
         """ :type : str"""
 
     def create_response(self, text, event_class=None):
@@ -494,7 +494,14 @@ class EventMessage(ChannelUserTextEvent):
         self.check_prefix()
         self.formatting = EventMessage.Formatting.PLAIN
         self.menu_buttons = menu_buttons
-        self.message_id = None  # Message ID will be set when the message is sent, if applicable for the server
+
+    @property
+    def message_id(self) -> Optional[int]:
+        if isinstance(self.raw_data, RawDataTelegram):
+            return self.raw_data.update_obj.message.message_id
+        if isinstance(self.raw_data, RawDataTelegramOutbound):
+            return self.raw_data.sent_msg_object.message_id
+        return None
 
     def check_prefix(self):
         if self.channel is None:
