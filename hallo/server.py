@@ -124,8 +124,8 @@ class Server(metaclass=ABCMeta):
         :type new_event: events.ChannelUserTextEvent
         """
         # This method will just do some checks, implementations will have to actually send events
-        if not old_event.is_inbound or new_event.is_inbound:
-            raise ServerException("Cannot edit outbound event, or send inbound one")
+        if old_event.is_inbound or new_event.is_inbound:
+            raise ServerException("Cannot edit inbound event")
         if old_event.channel != new_event.channel:
             raise ServerException(
                 "Cannot edit a message into a different channel than it was originally sent"

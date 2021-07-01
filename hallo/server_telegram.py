@@ -371,7 +371,7 @@ class ServerTelegram(Server):
                     reply_markup=event_menu_for_telegram(new_event),
                     parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
                 )
-            new_event.with_raw_data(msg)
+            new_event.with_raw_data(RawDataTelegramOutbound(msg))
             new_event.log()
             return new_event
         if isinstance(new_event, EventMessage):
@@ -386,7 +386,7 @@ class ServerTelegram(Server):
                 reply_markup=event_menu_for_telegram(new_event),
                 parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
             )
-            new_event.with_raw_data(msg)
+            new_event.with_raw_data(RawDataTelegramOutbound(msg))
             new_event.log()
             return new_event
         else:
@@ -402,7 +402,7 @@ class ServerTelegram(Server):
         # Do checks
         super().edit(old_event, new_event)
         if old_event.raw_data is None or not isinstance(
-            old_event.raw_data, RawDataTelegram
+            old_event.raw_data, RawDataTelegramOutbound
         ):
             raise ServerException("Old event has no telegram data associated with it")
         # Edit event
@@ -411,7 +411,7 @@ class ServerTelegram(Server):
         destination = (
             new_event.user if new_event.channel is None else new_event.channel
         )
-        message_id = old_event.raw_data.update_obj.message.message_id
+        message_id = old_event.message_id
         if isinstance(new_event, EventMessageWithPhoto):
             msg = self.bot.edit_message_caption(
                 chat_id=destination.address,
@@ -428,7 +428,7 @@ class ServerTelegram(Server):
                 reply_markup=event_menu_for_telegram(new_event),
                 parse_mode=self.formatting_to_telegram_mode(new_event.formatting)
             )
-        new_event.with_raw_data(msg)
+        new_event.with_raw_data(RawDataTelegramOutbound(msg))
         new_event.log()
         return new_event
 
