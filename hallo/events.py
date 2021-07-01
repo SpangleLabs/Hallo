@@ -2,9 +2,11 @@ import enum
 import logging
 from abc import ABCMeta
 from datetime import datetime
-from typing import List, Dict, Any, Union, Optional
+from typing import List, Dict, Any, Union, Optional, TYPE_CHECKING
 
-from hallo.destination import Destination
+if TYPE_CHECKING:
+    from hallo.destination import Destination, User, Channel
+    from hallo.server import Server
 
 
 class RawData(metaclass=ABCMeta):
@@ -190,15 +192,9 @@ class EventPing(ServerEvent):
 
 
 class UserEvent(ServerEvent, metaclass=ABCMeta):
-    def __init__(self, server, user, inbound=True):
-        """
-        :type server: server.Server
-        :type user: destination.User | None
-        :type inbound: bool
-        """
+    def __init__(self, server: 'Server', user: 'User', inbound: bool = True):
         ServerEvent.__init__(self, server, inbound=inbound)
         self.user = user
-        """ :type : Destination.User | None"""
 
     def _get_log_extras(self) -> List[Dict[str, Any]]:
         channel_list = (
@@ -259,15 +255,9 @@ class EventNameChange(UserEvent):
 
 
 class ChannelEvent(ServerEvent, metaclass=ABCMeta):
-    def __init__(self, server, channel, inbound=True):
-        """
-        :type server: server.Server
-        :type channel: destination.Channel | None
-        :type inbound: bool
-        """
+    def __init__(self, server: 'Server', channel: 'Channel', inbound: bool = True):
         ServerEvent.__init__(self, server, inbound=inbound)
         self.channel = channel
-        """ :type : Destination.Channel | None"""
 
     def _get_log_extras(self) -> List[Dict[str, Any]]:
         return [
