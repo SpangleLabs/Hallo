@@ -297,6 +297,10 @@ class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
             }
         ]
 
+    @property
+    def destination(self) -> 'Destination':
+        return self.user if self.channel is None else self.channel
+
 
 class EventJoin(ChannelUserEvent):
     def __init__(self, server, channel, user, password=None, inbound=True):
