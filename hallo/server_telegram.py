@@ -401,18 +401,16 @@ class ServerTelegram(Server):
     def edit(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage:
         # Do checks
         super().edit(old_event, new_event)
-        if old_event.raw_data is None or not isinstance(
-            old_event.raw_data, RawDataTelegramOutbound
-        ):
-            raise ServerException("Old event has no telegram data associated with it")
-        # Edit event
         if isinstance(old_event, EventMessageWithPhoto) != isinstance(new_event, EventMessageWithPhoto):
             raise ServerException("Can't change whether a message has a photo when editing.")
-        destination = (
-            new_event.user if new_event.channel is None else new_event.channel
-        )
-        message_id = old_event.message_id
-        if isinstance(new_event, EventMessageWithPhoto):
+        # Edit event
+        return self.edit_by_id(old_event.message_id, new_event, has_photo=isinstance(old_event, EventMessageWithPhoto))
+
+    def edit_by_id(self, message_id: int, new_event: EventMessage, *, has_photo: bool = False):
+        if not message_id:
+            raise ServerException("Old event has no message id associated with it")
+        destination = new_event.destination
+        if has_photo or isinstance(new_event, EventMessageWithPhoto):
             msg = self.bot.edit_message_caption(
                 chat_id=destination.address,
                 message_id=message_id,

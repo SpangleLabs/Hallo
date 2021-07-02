@@ -1,4 +1,4 @@
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 
 from hallo.destination import Channel, User
 from hallo.events import EventMessage
@@ -139,6 +139,10 @@ class Server(metaclass=ABCMeta):
                 "Cannot edit a message into a different server than the original message came from"
             )
         return
+
+    @abstractmethod
+    def edit_by_id(self, message_id: int, new_event: EventMessage, *, has_photo: bool = False):
+        raise NotImplementedError
 
     def to_json(self):
         """
