@@ -42,6 +42,9 @@ class MenuCache(Generic[T]):
         if menu.msg.message_id is not None:
             if self.get_menu_by_menu(menu):
                 self.remove_menu(menu)
+        # If the menu message has no keyboard, don't add it
+        if not menu.msg.has_keyboard:
+            return
         self.menus[menu.msg.server_name][menu.msg.destination_addr].append(menu)
         self.save_to_json()
 
@@ -142,6 +145,11 @@ class MessageRef(ABC):
     def message_id(self) -> int:
         raise NotImplementedError
 
+    @property
+    @abstractmethod
+    def has_keyboard(self) -> bool:
+        raise NotImplementedError
+
     @classmethod
     def from_json(cls, data: Dict) -> 'MessageId':
         return MessageId(
@@ -170,6 +178,11 @@ class MessageId(MessageRef):
     def message_id(self) -> int:
         return self._message_id
 
+    @property
+    def has_keyboard(self) -> bool:
+        # If it was saved, it must have a keyboard
+        return True
+
 
 class MessageContainer(MessageRef):
 
@@ -184,3 +197,7 @@ class MessageContainer(MessageRef):
     @property
     def message_id(self) -> int:
         return self._event.message_id
+
+    @property
+    def has_keyboard(self) -> bool:
+        return bool(self._event.menu_buttons)
