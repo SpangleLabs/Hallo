@@ -68,7 +68,7 @@ class SubscriptionRemove(Function):
             # Find any feeds with specified title
             test_subs: List[hallo.modules.subscriptions.subscription.Subscription] = sub_repo.get_subs_by_name(
                 clean_input.lower(),
-                event.user if event.channel is None else event.channel,
+                event.destination,
             )
             if len(test_subs) > 0:
                 for del_sub in test_subs:

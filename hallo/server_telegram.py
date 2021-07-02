@@ -267,7 +267,7 @@ class ServerTelegram(Server):
 
     def send(self, event):
         if isinstance(event, EventMessageWithPhoto):
-            destination = event.user if event.channel is None else event.channel
+            destination = event.destination
             try:
                 if isinstance(event.photo_id, list):
                     media = [InputMediaPhoto(x) for x in event.photo_id]
@@ -311,9 +311,8 @@ class ServerTelegram(Server):
             event.log()
             return event
         if isinstance(event, EventMessage):
-            destination = event.user if event.channel is None else event.channel
             msg = self.bot.send_message(
-                chat_id=destination.address,
+                chat_id=event.destination.address,
                 text=event.text,
                 parse_mode=self.formatting_to_telegram_mode(event.formatting),
                 reply_markup=event_menu_for_telegram(event)
@@ -344,9 +343,7 @@ class ServerTelegram(Server):
             raise ServerException("Old event has no telegram data associated with it")
         # Send event
         if isinstance(new_event, EventMessageWithPhoto):
-            destination = (
-                new_event.user if new_event.channel is None else new_event.channel
-            )
+            destination = new_event.destination
             old_message_id = old_event.raw_data.update_obj.message.message_id
             if any(
                 [
@@ -375,12 +372,9 @@ class ServerTelegram(Server):
             new_event.log()
             return new_event
         if isinstance(new_event, EventMessage):
-            destination = (
-                new_event.user if new_event.channel is None else new_event.channel
-            )
             old_message_id = old_event.raw_data.update_obj.message.message_id
             msg = self.bot.send_message(
-                destination.address,
+                event.destination.address,
                 new_event.text,
                 reply_to_message_id=old_message_id,
                 reply_markup=event_menu_for_telegram(new_event),

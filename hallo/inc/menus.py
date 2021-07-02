@@ -174,8 +174,11 @@ class MessageId(MessageRef):
 class MessageContainer(MessageRef):
 
     def __init__(self, event: EventMessage):
-        destination = event.user if event.channel is None else event.channel
-        super().__init__(event.server.name, destination.address, has_photo=isinstance(event, EventMessageWithPhoto))
+        super().__init__(
+            event.server.name,
+            event.destination.address,
+            has_photo=isinstance(event, EventMessageWithPhoto)
+        )
         self._event = event
 
     @property
