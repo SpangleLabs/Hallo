@@ -1,13 +1,16 @@
 import json
 from threading import Lock
-from typing import List, Type, TypeVar
+from typing import List, Type, TypeVar, TYPE_CHECKING
 
-import hallo.modules.subscriptions.subscription_exception
-from hallo.destination import Destination
-import hallo.modules.subscriptions.subscription_common
 import hallo.modules.subscriptions.subscription
+import hallo.modules.subscriptions.subscription_common
+import hallo.modules.subscriptions.subscription_exception
 import hallo.modules.subscriptions.subscription_factory
+from hallo.destination import Destination
 from hallo.inc.commons import inherits_from
+
+if TYPE_CHECKING:
+    from hallo.hallo import Hallo
 
 T = TypeVar("T", bound=hallo.modules.subscriptions.subscription_common.SubscriptionCommon)
 
@@ -17,7 +20,8 @@ class SubscriptionRepo:
     Holds the lists of subscriptions, for loading and unloading.
     """
 
-    def __init__(self):
+    def __init__(self, hallo_obj: 'Hallo'):
+        self.hallo = hallo_obj
         self.sub_list: List[hallo.modules.subscriptions.subscription.Subscription] = []
         self.common_list: List[hallo.modules.subscriptions.subscription_common.SubscriptionCommon] = []
         self.sub_lock: Lock = Lock()
@@ -82,7 +86,7 @@ class SubscriptionRepo:
             )
         matching = [obj for obj in self.common_list if isinstance(obj, common_type)]
         if len(matching) == 0:
-            new_common = common_type()
+            new_common = common_type(self.hallo)
             self.common_list.append(new_common)
             return new_common
         if len(matching) == 1:
@@ -118,7 +122,7 @@ class SubscriptionRepo:
         Constructs a new SubscriptionRepo from the JSON file
         :return: Newly constructed list of subscriptions
         """
-        new_sub_list = SubscriptionRepo()
+        new_sub_list = SubscriptionRepo(hallo_obj)
         # Try loading json file, otherwise return blank list
         try:
             with open("store/subscriptions.json", "r") as f:
@@ -129,7 +133,8 @@ class SubscriptionRepo:
         # Common config must be loaded first, as subscriptions use it.
         for common_elem in json_obj["common"]:
             new_common_obj = hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.common_from_json(
-                common_elem
+                common_elem,
+                hallo_obj
             )
             new_sub_list.common_list.append(new_common_obj)
         # Loop subs in json file adding them to list
