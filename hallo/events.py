@@ -338,7 +338,14 @@ class EventMode(ChannelUserEvent):
 
 
 class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
-    def __init__(self, server: 'Server', channel: 'Channel', user: 'User', text: str, inbound: bool = True) -> None:
+    def __init__(
+            self,
+            server: 'Server',
+            channel: Optional['Channel'],
+            user: 'User',
+            text: str,
+            inbound: bool = True
+    ) -> None:
         ChannelUserEvent.__init__(self, server, channel, user, inbound=inbound)
         self.text = text or ""
 
@@ -380,7 +387,7 @@ class EventMessage(ChannelUserTextEvent):
     def __init__(
             self,
             server: 'Server',
-            channel: 'Channel',
+            channel: Optional['Channel'],
             user: 'User',
             text: str,
             inbound: bool = True,
@@ -475,7 +482,7 @@ class EventMessageWithPhoto(EventMessage):
     def __init__(
             self,
             server: 'Server',
-            channel: 'Channel',
+            channel: Optional['Channel'],
             user: 'User',
             text: str,
             photo_id: Union[str, List[str]],
@@ -503,7 +510,7 @@ class EventMenuCallback(ChannelUserEvent):
             channel: 'Channel',
             user: 'User',
             message_id: int,
-            callback_data: bytes
+            callback_data: str
     ) -> None:
         super().__init__(server, channel, user)
         self.message_id = message_id

@@ -1,9 +1,9 @@
 from threading import Lock, Thread
-from typing import List, Optional
+from typing import Optional, TYPE_CHECKING, Dict
 
 import telegram
-from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import Updater, Filters, BaseFilter, CallbackQueryHandler
+from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup, Update, Message
+from telegram.ext import Updater, Filters, BaseFilter, CallbackQueryHandler, CallbackContext
 import logging
 from telegram.ext import MessageHandler
 from telegram.utils.request import Request
@@ -14,10 +14,13 @@ from hallo.events import (
     EventMessage,
     RawDataTelegram,
     EventMessageWithPhoto,
-    RawDataTelegramOutbound, EventMenuCallback,
+    RawDataTelegramOutbound, EventMenuCallback, ServerEvent, ChannelUserTextEvent,
 )
 from hallo.permission_mask import PermissionMask
 from hallo.server import Server, ServerException
+
+if TYPE_CHECKING:
+    from hallo.hallo import Hallo
 
 
 logger = logging.getLogger(__name__)
@@ -35,12 +38,19 @@ def event_menu_for_telegram(event: EventMessage) -> Optional[InlineKeyboardMarku
     return InlineKeyboardMarkup(menu)
 
 
+def formatting_to_telegram_mode(event_formatting: EventMessage.Formatting) -> Optional[str]:
+    return {
+        EventMessage.Formatting.MARKDOWN: telegram.ParseMode.MARKDOWN,
+        EventMessage.Formatting.HTML: telegram.ParseMode.HTML,
+    }.get(event_formatting)
+
+
 class ServerTelegram(Server):
 
     type = Server.TYPE_TELEGRAM
     image_extensions = ["jpg", "jpeg", "png"]
 
-    def __init__(self, hallo, api_key):
+    def __init__(self, hallo: 'Hallo', api_key: str) -> None:
         super().__init__(hallo)
         """
         Constructor for server object
@@ -92,10 +102,10 @@ class ServerTelegram(Server):
         self.dispatcher.add_handler(self.core_msg_handler)
 
     class ChannelFilter(BaseFilter):
-        def filter(self, message):
+        def filter(self, message: Message) -> bool:
             return message.chat.type in [Chat.CHANNEL]
 
-    def start(self):
+    def start(self) -> None:
         """
         Starts up the server and launches the new thread
         """
@@ -105,7 +115,7 @@ class ServerTelegram(Server):
         with self._connect_lock:
             Thread(target=self.connect).start()
 
-    def connect(self):
+    def connect(self) -> None:
         """
         Internal method
         Method to read from stream and process. Will connect and call internal parsing methods or whatnot.
@@ -115,16 +125,16 @@ class ServerTelegram(Server):
             self.updater.start_polling()
             self.state = Server.STATE_OPEN
 
-    def disconnect(self, force=False):
+    def disconnect(self, force: bool = False) -> None:
         self.state = Server.STATE_DISCONNECTING
         with self._connect_lock:
             self.updater.stop()
             self.state = Server.STATE_CLOSED
 
-    def reconnect(self):
+    def reconnect(self) -> None:
         super().reconnect()
 
-    def parse_private_message(self, update, context):
+    def parse_private_message(self, update: Update, context: CallbackContext) -> None:
         """
         Handles a new private message
         :param update: Update object from telegram API
@@ -159,13 +169,11 @@ class ServerTelegram(Server):
         message_evt.log()
         self.hallo.function_dispatcher.dispatch(message_evt)
 
-    def parse_group_message(self, update, context):
+    def parse_group_message(self, update: Update, context: CallbackContext) -> None:
         """
         Handles a new group or supergroup message (does not handle channel posts)
         :param update: Update object from telegram API
-        :type update: telegram.Update
         :param context: Callback Context from the telegram API
-        :type context: telegram.CallbackContext
         """
         # Get sender object
         message_sender_name = " ".join(
@@ -207,11 +215,11 @@ class ServerTelegram(Server):
         else:
             function_dispatcher.dispatch_passive(message_evt)
 
-    def parse_join(self, update, context):
+    def parse_join(self, update: Update, context: CallbackContext) -> None:
         # TODO
         pass
 
-    def parse_menu_callback(self, update: Update, context):
+    def parse_menu_callback(self, update: Update, context: CallbackContext) -> None:
         # Get sender object
         message_sender_name = update.effective_user.full_name
         message_sender_addr = update.effective_user.id
@@ -241,13 +249,11 @@ class ServerTelegram(Server):
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(callback_evt)
 
-    def parse_unhandled(self, update, context):
+    def parse_unhandled(self, update: Update, context: CallbackContext) -> None:
         """
         Parses an unhandled message from the server
         :param update: Update object from telegram API
-        :type update: telegram.Update
         :param context: Callback Context from the telegram API
-        :type context: telegram.CallbackContext
         """
         # Print it to console
         error = MessageError(
@@ -255,24 +261,14 @@ class ServerTelegram(Server):
         )
         logger.error(error.get_log_line())
 
-    def formatting_to_telegram_mode(self, event_formatting):
-        """
-        :type event_formatting: EventMessage.Formatting
-        :rtype: telegram.ParseMode
-        """
-        return {
-            EventMessage.Formatting.MARKDOWN: telegram.ParseMode.MARKDOWN,
-            EventMessage.Formatting.HTML: telegram.ParseMode.HTML,
-        }.get(event_formatting)
-
-    def send(self, event):
+    def send(self, event: ServerEvent) -> Optional[ServerEvent]:
         if isinstance(event, EventMessageWithPhoto):
             destination = event.destination
             try:
                 if isinstance(event.photo_id, list):
                     media = [InputMediaPhoto(x) for x in event.photo_id]
                     media[0].caption = event.text
-                    media[0].parse_mode = self.formatting_to_telegram_mode(event.formatting)
+                    media[0].parse_mode = formatting_to_telegram_mode(event.formatting)
                     msg = self.bot.send_media_group(
                         chat_id=destination.address, media=media
                     )
@@ -287,7 +283,7 @@ class ServerTelegram(Server):
                         photo=event.photo_id,
                         caption=event.text,
                         reply_markup=event_menu_for_telegram(event),
-                        parse_mode=self.formatting_to_telegram_mode(event.formatting),
+                        parse_mode=formatting_to_telegram_mode(event.formatting),
                     )
                 else:
                     msg = self.bot.send_document(
@@ -295,7 +291,7 @@ class ServerTelegram(Server):
                         document=event.photo_id,
                         caption=event.text,
                         reply_markup=event_menu_for_telegram(event),
-                        parse_mode=self.formatting_to_telegram_mode(event.formatting),
+                        parse_mode=formatting_to_telegram_mode(event.formatting),
                     )
             except Exception as e:
                 logger.warning(
@@ -305,7 +301,7 @@ class ServerTelegram(Server):
                     chat_id=destination.address,
                     text=event.text,
                     reply_markup=event_menu_for_telegram(event),
-                    parse_mode=self.formatting_to_telegram_mode(event.formatting)
+                    parse_mode=formatting_to_telegram_mode(event.formatting)
                 )
             event.with_raw_data(RawDataTelegramOutbound(msg))
             event.log()
@@ -314,7 +310,7 @@ class ServerTelegram(Server):
             msg = self.bot.send_message(
                 chat_id=event.destination.address,
                 text=event.text,
-                parse_mode=self.formatting_to_telegram_mode(event.formatting),
+                parse_mode=formatting_to_telegram_mode(event.formatting),
                 reply_markup=event_menu_for_telegram(event)
             )
             event.with_raw_data(RawDataTelegramOutbound(msg))
@@ -357,7 +353,7 @@ class ServerTelegram(Server):
                     caption=new_event.text,
                     reply_to_message_id=old_message_id,
                     reply_markup=event_menu_for_telegram(new_event),
-                    parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
+                    parse_mode=formatting_to_telegram_mode(new_event.formatting),
                 )
             else:
                 msg = self.bot.send_document(
@@ -366,7 +362,7 @@ class ServerTelegram(Server):
                     caption=new_event.text,
                     reply_to_message_id=old_message_id,
                     reply_markup=event_menu_for_telegram(new_event),
-                    parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
+                    parse_mode=formatting_to_telegram_mode(new_event.formatting),
                 )
             new_event.with_raw_data(RawDataTelegramOutbound(msg))
             new_event.log()
@@ -374,11 +370,11 @@ class ServerTelegram(Server):
         if isinstance(new_event, EventMessage):
             old_message_id = old_event.raw_data.update_obj.message.message_id
             msg = self.bot.send_message(
-                event.destination.address,
+                new_event.destination.address,
                 new_event.text,
                 reply_to_message_id=old_message_id,
                 reply_markup=event_menu_for_telegram(new_event),
-                parse_mode=self.formatting_to_telegram_mode(new_event.formatting),
+                parse_mode=formatting_to_telegram_mode(new_event.formatting),
             )
             new_event.with_raw_data(RawDataTelegramOutbound(msg))
             new_event.log()
@@ -400,7 +396,13 @@ class ServerTelegram(Server):
         # Edit event
         return self.edit_by_id(old_event.message_id, new_event, has_photo=isinstance(old_event, EventMessageWithPhoto))
 
-    def edit_by_id(self, message_id: int, new_event: EventMessage, *, has_photo: bool = False):
+    def edit_by_id(
+            self,
+            message_id: int,
+            new_event: EventMessage,
+            *,
+            has_photo: bool = False
+    ) -> EventMessage:
         if not message_id:
             raise ServerException("Old event has no message id associated with it")
         destination = new_event.destination
@@ -410,7 +412,7 @@ class ServerTelegram(Server):
                 message_id=message_id,
                 caption=new_event.text,
                 reply_markup=event_menu_for_telegram(new_event),
-                parse_mode=self.formatting_to_telegram_mode(new_event.formatting)
+                parse_mode=formatting_to_telegram_mode(new_event.formatting)
             )
         else:
             msg = self.bot.edit_message_text(
@@ -418,23 +420,22 @@ class ServerTelegram(Server):
                 message_id=message_id,
                 text=new_event.text,
                 reply_markup=event_menu_for_telegram(new_event),
-                parse_mode=self.formatting_to_telegram_mode(new_event.formatting)
+                parse_mode=formatting_to_telegram_mode(new_event.formatting)
             )
         new_event.with_raw_data(RawDataTelegramOutbound(msg))
         new_event.log()
         return new_event
 
-    def get_name_by_address(self, address):
+    def get_name_by_address(self, address: str) -> str:
         chat = self.bot.get_chat(address)
         if chat.type == chat.PRIVATE:
             return " ".join([chat.first_name, chat.last_name])
         if chat.type in [chat.GROUP, chat.SUPERGROUP, chat.CHANNEL]:
             return chat.title
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         """
         Creates a dict of configuration for the server, to store as json
-        :return: dict
         """
         json_obj = dict()
         json_obj["type"] = Server.TYPE_TELEGRAM
@@ -456,7 +457,7 @@ class ServerTelegram(Server):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo):
+    def from_json(json_obj: Dict, hallo: 'Hallo') -> 'ServerTelegram':
         api_key = json_obj["api_key"]
         new_server = ServerTelegram(hallo, api_key)
         new_server.name = json_obj["name"]
@@ -475,9 +476,9 @@ class ServerTelegram(Server):
             new_server.add_user(User.from_json(user, new_server))
         return new_server
 
-    def join_channel(self, channel_obj):
+    def join_channel(self, channel_obj: Channel) -> None:
         pass
         # TODO
 
-    def check_user_identity(self, user_obj):
+    def check_user_identity(self, user_obj: User) -> bool:
         return True
