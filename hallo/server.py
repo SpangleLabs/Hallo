@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Optional, TYPE_CHECKING, Union
+from typing import Optional, TYPE_CHECKING, Union, Dict, List
 
 from hallo.destination import Channel, User
 from hallo.permission_mask import PermissionMask
@@ -125,7 +125,7 @@ class Server(metaclass=ABCMeta):
             self,
             old_event: 'ChannelUserTextEvent',
             new_event: 'ChannelUserTextEvent'
-    ) -> Optional[ChannelUserTextEvent]:
+    ) -> Optional['ChannelUserTextEvent']:
         """
         Edits a message
         :param old_event: The old event, to edit
@@ -149,7 +149,7 @@ class Server(metaclass=ABCMeta):
         return
 
     @abstractmethod
-    def edit_by_id(self, message_id: int, new_event: ChannelUserTextEvent, *, has_photo: bool = False):
+    def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
         raise NotImplementedError
 
     def to_json(self) -> Dict:

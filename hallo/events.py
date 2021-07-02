@@ -23,7 +23,7 @@ class RawDataIRC(RawData):
 
 
 class RawDataTelegram(RawData):
-    def __init__(self, update_obj: Update) -> None:
+    def __init__(self, update_obj: 'Update') -> None:
         """
         :param update_obj: Update object from telegram server
         """
@@ -31,7 +31,7 @@ class RawDataTelegram(RawData):
 
 
 class RawDataTelegramOutbound(RawData):
-    def __init__(self, sent_msg_object: Message) -> None:
+    def __init__(self, sent_msg_object: 'Message') -> None:
         """
         :param sent_msg_object: Sent message object returned when sending message on telegram
         :type sent_msg_object: ??
@@ -85,7 +85,7 @@ class EventDay(Event):
 
 
 class ServerEvent(Event, metaclass=ABCMeta):
-    def __init__(self, server: Server, inbound: bool = True):
+    def __init__(self, server: 'Server', inbound: bool = True):
         Event.__init__(self, inbound=inbound)
         self.server = server
         self.raw_data = None
