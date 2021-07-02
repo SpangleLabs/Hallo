@@ -1,4 +1,9 @@
+from typing import TYPE_CHECKING
+
 from hallo.server import Server
+
+if TYPE_CHECKING:
+    from hallo.events import ChannelUserTextEvent
 
 
 class ServerMock(Server):
@@ -35,6 +40,9 @@ class ServerMock(Server):
 
     def reply(self, old_event, new_event):
         super().reply(old_event, new_event)
+        self.send(new_event)
+
+    def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
         self.send(new_event)
 
     def reconnect(self):
