@@ -1,6 +1,6 @@
 from typing import List, Optional, Dict
 
-from yippi import Post, Rating
+from yippi import Post, Rating, YippiClient
 
 import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import Channel, User, Destination
@@ -19,12 +19,11 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
     def __init__(
             self,
             search: str,
-            e6_client: hallo.modules.subscriptions.common_e6_key.E6ClientCommon,
-            e6_key: hallo.modules.subscriptions.common_e6_key.E6Key,
+            e6_client: YippiClient,
             tags: List[str],
             last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
-        super().__init__(search, e6_client, e6_key, last_keys)
+        super().__init__(search, e6_client, last_keys)
         self.tags: List[str] = tags
 
     @classmethod
@@ -60,9 +59,8 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
                     'You need to specify a search term with search="search term" and '
                     'tags to watch with tags="tags to watch"'
                 )
-        e6_client = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_e6_key.E6ClientCommon)
-        e6_key = hallo.modules.subscriptions.source_e621.e6_key_from_input(user, sub_repo)
-        return E621TaggingSource(search, e6_client, e6_key, tags)
+        e6_client = hallo.modules.subscriptions.source_e621.e6_client_from_input(user, sub_repo)
+        return E621TaggingSource(search, e6_client, tags)
 
     @property
     def title(self) -> str:
@@ -95,12 +93,10 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
     @classmethod
     def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'E621TaggingSource':
         user_addr = json_data["e621_user_address"]
-        e6_key = hallo.modules.subscriptions.source_e621.e6_key_from_json(user_addr, destination.server, sub_repo)
-        e6_client = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_e6_key.E6ClientCommon)
+        e6_client = hallo.modules.subscriptions.source_e621.e6_client_from_json(user_addr, destination.server, sub_repo)
         return E621TaggingSource(
             json_data["search"],
             e6_client,
-            e6_key,
             json_data["tags"],
             json_data["last_keys"]
         )
