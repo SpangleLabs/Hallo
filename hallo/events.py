@@ -15,6 +15,8 @@ KEY_SERVER_NAME = "server_name"
 KEY_CHANNEL_ADDR = "channel_addr"
 KEY_USER_ADDR = "user_addr"
 KEY_MENU_BUTTONS = "menu_buttons"
+KEY_FORMATTING = "formatting"
+KEY_PHOTO_ID = "photo_id"
 
 
 def server_from_json(hallo_obj: 'Hallo', data: Dict) -> Server:
@@ -41,6 +43,53 @@ def menu_buttons_from_json(data: Dict) -> Optional[List[List['MenuButton']]]:
             MenuButton.from_json(button) for button in row
         ] for row in data[KEY_MENU_BUTTONS]
     ]
+
+
+def event_from_json(hallo_obj: 'Hallo', data: Dict) -> 'ChannelUserTextEvent':
+    server = server_from_json(hallo_obj, data)
+    channel = channel_from_json(server, data)
+    user = user_from_json(server, data)
+    if KEY_FORMATTING not in data:
+        return ChannelUserTextEvent(
+            server,
+            channel,
+            user,
+            data["text"],
+            data["inbound"]
+        )
+    return message_from_json(hallo_obj, data)
+
+
+def message_from_json(hallo_obj: 'Hallo', data: Dict) -> 'EventMessage':
+    server = server_from_json(hallo_obj, data)
+    channel = channel_from_json(server, data)
+    user = user_from_json(server, data)
+    text = data["text"]
+    inbound = data["inbound"]
+    menu_buttons = menu_buttons_from_json(data)
+    formatting = EventMessage.Formatting[data[KEY_FORMATTING]]
+    if KEY_PHOTO_ID in data:
+        msg = EventMessageWithPhoto(
+            server,
+            channel,
+            user,
+            text,
+            data[KEY_PHOTO_ID],
+            inbound,
+            menu_buttons=menu_buttons
+        )
+    else:
+        msg = EventMessage(
+            server,
+            channel,
+            user,
+            text,
+            inbound,
+            menu_buttons=menu_buttons
+        )
+    msg.formatting = formatting
+    msg._message_id = data.get("message_id")
+    return msg
 
 
 class RawData(metaclass=ABCMeta):
@@ -419,19 +468,6 @@ class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
             "inbound": self.is_inbound
         }
 
-    @classmethod
-    def from_json(cls, hallo_obj: 'Hallo', data: Dict) -> 'ChannelUserTextEvent':
-        server = server_from_json(hallo_obj, data)
-        channel = channel_from_json(server, data)
-        user = user_from_json(server, data)
-        return ChannelUserTextEvent(
-            server,
-            channel,
-            user,
-            data["text"],
-            data["inbound"]
-        )
-
 
 class MenuButton:
     def __init__(self, text: str, data: str) -> None:
@@ -539,7 +575,7 @@ class EventMessage(ChannelUserTextEvent):
 
     def to_json(self) -> Dict:
         data = super().to_json()
-        data["formatting"] = self.formatting.name
+        data[KEY_FORMATTING] = self.formatting.name
         data["message_id"] = self.message_id
         if self.menu_buttons:
             data["menu_buttons"] = [
@@ -548,24 +584,6 @@ class EventMessage(ChannelUserTextEvent):
                 ] for row in self.menu_buttons
             ]
         return data
-
-    @classmethod
-    def from_json(cls, hallo_obj: 'Hallo', data: Dict) -> 'EventMessage':
-        server = server_from_json(hallo_obj, data)
-        channel = channel_from_json(server, data)
-        user = user_from_json(server, data)
-        menu_buttons = menu_buttons_from_json(data)
-        msg = cls(
-            server,
-            channel,
-            user,
-            data["text"],
-            data["inbound"],
-            menu_buttons=menu_buttons
-        )
-        msg.formatting = EventMessage.Formatting[data["formatting"]]
-        msg._message_id = data.get("message_id")
-        return msg
 
 
 class EventNotice(ChannelUserTextEvent):
@@ -613,27 +631,8 @@ class EventMessageWithPhoto(EventMessage):
 
     def to_json(self) -> Dict:
         data = super().to_json()
-        data["photo_id"] = self.photo_id
+        data[KEY_PHOTO_ID] = self.photo_id
         return data
-
-    @classmethod
-    def from_json(cls, hallo_obj: 'Hallo', data: Dict) -> 'EventMessageWithPhoto':
-        server = server_from_json(hallo_obj, data)
-        channel = channel_from_json(server, data)
-        user = user_from_json(server, data)
-        menu_buttons = menu_buttons_from_json(data)
-        msg = cls(
-            server,
-            channel,
-            user,
-            data["text"],
-            data["photo_id"],
-            data["inbound"],
-            menu_buttons=menu_buttons
-        )
-        msg.formatting = EventMessage.Formatting[data["formatting"]]
-        msg._message_id = data.get("message_id")
-        return msg
 
 
 class EventMenuCallback(ChannelUserEvent):
