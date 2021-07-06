@@ -298,6 +298,10 @@ class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
     def destination(self) -> 'Destination':
         return self.user if self.channel is None else self.channel
 
+    @property
+    def destination_addr(self) -> str:
+        return self.destination.address
+
 
 class EventJoin(ChannelUserEvent):
     def __init__(
@@ -530,6 +534,14 @@ class EventMessage(ChannelUserTextEvent):
             return self.raw_data.sent_msg_object.message_id
         return self._message_id
 
+    @property
+    def has_keyboard(self) -> bool:
+        return bool(self.menu_buttons)
+
+    @property
+    def has_photo(self) -> bool:
+        return False
+
     def check_prefix(self) -> Tuple[Union[bool, str], Optional[str]]:
         """
         Checks whether prefix was given, and if so, parses it out of command text.
@@ -628,6 +640,9 @@ class EventMessageWithPhoto(EventMessage):
         """
         super().__init__(server, channel, user, text, inbound=inbound, menu_buttons=menu_buttons)
         self.photo_id = photo_id
+
+    def has_photo(self) -> bool:
+        return True
 
     def to_json(self) -> Dict:
         data = super().to_json()
