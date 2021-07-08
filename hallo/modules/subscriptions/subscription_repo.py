@@ -8,6 +8,8 @@ import hallo.modules.subscriptions.subscription_exception
 import hallo.modules.subscriptions.subscription_factory
 from hallo.destination import Destination
 from hallo.inc.commons import inherits_from
+from hallo.inc.menus import MenuCache, MenuFactory
+from hallo.modules.subscriptions.source_e621_tagging import E621TaggingMenu
 
 if TYPE_CHECKING:
     from hallo.hallo import Hallo
@@ -25,6 +27,7 @@ class SubscriptionRepo:
         self.sub_list: List[hallo.modules.subscriptions.subscription.Subscription] = []
         self.common_list: List[hallo.modules.subscriptions.subscription_common.SubscriptionCommon] = []
         self.sub_lock: Lock = Lock()
+        self.menu_cache = None
 
     def add_sub(self, new_sub: hallo.modules.subscriptions.subscription.Subscription) -> None:
         """
@@ -122,13 +125,14 @@ class SubscriptionRepo:
         Constructs a new SubscriptionRepo from the JSON file
         :return: Newly constructed list of subscriptions
         """
-        new_sub_list = SubscriptionRepo(hallo_obj)
+        # Create repo
+        new_repo = SubscriptionRepo(hallo_obj)
         # Try loading json file, otherwise return blank list
         try:
             with open("store/subscriptions.json", "r") as f:
                 json_obj = json.load(f)
         except (OSError, IOError):
-            return new_sub_list
+            return new_repo
         # Loop common objects in json file adding them to list.
         # Common config must be loaded first, as subscriptions use it.
         for common_elem in json_obj["common"]:
@@ -136,11 +140,15 @@ class SubscriptionRepo:
                 common_elem,
                 hallo_obj
             )
-            new_sub_list.common_list.append(new_common_obj)
+            new_repo.common_list.append(new_common_obj)
         # Loop subs in json file adding them to list
         for sub_elem in json_obj["subs"]:
             new_sub_obj = hallo.modules.subscriptions.subscription.Subscription.from_json(
-                sub_elem, hallo_obj, new_sub_list
+                sub_elem, hallo_obj, new_repo
             )
-            new_sub_list.add_sub(new_sub_obj)
-        return new_sub_list
+            new_repo.add_sub(new_sub_obj)
+        return new_repo
+
+    def load_menu_cache(self, hallo_obj: 'Hallo') -> None:
+        menu_factory = MenuFactory([E621TaggingMenu], hallo_obj)
+        self.menu_cache = MenuCache.load_from_json("store/menus/subscriptions.json", menu_factory)

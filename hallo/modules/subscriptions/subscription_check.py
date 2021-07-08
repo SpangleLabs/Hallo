@@ -58,6 +58,8 @@ class SubscriptionCheck(Function):
             self.subscription_repo = hallo.modules.subscriptions.subscription_repo.SubscriptionRepo.load_json(
                 hallo_obj
             )
+            # Add menus last, after common config
+            self.subscription_repo.load_menu_cache(hallo_obj)
         return self.subscription_repo
 
     @staticmethod
