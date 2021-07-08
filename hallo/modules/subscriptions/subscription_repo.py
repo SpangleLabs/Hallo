@@ -12,6 +12,7 @@ from hallo.inc.menus import MenuCache, MenuFactory
 from hallo.modules.subscriptions.source_e621_tagging import E621TaggingMenu
 
 if TYPE_CHECKING:
+    from hallo.events import EventMenuCallback
     from hallo.hallo import Hallo
 
 T = TypeVar("T", bound=hallo.modules.subscriptions.subscription_common.SubscriptionCommon)
@@ -99,6 +100,11 @@ class SubscriptionRepo:
                 common_type.__name__
             )
         )
+
+    def handle_menu_callback(self, event: 'EventMenuCallback') -> None:
+        menu = self.menu_cache.get_menu_by_callback_event(event)
+        if menu:
+            menu.handle_callback(event)
 
     def save_json(self) -> None:
         """

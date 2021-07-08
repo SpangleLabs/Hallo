@@ -2,7 +2,7 @@ import logging
 from typing import Set, Type, Optional
 
 from hallo.errors import SubscriptionCheckError
-from hallo.events import Event, EventMinute, EventMessage, ServerEvent
+from hallo.events import Event, EventMinute, EventMessage, ServerEvent, EventMenuCallback
 from hallo.function import Function
 from hallo.hallo import Hallo
 import hallo.modules.subscriptions.subscription_factory
@@ -79,7 +79,7 @@ class SubscriptionCheck(Function):
 
     def get_passive_events(self) -> Set[Type[Event]]:
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {EventMinute}
+        return {EventMinute, EventMenuCallback}
 
     def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
@@ -117,20 +117,26 @@ class SubscriptionCheck(Function):
         )
 
     def passive_run(self, event: Event, hallo_obj: Hallo) -> Optional[ServerEvent]:
-        # Check through all feeds to see which need updates
-        sub_repo = self.get_sub_repo(hallo_obj)
-        with sub_repo.sub_lock:
-            logger.debug("SubCheck - Got lock")
-            for search_sub in sub_repo.sub_list:
-                # Only check those which have been too long since last check
-                if search_sub.needs_check():
-                    # Get new items
-                    try:
-                        logger.debug("SubCheck - Checking %s", search_sub.source.title)
-                        search_sub.update()
-                    except Exception as e:
-                        error = SubscriptionCheckError(search_sub, e)
-                        logger.error(error.get_log_line(), exc_info=e)
-            # Save list
-            sub_repo.save_json()
-        return
+        if isinstance(event, EventMenuCallback):
+            sub_repo = self.get_sub_repo(hallo_obj)
+            sub_repo.handle_menu_callback(event)
+            sub_repo.menu_cache.save_to_json()
+            return
+        if isinstance(event, EventMinute):
+            # Check through all feeds to see which need updates
+            sub_repo = self.get_sub_repo(hallo_obj)
+            with sub_repo.sub_lock:
+                logger.debug("SubCheck - Got lock")
+                for search_sub in sub_repo.sub_list:
+                    # Only check those which have been too long since last check
+                    if search_sub.needs_check():
+                        # Get new items
+                        try:
+                            logger.debug("SubCheck - Checking %s", search_sub.source.title)
+                            search_sub.update()
+                        except Exception as e:
+                            error = SubscriptionCheckError(search_sub, e)
+                            logger.error(error.get_log_line(), exc_info=e)
+                # Save list
+                sub_repo.save_json()
+            return
