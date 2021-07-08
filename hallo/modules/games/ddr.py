@@ -54,35 +54,19 @@ class DDR(Function):
         line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
             return event.create_response(
-                self.new_game(
-                    line_clean,
-                    event.user,
-                    event.user if event.channel is None else event.channel,
-                )
+                self.new_game(line_clean, event.user, event.destination)
             )
         elif any(cmd in line_clean for cmd in self.JOIN_CMDS):
             return event.create_response(
-                self.join_game(
-                    line_clean,
-                    event.user,
-                    event.user if event.channel is None else event.channel,
-                )
+                self.join_game(line_clean, event.user, event.destination)
             )
         elif any(cmd in line_clean for cmd in self.END_CMDS):
             return event.create_response(
-                self.quit_game(
-                    line_clean,
-                    event.user,
-                    event.user if event.channel is None else event.channel,
-                )
+                self.quit_game(line_clean, event.user, event.destination)
             )
         elif any(cmd in line_clean for cmd in self.MOVE_CMDS):
             return event.create_response(
-                self.make_move(
-                    line_clean,
-                    event.user,
-                    event.user if event.channel is None else event.channel,
-                )
+                self.make_move(line_clean, event.user, event.destination)
             )
         output_string = "Invalid difficulty mode. Please specify easy, medium or hard."
         return event.create_response(output_string)

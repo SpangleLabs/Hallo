@@ -62,9 +62,7 @@ class SubscriptionList(Function):
         # Find list of feeds for current channel.
         with sub_repo.sub_lock:
             dest_searches: List[hallo.modules.subscriptions.subscription.Subscription] = \
-                sub_repo.get_subs_by_destination(
-                    event.user if event.channel is None else event.channel
-                )
+                sub_repo.get_subs_by_destination(event.destination)
         if len(dest_searches) == 0:
             return event.create_response(
                 "There are no subscriptions posting to this destination."

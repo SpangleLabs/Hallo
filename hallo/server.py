@@ -1,7 +1,12 @@
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
+from typing import Optional, TYPE_CHECKING, Union, Dict, List
 
 from hallo.destination import Channel, User
 from hallo.permission_mask import PermissionMask
+
+if TYPE_CHECKING:
+    from hallo.hallo import Hallo
+    from hallo.events import ChannelUserTextEvent, ServerEvent
 
 
 class ServerException(Exception):
@@ -24,7 +29,7 @@ class Server(metaclass=ABCMeta):
 
     type = None
 
-    def __init__(self, hallo):
+    def __init__(self, hallo: 'Hallo'):
         """
         Constructor for server object
         :param hallo: Hallo Instance of hallo that contains this server object
@@ -50,7 +55,7 @@ class Server(metaclass=ABCMeta):
         # Dynamic/unsaved class variables
         self.state = Server.STATE_CLOSED  # Current state of the server, replacing open
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'Server') -> bool:
         return (
             isinstance(other, Server)
             and self.hallo == other.hallo
@@ -61,35 +66,37 @@ class Server(metaclass=ABCMeta):
     def __hash__(self):
         return hash((self.hallo, self.type, self.name.lower()))
 
-    def start(self):
+    def start(self) -> None:
         """
         Starts the new server, launching new thread as appropriate.
         """
         raise NotImplementedError
 
-    def disconnect(self, force=False):
+    def disconnect(self, force: bool = False) -> None:
         """
         Disconnects from the server, shutting down remaining threads
         """
         raise NotImplementedError
 
-    def reconnect(self):
+    def reconnect(self) -> None:
         """
         Disconnects and reconnects from the server
         """
         self.disconnect()
         self.start()
 
-    def send(self, event):
+    def send(self, event: 'ServerEvent') -> Optional['ServerEvent']:
         """
         Sends a message to the server, or a specific channel in the server
         :param event: Event to send, should be outbound.
-        :type event: events.ServerEvent
-        :rtype : events.ServerEvent | None
         """
         raise NotImplementedError
 
-    def reply(self, old_event, new_event):
+    def reply(
+            self,
+            old_event: 'ChannelUserTextEvent',
+            new_event: 'ChannelUserTextEvent'
+    ) -> Optional['ChannelUserTextEvent']:
         """
         Sends a message as a reply to another message, such as a response to a function call
         :param old_event: The event which was received, to reply to
@@ -114,34 +121,63 @@ class Server(metaclass=ABCMeta):
             )
         return
 
-    def to_json(self):
+    def edit(
+            self,
+            old_event: 'ChannelUserTextEvent',
+            new_event: 'ChannelUserTextEvent'
+    ) -> Optional['ChannelUserTextEvent']:
+        """
+        Edits a message
+        :param old_event: The old event, to edit
+        :param new_event: The new event to replace it with
+        """
+        # This method will just do some checks, implementations will have to actually send events
+        if old_event.is_inbound or new_event.is_inbound:
+            raise ServerException("Cannot edit inbound event")
+        if old_event.channel != new_event.channel:
+            raise ServerException(
+                "Cannot edit a message into a different channel than it was originally sent"
+            )
+        if new_event.user is not None and old_event.user != new_event.user:
+            raise ServerException(
+                "Cannot edit a message into a different private chat than it was originally sent"
+            )
+        if old_event.server != new_event.server:
+            raise ServerException(
+                "Cannot edit a message into a different server than the original message came from"
+            )
+        return
+
+    @abstractmethod
+    def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
+        raise NotImplementedError
+
+    def to_json(self) -> Dict:
         """
         Returns a dict formatted so it may be serialised into json configuration data
-        :return: dict
         """
         raise NotImplementedError
 
-    def get_nick(self):
+    def get_nick(self) -> str:
         """Nick getter"""
         if self.nick is None:
             return self.hallo.default_nick
         return self.nick
 
-    def set_nick(self, nick):
+    def set_nick(self, nick: str) -> None:
         """
         Nick setter
         :param nick: New nick for hallo to use on this server
-        :type nick: str
         """
         self.nick = nick
 
-    def get_prefix(self):
+    def get_prefix(self) -> Union[str, bool]:
         """Prefix getter"""
         if self.prefix is None:
             return self.hallo.default_prefix
         return self.prefix
 
-    def set_prefix(self, prefix):
+    def set_prefix(self, prefix: Union[str, bool, None]) -> None:
         """
         Prefix setter
         :param prefix: Prefix for hallo to use for function calls on this server
@@ -149,13 +185,13 @@ class Server(metaclass=ABCMeta):
         """
         self.prefix = prefix
 
-    def get_full_name(self):
+    def get_full_name(self) -> str:
         """Full name getter"""
         if self.full_name is None:
             return self.hallo.default_full_name
         return self.full_name
 
-    def set_full_name(self, full_name):
+    def set_full_name(self, full_name: str) -> None:
         """
         Full name setter
         :param full_name: Full name for Hallo to use on this server
@@ -163,28 +199,25 @@ class Server(metaclass=ABCMeta):
         """
         self.full_name = full_name
 
-    def get_auto_connect(self):
+    def get_auto_connect(self) -> bool:
         """AutoConnect getter"""
         return self.auto_connect
 
-    def set_auto_connect(self, auto_connect):
+    def set_auto_connect(self, auto_connect: bool) -> None:
         """
         AutoConnect setter
         :param auto_connect: Whether or not to autoconnect to the server
-        :type auto_connect: bool
         """
         self.auto_connect = auto_connect
 
-    def is_connected(self):
+    def is_connected(self) -> bool:
         """Returns boolean representing whether the server is connected or not."""
         return self.state == Server.STATE_OPEN
 
-    def get_channel_by_name(self, channel_name):
+    def get_channel_by_name(self, channel_name: str) -> Optional[Channel]:
         """
         Returns a Channel object with the specified channel name.
         :param channel_name: Name of the channel which is being searched for
-        :type channel_name: str
-        :rtype: Optional[Destination.Channel]
         """
         channel_name = channel_name.lower()
         for channel in self.channel_list:
@@ -192,7 +225,7 @@ class Server(metaclass=ABCMeta):
                 return channel
         return None
 
-    def get_channel_by_address(self, address, channel_name=None):
+    def get_channel_by_address(self, address: str, channel_name: str = None) -> Channel:
         """
         Returns a Channel object with the specified channel name.
         :param address: Address of the channel
@@ -210,35 +243,30 @@ class Server(metaclass=ABCMeta):
         self.add_channel(new_channel)
         return new_channel
 
-    def get_name_by_address(self, address):
+    def get_name_by_address(self, address: str) -> str:
         """
         Returns the name of a destination, based on the address
-        :param address: str
-        :return: str
         """
         raise NotImplementedError()
 
-    def add_channel(self, channel_obj):
+    def add_channel(self, channel_obj: Channel) -> None:
         """
         Adds a channel to the channel list
         :param channel_obj: Adds a channel to the list, without joining it
-        :type channel_obj: destination.Channel
         """
         self.channel_list.append(channel_obj)
 
-    def join_channel(self, channel_obj):
+    def join_channel(self, channel_obj: Channel) -> None:
         """
         Joins a specified channel
         :param channel_obj: Channel to join
-        :type channel_obj: destination.Channel
         """
         raise NotImplementedError
 
-    def leave_channel(self, channel_obj):
+    def leave_channel(self, channel_obj: Channel) -> None:
         """
         Leaves a specified channel
         :param channel_obj: Channel for hallo to leave
-        :type channel_obj: destination.Channel
         """
         # If channel isn't in channel list, do nothing
         if channel_obj not in self.channel_list:
@@ -248,12 +276,10 @@ class Server(metaclass=ABCMeta):
         # Set not in channel
         channel_obj.set_in_channel(False)
 
-    def get_user_by_name(self, user_name):
+    def get_user_by_name(self, user_name: str) -> Optional[User]:
         """
         Returns a User object with the specified user name.
         :param user_name: Name of user which is being searched for
-        :type user_name: str
-        :rtype: destination.User | None
         """
         user_name = user_name.lower()
         for user in self.user_list:
@@ -262,14 +288,11 @@ class Server(metaclass=ABCMeta):
         # No user by that name exists, return None
         return None
 
-    def get_user_by_address(self, address, user_name=None):
+    def get_user_by_address(self, address: str, user_name: str = None) -> Optional[User]:
         """
         Returns a User object with the specified user name.
         :param address: address of the user which is being searched for or added
-        :type address: str
         :param user_name: Name of user which is being searched for
-        :type user_name: str
-        :return: Destination.User | None
         """
         for user in self.user_list:
             if user.address == address:
@@ -281,15 +304,14 @@ class Server(metaclass=ABCMeta):
         self.add_user(new_user)
         return new_user
 
-    def get_user_list(self):
+    def get_user_list(self) -> List[User]:
         """Returns the full list of users on this server."""
         return self.user_list
 
-    def add_user(self, user_obj):
+    def add_user(self, user_obj: User) -> None:
         """
         Adds a user to the user list
         :param user_obj: User to add to user list
-        :type user_obj: destination.User
         """
         self.user_list.append(user_obj)
 
@@ -297,7 +319,6 @@ class Server(metaclass=ABCMeta):
         """
         Checks the value of the right with the specified name. Returns boolean
         :param right_name: Name of the right to check default server value for
-        :type right_name: str
         """
         if self.permission_mask is not None:
             right_value = self.permission_mask.get_right(right_name)
@@ -307,10 +328,9 @@ class Server(metaclass=ABCMeta):
         # Fallback to the parent Hallo's decision.
         return self.hallo.rights_check(right_name)
 
-    def check_user_identity(self, user_obj):
+    def check_user_identity(self, user_obj: User) -> bool:
         """
         Check if a user is identified and verified
         :param user_obj: User to check identity of
-        :type user_obj: destination.User
         """
         raise NotImplementedError

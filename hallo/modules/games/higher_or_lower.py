@@ -51,27 +51,19 @@ class HigherOrLower(Function):
         line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
             return event.create_response(
-                self.new_game(
-                    event.user, event.user if event.channel is None else event.channel
-                )
+                self.new_game(event.user, event.destination)
             )
         elif any(cmd in line_clean for cmd in self.END_CMDS):
             return event.create_response(
-                self.quit_game(
-                    event.user, event.user if event.channel is None else event.channel
-                )
+                self.quit_game(event.user, event.destination)
             )
         elif any(cmd in line_clean for cmd in self.HIGH_CMDS):
             return event.create_response(
-                self.guess_higher(
-                    event.user, event.user if event.channel is None else event.channel
-                )
+                self.guess_higher(event.user, event.destination)
             )
         elif any(cmd in line_clean for cmd in self.LOW_CMDS):
             return event.create_response(
-                self.guess_lower(
-                    event.user, event.user if event.channel is None else event.channel
-                )
+                self.guess_lower(event.user, event.destination)
             )
         output_string = "I don't understand this input."
         output_string += ' Syntax: "higher_or_lower start" to start a game, '

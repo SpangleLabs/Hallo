@@ -387,6 +387,14 @@ class ServerIRC(Server):
         # We can't do any fancy reply mechanics on IRC, so just send the event.
         self.send(new_event)
 
+    def edit(self, old_event: EventMessage, new_event: EventMessage):
+        super().edit(old_event, new_event)
+        self.edit_by_id(old_event.message_id, new_event)
+
+    def edit_by_id(self, message_id: int, new_event: EventMessage, *, has_photo: bool = False):
+        # We can't do any fancy edit mechanics on IRC, so just send the event.
+        self.send(new_event)
+
     def send_raw(self, data):
         """Sends raw data to the server
         :param data: Data to send to server

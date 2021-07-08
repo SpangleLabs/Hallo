@@ -51,27 +51,19 @@ class Blackjack(Function):
         line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
             return event.create_response(
-                self.new_game(
-                    event.user, event.user if event.channel is None else event.channel
-                )
+                self.new_game(event.user, event.destination)
             )
         elif any(cmd in line_clean for cmd in self.END_CMDS):
             return event.create_response(
-                self.quit_game(
-                    event.user, event.user if event.channel is None else event.channel
-                )
+                self.quit_game(event.user, event.destination)
             )
         elif any(cmd in line_clean for cmd in self.HIT_CMDS):
             return event.create_response(
-                self.hit(
-                    event.user, event.user if event.channel is None else event.channel
-                )
+                self.hit(event.user, event.destination)
             )
         elif any(cmd in line_clean for cmd in self.STICK_CMDS):
             return event.create_response(
-                self.stick(
-                    event.user, event.user if event.channel is None else event.channel
-                )
+                self.stick(event.user, event.destination)
             )
         output_string = "I don't understand this input."
         output_string += ' Syntax: "blackjack start" to start a game, '

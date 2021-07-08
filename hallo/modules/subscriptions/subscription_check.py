@@ -82,7 +82,6 @@ class SubscriptionCheck(Function):
     def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
         hallo_obj = event.server.hallo
-        destination = event.user if event.channel is None else event.channel
         # Clean up input
         clean_input = event.command_args.strip().lower()
         # Acquire lock
@@ -93,7 +92,7 @@ class SubscriptionCheck(Function):
                 matching_subs = sub_repo.sub_list
             else:
                 # Otherwise see if a search subscription matches the specified one
-                matching_subs = sub_repo.get_subs_by_name(clean_input, destination)
+                matching_subs = sub_repo.get_subs_by_name(clean_input, event.destination)
             if len(matching_subs) == 0:
                 return event.create_response("Error, no subscriptions match that name.")
             # Loop through matching search subscriptions, getting updates
