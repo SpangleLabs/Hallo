@@ -32,7 +32,7 @@ class MenuFactory(Generic[T]):
         menu_class = next(filter(lambda m: m.type == data["menu_type"], self.menu_classes), None)
         if menu_class is None:
             raise MenuParseException(f"Unrecognised menu type: {data['menu_type']}")
-        menu_msg = message_from_json(self.hallo, data)
+        menu_msg = message_from_json(self.hallo, data["menu_msg"])
         return menu_class.from_json(self.hallo, menu_msg, data["menu_data"])
 
 
@@ -82,9 +82,9 @@ class MenuCache(Generic[T]):
 
     def save_to_json(self) -> None:
         data = {"servers": {}}
-        for server_name, server_data in self.menus:
+        for server_name, server_data in self.menus.items():
             data["servers"][server_name] = {}
-            for chat_address, menu_list in server_data:
+            for chat_address, menu_list in server_data.items():
                 data["servers"][server_name][chat_address] = {}
                 data["servers"][server_name][chat_address]["menus"] = []
                 for menu in menu_list:
@@ -93,7 +93,7 @@ class MenuCache(Generic[T]):
         os.makedirs(Path(self.filename).parent, exist_ok=True)
         # Save file
         with open(self.filename, "w") as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=2)
 
     @classmethod
     def load_from_json(cls, filename: str, menu_factory: MenuFactory[T]) -> 'MenuCache[T]':
@@ -103,18 +103,19 @@ class MenuCache(Generic[T]):
         except FileNotFoundError:
             return cls(filename)
         cache = cls(filename)
-        for server_name, server_data in data["servers"]:
-            for chat_addr, chat_data in server_data:
+        for server_name, server_data in data["servers"].items():
+            for chat_addr, chat_data in server_data.items():
                 for menu_data in chat_data["menus"]:
                     menu = menu_factory.load_menu_from_json(menu_data)
-                    cache.add_menu(menu)
+                    if menu.msg.message_id:
+                        cache.add_menu(menu)
         return cache
 
 
 class Menu(ABC):
 
     def __init__(self, msg: 'EventMessage'):
-        self.msg = msg
+        self.msg: 'EventMessage' = msg
 
     @property
     def type(self) -> str:
