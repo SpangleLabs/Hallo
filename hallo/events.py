@@ -17,9 +17,10 @@ KEY_USER_ADDR = "user_addr"
 KEY_MENU_BUTTONS = "menu_buttons"
 KEY_FORMATTING = "formatting"
 KEY_PHOTO_ID = "photo_id"
+FLAG_MENU_UNCHANGED = object()
 
 
-def server_from_json(hallo_obj: 'Hallo', data: Dict) -> Server:
+def server_from_json(hallo_obj: 'Hallo', data: Dict) -> 'Server':
     return hallo_obj.get_server_by_name(data[KEY_SERVER_NAME])
 
 
@@ -578,12 +579,25 @@ class EventMessage(ChannelUserTextEvent):
             self,
             text: str,
             event_class: Optional['EventMessage'] = None,
-            menu_buttons: List[List[MenuButton]] = None
+            menu_buttons: Optional[List[List[MenuButton]]] = None
     ) -> 'EventMessage':
         if event_class is None:
             event_class = self.__class__
         resp = event_class(self.server, self.channel, self.user, text, inbound=False, menu_buttons=menu_buttons)
         return resp
+
+    def create_edit(
+            self,
+            text: Optional[str] = None,
+            menu_buttons: Optional[List[List[MenuButton]]] = FLAG_MENU_UNCHANGED
+    ) -> 'EventMessage':
+        if text is None:
+            text = self.text
+        if menu_buttons == FLAG_MENU_UNCHANGED:
+            menu_buttons = self.menu_buttons
+        edit = self.__class__(self.server, self.channel, self.user, text, inbound=False, menu_buttons=menu_buttons)
+        edit._message_id = self.message_id
+        return edit
 
     def to_json(self) -> Dict:
         data = super().to_json()
@@ -640,6 +654,27 @@ class EventMessageWithPhoto(EventMessage):
         """
         super().__init__(server, channel, user, text, inbound=inbound, menu_buttons=menu_buttons)
         self.photo_id = photo_id
+
+    def create_edit(
+            self,
+            text: Optional[str] = None,
+            menu_buttons: Optional[List[List[MenuButton]]] = FLAG_MENU_UNCHANGED
+    ) -> 'EventMessage':
+        if text is None:
+            text = self.text
+        if menu_buttons == FLAG_MENU_UNCHANGED:
+            menu_buttons = self.menu_buttons
+        edit = self.__class__(
+            self.server,
+            self.channel,
+            self.user,
+            text,
+            self.photo_id,
+            inbound=False,
+            menu_buttons=menu_buttons
+        )
+        edit._message_id = self.message_id
+        return edit
 
     def has_photo(self) -> bool:
         return True
