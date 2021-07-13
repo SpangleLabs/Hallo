@@ -101,10 +101,12 @@ def test_item_to_key(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_item_to_event(hallo_getter):
+def test_item_to_event(hallo_getter, tmp_path):
     hallo_obj, test_server, test_chat, test_user = hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(hallo_obj)
+    sub_repo.MENU_STORE_FILE = tmp_path / "subscription_menus.json"
+    sub_repo.load_menu_cache(hallo_obj)
     rf = E621TaggingSource("chital", e6_client, sub_repo, test_user, ["deer-spangle", "fallow"])
     item = e6_client.post(1092773)
 
@@ -135,10 +137,12 @@ def test_item_to_event(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_item_to_event__no_embed(hallo_getter):
+def test_item_to_event__no_embed(hallo_getter, tmp_path):
     hallo_obj, test_server, test_chat, test_user = hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(hallo_obj)
+    sub_repo.MENU_STORE_FILE = tmp_path / "subscription_menus.json"
+    sub_repo.load_menu_cache(hallo_obj)
     rf = E621TaggingSource("acrobatics", e6_client, sub_repo, test_user, ["chital", "tirrel"])
     item = e6_client.post(257069)
 

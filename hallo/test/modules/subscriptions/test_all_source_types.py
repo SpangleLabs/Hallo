@@ -5,6 +5,7 @@ import unittest
 from typing import Dict, List, Type
 
 import pytest
+from yippi import YippiClient
 
 import hallo.modules.subscriptions.subscription
 from hallo.events import EventMessage
@@ -35,9 +36,11 @@ class TestAllSourceClasses(TestBase, unittest.TestCase):
 
     def get_source_objects(self) -> List[Source]:
         fa_key = FAKey(self.test_user, self.cookie_a, self.cookie_b)
+        e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
+        sub_repo = SubscriptionRepo(self.hallo)
         sub_objs = list()
-        sub_objs.append(E621Source("cabinet"))
-        sub_objs.append(E621TaggingSource("cabinet", ["door"]))
+        sub_objs.append(E621Source("cabinet", e6_client, self.test_user))
+        sub_objs.append(E621TaggingSource("cabinet", e6_client, sub_repo, self.test_user, ["door"]))
         sub_objs.append(RssSource("http://spangle.org.uk/hallo/test_rss.xml"))
         sub_objs.append(FANotesSource(fa_key, FANotesInboxSource(fa_key), FANotesOutboxSource(fa_key)))
         sub_objs.append(FAFavsSource(fa_key, "zephyr42"))
@@ -55,7 +58,7 @@ class TestAllSourceClasses(TestBase, unittest.TestCase):
         return sub_objs
 
     def get_source_create_arguments(self) -> Dict[Type[Source], str]:
-        sub_repo = SubscriptionRepo()
+        sub_repo = SubscriptionRepo(self.hallo)
         fa_key = FAKey(self.test_user, self.cookie_a, self.cookie_b)
         fa_commons = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
         fa_commons.add_key(fa_key)

@@ -22,6 +22,7 @@ class SubscriptionRepo:
     """
     Holds the lists of subscriptions, for loading and unloading.
     """
+    MENU_STORE_FILE = "store/menus/subscriptions.json"
 
     def __init__(self, hallo_obj: 'Hallo'):
         self.hallo = hallo_obj
@@ -159,4 +160,4 @@ class SubscriptionRepo:
         menu_factory = MenuFactory([
             hallo.modules.subscriptions.source_e621_tagging.E621TaggingMenu
         ], hallo_obj)
-        self.menu_cache = MenuCache.load_from_json("store/menus/subscriptions.json", menu_factory)
+        self.menu_cache = MenuCache.load_from_json(self.MENU_STORE_FILE, menu_factory)

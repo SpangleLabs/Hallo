@@ -261,15 +261,15 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
         tag_results = {tag: tag in post_tags for tag in self.tags}
         # Construct output
         output = text_for_post(item, self.search)
-        if item.file["ext"] in ["swf", "webm"] or item.file["url"] is None:
-            return EventMessage(server, channel, user, output, inbound=False)
         image_url = item.file["url"]
-        msg = EventMessageWithPhoto(
-            server, channel, user, output, image_url, inbound=False, menu_buttons=buttons_for_submission(tag_results)
-        )
-        e6_keys = self.sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_e6_key.E6KeysCommon)
-        e6_client = e6_keys.get_client_by_user(user)
-        menu = E621TaggingMenu(msg, self.owner, e6_client, item.id, self.search, tag_results)
+        menu_buttons = buttons_for_submission(tag_results)
+        if item.file["ext"] in ["swf", "webm"] or image_url is None:
+            msg = EventMessage(server, channel, user, output, inbound=False, menu_buttons=menu_buttons)
+        else:
+            msg = EventMessageWithPhoto(
+                server, channel, user, output, image_url, inbound=False, menu_buttons=menu_buttons
+            )
+        menu = E621TaggingMenu(msg, self.owner, self.e6_client, item.id, self.search, tag_results)
         self.sub_repo.menu_cache.add_menu(menu)
         return msg
 
