@@ -59,7 +59,7 @@ def test_no_import_from_modules():
     module_files = glob.glob("hallo/modules/**/*.py", recursive=True)
     bad_files = []
     for module_file in module_files:
-        with open(module_file, "r") as f:
+        with open(module_file, "r", encoding="utf-8") as f:
             file_content = f.read()
             if bad_import_from_pattern.search(file_content) is not None:
                 bad_files.append(module_file)

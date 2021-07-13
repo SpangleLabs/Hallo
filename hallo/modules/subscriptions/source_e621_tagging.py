@@ -28,7 +28,7 @@ def buttons_for_submission(tag_results: Dict[str, bool], page: int = 1) -> List[
     buttons = []
     button_row = []
     for tag_name in tag_names_on_page:
-        button_emoji = "✔️" if tag_results[tag_name] else "❌"
+        button_emoji = "\u2714" if tag_results[tag_name] else "\u274C"
         button_row.append(MenuButton(f"{button_emoji} {tag_name}", f"tag:{tag_name}"))
         if len(button_row) >= columns:
             buttons.append(button_row)
@@ -38,11 +38,11 @@ def buttons_for_submission(tag_results: Dict[str, bool], page: int = 1) -> List[
     # Bottom row
     bottom_row = []
     if page > 1:
-        bottom_row.append(MenuButton("⏮️Back", f"page:{page-1}"))
-    bottom_row.append(MenuButton("🔄Refresh", "refresh"))
-    bottom_row.append(MenuButton("💾Submit", "submit"))
+        bottom_row.append(MenuButton("\u23EE️Back", f"page:{page-1}"))
+    bottom_row.append(MenuButton("\U0001F504Refresh", "refresh"))
+    bottom_row.append(MenuButton("\U0001F4BESubmit", "submit"))
     if page < pages:
-        bottom_row.append(MenuButton("⏭️Next", f"page:{page+1}"))
+        bottom_row.append(MenuButton("\u23EDNext", f"page:{page+1}"))
     buttons.append(bottom_row)
     return buttons
 
@@ -202,7 +202,7 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
             tags: List[str],
             last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
-        super().__init__(search, e6_client, last_keys)
+        super().__init__(search, e6_client, owner, last_keys)
         self.sub_repo = sub_repo
         self.owner = owner
         self.tags: List[str] = tags
@@ -240,7 +240,9 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
                     'You need to specify a search term with search="search term" and '
                     'tags to watch with tags="tags to watch"'
                 )
-        e6_client = hallo.modules.subscriptions.source_e621.e6_client_from_input(user, sub_repo)
+        e6_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_e6_key.E6KeysCommon)
+        # Make sure you're not using the default user here
+        e6_client = e6_keys.get_client_by_user(user, allow_default=False)
         return E621TaggingSource(search, e6_client, sub_repo, user, tags)
 
     @property
@@ -275,7 +277,7 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
     def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'E621TaggingSource':
         user_addr = json_data["e621_user_address"]
         user = destination.server.get_user_by_address(user_addr)
-        e6_client = hallo.modules.subscriptions.source_e621.e6_client_from_json(user_addr, destination.server, sub_repo)
+        e6_client = hallo.modules.subscriptions.source_e621.e6_client_from_input(user, sub_repo)
         return E621TaggingSource(
             json_data["search"],
             e6_client,

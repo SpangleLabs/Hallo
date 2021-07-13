@@ -256,7 +256,7 @@ class WeatherLocationData(UserDatum):
 
 
 class UserDataFactory:
-    data_classes = [FAKeyData]
+    data_classes = [FAKeyData, E6KeyData]
 
     @staticmethod
     def get_data_type_names() -> List[str]:

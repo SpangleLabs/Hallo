@@ -5,6 +5,7 @@ from yippi import YippiClient
 
 import hallo.modules.user_data
 import hallo.modules.subscriptions.subscription_common
+import hallo.modules.subscriptions.subscription_exception
 
 if TYPE_CHECKING:
     from hallo.hallo import Hallo
@@ -18,7 +19,7 @@ class E6KeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionC
         super().__init__(hallo_obj)
         self.list_clients: Dict['User', YippiClient] = dict()
 
-    def get_client_by_user(self, user: 'User') -> Optional['YippiClient']:
+    def get_client_by_user(self, user: 'User', allow_default: bool = True) -> Optional['YippiClient']:
         if user in self.list_clients:
             return self.list_clients[user]
         user_data_parser = hallo.modules.user_data.UserDataParser()
@@ -28,10 +29,15 @@ class E6KeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionC
         client = YippiClient("Hallo", "??", "dr-spangle")
         if e6_data is not None:
             client.login(e6_data.username, e6_data.api_key)
-        else:
+        elif allow_default:
             default_username = self.hallo.get_api_key("e621_username")
             default_api_key = self.hallo.get_api_key("e621_api_key")
             client.login(default_username, default_api_key)
+        else:
+            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
+                "You must specify an e621 username and api key with `setup e621 user data <username> <api_key>`. "
+                "You can get your API in your e621 profile page"
+            )
         self.add_client(user, client)
         return client
 

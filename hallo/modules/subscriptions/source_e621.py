@@ -11,17 +11,6 @@ import hallo.modules.subscriptions.common_e6_key
 from hallo.server import Server
 
 
-def e6_client_from_json(user_addr: str, server: Server, sub_repo) -> YippiClient:
-    user = server.get_user_by_address(user_addr)
-    if user is None:
-        raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
-            "Could not find user matching address `{}`".format(user_addr)
-        )
-    e6_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_e6_key.E6KeysCommon)
-    e6_client = e6_keys.get_client_by_user(user)
-    return e6_client
-
-
 def e6_client_from_input(user: User, sub_repo) -> YippiClient:
     e6_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_e6_key.E6KeysCommon)
     e6_client = e6_keys.get_client_by_user(user)
@@ -36,11 +25,13 @@ class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
             self,
             search: str,
             e6_client: YippiClient,
+            owner: 'User',
             last_keys: List[hallo.modules.subscriptions.stream_source.Key] = None
     ):
         super().__init__(last_keys)
-        self.e6_client = e6_client
         self.search: str = search
+        self.e6_client = e6_client
+        self.owner = owner
 
     def matches_name(self, name_clean: str) -> bool:
         return name_clean == self.search.lower().strip()
@@ -54,7 +45,8 @@ class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
         e6_client = e6_client_from_input(user, sub_repo)
         return E621Source(
             argument,
-            e6_client
+            e6_client,
+            user
         )
 
     def current_state(self) -> List[Post]:
@@ -86,20 +78,19 @@ class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
     @classmethod
     def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'E621Source':
         user_addr = json_data["e621_user_address"]
-        e6_client = e6_client_from_json(user_addr, destination.server, sub_repo)
+        owner = destination.server.get_user_by_address(user_addr)
+        e6_client = e6_client_from_input(owner, sub_repo)
         return E621Source(
             json_data["search"],
             e6_client,
+            owner,
             json_data["last_keys"]
         )
 
     def to_json(self) -> Dict:
-        user_addr = None
-        if self.e6_key:
-            user_addr = self.e6_key.user.address
         return {
             "type": self.type_name,
             "last_keys": self.last_keys,
             "search": self.search,
-            "e621_user_address": user_addr
+            "e621_user_address": self.owner.address
         }

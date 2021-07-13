@@ -9,14 +9,15 @@ from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.server_mock import ServerMock
 
 
-def test_init():
-    rfl = SubscriptionRepo()
+def test_init(hallo_getter):
+    hallo_obj, test_server, test_chan, test_user = hallo_getter({"subscriptions"})
+    rfl = SubscriptionRepo(hallo_obj)
     assert rfl.sub_list == []
 
 
 def test_add_feed(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
-    sub_repo = SubscriptionRepo()
+    sub_repo = SubscriptionRepo(hallo)
     assert sub_repo.sub_list == []
     # Create example rss feed
     rf = RssSource("http://spangle.org.uk/hallo/test_rss.xml", "feed title")
@@ -36,7 +37,7 @@ def test_get_feeds_by_destination(hallo_getter):
     user2 = serv1.get_user_by_address("test_user2", "test_user2")
     chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
     # Setup a feed list
-    rfl = SubscriptionRepo()
+    rfl = SubscriptionRepo(hallo)
     rf1 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?1", "feed 1")
     sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
     rfl.add_sub(sub1)
@@ -73,7 +74,7 @@ def test_get_feeds_by_title(hallo_getter):
     user2 = serv1.get_user_by_address("test_user2", "test_user2")
     chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
     # Setup a feed list
-    sub_repo = SubscriptionRepo()
+    sub_repo = SubscriptionRepo(hallo)
     rf1 = RssSource(
         "http://spangle.org.uk/hallo/test_feed.xml?1",
         feed_title="test_feed1",
@@ -121,7 +122,7 @@ def test_get_feeds_by_url(hallo_getter):
     user2 = serv1.get_user_by_address("test_user2", "test_user2")
     chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
     # Setup a feed list
-    sub_repo = SubscriptionRepo()
+    sub_repo = SubscriptionRepo(hallo)
     rf1 = RssSource(
         "http://spangle.org.uk/hallo/test_feed.xml?1",
         feed_title="test_feed1",
@@ -164,7 +165,7 @@ def test_get_feeds_by_url(hallo_getter):
 def test_remove_feed(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     # Setup a feed list
-    sub_repo = SubscriptionRepo()
+    sub_repo = SubscriptionRepo(hallo)
     rf1 = RssSource(
         "http://spangle.org.uk/hallo/test_rss.xml?1", "title1"
     )
@@ -185,7 +186,7 @@ def test_remove_feed(hallo_getter):
 def test_json(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
     # Setup a feed list
-    sub_repo = SubscriptionRepo()
+    sub_repo = SubscriptionRepo(hallo)
     rf1 = RssSource(
         "http://spangle.org.uk/hallo/test_rss.xml?1",
         feed_title="test_feed1",
