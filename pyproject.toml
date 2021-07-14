@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "hallo"
+version = "3.0.0"
+description = "Hallo, a bot for irc and telegram, built for flexibility, with reloadable modules"
+authors = ["Joshua Coales <joshua@coales.co.uk>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+python-telegram-bot = "13.0.0"
+python-dateutil = "2.8.1"
+beautifulsoup4 = "4.9.3"
+requests = "2.25.1"
+duolingo-api = "0.5.4"
+publicsuffixlist = "0.7.5"
+isodate = "0.6.0"
+simple-heartbeat = "0.1.2"
+yippi = {git = "https://github.com/rorre/Yippi.git", rev = "631da1c7c720ccf23c479a68c48936e9de588d5f"}
+
+[tool.poetry.dev-dependencies]
+pytest = "6.1.1"
+requests-mock = "1.8.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
