@@ -24,9 +24,9 @@ jobs:
           pip install poetry
           poetry install
       - name: Unit tests
-        run: python -m pytest -m "not external_integration and not slow"
+        run: poetry run task test
       - name: External integration tests
-        run: python -m pytest -m "external_integration"
+        run: poetry run task test_external
         env:
           FA_API_URL: ${{ secrets.FA_API_URL }}
           test_api_key_mashape: ${{ secrets.API_KEY_MASHAPE }}
@@ -36,4 +36,4 @@ jobs:
           test_cookie_b: ${{ secrets.FA_API_COOKIE_B }}
           test_duo_password: ${{ secrets.DUO_PASSWORD }}
       - name: Slow tests
-        run: python -m pytest -m "slow"
+        run: poetry run task test_slow
