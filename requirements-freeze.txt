@@ -67,7 +67,7 @@ tornado==6.0.4
 typing-extensions==3.10.0.0
 tzlocal==2.1
 uritemplate==3.0.1
-urllib3==1.26.3
+urllib3==1.26.5
 yarl==1.6.3
 yippi @ git+https://github.com/rorre/Yippi.git@631da1c7c720ccf23c479a68c48936e9de588d5f
 zipp==3.3.1
