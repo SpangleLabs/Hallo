@@ -2,7 +2,7 @@ from threading import Lock, Thread
 from typing import Optional, TYPE_CHECKING, Dict
 
 import telegram
-from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup, Update, Message
+from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup, Update, Message, TelegramError
 from telegram.ext import Updater, Filters, BaseFilter, CallbackQueryHandler, CallbackContext
 import logging
 from telegram.ext import MessageHandler
@@ -407,13 +407,22 @@ class ServerTelegram(Server):
             raise ServerException("Old event has no message id associated with it")
         destination = new_event.destination
         if has_photo or isinstance(new_event, EventMessageWithPhoto):
-            msg = self.bot.edit_message_caption(
-                chat_id=destination.address,
-                message_id=message_id,
-                caption=new_event.text,
-                reply_markup=event_menu_for_telegram(new_event),
-                parse_mode=formatting_to_telegram_mode(new_event.formatting)
-            )
+            try:
+                msg = self.bot.edit_message_caption(
+                    chat_id=destination.address,
+                    message_id=message_id,
+                    caption=new_event.text,
+                    reply_markup=event_menu_for_telegram(new_event),
+                    parse_mode=formatting_to_telegram_mode(new_event.formatting)
+                )
+            except TelegramError:
+                msg = self.bot.edit_message_text(
+                    chat_id=destination.address,
+                    message_id=message_id,
+                    text=new_event.text,
+                    reply_markup=event_menu_for_telegram(new_event),
+                    parse_mode=formatting_to_telegram_mode(new_event.formatting)
+                )
         else:
             msg = self.bot.edit_message_text(
                 chat_id=destination.address,

@@ -139,8 +139,8 @@ class Hallo:
         with open("config/config.json", "w+") as f:
             json.dump(json_obj, f, indent=2)
 
-    @staticmethod
-    def load_json() -> 'Hallo':
+    @classmethod
+    def load_json(cls) -> 'Hallo':
         """
         Loads up the json configuration and creates a new Hallo object
         :return: new Hallo object
@@ -155,7 +155,7 @@ class Hallo:
             with open("config/config-default.json", "r") as f:
                 json_obj = json.load(f)
         # Create new hallo object
-        new_hallo = Hallo()
+        new_hallo = cls()
         new_hallo.default_nick = json_obj["default_nick"]
         new_hallo.default_prefix = json_obj["default_prefix"]
         new_hallo.default_full_name = json_obj["default_full_name"]

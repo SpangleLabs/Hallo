@@ -3,9 +3,13 @@ import os
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from pathlib import Path
-from typing import TypeVar, Generic, Dict, List, Optional, Type
+from typing import TypeVar, Generic, Dict, List, Optional, Type, TYPE_CHECKING
 
-from hallo.events import EventMessage, EventMenuCallback, EventMessageWithPhoto
+from hallo.events import message_from_json
+
+if TYPE_CHECKING:
+    from hallo.events import EventMessage, EventMenuCallback
+    from hallo.hallo import Hallo
 
 T = TypeVar("T", bound='Menu')
 
@@ -20,15 +24,16 @@ class MenuParseException(MenuException):
 
 class MenuFactory(Generic[T]):
 
-    def __init__(self, classes: List[Type[T]]):
+    def __init__(self, classes: List[Type[T]], hallo_obj: 'Hallo'):
         self.menu_classes = classes
+        self.hallo = hallo_obj
 
     def load_menu_from_json(self, data: Dict) -> T:
         menu_class = next(filter(lambda m: m.type == data["menu_type"], self.menu_classes), None)
         if menu_class is None:
             raise MenuParseException(f"Unrecognised menu type: {data['menu_type']}")
-        menu_msg = MessageRef.from_json(data["menu_msg"])
-        return menu_class.from_json(menu_msg, data["menu_data"])
+        menu_msg = message_from_json(self.hallo, data["menu_msg"])
+        return menu_class.from_json(self.hallo, menu_msg, data["menu_data"])
 
 
 class MenuCache(Generic[T]):
@@ -51,11 +56,10 @@ class MenuCache(Generic[T]):
     def get_menu_by_menu(self, menu: T) -> Optional[T]:
         return self.get_menu_by_id(menu.msg.server_name, menu.msg.destination_addr, menu.msg.message_id)
 
-    def get_menu_by_event(self, event: EventMessage) -> Optional[T]:
-        msg = MessageContainer(event)
+    def get_menu_by_event(self, msg: 'EventMessage') -> Optional[T]:
         return self.get_menu_by_id(msg.server_name, msg.destination_addr, msg.message_id)
 
-    def get_menu_by_callback_event(self, event: EventMenuCallback) -> Optional[T]:
+    def get_menu_by_callback_event(self, event: 'EventMenuCallback') -> Optional[T]:
         return self.get_menu_by_id(event.server.name, event.destination.address, event.message_id)
 
     def get_menu_by_id(self, server_name: str, destination_addr: str, message_id: int) -> Optional[T]:
@@ -67,8 +71,7 @@ class MenuCache(Generic[T]):
     def remove_menu(self, menu: T) -> None:
         self.remove_menu_by_id(menu.msg.server_name, menu.msg.destination_addr, menu.msg.message_id)
 
-    def remove_menu_by_event(self, event: EventMessage) -> None:
-        msg = MessageContainer(event)
+    def remove_menu_by_event(self, msg: 'EventMessage') -> None:
         self.remove_menu_by_id(msg.server_name, msg.destination_addr, msg.message_id)
 
     def remove_menu_by_id(self, server_name: str, destination_addr: str, message_id: int) -> None:
@@ -79,9 +82,9 @@ class MenuCache(Generic[T]):
 
     def save_to_json(self) -> None:
         data = {"servers": {}}
-        for server_name, server_data in self.menus:
+        for server_name, server_data in self.menus.items():
             data["servers"][server_name] = {}
-            for chat_address, menu_list in server_data:
+            for chat_address, menu_list in server_data.items():
                 data["servers"][server_name][chat_address] = {}
                 data["servers"][server_name][chat_address]["menus"] = []
                 for menu in menu_list:
@@ -90,7 +93,7 @@ class MenuCache(Generic[T]):
         os.makedirs(Path(self.filename).parent, exist_ok=True)
         # Save file
         with open(self.filename, "w") as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=2)
 
     @classmethod
     def load_from_json(cls, filename: str, menu_factory: MenuFactory[T]) -> 'MenuCache[T]':
@@ -100,25 +103,26 @@ class MenuCache(Generic[T]):
         except FileNotFoundError:
             return cls(filename)
         cache = cls(filename)
-        for server_name, server_data in data["servers"]:
-            for chat_addr, chat_data in server_data:
+        for server_name, server_data in data["servers"].items():
+            for chat_addr, chat_data in server_data.items():
                 for menu_data in chat_data["menus"]:
                     menu = menu_factory.load_menu_from_json(menu_data)
-                    cache.add_menu(menu)
+                    if menu.msg.message_id:
+                        cache.add_menu(menu)
         return cache
 
 
 class Menu(ABC):
 
-    def __init__(self, msg: 'MessageRef'):
-        self.msg = msg
+    def __init__(self, msg: 'EventMessage'):
+        self.msg: 'EventMessage' = msg
 
     @property
     def type(self) -> str:
         raise NotImplementedError
 
     @classmethod
-    def from_json(cls, msg: 'MessageRef', data: Dict) -> 'Menu':
+    def from_json(cls, hallo_obj: 'Hallo', msg: 'EventMessage', data: Dict) -> 'Menu':
         raise NotImplementedError
 
     @abstractmethod
@@ -132,72 +136,6 @@ class Menu(ABC):
             "menu_data": self.to_json()
         }
 
-
-class MessageRef(ABC):
-
-    def __init__(self, server_name: str, destination_addr: str, has_photo: bool = False) -> None:
-        self.server_name = server_name
-        self.destination_addr = destination_addr
-        self.has_photo = has_photo
-
-    @property
     @abstractmethod
-    def message_id(self) -> int:
+    def handle_callback(self, event: 'EventMenuCallback') -> None:
         raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def has_keyboard(self) -> bool:
-        raise NotImplementedError
-
-    @classmethod
-    def from_json(cls, data: Dict) -> 'MessageId':
-        return MessageId(
-            data["server_name"],
-            data["destination_addr"],
-            data["message_id"],
-            data["has_photo"]
-        )
-
-    def to_json(self) -> Dict:
-        return {
-            "server_name": self.server_name,
-            "destination_addr": self.destination_addr,
-            "message_id": self.message_id,
-            "has_photo": self.has_photo
-        }
-
-
-class MessageId(MessageRef):
-
-    def __init__(self, server_name: str, destination_addr: str, message_id: int, has_photo: bool = False):
-        super().__init__(server_name, destination_addr, has_photo=has_photo)
-        self._message_id = message_id
-
-    @property
-    def message_id(self) -> int:
-        return self._message_id
-
-    @property
-    def has_keyboard(self) -> bool:
-        # If it was saved, it must have a keyboard
-        return True
-
-
-class MessageContainer(MessageRef):
-
-    def __init__(self, event: EventMessage):
-        super().__init__(
-            event.server.name,
-            event.destination.address,
-            has_photo=isinstance(event, EventMessageWithPhoto)
-        )
-        self._event = event
-
-    @property
-    def message_id(self) -> int:
-        return self._event.message_id
-
-    @property
-    def has_keyboard(self) -> bool:
-        return bool(self._event.menu_buttons)

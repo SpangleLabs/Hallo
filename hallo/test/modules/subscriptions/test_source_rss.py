@@ -48,7 +48,7 @@ def test_title():
 
 def test_from_input(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
-    sub_repo = SubscriptionRepo()
+    sub_repo = SubscriptionRepo(hallo)
 
     rf = RssSource.from_input(TEST_RSS, test_user, sub_repo)
 
@@ -136,7 +136,7 @@ def test_item_to_event(hallo_getter):
 
 def test_json(hallo_getter):
     hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
-    sub_repo = SubscriptionRepo()
+    sub_repo = SubscriptionRepo(hallo)
     rf = RssSource(TEST_RSS)
     rf.last_keys = ["item3", "item2", "item1"]
 

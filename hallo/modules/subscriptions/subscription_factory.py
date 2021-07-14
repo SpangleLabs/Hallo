@@ -1,4 +1,4 @@
-from typing import List, Type, Dict
+from typing import List, Type, Dict, TYPE_CHECKING
 
 import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import Destination
@@ -16,6 +16,9 @@ import hallo.modules.subscriptions.source_e621
 import hallo.modules.subscriptions.source_rss
 import hallo.modules.subscriptions.source_twitter
 import hallo.modules.subscriptions.source
+
+if TYPE_CHECKING:
+    from hallo.hallo import Hallo
 
 
 class SubscriptionFactory:
@@ -75,11 +78,14 @@ class SubscriptionFactory:
         return classes[0].from_json(json_data, destination, sub_repo)
 
     @staticmethod
-    def common_from_json(common_json: Dict) -> hallo.modules.subscriptions.subscription_common.SubscriptionCommon:
+    def common_from_json(
+            common_json: Dict,
+            hallo_obj: 'Hallo'
+    ) -> hallo.modules.subscriptions.subscription_common.SubscriptionCommon:
         common_type_name = common_json["common_type"]
         for common_class in SubscriptionFactory.common_classes:
             if common_class.type_name == common_type_name:
-                return common_class.from_json(common_json)
+                return common_class.from_json(common_json, hallo_obj)
         raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
             f"Could not load common configuration of type {common_type_name}"
         )

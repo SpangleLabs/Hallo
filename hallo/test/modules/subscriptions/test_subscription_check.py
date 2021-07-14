@@ -3,6 +3,7 @@ import unittest
 from datetime import timedelta
 
 import pytest
+from yippi import YippiClient
 
 from hallo.events import EventMinute, EventMessage
 from hallo.modules.subscriptions.source_e621 import E621Source
@@ -35,25 +36,28 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
 
     def test_run_all(self):
         # Set up test servers and channels
+        e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
+        user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
         serv2 = ServerMock(self.hallo)
         serv2.name = "test_serv2"
         chan3 = serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        user2 = serv2.get_user_by_address("test_user2".lower(), "test_user2")
         try:
             self.hallo.add_server(serv1)
             self.hallo.add_server(serv2)
             # Set up rss feeds
-            sub_repo = SubscriptionRepo()
-            rf1 = E621Source("cabinet")
+            sub_repo = SubscriptionRepo(self.hallo)
+            rf1 = E621Source("cabinet", e6_client, user1)
             sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
             sub_repo.add_sub(sub1)
-            rf2 = E621Source("clefable")
+            rf2 = E621Source("clefable", e6_client, user1)
             sub2 = Subscription(serv1, chan2, rf2, timedelta(days=1), None, None)
             sub_repo.add_sub(sub2)
-            rf3 = E621Source("fez")
+            rf3 = E621Source("fez", e6_client, user2)
             sub3 = Subscription(serv2, chan3, rf3, timedelta(days=1), None, None)
             sub_repo.add_sub(sub3)
             # Splice this rss feed list into the function dispatcher's rss check object
@@ -76,7 +80,7 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
                     "subscription updates were found" in serv0_data[0].text.lower()
             ), "Actual message: {}".format(serv0_data[0].text)
             # Check test server 1 data
-            serv1_data = serv1.get_send_data(100)
+            serv1_data = serv1.get_send_data(150)
             chan1_count = 0
             chan2_count = 0
             for data_line in serv1_data:
@@ -84,10 +88,10 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
                     chan1_count += 1
                 if data_line.channel == chan2:
                     chan2_count += 1
-            assert chan1_count == 50
-            assert chan2_count == 50
+            assert chan1_count == 75
+            assert chan2_count == 75
             # Check test server 2 data
-            serv2.get_send_data(50, chan3, EventMessage)
+            serv2.get_send_data(75, chan3, EventMessage)
             # Test running with no new updates.
             self.function_dispatcher.dispatch(
                 EventMessage(
@@ -102,6 +106,7 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
 
     def test_run_by_search(self):
         # Set up test servers and channels
+        e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
@@ -110,18 +115,19 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
         serv2 = ServerMock(self.hallo)
         serv2.name = "test_serv2"
         chan3 = serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        user2 = serv2.get_user_by_address("test_user2", "test_user2")
         try:
             self.hallo.add_server(serv1)
             self.hallo.add_server(serv2)
             # Set up rss feeds
-            sub_repo = SubscriptionRepo()
-            rf1 = E621Source("cabinet")
+            sub_repo = SubscriptionRepo(self.hallo)
+            rf1 = E621Source("cabinet", e6_client, user1)
             sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
             sub_repo.add_sub(sub1)
-            rf2 = E621Source("clefable")
+            rf2 = E621Source("clefable", e6_client, user1)
             sub2 = Subscription(serv1, chan2, rf2, timedelta(days=1), None, None)
             sub_repo.add_sub(sub2)
-            rf3 = E621Source("fez")
+            rf3 = E621Source("fez", e6_client, user2)
             sub3 = Subscription(serv2, chan3, rf3, timedelta(days=1), None, None)
             sub_repo.add_sub(sub3)
             # Splice this rss feed list into the function dispatcher's rss check object
@@ -153,16 +159,16 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
             self.function_dispatcher.dispatch(
                 EventMessage(serv1, chan2, user1, "e621 sub check clefable")
             )
-            data = serv1.get_send_data(51, chan2, EventMessage)
+            data = serv1.get_send_data(76, chan2, EventMessage)
             has_photo_id = 0
-            for x in range(50):
+            for x in range(75):
                 assert "update on" in data[x].text.lower()
                 if hasattr(data[x], "photo_id") and data[x].photo_id is not None:
                     has_photo_id += 1
                 assert "clefable" in data[x].text
             assert has_photo_id > 40, "Almost all subscription updates should have a photo"
             assert (
-                    "subscription updates were found" in data[50].text.lower()
+                    "subscription updates were found" in data[75].text.lower()
             ), "Actual message: {}".format(data[0].text)
             # No updates
             self.function_dispatcher.dispatch(
@@ -175,26 +181,29 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
             self.hallo.remove_server(serv1)
 
     def test_run_passive(self):
+        e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
         # Set up test servers and channels
         serv1 = ServerMock(self.hallo)
         serv1.name = "test_serv1"
         chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
         chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
+        user1 = serv1.get_user_by_address("test_user1", "test_user2")
         serv2 = ServerMock(self.hallo)
         serv2.name = "test_serv2"
         chan3 = serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
+        user2 = serv2.get_user_by_address("test_user2", "test_user2")
         try:
             self.hallo.add_server(serv1)
             self.hallo.add_server(serv2)
             # Set up rss feeds
-            sub_repo = SubscriptionRepo()
-            rf1 = E621Source("cabinet")
+            sub_repo = SubscriptionRepo(self.hallo)
+            rf1 = E621Source("cabinet", e6_client, user1)
             sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
             sub_repo.add_sub(sub1)
-            rf2 = E621Source("clefable")
+            rf2 = E621Source("clefable", e6_client, user1)
             sub2 = Subscription(serv1, chan2, rf2, timedelta(days=1), None, None)
             sub_repo.add_sub(sub2)
-            rf3 = E621Source("fez")
+            rf3 = E621Source("fez", e6_client, user2)
             sub3 = Subscription(serv2, chan3, rf3, timedelta(days=1), None, None)
             sub_repo.add_sub(sub3)
             # Splice this rss feed list into the function dispatcher's rss check object
@@ -208,7 +217,7 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
             # Test passive feed updates
             self.function_dispatcher.dispatch_passive(EventMinute())
             # Check test server 1 data
-            serv1_data = serv1.get_send_data(100)
+            serv1_data = serv1.get_send_data(150)
             chan1_count = 0
             chan2_count = 0
             for data_line in serv1_data:
@@ -216,10 +225,10 @@ class SubscriptionCheckTest(TestBase, unittest.TestCase):
                     chan1_count += 1
                 if data_line.channel == chan2:
                     chan2_count += 1
-            assert chan1_count == 50
-            assert chan2_count == 50
+            assert chan1_count == 75
+            assert chan2_count == 75
             # Check test server 2 data
-            serv2.get_send_data(50, chan3, EventMessage)
+            serv2.get_send_data(75, chan3, EventMessage)
             # Test that no updates are found the second run
             rf1.last_check = None
             rf2.last_check = None

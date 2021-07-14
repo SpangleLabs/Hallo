@@ -50,11 +50,6 @@ class UserDataParser:
         return user_data
 
     def get_data_by_user_and_type(self, user: User, data_class: Type[T]) -> Optional[T]:
-        """
-        :type user: User
-        :type data_class: class
-        :rtype: UserDatum
-        """
         type_name = data_class.type_name
         user_data_dict = user.extra_data_dict
         if type_name in user_data_dict:
@@ -114,6 +109,48 @@ class FAKeyData(UserDatum):
         cookie_a = json_dict["cookie_a"]
         cookie_b = json_dict["cookie_b"]
         return FAKeyData(cookie_a, cookie_b)
+
+
+class E6KeyData(UserDatum):
+    type_name = "e6_key"
+    names = [
+        "e621 key",
+        "e6 key",
+        "e6 api key",
+        "e621 api key",
+        "e6",
+        "e621",
+    ]
+
+    def __init__(self, username: str, api_key: str):
+        self.username = username
+        self.api_key = api_key
+
+    @staticmethod
+    def create_from_input(event):
+        input_clean = event.command_args.strip().split()
+        if len(input_clean) != 2:
+            raise UserDataException(
+                "Input must include username,then apikey, separated by a space"
+            )
+        new_data = E6KeyData(input_clean[0], input_clean[1])
+        return new_data
+
+    def get_name(self, event):
+        return event.user.name + " E621 api key"
+
+    def to_json(self):
+        json_obj = dict()
+        json_obj["username"] = self.username
+        json_obj["api_key"] = self.api_key
+        return json_obj
+
+    @staticmethod
+    def from_json(json_dict):
+        return E6KeyData(
+            json_dict["username"],
+            json_dict["api_key"]
+        )
 
 
 class WeatherLocationData(UserDatum):
@@ -219,7 +256,7 @@ class WeatherLocationData(UserDatum):
 
 
 class UserDataFactory:
-    data_classes = [FAKeyData]
+    data_classes = [FAKeyData, E6KeyData]
 
     @staticmethod
     def get_data_type_names() -> List[str]:

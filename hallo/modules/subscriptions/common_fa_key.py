@@ -1,7 +1,7 @@
 import logging
 import os
 from datetime import timedelta, datetime
-from typing import Dict, Optional, Union, List, Callable
+from typing import Dict, Optional, Union, List, Callable, TYPE_CHECKING
 
 import dateutil.parser
 
@@ -10,13 +10,17 @@ from hallo.destination import User
 from hallo.inc.commons import CachedObject, Commons
 import hallo.modules.subscriptions.subscription_common
 
+if TYPE_CHECKING:
+    from hallo.hallo import Hallo
+
 logger = logging.getLogger(__name__)
 
 
 class FAKeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionCommon):
     type_name: str = "fa_keys"
 
-    def __init__(self):
+    def __init__(self, hallo_obj: 'Hallo'):
+        super().__init__(hallo_obj)
         self.list_keys: Dict[User, FAKey] = dict()
 
     def get_key_by_user(self, user: User) -> Optional['FAKey']:
@@ -39,8 +43,8 @@ class FAKeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionC
         return None
 
     @staticmethod
-    def from_json(json_obj: Optional[Dict]) -> 'FAKeysCommon':
-        return FAKeysCommon()
+    def from_json(json_obj: Optional[Dict], hallo_obj: 'Hallo') -> 'FAKeysCommon':
+        return FAKeysCommon(hallo_obj)
 
 
 class FAKey:

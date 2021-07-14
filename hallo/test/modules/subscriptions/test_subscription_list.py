@@ -3,11 +3,13 @@ import unittest
 from datetime import timedelta
 
 import pytest
+from yippi import YippiClient
 
 from hallo.events import EventMessage
 from hallo.modules.subscriptions.source_e621 import E621Source
 from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
+from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.test_base import TestBase
 
 
@@ -16,6 +18,10 @@ class SubscriptionListTest(TestBase, unittest.TestCase):
     def setUp(self):
         try:
             os.rename("store/subscriptions.json", "store/subscriptions.json.tmp")
+        except OSError:
+            pass
+        try:
+            os.rename(SubscriptionRepo.MENU_STORE_FILE, SubscriptionRepo.MENU_STORE_FILE + ".tmp")
         except OSError:
             pass
         super().setUp()
@@ -30,6 +36,14 @@ class SubscriptionListTest(TestBase, unittest.TestCase):
             os.rename("store/subscriptions.json.tmp", "store/subscriptions.json")
         except OSError:
             pass
+        try:
+            os.remove(SubscriptionRepo.MENU_STORE_FILE)
+        except OSError:
+            pass
+        try:
+            os.rename(SubscriptionRepo.MENU_STORE_FILE + ".tmp", SubscriptionRepo.MENU_STORE_FILE)
+        except OSError:
+            pass
 
     def test_no_feeds(self):
         self.function_dispatcher.dispatch(
@@ -42,6 +56,7 @@ class SubscriptionListTest(TestBase, unittest.TestCase):
 
     def test_list_feeds(self):
         another_chan = self.server.get_channel_by_address("another_channel")
+        e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
         # Get feed list
         rss_check_class = self.function_dispatcher.get_function_by_name(
             "check subscription"
@@ -51,13 +66,13 @@ class SubscriptionListTest(TestBase, unittest.TestCase):
         )  # type: SubscriptionCheck
         rfl = rss_check_obj.get_sub_repo(self.hallo)
         # Add RSS feeds to feed list
-        rf1 = E621Source("cabinet")
+        rf1 = E621Source("cabinet", e6_client, self.test_user)
         sub1 = Subscription(self.server, self.test_chan, rf1, timedelta(days=1), None, None)
         rfl.add_sub(sub1)
-        rf2 = E621Source("clefable")
+        rf2 = E621Source("clefable", e6_client, self.test_user)
         sub2 = Subscription(self.server, another_chan, rf2, timedelta(days=1), None, None)
         rfl.add_sub(sub2)
-        rf3 = E621Source("fez")
+        rf3 = E621Source("fez", e6_client, self.test_user)
         sub3 = Subscription(self.server, self.test_chan, rf3, timedelta(days=1), None, None)
         rfl.add_sub(sub3)
         # Run FeedList and check output

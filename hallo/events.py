@@ -5,9 +5,92 @@ from datetime import datetime
 from typing import List, Dict, Any, Union, Optional, TYPE_CHECKING, Type, Tuple
 
 if TYPE_CHECKING:
+    from hallo.hallo import Hallo
     from telegram import Update, Message
     from hallo.destination import Destination, User, Channel
     from hallo.server import Server
+
+
+KEY_SERVER_NAME = "server_name"
+KEY_CHANNEL_ADDR = "channel_addr"
+KEY_USER_ADDR = "user_addr"
+KEY_MENU_BUTTONS = "menu_buttons"
+KEY_FORMATTING = "formatting"
+KEY_PHOTO_ID = "photo_id"
+FLAG_MENU_UNCHANGED = object()
+
+
+def server_from_json(hallo_obj: 'Hallo', data: Dict) -> 'Server':
+    return hallo_obj.get_server_by_name(data[KEY_SERVER_NAME])
+
+
+def channel_from_json(server: 'Server', data: Dict) -> Optional['Channel']:
+    if data[KEY_CHANNEL_ADDR]:
+        return server.get_channel_by_address(data[KEY_CHANNEL_ADDR])
+    return None
+
+
+def user_from_json(server: 'Server', data: Dict) -> Optional['User']:
+    if data[KEY_USER_ADDR]:
+        return server.get_user_by_address(data[KEY_USER_ADDR])
+    return None
+
+
+def menu_buttons_from_json(data: Dict) -> Optional[List[List['MenuButton']]]:
+    if KEY_MENU_BUTTONS not in data:
+        return None
+    return [
+        [
+            MenuButton.from_json(button) for button in row
+        ] for row in data[KEY_MENU_BUTTONS]
+    ]
+
+
+def event_from_json(hallo_obj: 'Hallo', data: Dict) -> 'ChannelUserTextEvent':
+    server = server_from_json(hallo_obj, data)
+    channel = channel_from_json(server, data)
+    user = user_from_json(server, data)
+    if KEY_FORMATTING not in data:
+        return ChannelUserTextEvent(
+            server,
+            channel,
+            user,
+            data["text"],
+            data["inbound"]
+        )
+    return message_from_json(hallo_obj, data)
+
+
+def message_from_json(hallo_obj: 'Hallo', data: Dict) -> 'EventMessage':
+    server = server_from_json(hallo_obj, data)
+    channel = channel_from_json(server, data)
+    user = user_from_json(server, data)
+    text = data["text"]
+    inbound = data["inbound"]
+    menu_buttons = menu_buttons_from_json(data)
+    formatting = EventMessage.Formatting[data[KEY_FORMATTING]]
+    if KEY_PHOTO_ID in data:
+        msg = EventMessageWithPhoto(
+            server,
+            channel,
+            user,
+            text,
+            data[KEY_PHOTO_ID],
+            inbound,
+            menu_buttons=menu_buttons
+        )
+    else:
+        msg = EventMessage(
+            server,
+            channel,
+            user,
+            text,
+            inbound,
+            menu_buttons=menu_buttons
+        )
+    msg.formatting = formatting
+    msg._message_id = data.get("message_id")
+    return msg
 
 
 class RawData(metaclass=ABCMeta):
@@ -90,6 +173,10 @@ class ServerEvent(Event, metaclass=ABCMeta):
         self.server = server
         self.raw_data = None
 
+    @property
+    def server_name(self) -> str:
+        return self.server.name
+
     def with_raw_data(self, raw_data: RawData):
         self.raw_data = raw_data
         return self
@@ -126,6 +213,10 @@ class UserEvent(ServerEvent, metaclass=ABCMeta):
     def __init__(self, server: 'Server', user: 'User', inbound: bool = True):
         ServerEvent.__init__(self, server, inbound=inbound)
         self.user = user
+
+    @property
+    def user_addr(self) -> Optional[str]:
+        return self.user.address if self.user else None
 
     def _get_log_extras(self) -> List[Dict[str, Any]]:
         channel_list = (
@@ -178,6 +269,10 @@ class ChannelEvent(ServerEvent, metaclass=ABCMeta):
         ServerEvent.__init__(self, server, inbound=inbound)
         self.channel = channel
 
+    @property
+    def channel_addr(self):
+        return self.channel.address if self.channel else None
+
     def _get_log_extras(self) -> List[Dict[str, Any]]:
         return [
             {
@@ -203,6 +298,10 @@ class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
     @property
     def destination(self) -> 'Destination':
         return self.user if self.channel is None else self.channel
+
+    @property
+    def destination_addr(self) -> str:
+        return self.destination.address
 
 
 class EventJoin(ChannelUserEvent):
@@ -365,15 +464,36 @@ class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
         """
         self.server.reply(self, event)
 
+    def to_json(self) -> Dict:
+        return {
+            KEY_SERVER_NAME: self.server_name,
+            KEY_CHANNEL_ADDR: self.channel_addr,
+            KEY_USER_ADDR: self.user_addr,
+            "text": self.text,
+            "inbound": self.is_inbound
+        }
+
 
 class MenuButton:
     def __init__(self, text: str, data: str) -> None:
         self.text = text
         self.data = data
 
+    def to_json(self) -> Dict[str, str]:
+        return {
+            "text": self.text,
+            "data": self.data
+        }
+
+    @classmethod
+    def from_json(cls, data: Dict) -> 'MenuButton':
+        return MenuButton(
+            data["text"],
+            data["data"]
+        )
+
 
 class EventMessage(ChannelUserTextEvent):
-
     # Flags, can be passed as a list to function dispatcher, and will change how it operates.
     FLAG_HIDE_ERRORS = (
         "hide_errors"  # Hide all errors that result from running the function.
@@ -405,6 +525,7 @@ class EventMessage(ChannelUserTextEvent):
         self.is_prefixed, self.command_text = self.check_prefix()
         self.formatting = EventMessage.Formatting.PLAIN
         self.menu_buttons = menu_buttons
+        self._message_id = None
 
     @property
     def message_id(self) -> Optional[int]:
@@ -412,7 +533,15 @@ class EventMessage(ChannelUserTextEvent):
             return self.raw_data.update_obj.message.message_id
         if isinstance(self.raw_data, RawDataTelegramOutbound):
             return self.raw_data.sent_msg_object.message_id
-        return None
+        return self._message_id
+
+    @property
+    def has_keyboard(self) -> bool:
+        return bool(self.menu_buttons)
+
+    @property
+    def has_photo(self) -> bool:
+        return False
 
     def check_prefix(self) -> Tuple[Union[bool, str], Optional[str]]:
         """
@@ -432,7 +561,7 @@ class EventMessage(ChannelUserTextEvent):
             else:
                 return False, None
         elif self.text.lower().startswith(acting_prefix):
-            return True, self.text[len(acting_prefix) :]
+            return True, self.text[len(acting_prefix):]
         else:
             return False, None
 
@@ -450,12 +579,37 @@ class EventMessage(ChannelUserTextEvent):
             self,
             text: str,
             event_class: Optional['EventMessage'] = None,
-            menu_buttons: List[List[MenuButton]] = None
+            menu_buttons: Optional[List[List[MenuButton]]] = None
     ) -> 'EventMessage':
         if event_class is None:
             event_class = self.__class__
         resp = event_class(self.server, self.channel, self.user, text, inbound=False, menu_buttons=menu_buttons)
         return resp
+
+    def create_edit(
+            self,
+            text: Optional[str] = None,
+            menu_buttons: Optional[List[List[MenuButton]]] = FLAG_MENU_UNCHANGED
+    ) -> 'EventMessage':
+        if text is None:
+            text = self.text
+        if menu_buttons == FLAG_MENU_UNCHANGED:
+            menu_buttons = self.menu_buttons
+        edit = self.__class__(self.server, self.channel, self.user, text, inbound=False, menu_buttons=menu_buttons)
+        edit._message_id = self.message_id
+        return edit
+
+    def to_json(self) -> Dict:
+        data = super().to_json()
+        data[KEY_FORMATTING] = self.formatting.name
+        data["message_id"] = self.message_id
+        if self.menu_buttons:
+            data["menu_buttons"] = [
+                [
+                    button.to_json() for button in row
+                ] for row in self.menu_buttons
+            ]
+        return data
 
 
 class EventNotice(ChannelUserTextEvent):
@@ -500,6 +654,35 @@ class EventMessageWithPhoto(EventMessage):
         """
         super().__init__(server, channel, user, text, inbound=inbound, menu_buttons=menu_buttons)
         self.photo_id = photo_id
+
+    def create_edit(
+            self,
+            text: Optional[str] = None,
+            menu_buttons: Optional[List[List[MenuButton]]] = FLAG_MENU_UNCHANGED
+    ) -> 'EventMessage':
+        if text is None:
+            text = self.text
+        if menu_buttons == FLAG_MENU_UNCHANGED:
+            menu_buttons = self.menu_buttons
+        edit = self.__class__(
+            self.server,
+            self.channel,
+            self.user,
+            text,
+            self.photo_id,
+            inbound=False,
+            menu_buttons=menu_buttons
+        )
+        edit._message_id = self.message_id
+        return edit
+
+    def has_photo(self) -> bool:
+        return True
+
+    def to_json(self) -> Dict:
+        data = super().to_json()
+        data[KEY_PHOTO_ID] = self.photo_id
+        return data
 
 
 class EventMenuCallback(ChannelUserEvent):

@@ -1,13 +1,19 @@
 import json
 from threading import Lock
-from typing import List, Type, TypeVar
+from typing import List, Type, TypeVar, TYPE_CHECKING
 
-import hallo.modules.subscriptions.subscription_exception
-from hallo.destination import Destination
-import hallo.modules.subscriptions.subscription_common
 import hallo.modules.subscriptions.subscription
+import hallo.modules.subscriptions.subscription_common
+import hallo.modules.subscriptions.subscription_exception
 import hallo.modules.subscriptions.subscription_factory
+import hallo.modules.subscriptions.source_e621_tagging
+from hallo.destination import Destination
 from hallo.inc.commons import inherits_from
+from hallo.inc.menus import MenuCache, MenuFactory
+
+if TYPE_CHECKING:
+    from hallo.events import EventMenuCallback
+    from hallo.hallo import Hallo
 
 T = TypeVar("T", bound=hallo.modules.subscriptions.subscription_common.SubscriptionCommon)
 
@@ -16,11 +22,14 @@ class SubscriptionRepo:
     """
     Holds the lists of subscriptions, for loading and unloading.
     """
+    MENU_STORE_FILE = "store/menus/subscriptions.json"
 
-    def __init__(self):
+    def __init__(self, hallo_obj: 'Hallo'):
+        self.hallo = hallo_obj
         self.sub_list: List[hallo.modules.subscriptions.subscription.Subscription] = []
         self.common_list: List[hallo.modules.subscriptions.subscription_common.SubscriptionCommon] = []
         self.sub_lock: Lock = Lock()
+        self.menu_cache = None
 
     def add_sub(self, new_sub: hallo.modules.subscriptions.subscription.Subscription) -> None:
         """
@@ -82,7 +91,7 @@ class SubscriptionRepo:
             )
         matching = [obj for obj in self.common_list if isinstance(obj, common_type)]
         if len(matching) == 0:
-            new_common = common_type()
+            new_common = common_type(self.hallo)
             self.common_list.append(new_common)
             return new_common
         if len(matching) == 1:
@@ -92,6 +101,11 @@ class SubscriptionRepo:
                 common_type.__name__
             )
         )
+
+    def handle_menu_callback(self, event: 'EventMenuCallback') -> None:
+        menu = self.menu_cache.get_menu_by_callback_event(event)
+        if menu:
+            menu.handle_callback(event)
 
     def save_json(self) -> None:
         """
@@ -118,24 +132,32 @@ class SubscriptionRepo:
         Constructs a new SubscriptionRepo from the JSON file
         :return: Newly constructed list of subscriptions
         """
-        new_sub_list = SubscriptionRepo()
+        # Create repo
+        new_repo = SubscriptionRepo(hallo_obj)
         # Try loading json file, otherwise return blank list
         try:
             with open("store/subscriptions.json", "r") as f:
                 json_obj = json.load(f)
         except (OSError, IOError):
-            return new_sub_list
+            return new_repo
         # Loop common objects in json file adding them to list.
         # Common config must be loaded first, as subscriptions use it.
         for common_elem in json_obj["common"]:
             new_common_obj = hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.common_from_json(
-                common_elem
+                common_elem,
+                hallo_obj
             )
-            new_sub_list.common_list.append(new_common_obj)
+            new_repo.common_list.append(new_common_obj)
         # Loop subs in json file adding them to list
         for sub_elem in json_obj["subs"]:
             new_sub_obj = hallo.modules.subscriptions.subscription.Subscription.from_json(
-                sub_elem, hallo_obj, new_sub_list
+                sub_elem, hallo_obj, new_repo
             )
-            new_sub_list.add_sub(new_sub_obj)
-        return new_sub_list
+            new_repo.add_sub(new_sub_obj)
+        return new_repo
+
+    def load_menu_cache(self, hallo_obj: 'Hallo') -> None:
+        menu_factory = MenuFactory([
+            hallo.modules.subscriptions.source_e621_tagging.E621TaggingMenu
+        ], hallo_obj)
+        self.menu_cache = MenuCache.load_from_json(self.MENU_STORE_FILE, menu_factory)

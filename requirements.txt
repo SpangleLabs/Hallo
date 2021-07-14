@@ -10,3 +10,4 @@ duolingo-api
 publicsuffixlist
 isodate
 simple-heartbeat
+git+https://github.com/rorre/Yippi.git
