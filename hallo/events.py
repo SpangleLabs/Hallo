@@ -291,7 +291,7 @@ class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
         return [
             {
                 "server": self.server,
-                "destination": self.channel if self.channel is not None else self.user
+                "destination": self.destination
             }
         ]
 
