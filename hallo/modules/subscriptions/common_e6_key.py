@@ -32,7 +32,8 @@ class E6KeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionC
         elif allow_default:
             default_username = self.hallo.get_api_key("e621_username")
             default_api_key = self.hallo.get_api_key("e621_api_key")
-            client.login(default_username, default_api_key)
+            if default_username is not None and default_api_key is not None:
+                client.login(default_username, default_api_key)
         else:
             raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
                 "You must specify an e621 username and api key with `setup e621 user data <username> <api_key>`. "

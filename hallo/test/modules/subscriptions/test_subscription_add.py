@@ -8,6 +8,7 @@ from hallo.inc import commons
 from hallo.modules.subscriptions.source_e621 import E621Source
 from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
+from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.test_base import TestBase
 
 
@@ -16,6 +17,10 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
     def setUp(self):
         try:
             os.rename("store/subscriptions.json", "store/subscriptions.json.tmp")
+        except OSError:
+            pass
+        try:
+            os.rename(SubscriptionRepo.MENU_STORE_FILE, SubscriptionRepo.MENU_STORE_FILE + ".tmp")
         except OSError:
             pass
         super().setUp()
@@ -28,6 +33,14 @@ class SubscriptionAddTest(TestBase, unittest.TestCase):
             pass
         try:
             os.rename("store/subscriptions.json.tmp", "store/subscriptions.json")
+        except OSError:
+            pass
+        try:
+            os.remove(SubscriptionRepo.MENU_STORE_FILE)
+        except OSError:
+            pass
+        try:
+            os.rename(SubscriptionRepo.MENU_STORE_FILE + ".tmp", SubscriptionRepo.MENU_STORE_FILE)
         except OSError:
             pass
 
