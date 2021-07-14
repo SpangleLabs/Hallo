@@ -42,9 +42,6 @@ class Subscription:
             sub_repo,
     ) -> 'Subscription':
         server = input_evt.server
-        destination = (
-            input_evt.channel if input_evt.channel is not None else input_evt.user
-        )
         # Get user specified stuff
         argument = input_evt.command_args.strip()
         split_args = argument.split()
@@ -63,7 +60,7 @@ class Subscription:
             source = source_class.from_input(argument, input_evt.user, sub_repo)
             subscription = Subscription(
                 server,
-                destination,
+                input_evt.destination,
                 source,
                 feed_delta,
                 None,
