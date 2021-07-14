@@ -47,7 +47,7 @@ python-telegram-bot==13.0
 pytz==2020.1
 requests==2.25.1
 requests-mock==1.8.0
-rsa==4.6
+rsa==4.7
 simple-heartbeat==0.1.2
 six==1.15.0
 snowballstemmer==2.1.0
