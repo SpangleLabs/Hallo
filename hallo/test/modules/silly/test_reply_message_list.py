@@ -24,9 +24,9 @@ def test_add_reply_message():
 
 
 def test_get_response(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({"silly"})
+    test_hallo = hallo_getter({"silly"})
     # Setup common testing objects
-    serv1 = ServerMock(hallo)
+    serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     user1 = serv1.get_user_by_address("test_user1", "test_user1")

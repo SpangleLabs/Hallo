@@ -42,18 +42,18 @@ def test_add_whitelist():
     # Create reply message
     rm = ReplyMessage("test")
     # Add whitelist element
-    rm.add_whitelist("test_server", "test_chan")
+    rm.add_whitelist("test_hallo.test_server", "test_chan")
     assert len(rm.whitelist) == 1
-    assert "test_server" in rm.whitelist
-    assert len(rm.whitelist["test_server"]) == 1
-    assert "test_chan" in rm.whitelist["test_server"]
+    assert "test_hallo.test_server" in rm.whitelist
+    assert len(rm.whitelist["test_hallo.test_server"]) == 1
+    assert "test_chan" in rm.whitelist["test_hallo.test_server"]
     # Add same-server whitelist element
-    rm.add_whitelist("test_server", "test_chan2")
+    rm.add_whitelist("test_hallo.test_server", "test_chan2")
     assert len(rm.whitelist) == 1
-    assert "test_server" in rm.whitelist
-    assert len(rm.whitelist["test_server"]) == 2
-    assert "test_chan" in rm.whitelist["test_server"]
-    assert "test_chan2" in rm.whitelist["test_server"]
+    assert "test_hallo.test_server" in rm.whitelist
+    assert len(rm.whitelist["test_hallo.test_server"]) == 2
+    assert "test_chan" in rm.whitelist["test_hallo.test_server"]
+    assert "test_chan2" in rm.whitelist["test_hallo.test_server"]
     # Add diff-server whitelist element
     rm.add_whitelist("test_serv2", "test_chan3")
     assert len(rm.whitelist) == 2
@@ -66,18 +66,18 @@ def test_add_blacklist():
     # Create reply message
     rm = ReplyMessage("test")
     # Add whitelist element
-    rm.add_blacklist("test_server", "test_chan")
+    rm.add_blacklist("test_hallo.test_server", "test_chan")
     assert len(rm.blacklist) == 1
-    assert "test_server" in rm.blacklist
-    assert len(rm.blacklist["test_server"]) == 1
-    assert "test_chan" in rm.blacklist["test_server"]
+    assert "test_hallo.test_server" in rm.blacklist
+    assert len(rm.blacklist["test_hallo.test_server"]) == 1
+    assert "test_chan" in rm.blacklist["test_hallo.test_server"]
     # Add same-server whitelist element
-    rm.add_blacklist("test_server", "test_chan2")
+    rm.add_blacklist("test_hallo.test_server", "test_chan2")
     assert len(rm.blacklist) == 1
-    assert "test_server" in rm.blacklist
-    assert len(rm.blacklist["test_server"]) == 2
-    assert "test_chan" in rm.blacklist["test_server"]
-    assert "test_chan2" in rm.blacklist["test_server"]
+    assert "test_hallo.test_server" in rm.blacklist
+    assert len(rm.blacklist["test_hallo.test_server"]) == 2
+    assert "test_chan" in rm.blacklist["test_hallo.test_server"]
+    assert "test_chan2" in rm.blacklist["test_hallo.test_server"]
     # Add diff-server whitelist element
     rm.add_blacklist("test_serv2", "test_chan3")
     assert len(rm.blacklist) == 2
@@ -87,9 +87,9 @@ def test_add_blacklist():
 
 
 def test_check_response(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({"silly"})
+    test_hallo = hallo_getter({"silly"})
     # Setup common testing objects
-    serv1 = ServerMock(hallo)
+    serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     user1 = serv1.get_user_by_address("test_user1", "test_user1")
@@ -125,7 +125,7 @@ def test_check_response(hallo_getter):
 
 
 def test_check_destination(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({"silly"})
+    test_hallo = hallo_getter({"silly"})
     serv_name1 = "test_serv1"
     serv_name2 = "test_serv2"
     serv_name3 = "test_serv3"
@@ -135,9 +135,9 @@ def test_check_destination(hallo_getter):
     chan_name4 = "test_chan4"
     chan_name5 = "test_chan5"
     # Set up test destinations
-    serv1 = ServerMock(hallo)
-    serv2 = ServerMock(hallo)
-    serv3 = ServerMock(hallo)
+    serv1 = ServerMock(test_hallo)
+    serv2 = ServerMock(test_hallo)
+    serv3 = ServerMock(test_hallo)
     serv1.name = serv_name1
     serv2.name = serv_name2
     serv3.name = serv_name3

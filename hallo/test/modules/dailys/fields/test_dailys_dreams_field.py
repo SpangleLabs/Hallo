@@ -4,15 +4,15 @@ from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetM
 
 
 def test_ignore_other(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    test_hallo = hallo_getter({"dailys"})
     # Setup
-    spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
+    spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
     field = DailysDreamField(spreadsheet)
     evt = EventMessage(
-        test_server,
-        test_chan,
-        test_user,
+        test_hallo.test_server,
+        test_hallo.test_chan,
+        test_hallo.test_user,
         "some other message",
     )
 
@@ -22,19 +22,19 @@ def test_ignore_other(hallo_getter):
     assert field.type_name not in spreadsheet.saved_data
 
     # Check sent data
-    assert len(test_server.send_data) == 0
+    assert len(test_hallo.test_server.send_data) == 0
 
 
 def test_record_dream(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    test_hallo = hallo_getter({"dailys"})
     # Setup
-    spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
+    spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
     field = DailysDreamField(spreadsheet)
     evt = EventMessage(
-        test_server,
-        test_chan,
-        test_user,
+        test_hallo.test_server,
+        test_hallo.test_chan,
+        test_hallo.test_user,
         "dream about some thing",
     )
 
@@ -51,20 +51,20 @@ def test_record_dream(hallo_getter):
     assert dream["text"] == "dream about some thing"
 
     # Check sent data
-    assert len(test_server.send_data) == 1
-    assert isinstance(test_server.send_data[0], EventMessage)
-    assert "Logged dream." in test_server.send_data[0].text
-    assert "1st of the day" in test_server.send_data[0].text
-    assert test_server.send_data[0].channel == test_chan
-    assert test_server.send_data[0].user == test_user
+    assert len(test_hallo.test_server.send_data) == 1
+    assert isinstance(test_hallo.test_server.send_data[0], EventMessage)
+    assert "Logged dream." in test_hallo.test_server.send_data[0].text
+    assert "1st of the day" in test_hallo.test_server.send_data[0].text
+    assert test_hallo.test_server.send_data[0].channel == test_hallo.test_chan
+    assert test_hallo.test_server.send_data[0].user == test_hallo.test_user
 
 
 def test_record_second_dream(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    test_hallo = hallo_getter({"dailys"})
     evt = EventMessage(
-        test_server,
-        test_chan,
-        test_user,
+        test_hallo.test_server,
+        test_hallo.test_chan,
+        test_hallo.test_user,
         "Dream about some second thing",
     )
     previous_dream = {
@@ -75,7 +75,7 @@ def test_record_second_dream(hallo_getter):
             evt.get_send_time().date(): {"dreams": [previous_dream]}
         }
     }
-    spreadsheet = DailysSpreadsheetMock(test_user, test_chan, saved_data=saved_data)
+    spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan, saved_data=saved_data)
     # Setup field
     field = DailysDreamField(spreadsheet)
 
@@ -96,27 +96,27 @@ def test_record_second_dream(hallo_getter):
     assert dream2["text"] == "Dream about some second thing"
 
     # Check sent data
-    assert len(test_server.send_data) == 1
-    assert isinstance(test_server.send_data[0], EventMessage)
-    assert "Logged dream." in test_server.send_data[0].text
-    assert "2nd of the day" in test_server.send_data[0].text
-    assert test_server.send_data[0].channel == test_chan
-    assert test_server.send_data[0].user == test_user
+    assert len(test_hallo.test_server.send_data) == 1
+    assert isinstance(test_hallo.test_server.send_data[0], EventMessage)
+    assert "Logged dream." in test_hallo.test_server.send_data[0].text
+    assert "2nd of the day" in test_hallo.test_server.send_data[0].text
+    assert test_hallo.test_server.send_data[0].channel == test_hallo.test_chan
+    assert test_hallo.test_server.send_data[0].user == test_hallo.test_user
 
 
 def test_create_from_input(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    test_hallo = hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "dream"
     evt = EventMessage(
-        test_server,
-        test_chan,
-        test_user,
+        test_hallo.test_server,
+        test_hallo.test_chan,
+        test_hallo.test_user,
         "{} {}".format(cmd_name, cmd_args),
     )
     evt.split_command_text(cmd_name, cmd_args)
-    spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
+    spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
 
     # Create from input
     field = DailysDreamField.create_from_input(evt, spreadsheet)

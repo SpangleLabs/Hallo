@@ -7,11 +7,11 @@ from hallo.test.server_mock import ServerMock
 
 
 def test_help_all(hallo_getter):
-    hallo_obj, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
-    hallo_obj.function_dispatcher.dispatch(
-        EventMessage(test_server, None, test_user, "help")
+    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo.function_dispatcher.dispatch(
+        EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help")
     )
-    data = test_server.get_send_data(1, test_user, EventMessage)
+    data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert "list of available functions:" in data[0].text.lower()
     num_funcs = len(
         data[0].text.lower().replace("list of available functions: ", "").split(",")
@@ -40,53 +40,53 @@ def test_help_mock_func_disp():
 
 
 def test_help_func(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
-    hallo.function_dispatcher.dispatch(
-        EventMessage(test_server, None, test_user, "help help")
+    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo.function_dispatcher.dispatch(
+        EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help help")
     )
-    data = test_server.get_send_data(1, test_user, EventMessage)
+    data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert "error" not in data[0].text.lower()
     assert 'documentation for "help":' in data[0].text.lower()
 
 
 def test_help_no_func(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
-    hallo.function_dispatcher.dispatch(
-        EventMessage(test_server, None, test_user, "help not a real function")
+    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo.function_dispatcher.dispatch(
+        EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help not a real function")
     )
-    data = test_server.get_send_data(1, test_user, EventMessage)
+    data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert "error" in data[0].text.lower()
     assert "no function by that name exists" in data[0].text.lower()
 
 
 def test_help_no_doc(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
+    test_hallo = hallo_getter({"hallo_control"})
     # Manually add FunctionMock to function dispatcher
-    hallo.function_dispatcher.load_function(None, FunctionMockNoDoc)
+    test_hallo.function_dispatcher.load_function(None, FunctionMockNoDoc)
     try:
-        hallo.function_dispatcher.dispatch(
-            EventMessage(test_server, None, test_user, "help function no doc")
+        test_hallo.function_dispatcher.dispatch(
+            EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help function no doc")
         )
-        data = test_server.get_send_data(1, test_user, EventMessage)
+        data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
         assert "error" in data[0].text.lower()
         assert "no documentation exists" in data[0].text.lower()
     finally:
-        hallo.function_dispatcher.unload_function(None, FunctionMockNoDoc)
+        test_hallo.function_dispatcher.unload_function(None, FunctionMockNoDoc)
 
 
 def test_help_mock_func(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({"hallo_control"})
+    test_hallo = hallo_getter({"hallo_control"})
     # Manually add FunctionMock to function dispatcher
-    hallo.function_dispatcher.load_function(None, FunctionMock)
+    test_hallo.function_dispatcher.load_function(None, FunctionMock)
     try:
-        hallo.function_dispatcher.dispatch(
-            EventMessage(test_server, None, test_user, "help function mock")
+        test_hallo.function_dispatcher.dispatch(
+            EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help function mock")
         )
-        data = test_server.get_send_data(1, test_user, EventMessage)
+        data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
         assert "error" not in data[0].text.lower()
         assert "example help, please ignore" in data[0].text.lower()
     finally:
-        hallo.function_dispatcher.unload_function(None, FunctionMock)
+        test_hallo.function_dispatcher.unload_function(None, FunctionMock)
 
 
 class FunctionMock(Function):

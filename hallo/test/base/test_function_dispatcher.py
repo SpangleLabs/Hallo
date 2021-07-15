@@ -3,9 +3,9 @@ from hallo.hallo import Hallo
 
 
 def test_fd_load_order(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({})
+    test_hallo = hallo_getter({})
     # Create a blank function dispatcher
-    fd = FunctionDispatcher(set(), hallo)
+    fd = FunctionDispatcher(set(), test_hallo)
     try:
         # Add modules to allowed list
         fd.module_list = {"euler", "math"}
@@ -20,9 +20,9 @@ def test_fd_load_order(hallo_getter):
 
 
 def test_fd_disallowed_module(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({})
+    test_hallo = hallo_getter({})
     # Create a blank function dispatcher
-    fd = FunctionDispatcher(set(), hallo)
+    fd = FunctionDispatcher(set(), test_hallo)
     try:
         # Try and load a module
         assert not fd.reload_module("euler")
@@ -56,12 +56,12 @@ def test_init():
 
 
 def test_open_close(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({})
+    test_hallo = hallo_getter({})
     # Set up
     test_module = "euler"
     test_modules = {test_module}
     # Create function dispatcher
-    fd = FunctionDispatcher(test_modules, hallo)
+    fd = FunctionDispatcher(test_modules, test_hallo)
     try:
         # Check test module is loaded
         assert len(fd.function_dict) == len(test_modules)

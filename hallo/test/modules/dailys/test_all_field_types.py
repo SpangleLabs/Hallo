@@ -58,7 +58,7 @@ def test_field_classes_added_to_factory(hallo_getter):
     """
     Test tht all field classes which are implemented are added to DailysFieldFactory
     """
-    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    test_hallo = hallo_getter({"dailys"})
     module_obj = importlib.import_module("hallo.modules.dailys")
     # Loop through module, searching for DailysField subclasses.
     for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
@@ -67,11 +67,11 @@ def test_field_classes_added_to_factory(hallo_getter):
         if not inherits_from(function_class, "DailysField"):
             continue
         # Only look at implemented classes.
-        spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
+        spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
         # noinspection PyBroadException
         try:
             function_class.create_from_input(
-                EventMessage(test_server, test_chan, test_user, "hello"),
+                EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "hello"),
                 spreadsheet,
             )
         except NotImplementedError:
@@ -91,9 +91,9 @@ def test_all_field_classes_in_field_objs(field_class, hallo_getter):
     """
     Tests that all field classes have an object in the get_field_objects method here.
     """
-    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    test_hallo = hallo_getter({"dailys"})
     assert field_class in [
-        field_obj.__class__ for field_obj in get_field_objects(test_user, test_chan)
+        field_obj.__class__ for field_obj in get_field_objects(test_hallo.test_user, test_hallo.test_chan)
     ]
 
 
