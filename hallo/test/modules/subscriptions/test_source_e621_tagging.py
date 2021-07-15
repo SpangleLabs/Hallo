@@ -11,10 +11,10 @@ from hallo.modules.user_data import E6KeyData
 
 
 def test_init(hallo_getter):
-    hallo_obj, test_server, test_chat, test_user = hallo_getter({"subscriptions"})
+    test_hallo = hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
-    sub_repo = SubscriptionRepo(hallo_obj)
-    rf = E621TaggingSource("cabinet", e6_client, sub_repo, test_user, ["table", "legs"])
+    sub_repo = SubscriptionRepo(test_hallo)
+    rf = E621TaggingSource("cabinet", e6_client, sub_repo, test_hallo.test_user, ["table", "legs"])
     keys = [
         "search",
         "owner",
@@ -26,29 +26,29 @@ def test_init(hallo_getter):
 
 
 def test_matches_name(hallo_getter):
-    hallo_obj, test_server, test_chat, test_user = hallo_getter({"subscriptions"})
+    test_hallo = hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
-    sub_repo = SubscriptionRepo(hallo_obj)
-    rf = E621TaggingSource("Cabinet ", e6_client, sub_repo, test_user, ["table", "legs"])
+    sub_repo = SubscriptionRepo(test_hallo)
+    rf = E621TaggingSource("Cabinet ", e6_client, sub_repo, test_hallo.test_user, ["table", "legs"])
 
     assert rf.matches_name("cabinet")
 
 
 def test_title(hallo_getter):
-    hallo_obj, test_server, test_chat, test_user = hallo_getter({"subscriptions"})
+    test_hallo = hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
-    sub_repo = SubscriptionRepo(hallo_obj)
-    rf = E621TaggingSource("cabinet", e6_client, sub_repo, test_user, ["table", "legs"])
+    sub_repo = SubscriptionRepo(test_hallo)
+    rf = E621TaggingSource("cabinet", e6_client, sub_repo, test_hallo.test_user, ["table", "legs"])
 
     assert "\"cabinet\"" in rf.title
 
 
 def test_from_input(hallo_getter):
-    hallo_obj, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
-    sub_repo = SubscriptionRepo(hallo_obj)
-    test_user.extra_data_dict[E6KeyData.type_name] = E6KeyData("test_username", "test_api_key").to_json()
+    test_hallo = hallo_getter({"subscriptions"})
+    sub_repo = SubscriptionRepo(test_hallo)
+    test_hallo.test_user.extra_data_dict[E6KeyData.type_name] = E6KeyData("test_username", "test_api_key").to_json()
 
-    rf = E621TaggingSource.from_input("cabinet tags=\"table legs\"", test_user, sub_repo)
+    rf = E621TaggingSource.from_input("cabinet tags=\"table legs\"", test_hallo.test_user, sub_repo)
 
     assert rf.search == "cabinet"
     assert rf.tags == ["table", "legs"]
@@ -56,11 +56,11 @@ def test_from_input(hallo_getter):
 
 
 def test_from_input__no_user_data(hallo_getter):
-    hallo_obj, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
-    sub_repo = SubscriptionRepo(hallo_obj)
+    test_hallo = hallo_getter({"subscriptions"})
+    sub_repo = SubscriptionRepo(test_hallo)
 
     with pytest.raises(hallo.modules.subscriptions.subscription_exception.SubscriptionException) as e:
-        E621TaggingSource.from_input("cabinet tags=\"table legs\"", test_user, sub_repo)
+        E621TaggingSource.from_input("cabinet tags=\"table legs\"", test_hallo.test_user, sub_repo)
 
     assert "you must specify an e621 username and api key" in str(e).lower()
     assert "setup e621 user data <username> <api_key>" in str(e).lower()
@@ -68,10 +68,10 @@ def test_from_input__no_user_data(hallo_getter):
 
 @pytest.mark.external_integration
 def test_current_state(hallo_getter):
-    hallo_obj, test_server, test_chat, test_user = hallo_getter({"subscriptions"})
+    test_hallo = hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
-    sub_repo = SubscriptionRepo(hallo_obj)
-    rf = E621TaggingSource("cabinet", e6_client, sub_repo, test_user, ["table", "legs"])
+    sub_repo = SubscriptionRepo(test_hallo)
+    rf = E621TaggingSource("cabinet", e6_client, sub_repo, test_hallo.test_user, ["table", "legs"])
 
     state = rf.current_state()
 
@@ -91,10 +91,10 @@ def test_current_state(hallo_getter):
 
 @pytest.mark.external_integration
 def test_item_to_key(hallo_getter):
-    hallo_obj, test_server, test_chat, test_user = hallo_getter({"subscriptions"})
+    test_hallo = hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
-    sub_repo = SubscriptionRepo(hallo_obj)
-    rf = E621TaggingSource("cabinet", e6_client, sub_repo, test_user, ["table", "legs"])
+    sub_repo = SubscriptionRepo(test_hallo)
+    rf = E621TaggingSource("cabinet", e6_client, sub_repo, test_hallo.test_user, ["table", "legs"])
     item = e6_client.post(1092773)
 
     assert rf.item_to_key(item) == 1092773
@@ -102,19 +102,19 @@ def test_item_to_key(hallo_getter):
 
 @pytest.mark.external_integration
 def test_item_to_event(hallo_getter, tmp_path):
-    hallo_obj, test_server, test_chat, test_user = hallo_getter({"subscriptions"})
+    test_hallo = hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
-    sub_repo = SubscriptionRepo(hallo_obj)
+    sub_repo = SubscriptionRepo(test_hallo)
     sub_repo.MENU_STORE_FILE = tmp_path / "subscription_menus.json"
-    sub_repo.load_menu_cache(hallo_obj)
-    rf = E621TaggingSource("chital", e6_client, sub_repo, test_user, ["deer-spangle", "fallow"])
+    sub_repo.load_menu_cache(test_hallo)
+    rf = E621TaggingSource("chital", e6_client, sub_repo, test_hallo.test_user, ["deer-spangle", "fallow"])
     item = e6_client.post(1092773)
 
-    event = rf.item_to_event(test_server, test_chat, None, item)
+    event = rf.item_to_event(test_hallo.test_server, test_chat, None, item)
 
     assert isinstance(event, EventMessageWithPhoto)
     assert event.photo_id == "https://static1.e621.net/data/02/7e/027e18f9db1fd4906d98b987b202066e.png"
-    assert event.server == test_server
+    assert event.server == test_hallo.test_server
     assert event.channel == test_chat
     assert event.user is None
     assert "\"chital\"" in event.text
@@ -138,19 +138,19 @@ def test_item_to_event(hallo_getter, tmp_path):
 
 @pytest.mark.external_integration
 def test_item_to_event__no_embed(hallo_getter, tmp_path):
-    hallo_obj, test_server, test_chat, test_user = hallo_getter({"subscriptions"})
+    test_hallo = hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
-    sub_repo = SubscriptionRepo(hallo_obj)
+    sub_repo = SubscriptionRepo(test_hallo)
     sub_repo.MENU_STORE_FILE = tmp_path / "subscription_menus.json"
-    sub_repo.load_menu_cache(hallo_obj)
-    rf = E621TaggingSource("acrobatics", e6_client, sub_repo, test_user, ["chital", "tirrel"])
+    sub_repo.load_menu_cache(test_hallo)
+    rf = E621TaggingSource("acrobatics", e6_client, sub_repo, test_hallo.test_user, ["chital", "tirrel"])
     item = e6_client.post(257069)
 
-    event = rf.item_to_event(test_server, test_chat, None, item)
+    event = rf.item_to_event(test_hallo.test_server, test_chat, None, item)
 
     assert isinstance(event, EventMessage)
     assert not isinstance(event, EventMessageWithPhoto)
-    assert event.server == test_server
+    assert event.server == test_hallo.test_server
     assert event.channel == test_chat
     assert event.user is None
     assert "\"acrobatics\"" in event.text
@@ -173,13 +173,13 @@ def test_item_to_event__no_embed(hallo_getter, tmp_path):
 
 
 def test_json(hallo_getter):
-    hallo_obj, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
+    test_hallo = hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
-    sub_repo = SubscriptionRepo(hallo_obj)
+    sub_repo = SubscriptionRepo(test_hallo)
     test_e621_search = "cabinet"
     test_tags = ["table", "legs"]
     # Create example source
-    rf = E621TaggingSource(test_e621_search, e6_client, sub_repo, test_user, test_tags)
+    rf = E621TaggingSource(test_e621_search, e6_client, sub_repo, test_hallo.test_user, test_tags)
     rf.last_keys = [1234, 2345, 3456]
     # Save to json and load up new E621Sub
     rf_json = rf.to_json()
@@ -190,7 +190,7 @@ def test_json(hallo_getter):
     assert "tags" in rf_json
     assert rf_json["type"] == E621TaggingSource.type_name
 
-    rf2 = E621TaggingSource.from_json(rf_json, test_channel, sub_repo)
+    rf2 = E621TaggingSource.from_json(rf_json, test_hallo.test_chan, sub_repo)
 
     assert rf2.search == test_e621_search
     assert rf2.last_keys == rf.last_keys

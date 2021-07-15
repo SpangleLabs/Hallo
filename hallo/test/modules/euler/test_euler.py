@@ -4,18 +4,18 @@ from hallo.events import EventMessage
 
 
 def test_euler_list(hallo_getter):
-    hallo, test_server, test_chan, test_user = hallo_getter({"euler"})
-    hallo.function_dispatcher.dispatch(
-        EventMessage(test_server, None, test_user, "euler")
+    test_hallo = hallo_getter({"euler"})
+    test_hallo.function_dispatcher.dispatch(
+        EventMessage(test_hallo.test_server, None, test_hallo.test_user, "euler")
     )
-    data = test_server.get_send_data(1, test_user, EventMessage)
+    data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert (
         "error" not in data[0].text.lower()
     ), "Euler function should not throw errors."
-    hallo.function_dispatcher.dispatch(
-        EventMessage(test_server, None, test_user, "euler list")
+    test_hallo.function_dispatcher.dispatch(
+        EventMessage(test_hallo.test_server, None, test_hallo.test_user, "euler list")
     )
-    data = test_server.get_send_data(1, test_user, EventMessage)
+    data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert (
         "error" not in data[0].text.lower()
     ), "Euler function should not throw errors."
@@ -89,12 +89,12 @@ def test_euler_list(hallo_getter):
     }.items(),
 )
 def test_euler_solutions(hallo_getter, problem, solution):
-    hallo, test_server, test_chan, test_user = hallo_getter({"euler", "math", "games"})
+    test_hallo = hallo_getter({"euler", "math", "games"})
     # Spoilers
-    hallo.function_dispatcher.dispatch(
-        EventMessage(test_server, None, test_user, "euler " + problem)
+    test_hallo.function_dispatcher.dispatch(
+        EventMessage(test_hallo.test_server, None, test_hallo.test_user, "euler " + problem)
     )
-    data = test_server.get_send_data(1, test_user, EventMessage)
+    data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert "error" not in data[0].text.lower()
     assert "Euler project problem " + problem + "?" in data[0].text
     assert solution in data[0].text.lower()
