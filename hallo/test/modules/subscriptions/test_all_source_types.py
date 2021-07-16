@@ -8,7 +8,6 @@ import pytest
 from yippi import YippiClient
 
 import hallo.modules.subscriptions.subscription
-from hallo.events import EventMessage
 from hallo.inc.commons import inherits_from
 from hallo.modules.subscriptions.common_fa_key import FAKey
 from hallo.modules.subscriptions.source import Source

@@ -7,10 +7,10 @@ from hallo.user_group import UserGroup
 
 
 def test_3_fail(hallo_getter):
-    hallo_obj, test_server, test_channel, test_user = hallo_getter({"permission_control"})
+    test_hallo = hallo_getter({"permission_control"})
     perm_cont = Permissions()
     try:
-        perm_cont.find_permission_mask(["a", "b", "c"], test_user, test_channel)
+        perm_cont.find_permission_mask(["a", "b", "c"], test_hallo.test_user, test_hallo.test_chan)
         assert False, "Exception should be thrown if more than 2 arguments passed."
     except hallo.modules.permission_control.PermissionControlException as e:
         assert "error" in str(e).lower()
@@ -18,11 +18,11 @@ def test_3_fail(hallo_getter):
 
 
 def test_2_no_server(hallo_getter):
-    hallo_obj, test_server, test_channel, test_user = hallo_getter({"permission_control"})
+    test_hallo = hallo_getter({"permission_control"})
     perm_cont = Permissions()
     try:
         perm_cont.find_permission_mask(
-            ["channel=chan1", "user=user1"], test_user, test_channel
+            ["channel=chan1", "user=user1"], test_hallo.test_user, test_hallo.test_chan
         )
         assert False, "Exception should be thrown if 2 arguments and neither is server."
     except hallo.modules.permission_control.PermissionControlException as e:
@@ -31,11 +31,11 @@ def test_2_no_server(hallo_getter):
 
 
 def test_2_no_server_by_name(hallo_getter):
-    hallo_obj, test_server, test_channel, test_user = hallo_getter({"permission_control"})
+    test_hallo = hallo_getter({"permission_control"})
     perm_cont = Permissions()
     try:
         perm_cont.find_permission_mask(
-            ["server=no_server_by_name", "chan=test_chan1"], test_user, test_user
+            ["server=no_server_by_name", "chan=test_chan1"], test_hallo.test_user, test_hallo.test_user
         )
         assert False, "Exception should be thrown if server does not exist."
     except hallo.modules.permission_control.PermissionControlException as e:
@@ -44,46 +44,46 @@ def test_2_no_server_by_name(hallo_getter):
 
 
 def test_2_server_chan(hallo_getter):
-    hallo_obj, test_server, test_channel, test_user = hallo_getter({"permission_control"})
+    test_hallo = hallo_getter({"permission_control"})
     perm_cont = Permissions()
     # Set up a test server and channel
-    serv1 = ServerMock(hallo_obj)
+    serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
-    hallo_obj.add_server(serv1)
+    test_hallo.add_server(serv1)
     chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     # Get permission mask of given channel
     data = perm_cont.find_permission_mask(
-        ["server=test_serv1", "channel=test_chan1"], test_user, test_channel
+        ["server=test_serv1", "channel=test_chan1"], test_hallo.test_user, test_hallo.test_chan
     )
     assert perm1 == data, "Did not find the correct permission mask."
 
 
 def test_2_server_user(hallo_getter):
-    hallo_obj, test_server, test_channel, test_user = hallo_getter({"permission_control"})
+    test_hallo = hallo_getter({"permission_control"})
     perm_cont = Permissions()
     # Set up a test server and user
-    serv1 = ServerMock(hallo_obj)
+    serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
-    hallo_obj.add_server(serv1)
+    test_hallo.add_server(serv1)
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
     perm1 = PermissionMask()
     user1.permission_mask = perm1
     # Get permission mask of given channel
     data = perm_cont.find_permission_mask(
-        ["server=test_serv1", "user=test_user1"], test_user, test_channel
+        ["server=test_serv1", "user=test_user1"], test_hallo.test_user, test_hallo.test_chan
     )
     assert perm1 == data, "Did not find the correct permission mask."
 
 
 def test_2_server_no_chan_user(hallo_getter):
-    hallo_obj, test_server, test_channel, test_user = hallo_getter({"permission_control"})
+    test_hallo = hallo_getter({"permission_control"})
     perm_cont = Permissions()
     # Set up a test server and channel and user
-    serv1 = ServerMock(hallo_obj)
+    serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
-    hallo_obj.add_server(serv1)
+    test_hallo.add_server(serv1)
     chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
@@ -170,7 +170,7 @@ def test_1_server_no_name():
 
 
 def test_1_server_name(hallo_getter):
-    hallo_obj, test_server, test_channel, test_user = hallo_getter({"permission_control"})
+    test_hallo = hallo_getter({"permission_control"})
     perm_cont = Permissions()
     # Set up a test server and channel and user
     hallo1 = Hallo()

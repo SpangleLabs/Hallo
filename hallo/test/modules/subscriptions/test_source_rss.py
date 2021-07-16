@@ -47,10 +47,10 @@ def test_title():
 
 
 def test_from_input(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
-    sub_repo = SubscriptionRepo(hallo)
+    test_hallo = hallo_getter({"subscriptions"})
+    sub_repo = SubscriptionRepo(test_hallo)
 
-    rf = RssSource.from_input(TEST_RSS, test_user, sub_repo)
+    rf = RssSource.from_input(TEST_RSS, test_hallo.test_user, sub_repo)
 
     assert rf.url == TEST_RSS
     assert rf.feed_title == "Example rss feed"
@@ -114,7 +114,7 @@ def test_item_to_key__no_guid_or_link():
 
 
 def test_item_to_event(hallo_getter):
-    hallo, test_server, test_chat, test_user = hallo_getter({"subscriptions"})
+    test_hallo = hallo_getter({"subscriptions"})
     rf = RssSource(TEST_RSS, "feed title")
     rss_data = (
         """<item>
@@ -124,10 +124,10 @@ def test_item_to_event(hallo_getter):
     )
     rss_elem = ElementTree.fromstring(rss_data)
 
-    event = rf.item_to_event(test_server, test_chat, None, rss_elem)
+    event = rf.item_to_event(test_hallo.test_server, test_hallo.test_chan, None, rss_elem)
 
-    assert event.server == test_server
-    assert event.channel == test_chat
+    assert event.server == test_hallo.test_server
+    assert event.channel == test_hallo.test_chan
     assert event.user is None
     assert "\"feed title\"" in event.text
     assert "Item title" in event.text
@@ -135,8 +135,8 @@ def test_item_to_event(hallo_getter):
 
 
 def test_json(hallo_getter):
-    hallo, test_server, test_channel, test_user = hallo_getter({"subscriptions"})
-    sub_repo = SubscriptionRepo(hallo)
+    test_hallo = hallo_getter({"subscriptions"})
+    sub_repo = SubscriptionRepo(test_hallo)
     rf = RssSource(TEST_RSS)
     rf.last_keys = ["item3", "item2", "item1"]
 
@@ -147,7 +147,7 @@ def test_json(hallo_getter):
     assert "url" in rf_json
     assert "title" in rf_json
 
-    rf2 = RssSource.from_json(rf_json, test_channel, sub_repo)
+    rf2 = RssSource.from_json(rf_json, test_hallo.test_chan, sub_repo)
 
     assert rf2.url == TEST_RSS
     assert rf2.feed_title == rf.feed_title

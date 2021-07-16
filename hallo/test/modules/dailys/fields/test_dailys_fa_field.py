@@ -12,9 +12,9 @@ from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetM
 
 
 def test_day_rollover_no_data(hallo_getter):
-    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    test_hallo = hallo_getter({"dailys"})
     # Setup
-    spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
+    spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
     field = DailysFAField(spreadsheet)
     # Send a new day event
@@ -29,13 +29,13 @@ def test_day_rollover_no_data(hallo_getter):
 
 @pytest.mark.external_integration
 def test_day_rollover(hallo_getter):
-    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    test_hallo = hallo_getter({"dailys"})
     # Setup
-    spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
+    spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup FA key
     udp = UserDataParser()
     key = FAKeyData(os.getenv("test_cookie_a"), os.getenv("test_cookie_b"))
-    udp.set_user_data(test_user, key)
+    udp.set_user_data(test_hallo.test_user, key)
     # Setup field
     field = DailysFAField(spreadsheet)
     # Send a new day event
@@ -53,26 +53,26 @@ def test_day_rollover(hallo_getter):
     assert "notes" in notif_dict
     assert "watchers_count" in notif_dict
     assert "watching_count" in notif_dict
-    assert len(test_server.send_data) == 1
-    assert isinstance(test_server.send_data[0], EventMessage)
-    assert test_server.send_data[0].text == json.dumps(notif_dict)
-    assert test_server.send_data[0].channel == test_chan
-    assert test_server.send_data[0].user == test_user
+    assert len(test_hallo.test_server.send_data) == 1
+    assert isinstance(test_hallo.test_server.send_data[0], EventMessage)
+    assert test_hallo.test_server.send_data[0].text == json.dumps(notif_dict)
+    assert test_hallo.test_server.send_data[0].channel == test_hallo.test_chan
+    assert test_hallo.test_server.send_data[0].user == test_hallo.test_user
 
 
 def test_create_from_input_no_fa_data(hallo_getter):
-    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    test_hallo = hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "furaffinity"
     evt = EventMessage(
-        test_server,
-        test_chan,
-        test_user,
+        test_hallo.test_server,
+        test_hallo.test_chan,
+        test_hallo.test_user,
         "{} {}".format(cmd_name, cmd_args),
     )
     evt.split_command_text(cmd_name, cmd_args)
-    spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
+    spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
     try:
         DailysFAField.create_from_input(evt, spreadsheet)
@@ -86,22 +86,22 @@ def test_create_from_input_no_fa_data(hallo_getter):
 
 
 def test_create_from_input(hallo_getter):
-    hallo_obj, test_server, test_chan, test_user = hallo_getter({"dailys"})
+    test_hallo = hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "furaffinity"
     evt = EventMessage(
-        test_server,
-        test_chan,
-        test_user,
+        test_hallo.test_server,
+        test_hallo.test_chan,
+        test_hallo.test_user,
         "{} {}".format(cmd_name, cmd_args),
     )
     evt.split_command_text(cmd_name, cmd_args)
-    spreadsheet = DailysSpreadsheetMock(test_user, test_chan)
+    spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup an FA key, doesn't matter if it works
     udp = UserDataParser()
     key = FAKeyData("cookie_a", "cookie_b")
-    udp.set_user_data(test_user, key)
+    udp.set_user_data(test_hallo.test_user, key)
     # Create from input
     field = DailysFAField.create_from_input(evt, spreadsheet)
     assert field.spreadsheet == spreadsheet
