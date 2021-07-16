@@ -4,7 +4,6 @@ import unittest
 import pytest
 
 from hallo.events import EventMessage
-from hallo.inc import commons
 from hallo.modules.subscriptions.source_e621 import E621Source
 from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck

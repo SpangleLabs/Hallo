@@ -1,7 +1,3 @@
-import re
-
-from datetime import datetime
-
 import pytest
 
 from hallo.inc.commons import Commons

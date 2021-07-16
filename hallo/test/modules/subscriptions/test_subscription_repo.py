@@ -1,8 +1,6 @@
 import os
 from datetime import timedelta
 
-import pytest
-
 from hallo.modules.subscriptions.source_rss import RssSource
 from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo

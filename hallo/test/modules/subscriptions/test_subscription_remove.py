@@ -2,7 +2,6 @@ import os
 import unittest
 from datetime import timedelta
 
-import isodate
 import pytest
 from yippi import YippiClient
 
