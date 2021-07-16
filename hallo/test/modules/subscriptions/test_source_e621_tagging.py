@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from yippi import YippiClient
 
@@ -110,12 +108,12 @@ def test_item_to_event(hallo_getter, tmp_path):
     rf = E621TaggingSource("chital", e6_client, sub_repo, test_hallo.test_user, ["deer-spangle", "fallow"])
     item = e6_client.post(1092773)
 
-    event = rf.item_to_event(test_hallo.test_server, test_chat, None, item)
+    event = rf.item_to_event(test_hallo.test_server, test_hallo.test_chan, None, item)
 
     assert isinstance(event, EventMessageWithPhoto)
     assert event.photo_id == "https://static1.e621.net/data/02/7e/027e18f9db1fd4906d98b987b202066e.png"
     assert event.server == test_hallo.test_server
-    assert event.channel == test_chat
+    assert event.channel == test_hallo.test_chan
     assert event.user is None
     assert "\"chital\"" in event.text
     assert "1092773" in event.text
@@ -146,12 +144,12 @@ def test_item_to_event__no_embed(hallo_getter, tmp_path):
     rf = E621TaggingSource("acrobatics", e6_client, sub_repo, test_hallo.test_user, ["chital", "tirrel"])
     item = e6_client.post(257069)
 
-    event = rf.item_to_event(test_hallo.test_server, test_chat, None, item)
+    event = rf.item_to_event(test_hallo.test_server, test_hallo.test_chan, None, item)
 
     assert isinstance(event, EventMessage)
     assert not isinstance(event, EventMessageWithPhoto)
     assert event.server == test_hallo.test_server
-    assert event.channel == test_chat
+    assert event.channel == test_hallo.test_chan
     assert event.user is None
     assert "\"acrobatics\"" in event.text
     assert "257069" in event.text
