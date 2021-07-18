@@ -149,7 +149,7 @@ def test_json():
     # Save to JSON and load
     try:
         try:
-            os.rename("store/convert.json", "store/convert.json.tmp")
+            os.rename(ConvertRepo.STORE_FILE, ConvertRepo.STORE_FILE + ".tmp")
         except OSError:
             pass
         test_repo.save_json()
@@ -162,10 +162,10 @@ def test_json():
         assert "group2" in [x.name for x in new_repo.prefix_group_list]
     finally:
         try:
-            os.remove("store/convert.json")
+            os.remove(ConvertRepo.STORE_FILE)
         except OSError:
             pass
         try:
-            os.rename("store/convert.json.tmp", "store/convert.json")
+            os.rename(ConvertRepo.STORE_FILE + ".tmp", ConvertRepo.STORE_FILE)
         except OSError:
             pass

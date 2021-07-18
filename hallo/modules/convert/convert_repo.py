@@ -17,6 +17,8 @@ class ConvertRepo:
     """
     Configuration repository. Stores list of ConvertTypes, ConvertPrefixGroups, etc
     """
+    STORE_FILE = "store/convert.json"
+    DEFAULT_FILE = "store/convert-default.json"
 
     def __init__(self):
         """
@@ -96,19 +98,18 @@ class ConvertRepo:
                 return prefix_group_obj
         return None
 
-    @staticmethod
-    def load_json():
+    @classmethod
+    def load_json(cls) -> 'ConvertRepo':
         """
         Loads a new conversion repository from json file.
-        :rtype: ConvertRepo
         """
         try:
-            with open("store/convert.json", "r") as f:
+            with open(cls.STORE_FILE, "r") as f:
                 json_obj = json.load(f)
         except (OSError, IOError):
-            with open("store/convert-default.json", "r") as f:
+            with open(cls.DEFAULT_FILE, "r") as f:
                 json_obj = json.load(f)
-        new_repo = ConvertRepo()
+        new_repo = cls()
         for prefix_group in json_obj["prefix_groups"]:
             new_repo.add_prefix_group(
                 ConvertPrefixGroup.from_json(new_repo, prefix_group)
@@ -131,7 +132,7 @@ class ConvertRepo:
         for unit_type in self.type_list:
             json_obj["unit_types"].append(unit_type.to_json())
         # Save json to file
-        with open("store/convert.json", "w") as f:
+        with open(self.STORE_FILE, "w") as f:
             json.dump(json_obj, f, indent=2)
 
 

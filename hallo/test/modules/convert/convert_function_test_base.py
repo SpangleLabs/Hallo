@@ -44,7 +44,7 @@ class ConvertFunctionTestBase(TestBase, unittest.TestCase):
         self.test_group2.add_prefix(self.test_prefix2b)
         # Move current convert.json
         try:
-            os.rename("store/convert.json", "store/convert.json.tmp")
+            os.rename(ConvertRepo.STORE_FILE, ConvertRepo.STORE_FILE + ".tmp")
         except OSError:
             pass
         # Put this test repo into the Convert object
@@ -58,10 +58,10 @@ class ConvertFunctionTestBase(TestBase, unittest.TestCase):
         super().tearDown()
         # Put all the normal convert json back where it should be
         try:
-            os.remove("store/convert.json")
+            os.remove(ConvertRepo.STORE_FILE)
         except OSError:
             pass
         try:
-            os.rename("store/convert.json.tmp", "store/convert.json")
+            os.rename(ConvertRepo.STORE_FILE + ".tmp", ConvertRepo.STORE_FILE)
         except OSError:
             pass
