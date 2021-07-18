@@ -17,7 +17,7 @@ from hallo.test.test_base import TestBase
 class SubscriptionRemoveTest(TestBase, unittest.TestCase):
     def setUp(self):
         try:
-            os.rename("store/subscriptions.json", "store/subscriptions.json.tmp")
+            os.rename(SubscriptionRepo.STORE_FILE, SubscriptionRepo.STORE_FILE + ".tmp")
         except OSError:
             pass
         try:
@@ -29,11 +29,11 @@ class SubscriptionRemoveTest(TestBase, unittest.TestCase):
     def tearDown(self):
         super().tearDown()
         try:
-            os.remove("store/subscriptions.json")
+            os.remove(SubscriptionRepo.STORE_FILE)
         except OSError:
             pass
         try:
-            os.rename("store/subscriptions.json.tmp", "store/subscriptions.json")
+            os.rename(SubscriptionRepo.STORE_FILE + ".tmp", SubscriptionRepo.STORE_FILE)
         except OSError:
             pass
         try:

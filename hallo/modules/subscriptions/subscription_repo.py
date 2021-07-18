@@ -22,6 +22,7 @@ class SubscriptionRepo:
     """
     Holds the lists of subscriptions, for loading and unloading.
     """
+    STORE_FILE = "store/subscriptions.json"
     MENU_STORE_FILE = "store/menus/subscriptions.json"
 
     def __init__(self, hallo_obj: 'Hallo'):
@@ -123,20 +124,20 @@ class SubscriptionRepo:
             if common_json is not None:
                 json_obj["common"].append(common_json)
         # Write json to file
-        with open("store/subscriptions.json", "w") as f:
+        with open(self.STORE_FILE, "w") as f:
             json.dump(json_obj, f, indent=2)
 
-    @staticmethod
-    def load_json(hallo_obj) -> 'SubscriptionRepo':
+    @classmethod
+    def load_json(cls, hallo_obj) -> 'SubscriptionRepo':
         """
         Constructs a new SubscriptionRepo from the JSON file
         :return: Newly constructed list of subscriptions
         """
         # Create repo
-        new_repo = SubscriptionRepo(hallo_obj)
+        new_repo = cls(hallo_obj)
         # Try loading json file, otherwise return blank list
         try:
-            with open("store/subscriptions.json", "r") as f:
+            with open(cls.STORE_FILE, "r") as f:
                 json_obj = json.load(f)
         except (OSError, IOError):
             return new_repo
