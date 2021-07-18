@@ -1,5 +1,3 @@
-import os
-
 from hallo.modules.convert.convert_repo import ConvertRepo, ConvertType, ConvertUnit, ConvertPrefixGroup
 
 
@@ -132,7 +130,7 @@ def test_get_prefix_group_by_name():
     assert test_repo.get_prefix_group_by_name("group2") == test_group2
 
 
-def test_json():
+def test_json(tmp_path):
     test_repo = ConvertRepo()
     test_type1 = ConvertType(test_repo, "test_type1")
     test_type2 = ConvertType(test_repo, "test_type2")
@@ -147,25 +145,13 @@ def test_json():
     test_repo.add_prefix_group(test_group1)
     test_repo.add_prefix_group(test_group2)
     # Save to JSON and load
-    try:
-        try:
-            os.rename(ConvertRepo.STORE_FILE, ConvertRepo.STORE_FILE + ".tmp")
-        except OSError:
-            pass
-        test_repo.save_json()
-        new_repo = ConvertRepo.load_json()
-        assert len(new_repo.type_list) == 2
-        assert len(new_repo.prefix_group_list) == 2
-        assert "test_type1" in [x.name for x in new_repo.type_list]
-        assert "test_type2" in [x.name for x in new_repo.type_list]
-        assert "group1" in [x.name for x in new_repo.prefix_group_list]
-        assert "group2" in [x.name for x in new_repo.prefix_group_list]
-    finally:
-        try:
-            os.remove(ConvertRepo.STORE_FILE)
-        except OSError:
-            pass
-        try:
-            os.rename(ConvertRepo.STORE_FILE + ".tmp", ConvertRepo.STORE_FILE)
-        except OSError:
-            pass
+    ConvertRepo.STORE_FILE = tmp_path + "/temp_convert_repo.json"
+    test_repo.save_json()
+    new_repo = ConvertRepo.load_json()
+    assert len(new_repo.type_list) == 2
+    assert len(new_repo.prefix_group_list) == 2
+    assert "test_type1" in [x.name for x in new_repo.type_list]
+    assert "test_type2" in [x.name for x in new_repo.type_list]
+    assert "group1" in [x.name for x in new_repo.prefix_group_list]
+    assert "group2" in [x.name for x in new_repo.prefix_group_list]
+
