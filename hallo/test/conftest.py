@@ -34,21 +34,28 @@ class TestHallo(Hallo):
         # Test user and channel
         self._test_user = None
         self._test_chan = None
+        self._hallo_user = None
 
     def set_modules(self, modules: Optional[Set[str]]):
         modules = modules or DEFAULT_MODULES
         self.function_dispatcher = FunctionDispatcher(modules, self)
 
     def _init_test_destinations(self):
-        hallo_user = self.test_server.get_user_by_address(
+        self._hallo_user = self.test_server.get_user_by_address(
             self.test_server.get_nick().lower(), self.test_server.get_nick()
         )
         self._test_user = self.test_server.get_user_by_address("test", "test")
         self._test_user.online = True
         self._test_chan = self.test_server.get_channel_by_address("#test", "#test")
         self._test_chan.in_channel = True
-        self._test_chan.add_user(hallo_user)
+        self._test_chan.add_user(self._hallo_user)
         self._test_chan.add_user(self._test_user)
+
+    @property
+    def hallo_user(self):
+        if self._hallo_user is None:
+            self._init_test_destinations()
+        return self._hallo_user
 
     @property
     def test_user(self):
