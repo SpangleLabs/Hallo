@@ -76,7 +76,7 @@ def hallo_getter():
     hallo = TestHallo()
     hallo_thread = Thread(target=hallo.start, )
 
-    def function(modules: Optional[Set[str]] = None):
+    def function(modules: Optional[Set[str]] = None, disconnect_servers: bool = False):
         hallo.set_modules(modules)
         # Start hallo thread
         hallo_thread.start()
@@ -90,6 +90,11 @@ def hallo_getter():
                 break
         # Clear any data in the server
         hallo.test_server.get_send_data()
+        # Disconnect servers if wanted
+        if disconnect_servers:
+            for server in hallo.server_list:
+                server.disconnect(True)
+            hallo.server_list.clear()
         return hallo
 
     yield function
