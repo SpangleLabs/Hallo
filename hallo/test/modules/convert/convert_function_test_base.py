@@ -3,7 +3,7 @@ import unittest
 
 from hallo.modules.convert.convert import Convert
 from hallo.modules.convert.convert_repo import ConvertRepo, ConvertType, ConvertUnit, ConvertPrefixGroup, ConvertPrefix
-from hallo.test.test_base import TestBase
+from hallo.test.modules.convert.test_base import TestBase
 
 
 class ConvertFunctionTestBase(TestBase, unittest.TestCase):
