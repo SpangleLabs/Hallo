@@ -1,13 +1,9 @@
 import os
 import re
-import unittest
 
 import pytest
 
 from hallo.events import EventMessage
-from hallo.inc.commons import Commons
-from hallo.test.test_base import TestBase
-from hallo.test.modules.random.mock_chooser import MockChooser
 
 
 @pytest.mark.external_integration
@@ -22,14 +18,14 @@ def test_weather(mock_chooser, hallo_getter):
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert (
-        "and now, the weather" in data[0].text.lower()
+            "and now, the weather" in data[0].text.lower()
     ), "Didn't announce the weather"
     youtube_regex = re.compile(r"https?://youtu\.be/[A-Za-z0-9_\-]{11} .+")
     assert (
-        youtube_regex.search(data[0].text) is not None
+            youtube_regex.search(data[0].text) is not None
     ), "Youtube URL and title didn't appear in message"
     assert (
-        len(mock_chooser.last_choices) > 1
+            len(mock_chooser.last_choices) > 1
     ), "One or fewer videos was on the playlist."
 
 
@@ -50,14 +46,14 @@ def test_passive(mock_chooser, hallo_getter):
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert (
-        "and now, the weather" in data[0].text.lower()
+            "and now, the weather" in data[0].text.lower()
     ), "Didn't announce the weather"
     youtube_regex = re.compile(r"https?://youtu\.be/[A-Za-z0-9_\-]{11} .+")
     assert (
-        youtube_regex.search(data[0].text) is not None
+            youtube_regex.search(data[0].text) is not None
     ), "Youtube URL and title didn't appear in message"
     assert (
-        len(mock_chooser.last_choices) > 1
+            len(mock_chooser.last_choices) > 1
     ), "One or fewer videos was on the playlist."
 
 
@@ -73,6 +69,6 @@ def test_no_api_key(hallo_getter):
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert (
-        "no api key" in data[0].text.lower()
+            "no api key" in data[0].text.lower()
     ), "Not warning about lack of API key."
     assert "youtube" in data[0].text.lower(), "Not specifying youtube API."
