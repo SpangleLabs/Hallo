@@ -16,7 +16,7 @@ def test_one_person_in_channel(mock_chooser, hallo_getter):
     test_hallo = hallo_getter({"random"})
     test_hallo.test_chan.remove_user(test_hallo.hallo_user)
     try:
-        test_hallo.fumction_dispatcher.dispatch(
+        test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "chosen one")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -37,7 +37,7 @@ def test_two_people_in_channel(mock_chooser, hallo_getter):
     # Set chooser option
     mock_chooser.choice = 0
     # Choose user
-    test_hallo.fumction_dispatcher.dispatch(
+    test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "chosen one")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -52,7 +52,7 @@ def test_two_people_in_channel(mock_chooser, hallo_getter):
     # Set chooser option
     mock_chooser.choice = 1
     # Choose user
-    test_hallo.fumction_dispatcher.dispatch(
+    test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "chosen one")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -80,7 +80,7 @@ def test_five_in_channel(mock_chooser, hallo_getter):
     # Set chooser option
     mock_chooser.choice = 0
     # Choose user
-    test_hallo.fumction_dispatcher.dispatch(
+    test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, chan, test_hallo.test_user, "chosen one")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -94,7 +94,7 @@ def test_five_in_channel(mock_chooser, hallo_getter):
     # Set chooser option
     mock_chooser.choice = 1
     # Choose user
-    test_hallo.fumction_dispatcher.dispatch(
+    test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, chan, test_hallo.test_user, "chosen one")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -108,7 +108,7 @@ def test_five_in_channel(mock_chooser, hallo_getter):
     # Set chooser option
     mock_chooser.choice = 2
     # Choose user
-    test_hallo.fumction_dispatcher.dispatch(
+    test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, chan, test_hallo.test_user, "chosen one")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -122,7 +122,7 @@ def test_five_in_channel(mock_chooser, hallo_getter):
     # Set chooser option
     mock_chooser.choice = 3
     # Choose user
-    test_hallo.fumction_dispatcher.dispatch(
+    test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, chan, test_hallo.test_user, "chosen one")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -136,7 +136,7 @@ def test_five_in_channel(mock_chooser, hallo_getter):
     # Set chooser option
     mock_chooser.choice = 4
     # Choose user
-    test_hallo.fumction_dispatcher.dispatch(
+    test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, chan, test_hallo.test_user, "chosen one")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
