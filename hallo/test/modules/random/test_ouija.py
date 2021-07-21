@@ -20,7 +20,7 @@ def test_one_word(mock_roller, mock_chooser, hallo_getter):
     assert mock_roller.last_max == 3, "Maximum word count should be three"
 
 
-def test_three_words(mock_roller, hallo_getter):
+def test_three_words(mock_roller, mock_chooser, hallo_getter):
     test_hallo = hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = 3
