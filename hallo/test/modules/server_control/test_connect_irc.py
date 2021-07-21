@@ -1,3 +1,4 @@
+import threading
 
 from hallo.events import EventMessage
 from hallo.server import Server
