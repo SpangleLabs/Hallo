@@ -38,7 +38,7 @@ class TestConvertRepo(ConvertRepo):
         self.test_group2.add_prefix(self.test_prefix2b)
 
 
-def test_repo(tmp_path, test_hallo: TestHallo) -> TestConvertRepo:
+def mock_repo(tmp_path, test_hallo: TestHallo) -> TestConvertRepo:
     # Create test repo
     repo = TestConvertRepo()
     repo.STORE_FILE = tmp_path / "convert.json"
