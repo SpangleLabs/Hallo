@@ -36,7 +36,7 @@ def source_objects(hallo_getter) -> List[Source]:
     sub_objs = list()
     sub_objs.append(E621Source("cabinet", e6_client, test_hallo.test_user))
     sub_objs.append(E621TaggingSource("cabinet", e6_client, sub_repo, test_hallo.test_user, ["door"]))
-    sub_objs.append(RssSource("https://spangle.org.uk/hallo/test_rss.xml"))
+    sub_objs.append(RssSource("http://spangle.org.uk/hallo/test_rss.xml"))
     sub_objs.append(FANotesSource(fa_key, FANotesInboxSource(fa_key), FANotesOutboxSource(fa_key)))
     sub_objs.append(FAFavsSource(fa_key, "zephyr42"))
     sub_objs.append(FAUserWatchersSource(fa_key, "zephyr42"))
