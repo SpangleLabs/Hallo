@@ -8,7 +8,7 @@ from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 def test_invalid_subscription(tmp_path, hallo_getter):
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menu.json"
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = hallo_getter({"subscriptions"})
     test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "rss sub add ::")
     )
@@ -21,7 +21,7 @@ def test_invalid_subscription(tmp_path, hallo_getter):
 def test_add_search(tmp_path, hallo_getter):
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menu.json"
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = hallo_getter({"subscriptions"})
     test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub add cabinet"
@@ -56,7 +56,7 @@ def test_add_search(tmp_path, hallo_getter):
 def test_add_search_user(tmp_path, hallo_getter):
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menu.json"
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = hallo_getter({"subscriptions"})
     test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "e621 sub add cabinet")
     )
@@ -89,7 +89,7 @@ def test_add_search_user(tmp_path, hallo_getter):
 def test_add_search_period(tmp_path, hallo_getter):
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menu.json"
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = hallo_getter({"subscriptions"})
     test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
