@@ -6,13 +6,12 @@ from hallo.events import EventMessage
 from hallo.modules.subscriptions.source_e621 import E621Source
 from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
-from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
+from hallo.test.modules.subscriptions.mock_subscriptions import mock_sub_repo
 
 
 def test_remove_by_search(tmp_path, hallo_getter):
-    SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
-    SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menu.json"
     test_hallo = hallo_getter({"subscriptions"})
+    mock_sub_repo(tmp_path, test_hallo)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
     # Get subscription list
@@ -24,19 +23,19 @@ def test_remove_by_search(tmp_path, hallo_getter):
     )  # type: SubscriptionCheck
     sub_repo = e621_check_obj.get_sub_repo(test_hallo)
     # Add E621 searches to subscription list
-    rf1 = E621Source("cabinet", e6_client, test_hallo.test_zser)
+    rf1 = E621Source("cabinet", e6_client, test_hallo.test_user)
     sub1 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf1, timedelta(days=1), None, None)
     sub_repo.add_sub(sub1)
-    rf2 = E621Source("clefable", e6_client, test_hallo.test_zser)
+    rf2 = E621Source("clefable", e6_client, test_hallo.test_user)
     sub2 = Subscription(test_hallo.test_server, another_chan, rf2, timedelta(days=1), None, None)
     sub_repo.add_sub(sub2)
-    rf3 = E621Source("fez", e6_client, test_hallo.test_zser)
+    rf3 = E621Source("fez", e6_client, test_hallo.test_user)
     sub3 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf3, timedelta(days=1), None, None)
     sub_repo.add_sub(sub3)
     # Remove test search
     test_hallo.function_dispatcher.dispatch(
         EventMessage(
-            test_hallo.test_server, test_hallo.test_chan, test_hallo.test_zser, "e621 sub remove cabinet"
+            test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub remove cabinet"
         )
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -49,9 +48,8 @@ def test_remove_by_search(tmp_path, hallo_getter):
 
 
 def test_remove_multiple_matching_searches(tmp_path, hallo_getter):
-    SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
-    SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menu.json"
     test_hallo = hallo_getter({"subscriptions"})
+    mock_sub_repo(tmp_path, test_hallo)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
     # Get subscription list
@@ -63,19 +61,19 @@ def test_remove_multiple_matching_searches(tmp_path, hallo_getter):
     )  # type: SubscriptionCheck
     rfl = e621_check_obj.get_sub_repo(test_hallo)
     # Add E621 searches to subscription list
-    rf1 = E621Source("cabinet", e6_client, test_hallo.test_zser)
+    rf1 = E621Source("cabinet", e6_client, test_hallo.test_user)
     sub1 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf1, timedelta(days=1), None, None)
     rfl.add_sub(sub1)
-    rf2 = E621Source("clefable", e6_client, test_hallo.test_zser)
+    rf2 = E621Source("clefable", e6_client, test_hallo.test_user)
     sub2 = Subscription(test_hallo.test_server, another_chan, rf2, timedelta(days=1), None, None)
     rfl.add_sub(sub2)
-    rf3 = E621Source("cabinet", e6_client, test_hallo.test_zser)
+    rf3 = E621Source("cabinet", e6_client, test_hallo.test_user)
     sub3 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf3, timedelta(days=1), None, None)
     rfl.add_sub(sub3)
     # Remove test feed
     test_hallo.function_dispatcher.dispatch(
         EventMessage(
-            test_hallo.test_server, test_hallo.test_chan, test_hallo.test_zser, "e621 sub remove cabinet"
+            test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub remove cabinet"
         )
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -100,9 +98,8 @@ def test_remove_multiple_matching_searches(tmp_path, hallo_getter):
 
 
 def test_remove_no_match(tmp_path, hallo_getter):
-    SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
-    SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menu.json"
     test_hallo = hallo_getter({"subscriptions"})
+    mock_sub_repo(tmp_path, test_hallo)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
     # Get subscription list
@@ -114,13 +111,13 @@ def test_remove_no_match(tmp_path, hallo_getter):
     )  # type: SubscriptionCheck
     sub_repo = e621_check_obj.get_sub_repo(test_hallo)
     # Add E621 searches to subscription list
-    rf1 = E621Source("cabinet", e6_client, test_hallo.test_zser)
+    rf1 = E621Source("cabinet", e6_client, test_hallo.test_user)
     sub1 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf1, timedelta(days=1), None, None)
     sub_repo.add_sub(sub1)
-    rf2 = E621Source("clefable", e6_client, test_hallo.test_zser)
+    rf2 = E621Source("clefable", e6_client, test_hallo.test_user)
     sub2 = Subscription(test_hallo.test_server, another_chan, rf2, timedelta(days=1), None, None)
     sub_repo.add_sub(sub2)
-    rf3 = E621Source("fez", e6_client, test_hallo.test_zser)
+    rf3 = E621Source("fez", e6_client, test_hallo.test_user)
     sub3 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf3, timedelta(days=1), None, None)
     sub_repo.add_sub(sub3)
     # Try to remove invalid search
@@ -128,7 +125,7 @@ def test_remove_no_match(tmp_path, hallo_getter):
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
-            test_hallo.test_zser,
+            test_hallo.test_user,
             "e621 sub remove not_a_search",
         )
     )

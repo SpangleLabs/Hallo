@@ -7,13 +7,12 @@ from hallo.events import EventMessage
 from hallo.modules.subscriptions.source_e621 import E621Source
 from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
-from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
+from hallo.test.modules.subscriptions.mock_subscriptions import mock_sub_repo
 
 
 def test_no_feeds(tmp_path, hallo_getter):
     test_hallo = hallo_getter({"subscriptions"})
-    SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
-    SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menus.json"
+    mock_sub_repo(tmp_path, test_hallo)
     test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub list")
     )
@@ -26,8 +25,7 @@ def test_no_feeds(tmp_path, hallo_getter):
 @pytest.mark.external_integration
 def test_list_feeds(tmp_path, hallo_getter):
     test_hallo = hallo_getter({"subscriptions"})
-    SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
-    SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menus.json"
+    mock_sub_repo(tmp_path, test_hallo)
     another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     # Get feed list
