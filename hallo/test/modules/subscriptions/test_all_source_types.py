@@ -7,6 +7,7 @@ import pytest
 from yippi import YippiClient
 
 import hallo.modules.subscriptions.subscription
+from hallo.destination import User
 from hallo.inc.commons import inherits_from
 from hallo.modules.subscriptions.common_fa_key import FAKey
 from hallo.modules.subscriptions.source import Source
@@ -23,14 +24,17 @@ from hallo.modules.subscriptions.source_rss import RssSource
 from hallo.modules.subscriptions.subscription_factory import SubscriptionFactory
 from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 
-cookie_a = os.getenv("test_cookie_a")
-cookie_b = os.getenv("test_cookie_b")
+
+def fa_key_from_env(test_user: User) -> FAKey:
+    cookie_a = os.getenv("test_cookie_a")
+    cookie_b = os.getenv("test_cookie_b")
+    return FAKey(test_user, cookie_a, cookie_b)
 
 
 @pytest.fixture
 def source_objects(hallo_getter) -> List[Source]:
     test_hallo = hallo_getter({"subscriptions"})
-    fa_key = FAKey(test_hallo.test_user, cookie_a, cookie_b)
+    fa_key = fa_key_from_env(test_hallo.test_user)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(test_hallo)
     sub_objs = list()
@@ -57,7 +61,7 @@ def source_objects(hallo_getter) -> List[Source]:
 def source_creation_arguments(hallo_getter) -> Dict[Type[Source], str]:
     test_hallo = hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
-    fa_key = FAKey(test_hallo.test_user, cookie_a, cookie_b)
+    fa_key = fa_key_from_env(test_hallo.test_user)
     fa_commons = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
     fa_commons.add_key(fa_key)
     sub_evts = dict()
