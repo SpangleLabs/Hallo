@@ -1,147 +1,122 @@
-import os
-import unittest
-
-import pytest
-
 from hallo.events import EventMessage
 from hallo.modules.subscriptions.source_e621 import E621Source
 from hallo.modules.subscriptions.subscription import Subscription
 from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
 from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
-from hallo.test.test_base import TestBase
+from hallo.test.modules.subscriptions.mock_subscriptions import mock_sub_repo
 
 
-@pytest.mark.external_integration
-class SubscriptionAddTest(TestBase, unittest.TestCase):
-    def setUp(self):
-        try:
-            os.rename(SubscriptionRepo.STORE_FILE, SubscriptionRepo.STORE_FILE + ".tmp")
-        except OSError:
-            pass
-        try:
-            os.rename(SubscriptionRepo.MENU_STORE_FILE, SubscriptionRepo.MENU_STORE_FILE + ".tmp")
-        except OSError:
-            pass
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-        try:
-            os.remove(SubscriptionRepo.STORE_FILE)
-        except OSError:
-            pass
-        try:
-            os.rename(SubscriptionRepo.STORE_FILE + ".tmp", SubscriptionRepo.STORE_FILE)
-        except OSError:
-            pass
-        try:
-            os.remove(SubscriptionRepo.MENU_STORE_FILE)
-        except OSError:
-            pass
-        try:
-            os.rename(SubscriptionRepo.MENU_STORE_FILE + ".tmp", SubscriptionRepo.MENU_STORE_FILE)
-        except OSError:
-            pass
-
-    def test_invalid_subscription(self):
-        self.function_dispatcher.dispatch(
-            EventMessage(self.server, self.test_chan, self.test_user, "rss sub add ::")
-        )
-        data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert (
+def test_invalid_subscription(tmp_path, hallo_getter):
+    SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
+    SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menu.json"
+    test_hallo = hallo_getter({"subscriptions"})
+    test_hallo.function_dispatcher.dispatch(
+        EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "rss sub add ::")
+    )
+    data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
+    assert (
             "error" in data[0].text.lower()
-        ), "No error in response. Response was: {}".format(data[0].text)
+    ), "No error in response. Response was: {}".format(data[0].text)
 
-    def test_add_search(self):
-        self.function_dispatcher.dispatch(
-            EventMessage(
-                self.server, self.test_chan, self.test_user, "e621 sub add cabinet"
-            )
-        )
-        data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert (
-            "created a new e621 subscription" in data[0].text.lower()
-        ), "Actual response: {}".format(data[0].text)
-        # Check the search subscription was added
-        e621_check_class = self.function_dispatcher.get_function_by_name(
-            "e621 sub check"
-        )
-        e621_check_obj = self.function_dispatcher.get_function_object(
-            e621_check_class
-        )  # type: SubscriptionCheck
-        sub_repo = e621_check_obj.get_sub_repo(self.hallo).sub_list
-        assert len(sub_repo) == 1, "Actual length: " + str(len(sub_repo))
-        e6_sub: Subscription = sub_repo[0]
-        assert e6_sub.server == self.server
-        assert e6_sub.destination == self.test_chan
-        assert e6_sub.last_check is not None
-        assert e6_sub.last_update is None
-        assert e6_sub.period.seconds == 600
-        assert e6_sub.period.days == 0
-        assert e6_sub.source.type_name == E621Source.type_name
-        assert e6_sub.source.search == "cabinet"
-        assert e6_sub.source.last_keys is not None
-        assert len(e6_sub.source.last_keys) >= 50
 
-    def test_add_search_user(self):
-        self.function_dispatcher.dispatch(
-            EventMessage(self.server, None, self.test_user, "e621 sub add cabinet")
+def test_add_search(tmp_path, hallo_getter):
+    test_hallo = hallo_getter({"subscriptions"})
+    mock_sub_repo(tmp_path, test_hallo)
+    test_hallo.function_dispatcher.dispatch(
+        EventMessage(
+            test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub add cabinet"
         )
-        data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert (
+    )
+    data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
+    assert (
             "created a new e621 subscription" in data[0].text.lower()
-        ), "Actual response: {}".format(data[0].text)
-        # Check the search subscription was added
-        e621_check_class = self.function_dispatcher.get_function_by_name(
-            "e621 sub check"
-        )
-        e621_check_obj = self.function_dispatcher.get_function_object(
-            e621_check_class
-        )  # type: SubscriptionCheck
-        sub_repo = e621_check_obj.get_sub_repo(self.hallo).sub_list
-        assert len(sub_repo) == 1, "Actual length: " + str(len(sub_repo))
-        e6_sub: Subscription = sub_repo[0]
-        assert e6_sub.server == self.server
-        assert e6_sub.destination == self.test_user
-        assert e6_sub.last_check is not None
-        assert e6_sub.last_update is None
-        assert e6_sub.period.seconds == 600
-        assert e6_sub.period.days == 0
-        assert e6_sub.source.type_name == E621Source.type_name
-        assert e6_sub.source.search == "cabinet"
-        assert e6_sub.source.last_keys is not None
-        assert len(e6_sub.source.last_keys) >= 50
+    ), "Actual response: {}".format(data[0].text)
+    # Check the search subscription was added
+    e621_check_class = test_hallo.function_dispatcher.get_function_by_name(
+        "e621 sub check"
+    )
+    e621_check_obj = test_hallo.function_dispatcher.get_function_object(
+        e621_check_class
+    )  # type: SubscriptionCheck
+    sub_repo = e621_check_obj.get_sub_repo(test_hallo).sub_list
+    assert len(sub_repo) == 1, "Actual length: " + str(len(sub_repo))
+    e6_sub: Subscription = sub_repo[0]
+    assert e6_sub.server == test_hallo.test_server
+    assert e6_sub.destination == test_hallo.test_chan
+    assert e6_sub.last_check is not None
+    assert e6_sub.last_update is None
+    assert e6_sub.period.seconds == 600
+    assert e6_sub.period.days == 0
+    assert e6_sub.source.type_name == E621Source.type_name
+    assert e6_sub.source.search == "cabinet"
+    assert e6_sub.source.last_keys is not None
+    assert len(e6_sub.source.last_keys) >= 50
 
-    def test_add_search_period(self):
-        self.function_dispatcher.dispatch(
-            EventMessage(
-                self.server,
-                self.test_chan,
-                self.test_user,
-                "e621 sub add cabinet PT3600S",
-            )
-        )
-        data = self.server.get_send_data(1, self.test_chan, EventMessage)
-        assert (
+
+def test_add_search_user(tmp_path, hallo_getter):
+    test_hallo = hallo_getter({"subscriptions"})
+    mock_sub_repo(tmp_path, test_hallo)
+    test_hallo.function_dispatcher.dispatch(
+        EventMessage(test_hallo.test_server, None, test_hallo.test_user, "e621 sub add cabinet")
+    )
+    data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
+    assert (
             "created a new e621 subscription" in data[0].text.lower()
-        ), "Actual response: {}".format(data[0].text)
-        # Check the search subscription was added
-        e621_check_class = self.function_dispatcher.get_function_by_name(
-            "e621 sub check"
+    ), "Actual response: {}".format(data[0].text)
+    # Check the search subscription was added
+    e621_check_class = test_hallo.function_dispatcher.get_function_by_name(
+        "e621 sub check"
+    )
+    e621_check_obj = test_hallo.function_dispatcher.get_function_object(
+        e621_check_class
+    )  # type: SubscriptionCheck
+    sub_repo = e621_check_obj.get_sub_repo(test_hallo).sub_list
+    assert len(sub_repo) == 1, "Actual length: " + str(len(sub_repo))
+    e6_sub: Subscription = sub_repo[0]
+    assert e6_sub.server == test_hallo.test_server
+    assert e6_sub.destination == test_hallo.test_user
+    assert e6_sub.last_check is not None
+    assert e6_sub.last_update is None
+    assert e6_sub.period.seconds == 600
+    assert e6_sub.period.days == 0
+    assert e6_sub.source.type_name == E621Source.type_name
+    assert e6_sub.source.search == "cabinet"
+    assert e6_sub.source.last_keys is not None
+    assert len(e6_sub.source.last_keys) >= 50
+
+
+def test_add_search_period(tmp_path, hallo_getter):
+    test_hallo = hallo_getter({"subscriptions"})
+    mock_sub_repo(tmp_path, test_hallo)
+    test_hallo.function_dispatcher.dispatch(
+        EventMessage(
+            test_hallo.test_server,
+            test_hallo.test_chan,
+            test_hallo.test_user,
+            "e621 sub add cabinet PT3600S",
         )
-        e621_check_obj = self.function_dispatcher.get_function_object(
-            e621_check_class
-        )  # type: SubscriptionCheck
-        sub_repo = e621_check_obj.get_sub_repo(self.hallo).sub_list
-        assert len(sub_repo) == 1, "Actual length: " + str(len(sub_repo))
-        e6_sub: Subscription = sub_repo[0]
-        assert e6_sub.server == self.server
-        assert e6_sub.destination == self.test_chan
-        assert e6_sub.last_check is not None
-        assert e6_sub.last_update is None
-        assert e6_sub.period.seconds == 3600
-        assert e6_sub.period.days == 0
-        assert e6_sub.source.type_name == E621Source.type_name
-        assert e6_sub.source.search == "cabinet"
-        assert e6_sub.source.last_keys is not None
-        assert len(e6_sub.source.last_keys) >= 50
+    )
+    data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
+    assert (
+            "created a new e621 subscription" in data[0].text.lower()
+    ), "Actual response: {}".format(data[0].text)
+    # Check the search subscription was added
+    e621_check_class = test_hallo.function_dispatcher.get_function_by_name(
+        "e621 sub check"
+    )
+    e621_check_obj = test_hallo.function_dispatcher.get_function_object(
+        e621_check_class
+    )  # type: SubscriptionCheck
+    sub_repo = e621_check_obj.get_sub_repo(test_hallo).sub_list
+    assert len(sub_repo) == 1, "Actual length: " + str(len(sub_repo))
+    e6_sub: Subscription = sub_repo[0]
+    assert e6_sub.server == test_hallo.test_server
+    assert e6_sub.destination == test_hallo.test_chan
+    assert e6_sub.last_check is not None
+    assert e6_sub.last_update is None
+    assert e6_sub.period.seconds == 3600
+    assert e6_sub.period.days == 0
+    assert e6_sub.source.type_name == E621Source.type_name
+    assert e6_sub.source.search == "cabinet"
+    assert e6_sub.source.last_keys is not None
+    assert len(e6_sub.source.last_keys) >= 50

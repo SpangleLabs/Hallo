@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+from pathlib import Path
 
 import dateutil.parser
 
@@ -17,8 +18,8 @@ class ConvertRepo:
     """
     Configuration repository. Stores list of ConvertTypes, ConvertPrefixGroups, etc
     """
-    STORE_FILE = "store/convert.json"
-    DEFAULT_FILE = "store/convert-default.json"
+    STORE_FILE = Path("store/convert.json")
+    DEFAULT_FILE = Path("store/convert-default.json")
 
     def __init__(self):
         """

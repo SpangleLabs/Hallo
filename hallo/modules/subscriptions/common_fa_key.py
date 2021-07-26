@@ -52,6 +52,8 @@ class FAKey:
         self.user = user
         self.cookie_a = cookie_a
         self.cookie_b = cookie_b
+        if self.cookie_a is None or self.cookie_b is None:
+            raise Exception("Cookie A or Cookie B was not set.")
         self.fa_reader: Optional[FAKey.FAReader] = None
 
     def get_fa_reader(self) -> 'FAKey.FAReader':

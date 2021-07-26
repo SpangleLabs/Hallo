@@ -3,7 +3,7 @@ import unittest
 
 from hallo.modules.convert.convert import Convert
 from hallo.modules.convert.convert_repo import ConvertRepo, ConvertType, ConvertUnit, ConvertPrefixGroup, ConvertPrefix
-from hallo.test.test_base import TestBase
+from hallo.test.modules.convert.test_base import TestBase
 
 
 class ConvertFunctionTestBase(TestBase, unittest.TestCase):
@@ -44,7 +44,7 @@ class ConvertFunctionTestBase(TestBase, unittest.TestCase):
         self.test_group2.add_prefix(self.test_prefix2b)
         # Move current convert.json
         try:
-            os.rename(ConvertRepo.STORE_FILE, ConvertRepo.STORE_FILE + ".tmp")
+            os.rename(ConvertRepo.STORE_FILE, ConvertRepo.STORE_FILE / ".tmp")
         except OSError:
             pass
         # Put this test repo into the Convert object
@@ -62,6 +62,6 @@ class ConvertFunctionTestBase(TestBase, unittest.TestCase):
         except OSError:
             pass
         try:
-            os.rename(ConvertRepo.STORE_FILE + ".tmp", ConvertRepo.STORE_FILE)
+            os.rename(ConvertRepo.STORE_FILE / ".tmp", ConvertRepo.STORE_FILE)
         except OSError:
             pass

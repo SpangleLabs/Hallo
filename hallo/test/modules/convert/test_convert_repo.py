@@ -145,7 +145,7 @@ def test_json(tmp_path):
     test_repo.add_prefix_group(test_group1)
     test_repo.add_prefix_group(test_group2)
     # Save to JSON and load
-    ConvertRepo.STORE_FILE = tmp_path + "/temp_convert_repo.json"
+    ConvertRepo.STORE_FILE = tmp_path / "temp_convert_repo.json"
     test_repo.save_json()
     new_repo = ConvertRepo.load_json()
     assert len(new_repo.type_list) == 2

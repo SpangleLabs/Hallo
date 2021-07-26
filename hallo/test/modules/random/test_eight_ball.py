@@ -1,82 +1,71 @@
-import unittest
-
 from hallo.events import EventMessage
-from hallo.inc.commons import Commons
 from hallo.modules.random.eight_ball import EightBall
-from hallo.test.test_base import TestBase
-from hallo.test.modules.random.mock_chooser import MockChooser
 
 
-class EightBallTest(TestBase, unittest.TestCase):
-    def setUp(self):
-        super().setUp()
-        self.chooser = MockChooser()
-        self.old_choice_method = Commons.get_random_choice
-        Commons.get_random_choice = self.chooser.choose
+def test_eightball(hallo_getter):
+    test_hallo = hallo_getter({"random"})
+    all_responses = (
+        EightBall.RESPONSES_YES_TOTALLY
+        + EightBall.RESPONSES_YES_PROBABLY
+        + EightBall.RESPONSES_MAYBE
+        + EightBall.RESPONSES_NO
+    )
+    test_hallo.function_dispatcher.dispatch(
+        EventMessage(test_hallo.test_server, None, test_hallo.test_user, "eight ball")
+    )
+    data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
+    assert data[0].text.lower() in [
+        "{}.".format(x.lower()) for x in all_responses
+    ], "Response isn't valid."
 
-    def tearDown(self):
-        super().tearDown()
-        Commons.get_random_choice = self.old_choice_method
 
-    def test_eightball(self):
-        all_responses = (
-            EightBall.RESPONSES_YES_TOTALLY
-            + EightBall.RESPONSES_YES_PROBABLY
-            + EightBall.RESPONSES_MAYBE
-            + EightBall.RESPONSES_NO
+def test_eightball_with_message(hallo_getter):
+    test_hallo = hallo_getter({"random"})
+    all_responses = (
+        EightBall.RESPONSES_YES_TOTALLY
+        + EightBall.RESPONSES_YES_PROBABLY
+        + EightBall.RESPONSES_MAYBE
+        + EightBall.RESPONSES_NO
+    )
+    test_hallo.function_dispatcher.dispatch(
+        EventMessage(
+            test_hallo.test_server,
+            None,
+            test_hallo.test_user,
+            "magic eightball will this test pass?",
         )
-        self.function_dispatcher.dispatch(
-            EventMessage(self.server, None, self.test_user, "eight ball")
+    )
+    data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
+    assert data[0].text.lower() in [
+        "{}.".format(x.lower()) for x in all_responses
+    ], "Response isn't valid."
+
+
+def test_all_responses(mock_chooser, hallo_getter):
+    test_hallo = hallo_getter({"random"})
+    all_responses = (
+        EightBall.RESPONSES_YES_TOTALLY
+        + EightBall.RESPONSES_YES_PROBABLY
+        + EightBall.RESPONSES_MAYBE
+        + EightBall.RESPONSES_NO
+    )
+    responses = []
+    for x in range(len(all_responses)):
+        # Set RNG
+        mock_chooser.choice = x
+        # Shake magic eight ball
+        test_hallo.function_dispatcher.dispatch(
+            EventMessage(test_hallo.test_server, None, test_hallo.test_user, "magic8-ball")
         )
-        data = self.server.get_send_data(1, self.test_user, EventMessage)
+        data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
+        responses.append(data[0].text.lower()[:-1])
         assert data[0].text.lower() in [
             "{}.".format(x.lower()) for x in all_responses
         ], "Response isn't valid."
-
-    def test_eightball_with_message(self):
-        all_responses = (
-            EightBall.RESPONSES_YES_TOTALLY
-            + EightBall.RESPONSES_YES_PROBABLY
-            + EightBall.RESPONSES_MAYBE
-            + EightBall.RESPONSES_NO
-        )
-        self.function_dispatcher.dispatch(
-            EventMessage(
-                self.server,
-                None,
-                self.test_user,
-                "magic eightball will this test pass?",
-            )
-        )
-        data = self.server.get_send_data(1, self.test_user, EventMessage)
-        assert data[0].text.lower() in [
-            "{}.".format(x.lower()) for x in all_responses
-        ], "Response isn't valid."
-
-    def test_all_responses(self):
-        all_responses = (
-            EightBall.RESPONSES_YES_TOTALLY
-            + EightBall.RESPONSES_YES_PROBABLY
-            + EightBall.RESPONSES_MAYBE
-            + EightBall.RESPONSES_NO
-        )
-        responses = []
-        for x in range(len(all_responses)):
-            # Set RNG
-            self.chooser.choice = x
-            # Shake magic eight ball
-            self.function_dispatcher.dispatch(
-                EventMessage(self.server, None, self.test_user, "magic8-ball")
-            )
-            data = self.server.get_send_data(1, self.test_user, EventMessage)
-            responses.append(data[0].text.lower()[:-1])
-            assert data[0].text.lower() in [
-                "{}.".format(x.lower()) for x in all_responses
-            ], "Response isn't valid."
-        # Check all responses given
-        assert len(responses) == len(
-            all_responses
-        ), "Not the same number of responses as possible responses"
-        assert set(responses) == set(
-            [x.lower() for x in all_responses]
-        ), "Not all responses are given"
+    # Check all responses given
+    assert len(responses) == len(
+        all_responses
+    ), "Not the same number of responses as possible responses"
+    assert set(responses) == set(
+        [x.lower() for x in all_responses]
+    ), "Not all responses are given"

@@ -11,8 +11,6 @@ import time
 
 class TestBase(unittest.TestCase):
     def setUp(self):
-        print("Starting test: " + self.id())
-        self.start_time = time.time()
         # Create a Hallo
         self.hallo = Hallo()
         # Only the required modules, only 1 (mock) server
@@ -21,13 +19,6 @@ class TestBase(unittest.TestCase):
             {"convert", "random", "server_control", "subscriptions"}, self.hallo
         )
         self.hallo.function_dispatcher = self.function_dispatcher
-        print(
-            "Running test: "
-            + self.id()
-            + ". Init took: "
-            + str(time.time() - self.start_time)
-            + " seconds."
-        )
         self.server = ServerMock(self.hallo)
         self.server.name = "mock-server"
         self.hallo.add_server(self.server)
@@ -54,33 +45,10 @@ class TestBase(unittest.TestCase):
                 break
         # Clear any data in the server
         self.server.get_send_data()
-        # Print test startup time
-        print(
-            "Running test: "
-            + self.id()
-            + ". Startup took: "
-            + str(time.time() - self.start_time)
-            + " seconds."
-        )
-        self.start_time = time.time()
 
     def tearDown(self):
-        print(
-            "Finishing test: "
-            + self.id()
-            + ". Test took: "
-            + str(time.time() - self.start_time)
-            + " seconds."
-        )
         self.hallo.close()
         self.hallo_thread.join()
-        print(
-            "Finished test: "
-            + self.id()
-            + ". Test took: "
-            + str(time.time() - self.start_time)
-            + " seconds."
-        )
 
     @classmethod
     def tearDownClass(cls):

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import json
 import logging
-import time
 import re
+import time
 from datetime import datetime
 from typing import Union, Set, Dict, Optional
 
@@ -10,12 +10,12 @@ import heartbeat
 
 from hallo.errors import MessageError
 from hallo.events import EventSecond, EventMinute, EventDay, EventHour
-from hallo.server import Server
+from hallo.function_dispatcher import FunctionDispatcher
 from hallo.permission_mask import PermissionMask
+from hallo.server import Server
 from hallo.server_factory import ServerFactory
 from hallo.server_irc import ServerIRC
 from hallo.user_group import UserGroup
-from hallo.function_dispatcher import FunctionDispatcher
 
 heartbeat.heartbeat_app_url = "https://heartbeat.spangle.org.uk/"
 heartbeat_app_name = "Hallo"
@@ -25,6 +25,9 @@ usage_logger = logging.getLogger("usage")
 
 
 class Hallo:
+    CONFIG_FILE = "config/config.json"
+    CONFIG_DEFAULT_FILE = "config/config-default.json"
+
     def __init__(self):
         self.default_nick: str = "Hallo"
         self.default_prefix: Union[bool, str] = False
@@ -57,7 +60,7 @@ class Hallo:
             )
         # If no servers, ask for a new server
         if len(self.server_list) == 0 or all(
-            [not server.get_auto_connect() for server in self.server_list]
+                [not server.get_auto_connect() for server in self.server_list]
         ):
             self.manual_server_connect()
         # Connect to auto-connect servers
@@ -136,7 +139,7 @@ class Hallo:
         for api_key_name in self.api_key_list:
             json_obj["api_keys"][api_key_name] = self.api_key_list[api_key_name]
         # Write json to file
-        with open("config/config.json", "w+") as f:
+        with open(self.CONFIG_FILE, "w+") as f:
             json.dump(json_obj, f, indent=2)
 
     @classmethod
@@ -147,12 +150,12 @@ class Hallo:
         :rtype: Hallo
         """
         try:
-            with open("config/config.json", "r") as f:
+            with open(cls.CONFIG_FILE, "r") as f:
                 json_obj = json.load(f)
         except (OSError, IOError):
             error = MessageError("No current config, loading from default.")
             logger.error(error.get_log_line())
-            with open("config/config-default.json", "r") as f:
+            with open(cls.CONFIG_DEFAULT_FILE, "r") as f:
                 json_obj = json.load(f)
         # Create new hallo object
         new_hallo = cls()

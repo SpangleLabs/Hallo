@@ -181,8 +181,10 @@ def test_remove_feed(hallo_getter):
     assert sub_repo.sub_list[0] == sub2
 
 
-def test_json(hallo_getter):
+def test_json(hallo_getter, tmp_path):
     test_hallo = hallo_getter({"subscriptions"})
+    SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
+    SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menu.json"
     # Setup a feed list
     sub_repo = SubscriptionRepo(test_hallo)
     rf1 = RssSource(
@@ -204,20 +206,6 @@ def test_json(hallo_getter):
     sub3 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf3, timedelta(hours=1), None, None)
     sub_repo.add_sub(sub3)
     # Save to JSON and load
-    try:
-        try:
-            os.rename(SubscriptionRepo.STORE_FILE, SubscriptionRepo.STORE_FILE + ".tmp")
-        except OSError:
-            pass
-        sub_repo.save_json()
-        new_rfl = SubscriptionRepo.load_json(test_hallo)
-        assert len(new_rfl.sub_list) == 3
-    finally:
-        try:
-            os.remove(SubscriptionRepo.STORE_FILE)
-        except OSError:
-            pass
-        try:
-            os.rename(SubscriptionRepo.STORE_FILE + ".tmp", SubscriptionRepo.STORE_FILE)
-        except OSError:
-            pass
+    sub_repo.save_json()
+    new_rfl = SubscriptionRepo.load_json(test_hallo)
+    assert len(new_rfl.sub_list) == 3
