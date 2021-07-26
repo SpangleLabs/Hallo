@@ -5,9 +5,9 @@ from datetime import timedelta
 import pytest
 
 from hallo.events import EventMessage, EventDay
-from hallo.modules.dailys.dailys_field import DailysException
 from hallo.modules.dailys.field_duolingo import DailysDuolingoField
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
+import hallo.modules.dailys.dailys_field
 
 TEST_USERNAME = "Deer-Spangle"
 TEST_PASSWORD = os.getenv("test_duo_password")
@@ -63,7 +63,7 @@ def test_create_from_input_no_username(hallo_getter):
         assert (
             False
         ), "Should have failed to create DailysDuolingoField due to missing username."
-    except DailysException as e:
+    except hallo.modules.dailys.dailys_field.DailysException as e:
         assert (
                 "you must specify both a duolingo username, and password"
                 in str(e).lower()
@@ -90,7 +90,7 @@ def test_create_from_input_no_password(hallo_getter):
         assert (
             False
         ), "Should have failed to create DailysDuolingoField due to missing password."
-    except DailysException as e:
+    except hallo.modules.dailys.dailys_field.DailysException as e:
         assert (
                 "you must specify both a duolingo username, and password"
                 in str(e).lower()
@@ -117,7 +117,7 @@ def test_create_from_input_invalid_password(hallo_getter):
         assert (
             False
         ), "Should have failed to create DailysDuolingoField due to incorrect password."
-    except DailysException as e:
+    except hallo.modules.dailys.dailys_field.DailysException as e:
         assert (
                 "could not access a duolingo account with that username and password"
                 in str(e).lower()
