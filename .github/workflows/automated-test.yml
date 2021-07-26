@@ -25,6 +25,9 @@ jobs:
           poetry install
       - name: Unit tests
         run: poetry run task test
+        env:
+          test_cookie_a: ${{ secrets.FA_API_COOKIE_A }}
+          test_cookie_b: ${{ secrets.FA_API_COOKIE_B }}
       - name: External integration tests
         run: poetry run task test_external
         env:
