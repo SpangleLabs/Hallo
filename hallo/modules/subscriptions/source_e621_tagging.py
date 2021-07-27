@@ -95,8 +95,13 @@ class E621TaggingMenu(Menu):
         if event.callback_data == "refresh":
             post = self.e6_client.post(self.post_id)
             post_tags = [tag for tag_list in post.tags.values() for tag in tag_list]
+            old_tag_results = self.tag_results
             self.tag_results = {tag: tag in post_tags for tag in self.tag_results.keys()}
-            return self.update_tag_menu()
+            if old_tag_results != self.tag_results:
+                return self.update_tag_menu()
+            else:
+                self.clicked = False
+                return
         if event.callback_data == "submit":
             post = self.e6_client.post(self.post_id)
             negative_tags = set(tag for tag in self.tag_results.keys() if self.tag_results[tag] is False)
