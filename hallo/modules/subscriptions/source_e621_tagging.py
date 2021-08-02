@@ -47,13 +47,15 @@ def buttons_for_submission(tag_results: Dict[str, bool], page: int = 1) -> List[
     return buttons
 
 
-def text_for_post(item: 'Post', search: str, suffix: str = None) -> str:
+def text_for_post(item: 'Post', *, prefix: str = None, suffix: str = None) -> str:
     link = f"https://e621.net/posts/{item.id}"
     # Create rating string
     rating_dict = {Rating.EXPLICIT: "(Explicit)", Rating.QUESTIONABLE: "(Questionable)", Rating.SAFE: "(Safe)"}
     rating = rating_dict.get(item.rating, "(Unknown)")
     # Construct output
-    output = f'Update on "{search}" tagging e621 search. {link} {rating}.'
+    output = f'{link} {rating}.'
+    if prefix is not None:
+        output = prefix + "\n" + output
     if suffix is not None:
         output += "\n" + suffix
     return output
@@ -80,6 +82,10 @@ class E621TaggingMenu(Menu):
         self.tag_results = tag_results
         self.page = page
         self.clicked = False
+
+    def text_for_post(self, item: 'Post', suffix: str = None) -> str:
+        prefix = f'Update on "{self.search}" tagging e621 search.'
+        return text_for_post(item, prefix=prefix, suffix=suffix)
 
     def handle_callback(self, event: 'EventMenuCallback') -> None:
         if self.clicked:
@@ -114,18 +120,18 @@ class E621TaggingMenu(Menu):
                 [MenuButton("Cancel", "cancel")]
             ]
             if not new_tags and not del_tags:
-                text = text_for_post(post, self.search, "This will not make any changes, are you sure?")
+                text = self.text_for_post(post, "This will not make any changes, are you sure?")
                 return self.update(text, menu_buttons)
             suffix = ["This will make these changes"]
             if new_tags:
                 suffix.append("Add tags: " + ", ".join(new_tags))
             if del_tags:
                 suffix.append("Remove tags: " + ", ".join(del_tags))
-            text = text_for_post(post, self.search, "\n".join(suffix))
+            text = self.text_for_post(post, "\n".join(suffix))
             return self.update(text, menu_buttons)
         if event.callback_data == "cancel":
             post = self.e6_client.post(self.post_id)
-            text = text_for_post(post, self.search)
+            text = self.text_for_post(post)
             menu_buttons = buttons_for_submission(self.tag_results, self.page)
             return self.update(text, menu_buttons)
         if event.callback_data == "save":
@@ -135,7 +141,7 @@ class E621TaggingMenu(Menu):
             current_tags = set(tag for tag_list in post.tags.values() for tag in tag_list)
             new_tags = positive_tags - current_tags
             del_tags = negative_tags.intersection(current_tags)
-            text = text_for_post(post, self.search)
+            text = self.text_for_post(post)
             if not new_tags and not del_tags:
                 return self.update(text, None)
             new_tag_dict = {
@@ -254,6 +260,9 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
     def title(self) -> str:
         return f'search for "{self.search}" to apply tags {self.tags}'
 
+    def item_text_prefix(self) -> str:
+        return f'Update on "{self.search}" tagging e621 search.'
+
     def item_to_event(
             self,
             server: Server,
@@ -265,7 +274,7 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
         post_tags = [tag for tag_list in item.tags.values() for tag in tag_list]
         tag_results = {tag: tag in post_tags for tag in self.tags}
         # Construct output
-        output = text_for_post(item, self.search)
+        output = text_for_post(item, prefix=self.item_text_prefix())
         image_url = item.file["url"]
         menu_buttons = buttons_for_submission(tag_results)
         if item.file["ext"] in ["swf", "webm"] or image_url is None:
