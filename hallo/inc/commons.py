@@ -237,6 +237,14 @@ class Commons(object):
         except ValueError:
             return False
 
+    @classmethod
+    def is_int_string(cls, int_string: str) -> bool:
+        try:
+            int(int_string)
+            return True
+        except ValueError:
+            return False
+
     @staticmethod
     def get_digits_from_start_or_end(string: str) -> Optional[str]:
         """
