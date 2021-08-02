@@ -180,7 +180,7 @@ class E621TaggingMenu(Menu):
         sub_repo = sub_check_obj.get_sub_repo(hallo_obj)
         e6_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_e6_key.E6KeysCommon)
         e6_client = e6_keys.get_client_by_user(user)
-        return E621TaggingMenu(
+        return cls(
             msg,
             user,
             e6_client,
@@ -254,7 +254,7 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
         e6_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_e6_key.E6KeysCommon)
         # Make sure you're not using the default user here
         e6_client = e6_keys.get_client_by_user(user, allow_default=False)
-        return E621TaggingSource(search, e6_client, sub_repo, user, tags)
+        return cls(search, e6_client, sub_repo, user, tags)
 
     @property
     def title(self) -> str:
