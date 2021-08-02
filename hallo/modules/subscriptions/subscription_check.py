@@ -79,7 +79,7 @@ class SubscriptionCheck(Function):
 
     def get_passive_events(self) -> Set[Type[Event]]:
         """Returns a list of events which this function may want to respond to in a passive way"""
-        return {EventMinute, EventMenuCallback}
+        return {EventMinute, EventMenuCallback, EventMessage}
 
     def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
@@ -121,6 +121,14 @@ class SubscriptionCheck(Function):
             sub_repo = self.get_sub_repo(hallo_obj)
             sub_repo.handle_menu_callback(event)
             sub_repo.menu_cache.save_to_json()
+            return
+        if isinstance(event, EventMessage):
+            sub_repo = self.get_sub_repo(hallo_obj)
+            with sub_repo.sub_lock:
+                for sub in sub_repo.sub_list:
+                    wants_update = sub.passive_run(event, hallo_obj)
+                    if wants_update:
+                        sub.update()
             return
         if isinstance(event, EventMinute):
             # Check through all feeds to see which need updates

@@ -22,16 +22,11 @@ class SubscriptionAdd(Function):
         self.help_name = "add subscription"
         # Names which can be used to address the function
         name_templates = {
-            "{0} {1}",
-            "{1} {0}",
-            "{1} {0} {2}",
-            "{1} {2} {0}",
-            "{2} {0} {1}",
-            "{0} {2} {1}",
+            "{add} {source} {sub}"
         }
         self.names = set(
             [
-                template.format(name, add, sub)
+                template.format(add=add, source=name, sub=sub)
                 for name in hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.get_source_names()
                 for template in name_templates
                 for add in self.add_words
@@ -69,8 +64,7 @@ class SubscriptionAdd(Function):
         sub_obj = hallo.modules.subscriptions.subscription.Subscription.create_from_input(
             event, source_class, sub_repo
         )
-        # Test subscription
-        sub_obj.update(send=False)
+        # No need to test subscription, that's done in create_from_input
         # Acquire lock and save sub
         with sub_repo.sub_lock:
             # Add new subscription to list

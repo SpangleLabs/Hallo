@@ -12,6 +12,7 @@ import hallo.modules.subscriptions.source_fa_notif_comments
 import hallo.modules.subscriptions.source_fa_notif_favs
 import hallo.modules.subscriptions.source_fa_notes
 import hallo.modules.subscriptions.source_e621_tagging
+import hallo.modules.subscriptions.source_e621_backlog
 import hallo.modules.subscriptions.source_e621
 import hallo.modules.subscriptions.source_rss
 import hallo.modules.subscriptions.source_twitter
@@ -25,6 +26,7 @@ class SubscriptionFactory:
     sub_sources: List[Type['hallo.modules.new_subscriptions.source.Source']] = [
         hallo.modules.subscriptions.source_e621.E621Source,
         hallo.modules.subscriptions.source_e621_tagging.E621TaggingSource,
+        hallo.modules.subscriptions.source_e621_backlog.E621BacklogTaggingSource,
         hallo.modules.subscriptions.source_fa_favs.FAFavsSource,
         hallo.modules.subscriptions.source_fa_notes.FANotesSource,
         hallo.modules.subscriptions.source_fa_notif_comments.FACommentNotificationsSource,

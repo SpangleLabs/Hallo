@@ -113,6 +113,12 @@ class Subscription:
                     exc_info=e
                 )
 
+    def passive_run(self, event: EventMessage, hallo_obj: Hallo) -> bool:
+        """
+        :return: True if it would like to be updated
+        """
+        return self.source.passive_run(event, hallo_obj)
+
     @classmethod
     def from_json(cls, json_data: Dict, hallo_obj: Hallo, sub_repo) -> 'Subscription':
         server = hallo_obj.get_server_by_name(json_data["server_name"])

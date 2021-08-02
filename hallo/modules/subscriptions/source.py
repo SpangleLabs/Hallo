@@ -3,6 +3,7 @@ from typing import Generic, List, Optional, Dict, TypeVar
 
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage
+from hallo.hallo import Hallo
 from hallo.server import Server
 
 State = TypeVar("State")
@@ -53,6 +54,9 @@ class Source(ABC, Generic[State, Update]):
         """
         Creates a list of events to represent a given update. This should have the oldest update first.
         """
+        pass
+
+    def passive_run(self, event: EventMessage, hallo_obj: Hallo) -> bool:
         pass
 
     @classmethod
