@@ -33,6 +33,9 @@ class StreamSource(hallo.modules.subscriptions.source.Source[List[Item], List[It
                 batch = []
             else:
                 batch.append(item)
+        # If everything is in batch, that means it was all new items, previous keys weren't seen
+        if batch and not new_items:
+            new_items += batch
         return new_items
 
     def save_state(self, state: List[Item]) -> None:
