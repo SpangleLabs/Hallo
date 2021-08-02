@@ -12,6 +12,7 @@ from hallo.inc.commons import inherits_from
 from hallo.modules.subscriptions.common_fa_key import FAKey
 from hallo.modules.subscriptions.source import Source
 from hallo.modules.subscriptions.source_e621 import E621Source
+from hallo.modules.subscriptions.source_e621_backlog import E621BacklogTaggingSource
 from hallo.modules.subscriptions.source_e621_tagging import E621TaggingSource
 from hallo.modules.subscriptions.source_fa_favs import FAFavsSource
 from hallo.modules.subscriptions.source_fa_notes import FANotesSource, FANotesInboxSource, FANotesOutboxSource
@@ -40,6 +41,7 @@ def source_objects(hallo_getter) -> List[Source]:
     sub_objs = list()
     sub_objs.append(E621Source("cabinet", e6_client, test_hallo.test_user))
     sub_objs.append(E621TaggingSource("cabinet", e6_client, sub_repo, test_hallo.test_user, ["door"]))
+    sub_objs.append(E621BacklogTaggingSource("cabinet", e6_client, sub_repo, test_hallo.test_user, ["door"]))
     sub_objs.append(RssSource("http://spangle.org.uk/hallo/test_rss.xml"))
     sub_objs.append(FANotesSource(fa_key, FANotesInboxSource(fa_key), FANotesOutboxSource(fa_key)))
     sub_objs.append(FAFavsSource(fa_key, "zephyr42"))
@@ -67,6 +69,7 @@ def source_creation_arguments(hallo_getter) -> Dict[Type[Source], str]:
     sub_evts = dict()
     sub_evts[E621Source] = "cabinet"
     sub_evts[E621TaggingSource] = "cabinet tags=door"
+    sub_evts[E621BacklogTaggingSource] = "cabinet tags=door"
     sub_evts[RssSource] = "https://spangle.org.uk/hallo/test_rss.xml"
     sub_evts[FANotesSource] = ""
     sub_evts[FAFavsSource] = "zephyr42"

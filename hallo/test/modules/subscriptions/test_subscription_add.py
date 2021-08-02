@@ -24,7 +24,7 @@ def test_add_search(tmp_path, hallo_getter):
     mock_sub_repo(tmp_path, test_hallo)
     test_hallo.function_dispatcher.dispatch(
         EventMessage(
-            test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub add cabinet"
+            test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "add e621 sub cabinet"
         )
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -57,7 +57,7 @@ def test_add_search_user(tmp_path, hallo_getter):
     test_hallo = hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
     test_hallo.function_dispatcher.dispatch(
-        EventMessage(test_hallo.test_server, None, test_hallo.test_user, "e621 sub add cabinet")
+        EventMessage(test_hallo.test_server, None, test_hallo.test_user, "add e621 sub cabinet")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert (
@@ -93,7 +93,7 @@ def test_add_search_period(tmp_path, hallo_getter):
             test_hallo.test_server,
             test_hallo.test_chan,
             test_hallo.test_user,
-            "e621 sub add cabinet PT3600S",
+            "add e621 sub cabinet PT3600S",
         )
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
