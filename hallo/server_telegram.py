@@ -261,7 +261,7 @@ class ServerTelegram(Server):
         )
         logger.error(error.get_log_line())
 
-    def send(self, event: ServerEvent) -> Optional[ServerEvent]:
+    def send(self, event: ServerEvent, *, reply_to_id: Optional[int] = None) -> Optional[ServerEvent]:
         if isinstance(event, EventMessageWithPhoto):
             destination = event.destination
             try:
@@ -270,7 +270,9 @@ class ServerTelegram(Server):
                     media[0].caption = event.text
                     media[0].parse_mode = formatting_to_telegram_mode(event.formatting)
                     msg = self.bot.send_media_group(
-                        chat_id=destination.address, media=media
+                        chat_id=destination.address,
+                        media=media,
+                        reply_to_message_id=reply_to_id,
                     )
                 elif any(
                     [
@@ -284,6 +286,7 @@ class ServerTelegram(Server):
                         caption=event.text,
                         reply_markup=event_menu_for_telegram(event),
                         parse_mode=formatting_to_telegram_mode(event.formatting),
+                        reply_to_message_id=reply_to_id,
                     )
                 else:
                     msg = self.bot.send_document(
@@ -292,6 +295,7 @@ class ServerTelegram(Server):
                         caption=event.text,
                         reply_markup=event_menu_for_telegram(event),
                         parse_mode=formatting_to_telegram_mode(event.formatting),
+                        reply_to_message_id=reply_to_id,
                     )
             except Exception as e:
                 logger.warning(
@@ -301,7 +305,8 @@ class ServerTelegram(Server):
                     chat_id=destination.address,
                     text=event.text,
                     reply_markup=event_menu_for_telegram(event),
-                    parse_mode=formatting_to_telegram_mode(event.formatting)
+                    parse_mode=formatting_to_telegram_mode(event.formatting),
+                    reply_to_message_id=reply_to_id,
                 )
             event.with_raw_data(RawDataTelegramOutbound(msg))
             event.log()
@@ -311,7 +316,8 @@ class ServerTelegram(Server):
                 chat_id=event.destination.address,
                 text=event.text,
                 parse_mode=formatting_to_telegram_mode(event.formatting),
-                reply_markup=event_menu_for_telegram(event)
+                reply_markup=event_menu_for_telegram(event),
+                reply_to_message_id=reply_to_id,
             )
             event.with_raw_data(RawDataTelegramOutbound(msg))
             event.log()
@@ -337,56 +343,9 @@ class ServerTelegram(Server):
             old_event.raw_data, RawDataTelegram
         ):
             raise ServerException("Old event has no telegram data associated with it")
+        reply_to_id = old_event.message_id
         # Send event
-        if isinstance(new_event, EventMessageWithPhoto):
-            destination = new_event.destination
-            old_message_id = old_event.raw_data.update_obj.message.message_id
-            if any(
-                [
-                    new_event.photo_id.lower().endswith("." + x)
-                    for x in ServerTelegram.image_extensions
-                ]
-            ):
-                msg = self.bot.send_photo(
-                    destination.address,
-                    new_event.photo_id,
-                    caption=new_event.text,
-                    reply_to_message_id=old_message_id,
-                    reply_markup=event_menu_for_telegram(new_event),
-                    parse_mode=formatting_to_telegram_mode(new_event.formatting),
-                )
-            else:
-                msg = self.bot.send_document(
-                    destination.address,
-                    new_event.photo_id,
-                    caption=new_event.text,
-                    reply_to_message_id=old_message_id,
-                    reply_markup=event_menu_for_telegram(new_event),
-                    parse_mode=formatting_to_telegram_mode(new_event.formatting),
-                )
-            new_event.with_raw_data(RawDataTelegramOutbound(msg))
-            new_event.log()
-            return new_event
-        if isinstance(new_event, EventMessage):
-            old_message_id = old_event.raw_data.update_obj.message.message_id
-            msg = self.bot.send_message(
-                new_event.destination.address,
-                new_event.text,
-                reply_to_message_id=old_message_id,
-                reply_markup=event_menu_for_telegram(new_event),
-                parse_mode=formatting_to_telegram_mode(new_event.formatting),
-            )
-            new_event.with_raw_data(RawDataTelegramOutbound(msg))
-            new_event.log()
-            return new_event
-        else:
-            error = MessageError(
-                "Unsupported event type, {}, sent as reply to Telegram server".format(
-                    new_event.__class__.__name__
-                )
-            )
-            logger.error(error.get_log_line())
-            raise NotImplementedError()
+        return self.send(new_event, reply_to_id=reply_to_id)
 
     def edit(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage:
         # Do checks
