@@ -59,7 +59,8 @@ class E621BacklogTaggingSource(hallo.modules.subscriptions.source_e621_tagging.E
 
     @property
     def title(self) -> str:
-        return f'search through backlog of "{self.search}" to apply tags {self.tags}, done {len(self.sent_ids)}'
+        return f'search through backlog of "{self.search}" to apply tags {self.tags}. ' \
+               f'Done {len(self.sent_ids)}, about {self.get_remaining_count()} remaining.'
 
     def item_text_prefix(self) -> str:
         return f'New backlog tagging item on "{self.search}" e621 search.'
