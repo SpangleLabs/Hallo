@@ -6,6 +6,8 @@ from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboard
 from telegram.ext import Updater, Filters, BaseFilter, CallbackQueryHandler, CallbackContext
 import logging
 from telegram.ext import MessageHandler
+from telegram.ext import messagequeue as mq
+from telegram.utils import promise
 from telegram.utils.request import Request
 
 from hallo.destination import User, Channel
@@ -100,6 +102,8 @@ class ServerTelegram(Server):
             Filters.all, self.parse_unhandled, channel_post_updates=True
         )
         self.dispatcher.add_handler(self.core_msg_handler)
+        # Message queue, for flood control. Half group limit, because retries might double it
+        self._msg_queue = mq.MessageQueue(group_burst_limit=10, autostart=False)
 
     class ChannelFilter(BaseFilter):
         def filter(self, message: Message) -> bool:
@@ -124,11 +128,13 @@ class ServerTelegram(Server):
         with self._connect_lock:
             self.updater.start_polling()
             self.state = Server.STATE_OPEN
+            self._msg_queue.start()
 
     def disconnect(self, force: bool = False) -> None:
         self.state = Server.STATE_DISCONNECTING
         with self._connect_lock:
             self.updater.stop()
+            self._msg_queue.stop()
             self.state = Server.STATE_CLOSED
 
     def reconnect(self) -> None:
@@ -261,7 +267,14 @@ class ServerTelegram(Server):
         )
         logger.error(error.get_log_line())
 
-    def send(self, event: ServerEvent, *, reply_to_id: Optional[int] = None) -> Optional[ServerEvent]:
+    def send(self, event: ServerEvent, *, reply_to_id: Optional[int] = None) -> None:
+        is_group = False
+        if isinstance(event, EventMessage):
+            is_group = event.channel is not None
+        prom = promise.Promise(self._send_raw, (event, ), {"reply_to_id": reply_to_id})
+        self._msg_queue(prom, is_group)
+
+    def _send_raw(self, event: ServerEvent, *, reply_to_id: Optional[int] = None) -> Optional[ServerEvent]:
         if isinstance(event, EventMessageWithPhoto):
             destination = event.destination
             try:
@@ -364,6 +377,16 @@ class ServerTelegram(Server):
     ) -> EventMessage:
         if not message_id:
             raise ServerException("Old event has no message id associated with it")
+        prom = promise.Promise(self._edit_by_id_raw, (message_id, new_event), {"has_photo": has_photo})
+        self._msg_queue(prom, False)
+
+    def _edit_by_id_raw(
+            self,
+            message_id: int,
+            new_event: EventMessage,
+            *,
+            has_photo: bool = False
+    ) -> EventMessage:
         destination = new_event.destination
         if has_photo or isinstance(new_event, EventMessageWithPhoto):
             try:
