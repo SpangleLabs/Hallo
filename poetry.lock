@@ -327,7 +327,7 @@ test = ["ipaddress", "mock", "unittest2", "enum34", "pywin32", "wmi"]
 
 [[package]]
 name = "publicsuffixlist"
-version = "0.7.5"
+version = "0.7.8"
 description = "publicsuffixlist implement"
 category = "main"
 optional = false
@@ -765,7 +765,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "ad778cb05f192ee1100899a4e658b1c1c879a1139fc7caece0ea995d6a4d8fcb"
+content-hash = "232c54bd4394437840e1899537d558fdaaceb01759e16e06c69e2d7c760a61e9"
 
 [metadata.files]
 aiohttp = [
@@ -1067,8 +1067,8 @@ psutil = [
     {file = "psutil-5.8.0.tar.gz", hash = "sha256:0c9ccb99ab76025f2f0bbecf341d4656e9c1351db8cc8a03ccd62e318ab4b5c6"},
 ]
 publicsuffixlist = [
-    {file = "publicsuffixlist-0.7.5-py2.py3-none-any.whl", hash = "sha256:5eeeed3f1cd029d0be5f3ff59b2d92c39943277bc2b3997c842cf684c16b6d34"},
-    {file = "publicsuffixlist-0.7.5.tar.gz", hash = "sha256:84368e1125194dd77e36a4d4217a314c60e25e1e5848fe24b23f6a9b0dcc047e"},
+    {file = "publicsuffixlist-0.7.8-py2.py3-none-any.whl", hash = "sha256:fbf0df26c94233deeefd2dac2d14cd8c860789f923df33ac31e40e6a093a3545"},
+    {file = "publicsuffixlist-0.7.8.tar.gz", hash = "sha256:ffda7c88f82c8f0d8695d1087f8212f91eaed713e93e6c5d8042a8ca42842685"},
 ]
 py = [
     {file = "py-1.10.0-py2.py3-none-any.whl", hash = "sha256:3b80836aa6d1feeaa108e046da6423ab8f6ceda6468545ae8d02d9d58d18818a"},
