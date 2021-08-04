@@ -95,6 +95,10 @@ class E621BacklogTaggingSource(hallo.modules.subscriptions.source_e621_tagging.E
         page = 1
         while len(new_posts) < self.batch_size:
             page_posts = self.e6_client.posts(search, page=page)
+            # Check if page is empty
+            if not page_posts:
+                break
+            # Add all posts which have not been sent.
             incomplete_posts = list(filter(lambda p: p.id not in self.sent_ids, page_posts))
             new_posts += incomplete_posts
             page += 1
@@ -141,10 +145,16 @@ class E621BacklogTaggingSource(hallo.modules.subscriptions.source_e621_tagging.E
         # Post up to `count` new posts.
         self.batch_size = count
         self.generate_next_batch()
-        remaining_count = self.get_remaining_count()
-        resp = event.create_response(
-            f"Okay, will send {self.batch_size} more updates. There are about {remaining_count} posts left."
-        )
+        if not self.current_batch_ids:
+            resp = event.create_response(
+                "There are no remaining posts for that backlog subscription!"
+            )
+            self.remaining_count = 0
+        else:
+            remaining_count = self.get_remaining_count()
+            resp = event.create_response(
+                f"Okay, will send {self.batch_size} more updates. There are about {remaining_count} posts left."
+            )
         event.reply(resp)
         return True
 
