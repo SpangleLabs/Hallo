@@ -377,11 +377,8 @@ class ServerTelegram(Server):
     ) -> EventMessage:
         if not message_id:
             raise ServerException("Old event has no message id associated with it")
-        is_group = False
-        if isinstance(new_event, EventMessage):
-            is_group = new_event.channel is not None
         prom = promise.Promise(self._edit_by_id_raw, (message_id, new_event), {"has_photo": has_photo})
-        self._msg_queue(prom, is_group)
+        self._msg_queue(prom, False)
 
     def _edit_by_id_raw(
             self,
