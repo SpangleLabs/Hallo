@@ -1,5 +1,5 @@
 from threading import Lock, Thread
-from typing import Optional, TYPE_CHECKING, Dict
+from typing import Optional, TYPE_CHECKING, Dict, Callable
 
 import telegram
 from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup, Update, Message, TelegramError
@@ -267,14 +267,30 @@ class ServerTelegram(Server):
         )
         logger.error(error.get_log_line())
 
-    def send(self, event: ServerEvent, *, reply_to_id: Optional[int] = None) -> None:
+    def send(
+            self,
+            event: ServerEvent,
+            *,
+            after_sent_callback: Optional[Callable[[ServerEvent], None]] = None,
+            reply_to_id: Optional[int] = None
+    ) -> None:
         is_group = False
         if isinstance(event, EventMessage):
             is_group = event.channel is not None
-        prom = promise.Promise(self._send_raw, (event, ), {"reply_to_id": reply_to_id})
+        prom = promise.Promise(
+            self._send_raw,
+            (event, ),
+            {"after_sent_callback": after_sent_callback, "reply_to_id": reply_to_id}
+        )
         self._msg_queue(prom, is_group)
 
-    def _send_raw(self, event: ServerEvent, *, reply_to_id: Optional[int] = None) -> Optional[ServerEvent]:
+    def _send_raw(
+            self,
+            event: ServerEvent,
+            *,
+            after_sent_callback: Optional[Callable[[ServerEvent], None]] = None,
+            reply_to_id: Optional[int] = None
+    ) -> None:
         if isinstance(event, EventMessageWithPhoto):
             destination = event.destination
             try:
@@ -322,9 +338,7 @@ class ServerTelegram(Server):
                     reply_to_message_id=reply_to_id,
                 )
             event.with_raw_data(RawDataTelegramOutbound(msg))
-            event.log()
-            return event
-        if isinstance(event, EventMessage):
+        elif isinstance(event, EventMessage):
             msg = self.bot.send_message(
                 chat_id=event.destination.address,
                 text=event.text,
@@ -333,8 +347,6 @@ class ServerTelegram(Server):
                 reply_to_message_id=reply_to_id,
             )
             event.with_raw_data(RawDataTelegramOutbound(msg))
-            event.log()
-            return event
         else:
             error = MessageError(
                 "Unsupported event type, {}, sent to Telegram server".format(
@@ -343,6 +355,10 @@ class ServerTelegram(Server):
             )
             logger.error(error.get_log_line())
             raise NotImplementedError()
+        event.log()
+        if after_sent_callback:
+            after_sent_callback(event)
+        return
 
     def reply(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage:
         """

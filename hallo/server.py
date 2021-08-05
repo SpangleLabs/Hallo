@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Optional, TYPE_CHECKING, Union, Dict, List
+from typing import Optional, TYPE_CHECKING, Union, Dict, List, Callable
 
 from hallo.destination import Channel, User
 from hallo.permission_mask import PermissionMask
@@ -85,10 +85,16 @@ class Server(metaclass=ABCMeta):
         self.disconnect()
         self.start()
 
-    def send(self, event: 'ServerEvent') -> Optional['ServerEvent']:
+    def send(
+            self,
+            event: 'ServerEvent',
+            *,
+            after_sent_callback: Optional[Callable[['ServerEvent'], None]] = None
+    ) -> None:
         """
         Sends a message to the server, or a specific channel in the server
         :param event: Event to send, should be outbound.
+        :param after_sent_callback: A callable to call with the message after it has been sent
         """
         raise NotImplementedError
 
