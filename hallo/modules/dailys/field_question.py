@@ -409,6 +409,9 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
                 self._ask_question(question, last_time)
 
     def _ask_question(self, question: Question, ask_time: datetime.datetime) -> None:
+        # Create answer object
+        answer = Answer(question.id, ask_time)
+        # Create message
         msg = (
             "I have a question (id={}):\n".format(question.id)
             + question.question
@@ -418,13 +421,14 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             msg += "\n".join("- {}".format(option.answer) for option in question.answer_options)
             if question.allow_custom_answers:
                 msg += "\n\nBut custom answers are also allowed."
-        evt = self.message_channel(msg)
-        # Get sent message ID
-        sent_msg_id = None
-        if isinstance(evt.raw_data, RawDataTelegramOutbound):
-            sent_msg_id = evt.raw_data.sent_msg_object.message_id
-        # Create answer object
-        answer = Answer(question.id, ask_time, question_msg_id=sent_msg_id)
+
+        # Create message id setting callback
+        def after_msg_sent(event: EventMessage):
+            answer.question_msg_id = event.message_id
+            self.data.save_answer(answer)
+        # Send message
+        self.message_channel(msg, after_msg_sent)
+        # Save answer
         self.data.save_answer(answer)
 
     def _msg_trigger(self, evt: EventMessage) -> Optional[EventMessage]:
