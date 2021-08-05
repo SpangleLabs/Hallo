@@ -7,6 +7,7 @@ import hallo.modules.subscriptions.subscription_common
 import hallo.modules.subscriptions.subscription_exception
 import hallo.modules.subscriptions.subscription_factory
 import hallo.modules.subscriptions.source_e621_tagging
+import hallo.modules.subscriptions.source_e621_backlog
 from hallo.destination import Destination
 from hallo.inc.commons import inherits_from
 from hallo.inc.menus import MenuCache, MenuFactory
@@ -159,6 +160,7 @@ class SubscriptionRepo:
 
     def load_menu_cache(self, hallo_obj: 'Hallo') -> None:
         menu_factory = MenuFactory([
-            hallo.modules.subscriptions.source_e621_tagging.E621TaggingMenu
+            hallo.modules.subscriptions.source_e621_tagging.E621TaggingMenu,
+            hallo.modules.subscriptions.source_e621_backlog.E621BacklogTaggingMenu
         ], hallo_obj)
         self.menu_cache = MenuCache.load_from_json(self.MENU_STORE_FILE, menu_factory)
