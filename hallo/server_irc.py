@@ -3,6 +3,7 @@ import re
 import socket
 import time
 from threading import RLock, Lock, Thread
+from typing import Callable, Optional
 
 from hallo.destination import ChannelMembership, Channel, User
 from hallo.errors import MessageError, ExceptionError
@@ -20,6 +21,7 @@ from hallo.events import (
     EventMessage,
     ChannelUserTextEvent,
     RawDataIRC,
+    ServerEvent,
 )
 from hallo.permission_mask import PermissionMask
 from hallo.server import Server, ServerException
@@ -281,58 +283,50 @@ class ServerIRC(Server):
                     Thread(target=self.parse_line, args=(next_line,)).start()
         self.disconnect()
 
-    def send(self, event):
+    def send(
+            self,
+            event: 'ServerEvent',
+            *,
+            after_sent_callback: Optional[Callable[['ServerEvent'], None]] = None
+    ) -> None:
         if isinstance(event, EventPing):
             self.send_raw("PONG {}".format(event.ping_number))
-            event.log()
-            return
-        if isinstance(event, EventQuit):
+        elif isinstance(event, EventQuit):
             self.send_raw("QUIT :{}".format(event.quit_message))
-            event.log()
-            return
-        if isinstance(event, EventNameChange):
+        elif isinstance(event, EventNameChange):
             self.send_raw("NICK {}".format(event.new_name))
-            event.log()
-            return
-        if isinstance(event, EventJoin):
+        elif isinstance(event, EventJoin):
             if event.password is not None:
                 self.send_raw(
                     "JOIN {} {}".format(event.channel.address, event.password)
                 )
             else:
                 self.send_raw("JOIN {}".format(event.channel.address))
-            event.log()
-            return
-        if isinstance(event, EventLeave):
+        elif isinstance(event, EventLeave):
             if event.leave_message is not None:
                 self.send_raw(
                     "PART {} {}".format(event.channel.address, event.leave_message)
                 )
             else:
                 self.send_raw("PART {}".format(event.channel.address))
-            event.log()
-            return
-        if isinstance(event, EventKick):
+        elif isinstance(event, EventKick):
             self.send_raw(
                 "KICK {} {} {}".format(
                     event.channel.address, event.kicked_user.address, event.kick_message
                 )
             )
-            event.log()
-            return
-        if isinstance(event, EventInvite):
+        elif isinstance(event, EventInvite):
             self.send_raw(
                 "INVITE {} {}".format(event.user.address, event.channel.address)
             )
-            event.log()
-            return
-        if isinstance(event, EventMode):
+        elif isinstance(event, EventMode):
             self.send_raw(
                 "MODE {} {}".format(event.channel.address, event.mode_changes)
             )
             event.log()
+            after_sent_callback(event)
             return
-        if isinstance(event, ChannelUserTextEvent):
+        elif isinstance(event, ChannelUserTextEvent):
             msg_type_name = "PRIVMSG"
             msg_text = event.text
             dest_addr = (
@@ -373,14 +367,18 @@ class ServerIRC(Server):
                         inbound=False,
                     )
                     event.log()
-            return
-        error = MessageError(
-            "This event type, {}, is not currently supported to send on IRC servers".format(
-                event.__class__.__name__
+        else:
+            error = MessageError(
+                "This event type, {}, is not currently supported to send on IRC servers".format(
+                    event.__class__.__name__
+                )
             )
-        )
-        logger.error(error.get_log_line())
-        raise NotImplementedError()
+            logger.error(error.get_log_line())
+            raise NotImplementedError()
+        event.log()
+        if after_sent_callback:
+            after_sent_callback(event)
+        return
 
     def reply(self, old_event, new_event):
         super().reply(old_event, new_event)

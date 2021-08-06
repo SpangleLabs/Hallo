@@ -35,8 +35,10 @@ class ServerMock(Server):
         super().leave_channel(channel_obj)
         self.left_channels.append(channel_obj)
 
-    def send(self, event):
+    def send(self, event, *, after_sent_callback=None):
         self.send_data.append(event)
+        if after_sent_callback:
+            after_sent_callback(event)
 
     def reply(self, old_event, new_event):
         super().reply(old_event, new_event)

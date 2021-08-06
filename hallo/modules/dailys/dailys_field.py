@@ -1,6 +1,7 @@
 import logging
 from abc import ABCMeta
 from datetime import date
+from typing import Optional, Dict, Callable
 
 from hallo.events import (
     EventMessage,
@@ -59,18 +60,14 @@ class DailysField(metaclass=ABCMeta):
         """
         self.spreadsheet.save_field(self, data, data_date=data_date)
 
-    def load_data(self, data_date):
-        """
-        :type data_date: date
-        :rtype: dict | None
-        """
+    def load_data(self, data_date: date) -> Optional[Dict]:
         return self.spreadsheet.read_field(self, data_date)
 
-    def message_channel(self, text):
-        """
-        :type text: str
-        :rtype : EventMessage
-        """
+    def message_channel(
+            self,
+            text: str,
+            after_sent_callback: Optional[Callable[[EventMessage], None]] = None
+    ) -> EventMessage:
         evt = EventMessage(
             self.spreadsheet.destination.server,
             self.spreadsheet.destination,
@@ -78,7 +75,7 @@ class DailysField(metaclass=ABCMeta):
             text,
             inbound=False,
         )
-        self.spreadsheet.user.server.send(evt)
+        self.spreadsheet.user.server.send(evt, after_sent_callback=after_sent_callback)
         return evt
 
 
