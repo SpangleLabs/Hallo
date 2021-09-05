@@ -109,8 +109,11 @@ class E621BacklogTaggingSource(hallo.modules.subscriptions.source_e621_tagging.E
     def get_remaining_count(self):
         if self.remaining_count is not None:
             return self.remaining_count
-        smallest_id = min(self.sent_ids)
-        search = f"{self.search} id:<={smallest_id}"
+        if self.sent_ids:
+            smallest_id = min(self.sent_ids)
+            search = f"{self.search} id:<={smallest_id}"
+        else:
+            search = f"{self.search} id:<={self.start_id}"
         count_posts = 0
         page = 1
         while True:
