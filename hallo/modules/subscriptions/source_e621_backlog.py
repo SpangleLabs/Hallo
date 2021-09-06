@@ -150,13 +150,13 @@ class E621BacklogTaggingSource(hallo.modules.subscriptions.source_e621_tagging.E
         self.generate_next_batch()
         if not self.current_batch_ids:
             resp = event.create_response(
-                "There are no remaining posts for that backlog subscription!"
+                f"There are no remaining posts for the \"{self.search}\" backlog subscription!"
             )
             self.remaining_count = 0
         else:
             remaining_count = self.get_remaining_count()
             resp = event.create_response(
-                f"Okay, will send {self.batch_size} more updates. There are about {remaining_count} posts left."
+                f"Okay, will send {self.batch_size} more \"{self.search}\" updates. There are about {remaining_count} posts left."
             )
         event.reply(resp)
         return True
