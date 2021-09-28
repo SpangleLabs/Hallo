@@ -665,7 +665,7 @@ test = ["pytest", "sqlalchemy", "whoosh", "sphinx"]
 
 [[package]]
 name = "taskipy"
-version = "1.8.1"
+version = "1.9.0"
 description = "tasks runner for python projects"
 category = "dev"
 optional = false
@@ -673,7 +673,7 @@ python-versions = ">=3.6,<4.0"
 
 [package.dependencies]
 colorama = ">=0.4.4,<0.5.0"
-mslex = ">=0.3.0,<0.4.0"
+mslex = {version = ">=0.3.0,<0.4.0", markers = "sys_platform == \"win32\""}
 psutil = ">=5.7.2,<6.0.0"
 toml = ">=0.10.0,<0.11.0"
 
@@ -776,7 +776,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "9cda98c8ec76f83b5935548909d288dbf7b7f96dd3cc0554eb9d1f8bcc644fad"
+content-hash = "1ecb937d2caeb1e991c2d88b2923f3883dae9c9b556048cfa55ac26dbe92e044"
 
 [metadata.files]
 aiohttp = [
@@ -1206,8 +1206,8 @@ sphinxcontrib-websupport = [
     {file = "sphinxcontrib_websupport-1.2.4-py2.py3-none-any.whl", hash = "sha256:6fc9287dfc823fe9aa432463edd6cea47fa9ebbf488d7f289b322ffcfca075c7"},
 ]
 taskipy = [
-    {file = "taskipy-1.8.1-py3-none-any.whl", hash = "sha256:2b98f499966e40175d1f1306a64587f49dfa41b90d0d86c8f28b067cc58d0a56"},
-    {file = "taskipy-1.8.1.tar.gz", hash = "sha256:7a2404125817e45d80e13fa663cae35da6e8ba590230094e815633653e25f98f"},
+    {file = "taskipy-1.9.0-py3-none-any.whl", hash = "sha256:02bd2c51c7356ed3f7f8853210ada1cd2ab273e68359ee865021c3057eec6615"},
+    {file = "taskipy-1.9.0.tar.gz", hash = "sha256:449c160b557cdb1d9c17097a5ea4aa0cd5223723ddbaaa5d5032dd16274fb8f0"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
