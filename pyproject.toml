@@ -11,7 +11,7 @@ python-dateutil = "2.8.2"
 beautifulsoup4 = "4.9.3"
 requests = "2.26.0"
 duolingo-api = "0.5.4"
-publicsuffixlist = "0.7.8"
+publicsuffixlist = "0.7.11"
 isodate = "0.6.0"
 simple-heartbeat = "0.1.2"
 yippi = {git = "https://github.com/rorre/Yippi.git", rev = "631da1c7c720ccf23c479a68c48936e9de588d5f"}
