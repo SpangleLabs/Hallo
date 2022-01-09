@@ -46,7 +46,7 @@ class SubscriptionRepo:
         )
         for sub_class in all_subclasses(hallo.modules.subscriptions.source.Source):
             self.sub_count.labels(source_type=sub_class.__name__).set_function(
-                lambda sc: len([s for s in self.sub_list if s.source.__name__ == sc.__name__])
+                lambda sc=sub_class: len([s for s in self.sub_list if s.source.__name__ == sc.__name__])
             )
         self.sub_menu_count.set_function(lambda: self.menu_cache.count_menus() if self.menu_cache else 0)
 
