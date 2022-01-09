@@ -2,8 +2,6 @@ import json
 from threading import Lock
 from typing import List, Type, TypeVar, TYPE_CHECKING
 
-from prometheus_client import Gauge
-
 import hallo.modules.subscriptions.subscription
 import hallo.modules.subscriptions.subscription_common
 import hallo.modules.subscriptions.subscription_exception
@@ -12,7 +10,7 @@ import hallo.modules.subscriptions.source
 import hallo.modules.subscriptions.source_e621_tagging
 import hallo.modules.subscriptions.source_e621_backlog
 from hallo.destination import Destination
-from hallo.inc.commons import inherits_from, all_subclasses
+from hallo.inc.commons import inherits_from, all_subclasses, subscription_count, subscription_menu_count
 from hallo.inc.menus import MenuCache, MenuFactory
 
 if TYPE_CHECKING:
@@ -35,20 +33,11 @@ class SubscriptionRepo:
         self.common_list: List[hallo.modules.subscriptions.subscription_common.SubscriptionCommon] = []
         self.sub_lock: Lock = Lock()
         self.menu_cache = None
-        self.sub_count = Gauge(
-            "hallo_subscriptionrepo_subscription_count",
-            "Total number of subscriptions in the subscription repo by type",
-            labelnames=["source_type"]
-        )
-        self.sub_menu_count = Gauge(
-            "hallo_subscriptionrepo_menu_count",
-            "Total number of active menus in the subscription repo"
-        )
         for sub_class in all_subclasses(hallo.modules.subscriptions.source.Source):
-            self.sub_count.labels(source_type=sub_class.__name__).set_function(
+            subscription_count.labels(source_type=sub_class.__name__).set_function(
                 lambda sc=sub_class: len([s for s in self.sub_list if s.source.__class__.__name__ == sc.__name__])
             )
-        self.sub_menu_count.set_function(lambda: self.menu_cache.count_menus() if self.menu_cache else 0)
+        subscription_menu_count.set_function(lambda: self.menu_cache.count_menus() if self.menu_cache else 0)
 
     def add_sub(self, new_sub: hallo.modules.subscriptions.subscription.Subscription) -> None:
         """

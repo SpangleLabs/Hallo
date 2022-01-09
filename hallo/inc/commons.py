@@ -8,11 +8,23 @@ from datetime import timedelta
 from typing import List, Optional, Dict, TypeVar, Union, Callable, Generic, Type, Set
 
 import requests
+from prometheus_client import Gauge
 from publicsuffixlist import PublicSuffixList
 
 logger = logging.getLogger(__name__)
 T = TypeVar('T')
 S = TypeVar('S')
+
+
+subscription_count = Gauge(
+    "hallo_subscriptionrepo_subscription_count",
+    "Total number of subscriptions in the subscription repo by type",
+    labelnames=["source_type"]
+)
+subscription_menu_count = Gauge(
+    "hallo_subscriptionrepo_menu_count",
+    "Total number of active menus in the subscription repo"
+)
 
 
 def all_subclasses(cls: Type) -> Set[Type]:
@@ -349,7 +361,7 @@ class Commons(object):
         """
         # Find any URLs, convert line to uppercase, then convert URLs back to original
         urls = re.findall(
-            "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+            "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|%[0-9a-fA-F][0-9a-fA-F])+",
             data,
         )
         data = data.upper()
