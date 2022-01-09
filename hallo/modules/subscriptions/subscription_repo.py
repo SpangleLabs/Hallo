@@ -10,7 +10,7 @@ import hallo.modules.subscriptions.source
 import hallo.modules.subscriptions.source_e621_tagging
 import hallo.modules.subscriptions.source_e621_backlog
 from hallo.destination import Destination
-from hallo.inc.commons import inherits_from, all_subclasses, subscription_count, subscription_menu_count
+from hallo.inc.commons import inherits_from, subscription_count, subscription_menu_count
 from hallo.inc.menus import MenuCache, MenuFactory
 
 if TYPE_CHECKING:
@@ -33,7 +33,7 @@ class SubscriptionRepo:
         self.common_list: List[hallo.modules.subscriptions.subscription_common.SubscriptionCommon] = []
         self.sub_lock: Lock = Lock()
         self.menu_cache = None
-        for sub_class in all_subclasses(hallo.modules.subscriptions.source.Source):
+        for sub_class in hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.sub_sources:
             subscription_count.labels(source_type=sub_class.__name__).set_function(
                 lambda sc=sub_class: len([s for s in self.sub_list if s.source.__class__.__name__ == sc.__name__])
             )
