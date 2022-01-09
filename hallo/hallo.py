@@ -56,7 +56,7 @@ class Hallo:
         self.permission_mask: PermissionMask = PermissionMask()
         self.prom_port = 7265
         server_count.set_function(lambda: len(self.server_list))
-        server_connected_count.set_function(lambda: len([s for s in self.server_list[:] if s.is_connected()]))
+        server_connected_count.set_function(lambda: len([s for s in self.server_list.copy() if s.is_connected()]))
         # TODO: manual FunctionDispatcher construction, user input?
         self.function_dispatcher: FunctionDispatcher = None
 
