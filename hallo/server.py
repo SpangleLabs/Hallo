@@ -1,12 +1,26 @@
 from abc import ABCMeta, abstractmethod
 from typing import Optional, TYPE_CHECKING, Union, Dict, List, Callable
 
+from prometheus_client import Counter
+
 from hallo.destination import Channel, User
 from hallo.permission_mask import PermissionMask
 
 if TYPE_CHECKING:
     from hallo.hallo import Hallo
     from hallo.events import ChannelUserTextEvent, ServerEvent
+
+
+incoming_msg_count = Counter(
+    "hallo_incoming_msg_count",
+    "Number of incoming messages per server and event type",
+    labelnames=["server_type", "event_type"]
+)
+outgoing_msg_count = Counter(
+    "hallo_outgoing_msg_count",
+    "Number of outgoing messages per server and event type",
+    labelnames=["server_type", "event_type"]
+)
 
 
 class ServerException(Exception):
@@ -54,6 +68,9 @@ class Server(metaclass=ABCMeta):
         """ :type : PermissionMask"""
         # Dynamic/unsaved class variables
         self.state = Server.STATE_CLOSED  # Current state of the server, replacing open
+        # Metrics
+        self.incoming = incoming_msg_count
+        self.outgoing = outgoing_msg_count
 
     def __eq__(self, other: 'Server') -> bool:
         return (

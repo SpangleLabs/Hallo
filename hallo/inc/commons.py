@@ -5,7 +5,7 @@ import re
 import json
 import random
 from datetime import timedelta
-from typing import List, Optional, Dict, TypeVar, Union, Callable, Generic, Type
+from typing import List, Optional, Dict, TypeVar, Union, Callable, Generic, Type, Set
 
 import requests
 from publicsuffixlist import PublicSuffixList
@@ -13,6 +13,12 @@ from publicsuffixlist import PublicSuffixList
 logger = logging.getLogger(__name__)
 T = TypeVar('T')
 S = TypeVar('S')
+
+
+def all_subclasses(cls: Type) -> Set[Type]:
+    return set(cls.__subclasses__()).union(
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)]
+    )
 
 
 class Commons(object):

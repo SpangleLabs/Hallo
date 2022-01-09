@@ -7,6 +7,8 @@ from datetime import datetime
 from typing import Union, Set, Dict, Optional
 
 import heartbeat
+from prometheus_client import start_http_server
+from prometheus_client.metrics import Gauge
 
 from hallo.errors import MessageError
 from hallo.events import EventSecond, EventMinute, EventDay, EventHour
@@ -24,6 +26,20 @@ logger = logging.getLogger(__name__)
 usage_logger = logging.getLogger("usage")
 
 
+start_time = Gauge(
+    "hallo_start_unixtime",
+    "Unix timestamp of the last time the bot started up"
+)
+server_count = Gauge(
+    "hallo_server_count",
+    "Number of servers hallo knows about"
+)
+server_connected_count = Gauge(
+    "hallo_server_connected_count",
+    "Number of servers hallo is connected to"
+)
+
+
 class Hallo:
     CONFIG_FILE = "config/config.json"
     CONFIG_DEFAULT_FILE = "config/config-default.json"
@@ -38,6 +54,9 @@ class Hallo:
         self.api_key_list: Dict[str, str] = {}
         self.server_factory: ServerFactory = ServerFactory(self)
         self.permission_mask: PermissionMask = PermissionMask()
+        self.prom_port = 7265
+        server_count.set_function(lambda: len(self.server_list))
+        server_connected_count.set_function(lambda: len([s for s in self.server_list[:] if s.is_connected()]))
         # TODO: manual FunctionDispatcher construction, user input?
         self.function_dispatcher: FunctionDispatcher = None
 
@@ -78,6 +97,9 @@ class Hallo:
                 logger.error(error.get_log_line())
                 return
         self.open = True
+        # Start up prometheus server
+        start_http_server(self.prom_port)
+        start_time.set_to_current_time()
         # Main loop, sticks around throughout the running of the bot
         logger.info("Connected to all servers.")
         self.core_loop_time_events()

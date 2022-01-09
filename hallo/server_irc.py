@@ -25,7 +25,7 @@ from hallo.events import (
 )
 from hallo.permission_mask import PermissionMask
 from hallo.server import Server, ServerException
-from hallo.inc.commons import Commons
+from hallo.inc.commons import Commons, all_subclasses
 
 endl = "\r\n"
 logger = logging.getLogger(__name__)
@@ -89,6 +89,15 @@ class ServerIRC(Server):
         if server_url is not None:
             self.server_address = server_url
             self.server_port = server_port
+        for evt_class in all_subclasses(ServerEvent):
+            self.incoming.labels(
+                server_type=self.__class__.__name__,
+                event_type=evt_class.__name__
+            )
+            self.outgoing.labels(
+                server_type=self.__class__.__name__,
+                event_type=evt_class.__name__
+            )
 
     def start(self):
         """
@@ -289,6 +298,10 @@ class ServerIRC(Server):
             *,
             after_sent_callback: Optional[Callable[['ServerEvent'], None]] = None
     ) -> None:
+        self.outgoing.labels(
+            server_type=self.__class__.__name__,
+            event_type=event.__class__.__name__
+        ).inc()
         if isinstance(event, EventPing):
             self.send_raw("PONG {}".format(event.ping_number))
         elif isinstance(event, EventQuit):
@@ -491,6 +504,10 @@ class ServerIRC(Server):
         self.send(pong_evt)
         # Print and log
         ping_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=ping_evt.__class__.__name__
+        ).inc()
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(ping_evt)
@@ -535,6 +552,10 @@ class ServerIRC(Server):
         ).with_raw_data(RawDataIRC(message_line))
         # Print and Log the message
         message_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=message_evt.__class__.__name__
+        ).inc()
         # Get function dispatcher ready
         function_dispatcher = self.hallo.function_dispatcher
         if message_private_bool:
@@ -584,6 +605,10 @@ class ServerIRC(Server):
         ctcp_evt = EventCTCP(self, message_channel, message_sender, message_text)
         # Print and log the message
         ctcp_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=ctcp_evt.__class__.__name__
+        ).inc()
         # Reply to certain types of CTCP command
         if message_ctcp_command.lower() == "version":
             ctcp_evt.reply(
@@ -650,6 +675,10 @@ class ServerIRC(Server):
         )
         # Print and log
         join_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=join_evt.__class__.__name__
+        ).inc()
         # TODO: Apply automatic flags as required
         # If hallo has joined a channel, get the user list and apply automatic flags as required
         if join_client.name.lower() == self.get_nick().lower():
@@ -684,6 +713,10 @@ class ServerIRC(Server):
         ).with_raw_data(RawDataIRC(part_line))
         # Print and log
         leave_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=leave_evt.__class__.__name__
+        ).inc()
         # Remove user from channel's user list
         part_channel.remove_user(part_client)
         # Try to work out if the user is still on the server
@@ -717,6 +750,10 @@ class ServerIRC(Server):
         )
         # Print and Log to all channels on server
         quit_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=quit_evt.__class__.__name__
+        ).inc()
         # Remove user from user list on all channels
         for channel in self.channel_list:
             channel.remove_user(quit_client)
@@ -790,6 +827,10 @@ class ServerIRC(Server):
         )
         # # Printing and logging
         mode_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=mode_evt.__class__.__name__
+        ).inc()
         # # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(mode_evt)
@@ -819,6 +860,10 @@ class ServerIRC(Server):
         ).with_raw_data(RawDataIRC(notice_line))
         # Print to console, log to file
         notice_event.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=notice_event.__class__.__name__
+        ).inc()
         # Checking if user is registered
         if (
             notice_client.address == self.nickserv_nick
@@ -872,6 +917,10 @@ class ServerIRC(Server):
         ).with_raw_data(RawDataIRC(nick_line))
         # Printing and logging
         chname_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=chname_evt.__class__.__name__
+        ).inc()
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(chname_evt)
@@ -903,6 +952,10 @@ class ServerIRC(Server):
         ).with_raw_data(RawDataIRC(invite_line))
         # Printing and logging
         invite_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=invite_evt.__class__.__name__
+        ).inc()
         # Check if they are an op, then join the channel.
         if (
             inviter_client.rights_check("invite_channel", invite_channel)
@@ -940,6 +993,10 @@ class ServerIRC(Server):
         ).with_raw_data(RawDataIRC(kick_line))
         # Log, if applicable
         kick_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=kick_evt.__class__.__name__
+        ).inc()
         # Remove kicked user from user list
         kick_channel.remove_user(kicked_client)
         # If it was the bot who was kicked, set "in channel" status to False
@@ -964,6 +1021,10 @@ class ServerIRC(Server):
             "[{}] Numeric server info: {}".format(self.name, numeric_line)
         )
         # TODO: add logging?
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type="other-numeric"
+        ).inc()
         # Check for a 433 "ERR_NICKNAMEINUSE"
         if numeric_code == "433":
             nick_num_suffixes = [
@@ -1025,6 +1086,10 @@ class ServerIRC(Server):
             )
         )
         logger.error(error.get_log_line())
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type="other-unhandled"
+        ).inc()
 
     def parse_line_raw(self, raw_line, line_type):
         """Handed all raw data, along with the type of message

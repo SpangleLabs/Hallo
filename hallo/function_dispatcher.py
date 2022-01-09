@@ -7,6 +7,8 @@ import inspect
 from types import ModuleType
 from typing import Set, Type, Dict, Optional, List, TypeVar
 
+from prometheus_client import Counter
+
 from hallo.destination import User, Channel
 from hallo.errors import (
     FunctionError,
@@ -28,6 +30,36 @@ from hallo.server import Server
 
 logger = logging.getLogger(__name__)
 FuncT = TypeVar("FuncT", bound=Function)
+
+
+function_calls = Counter(
+    "hallo_function_call_count",
+    "Total count of how many times each function has been called",
+    labelnames=["function_class"]
+)
+function_errors = Counter(
+    "hallo_function_error_count",
+    "Total count of how many functions raised an error",
+    labelnames=["function_class"]
+)
+passive_responses = Counter(
+    "hallo_function_passive_response_count",
+    "Total count of how many times functions have responded to passive calls",
+    labelnames=["function_class"]
+)
+passive_errors = Counter(
+    "hallo_function_passive_error_count",
+    "Total count of how many passive function calls have raised an exception",
+    labelnames=["function_class"]
+)
+unrecognised_calls = Counter(
+    "hallo_function_unrecognised_count",
+    "Total number of times a message was interpreted as a command, but the function name was not recognised"
+)
+permission_denied = Counter(
+    "hallo_function_denied_count",
+    "Total number of times a function could not be called due to insufficient permissions"
+)
 
 
 def module_name_to_file_name(full_module_name: str) -> str:
@@ -96,6 +128,7 @@ class FunctionDispatcher(object):
                 )
                 error = FunctionNotFoundError(self, event)
                 logger.error(error.get_log_line())
+                unrecognised_calls.inc()
             return
         function_class = function_class_test
         event.split_command_text(function_name_test, function_args_test)
@@ -110,7 +143,9 @@ class FunctionDispatcher(object):
             )
             error = FunctionNotAllowedError(self, function_class, event)
             logger.error(error.get_log_line())
+            permission_denied.inc()
             return
+        function_calls.labels(function_class=function_class.__name__).inc()
         # If persistent, get the object, otherwise make one
         function_obj = self.get_function_object(function_class)
         # Try running the function, if it fails, return an error message
@@ -130,6 +165,7 @@ class FunctionDispatcher(object):
                 )
             )
             logger.error(error.get_log_line())
+            function_errors.labels(function_class=function_class.__name__).inc()
             return
 
     def dispatch_passive(self, event: Event) -> None:
@@ -162,6 +198,7 @@ class FunctionDispatcher(object):
                 response = function_obj.passive_run(event, self.hallo)
                 logger.debug("Got passive function response: %s", response)
                 if response is not None:
+                    passive_responses.labels(function_class=function_class.__name__).inc()
                     if isinstance(response, ChannelUserTextEvent) and isinstance(
                         event, ChannelUserTextEvent
                     ):
@@ -172,6 +209,7 @@ class FunctionDispatcher(object):
             except Exception as e:
                 error = PassiveFunctionError(e, self, function_obj, event)
                 logger.error(error.get_log_line())
+                passive_errors.labels(function_class=function_class.__name__).inc()
                 continue
 
     def get_function_by_name(self, function_name: str) -> Optional[Type[Function]]:
@@ -286,6 +324,10 @@ class FunctionDispatcher(object):
             # Try and load function, if it fails, try and unload it.
             try:
                 self.load_function(module_obj, function_class)
+                function_calls.labels(function_class=function_class.__name__)
+                function_errors.labels(function_class=function_class.__name__)
+                passive_responses.labels(function_class=function_class.__name__)
+                passive_errors.labels(function_class=function_class.__name__)
             except NotImplementedError as e:
                 logger.warning("Failed to load function %s. ", function_class, exc_info=e)
                 self.unload_function(module_obj, function_class)

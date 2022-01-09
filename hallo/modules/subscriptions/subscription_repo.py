@@ -2,6 +2,8 @@ import json
 from threading import Lock
 from typing import List, Type, TypeVar, TYPE_CHECKING
 
+from prometheus_client import Gauge
+
 import hallo.modules.subscriptions.subscription
 import hallo.modules.subscriptions.subscription_common
 import hallo.modules.subscriptions.subscription_exception
@@ -9,7 +11,7 @@ import hallo.modules.subscriptions.subscription_factory
 import hallo.modules.subscriptions.source_e621_tagging
 import hallo.modules.subscriptions.source_e621_backlog
 from hallo.destination import Destination
-from hallo.inc.commons import inherits_from
+from hallo.inc.commons import inherits_from, all_subclasses
 from hallo.inc.menus import MenuCache, MenuFactory
 
 if TYPE_CHECKING:
@@ -17,6 +19,9 @@ if TYPE_CHECKING:
     from hallo.hallo import Hallo
 
 T = TypeVar("T", bound=hallo.modules.subscriptions.subscription_common.SubscriptionCommon)
+
+
+
 
 
 class SubscriptionRepo:
@@ -32,6 +37,19 @@ class SubscriptionRepo:
         self.common_list: List[hallo.modules.subscriptions.subscription_common.SubscriptionCommon] = []
         self.sub_lock: Lock = Lock()
         self.menu_cache = None
+        self.sub_count = Gauge(
+            "hallo_subscriptionrepo_subscription_count",
+            "Total number of subscriptions in the subscription repo by type",
+            labelnames=["sub_type"]
+        )
+        self.sub_menu_count = Gauge(
+            "hallo_subscriptionrepo_menu_count",
+            "Total number of active menus in the subscription repo"
+        )
+        for sub_class in all_subclasses(hallo.modules.subscriptions.subscription.Subscription):
+            self.sub_count.labels(sub_type=sub_class.__name__)
+            self.sub_count.set_function(lambda sc: len([s for s in self.sub_list if s.__name__ == sc.__name__]))
+        self.sub_menu_count.set_function(lambda: self.menu_cache.count_menus() if self.menu_cache else 0)
 
     def add_sub(self, new_sub: hallo.modules.subscriptions.subscription.Subscription) -> None:
         """
