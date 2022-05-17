@@ -19,7 +19,7 @@ yippi = {git = "https://github.com/rorre/Yippi.git", rev = "631da1c7c720ccf23c47
 [tool.poetry.dev-dependencies]
 pytest = "6.2.5"
 requests-mock = "1.9.3"
-taskipy = "^1.8.1"
+taskipy = "^1.10.2"
 
 [tool.taskipy.tasks]
 test = "py.test -m \"not external_integration and not slow\""
