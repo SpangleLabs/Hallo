@@ -12,11 +12,14 @@ import hallo.modules.subscriptions.stream_source
 from hallo.server import Server
 
 
-def _get_item_title(feed_item: ElementTree.Element) -> str:
+def _get_item_title(feed_item: ElementTree.Element) -> Optional[str]:
     title_elem = feed_item.find("title")
     if title_elem is not None:
         return title_elem.text
-    return feed_item.find("{http://www.w3.org/2005/Atom}title").text
+    atom_elem ´feed_item.find("{http://www.w3.org/2005/Atom}title")\
+    if atom_elem:
+        return atom_elem.text
+    return None
 
 
 def get_rss_item_link(feed_item: ElementTree.Element) -> str:
