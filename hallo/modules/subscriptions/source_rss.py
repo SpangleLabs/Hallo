@@ -16,7 +16,7 @@ def _get_item_title(feed_item: ElementTree.Element) -> Optional[str]:
     title_elem = feed_item.find("title")
     if title_elem is not None:
         return title_elem.text
-    atom_elem ´feed_item.find("{http://www.w3.org/2005/Atom}title")\
+    atom_elem = feed_item.find("{http://www.w3.org/2005/Atom}title")
     if atom_elem:
         return atom_elem.text
     return None
