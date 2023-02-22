@@ -42,6 +42,13 @@ class MenuCache(Generic[T]):
         self.menus = defaultdict(lambda: defaultdict(lambda: []))
         self.filename = filename
 
+    def count_menus(self) -> int:
+        return sum(
+            len(dest_menus)
+            for server_menus in self.menus.values()
+            for dest_menus in server_menus.values()
+        )
+
     def add_menu(self, menu: T) -> None:
         # If the menu already exists, remove it.
         if menu.msg.message_id is not None:

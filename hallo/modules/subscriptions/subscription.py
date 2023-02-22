@@ -22,7 +22,7 @@ class Subscription:
             self,
             server: Server,
             destination: Destination,
-            source: 'hallo.modules.new_subscriptions.source.Source',
+            source: 'hallo.modules.subscriptions.source.Source',
             period: timedelta,
             last_check: Optional[datetime],
             last_update: Optional[datetime]

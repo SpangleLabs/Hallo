@@ -18,6 +18,7 @@ from hallo.events import (
     EventMessageWithPhoto,
     RawDataTelegramOutbound, EventMenuCallback, ServerEvent, ChannelUserTextEvent,
 )
+from hallo.inc.commons import all_subclasses
 from hallo.permission_mask import PermissionMask
 from hallo.server import Server, ServerException
 
@@ -104,6 +105,16 @@ class ServerTelegram(Server):
         self.dispatcher.add_handler(self.core_msg_handler)
         # Message queue, for flood control. Half group limit, because retries might double it
         self._msg_queue = mq.MessageQueue(group_burst_limit=10, autostart=False)
+        # Initialise labels
+        for evt_class in all_subclasses(ServerEvent):
+            self.incoming.labels(
+                server_type=self.__class__.__name__,
+                event_type=evt_class.__name__
+            )
+            self.outgoing.labels(
+                server_type=self.__class__.__name__,
+                event_type=evt_class.__name__
+            )
 
     class ChannelFilter(BaseFilter):
         def filter(self, message: Message) -> bool:
@@ -173,6 +184,10 @@ class ServerTelegram(Server):
             ).with_raw_data(RawDataTelegram(update))
         # Print and Log the private message
         message_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=message_evt.__class__.__name__
+        ).inc()
         self.hallo.function_dispatcher.dispatch(message_evt)
 
     def parse_group_message(self, update: Update, context: CallbackContext) -> None:
@@ -211,6 +226,10 @@ class ServerTelegram(Server):
             ).with_raw_data(RawDataTelegram(update))
         # Print and log the public message
         message_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=message_evt.__class__.__name__
+        ).inc()
         # Send event to function dispatcher or passive dispatcher
         function_dispatcher = self.hallo.function_dispatcher
         if message_evt.is_prefixed:
@@ -251,6 +270,10 @@ class ServerTelegram(Server):
         ).with_raw_data(RawDataTelegram(update))
         # Print and log the public message
         callback_evt.log()
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type=callback_evt.__class__.__name__
+        ).inc()
         # Send event to function dispatcher or passive dispatcher
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(callback_evt)
@@ -266,6 +289,10 @@ class ServerTelegram(Server):
             "Unhandled data received on Telegram server: {}".format(update)
         )
         logger.error(error.get_log_line())
+        self.incoming.labels(
+            server_type=self.__class__.__name__,
+            event_type="other-unhandled"
+        ).inc()
 
     def send(
             self,
@@ -277,6 +304,10 @@ class ServerTelegram(Server):
         is_group = False
         if isinstance(event, EventMessage):
             is_group = event.channel is not None
+        self.outgoing.labels(
+            server_type=self.__class__.__name__,
+            event_type=event.__class__.__name__
+        ).inc()
         prom = promise.Promise(
             self._send_raw,
             (event, ),
@@ -381,6 +412,10 @@ class ServerTelegram(Server):
         super().edit(old_event, new_event)
         if isinstance(old_event, EventMessageWithPhoto) != isinstance(new_event, EventMessageWithPhoto):
             raise ServerException("Can't change whether a message has a photo when editing.")
+        self.outgoing.labels(
+            server_type=self.__class__.__name__,
+            event_type=new_event.__class__.__name__
+        ).inc()
         # Edit event
         return self.edit_by_id(old_event.message_id, new_event, has_photo=isinstance(old_event, EventMessageWithPhoto))
 
@@ -393,6 +428,10 @@ class ServerTelegram(Server):
     ) -> EventMessage:
         if not message_id:
             raise ServerException("Old event has no message id associated with it")
+        self.outgoing.labels(
+            server_type=self.__class__.__name__,
+            event_type=new_event.__class__.__name__
+        ).inc()
         prom = promise.Promise(self._edit_by_id_raw, (message_id, new_event), {"has_photo": has_photo})
         self._msg_queue(prom, False)
 
