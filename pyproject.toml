@@ -14,7 +14,7 @@ duolingo-api = "0.5.4"
 publicsuffixlist = "0.7.8"
 isodate = "0.6.0"
 simple-heartbeat = "0.1.2"
-yippi = {git = "https://github.com/rorre/Yippi.git", rev = "631da1c7c720ccf23c479a68c48936e9de588d5f"}
+yippi = "0.2.0.1"
 prometheus-client = "^0.12.0"
 
 [tool.poetry.dev-dependencies]
