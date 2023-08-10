@@ -212,6 +212,13 @@ class FAShoutSource(
                 for shout in user_page_shouts
                 if shout.shout_id == item.shout_id
             ]
+            if not shout:
+                return EventMessage(
+                    server, channel, user,
+                    f"You have a new shout, from {item.name} ( https://furaffinity.net/user/{item.username}/ ) "
+                    f"but I cannot find it on your user page",
+                    inbound=False
+                )
             return EventMessage(
                 server, channel, user,
                 f"You have a new shout, from {item.name} ( http://furaffinity.net/user/{item.username}/ ) "
