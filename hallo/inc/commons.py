@@ -159,7 +159,7 @@ class Commons(object):
         :param headers: List of HTTP headers to add to request
         """
         headers_dict = Commons.create_headers_dict(headers)
-        resp = requests.get(url, headers=headers_dict)
+        resp = requests.get(url, headers=headers_dict, timeout=10)
         return resp.text
 
     @staticmethod
