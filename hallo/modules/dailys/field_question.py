@@ -256,7 +256,7 @@ class AnswersData:
         return None
 
     def get_answers_for_date(self, answer_date: datetime.date) -> List[Answer]:
-        date_data = self.spreadsheet.read_path("stats/questions/"+answer_date.isoformat())
+        date_data = self.spreadsheet.read_path("stats/questions/"+answer_date.isoformat()+"/")
         if not date_data:
             return []
         answer_data = date_data[0]["data"]["answers"]
