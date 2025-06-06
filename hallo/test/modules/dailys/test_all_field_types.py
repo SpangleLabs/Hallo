@@ -11,7 +11,8 @@ from hallo.modules.dailys.dailys_field_factory import DailysFieldFactory
 from hallo.modules.dailys.field_dream import DailysDreamField
 from hallo.modules.dailys.field_duolingo import DailysDuolingoField
 from hallo.modules.dailys.field_fa import DailysFAField
-from hallo.modules.dailys.field_mood import DailysMoodField, MoodTime
+from hallo.modules.dailys.field_mood import DailysMoodField
+from hallo.modules.dailys.field_mood_models import MoodTime
 from hallo.modules.dailys.field_sleep import DailysSleepField
 from hallo.modules.dailys.field_question import QuestionsField, Question, RepeatingInterval
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock

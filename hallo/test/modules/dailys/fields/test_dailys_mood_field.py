@@ -4,7 +4,8 @@ import pytest
 
 import hallo.modules.dailys.dailys_field
 from hallo.events import EventMessage, RawDataTelegram, EventMinute
-from hallo.modules.dailys.field_mood import DailysMoodField, MoodTime
+from hallo.modules.dailys.field_mood import DailysMoodField
+from hallo.modules.dailys.field_mood_models import MoodTime
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
