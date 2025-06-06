@@ -12,10 +12,6 @@ if TYPE_CHECKING:
     import hallo.modules.dailys.dailys_spreadsheet
 
 
-def probably_instance(obj, cls) -> bool:
-    return obj.__class__.__name__ == cls.__name__
-
-
 @functools.total_ordering
 class MoodTime:
     """
@@ -26,7 +22,7 @@ class MoodTime:
 
     def __init__(self, mood_time: Union[str, time]):
         self.mood_time = mood_time
-        if mood_time not in [self.WAKE, self.SLEEP] and not probably_instance(mood_time, time):
+        if mood_time not in [self.WAKE, self.SLEEP] and not isinstance(mood_time, time):
             raise TypeError("Invalid type for MoodTime")
 
     @classmethod
@@ -37,7 +33,7 @@ class MoodTime:
             return MoodTime(datetime.strptime(time_str, "%H:%M:%S").time())
 
     def __eq__(self, other):
-        return probably_instance(other, MoodTime) and self.mood_time == other.mood_time
+        return isinstance(other, MoodTime) and self.mood_time == other.mood_time
 
     def __hash__(self):
         return hash(self.mood_time)
@@ -46,7 +42,7 @@ class MoodTime:
         return str(self.mood_time)
 
     def __lt__(self, other) -> bool:
-        if not probably_instance(other, MoodTime):
+        if not isinstance(other, MoodTime):
             return NotImplemented
         if self.is_wake():
             return not other.is_wake()
@@ -94,7 +90,7 @@ class MoodDay:
 
     def is_full(self, mood_times: list[MoodTime]) -> bool:
         return all(
-            mood_time in self.mood_entries and probably_instance(self.mood_entries[mood_time], MoodMeasurement)
+            mood_time in self.mood_entries and isinstance(self.mood_entries[mood_time], MoodMeasurement)
             for mood_time in mood_times
         )
 
@@ -129,7 +125,7 @@ class MoodDay:
 
     def list_unanswered_requests(self) -> list['MoodRequest']:
         return sorted(
-            [m for m in self.mood_entries.values() if probably_instance(m, MoodRequest)],
+            [m for m in self.mood_entries.values() if isinstance(m, MoodRequest)],
             key=lambda x: x.mood_time
         )
 
@@ -266,7 +262,7 @@ class MoodTimeList:
         return max(past_times, key=lambda t: t.mood_time)
 
     def contains_time(self, mood_time: Union[MoodTime, str, time]) -> bool:
-        if probably_instance(mood_time, MoodTime):
+        if isinstance(mood_time, MoodTime):
             return mood_time in self.times
         return MoodTime(mood_time) in self.times
 
