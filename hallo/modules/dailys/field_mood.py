@@ -18,6 +18,9 @@ def probably_instance(obj, cls) -> bool:
 
 @functools.total_ordering
 class MoodTime:
+    """
+    MoodTime represents the time of a specific mood measurement. This will be wakeup, sleep, or a specified time
+    """
     WAKE = "WakeUpTime"
     SLEEP = "SleepTime"
 
@@ -63,6 +66,9 @@ class MoodTime:
 
 
 class MoodDay:
+    """
+    MoodDay represents a day of mood measurements, this converts into a full Dailys data entry dict
+    """
     def __init__(self, mood_date: date, mood_entries: Dict[MoodTime, 'MoodEntry']):
         self.mood_date = mood_date
         self.mood_entries = mood_entries or {}
@@ -142,6 +148,11 @@ class MoodDay:
 
 
 class MoodEntry(ABC):
+    """
+    MoodEntry is an entry in the MoodDay data dictionary. It's aligned to a time, but it's possible it may be an entry
+    without mood data yet (as it could be a confirmation that a mood request was sent).
+    This is the raw data parsed from Dailys data, basically.
+    """
     def __init__(self, mood_time: MoodTime, *, message_id: Optional[int] = None):
         self.mood_time = mood_time
         self.message_id = message_id
@@ -161,6 +172,10 @@ class MoodEntry(ABC):
 
 
 class MoodRequest(MoodEntry):
+    """
+    MoodRequest is a MoodEntry where Hallo has sent out a request for a mood measurement, but hasn't yet received the
+    response
+    """
     def __init__(self, mood_time: MoodTime, message_id: int):
         super().__init__(mood_time, message_id=message_id)
 
@@ -178,6 +193,9 @@ class MoodRequest(MoodEntry):
 
 
 class MoodMeasurement(MoodEntry):
+    """
+    MoodMeasurement is a MoodEntry where the mood measurement data has been supplied by the user
+    """
     def __init__(self, mood_time: MoodTime, mood_dict: Dict[str, int], message_id: Optional[int] = None):
         super().__init__(mood_time, message_id=message_id)
         self.mood_dict = mood_dict
@@ -199,6 +217,9 @@ class MoodMeasurement(MoodEntry):
 
 
 class MoodTriggeredCache:
+    """
+    MoodTriggeredCache is a cache of dates to which mood measurements have triggered for that day
+    """
     def __init__(self):
         self.cache = (
             dict()
@@ -224,7 +245,10 @@ class MoodTriggeredCache:
 
 
 class MoodTimeList:
-    def __init__(self, mood_times: List[MoodTime]):
+    """
+    MoodTimeList stores the list of times which mood measurements should be taken at each day
+    """
+    def __init__(self, mood_times: list[MoodTime]):
         self.times = mood_times
 
     def has_wake(self):
@@ -250,6 +274,10 @@ class MoodTimeList:
 
 
 class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
+    """
+    DailysMoodField defines all the interactions for the `mood` type of dailys data entry.
+    This is everything about how Hallo parses messages for mood measurements, how it sends out requests, etc
+    """
     type_name = "mood"
     # Does mood measurements
 
