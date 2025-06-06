@@ -2,7 +2,7 @@ import functools
 from abc import ABC, abstractmethod
 from datetime import timedelta, datetime, time, date
 from threading import RLock
-from typing import List, Union, Dict, Optional, TYPE_CHECKING
+from typing import Union, Optional, TYPE_CHECKING
 
 from hallo.events import EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound, Event
 import hallo.modules.dailys.dailys_field
@@ -69,18 +69,18 @@ class MoodDay:
     """
     MoodDay represents a day of mood measurements, this converts into a full Dailys data entry dict
     """
-    def __init__(self, mood_date: date, mood_entries: Dict[MoodTime, 'MoodEntry']):
+    def __init__(self, mood_date: date, mood_entries: dict[MoodTime, 'MoodEntry']):
         self.mood_date = mood_date
         self.mood_entries = mood_entries or {}
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         result = {}
         for time_val, entry in self.mood_entries.items():
             result[str(time_val)] = entry.to_dict()
         return result
 
     @classmethod
-    def from_dict(cls, data: Optional[Dict], mood_date: date) -> 'MoodDay':
+    def from_dict(cls, data: Optional[dict], mood_date: date) -> 'MoodDay':
         if data is None:
             return MoodDay(mood_date, {})
         mood_entries = {}
@@ -92,7 +92,7 @@ class MoodDay:
             mood_entries
         )
 
-    def is_full(self, mood_times: List[MoodTime]) -> bool:
+    def is_full(self, mood_times: list[MoodTime]) -> bool:
         return all(
             mood_time in self.mood_entries and probably_instance(self.mood_entries[mood_time], MoodMeasurement)
             for mood_time in mood_times
@@ -127,7 +127,7 @@ class MoodDay:
             return True
         return self.has_all_but_sleep(time_list)
 
-    def list_unanswered_requests(self) -> List['MoodRequest']:
+    def list_unanswered_requests(self) -> list['MoodRequest']:
         return sorted(
             [m for m in self.mood_entries.values() if probably_instance(m, MoodRequest)],
             key=lambda x: x.mood_time
@@ -139,7 +139,7 @@ class MoodDay:
         request = MoodRequest(mood_time, message_id)
         self.mood_entries[mood_time] = request
 
-    def set_measurement(self, time_val: MoodTime, measurement_data: Dict[str, int]) -> None:
+    def set_measurement(self, time_val: MoodTime, measurement_data: dict[str, int]) -> None:
         if self.has_time(time_val):
             current = self.mood_entries[time_val]
             self.mood_entries[time_val] = current.to_measurement(measurement_data)
@@ -158,16 +158,16 @@ class MoodEntry(ABC):
         self.message_id = message_id
 
     @classmethod
-    def from_data(cls, data: Dict, mood_time: MoodTime) -> 'MoodEntry':
+    def from_data(cls, data: dict, mood_time: MoodTime) -> 'MoodEntry':
         if {"message_id"} == set(data.keys()):
             return MoodRequest.from_data(data, mood_time)
         return MoodMeasurement.from_data(data, mood_time)
 
     @abstractmethod
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         pass
 
-    def to_measurement(self, measurement_data: Dict[str, int]) -> 'MoodMeasurement':
+    def to_measurement(self, measurement_data: dict[str, int]) -> 'MoodMeasurement':
         return MoodMeasurement(self.mood_time, measurement_data, self.message_id)
 
 
@@ -180,13 +180,13 @@ class MoodRequest(MoodEntry):
         super().__init__(mood_time, message_id=message_id)
 
     @classmethod
-    def from_data(cls, data: Dict, mood_time: MoodTime) -> 'MoodRequest':
+    def from_data(cls, data: dict, mood_time: MoodTime) -> 'MoodRequest':
         return MoodRequest(
             mood_time,
             data["message_id"]
         )
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "message_id": self.message_id
         }
@@ -196,12 +196,12 @@ class MoodMeasurement(MoodEntry):
     """
     MoodMeasurement is a MoodEntry where the mood measurement data has been supplied by the user
     """
-    def __init__(self, mood_time: MoodTime, mood_dict: Dict[str, int], message_id: Optional[int] = None):
+    def __init__(self, mood_time: MoodTime, mood_dict: dict[str, int], message_id: Optional[int] = None):
         super().__init__(mood_time, message_id=message_id)
         self.mood_dict = mood_dict
 
     @classmethod
-    def from_data(cls, data: Dict, mood_time: MoodTime) -> 'MoodEntry':
+    def from_data(cls, data: dict, mood_time: MoodTime) -> 'MoodEntry':
         mood_data = data.copy()
         message_id = None
         if "message_id" in mood_data:
@@ -209,7 +209,7 @@ class MoodMeasurement(MoodEntry):
             del mood_data["message_id"]
         return MoodMeasurement(mood_time, mood_data, message_id=message_id)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         result = self.mood_dict.copy()
         if self.message_id:
             result["message_id"] = self.message_id
@@ -221,10 +221,8 @@ class MoodTriggeredCache:
     MoodTriggeredCache is a cache of dates to which mood measurements have triggered for that day
     """
     def __init__(self):
-        self.cache = (
-            dict()
-        )  # Cache of time values which have triggered already on set days.
-        """ :type : dict[date, list[time|str]"""
+        self.cache: dict[date, list[Union[time, str]]] = {}
+        # Cache of time values which have triggered already on set days.
 
     def has_triggered(self, mood_date: date, time_val: MoodTime):
         return mood_date in self.cache and time_val.mood_time in self.cache[mood_date]
@@ -284,8 +282,8 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
     def __init__(
             self,
             spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet',
-            times: List[MoodTime],
-            moods: List[str]
+            times: list[MoodTime],
+            moods: list[str]
     ):
         super().__init__(spreadsheet)
         self.times = times
