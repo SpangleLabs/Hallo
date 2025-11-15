@@ -5,7 +5,6 @@ from hallo.destination import Destination
 import hallo.modules.subscriptions.common_fa_key
 import hallo.modules.subscriptions.subscription_common
 import hallo.modules.subscriptions.subscription
-import hallo.modules.subscriptions.source_reddit
 import hallo.modules.subscriptions.source_fa_watchers
 import hallo.modules.subscriptions.source_fa_favs
 import hallo.modules.subscriptions.source_fa_notif_comments
@@ -15,7 +14,6 @@ import hallo.modules.subscriptions.source_e621_tagging
 import hallo.modules.subscriptions.source_e621_backlog
 import hallo.modules.subscriptions.source_e621
 import hallo.modules.subscriptions.source_rss
-import hallo.modules.subscriptions.source_twitter
 import hallo.modules.subscriptions.source
 
 if TYPE_CHECKING:
