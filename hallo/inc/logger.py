@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 from logging import FileHandler
+from logging.handlers import TimedRotatingFileHandler
 from typing import Dict, Optional
 
 from hallo.destination import Destination
@@ -108,6 +109,6 @@ def setup_logging() -> None:
     # Set up hallo logger, for errors and such, to file
     hallo_logger = logging.getLogger("hallo")
     hallo_logger.setLevel(logging.DEBUG)
-    log_handler = FileHandler(f"{log_dir}/hallo.log")
+    log_handler = TimedRotatingFileHandler(f"{log_dir}/hallo.log", when="midnight")
     log_handler.setFormatter(formatter)
     hallo_logger.addHandler(log_handler)
