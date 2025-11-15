@@ -20,7 +20,6 @@ from hallo.modules.subscriptions.source_fa_notif_comments import FACommentNotifi
     FASubmissionCommentSource, FAJournalCommentSource, FAShoutSource
 from hallo.modules.subscriptions.source_fa_notif_favs import FAFavNotificationsSource
 from hallo.modules.subscriptions.source_fa_watchers import FAUserWatchersSource, FAWatchersSource
-from hallo.modules.subscriptions.source_reddit import RedditSource
 from hallo.modules.subscriptions.source_rss import RssSource
 from hallo.modules.subscriptions.subscription_factory import SubscriptionFactory
 from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
@@ -54,8 +53,6 @@ def source_objects(hallo_getter) -> List[Source]:
         FAJournalCommentSource(fa_key),
         FAShoutSource(fa_key)
     ))
-    sub_objs.append(RedditSource("deer"))
-    # sub_objs.append(TwitterSource("telegram", None))
     return sub_objs
 
 
@@ -77,8 +74,6 @@ def source_creation_arguments(hallo_getter) -> Dict[Type[Source], str]:
     sub_evts[FAWatchersSource] = ""
     sub_evts[FAFavNotificationsSource] = ""
     sub_evts[FACommentNotificationsSource] = ""
-    sub_evts[RedditSource] = "r/deer"
-    # sub_evts[TwitterSource] = "telegram"
     return sub_evts
 
 

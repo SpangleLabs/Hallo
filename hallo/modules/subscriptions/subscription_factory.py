@@ -33,7 +33,6 @@ class SubscriptionFactory:
         hallo.modules.subscriptions.source_fa_notif_favs.FAFavNotificationsSource,
         hallo.modules.subscriptions.source_fa_watchers.FAWatchersSource,
         hallo.modules.subscriptions.source_fa_watchers.FAUserWatchersSource,
-        hallo.modules.subscriptions.source_reddit.RedditSource,
         hallo.modules.subscriptions.source_rss.RssSource,
     ]
     common_classes: List[Type[hallo.modules.subscriptions.subscription_common.SubscriptionCommon]] = [
