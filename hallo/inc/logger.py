@@ -111,10 +111,3 @@ def setup_logging() -> None:
     log_handler = FileHandler(f"{log_dir}/hallo.log")
     log_handler.setFormatter(formatter)
     hallo_logger.addHandler(log_handler)
-
-    # Set up usage logger
-    usage_logger = logging.getLogger("usage")
-    usage_logger.setLevel(logging.DEBUG)
-    usage_handler = FileHandler(f"{log_dir}/usage.log")
-    usage_handler.setFormatter(formatter)
-    usage_logger.addHandler(usage_handler)
