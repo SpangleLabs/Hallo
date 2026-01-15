@@ -2,7 +2,7 @@
 name = "hallo"
 version = "3.0.0"
 description = "Hallo, a bot for irc and telegram, built for flexibility, with reloadable modules"
-authors = ["Joshua Coales <joshua@coales.co.uk>"]
+authors = ["Roselyn Coales <roselyn@coales.co.uk>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
