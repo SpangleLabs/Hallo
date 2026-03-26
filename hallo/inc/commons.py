@@ -134,9 +134,7 @@ class Commons(object):
         Returns a string, formatted datetime from a timestamp
         :param time_stamp: unix timestamp
         """
-        return datetime.datetime.utcfromtimestamp(time_stamp).strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )
+        return datetime.datetime.fromtimestamp(time_stamp, tz=datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
     @staticmethod
     def create_headers_dict(headers: list[list[str]]) -> dict[str, str]:
