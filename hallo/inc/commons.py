@@ -5,7 +5,7 @@ import re
 import json
 import random
 from datetime import timedelta
-from typing import List, Optional, Dict, TypeVar, Union, Callable, Generic, Type, Set
+from typing import Optional, TypeVar, Union, Callable, Generic, Type
 
 import requests
 from prometheus_client import Gauge
@@ -27,7 +27,7 @@ subscription_menu_count = Gauge(
 )
 
 
-def all_subclasses(cls: Type) -> Set[Type]:
+def all_subclasses(cls: Type) -> set[Type]:
     return set(cls.__subclasses__()).union(
         [s for c in cls.__subclasses__() for s in all_subclasses(c)]
     )
@@ -39,7 +39,7 @@ class Commons(object):
     """
 
     @staticmethod
-    def chunk_string_dot(string: str, length: int) -> List[str]:
+    def chunk_string_dot(string: str, length: int) -> list[str]:
         if len(string) <= length:
             return [string]
         else:
@@ -52,7 +52,7 @@ class Commons(object):
             return list_of_strings
 
     @staticmethod
-    def read_file_to_list(filename: str) -> List[str]:
+    def read_file_to_list(filename: str) -> list[str]:
         with open(filename, "r") as f:
             file_list = []
             raw_line = f.readline()
@@ -139,7 +139,7 @@ class Commons(object):
         )
 
     @staticmethod
-    def create_headers_dict(headers: List[List[str]]) -> Dict[str, str]:
+    def create_headers_dict(headers: list[list[str]]) -> dict[str, str]:
         """
         Creates a headers dictionary, for requests, and adds user agent
         :param headers: List of HTTP headers to add to request
@@ -152,9 +152,9 @@ class Commons(object):
         return headers_dict
 
     @staticmethod
-    def load_url_string(url: str, headers: List[List[str]] = None) -> str:
+    def load_url_string(url: str, headers: list[list[str]] = None) -> str:
         """
-        Takes a url to an xml resource, pulls it and returns a dictionary.
+        Takes a url, pulls it and returns the body of the page.
         :param url: URL to download
         :param headers: List of HTTP headers to add to request
         """
@@ -163,7 +163,7 @@ class Commons(object):
         return resp.text
 
     @staticmethod
-    def load_url_json(url: str, headers: List[List[str]] = None, json_fix: bool = False) -> Dict:
+    def load_url_json(url: str, headers: list[list[str]] = None, json_fix: bool = False) -> dict:
         """
         Takes a url to a json resource, pulls it and returns a dictionary.
         :param url: URL of json to download
@@ -184,7 +184,7 @@ class Commons(object):
         return output_dict
 
     @staticmethod
-    def put_json_to_url(url: str, data: Dict, headers: List[List[str]] = None) -> None:
+    def put_json_to_url(url: str, data: dict, headers: list[list[str]] = None) -> None:
         """
         Converts data to JSON and PUT it to the specified URL
         :param url: URL to send PUT request to
@@ -308,7 +308,7 @@ class Commons(object):
         return None
 
     @staticmethod
-    def list_greater(list_one: List[float], list_two: List[float]) -> Optional[bool]:
+    def list_greater(list_one: list[float], list_two: list[float]) -> Optional[bool]:
         """
         Checks whether listOne is "greater" than listTwo.
         Checks if an earlier element of listOne is greater than the equally placed element in listTwo
@@ -326,7 +326,7 @@ class Commons(object):
         return None
 
     @staticmethod
-    def get_random_int(min_int: int, max_int: int, count: int = 1) -> List[int]:
+    def get_random_int(min_int: int, max_int: int, count: int = 1) -> list[int]:
         """
         Returns a list of random integers in a given range
         :param min_int: Minimum integer to return
@@ -342,7 +342,7 @@ class Commons(object):
         return output_list
 
     @staticmethod
-    def get_random_choice(choice_list: List[T], count: int = 1) -> List[T]:
+    def get_random_choice(choice_list: list[T], count: int = 1) -> list[T]:
         """
         Replacement for random.choice
         :param choice_list: List of choices to choose from
@@ -384,7 +384,7 @@ class Commons(object):
         return param_value
 
     @staticmethod
-    def find_any_parameter(param_list: List[str], line: str) -> Union[str, bool]:
+    def find_any_parameter(param_list: list[str], line: str) -> Union[str, bool]:
         """
         Finds one of any parameter in a line.
         """
