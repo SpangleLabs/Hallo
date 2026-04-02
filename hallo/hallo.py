@@ -50,6 +50,7 @@ class Hallo:
             default_prefix: bool | str = False,
             default_full_name: str = "HalloBot HalloHost HalloServer :an irc bot by spangle",
             function_dispatcher_modules: set | None = None,
+            permission_mask: PermissionMask | None = None,
     ) -> None:
         self.default_nick: str = default_nick
         self.default_prefix: bool | str = default_prefix
@@ -59,7 +60,7 @@ class Hallo:
         self.server_list: set[Server] = set()
         self.api_key_list: dict[str, str] = {}
         self.server_factory: ServerFactory = ServerFactory(self)
-        self.permission_mask: PermissionMask = PermissionMask()
+        self.permission_mask: PermissionMask = permission_mask or PermissionMask()
         self.prom_port = 7265
         server_count.set_function(lambda: len(self.server_list))
         server_connected_count.set_function(lambda: len([s for s in self.server_list.copy() if s.is_connected()]))
@@ -191,12 +192,19 @@ class Hallo:
         function_dispatcher_modules = set()
         for module in json_obj["function_dispatcher"]["modules"]:
             function_dispatcher_modules.add(module["name"])
+        # Parse permission mask config
+        permission_mask = PermissionMask()
+        if "permission_mask" in json_obj:
+            permission_mask = PermissionMask.from_json(
+                json_obj["permission_mask"]
+            )
         # Create new hallo object
         new_hallo = cls(
             default_nick=json_obj["default_nick"],
             default_prefix=json_obj["default_prefix"],
             default_full_name=json_obj["default_full_name"],
             function_dispatcher_modules=function_dispatcher_modules,
+            permission_mask=permission_mask,
         )
         # User groups must be done before servers, as users will try and look up and add user groups!
         for user_group in json_obj["user_groups"]:
@@ -204,10 +212,6 @@ class Hallo:
         for server in json_obj["servers"]:
             new_server = new_hallo.server_factory.new_server_from_json(server)
             new_hallo.add_server(new_server)
-        if "permission_mask" in json_obj:
-            new_hallo.permission_mask = PermissionMask.from_json(
-                json_obj["permission_mask"]
-            )
         for api_key in json_obj["api_keys"]:
             new_hallo.add_api_key(api_key, json_obj["api_keys"][api_key])
         return new_hallo
