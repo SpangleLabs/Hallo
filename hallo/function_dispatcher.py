@@ -501,14 +501,3 @@ class FunctionDispatcher(object):
         for module_name in self.module_list:
             json_obj["modules"].append({"name": module_name})
         return json_obj
-
-    @staticmethod
-    def from_json(json_obj: Dict, hallo) -> 'FunctionDispatcher':
-        """
-        Creates a function dispatcher from json object dict
-        """
-        module_list = set()
-        for module in json_obj["modules"]:
-            module_list.add(module["name"])
-        new_dispatcher = FunctionDispatcher(module_list, hallo)
-        return new_dispatcher

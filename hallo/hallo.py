@@ -4,7 +4,6 @@ import logging
 import re
 import time
 from datetime import datetime
-from typing import Union, Set, Dict, Optional
 
 import heartbeat
 from prometheus_client import start_http_server
@@ -44,21 +43,30 @@ class Hallo:
     CONFIG_FILE = "config/config.json"
     CONFIG_DEFAULT_FILE = "config/config-default.json"
 
-    def __init__(self):
-        self.default_nick: str = "Hallo"
-        self.default_prefix: Union[bool, str] = False
-        self.default_full_name: str = "HalloBot HalloHost HalloServer :an irc bot by spangle"
+    def __init__(
+            self,
+            *,
+            default_nick: str = "Hallo",
+            default_prefix: bool | str = False,
+            default_full_name: str = "HalloBot HalloHost HalloServer :an irc bot by spangle",
+            function_dispatcher_modules: set | None = None,
+    ) -> None:
+        self.default_nick: str = default_nick
+        self.default_prefix: bool | str = default_prefix
+        self.default_full_name: str = default_full_name
         self.open: bool = False
-        self.user_group_list: Set[UserGroup] = set()
-        self.server_list: Set[Server] = set()
-        self.api_key_list: Dict[str, str] = {}
+        self.user_group_list: set[UserGroup] = set()
+        self.server_list: set[Server] = set()
+        self.api_key_list: dict[str, str] = {}
         self.server_factory: ServerFactory = ServerFactory(self)
         self.permission_mask: PermissionMask = PermissionMask()
         self.prom_port = 7265
         server_count.set_function(lambda: len(self.server_list))
         server_connected_count.set_function(lambda: len([s for s in self.server_list.copy() if s.is_connected()]))
-        # TODO: manual FunctionDispatcher construction, user input?
-        self.function_dispatcher: FunctionDispatcher = None
+        if function_dispatcher_modules is None:
+            # TODO: Default FunctionDispatcher construction?
+            raise ValueError("FunctionDispatcher configuration must be provided")
+        self.function_dispatcher: FunctionDispatcher = FunctionDispatcher(function_dispatcher_modules, self)
 
     def start(self) -> None:
         # If no function dispatcher, create one
@@ -179,13 +187,16 @@ class Hallo:
             logger.error(error.get_log_line())
             with open(cls.CONFIG_DEFAULT_FILE, "r") as f:
                 json_obj = json.load(f)
+        # Parse function dispatcher config
+        function_dispatcher_modules = set()
+        for module in json_obj["function_dispatcher"]["modules"]:
+            function_dispatcher_modules.add(module["name"])
         # Create new hallo object
-        new_hallo = cls()
-        new_hallo.default_nick = json_obj["default_nick"]
-        new_hallo.default_prefix = json_obj["default_prefix"]
-        new_hallo.default_full_name = json_obj["default_full_name"]
-        new_hallo.function_dispatcher = FunctionDispatcher.from_json(
-            json_obj["function_dispatcher"], new_hallo
+        new_hallo = cls(
+            default_nick=json_obj["default_nick"],
+            default_prefix=json_obj["default_prefix"],
+            default_full_name=json_obj["default_full_name"],
+            function_dispatcher_modules=function_dispatcher_modules,
         )
         # User groups must be done before servers, as users will try and look up and add user groups!
         for user_group in json_obj["user_groups"]:
@@ -208,7 +219,7 @@ class Hallo:
         """
         self.user_group_list.add(user_group)
 
-    def get_user_group_by_name(self, user_group_name: str) -> Optional[UserGroup]:
+    def get_user_group_by_name(self, user_group_name: str) -> UserGroup | None:
         """
         Returns the UserGroup with the specified name
         :param user_group_name: Name of user group to search for
@@ -235,7 +246,7 @@ class Hallo:
         """
         self.server_list.add(server)
 
-    def get_server_by_name(self, server_name: str) -> Optional[Server]:
+    def get_server_by_name(self, server_name: str) -> Server | None:
         """
         Returns a server matching the given name
         :param server_name: name of the server to search for
@@ -304,7 +315,7 @@ class Hallo:
         """
         self.api_key_list[name] = key
 
-    def get_api_key(self, name: str) -> Optional[str]:
+    def get_api_key(self, name: str) -> str | None:
         """
         Returns a specified api key.
         :param name: Name of the API key to retrieve
