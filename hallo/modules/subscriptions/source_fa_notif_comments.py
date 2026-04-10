@@ -1,4 +1,4 @@
-from typing import Dict, Optional, List
+from typing import Optional
 from urllib.error import HTTPError
 
 from hallo.destination import Destination, User, Channel
@@ -21,14 +21,14 @@ class FASubmissionCommentSource(
     def __init__(
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
 
     def current_state(
             self
-    ) -> List[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentSubmission]:
+    ) -> list[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentSubmission]:
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         return notif_page.submission_comments
 
@@ -78,13 +78,13 @@ class FASubmissionCommentSource(
         return FASubmissionCommentSource(fa_key)
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FASubmissionCommentSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FASubmissionCommentSource':
         fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             json_data["fa_key_user_address"], destination.server, sub_repo
         )
         return FASubmissionCommentSource(fa_key, json_data["last_keys"])
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "fa_key_user_address": self.fa_key.user.address,
@@ -103,14 +103,14 @@ class FAJournalCommentSource(
     def __init__(
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
 
     def current_state(
             self
-    ) -> List[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentJournal]:
+    ) -> list[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentJournal]:
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         return notif_page.journal_comments
 
@@ -161,13 +161,13 @@ class FAJournalCommentSource(
         return FAJournalCommentSource(fa_key)
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FAJournalCommentSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FAJournalCommentSource':
         fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             json_data["fa_key_user_address"], destination.server, sub_repo
         )
         return FAJournalCommentSource(fa_key, json_data["last_keys"])
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "fa_key_user_address": self.fa_key.user.address,
@@ -185,12 +185,12 @@ class FAShoutSource(
 
     def __init__(
             self, fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
 
-    def current_state(self) -> List[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationShout]:
+    def current_state(self) -> list[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationShout]:
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         return notif_page.shouts
 
@@ -247,14 +247,14 @@ class FAShoutSource(
         return FAShoutSource(fa_key)
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FAShoutSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FAShoutSource':
         fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             json_data["fa_key_user_address"],
             destination.server, sub_repo
         )
         return FAShoutSource(fa_key, json_data["last_keys"])
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "fa_key_user_address": self.fa_key.user.address,
@@ -262,9 +262,9 @@ class FAShoutSource(
         }
 
 
-class FACommentNotificationsSource(hallo.modules.subscriptions.source.Source[Dict, Dict]):
+class FACommentNotificationsSource(hallo.modules.subscriptions.source.Source[dict, dict]):
     type_name: str = "fa_notif_comments"
-    type_names: List[str] = [
+    type_names: list[str] = [
         "{}{}{}".format(fa, comments, notifications)
         for fa in ["fa ", "furaffinity "]
         for comments in ["comments", "comment", "shouts", "shout"]
@@ -299,14 +299,14 @@ class FACommentNotificationsSource(hallo.modules.subscriptions.source.Source[Dic
         shout_source = FAShoutSource(fa_key)
         return FACommentNotificationsSource(fa_key, submission_source, journal_source, shout_source)
 
-    def current_state(self) -> Dict:
+    def current_state(self) -> dict:
         return {
             "submissions": self.submission_source.current_state(),
             "journals": self.journal_source.current_state(),
             "shouts": self.shout_source.current_state()
         }
 
-    def state_change(self, state: Dict) -> Optional[Dict]:
+    def state_change(self, state: dict) -> Optional[dict]:
         submission_update = self.submission_source.state_change(state["submissions"])
         journal_update = self.journal_source.state_change(state["journals"])
         shout_update = self.shout_source.state_change(state["shouts"])
@@ -318,14 +318,14 @@ class FACommentNotificationsSource(hallo.modules.subscriptions.source.Source[Dic
             "shouts": shout_update
         }
 
-    def save_state(self, state: Dict) -> None:
+    def save_state(self, state: dict) -> None:
         self.submission_source.save_state(state["submissions"])
         self.journal_source.save_state(state["journals"])
         self.shout_source.save_state(state["shouts"])
 
     def events(
-            self, server: Server, channel: Optional[Channel], user: Optional[User], update: Dict
-    ) -> List[EventMessage]:
+            self, server: Server, channel: Optional[Channel], user: Optional[User], update: dict
+    ) -> list[EventMessage]:
         return (
                 self.submission_source.events(server, channel, user, update["submissions"])
                 + self.journal_source.events(server, channel, user, update["journals"])
@@ -333,7 +333,7 @@ class FACommentNotificationsSource(hallo.modules.subscriptions.source.Source[Dic
         )
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FACommentNotificationsSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FACommentNotificationsSource':
         user_addr = json_data["fa_key_user_address"]
         fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             user_addr, destination.server,
@@ -344,7 +344,7 @@ class FACommentNotificationsSource(hallo.modules.subscriptions.source.Source[Dic
         shout_source = FAShoutSource.from_json(json_data["shouts"], destination, sub_repo)
         return FACommentNotificationsSource(fa_key, submission_source, journal_source, shout_source)
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         json_data = {
             "type": self.type_name,
             "fa_key_user_address": self.fa_key.user.address,

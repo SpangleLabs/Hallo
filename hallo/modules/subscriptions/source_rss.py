@@ -1,6 +1,6 @@
 import hashlib
 import re
-from typing import List, Dict, Optional
+from typing import Optional
 from xml.etree import ElementTree
 
 from bs4 import BeautifulSoup
@@ -29,7 +29,7 @@ def get_rss_item_link(feed_item: ElementTree.Element) -> str:
     return feed_item.find("{http://www.w3.org/2005/Atom}link").get("href")
 
 
-def _get_feed_items(rss_elem: ElementTree.Element) -> List[ElementTree.Element]:
+def _get_feed_items(rss_elem: ElementTree.Element) -> list[ElementTree.Element]:
     channel_elem = rss_elem.find("channel")
     if channel_elem is not None:
         return channel_elem.findall("item")
@@ -39,13 +39,13 @@ def _get_feed_items(rss_elem: ElementTree.Element) -> List[ElementTree.Element]:
 
 class RssSource(hallo.modules.subscriptions.stream_source.StreamSource[ElementTree.Element]):
     type_name: str = "rss"
-    type_names: List[str] = ["rss", "rss feed"]
+    type_names: list[str] = ["rss", "rss feed"]
 
     def __init__(
             self,
             url: str,
             feed_title: Optional[str] = None,
-            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
         self.url = url
@@ -84,7 +84,7 @@ class RssSource(hallo.modules.subscriptions.stream_source.StreamSource[ElementTr
             rss_data = rss_data[2:]
         return rss_data
 
-    def current_state(self) -> List[ElementTree.Element]:
+    def current_state(self) -> list[ElementTree.Element]:
         rss_data = self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
         # Update title
@@ -195,14 +195,14 @@ class RssSource(hallo.modules.subscriptions.stream_source.StreamSource[ElementTr
         return RssSource(argument)
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'RssSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'RssSource':
         return RssSource(
             json_data["url"],
             json_data["title"],
             json_data["last_keys"]
         )
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "url": self.url,

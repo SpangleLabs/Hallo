@@ -1,4 +1,4 @@
-from typing import Dict, Optional, List
+from typing import Optional
 
 from hallo.destination import Destination, Channel, User
 from hallo.events import EventMessage
@@ -20,12 +20,12 @@ class FANotesInboxSource(
     def __init__(
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
 
-    def current_state(self) -> List[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANote]:
+    def current_state(self) -> list[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANote]:
         fa_reader = self.fa_key.get_fa_reader()
         return fa_reader.get_notes_page(hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.NOTES_INBOX).notes
 
@@ -63,14 +63,14 @@ class FANotesInboxSource(
         return FANotesInboxSource(fa_key)
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FANotesInboxSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FANotesInboxSource':
         fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             json_data["fa_key_user_address"],
             destination.server, sub_repo
         )
         return FANotesInboxSource(fa_key, json_data["last_keys"])
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "fa_key_user_address": self.fa_key.user.address,
@@ -86,12 +86,12 @@ class FANotesOutboxSource(hallo.modules.subscriptions.stream_source.StreamSource
     def __init__(
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
 
-    def current_state(self) -> List[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANote]:
+    def current_state(self) -> list[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANote]:
         fa_reader = self.fa_key.get_fa_reader()
         return [
             note for note in
@@ -130,14 +130,14 @@ class FANotesOutboxSource(hallo.modules.subscriptions.stream_source.StreamSource
         return FANotesOutboxSource(fa_key)
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FANotesOutboxSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FANotesOutboxSource':
         fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             json_data["fa_key_user_address"],
             destination.server, sub_repo
         )
         return FANotesOutboxSource(fa_key, json_data["last_keys"])
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "fa_key_user_address": self.fa_key.user.address,
@@ -145,9 +145,9 @@ class FANotesOutboxSource(hallo.modules.subscriptions.stream_source.StreamSource
         }
 
 
-class FANotesSource(hallo.modules.subscriptions.source.Source[Dict, Dict]):
+class FANotesSource(hallo.modules.subscriptions.source.Source[dict, dict]):
     type_name: str = "fa_notif_notes"
-    type_names: List[str] = ["fa notes notifications", "fa notes", "furaffinity notes"]
+    type_names: list[str] = ["fa notes notifications", "fa notes", "furaffinity notes"]
 
     def __init__(self, fa_key: hallo.modules.subscriptions.common_fa_key.FAKey, inbox_source: FANotesInboxSource,
                  outbox_source: FANotesOutboxSource):
@@ -170,13 +170,13 @@ class FANotesSource(hallo.modules.subscriptions.source.Source[Dict, Dict]):
         outbox_source = FANotesOutboxSource(fa_key)
         return FANotesSource(fa_key, inbox_source, outbox_source)
 
-    def current_state(self) -> Dict:
+    def current_state(self) -> dict:
         return {
             "inbox": self.inbox_source.current_state(),
             "outbox": self.outbox_source.current_state()
         }
 
-    def state_change(self, state: Dict) -> Optional[Dict]:
+    def state_change(self, state: dict) -> Optional[dict]:
         inbox_change = self.inbox_source.state_change(state["inbox"])
         outbox_change = self.outbox_source.state_change(state["outbox"])
         if not inbox_change and not outbox_change:
@@ -186,20 +186,20 @@ class FANotesSource(hallo.modules.subscriptions.source.Source[Dict, Dict]):
             "outbox": outbox_change
         }
 
-    def save_state(self, state: Dict) -> None:
+    def save_state(self, state: dict) -> None:
         self.inbox_source.save_state(state["inbox"])
         self.outbox_source.save_state(state["outbox"])
 
     def events(
-            self, server: Server, channel: Optional[Channel], user: Optional[User], update: Dict
-    ) -> List[EventMessage]:
+            self, server: Server, channel: Optional[Channel], user: Optional[User], update: dict
+    ) -> list[EventMessage]:
         return (
                 self.inbox_source.events(server, channel, user, update["inbox"])
                 + self.outbox_source.events(server, channel, user, update["outbox"])
         )
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FANotesSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FANotesSource':
         # Load fa_key
         user_addr = json_data["fa_key_user_address"]
         fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
@@ -209,7 +209,7 @@ class FANotesSource(hallo.modules.subscriptions.source.Source[Dict, Dict]):
         outbox_source = FANotesOutboxSource.from_json(json_data["outbox"], destination, sub_repo)
         return FANotesSource(fa_key, inbox_source, outbox_source)
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         json_data = {
             "type": self.type_name,
             "fa_key_user_address": self.fa_key.user.address,

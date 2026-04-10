@@ -1,5 +1,5 @@
 from threading import RLock
-from typing import Dict, TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional
 
 from yippi import YippiClient
 
@@ -17,7 +17,7 @@ class E6KeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionC
 
     def __init__(self, hallo_obj: 'Hallo'):
         super().__init__(hallo_obj)
-        self.list_clients: Dict['User', YippiClient] = dict()
+        self.list_clients: dict['User', YippiClient] = dict()
 
     def get_client_by_user(self, user: 'User', allow_default: bool = True) -> Optional['YippiClient']:
         if user in self.list_clients:
@@ -45,9 +45,9 @@ class E6KeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionC
     def add_client(self, user: 'User', client: YippiClient) -> None:
         self.list_clients[user] = client
 
-    def to_json(self) -> Optional[Dict]:
+    def to_json(self) -> Optional[dict]:
         return None
 
     @staticmethod
-    def from_json(json_obj: Optional[Dict], hallo_obj: 'Hallo') -> 'E6KeysCommon':
+    def from_json(json_obj: Optional[dict], hallo_obj: 'Hallo') -> 'E6KeysCommon':
         return E6KeysCommon(hallo_obj)

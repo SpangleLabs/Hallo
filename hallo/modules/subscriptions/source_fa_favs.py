@@ -1,4 +1,4 @@
-from typing import Dict, Optional, List, NewType
+from typing import Optional, NewType
 
 import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import Channel, User, Destination
@@ -41,7 +41,7 @@ def fa_key_from_input(user: User, sub_repo) -> hallo.modules.subscriptions.commo
 
 class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[SubmissionId]):
     type_name: str = "fa_user_favs"
-    type_names: List[str] = [
+    type_names: list[str] = [
         "fa user favs",
         "furaffinity user favs",
         "furaffinity user favourites",
@@ -54,7 +54,7 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
             username: str,
-            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(last_keys)
         self.username = username
@@ -99,13 +99,13 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
         fa_key = fa_key_from_input(user, sub_repo)
         return FAFavsSource(fa_key, argument)
 
-    def current_state(self) -> List[SubmissionId]:
+    def current_state(self) -> list[SubmissionId]:
         fa_reader = self.fa_key.get_fa_reader()
         favs_page = fa_reader.get_user_fav_page(self.username)
         return [SubmissionId(x) for x in favs_page.submission_ids]
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FAFavsSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FAFavsSource':
         user_addr = json_data["fa_key_user_address"]
         fa_key = fa_key_from_json(user_addr, destination.server, sub_repo)
         return FAFavsSource(
@@ -114,7 +114,7 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
             json_data["last_keys"]
         )
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "last_keys": self.last_keys,

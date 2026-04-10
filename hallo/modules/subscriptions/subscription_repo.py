@@ -1,6 +1,6 @@
 import json
 from threading import Lock
-from typing import List, Type, TypeVar, TYPE_CHECKING
+from typing import Type, TypeVar, TYPE_CHECKING
 
 import hallo.modules.subscriptions.subscription
 import hallo.modules.subscriptions.subscription_common
@@ -29,8 +29,8 @@ class SubscriptionRepo:
 
     def __init__(self, hallo_obj: 'Hallo'):
         self.hallo = hallo_obj
-        self.sub_list: List[hallo.modules.subscriptions.subscription.Subscription] = []
-        self.common_list: List[hallo.modules.subscriptions.subscription_common.SubscriptionCommon] = []
+        self.sub_list: list[hallo.modules.subscriptions.subscription.Subscription] = []
+        self.common_list: list[hallo.modules.subscriptions.subscription_common.SubscriptionCommon] = []
         self.sub_lock: Lock = Lock()
         self.menu_cache = None
         for sub_class in hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.sub_sources:
@@ -55,7 +55,7 @@ class SubscriptionRepo:
 
     def get_subs_by_destination(
             self, destination: Destination
-    ) -> List[hallo.modules.subscriptions.subscription.Subscription]:
+    ) -> list[hallo.modules.subscriptions.subscription.Subscription]:
         """
         Returns a list of subscriptions matching a specified destination.
         :param destination: Channel or User which E621Sub is posting to
@@ -70,7 +70,7 @@ class SubscriptionRepo:
 
     def get_subs_by_name(
             self, name: str, destination: Destination
-    ) -> List[hallo.modules.subscriptions.subscription.Subscription]:
+    ) -> list[hallo.modules.subscriptions.subscription.Subscription]:
         """
         Returns a list of subscriptions matching a specified name, be that a type and search, or just a type
         :param name: Search of the Subscription being searched for

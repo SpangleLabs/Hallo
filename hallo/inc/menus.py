@@ -3,7 +3,7 @@ import os
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from pathlib import Path
-from typing import TypeVar, Generic, Dict, List, Optional, Type, TYPE_CHECKING
+from typing import TypeVar, Generic, Optional, Type, TYPE_CHECKING
 
 from hallo.events import message_from_json
 
@@ -24,11 +24,11 @@ class MenuParseException(MenuException):
 
 class MenuFactory(Generic[T]):
 
-    def __init__(self, classes: List[Type[T]], hallo_obj: 'Hallo'):
+    def __init__(self, classes: list[Type[T]], hallo_obj: 'Hallo'):
         self.menu_classes = classes
         self.hallo = hallo_obj
 
-    def load_menu_from_json(self, data: Dict) -> T:
+    def load_menu_from_json(self, data: dict) -> T:
         menu_class = next(filter(lambda m: m.type == data["menu_type"], self.menu_classes), None)
         if menu_class is None:
             raise MenuParseException(f"Unrecognised menu type: {data['menu_type']}")
@@ -129,14 +129,14 @@ class Menu(ABC):
         raise NotImplementedError
 
     @classmethod
-    def from_json(cls, hallo_obj: 'Hallo', msg: 'EventMessage', data: Dict) -> 'Menu':
+    def from_json(cls, hallo_obj: 'Hallo', msg: 'EventMessage', data: dict) -> 'Menu':
         raise NotImplementedError
 
     @abstractmethod
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         raise NotImplementedError
 
-    def to_full_json(self) -> Dict:
+    def to_full_json(self) -> dict:
         return {
             "menu_type": self.type,
             "menu_msg": self.msg.to_json(),

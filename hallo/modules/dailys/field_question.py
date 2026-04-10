@@ -1,6 +1,6 @@
 import datetime
 from threading import RLock
-from typing import Optional, Dict, List, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 import dateutil.parser
 import isodate
@@ -18,7 +18,7 @@ class AnswerOption:
         self.answer = answer
 
     @classmethod
-    def from_dict(cls, json_dict: Dict) -> 'AnswerOption':
+    def from_dict(cls, json_dict: dict) -> 'AnswerOption':
         return AnswerOption(
             json_dict["answer"]
         )
@@ -72,7 +72,7 @@ class Question:
             time_pattern: RepeatingInterval,
             *,
             allow_custom_answers: bool = True,
-            answer_options: Optional[List[AnswerOption]] = None,
+            answer_options: Optional[list[AnswerOption]] = None,
             creation: Optional[datetime.datetime] = None,
             deprecation: Optional[datetime.datetime] = None,
             must_answer: bool = False,
@@ -125,7 +125,7 @@ class Question:
         )
 
     @classmethod
-    def from_dict(cls, json_dict: Dict) -> 'Question':
+    def from_dict(cls, json_dict: dict) -> 'Question':
         creation = None
         if "creation" in json_dict:
             creation = dateutil.parser.parse(json_dict["creation"])
@@ -160,14 +160,14 @@ class AnswerEdit:
         self.answer = answer
         self.answer_time = answer_time
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "answer": self.answer,
             "answer_time": self.answer_time.isoformat()
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, str]) -> 'AnswerEdit':
+    def from_dict(cls, data: dict[str, str]) -> 'AnswerEdit':
         return cls(
             data["answer"],
             dateutil.parser.parse(data["answer_time"])
@@ -182,7 +182,7 @@ class Answer:
             *,
             answer: Optional[str] = None,
             answer_time: Optional[datetime.datetime] = None,
-            edit_history: Optional[List[AnswerEdit]] = None,
+            edit_history: Optional[list[AnswerEdit]] = None,
             question_msg_id: Optional[int] = None,
     ):
         self.answer = answer
@@ -210,7 +210,7 @@ class Answer:
         self.answer_time = datetime.datetime.now(datetime.timezone.utc)
 
     @classmethod
-    def from_dict(cls, json_dict: Dict) -> 'Answer':
+    def from_dict(cls, json_dict: dict) -> 'Answer':
         answer_time = None
         if "answer_time" in json_dict:
             answer_time = dateutil.parser.parse(json_dict["answer_time"])
@@ -223,7 +223,7 @@ class Answer:
             question_msg_id=json_dict.get("q_message_id")
         )
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         d = {
             "question_id": self.question_id,
             "asked_time": self.asked_time.isoformat()
@@ -255,14 +255,14 @@ class AnswersData:
                 return answer
         return None
 
-    def get_answers_for_date(self, answer_date: datetime.date) -> List[Answer]:
+    def get_answers_for_date(self, answer_date: datetime.date) -> list[Answer]:
         date_data = self.spreadsheet.read_path("stats/questions/"+answer_date.isoformat()+"/")
         if not date_data:
             return []
         answer_data = date_data[0]["data"]["answers"]
         return [Answer.from_dict(d) for d in answer_data]
 
-    def save_answers_for_date(self, answer_date: datetime.date, answers: List[Answer]):
+    def save_answers_for_date(self, answer_date: datetime.date, answers: list[Answer]):
         with self.lock:
             date_data = {"answers": [a.to_dict() for a in answers]}
             self.spreadsheet.save_field(QuestionsField, date_data, answer_date)
@@ -301,7 +301,7 @@ class AnswerCache:
     def answer_for_question_msg_id(
             self,
             question_msg_id: int,
-            questions: List[Question],
+            questions: list[Question],
             *,
             assume_incremental_id: bool = True
     ) -> Optional[Answer]:
@@ -332,7 +332,7 @@ class AnswerCache:
         # Ran out of dates, return None
         return None
 
-    def latest_answers(self, questions: List[Question]) -> List[Answer]:
+    def latest_answers(self, questions: list[Question]) -> list[Answer]:
         if not questions:
             return []
         unanswered_ids = [q.id for q in questions]
@@ -350,7 +350,7 @@ class AnswerCache:
         # Ran out of dates, return None
         return latest_answers
 
-    def list_unanswered_questions(self, questions: List[Question]) -> List[Question]:
+    def list_unanswered_questions(self, questions: list[Question]) -> list[Question]:
         questions_dict = {q.id: q for q in questions}
         unanswered = []
         for answer in self.latest_answers(questions):
@@ -365,7 +365,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
     def __init__(
             self,
             spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet',
-            questions: List[Question]
+            questions: list[Question]
     ):
         super().__init__(spreadsheet)
         self.questions = questions

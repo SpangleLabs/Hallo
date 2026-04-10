@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Optional, TYPE_CHECKING, Union, Dict, List, Callable
+from typing import Optional, TYPE_CHECKING, Union, Callable
 
 from prometheus_client import Counter
 
@@ -175,7 +175,7 @@ class Server(metaclass=ABCMeta):
     def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
         raise NotImplementedError
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         """
         Returns a dict formatted so it may be serialised into json configuration data
         """
@@ -327,7 +327,7 @@ class Server(metaclass=ABCMeta):
         self.add_user(new_user)
         return new_user
 
-    def get_user_list(self) -> List[User]:
+    def get_user_list(self) -> list[User]:
         """Returns the full list of users on this server."""
         return self.user_list
 

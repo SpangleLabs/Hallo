@@ -1,6 +1,6 @@
 import re
 from abc import ABCMeta
-from typing import Dict, TypeVar, Type, Optional, List
+from typing import TypeVar, Type, Optional
 
 from hallo.destination import User
 from hallo.function import Function
@@ -42,7 +42,7 @@ class UserDataParser:
     def __init__(self):
         pass
 
-    def get_data_by_user(self, user: User) -> Dict[str, 'UserDatum']:
+    def get_data_by_user(self, user: User) -> dict[str, 'UserDatum']:
         user_data_dict = user.extra_data_dict
         user_data = dict()
         for key in user_data_dict:
@@ -259,7 +259,7 @@ class UserDataFactory:
     data_classes = [FAKeyData, E6KeyData]
 
     @staticmethod
-    def get_data_type_names() -> List[str]:
+    def get_data_type_names() -> list[str]:
         return [
             name
             for common_class in UserDataFactory.data_classes

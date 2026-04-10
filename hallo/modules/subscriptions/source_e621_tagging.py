@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from yippi import Post, Rating, YippiClient
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     import hallo.modules.subscriptions.subscription_repo
 
 
-def buttons_for_submission(tag_results: Dict[str, bool], page: int = 1) -> List[List[MenuButton]]:
+def buttons_for_submission(tag_results: dict[str, bool], page: int = 1) -> list[list[MenuButton]]:
     columns = 2
     rows = 6
     per_page = columns * rows
@@ -71,7 +71,7 @@ class E621TaggingMenu(Menu):
             e6_client: YippiClient,
             post_id: int,
             search: str,
-            tag_results: Dict[str, bool],
+            tag_results: dict[str, bool],
             page: int = 1
     ) -> None:
         super().__init__(msg)
@@ -158,14 +158,14 @@ class E621TaggingMenu(Menu):
         buttons = buttons_for_submission(self.tag_results, self.page)
         self.update(None, buttons)
 
-    def update(self, text: Optional[str], menu_buttons: Optional[List[List[MenuButton]]]) -> None:
+    def update(self, text: Optional[str], menu_buttons: Optional[list[list[MenuButton]]]) -> None:
         new_event = self.msg.create_edit(text=text, menu_buttons=menu_buttons)
         self.msg.server.edit(self.msg, new_event)
         self.msg = new_event
         self.clicked = False
 
     @classmethod
-    def from_json(cls, hallo_obj: 'Hallo', msg: 'EventMessage', data: Dict) -> 'Menu':
+    def from_json(cls, hallo_obj: 'Hallo', msg: 'EventMessage', data: dict) -> 'Menu':
         server = hallo_obj.get_server_by_name(msg.server_name)
         user = server.get_user_by_address(data["user_addr"])
         if user is None:
@@ -190,7 +190,7 @@ class E621TaggingMenu(Menu):
             data["page"]
         )
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "user_addr": self.user.address,
             "post_id": self.post_id,
@@ -202,7 +202,7 @@ class E621TaggingMenu(Menu):
 
 class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
     type_name = "e621_tagging"
-    type_names: List[str] = ["e621 tagging", "e621 tagging search", "tagging e621"]
+    type_names: list[str] = ["e621 tagging", "e621 tagging search", "tagging e621"]
 
     def __init__(
             self,
@@ -210,13 +210,13 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
             e6_client: YippiClient,
             sub_repo: 'hallo.modules.subscriptions.subscription_repo.SubscriptionRepo',
             owner: User,
-            tags: List[str],
-            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
+            tags: list[str],
+            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         super().__init__(search, e6_client, owner, last_keys)
         self.sub_repo = sub_repo
         self.owner = owner
-        self.tags: List[str] = tags
+        self.tags: list[str] = tags
 
     @classmethod
     def from_input(cls, argument: str, user: User, sub_repo) -> 'E621TaggingSource':
@@ -288,7 +288,7 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
         return msg
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'E621TaggingSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'E621TaggingSource':
         user_addr = json_data["e621_user_address"]
         user = destination.server.get_user_by_address(user_addr)
         e6_client = hallo.modules.subscriptions.source_e621.e6_client_from_input(user, sub_repo)
@@ -301,7 +301,7 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
             json_data["last_keys"]
         )
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "last_keys": self.last_keys,

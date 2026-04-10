@@ -1,4 +1,4 @@
-from typing import List, Type, Dict, TYPE_CHECKING
+from typing import Type, TYPE_CHECKING
 
 import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import Destination
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 class SubscriptionFactory:
-    sub_sources: List[Type['hallo.modules.new_subscriptions.source.Source']] = [
+    sub_sources: list[Type['hallo.modules.new_subscriptions.source.Source']] = [
         hallo.modules.subscriptions.source_e621.E621Source,
         hallo.modules.subscriptions.source_e621_tagging.E621TaggingSource,
         hallo.modules.subscriptions.source_e621_backlog.E621BacklogTaggingSource,
@@ -33,12 +33,12 @@ class SubscriptionFactory:
         hallo.modules.subscriptions.source_fa_watchers.FAUserWatchersSource,
         hallo.modules.subscriptions.source_rss.RssSource,
     ]
-    common_classes: List[Type[hallo.modules.subscriptions.subscription_common.SubscriptionCommon]] = [
+    common_classes: list[Type[hallo.modules.subscriptions.subscription_common.SubscriptionCommon]] = [
         hallo.modules.subscriptions.common_fa_key.FAKeysCommon
     ]
 
     @staticmethod
-    def get_source_names() -> List[str]:
+    def get_source_names() -> list[str]:
         return [
             name
             for sub_class in SubscriptionFactory.sub_sources
@@ -60,7 +60,7 @@ class SubscriptionFactory:
 
     @staticmethod
     def source_from_json(
-            json_data: Dict,
+            json_data: dict,
             destination: Destination,
             sub_repo
     ) -> 'hallo.modules.new_subscriptions.source.Source':
@@ -78,7 +78,7 @@ class SubscriptionFactory:
 
     @staticmethod
     def common_from_json(
-            common_json: Dict,
+            common_json: dict,
             hallo_obj: 'Hallo'
     ) -> hallo.modules.subscriptions.subscription_common.SubscriptionCommon:
         common_type_name = common_json["common_type"]

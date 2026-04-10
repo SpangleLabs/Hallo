@@ -1,5 +1,4 @@
 import urllib.parse
-from typing import Dict, List, Optional
 
 from yippi import Post, Rating, YippiClient
 
@@ -19,14 +18,14 @@ def e6_client_from_input(user: User, sub_repo) -> YippiClient:
 
 class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
     type_name: str = "e621"
-    type_names: List[str] = ["e621", "e621 search", "search e621"]
+    type_names: list[str] = ["e621", "e621 search", "search e621"]
 
     def __init__(
             self,
             search: str,
             e6_client: YippiClient,
             owner: 'User',
-            last_keys: List[hallo.modules.subscriptions.stream_source.Key] = None
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] = None
     ):
         super().__init__(last_keys)
         self.search: str = search
@@ -49,7 +48,7 @@ class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
             user
         )
 
-    def current_state(self) -> List[Post]:
+    def current_state(self) -> list[Post]:
         return self.e6_client.posts(self.search)
 
     def item_to_key(self, item: Post) -> hallo.modules.subscriptions.stream_source.Key:
@@ -58,8 +57,8 @@ class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
     def item_to_event(
             self,
             server: Server,
-            channel: Optional[Channel],
-            user: Optional[User],
+            channel: Channel | None,
+            user: User | None,
             item: Post
     ) -> EventMessage:
         link = f"https://e621.net/posts/{item.id}"
@@ -76,7 +75,7 @@ class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
         )
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'E621Source':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'E621Source':
         user_addr = json_data["e621_user_address"]
         owner = destination.server.get_user_by_address(user_addr)
         e6_client = e6_client_from_input(owner, sub_repo)
@@ -87,7 +86,7 @@ class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
             json_data["last_keys"]
         )
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "last_keys": self.last_keys,

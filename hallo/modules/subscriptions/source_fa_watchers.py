@@ -1,4 +1,4 @@
-from typing import Dict, Optional, List
+from typing import Optional
 
 import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import Destination, User, Channel
@@ -15,7 +15,7 @@ class FAUserWatchersSource(
     ]
 ):
     type_name: str = "fa_user_watchers"
-    type_names: List[str] = [
+    type_names: list[str] = [
         "fa user watchers",
         "fa user new watchers",
         "furaffinity user watchers",
@@ -23,12 +23,12 @@ class FAUserWatchersSource(
     ]
 
     def __init__(self, fa_key: hallo.modules.subscriptions.common_fa_key.FAKey, username: str,
-                 last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None):
+                 last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None):
         super().__init__(last_keys)
         self.fa_key = fa_key
         self.username = username
 
-    def current_state(self) -> List[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FAWatch]:
+    def current_state(self) -> list[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FAWatch]:
         fa_reader = self.fa_key.get_fa_reader()
         user_page = fa_reader.get_user_page(self.username)
         return user_page.watched_by
@@ -70,7 +70,7 @@ class FAUserWatchersSource(
         return FAUserWatchersSource(fa_key, argument)
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FAUserWatchersSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FAUserWatchersSource':
         fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             json_data["fa_key_user_address"],
             destination.server, sub_repo
@@ -81,7 +81,7 @@ class FAUserWatchersSource(
             json_data["last_keys"]
         )
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "fa_key_user_address": self.fa_key.user.address,
@@ -92,7 +92,7 @@ class FAUserWatchersSource(
 
 class FAWatchersSource(FAUserWatchersSource):
     type_name: str = "fa_notif_watchers"
-    type_names: List[str] = [
+    type_names: list[str] = [
         "{}{}{}{}".format(fa, new, watchers, notifications)
         for fa in ["fa ", "furaffinity "]
         for new in ["new ", ""]
@@ -103,7 +103,7 @@ class FAWatchersSource(FAUserWatchersSource):
     def __init__(
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
     ):
         username = fa_key.get_fa_reader().get_notification_page().username
         super().__init__(fa_key, username, last_keys)
@@ -121,14 +121,14 @@ class FAWatchersSource(FAUserWatchersSource):
         return FAWatchersSource(fa_key)
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FAWatchersSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FAWatchersSource':
         fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             json_data["fa_key_user_address"],
             destination.server, sub_repo
         )
         return FAWatchersSource(fa_key, json_data["last_keys"])
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "fa_key_user_address": self.fa_key.user.address,

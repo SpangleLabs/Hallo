@@ -1,12 +1,11 @@
 import json
-from typing import List
 
 import hallo.modules.dailys.dailys_spreadsheet
 
 
 class DailysRepo:
     def __init__(self):
-        self.spreadsheets: List[hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet] = []
+        self.spreadsheets: list[hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet] = []
 
     def add_spreadsheet(self, spreadsheet: hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet):
         self.spreadsheets.append(spreadsheet)
