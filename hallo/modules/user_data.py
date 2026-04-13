@@ -1,6 +1,6 @@
 import re
 from abc import ABCMeta
-from typing import TypeVar, Type, Optional
+from typing import TypeVar, Type
 
 from hallo.destination import User
 from hallo.function import Function
@@ -49,7 +49,7 @@ class UserDataParser:
             user_data[key] = UserDataFactory.from_dict(key, user_data_dict[key])
         return user_data
 
-    def get_data_by_user_and_type(self, user: User, data_class: Type[T]) -> Optional[T]:
+    def get_data_by_user_and_type(self, user: User, data_class: Type[T]) -> T | None:
         type_name = data_class.type_name
         user_data_dict = user.extra_data_dict
         if type_name in user_data_dict:

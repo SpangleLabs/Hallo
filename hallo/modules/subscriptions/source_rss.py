@@ -1,6 +1,5 @@
 import hashlib
 import re
-from typing import Optional
 from xml.etree import ElementTree
 
 from bs4 import BeautifulSoup
@@ -12,7 +11,7 @@ import hallo.modules.subscriptions.stream_source
 from hallo.server import Server
 
 
-def _get_item_title(feed_item: ElementTree.Element) -> Optional[str]:
+def _get_item_title(feed_item: ElementTree.Element) -> str | None:
     title_elem = feed_item.find("title")
     if title_elem is not None:
         return title_elem.text
@@ -44,8 +43,8 @@ class RssSource(hallo.modules.subscriptions.stream_source.StreamSource[ElementTr
     def __init__(
             self,
             url: str,
-            feed_title: Optional[str] = None,
-            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
+            feed_title: str | None = None,
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         super().__init__(last_keys)
         self.url = url
@@ -105,7 +104,7 @@ class RssSource(hallo.modules.subscriptions.stream_source.StreamSource[ElementTr
         return item_hash
 
     def item_to_event(
-            self, server: Server, channel: Optional[Channel], user: Optional[User],
+            self, server: Server, channel: Channel | None, user: User | None,
             item: ElementTree.Element
     ) -> EventMessage:
         # Check custom formatting
@@ -121,9 +120,9 @@ class RssSource(hallo.modules.subscriptions.stream_source.StreamSource[ElementTr
         return output_evt
 
     def _format_custom_sites(
-            self, server: Server, channel: Optional[Channel], user: Optional[User],
+            self, server: Server, channel: Channel | None, user: User | None,
             item: ElementTree.Element
-    ) -> Optional[EventMessage]:
+    ) -> EventMessage | None:
         if "xkcd.com" in self.url:
             item_title = item.find("title").text
             item_link = item.find("link").text

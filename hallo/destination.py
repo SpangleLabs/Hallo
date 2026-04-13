@@ -1,5 +1,4 @@
 import time
-from typing import Optional
 
 from hallo.permission_mask import PermissionMask
 from abc import ABCMeta
@@ -361,7 +360,7 @@ class User(Destination):
             self.memberships_list = set()
             """:type : set[ChannelMembership]"""
 
-    def rights_check(self, right_name: str, channel_obj: Optional[Channel] = None) -> bool:
+    def rights_check(self, right_name: str, channel_obj: Channel | None = None) -> bool:
         """
         Checks the value of the right with the specified name. Returns boolean
         :param right_name: Name of the user right to check

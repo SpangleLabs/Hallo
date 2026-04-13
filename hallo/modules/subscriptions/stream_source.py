@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import TypeVar, Union, Generic, Optional
+from typing import TypeVar, Union, Generic
 
 from hallo.destination import Channel, User
 from hallo.events import EventMessage
@@ -11,7 +11,7 @@ Key = Union[str, int]
 
 
 class StreamSource(hallo.modules.subscriptions.source.Source[list[Item], list[Item]], Generic[Item]):
-    def __init__(self, last_keys: Optional[list[Key]]):
+    def __init__(self, last_keys: list[Key] | None):
         super().__init__()
         self.last_keys: list[Key] = last_keys or []
 
@@ -44,8 +44,8 @@ class StreamSource(hallo.modules.subscriptions.source.Source[list[Item], list[It
     def events(
             self,
             server: Server,
-            channel: Optional[Channel],
-            user: Optional[User],
+            channel: Channel | None,
+            user: User | None,
             update: list[Item]
     ) -> list[EventMessage]:
         return [self.item_to_event(server, channel, user, item) for item in update[::-1]]
@@ -58,8 +58,8 @@ class StreamSource(hallo.modules.subscriptions.source.Source[list[Item], list[It
     def item_to_event(
             self,
             server: Server,
-            channel: Optional[Channel],
-            user: Optional[User],
+            channel: Channel | None,
+            user: User | None,
             item: Item
     ) -> EventMessage:
         pass

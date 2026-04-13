@@ -129,10 +129,7 @@ class Event(metaclass=ABCMeta):
     def get_send_time(self) -> datetime:
         return self.send_time
 
-    def get_log_line(self) -> Optional[str]:
-        """
-        :rtype: Optional[str]
-        """
+    def get_log_line(self) -> str | None:
         return None
 
     def _get_log_extras(self) -> list[dict[str, Any]]:
@@ -145,7 +142,7 @@ class Event(metaclass=ABCMeta):
         for extra in self._get_log_extras():
             chat_logger.info(self.get_log_line(), extra=extra)
 
-    def get_print_line(self) -> Optional[str]:
+    def get_print_line(self) -> str | None:
         return None
 
 
@@ -214,7 +211,7 @@ class UserEvent(ServerEvent, metaclass=ABCMeta):
         self.user = user
 
     @property
-    def user_addr(self) -> Optional[str]:
+    def user_addr(self) -> str | None:
         return self.user.address if self.user else None
 
     def _get_log_extras(self) -> list[dict[str, Any]]:
@@ -309,7 +306,7 @@ class EventJoin(ChannelUserEvent):
             server: 'Server',
             channel: 'Channel',
             user: 'User',
-            password: Optional[str] = None,
+            password: str | None = None,
             inbound: bool = True
     ):
         """
@@ -332,7 +329,7 @@ class EventLeave(ChannelUserEvent):
             server: 'Server',
             channel: 'Channel',
             user: 'User',
-            message: Optional[str],
+            message: str | None,
             inbound: bool = True
     ) -> None:
         """
@@ -358,7 +355,7 @@ class EventKick(ChannelUserEvent):
             channel: 'Channel',
             kicking_user: Optional['User'],
             kicked_user: 'User',
-            kick_message: Optional[str],
+            kick_message: str | None,
             inbound: bool = True
     ) -> None:
         """
@@ -519,7 +516,7 @@ class EventMessage(ChannelUserTextEvent):
         self._message_id = None
 
     @property
-    def message_id(self) -> Optional[int]:
+    def message_id(self) -> int | None:
         if isinstance(self.raw_data, RawDataTelegram):
             return self.raw_data.update_obj.message.message_id
         if isinstance(self.raw_data, RawDataTelegramOutbound):
@@ -534,7 +531,7 @@ class EventMessage(ChannelUserTextEvent):
     def has_photo(self) -> bool:
         return False
 
-    def check_prefix(self) -> tuple[Union[bool, str], Optional[str]]:
+    def check_prefix(self) -> tuple[bool | str, str | None]:
         """
         Checks whether prefix was given, and if so, parses it out of command text.
         :return: Returns whether prefix is given, and command text
@@ -579,8 +576,8 @@ class EventMessage(ChannelUserTextEvent):
 
     def create_edit(
             self,
-            text: Optional[str] = None,
-            menu_buttons: Optional[list[list[MenuButton]]] = FLAG_MENU_UNCHANGED
+            text: str | None = None,
+            menu_buttons: list[list[MenuButton]] | None = FLAG_MENU_UNCHANGED
     ) -> 'EventMessage':
         if text is None:
             text = self.text
@@ -643,8 +640,8 @@ class EventMessageWithPhoto(EventMessage):
 
     def create_edit(
             self,
-            text: Optional[str] = None,
-            menu_buttons: Optional[list[list[MenuButton]]] = FLAG_MENU_UNCHANGED
+            text: str | None = None,
+            menu_buttons: list[list[MenuButton]] | None = FLAG_MENU_UNCHANGED
     ) -> 'EventMessage':
         if text is None:
             text = self.text

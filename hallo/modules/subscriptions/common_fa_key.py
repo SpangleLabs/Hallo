@@ -39,11 +39,11 @@ class FAKeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionC
     def add_key(self, key: 'FAKey') -> None:
         self.list_keys[key.user] = key
 
-    def to_json(self) -> Optional[dict]:
+    def to_json(self) -> dict | None:
         return None
 
     @staticmethod
-    def from_json(json_obj: Optional[dict], hallo_obj: 'Hallo') -> 'FAKeysCommon':
+    def from_json(json_obj: dict | None, hallo_obj: 'Hallo') -> 'FAKeysCommon':
         return FAKeysCommon(hallo_obj)
 
 
@@ -54,7 +54,7 @@ class FAKey:
         self.cookie_b = cookie_b
         if self.cookie_a is None or self.cookie_b is None:
             raise Exception("Cookie A or Cookie B was not set.")
-        self.fa_reader: Optional[FAKey.FAReader] = None
+        self.fa_reader: FAKey.FAReader | None = None
 
     def get_fa_reader(self) -> 'FAKey.FAReader':
         if self.fa_reader is None:
@@ -392,7 +392,7 @@ class FAKey:
             def __init__(self, data: dict, shout_data_getter: Callable[[], dict], username: str):
                 self.username: str = username
                 self.name: str = data["full_name"]
-                self.user_title: Optional[str] = (
+                self.user_title: str | None = (
                     data["user_title"] if len(data["user_title"]) != 0 else None
                 )
                 self.registered_since: datetime = dateutil.parser.parse(data["registered_at"])
@@ -408,7 +408,7 @@ class FAKey:
                 # contact_info
                 # featured_submission
                 self._shout_data_getter: Callable[[], dict] = shout_data_getter
-                self._shout_cache: Optional[list[FAKey.FAReader.FAShout]] = None
+                self._shout_cache: list[FAKey.FAReader.FAShout] | None = None
                 # watcher lists
                 self.watched_by: list[FAKey.FAReader.FAWatch] = []
                 for watch in data["watchers"]["recent"]:
@@ -489,7 +489,7 @@ class FAKey:
                 self.keywords: list[str] = data["keywords"]
                 self.rating: str = data["rating"]
                 self._comments_section_getter: Callable[[], dict] = comments_data_getter
-                self._comments_section_cache: Optional[FAKey.FAReader.FACommentsSection] = None
+                self._comments_section_cache: FAKey.FAReader.FACommentsSection | None = None
 
             @property
             def comments_section(self) -> 'FAKey.FAReader.FACommentsSection':
@@ -546,11 +546,11 @@ class FAKey:
         class FAComment:
             def __init__(
                     self,
-                    username: Optional[str],
-                    name: Optional[str],
-                    avatar_link: Optional[str],
+                    username: str | None,
+                    name: str | None,
+                    avatar_link: str | None,
                     comment_id: str,
-                    posted_datetime: Optional[datetime],
+                    posted_datetime: datetime | None,
                     text: str,
                     is_deleted: bool,
                     parent_comment: Optional['FAKey.FAReader.FAComment'] = None,
@@ -562,7 +562,7 @@ class FAKey:
                 self.posted_datetime: datetime = posted_datetime
                 self.text: str = text
                 self.is_deleted = is_deleted
-                self.parent_comment: Optional[FAKey.FAReader.FAComment] = parent_comment
+                self.parent_comment: FAKey.FAReader.FAComment | None = parent_comment
                 self.reply_comments: list[FAKey.FAReader.FAComment] = []
 
         class FAViewJournalPage:
@@ -570,14 +570,14 @@ class FAKey:
                 self.journal_id: str = journal_id
                 self.username: str = data["profile_name"]
                 self.name: str = data["name"]
-                self.avatar_link: Optional[str] = data["avatar"]
+                self.avatar_link: str | None = data["avatar"]
                 self.title: str = data["title"]
                 self.posted_datetime: datetime = dateutil.parser.parse(data["posted_at"])
-                self.journal_header: Optional[str] = data["journal_header"]
+                self.journal_header: str | None = data["journal_header"]
                 self.journal_text: str = data["journal_body"]
-                self.journal_footer: Optional[str] = data["journal_footer"]
+                self.journal_footer: str | None = data["journal_footer"]
                 self._comments_section_getter: Callable[[], dict] = comments_data_getter
-                self._comments_section_cache: Optional[FAKey.FAReader.FACommentsSection] = None
+                self._comments_section_cache: FAKey.FAReader.FACommentsSection | None = None
 
             @property
             def comments_section(self) -> 'FAKey.FAReader.FACommentsSection':

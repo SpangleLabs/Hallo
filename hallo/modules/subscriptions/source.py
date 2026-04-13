@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Optional, TypeVar
+from typing import Generic, TypeVar
 
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage
@@ -36,7 +36,7 @@ class Source(ABC, Generic[State, Update]):
         pass
 
     @abstractmethod
-    def state_change(self, state: State) -> Optional[Update]:
+    def state_change(self, state: State) -> Update | None:
         pass
 
     @abstractmethod
@@ -47,8 +47,8 @@ class Source(ABC, Generic[State, Update]):
     def events(
             self,
             server: Server,
-            channel: Optional[Channel],
-            user: Optional[User],
+            channel: Channel | None,
+            user: User | None,
             update: Update
     ) -> list[EventMessage]:
         """

@@ -45,9 +45,9 @@ class E6KeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionC
     def add_client(self, user: 'User', client: YippiClient) -> None:
         self.list_clients[user] = client
 
-    def to_json(self) -> Optional[dict]:
+    def to_json(self) -> dict | None:
         return None
 
     @staticmethod
-    def from_json(json_obj: Optional[dict], hallo_obj: 'Hallo') -> 'E6KeysCommon':
+    def from_json(json_obj: dict | None, hallo_obj: 'Hallo') -> 'E6KeysCommon':
         return E6KeysCommon(hallo_obj)

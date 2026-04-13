@@ -106,7 +106,7 @@ class Server(metaclass=ABCMeta):
             self,
             event: 'ServerEvent',
             *,
-            after_sent_callback: Optional[Callable[['ServerEvent'], None]] = None
+            after_sent_callback: Callable[['ServerEvent'], None] | None = None
     ) -> None:
         """
         Sends a message to the server, or a specific channel in the server
@@ -237,7 +237,7 @@ class Server(metaclass=ABCMeta):
         """Returns boolean representing whether the server is connected or not."""
         return self.state == Server.STATE_OPEN
 
-    def get_channel_by_name(self, channel_name: str) -> Optional[Channel]:
+    def get_channel_by_name(self, channel_name: str) -> Channel | None:
         """
         Returns a Channel object with the specified channel name.
         :param channel_name: Name of the channel which is being searched for
@@ -299,7 +299,7 @@ class Server(metaclass=ABCMeta):
         # Set not in channel
         channel_obj.set_in_channel(False)
 
-    def get_user_by_name(self, user_name: str) -> Optional[User]:
+    def get_user_by_name(self, user_name: str) -> User | None:
         """
         Returns a User object with the specified user name.
         :param user_name: Name of user which is being searched for
@@ -311,7 +311,7 @@ class Server(metaclass=ABCMeta):
         # No user by that name exists, return None
         return None
 
-    def get_user_by_address(self, address: str, user_name: str = None) -> Optional[User]:
+    def get_user_by_address(self, address: str, user_name: str = None) -> User | None:
         """
         Returns a User object with the specified user name.
         :param address: address of the user which is being searched for or added

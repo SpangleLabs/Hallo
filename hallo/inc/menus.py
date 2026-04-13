@@ -3,7 +3,7 @@ import os
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from pathlib import Path
-from typing import TypeVar, Generic, Optional, Type, TYPE_CHECKING
+from typing import TypeVar, Generic, Type, TYPE_CHECKING
 
 from hallo.events import message_from_json
 
@@ -60,16 +60,16 @@ class MenuCache(Generic[T]):
         self.menus[menu.msg.server_name][menu.msg.destination_addr].append(menu)
         self.save_to_json()
 
-    def get_menu_by_menu(self, menu: T) -> Optional[T]:
+    def get_menu_by_menu(self, menu: T) -> T | None:
         return self.get_menu_by_id(menu.msg.server_name, menu.msg.destination_addr, menu.msg.message_id)
 
-    def get_menu_by_event(self, msg: 'EventMessage') -> Optional[T]:
+    def get_menu_by_event(self, msg: 'EventMessage') -> T | None:
         return self.get_menu_by_id(msg.server_name, msg.destination_addr, msg.message_id)
 
-    def get_menu_by_callback_event(self, event: 'EventMenuCallback') -> Optional[T]:
+    def get_menu_by_callback_event(self, event: 'EventMenuCallback') -> T | None:
         return self.get_menu_by_id(event.server.name, event.destination.address, event.message_id)
 
-    def get_menu_by_id(self, server_name: str, destination_addr: str, message_id: int) -> Optional[T]:
+    def get_menu_by_id(self, server_name: str, destination_addr: str, message_id: int) -> T | None:
         if message_id is None:
             return None
         dest_menus = self.menus.get(server_name, {}).get(destination_addr, [])

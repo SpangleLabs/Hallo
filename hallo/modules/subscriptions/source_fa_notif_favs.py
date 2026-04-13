@@ -1,5 +1,3 @@
-from typing import Optional
-
 from hallo.destination import Destination, User, Channel
 from hallo.events import EventMessage
 import hallo.modules.subscriptions.source_fa_favs
@@ -26,7 +24,7 @@ class FAFavNotificationsSource(
     def __init__(
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
@@ -45,7 +43,7 @@ class FAFavNotificationsSource(
         return item.fav_id
 
     def item_to_event(
-            self, server: Server, channel: Optional[Channel], user: Optional[User],
+            self, server: Server, channel: Channel | None, user: User | None,
             item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationFavourite
     ) -> EventMessage:
         return EventMessage(

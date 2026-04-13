@@ -1,5 +1,3 @@
-from typing import Optional
-
 from hallo.destination import Destination, Channel, User
 from hallo.events import EventMessage
 import hallo.modules.subscriptions.source_fa_favs
@@ -20,7 +18,7 @@ class FANotesInboxSource(
     def __init__(
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
@@ -38,8 +36,8 @@ class FANotesInboxSource(
     def item_to_event(
             self,
             server: Server,
-            channel: Optional[Channel],
-            user: Optional[User],
+            channel: Channel | None,
+            user: User | None,
             item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANote
     ) -> EventMessage:
         return EventMessage(
@@ -86,7 +84,7 @@ class FANotesOutboxSource(hallo.modules.subscriptions.stream_source.StreamSource
     def __init__(
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
@@ -108,8 +106,8 @@ class FANotesOutboxSource(hallo.modules.subscriptions.stream_source.StreamSource
     def item_to_event(
             self,
             server: Server,
-            channel: Optional[Channel],
-            user: Optional[User],
+            channel: Channel | None,
+            user: User | None,
             item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANote
     ) -> EventMessage:
         return EventMessage(
@@ -176,7 +174,7 @@ class FANotesSource(hallo.modules.subscriptions.source.Source[dict, dict]):
             "outbox": self.outbox_source.current_state()
         }
 
-    def state_change(self, state: dict) -> Optional[dict]:
+    def state_change(self, state: dict) -> dict | None:
         inbox_change = self.inbox_source.state_change(state["inbox"])
         outbox_change = self.outbox_source.state_change(state["outbox"])
         if not inbox_change and not outbox_change:
@@ -191,7 +189,7 @@ class FANotesSource(hallo.modules.subscriptions.source.Source[dict, dict]):
         self.outbox_source.save_state(state["outbox"])
 
     def events(
-            self, server: Server, channel: Optional[Channel], user: Optional[User], update: dict
+            self, server: Server, channel: Channel | None, user: User | None, update: dict
     ) -> list[EventMessage]:
         return (
                 self.inbox_source.events(server, channel, user, update["inbox"])

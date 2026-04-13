@@ -5,7 +5,7 @@ import re
 import json
 import random
 from datetime import timedelta
-from typing import Optional, TypeVar, Union, Callable, Generic, Type
+from typing import TypeVar, Union, Callable, Generic, Type
 
 import requests
 from prometheus_client import Gauge
@@ -78,7 +78,7 @@ class Commons(object):
         return url[: -len(url_tld) - 1].split(".")[-1]
 
     @staticmethod
-    def string_to_bool(string: str) -> Optional[bool]:
+    def string_to_bool(string: str) -> bool | None:
         """
         Converts a string to a boolean.
         :param string: String to convert to boolean
@@ -262,7 +262,7 @@ class Commons(object):
             return False
 
     @staticmethod
-    def get_digits_from_start_or_end(string: str) -> Optional[str]:
+    def get_digits_from_start_or_end(string: str) -> str | None:
         """
         Gets the longest string of digits from the start or end of a string, or None
         :param string: String to find sequence of digits from
@@ -284,7 +284,7 @@ class Commons(object):
         return None
 
     @staticmethod
-    def get_calc_from_start_or_end(string: str) -> Optional[str]:
+    def get_calc_from_start_or_end(string: str) -> str | None:
         """
         Gets the longest calculation of digits from the start or end of a string, or None
         :param string: String to find calculation from
@@ -306,7 +306,7 @@ class Commons(object):
         return None
 
     @staticmethod
-    def list_greater(list_one: list[float], list_two: list[float]) -> Optional[bool]:
+    def list_greater(list_one: list[float], list_two: list[float]) -> bool | None:
         """
         Checks whether listOne is "greater" than listTwo.
         Checks if an earlier element of listOne is greater than the equally placed element in listTwo
@@ -368,7 +368,7 @@ class Commons(object):
         return data
 
     @staticmethod
-    def find_parameter(param_name: str, line: str) -> Optional[str]:
+    def find_parameter(param_name: str, line: str) -> str | None:
         """
         Finds a parameter value in a line, if the format parameter=value exists in the line
         """
@@ -401,7 +401,7 @@ class Commons(object):
 
 
 class CachedObject(Generic[S]):
-    def __init__(self, setter: Callable[[], S], cache_expiry: Optional[timedelta] = None) -> None:
+    def __init__(self, setter: Callable[[], S], cache_expiry: timedelta | None = None) -> None:
         """
         :type setter: Callable
         :type cache_expiry: timedelta
@@ -410,8 +410,8 @@ class CachedObject(Generic[S]):
         self.cache_expiry: timedelta = (
             cache_expiry if cache_expiry is not None else timedelta(minutes=5)
         )
-        self.cache_time: Optional[datetime.datetime] = None
-        self.value: Optional[S] = None
+        self.cache_time: datetime.datetime | None = None
+        self.value: S | None = None
 
     def get(self) -> S:
         if (

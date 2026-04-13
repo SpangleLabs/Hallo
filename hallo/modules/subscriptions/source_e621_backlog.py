@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from yippi import Post, YippiClient
 
@@ -43,12 +43,12 @@ class E621BacklogTaggingSource(hallo.modules.subscriptions.source_e621_tagging.E
             sub_repo: 'hallo.modules.subscriptions.subscription_repo.SubscriptionRepo',
             owner: User,
             tags: list[str],
-            start_id: Optional[int] = None,
-            current_batch_ids: Optional[list[int]] = None,
-            sent_ids: Optional[list[int]] = None,
+            start_id: int | None = None,
+            current_batch_ids: list[int] | None = None,
+            sent_ids: list[int] | None = None,
             batch_size: int = 5,
-            remaining_count: Optional[int] = None,
-            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
+            remaining_count: int | None = None,
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         super().__init__(search, e6_client, sub_repo, owner, tags, last_keys)
         self.start_id = start_id

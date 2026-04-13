@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Optional, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from hallo.hallo import Hallo
@@ -11,9 +11,9 @@ class SubscriptionCommon(ABC):
     def __init__(self, hallo_obj: 'Hallo'):
         self.hallo = hallo_obj
 
-    def to_json(self) -> Optional[Dict]:
+    def to_json(self) -> dict | None:
         raise NotImplementedError()
 
     @staticmethod
-    def from_json(json_obj: Optional[Dict], hallo_obj: 'Hallo') -> 'SubscriptionCommon':
+    def from_json(json_obj: dict | None, hallo_obj: 'Hallo') -> 'SubscriptionCommon':
         raise NotImplementedError()

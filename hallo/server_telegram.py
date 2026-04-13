@@ -1,5 +1,5 @@
 from threading import Lock, Thread
-from typing import Optional, TYPE_CHECKING, Dict, Callable
+from typing import TYPE_CHECKING, Callable
 
 import telegram
 from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup, Update, Message, TelegramError
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def event_menu_for_telegram(event: EventMessage) -> Optional[InlineKeyboardMarkup]:
+def event_menu_for_telegram(event: EventMessage) -> InlineKeyboardMarkup | None:
     if not event.menu_buttons:
         return None
     menu = []
@@ -41,7 +41,7 @@ def event_menu_for_telegram(event: EventMessage) -> Optional[InlineKeyboardMarku
     return InlineKeyboardMarkup(menu)
 
 
-def formatting_to_telegram_mode(event_formatting: EventMessage.Formatting) -> Optional[str]:
+def formatting_to_telegram_mode(event_formatting: EventMessage.Formatting) -> str | None:
     return {
         EventMessage.Formatting.MARKDOWN: telegram.ParseMode.MARKDOWN,
         EventMessage.Formatting.HTML: telegram.ParseMode.HTML,
@@ -298,8 +298,8 @@ class ServerTelegram(Server):
             self,
             event: ServerEvent,
             *,
-            after_sent_callback: Optional[Callable[[ServerEvent], None]] = None,
-            reply_to_id: Optional[int] = None
+            after_sent_callback: Callable[[ServerEvent], None] | None = None,
+            reply_to_id: int | None = None
     ) -> None:
         is_group = False
         if isinstance(event, EventMessage):
@@ -319,8 +319,8 @@ class ServerTelegram(Server):
             self,
             event: ServerEvent,
             *,
-            after_sent_callback: Optional[Callable[[ServerEvent], None]] = None,
-            reply_to_id: Optional[int] = None
+            after_sent_callback: Callable[[ServerEvent], None] | None = None,
+            reply_to_id: int | None = None
     ) -> None:
         if isinstance(event, EventMessageWithPhoto):
             destination = event.destination
@@ -479,7 +479,7 @@ class ServerTelegram(Server):
         if chat.type in [chat.GROUP, chat.SUPERGROUP, chat.CHANNEL]:
             return chat.title
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         """
         Creates a dict of configuration for the server, to store as json
         """
@@ -503,7 +503,7 @@ class ServerTelegram(Server):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: Dict, hallo: 'Hallo') -> 'ServerTelegram':
+    def from_json(json_obj: dict, hallo: 'Hallo') -> 'ServerTelegram':
         api_key = json_obj["api_key"]
         new_server = ServerTelegram(hallo, api_key)
         new_server.name = json_obj["name"]

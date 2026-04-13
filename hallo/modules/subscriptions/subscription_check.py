@@ -1,5 +1,5 @@
 import logging
-from typing import Set, Type, Optional
+from typing import Type
 
 from hallo.errors import SubscriptionCheckError
 from hallo.events import Event, EventMinute, EventMessage, ServerEvent, EventMenuCallback
@@ -77,7 +77,7 @@ class SubscriptionCheck(Function):
         if self.subscription_repo is not None:
             self.subscription_repo.save_json()
 
-    def get_passive_events(self) -> Set[Type[Event]]:
+    def get_passive_events(self) -> set[Type[Event]]:
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {EventMinute, EventMenuCallback, EventMessage}
 
@@ -116,7 +116,7 @@ class SubscriptionCheck(Function):
             f"Subscription updates were found."
         )
 
-    def passive_run(self, event: Event, hallo_obj: Hallo) -> Optional[ServerEvent]:
+    def passive_run(self, event: Event, hallo_obj: Hallo) -> ServerEvent | None:
         if isinstance(event, EventMenuCallback):
             sub_repo = self.get_sub_repo(hallo_obj)
             sub_repo.handle_menu_callback(event)

@@ -1,4 +1,4 @@
-from typing import Optional, NewType
+from typing import NewType
 
 import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import Channel, User, Destination
@@ -54,7 +54,7 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
             username: str,
-            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         super().__init__(last_keys)
         self.username = username
@@ -66,8 +66,8 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
     def item_to_event(
             self,
             server: Server,
-            channel: Optional[Channel],
-            user: Optional[User],
+            channel: Channel | None,
+            user: User | None,
             item: SubmissionId
     ) -> EventMessage:
         fa_reader = self.fa_key.get_fa_reader()

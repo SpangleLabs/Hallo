@@ -1,12 +1,12 @@
 import datetime
 from threading import RLock
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import dateutil.parser
 import isodate
 
 import hallo.modules.dailys.dailys_field
-from hallo.events import EventMessage, EventMinute, Event, RawDataTelegramOutbound, RawDataTelegram
+from hallo.events import EventMessage, EventMinute, Event, RawDataTelegram
 
 if TYPE_CHECKING:
     import hallo.modules.dailys.dailys_spreadsheet
@@ -38,7 +38,7 @@ class RepeatingInterval:
             return True
         return count <= self.count
 
-    def last_time(self) -> Optional[datetime.datetime]:
+    def last_time(self) -> datetime.datetime | None:
         now = datetime.datetime.now(datetime.timezone.utc)
         if now < self.start:
             return None
@@ -49,7 +49,7 @@ class RepeatingInterval:
             count += 1
         return check
 
-    def next_time(self) -> Optional[datetime.datetime]:
+    def next_time(self) -> datetime.datetime | None:
         now = datetime.datetime.now(datetime.timezone.utc)
         if now < self.start:
             return self.start
@@ -72,11 +72,11 @@ class Question:
             time_pattern: RepeatingInterval,
             *,
             allow_custom_answers: bool = True,
-            answer_options: Optional[list[AnswerOption]] = None,
-            creation: Optional[datetime.datetime] = None,
-            deprecation: Optional[datetime.datetime] = None,
+            answer_options: list[AnswerOption] | None = None,
+            creation: datetime.datetime | None = None,
+            deprecation: datetime.datetime | None = None,
             must_answer: bool = False,
-            remind_period: Optional[datetime.timedelta] = None,
+            remind_period: datetime.timedelta | None = None,
     ):
         self.id = qid
         self.question = question
@@ -94,13 +94,13 @@ class Question:
             return True
         return now < self.deprecation
     
-    def last_time(self) -> Optional[datetime.datetime]:
+    def last_time(self) -> datetime.datetime | None:
         last_time = self.time_pattern.last_time()
         if last_time is not None and last_time < self.creation:
             return None
         return last_time
     
-    def next_time(self) -> Optional[datetime.datetime]:
+    def next_time(self) -> datetime.datetime | None:
         next_time = self.time_pattern.next_time()
         if next_time is not None and next_time > self.deprecation:
             return None
@@ -110,9 +110,9 @@ class Question:
             self,
             asked_time: datetime.datetime,
             *,
-            answer: Optional[str] = None,
-            answer_time: Optional[datetime.datetime] = None,
-            question_msg_id: Optional[int] = None
+            answer: str | None = None,
+            answer_time: datetime.datetime | None = None,
+            question_msg_id: int | None = None
     ) -> 'Answer':
         if answer_time is None:
             answer_time = datetime.datetime.now(tz=datetime.timezone.utc)
@@ -180,10 +180,10 @@ class Answer:
             question_id: str,
             asked_time: datetime.datetime,
             *,
-            answer: Optional[str] = None,
-            answer_time: Optional[datetime.datetime] = None,
-            edit_history: Optional[list[AnswerEdit]] = None,
-            question_msg_id: Optional[int] = None,
+            answer: str | None = None,
+            answer_time: datetime.datetime | None = None,
+            edit_history: list[AnswerEdit] | None = None,
+            question_msg_id: int | None = None,
     ):
         self.answer = answer
         self.answer_time = answer_time
@@ -248,7 +248,7 @@ class AnswersData:
             self,
             question: Question,
             answer_datetime: datetime.datetime
-    ) -> Optional[Answer]:
+    ) -> Answer | None:
         date_answers = self.get_answers_for_date(answer_datetime.date())
         for answer in date_answers:
             if answer.for_question(question) and answer.asked_time == answer_datetime:
@@ -293,7 +293,7 @@ class AnswerCache:
                 self._cache[answer_date][answer.question_id] = {}
             self._cache[answer_date][answer.question_id][answer.asked_time] = answer
 
-    def answer_for_question_at_time(self, question: Question, answer_time: datetime.datetime) -> Optional[Answer]:
+    def answer_for_question_at_time(self, question: Question, answer_time: datetime.datetime) -> Answer | None:
         if answer_time.date() not in self._cache:
             self._populate_answers_for_date(answer_time.date())
         return self._cache.get(answer_time.date(), {}).get(question.id, {}).get(answer_time)
@@ -304,7 +304,7 @@ class AnswerCache:
             questions: list[Question],
             *,
             assume_incremental_id: bool = True
-    ) -> Optional[Answer]:
+    ) -> Answer | None:
         if not questions:
             return None
         oldest_date = min([q.time_pattern.start.date() for q in questions])
@@ -390,7 +390,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
     def passive_events():
         return [EventMessage, EventMinute]
 
-    def passive_trigger(self, evt: Event) -> Optional[Event]:
+    def passive_trigger(self, evt: Event) -> Event | None:
         if isinstance(evt, EventMinute):
             return self._time_trigger()
         if isinstance(evt, EventMessage):
@@ -431,7 +431,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         # Save answer
         self.data.save_answer(answer)
 
-    def _msg_trigger(self, evt: EventMessage) -> Optional[EventMessage]:
+    def _msg_trigger(self, evt: EventMessage) -> EventMessage | None:
         # Check if it's asking about open questions
         if evt.text.strip().lower() in ["questions", "open questions", "unanswered question"]:
             return self._handle_questions_list_request(evt)
@@ -450,7 +450,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         if text_split[0].lower() == "answer" and text_split[1] in question_dict:
             return self._handle_answer_manual(evt, question_dict[text_split[1]], text_split[2])
 
-    def _handle_answer_reply(self, evt: EventMessage, reply_id: int, answer: str) -> Optional[EventMessage]:
+    def _handle_answer_reply(self, evt: EventMessage, reply_id: int, answer: str) -> EventMessage | None:
         cache = AnswerCache(self.data)
         reply_answer = cache.answer_for_question_msg_id(reply_id, self.questions)
         if reply_answer is None:
@@ -461,7 +461,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             f"Answer saved for question ID \"{reply_answer.question_id}\", at {reply_answer.asked_time.isoformat()}"
         ))
 
-    def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> Optional[EventMessage]:
+    def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> EventMessage | None:
         latest_time = question.last_time()
         current_answer = self.data.get_answer_for_question_at_time(question, latest_time)
         if current_answer is None:

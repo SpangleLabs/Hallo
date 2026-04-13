@@ -1,4 +1,3 @@
-from typing import Optional
 from urllib.error import HTTPError
 
 from hallo.destination import Destination, User, Channel
@@ -21,7 +20,7 @@ class FASubmissionCommentSource(
     def __init__(
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
@@ -38,7 +37,7 @@ class FASubmissionCommentSource(
         return item.comment_id
 
     def item_to_event(
-            self, server: Server, channel: Optional[Channel], user: Optional[User],
+            self, server: Server, channel: Channel | None, user: User | None,
             item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentSubmission
     ) -> EventMessage:
         fa_reader = self.fa_key.get_fa_reader()
@@ -103,7 +102,7 @@ class FAJournalCommentSource(
     def __init__(
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
@@ -121,7 +120,7 @@ class FAJournalCommentSource(
         return item.comment_id
 
     def item_to_event(
-            self, server: Server, channel: Optional[Channel], user: Optional[User],
+            self, server: Server, channel: Channel | None, user: User | None,
             item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationCommentJournal
     ) -> EventMessage:
         fa_reader = self.fa_key.get_fa_reader()
@@ -185,7 +184,7 @@ class FAShoutSource(
 
     def __init__(
             self, fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
@@ -201,7 +200,7 @@ class FAShoutSource(
         return item.shout_id
 
     def item_to_event(
-            self, server: Server, channel: Optional[Channel], user: Optional[User],
+            self, server: Server, channel: Channel | None, user: User | None,
             item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationShout
     ) -> EventMessage:
         fa_reader = self.fa_key.get_fa_reader()
@@ -306,7 +305,7 @@ class FACommentNotificationsSource(hallo.modules.subscriptions.source.Source[dic
             "shouts": self.shout_source.current_state()
         }
 
-    def state_change(self, state: dict) -> Optional[dict]:
+    def state_change(self, state: dict) -> dict | None:
         submission_update = self.submission_source.state_change(state["submissions"])
         journal_update = self.journal_source.state_change(state["journals"])
         shout_update = self.shout_source.state_change(state["shouts"])
@@ -324,7 +323,7 @@ class FACommentNotificationsSource(hallo.modules.subscriptions.source.Source[dic
         self.shout_source.save_state(state["shouts"])
 
     def events(
-            self, server: Server, channel: Optional[Channel], user: Optional[User], update: dict
+            self, server: Server, channel: Channel | None, user: User | None, update: dict
     ) -> list[EventMessage]:
         return (
                 self.submission_source.events(server, channel, user, update["submissions"])

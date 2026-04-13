@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from yippi import Post, Rating, YippiClient
 
@@ -158,7 +158,7 @@ class E621TaggingMenu(Menu):
         buttons = buttons_for_submission(self.tag_results, self.page)
         self.update(None, buttons)
 
-    def update(self, text: Optional[str], menu_buttons: Optional[list[list[MenuButton]]]) -> None:
+    def update(self, text: str | None, menu_buttons: list[list[MenuButton]] | None) -> None:
         new_event = self.msg.create_edit(text=text, menu_buttons=menu_buttons)
         self.msg.server.edit(self.msg, new_event)
         self.msg = new_event
@@ -211,7 +211,7 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
             sub_repo: 'hallo.modules.subscriptions.subscription_repo.SubscriptionRepo',
             owner: User,
             tags: list[str],
-            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         super().__init__(search, e6_client, owner, last_keys)
         self.sub_repo = sub_repo
@@ -266,8 +266,8 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
     def item_to_event(
             self,
             server: Server,
-            channel: Optional[Channel],
-            user: Optional[User],
+            channel: Channel | None,
+            user: User | None,
             item: Post
     ) -> EventMessage:
         # Check tags

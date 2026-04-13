@@ -1,5 +1,3 @@
-from typing import Optional
-
 import hallo.modules.subscriptions.subscription_exception
 from hallo.destination import Destination, User, Channel
 from hallo.events import EventMessage
@@ -23,7 +21,7 @@ class FAUserWatchersSource(
     ]
 
     def __init__(self, fa_key: hallo.modules.subscriptions.common_fa_key.FAKey, username: str,
-                 last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None):
+                 last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None):
         super().__init__(last_keys)
         self.fa_key = fa_key
         self.username = username
@@ -40,7 +38,7 @@ class FAUserWatchersSource(
         return item.watcher_username
 
     def item_to_event(
-            self, server: Server, channel: Optional[Channel], user: Optional[User],
+            self, server: Server, channel: Channel | None, user: User | None,
             item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FAWatch
     ) -> EventMessage:
         link = "https://furaffinity.net/user/{}/".format(item.watcher_username)
@@ -103,7 +101,7 @@ class FAWatchersSource(FAUserWatchersSource):
     def __init__(
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[list[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         username = fa_key.get_fa_reader().get_notification_page().username
         super().__init__(fa_key, username, last_keys)
