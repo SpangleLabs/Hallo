@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import TypeVar, Union, Generic
+from typing import TypeVar, Generic
 
 from hallo.destination import Channel, User
 from hallo.events import EventMessage
@@ -7,7 +7,7 @@ import hallo.modules.subscriptions.source
 from hallo.server import Server
 
 Item = TypeVar("Item")
-Key = Union[str, int]
+Key = str | int
 
 
 class StreamSource(hallo.modules.subscriptions.source.Source[list[Item], list[Item]], Generic[Item]):

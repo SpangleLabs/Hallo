@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Optional, TYPE_CHECKING, Union, Callable
+from typing import Optional, TYPE_CHECKING, Callable
 
 from prometheus_client import Counter
 
@@ -194,13 +194,13 @@ class Server(metaclass=ABCMeta):
         """
         self.nick = nick
 
-    def get_prefix(self) -> Union[str, bool]:
+    def get_prefix(self) -> str | bool:
         """Prefix getter"""
         if self.prefix is None:
             return self.hallo.default_prefix
         return self.prefix
 
-    def set_prefix(self, prefix: Union[str, bool, None]) -> None:
+    def set_prefix(self, prefix: str | bool | None) -> None:
         """
         Prefix setter
         :param prefix: Prefix for hallo to use for function calls on this server

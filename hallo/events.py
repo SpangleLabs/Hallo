@@ -2,7 +2,7 @@ import enum
 import logging
 from abc import ABCMeta
 from datetime import datetime
-from typing import Any, Union, Optional, TYPE_CHECKING, Type
+from typing import Any, Optional, TYPE_CHECKING, Type
 
 if TYPE_CHECKING:
     from hallo.hallo import Hallo
@@ -627,7 +627,7 @@ class EventMessageWithPhoto(EventMessage):
             channel: Optional['Channel'],
             user: 'User',
             text: str,
-            photo_id: Union[str, list[str]],
+            photo_id: str | list[str],
             inbound: bool = True,
             *,
             menu_buttons: list[list[MenuButton]] = None

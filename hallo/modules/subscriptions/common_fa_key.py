@@ -1,7 +1,7 @@
 import logging
 import os
 from datetime import timedelta, datetime
-from typing import Optional, Union, Callable, TYPE_CHECKING
+from typing import Optional, Callable, TYPE_CHECKING
 
 import dateutil.parser
 
@@ -97,7 +97,7 @@ class FAKey:
                 self.timeout,
             )
 
-        def _get_api_data(self, path: str, needs_cookie: bool = False) -> Union[dict, list]:
+        def _get_api_data(self, path: str, needs_cookie: bool = False) -> dict | list:
             fa_api_url = os.getenv("FA_API_URL", "https://faexport.spangle.org.uk")
             url = "{}/{}".format(fa_api_url, path)
             if needs_cookie:
@@ -134,7 +134,7 @@ class FAKey:
             fav_page = FAKey.FAReader.FAUserFavouritesPage(id_list, username)
             return fav_page
 
-        def get_submission_page(self, submission_id: Union[int, str]) -> 'FAKey.FAReader.FAViewSubmissionPage':
+        def get_submission_page(self, submission_id: int | str) -> 'FAKey.FAReader.FAViewSubmissionPage':
             data = self._get_api_data("/submission/{}.json".format(submission_id))
 
             def comment_data_getter():
@@ -147,7 +147,7 @@ class FAKey:
             )
             return sub_page
 
-        def get_journal_page(self, journal_id: Union[int, str]) -> 'FAKey.FAReader.FAViewJournalPage':
+        def get_journal_page(self, journal_id: int | str) -> 'FAKey.FAReader.FAViewJournalPage':
             data = self._get_api_data("/journal/{}.json".format(journal_id))
 
             def comment_data_getter():

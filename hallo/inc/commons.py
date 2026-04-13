@@ -5,7 +5,7 @@ import re
 import json
 import random
 from datetime import timedelta
-from typing import TypeVar, Union, Callable, Generic, Type
+from typing import TypeVar, Callable, Generic, Type
 
 import requests
 from prometheus_client import Gauge
@@ -382,7 +382,7 @@ class Commons(object):
         return param_value
 
     @staticmethod
-    def find_any_parameter(param_list: list[str], line: str) -> Union[str, bool]:
+    def find_any_parameter(param_list: list[str], line: str) -> str | bool:
         """
         Finds one of any parameter in a line.
         """
