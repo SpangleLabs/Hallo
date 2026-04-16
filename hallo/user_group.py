@@ -1,4 +1,10 @@
+from typing import Optional, TYPE_CHECKING
+
 from hallo.permission_mask import PermissionMask
+
+if TYPE_CHECKING:
+    from hallo.hallo import Hallo
+    from hallo.destination import Channel, User
 
 
 class UserGroup:
@@ -6,13 +12,11 @@ class UserGroup:
     UserGroup object, mostly exists for a speedy way to apply a PermissionsMask to a large amount of users at once
     """
 
-    def __init__(self, name, hallo):
+    def __init__(self, name: str, hallo: 'Hallo') -> None:
         """
         Constructor
         :param name: Name of the user group
-        :type name: str
         :param hallo: Hallo object which owns the user group
-        :type hallo: hallo.Hallo
         """
         self.user_list = set()  # Dynamic userlist of this group
         """:type : set[Destination.User]"""
@@ -23,21 +27,22 @@ class UserGroup:
         self.permission_mask = PermissionMask()  # PermissionMask for the UserGroup
         """:type : PermissionMask"""
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'UserGroup') -> bool:
         return (self.hallo, self.name) == (self.hallo, other.name)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return (self.hallo, self.name).__hash__()
 
-    def rights_check(self, right_name, user_obj, channel_obj=None):
+    def rights_check(
+            self,
+            right_name: str,
+            user_obj: 'User',
+            channel_obj: Optional['Channel'] = None
+    ) -> bool:
         """Checks the value of the right with the specified name. Returns boolean
         :param right_name: Name of the right to check
-        :type right_name: str
         :param user_obj: User which is having rights checked
-        :type user_obj: destination.User
         :param channel_obj: Channel in which rights are being checked, None for private messages
-        :type channel_obj: destination.Channel | None
-        :rtype: bool
         """
         right_value = self.permission_mask.get_right(right_name)
         # PermissionMask contains that right, return it.
@@ -49,13 +54,13 @@ class UserGroup:
         # Fall back to the parent Server's decision.
         return user_obj.server.rights_check(right_name)
 
-    def get_name(self):
+    def get_name(self) -> str:
         return self.name
 
-    def get_permission_mask(self):
+    def get_permission_mask(self) -> PermissionMask:
         return self.permission_mask
 
-    def set_permission_mask(self, new_permission_mask):
+    def set_permission_mask(self, new_permission_mask: PermissionMask) -> None:
         """
         Sets the permission mask of the user group
         :param new_permission_mask: Permission mask to set for user group
@@ -63,10 +68,10 @@ class UserGroup:
         """
         self.permission_mask = new_permission_mask
 
-    def get_hallo(self):
+    def get_hallo(self) -> 'Hallo':
         return self.hallo
 
-    def add_user(self, new_user):
+    def add_user(self, new_user: 'User') -> None:
         """
         Adds a new user to this group
         :param new_user: User to add to group
@@ -74,30 +79,27 @@ class UserGroup:
         """
         self.user_list.add(new_user)
 
-    def remove_user(self, remove_user):
+    def remove_user(self, remove_user: 'User') -> None:
         self.user_list.remove(remove_user)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """
         Returns the user group configuration as a dict for serialisation into json
-        :return: dict
         """
-        json_obj = dict()
-        json_obj["name"] = self.name
+        json_obj: dict = {
+            "name": self.name
+        }
         if not self.permission_mask.is_empty():
             json_obj["permission_mask"] = self.permission_mask.to_json()
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo):
+    def from_json(json_obj: dict, hallo: 'Hallo') -> 'UserGroup':
         """
         Creates a UserGroup object from json object dictionary
         :param json_obj: json object dictionary
-        :type json_obj: dict
         :param hallo: root hallo object
-        :type hallo: hallo.Hallo
         :return: new user group
-        :rtype: UserGroup
         """
         new_group = UserGroup(json_obj["name"], hallo)
         if "permission_mask" in json_obj:
