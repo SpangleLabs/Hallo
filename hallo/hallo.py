@@ -345,7 +345,9 @@ class Hallo:
         if server_addr == "":
             server_addr = "irc.freenode.net:6667"
         server_url = server_addr.split(":")[0]
-        server_port = int(server_addr.split(":")[1])
+        server_port = 6667
+        if ":" in server_addr:
+            server_port = int(server_addr.split(":")[1])
         server_match = re.match(
             r"([a-z\d.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})",
             server_url,
