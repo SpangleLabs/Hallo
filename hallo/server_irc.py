@@ -124,9 +124,7 @@ class ServerIRC(Server):
             return
         except ServerException as e:
             error = ExceptionError(
-                'Failed to connect to "{}" IRC server on first attempt. Attempting reconnect.'.format(
-                    self.name
-                ),
+                f'Failed to connect to "{self.name}" IRC server on first attempt. Attempting reconnect.',
                 e,
                 self,
             )
@@ -137,9 +135,7 @@ class ServerIRC(Server):
                     return
                 except ServerException as e:
                     error = ExceptionError(
-                        'Failed to connect to "{}" IRC server. Waiting 3 seconds to reconnect.'.format(
-                            self.name
-                        ),
+                        f'Failed to connect to "{self.name}" IRC server. Waiting 3 seconds to reconnect.',
                         e,
                         self,
                     )
@@ -159,14 +155,14 @@ class ServerIRC(Server):
             self._socket.connect((self.server_address, self.server_port))
         except Exception as e:
             error = ExceptionError(
-                'Connection error on "{}" IRC server'.format(self.name), e, self
+                f'Connection error on "{self.name}" IRC server', e, self
             )
             logger.error(error.get_log_line())
             self.state = Server.STATE_CLOSED
             return
         # Wait for the first message back from the server.
         logger.info(
-            "Waiting for first message from server: {}".format(self.name)
+            f"Waiting for first message from server: {self.name}"
         )
         first_line = self.read_line_from_socket()
         # If first line is null, that means connection was closed.
@@ -175,10 +171,10 @@ class ServerIRC(Server):
         self._welcome_message = first_line + "\n"
         # Send nick and full name to server
         logger.info(
-            "Sending nick and user info to server: {}".format(self.name)
+            f"Sending nick and user info to server: {self.name}"
         )
-        self.send_raw("NICK {}".format(self.get_nick()))
-        self.send_raw("USER {}".format(self.get_full_name()))
+        self.send_raw(f"NICK {self.get_nick()}")
+        self.send_raw(f"USER {self.get_full_name()}")
         # Wait for MOTD to end
         while self.state == Server.STATE_CONNECTING:
             next_welcome_line = self.read_line_from_socket()
@@ -208,13 +204,13 @@ class ServerIRC(Server):
                 self.get_user_by_address(
                     self.nickserv_nick.lower(), self.nickserv_nick
                 ),
-                "IDENTIFY {}".format(self.nickserv_pass),
+                f"IDENTIFY {self.nickserv_pass}",
                 inbound=False,
             )
             self.send(ident_evt)
         # Join channels
         logger.info(
-            "Joining channels on {}, identifying.".format(self.name)
+            f"Joining channels on {self.name}, identifying."
         )
         # Join relevant channels
         for channel in self.channel_list:
@@ -245,7 +241,7 @@ class ServerIRC(Server):
                 self.send(quit_evt)
             except Exception as e:
                 error = ExceptionError(
-                    'Failed to send quit message on "{}" IRC server'.format(self.name),
+                    f'Failed to send quit message on "{self.name}" IRC server',
                     e,
                     self,
                 )
@@ -277,7 +273,7 @@ class ServerIRC(Server):
                     next_line = self.read_line_from_socket()
                 except ServerException as e:
                     error = ExceptionError(
-                        "Server {} disconnected. Reconnecting.".format(self.name),
+                        f"Server {self.name} disconnected. Reconnecting.",
                         e,
                         self,
                     )
@@ -309,38 +305,36 @@ class ServerIRC(Server):
             event_type=event.__class__.__name__
         ).inc()
         if isinstance(event, EventPing):
-            self.send_raw("PONG {}".format(event.ping_number))
+            self.send_raw(f"PONG {event.ping_number}")
         elif isinstance(event, EventQuit):
-            self.send_raw("QUIT :{}".format(event.quit_message))
+            self.send_raw(f"QUIT :{event.quit_message}")
         elif isinstance(event, EventNameChange):
-            self.send_raw("NICK {}".format(event.new_name))
+            self.send_raw(f"NICK {event.new_name}")
         elif isinstance(event, EventJoin):
             if event.password is not None:
                 self.send_raw(
-                    "JOIN {} {}".format(event.channel.address, event.password)
+                    f"JOIN {event.channel.address} {event.password}"
                 )
             else:
-                self.send_raw("JOIN {}".format(event.channel.address))
+                self.send_raw(f"JOIN {event.channel.address}")
         elif isinstance(event, EventLeave):
             if event.leave_message is not None:
                 self.send_raw(
-                    "PART {} {}".format(event.channel.address, event.leave_message)
+                    f"PART {event.channel.address} {event.leave_message}"
                 )
             else:
-                self.send_raw("PART {}".format(event.channel.address))
+                self.send_raw(f"PART {event.channel.address}")
         elif isinstance(event, EventKick):
             self.send_raw(
-                "KICK {} {} {}".format(
-                    event.channel.address, event.kicked_user.address, event.kick_message
-                )
+                f"KICK {event.channel.address} {event.kicked_user.address} {event.kick_message}"
             )
         elif isinstance(event, EventInvite):
             self.send_raw(
-                "INVITE {} {}".format(event.user.address, event.channel.address)
+                f"INVITE {event.user.address} {event.channel.address}"
             )
         elif isinstance(event, EventMode):
             self.send_raw(
-                "MODE {} {}".format(event.channel.address, event.mode_changes)
+                f"MODE {event.channel.address} {event.mode_changes}"
             )
             event.log()
             after_sent_callback(event)
@@ -363,7 +357,7 @@ class ServerIRC(Server):
                 event_class = EventNotice
                 msg_type_name = "NOTICE"
             max_line_length = self.MAX_MSG_LENGTH - len(
-                "{} {} :{}".format(msg_type_name, dest_addr, endl)
+                f"{msg_type_name} {dest_addr} :{endl}"
             )
             if isinstance(event, EventCTCP):
                 event_class = EventCTCP
@@ -373,9 +367,9 @@ class ServerIRC(Server):
                 data_line_split = Commons.chunk_string_dot(data_line, max_line_length)
                 for data_line_line in data_line_split:
                     if isinstance(event, EventCTCP):
-                        data_line_line = "\x01{}\x01".format(data_line_line)
+                        data_line_line = f"\x01{data_line_line}\x01"
                     self.send_raw(
-                        "{} {} :{}".format(msg_type_name, dest_addr, data_line_line)
+                        f"{msg_type_name} {dest_addr} :{data_line_line}"
                     )
                     # Log sent data, if it's not message or notice
                     event = event_class(
@@ -388,9 +382,7 @@ class ServerIRC(Server):
                     event.log()
         else:
             error = MessageError(
-                "This event type, {}, is not currently supported to send on IRC servers".format(
-                    event.__class__.__name__
-                )
+                f"This event type, {event.__class__.__name__}, is not currently supported to send on IRC servers"
             )
             logger.error(error.get_log_line())
             raise NotImplementedError()
@@ -633,7 +625,7 @@ class ServerIRC(Server):
         elif message_ctcp_command.lower() == "ping":
             ctcp_evt.reply(
                 ctcp_evt.create_response(
-                    "\x01PING {}\x01".format(message_ctcp_arguments),
+                    f"\x01PING {message_ctcp_arguments}\x01",
                     event_class=EventNotice,
                 )
             )
@@ -827,7 +819,7 @@ class ServerIRC(Server):
         # Create mode event
         mode_full = mode_mode
         if mode_args != "":
-            mode_full = "{} {}".format(mode_mode, mode_args)
+            mode_full = f"{mode_mode} {mode_args}"
         mode_evt = EventMode(self, mode_channel, mode_client, mode_full).with_raw_data(
             RawDataIRC(mode_line)
         )
@@ -1024,7 +1016,7 @@ class ServerIRC(Server):
         numeric_code = numeric_line.split()[1]
         # Print to console
         logger.info(
-            "[{}] Numeric server info: {}".format(self.name, numeric_line)
+            f"[{self.name}] Numeric server info: {numeric_line}"
         )
         # TODO: add logging?
         self.incoming.labels(
@@ -1087,9 +1079,7 @@ class ServerIRC(Server):
         """
         # Print it to console
         error = MessageError(
-            'Unhandled data received on "{}" IRC server: {}'.format(
-                self.name, unhandled_line
-            )
+            f'Unhandled data received on "{self.name}" IRC server: {unhandled_line}'
         )
         logger.error(error.get_log_line())
         self.incoming.labels(
@@ -1119,15 +1109,15 @@ class ServerIRC(Server):
                 next_byte = self._socket.recv(1)
             except socket.timeout as e:
                 if e.args[0] != "timed out":
-                    raise ServerException("Failed to receive byte. {}".format(e))
+                    raise ServerException(f"Failed to receive byte. {e}")
             except Exception as e:
                 # Raise an exception, to reconnect.
-                raise ServerException("Failed to receive byte. {}".format(e))
+                raise ServerException(f"Failed to receive byte. {e}")
             if next_byte is None:
                 continue
             if len(next_byte) != 1:
                 raise ServerException(
-                    "Length of next byte incorrect: {}".format(next_byte)
+                    f"Length of next byte incorrect: {next_byte}"
                 )
             next_line += next_byte
             if next_line.endswith(endl.encode()):
@@ -1160,7 +1150,7 @@ class ServerIRC(Server):
             self._check_channeluserlist_channel = channel_obj
             self._check_channeluserlist_done = False
             # send request
-            self.send_raw("NAMES {}".format(channel_obj.name))
+            self.send_raw(f"NAMES {channel_obj.name}")
             # loop for 5 seconds
             for _ in range(10):
                 # sleep 0.5seconds
@@ -1187,7 +1177,7 @@ class ServerIRC(Server):
             self._check_usersonline_check_list = check_user_list
             self._check_usersonline_online_list = None
             # send request
-            self.send_raw("ISON {}".format(" ".join(check_user_list)))
+            self.send_raw(f"ISON {' '.join(check_user_list)}")
             # loop for 5 seconds
             for _ in range(10):
                 # if reply is here
@@ -1236,7 +1226,7 @@ class ServerIRC(Server):
                     self,
                     None,
                     nickserv_obj,
-                    "{} {}".format(self.nickserv_ident_command, user_obj.address),
+                    f"{self.nickserv_ident_command} {user_obj.address}",
                     inbound=False,
                 )
             )
@@ -1365,7 +1355,7 @@ class ServerIRC(Server):
                     self,
                     None,
                     nickserv_obj,
-                    "IDENTIFY {}".format(self.nickserv_pass),
+                    f"IDENTIFY {self.nickserv_pass}",
                     inbound=False,
                 )
             )
