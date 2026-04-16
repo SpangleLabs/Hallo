@@ -5,6 +5,8 @@ import time
 from threading import RLock, Lock, Thread
 from typing import Callable, TYPE_CHECKING
 
+from prometheus_client import Gauge
+
 from hallo.destination import ChannelMembership, Channel, User
 from hallo.errors import MessageError, ExceptionError
 from hallo.events import (
@@ -33,6 +35,17 @@ if TYPE_CHECKING:
 
 endl = "\r\n"
 logger = logging.getLogger(__name__)
+
+irc_server_connected = Gauge(
+    "hallo_serverirc_connected",
+    "Whether this IRC server is currently connected",
+    ["server_name"],
+)
+irc_server_latest_ping = Gauge(
+    "hallo_serverirc_latest_ping",
+    "Unix timestamp, in seconds, of the latest PING event received from this IRC server",
+    ["server_name"],
+)
 
 
 class ServerIRC(Server):
@@ -90,11 +103,15 @@ class ServerIRC(Server):
             None  # Boolean, whether or not the user is identified
         )
         self._connect_lock = RLock()
+        # Configure from server parameters
         if server_name is not None:
             self.name = server_name
         if server_url is not None:
             self.server_address = server_url
             self.server_port = server_port
+        # Set up prometheus metrics
+        irc_server_connected.labels(server_name=self.name).set_function(lambda: self.state == Server.STATE_OPEN)
+        self._latest_ping_metric = irc_server_latest_ping.labels(server_name=self.name)
         for evt_class in all_subclasses(ServerEvent):
             self.incoming.labels(
                 server_type=self.__class__.__name__,
@@ -488,12 +505,12 @@ class ServerIRC(Server):
             self.parse_line_raw(new_line, "unhandled")
         return
 
-    def parse_line_ping(self, ping_line):
+    def parse_line_ping(self, ping_line: str) -> None:
         """
         Parses a PING message from the server
         :param ping_line: Raw line to be parsed into ping event from the server
-        :type ping_line: str
         """
+        self._latest_ping_metric.set_to_current_time()
         # Get data
         ping_number = ping_line.split()[1]
         ping_evt = EventPing(self, ping_number).with_raw_data(RawDataIRC(ping_line))
