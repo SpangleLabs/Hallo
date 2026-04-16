@@ -3,7 +3,7 @@ import re
 import socket
 import time
 from threading import RLock, Lock, Thread
-from typing import Callable
+from typing import Callable, TYPE_CHECKING
 
 from hallo.destination import ChannelMembership, Channel, User
 from hallo.errors import MessageError, ExceptionError
@@ -27,6 +27,10 @@ from hallo.permission_mask import PermissionMask
 from hallo.server import Server, ServerException
 from hallo.inc.commons import Commons, all_subclasses
 
+if TYPE_CHECKING:
+    from hallo.hallo import Hallo
+
+
 endl = "\r\n"
 logger = logging.getLogger(__name__)
 
@@ -35,17 +39,19 @@ class ServerIRC(Server):
     MAX_MSG_LENGTH = 462
     type = Server.TYPE_IRC
 
-    def __init__(self, hallo, server_name=None, server_url=None, server_port=6667):
+    def __init__(
+            self,
+            hallo: 'Hallo',
+            server_name: str | None = None,
+            server_url: str | None = None,
+            server_port: int = 6667,
+    ) -> None:
         """
         Constructor for server object
         :param hallo: Hallo instance which owns this server
-        :type hallo: hallo.Hallo
         :param server_name: Name of the IRC server
-        :type server_name: str
         :param server_url: URL of the IRC server
-        :type server_url: str
         :param server_port: port of the IRC server
-        :type server_port: int
         """
         super().__init__(hallo)
         # IRC specific variables
