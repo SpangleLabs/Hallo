@@ -64,7 +64,7 @@ class Mute(Function):
             return "Error, I don't have power to mute {}.".format(channel.name)
         # Send invite
         mode_evt = EventMode(channel.server, channel, None, "+m", inbound=False)
-        channel.server.send(mode_evt)
+        channel.server.send_sync(mode_evt)
         return "Set mute in {}.".format(channel.name)
 
 
@@ -126,5 +126,5 @@ class UnMute(Function):
             return "Error, I don't have power to unmute {}.".format(channel.name)
         # Send invite
         mode_evt = EventMode(channel.server, channel, None, "-m", inbound=False)
-        channel.server.send(mode_evt)
+        channel.server.send_sync(mode_evt)
         return "Unset mute in {}.".format(channel.name)

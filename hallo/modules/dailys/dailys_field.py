@@ -75,7 +75,7 @@ class DailysField(metaclass=ABCMeta):
             text,
             inbound=False,
         )
-        self.spreadsheet.user.server.send(evt, after_sent_callback=after_sent_callback)
+        self.spreadsheet.user.server.send_sync(evt, after_sent_callback=after_sent_callback)
         return evt
 
 

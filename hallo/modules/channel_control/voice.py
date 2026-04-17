@@ -117,7 +117,7 @@ class Voice(Function):
         mode_evt = EventMode(
             channel.server, channel, None, "+v {}".format(user.address), inbound=False
         )
-        channel.server.send(mode_evt)
+        channel.server.send_sync(mode_evt)
         return "Voice status given."
 
 
@@ -241,5 +241,5 @@ class DeVoice(Function):
         mode_evt = EventMode(
             channel.server, channel, None, "-v {}".format(user.address)
         )
-        channel.server.send(mode_evt)
+        channel.server.send_sync(mode_evt)
         return "Voice status taken."

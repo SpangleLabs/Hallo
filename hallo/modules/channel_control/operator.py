@@ -126,7 +126,7 @@ class Operator(Function):
         mode_evt = EventMode(
             channel.server, channel, None, "+o {}".format(user.address), inbound=False
         )
-        channel.server.send(mode_evt)
+        channel.server.send_sync(mode_evt)
         return "Op status given."
 
 
@@ -255,5 +255,5 @@ class DeOperator(Function):
         mode_evt = EventMode(
             channel.server, channel, None, "-o {}".format(user.address), inbound=False
         )
-        channel.server.send(mode_evt)
+        channel.server.send_sync(mode_evt)
         return "Op status taken."

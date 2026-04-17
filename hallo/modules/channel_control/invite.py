@@ -107,5 +107,5 @@ class Invite(Function):
             )
         # Send invite
         invite_evt = EventInvite(channel.server, channel, None, user, inbound=False)
-        channel.server.send(invite_evt)
+        channel.server.send_sync(invite_evt)
         return "Invite sent."

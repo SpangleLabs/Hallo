@@ -35,7 +35,7 @@ class ServerMock(Server):
         super().leave_channel(channel_obj)
         self.left_channels.append(channel_obj)
 
-    def send(self, event, *, after_sent_callback=None):
+    async def send(self, event, *, after_sent_callback=None):
         self.send_data.append(event)
         if after_sent_callback:
             after_sent_callback(event)
@@ -50,7 +50,7 @@ class ServerMock(Server):
     def reconnect(self):
         pass
 
-    def check_user_identity(self, user_obj):
+    async def check_user_identity(self, user_obj):
         pass
 
     def get_name_by_address(self, address):

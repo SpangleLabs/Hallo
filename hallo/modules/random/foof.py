@@ -35,7 +35,7 @@ class Foof(Function):
         else:
             if rand == 40 + 15:
                 server_obj = event.server
-                server_obj.send(event.create_response("Powering up..."))
+                server_obj.send_sync(event.create_response("Powering up..."))
                 time.sleep(5)
                 return event.create_response(
                     "d" * 100 + "o" * 1000 + "f" * 200 + "!" * 50

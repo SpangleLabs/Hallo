@@ -405,7 +405,7 @@ class Say(Function):
             return event.create_response("Unrecognised channel.")
         # Send message to all matching channels
         for channel_obj in channel_objs:
-            event.server.send(
+            event.server.send_sync(
                 EventMessage(event.server, channel_obj, None, line, inbound=False)
             )
         return event.create_response("Message sent.")

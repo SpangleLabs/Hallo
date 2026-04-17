@@ -296,18 +296,18 @@ class User(Destination):
     def __hash__(self):
         return hash(self.address)
 
-    def is_identified(self):
+    async def is_identified(self):
         """
         Checks whether this user is identified
         :rtype : bool
         """
         if not self.identified:
-            self.check_identity()
+            await self.check_identity()
         return self.identified
 
-    def check_identity(self):
+    async def check_identity(self):
         """Checks with the server whether this user is identified."""
-        identity_result = self.server.check_user_identity(self)
+        identity_result = await self.server.check_user_identity(self)
         self.identified = identity_result
 
     def add_user_group(self, new_user_group):

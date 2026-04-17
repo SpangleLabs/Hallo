@@ -294,7 +294,7 @@ class ServerTelegram(Server):
             event_type="other-unhandled"
         ).inc()
 
-    def send(
+    async def send(
             self,
             event: ServerEvent,
             *,
@@ -526,5 +526,5 @@ class ServerTelegram(Server):
         pass
         # TODO
 
-    def check_user_identity(self, user_obj: User) -> bool:
+    async def check_user_identity(self, user_obj: User) -> bool:
         return True

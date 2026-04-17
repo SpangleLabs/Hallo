@@ -102,11 +102,20 @@ class Server(metaclass=ABCMeta):
         self.disconnect()
         self.start()
 
-    def send(
+    def send_sync(
             self,
             event: 'ServerEvent',
             *,
-            after_sent_callback: Callable[['ServerEvent'], None] | None = None
+            after_sent_callback: Callable[['ServerEvent'], None] | None = None,
+    ):
+        # TODO: temporary replacement for methods to avoid asyncing them all at once. Remove where possible!
+        self.hallo.loop.run_until_complete(self.send(event, after_sent_callback=after_sent_callback))
+
+    async def send(
+            self,
+            event: 'ServerEvent',
+            *,
+            after_sent_callback: Callable[['ServerEvent'], None] | None = None,
     ) -> None:
         """
         Sends a message to the server, or a specific channel in the server
@@ -351,7 +360,7 @@ class Server(metaclass=ABCMeta):
         # Fallback to the parent Hallo's decision.
         return self.hallo.rights_check(right_name)
 
-    def check_user_identity(self, user_obj: User) -> bool:
+    async def check_user_identity(self, user_obj: User) -> bool:
         """
         Check if a user is identified and verified
         :param user_obj: User to check identity of

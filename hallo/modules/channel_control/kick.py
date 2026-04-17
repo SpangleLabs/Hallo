@@ -221,5 +221,5 @@ class Kick(Function):
         kick_evt = EventKick(
             channel.server, channel, None, user, message, inbound=False
         )
-        channel.server.send(kick_evt)
+        channel.server.send_sync(kick_evt)
         return "Kicked {} from {}.".format(user.name, channel.name)

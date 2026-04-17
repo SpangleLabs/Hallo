@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import asyncio
 import json
 import logging
 import re
@@ -52,6 +53,7 @@ class Hallo:
             function_dispatcher_modules: set | None = None,
             permission_mask: PermissionMask | None = None,
     ) -> None:
+        self.loop = asyncio.get_event_loop()
         self.default_nick: str = default_nick
         self.default_prefix: bool | str = default_prefix
         self.default_full_name: str = default_full_name

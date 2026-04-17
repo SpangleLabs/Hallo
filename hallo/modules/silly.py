@@ -93,13 +93,13 @@ class SlowClap(Function):
         server_obj = event.server
         if line_clean == "":
             if event.channel is not None:
-                server_obj.send(
+                server_obj.send_sync(
                     EventMessage(
                         server_obj, event.channel, None, "*clap*", inbound=False
                     )
                 )
                 time.sleep(0.5)
-                server_obj.send(
+                server_obj.send_sync(
                     EventMessage(
                         server_obj, event.channel, None, "*clap*", inbound=False
                     )
@@ -111,15 +111,15 @@ class SlowClap(Function):
         channel_obj = server_obj.get_channel_by_name(line_clean)
         if not channel_obj.in_channel:
             return event.create_response("Error, I'm not in that channel.")
-        server_obj.send(
+        server_obj.send_sync(
             EventMessage(server_obj, channel_obj, None, "*clap*", inbound=False)
         )
         time.sleep(0.5)
-        server_obj.send(
+        server_obj.send_sync(
             EventMessage(server_obj, channel_obj, None, "*clap*", inbound=False)
         )
         time.sleep(2)
-        server_obj.send(
+        server_obj.send_sync(
             EventMessage(server_obj, channel_obj, None, "*clap.*", inbound=False)
         )
         return event.create_response("done. :)")
@@ -170,7 +170,7 @@ class Boop(Function):
                 return event.create_response(
                     "Error, No one by that name is online or in channel."
                 )
-            server_obj.send(
+            server_obj.send_sync(
                 EventCTCP(
                     server_obj,
                     event.channel,
@@ -203,7 +203,7 @@ class Boop(Function):
                 "Error, No user by that name is known and/or online."
             )
         # Send boop, then return done.
-        server_obj.send(
+        server_obj.send_sync(
             EventCTCP(
                 server_obj, dest_channel, None, "ACTION boops {}".format(dest_user.name)
             )

@@ -104,7 +104,7 @@ class Subscription:
         events = self.source.events(self.server, channel, user, update)
         for event in events:
             try:
-                self.server.send(event)
+                self.server.send_sync(event)
             except Exception as e:
                 logger.error(
                     "Failed to send subscription (%s) event with message (%s)",

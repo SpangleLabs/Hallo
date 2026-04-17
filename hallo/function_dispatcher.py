@@ -208,7 +208,7 @@ class FunctionDispatcher(object):
                     ):
                         event.reply(response)
                     else:
-                        event.server.send(response)
+                        event.server.send_sync(response)
                 continue
             except Exception as e:
                 error = PassiveFunctionError(e, self, function_obj, event)
