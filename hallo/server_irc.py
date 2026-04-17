@@ -122,7 +122,7 @@ class ServerIRC(Server):
                 event_type=evt_class.__name__
             )
 
-    def start(self):
+    def start(self) -> None:
         """
         Starts up the server and launches the new thread
         """
@@ -132,7 +132,7 @@ class ServerIRC(Server):
         with self._connect_lock:
             Thread(target=self.run).start()
 
-    def connect(self):
+    def connect(self) -> None:
         """
         Internal method, connects to the IRC server, attempting as many times as is necessary.
         """
@@ -160,7 +160,7 @@ class ServerIRC(Server):
                     time.sleep(3)
                     continue
 
-    def raw_connect(self):
+    def raw_connect(self) -> None:
         """
         Internal method, does the actual connection logic to try connecting to the server once.
         """
@@ -235,7 +235,7 @@ class ServerIRC(Server):
                 self.join_channel(channel)
         self.state = Server.STATE_OPEN
 
-    def disconnect(self, force=False):
+    def disconnect(self, force: bool = False) -> None:
         """
         Disconnect from the server, ensuring the run thread is ended.
         """
@@ -270,13 +270,13 @@ class ServerIRC(Server):
             self._socket = None
         self.state = Server.STATE_CLOSED
 
-    def reconnect(self):
+    def reconnect(self) -> None:
         """
         Reconnect to a given server. No changes from Server base, just here for clarity
         """
         super().reconnect()
 
-    def run(self):
+    def run(self) -> None:
         """
         Internal method
         Method to read from stream and process. Will connect and call internal parsing methods or whatnot.
@@ -421,18 +421,17 @@ class ServerIRC(Server):
         # We can't do any fancy edit mechanics on IRC, so just send the event.
         self.send(new_event)
 
-    def send_raw(self, data):
+    def send_raw(self, data: str) -> None:
         """Sends raw data to the server
         :param data: Data to send to server
-        :type data: str
         """
         if self.state != Server.STATE_CLOSED:
             self._socket.send((data + endl).encode("utf-8"))
 
-    def join_channel(self, channel_obj):
-        """Joins a specified channel
+    def join_channel(self, channel_obj: Channel) -> None:
+        """
+        Joins a specified channel
         :param channel_obj: Channel to join
-        :type channel_obj: destination.Channel
         """
         # If channel isn't in channel list, add it
         if channel_obj not in self.channel_list:
@@ -445,21 +444,19 @@ class ServerIRC(Server):
         )
         self.send(join_evt)
 
-    def leave_channel(self, channel_obj):
+    def leave_channel(self, channel_obj: Channel) -> None:
         """
         Leaves a specified channel
         :param channel_obj: Channel to leave
-        :type channel_obj: destination.Channel
         """
         super().leave_channel(channel_obj)
         # Send PART command
         self.send(EventLeave(self, channel_obj, None, None, inbound=False))
 
-    def parse_line(self, new_line):
+    def parse_line(self, new_line: str) -> None:
         """
         Parses a line from the IRC server
         :param new_line: New line of data from the server to parse
-        :type new_line; str
         """
         # Cleaning up carriage returns
         new_line = new_line.replace("\r", "")
@@ -527,11 +524,10 @@ class ServerIRC(Server):
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(ping_evt)
 
-    def parse_line_message(self, message_line):
+    def parse_line_message(self, message_line: str) -> None:
         """
         Parses a PRIVMSG message from the server
         :param message_line: full privmsg line to parse from server
-        :type message_line: str
         """
         # Parse out the message text
         message_text = ":".join(message_line.split(":")[2:])
@@ -587,11 +583,10 @@ class ServerIRC(Server):
             else:
                 function_dispatcher.dispatch_passive(message_evt)
 
-    def parse_line_ctcp(self, ctcp_line):
+    def parse_line_ctcp(self, ctcp_line: str) -> None:
         """
         Parses a CTCP message from the server
         :param ctcp_line: line of CTCP data to parse from the server
-        :type ctcp_line: str
         """
         # Parse out the ctcp message text
         message_text = ":".join(ctcp_line.split(":")[2:])[1:-1]
@@ -667,11 +662,10 @@ class ServerIRC(Server):
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(ctcp_evt)
 
-    def parse_line_join(self, join_line):
+    def parse_line_join(self, join_line: str) -> None:
         """
         Parses a JOIN message from the server
         :param join_line: Raw line from server for the JOIN event
-        :type join_line: str
         """
         # Parse out the channel and client from the JOIN data
         join_channel_name = ":".join(join_line.split(":")[2:]).lower()
@@ -705,11 +699,10 @@ class ServerIRC(Server):
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(join_evt)
 
-    def parse_line_part(self, part_line):
+    def parse_line_part(self, part_line: str) -> None:
         """
         Parses a PART message from the server
         :param part_line: Raw line from the server to parse for part event
-        :type part_line: str
         """
         # Parse out channel, client and message from PART data
         part_channel_name = part_line.split()[2]
@@ -746,11 +739,10 @@ class ServerIRC(Server):
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(leave_evt)
 
-    def parse_line_quit(self, quit_line):
+    def parse_line_quit(self, quit_line: str) -> None:
         """
         Parses a QUIT message from the server
         :param quit_line: Raw line from server to parse for quit event
-        :type quit_line: str
         """
         # Parse client and message
         quit_client_name = quit_line.split("!")[0][1:]
@@ -784,11 +776,10 @@ class ServerIRC(Server):
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(quit_evt)
 
-    def parse_line_mode(self, mode_line):
+    def parse_line_mode(self, mode_line: str) -> None:
         """
         Parses a MODE message from the server
         :param mode_line: Raw line of mode event to be parsed.
-        :type mode_line: str
         """
         # Parsing out MODE data
         mode_channel_name = mode_line.split()[2].lower()
@@ -850,11 +841,10 @@ class ServerIRC(Server):
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(mode_evt)
 
-    def parse_line_notice(self, notice_line):
+    def parse_line_notice(self, notice_line: str) -> None:
         """
         Parses a NOTICE message from the server
         :param notice_line: Raw line of the NOTICE event from the server
-        :type notice_line: str
         """
         # Parsing out NOTICE data
         notice_channel_name = notice_line.split()[2]
@@ -903,11 +893,10 @@ class ServerIRC(Server):
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(notice_event)
 
-    def parse_line_nick(self, nick_line):
+    def parse_line_nick(self, nick_line: str) -> None:
         """
         Parses a NICK message from the server
         :param nick_line: Line from server specifying nick change
-        :type nick_line: str
         """
         # Parse out NICK change data
         nick_client_name = nick_line.split("!")[0][1:]
@@ -940,11 +929,10 @@ class ServerIRC(Server):
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(chname_evt)
 
-    def parse_line_invite(self, invite_line):
+    def parse_line_invite(self, invite_line: str) -> None:
         """
         Parses an INVITE message from the server
         :param invite_line: Line from the server specifying invite event
-        :type invite_line: str
         """
         # Parse out INVITE data
         inviter_client_name = invite_line.split("!")[0][1:]
@@ -981,11 +969,10 @@ class ServerIRC(Server):
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(invite_evt)
 
-    def parse_line_kick(self, kick_line):
+    def parse_line_kick(self, kick_line: str) -> None:
         """
         Parses a KICK message from the server
         :param kick_line: Line from the server specifying kick event
-        :type kick_line: str
         """
         # Parse out KICK data
         kick_channel_name = kick_line.split()[2]
@@ -1021,13 +1008,11 @@ class ServerIRC(Server):
         function_dispatcher = self.hallo.function_dispatcher
         function_dispatcher.dispatch_passive(kick_evt)
 
-    def parse_line_numeric(self, numeric_line, motd_ended=True):
+    def parse_line_numeric(self, numeric_line: str, motd_ended: bool = True) -> None:
         """
         Parses a numeric message from the server
         :param numeric_line: Numeric type line from server.
-        :type numeric_line: str
         :param motd_ended: Whether MOTD has ended.
-        :type motd_ended: bool
         """
         # Parse out numeric line data
         numeric_code = numeric_line.split()[1]
@@ -1088,11 +1073,10 @@ class ServerIRC(Server):
                 # Check is complete
                 self._check_channeluserlist_done = True
 
-    def parse_line_unhandled(self, unhandled_line):
+    def parse_line_unhandled(self, unhandled_line: str) -> None:
         """
         Parses an unhandled message from the server
         :param unhandled_line: Otherwise unhandled line from the server
-        :type unhandled_line: str
         """
         # Print it to console
         error = MessageError(
@@ -1104,20 +1088,17 @@ class ServerIRC(Server):
             event_type="other-unhandled"
         ).inc()
 
-    def parse_line_raw(self, raw_line, line_type):
+    def parse_line_raw(self, raw_line: str, line_type: str) -> None:
         """Handed all raw data, along with the type of message
         :param raw_line: Raw line from the server
-        :type raw_line: str
         :param line_type: Event or type of the line
-        :type line_type: str
         """
         pass
 
-    def read_line_from_socket(self):
+    def read_line_from_socket(self) -> str:
         """
         Private method to read a line from the IRC socket.
         :return: A line of text from the socket
-        :rtype: str
         """
         next_line = b""
         while self.state != Server.STATE_CLOSED:
@@ -1140,11 +1121,10 @@ class ServerIRC(Server):
             if next_line.endswith(endl.encode()):
                 return self.decode_line(next_line[: -len(endl)])
 
-    def decode_line(self, raw_bytes):
+    def decode_line(self, raw_bytes: bytes) -> str:
         """
         Decodes a line of bytes, trying a couple character sets
         :param raw_bytes: Array bytes to be decoded to string.
-        :type raw_bytes: bytearray | bytes
         """
         try:
             output_line = raw_bytes.decode("utf-8")
@@ -1155,11 +1135,10 @@ class ServerIRC(Server):
                 output_line = raw_bytes.decode("cp1252")
         return output_line
 
-    def check_channel_user_list(self, channel_obj):
+    def check_channel_user_list(self, channel_obj: Channel) -> None:
         """
         Checks and updates the user list of a specified channel
         :param channel_obj: Channel to check user list of
-        :type channel_obj: destination.Channel
         """
         # get lock
         self._check_channeluserlist_lock.acquire()
@@ -1182,11 +1161,10 @@ class ServerIRC(Server):
             self._check_channeluserlist_done = False
             self._check_channeluserlist_lock.release()
 
-    def check_users_online(self, check_user_list):
+    def check_users_online(self, check_user_list: list[str]) -> list[str]:
         """
         Checks a list of users to see which are online, returns a list of online users
         :param check_user_list: List of names of users to check online status of
-        :type check_user_list: list
         """
         # get lock
         self._check_usersonline_lock.acquire()
@@ -1221,7 +1199,7 @@ class ServerIRC(Server):
             self._check_usersonline_online_list = None
             self._check_usersonline_lock.release()
 
-    def check_user_identity(self, user_obj):
+    def check_user_identity(self, user_obj: User) -> bool:
         """
         Check if a user is identified and verified
         :param user_obj: User to check identity and verification for
@@ -1264,14 +1242,12 @@ class ServerIRC(Server):
             self._check_useridentity_result = None
             self._check_useridentity_lock.release()
 
-    def handle_user_list(self, channel, user_name_list):
+    def handle_user_list(self, channel: Channel, user_name_list: str) -> None:
         """
         Takes a user list line from the server, either by NAMES response or after joining a channel, and processes it,
         setting the right users in the right channel.
         :param channel: Channel the user list is for
-        :type channel: Channel
         :param user_name_list: string containing a list of users, space separated, with flags
-        :type user_name_list: str
         """
         user_object_list = set()
         for user_name in user_name_list.split():
@@ -1297,7 +1273,7 @@ class ServerIRC(Server):
         for user in remove_users:
             channel.remove_user(user)
 
-    def set_nick(self, nick):
+    def set_nick(self, nick: str) -> None:
         """
         Nick setter
         :param nick: New nickname to use on the server
@@ -1312,51 +1288,48 @@ class ServerIRC(Server):
             nick_evt = EventNameChange(self, hallo_user, old_nick, nick, inbound=False)
             self.send(nick_evt)
 
-    def get_server_port(self):
+    def get_server_port(self) -> int:
         """server_port getter"""
         return self.server_port
 
-    def get_nickserv_nick(self):
+    def get_nickserv_nick(self) -> str:
         """nickserv_nick getter"""
         return self.nickserv_nick
 
-    def set_nickserv_nick(self, nickserv_nick):
+    def set_nickserv_nick(self, nickserv_nick: str | None) -> None:
         """
         nickserv_nick setter
         :param nickserv_nick: Nickname of the nickserv service on this server
-        :type nickserv_nick: str | None
         """
         self.nickserv_nick = nickserv_nick
 
-    def get_nickserv_ident_command(self):
+    def get_nickserv_ident_command(self) -> str:
         """nickserv_ident_command getter"""
         return self.nickserv_ident_command
 
-    def set_nickserv_ident_command(self, nickserv_ident_command):
+    def set_nickserv_ident_command(self, nickserv_ident_command: str) -> None:
         """
         nickserv_ident_command setter
         :param nickserv_ident_command: Command to identify to nickserv service on this server
-        :type nickserv_ident_command: str
         """
         self.nickserv_ident_command = nickserv_ident_command
 
-    def get_nickserv_ident_response(self):
+    def get_nickserv_ident_response(self) -> str:
         """nickserv_ident_response getter"""
         return self.nickserv_ident_response
 
-    def set_nickserv_ident_response(self, nickserv_ident_response):
+    def set_nickserv_ident_response(self, nickserv_ident_response: str) -> None:
         """
         nickserv_ident_response setter
         :param nickserv_ident_response: Regex to search for to validate identity in response to identify command
-        :type nickserv_ident_response: str
         """
         self.nickserv_ident_response = nickserv_ident_response
 
-    def get_nickserv_pass(self):
+    def get_nickserv_pass(self) -> str | None:
         """nickserv_pass getter"""
         return self.nickserv_pass
 
-    def set_nickserv_pass(self, nickserv_pass):
+    def set_nickserv_pass(self, nickserv_pass: str | None) -> None:
         """
         nickserv_pass setter
         :param nickserv_pass: Nickserv password for hallo to identify
@@ -1377,11 +1350,11 @@ class ServerIRC(Server):
                 )
             )
 
-    def get_name_by_address(self, address):
+    def get_name_by_address(self, address: str) -> str:
         return address
 
-    def to_json(self):
-        json_obj = dict()
+    def to_json(self) -> dict:
+        json_obj = {}
         json_obj["type"] = Server.TYPE_IRC
         json_obj["name"] = self.name
         json_obj["auto_connect"] = self.auto_connect
@@ -1410,7 +1383,7 @@ class ServerIRC(Server):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo):
+    def from_json(json_obj: dict, hallo: 'Hallo') -> 'ServerIRC':
         name = json_obj["name"]
         address = json_obj["address"]
         port = json_obj["port"]
