@@ -333,11 +333,6 @@ class Hallo:
         logger.error(
             "No servers have been loaded or connected to. Please connect to an IRC server."
         )
-        # godNick = input("What nickname is the bot operator using? [deer-spangle] ")
-        # godNick = godNick.replace(' ', '')
-        # if godNick == '':
-        #     godNick = 'deer-spangle'
-        # TODO: do something with godNick
         server_addr = input(
             "What server should the bot connect to? [irc.freenode.net:6667] "
         )
@@ -345,7 +340,9 @@ class Hallo:
         if server_addr == "":
             server_addr = "irc.freenode.net:6667"
         server_url = server_addr.split(":")[0]
-        server_port = int(server_addr.split(":")[1])
+        server_port = 6667
+        if ":" in server_addr:
+            server_port = int(server_addr.split(":")[1])
         server_match = re.match(
             r"([a-z\d.-]+\.)?([a-z\d-]{1,63})\.([a-z]{2,3}\.[a-z]{2}|[a-z]{2,6})",
             server_url,
@@ -356,6 +353,17 @@ class Hallo:
         new_server = ServerIRC(self, server_name, server_url, server_port)
         # Add new server to server list
         self.add_server(new_server)
+        # Figure out which username is the bot admin on this server
+        admin_nick = input("What nickname is the bot operator using? [spangle] ")
+        admin_nick = admin_nick.replace(' ', '')
+        if admin_nick == '':
+            admin_nick = 'spangle'
+        admin_user = new_server.get_user_by_address(admin_nick)
+        # Add that user to the admin group
+        admin_group = self.get_user_group_by_name("god")
+        if admin_group is None:
+            raise ValueError("Could not find admin group to add user to")
+        admin_user.add_user_group(admin_group)
         # Save XML
         self.save_json()
         logger.info("Config file saved.")

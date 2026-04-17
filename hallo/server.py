@@ -311,7 +311,7 @@ class Server(metaclass=ABCMeta):
         # No user by that name exists, return None
         return None
 
-    def get_user_by_address(self, address: str, user_name: str = None) -> User | None:
+    def get_user_by_address(self, address: str, user_name: str = None) -> User:
         """
         Returns a User object with the specified user name.
         :param address: address of the user which is being searched for or added

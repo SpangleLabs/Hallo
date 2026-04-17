@@ -47,6 +47,8 @@ class JoinChannel(Function):
             channel_password = line[len(channel_name):]
         # Get channel object, set password
         channel_obj = server_obj.get_channel_by_name(channel_name)
+        if channel_obj is None:
+            channel_obj = server_obj.get_channel_by_address(channel_name)
         channel_obj.password = channel_password
         # Join channel if not already in channel.
         if channel_obj.in_channel:
