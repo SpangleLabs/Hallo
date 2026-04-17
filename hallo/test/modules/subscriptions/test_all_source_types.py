@@ -1,7 +1,7 @@
 import importlib
 import inspect
 import os
-from typing import Dict, List, Type
+from typing import Type
 
 import pytest
 from yippi import YippiClient
@@ -32,7 +32,7 @@ def fa_key_from_env(test_user: User) -> FAKey:
 
 
 @pytest.fixture
-def source_objects(hallo_getter) -> List[Source]:
+def source_objects(hallo_getter) -> list[Source]:
     test_hallo = hallo_getter({"subscriptions"})
     fa_key = fa_key_from_env(test_hallo.test_user)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
@@ -57,7 +57,7 @@ def source_objects(hallo_getter) -> List[Source]:
 
 
 @pytest.fixture
-def source_creation_arguments(hallo_getter) -> Dict[Type[Source], str]:
+def source_creation_arguments(hallo_getter) -> dict[Type[Source], str]:
     test_hallo = hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
     fa_key = fa_key_from_env(test_hallo.test_user)

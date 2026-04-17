@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Set, Type, Optional
+from typing import Type
 
 from hallo.events import (
     EventSecond,
@@ -56,7 +56,7 @@ class Function(ABC):
 
     def __init__(self):
         self.help_name = None  # Name for use in help listing
-        self.names: Set[str] = set()  # Set of names which can be used to address the function
+        self.names: set[str] = set()  # Set of names which can be used to address the function
         self.help_docs = (
             None  # Help documentation, if it's just a single line, can be set here
         )
@@ -83,11 +83,11 @@ class Function(ABC):
         """Saves the function, persistent functions only."""
         return None
 
-    def get_passive_events(self) -> Set[Type[Event]]:
+    def get_passive_events(self) -> set[Type[Event]]:
         """Returns a list of events which this function may want to respond to in a passive way"""
         return set()
 
-    def passive_run(self, event: Event, hallo_obj) -> Optional[ServerEvent]:
+    def passive_run(self, event: Event, hallo_obj) -> ServerEvent | None:
         """Replies to an event not directly addressed to the bot.
         :param event: Event which has called the function
         :param hallo_obj: Hallo object which fired the event.
@@ -108,7 +108,7 @@ class Function(ABC):
             raise NotImplementedError
         return self.help_docs
 
-    def get_names(self) -> Set[str]:
+    def get_names(self) -> set[str]:
         """Returns the list of names for directly addressing the function"""
         self.names.add(self.help_name)
         return self.names

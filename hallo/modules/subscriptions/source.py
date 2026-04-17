@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, List, Optional, Dict, TypeVar
+from typing import Generic, TypeVar
 
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage
@@ -12,7 +12,7 @@ Update = TypeVar("Update")
 
 class Source(ABC, Generic[State, Update]):
     type_name: str = None
-    type_names: List[str] = None
+    type_names: list[str] = None
 
     def __init__(self):
         pass
@@ -36,7 +36,7 @@ class Source(ABC, Generic[State, Update]):
         pass
 
     @abstractmethod
-    def state_change(self, state: State) -> Optional[Update]:
+    def state_change(self, state: State) -> Update | None:
         pass
 
     @abstractmethod
@@ -47,10 +47,10 @@ class Source(ABC, Generic[State, Update]):
     def events(
             self,
             server: Server,
-            channel: Optional[Channel],
-            user: Optional[User],
+            channel: Channel | None,
+            user: User | None,
             update: Update
-    ) -> List[EventMessage]:
+    ) -> list[EventMessage]:
         """
         Creates a list of events to represent a given update. This should have the oldest update first.
         """
@@ -61,9 +61,9 @@ class Source(ABC, Generic[State, Update]):
 
     @classmethod
     @abstractmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'Source':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'Source':
         pass
 
     @abstractmethod
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         pass

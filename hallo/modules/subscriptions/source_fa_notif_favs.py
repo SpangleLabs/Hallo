@@ -1,5 +1,3 @@
-from typing import Optional, List, Dict
-
 from hallo.destination import Destination, User, Channel
 from hallo.events import EventMessage
 import hallo.modules.subscriptions.source_fa_favs
@@ -14,7 +12,7 @@ class FAFavNotificationsSource(
     ]
 ):
     type_name: str = "fa_notif_favs"
-    type_names: List[str] = [
+    type_names: list[str] = [
         "fa favs notifications",
         "fa favs",
         "furaffinity favs",
@@ -26,12 +24,12 @@ class FAFavNotificationsSource(
     def __init__(
             self,
             fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         super().__init__(last_keys)
         self.fa_key = fa_key
 
-    def current_state(self) -> List[
+    def current_state(self) -> list[
         hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationFavourite
     ]:
         fa_reader = self.fa_key.get_fa_reader()
@@ -45,7 +43,7 @@ class FAFavNotificationsSource(
         return item.fav_id
 
     def item_to_event(
-            self, server: Server, channel: Optional[Channel], user: Optional[User],
+            self, server: Server, channel: Channel | None, user: User | None,
             item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FANotificationFavourite
     ) -> EventMessage:
         return EventMessage(
@@ -67,13 +65,13 @@ class FAFavNotificationsSource(
         return FAFavNotificationsSource(fa_key)
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'FAFavNotificationsSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FAFavNotificationsSource':
         fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
             json_data["fa_key_user_address"], destination.server, sub_repo
         )
         return FAFavNotificationsSource(fa_key, json_data["last_keys"])
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "fa_key_user_address": self.fa_key.user.address,

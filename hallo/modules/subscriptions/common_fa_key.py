@@ -1,7 +1,7 @@
 import logging
 import os
 from datetime import timedelta, datetime
-from typing import Dict, Optional, Union, List, Callable, TYPE_CHECKING
+from typing import Optional, Callable, TYPE_CHECKING
 
 import dateutil.parser
 
@@ -21,7 +21,7 @@ class FAKeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionC
 
     def __init__(self, hallo_obj: 'Hallo'):
         super().__init__(hallo_obj)
-        self.list_keys: Dict[User, FAKey] = dict()
+        self.list_keys: dict[User, FAKey] = dict()
 
     def get_key_by_user(self, user: User) -> Optional['FAKey']:
         if user in self.list_keys:
@@ -39,11 +39,11 @@ class FAKeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionC
     def add_key(self, key: 'FAKey') -> None:
         self.list_keys[key.user] = key
 
-    def to_json(self) -> Optional[Dict]:
+    def to_json(self) -> dict | None:
         return None
 
     @staticmethod
-    def from_json(json_obj: Optional[Dict], hallo_obj: 'Hallo') -> 'FAKeysCommon':
+    def from_json(json_obj: dict | None, hallo_obj: 'Hallo') -> 'FAKeysCommon':
         return FAKeysCommon(hallo_obj)
 
 
@@ -54,7 +54,7 @@ class FAKey:
         self.cookie_b = cookie_b
         if self.cookie_a is None or self.cookie_b is None:
             raise Exception("Cookie A or Cookie B was not set.")
-        self.fa_reader: Optional[FAKey.FAReader] = None
+        self.fa_reader: FAKey.FAReader | None = None
 
     def get_fa_reader(self) -> 'FAKey.FAReader':
         if self.fa_reader is None:
@@ -97,7 +97,7 @@ class FAKey:
                 self.timeout,
             )
 
-        def _get_api_data(self, path: str, needs_cookie: bool = False) -> Union[Dict, List]:
+        def _get_api_data(self, path: str, needs_cookie: bool = False) -> dict | list:
             fa_api_url = os.getenv("FA_API_URL", "https://faexport.spangle.org.uk")
             url = "{}/{}".format(fa_api_url, path)
             if needs_cookie:
@@ -130,11 +130,11 @@ class FAKey:
 
         def get_user_fav_page(self, username: str) -> 'FAKey.FAReader.FAUserFavouritesPage':
             # This endpoint returns a list of submission IDs
-            id_list: List[int] = self._get_api_data("/user/{}/favorites.json".format(username))
+            id_list: list[int] = self._get_api_data("/user/{}/favorites.json".format(username))
             fav_page = FAKey.FAReader.FAUserFavouritesPage(id_list, username)
             return fav_page
 
-        def get_submission_page(self, submission_id: Union[int, str]) -> 'FAKey.FAReader.FAViewSubmissionPage':
+        def get_submission_page(self, submission_id: int | str) -> 'FAKey.FAReader.FAViewSubmissionPage':
             data = self._get_api_data("/submission/{}.json".format(submission_id))
 
             def comment_data_getter():
@@ -147,7 +147,7 @@ class FAKey:
             )
             return sub_page
 
-        def get_journal_page(self, journal_id: Union[int, str]) -> 'FAKey.FAReader.FAViewJournalPage':
+        def get_journal_page(self, journal_id: int | str) -> 'FAKey.FAReader.FAViewJournalPage':
             data = self._get_api_data("/journal/{}.json".format(journal_id))
 
             def comment_data_getter():
@@ -166,9 +166,9 @@ class FAKey:
             return search_page
 
         class FANotificationsPage:
-            def __init__(self, data: Dict):
+            def __init__(self, data: dict):
                 self.username: str = data["current_user"]["profile_name"]
-                self.watches: List[FAKey.FAReader.FANotificationWatch] = []
+                self.watches: list[FAKey.FAReader.FANotificationWatch] = []
                 watch_list = data["new_watches"]
                 for watch_notif in watch_list:
                     try:
@@ -180,7 +180,7 @@ class FAKey:
                         self.watches.append(new_watch)
                     except Exception as e:
                         logger.error("Failed to read watch: ", exc_info=e)
-                self.submission_comments: List[FAKey.FAReader.FANotificationCommentSubmission] = []
+                self.submission_comments: list[FAKey.FAReader.FANotificationCommentSubmission] = []
                 sub_comment_list = data["new_submission_comments"]
                 for sub_comment_notif in sub_comment_list:
                     try:
@@ -196,7 +196,7 @@ class FAKey:
                         self.submission_comments.append(new_comment)
                     except Exception as e:
                         logger.error("Failed to read submission comment: ", exc_info=e)
-                self.journal_comments: List[FAKey.FAReader.FANotificationCommentJournal] = []
+                self.journal_comments: list[FAKey.FAReader.FANotificationCommentJournal] = []
                 jou_comment_list = data["new_journal_comments"]
                 for jou_comment_notif in jou_comment_list:
                     try:
@@ -212,7 +212,7 @@ class FAKey:
                         self.journal_comments.append(new_comment)
                     except Exception as e:
                         logger.error("Failed to read journal comment: ", exc_info=e)
-                self.shouts: List[FAKey.FAReader.FANotificationShout] = []
+                self.shouts: list[FAKey.FAReader.FANotificationShout] = []
                 shout_list = data["new_shouts"]
                 for shout_notif in shout_list:
                     try:
@@ -225,7 +225,7 @@ class FAKey:
                         self.shouts.append(new_shout)
                     except Exception as e:
                         logger.error("Failed to read shout: ", exc_info=e)
-                self.favourites: List[FAKey.FAReader.FANotificationFavourite] = []
+                self.favourites: list[FAKey.FAReader.FANotificationFavourite] = []
                 fav_list = data["new_favorites"]
                 for fav_notif in fav_list:
                     try:
@@ -239,7 +239,7 @@ class FAKey:
                         self.favourites.append(new_fav)
                     except Exception as e:
                         logger.error("Failed to read favourite: ", exc_info=e)
-                self.journals: List[FAKey.FAReader.FANotificationJournal] = []
+                self.journals: list[FAKey.FAReader.FANotificationJournal] = []
                 jou_list = data["new_journals"]
                 for jou_notif in jou_list:
                     try:
@@ -339,8 +339,8 @@ class FAKey:
                 self.name: str = name
 
         class FASubmissionsPage:
-            def __init__(self, data: Dict):
-                self.submissions: List[FAKey.FAReader.FANotificationSubmission] = []
+            def __init__(self, data: dict):
+                self.submissions: list[FAKey.FAReader.FANotificationSubmission] = []
                 subs_list = data["new_submissions"]
                 for sub_notif in subs_list:
                     new_submission = FAKey.FAReader.FANotificationSubmission(
@@ -364,9 +364,9 @@ class FAKey:
                 self.name: str = name
 
         class FANotesPage:
-            def __init__(self, data: Dict, folder: str):
+            def __init__(self, data: dict, folder: str):
                 self.folder: str = folder
-                self.notes: List[FAKey.FAReader.FANote] = []
+                self.notes: list[FAKey.FAReader.FANote] = []
                 for note in data:
                     new_note = FAKey.FAReader.FANote(
                         note["note_id"],
@@ -389,10 +389,10 @@ class FAKey:
                 self.is_read: bool = is_read
 
         class FAUserPage:
-            def __init__(self, data: Dict, shout_data_getter: Callable[[], Dict], username: str):
+            def __init__(self, data: dict, shout_data_getter: Callable[[], dict], username: str):
                 self.username: str = username
                 self.name: str = data["full_name"]
-                self.user_title: Optional[str] = (
+                self.user_title: str | None = (
                     data["user_title"] if len(data["user_title"]) != 0 else None
                 )
                 self.registered_since: datetime = dateutil.parser.parse(data["registered_at"])
@@ -407,10 +407,10 @@ class FAKey:
                 # artist_info
                 # contact_info
                 # featured_submission
-                self._shout_data_getter: Callable[[], Dict] = shout_data_getter
-                self._shout_cache: Optional[List[FAKey.FAReader.FAShout]] = None
+                self._shout_data_getter: Callable[[], dict] = shout_data_getter
+                self._shout_cache: list[FAKey.FAReader.FAShout] | None = None
                 # watcher lists
-                self.watched_by: List[FAKey.FAReader.FAWatch] = []
+                self.watched_by: list[FAKey.FAReader.FAWatch] = []
                 for watch in data["watchers"]["recent"]:
                     watcher_username = watch["link"].split("/")[-2]
                     watcher_name = watch["name"]
@@ -418,7 +418,7 @@ class FAKey:
                         watcher_username, watcher_name, self.username, self.name
                     )
                     self.watched_by.append(new_watch)
-                self.is_watching: List[FAKey.FAReader.FAWatch] = []
+                self.is_watching: list[FAKey.FAReader.FAWatch] = []
                 for watch in data["watching"]["recent"]:
                     watched_username = watch["link"].split("/")[-2]
                     watched_name = watch["name"]
@@ -428,7 +428,7 @@ class FAKey:
                     self.is_watching.append(new_watch)
 
             @property
-            def shouts(self) -> List['FAKey.FAReader.FAShout']:
+            def shouts(self) -> list['FAKey.FAReader.FAShout']:
                 if self._shout_cache is None:
                     self._shout_cache = []
                     shout_data = self._shout_data_getter()
@@ -462,12 +462,12 @@ class FAKey:
                 self.watched_name: str = watched_name
 
         class FAUserFavouritesPage:
-            def __init__(self, id_list: List[int], username: str):
+            def __init__(self, id_list: list[int], username: str):
                 self.username: str = username
-                self.submission_ids: List[int] = id_list
+                self.submission_ids: list[int] = id_list
 
         class FAViewSubmissionPage:
-            def __init__(self, data: Dict, comments_data_getter: Callable[[], Dict], submission_id: str):
+            def __init__(self, data: dict, comments_data_getter: Callable[[], dict], submission_id: str):
                 self.submission_id: str = submission_id
                 self.title: str = data["title"]
                 self.full_image: str = data["download"]
@@ -486,10 +486,10 @@ class FAKey:
                 self.num_views: int = int(data["views"])
                 # resolution_x = None
                 # resolution_y = None
-                self.keywords: List[str] = data["keywords"]
+                self.keywords: list[str] = data["keywords"]
                 self.rating: str = data["rating"]
-                self._comments_section_getter: Callable[[], Dict] = comments_data_getter
-                self._comments_section_cache: Optional[FAKey.FAReader.FACommentsSection] = None
+                self._comments_section_getter: Callable[[], dict] = comments_data_getter
+                self._comments_section_cache: FAKey.FAReader.FACommentsSection | None = None
 
             @property
             def comments_section(self) -> 'FAKey.FAReader.FACommentsSection':
@@ -501,8 +501,8 @@ class FAKey:
                 return self._comments_section_cache
 
         class FACommentsSection:
-            def __init__(self, comments_data: Dict):
-                self.top_level_comments: List[FAKey.FAReader.FAComment] = []
+            def __init__(self, comments_data: dict):
+                self.top_level_comments: list[FAKey.FAReader.FAComment] = []
                 for comment in comments_data:
                     comment_id = comment["id"]
                     text = comment["text"].strip()
@@ -546,11 +546,11 @@ class FAKey:
         class FAComment:
             def __init__(
                     self,
-                    username: Optional[str],
-                    name: Optional[str],
-                    avatar_link: Optional[str],
+                    username: str | None,
+                    name: str | None,
+                    avatar_link: str | None,
                     comment_id: str,
-                    posted_datetime: Optional[datetime],
+                    posted_datetime: datetime | None,
                     text: str,
                     is_deleted: bool,
                     parent_comment: Optional['FAKey.FAReader.FAComment'] = None,
@@ -562,22 +562,22 @@ class FAKey:
                 self.posted_datetime: datetime = posted_datetime
                 self.text: str = text
                 self.is_deleted = is_deleted
-                self.parent_comment: Optional[FAKey.FAReader.FAComment] = parent_comment
-                self.reply_comments: List[FAKey.FAReader.FAComment] = []
+                self.parent_comment: FAKey.FAReader.FAComment | None = parent_comment
+                self.reply_comments: list[FAKey.FAReader.FAComment] = []
 
         class FAViewJournalPage:
-            def __init__(self, data: Dict, comments_data_getter: Callable[[], Dict], journal_id: str):
+            def __init__(self, data: dict, comments_data_getter: Callable[[], dict], journal_id: str):
                 self.journal_id: str = journal_id
                 self.username: str = data["profile_name"]
                 self.name: str = data["name"]
-                self.avatar_link: Optional[str] = data["avatar"]
+                self.avatar_link: str | None = data["avatar"]
                 self.title: str = data["title"]
                 self.posted_datetime: datetime = dateutil.parser.parse(data["posted_at"])
-                self.journal_header: Optional[str] = data["journal_header"]
+                self.journal_header: str | None = data["journal_header"]
                 self.journal_text: str = data["journal_body"]
-                self.journal_footer: Optional[str] = data["journal_footer"]
-                self._comments_section_getter: Callable[[], Dict] = comments_data_getter
-                self._comments_section_cache: Optional[FAKey.FAReader.FACommentsSection] = None
+                self.journal_footer: str | None = data["journal_footer"]
+                self._comments_section_getter: Callable[[], dict] = comments_data_getter
+                self._comments_section_cache: FAKey.FAReader.FACommentsSection | None = None
 
             @property
             def comments_section(self) -> 'FAKey.FAReader.FACommentsSection':
@@ -589,6 +589,6 @@ class FAKey:
                 return self._comments_section_cache
 
         class FASearchPage:
-            def __init__(self, id_list: List[str], search_term: str):
+            def __init__(self, id_list: list[str], search_term: str):
                 self.search_term: str = search_term
-                self.id_list: List[str] = id_list
+                self.id_list: list[str] = id_list

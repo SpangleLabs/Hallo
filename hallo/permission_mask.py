@@ -1,4 +1,4 @@
-class PermissionMask(object):
+class PermissionMask:
     """
     Permission mask object, stores which rights are enabled or disabled by level
     """
@@ -8,7 +8,7 @@ class PermissionMask(object):
     def __init__(self):
         self.rights_map = {}
 
-    def get_right(self, right):
+    def get_right(self, right: str) -> None | bool:
         """
         Gets the value of the specified right in the rights map
         :param right: Name of the right to be searching for
@@ -17,7 +17,7 @@ class PermissionMask(object):
             return self.rights_map[right]
         return None
 
-    def set_right(self, right, value):
+    def set_right(self, right: str, value: None | bool | str) -> None:
         """Sets the value of the specified right in the rights map
         :param right: Name of the right to set
         :param value: Value to set the right to
@@ -35,11 +35,11 @@ class PermissionMask(object):
         if value in [True, False]:
             self.rights_map[right] = value
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         """Returns a boolean representing whether the PermissionMask is "empty" or has no rights set."""
         return len(self.rights_map) == 0
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """
         Returns the PermissionMask configuration as an object for serialisation into json
         :return: dict
@@ -52,7 +52,7 @@ class PermissionMask(object):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj):
+    def from_json(json_obj: dict) -> "PermissionMask":
         new_mask = PermissionMask()
         for map_right in json_obj:
             new_mask.set_right(map_right, json_obj[map_right])

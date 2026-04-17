@@ -1,5 +1,3 @@
-from typing import List
-
 from hallo.events import EventMessage
 from hallo.function import Function
 import hallo.modules.subscriptions.subscription_factory
@@ -61,7 +59,7 @@ class SubscriptionList(Function):
         sub_repo = sub_check_obj.get_sub_repo(hallo_obj)
         # Find list of feeds for current channel.
         with sub_repo.sub_lock:
-            dest_searches: List[hallo.modules.subscriptions.subscription.Subscription] = \
+            dest_searches: list[hallo.modules.subscriptions.subscription.Subscription] = \
                 sub_repo.get_subs_by_destination(event.destination)
         if len(dest_searches) == 0:
             return event.create_response(

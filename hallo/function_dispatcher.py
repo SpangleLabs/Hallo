@@ -5,7 +5,7 @@ import re
 import sys
 import inspect
 from types import ModuleType
-from typing import Set, Type, Dict, Optional, List, TypeVar
+from typing import Type, TypeVar, TYPE_CHECKING
 
 from prometheus_client import Counter
 
@@ -27,6 +27,10 @@ from hallo.events import (
 from hallo.function import Function
 from hallo.inc.commons import inherits_from
 from hallo.server import Server
+
+if TYPE_CHECKING:
+    from hallo.hallo import Hallo
+
 
 logger = logging.getLogger(__name__)
 FuncT = TypeVar("FuncT", bound=Function)
@@ -72,22 +76,22 @@ class FunctionDispatcher(object):
     """
     MODULE_DIR = "hallo/modules"
 
-    def __init__(self, module_list: Set[str], hallo):
+    def __init__(self, module_list: set[str], hallo: "Hallo"):
         """
         Constructor
         :type module_list: set[str]
         :type hallo: hallo.Hallo
         """
         self.hallo = hallo  # Hallo object which owns this
-        self.module_list: Set[str] = module_list  # List of available module names
+        self.module_list: set[str] = module_list  # List of available module names
         self.function_dict = (
             {}
         )  # Dictionary of moduleObjects->functionClasses->namesList/eventsList
-        self.function_names: Dict[str, Type[Function]] = {}  # Dictionary of names -> functionClasses
-        self.persistent_functions: Dict[Type[Function], Function] = (
+        self.function_names: dict[str, Type[Function]] = {}  # Dictionary of names -> functionClasses
+        self.persistent_functions: dict[Type[Function], Function] = (
             {}
         )  # Dictionary of persistent function objects. functionClass->functionObject
-        self.event_functions: Dict[Type[Event], Set[Type[Function]]] = (
+        self.event_functions: dict[Type[Event], set[Type[Function]]] = (
             {}
         )  # Dictionary with events classes as keys and sets of function classes
         #  (which may want to act on those events) as values
@@ -95,7 +99,7 @@ class FunctionDispatcher(object):
         for module_name in self.module_list:
             self.reload_module(module_name)
 
-    def dispatch(self, event: EventMessage, flag_list: List[str] = None) -> None:
+    def dispatch(self, event: EventMessage, flag_list: list[str] = None) -> None:
         """
         Sends the function call out to whichever function, if one is found
         :param event: The message event which has triggered the function dispatch
@@ -212,7 +216,7 @@ class FunctionDispatcher(object):
                 passive_errors.labels(function_class=function_class.__name__).inc()
                 continue
 
-    def get_function_by_name(self, function_name: str) -> Optional[Type[Function]]:
+    def get_function_by_name(self, function_name: str) -> Type[Function] | None:
         """
         Find a functionClass by a name specified by a user. Not functionClass.__name__
         :param function_name: Name of the function to search for
@@ -227,7 +231,7 @@ class FunctionDispatcher(object):
             return self.function_names[function_name]
         return None
 
-    def get_function_class_list(self) -> List[Type[Function]]:
+    def get_function_class_list(self) -> list[Type[Function]]:
         """Returns a simple flat list of all function classes."""
         function_class_list = []
         for module_object in self.function_dict:
@@ -246,7 +250,7 @@ class FunctionDispatcher(object):
         return function_obj
 
     def check_function_permissions(
-        self, function_class: Type[Function], server_obj: Server, user_obj: User, channel_obj: Optional[Channel]
+        self, function_class: Type[Function], server_obj: Server, user_obj: User, channel_obj: Channel | None
     ) -> bool:
         """Checks if a function can be called. Returns boolean, True if allowed
         :param function_class: Class of function to check permissions for
@@ -289,7 +293,7 @@ class FunctionDispatcher(object):
             success = success and self.reload_python_module(full_module_name)
         return success
 
-    def list_modules_in_package(self, package_name: str) -> List[str]:
+    def list_modules_in_package(self, package_name: str) -> list[str]:
         return [
             x[:-3] for x in os.listdir(f"{self.MODULE_DIR}/{package_name}")
             if x.endswith(".py") and not x.startswith("__")
@@ -460,7 +464,7 @@ class FunctionDispatcher(object):
         # Remove from mFunctionDict
         del self.function_dict[module_obj][function_class]
 
-    def list_cross_module_imports(self, module_name: str) -> List[str]:
+    def list_cross_module_imports(self, module_name: str) -> list[str]:
         full_module_names = self.full_module_names_for_module(module_name)
         cross_module_import = re.compile(r"import hallo\.modules\.([^.\s]+)")
         other_modules = set()
@@ -473,7 +477,7 @@ class FunctionDispatcher(object):
         other_modules.discard(module_name)
         return list(other_modules)
 
-    def full_module_names_for_module(self, module_name: str) -> List[str]:
+    def full_module_names_for_module(self, module_name: str) -> list[str]:
         if os.path.isfile(f"{self.MODULE_DIR}/{module_name}.py"):
             # It's a python module
             logger.debug("Reloading module")
@@ -490,9 +494,9 @@ class FunctionDispatcher(object):
     def close(self) -> None:
         """Shut down FunctionDispatcher, save all functions, etc"""
         for module_object in list(self.function_dict):
-            self.unload_module_functions(module_object)
+            self.unload_module_functi(module_object)
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         """
         Output the function dispatcher configuration in a dict format for saving as json
         """
@@ -501,14 +505,3 @@ class FunctionDispatcher(object):
         for module_name in self.module_list:
             json_obj["modules"].append({"name": module_name})
         return json_obj
-
-    @staticmethod
-    def from_json(json_obj: Dict, hallo) -> 'FunctionDispatcher':
-        """
-        Creates a function dispatcher from json object dict
-        """
-        module_list = set()
-        for module in json_obj["modules"]:
-            module_list.add(module["name"])
-        new_dispatcher = FunctionDispatcher(module_list, hallo)
-        return new_dispatcher

@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import TypeVar, Union, List, Generic, Optional
+from typing import TypeVar, Generic
 
 from hallo.destination import Channel, User
 from hallo.events import EventMessage
@@ -7,19 +7,19 @@ import hallo.modules.subscriptions.source
 from hallo.server import Server
 
 Item = TypeVar("Item")
-Key = Union[str, int]
+Key = str | int
 
 
-class StreamSource(hallo.modules.subscriptions.source.Source[List[Item], List[Item]], Generic[Item]):
-    def __init__(self, last_keys: Optional[List[Key]]):
+class StreamSource(hallo.modules.subscriptions.source.Source[list[Item], list[Item]], Generic[Item]):
+    def __init__(self, last_keys: list[Key] | None):
         super().__init__()
-        self.last_keys: List[Key] = last_keys or []
+        self.last_keys: list[Key] = last_keys or []
 
     @abstractmethod
-    def current_state(self) -> List[Item]:
+    def current_state(self) -> list[Item]:
         pass
 
-    def state_change(self, state: List[Item]) -> List[Item]:
+    def state_change(self, state: list[Item]) -> list[Item]:
         # If no last keys, All state is update
         if not self.last_keys:
             return state
@@ -38,16 +38,16 @@ class StreamSource(hallo.modules.subscriptions.source.Source[List[Item], List[It
             new_items += batch
         return new_items
 
-    def save_state(self, state: List[Item]) -> None:
+    def save_state(self, state: list[Item]) -> None:
         self.last_keys = [self.item_to_key(item) for item in state]
 
     def events(
             self,
             server: Server,
-            channel: Optional[Channel],
-            user: Optional[User],
-            update: List[Item]
-    ) -> List[EventMessage]:
+            channel: Channel | None,
+            user: User | None,
+            update: list[Item]
+    ) -> list[EventMessage]:
         return [self.item_to_event(server, channel, user, item) for item in update[::-1]]
 
     @abstractmethod
@@ -58,8 +58,8 @@ class StreamSource(hallo.modules.subscriptions.source.Source[List[Item], List[It
     def item_to_event(
             self,
             server: Server,
-            channel: Optional[Channel],
-            user: Optional[User],
+            channel: Channel | None,
+            user: User | None,
             item: Item
     ) -> EventMessage:
         pass

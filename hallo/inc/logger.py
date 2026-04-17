@@ -4,7 +4,6 @@ import os
 import sys
 from logging import FileHandler
 from logging.handlers import TimedRotatingFileHandler
-from typing import Dict, Optional
 
 from hallo.destination import Destination
 from hallo.server import Server
@@ -40,10 +39,10 @@ class ChatLogHandler(logging.Handler):
     def __init__(self, root_dir: str):
         super().__init__()
         self.root_dir = root_dir
-        self._handlers: Dict[str, Dict[str, logging.Handler]] = {}
+        self._handlers: dict[str, dict[str, logging.Handler]] = {}
 
     # noinspection PyUnresolvedReferences
-    def _get_handler(self, record: logging.LogRecord) -> Optional[logging.Handler]:
+    def _get_handler(self, record: logging.LogRecord) -> logging.Handler | None:
         if not hasattr(record, "server") or not isinstance(record.server, Server):
             return None
         server_name = record.server.name

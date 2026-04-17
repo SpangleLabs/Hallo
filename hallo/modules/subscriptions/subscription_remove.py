@@ -1,5 +1,3 @@
-from typing import List
-
 from hallo.events import EventMessage
 from hallo.function import Function
 import hallo.modules.subscriptions.subscription_factory
@@ -66,7 +64,7 @@ class SubscriptionRemove(Function):
         # Acquire lock
         with sub_repo.sub_lock:
             # Find any feeds with specified title
-            test_subs: List[hallo.modules.subscriptions.subscription.Subscription] = sub_repo.get_subs_by_name(
+            test_subs: list[hallo.modules.subscriptions.subscription.Subscription] = sub_repo.get_subs_by_name(
                 clean_input.lower(),
                 event.destination,
             )

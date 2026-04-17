@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Optional, TYPE_CHECKING, Union, Dict, List, Callable
+from typing import Optional, TYPE_CHECKING, Callable
 
 from prometheus_client import Counter
 
@@ -106,7 +106,7 @@ class Server(metaclass=ABCMeta):
             self,
             event: 'ServerEvent',
             *,
-            after_sent_callback: Optional[Callable[['ServerEvent'], None]] = None
+            after_sent_callback: Callable[['ServerEvent'], None] | None = None
     ) -> None:
         """
         Sends a message to the server, or a specific channel in the server
@@ -175,7 +175,7 @@ class Server(metaclass=ABCMeta):
     def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
         raise NotImplementedError
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         """
         Returns a dict formatted so it may be serialised into json configuration data
         """
@@ -194,13 +194,13 @@ class Server(metaclass=ABCMeta):
         """
         self.nick = nick
 
-    def get_prefix(self) -> Union[str, bool]:
+    def get_prefix(self) -> str | bool:
         """Prefix getter"""
         if self.prefix is None:
             return self.hallo.default_prefix
         return self.prefix
 
-    def set_prefix(self, prefix: Union[str, bool, None]) -> None:
+    def set_prefix(self, prefix: str | bool | None) -> None:
         """
         Prefix setter
         :param prefix: Prefix for hallo to use for function calls on this server
@@ -237,7 +237,7 @@ class Server(metaclass=ABCMeta):
         """Returns boolean representing whether the server is connected or not."""
         return self.state == Server.STATE_OPEN
 
-    def get_channel_by_name(self, channel_name: str) -> Optional[Channel]:
+    def get_channel_by_name(self, channel_name: str) -> Channel | None:
         """
         Returns a Channel object with the specified channel name.
         :param channel_name: Name of the channel which is being searched for
@@ -299,7 +299,7 @@ class Server(metaclass=ABCMeta):
         # Set not in channel
         channel_obj.set_in_channel(False)
 
-    def get_user_by_name(self, user_name: str) -> Optional[User]:
+    def get_user_by_name(self, user_name: str) -> User | None:
         """
         Returns a User object with the specified user name.
         :param user_name: Name of user which is being searched for
@@ -311,7 +311,7 @@ class Server(metaclass=ABCMeta):
         # No user by that name exists, return None
         return None
 
-    def get_user_by_address(self, address: str, user_name: str = None) -> Optional[User]:
+    def get_user_by_address(self, address: str, user_name: str = None) -> User | None:
         """
         Returns a User object with the specified user name.
         :param address: address of the user which is being searched for or added
@@ -327,7 +327,7 @@ class Server(metaclass=ABCMeta):
         self.add_user(new_user)
         return new_user
 
-    def get_user_list(self) -> List[User]:
+    def get_user_list(self) -> list[User]:
         """Returns the full list of users on this server."""
         return self.user_list
 

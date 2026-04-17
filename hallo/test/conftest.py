@@ -1,6 +1,5 @@
 import time
 from threading import Thread
-from typing import Set, Optional
 
 import pytest
 
@@ -36,7 +35,7 @@ class TestHallo(Hallo):
         self._test_chan = None
         self._hallo_user = None
 
-    def set_modules(self, modules: Optional[Set[str]]):
+    def set_modules(self, modules: set[str] | None) -> None:
         modules = modules or DEFAULT_MODULES
         self.function_dispatcher = FunctionDispatcher(modules, self)
 
@@ -76,7 +75,7 @@ def hallo_getter():
     hallo = TestHallo()
     hallo_thread = Thread(target=hallo.start, )
 
-    def function(modules: Optional[Set[str]] = None, disconnect_servers: bool = False):
+    def function(modules: set[str] | None = None, disconnect_servers: bool = False):
         hallo.set_modules(modules)
         # Start hallo thread
         hallo_thread.start()

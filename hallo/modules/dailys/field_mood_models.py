@@ -1,7 +1,6 @@
 import functools
 from abc import ABC, abstractmethod
 from datetime import time, datetime, date, timedelta
-from typing import Union, Optional
 
 
 @functools.total_ordering
@@ -12,7 +11,7 @@ class MoodTime:
     WAKE = "WakeUpTime"
     SLEEP = "SleepTime"
 
-    def __init__(self, mood_time: Union[str, time]):
+    def __init__(self, mood_time: str | time):
         self.mood_time = mood_time
         if mood_time not in [self.WAKE, self.SLEEP] and not isinstance(mood_time, time):
             raise TypeError("Invalid type for MoodTime")
@@ -68,7 +67,7 @@ class MoodDay:
         return result
 
     @classmethod
-    def from_dict(cls, data: Optional[dict], mood_date: date) -> 'MoodDay':
+    def from_dict(cls, data: dict | None, mood_date: date) -> 'MoodDay':
         if data is None:
             return MoodDay(mood_date, {})
         mood_entries = {}
@@ -121,7 +120,7 @@ class MoodDay:
             key=lambda x: x.mood_time
         )
 
-    def add_request(self, mood_time: MoodTime, message_id: Optional[int]) -> None:
+    def add_request(self, mood_time: MoodTime, message_id: int | None) -> None:
         if message_id is None:
             return None
         request = MoodRequest(mood_time, message_id)
@@ -141,7 +140,7 @@ class MoodEntry(ABC):
     without mood data yet (as it could be a confirmation that a mood request was sent).
     This is the raw data parsed from Dailys data, basically.
     """
-    def __init__(self, mood_time: MoodTime, *, message_id: Optional[int] = None):
+    def __init__(self, mood_time: MoodTime, *, message_id: int | None = None):
         self.mood_time = mood_time
         self.message_id = message_id
 
@@ -184,7 +183,7 @@ class MoodMeasurement(MoodEntry):
     """
     MoodMeasurement is a MoodEntry where the mood measurement data has been supplied by the user
     """
-    def __init__(self, mood_time: MoodTime, mood_dict: dict[str, int], message_id: Optional[int] = None):
+    def __init__(self, mood_time: MoodTime, mood_dict: dict[str, int], message_id: int | None = None):
         super().__init__(mood_time, message_id=message_id)
         self.mood_dict = mood_dict
 
@@ -209,7 +208,7 @@ class MoodTriggeredCache:
     MoodTriggeredCache is a cache of dates to which mood measurements have triggered for that day
     """
     def __init__(self):
-        self.cache: dict[date, list[Union[time, str]]] = {}
+        self.cache: dict[date, list[time | str]] = {}
         # Cache of time values which have triggered already on set days.
 
     def has_triggered(self, mood_date: date, time_val: MoodTime):
@@ -246,14 +245,14 @@ class MoodTimeList:
     def has_non_sleep(self):
         return self.times != [MoodTime(MoodTime.SLEEP)]
 
-    def most_recent_time(self, current_time: time) -> Optional[MoodTime]:
+    def most_recent_time(self, current_time: time) -> MoodTime | None:
         times = [t for t in self.times if t.is_time]
         past_times = [t for t in times if t.mood_time < current_time]
         if len(past_times) == 0:
             return None
         return max(past_times, key=lambda t: t.mood_time)
 
-    def contains_time(self, mood_time: Union[MoodTime, str, time]) -> bool:
+    def contains_time(self, mood_time: MoodTime | str | time) -> bool:
         if isinstance(mood_time, MoodTime):
             return mood_time in self.times
         return MoodTime(mood_time) in self.times

@@ -2,7 +2,7 @@ import enum
 import logging
 from abc import ABCMeta
 from datetime import datetime
-from typing import List, Dict, Any, Union, Optional, TYPE_CHECKING, Type, Tuple
+from typing import Any, Optional, TYPE_CHECKING, Type
 
 if TYPE_CHECKING:
     from hallo.hallo import Hallo
@@ -20,23 +20,23 @@ KEY_PHOTO_ID = "photo_id"
 FLAG_MENU_UNCHANGED = object()
 
 
-def server_from_json(hallo_obj: 'Hallo', data: Dict) -> 'Server':
+def server_from_json(hallo_obj: 'Hallo', data: dict) -> 'Server':
     return hallo_obj.get_server_by_name(data[KEY_SERVER_NAME])
 
 
-def channel_from_json(server: 'Server', data: Dict) -> Optional['Channel']:
+def channel_from_json(server: 'Server', data: dict) -> Optional['Channel']:
     if data[KEY_CHANNEL_ADDR]:
         return server.get_channel_by_address(data[KEY_CHANNEL_ADDR])
     return None
 
 
-def user_from_json(server: 'Server', data: Dict) -> Optional['User']:
+def user_from_json(server: 'Server', data: dict) -> Optional['User']:
     if data[KEY_USER_ADDR]:
         return server.get_user_by_address(data[KEY_USER_ADDR])
     return None
 
 
-def menu_buttons_from_json(data: Dict) -> Optional[List[List['MenuButton']]]:
+def menu_buttons_from_json(data: dict) -> Optional[list[list['MenuButton']]]:
     if KEY_MENU_BUTTONS not in data:
         return None
     return [
@@ -46,7 +46,7 @@ def menu_buttons_from_json(data: Dict) -> Optional[List[List['MenuButton']]]:
     ]
 
 
-def event_from_json(hallo_obj: 'Hallo', data: Dict) -> 'ChannelUserTextEvent':
+def event_from_json(hallo_obj: 'Hallo', data: dict) -> 'ChannelUserTextEvent':
     server = server_from_json(hallo_obj, data)
     channel = channel_from_json(server, data)
     user = user_from_json(server, data)
@@ -61,7 +61,7 @@ def event_from_json(hallo_obj: 'Hallo', data: Dict) -> 'ChannelUserTextEvent':
     return message_from_json(hallo_obj, data)
 
 
-def message_from_json(hallo_obj: 'Hallo', data: Dict) -> 'EventMessage':
+def message_from_json(hallo_obj: 'Hallo', data: dict) -> 'EventMessage':
     server = server_from_json(hallo_obj, data)
     channel = channel_from_json(server, data)
     user = user_from_json(server, data)
@@ -117,7 +117,6 @@ class RawDataTelegramOutbound(RawData):
     def __init__(self, sent_msg_object: 'Message') -> None:
         """
         :param sent_msg_object: Sent message object returned when sending message on telegram
-        :type sent_msg_object: ??
         """
         self.sent_msg_object = sent_msg_object
 
@@ -130,13 +129,10 @@ class Event(metaclass=ABCMeta):
     def get_send_time(self) -> datetime:
         return self.send_time
 
-    def get_log_line(self) -> Optional[str]:
-        """
-        :rtype: Optional[str]
-        """
+    def get_log_line(self) -> str | None:
         return None
 
-    def _get_log_extras(self) -> List[Dict[str, Any]]:
+    def _get_log_extras(self) -> list[dict[str, Any]]:
         return []
 
     def log(self) -> None:
@@ -146,7 +142,7 @@ class Event(metaclass=ABCMeta):
         for extra in self._get_log_extras():
             chat_logger.info(self.get_log_line(), extra=extra)
 
-    def get_print_line(self) -> Optional[str]:
+    def get_print_line(self) -> str | None:
         return None
 
 
@@ -186,7 +182,7 @@ class ServerEvent(Event, metaclass=ABCMeta):
             return self.raw_data.update_obj.message.date
         return super().get_send_time()
 
-    def _get_log_extras(self) -> List[Dict[str, Any]]:
+    def _get_log_extras(self) -> list[dict[str, Any]]:
         return [
             {
                 "server": self.server
@@ -215,10 +211,10 @@ class UserEvent(ServerEvent, metaclass=ABCMeta):
         self.user = user
 
     @property
-    def user_addr(self) -> Optional[str]:
+    def user_addr(self) -> str | None:
         return self.user.address if self.user else None
 
-    def _get_log_extras(self) -> List[Dict[str, Any]]:
+    def _get_log_extras(self) -> list[dict[str, Any]]:
         channel_list = (
             self.user.get_channel_list()
             if self.is_inbound
@@ -273,7 +269,7 @@ class ChannelEvent(ServerEvent, metaclass=ABCMeta):
     def channel_addr(self):
         return self.channel.address if self.channel else None
 
-    def _get_log_extras(self) -> List[Dict[str, Any]]:
+    def _get_log_extras(self) -> list[dict[str, Any]]:
         return [
             {
                 "server": self.server,
@@ -287,7 +283,7 @@ class ChannelUserEvent(ChannelEvent, UserEvent, metaclass=ABCMeta):
         ChannelEvent.__init__(self, server, channel, inbound=inbound)
         UserEvent.__init__(self, server, user, inbound=inbound)
 
-    def _get_log_extras(self) -> List[Dict[str, Any]]:
+    def _get_log_extras(self) -> list[dict[str, Any]]:
         return [
             {
                 "server": self.server,
@@ -310,7 +306,7 @@ class EventJoin(ChannelUserEvent):
             server: 'Server',
             channel: 'Channel',
             user: 'User',
-            password: Optional[str] = None,
+            password: str | None = None,
             inbound: bool = True
     ):
         """
@@ -333,7 +329,7 @@ class EventLeave(ChannelUserEvent):
             server: 'Server',
             channel: 'Channel',
             user: 'User',
-            message: Optional[str],
+            message: str | None,
             inbound: bool = True
     ) -> None:
         """
@@ -359,23 +355,15 @@ class EventKick(ChannelUserEvent):
             channel: 'Channel',
             kicking_user: Optional['User'],
             kicked_user: 'User',
-            kick_message: Optional[str],
+            kick_message: str | None,
             inbound: bool = True
     ) -> None:
         """
-        :type server: server.Server
-        :type channel: destination.Channel
         :param kicking_user: User which sent the kick event, or None if outbound
-        :type kicking_user: destination.User | None
-        :type kicked_user: destination.User
-        :type kick_message: str | None
-        :type inbound: bool
         """
         ChannelUserEvent.__init__(self, server, channel, kicking_user, inbound=inbound)
-        self.kicked_user = kicked_user
-        """ :type : Destination.User"""
-        self.kick_message = kick_message
-        """:type : str | None"""
+        self.kicked_user: User = kicked_user
+        self.kick_message: str | None = kick_message
 
     def get_log_line(self) -> str:
         output = "{} was kicked from {} by {}".format(
@@ -464,7 +452,7 @@ class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
         """
         self.server.reply(self, event)
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             KEY_SERVER_NAME: self.server_name,
             KEY_CHANNEL_ADDR: self.channel_addr,
@@ -479,14 +467,14 @@ class MenuButton:
         self.text = text
         self.data = data
 
-    def to_json(self) -> Dict[str, str]:
+    def to_json(self) -> dict[str, str]:
         return {
             "text": self.text,
             "data": self.data
         }
 
     @classmethod
-    def from_json(cls, data: Dict) -> 'MenuButton':
+    def from_json(cls, data: dict) -> 'MenuButton':
         return MenuButton(
             data["text"],
             data["data"]
@@ -512,7 +500,7 @@ class EventMessage(ChannelUserTextEvent):
             text: str,
             inbound: bool = True,
             *,
-            menu_buttons: List[List['MenuButton']] = None
+            menu_buttons: list[list['MenuButton']] = None
     ) -> None:
         """
         :param user: User who sent the event, or None for outbound to channel
@@ -528,7 +516,7 @@ class EventMessage(ChannelUserTextEvent):
         self._message_id = None
 
     @property
-    def message_id(self) -> Optional[int]:
+    def message_id(self) -> int | None:
         if isinstance(self.raw_data, RawDataTelegram):
             return self.raw_data.update_obj.message.message_id
         if isinstance(self.raw_data, RawDataTelegramOutbound):
@@ -543,7 +531,7 @@ class EventMessage(ChannelUserTextEvent):
     def has_photo(self) -> bool:
         return False
 
-    def check_prefix(self) -> Tuple[Union[bool, str], Optional[str]]:
+    def check_prefix(self) -> tuple[bool | str, str | None]:
         """
         Checks whether prefix was given, and if so, parses it out of command text.
         :return: Returns whether prefix is given, and command text
@@ -579,7 +567,7 @@ class EventMessage(ChannelUserTextEvent):
             self,
             text: str,
             event_class: Optional['EventMessage'] = None,
-            menu_buttons: Optional[List[List[MenuButton]]] = None
+            menu_buttons: Optional[list[list[MenuButton]]] = None
     ) -> 'EventMessage':
         if event_class is None:
             event_class = self.__class__
@@ -588,8 +576,8 @@ class EventMessage(ChannelUserTextEvent):
 
     def create_edit(
             self,
-            text: Optional[str] = None,
-            menu_buttons: Optional[List[List[MenuButton]]] = FLAG_MENU_UNCHANGED
+            text: str | None = None,
+            menu_buttons: list[list[MenuButton]] | None = FLAG_MENU_UNCHANGED
     ) -> 'EventMessage':
         if text is None:
             text = self.text
@@ -599,7 +587,7 @@ class EventMessage(ChannelUserTextEvent):
         edit._message_id = self.message_id
         return edit
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         data = super().to_json()
         data[KEY_FORMATTING] = self.formatting.name
         data["message_id"] = self.message_id
@@ -639,26 +627,21 @@ class EventMessageWithPhoto(EventMessage):
             channel: Optional['Channel'],
             user: 'User',
             text: str,
-            photo_id: Union[str, List[str]],
+            photo_id: str | list[str],
             inbound: bool = True,
             *,
-            menu_buttons: List[List[MenuButton]] = None
+            menu_buttons: list[list[MenuButton]] = None
     ) -> None:
         """
-        :type server: server.Server
-        :type channel: destination.Channel | None
         :param user: User who sent the event, or None for outbound to channel
-        :type user: destination.User | None
-        :type text: str
-        :type photo_id: Union[str, List[str]]
         """
         super().__init__(server, channel, user, text, inbound=inbound, menu_buttons=menu_buttons)
         self.photo_id = photo_id
 
     def create_edit(
             self,
-            text: Optional[str] = None,
-            menu_buttons: Optional[List[List[MenuButton]]] = FLAG_MENU_UNCHANGED
+            text: str | None = None,
+            menu_buttons: list[list[MenuButton]] | None = FLAG_MENU_UNCHANGED
     ) -> 'EventMessage':
         if text is None:
             text = self.text
@@ -679,7 +662,7 @@ class EventMessageWithPhoto(EventMessage):
     def has_photo(self) -> bool:
         return True
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         data = super().to_json()
         data[KEY_PHOTO_ID] = self.photo_id
         return data

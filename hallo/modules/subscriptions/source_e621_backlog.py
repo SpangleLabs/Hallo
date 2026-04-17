@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from yippi import Post, YippiClient
 
@@ -28,7 +28,7 @@ class E621BacklogTaggingMenu(hallo.modules.subscriptions.source_e621_tagging.E62
 
 class E621BacklogTaggingSource(hallo.modules.subscriptions.source_e621_tagging.E621TaggingSource):
     type_name = "e621_backlog_tagging"
-    type_names: List[str] = [
+    type_names: list[str] = [
         "e621 backlog tagging",
         "e621 backlog tagging search",
         "tagging e621 backlog",
@@ -42,13 +42,13 @@ class E621BacklogTaggingSource(hallo.modules.subscriptions.source_e621_tagging.E
             e6_client: YippiClient,
             sub_repo: 'hallo.modules.subscriptions.subscription_repo.SubscriptionRepo',
             owner: User,
-            tags: List[str],
-            start_id: Optional[int] = None,
-            current_batch_ids: Optional[List[int]] = None,
-            sent_ids: Optional[List[int]] = None,
+            tags: list[str],
+            start_id: int | None = None,
+            current_batch_ids: list[int] | None = None,
+            sent_ids: list[int] | None = None,
             batch_size: int = 5,
-            remaining_count: Optional[int] = None,
-            last_keys: Optional[List[hallo.modules.subscriptions.stream_source.Key]] = None
+            remaining_count: int | None = None,
+            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
     ):
         super().__init__(search, e6_client, sub_repo, owner, tags, last_keys)
         self.start_id = start_id
@@ -65,7 +65,7 @@ class E621BacklogTaggingSource(hallo.modules.subscriptions.source_e621_tagging.E
     def item_text_prefix(self) -> str:
         return f'New backlog tagging item on "{self.search}" e621 search.'
 
-    def current_state(self) -> List[Post]:
+    def current_state(self) -> list[Post]:
         if self.start_id is None:
             self.start_id = self.find_start_id()
             self.generate_next_batch()
@@ -162,7 +162,7 @@ class E621BacklogTaggingSource(hallo.modules.subscriptions.source_e621_tagging.E
         return True
 
     @classmethod
-    def from_json(cls, json_data: Dict, destination: Destination, sub_repo) -> 'E621BacklogTaggingSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'E621BacklogTaggingSource':
         user_addr = json_data["e621_user_address"]
         user = destination.server.get_user_by_address(user_addr)
         e6_client = hallo.modules.subscriptions.source_e621.e6_client_from_input(user, sub_repo)
@@ -180,7 +180,7 @@ class E621BacklogTaggingSource(hallo.modules.subscriptions.source_e621_tagging.E
             json_data["last_keys"]
         )
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "last_keys": self.last_keys,

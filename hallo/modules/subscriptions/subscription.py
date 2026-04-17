@@ -1,6 +1,6 @@
 import logging
 from datetime import timedelta, datetime
-from typing import Dict, Optional, Type
+from typing import Type
 
 import dateutil.parser
 import isodate
@@ -24,15 +24,15 @@ class Subscription:
             destination: Destination,
             source: 'hallo.modules.subscriptions.source.Source',
             period: timedelta,
-            last_check: Optional[datetime],
-            last_update: Optional[datetime]
+            last_check: datetime | None,
+            last_update: datetime | None
     ):
         self.server: Server = server
         self.destination: Destination = destination
         self.source: hallo.modules.subscriptions.source.Source = source
         self.period: timedelta = period
-        self.last_check: Optional[datetime] = last_check
-        self.last_update: Optional[datetime] = last_update
+        self.last_check: datetime | None = last_check
+        self.last_update: datetime | None = last_update
 
     @classmethod
     def create_from_input(
@@ -120,7 +120,7 @@ class Subscription:
         return self.source.passive_run(event, hallo_obj)
 
     @classmethod
-    def from_json(cls, json_data: Dict, hallo_obj: Hallo, sub_repo) -> 'Subscription':
+    def from_json(cls, json_data: dict, hallo_obj: Hallo, sub_repo) -> 'Subscription':
         server = hallo_obj.get_server_by_name(json_data["server_name"])
         if server is None:
             raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
@@ -164,7 +164,7 @@ class Subscription:
         )
         return subscription
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         json_data = dict()
         json_data["server_name"] = self.server.name
         if isinstance(self.destination, Channel):

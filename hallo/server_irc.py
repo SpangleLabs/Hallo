@@ -3,7 +3,7 @@ import re
 import socket
 import time
 from threading import RLock, Lock, Thread
-from typing import Callable, Optional
+from typing import Callable
 
 from hallo.destination import ChannelMembership, Channel, User
 from hallo.errors import MessageError, ExceptionError
@@ -296,7 +296,7 @@ class ServerIRC(Server):
             self,
             event: 'ServerEvent',
             *,
-            after_sent_callback: Optional[Callable[['ServerEvent'], None]] = None
+            after_sent_callback: Callable[['ServerEvent'], None] | None = None
     ) -> None:
         self.outgoing.labels(
             server_type=self.__class__.__name__,

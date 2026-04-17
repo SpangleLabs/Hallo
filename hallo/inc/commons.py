@@ -5,7 +5,7 @@ import re
 import json
 import random
 from datetime import timedelta
-from typing import List, Optional, Dict, TypeVar, Union, Callable, Generic, Type, Set
+from typing import TypeVar, Callable, Generic, Type
 
 import requests
 from prometheus_client import Gauge
@@ -27,7 +27,7 @@ subscription_menu_count = Gauge(
 )
 
 
-def all_subclasses(cls: Type) -> Set[Type]:
+def all_subclasses(cls: Type) -> set[Type]:
     return set(cls.__subclasses__()).union(
         [s for c in cls.__subclasses__() for s in all_subclasses(c)]
     )
@@ -39,7 +39,7 @@ class Commons(object):
     """
 
     @staticmethod
-    def chunk_string_dot(string: str, length: int) -> List[str]:
+    def chunk_string_dot(string: str, length: int) -> list[str]:
         if len(string) <= length:
             return [string]
         else:
@@ -52,7 +52,7 @@ class Commons(object):
             return list_of_strings
 
     @staticmethod
-    def read_file_to_list(filename: str) -> List[str]:
+    def read_file_to_list(filename: str) -> list[str]:
         with open(filename, "r") as f:
             file_list = []
             raw_line = f.readline()
@@ -78,7 +78,7 @@ class Commons(object):
         return url[: -len(url_tld) - 1].split(".")[-1]
 
     @staticmethod
-    def string_to_bool(string: str) -> Optional[bool]:
+    def string_to_bool(string: str) -> bool | None:
         """
         Converts a string to a boolean.
         :param string: String to convert to boolean
@@ -134,12 +134,10 @@ class Commons(object):
         Returns a string, formatted datetime from a timestamp
         :param time_stamp: unix timestamp
         """
-        return datetime.datetime.utcfromtimestamp(time_stamp).strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )
+        return datetime.datetime.fromtimestamp(time_stamp, tz=datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
     @staticmethod
-    def create_headers_dict(headers: List[List[str]]) -> Dict[str, str]:
+    def create_headers_dict(headers: list[list[str]]) -> dict[str, str]:
         """
         Creates a headers dictionary, for requests, and adds user agent
         :param headers: List of HTTP headers to add to request
@@ -152,9 +150,9 @@ class Commons(object):
         return headers_dict
 
     @staticmethod
-    def load_url_string(url: str, headers: List[List[str]] = None) -> str:
+    def load_url_string(url: str, headers: list[list[str]] = None) -> str:
         """
-        Takes a url to an xml resource, pulls it and returns a dictionary.
+        Takes a url, pulls it and returns the body of the page.
         :param url: URL to download
         :param headers: List of HTTP headers to add to request
         """
@@ -163,7 +161,7 @@ class Commons(object):
         return resp.text
 
     @staticmethod
-    def load_url_json(url: str, headers: List[List[str]] = None, json_fix: bool = False) -> Dict:
+    def load_url_json(url: str, headers: list[list[str]] = None, json_fix: bool = False) -> dict:
         """
         Takes a url to a json resource, pulls it and returns a dictionary.
         :param url: URL of json to download
@@ -184,7 +182,7 @@ class Commons(object):
         return output_dict
 
     @staticmethod
-    def put_json_to_url(url: str, data: Dict, headers: List[List[str]] = None) -> None:
+    def put_json_to_url(url: str, data: dict, headers: list[list[str]] = None) -> None:
         """
         Converts data to JSON and PUT it to the specified URL
         :param url: URL to send PUT request to
@@ -264,7 +262,7 @@ class Commons(object):
             return False
 
     @staticmethod
-    def get_digits_from_start_or_end(string: str) -> Optional[str]:
+    def get_digits_from_start_or_end(string: str) -> str | None:
         """
         Gets the longest string of digits from the start or end of a string, or None
         :param string: String to find sequence of digits from
@@ -286,7 +284,7 @@ class Commons(object):
         return None
 
     @staticmethod
-    def get_calc_from_start_or_end(string: str) -> Optional[str]:
+    def get_calc_from_start_or_end(string: str) -> str | None:
         """
         Gets the longest calculation of digits from the start or end of a string, or None
         :param string: String to find calculation from
@@ -308,7 +306,7 @@ class Commons(object):
         return None
 
     @staticmethod
-    def list_greater(list_one: List[float], list_two: List[float]) -> Optional[bool]:
+    def list_greater(list_one: list[float], list_two: list[float]) -> bool | None:
         """
         Checks whether listOne is "greater" than listTwo.
         Checks if an earlier element of listOne is greater than the equally placed element in listTwo
@@ -326,7 +324,7 @@ class Commons(object):
         return None
 
     @staticmethod
-    def get_random_int(min_int: int, max_int: int, count: int = 1) -> List[int]:
+    def get_random_int(min_int: int, max_int: int, count: int = 1) -> list[int]:
         """
         Returns a list of random integers in a given range
         :param min_int: Minimum integer to return
@@ -342,7 +340,7 @@ class Commons(object):
         return output_list
 
     @staticmethod
-    def get_random_choice(choice_list: List[T], count: int = 1) -> List[T]:
+    def get_random_choice(choice_list: list[T], count: int = 1) -> list[T]:
         """
         Replacement for random.choice
         :param choice_list: List of choices to choose from
@@ -370,7 +368,7 @@ class Commons(object):
         return data
 
     @staticmethod
-    def find_parameter(param_name: str, line: str) -> Optional[str]:
+    def find_parameter(param_name: str, line: str) -> str | None:
         """
         Finds a parameter value in a line, if the format parameter=value exists in the line
         """
@@ -384,7 +382,7 @@ class Commons(object):
         return param_value
 
     @staticmethod
-    def find_any_parameter(param_list: List[str], line: str) -> Union[str, bool]:
+    def find_any_parameter(param_list: list[str], line: str) -> str | bool:
         """
         Finds one of any parameter in a line.
         """
@@ -403,7 +401,7 @@ class Commons(object):
 
 
 class CachedObject(Generic[S]):
-    def __init__(self, setter: Callable[[], S], cache_expiry: Optional[timedelta] = None) -> None:
+    def __init__(self, setter: Callable[[], S], cache_expiry: timedelta | None = None) -> None:
         """
         :type setter: Callable
         :type cache_expiry: timedelta
@@ -412,8 +410,8 @@ class CachedObject(Generic[S]):
         self.cache_expiry: timedelta = (
             cache_expiry if cache_expiry is not None else timedelta(minutes=5)
         )
-        self.cache_time: Optional[datetime.datetime] = None
-        self.value: Optional[S] = None
+        self.cache_time: datetime.datetime | None = None
+        self.value: S | None = None
 
     def get(self) -> S:
         if (
