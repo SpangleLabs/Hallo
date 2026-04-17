@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import asyncio
 import json
 import logging
@@ -369,8 +368,3 @@ class Hallo:
         # Save XML
         self.save_json()
         logger.info("Config file saved.")
-
-
-if __name__ == "__main__":
-    hallo = Hallo.load_json()
-    hallo.start()
