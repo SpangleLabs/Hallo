@@ -1,8 +1,8 @@
 import asyncio
+import datetime
 import logging
 import re
 import socket
-import time
 from threading import RLock, Lock, Thread
 from typing import Callable, TYPE_CHECKING
 
@@ -630,10 +630,11 @@ class ServerIRC(Server):
                 )
             )
         elif message_ctcp_command.lower() == "time":
+            now = datetime.datetime.now(tz=datetime.timezone.utc)
             time_text = "\x01TIME Fribsday 15 Nov 2024 {:02d}:{:02d}:{:02d} GMT\x01".format(
-                time.gmtime()[3] + 100,
-                time.gmtime()[4] + 20,
-                time.gmtime()[5],
+                now.hour + 100,
+                now.minute + 20,
+                now.second,
             )
             ctcp_evt.reply(ctcp_evt.create_response(time_text, event_class=EventNotice))
         elif message_ctcp_command.lower() == "ping":
