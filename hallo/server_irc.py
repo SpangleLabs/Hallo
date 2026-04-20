@@ -218,7 +218,7 @@ class ServerIRC(Server):
                 f"IDENTIFY {self.nickserv_pass}",
                 inbound=False,
             )
-            self.send_sync(ident_evt)
+            await self.send(ident_evt)
         # Join channels
         logger.info(f"Joining channels on {self.name}, identifying.")
         # Join relevant channels
@@ -499,7 +499,7 @@ class ServerIRC(Server):
         ping_evt = EventPing(self, ping_number).with_raw_data(RawDataIRC(ping_line))
         # Respond
         pong_evt = ping_evt.get_pong()
-        self.send_sync(pong_evt)
+        await self.send(pong_evt)
         # Print and log
         ping_evt.log()
         self.incoming.labels(
