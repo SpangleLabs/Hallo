@@ -6,7 +6,7 @@ authors = ["Roselyn Coales <roselyn@coales.co.uk>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-python-telegram-bot = "^13.0.0"
+python-telegram-bot = "^22.7.0"
 python-dateutil = "^2.9.0.post0"
 beautifulsoup4 = "^4.14.3"
 requests = "^2.33.1"
