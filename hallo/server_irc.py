@@ -171,9 +171,7 @@ class ServerIRC(Server):
             # Connect to socket
             self._reader, self._writer = await asyncio.open_connection(self.server_address, self.server_port)
         except Exception as e:
-            error = ExceptionError(
-                f'Connection error on "{self.name}" IRC server', e, self
-            )
+            error = ExceptionError(f'Connection error on "{self.name}" IRC server', e, self)
             logger.error(error.get_log_line())
             self.state = Server.STATE_CLOSED
             return
@@ -187,9 +185,7 @@ class ServerIRC(Server):
             raise ServerException
         self._welcome_message = first_line + "\n"
         # Send nick and full name to server
-        logger.info(
-            f"Sending nick and user info to server: {self.name}"
-        )
+        logger.info(f"Sending nick and user info to server: {self.name}")
         await self.send_raw(f"NICK {self.get_nick()}")
         await self.send_raw(f"USER {self.get_full_name()}")
         # Wait for MOTD to end
@@ -218,17 +214,13 @@ class ServerIRC(Server):
             ident_evt = EventMessage(
                 self,
                 None,
-                self.get_user_by_address(
-                    self.nickserv_nick.lower(), self.nickserv_nick
-                ),
+                self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick),
                 f"IDENTIFY {self.nickserv_pass}",
                 inbound=False,
             )
             self.send_sync(ident_evt)
         # Join channels
-        logger.info(
-            f"Joining channels on {self.name}, identifying."
-        )
+        logger.info(f"Joining channels on {self.name}, identifying.")
         # Join relevant channels
         for channel in self.channel_list:
             if channel.auto_join:
@@ -257,11 +249,7 @@ class ServerIRC(Server):
                 quit_evt = EventQuit(self, None, quit_message, inbound=False)
                 self.send_sync(quit_evt)
             except Exception as e:
-                error = ExceptionError(
-                    f'Failed to send quit message on "{self.name}" IRC server',
-                    e,
-                    self,
-                )
+                error = ExceptionError(f'Failed to send quit message on "{self.name}" IRC server', e, self,)
                 logger.error(error.get_log_line())
                 pass
         with self._connect_lock:
@@ -289,11 +277,7 @@ class ServerIRC(Server):
                 try:
                     next_line = await self.read_line_from_socket()
                 except ServerException as e:
-                    error = ExceptionError(
-                        f"Server {self.name} disconnected. Reconnecting.",
-                        e,
-                        self,
-                    )
+                    error = ExceptionError(f"Server {self.name} disconnected. Reconnecting.", e, self,)
                     logger.error(error.get_log_line())
                     await asyncio.sleep(10)
                     if self.state == Server.STATE_OPEN:
@@ -308,6 +292,7 @@ class ServerIRC(Server):
                     continue
                 else:
                     # Parse line
+                    # TODO
                     Thread(target=self.parse_line, args=(next_line,)).start()
         self.disconnect()
 
