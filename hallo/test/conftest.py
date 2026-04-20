@@ -1,3 +1,4 @@
+import asyncio
 import time
 from threading import Thread
 
@@ -69,16 +70,15 @@ class TestHallo(Hallo):
         return self._test_chan
 
 
-@pytest.fixture
+@pytest.fixture # TODO: async this sometime
 def hallo_getter():
     # Create a Hallo
     hallo = TestHallo()
-    hallo_thread = Thread(target=hallo.start, )
 
     def function(modules: set[str] | None = None, disconnect_servers: bool = False):
         hallo.set_modules(modules)
         # Start hallo thread
-        hallo_thread.start()
+        hallo.start_task()
         # Wait until hallo is open
         count = 0
         while not hallo.open:
@@ -98,4 +98,4 @@ def hallo_getter():
 
     yield function
     hallo.close()
-    hallo_thread.join()
+    asyncio.get_event_loop().run_until_complete(hallo.end_task())

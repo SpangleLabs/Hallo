@@ -2,7 +2,6 @@ import asyncio
 import json
 import logging
 import re
-import time
 from datetime import datetime
 
 import heartbeat
@@ -52,7 +51,7 @@ class Hallo:
             function_dispatcher_modules: set | None = None,
             permission_mask: PermissionMask | None = None,
     ) -> None:
-        self.loop = asyncio.get_event_loop()
+        self._hallo_task: asyncio.Task | None = None
         self.default_nick: str = default_nick
         self.default_prefix: bool | str = default_prefix
         self.default_full_name: str = default_full_name
@@ -70,7 +69,17 @@ class Hallo:
             raise ValueError("FunctionDispatcher configuration must be provided")
         self.function_dispatcher: FunctionDispatcher = FunctionDispatcher(function_dispatcher_modules, self)
 
-    def start(self) -> None:
+    def start_task(self) -> asyncio.Task:
+        run_task = asyncio.create_task(self.run())
+        self._hallo_task = run_task
+        return run_task
+
+    async def end_task(self) -> None:
+        if self._hallo_task is None:
+            return
+        await self._hallo_task
+
+    async def run(self) -> None:
         # If no function dispatcher, create one
         # TODO: manual FunctionDispatcher construction, user input?
         if self.function_dispatcher is None:
@@ -99,7 +108,7 @@ class Hallo:
                 server.start()
         count = 0
         while not self.connected_to_any_servers():
-            time.sleep(0.01)
+            await asyncio.sleep(0.01)
             count += 1
             if count > 6000:
                 self.open = False
@@ -112,7 +121,7 @@ class Hallo:
         start_time.set_to_current_time()
         # Main loop, sticks around throughout the running of the bot
         logger.info("Connected to all servers.")
-        self.core_loop_time_events()
+        await self.core_loop_time_events()
 
     def connected_to_any_servers(self) -> bool:
         auto_connecting_servers = [
@@ -121,7 +130,7 @@ class Hallo:
         connected_list = [server.is_connected() for server in auto_connecting_servers]
         return any(connected_list)
 
-    def core_loop_time_events(self) -> None:
+    async def core_loop_time_events(self) -> None:
         """
         Runs a loop to keep hallo running, while calling time events with the FunctionDispatcher passive dispatcher
         """
@@ -146,7 +155,7 @@ class Hallo:
             except Exception as e:
                 logger.error("Error sending core time loop event.", exc_info=e)
             last_date_time = now_date_time
-            time.sleep(0.1)
+            await asyncio.sleep(0.1)
         self.close()
 
     def save_json(self) -> None:

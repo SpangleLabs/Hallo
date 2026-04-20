@@ -80,7 +80,8 @@ class ServerIRC(Server):
         )
         self.nickserv_ident_response = "\\b3\\b"  # Regex to search for to validate identity in response to IdentCommand
         # IRC specific dynamic variables
-        self._socket = None  # Socket to communicate to the server
+        self._reader: asyncio.StreamReader | None = None
+        self._writer: asyncio.StreamWriter | None = None
         self._welcome_message = (
             ""  # Server's welcome message when connecting. MOTD and all.
         )
@@ -131,7 +132,7 @@ class ServerIRC(Server):
             raise ServerException("Already started.")
         self.state = Server.STATE_CONNECTING
         with self._connect_lock:
-            self.hallo.loop.create_task(self.run())
+            asyncio.create_task(self.run())
 
     async def connect(self) -> None:
         """
@@ -158,7 +159,7 @@ class ServerIRC(Server):
                         self,
                     )
                     logger.error(error.get_log_line())
-                    time.sleep(3)
+                    await asyncio.sleep(3)
                     continue
 
     async def raw_connect(self) -> None:
@@ -166,11 +167,9 @@ class ServerIRC(Server):
         Internal method, does the actual connection logic to try connecting to the server once.
         """
         # Create new socket
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.settimeout(5)
         try:
             # Connect to socket
-            await self.hallo.loop.sock_connect((self.server_address, self.server_port))
+            self._reader, self._writer = await asyncio.open_connection(self.server_address, self.server_port)
         except Exception as e:
             error = ExceptionError(
                 f'Connection error on "{self.name}" IRC server', e, self
@@ -266,9 +265,9 @@ class ServerIRC(Server):
                 logger.error(error.get_log_line())
                 pass
         with self._connect_lock:
-            if self._socket is not None:
-                self._socket.close()
-            self._socket = None
+            if self._writer is not None:
+                self._writer.close()
+            self._writer = None
         self.state = Server.STATE_CLOSED
 
     def reconnect(self) -> None:
@@ -296,7 +295,7 @@ class ServerIRC(Server):
                         self,
                     )
                     logger.error(error.get_log_line())
-                    time.sleep(10)
+                    await asyncio.sleep(10)
                     if self.state == Server.STATE_OPEN:
                         self.disconnect()
                         await self.connect()
@@ -428,7 +427,8 @@ class ServerIRC(Server):
         """
         if self.state != Server.STATE_CLOSED:
             data_bytes = (data + endl).encode("utf-8")
-            await self.hallo.loop.sock_sendall(self._socket, data_bytes)
+            self._writer.write(data_bytes)
+            await self._writer.drain()
 
     def join_channel(self, channel_obj: Channel) -> None:
         """
@@ -1106,7 +1106,7 @@ class ServerIRC(Server):
         while self.state != Server.STATE_CLOSED:
             next_byte = None
             try:
-                next_byte = await self.hallo.loop.sock_recv(1)
+                next_byte = await self._reader.read(1)
             except socket.timeout as e:
                 if e.args[0] != "timed out":
                     raise ServerException(f"Failed to receive byte. {e}")
@@ -1116,9 +1116,7 @@ class ServerIRC(Server):
             if next_byte is None:
                 continue
             if len(next_byte) != 1:
-                raise ServerException(
-                    f"Length of next byte incorrect: {next_byte}"
-                )
+                raise ServerException(f"Length of next byte incorrect: {next_byte}")
             next_line += next_byte
             if next_line.endswith(endl.encode()):
                 return self.decode_line(next_line[: -len(endl)])

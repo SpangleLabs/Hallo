@@ -1,3 +1,4 @@
+import asyncio
 from abc import ABCMeta, abstractmethod
 from typing import Optional, TYPE_CHECKING, Callable
 
@@ -109,7 +110,12 @@ class Server(metaclass=ABCMeta):
             after_sent_callback: Callable[['ServerEvent'], None] | None = None,
     ):
         # TODO: temporary replacement for methods to avoid asyncing them all at once. Remove where possible!
-        self.hallo.loop.run_until_complete(self.send(event, after_sent_callback=after_sent_callback))
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            asyncio.run(self.send(event, after_sent_callback=after_sent_callback))
+        else:
+            asyncio.create_task(self.send(event, after_sent_callback=after_sent_callback))
 
     async def send(
             self,
