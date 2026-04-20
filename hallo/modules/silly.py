@@ -1,7 +1,7 @@
+import asyncio
 from hallo.events import EventMessage, EventCTCP
 from hallo.function import Function
 from hallo.inc.commons import Commons
-import time
 import re
 from xml.dom import minidom
 
@@ -93,33 +93,33 @@ class SlowClap(Function):
         server_obj = event.server
         if line_clean == "":
             if event.channel is not None:
-                server_obj.send_sync(
+                await server_obj.send(
                     EventMessage(
                         server_obj, event.channel, None, "*clap*", inbound=False
                     )
                 )
-                time.sleep(0.5)
-                server_obj.send_sync(
+                await asyncio.sleep(0.5)
+                await server_obj.send(
                     EventMessage(
                         server_obj, event.channel, None, "*clap*", inbound=False
                     )
                 )
-                time.sleep(2)
+                await asyncio.sleep(2)
                 return event.create_response("*clap.*")
             else:
                 return event.create_response("Error, you want me to slowclap yourself?")
         channel_obj = server_obj.get_channel_by_name(line_clean)
         if not channel_obj.in_channel:
             return event.create_response("Error, I'm not in that channel.")
-        server_obj.send_sync(
+        await server_obj.send(
             EventMessage(server_obj, channel_obj, None, "*clap*", inbound=False)
         )
-        time.sleep(0.5)
-        server_obj.send_sync(
+        await asyncio.sleep(0.5)
+        await server_obj.send(
             EventMessage(server_obj, channel_obj, None, "*clap*", inbound=False)
         )
-        time.sleep(2)
-        server_obj.send_sync(
+        await asyncio.sleep(2)
+        await server_obj.send(
             EventMessage(server_obj, channel_obj, None, "*clap.*", inbound=False)
         )
         return event.create_response("done. :)")
@@ -170,7 +170,7 @@ class Boop(Function):
                 return event.create_response(
                     "Error, No one by that name is online or in channel."
                 )
-            server_obj.send_sync(
+            await server_obj.send(
                 EventCTCP(
                     server_obj,
                     event.channel,
@@ -203,7 +203,7 @@ class Boop(Function):
                 "Error, No user by that name is known and/or online."
             )
         # Send boop, then return done.
-        server_obj.send_sync(
+        await server_obj.send(
             EventCTCP(
                 server_obj, dest_channel, None, "ACTION boops {}".format(dest_user.name)
             )
@@ -420,7 +420,6 @@ class Reply(Function):
 
     async def run(self, event):
         return event.create_response("Error, Not yet handled.")
-        pass
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
