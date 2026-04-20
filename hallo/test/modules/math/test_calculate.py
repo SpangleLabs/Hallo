@@ -466,24 +466,24 @@ def test_gamma(hallo_getter):
     assert "error" in data[0].text, "gamma(0) should fail"
 
 
-def test_passive(hallo_getter):
+async def test_passive(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "25")
     )
     data = test_hallo.test_server.get_send_data(0)
     assert len(data) == 0, "No response should have happened."
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "23.47")
     )
     data = test_hallo.test_server.get_send_data(0)
     assert len(data) == 0, "No response should have happened."
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "2+2")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
     assert data[0].text == "4", "2+2 = 4, hallo should have responded"
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "pie")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -494,29 +494,29 @@ def test_passive(hallo_getter):
         test_hallo.test_user,
         "cos(acos(sin(asin(tan(atan(acosh(cosh(sinh(asinh(tanh(atanh(0))))))))))))",
     )
-    test_hallo.function_dispatcher.dispatch_passive(evt_msg)
+    await test_hallo.function_dispatcher.dispatch_passive(evt_msg)
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
     assert len(data) != 0, "Response should have been received."
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "acos(2)")
     )
     data = test_hallo.test_server.get_send_data(0)
     assert len(data) == 0, "No response should have been received"
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, " 97")
     )
     data = test_hallo.test_server.get_send_data(0)
     assert len(data) == 0, "No response should have been received"
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "9 7")
     )
     data = test_hallo.test_server.get_send_data(0)
     assert len(data) == 0, "No response should have been received"
 
 
-def test_passive_ip_error(hallo_getter):
+async def test_passive_ip_error(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "127.0.0.1")
     )
     data = test_hallo.test_server.get_send_data(0)

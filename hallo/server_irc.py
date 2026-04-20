@@ -200,7 +200,7 @@ class ServerIRC(Server):
             ):
                 break
             if next_welcome_line.split()[0] == "PING":
-                self.parse_line_ping(next_welcome_line)
+                await self.parse_line_ping(next_welcome_line)
             if (
                 len(next_welcome_line.split()[1]) == 3
                 and next_welcome_line.split()[1].isdigit()
@@ -452,34 +452,34 @@ class ServerIRC(Server):
             self.parse_line_unhandled(new_line)
             self.parse_line_raw(new_line, "unhandled")
         elif new_line.split()[0] == "PING":
-            self.parse_line_ping(new_line)
+            await self.parse_line_ping(new_line)
             self.parse_line_raw(new_line, "ping")
         elif new_line.split()[1] == "PRIVMSG":
-            self.parse_line_message(new_line)
+            await self.parse_line_message(new_line)
             self.parse_line_raw(new_line, "message")
         elif new_line.split()[1] == "JOIN":
-            self.parse_line_join(new_line)
+            await self.parse_line_join(new_line)
             self.parse_line_raw(new_line, "join")
         elif new_line.split()[1] == "PART":
-            self.parse_line_part(new_line)
+            await self.parse_line_part(new_line)
             self.parse_line_raw(new_line, "part")
         elif new_line.split()[1] == "QUIT":
-            self.parse_line_quit(new_line)
+            await self.parse_line_quit(new_line)
             self.parse_line_raw(new_line, "quit")
         elif new_line.split()[1] == "MODE":
-            self.parse_line_mode(new_line)
+            await self.parse_line_mode(new_line)
             self.parse_line_raw(new_line, "mode")
         elif new_line.split()[1] == "NOTICE":
-            self.parse_line_notice(new_line)
+            await self.parse_line_notice(new_line)
             self.parse_line_raw(new_line, "notice")
         elif new_line.split()[1] == "NICK":
-            self.parse_line_nick(new_line)
+            await self.parse_line_nick(new_line)
             self.parse_line_raw(new_line, "nick")
         elif new_line.split()[1] == "INVITE":
-            self.parse_line_invite(new_line)
+            await self.parse_line_invite(new_line)
             self.parse_line_raw(new_line, "invite")
         elif new_line.split()[1] == "KICK":
-            self.parse_line_kick(new_line)
+            await self.parse_line_kick(new_line)
             self.parse_line_raw(new_line, "kick")
         elif len(new_line.split()[1]) == 3 and new_line.split()[1].isdigit():
             self.parse_line_numeric(new_line)
@@ -489,7 +489,7 @@ class ServerIRC(Server):
             self.parse_line_raw(new_line, "unhandled")
         return
 
-    def parse_line_ping(self, ping_line: str) -> None:
+    async def parse_line_ping(self, ping_line: str) -> None:
         """
         Parses a PING message from the server
         :param ping_line: Raw line to be parsed into ping event from the server
@@ -509,9 +509,9 @@ class ServerIRC(Server):
         ).inc()
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(ping_evt)
+        await function_dispatcher.dispatch_passive(ping_evt)
 
-    def parse_line_message(self, message_line: str) -> None:
+    async def parse_line_message(self, message_line: str) -> None:
         """
         Parses a PRIVMSG message from the server
         :param message_line: full privmsg line to parse from server
@@ -525,7 +525,7 @@ class ServerIRC(Server):
         # Test for CTCP message, hand to CTCP parser if so.
         message_ctcp_bool = message_text[0] == "\x01"
         if message_ctcp_bool:
-            self.parse_line_ctcp(message_line)
+            await self.parse_line_ctcp(message_line)
             return
         # Test for private message or public message.
         message_private_bool = (
@@ -568,9 +568,9 @@ class ServerIRC(Server):
                 else:
                     function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
             else:
-                function_dispatcher.dispatch_passive(message_evt)
+                await function_dispatcher.dispatch_passive(message_evt)
 
-    def parse_line_ctcp(self, ctcp_line: str) -> None:
+    async def parse_line_ctcp(self, ctcp_line: str) -> None:
         """
         Parses a CTCP message from the server
         :param ctcp_line: line of CTCP data to parse from the server
@@ -648,9 +648,9 @@ class ServerIRC(Server):
             )
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(ctcp_evt)
+        await function_dispatcher.dispatch_passive(ctcp_evt)
 
-    def parse_line_join(self, join_line: str) -> None:
+    async def parse_line_join(self, join_line: str) -> None:
         """
         Parses a JOIN message from the server
         :param join_line: Raw line from server for the JOIN event
@@ -685,9 +685,9 @@ class ServerIRC(Server):
             join_channel.add_user(join_client)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(join_evt)
+        await function_dispatcher.dispatch_passive(join_evt)
 
-    def parse_line_part(self, part_line: str) -> None:
+    async def parse_line_part(self, part_line: str) -> None:
         """
         Parses a PART message from the server
         :param part_line: Raw line from the server to parse for part event
@@ -725,9 +725,9 @@ class ServerIRC(Server):
             part_client.set_online(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(leave_evt)
+        await function_dispatcher.dispatch_passive(leave_evt)
 
-    def parse_line_quit(self, quit_line: str) -> None:
+    async def parse_line_quit(self, quit_line: str) -> None:
         """
         Parses a QUIT message from the server
         :param quit_line: Raw line from server to parse for quit event
@@ -762,9 +762,9 @@ class ServerIRC(Server):
                 user.set_online(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(quit_evt)
+        await function_dispatcher.dispatch_passive(quit_evt)
 
-    def parse_line_mode(self, mode_line: str) -> None:
+    async def parse_line_mode(self, mode_line: str) -> None:
         """
         Parses a MODE message from the server
         :param mode_line: Raw line of mode event to be parsed.
@@ -827,9 +827,9 @@ class ServerIRC(Server):
         ).inc()
         # # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(mode_evt)
+        await function_dispatcher.dispatch_passive(mode_evt)
 
-    def parse_line_notice(self, notice_line: str) -> None:
+    async def parse_line_notice(self, notice_line: str) -> None:
         """
         Parses a NOTICE message from the server
         :param notice_line: Raw line of the NOTICE event from the server
@@ -879,9 +879,9 @@ class ServerIRC(Server):
                     self._check_useridentity_result = False
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(notice_event)
+        await function_dispatcher.dispatch_passive(notice_event)
 
-    def parse_line_nick(self, nick_line: str) -> None:
+    async def parse_line_nick(self, nick_line: str) -> None:
         """
         Parses a NICK message from the server
         :param nick_line: Line from server specifying nick change
@@ -915,9 +915,9 @@ class ServerIRC(Server):
         ).inc()
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(chname_evt)
+        await function_dispatcher.dispatch_passive(chname_evt)
 
-    def parse_line_invite(self, invite_line: str) -> None:
+    async def parse_line_invite(self, invite_line: str) -> None:
         """
         Parses an INVITE message from the server
         :param invite_line: Line from the server specifying invite event
@@ -955,9 +955,9 @@ class ServerIRC(Server):
             self.join_channel(invite_channel)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(invite_evt)
+        await function_dispatcher.dispatch_passive(invite_evt)
 
-    def parse_line_kick(self, kick_line: str) -> None:
+    async def parse_line_kick(self, kick_line: str) -> None:
         """
         Parses a KICK message from the server
         :param kick_line: Line from the server specifying kick event
@@ -994,7 +994,7 @@ class ServerIRC(Server):
             kick_channel.set_in_channel(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(kick_evt)
+        await function_dispatcher.dispatch_passive(kick_evt)
 
     def parse_line_numeric(self, numeric_line: str, motd_ended: bool = True) -> None:
         """

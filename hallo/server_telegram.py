@@ -190,7 +190,7 @@ class ServerTelegram(Server):
         ).inc()
         self.hallo.function_dispatcher.dispatch(message_evt)
 
-    def parse_group_message(self, update: Update, context: CallbackContext) -> None:
+    async def parse_group_message(self, update: Update, context: CallbackContext) -> None:
         """
         Handles a new group or supergroup message (does not handle channel posts)
         :param update: Update object from telegram API
@@ -238,13 +238,13 @@ class ServerTelegram(Server):
             else:
                 function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
         else:
-            function_dispatcher.dispatch_passive(message_evt)
+            await function_dispatcher.dispatch_passive(message_evt)
 
     def parse_join(self, update: Update, context: CallbackContext) -> None:
         # TODO
         pass
 
-    def parse_menu_callback(self, update: Update, context: CallbackContext) -> None:
+    async def parse_menu_callback(self, update: Update, context: CallbackContext) -> None:
         # Get sender object
         message_sender_name = update.effective_user.full_name
         message_sender_addr = update.effective_user.id
@@ -276,7 +276,7 @@ class ServerTelegram(Server):
         ).inc()
         # Send event to function dispatcher or passive dispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(callback_evt)
+        await function_dispatcher.dispatch_passive(callback_evt)
 
     def parse_unhandled(self, update: Update, context: CallbackContext) -> None:
         """

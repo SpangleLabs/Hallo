@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import logging
 import os
@@ -172,11 +173,12 @@ class FunctionDispatcher(object):
             function_errors.labels(function_class=function_class.__name__).inc()
             return
 
-    def dispatch_passive(self, event: Event) -> None:
+    async def dispatch_passive(self, event: Event) -> None:
         """
         Dispatches a event call to passive functions, if any apply
         :param event: Event object which is triggering passive functions
         """
+        await asyncio.sleep(0.0)
         # If this event is not used, skip this
         if (
             event.__class__ not in self.event_functions

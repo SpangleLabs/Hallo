@@ -61,9 +61,9 @@ def test_protein_invalid(hallo_getter):
     ), "Protein construction should fail with non-base characters."
 
 
-def test_protein_passive(hallo_getter):
+async def test_protein_passive(hallo_getter):
     test_hallo = hallo_getter({"bio"})
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "ATTCATCGATCGCTA")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)

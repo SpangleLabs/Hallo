@@ -165,7 +165,7 @@ def test_run_by_search(tmp_path, hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_run_passive(tmp_path, hallo_getter):
+async def test_run_passive(tmp_path, hallo_getter):
     test_hallo = hallo_getter({"subscriptions"})
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menus.json"
@@ -203,7 +203,7 @@ def test_run_passive(tmp_path, hallo_getter):
         )  # type: SubscriptionCheck
         rss_check_obj.subscription_repo = sub_repo
         # Test passive feed updates
-        test_hallo.function_dispatcher.dispatch_passive(EventMinute())
+        await test_hallo.function_dispatcher.dispatch_passive(EventMinute())
         # Check test server 1 data
         serv1_data = serv1.get_send_data(150)
         chan1_count = 0
@@ -221,14 +221,14 @@ def test_run_passive(tmp_path, hallo_getter):
         rf1.last_check = None
         rf2.last_check = None
         rf3.last_check = None
-        test_hallo.function_dispatcher.dispatch_passive(EventMinute())
+        await test_hallo.function_dispatcher.dispatch_passive(EventMinute())
         serv1.get_send_data(0)
         serv2.get_send_data(0)
         # Test that no feeds are checked before timeout, set urls to none and see if anything explodes.
         rf1.check_feed = Mock()
         rf2.check_feed = Mock()
         rf3.check_feed = Mock()
-        test_hallo.function_dispatcher.dispatch_passive(EventMinute())
+        await test_hallo.function_dispatcher.dispatch_passive(EventMinute())
         serv1.get_send_data(0)
         serv2.get_send_data(0)
         rf1.check_feed.assert_not_called()

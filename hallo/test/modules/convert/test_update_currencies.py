@@ -35,13 +35,13 @@ def test_run(hallo_getter):
         hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = update_all
 
 
-def test_passive_run(hallo_getter):
+async def test_passive_run(hallo_getter):
     test_hallo = hallo_getter({"convert"})
     update_all = hallo.modules.convert.update_currencies.UpdateCurrencies.update_all
     mock_update_all = MockUpdate(["Check method called"])
     hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = mock_update_all.method
     try:
-        test_hallo.function_dispatcher.dispatch_passive(EventHour())
+        await test_hallo.function_dispatcher.dispatch_passive(EventHour())
         test_hallo.test_server.get_send_data(0)
         assert mock_update_all.was_called, "update_all() wasn't called."
     finally:

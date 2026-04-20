@@ -65,30 +65,30 @@ def test_mega_doof(mock_roller, hallo_getter):
     assert "!" in data[1].text, "doof should have exclamation mark."
 
 
-def test_passive_foof(mock_roller, hallo_getter):
+async def test_passive_foof(mock_roller, hallo_getter):
     test_hallo = hallo_getter({"random"})
     mock_roller.answer = 0
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "foof")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
     assert "doof" == data[0].text.lower(), "Should be short doof."
 
 
-def test_passive_foof_exclamation(mock_roller, hallo_getter):
+async def test_passive_foof_exclamation(mock_roller, hallo_getter):
     test_hallo = hallo_getter({"random"})
     mock_roller.answer = 0
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "foof!")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
     assert "doof" == data[0].text.lower(), "Should be short doof."
 
 
-def test_passive_long_foof(mock_roller, hallo_getter):
+async def test_passive_long_foof(mock_roller, hallo_getter):
     test_hallo = hallo_getter({"random"})
     mock_roller.answer = 0
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "foooooooooooooooof"
         )

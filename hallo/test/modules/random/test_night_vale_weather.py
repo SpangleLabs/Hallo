@@ -30,13 +30,13 @@ def test_weather(mock_chooser, hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_passive(mock_chooser, hallo_getter):
+async def test_passive(mock_chooser, hallo_getter):
     test_hallo = hallo_getter({"random"})
     # Check API key is set
     if test_hallo.get_api_key("youtube") is None:
         # Read from env variable
         test_hallo.add_api_key("youtube", os.getenv("test_api_key_youtube"))
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,

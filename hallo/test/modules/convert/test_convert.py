@@ -20,11 +20,11 @@ def mock_convert_parse(test_hallo: TestHallo):
         conv_obj.convert_parse = conv_parse
 
 
-def test_passive_run(tmp_path, hallo_getter):
+async def test_passive_run(tmp_path, hallo_getter):
     test_hallo = hallo_getter({"convert"})
     mock_repo(tmp_path, test_hallo)
     with mock_convert_parse(test_hallo) as mock_parse:
-        test_hallo.function_dispatcher.dispatch_passive(
+        await test_hallo.function_dispatcher.dispatch_passive(
             EventMessage(
                 test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "1 unit1b to unit1a"
             )

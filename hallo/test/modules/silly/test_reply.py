@@ -17,9 +17,9 @@ def test_run(hallo_getter):
     assert "error" in data[0].text.lower()
 
 
-def test_reply_passive(hallo_getter):
+async def test_reply_passive(hallo_getter):
     test_hallo = hallo_getter({"silly"})
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "beep")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
