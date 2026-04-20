@@ -444,7 +444,6 @@ class ServerIRC(Server):
         Parses a line from the IRC server
         :param new_line: New line of data from the server to parse
         """
-        await asyncio.sleep(0.0)
         # Cleaning up carriage returns
         new_line = new_line.replace("\r", "")
         # TODO: add stuff about time last ping was seen, for reconnection checking
